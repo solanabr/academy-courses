@@ -1,0 +1,267 @@
+id: lesson-sap-write-the-deep-dive
+slug: write-the-deep-dive
+title: Publish the Deep Dive
+skills:
+  - technical-writing
+  - version-pinning
+  - subscriptions-program
+  - x402-protocol
+blocks:
+  - key: shape
+    type: prose
+    src: the-shape.md
+
+  - key: publish
+    type: openEnded
+    maxWords: 250
+    prompt: >-
+      Paste the URL of your published deep dive, then paste its version banner
+      line verbatim. Under it, name which of the three recurring-delegation
+      semantics you demonstrated with a runnable repro, and say what the reader
+      has to run to see it fail. If you have not published yet, paste your
+      section-3 draft instead — the claims and the observation that proves each
+      one.
+
+  # Mixed-module retrieval across C5 M1 and M2, plus 2 items seeded from C4
+  # (semver classification and the compute-budget trio) per the cross-course
+  # seeding rule.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Your deep dive ships with a code block that runs today. Which single
+          addition does the most to keep it verifiable a year from now?
+        multiSelect: false
+        options:
+          - id: a
+            label: A version banner carrying the exact package versions and the date you last ran the code
+            correct: true
+          - id: b
+            label: A note asking readers to open an issue if anything breaks
+            correct: false
+            feedback: >-
+              That moves the diagnosis onto the reader, who cannot tell whether
+              their environment or your assumption is wrong. The banner answers
+              it before they start.
+          - id: c
+            label: A link to the package's npm page so readers can see the latest version
+            correct: false
+            feedback: >-
+              The latest version is the one thing the reader can already look
+              up. What they cannot recover is which version you ran.
+          - id: d
+            label: A longer introduction explaining what stablecoins are
+            correct: false
+            feedback: >-
+              Ages nothing and helps nobody. The reader who found a Subscriptions
+              deep dive already knows.
+        explanation: >-
+          Undated and unpinned is exactly how every competing write-up on this
+          primitive rotted. The banner is one line and it is the cheapest thing
+          on the page.
+
+      - id: q2
+        prompt: >-
+          You are writing the dependency block. Which entry pins
+          "@solana/subscriptions" correctly for this course?
+        multiSelect: false
+        options:
+          - id: a
+            label: '"@solana/subscriptions": "0.4.0"'
+            correct: true
+          - id: b
+            label: '"@solana/subscriptions": "^0.4.0"'
+            correct: false
+            feedback: >-
+              A caret on a pre-1.0 package admits every future minor, and pre-1.0
+              minors are allowed to break. That is the range your repro cannot
+              survive.
+          - id: c
+            label: '"@solana/subscriptions": "beta"'
+            correct: false
+            feedback: >-
+              The beta dist-tag points at 0.4.0-rc.2, which is an OLDER
+              pre-release than 0.4.0. A dist-tag is not a pin.
+          - id: d
+            label: '"@solana/subscriptions": "latest"'
+            correct: false
+            feedback: >-
+              "latest" resolves to whatever ships next. It records nothing about
+              what you ran.
+        explanation: >-
+          0.4.0 was published 2026-07-13 and the package is pre-1.0 and moving.
+          Pin it exactly, and copy the value out of your lockfile rather than
+          typing it from memory.
+
+      - id: q3
+        prompt: >-
+          A merchant holds a recurring delegation for 5 USDC per 30-day period
+          and forgets to collect for two consecutive periods. On the first day of
+          the third period, how much can they pull in one transfer?
+        multiSelect: false
+        options:
+          - id: a
+            label: 5 USDC — skipped periods do not accumulate
+            correct: true
+          - id: b
+            label: 15 USDC — the unclaimed allowance carries forward
+            correct: false
+            feedback: >-
+              This is the most common wrong assumption about the primitive. The
+              cap is SET BACK to amountPerPeriod on rollover, not increased by
+              it, so the delegatee's draw is bounded to one period at a time.
+          - id: c
+            label: 10 USDC — the two skipped periods accumulate but the current one does not
+            correct: false
+            feedback: >-
+              Nothing accumulates. Rollover restores the cap; it never adds to
+              it.
+          - id: d
+            label: Nothing — missing a period expires the delegation
+            correct: false
+            feedback: >-
+              A missed period costs that period's revenue, not the delegation.
+              Only expiryTs ends it, and that is a hard stop with no grace period.
+        explanation: >-
+          Skipped periods are lost. That is user-protective by design, and it is
+          the semantic worth writing down because it is invisible in the call
+          signatures.
+
+      - id: q4
+        prompt: >-
+          In your reference implementation, who must sign the transaction that
+          actually collects a period's charge?
+        multiSelect: false
+        options:
+          - id: a
+            label: The delegatee — the user signed only setup, and signs again only to revoke
+            correct: true
+          - id: b
+            label: The user, for every collection
+            correct: false
+            feedback: >-
+              If the user had to sign every month you would not need a delegation
+              at all — that is the one-off transfer the primitive exists to
+              replace.
+          - id: c
+            label: Both the user and the delegatee, as co-signers
+            correct: false
+            feedback: >-
+              Requiring the user on every pull reintroduces the churn. The cap,
+              not a second signature, is what bounds the delegatee.
+          - id: d
+            label: The Subscription Authority PDA, via a keypair the program hands you
+            correct: false
+            feedback: >-
+              A PDA has no private key. The authority is program-controlled
+              precisely so no keypair exists to hand out.
+        explanation: >-
+          One approval, many collections, bounded by the period cap and
+          revocable at any time. That asymmetry is the security story of the
+          module and belongs in section 3 of your write-up.
+
+      - id: q5
+        prompt: >-
+          Your deep dive includes the metered endpoint from module 2. A reader
+          copies your install line. Which dependency set do you give them?
+        multiSelect: false
+        options:
+          - id: a
+            label: '"@x402/core", "@x402/svm", "@x402/express", "@x402/fetch" at 2.19.0'
+            correct: true
+          - id: b
+            label: '"x402", "x402-express", "x402-fetch" at 1.2.0'
+            correct: false
+            feedback: >-
+              The unscoped line is frozen at 1.2.0 from 2026-04-16 and speaks the
+              older protocol version. Search engines still surface it first,
+              which is why the split has to be named in the write-up.
+          - id: c
+            label: '"x402-next", because the official Solana template uses it'
+            correct: false
+            feedback: >-
+              That template ships the frozen unscoped package. Being official
+              does not make it current.
+          - id: d
+            label: Either line — the scoped packages are just re-publishes under a namespace
+            correct: false
+            feedback: >-
+              They are different protocol versions on the wire, with different
+              header names and different envelope fields. Mixing them is the
+              failure your readers will report as your bug.
+        explanation: >-
+          Naming a live version split explicitly is what separates a piece that
+          stays useful from one that rots the next time a reader searches.
+
+      - id: q6
+        prompt: >-
+          Seeded from the client you published in the previous course. You
+          regenerate the typed client against an IDL that has not changed and
+          republish. Under the semver policy you committed to, what is that
+          release?
+        multiSelect: false
+        options:
+          - id: a
+            label: Patch
+            correct: true
+          - id: b
+            label: Minor
+            correct: false
+            feedback: >-
+              Minor is a NEW instruction — added surface a consumer can start
+              using. Regenerating unchanged output adds no surface.
+          - id: c
+            label: Major
+            correct: false
+            feedback: >-
+              Major is a changed account layout, a removed field or a renamed
+              export — something that breaks a consumer who upgrades.
+          - id: d
+            label: No release at all is warranted
+            correct: false
+            feedback: >-
+              Regenerated output can still differ (formatting, generator
+              version), and shipping it under a patch is exactly what patch is
+              for.
+        explanation: >-
+          You wrote that policy down as a package author. A deep dive that
+          restates the version contract it holds itself to is one a reviewer
+          trusts.
+
+      - id: q7
+        prompt: >-
+          Also seeded from the previous course. Your repro sends a transaction
+          with no compute-budget instruction. What does the reader pay a
+          priority fee on?
+        multiSelect: false
+        options:
+          - id: a
+            label: The requested limit — the 200,000 CU default per non-builtin instruction, not what the transaction consumed
+            correct: true
+          - id: b
+            label: The compute units actually consumed, measured after execution
+            correct: false
+            feedback: >-
+              This is the assumption that makes the bug invisible. The fee is
+              charged on the REQUESTED limit, which is why an untuned
+              transaction silently overpays.
+          - id: c
+            label: Nothing — priority fees only apply when you set a compute unit price
+            correct: false
+            feedback: >-
+              True that no price means no priority fee, but the question is what
+              the fee is computed against once you do set one, and that is the
+              requested limit.
+          - id: d
+            label: The 1,400,000 CU per-transaction clamp
+            correct: false
+            feedback: >-
+              That is the ceiling on the total request, not the default charged
+              per instruction.
+        explanation: >-
+          If your repro is going to be run by strangers, size it. Fixing it is
+          fillTransactionMessageProvisoryResourceLimits, then
+          estimateResourceLimitsFactory, then
+          estimateAndSetResourceLimitsFactory — the current trio, all three
+          halves from the same line.

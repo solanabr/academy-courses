@@ -1,0 +1,35 @@
+id: course-stablecoin-payments
+slug: stablecoin-agentic-payments
+title: "Getting Paid: Stablecoin & Agentic Payments"
+description: You have a deployed vault app that earns nothing. Put a price on it. Open a Subscription Authority and a Recurring Delegation so the app has a real paid tier, meter a route with an x402 v2 challenge, and give an autonomous agent a wallet that can say no — an on-chain spend cap instead of an unlimited keypair. TypeScript only, no Rust and no local toolchain. You finish by publishing a version-pinned deep dive and submitting one live Superteam Earn listing. Scope is what BCB Resolution 561 leaves open to Brazilian builders from 2026-10-01, domestic merchant acceptance, contractor payouts, subscriptions and agent budgets.
+difficulty: intermediate
+duration: 10
+xpPerLesson: 25
+xpReward: 750
+creatorRewardXp: 30
+minCompletionsForReward: 10
+trackId: 1
+trackLevel: 5
+creator: B7o8NfV81HzjuZFWQTTx3Xdvh77Dqoajwib3kWEnvzJF
+modules:
+  - key: sap-paid-tier
+    title: The Paid Tier
+    description: Pick the rail your requirement actually needs, decide between Token and Token-2022 for the payment mint, then open a Subscription Authority and a Recurring Delegation on devnet. You end holding a delegation PDA and a settlement signature for a charge that correctly refuses to run a second time inside the same period.
+    lessons:
+      - lesson-sap-payment-rails-decision-map
+      - lesson-sap-token-or-token-2022
+      - lesson-sap-subscription-authority-and-allowance
+      - lesson-sap-recurring-delegation-paid-tier
+  - key: sap-metered-agentic
+    title: Metered & Agentic
+    description: Price one route so it returns a real 402 challenge, read a challenge and pay it programmatically across both live protocol versions, then wire a call loop that spends only from a Fixed Delegation and halts cleanly when the allowance refuses the next payment.
+    lessons:
+      - lesson-sap-meter-an-endpoint-with-x402
+      - lesson-sap-pay-the-402-programmatically
+      - lesson-sap-budgeted-agent-with-a-hard-cap
+  - key: sap-get-paid
+    title: Get Paid
+    description: Publish a technical deep dive in the shape Superteam chapters pay for — dated, version-pinned, reproducible — then submit one live Earn listing and name every layer of the artifact you built, from your first signed transaction to a metered endpoint an agent pays for.
+    lessons:
+      - lesson-sap-write-the-deep-dive
+      - lesson-sap-submit-and-what-you-built

@@ -1,0 +1,153 @@
+id: lesson-sap-payment-rails-decision-map
+slug: payment-rails-decision-map
+title: Which Rail, and Is It Legal Where You Are
+skills:
+  - payment-model-selection
+  - solana-pay
+  - x402-protocol
+  - brazil-compliance
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: decision-map
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - The branches are all correct. Only their order is wrong.
+      - A stop that runs after every rail has already returned never stops anything.
+      - Move the `settlement === "cross-border-fx"` block above the `per-request` check.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A regulated Brazilian eFX provider wants to take reais from a client,
+          convert them to USDC, and settle the client's obligation to a supplier
+          abroad on-chain. It is 2026-11-01. What does your decision map return,
+          and why?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`blocked-by-bcb-561` — the settlement leg is a regulated cross-border FX conversion, so no rail applies"
+            correct: true
+          - id: b
+            label: "`solana-pay` — it is a single transfer, so the one-off rail fits"
+            correct: false
+            feedback: >-
+              The cadence would fit, which is exactly the trap. The compliance
+              gate runs before cadence is ever consulted, because the question
+              "is this allowed for this entity" outranks "which rail is
+              convenient".
+          - id: c
+            label: "`fixed-delegation` — cap the total the provider can convert and the exposure is bounded"
+            correct: false
+            feedback: >-
+              Capping the amount does not change the nature of the operation.
+              Resolution 561 closes the pattern, not a size of it.
+          - id: d
+            label: "`unsupported` — the map has no cadence for FX"
+            correct: false
+            feedback: >-
+              `unsupported` means "I do not model this cadence". This case is
+              modelled: it is stopped, and saying so precisely is the point.
+        explanation: >-
+          BCB Resolution 561 (published 2026-04-30, effective 2026-10-01) closes
+          reais → stablecoin → offshore settlement for regulated eFX providers.
+          Domestic merchant acceptance, contractor payouts, subscriptions and
+          agent budgets stay open, and individuals may still transact through
+          authorised VASPs.
+      - id: q2
+        prompt: >-
+          Your API charges $0.002 per call. Callers are other people's scripts;
+          they have no account with you and never will. Which rail?
+        multiSelect: false
+        options:
+          - id: a
+            label: x402 — the price travels in a 402 response and the caller satisfies it in the same request cycle
+            correct: true
+          - id: b
+            label: A recurring delegation, billed monthly for the calls made
+            correct: false
+            feedback: >-
+              A delegation needs a prior on-chain relationship with each payer.
+              These callers have none, which is the whole reason a stateless
+              per-request challenge exists.
+          - id: c
+            label: A subscription plan the callers subscribe to
+            correct: false
+            feedback: >-
+              That is the right answer for a published price list with an
+              onboarding step. It is the wrong answer for an anonymous script
+              that wants one response now.
+          - id: d
+            label: Solana Pay, generating a QR per call
+            correct: false
+            feedback: >-
+              Solana Pay assumes a human is present to approve. Nobody is
+              scanning a QR code inside a script's retry loop.
+      - id: q3
+        prompt: >-
+          A recurring delegation is capped at 50 USDC per month. The merchant
+          forgets to collect in March and April, then collects in May. How much
+          can it pull in May?
+        multiSelect: false
+        options:
+          - id: a
+            label: 50 USDC — the cap resets each period and skipped periods do not accumulate
+            correct: true
+          - id: b
+            label: 150 USDC — three periods of unused cap are now available
+            correct: false
+            feedback: >-
+              This is the single most common wrong mental model of the recurring
+              model, and lesson 4 grades you on it. Unused periods are lost, not
+              banked.
+          - id: c
+            label: 0 USDC — missing a period voids the delegation
+            correct: false
+            feedback: >-
+              Nothing is voided. The delegation stays live until it expires or
+              is revoked; only the unused capacity is gone.
+          - id: d
+            label: 100 USDC — the two skipped periods carry, the current one does not
+            correct: false
+            feedback: No period carries. The cap is per period, full stop.
+      - id: q4
+        prompt: >-
+          You add `@solana/pay@1.0.23` to a project that already pins
+          `@solana/kit@7.0.0`. Predict what happens at install time.
+        multiSelect: false
+        options:
+          - id: a
+            label: A peer-dependency conflict — `@solana/pay` declares `@solana/kit ^6.9.0`, which does not admit a 7.x
+            correct: true
+          - id: b
+            label: It installs cleanly; `^6.9.0` covers everything from 6.9 upward including 7.0
+            correct: false
+            feedback: >-
+              A caret pins the major. `^6.9.0` means ">=6.9.0 <7.0.0". This is
+              the exact seam that keeps Solana Pay off this course's dependency
+              tree.
+          - id: c
+            label: It installs cleanly because peer dependencies are advisory and never fail an install
+            correct: false
+            feedback: >-
+              npm has installed peers automatically and errored on unsatisfiable
+              ones since v7. You get a resolution error unless you override it
+              deliberately.
+          - id: d
+            label: "`@solana/kit` is silently downgraded to 6.9.0 for the whole project"
+            correct: false
+            feedback: >-
+              A package manager will not rewrite your direct dependency to
+              satisfy someone else's peer range. It reports the conflict.
+        explanation: >-
+          `@solana/subscriptions@0.4.0` declares the same shape of peer
+          (`^6.4.0`), so this course carries one documented override for the
+          rail it cannot do without, and declines a second for a rail it only
+          needs as a decision. Naming the version seam is more useful than
+          pretending one lockfile serves every rail.

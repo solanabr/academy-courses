@@ -1,0 +1,167 @@
+id: lesson-sap-recurring-delegation-paid-tier
+slug: recurring-delegation-paid-tier
+title: Charge Every Month, Cap Every Month
+skills:
+  - recurring-delegation
+  - error-handling
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: collect
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - Nothing needs to be written. Pick the right `available` candidate and move the guard above the success return.
+      - Candidate 2 passes every test where no period was skipped. That is what makes it a decoy rather than an obvious error — look at the case where `currentPeriod - lastChargedPeriod` is greater than 1.
+      - A guard placed after an unconditional return never executes.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A recurring delegation is capped at 25 USDC per period. Your billing
+          job collects 25 USDC, then crashes before writing its own record. It
+          restarts and retries the same charge, same period. Predict what the
+          program does and what your job should conclude.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`AMOUNT_EXCEEDS_PERIOD_LIMIT` — and the job should read that as \"already collected\", not as a transient failure to retry"
+            correct: true
+          - id: b
+            label: It succeeds and charges 50 USDC in total for the period
+            correct: false
+            feedback: >-
+              The cap is per period, not per call. The second pull is exactly
+              what it is designed to stop — which is why it doubles as your
+              idempotency guard.
+          - id: c
+            label: "`PERIOD_NOT_ELAPSED`, because the period has not rolled over yet"
+            correct: false
+            feedback: >-
+              `PERIOD_NOT_ELAPSED` is for collecting against a period that has
+              not started. Here the period has started and its cap is spent.
+              Different error, different meaning.
+          - id: d
+            label: It succeeds with a zero-value transfer
+            correct: false
+            feedback: >-
+              The program does not silently rewrite your amount. It refuses the
+              instruction.
+      - id: q2
+        prompt: >-
+          A merchant with a 25 USDC/month recurring delegation forgets to
+          collect in March and April, then runs the job in May. How much can it
+          pull in May, and why?
+        multiSelect: false
+        options:
+          - id: a
+            label: 25 USDC — the cap is a per-period ceiling, and unused periods are gone
+            correct: true
+          - id: b
+            label: 75 USDC — three periods of authorised-but-uncollected capacity
+            correct: false
+            feedback: >-
+              That would turn "up to 25 per month" into "up to 25 per month,
+              banked indefinitely and redeemable in a lump sum by whoever holds
+              the delegatee key". The user authorised the first thing.
+          - id: c
+            label: 50 USDC — the two missed periods carry, the current one is charged separately
+            correct: false
+            feedback: No period carries. Not one, not two.
+          - id: d
+            label: 0 USDC — missing a period puts the delegation into a lapsed state
+            correct: false
+            feedback: >-
+              Nothing lapses. The delegation stays live until `expiryTs` or a
+              revoke; only the unused capacity is lost.
+        explanation: >-
+          If your business needs missed periods to be collectable, that is an
+          invoice, and you build it in your own system.
+      - id: q3
+        prompt: >-
+          Your unattended billing service holds one key. Which key must it be,
+          and what can it do with it?
+        multiSelect: false
+        options:
+          - id: a
+            label: The delegatee key — it can pull up to the cap each period, and nothing else
+            correct: true
+          - id: b
+            label: The delegator key — the user's key, held in escrow by the service
+            correct: false
+            feedback: >-
+              If the service needed the user's key, the delegation would be
+              pointless. `delegator` is typed as an `Address` on the transfer
+              precisely because it is not a signer there.
+          - id: c
+            label: Either — the program accepts a signature from whichever of the two is present
+            correct: false
+            feedback: >-
+              The instruction names exactly one signer. Setup and revoke take
+              the user; transfers take the delegatee.
+          - id: d
+            label: The delegatee key, which can also extend `expiryTs` when the term runs out
+            correct: false
+            feedback: >-
+              The delegatee cannot change the terms. Extending means a new
+              delegation with a new nonce, signed by the user — which means the
+              user consents again.
+      - id: q4
+        prompt: >-
+          You call `createRecurringDelegation` with `startTs: 0n` and
+          `expiryTs: 0n`. Predict the result.
+        multiSelect: false
+        options:
+          - id: a
+            label: Refused — start-on-landing requires a non-zero expiry, so an open-ended pull authorisation with no defined start is rejected
+            correct: true
+          - id: b
+            label: Accepted — both zeroes mean "start now, never expire", which is the common subscription case
+            correct: false
+            feedback: >-
+              "Never expire" combined with "start whenever this happens to land"
+              is the least bounded authorisation the program could issue, so it
+              is the one combination it refuses.
+          - id: c
+            label: Accepted, with `expiryTs` defaulted to one year from the landing slot
+            correct: false
+            feedback: >-
+              The program does not invent terms on your behalf. It errors.
+          - id: d
+            label: Accepted, but every `transferRecurring` then fails with `DELEGATION_NOT_STARTED`
+            correct: false
+            feedback: >-
+              `DELEGATION_NOT_STARTED` is real, and it is what you get from a
+              `startTs` in the future. This case fails earlier, at creation.
+      - id: q5
+        prompt: >-
+          The user calls `revokeDelegation` on a live recurring delegation.
+          Which of these are true afterwards?
+        multiSelect: true
+        options:
+          - id: a
+            label: The delegation PDA is closed and its rent is returned
+            correct: true
+          - id: b
+            label: Re-establishing the arrangement needs a new `createRecurringDelegation` with a new nonce, signed by the user
+            correct: true
+          - id: c
+            label: The delegation is paused and can be resumed by the delegatee later
+            correct: false
+            feedback: >-
+              There is no pause on a delegation. `resumeSubscription` exists,
+              but that is the subscription-plan model, not this one.
+          - id: d
+            label: The user's other delegations on the same mint are also revoked
+            correct: false
+            feedback: >-
+              Each delegation is its own PDA under the shared authority — that
+              is the whole point. Revoking all of them at once is
+              `closeSubscriptionAuthority`, and it is a separate, deliberate
+              kill switch.

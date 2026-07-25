@@ -1,0 +1,150 @@
+id: lesson-sap-budgeted-agent-with-a-hard-cap
+slug: budgeted-agent-with-a-hard-cap
+title: "An Agent With a Wallet That Can Say No"
+skills:
+  - agent-budgets
+  - fixed-delegation
+  - x402-protocol
+  - error-handling
+blocks:
+  - key: intro
+    type: prose
+    src: the-budget-is-the-agent.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Three ways out of the loop, and each one returns a different `reason`. Write all three before you write the happy path."
+      - "The budget check comes before the settlement, not after: if you cannot afford the call, you never attempt it and never consume a settlement."
+      - "Convert once with `BigInt(...)`, do the arithmetic in BigInt, and call `.toString()` on the way out."
+      - "`s-refused` has a successful settlement after the refusal. If your report counts three calls, your loop kept going."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Two setups. (A) The agent holds a keypair with 400 USDC in its own token account.
+          (B) The agent holds a keypair with no tokens, and a Fixed Delegation on the user's
+          account capped at 40 USDC total. The agent's key leaks. Compare the losses.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              A loses up to 400. B loses at most the 40 still on the delegation — the cap is enforced
+              by the program, so the stolen key cannot draw past it.
+            correct: true
+          - id: b
+            label: >-
+              Both lose everything in the user's token account, since the delegation grants access to it.
+            correct: false
+            feedback: >-
+              A delegation is not account access. It authorises transfers up to a recorded amount, and
+              the program refuses anything beyond it regardless of who is signing.
+          - id: c
+            label: B is worse, because the delegation can be drawn repeatedly.
+            correct: false
+            feedback: >-
+              A Fixed Delegation is a capped TOTAL, not a per-transfer limit. Repeated draws consume the
+              same pool and stop when it is empty.
+          - id: d
+            label: The losses are identical; the cap is a client-side convenience.
+            correct: false
+            feedback: >-
+              The cap lives in a program-owned account on-chain. A compromised client cannot raise it,
+              ignore it, or patch it out.
+        explanation: >-
+          This is the whole argument for the lesson. Autonomy is safe when the limit is somewhere the
+          agent cannot reach, and a program-enforced allowance is exactly that.
+      - id: q2
+        prompt: >-
+          Your loop draws from the delegation, the program refuses, and your `catch` block retries
+          the same draw three times with backoff. Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Three more refusals and three more fees. The cap is state on-chain, not a transient
+              failure — nothing about waiting changes the answer.
+            correct: true
+          - id: b
+            label: One of the retries succeeds once the previous transaction finalises.
+            correct: false
+            feedback: >-
+              Finalisation does not add funds to an allowance. The remaining amount is what it is.
+          - id: c
+            label: The retries are free because failed transactions are not charged.
+            correct: false
+            feedback: >-
+              A transaction that reaches execution and fails still pays its fee. Failing repeatedly on
+              purpose is a way to spend money on nothing.
+          - id: d
+            label: The delegation auto-tops-up from the user's balance on the third attempt.
+            correct: false
+            feedback: >-
+              Nothing tops up automatically. Raising the cap is an action the USER signs — which is the
+              point of the design.
+        explanation: >-
+          Backoff is for transient failures: congestion, blockhash expiry, a flaky RPC. A policy refusal
+          is terminal. Distinguishing the two is most of what "error handling" means in a payment loop.
+      - id: q3
+        prompt: >-
+          The allowance has 5,000 base units left and the next call costs 10,000. Your loop
+          attempts it anyway and handles the failure. What did that choice cost you?
+        multiSelect: true
+        options:
+          - id: a
+            label: A transaction fee for a transaction you already knew would be refused
+            correct: true
+          - id: b
+            label: >-
+              A worse report — you learn "the program refused" instead of "the budget is exhausted",
+              which are different operational facts
+            correct: true
+          - id: c
+            label: The remaining 5,000 base units, which are consumed by the failed attempt
+            correct: false
+            feedback: >-
+              A failed transfer transfers nothing. The allowance is untouched — the cost is the fee and
+              the lost clarity, not the balance.
+          - id: d
+            label: Nothing, since the on-chain cap protects you either way
+            correct: false
+            feedback: >-
+              The cap protects the user's funds. It does not refund your fees, and it does not write your
+              report for you.
+        explanation: >-
+          Track `remaining_amount` locally and check it before you build the transaction. The on-chain cap
+          is your last line of defence, not your first.
+      - id: q4
+        prompt: >-
+          Two requirements. (i) "This agent may spend at most 50 USDC, ever." (ii) "This agent may
+          spend at most 50 USDC each month, indefinitely." Which delegation does each need?
+        multiSelect: false
+        options:
+          - id: a
+            label: (i) Fixed Delegation — a capped total. (ii) Recurring Delegation — a cap that resets per period.
+            correct: true
+          - id: b
+            label: Both are Recurring Delegations; you set the period to "forever" for (i).
+            correct: false
+            feedback: >-
+              A recurring cap resets. There is no period long enough to make a resetting cap into a
+              lifetime limit — you would just be extending the window.
+          - id: c
+            label: Both are Fixed Delegations; for (ii) you re-create the delegation every month.
+            correct: false
+            feedback: >-
+              That works only if someone remembers, and every re-creation needs the user's signature.
+              The recurring model exists precisely so the user signs once.
+          - id: d
+            label: (i) Subscription Plan, (ii) Fixed Delegation.
+            correct: false
+            feedback: >-
+              A subscription plan is the merchant-published model, where approved pullers collect against
+              terms the merchant set. Neither requirement here describes that.
+        explanation: >-
+          Same three models you mapped in lesson 1, now with a concrete consequence: an agent budget is a
+          Fixed Delegation when the limit is a lifetime total, and a Recurring Delegation when it is a rate.

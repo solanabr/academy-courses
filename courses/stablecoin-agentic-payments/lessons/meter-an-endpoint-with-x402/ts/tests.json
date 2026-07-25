@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1",
+    "description": "Returns a 402 whose body is a v2 envelope with a one-entry accepts menu",
+    "input": "'quote'",
+    "expectedOutput": "result.status === 402 && result.body.x402Version === 2 && Array.isArray(result.body.accepts) && result.body.accepts.length === 1"
+  },
+  {
+    "id": "t2",
+    "description": "The challenge is driven by the route table, not hardcoded",
+    "input": "'digest'",
+    "expectedOutput": "result.body.accepts[0].maxAmountRequired === '250000' && result.body.accepts[0].resource.indexOf('/api/digest') > -1 && result.body.accepts[0].description === 'Daily market digest'"
+  },
+  {
+    "id": "t3",
+    "description": "maxAmountRequired is a decimal string of base units, not a number or a float",
+    "input": "'quote'",
+    "expectedOutput": "typeof result.body.accepts[0].maxAmountRequired === 'string' && /^[0-9]+$/.test(result.body.accepts[0].maxAmountRequired) && result.body.accepts[0].maxAmountRequired === '10000'"
+  },
+  {
+    "id": "t4",
+    "description": "scheme, network and asset name the exact scheme and the devnet USDC pair",
+    "input": "'quote'",
+    "expectedOutput": "result.body.accepts[0].scheme === 'exact' && result.body.accepts[0].network === 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1' && result.body.accepts[0].asset === '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'"
+  },
+  {
+    "id": "t5",
+    "description": "payTo is a real base58 Solana address — change PAY_TO to your own devnet wallet",
+    "input": "'quote'",
+    "expectedOutput": "/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(result.body.accepts[0].payTo)"
+  },
+  {
+    "id": "t6",
+    "description": "The envelope is also emitted base64-encoded in the payment-required header",
+    "input": "'digest'",
+    "expectedOutput": "typeof result.encoded === 'string' && result.encoded.slice(0, 4) === 'eyJ4' && result.headers['payment-required'] === result.encoded"
+  }
+]

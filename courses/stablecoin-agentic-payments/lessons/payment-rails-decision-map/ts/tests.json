@@ -1,0 +1,50 @@
+[
+  {
+    "id": "t1",
+    "description": "A human paying once at a checkout maps to Solana Pay",
+    "input": "'one-off', 'domestic-br', false",
+    "expectedOutput": "result === 'solana-pay'"
+  },
+  {
+    "id": "t2",
+    "description": "A price on a single HTTP request maps to x402",
+    "input": "'per-request', 'domestic-br', false",
+    "expectedOutput": "result === 'x402'"
+  },
+  {
+    "id": "t3",
+    "description": "Charging your own users on your own schedule is a recurring delegation",
+    "input": "'periodic', 'domestic-br', false",
+    "expectedOutput": "result === 'recurring-delegation'"
+  },
+  {
+    "id": "t4",
+    "description": "Published terms that customers subscribe to is a subscription plan",
+    "input": "'periodic', 'domestic-br', true",
+    "expectedOutput": "result === 'subscription-plan'"
+  },
+  {
+    "id": "t5",
+    "description": "One capped total drawn down over many pulls is a fixed delegation",
+    "input": "'capped-total', 'domestic-br', false",
+    "expectedOutput": "result === 'fixed-delegation'"
+  },
+  {
+    "id": "t6",
+    "description": "Cross-border FX settlement is stopped even when the cadence has a rail",
+    "input": "'periodic', 'cross-border-fx', false",
+    "expectedOutput": "result === 'blocked-by-bcb-561'"
+  },
+  {
+    "id": "t7",
+    "description": "The compliance gate outranks x402 too",
+    "input": "'per-request', 'cross-border-fx', true",
+    "expectedOutput": "result === 'blocked-by-bcb-561'"
+  },
+  {
+    "id": "t8",
+    "description": "An unmodelled cadence fails loudly instead of guessing",
+    "input": "'annual-invoice', 'domestic-br', false",
+    "expectedOutput": "result === 'unsupported'"
+  }
+]
