@@ -46,3 +46,39 @@
   label: Sign-In With Solana
 - slug: typescript
   label: TypeScript
+- slug: solana-kit
+  label: Solana Kit
+- slug: token-2022
+  label: Token-2022
+- slug: transfer-hook
+  label: Transfer Hook
+- slug: error-handling
+  label: Error Handling
+- slug: protocol-versioning
+  label: Protocol Versioning
+- slug: version-pinning
+  label: Version Pinning
+- slug: payment-model-selection
+  label: Payment Model Selection
+- slug: solana-pay
+  label: Solana Pay
+- slug: x402-protocol
+  label: x402 Protocol
+- slug: api-monetization
+  label: API Monetization
+- slug: subscriptions-program
+  label: Subscriptions Program
+- slug: subscription-authority
+  label: Subscription Authority
+- slug: fixed-delegation
+  label: Fixed Delegation
+- slug: recurring-delegation
+  label: Recurring Delegation
+- slug: agent-budgets
+  label: Agent Budgets
+- slug: technical-writing
+  label: Technical Writing
+- slug: brazil-compliance
+  label: Brazil Compliance
+- slug: earn-submission
+  label: Earn Submission
