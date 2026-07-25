@@ -1,6 +1,10 @@
 # courses-academy — agent guide
 
-Source of truth for all Superteam Academy content. Projected into Sanity (and then on-chain) by the admin content sync in `solanabr/superteam-academy`. This repo is data, not code: plain YAML, Markdown, and source files.
+Source of truth for all Superteam Academy content. This repo is data, not code: plain YAML, Markdown, and source files.
+
+**How it reaches learners:** merged content here *stages*; the app repo (`solanabr/superteam-academy`) compiles this tree into a committed bundle and activates it by bumping `content.lock`. Courses are then deployed on-chain from the admin panel. There is no CMS in the path.
+
+**What to write** — the approved catalog, per-course syllabi, lesson shapes, and the exact APIs/versions to teach — is [courses/CATALOG.md](./courses/CATALOG.md). Read it before authoring or restructuring a course.
 
 **When editing a folder, read that folder's `README.md` and its `schema/<type>.schema.json` first** — they hold the fields, the controlled vocabulary, and the worked examples:
 
@@ -10,7 +14,6 @@ Source of truth for all Superteam Academy content. Projected into Sanity (and th
 | an achievement | [achievements/README.md](./achievements/README.md) + `schema/achievement.schema.json` |
 | a quest | [quests/README.md](./quests/README.md) + `schema/quest.schema.json` |
 | a learning path | [paths/README.md](./paths/README.md) + `schema/path.schema.json` |
-| an instructor | [instructors/README.md](./instructors/README.md) + `schema/instructor.schema.json` |
 
 ## The rules that actually bite
 
@@ -20,7 +23,8 @@ Source of truth for all Superteam Academy content. Projected into Sanity (and th
 - **A `code` block's `solution` must pass `tests.json`; its `starter` must fail.** CI executes TypeScript blocks; rust and buildable are graded at runtime (fail-closed), not in CI or at sync.
 - **Answer keys are public by design.** Grading is by sandboxed execution, not secrecy.
 - **`openEnded` never mints XP.** It's a reflection: one learner message, one AI reply.
-- **A course's creator is its instructor's wallet.** `course.instructor → instructor.wallet → Course.creator` on-chain. `instructor.wallet` is required and must be on-curve.
+- **`course.creator` is the author's wallet and is immutable.** It maps straight to `Course.creator` on-chain (there is no `instructor` indirection — the `instructors/` folder was removed). Must be on-curve. Changing it after creation costs a full close-and-recreate, so mainnet courses must be created with the final wallet.
+- **`trackId` / `trackLevel` are equally immutable.** They order the catalog; get them right before a course is created on-chain.
 
 ## Validate locally
 
@@ -32,10 +36,10 @@ pnpm --filter @superteam-lms/content-lint exec tsx src/cli.ts /path/to/courses-a
 
 Exit 0 = zero errors. `notice`/`warning` never fail.
 
-## Regenerating from live Sanity
+## Provenance
 
-The tree was extracted from the live dataset by `scripts/cs8-extraction/extract.ts` in the app repo — read-only against Sanity and idempotent, with `slots.lock.json` preserved byte-identical.
+This tree was originally extracted from the CMS that the platform used before content moved to git. That CMS is gone — this repo is now the only source. Do not look for an upstream to re-sync from.
 
 ## Not yet wired end-to-end
 
-`instructor.wallet` flows to `Course.creator`, but the `wallet → platform user` linkage (`profiles.wallet_address`) in the app is still in progress. `teachers.yaml` is informational — nothing enforces it yet.
+`course.creator` flows to `Course.creator` on-chain, but the `wallet → platform user` linkage (`profiles.wallet_address`) is what makes a creator's name and profile render in the app — a course whose creator wallet has no linked profile still works, it just shows the raw address. `teachers.yaml` is informational; nothing enforces it yet.

@@ -14,8 +14,10 @@ New here? Jump to **[Add a course](#add-a-course-in-five-steps)** or read the fu
 | `achievements/*.yaml` | badges learners earn, and how they're unlocked | [achievements/README.md](./achievements/README.md) |
 | `quests/*.yaml` | daily / streak challenges that award XP | [quests/README.md](./quests/README.md) |
 | `paths/*.yaml` | ordered collections of courses | [paths/README.md](./paths/README.md) |
-| `instructors/*.yaml` | the people who teach the courses | [instructors/README.md](./instructors/README.md) |
 | `courses/_template/` | a complete example to copy when starting a course | [courses/_template/README.md](./courses/_template/README.md) |
+
+**What the catalog should contain** — the approved course lineup, each course's syllabus, the lesson shapes,
+and the exact APIs to teach — is in [courses/CATALOG.md](./courses/CATALOG.md). Read it before starting a course.
 
 ## A lesson is a list of blocks
 
@@ -40,16 +42,16 @@ The automated checks enforce these — they're mostly about not breaking things 
 - **Don't hand-edit `slots.lock.json`.** It's generated automatically. Editing it by hand can corrupt learner progress; the checks will stop you.
 - **A challenge's reference solution must pass its own tests, and its starter must fail them** — a starter that already passes has nothing to solve.
 - **Answers are public.** Solution files and tests live right here in the open. Challenges are graded by running the learner's code, not by hiding the answer — so don't write a lesson that only works if the answer is secret.
-- **Every course needs an instructor.** Point `course.instructor` at an [instructor](./instructors/README.md) file. Their wallet is how they receive credit (and rewards) for the course.
+- **Every course needs a creator wallet.** Set `course.creator` to the author's Solana address — that's how they receive credit (and creator XP) for the course. It becomes `Course.creator` on-chain and is **immutable after the course is created**, so get it right the first time.
 
 Each folder's README has the exact fields and a worked example.
 
 ## Add a course in five steps
 
-1. Copy the template: `cp -r courses/_template courses/<your-slug>`
-2. Edit `course.yaml` — the title, difficulty, instructor, and the modules-and-lessons outline.
-3. Write your lessons under `lessons/<slug>/` (text, challenges, quizzes).
-4. Make sure there's an [instructor](./instructors/README.md) file for you, and `course.instructor` points at it.
+1. Read [courses/CATALOG.md](./courses/CATALOG.md) — the course lineup, its syllabus, and the stack to teach.
+2. Copy the template: `cp -r courses/_template courses/<your-slug>`
+3. Edit `course.yaml` — the title, difficulty, `creator` wallet, and the modules-and-lessons outline.
+4. Write your lessons under `lessons/<slug>/` (text, challenges, quizzes).
 5. Check your work locally (below), then open a pull request.
 
 ## Check your work

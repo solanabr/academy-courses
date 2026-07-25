@@ -2,13 +2,14 @@
 
 ## Quick start
 
-1. Fork this repo and create a branch.
-2. Copy `courses/_template/` to `courses/<your-slug>/` and edit it.
-3. Open a pull request. CI runs the full validator.
+1. Read [courses/CATALOG.md](./courses/CATALOG.md) — the approved catalog, each course's syllabus, the lesson shapes, and the exact APIs to teach. This document is *what* to write; the rest of this file is *how*.
+2. Fork this repo and create a branch.
+3. Copy `courses/_template/` to `courses/<your-slug>/` and edit it.
+4. Open a pull request. CI runs the full validator.
 
 Your editor will autocomplete and validate as you type — `.vscode/settings.json` maps every file to its JSON Schema in `schema/`. In VSCode / Cursor this needs the **[Red Hat YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)** (`redhat.vscode-yaml`); the schema files themselves are generated, so don't hand-edit `schema/`.
 
-Each folder has its own `README.md` with the fields, the controlled vocabulary, and a worked example — read the one for what you're editing ([courses](./courses/README.md), [achievements](./achievements/README.md), [quests](./quests/README.md), [paths](./paths/README.md), [instructors](./instructors/README.md)).
+Each folder has its own `README.md` with the fields, the controlled vocabulary, and a worked example — read the one for what you're editing ([courses](./courses/README.md), [achievements](./achievements/README.md), [quests](./quests/README.md), [paths](./paths/README.md)).
 
 ## Running the validator locally
 
@@ -32,7 +33,7 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 **Challenges are executed.** For a TypeScript challenge, the checks run your `solution.ts` against `tests.json` — it must pass every case — and run your `starter.ts`, which **must fail** at least one. A starter that already passes has nothing to solve. Rust challenges are checked when a learner runs them, not on your PR — but their `starter`, `solution`, and `tests` files still have to be present.
 
-**Every course needs an instructor with a wallet.** `course.instructor` must point at an [instructor](./instructors/README.md) file whose `wallet` is a real Solana address — that's how the instructor gets credited (and rewarded) for the course. A course with no instructor, or an invalid wallet, is rejected.
+**Every course needs a creator wallet.** `course.creator` must be a real Solana address — that's how the author gets credited (and earns creator XP). It becomes `Course.creator` on-chain and **cannot be changed after the course is created**, so use the wallet you actually want paid.
 
 **Capabilities are ordered.** A block that `consumes: [deployed-program]` must appear after a block that produces it, anywhere earlier in the course. Only a `wallet-funding` block can produce `funded-wallet`; only a `deployable` `code` block can produce `deployed-program`.
 
