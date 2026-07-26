@@ -137,6 +137,13 @@ blocks:
               `use super::*` always resolves; the crate root exists and is a
               valid module. The failure lands on the names the harness then tries
               to use.
+        explanation: >-
+          `use super::*` pulls in exactly what is in scope one level up — the crate
+          root, where `mod verify` is a sibling of `mod vault` — and never searches
+          downward into sibling modules, so the harness cannot see `VaultState` and
+          fails with "cannot find type". A crate-root re-export is what bridges a
+          sibling module; the items are already `pub`, so visibility is not the
+          problem.
       - id: q3
         prompt: >-
           Carried over from lesson 4. You write `self.balance = self.balance -
@@ -167,3 +174,10 @@ blocks:
             feedback: >-
               Nothing converts a panic into a named error. That conversion is the
               thing you write by hand, with `checked_sub(...).ok_or(...)?`.
+        explanation: >-
+          With `overflow-checks = true` in the release profile, `self.balance -
+          amount` when `amount` exceeds the balance panics at runtime and aborts the
+          instruction — no `VaultError`, no message for the caller. The compiler
+          only rejects overflow it can evaluate on constants; runtime values need
+          `checked_sub(...).ok_or(...)?` to convert the panic into a named error,
+          the lesson-4 rule.

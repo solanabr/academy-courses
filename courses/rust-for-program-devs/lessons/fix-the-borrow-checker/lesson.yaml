@@ -57,6 +57,12 @@ blocks:
               Reborrowing a `&mut` is completely legal and you do it every time
               you pass `v` to another function. The problem is doing it twice
               and keeping both.
+        explanation: >-
+          Swapping the shared borrow for `&mut v.balance` trades one rule for
+          another: `&mut` is exclusive, so holding it across the `credit(v, ...)`
+          call is a second mutable borrow and fails with `E0499`, not the
+          shared-then-mutable `E0502`. Telling the two apart is how you know whether
+          to drop a borrow or reorder the calls.
 
       - id: q2
         prompt: >-
@@ -90,6 +96,13 @@ blocks:
               Reading freed memory is precisely what does not happen. This is
               the whole reason the error exists, and it is caught at compile
               time, so there is no observable garbage to read.
+        explanation: >-
+          `data.to_vec()` creates a `Vec` that is dropped at the end of the
+          statement, so returning `&...[..8]` into it is `E0515` — a reference
+          outliving the value it points at. The fix is not to bind the `Vec` with
+          `let` (that is the two-line original bug) but to avoid creating an owned
+          `Vec` at all; the freed memory is never read because the error is caught
+          at compile time.
 
       - id: q3
         prompt: >-

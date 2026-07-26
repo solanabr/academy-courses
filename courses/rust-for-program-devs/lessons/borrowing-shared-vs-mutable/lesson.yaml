@@ -91,6 +91,12 @@ blocks:
               try to take `&mut` of a binding declared without `let mut`. Here
               nothing is being borrowed — an assignment is being attempted
               through a reference that forbids it.
+        explanation: >-
+          `&T` grants read access and nothing else, all the way down and regardless
+          of the field's type, so assigning to `v.balance` through `&VaultLike` is
+          `E0594`. A call site cannot upgrade a shared borrow to an exclusive one —
+          the signature is the promise — which also sets it apart from `E0596`,
+          taking `&mut` of a binding declared without `let mut`.
 
       - id: q3
         prompt: >-
@@ -159,3 +165,9 @@ blocks:
               There is no hidden copy. That is JavaScript's pass-a-primitive
               behaviour; a Rust `&mut` points at the caller's own value, and
               silently copying instead would be a language bug.
+        explanation: >-
+          You cannot lend out write access you were never granted: `let vault = ...`
+          binds immutably, so `&mut vault` is `E0596` even though the call site asks
+          for `&mut`. `let mut` on the binding grants the write; `&mut` at the call
+          site only passes it on. A mutable borrow is a loan, not a move, which is
+          why it is never `E0382`.

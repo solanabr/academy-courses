@@ -93,6 +93,12 @@ blocks:
               32 bytes on the stack, no allocator involved. Heap allocation is
               what `Vec` and `String` do, and it is exactly why those two are
               not `Copy`.
+        explanation: >-
+          `Pubkey` derives `Copy`, so `let a = v.owner` copies 32 bytes out of the
+          shared borrow rather than moving the field, and a `Copy` field is never
+          moved by a read — both lines compile. Reading is exactly what `&T` is for,
+          and the copy is 32 stack bytes with no allocator, which is why the heap
+          types `Vec` and `String` are not `Copy`.
 
       - id: q3
         prompt: >-
@@ -124,6 +130,12 @@ blocks:
               Nothing was borrowed. The parameter is `Vec<u8>`, not `&mut
               Vec<u8>`, so this is a move, not a borrow, and moves report
               `E0382`.
+        explanation: >-
+          Ownership follows the signature, not the body: `consume_bytes(bytes:
+          Vec<u8>)` takes the buffer by value, so the first call moves `data` and
+          drops it and the second is `E0382`. A `Vec` can never be `Copy`, and the
+          compiler refuses to build the second call rather than let you observe a
+          moved-from or "emptied" value.
 
       - id: q4
         prompt: >-
