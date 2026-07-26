@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ the vault account carries a bump constraint, so ctx.bumps.vault exists",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t3",
+    "description": "Compiles ⇒ that bump constraint sits alongside seeds — Anchor rejects one without the other",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t4",
+    "description": "Compiles ⇒ VaultState still has owner: Pubkey, balance: u64, bump: u8 — INIT_SPACE is 41",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t5",
+    "description": "Compiles ⇒ InitializeVault holds vault, a mutable user Signer, and the System Program",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

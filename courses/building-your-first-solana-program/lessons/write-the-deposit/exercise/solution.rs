@@ -1,10 +1,9 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program::{transfer, Transfer};
 
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Your Course 2 vault core, imported and not retyped.
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Your Course 2 core, imported unchanged. Do not edit it. ─────────────────
 pub mod vault {
     use super::*;
 
@@ -57,25 +56,32 @@ pub mod vault_program {
 
     pub fn initialize_vault(ctx: Context<InitializeVault>) -> Result<()> {
         let vault = &mut ctx.accounts.vault;
-
-        // TASK 2. Three assignments, and every one of them is load-bearing later:
-        //   · `owner` is what module 3's `has_one = owner` check reads to reject
-        //     somebody else's withdrawal.
-        //   · `balance` starts at zero explicitly. The bytes are already zero, so
-        //     this line changes nothing — and it is still worth writing, because
-        //     the next person to read the handler should not have to know that.
-        //   · `bump` is stored once here so that `deposit` and `withdraw` can use
-        //     `bump = vault.bump` instead of re-running the derivation search.
         vault.owner = ctx.accounts.user.key();
         vault.balance = 0;
         vault.bump = ctx.bumps.vault;
-
-        msg!("Vault initialized for {}", vault.owner);
         Ok(())
     }
 
-    pub fn vault_info(_ctx: Context<VaultInfo>) -> Result<()> {
-        msg!("Vault program online");
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        // SUBGOAL 2 — the lamports. Program id first (a `Pubkey`), accounts
+        // second, amount last. The user's transaction signature is what the
+        // System Program checks; this program signs nothing.
+        transfer(
+            CpiContext::new(
+                System::id(),
+                Transfer {
+                    from: ctx.accounts.user.to_account_info(),
+                    to: ctx.accounts.vault.to_account_info(),
+                },
+            ),
+            amount,
+        )?;
+
+        // SUBGOAL 3 — the bookkeeping, in one line, by calling Course 2.
+        // The zero-amount guard, the `checked_add` and `VaultError::Overflow`
+        // all live inside this method. Nothing is retyped here.
+        ctx.accounts.vault.deposit(amount)?;
+
         Ok(())
     }
 }
@@ -92,37 +98,53 @@ pub struct InitializeVault<'info> {
     pub vault: Account<'info, VaultState>,
     #[account(mut)]
     pub user: Signer<'info>,
-    // TASK 1. `init` creates the account by calling the System Program, so the
-    // System Program has to be in the account list. Anchor never injects it.
     pub system_program: Program<'info, System>,
 }
 
+// SUBGOAL 1 — the accounts struct.
 #[derive(Accounts)]
-pub struct VaultInfo {}
+pub struct Deposit<'info> {
+    // `mut`: both the lamports and the data change.
+    // `bump = vault.bump`: one hash, using the byte stored at initialize time,
+    // instead of searching from 255 down for a canonical bump we already have.
+    #[account(
+        mut,
+        seeds = [b"vault", user.key().as_ref()],
+        bump = vault.bump
+    )]
+    pub vault: Account<'info, VaultState>,
+
+    // `mut` because lamports leave this wallet — not because rent is paid.
+    // `Signer` because the System Program will not debit an account that did
+    // not sign, and that signature is the only authorisation in the instruction.
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
-// A type check, not a behaviour check. See the starter for its exact reach.
+//
+// A TYPE check, not a behaviour check. Ways to be wrong and still be green,
+// each one confirmed by compiling it: an empty `deposit` body; `from` and `to`
+// swapped; `balance += amount` instead of the Course 2 method; a bare `bump`
+// instead of `bump = vault.bump`. The build server compiles, it does not run.
 // ─────────────────────────────────────────────────────────────────────────────
 #[doc(hidden)]
 #[allow(dead_code)]
 mod verify {
     use super::*;
 
-    const _: () = assert!(VaultState::DISCRIMINATOR.len() == 8);
+    const DEPOSIT: for<'info> fn(Context<'info, Deposit<'info>>, u64) -> Result<()> =
+        vault_program::deposit;
+
+    fn pin_deposit_accounts(a: &Deposit) {
+        let _: &Account<VaultState> = &a.vault;
+        let _: &Signer = &a.user;
+        let _: &Program<System> = &a.system_program;
+    }
+
+    const CORE_DEPOSIT: fn(&mut VaultState, u64) -> Result<()> = VaultState::deposit;
     const _: () = assert!(VaultState::INIT_SPACE == 41);
-
-    fn pin_bump(bumps: &InitializeVaultBumps) -> u8 {
-        bumps.vault
-    }
-
-    fn pin_vault<'info>(a: &'info InitializeVault<'info>) -> &'info Account<'info, VaultState> {
-        &a.vault
-    }
-    fn pin_user<'info>(a: &'info InitializeVault<'info>) -> &'info Signer<'info> {
-        &a.user
-    }
-    fn pin_system<'info>(a: &'info InitializeVault<'info>) -> &'info Program<'info, System> {
-        &a.system_program
-    }
 }

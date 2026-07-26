@@ -1,9 +1,14 @@
 id: lesson-bfsp-m4-capstone
 slug: what-you-built
-title: What You've Built
+title: What You've Built — and Writing It Up
 skills:
+  - program-deployment
+  - technical-writing
   - anchor
   - solana-programs
+  - program-build
+  - idl
+  - solana-explorer
 blocks:
   - key: intro
     type: prose
@@ -12,6 +17,13 @@ blocks:
     type: deployed-program-card
     consumes:
       - deployed-program
+  # Cumulative quiz — at least one item per skill tag used anywhere in this
+  # course (anchor, solana-programs, program-build, account-model,
+  # rent-and-space, pdas, debugging, cpi, checked-arithmetic, program-errors,
+  # program-security, program-testing, keypairs-wallets, program-deployment,
+  # idl, solana-explorer, transactions, technical-writing) and two items seeded
+  # from Course 2 (q7 checked arithmetic, q13 the vault-core split). q1 and q2
+  # are carried from the original recap.
   - key: retrieval-close
     type: quiz
     questions:
@@ -32,7 +44,7 @@ blocks:
             feedback: "Upgrades swap code only; account data is untouched and stays where it is. Any data migration is the developer's job."
         explanation: "Under the BPF Loader Upgradeable, the program account points to executable data that the upgrade authority can replace, so you fix or extend the program at the same id. State lives in separate accounts and is unaffected — the stateless-program design is what makes clean upgrades possible."
       - id: q2
-        prompt: "You want to fix a bug in your deployed counter. Which statement about the program account and its data is true?"
+        prompt: "You want to fix a bug in your deployed vault. Which statement about the program account and its data is true?"
         multiSelect: false
         options:
           - id: a
@@ -43,7 +55,190 @@ blocks:
             correct: false
             feedback: "Only if it were non-upgradeable. As upgradeable, you replace the bytecode at the same id via the upgrade authority — clients and PDAs keep working."
           - id: c
-            label: "Editing the program automatically wipes existing counter accounts"
+            label: "Editing the program automatically wipes existing vault accounts"
             correct: false
-            feedback: "Counter accounts are separate state and survive an upgrade. Upgrading changes code, not the accounts your program created."
-        explanation: "An upgradeable program account references executable data that the upgrade authority can swap, so bug fixes reuse the same program id. Because state is stored in separate accounts, existing counters persist across the upgrade — code and data are decoupled by design."
+            feedback: "Vault accounts are separate state and survive an upgrade. Upgrading changes code, not the accounts your program created."
+        explanation: "An upgradeable program account references executable data that the upgrade authority can swap, so bug fixes reuse the same program id. Because state is stored in separate accounts, existing vaults persist across the upgrade — code and data are decoupled by design. That also means a change to `VaultState`'s layout is a data-migration problem, not a redeploy problem."
+      - id: q3
+        prompt: "The build server reported a green build before you deployed. Precisely what did that prove?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "That the file compiles to an SBF binary against the real Anchor 1.1 toolchain — nothing about whether the instructions behave correctly"
+            correct: true
+          - id: b
+            label: "That the program compiles and its instructions produce the expected account state"
+            correct: false
+            feedback: "Nothing ran. Grading on this path is compile-success only; the grader never executes an instruction and never reads your code. Behaviour is exactly what a green build cannot speak to."
+          - id: c
+            label: "That the program compiles and passes the hidden tests attached to the lesson"
+            correct: false
+            feedback: "There are no hidden tests on the Rust path — no `cargo test` step exists here. The single bit the server returns is whether compilation succeeded."
+        explanation: "A green build is one bit: it compiled. That bit is worth having, because Anchor's macros turn a large class of account-wiring mistakes into compile errors, and an uncompilable program cannot be deployed at all. It is also the whole of what was verified, which is why the pre-flight lesson listed eight ways to be green and wrong, and why the write-up should say \"compiled against the real Anchor 1.1 toolchain\" rather than \"tested\"."
+      - id: q4
+        prompt: "Your vault account was created with `space = 8 + 32 + 8 + 1`. You now want to add a `deposit_count: u64` field. What does that cost you?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A larger `space` for newly created vaults plus a migration for existing ones — an account's data length is fixed at creation and does not grow because the struct did"
+            correct: true
+          - id: b
+            label: "Nothing — you widen `space` and existing accounts resize on the next write"
+            correct: false
+            feedback: "A wider `space` applies only to accounts created AFTER the upgrade. Existing accounts keep the 49 bytes they were allocated; nothing resizes them implicitly."
+          - id: c
+            label: "Only more rent, charged automatically as the account grows"
+            correct: false
+            feedback: "Two things wrong: accounts do not grow on their own, and rent is a one-time deposit rather than a running charge. A bigger account needs a bigger deposit at the moment it is allocated or reallocated."
+        explanation: "Space is allocated once, at creation, and the rent deposit is sized to it then. Add a field and new vaults get the larger layout while old ones still hold 49 bytes with no room for it — so deserializing an old account against the new struct fails. This is why module 2 made you derive the sum aloud rather than copy someone else's `8 + 8 + 32`: a number you derived stays honest when the struct changes. The migration problem is yours either way."
+      - id: q5
+        prompt: "Three addresses are involved in your deployment: your wallet, the vault PDA, and the program account. Which of them has a private key?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Only your wallet. The vault PDA is off-curve by construction, and the program account's address came from a keypair that is irrelevant after deployment"
+            correct: true
+          - id: b
+            label: "Your wallet and the program account — the program's keypair is what authorises upgrades"
+            correct: false
+            feedback: "Upgrades are authorised by the UPGRADE AUTHORITY, which is your wallet, not by the program's own keypair. That keypair's only job was to fix the address at deploy time."
+          - id: c
+            label: "All three — every Solana address is a public key with a matching private key somewhere"
+            correct: false
+            feedback: "This is the assumption PDAs exist to break. Derivation deliberately retries until the digest is NOT a valid curve point, so for a PDA no private key exists at all."
+        explanation: "\"Address\" and \"public key\" are not synonyms on Solana. Your wallet is a keypair. The program account's address came from a keypair, but authority over the program is held by the upgrade authority, not that key. The vault PDA has no key by design — it is off the ed25519 curve, and the only way to authorise it is a program the runtime can check. Sorting these three apart is most of the account model."
+      - id: q6
+        prompt: "`Deposit` declares `pub system_program: Program<'info, System>`. `Withdraw` does not. What single rule explains both?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A program may only debit accounts it owns, and a CPI's callee must appear in the account list. Deposit debits a System-owned wallet so it needs System present; withdraw debits your own vault, needs no CPI, so there is no callee to load"
+            correct: true
+          - id: b
+            label: "Withdraw omits it as an optimisation — one fewer account keeps the transaction under the size limit"
+            correct: false
+            feedback: "It is not a size optimisation. There is genuinely no CPI in `withdraw`, so there is no callee program for the runtime to load; declaring System would be an account that goes unused."
+          - id: c
+            label: "Anchor injects the System Program automatically for instructions that only move lamports"
+            correct: false
+            feedback: "Anchor never injects accounts. Every account a program touches — including a callee program — must be in the instruction's account list, which is why `Deposit` names it explicitly and `Withdraw` has nothing to name."
+        explanation: "Two rules doing one job. First, ownership: the executing program may debit only accounts assigned to it, so lamports leaving a wallet must go through System while lamports leaving your vault must not. Second, explicitness: Solana transactions declare every account up front and a program receives exactly that set — nothing is reached out to mid-instruction, which is what lets a wallet simulate a transaction before you sign it. Put together, the presence or absence of `system_program` in an accounts struct tells you whether that instruction calls out to anyone, and the empty account list on `Withdraw` is the visible consequence of your program owning the vault."
+      - id: q7
+        prompt: "Course 2 recall. Your `withdraw` uses `checked_sub(amount).ok_or(VaultError::InsufficientFunds)?`. What does a caller actually receive when the vault is short?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A failed transaction carrying custom error 6001 and the `#[msg]` string you wrote, which any client can render without knowing your program"
+            correct: true
+          - id: b
+            label: "A failed transaction with no error code — the instruction simply aborts"
+            correct: false
+            feedback: "That is what a PANIC gives you, from `unwrap()` or bare subtraction. `checked_sub` + `ok_or` + `?` is the path that produces a code and a message instead."
+          - id: c
+            label: "A successful transaction that leaves `balance` unchanged"
+            correct: false
+            feedback: "`?` propagates the error out of the handler, so the instruction fails and the whole transaction's account writes are discarded. Nothing partial is committed."
+        explanation: "`checked_sub` returns `None`, `ok_or` names it, `?` carries it up, and Anchor maps your variant to 6000 + its index — 6001 for `InsufficientFunds`. The caller gets a code and a sentence you authored. The alternative, a panic, gives them an aborted instruction and nothing to display, which is why Course 2 refused `unwrap()` in program code even with `overflow-checks = true` turning wraps into panics."
+      - id: q8
+        prompt: "You add a `transfer_between_vaults` instruction taking two mutable vault accounts. Under Anchor 1.0, what happens if a caller passes the same vault for both?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It fails by default with `ConstraintDuplicateMutableAccount`; allowing it requires opting that account out with `#[account(mut, dup)]`"
+            correct: true
+          - id: b
+            label: "It succeeds, and the two writes are merged safely because they target one account"
+            correct: false
+            feedback: "There is no merge. Two mutable views of one account means one write can be overwritten by the other from stale data — which is precisely why Anchor 1.0 made the default an error."
+          - id: c
+            label: "It fails, and the fix is `#[account(mut, unsafe(dup))]`"
+            correct: false
+            feedback: "Right diagnosis, wrong syntax: `unsafe(dup)` is Anchor v2-alpha (Pinocchio, `no_std`). On v1 the opt-out is plain `dup`."
+        explanation: "Aliased mutable accounts are a classic source of silent double-credits and vanishing writes: you deserialize twice, modify one copy, and the second copy's serialization overwrites it. Anchor 1.0 flipped this to error-by-default and gave you `dup` for the rare instruction where aliasing is legitimate. The general lesson is the one running through module 3 — most account-level exploits are stopped by a constraint you either wrote or forgot, and the framework's defaults decide which mistakes are even reachable."
+      - id: q9
+        prompt: "You mistype a constraint inside `#[derive(Accounts)] pub struct Deposit`. The compiler reports the error on the `#[derive(Accounts)]` line, not on the constraint you edited. Why, and what do you do with that?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The failing code is macro-generated, so it is reported where the macro expanded — read the FIRST error and treat the struct as the neighbourhood, not the line"
+            correct: true
+          - id: b
+            label: "The compiler is confused by proc macros and the reported line is meaningless"
+            correct: false
+            feedback: "The location is accurate — that genuinely is where the failing code exists after expansion. It is just not where you typed the mistake, which is a different problem and one you can plan around."
+          - id: c
+            label: "Anchor validates constraints at runtime, so this must be an unrelated error"
+            correct: false
+            feedback: "Constraints expand into code at compile time; that is most of the point of Anchor. Runtime is where the generated checks RUN, not where they are written."
+        explanation: "This is the single most useful debugging habit for macro-heavy Rust. `#[derive(Accounts)]` writes a validation function from your attributes, and if that function does not compile, the error lands at the expansion site. So the reported line tells you which struct, and the message tells you what the generated code needed — a field that does not exist, a type that does not match. Deleting `system_program` from `InitializeVault` fails this same way, and Cargo's error ordering matters: the first error is usually the cause and the rest are its consequences."
+      - id: q10
+        prompt: "A friend opens your program id on Solana Explorer and reports that the address does not exist. Both of you are looking at the same 32 bytes. What is the most likely explanation?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Their URL is missing `?cluster=devnet`, so the explorer is searching mainnet, where your program was never deployed"
+            correct: true
+          - id: b
+            label: "Devnet programs are only visible to the wallet that deployed them"
+            correct: false
+            feedback: "Nothing on a public cluster is wallet-scoped. Anyone can read any account; only WRITING is gated, and only by signatures and program logic."
+          - id: c
+            label: "The program needs its IDL published before the explorer can find the account"
+            correct: false
+            feedback: "The IDL affects how nicely a program is RENDERED, never whether the account is found. An account with no IDL still shows up with its owner, lamports and raw data."
+        explanation: "Clusters are separate chains that share an address space, so the same 32 bytes name nothing on mainnet and your program on devnet. Solana Explorer defaults to mainnet, which makes a missing `?cluster=devnet` the most common false alarm in this whole course — and the reason every explorer link you share should carry the query parameter. Reading is permissionless on every cluster; the upgrade authority is what is scoped to your wallet."
+      - id: q11
+        prompt: "You publish your IDL through the Program Metadata Program. Someone is handed only your program id. What can they now do that they could not before?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Fetch the interface description from the chain using the id alone and generate a typed client from it, with nothing else from you"
+            correct: true
+          - id: b
+            label: "Read your Rust source, since the IDL is compiled from it"
+            correct: false
+            feedback: "The IDL describes the interface — instruction names, discriminators, account lists, PDA seeds, layouts, error codes. Your source is not on-chain; the binary and this metadata are."
+          - id: c
+            label: "Upgrade the program, since the metadata records the upgrade authority"
+            correct: false
+            feedback: "Publishing metadata REQUIRES the upgrade authority; it does not grant it. Only your wallet can upgrade the program or rewrite its metadata."
+        explanation: "This is what makes the program id a complete handoff. Anchor 1.0 removed the legacy on-chain IDL instructions your program used to carry, and moved the job to a separate Program Metadata Program keyed by program id — so the description travels with the address rather than with your repo. Course 4 depends on exactly this: it fetches your IDL, runs Codama over it, and produces a typed client for a program it knows nothing else about."
+      - id: q12
+        prompt: "You are writing up this build for a technical audience. Which sentence can you defend?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "\"Compiled against the real Anchor 1.1 toolchain and deployed to devnet; behaviour is verified by reading, not by an automated test suite.\""
+            correct: true
+          - id: b
+            label: "\"Unit tested and deployed to devnet.\""
+            correct: false
+            feedback: "There is no test run anywhere in this course. Grading is compile-only and the LiteSVM file was reading material. This is the claim a reviewer can falsify in one question, which costs more than the sentence buys."
+          - id: c
+            label: "\"Audited against the standard Anchor security constraints.\""
+            correct: false
+            feedback: "You applied constraints deliberately and can say so. \"Audited\" implies an adversarial review by someone other than the author, which did not happen."
+        explanation: "Precision is the cheapest credibility available to a developer writing about their own work, and overclaiming is the fastest way to lose it. Name the toolchain and the network, say what was and was not verified, and link the program id so every claim is checkable in ten seconds. The narrow, honest sentence is also more impressive to the audience you want, because it demonstrates you know the difference between compiling and testing — which is exactly what the pre-flight lesson was about."
+      - id: q13
+        prompt: "Course 2 recall. Your program has a `pub mod vault` and a `#[program] pub mod vault_program`. What separates them?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`vault` is the half with no runtime dependency — pure state and arithmetic, checkable by reading. `vault_program` is the half that needs accounts, the runtime and a CPI"
+            correct: true
+          - id: b
+            label: "`vault` holds private helpers and `vault_program` holds the public API"
+            correct: false
+            feedback: "`vault`'s items are public and re-exported at the crate root — the harness and the program module both depend on it. The split is by runtime dependency, not visibility."
+          - id: c
+            label: "`vault` is a legacy layout kept for compatibility with Course 2's grader"
+            correct: false
+            feedback: "It is the deliberate architecture, not a leftover. Keeping the state machine free of runtime types is what let Course 2 grade it standalone and what lets Course 3 wrap it without editing a line."
+        explanation: "This split is the most portable idea in the two courses. `VaultState`, `VaultError` and the two methods know nothing about accounts, signers, the clock or CPIs, which is why they could be written and checked in Course 2 and imported here unchanged. Everything the runtime forced on you — `Context`, `#[derive(Accounts)]`, the System Program CPI, the PDA signer — lives on the other side of the boundary. Programs written this way are the ones you can reason about, test in isolation, and port to another framework without a rewrite."
+  # Reflective deliverable. `openEnded` is never graded, awards no XP and gates
+  # nothing (catalog §5) — it is the drafting surface for the write-up the prose
+  # scaffolds, and the collection point for a URL the platform cannot verify.
+  - key: writeup
+    type: openEnded
+    maxWords: 300
+    prompt: "Draft your build write-up here, following the four-part structure above: what it is (two sentences plus your program id as a `?cluster=devnet` link), one design decision defended, the thing that broke and how you found it, and what you would do differently. Nothing here is graded, no XP depends on it, and it gates nothing — it exists so the version of you that just finished still remembers what was hard. Keep the claims narrow: \"compiled against the real Anchor 1.1 toolchain\", never \"unit tested\"."

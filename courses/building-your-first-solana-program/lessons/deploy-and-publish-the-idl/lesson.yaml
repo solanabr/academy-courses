@@ -1,0 +1,128 @@
+id: lesson-bfsp-m4-deploy
+slug: deploy-and-publish-the-idl
+title: Deploy and Publish the IDL
+skills:
+  - program-deployment
+  - idl
+  - solana-explorer
+  - transactions
+  - cpi
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    deployable: true
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - This is the vault you assembled across modules 1-3, unchanged. Click Build to compile it, then Deploy to Devnet.
+      - Make sure you have at least 2 SOL in your wallet. Use the previous lesson to airdrop if needed.
+      - If deployment fails mid-way, click Resume — it will pick up where it left off.
+    # Mechanism-level failure modes for this block (#683 / #592). Each one is a
+    # wrong model a learner arrives with, not a restatement of the instructions.
+    tutorNotes:
+      - "`declare_id!` is not the lever they think it is. The platform generates a program keypair and rewrites `declare_id!` with it before compiling, so the placeholder in the starter is irrelevant. A learner who pastes their previous program id in gets no effect at all — not an error, just nothing. If they ask how the program knows its own id, the answer is build-time injection, plus Anchor's runtime check that the invoked address equals `ID` (error 4100, DeclaredProgramIdMismatch)."
+      - "Every Build mints a NEW program keypair, so a rebuild after a successful deploy produces a DIFFERENT program id. Learners who rebuild 'to be safe' then cannot tell which of two ids Course 4 wants. The id that counts is the one the panel reported after the Deploy that finished. Do not suggest rebuilding as a fix for anything except an actual compile error."
+      - "A deploy that dies partway usually died of money, not network. The upload is 200-plus transactions; a wallet holding exactly 2 SOL can run dry around chunk 150 and the symptom looks identical to a dropped connection. Check the balance before theorising about RPC. The recovery is fund-then-Resume; restarting from zero re-pays for chunks already on-chain."
+      - "Chunks are batch-signed roughly 30 at a time. Rejecting or dismissing one wallet popup aborts that whole batch, which reads as a mysterious stall. Resume is the correct next action — the confirmed chunks are already in the buffer, so nothing is lost, and re-deploying from scratch is the expensive mistake here."
+      - "`?cluster=devnet` is missing from their explorer URL. Solana Explorer defaults to mainnet, where their address does not exist, so it reports the account as not found and the learner concludes the deploy failed. Have them check the URL before they check anything else."
+      - "For the IDL step: `anchor idl init <PROGRAM_ID>` no longer exists — Anchor 1.0 removed the legacy on-chain IDL instructions, and most tutorials still teach it. The mechanism is the Program Metadata Program. Also, writing metadata requires the program's UPGRADE AUTHORITY, so a wallet switch between deploying and publishing fails with an authority error that looks nothing like an IDL problem."
+    consumes:
+      - funded-wallet
+    produces: deployed-program
+  - key: explore
+    type: program-explorer
+    idl: program.idl.json
+    consumes:
+      - deployed-program
+  # Reconciled quiz: q1/q2 carried verbatim from `deploy-program-devnet`; q3/q4
+  # salvaged from the retired `interact-with-program` and retargeted from the
+  # counter to the vault; q5 covers this lesson's genuinely new material.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "The binary is uploaded in ~1000-byte chunks across 200+ transactions, with batch signing every ~30 chunks. Why not upload it in one transaction?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A Solana transaction has a strict ~1232-byte size limit, so a large binary must be split across many transactions"
+            correct: true
+          - id: b
+            label: "Chunking makes the upload faster than a single transaction"
+            correct: false
+            feedback: "It is about size limits, not speed. A whole 229KB binary cannot fit in one ~1232-byte transaction, so it is split into many."
+          - id: c
+            label: "Each chunk deploys a separate program"
+            correct: false
+            feedback: "All chunks build one program in a buffer. They are pieces of a single binary, not separate programs."
+        explanation: "Solana caps transaction size around 1232 bytes, far smaller than a program binary, so the loader writes the binary into a buffer ~1000 bytes at a time — hence 200+ transactions. Batch-signing every ~30 keeps a fresh-enough blockhash so chunks do not expire mid-upload."
+      - id: q2
+        prompt: "Deployment fails halfway through the chunk uploads. You click Resume. What does Resume do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It continues uploading only the chunks that have not landed yet, reusing the buffer, without re-sending confirmed chunks"
+            correct: true
+          - id: b
+            label: "It restarts the entire upload from chunk zero"
+            correct: false
+            feedback: "Resume is the point of the buffer: already-confirmed chunks persist on-chain, so it picks up where it stopped rather than redoing 200 transactions."
+          - id: c
+            label: "It redeploys as a brand-new program with a new id"
+            correct: false
+            feedback: "The program id and buffer are preserved. Resume finishes the same deployment; it does not mint a new program."
+        explanation: "Confirmed chunks are already written to the on-chain buffer, so Resume checks what has landed and uploads only the remainder. This is why a flaky connection mid-deploy costs seconds, not a full re-upload of 200+ transactions."
+      - id: q3
+        prompt: "You deposit 1 SOL and open the vault account on the explorer. Bytes 40 through 47 of the raw data read `00 ca 9a 3b 00 00 00 00`. What is `balance`, and why is the layout that way round?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "1,000,000,000 — a u64 is stored little-endian, least significant byte first, and the field starts at offset 40 because 8 (discriminator) + 32 (owner) come before it"
+            correct: true
+          - id: b
+            label: "An enormous number — read the bytes left to right as a big-endian integer"
+            correct: false
+            feedback: "Solana stores integers little-endian. Read as big-endian those bytes would be astronomically large; read correctly, least significant byte first, they are exactly 1,000,000,000 lamports."
+          - id: c
+            label: "1,000,000,000 — but little-endian would have written it as `00 00 00 00 3b 9a ca 00`"
+            correct: false
+            feedback: "That byte order is big-endian. Little-endian puts the least significant byte first, which is why the `00 ca 9a 3b` end comes before the padding zeros."
+        explanation: "Two things have to be right to read an account by hand: the offset and the byte order. The offset comes from the layout you derived in module 2 — 8 for the discriminator, 32 for `owner`, so `balance` begins at 40. The byte order is little-endian, which Solana uses throughout, so `00 ca 9a 3b 00 00 00 00` is 0x3B9ACA00 = 1,000,000,000. A client that gets either wrong reads plausible-looking garbage rather than failing loudly, which is why decoding is worth doing once by hand."
+      - id: q4
+        prompt: "You call `deposit` with `0` from the explorer panel and the transaction fails with custom error `6002` and the message \"Amount must be greater than zero\". Where is that rule actually enforced?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "By the Solana runtime executing your deployed program's `require!` — the check is in your on-chain code, so it holds against any caller"
+            correct: true
+          - id: b
+            label: "By the explorer panel, which validates the amount before building the transaction"
+            correct: false
+            feedback: "The panel is a client, and any client can be bypassed or replaced. The guard lives in your program, which is why it holds for a caller you never wrote and cannot see."
+          - id: c
+            label: "By the RPC node, which rejects instructions with zero-value arguments"
+            correct: false
+            feedback: "RPC nodes forward transactions; they do not know your business rules. The `require!` executes inside your program on the validator, and 6002 is your enum's third variant."
+        explanation: "This is the difference between a UI check and a rule. `require!(amount > 0, VaultError::ZeroAmount)` compiles into your program, so the validator runs it for every caller — the explorer panel, a script, a stranger's bot. The 6002 is Anchor's offset (6000) plus your variant's index, and the string is the `#[msg]` you wrote in Course 2, which is how a client that has never heard of your program can still render something a human can act on."
+      - id: q5
+        prompt: "You publish your IDL with `npx @solana-program/program-metadata write idl <program-id> ./idl.json`. What does that actually buy someone who has only your program id?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "They can fetch the IDL from the chain using the id alone, and generate a typed client from it — no repo, no npm package, nothing from you"
+            correct: true
+          - id: b
+            label: "They can read your program's source code on-chain"
+            correct: false
+            feedback: "The IDL is an interface description — instruction names, discriminators, account lists, PDA seeds, layouts, error codes. Your Rust source is not on-chain; only the compiled binary and this metadata are."
+          - id: c
+            label: "Nothing extra — they could already derive the instruction discriminators from the deployed binary"
+            correct: false
+            feedback: "In principle a discriminator can be recovered by disassembly; in practice nobody does that. Names, argument types, account ordering and PDA seeds are not recoverable from the binary, and those are what an IDL supplies."
+        explanation: "The IDL is what turns an address into an interface. Published on-chain via the Program Metadata Program it is reachable from the program id alone, which is exactly what makes the next course possible: Course 4 fetches your IDL, runs Codama over it, and generates a typed client for a program it was told nothing else about. Note that Anchor 1.0 REMOVED the legacy on-chain IDL instructions — `anchor idl init` is no longer the mechanism, however many tutorials still say it is."

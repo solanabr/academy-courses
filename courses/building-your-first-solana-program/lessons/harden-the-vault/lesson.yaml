@@ -1,0 +1,170 @@
+id: lesson-bfsp-account-constraints
+slug: harden-the-vault
+title: Harden the Vault
+skills:
+  - account-model
+  - anchor
+  - program-errors
+  - program-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "The harness at the bottom is the acceptance criteria, written in Rust. Read it before you type: it names every field, its type and its position, and it is the only part of the spec the build server can check. The first build reports `error[E0412]: cannot find type TransferBetweenVaults` and `error[E0425]: cannot find value transfer_between_vaults` — nothing exists yet."
+      - "Work threat by threat rather than field by field. Attack (a) is answered by re-deriving `from_vault` from the SIGNER's key and asking a second time against the stored `owner` — `constraint = from_vault.owner == user.key() @ VaultError::NotOwner`, because `has_one = owner` would need an account literally named `owner`. Attack (b) is answered by the field types alone. Attack (c) needs you to add nothing at all."
+      - "If you have reached for `dup`, stop and reason about what error 2040 is telling you. Both vaults are `mut`, so when `recipient` is the signer the two slots are one account, Anchor refuses the instruction, and that refusal is correct: two deserialised copies, one subtraction, one addition, last write wins, and the caller has minted lamports. `dup` is for aliasing you have proven harmless; this is not that."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          An instruction takes two vaults, both `#[account(mut)]`, and a caller
+          passes the same account for both. Predict the outcome under
+          `anchor-lang` 1.1.2, and what the outcome would have been before
+          Anchor 1.0 refused it.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Anchor returns error 2040, "A duplicate mutable account constraint
+              was violated", before the handler runs. Without that default, the
+              two deserialised copies would each miss the other's write and the
+              caller would mint `amount` from nothing.
+            correct: true
+          - id: b
+            label: >-
+              Both field references point at the same in-memory account, so the
+              subtraction and the addition cancel out and nothing happens.
+            correct: false
+            feedback: >-
+              They are not the same in-memory account. Anchor deserialises each
+              declared account independently, so you get two copies of the same
+              bytes — which is precisely how the write of one can erase the write
+              of the other.
+          - id: c
+            label: >-
+              It is a compile error, because two fields of the same type cannot
+              both be `mut`.
+            correct: false
+            feedback: >-
+              Two mutable accounts of the same type is an ordinary, useful shape —
+              any transfer instruction has it. The check is on the runtime *keys*
+              being equal, which the compiler cannot know.
+          - id: d
+            label: >-
+              The transaction is rejected by the runtime before it reaches your
+              program, because a transaction may not list an account twice.
+            correct: false
+            feedback: >-
+              Transactions deduplicate account keys and pass the same index twice
+              quite legally. The protection is Anchor's, in generated validation
+              code, not the runtime's.
+        explanation: >-
+          Duplicate mutable accounts were a silent double-count for years and are
+          now a default error, 2040. Opting back in is `#[account(mut, dup)]` —
+          and note the syntax: `#[account(mut, unsafe(dup))]` belongs to the v2
+          alpha and fails at macro-parse time here with `error: expected =`. The
+          decision is never "how do I silence 2040" but "is aliasing safe in this
+          instruction", and for anything moving value between two accounts it is
+          not.
+      - id: q2
+        prompt: >-
+          A submission types both vault slots as `UncheckedAccount<'info>` with
+          `/// CHECK:` comments, keeps every `seeds` and `constraint`, and reads
+          the balances by deserialising manually inside the handler. Predict what
+          protection is lost.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The program-ownership check, the 8-byte discriminator check and the
+              is-initialised check — errors 3007, 3002 and 3012 — all of which
+              `Account<'info, T>` performs and `UncheckedAccount` performs none of.
+            correct: true
+          - id: b
+            label: >-
+              Nothing, as long as the seeds constraint still passes. The seeds
+              prove the account is the right one.
+            correct: false
+            feedback: >-
+              Seeds prove the *address*. They say nothing about who owns the
+              account at that address, what type its bytes are, or whether it has
+              ever been written to — a PDA that has never been initialised still
+              has the derived address.
+          - id: c
+            label: >-
+              Only the `mut` check, since `UncheckedAccount` cannot be marked
+              mutable.
+            correct: false
+            feedback: >-
+              `UncheckedAccount` can carry `mut` perfectly well. What it drops is
+              every check that depends on knowing the account's owner and type.
+          - id: d
+            label: >-
+              Nothing at compile time, and nothing at runtime either — the
+              `/// CHECK:` comment is what re-enables the validation.
+            correct: false
+            feedback: >-
+              The comment is a required acknowledgement, not a control. It exists
+              to make you state in writing that you are opting out; it restores
+              nothing.
+        explanation: >-
+          `Account<'info, T>` is doing security work, not ergonomics work. Its
+          deserialisation is where the discriminator that `#[account]` wrote at
+          creation gets compared, and that comparison is the entire defence
+          against type confusion. This is why the exercise's harness pins those
+          two field types: it is the one attack of the three that a compile-only
+          grader can genuinely enforce.
+      - id: q3
+        prompt: >-
+          `Withdraw` uses `constraint = vault.owner == user.key() @ VaultError::NotOwner`
+          rather than `has_one = owner`. Why can it not use `has_one`?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `has_one = owner` requires an account *named* `owner` in the same
+              accounts struct to compare against. Ours is named `user`, so the
+              explicit comparison is the equivalent — and it returns our error
+              instead of Anchor's 2001.
+            correct: true
+          - id: b
+            label: >-
+              `has_one` was removed in Anchor 1.0 in favour of explicit
+              constraints.
+            correct: false
+            feedback: >-
+              `has_one` is current and idiomatic. The obstacle here is purely
+              naming: it resolves the target as an account in the struct, and
+              there is no `owner` account in `Withdraw`.
+          - id: c
+            label: >-
+              `has_one` only works on accounts created with `init` in the same
+              instruction.
+            correct: false
+            feedback: >-
+              It works on any account whose stored struct has the named field.
+              Creation has nothing to do with it.
+          - id: d
+            label: >-
+              Because `owner` is a reserved field name that Anchor uses for the
+              account's program owner.
+            correct: false
+            feedback: >-
+              `owner` is an ordinary field name on your struct and Anchor is happy
+              with it. The account's program owner lives on the `AccountInfo`, not
+              in your data.
+        explanation: >-
+          `has_one = field` expands to `account.field == field_account.key()`, so
+          the name has to exist twice — once on the stored struct and once as an
+          account in the struct. The explicit `constraint` form is the general
+          case, costs one line, and lets you attach your own error, which is why
+          `VaultError::NotOwner` finally gets used four lessons after you wrote it.

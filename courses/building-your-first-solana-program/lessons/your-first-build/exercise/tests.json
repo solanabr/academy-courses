@@ -1,8 +1,0 @@
-[
-  {
-    "id": "test-1",
-    "description": "Program compiles successfully",
-    "input": "",
-    "expectedOutput": "true"
-  }
-]

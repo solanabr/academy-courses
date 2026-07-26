@@ -124,3 +124,13 @@
   label: Account Layout
 - slug: program-security
   label: Program Security
+- slug: program-build
+  label: Program Build Pipeline
+- slug: rent-and-space
+  label: Rent & Account Space
+- slug: program-errors
+  label: Program Errors
+- slug: idl
+  label: IDL
+- slug: solana-explorer
+  label: Solana Explorer

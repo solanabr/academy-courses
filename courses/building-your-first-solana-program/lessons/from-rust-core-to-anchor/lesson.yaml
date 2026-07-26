@@ -1,0 +1,139 @@
+id: lesson-bfsp-your-first-build
+slug: from-rust-core-to-anchor
+title: From Rust Core to Anchor
+skills:
+  - anchor
+  - solana-programs
+  - program-build
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - You don't need to change anything — just click the Build button
+      - If the build times out, try again. First builds take longer because dependencies are being downloaded.
+      - If you see errors, make sure you haven't accidentally modified the starter code. Click Reset Code to restore it.
+    tutorNotes:
+      - >-
+        Six `unexpected cfg condition value` warnings come back from inside the
+        `#[program]` expansion on a correct build. They are warnings, the build is
+        green, and a learner reading the first `warning:` as the reason it
+        "failed" is the single most common confusion on this lesson. Point at the
+        final line, not the first one.
+      - >-
+        The editor shows one file and the build server compiles it as `src/lib.rs`
+        of a fixed crate. The manifest, the lockfile and the dependency versions
+        are not editable. Requests to "add a dependency", "split this into
+        modules" or "put the vault in its own file" cannot be satisfied by this
+        pipeline — the inline `pub mod vault` is the workaround, not a style
+        preference.
+      - >-
+        The build cache is keyed on the dependency graph, not on the learner's
+        source, so the slow build is once per session and every later lesson in
+        the course is fast even though the file changed. A learner who edits and
+        waits 40 seconds again usually hit a cold worker, not their own code.
+      - >-
+        `declare_id!` is a placeholder until module 4. Pasting a different pubkey
+        into it still builds green — nothing checks the value at compile time. The
+        mismatch only surfaces at deploy, as `DeclaredProgramIdMismatch`, which is
+        why the id is not worth changing here.
+      - >-
+        Nothing in this lesson executes. Grading is compile-success only: the
+        server shells `cargo-build-sbf` and reports whether a `.so` came back. If
+        asked whether `deposit` "passed", the honest answer is that no test ran —
+        behaviour is not checked anywhere in this course — module 4 shows you the
+        LiteSVM test that would check it, and why compiling cannot.
+      - >-
+        `dry_run` builds a `VaultState` on the stack, so its `balance` is
+        discarded when the instruction returns. Learners often read the log line
+        as proof that state was saved. Nothing was saved: `DryRun` declares no
+        accounts, and `#[account]` describes a shape rather than creating storage.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "The first build takes 30-60 seconds but later builds are fast. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The first build downloads and compiles all dependencies; those are cached, so later builds only recompile your changed code"
+            correct: true
+          - id: b
+            label: "The build server is warming up its hardware"
+            correct: false
+            feedback: "It is not hardware warm-up. The first build resolves and compiles the full dependency tree; that work is cached afterward."
+          - id: c
+            label: "Later builds skip compilation and reuse the same binary"
+            correct: false
+            feedback: "Later builds still compile — but only your changed code, reusing cached dependencies. They do not blindly reuse the old binary, or your edits would never take effect."
+        explanation: "A cold build resolves and compiles the entire dependency graph, which dominates the time. Those compiled dependencies are cached, so later builds recompile only your source — the same reason local `cargo build` is slow once and fast after."
+      - id: q2
+        prompt: "A green checkmark appears after your build. What does it actually confirm?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Your code compiled to a `.so` binary and the whole browser-to-build-server-to-compiler pipeline works end-to-end"
+            correct: true
+          - id: b
+            label: "Your program is now deployed and live on devnet"
+            correct: false
+            feedback: "Building is not deploying. A green check means compilation succeeded; deployment is a separate step later in the course."
+          - id: c
+            label: "Your program passed its on-chain tests"
+            correct: false
+            feedback: "No on-chain execution happened yet. The check confirms compilation to a binary, not runtime behavior."
+        explanation: "The green check means `cargo-build-sbf` turned your source into a `.so` binary and returned it, proving the pipeline works. Deployment and on-chain execution are later, separate steps."
+      - id: q3
+        prompt: >-
+          `dry_run` builds a `VaultState`, calls your Course 2 `deposit(1_000)`,
+          logs `balance after deposit: 1000` and returns `Ok(())` — green build,
+          successful transaction. Predict what exists on-chain afterwards.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Nothing new. The `VaultState` was a value on the handler's stack;
+              `DryRun` declares no accounts, so nothing was created or written and
+              the balance is gone the moment the instruction returns.
+            correct: true
+          - id: b
+            label: >-
+              An account owned by your program holding `balance: 1000` — `#[account]`
+              on `VaultState` is what creates it.
+            correct: false
+            feedback: >-
+              `#[account]` supplies serialization and the 8-byte discriminator for
+              a struct that is *stored in* an account. It does not create one.
+              Creation is an `init` constraint on an accounts struct, and this
+              instruction has no accounts struct fields at all.
+          - id: c
+            label: >-
+              Nothing persists, and the transaction fails — the runtime rejects an
+              instruction that writes no account.
+            correct: false
+            feedback: >-
+              A handler that only computes and logs is perfectly legal and
+              succeeds. Every Anchor quickstart's first instruction does exactly
+              this.
+          - id: d
+            label: >-
+              The values persist inside the program binary, because `#[program]`
+              gives the module somewhere to keep them.
+            correct: false
+            feedback: >-
+              Programs are stateless. `#[program]` generates an entrypoint and a
+              dispatcher — code, not storage. All mutable state on Solana lives in
+              accounts that are passed in.
+        explanation: >-
+          This is the seam the course closes. `#[program]` gave you an entrypoint,
+          `#[derive(Accounts)]` gave you a place to declare accounts, and your
+          Course 2 methods gave you correct arithmetic — but no one gave you an
+          account. Module 2 is where the vault becomes something that exists
+          between transactions.

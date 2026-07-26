@@ -1,0 +1,105 @@
+id: lesson-bfsp-add-instruction
+slug: anatomy-of-an-anchor-program
+title: Anatomy of an Anchor Program
+skills:
+  - anchor
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - >-
+        Build before you write anything. Four errors come back and all four are
+        raised by the harness at the bottom, which is the only code referencing
+        the two items you owe: three of them name `Greet` and one names `greet`.
+      - >-
+        The greet function follows the exact same pattern as version — just
+        change the name and the log message. It goes inside the `#[program]`
+        module under part 2, and its accounts struct goes under part 3, where
+        `#[derive(Accounts)]` is not optional: without the derive the struct
+        exists but `Context<Greet>` still fails, because the derive is what
+        supplies the trait `Context` requires.
+      - >-
+        Both signatures in full. Inside `#[program]`: `pub fn greet(_ctx:
+        Context<Greet>) -> Result<()>`, with a `msg!` and `Ok(())` in the body.
+        At the top level, next to `Version`: `#[derive(Accounts)]` on the line
+        above `pub struct Greet {}`.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You add `pub fn greet(_ctx: Context<Greet>)` but forget to write the `Greet` accounts struct. What happens?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It fails to compile — `Context<Greet>` references a type that must exist and derive `Accounts`"
+            correct: true
+          - id: b
+            label: "It compiles; Anchor generates an empty Greet struct automatically"
+            correct: false
+            feedback: "Anchor generates nothing for you here. `Context<Greet>` needs a real `#[derive(Accounts)]` struct Greet to reference, or the type is undefined."
+          - id: c
+            label: "It compiles but greet silently never runs"
+            correct: false
+            feedback: "There is no silent no-op — a missing referenced type is a compile error, caught at build time."
+        explanation: "Each handler's `Context<T>` must point at a defined `#[derive(Accounts)]` struct, even an empty one. The struct name has to match the generic exactly, so omitting `Greet` leaves an undefined type and breaks the build."
+      - id: q2
+        prompt: "The `Greet` accounts struct can be empty (`pub struct Greet {}`). Why is that valid, when module 2's `InitializeVault` will not be?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "greet only logs a message — it reads and writes no accounts, so it declares none"
+            correct: true
+          - id: b
+            label: "Empty structs are required for every instruction"
+            correct: false
+            feedback: "Not required — the struct lists exactly the accounts an instruction touches. greet touches none; creating a vault touches three, so its struct cannot be empty."
+          - id: c
+            label: "greet stores its state inside the program, so no account is needed"
+            correct: false
+            feedback: "Programs are stateless and store nothing internally. greet simply has no state to touch, which is why its accounts struct is empty."
+        explanation: "An accounts struct declares exactly the accounts an instruction reads or writes. `greet` only calls `msg!`, touching none, so its struct is legitimately empty — whereas creating the vault must declare the account being created, the payer who funds it, and the System Program that does the creating."
+      - id: q3
+        prompt: >-
+          You copy a handler signature out of an older Anchor tutorial and end up
+          with `pub fn greet(_ctx: Context<Greet>) -> ProgramResult {`. Predict
+          what the build server reports.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`error[E0412]: cannot find type ProgramResult in this scope` — the type was removed from Anchor years ago; 1.x handlers return `Result<()>`."
+            correct: true
+          - id: b
+            label: "It compiles. `ProgramResult` and `Result<()>` are aliases for the same type."
+            correct: false
+            feedback: >-
+              They were never aliases — `ProgramResult` carried a `ProgramError`,
+              which is why Anchor replaced it with its own `Result` and richer
+              error type. And it is not in the prelude at all any more, so the
+              name does not resolve.
+          - id: c
+            label: "It compiles with a deprecation warning, since Anchor keeps the old return type for compatibility."
+            correct: false
+            feedback: >-
+              There is no deprecation shim. The removal is old enough that the
+              type is simply gone; you get a hard error on an unresolved name.
+          - id: d
+            label: "It fails inside the `#[program]` macro with an unhelpful error about the dispatcher."
+            correct: false
+            feedback: >-
+              The macro expansion is fine — the failure is ordinary name
+              resolution on your own signature, and the error points at the exact
+              column of `ProgramResult`.
+        explanation: >-
+          Worth recognising by sight, because it is the cheapest possible
+          age-detector for a snippet. An unresolved name in a signature you copied
+          almost always means the material predates a breaking release rather than
+          that you mistyped. Anchor 1.x: the return type is `Result<()>`.

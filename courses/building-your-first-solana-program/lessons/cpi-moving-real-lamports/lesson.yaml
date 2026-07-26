@@ -1,0 +1,166 @@
+id: lesson-bfsp-cpi-lamports
+slug: cpi-moving-real-lamports
+title: "CPI: Moving Real Lamports"
+skills:
+  - cpi
+  - solana-programs
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Nothing is broken. This file compiles exactly as shipped — click Build and read it while it runs. The first build of a session pulls and compiles the Anchor crates, so it is the slow one; later builds in the same lesson are seconds."
+      - "While it builds, find the two statements in `deposit` that do completely different jobs: one asks another program to move lamports, one updates a number your own program owns. Everything in this module hangs off the fact that those are separate."
+      - "Then find the three reasons `user` is `#[account(mut)]` and a `Signer`: lamports leave it, the System Program refuses to debit a non-signer, and that signature is the only authorisation anywhere in the instruction."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You copy a CPI snippet from a 2024 tutorial and it reads
+          `CpiContext::new(ctx.accounts.system_program.to_account_info(), cpi_accounts)`.
+          Predict the outcome when the build server compiles it.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `error[E0308]: mismatched types` — expected `Pubkey`, found
+              `AccountInfo<'_>`. In Anchor 1.x the first argument is the program
+              id, so `System::id()` belongs there.
+            correct: true
+          - id: b
+            label: >-
+              It compiles. Anchor accepts either an `AccountInfo` or a `Pubkey`
+              and figures out which you meant.
+            correct: false
+            feedback: >-
+              There is no overload. `CpiContext::new` in `anchor-lang` 1.1.2 is
+              `pub fn new(program_id: Pubkey, accounts: T) -> Self` — one
+              signature, and an `AccountInfo` is not a `Pubkey`.
+          - id: c
+            label: >-
+              It compiles and then fails on-chain, because the account info is
+              stale by the time the CPI runs.
+            correct: false
+            feedback: >-
+              It never gets as far as running. This is a type error the compiler
+              catches, which is the good case — a stale API that breaks loudly is
+              far cheaper than one that breaks quietly.
+          - id: d
+            label: >-
+              It compiles with a deprecation warning naming the 1.0 form.
+            correct: false
+            feedback: >-
+              The old argument type was removed, not deprecated, so there is no
+              warning to emit — just a hard mismatch. Deprecation would have been
+              kinder; assume nothing in a major version bump.
+        explanation: >-
+          `CpiContext::new(program_id: Pubkey, accounts: T)` is the Anchor 1.0
+          shape, and the pre-1.0 shape passed the callee's `AccountInfo` instead.
+          Because a `Pubkey` is a compile-time value, the context no longer needs
+          an account read in order to be built. You still declare
+          `system_program: Program<'info, System>` in the accounts struct — the
+          runtime needs the callee's program account loaded — but the context is
+          told which program to call by id.
+      - id: q2
+        prompt: >-
+          Someone writes `withdraw` by mirroring `deposit`: the same
+          `system_program::transfer` CPI, with `from` set to the vault PDA and
+          `to` set to the user, signed with the vault's seeds. Predict the
+          outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It compiles, passes this course's grading, and fails on devnet with
+              `Transfer: 'from' must not carry data` — the System Program refuses
+              to debit any account with a non-empty data field.
+            correct: true
+          - id: b
+            label: >-
+              It works. Signer seeds are exactly the mechanism for letting a PDA
+              spend from itself.
+            correct: false
+            feedback: >-
+              Signer seeds solve authorisation, and authorisation was never the
+              obstacle. The obstacle is that the vault carries 49 bytes of
+              `VaultState`, and the System Program checks `from.get_data()` is
+              empty before it debits anything.
+          - id: c
+            label: >-
+              It fails to compile, because a PDA cannot be the `from` of a
+              `Transfer`.
+            correct: false
+            feedback: >-
+              `Transfer`'s fields are plain `AccountInfo`s, so any account fits
+              and the types are satisfied. That is what makes this failure
+              expensive: compile-time silence, runtime rejection.
+          - id: d
+            label: >-
+              It works but silently transfers zero, because the PDA's signature
+              is not recognised.
+            correct: false
+            feedback: >-
+              Solana instructions do not partially succeed. The nested
+              instruction returns `InvalidArgument` and the whole transaction is
+              rolled back — nothing transfers, silently or otherwise.
+        explanation: >-
+          Agave's `transfer_verified` opens with
+          `if !from.get_data().is_empty() { ... return Err(InstructionError::InvalidArgument) }`.
+          Deposit works because a wallet holds no data; withdraw cannot, because
+          the vault does. Note exactly where that lands — a green build, then a
+          runtime rejection — which is the reason Module 4 walks you through the
+          LiteSVM test that would surface it before you spend devnet SOL.
+      - id: q3
+        prompt: >-
+          During `deposit`, the System Program requires that `from` signed. Who
+          provided that signature, and at what point?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The user, on the outer transaction. Signatures established at the
+              top of the stack stay valid in nested instructions, so the program
+              signs nothing.
+            correct: true
+          - id: b
+            label: >-
+              The program signs on the user's behalf, using its program id as the
+              signing authority.
+            correct: false
+            feedback: >-
+              A program id can only ever authorise PDAs derived from it, and a
+              user's wallet is not one. If a program could sign for a wallet it
+              did not own, no balance on Solana would be safe.
+          - id: c
+            label: >-
+              The vault PDA signs, since it is the destination of the transfer.
+            correct: false
+            feedback: >-
+              Destinations are never asked to sign — receiving lamports needs no
+              permission. And the vault has no key to sign with; that is what the
+              next lesson is about.
+          - id: d
+            label: >-
+              Nobody. `transfer` only needs a signature when the amount exceeds
+              the rent-exempt minimum.
+            correct: false
+            feedback: >-
+              Debiting an account always requires its signature, whatever the
+              amount. Rent-exemption governs how *low* a balance may fall, not
+              who may authorise the move.
+        explanation: >-
+          The transaction carries the user's signature; the runtime keeps that
+          fact as the call stack deepens, so the System Program sees a signed
+          `from` without your program doing anything. That is also why the
+          withdrawal direction is the hard one: it needs the *vault* to
+          authorise, and the vault never signed — it has no private key to sign
+          with.

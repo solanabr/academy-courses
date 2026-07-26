@@ -1,0 +1,176 @@
+id: lesson-bfsp-define-counter
+slug: define-the-vault-account
+title: Define the Vault Account
+skills:
+  - anchor
+  - account-model
+  - rent-and-space
+  - pdas
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - >-
+        Start with pool line (1). The struct in the file is
+        `pub struct InitializeVault {}` and the pool's version is
+        `pub struct InitializeVault<'info> {`. An empty struct holds nothing, so it
+        needs no lifetime; the moment it holds borrowed account references it needs
+        one, and every field type in the pool mentions `'info` to prove it. Get
+        this wrong and the errors talk about lifetimes rather than fields, and you
+        will edit the wrong line for ten minutes.
+      - >-
+        The vault takes five constraint lines inside one `#[account( ... )]` —
+        pool (8), (11), (3), (7), (10) — and pool (4) is the field itself. Note
+        that (10) `bump` is the only one with no trailing comma, because it comes
+        last. Then two more fields: (6) above (9) for the user, and (2) for the
+        System Program.
+      - >-
+        Pool (5) `rent = rent` and (12) `mut,` are the two that belong nowhere.
+        `rent` was removed in Anchor 0.31 and the build refuses it outright. `mut`
+        on the vault is the subtler one: it asks to modify an account that does not
+        exist yet, and `init` is the request that brings it into existence — `init`
+        already implies the write.
+
+    tutorNotes:
+      - "Learners size `space` by adding up only the fields and forget the 8-byte discriminator Anchor prepends to every `#[account]`, so the account is under-allocated and the first write past the field boundary fails."
+      - "They omit the `<'info>` lifetime on `InitializeVault` once it holds account references, then get opaque lifetime errors and start editing field types instead of the struct header."
+      - "They leave `user` without `#[account(mut)]`; the payer that funds an `init` has its lamports changed and must be declared writable, and this one survives the build and fails at runtime."
+      - "They reach for `mut` on the vault, but the account is being created here for the first time, which needs `init` — `mut` is for an account that already exists."
+      - "They write the PDA seed as the string `\"vault\"` instead of the byte literal `b\"vault\"`, or drop `bump`, and then read the resulting error cascade as a lifetime problem."
+      - "They copy `rent = rent` from a pre-0.31 tutorial and conclude their Anchor install is broken, rather than that the constraint was deleted."
+
+  # Predict-the-outcome on the two things this struct gets wrong most often, plus
+  # the constraint whose wrong value is invisible.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          The vault is a PDA seeded on `b"vault"` plus the user's key. What does
+          that seed choice actually guarantee?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              One vault per wallet for this program, at an address any client can
+              re-derive from the wallet alone
+            correct: true
+          - id: b
+            label: Each wallet can create as many vaults as it likes
+            correct: false
+            feedback: >-
+              The seeds fix the address: for a given user those seeds derive exactly
+              one. A second `init` there fails, because the account already exists.
+              Multiple vaults per wallet would need a third seed in the list — an
+              index, or a mint.
+          - id: c
+            label: The vault has a private key that the user controls
+            correct: false
+            feedback: >-
+              PDAs have no private key; that is the point of deriving off the curve.
+              The program authorizes the address by presenting its seeds, and the
+              user's key is an *input* to the derivation, not a key for the result.
+          - id: d
+            label: Only the user can pass the vault into an instruction
+            correct: false
+            feedback: >-
+              Anyone can put any address into an instruction's account list. What the
+              seeds guarantee is that the address is derivable from the user's key,
+              so someone else's vault fails the seeds check instead of being quietly
+              accepted.
+        explanation: >-
+          A PDA's address is a pure function of its seeds and the program id.
+          Seeding with the user's pubkey gives one deterministic vault per wallet,
+          re-derivable by any client with no lookup table and no private key — and
+          the `bump` constraint is what turns "derivable" into "checked on every
+          call."
+
+      - id: q2
+        prompt: >-
+          You forget `#[account(mut)]` on `user` but keep `payer = user`.
+          Everything else is right. Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It compiles, and every call fails at runtime — the payer's lamports
+              change, so the account has to be declared writable
+            correct: true
+          - id: b
+            label: It fails to compile — `payer` requires `mut` on the field it names
+            correct: false
+            feedback: >-
+              Anchor does not couple them at compile time. The constraint is checked
+              when the instruction runs, which is exactly why this one gets deployed
+              and then breaks on first use.
+          - id: c
+            label: It works — `Signer` implies writability, because signing is what authorizes spending
+            correct: false
+            feedback: >-
+              Signing and writing are separate declarations. A read-only `Signer` is
+              perfectly normal: an authority that approves an action without paying
+              for it. Paying is what needs `mut`.
+          - id: d
+            label: It works, and the rent deposit comes from the vault instead
+            correct: false
+            feedback: >-
+              The vault has no lamports yet — it is the account being created.
+              `payer = user` names where the deposit comes from and there is no
+              fallback.
+        explanation: >-
+          `Signer` is about authorization, `mut` is about mutation, and the payer of
+          an `init` is both. The runtime requires every account whose lamports or
+          data change to be writable at the transaction level, so a missing `mut` is
+          a runtime rejection — after a successful build and a successful deploy.
+          Failures only reachable by running are exactly what module 4's LiteSVM
+          lesson is about — it shows you the test that would catch this one.
+
+      - id: q3
+        prompt: >-
+          Why does `space` deserve more care than the other four constraints on the
+          vault?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It is the only one whose wrong value still compiles and still deploys
+              — the other four fail loudly
+            correct: true
+          - id: b
+            label: It is the only one that costs compute units
+            correct: false
+            feedback: >-
+              `space` costs nothing at runtime; it is a number baked into the
+              account-creation call. Bare `bump` is the constraint with a per-call
+              compute cost, because it re-runs the derivation search.
+          - id: c
+            label: It can be changed later, unlike the others
+            correct: false
+            feedback: >-
+              It is the least changeable of the five. The allocation is fixed at
+              creation, and growing an account afterwards is a separate deliberate
+              operation with its own payer. Seeds and bump, by contrast, are checks
+              that simply re-run per instruction.
+          - id: d
+            label: Anchor validates the others against the struct but not `space`
+            correct: false
+            feedback: >-
+              Anchor validates none of them against `VaultState`. What makes the
+              other four safe is that a wrong value is malformed syntax or a failed
+              runtime check. A wrong `space` is a well-formed number.
+        explanation: >-
+          `init`, `payer`, `seeds` and `bump` all fail loudly — at build time for bad
+          syntax, at runtime for a wrong address or an unsigned payer. `space` is a
+          plain integer expression: too small and the account deploys and then fails
+          on write, too large and it deploys and quietly locks extra rent deposit per
+          vault for as long as it exists. Nothing anywhere reports it, which is why
+          you derived it instead of copying it.

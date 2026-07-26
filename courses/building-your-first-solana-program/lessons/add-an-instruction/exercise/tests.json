@@ -1,0 +1,20 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ a handler named vault_info exists inside #[program], taking Context<VaultInfo> and returning Result<()>",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t3",
+    "description": "Compiles ⇒ VaultInfo exists, has no fields, and carries #[derive(Accounts)] rather than #[account]",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

@@ -1,0 +1,176 @@
+id: lesson-bfsp-complete-counter
+slug: withdraw-with-a-pda-signer
+title: Withdraw With a PDA Signer
+skills:
+  - pdas
+  - cpi
+  - program-errors
+  - checked-arithmetic
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Build before you change anything. One error comes back: `error[E0308]: mismatched types — expected Result<(), Error>, found ()`, pointing at `withdraw`'s return type with the note `implicitly returns () as its body has no tail`. An empty body evaluates to `()`, so one of the ten pool lines is simply `Ok(())` and it goes last."
+      - "Work out the dependencies before the order. `rent_floor` and `remaining` are both `let` bindings that a later line reads, and `remaining` has to exist before the guard that compares it. The guard has to run before any lamport is touched, and the Course 2 method has to run before anything at all — if the recorded balance cannot cover the amount, nothing else should happen."
+      - "Two lines belong nowhere. (9) is the `new_with_signer` CPI: add a `signer_seeds` binding and it compiles, deploys, and returns `Transfer: 'from' must not carry data`, because the System Program will not debit a data-carrying account and does not own your vault. (10) does bare subtraction with no floor check — under `overflow-checks = true` it panics instead of returning `InsufficientFunds`."
+    tutorNotes:
+      - "Learners reach for `CpiContext::new_with_signer` and a System `transfer` out of the vault. It compiles and deploys; on-chain it returns `Transfer: 'from' must not carry data`. The vault is owned by their program and holds 49 bytes, so the System Program will not debit it."
+      - "They debit the vault with no rent-floor check. It works while the vault is well funded and then fails the whole transaction with `InsufficientFundsForRent` once the balance nears the minimum for 49 bytes."
+      - "They hardcode 49 in `minimum_balance(...)` instead of `vault_info.data_len()`, which silently goes wrong the moment `VaultState` gains a field."
+      - "They retype `checked_sub` on `vault.balance` instead of calling the Course 2 `vault.withdraw(amount)?`, so the zero guard and the typed error are quietly dropped."
+      - "They add a second `#[error_code]` enum for the rent case. It compiles — both enums start at `ERROR_CODE_OFFSET` 6000, so the two first variants share error code 6000 and the client cannot tell them apart."
+      - "They add `system_program` to the Withdraw accounts struct out of habit. There is no CPI in this instruction, so there is no callee program for the runtime to load."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A submission drops the `require!(remaining >= rent_floor, ...)` guard
+          and debits the vault directly. A user then withdraws an amount that
+          would leave the vault with fewer lamports than the rent-exempt minimum
+          for its 49 bytes. Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The whole transaction fails with
+              `TransactionError::InsufficientFundsForRent` — nothing moves, and
+              the caller gets a runtime error instead of your typed
+              `InsufficientFunds`.
+            correct: true
+          - id: b
+            label: >-
+              It succeeds. Rent collection was removed from Solana, so a low
+              balance no longer matters.
+            correct: false
+            feedback: >-
+              Rent *collection* is gone; rent *exemption* is still enforced at the
+              end of every transaction. A rent-exempt account is not allowed to
+              become rent-paying, which is exactly the transition this attempts.
+          - id: c
+            label: >-
+              It succeeds, and the account is closed automatically once it drops
+              below the minimum.
+            correct: false
+            feedback: >-
+              Nothing closes accounts implicitly. Closing is a deliberate act —
+              zero the lamports and hand back the data — and a partial drop below
+              the minimum is refused rather than converted into one.
+          - id: d
+            label: >-
+              The instruction returns `VaultError::InsufficientFunds`, since the
+              runtime maps the rent failure onto your error enum.
+            correct: false
+            feedback: >-
+              The runtime knows nothing about your enum. That mapping is the guard
+              you just deleted — its whole job is to convert a runtime rejection
+              you cannot label into an error the caller can read.
+        explanation: >-
+          The rent check compares an account's state before and after the
+          transaction, and a transition from `RentExempt` to `RentPaying` is
+          refused. So the failure is real, it is transaction-wide, and it arrives
+          as an opaque runtime error. Checking the floor yourself with
+          `Rent::get()?.minimum_balance(vault_info.data_len())` is how the caller
+          finds out what they actually did wrong.
+      - id: q2
+        prompt: >-
+          Wanting a clearer message for the rent case, a submission adds
+          `#[error_code] pub enum WithdrawError { #[msg("Would break rent exemption")] BelowRentFloor }`
+          alongside the Course 2 `VaultError`. Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It compiles — and both enums start at `ERROR_CODE_OFFSET`, so
+              `BelowRentFloor` and `VaultError::Overflow` are both error code
+              6000 and no client can tell them apart.
+            correct: true
+          - id: b
+            label: >-
+              It fails to compile. Anchor 1.0 permits only one `#[error_code]`
+              enum per program.
+            correct: false
+            feedback: >-
+              This is the version of the rule you will read almost everywhere, and
+              it is wrong — verified on the toolchain that grades you. Lessons 2
+              and 3 told you to keep one enum, and that advice stands; what they
+              were careful not to say is that the compiler enforces it. It does
+              not. Two enums compile silently, which is worse than a compile
+              error, because the collision only shows up in a client trying to
+              interpret code 6000.
+          - id: c
+            label: >-
+              It compiles, and Anchor offsets the second enum automatically so the
+              codes stay distinct.
+            correct: false
+            feedback: >-
+              There is no automatic offsetting. `impl From<E> for u32` adds the
+              same `ERROR_CODE_OFFSET` for every enum; you have to pass an offset
+              yourself with `#[error_code(offset = ...)]` if you really want two.
+          - id: d
+            label: >-
+              It compiles but the second enum is stripped from the IDL, so clients
+              see nothing at all.
+            correct: false
+            feedback: >-
+              Both enums are emitted. The problem is not absence, it is ambiguity
+              — two different names claiming the same number.
+        explanation: >-
+          One enum per program is the right *practice*, but not for the reason
+          usually given. `#[error_code]` generates
+          `impl From<Enum> for u32 { e as u32 + ERROR_CODE_OFFSET }`, and
+          `ERROR_CODE_OFFSET` is 6000 for every enum, so a second enum's variants
+          shadow the first enum's codes one for one. Course 2's `VaultError`
+          already has `InsufficientFunds`; reuse it.
+      - id: q3
+        prompt: >-
+          `Deposit` declares `system_program: Program<'info, System>` and
+          `Withdraw` does not. Why is the asymmetry correct?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `deposit` makes a CPI and the runtime must have the callee's program
+              account loaded; `withdraw` makes no CPI, because a program may debit
+              an account it owns directly.
+            correct: true
+          - id: b
+            label: >-
+              Because `withdraw` is a read-only instruction and read-only
+              instructions never need the System Program.
+            correct: false
+            feedback: >-
+              `withdraw` mutates two lamport balances and the vault's data — it is
+              about as far from read-only as an instruction gets. The reason is the
+              absence of a CPI, not the absence of writes.
+          - id: c
+            label: >-
+              Anchor injects the System Program automatically for instructions that
+              only move lamports.
+            correct: false
+            feedback: >-
+              Anchor never injects accounts. Anything the instruction needs must be
+              declared, which is why omitting it from an `init` instruction gives
+              you a trait-bound error rather than working silently.
+          - id: d
+            label: >-
+              Because the vault signs for itself in `withdraw`, replacing the need
+              for the System Program.
+            correct: false
+            feedback: >-
+              Nothing signs in `withdraw`. That is the lesson: the seeds would have
+              proved authorisation, and authorisation was never what was missing.
+        explanation: >-
+          A CPI needs its callee present in the transaction, so `deposit` declares
+          the System Program. `withdraw` asks no other program for anything — your
+          program owns the vault, and owners may move their own accounts' lamports
+          with `try_borrow_mut_lamports`. If your answer to `withdraw` needed the
+          System Program, it was the wrong answer.

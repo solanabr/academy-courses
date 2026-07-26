@@ -1,0 +1,172 @@
+id: lesson-bfsp-pre-flight-check
+slug: pre-flight-check
+title: Pre-Flight Check
+skills:
+  - program-testing
+  - account-model
+  - pdas
+  - rent-and-space
+  - cpi
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  # Concept-retrieval checkpoint. Deliberately cold and out of teaching order:
+  # nine items spanning modules 1-3 plus two seeded from Course 2 (q8 checked
+  # arithmetic, q9 what a compile-only harness cannot observe). This is a
+  # spacing checkpoint, NOT a guidance rung — nothing fades here.
+  - key: checkpoint
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your vault account is created with `space = 8 + 32 + 8 + 1`, where `VaultState` is `{ owner: Pubkey, balance: u64, bump: u8 }`. How many bytes is the account, and what is the leading 8 for?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "49 bytes — 8 for the discriminator Anchor writes at offset 0, then 32 + 8 + 1 for the fields"
+            correct: true
+          - id: b
+            label: "41 bytes — 32 + 8 + 1; the 8 is the u64 `balance`, already counted"
+            correct: false
+            feedback: "41 is `INIT_SPACE`, the fields alone. The extra 8 is the account discriminator, which sits ahead of every field — total 49."
+          - id: c
+            label: "49 bytes — 8 reserved for future fields, then 32 + 8 + 1"
+            correct: false
+            feedback: "The 8 is not padding you could grow into. It is the discriminator: the first 8 bytes of sha256 of the type name, which is how the runtime knows this account is a `VaultState` and not some other struct of the same length."
+        explanation: "`INIT_SPACE` (41) counts the fields; the `8 +` is Anchor's account discriminator, written at offset 0 and checked on every deserialize. 8 + 32 + 8 + 1 = 49, and that number is fixed at creation — an account's data length cannot grow later without a realloc, which is why you derive it rather than guess it."
+      - id: q2
+        prompt: "`deposit` makes a System Program CPI — `transfer(CpiContext::new(System::id(), Transfer { from: user, to: vault }), amount)`. `withdraw` makes no CPI at all. Why the asymmetry?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A program may only debit accounts it owns. Deposit debits the user's wallet, owned by System, so System must do it; withdraw debits the vault, owned by your program, so your program does it directly"
+            correct: true
+          - id: b
+            label: "Withdraw could use a System CPI with `new_with_signer`, but direct lamport arithmetic costs fewer compute units"
+            correct: false
+            feedback: "The System CPI is not a slower alternative — it does not work at all. System refuses to debit an account carrying data (`Transfer: 'from' must not carry data`) and does not own the vault regardless. Signer seeds solve authorisation, and authorisation was never the obstacle."
+          - id: c
+            label: "Withdraw skips the CPI because the vault is a PDA, and PDAs cannot be the source of a transfer"
+            correct: false
+            feedback: "Being a PDA is not the blocker — a dataless PDA can absolutely be the `from` of a System transfer when its program signs with seeds. What blocks it here is that this PDA carries 49 bytes of data and is owned by your program."
+        explanation: "The rule is ownership: whichever program is executing may debit only accounts assigned to it. Lamports IN move through System because the source is a wallet System owns. Lamports OUT do not, because the source is your vault — so your program writes `try_borrow_mut_lamports` itself, and a System CPI would fail whatever seeds you attached. This is why `Withdraw` has no `system_program` field: there is no callee program to load. Getting this backwards is the single most common PDA mistake on Solana, which is why module 3 shipped it as a decoy rather than a footnote."
+      - id: q3
+        prompt: "Why does the vault PDA have no private key, and what would break if it did?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Its address is found by hashing seeds until the result falls OFF the ed25519 curve, so no key can correspond to it — and if one could, its holder could move the vault's lamports without the program"
+            correct: true
+          - id: b
+            label: "The key exists but is held by the program, which keeps it secret"
+            correct: false
+            feedback: "There is no key anywhere. Derivation deliberately retries with a decreasing bump until it lands off the curve, precisely so no keypair can exist for the address."
+          - id: c
+            label: "The key is derived from the program id, so only the program can reconstruct it"
+            correct: false
+            feedback: "Nothing is reconstructed. A PDA is off-curve by construction; the program's authority over it comes from the runtime checking seeds, not from possessing anything."
+        explanation: "PDA derivation hashes the seeds, the program id and a marker, and retries with bump 255, 254, … until the digest is not a valid curve point. Off-curve means no keypair exists, which is exactly the property you want for an account holding value: the only path to authorising it is a program the runtime can check, not a secret someone can leak."
+      - id: q4
+        prompt: "An attacker calls your `withdraw` and passes someone else's vault account, hoping to drain it into their own wallet. Which single piece of the accounts struct stops that?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`seeds = [b\"vault\", user.key().as_ref()]` — the vault's address is a function of the signer's key, so a different vault simply is not the account at that address and the constraint fails"
+            correct: true
+          - id: b
+            label: "`Account<'info, VaultState>`, because it verifies the discriminator"
+            correct: false
+            feedback: "The discriminator check stops a wrong TYPE (or an uninitialised account) being passed, which is a different attack. It happily accepts a correctly-typed vault belonging to somebody else. The seeds are what bind the account to the signer."
+          - id: c
+            label: "`#[account(mut)]` on `user`, because only a mutable signer can receive lamports"
+            correct: false
+            feedback: "`mut` marks the account writable; it says nothing about whose vault was supplied. The binding comes from deriving the vault address from `user.key()`."
+        explanation: "Seeds are the cheapest and strongest account-substitution defence available: `[b\"vault\", user.key().as_ref()]` makes the address itself a function of the signer, so there is exactly one vault the transaction can name for a given signer. The discriminator check and `mut` guard other things — wrong type, and writability — and all three are needed for different reasons."
+      - id: q5
+        prompt: "Anchor 1.0 changed the default for duplicate mutable accounts. What is the default now, and what does `#[account(mut, dup)]` do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Passing the same account twice as two mutable inputs now fails with `ConstraintDuplicateMutableAccount`; `dup` opts a specific account out, for instructions where aliasing is legitimate"
+            correct: true
+          - id: b
+            label: "Duplicates are allowed by default; `dup` turns on the check for accounts where aliasing would be a bug"
+            correct: false
+            feedback: "It is the reverse, and that reversal is the 1.0 change. The check is on by default and errors; `dup` is the opt-OUT for the rare instruction that genuinely wants the same account in two slots."
+          - id: c
+            label: "`dup` deduplicates the account list before the instruction runs"
+            correct: false
+            feedback: "Nothing is removed. `dup` only suppresses the duplicate-mutable-account error for that field; the account still appears in both positions and both borrows are yours to reason about."
+        explanation: "Two mutable handles to one account is how a `transfer_between_vaults` silently becomes a no-op or a double-credit: you write through one view, then the second view overwrites it from stale data. Anchor 1.0 makes that an error by default and gives you `#[account(mut, dup)]` to say \"yes, I meant it here.\" Write `dup`, never `unsafe(dup)` — that is v2-alpha syntax for a different framework generation."
+      - id: q6
+        prompt: "You delete `pub system_program: Program<'info, System>` from `InitializeVault` and click Build. What happens?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The build fails: `init` expands into a CPI that creates the account, and that expansion needs a System Program account in the struct to call — there is no field left to reference"
+            correct: true
+          - id: b
+            label: "The build succeeds; the instruction fails at runtime when it tries to create the account"
+            correct: false
+            feedback: "It never gets that far. `init` is a macro that writes the create-account CPI for you, and the code it writes names `system_program`. Remove the field and the generated code refers to something that does not exist."
+          - id: c
+            label: "The build succeeds and Anchor supplies the System Program automatically, since its address is a constant"
+            correct: false
+            feedback: "The address is a constant, but the ACCOUNT still has to be in the instruction's account list — the runtime only lends a program the accounts it was passed. Anchor requires you to declare it."
+        explanation: "Creating an account is not something your program can do alone; only the System Program can allocate and assign. `init` hides that CPI, but hiding is not removing, and the generated call names the field. This is also why the error lands on your accounts struct rather than on the line you deleted: macro-generated code fails where it was expanded."
+      - id: q7
+        prompt: "`bump` (bare) and `bump = vault.bump` on the same account both compile and usually resolve to the same address. What is the actual difference?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Bare `bump` re-runs the derivation search, hashing once per candidate bump until it finds the canonical one; `bump = vault.bump` hashes once with the bump you stored at init"
+            correct: true
+          - id: b
+            label: "Bare `bump` accepts any valid bump, so a caller could supply a non-canonical one"
+            correct: false
+            feedback: "Bare `bump` finds and requires the CANONICAL bump — it is not permissive. The cost is that finding it means repeating the search on every call."
+          - id: c
+            label: "`bump = vault.bump` skips PDA verification entirely and trusts the account"
+            correct: false
+            feedback: "Verification still happens: Anchor derives the address from your seeds plus that bump and compares it to the account passed in. It just does one hash instead of a search."
+        explanation: "This is why `VaultState` carries a `bump: u8` field at all. The canonical bump is found by trying 255, 254, … until the result is off-curve, and that search costs compute units every single call. Store it once at init, then hand it back with `bump = vault.bump` — one hash, same guarantee. It is the clearest instance in the course of paying 1 byte of rent to stop paying compute forever."
+      - id: q8
+        prompt: "Course 2 recall. Your `withdraw` does `self.balance.checked_sub(amount).ok_or(VaultError::InsufficientFunds)?`. Someone suggests `self.balance - amount` instead, noting that the release profile sets `overflow-checks = true` so it will panic rather than wrap. Why is that still worse?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A panic aborts the instruction with no error code and no message, so the caller learns only that something failed; `checked_sub` + `ok_or` returns a named variant with the `#[msg]` string you wrote"
+            correct: true
+          - id: b
+            label: "It is not worse — with `overflow-checks = true` the two are equivalent"
+            correct: false
+            feedback: "They stop the same bad write, but they report it completely differently. One gives the caller a code and a sentence; the other gives them a failed transaction and nothing to act on."
+          - id: c
+            label: "Bare subtraction would silently wrap to a huge number even with `overflow-checks = true`"
+            correct: false
+            feedback: "That line is exactly what `overflow-checks = true` prevents — it panics instead of wrapping. The problem is the panic itself, not a wrap."
+          - id: d
+            label: "`checked_sub` is faster, so the checked version costs fewer compute units"
+            correct: false
+            feedback: "Compute cost is not the argument, and the difference is negligible. The argument is the quality of the failure your caller receives."
+        explanation: "`overflow-checks = true` turns a wrap into a panic, which is strictly better than a wrap and still the wrong shape for a program. A panic is an aborted instruction carrying no error code, so a client can render nothing useful. `checked_sub` returns `None`, `ok_or` names it `InsufficientFunds`, and `?` carries it up — the caller gets 6001 and a string you authored. Turning `None` into a named variant was the whole point of Course 2's last five lessons, and it is what makes an error a feature rather than a crash."
+      - id: q9
+        prompt: "Course 2 recall. Course 2's `mod verify` harness binds `VaultState::withdraw` to `fn(&mut VaultState, u64) -> Result<()>` and asserts `INIT_SPACE == 41`. Which of these would the harness let through?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A `withdraw` whose body calls `checked_add` instead of `checked_sub`"
+            correct: true
+          - id: b
+            label: "Renaming `balance` to `amount_held`"
+            correct: false
+            feedback: "The harness constructs `VaultState { owner, balance, bump }` by field name, so a rename is a compile error. That is the class of mistake a type-level check does catch."
+          - id: c
+            label: "Widening `bump` from `u8` to `u64`"
+            correct: false
+            feedback: "That moves `INIT_SPACE` from 41 to 48 and trips `const _: () = assert!(VaultState::INIT_SPACE == 41)` at compile time."
+          - id: d
+            label: "Deleting the `#[account]` attribute"
+            correct: false
+            feedback: "`#[account]` is what supplies the discriminator the harness measures with `assert!(VaultState::DISCRIMINATOR.len() == 8)`, so removing it fails the build."
+        explanation: "A verification harness is a TYPE check, and an operator is not a type. `checked_add` and `checked_sub` have identical signatures, so every binding in the harness still matches and the build goes green on a vault that credits you for withdrawing. That gap is not a flaw in the harness — it is the boundary of what compilation can observe, and it is exactly the boundary a LiteSVM test crosses by running the instruction and reading the number back."

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ InitializeVault carries the <'info> lifetime and holds account references",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t3",
+    "description": "Compiles ⇒ vault is Account<'info, VaultState>, user is a mutable Signer, system_program is Program<'info, System>",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t4",
+    "description": "Compiles ⇒ the vault carries seeds + bump, so ctx.bumps.vault exists",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t5",
+    "description": "Compiles ⇒ neither dead pool line was used — rent was removed in 0.31, and mut cannot create an account",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]
