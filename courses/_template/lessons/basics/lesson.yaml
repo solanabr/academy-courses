@@ -17,10 +17,19 @@ blocks:
           - { id: a, label: Data accounts, correct: true }
           - { id: b, label: Program accounts, correct: true }
           - { id: c, label: Instructions, correct: false, feedback: "Inputs, not accounts." }
+        explanation: >-
+          On Solana everything is an account, and both data accounts and program
+          accounts hold state — a program account stores its executable bytes.
+          Instructions are the inputs a transaction carries, not stored accounts.
       - id: q2
-        prompt: Pick the base unit.
+        prompt: Pick the base unit of SOL.
         multiSelect: false
         options:
           - { id: a, label: Lamport, correct: true }
-          - { id: b, label: Gwei, correct: false }
+          - { id: b, label: Gwei, correct: false, feedback: "That is Ethereum's sub-unit, not Solana's." }
+          - { id: c, label: SOL, correct: false, feedback: "SOL is the display unit; amounts on-chain are counted in its base unit." }
+        explanation: >-
+          One SOL is 1,000,000,000 lamports, and the lamport is the indivisible
+          base unit every on-chain amount is counted in. SOL is only the
+          human-facing display unit; Gwei belongs to Ethereum.
   - { key: reflect, type: openEnded, prompt: "What did you learn?", maxWords: 120 }

@@ -59,6 +59,12 @@ blocks:
               Tearing down an authority and invalidating its delegations is what
               `closeSubscriptionAuthority` is for, and it is deliberate. `init`
               does not silently do it.
+        explanation: >-
+          The SubscriptionAuthority PDA is derived from `(user, tokenMint)`, so a
+          returning user already has one and calling `init` on an account that
+          exists fails — leaving them worse off than a newcomer. Read first with
+          a `fetchMaybe*` and branch on its `exists` discriminant; nothing here
+          is idempotent by convenience.
       - id: q2
         prompt: >-
           You mean to cap a delegation at 25 USDC and pass `amount: 25n`.
@@ -87,6 +93,12 @@ blocks:
             feedback: >-
               `amount` is the cap. The balance is a separate constraint that
               also has to hold.
+        explanation: >-
+          Every amount in this API is base units — there is no decimals scaling
+          anywhere — so `amount: 25n` caps the delegation at 25 base units,
+          0.000025 USDC, and the first real charge fails with
+          `AMOUNT_EXCEEDS_LIMIT`. Convert human amounts to base units once, in
+          one function, so the mistake cannot recur.
       - id: q3
         prompt: >-
           A fixed delegation's `expiryTs` passed 40 seconds ago. Your merchant
@@ -114,6 +126,12 @@ blocks:
             feedback: >-
               Nothing renews. Renewal is a new `createFixedDelegation` with a
               new nonce, signed by the user.
+        explanation: >-
+          Expiry is enforced on the transfer, not just at creation, so a
+          delegation 40 seconds past `expiryTs` fails with `DELEGATION_EXPIRED`
+          — no grace window, no auto-renewal. Renewal is a new
+          `createFixedDelegation` with a new nonce that the user signs; if a
+          product wants a grace period, the product builds it.
       - id: q4
         prompt: >-
           Read the types. In `transferFixed`, `delegator` is an `Address` and
@@ -143,6 +161,12 @@ blocks:
               The authority is the SPL delegate and the program signs for it,
               but the transaction still needs an authorised human or service to
               sign — and that is the delegatee.
+        explanation: >-
+          The types are the answer: `delegatee` is a `TransactionSigner` and
+          `delegator` is a plain `Address`, so only the delegatee signs the
+          charge. The user consented once at setup and is not present per-pull;
+          their protection is the cap, the expiry and the revoke, not a
+          signature on every transfer.
       - id: q5
         prompt: >-
           A sponsor signed as `payer`, so the sponsor funded the

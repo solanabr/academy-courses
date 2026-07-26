@@ -59,6 +59,12 @@ blocks:
             feedback: >-
               The program does not silently rewrite your amount. It refuses the
               instruction.
+        explanation: >-
+          The per-period cap is also your idempotency guard. Once 25 USDC is
+          pulled, a second pull in the same period fails with
+          `AMOUNT_EXCEEDS_PERIOD_LIMIT` — read that as "already collected" and
+          stop. Retrying treats a charge that already landed as a transient
+          failure, which is how you would double-bill.
       - id: q2
         prompt: >-
           A merchant with a 25 USDC/month recurring delegation forgets to
@@ -118,6 +124,12 @@ blocks:
               The delegatee cannot change the terms. Extending means a new
               delegation with a new nonce, signed by the user — which means the
               user consents again.
+        explanation: >-
+          An unattended service holds the delegatee key and nothing more: it can
+          pull up to the cap each period and cannot touch the terms. Setup and
+          revoke are signed by the user (the delegator); changing `expiryTs`
+          means a new delegation the user signs again. That split is exactly why
+          the delegatee key is safe to leave running unattended.
       - id: q4
         prompt: >-
           You call `createRecurringDelegation` with `startTs: 0n` and
@@ -145,6 +157,12 @@ blocks:
             feedback: >-
               `DELEGATION_NOT_STARTED` is real, and it is what you get from a
               `startTs` in the future. This case fails earlier, at creation.
+        explanation: >-
+          `startTs: 0n` means "start when this lands", which is only allowed when
+          paired with a bounded, non-zero expiry. Combined with `expiryTs: 0n`
+          ("never expire") it is the least-bounded authorisation the program
+          could issue, so it is rejected at creation — not later, at transfer
+          time.
       - id: q5
         prompt: >-
           The user calls `revokeDelegation` on a live recurring delegation.
@@ -171,3 +189,9 @@ blocks:
               is the whole point. Revoking all of them at once is
               `closeSubscriptionAuthority`, and it is a separate, deliberate
               kill switch.
+        explanation: >-
+          `revokeDelegation` closes that one delegation's PDA and returns its
+          rent, and because each delegation is its own PDA under the shared
+          authority the user's others are untouched. There is no pause in this
+          model — re-establishing means a fresh `createRecurringDelegation` with
+          a new nonce, signed by the user, so consent is given again.

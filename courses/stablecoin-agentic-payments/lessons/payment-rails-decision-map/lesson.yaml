@@ -94,6 +94,12 @@ blocks:
             feedback: >-
               Solana Pay assumes a human is present to approve. Nobody is
               scanning a QR code inside a script's retry loop.
+        explanation: >-
+          x402 is the only rail that needs no prior relationship with the
+          payer: the price rides in the 402 response and is satisfied in the
+          same request cycle. Delegations and subscriptions both require
+          onboarding an account first, and Solana Pay assumes a human is present
+          to approve — none of which an anonymous script has.
       - id: q3
         prompt: >-
           A recurring delegation is capped at 50 USDC per month. The merchant
@@ -121,6 +127,12 @@ blocks:
             label: 100 USDC — the two skipped periods carry, the current one does not
             correct: false
             feedback: No period carries. The cap is per period, full stop.
+        explanation: >-
+          A recurring cap is a per-period ceiling, not a balance that accrues.
+          Each period resets to the full cap and unused capacity from skipped
+          periods is gone, so May allows 50 USDC and no more. If a business
+          needs missed periods to be collectable, that is an invoice it builds
+          in its own system.
       - id: q4
         prompt: >-
           You add `@solana/pay@1.0.23` to a project that already pins
