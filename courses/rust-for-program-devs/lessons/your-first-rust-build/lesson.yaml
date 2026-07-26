@@ -1,0 +1,142 @@
+id: lesson-rpd-your-first-rust-build
+slug: your-first-rust-build
+title: Your First Rust Build
+skills:
+  - rust
+  - build-server
+  - toolchain-versions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - You don't need to change anything — just click the Build button
+      - If the build times out, try again. First builds take longer because dependencies are being downloaded.
+      - If you see errors, make sure you haven't accidentally modified the starter code. Click Reset Code to restore it.
+  - key: output
+    type: prose
+    src: reading-the-output.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You submit a file that compiles but makes `rustc` emit
+          `warning: unreachable pattern`. There is no `error[E….]` anywhere.
+          Predict both the grade and what appears in the output panel.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Passes, and you see `Program compiled successfully!` and a build
+              id — nothing else. The warning was emitted and this platform
+              discards the log on a successful build, so it never reaches you.
+            correct: true
+          - id: b
+            label: Passes, and the warning is shown above the success message so you can act on it.
+            correct: false
+            feedback: >-
+              It is not. On success the runner reports the success line and the
+              build id and throws the captured output away; only a failing build
+              hands you the log. Worth knowing before a later lesson tells you
+              "that mistake only warns".
+          - id: c
+            label: Fails. Warnings are collected and counted against the submission.
+            correct: false
+            feedback: >-
+              Nothing counts warnings. `rustc` treats them as advice and exits
+              successfully, the build server reports success, and the lesson
+              passes. They do not gate anything — the problem is the opposite
+              one, that you cannot see them.
+          - id: d
+            label: Passes, but with partial credit, since the code is not clean.
+            correct: false
+            feedback: >-
+              There is no partial credit on a buildable lesson. The signal the
+              grader has is one bit: did it compile.
+      - id: q2
+        prompt: >-
+          You delete the `declare_id!` line from this lesson's file and leave
+          everything else alone. Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              A compile error, because `ID` no longer exists — `declare_id!` is
+              what generates it, and `msg!` on the next line uses it.
+            correct: true
+          - id: b
+            label: >-
+              It compiles. `declare_id!` only matters at deploy time, when the
+              program needs an address.
+            correct: false
+            feedback: >-
+              It is a compile-time constant, not deploy metadata. Anything that
+              refers to `ID` — your `msg!` here, and every account macro you
+              write from lesson 10 onward — needs it to exist during
+              compilation.
+          - id: c
+            label: >-
+              It compiles with a warning, and `ID` falls back to the all-zeros
+              default program id.
+            correct: false
+            feedback: >-
+              There is no default and no fallback. The name is either generated
+              or absent.
+          - id: d
+            label: >-
+              It compiles, and the failure surfaces later as a runtime error on
+              devnet.
+            correct: false
+            feedback: >-
+              A missing name is caught during compilation. Rust does not resolve
+              names at run time, so there is no "later" for this class of
+              mistake.
+      - id: q3
+        prompt: >-
+          This lesson's version stamp names the pinned `rustc`, and it is older
+          than the newest Rust release. Nothing in the build log states that
+          version. You paste in a snippet that relies on a language feature
+          stabilised after it. Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It fails to compile here, even though it is valid Rust on a newer
+              toolchain. The server's compiler is the ceiling, and it is not the
+              latest release.
+            correct: true
+          - id: b
+            label: >-
+              It compiles. The build server fetches whatever toolchain the
+              submitted code requires.
+            correct: false
+            feedback: >-
+              The toolchain is pinned by the `--tools-version` the build server
+              passes to `cargo-build-sbf`. Nothing about your submission can
+              change it — which is the point of pinning it, and why a version
+              stamp sits at the top of every lesson instead.
+          - id: c
+            label: >-
+              It compiles, because the feature is only rejected on the stable
+              channel and SBF builds use nightly.
+            correct: false
+            feedback: >-
+              Whether a feature exists is a property of the compiler version,
+              not a channel you can talk your way onto from inside a submission.
+          - id: d
+            label: >-
+              It compiles with a `future_incompatible` warning naming the
+              required version.
+            correct: false
+            feedback: >-
+              A compiler cannot warn about syntax it does not understand. You
+              get an error — often an unhelpful parse error rather than a
+              polite "this needs a newer Rust".

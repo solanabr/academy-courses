@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test-1",
+    "description": "Program compiles successfully",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "mod verify's compile-time assertions on discriminator all evaluate (length check and first-8-bytes)",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-3",
+    "description": "mod verify's fn-pointer constants accept discriminator_if — return borrows from data, expected has its own lifetime",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

@@ -1,0 +1,169 @@
+id: lesson-rpd-build-the-vault-core
+slug: build-the-vault-core
+title: Build the Vault Core
+skills:
+  - rust-structs
+  - rust-enums
+  - rust-result
+  - checked-arithmetic
+  - rust-modules
+  - error-handling
+  - anchor
+  - program-security
+blocks:
+  - key: spec
+    type: prose
+    src: spec.md
+  - key: manifest
+    type: prose
+    src: cargo-toml.md
+  - key: complete
+    type: code
+    language: rust
+    buildType: buildable
+    starter: complete/starter.rs
+    solution: complete/solution.rs
+    tests: complete/tests.json
+    hints:
+      - >-
+        Build before you change anything. Fourteen errors come back and the first
+        twelve are all the same *problem*: twelve unresolved names, eight of
+        `VaultState` and four of `VaultError`, reported as E0412, E0422 and E0433
+        depending on where each one is used. All twelve are in the harness.
+        `mod verify` is a sibling of `mod vault`, not a child, so `use super::*`
+        reaches the crate root and finds nothing there. One pool line fixes all
+        twelve.
+      - >-
+        The last two errors are the real work: `mismatched types: expected
+        Result<(), Error>, found ()`. An empty body evaluates to `()`. Each body
+        is three pool lines — reject zero, do the checked arithmetic and turn
+        `None` into a named error, hand back `Ok(())`. Lines (6) and (1) are the
+        two that are used in both bodies.
+      - >-
+        Two pool lines belong nowhere. (5) is bare subtraction, which panics
+        under `overflow-checks = true` instead of returning your error, and (2)
+        calls `.unwrap()`, which panics for the same reason with better manners.
+        Neither one can produce `InsufficientFunds`, which is the entire reason
+        `VaultError` exists.
+  - key: write
+    type: code
+    language: rust
+    buildType: buildable
+    starter: write/starter.rs
+    solution: write/solution.rs
+    tests: write/tests.json
+    hints:
+      - >-
+        The harness is the acceptance criteria, written in Rust. Read it top to
+        bottom before you type — it names every item, every field, every type
+        and both signatures you owe, and it is the only thing the build server
+        can check.
+      - >-
+        `assert!(VaultState::INIT_SPACE == 41)` holds only for `Pubkey` (32) +
+        `u64` (8) + `u8` (1). If it trips you widened a field — a `u64` bump is
+        the usual one, and it costs 7 bytes of rent per vault forever.
+      - >-
+        Your items go inside `pub mod vault` and the harness sits outside it, so
+        the crate root needs one line: `pub use vault::{VaultError, VaultState};`
+        Without it every harness reference fails with `cannot find type`, and the
+        items you wrote are unreachable from anywhere Course 3 could call them.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You finish the second exercise, but in `withdraw` you typed
+          `checked_add` where you meant `checked_sub`. Everything else matches
+          the spec. Predict what the build server reports.
+        multiSelect: false
+        options:
+          - id: a
+            label: Green. Grading is compile-only, and both methods return `Option<u64>`, so nothing about the file's types changed.
+            correct: true
+          - id: b
+            label: Red — the harness binds `withdraw` to a function pointer, and a wrong operator changes the type it binds.
+            correct: false
+            feedback: >-
+              The binding checks `fn(&mut VaultState, u64) -> Result<()>`. The
+              operator lives inside the body; it does not appear in the
+              signature, so the pointer still coerces.
+          - id: c
+            label: Red — `overflow-checks = true` turns the wrong operator into a compile error.
+            correct: false
+            feedback: >-
+              `overflow-checks` changes what a release binary does at runtime
+              when an operation overflows. It cannot see an operator you
+              intended to write, and nothing about it runs at compile time.
+          - id: d
+            label: Red — the lesson's hidden tests call `withdraw(100)` on a balance of 10 and check for `InsufficientFunds`.
+            correct: false
+            feedback: >-
+              There are no hidden tests on the Rust path. The build step shells
+              `cargo-build-sbf` and nothing else, and a submission passes iff the
+              program compiled. Behavioural checks arrive in Course 3, with
+              LiteSVM.
+        explanation: >-
+          This is the honest limit of the harness and it is worth carrying
+          forward: it proves your file has the right *shape*, and nothing more.
+          Until a test runs `withdraw` and looks at the number, the operator is
+          checked by you.
+      - id: q2
+        prompt: >-
+          You write `VaultState` and `VaultError` inside `pub mod vault { … }`
+          and forget the crate-root re-export. The harness below begins with
+          `use super::*;`. Predict the first error.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`cannot find type VaultState in this scope` — `mod verify` is a sibling of `mod vault`, so `use super::*` reaches the crate root, where nothing of that name has been declared."
+            correct: true
+          - id: b
+            label: It compiles. `use super::*` keeps walking up and down the module tree until it finds the name.
+            correct: false
+            feedback: >-
+              A glob import pulls in what is in scope exactly one level up. It
+              never searches downwards into sibling modules — that is what a
+              re-export is for.
+          - id: c
+            label: "`private type VaultState in public interface` — the struct needs `pub`."
+            correct: false
+            feedback: >-
+              You did write `pub struct`. The item is public; the problem is that
+              nothing at the crate root has named it. Different failure.
+          - id: d
+            label: "`unresolved import super::*` — there is nothing to glob."
+            correct: false
+            feedback: >-
+              `use super::*` always resolves; the crate root exists and is a
+              valid module. The failure lands on the names the harness then tries
+              to use.
+      - id: q3
+        prompt: >-
+          Carried over from lesson 4. You write `self.balance = self.balance -
+          amount;` with `balance == 10` and `amount == 25`, and it ships in the
+          build server's release profile. Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: It compiles, and at runtime the subtraction panics — the instruction aborts with no `VaultError` attached and no message for the caller.
+            correct: true
+          - id: b
+            label: It compiles, and `balance` wraps around to a value near `u64::MAX`.
+            correct: false
+            feedback: >-
+              That is the default release behaviour, but this manifest sets
+              `overflow-checks = true`, which restores the panic. Both outcomes
+              are worse than an error code; only one of them is what this
+              profile actually does.
+          - id: c
+            label: It does not compile — subtracting a larger `u64` from a smaller one is rejected by the compiler.
+            correct: false
+            feedback: >-
+              The compiler only rejects overflow it can evaluate at compile time,
+              in a constant. `balance` and `amount` are runtime values.
+          - id: d
+            label: It compiles and returns `Err(VaultError::InsufficientFunds)`, because that is what the enum is for.
+            correct: false
+            feedback: >-
+              Nothing converts a panic into a named error. That conversion is the
+              thing you write by hand, with `checked_sub(...).ok_or(...)?`.

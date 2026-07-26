@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test-1",
+    "description": "Program compiles successfully",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "add_lamports and sub_lamports return None at the u64 ceiling and floor — checked by compile-time assertion",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-3",
+    "description": "transfer_lamports is all-or-nothing: None when either half is impossible — checked by compile-time assertion",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

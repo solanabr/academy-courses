@@ -1,0 +1,132 @@
+id: lesson-rpd-error-plumbing
+slug: error-plumbing
+title: "Error Plumbing with `?`"
+skills:
+  - rust-result
+  - error-handling
+  - rust-traits
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - Build it first. The file is not supposed to compile yet, and the four errors are the instructions. Read only the first one — the rest of a Rust error list is usually cascade from the first.
+      - "Order before deletion. Both `E0425: cannot find value` errors mean a statement uses a name that a later statement defines, so move the definition up. In `withdraw_amount` the chain is: owner check, read, policy check, subtract."
+      - "The two decoys are `let amount = read_amount(data);` (no `?`, so `amount` is a `Result` and the next call rejects it) and `let remaining = balance.checked_sub(amount)?;` (`?` on an `Option`, which cannot work because `None` carries no error to convert). Delete both — the correct subtraction line, with `.ok_or(error!(VaultError::InsufficientFunds))?`, is already in the file."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Inside `withdraw_amount`, which returns `Result<u64>`, you write
+          `let remaining = balance.checked_sub(amount)?;`. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`error[E0277]: the ? operator can only be used on Results, not Options` — and the compiler suggests `.ok_or(...)?`"
+            correct: true
+          - id: b
+            label: It compiles, and an underflow returns `Err` with Anchor's built-in arithmetic error
+            correct: false
+            feedback: >-
+              There is no automatic mapping from `None` to an error. `?` propagates
+              by calling `From::from` on an error value, and `None` does not carry
+              one — which is exactly what the message says.
+          - id: c
+            label: It compiles, and an underflow silently yields 0 because `?` unwraps the `Option`
+            correct: false
+            feedback: >-
+              `?` never invents a value. If this compiled at all it would have to
+              return something from the function, not substitute a default.
+          - id: d
+            label: "`error[E0308]: mismatched types` — `checked_sub` returns `Option<u64>` and the function returns `Result<u64>`"
+            correct: false
+            feedback: >-
+              Close, and it is a different error. E0308 is a plain type mismatch;
+              this is E0277, a missing trait — the `Try` machinery has no
+              conversion to offer. The distinction is why the fix is `.ok_or`, not
+              a cast.
+        explanation: >-
+          `.ok_or(error!(VaultError::InsufficientFunds))?` turns the `Option` into
+          a `Result` by naming the failure, and only then does `?` have something
+          to carry. That one line is where lesson 4's `checked_sub` becomes a
+          program that reports a real error.
+      - id: q2
+        prompt: >-
+          You delete the `impl From<LayoutError> for anchor_lang::error::Error`
+          block and change nothing else. `read_amount` still returns
+          `Result<u64, LayoutError>` and `withdraw_amount` still calls it with `?`.
+          Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`error[E0277]: ? couldn't convert the error` — the trait `From<LayoutError>` is not implemented for `Error`"
+            correct: true
+          - id: b
+            label: It compiles. `?` propagates the error unchanged; conversion only happens if you ask for it with `.into()`
+            correct: false
+            feedback: >-
+              `?` always converts — the desugaring is `return Err(From::from(e))`.
+              With two different error types the conversion is not optional, it is
+              the only way the return type can be satisfied.
+          - id: c
+            label: It compiles, and `LayoutError::TooShort` reaches the client as custom error 6000
+            correct: false
+            feedback: >-
+              `LayoutError` has no error code at all — it is a plain enum, not an
+              `#[error_code]` one. There is nothing to send.
+          - id: d
+            label: A warning, and the error is coerced through `Debug` at runtime
+            correct: false
+            feedback: >-
+              Rust does not coerce types through `Debug`, and missing trait impls
+              are errors rather than warnings.
+        explanation: >-
+          This is the payback for lesson 10. `?` is not a special language feature
+          that understands your errors — it is one `From` lookup. Write the impl
+          and errors cross the seam; delete it and they cannot.
+      - id: q3
+        prompt: >-
+          Carried over from lesson 4. Those two helpers were `const fn` and
+          matched on `Option` by hand. You now try to write
+          `pub const fn sub_lamports(a: u64, b: u64) -> Option<u64> { let r = a.checked_sub(b)?; Some(r) }`.
+          Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`error[E0015]: ? is not allowed on Option<u64> in constant functions` — the `Try` trait is not const yet"
+            correct: true
+          - id: b
+            label: It compiles — `checked_sub` is itself a `const fn`, so everything in the expression is const-evaluable
+            correct: false
+            feedback: >-
+              `checked_sub` being const is necessary and not sufficient. `?` goes
+              through the `Try` trait, and trait methods are only callable in a
+              `const fn` once the trait itself is const — which `Try` is not.
+          - id: c
+            label: It compiles, but the compile-time assertions from lesson 4 stop working
+            correct: false
+            feedback: >-
+              The assertions are the reason the function is `const fn` in the first
+              place. If the function compiled, they would keep working; the
+              function is what does not compile.
+          - id: d
+            label: "`error[E0308]` — `?` on an `Option` in a function returning `Option` is a type mismatch"
+            correct: false
+            feedback: >-
+              That combination is normally fine — `?` on `Option` inside a function
+              returning `Option` is ordinary Rust. The problem here is `const`, not
+              the types.
+        explanation: >-
+          `match` works in a `const fn`; `?` does not. That is the entire reason
+          lesson 4's helpers look different from every function in this lesson, and
+          why the compile-time assertion harness was possible there and is not
+          possible on `deposit(&mut self)` in module 4.

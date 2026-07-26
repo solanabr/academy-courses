@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test-1",
+    "description": "The file compiles against anchor-lang 1.1.2 on the build server",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "Compiles ⇒ both unwritten bodies were replaced: the shipped starter carries a `compile_error!` per subgoal, so a file that still has one cannot build",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-3",
+    "description": "Compiles ⇒ the non-editable `mod verify` block resolves: balance_of, credit and top_up_to exist with the exact declared signatures, borrows included. Note what this cannot see: it checks names and types, not what a body computes",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

@@ -1,0 +1,164 @@
+id: lesson-rpd-enums-option-result
+slug: enums-option-result
+title: "Enums, `Option`, and `Result`"
+skills:
+  - rust-enums
+  - rust-option
+  - rust-result
+  - error-handling
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Subgoal 2 is one shape, used twice: `match balance.checked_add(amount) { Some(new_balance) => Ok(new_balance), None => Err(error!(VaultError::Overflow)) }`, then the same with `checked_sub` and `InsufficientFunds`. Do NOT add a zero-amount guard — that is policy, it lives in lesson 13's `deposit`, and lesson 4 said so."
+      - "Subgoal 3: get both matches green over the four existing variants FIRST, then add `VaultFrozen` and build before touching anything else. The two `error[E0004]: non-exhaustive patterns` messages are the exercise — they name the file, the line and the variant."
+      - "Stuck on a type error in 2c? `balance_after_deposit` returns a plain `u64`, not a `Result`, so the `match` has to produce a `u64` from both arms: `Ok(new_balance) => new_balance` and `Err(_) => balance`. This is the one place a wildcard is correct — you are deliberately saying every failure means the same thing here."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You add `_ => "unknown"` as a final arm to `error_slug`, and only then
+          add the fifth variant `VaultFrozen`. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: It compiles, and `error_slug(VaultError::VaultFrozen)` silently returns "unknown"
+            correct: true
+          - id: b
+            label: "`error[E0004]` still fires — the compiler requires named arms for every variant regardless of a catch-all"
+            correct: false
+            feedback: >-
+              A `_` arm makes the match exhaustive by definition. That is the
+              whole reason it silences E0004, and the whole reason it is a bad
+              idea here.
+          - id: c
+            label: "`warning: unreachable pattern` on the `_` arm, because all five variants are named above it"
+            correct: false
+            feedback: >-
+              That warning appears when every variant IS named above the
+              wildcard. In this question only four are, so the wildcard is
+              reachable — it is doing exactly the thing you did not want.
+          - id: d
+            label: It compiles and `VaultFrozen` gets code 6004, so the slug is derived from the number
+            correct: false
+            feedback: >-
+              The number and the slug are unrelated. `error_slug` returns
+              whatever your match arms say, and the catch-all says "unknown".
+        explanation: >-
+          A wildcard is not a shortcut for "handle the rest". It is a decision to
+          stop being told when the set of cases changes. Two match sites with no
+          wildcard gave you a to-do list; two with a wildcard give you silence.
+      - id: q2
+        prompt: >-
+          A client's transaction fails and the log shows `custom program error:
+          0x1772`. That is 6002 in decimal. Given the enum in the exercise —
+          `Overflow`, `InsufficientFunds`, `ZeroAmount`, `NotOwner`,
+          `VaultFrozen`, in that order — which failure was it?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`ZeroAmount` — custom codes start at 6000, so index 2 is 6002"
+            correct: true
+          - id: b
+            label: "`ZeroAmount` — but only because you declared it third; the code is the declaration index alone, with no offset"
+            correct: false
+            feedback: >-
+              The variant is right and the reasoning is not. Without the 6000
+              offset the code would be 2, which collides with the Solana
+              runtime's own error space. `impl From<VaultError> for u32` is
+              literally `variant as u32 + 6000`.
+          - id: c
+            label: "`NotOwner` — the offset is 6000 and codes are 1-based, so 6001 is the first variant"
+            correct: false
+            feedback: >-
+              Enum discriminants start at 0, so the first variant is 6000 exactly.
+          - id: d
+            label: Not determinable — 6002 is Anchor's own error space, not yours
+            correct: false
+            feedback: >-
+              Anchor's built-in `ErrorCode` sits below 6000. Everything from 6000
+              up is yours, which is exactly what the offset buys.
+        explanation: >-
+          Because the code is the declaration index plus 6000, variant order is
+          part of your program's public interface. Insert a variant in the middle
+          and every code after it shifts. Add at the end.
+      - id: q3
+        prompt: >-
+          You decide layout failures deserve their own type, so you add a second
+          `#[error_code] pub enum LayoutError { TooShort }` to the same file.
+          Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "It compiles — and that is the problem: `LayoutError::TooShort` is also 6000, indistinguishable on the wire from `VaultError::Overflow`"
+            correct: true
+          - id: b
+            label: "`error: only one #[error_code] enum is permitted per program`"
+            correct: false
+            feedback: >-
+              There is no such check in anchor-lang 1.1.2 — verified by compiling
+              it. The guidance is real; the compiler does not enforce it, which is
+              why the failure is silent and on the wire.
+          - id: c
+            label: It compiles, and Anchor numbers the second enum from 7000 so the two cannot collide
+            correct: false
+            feedback: >-
+              Nothing auto-assigns a second range. Both enums default to
+              `ERROR_CODE_OFFSET`, which is 6000 for every enum that does not say
+              otherwise.
+          - id: d
+            label: It compiles, but only one of the two ends up in the IDL, so the other's `#[msg]` strings are lost
+            correct: false
+            feedback: >-
+              That is not the failure mode. Both are generated; the collision is
+              in the numbers a client reads back.
+        explanation: >-
+          One error enum per program is the rule, and the reason is the numbering,
+          not the compiler. If you truly need a second one, give it an explicit
+          range with `#[error_code(offset = 1000)]` — which replaces 6000 rather
+          than adding to it.
+      - id: q4
+        prompt: >-
+          Carried over from lesson 4. There, `sub_lamports(5, 7)` returned `None`.
+          Here it returns `Err(error!(VaultError::InsufficientFunds))`. A caller
+          inside a program writes `let remaining = sub_lamports(5, 7).unwrap();`.
+          Predict what the client sees.
+        multiSelect: false
+        options:
+          - id: a
+            label: A panic that aborts the instruction — no 6001, no "Withdrawal exceeds the vault balance", nothing to distinguish it from a bug
+            correct: true
+          - id: b
+            label: "`custom program error: 0x1771` — `.unwrap()` propagates the error, it just does not let you inspect it"
+            correct: false
+            feedback: >-
+              `.unwrap()` does not propagate anything. It panics, and the named
+              error never reaches the client. Propagating is `?`, which is
+              lesson 12.
+          - id: c
+            label: A compile error — `.unwrap()` is not available on `anchor_lang::Result`
+            correct: false
+            feedback: >-
+              It compiles. That is the danger: nothing in the toolchain stops you,
+              which is why the rule has to be yours.
+          - id: d
+            label: "`remaining` is 0, since `.unwrap()` falls back to the type's default on `Err`"
+            correct: false
+            feedback: >-
+              That is `unwrap_or_default()`, a different method. `.unwrap()` has
+              no fallback — it panics.
+        explanation: >-
+          Every named variant, every `#[msg]` string and every error code in this
+          lesson is thrown away at the moment you write `.unwrap()`. It appears
+          nowhere in this course's code — the one place you will see it written
+          out is lesson 9, where the compiler itself suggests it and the right
+          answer is to refuse.

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test-1",
+    "description": "The file compiles against anchor-lang 1.1.2 on the build server",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "Compiles ⇒ none of the four borrow-checker errors (E0382, E0502, E0499, E0515) is still in the file — each one is a hard compile failure, so a green build means all four are gone",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-3",
+    "description": "Compiles ⇒ the non-editable `mod verify` block resolves: audit_then_read, top_up_to, credit_twice, head, consume_and_log and demo all still exist with the exact declared signatures, so deleting a broken function is not a fix. Note what this cannot see: it checks names, types and borrows, not what a body computes",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

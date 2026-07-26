@@ -1,0 +1,14 @@
+[
+  {
+    "id": "test-1",
+    "description": "The file compiles against anchor-lang 1.1.2 on the build server",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "Compiles ⇒ the BREAK IT line in the experiment is commented out — an uncommented use-after-move is E0382, so a green build means it is back under its comment. Nothing here checks whether you read the error first",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

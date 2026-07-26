@@ -1,0 +1,162 @@
+id: lesson-rpd-structs-traits-and-derives
+slug: structs-traits-and-derives
+title: "Structs, Traits, and What `#[derive]` Really Does"
+skills:
+  - rust-structs
+  - rust-traits
+  - borsh-serialization
+  - account-layout
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - The starter is already correct. Build it unchanged before you touch anything — the first build downloads and compiles the Anchor crates, so it is the slow one.
+      - "For the experiment, add `pub created_at: i64,` as the last field of `VaultState` and build. The failure you want is on the `assert!(VaultState::INIT_SPACE == 41)` line: an `i64` is 8 bytes, so 41 became 49 and the account went from 49 bytes to 57."
+      - "To get back to green, click Reset Code and build again. If instead you tried `pub memo: String`, the build stops with `error: Expected max_len attribute.` — `InitSpace` will not guess a size for a variable-length field, and neither can an account."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You add `#[max_len(16)] pub memo: String` as a fourth field of
+          `VaultState` and update the assertion. Predict the new `INIT_SPACE`.
+        multiSelect: false
+        options:
+          - id: a
+            label: 61 — the 41 you had, plus a 4-byte length prefix, plus 16 bytes of text
+            correct: true
+          - id: b
+            label: 57 — the 41 you had plus the 16 characters you capped it at
+            correct: false
+            feedback: >-
+              That drops the length prefix. Borsh writes a `String` as a 4-byte
+              length followed by the UTF-8 bytes, so a 16-character cap costs 20.
+              Under-allocating by exactly 4 bytes is the classic version of this bug.
+          - id: c
+            label: 45 — the 41 you had plus the 4-byte length prefix; the text lives in a separate account
+            correct: false
+            feedback: >-
+              There is no separate account. Borsh inlines the bytes, which is why
+              `#[max_len]` is required — the cap you name is space you allocate.
+          - id: d
+            label: It will not compile — `String` cannot appear in an `#[account]` struct
+            correct: false
+            feedback: >-
+              `String` is allowed. What is not allowed is a `String` with no
+              `#[max_len]`, and that failure is `error: Expected max_len attribute.`
+        explanation: >-
+          `4 + max_len` for `String`, `4 + size_of(T) * max_len` for `Vec<T>`,
+          `1 + size_of(T)` for `Option<T>`. The prefix is always 4 bytes and the
+          `Option` tag is always 1, present or not.
+      - id: q2
+        prompt: >-
+          You delete the `declare_id!(...)` line and leave everything else alone.
+          Predict what the compiler says.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`error[E0425]: cannot find value ID in the crate root`, with the arrow pointing at `#[account]`"
+            correct: true
+          - id: b
+            label: It compiles. `declare_id!` only matters once the program is deployed, and nothing here is deployed yet.
+            correct: false
+            feedback: >-
+              `#[account]` expands to `impl Owner { fn owner() -> Pubkey { crate::ID } }`.
+              `crate::ID` has to exist at compile time, and `declare_id!` is what
+              defines it.
+          - id: c
+            label: "`error: missing declare_id!` — Anchor detects the omission and names it"
+            correct: false
+            feedback: >-
+              There is no such check. The macro emits code referencing `crate::ID`
+              and the failure is an ordinary name-resolution error, which is
+              exactly why it reads so badly.
+          - id: d
+            label: A warning only, and `VaultState::owner()` returns the all-zero pubkey at runtime
+            correct: false
+            feedback: >-
+              Missing names are errors, not warnings, and there is no default id
+              to fall back to.
+        explanation: >-
+          The arrow points at `#[account]` and the fault is a missing
+          `declare_id!` two lines above. Recognise this one now; in module 4 you
+          will have forty lines of your own code to suspect first.
+      - id: q3
+        prompt: >-
+          You delete the hand-written `impl Default for VaultState` block and add
+          `Default` to the derive list instead: `#[derive(InitSpace, Default)]`.
+          Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: It compiles, and `VaultState::default()` returns the same values — the macro generates the block you just deleted
+            correct: true
+          - id: b
+            label: It does not compile — `#[account]` already derives `Default`, so this is a conflicting implementation
+            correct: false
+            feedback: >-
+              `#[account]` derives `AnchorSerialize`, `AnchorDeserialize` and
+              `Clone`. `Default` is not on that list, so there is nothing to
+              conflict with.
+          - id: c
+            label: It does not compile — `Pubkey` has no `Default`, so the derive cannot produce a value for `owner`
+            correct: false
+            feedback: >-
+              `Pubkey` does implement `Default` — it is the all-zero pubkey, which
+              is precisely what the hand-written block wrote out by name.
+          - id: d
+            label: It compiles, but `balance` and `bump` are left uninitialised rather than zeroed
+            correct: false
+            feedback: >-
+              Rust has no uninitialised values in safe code. The derive uses each
+              field type's own `default()`, which for integers is 0.
+        explanation: >-
+          That is the whole point of writing it by hand once. `#[derive]` is a
+          macro that reads your fields and emits an `impl` block — no runtime
+          reflection, nothing you could not have typed yourself.
+      - id: q4
+        prompt: >-
+          Carried over from lesson 8. Your `discriminator(data: &[u8])` returned
+          the first 8 bytes as `Option<&[u8]>`. Now a caller hands
+          `VaultState::try_deserialize` a 49-byte buffer whose first 8 bytes are
+          a *different* account type's discriminator. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: It returns `Err(AccountDiscriminatorMismatch)` and never decodes the remaining 41 bytes
+            correct: true
+          - id: b
+            label: It decodes anyway and returns a `VaultState` whose fields are whatever those bytes happen to mean
+            correct: false
+            feedback: >-
+              That is exactly the failure the discriminator exists to prevent. The
+              check happens first, and a mismatch returns before any field is read.
+          - id: c
+            label: It panics, because a discriminator mismatch is unrecoverable
+            correct: false
+            feedback: >-
+              It returns a `Result`. Anchor does not panic on untrusted input —
+              that is the entire reason your code returns `Result` too.
+          - id: d
+            label: It returns `Err(AccountDiscriminatorNotFound)`, since the bytes it wanted were not there
+            correct: false
+            feedback: >-
+              `NotFound` is for a buffer shorter than 8 bytes. Eight bytes that
+              are present and wrong is `Mismatch` — two distinct errors, and
+              telling them apart tells you whether the account is empty or is
+              somebody else's.
+        explanation: >-
+          An account is a bag of bytes and nothing about the bytes says what they
+          are. `try_deserialize` compares the first 8 against
+          `VaultState::DISCRIMINATOR` — `sha256("account:VaultState")[..8]`, which
+          for this struct is `[228, 196, 82, 165, 98, 210, 235, 152]` — and stops
+          on disagreement.

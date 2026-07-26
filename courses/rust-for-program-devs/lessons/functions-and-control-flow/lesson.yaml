@@ -1,0 +1,140 @@
+id: lesson-rpd-functions-and-control-flow
+slug: functions-and-control-flow
+title: "Functions, Expressions, and the Missing `return`"
+skills:
+  - rust
+  - rust-control-flow
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - Start with `min_balance`, because the compiler tells you outright which of (F) and (G) is the decoy. Paste one, build, and read the `help:` line — it names the exact character to delete.
+      - "`describe_state` needs exactly four arms and the last one must be `_`. Two of the five candidate arms overlap each other; pick the one that leaves 0 to the `0 => \"empty\"` arm rather than swallowing it."
+      - "The wrong `dust` arm still compiles, and you will not be told. It produces `warning: unreachable pattern` and then answers \"dust\" for an empty vault — but this platform shows you the compiler log only when the build FAILS, so on a green build that warning is discarded before it reaches you. Nothing external will catch this one. Read your two range arms against the `0 => \"empty\"` arm and decide by hand which of them swallows 0."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Predict the outcome.
+          `pub fn min_balance(a: u64, b: u64) -> u64 { if a < b { a; } else { b; } }`
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `error[E0308]` twice, once per arm — expected `u64`, found `()`.
+              Each semicolon discards its arm's value, and the `help:` line
+              reads "remove this semicolon to return this value".
+            correct: true
+          - id: b
+            label: >-
+              It compiles. Semicolons are optional line terminators in Rust, as
+              they effectively are in JavaScript.
+            correct: false
+            feedback: >-
+              A semicolon in Rust is not punctuation, it is an operation: it
+              throws away the value of the expression it follows and yields `()`
+              instead. That is why one character changes the type of the whole
+              function body.
+          - id: c
+            label: >-
+              `error[E0317]: if may be missing an else clause` — the arms
+              disagree.
+            correct: false
+            feedback: >-
+              The arms agree perfectly: both are `()`. E0317 is for an `if`
+              with no `else` used in value position. Here the disagreement is
+              between the body and the return type.
+          - id: d
+            label: >-
+              It compiles, and returns 0, because `()` coerces to the numeric
+              zero value.
+            correct: false
+            feedback: >-
+              `()` does not coerce to anything. It is a distinct type with one
+              value, and Rust has no implicit conversions to paper over the gap
+              — the same rule you met with `u8` and `u64` in lesson 2.
+      - id: q2
+        prompt: >-
+          A submission orders the arms `0..=999_999 => "dust",` then
+          `0 => "empty",` then the rest, and it is otherwise exhaustive. Predict
+          both the build result and what `describe_state(0)` returns.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It compiles, with `warning: unreachable pattern`, and returns
+              "dust" — arms are tried top to bottom, so the first arm claims 0
+              before the `0` arm is reached.
+            correct: true
+          - id: b
+            label: >-
+              `error[E0001]: unreachable pattern`. An arm that can never match is
+              rejected.
+            correct: false
+            feedback: >-
+              It is a lint, and its default level is warn, not deny. Which means
+              a lesson graded on compilation passes this submission. Worse: this
+              platform discards the compiler log on a successful build, so the
+              warning is not merely easy to skip — it never reaches you at all.
+              Nothing here catches a wrong-order `match` except reading it.
+          - id: c
+            label: >-
+              It compiles and returns "empty", because `match` picks the most
+              specific pattern that applies.
+            correct: false
+            feedback: >-
+              No specificity ranking exists. `match` is strictly top to bottom,
+              first match wins. This is the assumption most people import from
+              overload resolution in other languages, and it is wrong here.
+          - id: d
+            label: >-
+              It compiles and returns "empty", because a literal pattern is
+              checked before any range pattern.
+            correct: false
+            feedback: >-
+              Pattern *kind* has no bearing on order either. Source order is the
+              whole rule.
+      - id: q3
+        prompt: >-
+          Carried over from lesson 2. Predict the outcome of
+          `let bump: u8 = 300;`
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              A compile error — the literal is out of range for `u8`. The check
+              is a lint, but it is deny-by-default, so it stops the build.
+            correct: true
+          - id: b
+            label: >-
+              It compiles and `bump` is 44, since 300 wraps modulo 256.
+            correct: false
+            feedback: >-
+              You would get 44 from `300u32 as u8`, which is exactly why this
+              course does not use `as` on numbers. A literal that does not fit
+              its annotated type is caught at compile time instead.
+          - id: c
+            label: >-
+              It compiles and `bump` is 255, clamped to the maximum.
+            correct: false
+            feedback: >-
+              Rust never silently clamps. Saturating behaviour exists, but you
+              have to ask for it by name (`saturating_add` and friends).
+          - id: d
+            label: >-
+              It compiles with a warning, and the value is
+              implementation-defined.
+            correct: false
+            feedback: >-
+              Nothing about integer behaviour in Rust is
+              implementation-defined, and this particular lint denies rather
+              than warns.

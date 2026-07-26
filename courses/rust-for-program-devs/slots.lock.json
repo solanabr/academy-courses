@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-rpd-your-first-rust-build": 0,
+    "lesson-rpd-types-and-mutability": 1,
+    "lesson-rpd-functions-and-control-flow": 2,
+    "lesson-rpd-checked-lamport-math": 3,
+    "lesson-rpd-moves-copy-and-clone": 4,
+    "lesson-rpd-borrowing-shared-vs-mutable": 5,
+    "lesson-rpd-fix-the-borrow-checker": 6,
+    "lesson-rpd-lifetimes-and-slices": 7,
+    "lesson-rpd-ownership-checkpoint": 8,
+    "lesson-rpd-structs-traits-and-derives": 9,
+    "lesson-rpd-enums-option-result": 10,
+    "lesson-rpd-error-plumbing": 11,
+    "lesson-rpd-build-the-vault-core": 12,
+    "lesson-rpd-what-you-built": 13
+  },
+  "retired": [],
+  "next": 14
+}
