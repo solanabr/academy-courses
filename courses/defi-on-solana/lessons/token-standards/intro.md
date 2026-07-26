@@ -242,8 +242,7 @@ The URI points to JSON:
 
 | Feature | SPL Token | Token-2022 |
 |---------|-----------|------------|
-| Mature ecosystem | ✅ | ❌ (newer) |
-| DEX support | ✅ All DEXs | ⚠️ Limited |
+| DEX support | ✅ All DEXs | ✅ Broad (at parity) |
 | Transfer fees | ❌ | ✅ |
 | Transfer hooks | ❌ | ✅ |
 | Confidential transfers | ❌ | ✅ |

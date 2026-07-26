@@ -4,10 +4,10 @@ Solana is a high-performance blockchain supporting builders around the world cre
 
 ## Key Features
 
-- **Speed**: Solana can process 65,000+ transactions per second
-- **Low Cost**: Average transaction cost is $0.00025
+- **Speed**: Solana sustains thousands of transactions per second in practice (roughly 1,000–4,000 as of mid-2026), with a theoretical ceiling near 65,000 TPS
+- **Low Cost**: The base fee is 0.000005 SOL (5,000 lamports) per signature — a small fraction of a cent
 - **Energy Efficient**: Solana uses a Proof-of-Stake consensus mechanism
-- **Developer Friendly**: Programs can be written in Rust, C, or C++
+- **Developer Friendly**: Programs are written in Rust, most often with the Anchor framework
 
 ## How Solana Works
 

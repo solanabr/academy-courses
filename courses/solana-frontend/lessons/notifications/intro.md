@@ -10,11 +10,10 @@ Toasts are perfect for transaction feedback. Use libraries like `react-hot-toast
 import toast from 'react-hot-toast';
 import { ExternalLink } from 'lucide-react';
 
-function useTransactionToast() {
-  const cluster = 'mainnet-beta';
-
+function useTransactionToast(cluster: 'devnet' | 'testnet' | 'mainnet-beta' = 'devnet') {
   function toastSignature(signature: string) {
-    const explorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=${cluster}`;
+    // Point the explorer at the cluster your app is actually on — mainnet-beta is the default and omits the query param.
+    const explorerUrl = `https://explorer.solana.com/tx/${signature}${cluster !== 'mainnet-beta' ? `?cluster=${cluster}` : ''}`;
     
     toast.success(
       <div className="flex items-center gap-2">
