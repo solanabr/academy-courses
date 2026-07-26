@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Solana runs programs under a tight compute budget with no room for GC pauses. How does Rust give memory safety without a garbage collector?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Its ownership and borrow rules are checked at compile time, so memory is freed deterministically with no runtime collector"
+            correct: true
+          - id: b
+            label: "It runs a lightweight garbage collector tuned for short pauses"
+            correct: false
+            feedback: "Rust has no garbage collector at all. Safety is proven at compile time via ownership, so there is nothing to pause at runtime."
+          - id: c
+            label: "It leaks memory but the validator resets between transactions"
+            correct: false
+            feedback: "It does not rely on leaking. Ownership frees values deterministically when they go out of scope — no leak, no GC."
+        explanation: "Rust's compiler enforces ownership and borrowing statically and inserts deterministic cleanup when values leave scope. There is no runtime collector, so no GC pauses can blow a transaction's compute budget — exactly what a constrained on-chain environment needs."
+      - id: q2
+        prompt: "The lesson says Rust's `&mut` rule maps to Solana's account model. Which pairing is correct?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "One-mutable-XOR-many-shared borrows mirror one-writer-XOR-many-readers on an account per transaction"
+            correct: true
+          - id: b
+            label: "Rust's `&mut` maps to a program's upgrade authority"
+            correct: false
+            feedback: "Upgrade authority is unrelated. The mapping is between Rust's exclusive-mutable-borrow rule and Solana allowing only one writer to an account at a time."
+          - id: c
+            label: "Rust ownership maps to which validator produces the next block"
+            correct: false
+            feedback: "Block production is consensus, not ownership. The analogy is borrow exclusivity mapping to single-writer account access."
+        explanation: "Rust allows either one mutable borrow or many immutable borrows, never both. Solana lets one transaction write an account while others read — the same mutable-XOR-shared shape. That alignment is why the ownership discipline you learn in Rust transfers directly to reasoning about account access."

@@ -12,3 +12,38 @@ blocks:
     type: deployed-program-card
     consumes:
       - deployed-program
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your program was deployed via the BPF Loader Upgradeable. What does 'upgradeable' let the upgrade authority do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Replace the program's bytecode at the same program id later, without changing its address"
+            correct: true
+          - id: b
+            label: "Let anyone modify the program's code"
+            correct: false
+            feedback: "Only the upgrade authority can upgrade, not anyone. Upgradeable means the code behind the id can be replaced by that authority, keeping the same address."
+          - id: c
+            label: "Automatically migrate all account data when the code changes"
+            correct: false
+            feedback: "Upgrades swap code only; account data is untouched and stays where it is. Any data migration is the developer's job."
+        explanation: "Under the BPF Loader Upgradeable, the program account points to executable data that the upgrade authority can replace, so you fix or extend the program at the same id. State lives in separate accounts and is unaffected — the stateless-program design is what makes clean upgrades possible."
+      - id: q2
+        prompt: "You want to fix a bug in your deployed counter. Which statement about the program account and its data is true?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The program account points to the executable; the upgrade authority uploads new bytecode and the account points to it"
+            correct: true
+          - id: b
+            label: "You must deploy a new program at a new id and abandon the old one"
+            correct: false
+            feedback: "Only if it were non-upgradeable. As upgradeable, you replace the bytecode at the same id via the upgrade authority — clients and PDAs keep working."
+          - id: c
+            label: "Editing the program automatically wipes existing counter accounts"
+            correct: false
+            feedback: "Counter accounts are separate state and survive an upgrade. Upgrading changes code, not the accounts your program created."
+        explanation: "An upgradeable program account references executable data that the upgrade authority can swap, so bug fixes reuse the same program id. Because state is stored in separate accounts, existing counters persist across the upgrade — code and data are decoupled by design."

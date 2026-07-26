@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "When do you use `invoke_signed` instead of `invoke` for a CPI?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "When a PDA must sign the CPI — the program supplies the PDA's seeds so it can sign without a private key"
+            correct: true
+          - id: b
+            label: "When the CPI transfers more than a set amount of SOL"
+            correct: false
+            feedback: "The choice has nothing to do with amount. `invoke_signed` is specifically for when a PDA needs to sign; `invoke` is used when required signers are already present."
+          - id: c
+            label: "When calling a program you did not write"
+            correct: false
+            feedback: "Both call other programs. The distinction is the signer: `invoke_signed` provides PDA seeds so the program can sign on the PDA's behalf."
+        explanation: "`invoke` works when the needed signatures already exist in the instruction's signer set. `invoke_signed` adds the PDA's seeds so the runtime lets the program sign for the PDA — the only way a keyless, program-controlled account can authorize a CPI."
+      - id: q2
+        prompt: "A `withdraw` instruction does a signed CPI to move vault tokens but never checks who called it. What is the flaw?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Anyone can call it and drain the vault — the program signs for the PDA without verifying the caller's authority"
+            correct: true
+          - id: b
+            label: "Nothing — Solana blocks unauthorized CPIs automatically"
+            correct: false
+            feedback: "The runtime enforces account ownership and signer propagation, not your business rules. If you do not check the caller against the vault authority, anyone can trigger the withdrawal."
+          - id: c
+            label: "The CPI fails because PDAs cannot sign token transfers"
+            correct: false
+            feedback: "PDAs sign token transfers fine via invoke_signed — that is the problem here. Without an authority check, that signing power is exposed to any caller."
+        explanation: "invoke_signed makes the program sign for its PDA, so the transfer succeeds for whoever calls. The missing piece is a caller-versus-authority check (require_keys_eq!) — the runtime will not supply your authorization logic, so an unchecked signed CPI is an open withdrawal for anyone."

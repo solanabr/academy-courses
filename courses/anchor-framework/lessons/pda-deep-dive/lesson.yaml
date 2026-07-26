@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "A PDA is deliberately chosen to fall OFF the Ed25519 curve. What does off-curve guarantee?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "No private key exists for the address, so only the deriving program can sign for it via invoke_signed"
+            correct: true
+          - id: b
+            label: "The address is shorter than a normal pubkey"
+            correct: false
+            feedback: "Off-curve addresses are the same 32-byte size. What off-curve buys you is that no private key exists — the program alone can authorize it."
+          - id: c
+            label: "The account can never hold SOL"
+            correct: false
+            feedback: "PDAs can hold SOL fine. Off-curve means no private key, which is what makes them program-controlled and theft-proof."
+        explanation: "Ed25519 signing keys lie on the curve; a PDA is derived to sit off it, so no private key can exist. That is precisely what makes a PDA program-controlled: only the program that derived it can sign for it through invoke_signed, and no leaked key can drain it."
+      - id: q2
+        prompt: "The lesson says to store the canonical `bump` in the account rather than re-deriving it each time. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Re-finding the canonical bump can cost up to 256 hash attempts; storing it makes later instructions cheaper"
+            correct: true
+          - id: b
+            label: "The bump changes every transaction, so it must be saved"
+            correct: false
+            feedback: "The canonical bump is deterministic and stable for given seeds — it does not change. You store it to skip the costly search, not because it varies."
+          - id: c
+            label: "Storing the bump is required for the PDA to hold SOL"
+            correct: false
+            feedback: "Holding SOL has nothing to do with the bump. You store it purely to avoid recomputing the canonical bump on each call."
+        explanation: "find_program_address tries bumps from 255 downward until it finds an off-curve address, up to 256 hash operations. Since that canonical bump is fixed for the seeds, storing it in the account lets later instructions validate the PDA with `bump = account.bump` instead of repeating the expensive search."

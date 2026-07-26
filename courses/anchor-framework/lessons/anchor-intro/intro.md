@@ -2,6 +2,10 @@
 
 Anchor is the most popular framework for Solana smart contract development. It provides a Rust-based DSL (domain-specific language) that dramatically reduces boilerplate and makes programs safer, faster to write, and easier to read.
 
+## Who This Course Is For
+
+This course is aimed at JavaScript and TypeScript developers moving into Solana — **no Solidity or prior smart-contract experience is assumed.** If you can write JS/TS, you have enough to start; the Rust and Anchor concepts you need are introduced from the ground up as they come up. You do not have to "learn Ethereum first" to build here.
+
 ## Why Use Anchor?
 
 Writing native Solana programs in Rust requires:

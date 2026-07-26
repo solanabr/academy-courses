@@ -25,3 +25,38 @@ blocks:
       - "They drop the `seeds` + `bump` from the Increment struct, so Anchor stops verifying the account is the caller's own counter PDA."
       - "They add `system_program` to Increment out of habit — it is only needed when an account is being created, not mutated."
       - "They borrow the counter immutably with `&ctx.accounts.counter` and then try to mutate it."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "`Increment` includes the `user: Signer` and the same PDA seeds as `Initialize`, but no `init`. Why is `user` needed here at all?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Anchor re-derives the counter PDA from the user's key to verify the passed account is the right one, which also authorizes only that wallet"
+            correct: true
+          - id: b
+            label: "To pay rent for the increment"
+            correct: false
+            feedback: "No rent is paid on increment — the account already exists, so `user` is not `mut`. It is present so Anchor can re-derive and check the PDA seeds."
+          - id: c
+            label: "Because every instruction must have a signer"
+            correct: false
+            feedback: "Not every instruction needs a signer. Here `user` is required specifically to re-derive the PDA seeds and gate who may modify this counter."
+        explanation: "The counter's address is derived from the user's key, so Anchor needs `user` to recompute the seeds and confirm the passed counter is that wallet's PDA. That check doubles as authorization: only the wallet in the seeds can modify its own counter. No lamports move, so `user` is not `mut`."
+      - id: q2
+        prompt: "`Increment` uses `#[account(mut, seeds = [...], bump)]` on the counter but drops `init`. What would happen if you left `init` on it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It would try to create the account again and fail, because the PDA already exists"
+            correct: true
+          - id: b
+            label: "It would reset the counter to zero"
+            correct: false
+            feedback: "`init` does not reset — it allocates a new account. On an existing PDA it fails outright ('already in use'), rather than silently zeroing."
+          - id: c
+            label: "Nothing — `init` is idempotent"
+            correct: false
+            feedback: "`init` is not idempotent (that is `init_if_needed`). Re-running `init` on an existing address errors."
+        explanation: "`init` allocates and owns a fresh account; you use it once, in `Initialize`. `increment` operates on the already-created PDA, so it uses `mut` + `seeds` + `bump` to locate and mutate it. Leaving `init` on would attempt a second creation at an address already in use and fail."

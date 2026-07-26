@@ -24,3 +24,38 @@ blocks:
       - "They read only the surface of the trait-bound error, which names `Accounts` rather than a field, and start editing the wrong struct."
       - "They guess at a fix without clicking Build first, so they never read what the compiler is actually asking for."
       - "When they do add the missing account they give it a bare `AccountInfo` or `UncheckedAccount` type instead of the typed program wrapper Anchor expects."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "An `Initialize` struct uses `#[account(init, ...)]` but omits the System Program. What does the compiler tell you, and why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A trait-bound error on `Accounts` — `init` generates a `create_account` CPI that needs the System Program present"
+            correct: true
+          - id: b
+            label: "A runtime 'account not found' error, only when the instruction is called"
+            correct: false
+            feedback: "It fails at compile time, not runtime. Anchor cannot generate valid account-creation code without the System Program, so the build breaks."
+          - id: c
+            label: "No error — Anchor injects the System Program automatically"
+            correct: false
+            feedback: "Anchor does not inject it. `init` requires you to declare `system_program: Program<'info, System>` explicitly, or the generated code fails the Accounts trait."
+        explanation: "Account creation is a CPI to the System Program, so `init` only compiles when that program is in the accounts struct. Omitting it makes Anchor's generated code fail the `Accounts` trait bound — a cryptic-looking error whose fix is always to add the missing account."
+      - id: q2
+        prompt: "Why is learning to read this trait-bound error worth a whole lesson?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It is the most common Anchor compile error, and its message points at a trait rather than the real cause: a missing account"
+            correct: true
+          - id: b
+            label: "Because it only appears on devnet, never locally"
+            correct: false
+            feedback: "It is a compile-time error, identical everywhere. The lesson exists because the message is indirect, not because it is environment-specific."
+          - id: c
+            label: "Because it means your program is unsafe to deploy"
+            correct: false
+            feedback: "It is not a safety warning — it is a missing-account compile error. The point is recognizing the indirect message and knowing the fix."
+        explanation: "Because Anchor generates account-validation code via macros, a missing account surfaces as a trait-bound error on `Accounts`, not a plain 'you forgot system_program.' Recognizing that pattern turns hours of confusion into a one-line fix."

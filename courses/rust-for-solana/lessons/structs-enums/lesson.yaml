@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Instruction types are modeled as an `enum` and dispatched with `match`. What does Rust's compiler guarantee about that match?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It must handle every variant — a missing case is a compile error, so a new instruction cannot be silently unhandled"
+            correct: true
+          - id: b
+            label: "It runs each arm in turn until one returns Ok"
+            correct: false
+            feedback: "`match` selects exactly one arm by the value's variant; it does not run them in sequence. Its guarantee is exhaustiveness, not fall-through."
+          - id: c
+            label: "It defaults unknown variants to the first arm"
+            correct: false
+            feedback: "There is no silent default. If you add a variant and forget its arm, the code fails to compile — that is the safety property."
+        explanation: "Rust checks `match` exhaustiveness at compile time, so every enum variant must be handled. Adding a new instruction variant without a handler breaks the build rather than silently dropping the instruction — a strong guard for a program's dispatch logic."
+      - id: q2
+        prompt: "Why do these structs derive `BorshSerialize`/`BorshDeserialize` instead of being stored as JSON?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Account data is raw bytes; Borsh gives a compact, deterministic byte layout that all validators reproduce identically"
+            correct: true
+          - id: b
+            label: "Borsh makes the struct human-readable in the explorer"
+            correct: false
+            feedback: "Borsh is binary and not human-readable — that is JSON's trait. Borsh is chosen for determinism and compactness, not readability."
+          - id: c
+            label: "Borsh lets fields be reordered freely at runtime"
+            correct: false
+            feedback: "The opposite — Borsh encodes fields in a fixed order so the bytes are deterministic. Reorderable encodings like JSON break consensus."
+        explanation: "Accounts store bytes, so a struct must serialize to a byte layout. Borsh is deterministic (same value, same bytes on every validator) and compact (no field names), which is required for consensus and cheap because Solana charges rent by account size."

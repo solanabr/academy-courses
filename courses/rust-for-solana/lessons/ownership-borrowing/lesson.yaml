@@ -7,3 +7,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You write `let moved = account_data;` then try to use `account_data` again. What does the compiler say?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "An error — ownership moved to `moved`, so `account_data` is no longer valid to use"
+            correct: true
+          - id: b
+            label: "Nothing — both variables now share the data"
+            correct: false
+            feedback: "Assignment moves ownership, it does not share. After the move `account_data` is invalid; only `moved` owns the value."
+          - id: c
+            label: "It compiles but silently copies the data"
+            correct: false
+            feedback: "For a non-Copy type like `Vec`, assignment moves rather than copies. Using the moved-from variable is a compile error, not a silent copy."
+        explanation: "Each value has a single owner. Assigning it to another variable moves ownership and invalidates the original binding, so using `account_data` after the move fails to compile. This is what prevents two owners from freeing the same data."
+      - id: q2
+        prompt: "Inside a function you hold `&mut account`. Can you also take an immutable `&account` at the same time?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "No — a mutable borrow is exclusive; no other borrow, mutable or immutable, may coexist with it"
+            correct: true
+          - id: b
+            label: "Yes — one mutable and any number of immutable borrows are fine together"
+            correct: false
+            feedback: "That mixes the rules. Many immutable borrows can coexist, but a mutable borrow must be the only borrow. You cannot hold `&mut` and `&` at once."
+          - id: c
+            label: "Yes, as long as you do not write through the mutable one"
+            correct: false
+            feedback: "The rule is structural, not about whether you write: while a `&mut` exists, no other borrow is allowed regardless of use."
+        explanation: "Rust enforces mutable-XOR-shared: either one `&mut` and nothing else, or any number of `&`. This prevents data races at compile time — the same single-writer discipline Solana's runtime enforces on accounts within a transaction."

@@ -25,3 +25,38 @@ blocks:
       - "They define the error enum but omit the `#[error_code]` attribute, so `require!` will not accept the variant."
       - "They give the Decrement accounts struct different PDA seeds than Increment, so it resolves a different account than the one they initialized."
       - "They handle the zero case by returning `Ok(())` and doing nothing, silently swallowing the error instead of surfacing it to the caller."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "`decrement` guards with `require!(counter.count > 0, ErrorCode::Underflow)`. What happens when a user calls decrement while count is 0?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The instruction returns the Underflow error, the transaction fails, and no state changes"
+            correct: true
+          - id: b
+            label: "count wraps around to a huge u64 value"
+            correct: false
+            feedback: "That is exactly what the guard prevents. Without `require!`, subtracting 1 from 0 on a u64 would underflow-wrap; with it, the instruction fails cleanly and count stays 0."
+          - id: c
+            label: "count goes to -1"
+            correct: false
+            feedback: "A `u64` cannot hold -1. Unguarded subtraction would wrap to a huge number; the `require!` guard rejects the call instead."
+        explanation: "`require!` returns the custom error and aborts the instruction when the condition is false, so a decrement at zero fails and leaves state untouched. This is the on-chain defense against u64 underflow wrapping 0 into a near-limitless value — a real class of bug."
+      - id: q2
+        prompt: "What does `#[error_code]` on the `ErrorCode` enum plus `#[msg]` on the `Underflow` variant give you?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A program-specific error whose human-readable message is surfaced to clients when the instruction fails"
+            correct: true
+          - id: b
+            label: "A compile-time check that count never underflows"
+            correct: false
+            feedback: "The compiler does not prove that — the runtime `require!` does. `#[error_code]` and `#[msg]` just define the error and the message clients see."
+          - id: c
+            label: "Automatic retry of the failed instruction"
+            correct: false
+            feedback: "There is no automatic retry. The macros define a typed error and message; the transaction simply fails and the client reads the message."
+        explanation: "`#[error_code]` turns the enum into Anchor program errors with stable codes, and `#[msg]` attaches the readable string returned to clients on failure. Combined with `require!`, your program enforces its own rules and explains violations to the caller."
