@@ -19,3 +19,9 @@ blocks:
       - The decrement function is almost identical to increment, but starts with `require!(counter.count > 0, ErrorCode::Underflow);`
       - The Decrement accounts struct is the same shape as Increment — counter with PDA seeds and user as Signer
       - Don't forget `#[error_code]` on the enum and `#[msg("Cannot decrement below zero")]` on the Underflow variant
+    tutorNotes:
+      - "Learners subtract before checking, so a decrement at zero underflows the `u64` and panics instead of returning the custom error."
+      - "They guard with `count >= 0`, which is always true for an unsigned integer and stops nothing — the meaningful check is strictly greater than zero."
+      - "They define the error enum but omit the `#[error_code]` attribute, so `require!` will not accept the variant."
+      - "They give the Decrement accounts struct different PDA seeds than Increment, so it resolves a different account than the one they initialized."
+      - "They handle the zero case by returning `Ok(())` and doing nothing, silently swallowing the error instead of surfacing it to the caller."

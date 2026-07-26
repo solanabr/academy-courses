@@ -19,3 +19,9 @@ blocks:
       - "The increment function body is just two lines: get `&mut ctx.accounts.counter` and then `counter.count += 1`"
       - "The Increment struct needs `<'info>` lifetime, a `counter` field with `#[account(mut, seeds = [b\"counter\", user.key().as_ref()], bump)]`, and a `user: Signer<'info>` field"
       - Make sure increment returns `Ok(())` at the end
+    tutorNotes:
+      - "Learners re-use `init` on the counter in the Increment accounts struct; the account already exists at this point and only needs `mut`."
+      - "They forget `mut` on the counter, so the compiler rejects `counter.count += 1` or the write never persists."
+      - "They drop the `seeds` + `bump` from the Increment struct, so Anchor stops verifying the account is the caller's own counter PDA."
+      - "They add `system_program` to Increment out of habit — it is only needed when an account is being created, not mutated."
+      - "They borrow the counter immutably with `&ctx.accounts.counter` and then try to mutate it."

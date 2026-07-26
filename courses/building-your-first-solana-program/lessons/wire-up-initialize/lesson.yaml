@@ -19,3 +19,8 @@ blocks:
       - Click Build first to see the error. The compiler will tell you what's missing.
       - The error mentions a trait bound related to Accounts. This happens when a required account is missing from the struct.
       - "Add `pub system_program: Program<'info, System>,` to the Initialize struct. The System Program is required whenever you use `#[account(init)]`."
+    tutorNotes:
+      - "Learners try to satisfy the failing build by deleting or loosening the `init` constraint, instead of supplying the account that `init` requires."
+      - "They read only the surface of the trait-bound error, which names `Accounts` rather than a field, and start editing the wrong struct."
+      - "They guess at a fix without clicking Build first, so they never read what the compiler is actually asking for."
+      - "When they do add the missing account they give it a bare `AccountInfo` or `UncheckedAccount` type instead of the typed program wrapper Anchor expects."

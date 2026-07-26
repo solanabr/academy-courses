@@ -19,6 +19,12 @@ blocks:
       - "You change exactly one value in this file: PAY_TO. Everything else is already correct."
       - "PAY_TO must be a base58 Solana address — the wallet that should receive the USDC, on devnet."
       - "`maxAmountRequired` is a decimal string of base units, never a float: 0.01 USDC at 6 decimals is \"10000\"."
+    tutorNotes:
+      - "Learners leave `maxAmountRequired` as a number or a float; it must be a decimal string of base units because u64 amounts exceed JSON's safe integer range."
+      - "They put a human amount where base units are required — there is no decimals conversion in the protocol, so a quote priced at cents ships as dollars."
+      - "They hand-type the CAIP-2 network id or the mint literal and typo it; a one-character slip yields a challenge no client can match and looks like 'the client just never pays'."
+      - "They forget network and asset are a pair — pairing mainnet USDC with the devnet network id, or the reverse, so nothing on that cluster can satisfy the challenge."
+      - "They leave `PAY_TO` as the placeholder or use a non-base58 string, so the address never receives tokens."
   - key: check
     type: quiz
     questions:
