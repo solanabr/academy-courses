@@ -5,6 +5,9 @@ description: The complete path from zero to Solana developer. Start with the fun
 tag: Foundation
 order: 1
 difficulty: beginner
-courses:
-  - course-solana-fundamentals
-  - course-building-first-program
+# Retired (LX-D1): superseded by path-zero-to-deployed, which fixes this path's
+# ordering error (capstone directly after fundamentals, skipping Rust/Anchor).
+# Id kept — never delete a live path id. Emptying `courses` is what removes the
+# shelf from the catalog; `draft` keeps the empty shelf schema-legal.
+draft: true
+courses: []

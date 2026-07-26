@@ -8,6 +8,10 @@ category: skills
 xpReward: 500
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-full-stack-solana
+# Retargeted with the LX-D1 path swap: path-solana-core was retired (emptied),
+# and an empty path can never complete, which would leave this badge permanently
+# unearnable. path-zero-to-deployed is its successor and a superset of the old
+# member courses.
 award:
   kind: path-completed
-  path: path-solana-core
+  path: path-zero-to-deployed
