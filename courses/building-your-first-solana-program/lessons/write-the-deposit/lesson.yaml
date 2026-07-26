@@ -1,0 +1,126 @@
+id: lesson-bfsp-build-increment
+slug: write-the-deposit
+title: Write the Deposit
+skills:
+  - cpi
+  - checked-arithmetic
+  - anchor
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Build the unfinished file first. It fails with `error[E0609]: no field 'vault' on type '&Deposit<'_>'` and the same for `user` — that is the do-not-edit harness at the bottom telling you subgoal 1 is not done yet. Errors that name the missing thing are the cheapest feedback you will get all lesson."
+      - "The `deposit` body is two statements: `transfer(CpiContext::new(System::id(), Transfer { from, to }), amount)?` and then one call on `ctx.accounts.vault`. `Transfer`'s fields are `AccountInfo`s, so both accounts need `.to_account_info()`, and the user is the `from`."
+      - "`Deposit<'info>` needs the lifetime, `vault` needs `mut` + `seeds = [b\"vault\", user.key().as_ref()]` + `bump = vault.bump` (the stored byte, not a bare `bump`), and `user` needs `mut` as well as `Signer<'info>` — lamports leave that wallet even though no rent is paid. Then make sure the handler still ends in `Ok(())`."
+    tutorNotes:
+      - "Learners re-use `init` on the vault in the Deposit accounts struct; the account already exists at this point and only needs `mut`."
+      - "They leave `user` as a bare `Signer` without `mut`, carrying over the habit that a non-payer is not mutable — but lamports leave the wallet here, so it must be `mut`."
+      - "They forget `mut` on the vault, so Anchor rejects the instruction at runtime on the mut constraint even though the file compiled."
+      - "They copy a pre-1.0 CPI and pass `system_program.to_account_info()` as the first argument to `CpiContext::new`, which is `error[E0308]: expected Pubkey, found AccountInfo<'_>` — that argument is a program id now."
+      - "They swap `from` and `to` in `Transfer`, which compiles and makes the vault pay the depositor; nothing in a compile-only grader can see it."
+      - "They retype the arithmetic as `vault.balance += amount` instead of calling the Course 2 `vault.deposit(amount)?`, discarding the zero guard, the `checked_add` and the typed `Overflow` error in one line."
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          `Deposit` includes `user` and the same PDA seeds as `InitializeVault`,
+          but no `init`. Why is `user` needed at all, and why is it `mut` here
+          when nothing is being created?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Anchor re-derives the vault PDA from the user's key to prove the
+              passed account is that wallet's vault — which also authorises only
+              that wallet — and `mut` is required because lamports leave the
+              user's account.
+            correct: true
+          - id: b
+            label: >-
+              `user` is `mut` because it pays rent for the deposit.
+            correct: false
+            feedback: >-
+              No rent is paid on a deposit — the vault already exists and its size
+              never changes. The lamports leaving the wallet are the deposit
+              itself, and that is what makes `mut` necessary.
+          - id: c
+            label: >-
+              Because every instruction must include a mutable signer.
+            correct: false
+            feedback: >-
+              Neither half is a rule. Plenty of instructions have no signer at
+              all, and plenty of signers are immutable. `user` is here to
+              re-derive the seeds and to be debited.
+          - id: d
+            label: >-
+              `user` is only needed as a seed; the `mut` is copied from
+              `InitializeVault` and is harmless.
+            correct: false
+            feedback: >-
+              It is needed as a seed *and* as the debited account, and `mut` is
+              load-bearing rather than harmless — drop it and Anchor rejects the
+              instruction at runtime on the mut constraint.
+        explanation: >-
+          The vault's address is derived from the user's key, so Anchor needs
+          `user` to recompute the seeds and confirm the passed account is that
+          wallet's vault. That check doubles as authorisation. On top of it,
+          `#[account(mut)]` is required of any account whose lamports or data
+          change — and a deposit is lamports leaving this wallet. Same constraint
+          as in `initialize_vault`, different reason for it.
+      - id: q2
+        prompt: >-
+          A submission copies the whole constraint block over from
+          `InitializeVault` — `init, payer = user, space = 8 + 32 + 8 + 1,
+          seeds = [...], bump` — onto the vault in `Deposit`. It builds green.
+          Predict what happens when the instruction is called on an existing
+          vault.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It tries to create the account a second time and fails, because the
+              PDA already exists at that address.
+            correct: true
+          - id: b
+            label: >-
+              It resets the vault's balance to zero.
+            correct: false
+            feedback: >-
+              `init` does not reset anything — it allocates and assigns a new
+              account. On an address already in use it fails outright rather than
+              silently zeroing your balance.
+          - id: c
+            label: >-
+              Nothing changes; `init` is idempotent once the account exists.
+            correct: false
+            feedback: >-
+              `init_if_needed` is the idempotent one, and it carries its own
+              re-initialisation hazards. Plain `init` on an existing address is an
+              error.
+          - id: d
+            label: >-
+              The deposit succeeds but writes to a fresh account, leaving the old
+              vault untouched.
+            correct: false
+            feedback: >-
+              There is no fresh account to write to. The seeds are the same, so
+              the derived address is the same address that is already in use — a
+              PDA cannot be created twice.
+        explanation: >-
+          `init` allocates, funds and assigns a fresh account; you use it exactly
+          once, in `initialize_vault`. Every later instruction operates on the
+          account that already exists, so it uses `mut` plus `seeds` plus
+          `bump = vault.bump` to locate and validate it. Adding `init` back is an
+          attempt to create something at an address already in use. Note also
+          that `init` and `bump = vault.bump` cannot coexist — you cannot read a
+          bump off an account that does not exist yet.

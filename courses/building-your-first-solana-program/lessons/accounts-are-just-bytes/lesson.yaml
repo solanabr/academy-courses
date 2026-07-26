@@ -1,0 +1,178 @@
+id: lesson-bfsp-on-chain-state
+slug: accounts-are-just-bytes
+title: Accounts Are Just Bytes
+skills:
+  - account-model
+  - rent-and-space
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+
+  # Predict-the-number and predict-the-outcome. Every wrong option is a mistake
+  # made in the wild, not a distractor invented to fill the slot.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Your `VaultState` is `owner: Pubkey`, `balance: u64`, `bump: u8`. You are
+          writing the `space` for its `init` constraint. What number does it have
+          to come to, and why that number?
+        multiSelect: false
+        options:
+          - id: a
+            label: 49 — 8 discriminator + 32 + 8 + 1
+            correct: true
+          - id: b
+            label: 41 — 32 + 8 + 1, the three fields
+            correct: false
+            feedback: >-
+              41 is `VaultState::INIT_SPACE`, which is deliberately the fields
+              only. `space` also has to pay for the 8-byte discriminator Anchor
+              writes in front of them, so it is `8 + INIT_SPACE` = 49. An account
+              sized 41 is 8 bytes short, and the first write past the field
+              boundary fails.
+          - id: c
+            label: 48 — that is what `std::mem::size_of::<VaultState>()` reports
+            correct: false
+            feedback: >-
+              48 is Rust's in-memory size: 41 bytes of fields rounded up to the
+              struct's 8-byte alignment. Borsh writes 41, with no padding at all.
+              Sizing from `size_of` allocates for a layout that never reaches the
+              account.
+          - id: d
+            label: 57 — 8 discriminator + 8 length prefix + 32 + 8 + 1
+            correct: false
+            feedback: >-
+              Only variable-length types carry a length prefix — `String` and
+              `Vec<T>` — and it is 4 bytes, not 8. Every field here is fixed-size,
+              so there is no prefix to pay for.
+        explanation: >-
+          `space` = 8 (discriminator) + the Borsh size of every field, in
+          declaration order, with no padding: 8 + 32 + 8 + 1 = 49. Write it as that
+          sum rather than as `49` so each term stays traceable, and reach for
+          `8 + VaultState::INIT_SPACE` in production code so that adding a field
+          cannot silently under-allocate.
+
+      - id: q2
+        prompt: >-
+          A teammate writes `space = 8 + std::mem::size_of::<VaultState>()`. It
+          compiles and the program deploys. Predict what actually happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It works, and silently over-allocates — 56 bytes for a 49-byte
+              account, so every vault locks more rent deposit than it needs
+            correct: true
+          - id: b
+            label: It fails to compile — `size_of` is not const-evaluable in a constraint
+            correct: false
+            feedback: >-
+              `size_of` is a `const fn`, so the expression evaluates fine at
+              compile time. Nothing stops it, and that is exactly what makes this
+              bug expensive: there is no error anywhere to point at it.
+          - id: c
+            label: Writes past byte 49 fail, because Borsh needs more room than `size_of` reports
+            correct: false
+            feedback: >-
+              It goes the other way. Rust's `size_of` is 48 because of alignment
+              padding; Borsh writes 41. The account ends up too big, never too
+              small — so nothing fails, it just costs more.
+          - id: d
+            label: The account is created at 49 bytes anyway — Anchor recomputes `space` from the struct
+            correct: false
+            feedback: >-
+              Anchor allocates exactly the `space` you give it and does not
+              second-guess the number. `#[derive(InitSpace)]` offers you a correct
+              one in `INIT_SPACE`, but only if you use it.
+        explanation: >-
+          Rust's memory layout and Borsh's wire layout are different problems.
+          `size_of::<VaultState>()` is 48 — 41 bytes rounded up to 8-byte
+          alignment — so `8 + size_of` is 56 for an account that needs 49. Seven
+          wasted bytes is roughly 48,700 lamports of deposit locked per vault (7 x 6,960), with
+          nothing anywhere reporting it. `8 + VaultState::INIT_SPACE` is the form
+          that stays correct.
+
+      - id: q3
+        prompt: >-
+          Your `withdraw` expects `Account<'info, VaultState>`. Someone passes an
+          account of a different type that happens to be 49 bytes and owned by your
+          program. Where does this stop, and how?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              At deserialize, at runtime — the leading 8 bytes are that other
+              type's discriminator, so they do not match `VaultState`'s
+            correct: true
+          - id: b
+            label: At compile time — `Account<'info, VaultState>` is a type, so the wrong type cannot be passed
+            correct: false
+            feedback: >-
+              The type only constrains your Rust. What arrives on the wire is a
+              32-byte address and a buffer; nothing about a transaction is
+              type-checked by rustc. The check has to happen at runtime, and the
+              discriminator is what makes it possible.
+          - id: c
+            label: It does not stop — the sizes match, so the bytes deserialize into a valid-looking `VaultState`
+            correct: false
+            feedback: >-
+              That is precisely what the discriminator exists to prevent, and what
+              would happen without it. The first 8 bytes are checked before any
+              field is read, and a mismatch is an error rather than a
+              reinterpretation.
+          - id: d
+            label: The runtime rejects it, because only your program may pass its own accounts
+            correct: false
+            feedback: >-
+              The runtime enforces who may *write* an account, not who may pass one
+              in. Anyone can put any address in an instruction's account list.
+              Filtering what arrives is your program's job.
+        explanation: >-
+          Type confusion is a runtime problem because account data arrives as
+          bytes. Anchor's 8-byte discriminator is derived from the account type's
+          name, so it is checked on every deserialize and a mismatch is an error
+          instead of a reinterpretation of foreign bytes as your struct. You buy
+          this by typing `#[account]`, and you pay for it with 8 bytes of `space`.
+
+      - id: q4
+        prompt: >-
+          You copy an `init` constraint from a blog post and it includes
+          `rent = rent`. What does that tell you?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It will not compile — the `rent` constraint was removed in Anchor
+              0.31, which also dates the rest of that post as pre-0.31
+            correct: true
+          - id: b
+            label: Nothing — it is optional, and harmless to keep for clarity
+            correct: false
+            feedback: >-
+              It is not optional, because it no longer exists. Anchor reads the
+              rent parameters itself and derives the deposit from `space`. Leaving
+              the constraint in is a build failure, not a stylistic choice.
+          - id: c
+            label: It is required whenever `payer` is present, to prove the payer can cover the deposit
+            correct: false
+            feedback: >-
+              `payer` is all Anchor needs. The deposit is computed from `space` and
+              debited from the payer; there was never a version where `rent` proved
+              anything about the payer's balance.
+          - id: d
+            label: Rent is still collected periodically, so the sysvar has to be passed to schedule it
+            correct: false
+            feedback: >-
+              Ongoing rent collection is gone, and an account's `rent_epoch` is
+              vestigial. What remains is the one-time rent-exemption deposit, which
+              scales with `space` and comes back if the account is closed.
+        explanation: >-
+          `rent = rent` and its companion `rent: Sysvar<'info, Rent>` field were
+          both removed in Anchor 0.31; Anchor computes the rent-exempt minimum from
+          `space` on its own. The useful part is the dating signal — a page still
+          passing `rent` predates 0.31, so treat everything else it tells you about
+          Anchor as equally old.

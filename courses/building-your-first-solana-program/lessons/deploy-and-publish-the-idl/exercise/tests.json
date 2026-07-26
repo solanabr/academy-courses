@@ -1,0 +1,9 @@
+[
+  {
+    "id": "test-deploy-1",
+    "description": "The assembled vault program compiles successfully",
+    "input": "",
+    "expectedOutput": "true",
+    "failureMessage": "The build server rejected the file, so there is nothing to deploy yet. Read the FIRST error, not the last: a failure inside #[program] or #[derive(Accounts)] is reported where the macro expanded, which is usually several lines above the edit that caused it."
+  }
+]

@@ -4,10 +4,13 @@ title: Wire Up Initialize
 skills:
   - anchor
   - solana-programs
+  - debugging
+  - account-model
 blocks:
   - key: intro
     type: prose
     src: intro.md
+
   - key: exercise
     type: code
     language: rust
@@ -17,45 +20,154 @@ blocks:
     tests: exercise/tests.json
     hints:
       - Click Build first to see the error. The compiler will tell you what's missing.
-      - The error mentions a trait bound related to Accounts. This happens when a required account is missing from the struct.
-      - "Add `pub system_program: Program<'info, System>,` to the Initialize struct. The System Program is required whenever you use `#[account(init)]`."
+      - >-
+        Read the output from the top. The first line is Anchor's own and it names
+        the fix outright — everything after it is a cascade of trait-bound errors
+        on `InitializeVault` caused by `#[derive(Accounts)]` having aborted. Ten
+        errors, one problem, stated once, at the top.
+      - >-
+        Add `pub system_program: Program<'info, System>,` to the `InitializeVault`
+        struct. The System Program is required whenever you use `#[account(init)]`,
+        because creating an account is a CPI to it.
+      - >-
+        For task 2: the handler has to persist three things, and `ctx` carries all
+        of them. Two are values you already know at call time — who the owner is,
+        and what a brand-new balance should be. The third is the bump Anchor just
+        computed while deriving the address, which it hands back on `ctx.bumps`,
+        named after the field. Do not hardcode it.
+
     tutorNotes:
-      - "Learners try to satisfy the failing build by deleting or loosening the `init` constraint, instead of supplying the account that `init` requires."
-      - "They read only the surface of the trait-bound error, which names `Accounts` rather than a field, and start editing the wrong struct."
-      - "They guess at a fix without clicking Build first, so they never read what the compiler is actually asking for."
-      - "When they do add the missing account they give it a bare `AccountInfo` or `UncheckedAccount` type instead of the typed program wrapper Anchor expects."
+      - "Learners try to satisfy the failing build by deleting or loosening the `init` constraint, instead of supplying the account that `init` requires. The harness only half-closes this: drop `seeds`/`bump` and it fails, but drop `init` alone and the build goes green on a program that creates nothing. Name the instinct — the compiler will not."
+      - "They scroll to the *last* error, or the loudest, rather than the first. Anchor 1.x prints the real diagnosis on line one and then nine consequences of the derive macro aborting."
+      - "They guess at a fix without clicking Build first, so they never read what the compiler is actually asking for — and hint 1 exists only to make them read it."
+      - "When they do add the missing account they give it a bare `AccountInfo` or `UncheckedAccount` type instead of `Program<'info, System>`, which loses the check that this is really the System Program."
+      - "On task 2 they write `vault.bump = 255`, having read that the search starts at 255. Which bump is canonical depends on the seeds and the program id, so a hardcoded 255 is wrong for roughly half of all vaults — and compiles."
+      - "Task 2 is invisible to the grader. A learner who fixes the bug and writes no body at all gets a green build, so say plainly that the body is trusted here, and that module 4 shows the test that would prove it."
+
+  # q1 is corrected for Anchor 1.x: the primary diagnostic now names the missing
+  # field, and the trait-bound cascade is the fallout, not the message.
   - key: retrieval-close
     type: quiz
     questions:
       - id: q1
-        prompt: "An `Initialize` struct uses `#[account(init, ...)]` but omits the System Program. What does the compiler tell you, and why?"
+        prompt: >-
+          An `InitializeVault` struct uses `#[account(init, ...)]` and omits the
+          System Program. Predict the build output on Anchor 1.x.
         multiSelect: false
         options:
           - id: a
-            label: "A trait-bound error on `Accounts` — `init` generates a `create_account` CPI that needs the System Program present"
+            label: >-
+              One Anchor error naming `system_program` outright, followed by nine
+              more errors on `InitializeVault` — all consequences of the derive
+              macro aborting
             correct: true
           - id: b
-            label: "A runtime 'account not found' error, only when the instruction is called"
+            label: Only the trait-bound errors, with nothing naming the missing field
             correct: false
-            feedback: "It fails at compile time, not runtime. Anchor cannot generate valid account-creation code without the System Program, so the build breaks."
+            feedback: >-
+              That was the pre-1.x experience, and it is why "the trait bound
+              `Accounts` is not satisfied" is still the most-searched Anchor error
+              on the internet. Anchor 1.x prints an explicit diagnosis first — you
+              just have to read from the top to find it.
           - id: c
-            label: "No error — Anchor injects the System Program automatically"
+            label: A runtime "account not found" error, only when the instruction is called
             correct: false
-            feedback: "Anchor does not inject it. `init` requires you to declare `system_program: Program<'info, System>` explicitly, or the generated code fails the Accounts trait."
-        explanation: "Account creation is a CPI to the System Program, so `init` only compiles when that program is in the accounts struct. Omitting it makes Anchor's generated code fail the `Accounts` trait bound — a cryptic-looking error whose fix is always to add the missing account."
+            feedback: >-
+              It fails at compile time. Anchor cannot generate the account-creation
+              code without knowing which program to call, so the build breaks
+              before anything is deployable.
+          - id: d
+            label: No error — Anchor injects the System Program automatically
+            correct: false
+            feedback: >-
+              Anchor never injects accounts. `init` requires you to declare
+              `system_program: Program<'info, System>` explicitly, and the whole
+              point of the message is to say so.
+        explanation: >-
+          Creating an account is a CPI to the System Program, so `init` compiles
+          only when that program is in the accounts struct. Anchor 1.x reports it
+          directly — "a non-optional init constraint requires a non-optional
+          system_program field" — and then `#[derive(Accounts)]` aborts, so the
+          `Bumps`, `Accounts` and `try_accounts` items it was going to generate all
+          come back missing. One problem, ten errors, and the real one is first.
+
       - id: q2
-        prompt: "Why is learning to read this trait-bound error worth a whole lesson?"
+        prompt: >-
+          Why is learning to read this particular build output worth a whole
+          lesson?
         multiSelect: false
         options:
           - id: a
-            label: "It is the most common Anchor compile error, and its message points at a trait rather than the real cause: a missing account"
+            label: >-
+              Because macro-generated code fails in cascades — one mistake produces
+              ten errors — and the habit of reading the first one is what makes
+              Anchor tractable
             correct: true
           - id: b
-            label: "Because it only appears on devnet, never locally"
+            label: Because it only appears on devnet, never locally
             correct: false
-            feedback: "It is a compile-time error, identical everywhere. The lesson exists because the message is indirect, not because it is environment-specific."
+            feedback: >-
+              It is a compile-time error, identical everywhere. The lesson exists
+              because the output is *shaped* confusingly, not because it is
+              environment-specific.
           - id: c
-            label: "Because it means your program is unsafe to deploy"
+            label: Because it means your program is unsafe to deploy
             correct: false
-            feedback: "It is not a safety warning — it is a missing-account compile error. The point is recognizing the indirect message and knowing the fix."
-        explanation: "Because Anchor generates account-validation code via macros, a missing account surfaces as a trait-bound error on `Accounts`, not a plain 'you forgot system_program.' Recognizing that pattern turns hours of confusion into a one-line fix."
+            feedback: >-
+              It is not a safety warning; it is a missing-account compile error.
+              The transferable part is the reading habit, not this one fix.
+          - id: d
+            label: Because the fix differs between Anchor versions
+            correct: false
+            feedback: >-
+              The fix has been the same since Anchor learned the constraint: declare
+              the System Program. What changed in 1.x is the quality of the message,
+              not the answer.
+        explanation: >-
+          Anchor generates account validation through macros, so a single missing
+          field takes every generated item down with it and rustc reports each
+          absence separately. Every constraint mistake you make from here on will
+          look like this: one honest line, then a wall. Read the top, fix one thing,
+          build again — that loop is the actual deliverable of this lesson.
+
+      - id: q3
+        prompt: >-
+          You fix the bug, then write `vault.bump = 255;` in the handler because
+          the derivation search starts at 255. Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It compiles and deploys, and roughly half of all vaults store the
+              wrong bump — every later `bump = vault.bump` check on those fails
+            correct: true
+          - id: b
+            label: It fails to compile — Anchor knows the canonical bump and rejects a literal
+            correct: false
+            feedback: >-
+              `vault.bump` is a plain `u8` field and `255` is a plain `u8`. Nothing
+              in the type system connects that assignment to the bump Anchor
+              derived. This is exactly the class of bug compile-only grading cannot
+              see.
+          - id: c
+            label: It works — 255 is always the canonical bump
+            correct: false
+            feedback: >-
+              255 is where the search *starts*. About half of all candidates land
+              off the curve, so 255 works about half the time and the answer depends
+              entirely on the seeds and the program id. That is precisely why the
+              derivation returns the bump rather than assuming it.
+          - id: d
+            label: It works, because Anchor overwrites the field with the real bump on deserialize
+            correct: false
+            feedback: >-
+              Anchor deserializes what is in the account's bytes and never rewrites
+              your fields. Whatever you store is what every later instruction reads.
+        explanation: >-
+          The canonical bump is the first value counting down from 255 whose derived
+          address lands off the Ed25519 curve, and which value that is depends on
+          the seeds and the program id. `ctx.bumps.vault` is the one Anchor just
+          computed for this exact account; a hardcoded 255 is a guess that compiles,
+          deploys, and then makes `bump = vault.bump` fail in `deposit` for every
+          vault where the guess was wrong. A build server that only compiles cannot
+          catch this — module 4 shows you the LiteSVM test that would, on the first call.

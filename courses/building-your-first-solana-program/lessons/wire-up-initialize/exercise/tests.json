@@ -1,19 +1,25 @@
 [
   {
-    "id": "test-1",
-    "description": "Program compiles successfully",
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2 — the deliberate bug is fixed",
     "input": "",
     "expectedOutput": "true"
   },
   {
-    "id": "test-2",
-    "description": "Initialize struct includes system_program",
+    "id": "t2",
+    "description": "Compiles ⇒ InitializeVault holds system_program: Program<'info, System>, which init requires",
     "input": "",
     "expectedOutput": "true"
   },
   {
-    "id": "test-3",
-    "description": "Counter is initialized to zero",
+    "id": "t3",
+    "description": "Compiles ⇒ the vault still carries seeds + bump: the build was fixed by adding an account, not by dropping the PDA derivation. (init itself is not compile-visible — the harness cannot see it.)",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t4",
+    "description": "Compiles ⇒ VaultState still has owner: Pubkey, balance: u64, bump: u8 — INIT_SPACE is 41",
     "input": "",
     "expectedOutput": "true"
   }

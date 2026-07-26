@@ -1,0 +1,37 @@
+id: lesson-bfsp-adding-instructions
+slug: add-an-instruction
+title: Add an Instruction
+skills:
+  - anchor
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - >-
+        Build before you place anything. Four errors come back and all four are
+        raised by the harness, which is the only code in the file referencing what
+        you have not placed yet: three name `VaultInfo` and one names
+        `vault_info`. Neither pool is mentioned, because a commented-out line is
+        invisible to the compiler.
+      - >-
+        Pool A, mechanically: the line that opens a block ends in `{`, the line
+        that closes one is `}`, and between them the body runs top to bottom with
+        the returned value last. That fixes the order completely. Then look at the
+        two candidate signatures — only one names a return type that exists in
+        Anchor 1.x, and you met the other one in the previous lesson's quiz.
+      - >-
+        Pool B is `(b2)` then `(b1)`. `#[account]` describes the bytes inside an
+        account and `#[derive(Accounts)]` describes a list of accounts an
+        instruction may touch; `Context<VaultInfo>` needs the second, and picking
+        the first fails on `the trait bound VaultInfo: Bumps is not satisfied`.
+        `(b4)` compiles cleanly and is still wrong — re-read the prose on error
+        code 6000 before deciding it is harmless.

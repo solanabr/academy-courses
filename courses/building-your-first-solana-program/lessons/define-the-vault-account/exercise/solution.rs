@@ -57,19 +57,9 @@ pub mod vault_program {
 
     pub fn initialize_vault(ctx: Context<InitializeVault>) -> Result<()> {
         let vault = &mut ctx.accounts.vault;
-
-        // TASK 2. Three assignments, and every one of them is load-bearing later:
-        //   · `owner` is what module 3's `has_one = owner` check reads to reject
-        //     somebody else's withdrawal.
-        //   · `balance` starts at zero explicitly. The bytes are already zero, so
-        //     this line changes nothing — and it is still worth writing, because
-        //     the next person to read the handler should not have to know that.
-        //   · `bump` is stored once here so that `deposit` and `withdraw` can use
-        //     `bump = vault.bump` instead of re-running the derivation search.
         vault.owner = ctx.accounts.user.key();
         vault.balance = 0;
         vault.bump = ctx.bumps.vault;
-
         msg!("Vault initialized for {}", vault.owner);
         Ok(())
     }
@@ -80,6 +70,17 @@ pub mod vault_program {
     }
 }
 
+// One correct assembly. The three fields may be declared in any order, and the
+// constraints inside `#[account(...)]` in any order too. What is fixed is which
+// lines are here at all.
+//
+// Pool lines (5) `rent = rent` and (12) `mut,` are not used:
+//   · `rent = rent` was removed in Anchor 0.31. Anchor reads the rent parameters
+//     itself and derives the deposit from `space`.
+//   · `mut` on the vault would be asking to write an account that already
+//     exists. `init` is the request to create it — allocate `space` bytes, set
+//     the owner to this program, and fund the rent-exempt deposit from `payer`.
+//     `init` implies the write.
 #[derive(Accounts)]
 pub struct InitializeVault<'info> {
     #[account(
@@ -90,10 +91,13 @@ pub struct InitializeVault<'info> {
         bump
     )]
     pub vault: Account<'info, VaultState>,
+    // `mut` because `payer = user` debits this account's lamports for the rent
+    // deposit. `Signer` because someone has to authorize spending them. Two
+    // separate facts, two separate pieces of syntax.
     #[account(mut)]
     pub user: Signer<'info>,
-    // TASK 1. `init` creates the account by calling the System Program, so the
-    // System Program has to be in the account list. Anchor never injects it.
+    // `init` creates the account by calling the System Program, so the System
+    // Program has to be in the account list. Anchor does not add it for you.
     pub system_program: Program<'info, System>,
 }
 

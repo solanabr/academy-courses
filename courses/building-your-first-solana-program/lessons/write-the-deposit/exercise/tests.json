@@ -1,0 +1,8 @@
+[
+  {
+    "id": "compiles",
+    "description": "The program compiles against the Anchor 1.x toolchain, with the verification harness intact",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

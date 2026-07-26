@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Your Course 2 vault core, imported and not retyped.
+// Your Course 2 vault core, imported and not retyped. Untouched by this lesson.
 // ─────────────────────────────────────────────────────────────────────────────
 pub mod vault {
     use super::*;
@@ -57,17 +57,12 @@ pub mod vault_program {
 
     pub fn initialize_vault(ctx: Context<InitializeVault>) -> Result<()> {
         let vault = &mut ctx.accounts.vault;
-
-        // TASK 2. Three assignments, and every one of them is load-bearing later:
-        //   · `owner` is what module 3's `has_one = owner` check reads to reject
-        //     somebody else's withdrawal.
-        //   · `balance` starts at zero explicitly. The bytes are already zero, so
-        //     this line changes nothing — and it is still worth writing, because
-        //     the next person to read the handler should not have to know that.
-        //   · `bump` is stored once here so that `deposit` and `withdraw` can use
-        //     `bump = vault.bump` instead of re-running the derivation search.
         vault.owner = ctx.accounts.user.key();
         vault.balance = 0;
+
+        // SUBGOAL 3. One byte, written once, so that `deposit` and `withdraw` can
+        // use `bump = vault.bump` instead of re-running the derivation search on
+        // every call.
         vault.bump = ctx.bumps.vault;
 
         msg!("Vault initialized for {}", vault.owner);
@@ -86,14 +81,18 @@ pub struct InitializeVault<'info> {
         init,
         payer = user,
         space = 8 + 32 + 8 + 1,
+        // SUBGOAL 1. A namespace prefix, then the user's key as raw bytes. One
+        // vault per wallet, at an address any client can re-derive without
+        // being told it.
         seeds = [b"vault", user.key().as_ref()],
+        // SUBGOAL 2. Derive the canonical bump and require that the account
+        // handed in is at that exact address. This is the check you would
+        // otherwise have to write by hand, and forget.
         bump
     )]
     pub vault: Account<'info, VaultState>,
     #[account(mut)]
     pub user: Signer<'info>,
-    // TASK 1. `init` creates the account by calling the System Program, so the
-    // System Program has to be in the account list. Anchor never injects it.
     pub system_program: Program<'info, System>,
 }
 
@@ -102,7 +101,8 @@ pub struct VaultInfo {}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
-// A type check, not a behaviour check. See the starter for its exact reach.
+// A type check, not a behaviour check. See the starter for what it does and
+// does not reach.
 // ─────────────────────────────────────────────────────────────────────────────
 #[doc(hidden)]
 #[allow(dead_code)]

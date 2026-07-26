@@ -1,0 +1,14 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ the Course 2 vault core and the #[program] wrapper coexist in one crate",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

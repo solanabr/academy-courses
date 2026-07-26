@@ -1,0 +1,183 @@
+id: lesson-bfsp-pdas-vault
+slug: pdas-an-address-with-no-key
+title: "PDAs: An Address With No Key"
+skills:
+  - pdas
+  - account-model
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - >-
+        Build before you type anything. One error comes back, from the harness
+        rather than from your program: `no field 'vault' on type
+        '&InitializeVaultBumps'`. Anchor grows that struct a field per account
+        that carries a `bump` constraint, and yours carries none yet — so the
+        error is telling you the vault is not a PDA. Subgoals 1 and 2 are what
+        make the field appear.
+      - >-
+        Subgoal 1 is one line inside the `#[account(...)]` parentheses:
+        `seeds = [b"vault", user.key().as_ref()],`. Two easy misses — the
+        `space = 8 + 32 + 8 + 1` line above it now needs a trailing comma, and
+        the prefix is the byte literal `b"vault"`, not the string `"vault"`.
+        Subgoal 2 is the bare word `bump` on the next line. They are a pair, and
+        the message names the missing half: add only `seeds` and Anchor answers
+        `bump must be provided with seeds`; add only `bump` and it answers
+        `seeds must be provided before bump`.
+      - >-
+        Subgoal 3 is `vault.bump = ctx.bumps.vault;` in the handler, above the
+        `msg!`. It compiles only once subgoal 2 exists, which is the point — and
+        note that the build cannot tell whether you wrote it, only whether it
+        *could* be written. Skipping it leaves a vault whose stored bump is 0, and
+        every `bump = vault.bump` check in module 3 fails against it.
+
+  # Predict-the-error and predict-the-cost, on the two things learners get wrong
+  # about PDAs: that a PDA has some hidden key, and that re-deriving is free.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Why is there no private key for the vault PDA, and what follows from
+          that?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Derivation searches for a result that is **off** the Ed25519 curve,
+              and only curve points can be public keys — so nothing can ever sign
+              for it, and the seeds become the credential instead
+            correct: true
+          - id: b
+            label: The private key exists but is held by the program, which keeps it in its own account data
+            correct: false
+            feedback: >-
+              A program has no secrets. Its bytecode is public, its accounts are
+              public, and anything it stored would be readable by everyone. PDA
+              authority works precisely because there is no key to hold — the
+              runtime re-derives from seeds instead.
+          - id: c
+            label: The private key is discarded after derivation, so nobody has a copy
+            correct: false
+            feedback: >-
+              There is nothing to discard. The derivation never produces a
+              keypair; it hashes seeds and keeps going until the 32-byte result is
+              not a valid curve point, which means no matching private key can
+              exist at all.
+          - id: d
+            label: >-
+              It has one, but the runtime refuses signatures for accounts owned by
+              a program
+            correct: false
+            feedback: >-
+              The runtime does not need such a rule, and account ownership is a
+              separate matter — a plain keypair account can be owned by a program
+              too. The guarantee here is mathematical, not a policy check.
+        explanation: >-
+          Ed25519 public keys are points on a curve, and most 32-byte strings are
+          not points. PDA derivation hashes `seeds || bump || program_id ||
+          "ProgramDerivedAddress"`, counting the bump down from 255, and returns
+          the first result that is off the curve. No key exists, so no key can be
+          stolen — and what authorizes the address is knowledge of its seeds,
+          which only the deriving program can present.
+
+      - id: q2
+        prompt: >-
+          `deposit` needs to verify its vault account. Compare
+          `bump = vault.bump` with a bare `bump`. What is the difference at
+          runtime?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Bare `bump` re-runs the derivation search on-chain; `bump =
+              vault.bump` verifies the one stored byte — cheaper in compute units,
+              and pinned to the bump the vault was created with
+            correct: true
+          - id: b
+            label: No difference — both compile to the same check, and `vault.bump` is only documentation
+            correct: false
+            feedback: >-
+              They generate different code. Bare `bump` derives the canonical bump
+              from scratch, hashing candidates until one lands off the curve.
+              `bump = vault.bump` reads your stored byte and verifies that single
+              candidate.
+          - id: c
+            label: >-
+              `bump = vault.bump` is less safe, because it trusts a value from
+              account data instead of deriving it
+            correct: false
+            feedback: >-
+              It is not trusted blindly — Anchor still derives the address from the
+              seeds plus that bump and requires the account to be at it. Storing
+              the bump is what pins the vault to the bump that was canonical at
+              creation, which is tighter than accepting whatever a caller offers.
+          - id: d
+            label: Bare `bump` is cheaper, because Anchor caches the canonical bump between instructions
+            correct: false
+            feedback: >-
+              Nothing is cached between instructions — each one is a fresh
+              execution with no memory of the last. Any derivation it performs, it
+              performs from scratch.
+        explanation: >-
+          Bare `bump` runs the search: SHA-256 over the seeds plus program id plus
+          marker, then a curve check, repeated until a candidate is off-curve.
+          Usually that is one round; the worst case is unbounded. `bump =
+          vault.bump` does one hash with a known bump and compares. One byte of
+          `space` buys a constant-cost check on every future instruction, and pins
+          the account to a single canonical bump instead of whichever one a caller
+          supplies.
+
+      - id: q3
+        prompt: >-
+          You add the `seeds` line to the vault's constraint and forget the bare
+          `bump` under it. Predict the build output.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              "`error: bump must be provided with seeds` first, then a cascade of
+              trait-bound errors on `InitializeVault` — the first line is the real
+              one, the rest are debris from the accounts struct failing to generate"
+            correct: true
+          - id: b
+            label: One error, pointing at the `seeds` line, and nothing else
+            correct: false
+            feedback: >-
+              Anchor's own message does come first and does name the fix, but a
+              `#[derive(Accounts)]` that aborts takes the generated `Bumps`,
+              `Accounts` and `try_accounts` items with it — so you get ten or more
+              errors. Learning to read only the top one is most of the skill.
+          - id: c
+            label: It compiles, and Anchor treats the bump as 255
+            correct: false
+            feedback: >-
+              There is no such default. 255 is only where the search *starts*;
+              which bump is canonical depends on the seeds and the program id, so
+              assuming it would be wrong roughly half the time. The macro rejects
+              the constraint instead.
+          - id: d
+            label: It compiles, and fails at runtime with `ConstraintSeeds`
+            correct: false
+            feedback: >-
+              `ConstraintSeeds` is a real runtime error — you get it for seeds that
+              derive to an address other than the account passed in. This one never
+              builds at all.
+        explanation: >-
+          `seeds` and `bump` are a pair, and Anchor says so in as many words:
+          `bump must be provided with seeds`. Everything after it — `the trait
+          bound InitializeVault: Bumps is not satisfied`, `no function named
+          try_accounts`, `unresolved import crate` — is fallout from the derive
+          macro having given up. That shape recurs throughout Anchor: the first
+          error is the real one and the rest are debris. Read from the top, fix one
+          thing, build again.
