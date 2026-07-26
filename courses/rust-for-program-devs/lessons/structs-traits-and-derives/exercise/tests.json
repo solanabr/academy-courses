@@ -1,0 +1,14 @@
+[
+  {
+    "id": "compiles",
+    "description": "The file compiles against anchor-lang 1.1.2 on the build server",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "const-assertions-hold",
+    "description": "Every `const _: () = assert!(...)` in the file evaluates true at compile time (INIT_SPACE == 41, DISCRIMINATOR.len() == 8, VAULT_ACCOUNT_SIZE == 49) — a false one is a compile error, not a test failure",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

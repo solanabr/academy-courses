@@ -1,0 +1,20 @@
+[
+  {
+    "id": "compiles",
+    "description": "The file compiles against anchor-lang 1.1.2 on the build server",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "verify-harness-resolves",
+    "description": "The non-editable `mod verify` block resolves: add_lamports, sub_lamports, balance_after_deposit, error_slug and is_caller_fixable all exist with the exact declared signatures — a missing name or a drifted type is a compile error",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "matches-cover-declared-variants",
+    "description": "Every `match` over VaultError covers every variant you declared — omitting one is E0004 at compile time. Note what this cannot see: a `_ =>` catch-all also compiles, so dropping the wildcard is your discipline, not the grader's",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

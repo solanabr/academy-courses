@@ -1,0 +1,136 @@
+id: lesson-rpd-lifetimes-and-slices
+slug: lifetimes-and-slices
+title: Lifetimes and Slices
+skills:
+  - rust-lifetimes
+  - rust-slices
+  - account-layout
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Function 1 is three lines. Guard the length first and return `None`; otherwise hand back the first eight bytes. `split_at` is a `const fn` and returns `(before, after)` — you want `.0`."
+      - "Function 2 needs TWO lifetime parameters, not one. Ask the question the compiler is asking: which of the two inputs do the returned bytes come out of? Whichever it is gets the name that also appears in the return type; the other input's lifetime is never mentioned again, and giving both the same name is the over-constraint quiz question 2 is about."
+      - "Function 2's body — the constraint, not the code: slice `==` and iterators are both unavailable in a `const fn`, so comparing eight bytes leaves you with indexing. `while` is const; `for` is not. And reuse `discriminator` rather than re-checking the length."
+
+  # 3 questions, all predict-the-error. q3 revisits lesson 7's bug 4 from the
+  # caller's side rather than the callee's.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You write `fn discriminator_if(data: &[u8], expected: &[u8; 8]) ->
+          Option<&[u8]>` with no lifetime annotations. Predict what the compiler
+          says and why.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0106`, missing lifetime specifier — with two input references and no `self`, elision cannot tell whether the result borrows from `data` or `expected`"
+            correct: true
+          - id: b
+            label: It compiles — elision assigns the return value the lifetime of the first reference parameter
+            correct: false
+            feedback: >-
+              There is no first-parameter-wins rule. Elision applies when there
+              is exactly one input reference, or when there is a `&self`. Two
+              plain references and no receiver is precisely the case it refuses.
+          - id: c
+            label: It compiles, and the returned reference gets `'static` because the compiler cannot prove anything shorter
+            correct: false
+            feedback: >-
+              `'static` means "valid for the whole program", which is a much
+              stronger claim than either input can support. The compiler never
+              invents it; it asks you.
+          - id: d
+            label: "`E0621` — explicit lifetime required in the type of `data`"
+            correct: false
+            feedback: >-
+              `E0621` shows up when the annotations exist but do not line up.
+              Here there are none at all to line up, which is `E0106`.
+        explanation: >-
+          The help text spells out the whole lesson: "this function's return type
+          contains a borrowed value, but the signature does not say whether it is
+          borrowed from `data` or `expected`."
+
+      - id: q2
+        prompt: >-
+          You annotate it as `<'a>(data: &'a [u8], expected: &'a [u8; 8]) ->
+          Option<&'a [u8]>` — one name on everything. The function body compiles.
+          What have you actually done to your callers?
+        multiSelect: false
+        options:
+          - id: a
+            label: Required that both arguments be usable over one common stretch, so a caller holding a short-lived `expected` and a long-lived `data` is refused for no reason
+            correct: true
+          - id: b
+            label: Nothing — one lifetime for everything is the same signature written more briefly
+            correct: false
+            feedback: >-
+              Two names are two independent claims. Collapsing them to one adds
+              a constraint the function never needed: it makes the two inputs'
+              lifetimes each other's problem.
+          - id: c
+            label: Made the returned reference live as long as the longer of the two inputs
+            correct: false
+            feedback: >-
+              An annotation never extends a lifetime. It only describes a
+              relationship the compiler then checks. Nothing you write in a
+              signature keeps a value alive one instruction longer.
+          - id: d
+            label: Introduced a use-after-free risk, since `expected` may be dropped while the result is alive
+            correct: false
+            feedback: >-
+              The opposite: it is over-strict, not unsafe. Rust's guarantee is
+              never weakened by the annotation you choose — the worst you can do
+              is reject callers you meant to accept.
+        explanation: >-
+          Also why the harness pins `for<'a, 'b> fn(&'a [u8], &'b [u8; 8]) ->
+          Option<&'a [u8]>`. The single-name version is a *less general* function
+          type, so it does not fit the constant, and the mismatch is reported as
+          `expected fn pointer` versus `found fn item` with the lifetimes shown.
+
+      - id: q3
+        prompt: >-
+          A caller does this — declares `let disc;`, opens a block, builds `let
+          data = vec![0u8; 49];` inside it, assigns `disc = discriminator(&data);`,
+          closes the block, then reads `disc`. Predict the verdict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0597` — `data` does not live long enough; the borrow is still used after the block that owns the buffer ends"
+            correct: true
+          - id: b
+            label: Compiles — `disc` is an `Option`, and an `Option` owns its contents
+            correct: false
+            feedback: >-
+              `Option<&[u8]>` owns the enum's one-word tag, not the bytes. The
+              variant holds a borrow, and a borrow is only as good as what it
+              points at.
+          - id: c
+            label: Compiles, and `disc` is `None` after the block because the buffer was dropped
+            correct: false
+            feedback: >-
+              Nothing rewrites `disc` at runtime. Rust has no mechanism that
+              nulls out a reference when its target dies — which is exactly why
+              the check has to happen at compile time.
+          - id: d
+            label: "`E0515` — cannot return a value referencing a local variable"
+            correct: false
+            feedback: >-
+              `E0515` is the same mistake seen from inside a function that is
+              returning. Here the mistake is in the caller, spanning two scopes,
+              and the compiler names the value that died too early instead.
+        explanation: >-
+          Same rule as lesson 7's bug 4, opposite side of the call. `discriminator`
+          is correct; the caller structured its scopes so the result outlives its
+          source. Move `let data` outside the block and it compiles unchanged.

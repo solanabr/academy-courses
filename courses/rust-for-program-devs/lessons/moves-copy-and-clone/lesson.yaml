@@ -1,0 +1,164 @@
+id: lesson-rpd-moves-copy-and-clone
+slug: moves-copy-and-clone
+title: Moves, Copy, and Clone
+skills:
+  - rust-ownership
+  - rust-move-semantics
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - Nothing needs fixing. Click Build first, then read the six numbered sections against the predictions you would have made before the page above.
+      - First builds are slow — the toolchain is downloading anchor-lang 1.1.2 and its dependencies. A second build of the same file is much faster.
+      - "Section 6 is the whole exercise: uncomment the line marked BREAK IT, build, read which TWO lines the error names, then comment it back. Click Reset Code if you lose the file."
+
+  # Predict-the-behaviour throughout. Every question is a compile-or-not call on
+  # code the learner has just read, not a definition recall.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          `VaultLike` holds a `Pubkey`, a `u64` and a `u8` — every field is a
+          `Copy` type. You write `let moved = vault;` and then read
+          `vault.balance`. Predict what the compiler does.
+        multiSelect: false
+        options:
+          - id: a
+            label: Rejects it — `E0382`, because `Copy` is opt-in on the struct and `VaultLike` does not derive it
+            correct: true
+          - id: b
+            label: Accepts it — a struct whose every field is `Copy` is itself `Copy`
+            correct: false
+            feedback: >-
+              This is the single most common wrong model. `Copy` is a claim you
+              make about a type with a derive, not a property Rust computes from
+              the fields. All-`Copy` fields make the derive *possible*; they do
+              not make it happen.
+          - id: c
+            label: Accepts it — `balance` is a `u64`, and reading a `Copy` field is always allowed
+            correct: false
+            feedback: >-
+              The field is indeed `Copy`, but you are reaching for it through
+              `vault`, and `vault` no longer owns anything. There is nothing to
+              read the field out of.
+          - id: d
+            label: Compiles, then panics at runtime with a use-after-move error
+            correct: false
+            feedback: >-
+              There is no runtime check and no panic. Ownership is enforced
+              entirely at compile time, which is why it costs zero instructions
+              and zero compute units.
+        explanation: >-
+          The error names two lines — where the move happened and where the dead
+          name was used — and states the reason between them: "does not
+          implement the `Copy` trait".
+
+      - id: q2
+        prompt: >-
+          Inside `fn copy_an_address(v: &VaultLike)` you write `let a = v.owner;`
+          and then `let b = v.owner;`. Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: Both compile — `Pubkey` derives `Copy`, so each line copies 32 bytes out of the borrow
+            correct: true
+          - id: b
+            label: The first compiles and the second is `E0382`, because the first one moved the field out
+            correct: false
+            feedback: >-
+              A `Copy` field is never moved by a read. If `Pubkey` were not
+              `Copy` you would not get `E0382` either — you would get `E0507`,
+              cannot move out of borrowed content, because you do not own `v` at
+              all.
+          - id: c
+            label: Neither compiles — you cannot read any field through a shared reference
+            correct: false
+            feedback: >-
+              Reading is exactly what a shared reference is for. `&T` grants
+              read access to every field; what it withholds is mutation.
+          - id: d
+            label: Both compile, but each one allocates because `Pubkey` is 32 bytes
+            correct: false
+            feedback: >-
+              32 bytes on the stack, no allocator involved. Heap allocation is
+              what `Vec` and `String` do, and it is exactly why those two are
+              not `Copy`.
+
+      - id: q3
+        prompt: >-
+          `fn consume_bytes(bytes: Vec<u8>) -> usize` takes its argument by
+          value. You call `consume_bytes(data)` twice with the same `data`.
+          Predict what happens on the second call.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0382` on the second call — the first call moved the buffer, and a `Vec` can never be `Copy`"
+            correct: true
+          - id: b
+            label: It works — the function only reads the length, so nothing is consumed
+            correct: false
+            feedback: >-
+              What the body does is irrelevant. Ownership follows the
+              *signature*: `Vec<u8>` by value means the caller hands it over,
+              and the value is dropped at the end of the callee.
+          - id: c
+            label: It works, but the second call sees an empty vector
+            correct: false
+            feedback: >-
+              There is no "emptied" state to observe. The compiler refuses to
+              build the call rather than letting you look at a moved-from value.
+          - id: d
+            label: "`E0499` — two calls means two mutable borrows of `data`"
+            correct: false
+            feedback: >-
+              Nothing was borrowed. The parameter is `Vec<u8>`, not `&mut
+              Vec<u8>`, so this is a move, not a borrow, and moves report
+              `E0382`.
+
+      - id: q4
+        prompt: >-
+          You hand a `VaultLike` by value to a logging helper and need to read
+          the balance afterwards. Which fix keeps the caller's vault alive
+          without copying 41 bytes and without changing what the type claims
+          about itself?
+        multiSelect: false
+        options:
+          - id: a
+            label: Change the helper to take `&VaultLike`
+            correct: true
+          - id: b
+            label: Add `Copy` to the struct's derive list
+            correct: false
+            feedback: >-
+              It would compile here, but `Copy` is a permanent claim about the
+              type — that duplicating it is always cheap and always correct. The
+              day the struct gains a `Vec` field the derive becomes impossible,
+              and every call site that silently relied on copying breaks at
+              once.
+          - id: c
+            label: Pass `vault.clone()` at the call site
+            correct: false
+            feedback: >-
+              This works and is not shameful — but it does copy the 41 bytes,
+              which is what the question ruled out. Reach for it when a borrow
+              genuinely will not fit the shape of your code.
+          - id: d
+            label: Read `vault.balance` into a variable before the call, then use that
+            correct: false
+            feedback: >-
+              This also compiles, and it is the right move for one `Copy` field.
+              It does not keep the *vault* alive though — `vault` is still dead
+              after the call, so anything else you needed from it is gone.
+        explanation: >-
+          Borrowing is the answer the language wants, and it is the whole of the
+          next lesson: `&VaultLike` to read, `&mut VaultLike` to write.

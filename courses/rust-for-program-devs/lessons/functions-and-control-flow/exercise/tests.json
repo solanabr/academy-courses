@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test-1",
+    "description": "Program compiles successfully",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "describe_state's match covers every u64 — a non-exhaustive set of arms is E0004",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-3",
+    "description": "min_balance's body evaluates to a u64 rather than to ()",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

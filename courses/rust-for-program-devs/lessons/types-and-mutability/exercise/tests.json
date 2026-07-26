@@ -1,0 +1,20 @@
+[
+  {
+    "id": "test-1",
+    "description": "Program compiles successfully",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-2",
+    "description": "Every subgoal's function still exists with the signature the verification harness pins",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "test-3",
+    "description": "VaultLike still declares balance: u64, bump: u8 and last_deposit_at: i64",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

@@ -1,0 +1,161 @@
+id: lesson-rpd-borrowing-shared-vs-mutable
+slug: borrowing-shared-vs-mutable
+title: "Borrowing: `&T` and `&mut T`"
+skills:
+  - rust-borrowing
+  - rust-ownership
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Subgoal 2 is four lines. `if let Some(new_balance) = add_lamports(v.balance, amount) { … }` — and the `None` case is deliberately nothing at all."
+      - "Subgoal 3, step 1: `let current = balance_of(v);`. You are passing the `&mut` where a `&` is expected, which Rust does for you as a reborrow. Bind the `u64` it returns — do not bind `&v.balance`."
+      - "Subgoal 3, step 2: `match sub_lamports(target, current) { Some(gap) => gap, None => 0 }`. `sub_lamports` returning `None` means `target` is below the current balance, so there is nothing to add."
+
+  # Predict-the-error, and q4 deliberately re-tests lesson 5's Copy rule from a
+  # different angle rather than re-asking it.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You write `let before = &v.balance;`, then `credit(v, 1_000);`, then
+          `return *before;`. Predict the compiler's verdict — and what changes if
+          you delete the last line.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0502` as written; deleting the last line makes it compile, because a borrow ends at its last use"
+            correct: true
+          - id: b
+            label: "`E0502` either way — the shared borrow lives until the closing brace of the function"
+            correct: false
+            feedback: >-
+              That was true before the 2018 edition, and a lot of surviving blog
+              posts still say it. Non-lexical lifetimes end a borrow at its last
+              use, which is why removing the use removes the conflict.
+          - id: c
+            label: Compiles as written — `before` is a `&u64`, and one shared borrow plus one mutable borrow is the allowed combination
+            correct: false
+            feedback: >-
+              It is the forbidden combination. Any number of shared borrows, or
+              exactly one mutable borrow, never a mix — that is the whole rule.
+          - id: d
+            label: Compiles, and `*before` reads the balance from before the credit
+            correct: false
+            feedback: >-
+              This is the bug the rule exists to prevent — a reference that
+              silently shows you stale data after a mutation. Rust does not let
+              the reference survive the mutation, so there is no stale read to
+              have.
+        explanation: >-
+          The message is worth memorising: "cannot borrow `*v` as mutable
+          because it is also borrowed as immutable". It names the mutable borrow
+          as the offender, but the fix almost always belongs to the shared one.
+
+      - id: q2
+        prompt: >-
+          Someone writes `pub fn zero_out(v: &VaultLike) { v.balance = 0; }`.
+          Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0594` — cannot assign to `v.balance`, which is behind a `&` reference"
+            correct: true
+          - id: b
+            label: Compiles — the reference is shared, but the field is a plain `u64`
+            correct: false
+            feedback: >-
+              What the field's type is does not matter. `&T` grants read access
+              and nothing else, all the way down.
+          - id: c
+            label: "Compiles if the parameter is declared `v: &mut VaultLike` at the call site"
+            correct: false
+            feedback: >-
+              A call site cannot upgrade a shared borrow to an exclusive one.
+              The signature is the promise, and this one promised not to write.
+          - id: d
+            label: "`E0596` — cannot borrow as mutable, as it is not declared as mutable"
+            correct: false
+            feedback: >-
+              Close but a different failure. `E0596` is what you get when you
+              try to take `&mut` of a binding declared without `let mut`. Here
+              nothing is being borrowed — an assignment is being attempted
+              through a reference that forbids it.
+
+      - id: q3
+        prompt: >-
+          Inside `fn f(v: &mut VaultLike)` you write `let b = &mut v.balance;`
+          and on the next line `let p = &mut v.bump;`, then use both. Predict the
+          verdict.
+        multiSelect: false
+        options:
+          - id: a
+            label: Compiles — the two borrows are of different fields, and the borrow checker tracks fields separately
+            correct: true
+          - id: b
+            label: "`E0499` — two mutable borrows of `v` cannot coexist"
+            correct: false
+            feedback: >-
+              You did not borrow `v` twice; you borrowed two disjoint pieces of
+              it. `E0499` fires when the two borrows genuinely overlap — for
+              example `&mut v.balance` twice.
+          - id: c
+            label: Compiles only if you wrap each borrow in its own block
+            correct: false
+            feedback: >-
+              Blocks are the workaround for borrows that really do overlap.
+              These do not, so no scoping trick is needed.
+          - id: d
+            label: "`E0502` — a mutable borrow of a field implies a shared borrow of the whole struct"
+            correct: false
+            feedback: >-
+              It does not. Borrowing a field borrows that field's place, which
+              is precisely what makes ordinary struct-mutating code writable
+              without fighting the compiler.
+        explanation: >-
+          Worth knowing early because it removes a class of imagined
+          restrictions. The checker is more precise than the summary rule
+          suggests, and the summary rule is about a single place, not a whole
+          value.
+
+      - id: q4
+        prompt: >-
+          Carried over from the previous lesson. You write `let vault =
+          sample_vault();` and then `credit(&mut vault, 1_000);`. Predict what
+          the compiler says.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0596` — cannot borrow `vault` as mutable, as it is not declared as mutable"
+            correct: true
+          - id: b
+            label: Compiles — `&mut` at the call site is all that is needed to get write access
+            correct: false
+            feedback: >-
+              You cannot lend out write access you were never granted. `let mut`
+              on the binding is what grants it; `&mut` at the call site is what
+              passes it on.
+          - id: c
+            label: "`E0382` — `&mut vault` moves the vault into `credit`"
+            correct: false
+            feedback: >-
+              A mutable borrow is a loan, not a move. `credit` gives the vault
+              back when it returns, which is exactly why the signature is `&mut
+              VaultLike` and not `VaultLike`.
+          - id: d
+            label: Compiles, but `credit` mutates a temporary copy and the caller sees no change
+            correct: false
+            feedback: >-
+              There is no hidden copy. That is JavaScript's pass-a-primitive
+              behaviour; a Rust `&mut` points at the caller's own value, and
+              silently copying instead would be a language bug.

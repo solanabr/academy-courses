@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ VaultState has owner: Pubkey, balance: u64 and bump: u8 — INIT_SPACE is 41",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t3",
+    "description": "Compiles ⇒ #[account] and #[derive(InitSpace)] are both present: an 8-byte discriminator plus INIT_SPACE",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t4",
+    "description": "Compiles ⇒ deposit and withdraw take (&mut self, u64) and return Result<()>",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t5",
+    "description": "Compiles ⇒ VaultError is an #[error_code] enum carrying Overflow, InsufficientFunds, ZeroAmount and NotOwner",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

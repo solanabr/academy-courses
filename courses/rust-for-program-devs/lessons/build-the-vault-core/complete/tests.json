@@ -1,0 +1,20 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ neither method body was left empty: both evaluate to Result<()>",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t3",
+    "description": "Compiles ⇒ VaultState and VaultError are nameable from the crate root, so the re-export is in place",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

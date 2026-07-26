@@ -1,0 +1,147 @@
+id: lesson-rpd-checked-lamport-math
+slug: checked-lamport-math
+title: Checked Lamport Math
+skills:
+  - rust-types
+  - checked-arithmetic
+  - rust-option
+  - program-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - "Build the empty file first. All ten assertions fail with `error[E0080]: evaluation panicked: not yet implemented`, which is `todo!()` being reached — the comments above each group name the cases. Once a function has a real body, a failure prints the assertion verbatim (`assertion failed: matches!(sub_lamports(5, 7), None)`) and names the exact input that is wrong."
+      - "`u64` already has the two operations you need, and both are themselves `const fn`, so they are callable from inside yours. Look for the methods whose return type is `Option<u64>`."
+      - "For `transfer_lamports`, the obstacle rather than the shape: you cannot use `?`, so there is no way to bail out of the middle of an expression. The second operation therefore has to be inspected somewhere the first one has already succeeded. If you find yourself wanting `?`, that is the right instinct and lesson 12 is where it becomes legal."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A vault holds 5 lamports. A withdrawal for 7 reaches
+          `let new_balance = balance - amount;`. The program was compiled by
+          our build server, which sets `overflow-checks = true` in its release
+          profile. Predict what happens, and what a caller can do about it.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It panics, the transaction fails, and the caller gets an aborted
+              program rather than an error it can distinguish — the check turns
+              a silent corruption into a crash, not into a handled case.
+            correct: true
+          - id: b
+            label: >-
+              It wraps to 18446744073709551614 and the vault believes it is
+              enormously funded.
+            correct: false
+            feedback: >-
+              That is the answer with overflow checks *off*, and it is the more
+              dangerous one — which is why the flag is on. But the flag lives in
+              `Cargo.toml`, not in your code, so correctness that depends on it
+              is one profile change away from being wrong.
+          - id: c
+            label: >-
+              It returns `None`, because `u64` subtraction is checked by default.
+            correct: false
+            feedback: >-
+              The `-` operator returns `u64`, never `Option<u64>`. Nothing about
+              its type could carry a `None`. You have to call `checked_sub` to
+              get one.
+          - id: d
+            label: >-
+              It is a compile error, since the compiler can see the subtraction
+              might underflow.
+            correct: false
+            feedback: >-
+              With literal constants the compiler does catch it. With runtime
+              values it cannot possibly know, which is the entire situation your
+              program is in — the amount came from an instruction someone else
+              wrote.
+      - id: q2
+        prompt: >-
+          A submission writes
+          `pub const fn sub_lamports(b: u64, a: u64) -> Option<u64> { Some(b.checked_sub(a)?) }`.
+          Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It fails to compile — `error[E0015]`, "`?` is not allowed on
+              `Option<u64>` in constant functions". That is exactly why the spec
+              asks for `match`.
+            correct: true
+          - id: b
+            label: >-
+              It compiles and is the neatest possible answer.
+            correct: false
+            feedback: >-
+              It would be, in an ordinary function. `?` on `Option` is still
+              unstable in const context, so it does not compile here — and
+              dropping `const fn` to get it would disable the assertions that
+              grade this lesson. Lesson 12 is where `?` becomes available, on
+              `Result`, in a function that is not const.
+          - id: c
+            label: >-
+              It compiles but always returns `Some`, because `?` cannot escape
+              from inside a `Some(...)` call.
+            correct: false
+            feedback: >-
+              `?` returns from the enclosing *function*, not from the expression
+              it sits in, so the nesting would not have been the problem. The
+              problem is that it is unavailable in const context at all.
+          - id: d
+            label: >-
+              It compiles with a warning that `?` is redundant here.
+            correct: false
+            feedback: >-
+              `Some(x?)` on an `Option` is genuinely redundant — the value is
+              already the right type — but Rust does not lint for it, and in a
+              `const fn` you never get that far.
+      - id: q3
+        prompt: >-
+          Carried over from lesson 3. Predict the outcome of
+          `pub const fn sub_lamports(b: u64, a: u64) -> Option<u64> { b.checked_sub(a); }`
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `error[E0308]` — expected `Option<u64>`, found `()`. The semicolon
+              discarded the value, so the body evaluates to nothing.
+            correct: true
+          - id: b
+            label: >-
+              It compiles and returns `None`, since nothing was returned.
+            correct: false
+            feedback: >-
+              There is no implicit `None`, and no implicit anything. A body whose
+              value is `()` does not satisfy a `-> Option<u64>` signature, and
+              the compiler says so before the question of what it returns can
+              arise.
+          - id: c
+            label: >-
+              It compiles with a `path_statements` warning about an expression
+              whose result is unused.
+            correct: false
+            feedback: >-
+              You would get an unused-result warning if the return type were
+              `()`. It is not, so the mismatch is an error — and note that the
+              compiler's `help:` line will point straight at the semicolon.
+          - id: d
+            label: >-
+              It compiles, because `checked_sub` is the last expression and
+              semicolons are optional at the end of a body.
+            correct: false
+            feedback: >-
+              A tail expression is defined by the *absence* of the semicolon.
+              Adding one is what turns it from the body's value into a discarded
+              statement — the same rule that broke `if a < b { a; } else { b; }`
+              in lesson 3.

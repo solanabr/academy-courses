@@ -1,0 +1,178 @@
+id: lesson-rpd-types-and-mutability
+slug: types-and-mutability
+title: Types, Mutability, and Why the Compiler Argues
+skills:
+  - rust
+  - rust-types
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - Build it before you change anything. All four subgoals report at once, and the error codes tell you which kind of mistake each one is — E0384 and E0594 are mutability, E0308 is a width, E0277 is indexing.
+      - "Subgoal 2 needs the word `mut` twice, in two different positions: once on the reference in `set_balance`'s parameter (`&mut VaultLike`), once on the `let` binding in `seed_bump`."
+      - "Subgoals 3 and 4 are three separate fixes and only one of them touches a function body. `bump_as_u64` needs `u64::from(bump)`. `is_after` and `byte_at` each need a parameter type changed — to `i64` and to `usize` — and the harness at the bottom of the file already pins both, so it is also the answer key."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Predict the outcome. `pub fn bump_as_u64(bump: u8) -> u64 { bump }` —
+          and note that every possible `u8` value fits in a `u64`.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `error[E0308]: mismatched types` — expected `u64`, found `u8`. Rust
+              performs no implicit numeric conversion at all, lossless included.
+            correct: true
+          - id: b
+            label: >-
+              It compiles. Widening conversions are implicit because they cannot
+              lose information.
+            correct: false
+            feedback: >-
+              That is the C and Java rule, and it is the reason this is the most
+              frequently mispredicted line in the lesson. Rust has no implicit
+              numeric conversions in either direction. Write `u64::from(bump)`.
+          - id: c
+            label: It compiles with a warning suggesting an explicit conversion.
+            correct: false
+            feedback: >-
+              A type mismatch is never a warning in Rust — the compiler has no
+              type to proceed with. You do get a `help:` block containing the
+              fix, but it is attached to an error.
+          - id: d
+            label: >-
+              `error[E0605]: non-primitive cast`, because the conversion needs
+              `as`.
+            correct: false
+            feedback: >-
+              E0605 is for `as` between types where it makes no sense. Both of
+              these are primitive integers, so `as` would compile — it is just
+              the wrong tool, because `as` silently truncates when the widths go
+              the other way.
+      - id: q2
+        prompt: >-
+          Carried over from lesson 1. Your file has four unrelated mistakes in
+          four different functions. Predict what one build gives you.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              All four, in one pass, each with its own code and span — `rustc`
+              does not stop at the first.
+            correct: true
+          - id: b
+            label: >-
+              The first one only. Compilation halts at the first error, as a JS
+              runtime halts at the first exception.
+            correct: false
+            feedback: >-
+              That is a runtime's behaviour, not a compiler's. `rustc` finishes
+              the pass and reports every independent error, which is why the
+              first build of a broken file is a complete to-do list.
+          - id: c
+            label: >-
+              Four errors plus a cascade of dozens more, because each mistake
+              poisons everything after it.
+            correct: false
+            feedback: >-
+              Cascades happen, but from a mistake that leaves the compiler
+              guessing at a *type* other code depends on. Four independent
+              mistakes in four independent functions produce four errors. When
+              you do see a cascade, fix the first error and rebuild.
+          - id: d
+            label: >-
+              One error, and three warnings, since only the first is fatal.
+            correct: false
+            feedback: >-
+              Severity is a property of the diagnostic, not of its position.
+              Four type errors are four errors.
+      - id: q3
+        prompt: >-
+          Predict the outcome.
+          `pub fn set_balance(vault: &VaultLike, lamports: u64) { vault.balance = lamports; }`
+          — where `balance` is declared `pub`, and the caller passes a value it
+          owns and can freely modify.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `error[E0594]` — cannot assign to `vault.balance`, which is behind
+              a shared reference. The parameter type is a promise not to write,
+              and neither `pub` nor the caller's ownership overrides it.
+            correct: true
+          - id: b
+            label: >-
+              It compiles, because the field is `pub` and therefore writable
+              from anywhere it is visible.
+            correct: false
+            feedback: >-
+              `pub` controls who can *name* the field. Whether it can be written
+              through a particular reference is decided by that reference's
+              type. They are orthogonal, and conflating them is the most common
+              version of this mistake.
+          - id: c
+            label: >-
+              It compiles, because the caller owns a mutable value and mutability
+              is a property of the value, not the reference.
+            correct: false
+            feedback: >-
+              The signature is the contract. A caller with a perfectly mutable
+              value that hands out `&T` has handed out read-only access, and the
+              function cannot widen it.
+          - id: d
+            label: >-
+              `error[E0384]: cannot assign twice to immutable variable`.
+            correct: false
+            feedback: >-
+              E0384 is the *binding* case — reassigning a `let` without `mut`.
+              This is the *reference* case, E0594. Both are fixed by the word
+              `mut`, in two different positions, and telling them apart tells
+              you which position.
+      - id: q4
+        prompt: >-
+          A vault account holds 18_446_744_073_709_551_615 lamports, the largest
+          value a `u64` can hold. Your TypeScript client reads the raw field and
+          does `Number(raw)`. Predict what you get.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              18446744073709552000 — a nearby number, silently. No error, no
+              warning, and nothing downstream can tell it was rounded.
+            correct: true
+          - id: b
+            label: >-
+              A `RangeError`, because the value exceeds `Number.MAX_SAFE_INTEGER`.
+            correct: false
+            feedback: >-
+              `Number.MAX_SAFE_INTEGER` is documentation, not a guard. Exceeding
+              it is not an error condition in JavaScript — you get the nearest
+              representable double and execution continues. That silence is the
+              whole problem.
+          - id: c
+            label: >-
+              `Infinity`, since the value overflows the double.
+            correct: false
+            feedback: >-
+              A double reaches about 1.8 × 10³⁰⁸. This value is nowhere near
+              overflowing it. The loss is *precision*, not magnitude, which is
+              exactly why it is hard to notice.
+          - id: d
+            label: >-
+              The exact value. `Number` is 64-bit, and so is `u64`.
+            correct: false
+            feedback: >-
+              Both are 64 bits, but a double spends 11 of them on an exponent
+              and one on a sign, leaving 53 bits of integer precision. Every
+              integer above 2^53 - 1 is representable only approximately, which
+              is why Solana clients read `u64` fields as `BigInt`.

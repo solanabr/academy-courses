@@ -1,0 +1,329 @@
+id: lesson-rpd-ownership-checkpoint
+slug: ownership-checkpoint
+title: "Checkpoint: Ownership"
+skills:
+  - rust-ownership
+  - rust-borrowing
+  - rust-lifetimes
+  - checked-arithmetic
+blocks:
+  # No new material. Eight items, DELIBERATELY INTERLEAVED: module-2 ownership
+  # questions alternate with module-1 numeric and control-flow questions, and
+  # two (q3, q7) are seeded from Course 1's account-layout and decoding work.
+  # Blocked practice — all the ownership questions together — inflates
+  # confidence without improving retention. Interleaved practice does the
+  # opposite, and feeling worse while doing it is the expected experience.
+  #
+  # Diagnose each snippet WITHOUT building it. There is no code block in this
+  # lesson on purpose.
+  - key: retrieval
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A function takes `vaults: Vec<VaultLike>`, sums the balances with `for
+          v in vaults { sum += v.balance; }`, then returns the tuple `(sum,
+          vaults.len())`. Predict the verdict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0382` — `for v in vaults` calls `.into_iter()`, which takes the `Vec` by value, so `vaults` is gone by the last line"
+            correct: true
+          - id: b
+            label: Compiles — a `for` loop borrows what it iterates
+            correct: false
+            feedback: >-
+              `for x in collection` moves it; `for x in &collection` borrows it.
+              The sugar hides an ordinary by-value call to `into_iter`, and the
+              compiler's own suggestion is to add the `&`.
+          - id: c
+            label: Compiles — `len()` only reads, and a read after a move is allowed
+            correct: false
+            feedback: >-
+              A read is a borrow, and you cannot borrow what you no longer own.
+              The error even says so: "value borrowed here after move".
+          - id: d
+            label: "`E0507` — cannot move out of `vaults` because it is borrowed"
+            correct: false
+            feedback: >-
+              Nothing borrowed it first. `E0507` is for moving out of something
+              you only have a reference to. Here you owned the `Vec` outright and
+              gave it away.
+
+      - id: q2
+        prompt: >-
+          `pub fn describe(balance: u64) -> &'static str` has a body consisting
+          of `match balance { 0 => "empty", _ => "funded" };` — note the
+          semicolon. Predict the verdict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0308` — expected `&str`, found `()`; the semicolon discards the match's value and the body ends with nothing"
+            correct: true
+          - id: b
+            label: Compiles — the last expression in a body is returned whether or not it has a semicolon
+            correct: false
+            feedback: >-
+              The semicolon is exactly what decides that. With it the line is a
+              statement whose value is thrown away; without it the line is the
+              body's tail expression and its value is returned.
+          - id: c
+            label: "`E0317` — `if`/`match` may be missing an `else` clause"
+            correct: false
+            feedback: >-
+              The match is exhaustive — `_` covers everything. The arms are not
+              the problem; what happens to the value they produce is.
+          - id: d
+            label: Compiles, and returns an empty string
+            correct: false
+            feedback: >-
+              There is no implicit empty value in Rust and no coercion from `()`
+              to `&str`. A type mismatch is a build failure, not a default.
+        explanation: >-
+          The compiler names the semicolon and offers to delete it: "help: remove
+          this semicolon to return this value".
+
+      - id: q3
+        prompt: >-
+          Seeded from Course 1. Your inspector reads 8 bytes at offset 32 of a
+          49-byte vault account and prints a balance in the quintillions. The
+          vault actually holds 0.5 SOL. The layout is 8-byte discriminator,
+          `owner: Pubkey`, `balance: u64`, `bump: u8`. Diagnose it.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The read starts 8 bytes early — `balance` begins at 8 + 32 = 40, so
+              offset 32 straddles the last 8 bytes of `owner` and the first
+              nothing of `balance`, and you decoded address bytes as a number
+            correct: true
+          - id: b
+            label: >-
+              The bytes were read big-endian. Borsh writes a `u64`
+              little-endian, and reversing the byte order of 500 000 000 gives a
+              gigantic value
+            correct: false
+            feedback: >-
+              A real cause of exactly this symptom, and not this one: the offset
+              is wrong before endianness gets a say. Worth checking second — if
+              offset 40 still gives you nonsense, that is where you look.
+          - id: c
+            label: >-
+              `Number` lost precision. A `u64` lamport balance above 2^53 − 1 is
+              silently rounded by a JavaScript double
+            correct: false
+            feedback: >-
+              Precision loss perturbs a large number; it does not turn 500 000 000
+              into a quintillion. And 0.5 SOL is 5 × 10^8 lamports, far below
+              2^53 − 1, so a double holds it exactly.
+          - id: d
+            label: >-
+              The discriminator did not match, so the decoder fell through and
+              read whatever was in the buffer
+            correct: false
+            feedback: >-
+              Nothing "falls through". A discriminator mismatch is something you
+              check for and reject; a decoder pointed at the wrong offset happily
+              reads eight real bytes and reports a real number that means
+              something else.
+        explanation: >-
+          `balance` starts at **40**. Every Anchor account spends its first 8
+          bytes on a hash of the account type's name, and `Pubkey` is 32, and
+          Borsh adds no padding — the fields sit back to back in declaration
+          order. Offset 32 is where the last 8 bytes of the owner's address live,
+          which is why the wrong answer looks like a number rather than an error.
+
+      - id: q4
+        prompt: >-
+          Inside `fn stash(v: &mut VaultLike) -> u64` you write `let slot = &mut
+          v.balance;`, then `let total = balance_of(v);`, then `*slot = total;`.
+          Predict the error and its exact direction.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0502` — cannot borrow `*v` as immutable because it is also borrowed as mutable"
+            correct: true
+          - id: b
+            label: "`E0502` — cannot borrow `*v` as mutable because it is also borrowed as immutable"
+            correct: false
+            feedback: >-
+              Right code, wrong direction. That wording is for the case where the
+              shared borrow came first. Here the `&mut` came first, so the
+              compiler complains about the shared one arriving second — read
+              which borrow gets the caret.
+          - id: c
+            label: "`E0499` — two mutable borrows, since `balance_of` reborrows `v` mutably"
+            correct: false
+            feedback: >-
+              `balance_of` takes `&VaultLike`. Passing a `&mut` where a `&` is
+              wanted produces a *shared* reborrow, not a second exclusive one.
+          - id: d
+            label: Compiles — `slot` borrows one field and `balance_of` reads the whole struct, so nothing overlaps
+            correct: false
+            feedback: >-
+              Field-level disjointness only helps when both borrows are of
+              distinct fields. `balance_of(v)` borrows the whole vault, which
+              includes the field already borrowed mutably.
+        explanation: >-
+          Both directions of `E0502` name three lines, and the third — "mutable
+          borrow later used here" — is the one that tells you which borrow to get
+          rid of.
+
+      - id: q5
+        prompt: >-
+          `pub fn space(field_count: u32) -> usize { 8 + field_count }`. Predict
+          the verdict, and what you should do with the compiler's suggested fix.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0308`, expected `usize` found `u32` — and refuse the suggested `.try_into().unwrap()`, writing `usize::try_from(field_count)` and handling the `Err` instead"
+            correct: true
+          - id: b
+            label: Compiles — `u32` widens to `usize` automatically because it cannot lose information
+            correct: false
+            feedback: >-
+              Rust has no implicit numeric coercion at all, lossless or not. The
+              literal `8` infers `u32` from its neighbour and the sum stays a
+              `u32`.
+          - id: c
+            label: "`E0308`, and the right fix is the `.try_into().unwrap()` the compiler proposes"
+            correct: false
+            feedback: >-
+              It compiles, and it is a panic waiting for the input that triggers
+              it. The compiler does not know it is writing on-chain code; its
+              diagnostics are authoritative and its suggestions are not. Keep the
+              `try_into`, drop the `unwrap`.
+          - id: d
+            label: "`E0308`, and the fix is `usize::from(field_count) + 8`, the infallible conversion"
+            correct: false
+            feedback: >-
+              `usize::from` does not exist for `u32` — `impl From<u32> for usize`
+              is not in the standard library, because `usize` is 16 bits on some
+              targets and the conversion is therefore not universally lossless.
+              `impl From<u16> for usize` does exist. `TryFrom` is what you get for
+              `u32`, and it hands you a `Result` rather than a promise.
+
+      - id: q6
+        prompt: >-
+          `pub fn owner_bytes(v: &VaultLike) -> &[u8]` with the body `let bytes =
+          v.owner.to_bytes(); &bytes`. `Pubkey::to_bytes` returns `[u8; 32]`.
+          Predict the verdict.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0515` — cannot return reference to local variable `bytes`; `to_bytes` returned an owned array this function drops on the way out"
+            correct: true
+          - id: b
+            label: Compiles — `[u8; 32]` is `Copy`, so returning a reference to it is fine
+            correct: false
+            feedback: >-
+              `Copy` decides whether assignment duplicates the value. It has
+              nothing to say about how long the local lives, and the local dies
+              at the closing brace either way.
+          - id: c
+            label: Compiles — `bytes` is on the stack, not the heap, so there is nothing to free
+            correct: false
+            feedback: >-
+              The stack frame goes away too. Where the bytes live does not change
+              when they stop existing.
+          - id: d
+            label: "`E0106` — the signature needs an explicit lifetime because the return borrows from a local"
+            correct: false
+            feedback: >-
+              Elision handles this signature fine: one input reference, so the
+              return borrows from `v`. The problem is that the body tried to
+              borrow from something else entirely.
+        explanation: >-
+          `v.owner.as_ref()` is the fix — a `&[u8]` view of the `Pubkey` the
+          caller already owns. When you borrow from a method's return value,
+          check first whether that method returned a reference or a value.
+
+      - id: q7
+        prompt: >-
+          Also seeded from Course 1. Kit's `getU64Decoder` gives you a `BigInt`
+          for the vault's `balance`, not a `Number`. Why does that matter enough
+          to change the API?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`Number` is a double: integers above 2^53 − 1 stop being exactly representable and are silently rounded, and a `u64` lamport balance clears that comfortably"
+            correct: true
+          - id: b
+            label: "`BigInt` is faster for arithmetic on large values"
+            correct: false
+            feedback: >-
+              It is slower, and that is an acceptable price. The reason is
+              correctness: a wrong balance that looks plausible is worse than a
+              slow one.
+          - id: c
+            label: "`Number` cannot hold values above 2^32, so any balance over ~4.29 billion lamports overflows"
+            correct: false
+            feedback: >-
+              Wrong boundary. A double holds far more than 2^32; the limit is
+              where *exact integer* representation stops, at 2^53 − 1.
+          - id: d
+            label: Because JSON-RPC returns balances as strings and `BigInt` is what parses them
+            correct: false
+            feedback: >-
+              How the number arrives on the wire is a separate question. The
+              decoder's choice is about what can hold the value once parsed.
+        explanation: >-
+          This constraint is the origin of `u64` in the struct you are about to
+          write. In Rust the width is in the type, and the only way to lose a
+          lamport is to let the arithmetic wrap.
+
+      - id: q8
+        prompt: >-
+          `pub fn withdraw(v: &mut VaultLike, amount: u64) { v.balance = v.balance
+          - amount; }` compiles. The build server's release profile sets
+          `overflow-checks = true`. Predict what happens when `amount` exceeds the
+          balance, and whether that setting is enough.
+        multiSelect: false
+        options:
+          - id: a
+            label: It panics and the instruction aborts with no useful message — and no, because the correct behaviour is a typed error the caller can act on, which is what `checked_sub` gives you
+            correct: true
+          - id: b
+            label: It wraps to a huge number, and `overflow-checks = true` is the fix
+            correct: false
+            feedback: >-
+              With the checks on it panics rather than wrapping, so the setting
+              does change the outcome — but "panic" is not the behaviour you
+              want. It converts a silent wrong answer into an opaque failure,
+              which is an improvement, not a solution.
+          - id: c
+            label: It returns `None`, because Rust's `-` on unsigned integers is checked by default
+            correct: false
+            feedback: >-
+              `-` returns a `u64`, never an `Option`. `checked_sub` is a
+              different method with a different return type, and you have to
+              choose it.
+          - id: d
+            label: Nothing bad — `v.balance` is a `u64` and cannot go negative, so the result clamps at zero
+            correct: false
+            feedback: >-
+              Nothing clamps. Saturating behaviour exists but you have to ask for
+              it by name (`saturating_sub`), and silently clamping a withdrawal
+              to zero would be its own exploit.
+        explanation: >-
+          `overflow-checks = true` is a safety net for testing, not a substitute
+          for checked arithmetic. `sub_lamports` from lesson 4 becomes
+          `VaultState::withdraw` returning `VaultError::InsufficientFunds` in
+          module 4 — same arithmetic, with a reason attached.
+
+  - key: worked-answers
+    type: prose
+    src: worked-answers.md
+
+  - key: explain
+    type: openEnded
+    maxWords: 150
+    prompt: >-
+      Explain to someone who writes JavaScript, in your own words and without
+      re-reading the lessons, why `fn credit(v: &mut VaultLike, amount: u64)`
+      cannot be called while any other reference to that vault exists — and name
+      one bug the rule prevents that a JavaScript developer would otherwise have
+      to catch in review. Then finish this sentence: "A lifetime annotation does
+      not change how long anything lives; it tells the compiler ___." Writing it
+      out badly is worth more than reading it again — this is not graded, awards
+      no XP, and gates nothing.

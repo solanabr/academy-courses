@@ -1,0 +1,127 @@
+id: lesson-rpd-fix-the-borrow-checker
+slug: fix-the-borrow-checker
+title: Fix the Borrow Checker
+skills:
+  - rust-borrowing
+  - compiler-errors
+  - debugging
+blocks:
+  - key: reading-errors
+    type: prose
+    src: reading-borrow-errors.md
+
+  - key: exercise
+    type: code
+    language: rust
+    buildType: buildable
+    starter: exercise/starter.rs
+    solution: exercise/solution.rs
+    tests: exercise/tests.json
+    hints:
+      - Build it first and read only the first error. The others are cascades — they will move or disappear as you fix the one above them.
+      - "Bug 2: the shared borrow is only fatal because the last line uses it again. `u64` is `Copy`, so take the number instead of a reference to it — and drop the `*` from the two places that were dereferencing it."
+      - "Bug 4: the returned reference has to come from something that outlives the call. `data` does. A `Vec` you created inside the function does not — and neither does a temporary you create inline in the return expression."
+
+  # 3 questions. q3 deliberately tests the limit of a green build rather than a
+  # rule, which is the honest lesson of a compile-only exercise.
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          In bug 2 you replace `let before = &v.balance;` with `let before = &mut
+          v.balance;` and change nothing else. Predict the error you now get.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0499` — cannot borrow `*v` as mutable more than once at a time"
+            correct: true
+          - id: b
+            label: "Still `E0502` — a mutable borrow is a superset of a shared one, so the same conflict applies"
+            correct: false
+            feedback: >-
+              The rule that broke is a different one, and so is the message.
+              `E0502` is shared-then-mutable; two mutable borrows is `E0499`.
+              Telling them apart is how you know whether to remove the borrow or
+              reorder the calls.
+          - id: c
+            label: It compiles — `&mut` is the stronger borrow, and `credit` needs a mutable borrow anyway
+            correct: false
+            feedback: >-
+              "Stronger" is the wrong axis. `&mut` is *exclusive*, so a second
+              one is worse, not better. Only one may exist at a time.
+          - id: d
+            label: "`E0596` — `v` is already a `&mut`, so you cannot take `&mut` of it again"
+            correct: false
+            feedback: >-
+              Reborrowing a `&mut` is completely legal and you do it every time
+              you pass `v` to another function. The problem is doing it twice
+              and keeping both.
+
+      - id: q2
+        prompt: >-
+          For bug 4, someone tries `&data.to_vec()[..8]` on one line instead of
+          two. Predict what the compiler says.
+        multiSelect: false
+        options:
+          - id: a
+            label: "`E0515` again — cannot return value referencing temporary value; the `Vec` is dropped at the end of the statement"
+            correct: true
+          - id: b
+            label: Compiles — a temporary in a return expression lives as long as the return value
+            correct: false
+            feedback: >-
+              There is no such rule, and if there were it would be
+              unimplementable: the `Vec`'s heap allocation has to be freed by
+              someone, and the only code that could do it is the function that
+              is returning.
+          - id: c
+            label: "`E0716` — temporary value dropped while borrowed, because the fix is to bind it with `let`"
+            correct: false
+            feedback: >-
+              You would see `E0716` in some contexts, but binding it with `let`
+              is the two-line version, which is the original bug. The problem is
+              not where the `Vec` is written; it is that a `Vec` was created at
+              all.
+          - id: d
+            label: Compiles, and returns a slice of zeroes because the buffer was freed
+            correct: false
+            feedback: >-
+              Reading freed memory is precisely what does not happen. This is
+              the whole reason the error exists, and it is caught at compile
+              time, so there is no observable garbage to read.
+
+      - id: q3
+        prompt: >-
+          Instead of sequencing bug 3, someone writes `credit(v, first);` then
+          `credit(&mut v.clone(), second);`. It compiles green. Predict what the
+          vault's balance is afterwards.
+        multiSelect: false
+        options:
+          - id: a
+            label: Raised by `first` only — the second credit landed on a throwaway clone that was dropped immediately
+            correct: true
+          - id: b
+            label: Raised by `first + second` — `.clone()` returns a copy that writes through to the original
+            correct: false
+            feedback: >-
+              Nothing writes through a clone. `.clone()` produced an independent
+              `VaultLike`; the `&mut` pointed at that one, and it was dropped at
+              the end of the statement.
+          - id: c
+            label: Raised by `second` only — the later write wins
+            correct: false
+            feedback: >-
+              There is no "later write wins" — the two calls touched two
+              different values. The vault only ever saw the first.
+          - id: d
+            label: It does not compile — you cannot take `&mut` of a temporary
+            correct: false
+            feedback: >-
+              You can. Rust promotes the temporary to a place you may borrow
+              mutably, which is exactly why this bug builds green.
+        explanation: >-
+          Worth being blunt about: the build server proves your file compiles. It
+          does not prove your function does what its name says. This snippet is a
+          silent, compiling, wrong program, and only reading it catches that. The
+          same limit applies to your own exercises for the rest of this course.

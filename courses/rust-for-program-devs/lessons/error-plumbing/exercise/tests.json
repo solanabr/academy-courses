@@ -1,0 +1,20 @@
+[
+  {
+    "id": "compiles",
+    "description": "The file compiles against anchor-lang 1.1.2 on the build server — which for this exercise means the scrambled statements are in a working order",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "decoys-removed",
+    "description": "Neither decoy survives: `read_amount(data)` without `?` is E0308, and `?` on `checked_sub`'s Option is E0277, so a file that still contains either one does not compile",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "verify-harness-resolves",
+    "description": "The non-editable `mod verify` block resolves: withdraw_amount, deposit_amount and read_amount_the_long_way exist with the exact declared signatures — a missing name or a drifted type is a compile error",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]
