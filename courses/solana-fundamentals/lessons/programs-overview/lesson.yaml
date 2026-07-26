@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Solana programs are stateless — they hold only code, never data. Which capability does this separation directly enable?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Upgrading a program's code without migrating any state, because the state lives in separate accounts"
+            correct: true
+          - id: b
+            label: "Storing user balances inside the program for fast access"
+            correct: false
+            feedback: "That is the Ethereum model this design rejects. Solana state lives in accounts, not in the program — which is exactly what makes upgrades and parallelism possible."
+          - id: c
+            label: "Guaranteeing the program can never be changed once deployed"
+            correct: false
+            feedback: "Statelessness does not imply immutability. Separating code from state is what makes an upgrade clean — you swap the code and the account state is untouched."
+        explanation: "Because a program is just code and all state sits in accounts it operates on, you can deploy new bytecode to the same program id without touching or migrating data. The same separation is what lets Sealevel run many transactions in parallel."
+      - id: q2
+        prompt: "An instruction's `AccountMeta` marks each account with `isSigner` and `isWritable`. What does the runtime do if a program tries to modify an account passed with `isWritable: false`?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It rejects the transaction — writable intent must be declared up front"
+            correct: true
+          - id: b
+            label: "It silently allows the write since the program was handed the account"
+            correct: false
+            feedback: "Nothing is silent. Declaring `isWritable` up front is mandatory; a write to a non-writable account aborts the transaction. This declaration is what lets Sealevel schedule parallel execution safely."
+          - id: c
+            label: "It writes, but rolls the change back after the transaction"
+            correct: false
+            feedback: "There is no after-the-fact rollback — the attempt fails immediately. Accounts must be declared writable before the instruction runs."
+        explanation: "Every account a transaction touches is declared with its access flags before execution. The runtime enforces those flags, and it is precisely this up-front declaration that lets Sealevel know which transactions can run in parallel."

@@ -8,3 +8,42 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You paste your wallet's recovery phrase into a site that asks for it 'to verify your account.' What is the consequence?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Anyone with that phrase can reconstruct your private key and sign transactions as you, draining the wallet"
+            correct: true
+          - id: b
+            label: "Nothing — the phrase only works inside your original Phantom install"
+            correct: false
+            feedback: "The phrase is portable by design: it regenerates the same keypair in any wallet. That portability is exactly why it must never be shared."
+          - id: c
+            label: "They can see your balance but cannot move funds without your app password"
+            correct: false
+            feedback: "The app password only unlocks the local extension. The recovery phrase reconstructs the private key itself, which is all that is needed to sign transfers."
+        explanation: "A recovery phrase deterministically regenerates your private key. Your public key is safe to share (it is your address); the private key and the phrase that derives it authorize spending. No password or app boundary protects you once the phrase leaks."
+      - id: q2
+        prompt: "Which key do you give someone so they can send you SOL, and which one signs when you send SOL?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Share the public key to receive; the private key signs when you send"
+            correct: true
+          - id: b
+            label: "Share the private key to receive; the public key signs when you send"
+            correct: false
+            feedback: "Reversed, and dangerous. The private key is never shared — it is the secret that signs. The public key is your address, safe to hand out."
+          - id: c
+            label: "Both use the public key"
+            correct: false
+            feedback: "Receiving uses the public key, but signing requires the private key — the public key alone cannot authorize a transfer."
+          - id: d
+            label: "Both use the private key"
+            correct: false
+            feedback: "You would never share a private key to receive funds. Receiving only needs your public address."
+        explanation: "The keypair splits by role: the public key is your shareable address for receiving, and the private key is the secret that produces signatures when sending. Signing proves ownership without ever revealing the private key."

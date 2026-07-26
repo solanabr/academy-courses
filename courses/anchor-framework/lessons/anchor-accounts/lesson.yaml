@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "`has_one = authority` on a `UserAccount` field checks what, and which attack does it stop?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It checks `user.authority == authority.key()`, blocking a caller from modifying an account they do not own"
+            correct: true
+          - id: b
+            label: "It checks that the account is writable"
+            correct: false
+            feedback: "Writability is `mut`. `has_one = authority` verifies the account's stored `authority` field equals the passed authority account — an authorization check."
+          - id: c
+            label: "It checks that the account was created by the System Program"
+            correct: false
+            feedback: "That is not what has_one does. It ties a stored pubkey field to a passed account, preventing unauthorized updates."
+        explanation: "`has_one = authority` enforces that the account's stored `authority` field matches the `authority` account supplied to the instruction. Without it, anyone could pass someone else's account and update it — the constraint turns a stored relationship into an authorization gate."
+      - id: q2
+        prompt: "A constraint reads `constraint = user.balance >= 100 @ ErrorCode::InsufficientFunds`. What does the `@ ErrorCode::...` part control?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The specific error returned if the constraint is false, so the client learns why validation failed"
+            correct: true
+          - id: b
+            label: "It sets the balance to 100 if the check fails"
+            correct: false
+            feedback: "Constraints validate, they never assign. `@ ErrorCode::...` only names the error returned on failure; it does not change `balance`."
+          - id: c
+            label: "It retries the instruction until balance reaches 100"
+            correct: false
+            feedback: "No retry happens. A failed constraint aborts the instruction and returns the named error."
+        explanation: "A `constraint = <expr>` must hold or the instruction is rejected, and `@ ErrorCode::X` names the error emitted on failure. This lets you attach a specific, client-readable reason to each declarative check rather than a generic failure."

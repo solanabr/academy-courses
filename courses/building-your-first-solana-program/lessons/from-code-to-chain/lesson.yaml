@@ -9,3 +9,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "The build server rejects programs that use `std::fs`, `std::net`, or `std::process`. Why would those never work in a deployed Solana program anyway?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "SBF programs run in a sandboxed VM with no access to the host's filesystem, network, or OS, so those calls have no meaning on-chain"
+            correct: true
+          - id: b
+            label: "They compile fine on-chain but slow the validator down"
+            correct: false
+            feedback: "They cannot run at all — the SBF VM has no host access. The build server rejects them early rather than shipping a program that could never execute."
+          - id: c
+            label: "They are blocked only to protect the build server, not the runtime"
+            correct: false
+            feedback: "The sandbox is fundamental to the runtime too: an on-chain program has no OS to call. The build-server block just surfaces that constraint sooner."
+        explanation: "Solana programs compile to SBF and run in a deterministic, sandboxed VM. There is no filesystem, network, or process table on-chain, so those calls are meaningless — and determinism requires the same input to always yield the same output, which host I/O would break."
+      - id: q2
+        prompt: "What artifact does `cargo-build-sbf` produce, and what does `solana program deploy` do with it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A `.so` ELF binary of SBF bytecode; deploy uploads that binary to a cluster"
+            correct: true
+          - id: b
+            label: "A JSON IDL; deploy registers it with the RPC"
+            correct: false
+            feedback: "The IDL is separate metadata. The compiler output that gets deployed is the `.so` SBF binary — the executable itself."
+          - id: c
+            label: "Raw Rust source; deploy compiles it on the validator"
+            correct: false
+            feedback: "Validators never compile source. Compilation to `.so` happens off-chain (here, on the build server); only the finished bytecode is uploaded."
+        explanation: "The pipeline is Rust source, then `cargo-build-sbf`, then a `.so` ELF containing SBF bytecode, then `solana program deploy` uploads that binary. Validators execute bytecode, never source — which is why the compile step happens before deployment."

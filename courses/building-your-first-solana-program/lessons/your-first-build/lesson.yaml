@@ -19,3 +19,38 @@ blocks:
       - You don't need to change anything — just click the Build button
       - If the build times out, try again. First builds take longer because dependencies are being downloaded.
       - If you see errors, make sure you haven't accidentally modified the starter code. Click Reset Code to restore it.
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "The first build takes 30-60 seconds but later builds are fast. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The first build downloads and compiles all dependencies; those are cached, so later builds only recompile your changed code"
+            correct: true
+          - id: b
+            label: "The build server is warming up its hardware"
+            correct: false
+            feedback: "It is not hardware warm-up. The first build resolves and compiles the full dependency tree; that work is cached afterward."
+          - id: c
+            label: "Later builds skip compilation and reuse the same binary"
+            correct: false
+            feedback: "Later builds still compile — but only your changed code, reusing cached dependencies. They do not blindly reuse the old binary, or your edits would never take effect."
+        explanation: "A cold build resolves and compiles the entire dependency graph, which dominates the time. Those compiled dependencies are cached, so later builds recompile only your source — the same reason local `cargo build` is slow once and fast after."
+      - id: q2
+        prompt: "A green checkmark appears after your build. What does it actually confirm?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Your code compiled to a `.so` binary and the whole browser-to-build-server-to-compiler pipeline works end-to-end"
+            correct: true
+          - id: b
+            label: "Your program is now deployed and live on devnet"
+            correct: false
+            feedback: "Building is not deploying. A green check means compilation succeeded; deployment is a separate step later in the course."
+          - id: c
+            label: "Your program passed its on-chain tests"
+            correct: false
+            feedback: "No on-chain execution happened yet. The check confirms compilation to a binary, not runtime behavior."
+        explanation: "The green check means `cargo-build-sbf` turned your source into a `.so` binary and returned it, proving the pipeline works. Deployment and on-chain execution are later, separate steps."

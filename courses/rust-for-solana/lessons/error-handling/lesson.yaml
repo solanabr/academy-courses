@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You replace a `?` on `next_account_info(...)` with `.unwrap()`. What is the risk in a Solana program?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "On the Err case unwrap panics, aborting the program abnormally instead of returning a clean error to the caller"
+            correct: true
+          - id: b
+            label: "Nothing — unwrap and ? behave identically"
+            correct: false
+            feedback: "They differ on failure: `?` returns the error up the stack; `.unwrap()` panics. In a program you want the clean error return, not a panic."
+          - id: c
+            label: "unwrap makes the instruction retry automatically"
+            correct: false
+            feedback: "unwrap never retries; it panics on Err. `?` propagates the error so the transaction fails cleanly with a diagnosable code."
+        explanation: "`?` unwraps on Ok and returns the Err upward, letting the instruction fail with a specific ProgramError the client can read. `.unwrap()` panics on Err — which is why the guidance is never to unwrap in program code; propagate with `?` instead."
+      - id: q2
+        prompt: "A custom `TokenError` implements `From<TokenError> for ProgramError`, returning `ProgramError::Custom(e as u32)`. Why is that conversion needed?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "process_instruction must return `ProgramError`, so custom errors are mapped into `Custom(code)` to travel through that return type"
+            correct: true
+          - id: b
+            label: "It renames the error so clients cannot see the code"
+            correct: false
+            feedback: "It does the opposite — it surfaces a numeric code to the client. The conversion exists so a domain error fits the required `ProgramError` return type."
+          - id: c
+            label: "It makes the error impossible to trigger"
+            correct: false
+            feedback: "The conversion does not suppress anything; it lets `TokenError` be returned where a `ProgramError` is expected, carrying a `Custom` code."
+        explanation: "A handler's signature returns `ProgramError`, so a domain-specific `TokenError` needs a bridge into that type. Mapping it to `ProgramError::Custom(e as u32)` carries your error out as a numeric code clients can decode, while letting you write `return Err(TokenError::AccountFrozen.into())`."

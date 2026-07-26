@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "`declare_id!(...)` hardcodes an address into your binary. What does Solana do with it at deploy time?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It verifies the deployed program's account address matches the declared id"
+            correct: true
+          - id: b
+            label: "It generates a fresh keypair for the program"
+            correct: false
+            feedback: "declare_id! generates no keys — it states the expected address. Solana checks the deployed program matches it; a mismatch is an error."
+          - id: c
+            label: "It reserves the address so no one else can use it before you deploy"
+            correct: false
+            feedback: "The macro reserves nothing on its own. It is a claim that Solana validates against the actual deploy address."
+        explanation: "declare_id! embeds the program's expected public key into the binary. On deploy, Solana checks the program account address against it — a guard against deploying a binary under the wrong id, which would break every client that derives PDAs from that id."
+      - id: q2
+        prompt: "You add a new `pub fn withdraw(...)` inside the `#[program]` module. What must be true of its signature?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Its first parameter is `Context<T>` for some `#[derive(Accounts)]` struct T, and it returns `Result<()>`"
+            correct: true
+          - id: b
+            label: "It can take any parameters and return any type"
+            correct: false
+            feedback: "The `#[program]` contract is fixed: every handler takes a `Context<T>` first and returns `Result<()>`. Anchor's macro expansion depends on it."
+          - id: c
+            label: "It must take each account as a separate argument, not a Context"
+            correct: false
+            feedback: "Accounts are always bundled in `Context<T>`, never passed individually. The struct T is where accounts and their constraints live."
+        explanation: "Every `#[program]` handler has the same shape: `Context<T>` first (T being the accounts struct that declares and validates accounts), then optional instruction args, returning `Result<()>`. Anchor generates the on-chain dispatch from exactly this signature."

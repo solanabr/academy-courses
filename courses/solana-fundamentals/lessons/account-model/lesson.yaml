@@ -8,3 +8,38 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: retrieval-close
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your custom program tries to directly subtract lamports from a user's wallet (a System Program account). What happens?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It fails — only the account's owner program (here the System Program) can deduct its lamports or modify its data"
+            correct: true
+          - id: b
+            label: "It succeeds, because any program can modify any account it is passed"
+            correct: false
+            feedback: "Being passed an account grants read access, not write access. Only the owner program may mutate data or debit lamports — this is the core safety invariant."
+          - id: c
+            label: "It succeeds only if the account is marked writable"
+            correct: false
+            feedback: "Writable marks intent, but the runtime still enforces ownership: a non-owner cannot debit lamports even on a writable account. The System Program owns wallets."
+        explanation: "Every account names an owner program, and the runtime lets only that owner mutate the account's data or reduce its lamports. To move SOL out of a wallet you must go through the System Program via a signed transfer, not reach in from another program — this ownership rule is what keeps funds safe."
+      - id: q2
+        prompt: "Why must you fund a new account to its 'rent-exempt' minimum when you create it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Below the rent-exempt balance the account can be purged; at or above it, the account persists indefinitely"
+            correct: true
+          - id: b
+            label: "Rent is a one-time network fee unrelated to keeping the account alive"
+            correct: false
+            feedback: "Rent-exemption is not a fee for the treasury — it is a balance threshold. Fall below it and the account can be reclaimed; meet it and it never expires."
+          - id: c
+            label: "It pays the validator to execute your program faster"
+            correct: false
+            feedback: "Rent-exemption has nothing to do with execution speed. It is the minimum balance, scaled by data size, that keeps the account from being garbage-collected."
+        explanation: "Solana can reclaim accounts that fall below a size-based minimum balance. Funding to rent-exemption at creation means the account holds enough SOL to persist forever, so your program's state does not silently disappear."
