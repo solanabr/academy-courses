@@ -42,6 +42,12 @@ blocks:
             feedback: >-
               It does both. It selects the program AND it is a seed, so it moves
               the address.
+        explanation: >-
+          The token program id is one of the ATA seeds (`[owner, tokenProgram,
+          mint]`), so passing the legacy id for a Token-2022 mint derives a real
+          but wrong address — and because derivation is pure math over seeds and
+          never reads the mint, nothing catches the mismatch. A transfer there
+          goes nowhere useful. Derive with the mint's actual owning program.
       - id: q2
         prompt: >-
           A mint is Token-2022 and carries both `permanent-delegate` and
@@ -70,6 +76,12 @@ blocks:
             feedback: >-
               Interest accrual is an exchange-rate mechanism, not a transfer
               fee. Different extension, different error.
+        explanation: >-
+          The rail vetoes on what the mint carries, not on which extension you
+          meant to use, and one disqualifying extension is enough:
+          `MINT_HAS_PERMANENT_DELEGATE` fires regardless of the interest-bearing
+          intent. A user-revocable allowance is meaningless when the mint
+          authority already holds an irrevocable permanent delegate.
       - id: q3
         prompt: >-
           Which of these are grounds for choosing Token-2022 for a payment mint
@@ -96,6 +108,13 @@ blocks:
               Extensions are configured at mint creation. Choosing the program
               early does not let you add one later, so this buys nothing and
               costs the check.
+        explanation: >-
+          The rule is legacy Token by default; Token-2022 is justified only by a
+          capability you need now — a named extension the rail accepts, or a
+          compliance transfer-hook whose rail you have verified resolves hook
+          accounts on your path. "Newer" and "might want one later" are not
+          grounds: extensions are fixed at mint creation, so choosing the program
+          early buys nothing and still costs the compatibility check.
       - id: q4
         prompt: >-
           Carried over from Course 4 — semver. `@x402/svm@2.19.0` depends on
@@ -124,6 +143,12 @@ blocks:
             feedback: >-
               Patches still float. `^0.9.0` accepts `0.9.7`; it stops at
               `0.10.0`.
+        explanation: >-
+          This is the Course 4 semver rule: below `1.0.0` the minor is the
+          breaking position, so a caret pins it. `^0.9.0` means `>=0.9.0
+          <0.10.0` — patches like `0.9.7` still float, but `0.15.0` is out of
+          range. A lockfile only pins what already resolved; it never widens a
+          range that never admitted `0.15.0`.
       - id: q5
         prompt: >-
           Also from Course 4 — decoded program errors. Your delegation call
@@ -153,6 +178,12 @@ blocks:
             feedback: >-
               Plan-related failures come back as `PLAN_*` constants
               (`PLAN_EXPIRED`, `PLAN_TERMS_MISMATCH`, and so on).
+        explanation: >-
+          Reading the decoded constant is the Course 4 skill: the program names
+          the model in the error. `...AMOUNT_EXCEEDS_PERIOD_LIMIT` ("Transfer
+          amount exceeds period limit") is the recurring-delegation cap; the
+          fixed model raises `AMOUNT_EXCEEDS_LIMIT` and plans raise `PLAN_*`. The
+          constant tells you which cap you hit without guessing.
   - key: classify
     type: code
     language: typescript
