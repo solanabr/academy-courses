@@ -68,7 +68,7 @@ console.log('Keys:', instruction.keys);
 
 ### Custom Programs
 - Deployed by developers
-- Written in Rust, C, or C++ (compiled to BPF bytecode)
+- Written in Rust (compiled to BPF bytecode)
 - Examples: Raydium AMM, Magic Eden marketplace, Jupiter aggregator
 
 ## The BPF Runtime (Sealevel)

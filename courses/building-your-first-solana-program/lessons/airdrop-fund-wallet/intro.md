@@ -13,7 +13,7 @@ The good news: most of this rent is **reclaimable** after deployment.
 
 ## The Devnet Faucet
 
-Solana provides a free faucet on devnet. You can request **2 SOL per airdrop**.
+Solana provides a free faucet on devnet. The web faucet at [faucet.solana.com](https://faucet.solana.com) grants up to **5 SOL per day** (more if you sign in with GitHub). Airdrops through the public RPC (`solana airdrop`) are rate-limited to smaller amounts, so the web faucet is the reliable path.
 
 Use the widget below to fund your wallet. You'll need at least 4-5 SOL to comfortably deploy.
 
