@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-sap-payment-rails-decision-map": 0,
+    "lesson-sap-token-or-token-2022": 1,
+    "lesson-sap-subscription-authority-and-allowance": 2,
+    "lesson-sap-recurring-delegation-paid-tier": 3,
+    "lesson-sap-meter-an-endpoint-with-x402": 4,
+    "lesson-sap-pay-the-402-programmatically": 5,
+    "lesson-sap-budgeted-agent-with-a-hard-cap": 6,
+    "lesson-sap-write-the-deep-dive": 7,
+    "lesson-sap-submit-and-what-you-built": 8
+  },
+  "retired": [],
+  "next": 9
+}

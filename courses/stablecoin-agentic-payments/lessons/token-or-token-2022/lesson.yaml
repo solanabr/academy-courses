@@ -1,0 +1,165 @@
+id: lesson-sap-token-or-token-2022
+slug: token-or-token-2022
+title: "Token or Token-2022: The Decision Rule"
+skills:
+  - spl-tokens
+  - token-2022
+  - transfer-hook
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You derive an ATA with `findAssociatedTokenPda({ mint, owner,
+          tokenProgram })` and pass the legacy Token program id, but the mint
+          was created under Token-2022. Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: You get a valid, correctly-formed address that is simply the wrong account, and a transfer to it goes nowhere useful
+            correct: true
+          - id: b
+            label: The derivation throws, because the mint's owner is checked during derivation
+            correct: false
+            feedback: >-
+              PDA derivation is pure math over seeds. It never reads the mint
+              account, so it cannot know the owner is wrong. That is exactly why
+              the failure is silent.
+          - id: c
+            label: The token program id is not part of the ATA seeds, so you get the same address either way
+            correct: false
+            feedback: >-
+              It is in the seeds — `[owner, tokenProgram, mint]`. Change the
+              token program and you change the address.
+          - id: d
+            label: You get the right address; the tokenProgram argument only selects which instructions get built
+            correct: false
+            feedback: >-
+              It does both. It selects the program AND it is a seed, so it moves
+              the address.
+      - id: q2
+        prompt: >-
+          A mint is Token-2022 and carries both `permanent-delegate` and
+          `interest-bearing`. Your product needs the interest-bearing behaviour.
+          Predict the outcome of opening a delegation against it.
+        multiSelect: false
+        options:
+          - id: a
+            label: Refused — `MINT_HAS_PERMANENT_DELEGATE`. A user-revocable allowance is meaningless when the mint authority already holds an irrevocable delegate.
+            correct: true
+          - id: b
+            label: Accepted — `interest-bearing` is not on the disqualifying list, and that is the extension you are relying on
+            correct: false
+            feedback: >-
+              The rail vetoes on what the mint *carries*, not on what you
+              intended to use. One disqualifying extension is enough.
+          - id: c
+            label: Accepted with a warning, since PermanentDelegate does not affect the transfer amount
+            correct: false
+            feedback: >-
+              There is no warning path. It is an error constant, and the
+              instruction fails.
+          - id: d
+            label: Refused — `MINT_HAS_TRANSFER_FEE`, because interest accrual is charged as a fee
+            correct: false
+            feedback: >-
+              Interest accrual is an exchange-rate mechanism, not a transfer
+              fee. Different extension, different error.
+      - id: q3
+        prompt: >-
+          Which of these are grounds for choosing Token-2022 for a payment mint
+          under the rule taught here?
+        multiSelect: true
+        options:
+          - id: a
+            label: Your product requires a named extension that the rail you are using accepts
+            correct: true
+          - id: b
+            label: Your compliance requirement needs a transfer hook, and you have verified the specific rail resolves hook accounts on the path you use
+            correct: true
+          - id: c
+            label: It is the newer program, so new projects should default to it
+            correct: false
+            feedback: >-
+              "Newer" is not a requirement. The rule is legacy Token by default;
+              Token-2022 buys you a capability and costs you a compatibility
+              check.
+          - id: d
+            label: You might want an extension later, so minting under Token-2022 keeps options open
+            correct: false
+            feedback: >-
+              Extensions are configured at mint creation. Choosing the program
+              early does not let you add one later, so this buys nothing and
+              costs the check.
+      - id: q4
+        prompt: >-
+          Carried over from Course 4 — semver. `@x402/svm@2.19.0` depends on
+          `@solana-program/token` at `^0.9.0`. The published latest is `0.15.0`.
+          Does that range resolve to `0.15.0`?
+        multiSelect: false
+        options:
+          - id: a
+            label: No — on a 0.x package a caret pins the minor, so `^0.9.0` means `>=0.9.0 <0.10.0`
+            correct: true
+          - id: b
+            label: Yes — a caret allows any release below the next major, and there is no 1.0.0 yet
+            correct: false
+            feedback: >-
+              That is the 1.x behaviour. Below 1.0.0 semver treats the minor as
+              the breaking position, and npm's caret follows it.
+          - id: c
+            label: Yes, but only if no lockfile is present
+            correct: false
+            feedback: >-
+              A lockfile pins what was already resolved. It does not widen a
+              range that never admitted 0.15.0.
+          - id: d
+            label: No — a caret on a 0.x package pins the patch, so only `0.9.0` itself resolves
+            correct: false
+            feedback: >-
+              Patches still float. `^0.9.0` accepts `0.9.7`; it stops at
+              `0.10.0`.
+      - id: q5
+        prompt: >-
+          Also from Course 4 — decoded program errors. Your delegation call
+          fails and the client surfaces `SUBSCRIPTIONS_ERROR__AMOUNT_EXCEEDS_PERIOD_LIMIT`.
+          What kind of delegation are you talking to, and what does the message say?
+        multiSelect: false
+        options:
+          - id: a
+            label: A recurring delegation — "Transfer amount exceeds period limit"
+            correct: true
+          - id: b
+            label: A fixed delegation — "Transfer amount exceeds delegation limit"
+            correct: false
+            feedback: >-
+              That is `AMOUNT_EXCEEDS_LIMIT`, the fixed-delegation error. The
+              two are distinct constants with distinct messages, and telling
+              them apart is how you know which cap you hit.
+          - id: c
+            label: Either one — it is the generic cap error for both models
+            correct: false
+            feedback: >-
+              There is no generic cap error. The program names the model in the
+              constant.
+          - id: d
+            label: A subscription plan — the plan's billing terms were exceeded
+            correct: false
+            feedback: >-
+              Plan-related failures come back as `PLAN_*` constants
+              (`PLAN_EXPIRED`, `PLAN_TERMS_MISMATCH`, and so on).
+  - key: classify
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - Order matters. Check the token program first, then the design errors that cannot be fixed at runtime, then the rail's veto.
+      - Scan `DISQUALIFYING` in its declared order and return on the first hit — do not scan the mint's own extension list, or a mint carrying two will give you a different answer depending on how it was written.
+      - "`mintHasCode` is already written for you: it turns `transfer-hook` into `MINT_HAS_TRANSFER_HOOK`."

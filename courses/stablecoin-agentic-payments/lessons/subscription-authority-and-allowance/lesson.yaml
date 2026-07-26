@@ -1,0 +1,172 @@
+id: lesson-sap-subscription-authority-and-allowance
+slug: subscription-authority-and-allowance
+title: One Approval, Many Budgets
+skills:
+  - subscription-authority
+  - fixed-delegation
+  - solana-kit
+  - pdas
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: plan
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - Subgoal 3 is unconditional. You read the authority in order to learn whether subgoal 4 is needed, so the read is in the plan either way.
+      - Only subgoal 4 is conditional. Everything else runs on every path.
+      - "USDC has 6 decimals: multiply by 1_000_000 and round once, then wrap the integer in BigInt(). Do not build the bigint out of a float."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You call `initSubscriptionAuthority` unconditionally, without reading
+          the account first. A user who set this up last month comes back.
+          Predict what happens.
+        multiSelect: false
+        options:
+          - id: a
+            label: The transaction fails on the init and the delegation is never created — the returning user is worse off than a new one
+            correct: true
+          - id: b
+            label: It is idempotent — the program sees the authority already exists and returns success
+            correct: false
+            feedback: >-
+              Nothing in this program is idempotent by convenience. Creating an
+              account that exists is an error, which is why `fetchMaybe*` gives
+              you an `exists` discriminant to branch on.
+          - id: c
+            label: A second SubscriptionAuthority PDA is created, and the delegation attaches to the new one
+            correct: false
+            feedback: >-
+              The PDA is derived from `(user, tokenMint)`. There is exactly one
+              address; you cannot have two.
+          - id: d
+            label: It succeeds and resets all of the user's existing delegations
+            correct: false
+            feedback: >-
+              Tearing down an authority and invalidating its delegations is what
+              `closeSubscriptionAuthority` is for, and it is deliberate. `init`
+              does not silently do it.
+      - id: q2
+        prompt: >-
+          You mean to cap a delegation at 25 USDC and pass `amount: 25n`.
+          Predict the cost of the mistake.
+        multiSelect: false
+        options:
+          - id: a
+            label: The cap is 25 base units — 0.000025 USDC — and the first real charge fails with `AMOUNT_EXCEEDS_LIMIT`
+            correct: true
+          - id: b
+            label: The SDK reads the mint's decimals and scales 25 to 25000000
+            correct: false
+            feedback: >-
+              There is no decimals conversion anywhere in this API. Every amount
+              is base units. That is why you write the conversion once, in one
+              function.
+          - id: c
+            label: It throws at call time, because 25 is below a minimum delegation amount
+            correct: false
+            feedback: >-
+              The only zero-related guard is `FIXED_DELEGATION_AMOUNT_ZERO`. 25
+              base units is a perfectly legal, perfectly useless cap.
+          - id: d
+            label: Nothing — `amount` is a display hint and the real cap comes from the token account balance
+            correct: false
+            feedback: >-
+              `amount` is the cap. The balance is a separate constraint that
+              also has to hold.
+      - id: q3
+        prompt: >-
+          A fixed delegation's `expiryTs` passed 40 seconds ago. Your merchant
+          service tries to collect. Predict the behaviour.
+        multiSelect: false
+        options:
+          - id: a
+            label: The transfer fails with `DELEGATION_EXPIRED`. There is no grace period, no warning and no auto-renewal.
+            correct: true
+          - id: b
+            label: It succeeds — expiry only blocks *new* delegations, not pulls against existing ones
+            correct: false
+            feedback: >-
+              Expiry is checked on the transfer. It is a hard stop on the
+              delegation, not a creation-time flag.
+          - id: c
+            label: It succeeds inside a short grace window and fails after it
+            correct: false
+            feedback: >-
+              There is no grace window. If your product needs one, your product
+              builds it.
+          - id: d
+            label: The delegation auto-renews for another identical term
+            correct: false
+            feedback: >-
+              Nothing renews. Renewal is a new `createFixedDelegation` with a
+              new nonce, signed by the user.
+      - id: q4
+        prompt: >-
+          Read the types. In `transferFixed`, `delegator` is an `Address` and
+          `delegatee` is a `TransactionSigner`. Who must sign the charge?
+        multiSelect: false
+        options:
+          - id: a
+            label: The delegatee. The user signed once at setup and is not present when they are charged.
+            correct: true
+          - id: b
+            label: Both — the user co-signs every pull so they can always refuse
+            correct: false
+            feedback: >-
+              If the user had to co-sign every pull, the delegation would be
+              pointless. The cap, the expiry and the revoke are what protect
+              them, not a signature per charge.
+          - id: c
+            label: The delegator, because it is their tokens moving
+            correct: false
+            feedback: >-
+              `delegator` is typed as a plain `Address` precisely because it is
+              not a signer on this instruction. The types tell you.
+          - id: d
+            label: The SubscriptionAuthority PDA, via the program's own signature
+            correct: false
+            feedback: >-
+              The authority is the SPL delegate and the program signs for it,
+              but the transaction still needs an authorised human or service to
+              sign — and that is the delegatee.
+      - id: q5
+        prompt: >-
+          A sponsor signed as `payer`, so the sponsor funded the
+          SubscriptionAuthority PDA's rent. Later the user calls
+          `revokeSubscriptionAuthority` with no `receiver`. Predict the result.
+        multiSelect: false
+        options:
+          - id: a
+            label: It fails — `receiver` is required when the stored payer differs from `user`, and it must equal that stored payer
+            correct: true
+          - id: b
+            label: It succeeds and the rent goes to the user, who did not pay it
+            correct: false
+            feedback: >-
+              The program records who funded the account exactly so it cannot
+              silently redirect their rent. Sponsorship without that record
+              would be a free withdrawal.
+          - id: c
+            label: It succeeds and the rent is burned
+            correct: false
+            feedback: >-
+              Lamports from a closed account go to a recipient account; the
+              program will not destroy them.
+          - id: d
+            label: It succeeds and the rent is returned to the sponsor automatically, no argument needed
+            correct: false
+            feedback: >-
+              The sponsor's address is stored, but you still have to pass it as
+              `receiver`. The call fails rather than guessing.
+        explanation: >-
+          Sponsorship is a two-sided record: who paid on the way in decides who
+          may be paid on the way out. Track it in your own database too, because
+          the failure surfaces months later.

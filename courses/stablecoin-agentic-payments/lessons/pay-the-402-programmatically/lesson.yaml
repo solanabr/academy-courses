@@ -1,0 +1,146 @@
+id: lesson-sap-pay-the-402-programmatically
+slug: pay-the-402-programmatically
+title: "Reading a Challenge and Paying It"
+skills:
+  - x402-protocol
+  - protocol-versioning
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: reading-a-challenge.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Five things happen in order: detect, locate, decode, read the version, select. Only then do you retry."
+      - "Every block after the first uses a local that an earlier block declares. That dependency chain is the ordering."
+      - "One wrong block calls `JSON.parse(res.body)` before anything has checked whether the body is empty."
+      - "The other wrong block filters on `eip155:` — a namespace your Solana wallet cannot pay."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Your client calls a metered route. It gets back HTTP 402 with `content-length: 0`
+          and an empty body. Your code does `JSON.parse(await res.text())`. Predict the failure
+          and the fix.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `JSON.parse("")` throws. The envelope is base64 in the `PAYMENT-REQUIRED`
+              response header — read the body, and fall back to the header when it is empty.
+            correct: true
+          - id: b
+            label: The server is broken; the envelope is always in the body. Report a bug.
+            correct: false
+            feedback: >-
+              It is legal and common. Edge layers in front of Vercel-hosted servers drop bodies on
+              error statuses, so the envelope moves to a header. This is the single most frequent
+              x402 integration failure.
+          - id: c
+            label: The 402 has no envelope, so retry the request until one arrives.
+            correct: false
+            feedback: >-
+              Retrying a bare request gets you the same 402. Nothing about the response changes until
+              you send a payment.
+          - id: d
+            label: Use `res.json()` instead of `res.text()`; it handles the empty case.
+            correct: false
+            feedback: >-
+              `res.json()` on an empty body throws too. Changing the parser does not conjure a body
+              that was never sent.
+        explanation: >-
+          A correct client reads both places. A correct server emits both places. You wrote the server
+          half last lesson; this is the client half.
+      - id: q2
+        prompt: "`@x402/svm@2.19.0` exports both `ExactSvmScheme` and `ExactSvmSchemeV1`. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Because v1 and v2 are both live on the wire right now. Servers on the frozen 1.2.0
+              packages still speak v1, with different header names and different envelope fields.
+            correct: true
+          - id: b
+            label: >-
+              `ExactSvmSchemeV1` is deprecated dead code kept for the type definitions.
+            correct: false
+            feedback: >-
+              It is there because you will meet v1 servers. Registering only the v2 scheme means
+              silently failing against every server still on the frozen package line.
+          - id: c
+            label: One is for Token, the other for Token-2022.
+            correct: false
+            feedback: >-
+              The token program is a property of the mint named in `asset`, not of the scheme. The
+              `V1` suffix is the protocol version.
+          - id: d
+            label: One is for devnet, the other for mainnet.
+            correct: false
+            feedback: The network is a field in the challenge (`network`), not a separate scheme export.
+        explanation: >-
+          This is the difference between a client that works for a year and one that works until the
+          first server you did not test against. Read the version off the envelope; do not assume it.
+      - id: q3
+        prompt: >-
+          A challenge's `accepts[]` is `[eip155:8453 USDC, solana-mainnet USDC, solana-devnet USDC]`.
+          You hold devnet USDC. Your code does `const terms = envelope.accepts[0]`. What have you built?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              A client that tries to pay on Base. Ordering in `accepts[]` is the server's preference,
+              not your capability — you have to filter on network and asset.
+            correct: true
+          - id: b
+            label: A client that pays correctly, since servers list the cheapest option first.
+            correct: false
+            feedback: >-
+              Nothing in the protocol orders `accepts[]` by price, and nothing guarantees the first
+              entry is even on a chain you can use.
+          - id: c
+            label: A client that pays on Solana mainnet.
+            correct: false
+            feedback: >-
+              `accepts[0]` here is the EVM entry. Both Solana entries are further down the list, which
+              is exactly why indexing is the bug.
+          - id: d
+            label: A client that fails safely, because the scheme validates the chain for you.
+            correct: false
+            feedback: >-
+              Selection is the client's job. Nothing downstream will tell you that you picked terms you
+              cannot satisfy — you will simply fail to produce a valid payment.
+        explanation: >-
+          `accepts[]` is a menu. Filter it on `scheme`, `network` and `asset`, and treat "no match" as a
+          normal, reportable outcome — not a crash.
+      - id: q4
+        prompt: >-
+          You decoded an envelope carrying `"x402Version": 1`. Which request header must your
+          retry use to carry the payment?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`X-PAYMENT`"
+            correct: true
+          - id: b
+            label: "`PAYMENT`"
+            correct: false
+            feedback: That is the v2 name. Sending it to a v1 server means the server sees no payment at all.
+          - id: c
+            label: "`PAYMENT-REQUIRED`"
+            correct: false
+            feedback: >-
+              That is a RESPONSE header — the fallback location for the challenge the server sends you.
+              It never carries your payment.
+          - id: d
+            label: "`Authorization`"
+            correct: false
+            feedback: x402 does not reuse the auth header. Payment is its own header.
+        explanation: >-
+          Header names are part of what changed between versions, which is why you read the version
+          before you build the retry — not after.

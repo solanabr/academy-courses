@@ -1,0 +1,140 @@
+id: lesson-sap-meter-an-endpoint-with-x402
+slug: meter-an-endpoint-with-x402
+title: "402 Payment Required, For Real"
+skills:
+  - x402-protocol
+  - api-monetization
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: metering.md
+  - key: envelope
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "You change exactly one value in this file: PAY_TO. Everything else is already correct."
+      - "PAY_TO must be a base58 Solana address — the wallet that should receive the USDC, on devnet."
+      - "`maxAmountRequired` is a decimal string of base units, never a float: 0.01 USDC at 6 decimals is \"10000\"."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You search for "x402 express" and the top result tells you to run `npm i x402-express`.
+          You install it and wire `paymentMiddleware` into your route. A client running
+          `@x402/fetch@2.19.0` calls the route. What happens?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              You installed the frozen v1 line. The server emits a v1 challenge and reads the
+              `X-PAYMENT` header; the v2 client sends `PAYMENT`. The two never agree.
+            correct: true
+          - id: b
+            label: The middleware works — `x402-express` and `@x402/express` are the same package under two names.
+            correct: false
+            feedback: >-
+              They are different packages. `x402-express` is frozen at 1.2.0 (2026-04-16) and speaks
+              protocol v1. `@x402/express` is 2.19.0 (2026-07-17) and speaks v2.
+          - id: c
+            label: npm resolves the scoped package automatically because the unscoped one is deprecated.
+            correct: false
+            feedback: >-
+              npm does no such rewriting. The unscoped packages are still published and still installable —
+              that is exactly why this trap keeps catching people.
+          - id: d
+            label: It works but is slower, because v1 does an extra round trip.
+            correct: false
+            feedback: The failure is a protocol mismatch, not a performance difference.
+        explanation: >-
+          The v1 line (`x402`, `x402-express`, `x402-next`, `x402-fetch`, `x402-hono`, all 1.2.0) is frozen.
+          The current line is scoped: `@x402/core`, `@x402/svm`, `@x402/express`, `@x402/fetch`, `@x402/next`,
+          `@x402/mcp`, all 2.19.0. Search engines still surface the frozen half.
+      - id: q2
+        prompt: >-
+          Your route costs 0.01 USDC. USDC has 6 decimals. Which `accepts[0].maxAmountRequired`
+          will a conforming client charge correctly?
+        multiSelect: false
+        options:
+          - id: a
+            label: '"10000"'
+            correct: true
+          - id: b
+            label: "0.01"
+            correct: false
+            feedback: >-
+              A float in a payment field is a bug waiting for a rounding error. The field is a
+              string of base units.
+          - id: c
+            label: "10000"
+            correct: false
+            feedback: >-
+              Right magnitude, wrong type. Numbers above 2^53 lose precision in JSON, so the field is
+              specified as a decimal string — use it as one even for small amounts.
+          - id: d
+            label: '"0.01 USDC"'
+            correct: false
+            feedback: The field carries base units only. The asset is named separately in `asset`.
+        explanation: >-
+          Base units as a decimal string, every time. The mint's decimals are a property of `asset`,
+          not something you encode into the amount.
+      - id: q3
+        prompt: >-
+          Your API server issues challenges and gates the route. Which of these does your server
+          never have to run itself?
+        multiSelect: true
+        options:
+          - id: a
+            label: Signature verification of the submitted payment payload
+            correct: true
+          - id: b
+            label: Submitting and confirming the payment transaction on Solana
+            correct: true
+          - id: c
+            label: Deciding the price of the route
+            correct: false
+            feedback: Pricing is yours. The facilitator has no idea what your route is worth.
+          - id: d
+            label: Deciding which networks and assets you will accept
+            correct: false
+            feedback: >-
+              The `accepts[]` array is your policy statement. The facilitator only tells you which
+              combinations it can service, via `supported`.
+        explanation: >-
+          A facilitator exposes three operations — `supported`, `verify` and `settle`. It absorbs the RPC
+          connection, the signature checks and the transaction submission, which is why an API provider
+          can monetize a route without running any on-chain infrastructure.
+      - id: q4
+        prompt: >-
+          A client reads your challenge, sees `network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"`
+          and pays with the mint at `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`. Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Verification fails — that is the mainnet USDC mint and the challenge named a devnet
+              network and a devnet asset. Both fields have to match.
+            correct: true
+          - id: b
+            label: It settles — USDC is USDC, the mint address is cosmetic.
+            correct: false
+            feedback: >-
+              A mint address is an account on one specific cluster. The mainnet USDC mint does not
+              exist on devnet, and a token account for it cannot be created there.
+          - id: c
+            label: The facilitator bridges it automatically.
+            correct: false
+            feedback: >-
+              There is no bridging in the `exact` scheme. It settles a specified amount of a specified
+              mint on a specified network, or it fails.
+          - id: d
+            label: It settles at the mainnet price after conversion.
+            correct: false
+            feedback: Nothing in x402 converts or quotes. The amount is exact and the asset is fixed.
+        explanation: >-
+          `network` and `asset` are a pair, and a client filters on both. `SOLANA_DEVNET_CAIP2` +
+          `USDC_DEVNET_ADDRESS` is one valid combination; the mainnet pair is another; mixing halves is not.

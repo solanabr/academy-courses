@@ -1,0 +1,44 @@
+[
+  {
+    "id": "t1",
+    "description": "First-time user: all six steps, in order, including the init",
+    "input": "false, 25, false",
+    "expectedOutput": "result.steps.join('>') === 'findAssociatedTokenPda>findSubscriptionAuthorityPda>fetchMaybeSubscriptionAuthority>initSubscriptionAuthority>createFixedDelegation>transferFixed'"
+  },
+  {
+    "id": "t2",
+    "description": "Returning user: the init is skipped and nothing else moves",
+    "input": "true, 25, false",
+    "expectedOutput": "result.steps.join('>') === 'findAssociatedTokenPda>findSubscriptionAuthorityPda>fetchMaybeSubscriptionAuthority>createFixedDelegation>transferFixed'"
+  },
+  {
+    "id": "t3",
+    "description": "The authority is read even when it already exists",
+    "input": "true, 10, false",
+    "expectedOutput": "result.steps.indexOf('fetchMaybeSubscriptionAuthority') === 2 && result.steps.indexOf('initSubscriptionAuthority') === -1"
+  },
+  {
+    "id": "t4",
+    "description": "25 USDC is 25000000 base units, as a bigint",
+    "input": "false, 25, false",
+    "expectedOutput": "typeof result.amountBaseUnits === 'bigint' && result.amountBaseUnits === 25000000n"
+  },
+  {
+    "id": "t5",
+    "description": "Sub-unit amounts convert without losing the fraction",
+    "input": "true, 0.123456, false",
+    "expectedOutput": "result.amountBaseUnits === 123456n"
+  },
+  {
+    "id": "t6",
+    "description": "A sponsor paying the rent is recorded on the plan",
+    "input": "false, 25, true",
+    "expectedOutput": "result.payer === 'sponsor' && result.steps.indexOf('initSubscriptionAuthority') === 3"
+  },
+  {
+    "id": "t7",
+    "description": "The transfer is always last — you cannot pull from a delegation you have not opened",
+    "input": "false, 5, false",
+    "expectedOutput": "result.steps[result.steps.length - 1] === 'transferFixed' && result.steps.indexOf('createFixedDelegation') < result.steps.indexOf('transferFixed')"
+  }
+]

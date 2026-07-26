@@ -1,0 +1,577 @@
+id: lesson-sap-submit-and-what-you-built
+slug: submit-and-what-you-built
+title: Submit It — and What You Built
+skills:
+  - earn-submission
+  - payment-model-selection
+  - agent-budgets
+  - brazil-compliance
+blocks:
+  - key: recap
+    type: prose
+    src: what-you-built.md
+
+  - key: submit
+    type: openEnded
+    maxWords: 200
+    prompt: >-
+      Paste the URL of the Superteam Earn listing you submitted to, and the URL
+      of what you submitted. Then, in three lines: which rail the work uses
+      (fixed delegation, recurring delegation, subscription plan, Solana Pay or
+      x402), which Brazilian use case it serves, and the one thing in your
+      submission a reviewer can run themselves.
+
+  # Cumulative retrieval. Coverage of every skill tag used in this course:
+  #   q1  payment-model-selection, solana-pay
+  #   q2  brazil-compliance
+  #   q3  spl-tokens, token-2022, transfer-hook
+  #   q4  subscription-authority, pdas
+  #   q5  payment-model-selection, fixed-delegation
+  #   q6  recurring-delegation
+  #   q7  recurring-delegation, error-handling
+  #   q8  subscriptions-program
+  #   q9  x402-protocol, api-monetization
+  #   q10 protocol-versioning, version-pinning
+  #   q11 x402-protocol, error-handling
+  #   q12 agent-budgets, fixed-delegation
+  #   q13 solana-kit
+  #   q14 technical-writing, version-pinning
+  #   q15 earn-submission
+  # Plus 2 items seeded from the previous course (q16 signers, q17 npm-publishing).
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A café in São Paulo wants a QR code on the counter so a customer can
+          pay for one coffee in USDC from a phone wallet. No account, no
+          relationship, no repeat. Which rail?
+        multiSelect: false
+        options:
+          - id: a
+            label: Solana Pay — a human paying once at a checkout
+            correct: true
+          - id: b
+            label: A recurring delegation, with a one-second period
+            correct: false
+            feedback: >-
+              A delegation is a standing approval between two known parties. A
+              walk-in customer has no relationship to approve.
+          - id: c
+            label: An x402 challenge returned from the till's API
+            correct: false
+            feedback: >-
+              x402 meters a machine calling an endpoint. There is no HTTP client
+              here — there is a person with a phone.
+          - id: d
+            label: A fixed delegation sized to the price of one coffee
+            correct: false
+            feedback: >-
+              You would be asking the customer to set up an on-chain allowance
+              before their first sip. The setup cost exceeds the payment.
+        explanation: >-
+          Rail selection is the portable skill. One-off human checkout is Solana
+          Pay's exact shape — and note it stays a decision, not an install,
+          because @solana/pay@1.0.23 peer-depends on @solana/kit ^6.9.0 and will
+          not sit in a kit 7 lockfile.
+
+      - id: q2
+        prompt: >-
+          From 2026-10-01, which of these does BCB Resolution 561 put off-limits?
+        multiSelect: false
+        options:
+          - id: a
+            label: A regulated eFX provider taking reais, converting to USDC, and settling the obligation abroad on-chain
+            correct: true
+          - id: b
+            label: A Brazilian merchant accepting USDC from a domestic customer
+            correct: false
+            feedback: >-
+              Domestic merchant acceptance is explicitly in scope, and is one of
+              the four surfaces this course targets.
+          - id: c
+            label: An individual buying and holding a stablecoin through an authorized VASP
+            correct: false
+            feedback: >-
+              Individuals may still buy, sell, hold and transfer via authorized
+              VASPs. The resolution constrains a provider's business model, not
+              a person's wallet.
+          - id: d
+            label: Paying a Brazilian contractor in USDC on a recurring delegation
+            correct: false
+            feedback: >-
+              Contractor payouts are in scope. That is one of the reasons the
+              recurring delegation matters in this market.
+        explanation: >-
+          Published 2026-04-30, effective 2026-10-01. In scope and legal for what
+          you built: domestic merchant acceptance, contractor payouts,
+          subscriptions, agent budgets.
+
+      - id: q3
+        prompt: >-
+          You are choosing the payment mint for a subscription product. Which
+          statement is the decision rule you learned?
+        multiSelect: false
+        options:
+          - id: a
+            label: Legacy Token by default; Token-2022 only when a named extension is required — then verify your rail accepts it, because the Subscriptions program rejects any mint with a configured TransferHook
+            correct: true
+          - id: b
+            label: Token-2022 always, because it is the newer standard and legacy Token is being retired
+            correct: false
+            feedback: >-
+              Neither is being retired, and download volume is at parity
+              (~1.27M/wk vs ~1.24M/wk). "Newer" is not a reason.
+          - id: c
+            label: Legacy Token always, because Token-2022 has limited DEX support
+            correct: false
+            feedback: >-
+              That claim is stale — support is at parity now. The reason to
+              prefer legacy is the absence of a requirement, not a compatibility
+              gap.
+          - id: d
+            label: Either one — the Subscriptions program treats both token programs identically
+            correct: false
+            feedback: >-
+              It supports both token programs, but it rejects a mint with a
+              configured TransferHook. A Token-2022 mint is not automatically
+              acceptable to your rail.
+        explanation: >-
+          Pick the extension you need, then check the rail. A TransferHook mint
+          is the concrete case where a valid Token-2022 mint is refused.
+
+      - id: q4
+        prompt: >-
+          Why does the Subscriptions program put a program-controlled
+          Subscription Authority between the user and every delegation, instead
+          of approving each delegatee on the token account directly?
+        multiSelect: false
+        options:
+          - id: a
+            label: A token account can have only ONE approved delegate, so one wallet could never hold a subscription and an allowance and a merchant agreement on the same mint
+            correct: true
+          - id: b
+            label: PDAs are cheaper to create than token accounts
+            correct: false
+            feedback: >-
+              Rent is not the reason. The authority exists to lift a hard
+              one-delegate limit.
+          - id: c
+            label: It lets the program hold a keypair on the user's behalf
+            correct: false
+            feedback: >-
+              A PDA has no private key — that is the point of deriving it rather
+              than generating it. Nothing holds a keypair for the user.
+          - id: d
+            label: It is required in order to use Token-2022 mints
+            correct: false
+            feedback: >-
+              Unrelated. The authority is about delegate multiplicity, not about
+              which token program owns the mint.
+        explanation: >-
+          One authority per (user, mint), derived with
+          findSubscriptionAuthorityPda, and you branch on .exists before
+          initialising — running init twice is the classic error.
+
+      - id: q5
+        prompt: >-
+          Fixed delegation versus recurring delegation. Which pair of statements
+          is correct?
+        multiSelect: false
+        options:
+          - id: a
+            label: Fixed caps a total that never refills; recurring caps an amount that resets every period
+            correct: true
+          - id: b
+            label: Fixed caps an amount per period; recurring caps a lifetime total
+            correct: false
+            feedback: >-
+              Reversed. "Fixed" names a fixed total, not a fixed schedule.
+          - id: c
+            label: Fixed is for Token-2022 mints; recurring is for legacy Token mints
+            correct: false
+            feedback: >-
+              Neither model is tied to a token program. The distinction is
+              whether the cap refills.
+          - id: d
+            label: Both refill; fixed refills daily and recurring refills on a period you choose
+            correct: false
+            feedback: >-
+              A fixed delegation never refills. That is exactly why it is the
+              right budget for an autonomous agent.
+        explanation: >-
+          Capped total = an allowance = the agent's budget. Cap resets per
+          period = payroll, contractors, subscriptions.
+
+      - id: q6
+        prompt: >-
+          A recurring delegation is set to 5 USDC per period. The delegatee
+          collects nothing for one full period. What is the allowance at the
+          start of the next period?
+        multiSelect: false
+        options:
+          - id: a
+            label: 5 USDC — the cap is restored, not increased
+            correct: true
+          - id: b
+            label: 10 USDC — the skipped period carries forward
+            correct: false
+            feedback: >-
+              Nothing accumulates. A merchant who forgets to collect loses that
+              period's revenue permanently.
+          - id: c
+            label: 0 — a skipped period suspends the delegation until the user re-approves
+            correct: false
+            feedback: >-
+              Skipping costs revenue, not the delegation. Only expiryTs ends it.
+          - id: d
+            label: 5 USDC, plus whatever was left unspent in the previous period
+            correct: false
+            feedback: >-
+              Unspent headroom is discarded on rollover. The cap is set back to
+              amountPerPeriod, never added to.
+        explanation: >-
+          Rollover resets the cap. It is what bounds the delegatee's draw to one
+          period at a time, and it is the semantic most write-ups get wrong.
+
+      - id: q7
+        prompt: >-
+          Your billing job runs twice by accident inside the same period. What
+          does the second transferRecurring call do?
+        multiSelect: false
+        options:
+          - id: a
+            label: Fails with AMOUNT_EXCEEDS_PERIOD_LIMIT — no partial transfer occurs
+            correct: true
+          - id: b
+            label: Succeeds, and the excess is deducted from the next period
+            correct: false
+            feedback: >-
+              There is no borrowing across periods. The cap is enforced per
+              period, at the moment of the call.
+          - id: c
+            label: Transfers whatever remains of the period allowance and reports a partial fill
+            correct: false
+            feedback: >-
+              There is no partial fill. A pull for more than the remaining
+              allowance is rejected outright — which is why a retry loop must
+              treat this error as terminal for the period, not as transient.
+          - id: d
+            label: Succeeds — the program deduplicates identical charges automatically
+            correct: false
+            feedback: >-
+              Nothing deduplicates for you. Idempotency is your job; the cap is
+              the backstop.
+        explanation: >-
+          Handling this error correctly is the difference between a billing job
+          that double-charges and one that does not. Treat it as "already
+          collected this period."
+
+      - id: q8
+        prompt: >-
+          Across the whole delegation lifecycle, who signs what?
+        multiSelect: true
+        options:
+          - id: a
+            label: The user signs the setup — creating the authority and the delegation
+            correct: true
+          - id: b
+            label: The delegatee signs each transfer
+            correct: true
+          - id: c
+            label: The user signs the revoke, which closes the PDA and returns the rent to the signer or to the recorded receiver
+            correct: true
+          - id: d
+            label: The user must co-sign every transfer alongside the delegatee
+            correct: false
+            feedback: >-
+              That would reintroduce the per-charge signature the primitive
+              exists to eliminate. The period cap is what bounds the delegatee,
+              not a second signature.
+        explanation: >-
+          One approval, many collections, revocable at any time. That asymmetry
+          is the security model of the whole module.
+
+      - id: q9
+        prompt: >-
+          A client hits your metered route with no payment. What does a valid
+          x402 v2 challenge have to tell them, and who does the on-chain work?
+        multiSelect: false
+        options:
+          - id: a
+            label: An accepts[] envelope naming the network, the asset and the payTo address — and the facilitator does verify, settle and supported, so the API provider never touches on-chain infrastructure
+            correct: true
+          - id: b
+            label: A price in USD and a wallet address; the API server submits the transaction itself
+            correct: false
+            feedback: >-
+              A bare address does not say which chain or which asset, and
+              running settlement in your API server is exactly what the
+              facilitator exists to remove.
+          - id: c
+            label: A signed transaction for the client to submit unchanged
+            correct: false
+            feedback: >-
+              The server states terms; the client constructs and signs the
+              payment. It is a challenge, not a pre-built transaction.
+          - id: d
+            label: Only a price — the client is expected to already know the network and asset from your docs
+            correct: false
+            feedback: >-
+              Then a generic client could never pay you. Self-description is the
+              whole point of the envelope.
+        explanation: >-
+          Metering is a protocol, not a checkout page. The envelope is what lets
+          a client that has never seen your API pay for one call.
+
+      - id: q10
+        prompt: >-
+          "@x402/svm" exports both ExactSvmScheme and ExactSvmSchemeV1. Why?
+        multiSelect: false
+        options:
+          - id: a
+            label: Both protocol versions are live on the wire, with different header names and different envelope fields, so a client has to detect which one a server speaks
+            correct: true
+          - id: b
+            label: V1 is a deprecated alias kept for backwards source compatibility; it behaves identically
+            correct: false
+            feedback: >-
+              They are not interchangeable. The header names and envelope fields
+              differ, which is why you decide the version before you build the
+              payment.
+          - id: c
+            label: One is for devnet and one is for mainnet
+            correct: false
+            feedback: >-
+              Network selection is SOLANA_DEVNET_CAIP2 and friends, an entirely
+              separate axis from protocol version.
+          - id: d
+            label: One is for legacy Token and one is for Token-2022
+            correct: false
+            feedback: >-
+              Token program addresses are exported separately as
+              TOKEN_PROGRAM_ADDRESS and TOKEN_2022_PROGRAM_ADDRESS. Not the same
+              axis.
+        explanation: >-
+          Reading which version a server speaks, rather than assuming, is what
+          keeps an integration alive. It is also why the scoped 2.19.0 packages
+          and the frozen unscoped 1.2.0 packages must never be mixed.
+
+      - id: q11
+        prompt: >-
+          You fetch a metered URL and get a 402 with an empty response body.
+          What is the correct next step?
+        multiSelect: false
+        options:
+          - id: a
+            label: Read the base64 envelope out of the PAYMENT-REQUIRED response header — some hosts ship no body at all
+            correct: true
+          - id: b
+            label: Treat it as a malformed response and retry the bare request
+            correct: false
+            feedback: >-
+              Retrying without paying returns the same 402 forever. This is the
+              number one x402 integration failure and it is a parsing bug, not a
+              server bug.
+          - id: c
+            label: Fall back to the v1 scheme, since only v1 servers send empty bodies
+            correct: false
+            feedback: >-
+              Body placement and protocol version are independent. Decode the
+              envelope first, then decide the version from its contents.
+          - id: d
+            label: Pay a default amount to the address in your configuration
+            correct: false
+            feedback: >-
+              Never pay against a value the server did not state in this
+              response. That is how a client overpays or pays the wrong asset.
+        explanation: >-
+          Envelope in the body or envelope in the header — handle both, then
+          filter accepts[] on network and asset before you build anything.
+
+      - id: q12
+        prompt: >-
+          Your agent loop hits its spend limit mid-run. What should the correct
+          implementation do, and what was the budget?
+        multiSelect: false
+        options:
+          - id: a
+            label: Halt and report — the budget was a Fixed Delegation drawn down with transferFixed, and the program refusing the next payment is the exit condition
+            correct: true
+          - id: b
+            label: Top the delegation up from the same signer and continue, since the agent is trusted
+            correct: false
+            feedback: >-
+              An agent that can raise its own cap has no cap. Refilling requires
+              the user's signature by design.
+          - id: c
+            label: Fall back to a raw keypair the agent holds so the run can complete
+            correct: false
+            feedback: >-
+              A raw keypair with unlimited funds is precisely what the on-chain
+              cap replaces. That fallback deletes the safety property.
+          - id: d
+            label: Retry with exponential backoff until the allowance recovers
+            correct: false
+            feedback: >-
+              A fixed delegation never refills. The retry loop would run
+              forever.
+        explanation: >-
+          The exit condition is the learning objective. What makes agent autonomy
+          safe is that the cap lives on-chain, where the agent cannot reach it.
+
+      - id: q13
+        prompt: >-
+          You are charging 5 USDC (6 decimals) through the Subscriptions client.
+          Which amount argument is correct?
+        multiSelect: false
+        options:
+          - id: a
+            label: 5_000_000n — base units, as a bigint
+            correct: true
+          - id: b
+            label: '5 — the client converts from display units for you'
+            correct: false
+            feedback: >-
+              Nothing converts. Passing 5 charges five millionths of a dollar,
+              succeeds, and goes unnoticed for weeks.
+          - id: c
+            label: '5.0 — a float, since USDC has decimals'
+            correct: false
+            feedback: >-
+              Amounts are integers in base units. A float cannot represent a
+              token amount exactly and the API does not accept one.
+          - id: d
+            label: '"5000000" — a decimal string'
+            correct: false
+            feedback: >-
+              Right magnitude, wrong type. These APIs take bigint, in the same
+              way Kit takes Address rather than a PublicKey object.
+        explanation: >-
+          Base units as bigint, everywhere in this stack, on @solana/kit 7.0.0.
+          The type is a habit worth having.
+
+      - id: q14
+        prompt: >-
+          Which two things must a deep dive on this material carry to stay
+          verifiable a year from now?
+        multiSelect: true
+        options:
+          - id: a
+            label: A dated banner recording when you last ran the code
+            correct: true
+          - id: b
+            label: Exact package versions copied out of the lockfile that actually resolved
+            correct: true
+          - id: c
+            label: A screenshot of a successful transaction in the explorer
+            correct: false
+            feedback: >-
+              A screenshot proves it worked once, for you. It does not let a
+              reader reproduce anything.
+          - id: d
+            label: A caret range on each dependency so readers get bug fixes automatically
+            correct: false
+            feedback: >-
+              On a pre-1.0 package a caret admits breaking minors. That is the
+              opposite of reproducible.
+        explanation: >-
+          Dated and pinned. Two paragraphs of work, and the reason your piece
+          outlives every competing one.
+
+      - id: q15
+        prompt: >-
+          A listing you are considering shows 12 submissions today. What can you
+          conclude?
+        multiSelect: false
+        options:
+          - id: a
+            label: Almost nothing — the count tracks time-to-deadline, so compare medians across listings that have already closed
+            correct: true
+          - id: b
+            label: It is under-contested; submit immediately for good odds
+            correct: false
+            feedback: >-
+              The Zeroclaw listing sat at twelve or fewer for most of its run and
+              closed at 52. A mid-run count is not a competition rate.
+          - id: c
+            label: The category is unpopular and probably low quality
+            correct: false
+            feedback: >-
+              Competition is a function of deadline proximity, not of category
+              popularity.
+          - id: d
+            label: It will close near 12, since submissions arrive at a steady rate
+            correct: false
+            feedback: >-
+              They do not arrive at a steady rate. Submissions cluster hard
+              against the deadline.
+        explanation: >-
+          Filter for newly-opened development listings, and calibrate on closed
+          ones. The realistic promise of this path is your first $500 to $5,000
+          of paid work.
+
+      - id: q16
+        prompt: >-
+          Seeded from the previous course. A wallet account advertises
+          "solana:signAndSendTransaction". Which signer do you build, and who
+          broadcasts?
+        multiSelect: false
+        options:
+          - id: a
+            label: createTransactionSendingSignerFromWalletAccount — the wallet broadcasts, and you never see the signed bytes
+            correct: true
+          - id: b
+            label: createTransactionSignerFromWalletAccount — your app broadcasts
+            correct: false
+            feedback: >-
+              That is the signer for the "solana:signTransaction" feature, which
+              hands you signed bytes to send yourself.
+          - id: c
+            label: createMessageSignerFromWalletAccount — the wallet broadcasts
+            correct: false
+            feedback: >-
+              Message signing does not produce a transaction, so nobody
+              broadcasts anything.
+          - id: d
+            label: Either transaction signer works; the feature list is advisory
+            correct: false
+            feedback: >-
+              It is not advisory — createSignerFromWalletAccount inspects the
+              features at call time and throws when neither transaction feature
+              exists.
+        explanation: >-
+          Feature to signer to who-broadcasts. Getting this wrong produces a
+          transaction that is signed and never sent, or sent twice.
+
+      - id: q17
+        prompt: >-
+          Also seeded from the previous course. You are publishing the client
+          package under a scope for the first time. What must be true, or the
+          publish fails?
+        multiSelect: false
+        options:
+          - id: a
+            label: The first publish of a scoped package needs --access public, otherwise it 402s as a private package
+            correct: true
+          - id: b
+            label: NPM_TOKEN must be set as a repository secret
+            correct: false
+            feedback: >-
+              Trusted publishing via OIDC is the route taught — id-token write
+              permission and a configured trusted publisher, no token. The token
+              route is only the fallback.
+          - id: c
+            label: The package version must be 1.0.0 or higher
+            correct: false
+            feedback: >-
+              npm accepts any valid semver, including 0.x. Nothing about the
+              first publish requires 1.0.0.
+          - id: d
+            label: The scope must match your GitHub organisation name
+            correct: false
+            feedback: >-
+              npm scopes and GitHub orgs are independent namespaces.
+        explanation: >-
+          The single most common first-publish failure, and the reason to
+          pre-empt it rather than debug it in front of a bounty deadline.

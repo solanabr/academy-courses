@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1",
+    "description": "Budget covers the task: every call settles and the loop reports completed",
+    "input": "'s-completed'",
+    "expectedOutput": "result.calls === 3 && result.spent === '30000' && result.remaining === '970000' && result.halted === false && result.reason === 'completed' && result.errorCode === null"
+  },
+  {
+    "id": "t2",
+    "description": "One signature per settled call, in order",
+    "input": "'s-completed'",
+    "expectedOutput": "result.signatures.length === result.calls && result.signatures[0] === 'sig-c1' && result.signatures[2] === 'sig-c3'"
+  },
+  {
+    "id": "t3",
+    "description": "Allowance runs out mid-task: the loop halts before attempting the call it cannot afford",
+    "input": "'s-exhausted'",
+    "expectedOutput": "result.calls === 2 && result.spent === '20000' && result.remaining === '5000' && result.halted === true && result.reason === 'budget-exhausted' && result.errorCode === null"
+  },
+  {
+    "id": "t4",
+    "description": "The program refuses a draw: the loop stops there, records the code, and does not consume the later successful settlement",
+    "input": "'s-refused'",
+    "expectedOutput": "result.calls === 2 && result.spent === '500000' && result.remaining === '500000' && result.halted === true && result.reason === 'refused' && result.errorCode === 'AmountExceedsTotalLimit' && result.signatures.length === 2"
+  },
+  {
+    "id": "t5",
+    "description": "An empty allowance halts on call zero without spending a fee",
+    "input": "'s-broke'",
+    "expectedOutput": "result.calls === 0 && result.spent === '0' && result.remaining === '0' && result.halted === true && result.reason === 'budget-exhausted' && result.signatures.length === 0"
+  },
+  {
+    "id": "t6",
+    "description": "A u64-sized allowance spent to exactly zero — the arithmetic never becomes a Number",
+    "input": "'s-precision'",
+    "expectedOutput": "result.spent === '18446744073709551615' && result.remaining === '0' && result.calls === 3 && result.reason === 'completed'"
+  }
+]

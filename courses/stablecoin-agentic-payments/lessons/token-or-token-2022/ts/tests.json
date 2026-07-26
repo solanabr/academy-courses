@@ -1,0 +1,56 @@
+[
+  {
+    "id": "t1",
+    "description": "A plain legacy Token mint is the default and is accepted",
+    "input": "'token', '', ''",
+    "expectedOutput": "result.accepted === true && result.reason === 'ok-legacy-token'"
+  },
+  {
+    "id": "t2",
+    "description": "Token-2022 with nothing to justify it is accepted but flagged",
+    "input": "'token-2022', '', ''",
+    "expectedOutput": "result.accepted === true && result.reason === 'ok-token-2022-not-justified'"
+  },
+  {
+    "id": "t3",
+    "description": "A configured transfer hook is refused by name",
+    "input": "'token-2022', 'transfer-hook', 'transfer-hook'",
+    "expectedOutput": "result.accepted === false && result.reason === 'MINT_HAS_TRANSFER_HOOK'"
+  },
+  {
+    "id": "t4",
+    "description": "A named extension the rail accepts justifies Token-2022",
+    "input": "'token-2022', 'interest-bearing|metadata-pointer', 'interest-bearing'",
+    "expectedOutput": "result.accepted === true && result.reason === 'ok-token-2022-extension-required'"
+  },
+  {
+    "id": "t5",
+    "description": "A disqualifying extension refuses the mint even when another one was the reason for choosing Token-2022",
+    "input": "'token-2022', 'transfer-fee|interest-bearing', 'interest-bearing'",
+    "expectedOutput": "result.accepted === false && result.reason === 'MINT_HAS_TRANSFER_FEE'"
+  },
+  {
+    "id": "t6",
+    "description": "Asking for an extension on a legacy Token mint is a design error",
+    "input": "'token', '', 'interest-bearing'",
+    "expectedOutput": "result.accepted === false && result.reason === 'design-error-extension-requires-token-2022'"
+  },
+  {
+    "id": "t7",
+    "description": "A mint owned by neither token program is not a payment mint",
+    "input": "'mpl-core', '', ''",
+    "expectedOutput": "result.accepted === false && result.reason === 'INVALID_TOKEN_PROGRAM'"
+  },
+  {
+    "id": "t8",
+    "description": "With two disqualifying extensions the declared order decides the verdict",
+    "input": "'token-2022', 'transfer-hook|permanent-delegate', ''",
+    "expectedOutput": "result.reason === 'MINT_HAS_PERMANENT_DELEGATE'"
+  },
+  {
+    "id": "t9",
+    "description": "Token-2022 chosen for an extension the mint does not carry",
+    "input": "'token-2022', 'metadata-pointer', 'interest-bearing'",
+    "expectedOutput": "result.accepted === false && result.reason === 'design-error-required-extension-missing'"
+  }
+]

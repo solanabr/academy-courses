@@ -1,0 +1,50 @@
+[
+  {
+    "id": "t1",
+    "description": "First pull of a fresh period takes the whole cap",
+    "input": "25000000, 7, 6, 0, 25000000",
+    "expectedOutput": "result.ok === true && result.charged === 25000000 && result.remainingThisPeriod === 0"
+  },
+  {
+    "id": "t2",
+    "description": "A second pull inside the same period is refused by name",
+    "input": "25000000, 7, 7, 25000000, 1000000",
+    "expectedOutput": "result.ok === false && result.error === 'AMOUNT_EXCEEDS_PERIOD_LIMIT' && result.charged === 0"
+  },
+  {
+    "id": "t3",
+    "description": "Two partial pulls inside one period are fine until the cap is reached",
+    "input": "25000000, 7, 7, 10000000, 15000000",
+    "expectedOutput": "result.ok === true && result.remainingThisPeriod === 0"
+  },
+  {
+    "id": "t4",
+    "description": "The cap resets on period rollover with nothing to call",
+    "input": "25000000, 8, 7, 25000000, 25000000",
+    "expectedOutput": "result.ok === true && result.charged === 25000000 && result.remainingThisPeriod === 0"
+  },
+  {
+    "id": "t5",
+    "description": "Five skipped periods do not accumulate — two periods' worth is still refused",
+    "input": "25000000, 12, 7, 0, 50000000",
+    "expectedOutput": "result.ok === false && result.error === 'AMOUNT_EXCEEDS_PERIOD_LIMIT' && result.remainingThisPeriod === 25000000"
+  },
+  {
+    "id": "t6",
+    "description": "After skipping, exactly one period's worth is still collectable",
+    "input": "25000000, 12, 7, 0, 25000000",
+    "expectedOutput": "result.ok === true && result.charged === 25000000"
+  },
+  {
+    "id": "t7",
+    "description": "One base unit over the cap is over the cap",
+    "input": "25000000, 7, 7, 0, 25000001",
+    "expectedOutput": "result.ok === false && result.error === 'AMOUNT_EXCEEDS_PERIOD_LIMIT'"
+  },
+  {
+    "id": "t8",
+    "description": "A refused attempt reports what is still available rather than zero",
+    "input": "25000000, 7, 7, 20000000, 10000000",
+    "expectedOutput": "result.ok === false && result.remainingThisPeriod === 5000000 && result.charged === 0"
+  }
+]

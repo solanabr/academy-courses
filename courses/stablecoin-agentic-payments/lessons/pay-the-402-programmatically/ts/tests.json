@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1",
+    "description": "A 200 is not a challenge — nothing is decoded and nothing is paid",
+    "input": "'plain-200'",
+    "expectedOutput": "result.paid === false && result.x402Version === null && result.envelopeFrom === null && result.paymentHeader === null && result.selected === null"
+  },
+  {
+    "id": "t2",
+    "description": "v1 server: envelope read from the body, retry uses the X-PAYMENT header",
+    "input": "'v1-body'",
+    "expectedOutput": "result.paid === true && result.x402Version === 1 && result.envelopeFrom === 'body' && result.paymentHeader === 'X-PAYMENT'"
+  },
+  {
+    "id": "t3",
+    "description": "v1 server: the Solana devnet USDC entry is selected, not the EVM entry at accepts[0]",
+    "input": "'v1-body'",
+    "expectedOutput": "result.selected.network === 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1' && result.selected.asset === '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU' && result.selected.maxAmountRequired === '10000'"
+  },
+  {
+    "id": "t4",
+    "description": "v2 server with an empty body: envelope read from the payment-required header, retry uses PAYMENT",
+    "input": "'v2-header'",
+    "expectedOutput": "result.paid === true && result.x402Version === 2 && result.envelopeFrom === 'header' && result.paymentHeader === 'PAYMENT'"
+  },
+  {
+    "id": "t5",
+    "description": "v2 server: devnet is picked over the mainnet entry that shares the same scheme",
+    "input": "'v2-header'",
+    "expectedOutput": "result.selected.network === 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1' && result.selected.asset === '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU' && result.selected.maxAmountRequired === '50000'"
+  },
+  {
+    "id": "t6",
+    "description": "A challenge with no payable Solana entry is decoded and reported, not paid",
+    "input": "'v2-evm-only'",
+    "expectedOutput": "result.paid === false && result.selected === null && result.x402Version === 2 && result.envelopeFrom === 'header' && result.paymentHeader === 'PAYMENT'"
+  }
+]
