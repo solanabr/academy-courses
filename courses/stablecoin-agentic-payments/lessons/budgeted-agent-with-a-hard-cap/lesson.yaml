@@ -21,6 +21,12 @@ blocks:
       - "The budget check comes before the settlement, not after: if you cannot afford the call, you never attempt it and never consume a settlement."
       - "Convert once with `BigInt(...)`, do the arithmetic in BigInt, and call `.toString()` on the way out."
       - "`s-refused` has a successful settlement after the refusal. If your report counts three calls, your loop kept going."
+    tutorNotes:
+      - "Learners settle first and check the budget afterwards, so a task that outruns the allowance reports extra calls and a negative balance instead of halting before the unaffordable call."
+      - "They continue after a refusal — the fixtures place a successful settlement right after the refused one to catch this — counting a spend that never happened."
+      - "They retry a program refusal as if it were transient; a policy refusal is terminal on-chain state and retrying only burns fees for the same answer."
+      - "They do the arithmetic in `Number`, so a u64-sized allowance loses precision above 2^53 and the final balance is silently wrong."
+      - "They report an error string they invented instead of the program's code verbatim, or let `signatures.length` drift out of step with `calls`."
   - key: check
     type: quiz
     questions:

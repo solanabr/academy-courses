@@ -20,6 +20,12 @@ blocks:
       - Subgoal 3 is unconditional. You read the authority in order to learn whether subgoal 4 is needed, so the read is in the plan either way.
       - Only subgoal 4 is conditional. Everything else runs on every path.
       - "USDC has 6 decimals: multiply by 1_000_000 and round once, then wrap the integer in BigInt(). Do not build the bigint out of a float."
+    tutorNotes:
+      - "Learners plan `initSubscriptionAuthority` unconditionally, so a returning user whose authority already exists fails — the init belongs only on the branch where the read found it absent."
+      - "They drop the read step when the authority already exists; the read always runs because reading is how you learned whether the init is needed."
+      - "They convert the human amount with float math and lose sub-unit precision, or return a `number` or string where a `bigint` is required."
+      - "They inline the decimals conversion in several places instead of doing it once, so the base-unit factor drifts between call sites."
+      - "They order the steps so the transfer precedes creating the delegation — you cannot draw from a delegation you have not opened."
   - key: check
     type: quiz
     questions:

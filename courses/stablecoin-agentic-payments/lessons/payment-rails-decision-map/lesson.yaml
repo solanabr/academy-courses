@@ -20,6 +20,11 @@ blocks:
       - The branches are all correct. Only their order is wrong.
       - A stop that runs after every rail has already returned never stops anything.
       - Move the `settlement === "cross-border-fx"` block above the `per-request` check.
+    tutorNotes:
+      - "Learners treat the compliance stop as one branch among the rails rather than a gate that runs before any rail is chosen, so a cross-border-FX requirement gets a rail and only afterwards a stop that can no longer fire."
+      - "They add a second cross-border check instead of relocating the existing one, leaving two guards and duplicated logic."
+      - "They assume `unsupported` is the catch-all for anything unusual and route blocked FX requirements there instead of to the compliance stop."
+      - "They reorder the rail branches too, breaking cases the starter already handled correctly — only the guard's position is wrong."
   - key: check
     type: quiz
     questions:

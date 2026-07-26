@@ -20,6 +20,12 @@ blocks:
       - "Every block after the first uses a local that an earlier block declares. That dependency chain is the ordering."
       - "One wrong block calls `JSON.parse(res.body)` before anything has checked whether the body is empty."
       - "The other wrong block filters on `eip155:` — a namespace your Solana wallet cannot pay."
+    tutorNotes:
+      - "Learners take `accepts[0]` instead of filtering the menu, so they try to pay the EVM entry the server happened to list first."
+      - "They filter on network or asset alone; the two are a pair, and a menu offering Solana mainnet and devnet with the same scheme will match the wrong one."
+      - "They parse and pay before decoding — assuming the envelope is in the body and the version is 2 — which passes one fixture and fails the rest."
+      - "They treat 'no payable entry' as an exception to throw, when it is a normal reported outcome; some servers only accept EVM money."
+      - "They only read `res.body` and miss that the envelope can arrive base64 in the `payment-required` header when the body is empty."
   - key: check
     type: quiz
     questions:

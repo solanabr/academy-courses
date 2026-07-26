@@ -163,3 +163,9 @@ blocks:
       - Order matters. Check the token program first, then the design errors that cannot be fixed at runtime, then the rail's veto.
       - Scan `DISQUALIFYING` in its declared order and return on the first hit — do not scan the mint's own extension list, or a mint carrying two will give you a different answer depending on how it was written.
       - "`mintHasCode` is already written for you: it turns `transfer-hook` into `MINT_HAS_TRANSFER_HOOK`."
+    tutorNotes:
+      - "Learners scan the mint's own configured extensions and return the first one, so a mint carrying two gets a verdict that depends on authoring order rather than the fixed DISQUALIFYING order."
+      - "They check the required extension or the veto before confirming the owner is a token program at all, so the precedence between design-errors and rail-vetoes comes out wrong."
+      - "They treat Token-2022-with-nothing-to-justify-it as a rejection; the rail accepts it (`accepted: true`) while still flagging the choice as unnecessary."
+      - "They conflate a required extension being absent from the mint with the mint carrying a disqualifying extension — different reasons, different verdict codes."
+      - "They forget legacy Token has no extensions at all, so asking for one on a `token` mint is a design error caught before minting, not a runtime veto."

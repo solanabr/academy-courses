@@ -19,6 +19,12 @@ blocks:
       - Nothing needs to be written. Pick the right `available` candidate and move the guard above the success return.
       - Candidate 2 passes every test where no period was skipped. That is what makes it a decoy rather than an obvious error — look at the case where `currentPeriod - lastChargedPeriod` is greater than 1.
       - A guard placed after an unconditional return never executes.
+    tutorNotes:
+      - "Learners expect skipped periods to accumulate — that missing two months lets a merchant collect three periods' worth at once. The cap is a per-period ceiling, not an accruing balance."
+      - "They compute a cap that subtracts what was already charged but never notices the clock rolled into a new period, so the delegation works once and then refuses everything forever."
+      - "They place the success return before the over-cap guard, making the guard unreachable and approving every request."
+      - "They confuse `AMOUNT_EXCEEDS_PERIOD_LIMIT` (the full cap was used this period) with `PERIOD_NOT_ELAPSED` (collecting before the period has started)."
+      - "They treat a refused second pull inside one period as a transient failure to retry, instead of the signal that the charge already landed."
   - key: check
     type: quiz
     questions:

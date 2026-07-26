@@ -20,3 +20,9 @@ blocks:
       - "Start by adding the Counter struct at the bottom: `#[account]\\npub struct Counter { pub count: u64, pub authority: Pubkey }`"
       - "The Initialize struct needs a lifetime: `pub struct Initialize<'info>` with three fields: counter, user, and system_program"
       - 'The counter field needs PDA constraints: `#[account(init, payer = user, space = 8 + 8 + 32, seeds = [b"counter", user.key().as_ref()], bump)]`'
+    tutorNotes:
+      - "Learners size `space` by adding up only the fields and forget the 8-byte discriminator Anchor prepends to every `#[account]`, so the account is under-allocated."
+      - "They omit the `<'info>` lifetime on the `Initialize` struct once it holds account references, then get opaque lifetime errors and edit the wrong line."
+      - "They leave `user` without `#[account(mut)]`; the payer that funds an `init` has its lamports changed and must be mutable."
+      - "They reach for `#[account(mut)]` on the counter, but the account is being created here for the first time, which needs `init`, not `mut`."
+      - "They write the PDA seed as a plain text string instead of a byte literal, or leave off `bump`, so the constraints do not compile."
