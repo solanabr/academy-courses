@@ -19,6 +19,12 @@ blocks:
       - You don't need to change anything — just click the Build button
       - If the build times out, try again. First builds take longer because dependencies are being downloaded.
       - If you see errors, make sure you haven't accidentally modified the starter code. Click Reset Code to restore it.
+    tutorNotes:
+      - "Learners edit the starter to feel productive, but it already compiles unchanged; a broken build here is almost always a self-inflicted edit, and the fix is Reset Code, not a new one."
+      - "They read the slow first build (dependencies downloading) or a timeout as a real failure and give up, instead of simply clicking Build again as the hints say."
+      - "They expect a local `cargo build` on their own machine and are thrown that compilation runs on the build server through the sbf toolchain, not their terminal."
+      - "They treat a compiler warning as the error and chase it, missing that the build actually succeeded — a green check means the `.so` compiled and there is nothing to fix."
+      - "They take the green check to mean the program is deployed and live on devnet, and go hunting for it on-chain; building only produced a binary — deployment is a later lesson."
   - key: retrieval-close
     type: quiz
     questions:
