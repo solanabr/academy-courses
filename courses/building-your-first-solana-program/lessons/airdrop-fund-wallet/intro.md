@@ -13,9 +13,9 @@ The good news: most of this rent is **reclaimable** after deployment.
 
 ## The Devnet Faucet
 
-Solana provides a free faucet on devnet. The web faucet at [faucet.solana.com](https://faucet.solana.com) grants up to **5 SOL per day** (more if you sign in with GitHub). Airdrops through the public RPC (`solana airdrop`) are rate-limited to smaller amounts, so the web faucet is the reliable path.
+Solana provides a free faucet on devnet. The web faucet at [faucet.solana.com](https://faucet.solana.com) is the reliable path — airdrops through the public RPC (`solana airdrop`) are throttled more aggressively. The web faucet is rate-limited by **request frequency** (a maximum of 2 requests every 8 hours, as of mid-2026); signing in with GitHub raises that limit.
 
-Use the widget below to fund your wallet. You'll need at least 4-5 SOL to comfortably deploy.
+Use the widget below to fund your wallet. You'll need at least 4-5 SOL to comfortably deploy — because of the request-frequency limit, that may take more than one faucet visit, which is expected, not a failure.
 
 > **Tip**: The faucet can be slow during peak hours. If you see "faucet is busy," just wait 30-60 seconds and try again. This is normal — devnet is a shared resource.
 
