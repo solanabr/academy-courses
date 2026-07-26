@@ -80,5 +80,7 @@
   label: Technical Writing
 - slug: brazil-compliance
   label: Brazil Compliance
+  reviewExempt: true
 - slug: earn-submission
   label: Earn Submission
+  reviewExempt: true
