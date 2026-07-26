@@ -62,6 +62,12 @@ blocks:
               `()` does not coerce to anything. It is a distinct type with one
               value, and Rust has no implicit conversions to paper over the gap
               — the same rule you met with `u8` and `u64` in lesson 2.
+        explanation: >-
+          A semicolon is an operation, not punctuation: it discards its expression's
+          value and yields `()`, so both arms become `()` and the body fails its
+          `u64` return with `E0308`, once per arm. `()` coerces to nothing — the
+          same no-implicit-conversion rule you met with `u8` and `u64` — and the
+          `help:` line offers to remove the semicolon.
       - id: q2
         prompt: >-
           A submission orders the arms `0..=999_999 => "dust",` then
@@ -103,6 +109,13 @@ blocks:
             feedback: >-
               Pattern *kind* has no bearing on order either. Source order is the
               whole rule.
+        explanation: >-
+          `match` is strictly source order, first match wins — there is no
+          specificity ranking and no literal-before-range rule — so a `0..=999_999`
+          arm above `0` claims 0 and returns "dust". The shadowed arm is only a
+          warn-level `unreachable pattern` lint, so a compile-graded lesson passes
+          it and the log is discarded on success; nothing but reading the arms
+          catches a wrong order.
       - id: q3
         prompt: >-
           Carried over from lesson 2. Predict the outcome of
@@ -138,3 +151,9 @@ blocks:
               Nothing about integer behaviour in Rust is
               implementation-defined, and this particular lint denies rather
               than warns.
+        explanation: >-
+          A literal that does not fit its annotated type is caught at compile time
+          by a deny-by-default lint, so `let bump: u8 = 300` stops the build rather
+          than wrapping to 44 or clamping to 255. Wrapping is what `300u32 as u8`
+          would do — exactly why this course avoids `as` on numbers, the rule from
+          lesson 2.

@@ -49,6 +49,12 @@ blocks:
               Nothing borrowed it first. `E0507` is for moving out of something
               you only have a reference to. Here you owned the `Vec` outright and
               gave it away.
+        explanation: >-
+          `for v in vaults` desugars to `vaults.into_iter()`, which takes the `Vec`
+          by value, so `vaults` is gone by the time `vaults.len()` runs and the read
+          is `E0382`. `for v in &vaults` borrows instead — the compiler's own
+          suggestion — because a read is a borrow and you cannot borrow what you no
+          longer own.
 
       - id: q2
         prompt: >-
@@ -202,6 +208,14 @@ blocks:
               targets and the conversion is therefore not universally lossless.
               `impl From<u16> for usize` does exist. `TryFrom` is what you get for
               `u32`, and it hands you a `Result` rather than a promise.
+        explanation: >-
+          The literal `8` infers `u32` from `field_count`, so the sum stays `u32`
+          and fails a `-> usize` return with `E0308` — Rust has no implicit numeric
+          widening. The compiler's diagnostics are authoritative but its suggestions
+          are not: `.try_into().unwrap()` compiles and panics on the input that
+          overflows, so keep `usize::try_from(field_count)` and handle the `Err`.
+          (`usize::from` does not exist for `u32`; that conversion is only
+          `TryFrom`.)
 
       - id: q6
         prompt: >-

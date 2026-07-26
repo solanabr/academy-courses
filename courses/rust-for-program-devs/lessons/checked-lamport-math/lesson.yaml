@@ -66,6 +66,13 @@ blocks:
               values it cannot possibly know, which is the entire situation your
               program is in — the amount came from an instruction someone else
               wrote.
+        explanation: >-
+          `-` on `u64` always returns `u64`, never an `Option`, so with
+          `overflow-checks = true` an underflow panics and the transaction aborts —
+          the caller gets a crash, not an error it can distinguish. The flag lives
+          in `Cargo.toml`, not your code, so correctness that leans on it is one
+          profile change from wrong; call `checked_sub` to get an `Option` you
+          handle.
       - id: q2
         prompt: >-
           A submission writes
@@ -106,6 +113,12 @@ blocks:
               `Some(x?)` on an `Option` is genuinely redundant — the value is
               already the right type — but Rust does not lint for it, and in a
               `const fn` you never get that far.
+        explanation: >-
+          `?` on `Option` is still unstable in const context, so it fails with
+          `E0015` inside a `const fn` — which is why the spec asks for `match`.
+          Dropping `const fn` to reach for `?` would disable the assertions that
+          grade the lesson; `?` on `Result`, in a non-const function, arrives in
+          lesson 12.
       - id: q3
         prompt: >-
           Carried over from lesson 3. Predict the outcome of
@@ -145,3 +158,9 @@ blocks:
               Adding one is what turns it from the body's value into a discarded
               statement — the same rule that broke `if a < b { a; } else { b; }`
               in lesson 3.
+        explanation: >-
+          A trailing semicolon turns `checked_sub`'s result into a discarded
+          statement, so the body evaluates to `()` and fails a `-> Option<u64>`
+          signature with `E0308` — there is no implicit `None`. This is the same
+          tail-expression rule that broke `if a < b { a; } else { b; }` in lesson 3:
+          the semicolon, not the value, decides what a body returns.

@@ -59,6 +59,11 @@ blocks:
               these are primitive integers, so `as` would compile — it is just
               the wrong tool, because `as` silently truncates when the widths go
               the other way.
+        explanation: >-
+          Rust performs no implicit numeric conversion in either direction, lossless
+          widenings included, so a `u8` where `u64` is expected is a hard `E0308` —
+          not a warning and not an `as`-cast. Convert explicitly with
+          `u64::from(bump)`, which is infallible precisely because every `u8` fits.
       - id: q2
         prompt: >-
           Carried over from lesson 1. Your file has four unrelated mistakes in
@@ -96,6 +101,13 @@ blocks:
             feedback: >-
               Severity is a property of the diagnostic, not of its position.
               Four type errors are four errors.
+        explanation: >-
+          `rustc` finishes the whole pass before reporting, so four independent
+          mistakes come back as four errors, each with its own code and span — not
+          one at a time the way a runtime halts on the first exception. The first
+          build of a broken file is a complete to-do list; a real cascade only comes
+          from a mistake that leaves the compiler guessing at a type other code
+          depends on.
       - id: q3
         prompt: >-
           Predict the outcome.
@@ -138,6 +150,12 @@ blocks:
               This is the *reference* case, E0594. Both are fixed by the word
               `mut`, in two different positions, and telling them apart tells
               you which position.
+        explanation: >-
+          A parameter typed `&VaultLike` is a promise not to write, and nothing
+          overrides it: `pub` only controls who may name the field, and the caller's
+          ownership stays on the caller's side of the signature. Assigning through
+          it is `E0594`, fixed by `&mut` in the signature — distinct from `E0384`,
+          the immutable-binding case.
       - id: q4
         prompt: >-
           A vault account holds 18_446_744_073_709_551_615 lamports, the largest
@@ -176,3 +194,8 @@ blocks:
               and one on a sign, leaving 53 bits of integer precision. Every
               integer above 2^53 - 1 is representable only approximately, which
               is why Solana clients read `u64` fields as `BigInt`.
+        explanation: >-
+          `Number` is a 64-bit double with only 53 bits of integer precision, so any
+          `u64` above 2^53 - 1 is silently rounded to a nearby value — no error, no
+          warning, and `Number.MAX_SAFE_INTEGER` is documentation, not a guard. That
+          silent rounding is why Solana clients read `u64` fields as `BigInt`.

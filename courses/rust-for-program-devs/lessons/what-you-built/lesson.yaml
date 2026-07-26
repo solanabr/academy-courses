@@ -50,6 +50,13 @@ blocks:
               `space` is computed from the same const, so it grows with the
               struct. Under-allocation is what happens when you hardcode the
               number instead of deriving it.
+        explanation: >-
+          `INIT_SPACE` is an associated const the `InitSpace` derive computes at
+          compile time, so widening `bump` to `u64` makes it 48 and the `const _: ()
+          = assert!(... == 41)` fails the build — a `u64` field is perfectly legal,
+          the size is the problem. Deriving `space = 8 + INIT_SPACE` from the same
+          const keeps allocation correct; hardcoding the number is what
+          under-allocates.
       - id: q2
         prompt: >-
           In `self.balance = self.balance.checked_add(amount).ok_or(VaultError::Overflow)?;`
@@ -120,6 +127,13 @@ blocks:
               Anchor hands you `Account<'info, VaultState>` and you reach the
               data through a mutable deref. A method that consumes `self` cannot
               be called through a borrow.
+        explanation: >-
+          `&mut self` and `mut self` both let you write, but they differ in
+          ownership: `mut self` consumes the value while `&mut self` borrows it, and
+          that difference is in the type the harness binds — `fn(VaultState, ...)`
+          versus `fn(&mut VaultState, ...)`. Taking `self` by value is legal Rust
+          (`into_parts(self)`) but wrong here, because Anchor reaches account data
+          through a mutable deref, not by value.
       - id: q4
         prompt: >-
           Carried over from Course 1. `VaultState::INIT_SPACE` is 41 and Course 3
@@ -150,6 +164,13 @@ blocks:
               The bump is one byte and it is inside the 41. Anchor adds no
               padding — the layout is the fields, back to back, after the
               discriminator.
+        explanation: >-
+          The 8 bytes are the Anchor discriminator — a hash of the account type's
+          name written at offset 0 — the same first 8 bytes your Course 1 decoder
+          sliced off before reading `owner`. They are not lamports (those live in
+          the account's metadata), not a borsh length prefix (4 bytes, and only on
+          variable-length types), and not padding, since Anchor lays fields back to
+          back after the discriminator.
       - id: q5
         prompt: >-
           Also from Course 1. Your struct stores `bump: u8`. Which of these are
@@ -176,6 +197,13 @@ blocks:
               Hashing is order-sensitive. Reorder the seeds and you get a
               different address — you proved that to yourself in Course 1 by
               deriving it both ways.
+        explanation: >-
+          The bump is what the derivation counted down from 255 until the address
+          left the ed25519 curve, and storing it lets a later instruction
+          re-validate the PDA without paying to re-run that search. Hardcoding 254
+          is not safe — a mock SDK's hardcoded 254 was exactly the Course 1 bug; the
+          canonical bump is whatever the search found for those seeds, and seed
+          order changes the address because hashing is order-sensitive.
       - id: q6
         prompt: >-
           Lifetimes appear zero times in your file, and lesson 8 was still worth

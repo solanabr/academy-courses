@@ -61,6 +61,12 @@ blocks:
             feedback: >-
               There is no partial credit on a buildable lesson. The signal the
               grader has is one bit: did it compile.
+        explanation: >-
+          A buildable lesson is graded on one bit — did it compile — and `rustc`
+          treats warnings as advice and exits successfully, so an
+          unreachable-pattern warning still passes. The trap is that this platform
+          discards the build log on success, so the warning never reaches you; that
+          matters when a later lesson tells you a mistake "only warns".
       - id: q2
         prompt: >-
           You delete the `declare_id!` line from this lesson's file and leave
@@ -99,6 +105,12 @@ blocks:
               A missing name is caught during compilation. Rust does not resolve
               names at run time, so there is no "later" for this class of
               mistake.
+        explanation: >-
+          `declare_id!` generates the compile-time constant `ID`, and the `msg!` on
+          the next line uses it, so deleting the macro makes the name absent and the
+          build fails during compilation. It is not deploy metadata and there is no
+          all-zeros fallback — Rust resolves names at compile time, so there is no
+          "later" for this class of mistake.
       - id: q3
         prompt: >-
           This lesson's version stamp names the pinned `rustc`, and it is older
@@ -140,3 +152,9 @@ blocks:
               A compiler cannot warn about syntax it does not understand. You
               get an error — often an unhelpful parse error rather than a
               polite "this needs a newer Rust".
+        explanation: >-
+          The toolchain is pinned by the `--tools-version` the build server passes
+          to `cargo-build-sbf`, and nothing in a submission can raise it, so a
+          feature stabilised after that version fails to compile here even though it
+          is valid Rust on a newer toolchain. The server's compiler is the ceiling,
+          which is why every lesson carries a version stamp at the top.
