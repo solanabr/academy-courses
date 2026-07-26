@@ -5,6 +5,8 @@ description: Master Rust for blockchain and the Anchor framework. Write, test, a
 tag: Builder
 order: 2
 difficulty: intermediate
-courses:
-  - course-rust-for-solana
-  - course-anchor-framework
+# Retired (LX-D1): both member courses now live inside path-zero-to-deployed.
+# Id kept — never delete a live path id. Emptying `courses` is what removes the
+# shelf from the catalog; `draft` keeps the empty shelf schema-legal.
+draft: true
+courses: []

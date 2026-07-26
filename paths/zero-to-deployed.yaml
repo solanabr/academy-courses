@@ -1,0 +1,12 @@
+id: path-zero-to-deployed
+slug: zero-to-deployed
+title: Zero to Deployed
+description: The complete path from zero to your first deployed Solana program. Learn how the network works, master Rust and Anchor, then write, build, and ship a real program to Devnet.
+tag: Foundation
+order: 1
+difficulty: beginner
+courses:
+  - course-solana-fundamentals
+  - course-rust-for-solana
+  - course-anchor-framework
+  - course-building-first-program

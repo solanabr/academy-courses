@@ -5,5 +5,9 @@ description: Specialize in decentralized finance on Solana. Understand AMMs, len
 tag: DeFi
 order: 4
 difficulty: advanced
-courses:
-  - course-defi-on-solana
+# Held for launch (LX-D1). The app hides a shelf only when `courses` is empty
+# (the runtime never reads `draft`), so the hold = draft + empty courses, same
+# shape as the other held paths. To un-hold: drop `draft`, restore
+# `courses: [course-defi-on-solana]`.
+draft: true
+courses: []
