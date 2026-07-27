@@ -35,3 +35,8 @@ blocks:
         the first fails on `the trait bound VaultInfo: Bumps is not satisfied`.
         `(b4)` compiles cleanly and is still wrong — re-read the prose on error
         code 6000 before deciding it is harmless.
+    tutorNotes:
+      - "Learners try to invent lines; everything needed is already in the two pools \u2014 uncomment the ones that belong and order them, leaving the rest commented."
+      - "They keep the one pool-A line that compiles green but is wrong; three pool lines belong nowhere and only two are caught by the compiler, so reason about the third before building."
+      - "They order pool A wrong; the block-opening line ends in `{`, the closing line is `}`, and the body runs top to bottom with the returned value last."
+      - "They swap the two pool-B attributes; `#[account]` describes the bytes inside one account, `#[derive(Accounts)]` describes the account list an instruction touches, and `Context<VaultInfo>` needs the second."
