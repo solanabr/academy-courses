@@ -45,6 +45,11 @@ blocks:
         calls `.unwrap()`, which panics for the same reason with better manners.
         Neither one can produce `InsufficientFunds`, which is the entire reason
         `VaultError` exists.
+    tutorNotes:
+      - "Learners pick decoy (5), bare subtraction, which panics under `overflow-checks = true` instead of returning the error; use `checked_sub(...).ok_or(InsufficientFunds)?`."
+      - "They pick decoy (2), `checked_sub(...).unwrap()`, which panics on underflow rather than returning `Err`; `unwrap` is banned in program code for exactly this."
+      - "They read the twelve unresolved-name errors as twelve problems; they are one missing crate-root re-export, `pub use vault::{VaultError, VaultState};` (pool line 4)."
+      - "They leave an empty method body (`()`), failing `expected Result<(), Error>, found ()`; each body is three pool lines ending in `Ok(())`, and two lines are used twice."
   - key: write
     type: code
     language: rust
@@ -67,6 +72,11 @@ blocks:
         the crate root needs one line: `pub use vault::{VaultError, VaultState};`
         Without it every harness reference fails with `cannot find type`, and the
         items you wrote are unreachable from anywhere Course 3 could call them.
+    tutorNotes:
+      - "Learners type before reading the non-editable harness; it names every item, field and type and is the only thing the build server checks \u2014 it is the spec, in Rust."
+      - "They widen the bump to `u64` and trip `assert!(INIT_SPACE == 41)`; 41 is `Pubkey`(32) + `u64`(8) + `u8`(1), so keep `bump: u8`."
+      - "They forget the crate-root `pub use vault::{VaultError, VaultState};`, so the harness outside `mod vault` cannot see the items; `use super::*` reaches the crate root, not into a sibling module."
+      - "Compile-only grading passes a `withdraw` that calls `checked_add` or omits the zero-amount check; the harness verifies shape, not behaviour, so the operator is on you \u2014 the lesson says so."
   - key: check
     type: quiz
     questions:

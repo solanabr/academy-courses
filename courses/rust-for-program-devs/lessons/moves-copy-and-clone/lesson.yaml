@@ -20,6 +20,11 @@ blocks:
       - Nothing needs fixing. Click Build first, then read the six numbered sections against the predictions you would have made before the page above.
       - First builds are slow — the toolchain is downloading anchor-lang 1.1.2 and its dependencies. A second build of the same file is much faster.
       - "Section 6 is the whole exercise: uncomment the line marked BREAK IT, build, read which TWO lines the error names, then comment it back. Click Reset Code if you lose the file."
+    tutorNotes:
+      - "Learners try to fix the file; it is a complete worked example that compiles. The only edit is uncommenting the BREAK IT line in section 6, reading the two lines the error names, then commenting it back."
+      - "They expect `VaultLike` to be `Copy` because all its fields are; `Copy` is an opt-in derive that is deliberately omitted, which is what makes each assignment in section 3 a move (E0382)."
+      - "They read the slow first build (downloading anchor-lang 1.1.2) as a hang; the second build of the same file is fast."
+      - "They lose the file while editing and cannot get back; Reset Code restores the worked original."
 
   # Predict-the-behaviour throughout. Every question is a compile-or-not call on
   # code the learner has just read, not a definition recall.

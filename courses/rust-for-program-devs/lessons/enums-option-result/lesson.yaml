@@ -21,6 +21,11 @@ blocks:
       - "Subgoal 2 is one shape, used twice: `match balance.checked_add(amount) { Some(new_balance) => Ok(new_balance), None => Err(error!(VaultError::Overflow)) }`, then the same with `checked_sub` and `InsufficientFunds`. Do NOT add a zero-amount guard — that is policy, it lives in lesson 13's `deposit`, and lesson 4 said so."
       - "Subgoal 3: get both matches green over the four existing variants FIRST, then add `VaultFrozen` and build before touching anything else. The two `error[E0004]: non-exhaustive patterns` messages are the exercise — they name the file, the line and the variant."
       - "Stuck on a type error in 2c? `balance_after_deposit` returns a plain `u64`, not a `Result`, so the `match` has to produce a `u64` from both arms: `Ok(new_balance) => new_balance` and `Err(_) => balance`. This is the one place a wildcard is correct — you are deliberately saying every failure means the same thing here."
+    tutorNotes:
+      - "Learners add a zero-amount guard in subgoal 2; that is lesson-13 deposit policy, not this lesson. Keep the two matches to `checked_add`/`Overflow` and `checked_sub`/`InsufficientFunds`."
+      - "They add `VaultFrozen` before both matches are green, so two `E0004: non-exhaustive patterns` errors pile onto unfinished code; get the four variants matching first, then add the fifth and rebuild."
+      - "In `balance_after_deposit` they try to return the `Result` from the `match`; the function returns a plain `u64`, so both arms must yield a `u64` (`Ok(n) => n`, `Err(_) => balance`) \u2014 the one place a wildcard is correct."
+      - "They conflate `error!(VaultError::Overflow)` with the `From<VaultError> for Error` impl; `error!` uses `name()`, `From<..> for u32` and `Display`, not the `Error` conversion that `?` reaches for."
   - key: check
     type: quiz
     questions:

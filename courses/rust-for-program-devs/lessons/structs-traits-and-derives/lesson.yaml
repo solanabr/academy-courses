@@ -22,6 +22,11 @@ blocks:
       - The starter is already correct. Build it unchanged before you touch anything — the first build downloads and compiles the Anchor crates, so it is the slow one.
       - "For the experiment, add `pub created_at: i64,` as the last field of `VaultState` and build. The failure you want is on the `assert!(VaultState::INIT_SPACE == 41)` line: an `i64` is 8 bytes, so 41 became 49 and the account went from 49 bytes to 57."
       - "To get back to green, click Reset Code and build again. If instead you tried `pub memo: String`, the build stops with `error: Expected max_len attribute.` — `InitSpace` will not guess a size for a variable-length field, and neither can an account."
+    tutorNotes:
+      - "Learners try to fix the file; it is complete and correct. The only edit is the experiment \u2014 add a field, watch `INIT_SPACE` change \u2014 then Reset Code."
+      - "They add a `String` or `Vec` field and read `Expected max_len attribute` as a bug; `InitSpace` refuses to guess a size for a variable-length field, and neither can an account."
+      - "They widen a field (e.g. `created_at: i64`) and see `assert!(INIT_SPACE == 41)` trip; 41 is `Pubkey`(32) + `u64`(8) + `u8`(1), so a wider field is a bigger account \u2014 the assertion is doing its job."
+      - "They read the slow first build (compiling the Anchor crates cold) as a hang rather than a one-time cold-cache compile."
   - key: check
     type: quiz
     questions:

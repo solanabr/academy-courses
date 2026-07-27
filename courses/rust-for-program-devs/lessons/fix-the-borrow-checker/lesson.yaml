@@ -21,6 +21,11 @@ blocks:
       - Build it first and read only the first error. The others are cascades — they will move or disappear as you fix the one above them.
       - "Bug 2: the shared borrow is only fatal because the last line uses it again. `u64` is `Copy`, so take the number instead of a reference to it — and drop the `*` from the two places that were dereferencing it."
       - "Bug 4: the returned reference has to come from something that outlives the call. `data` does. A `Vec` you created inside the function does not — and neither does a temporary you create inline in the return expression."
+    tutorNotes:
+      - "Learners fix bugs bottom-up and chase cascade errors; read only the FIRST error, fix it, and rebuild \u2014 the later errors move or vanish."
+      - "On bug 2 they keep dereferencing a reference held across the mutation; `u64` is `Copy`, so take the number and drop the `*`, which ends the borrow before the mutation (E0502 clears)."
+      - "On bug 4 they bind the `Vec` with `let` or build it inline in the return; a returned reference must outlive the call, and a `Vec` created in the function does not (E0515). Return a view of `data`, which does."
+      - "They pick a decoy candidate that fails in a different way; each list mixes belongs-lines with decoys, so match the fix to the error code, not to the first plausible line."
 
   # 3 questions. q3 deliberately tests the limit of a green build rather than a
   # rule, which is the honest lesson of a compile-only exercise.
