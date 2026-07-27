@@ -1,6 +1,6 @@
 id: achievement-full-stack-solana
 name: Full Stack Solana
-description: Complete all courses in the Solana Developer Path
+description: Complete every course in the Zero to Deployed path
 icon: layers
 glyph: ◎
 solTier: true
