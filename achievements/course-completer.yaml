@@ -13,7 +13,8 @@ metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=a
 # entry course. The live entry of path-zero-to-deployed is now C2. When C1
 # (course-solana-for-web-devs, #673) lands as the level-1 on-ramp it becomes the
 # entry and this target should move to it — same pattern as achievement-full-stack-solana's
-# path retarget. PROPOSED retarget, flagged for the gate.
+# path retarget. Retarget CONFIRMED by the gate (2026-07-27 catalog migration,
+# monorepo #798 / content #21); the pending C1 move is tracked on monorepo #673.
 award:
   kind: course-completed
   course: course-rust-for-program-devs
