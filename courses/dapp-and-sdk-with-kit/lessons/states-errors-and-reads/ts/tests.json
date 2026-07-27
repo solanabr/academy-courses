@@ -1,0 +1,56 @@
+[
+  {
+    "id": "t1",
+    "description": "Submitting moves idle to pending",
+    "input": "'idle', 'submit'",
+    "expectedOutput": "result === 'pending'"
+  },
+  {
+    "id": "t2",
+    "description": "A user rejection returns to idle, not failed — it never reached the network",
+    "input": "'pending', 'user-rejected'",
+    "expectedOutput": "result === 'idle'"
+  },
+  {
+    "id": "t3",
+    "description": "An expired blockhash is retryable, not a hard failure",
+    "input": "'pending', 'blockhash-expired'",
+    "expectedOutput": "result === 'retryable'"
+  },
+  {
+    "id": "t4",
+    "description": "A preflight failure is a failure",
+    "input": "'pending', 'preflight-failure'",
+    "expectedOutput": "result === 'failed'"
+  },
+  {
+    "id": "t5",
+    "description": "A decoded program error is a failure",
+    "input": "'pending', 'program-error'",
+    "expectedOutput": "result === 'failed'"
+  },
+  {
+    "id": "t6",
+    "description": "Insufficient lamports is a failure",
+    "input": "'pending', 'insufficient-lamports'",
+    "expectedOutput": "result === 'failed'"
+  },
+  {
+    "id": "t7",
+    "description": "Confirmation advances the ladder",
+    "input": "'processed', 'confirmed'",
+    "expectedOutput": "result === 'confirmed'"
+  },
+  {
+    "id": "t8",
+    "description": "Finalized is its own honest terminal state",
+    "input": "'confirmed', 'finalized'",
+    "expectedOutput": "result === 'finalized'"
+  },
+  {
+    "id": "t9",
+    "description": "An unrecognized event leaves the state unchanged",
+    "input": "'confirmed', 'noise'",
+    "expectedOutput": "result === 'confirmed'"
+  }
+]

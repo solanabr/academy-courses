@@ -1,0 +1,85 @@
+id: lesson-dsk-idl-to-typed-client
+slug: idl-to-typed-client
+title: From IDL to a Typed Client
+skills:
+  - codama
+  - idl
+  - client-codegen
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: inspect
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - This is a worked example — everything is written except one value. The data payload hardcodes `0n`; pass `amountLamports` through instead.
+      - Keep the `n` — the amount is a `bigint`, not a `number`. A u64 lamport amount does not fit a JS number.
+      - Once it passes, read the returned object. Notice the account order and roles; the IDL fixes both, and the generated builder never lets you shuffle them.
+    tutorNotes:
+      - "Learners try to `import` `@solana/kit` or `@codama/renderers-js` inside this runner; it has no module resolution, so the real codegen and the real Kit types live in prose only — the exercise is a hand-written stand-in for the shape."
+      - "They reorder the account list or drop the System Program, not realizing the IDL fixes the order and a shuffled list is a different, wrong instruction the program will reject."
+      - "They change `amountLamports` to a plain number and lose the `bigint` the generated builder guarantees — a u64 amount does not fit a JS number, which is why Kit uses bigint everywhere."
+      - "They expect this lesson to generate files on disk; `renderVisitor` needs a filesystem, so real `codama run js` happens in the CI workflow at lesson 4, not here."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You run `npx codama run js`, then hand-edit a bug fix directly into
+          `src/generated/vault/instructions/deposit.ts`. Predict what happens to
+          your edit the next time CI publishes.
+        multiSelect: false
+        options:
+          - id: a
+            label: It is overwritten — codegen regenerates the whole `src/generated` tree from the IDL, so anything hand-edited there is lost on the next run
+            correct: true
+          - id: b
+            label: It is preserved — Codama merges hand edits with regenerated output
+            correct: false
+            feedback: >-
+              There is no merge step. `codama run js` writes the tree from the
+              IDL each time; it has no memory of edits you made to its output.
+          - id: c
+            label: It causes a codegen error, because the file no longer matches the IDL
+            correct: false
+            feedback: >-
+              Codegen does not read your edits before overwriting them — it
+              simply regenerates. You get no error, just a silently reverted fix.
+        explanation: >-
+          Generated code is regenerated output, never source. The rule this
+          course hammers: never edit `src/generated`, always wrap it. A fix
+          belongs in the IDL (regenerate) or in the ergonomic wrapper you build
+          next lesson — the wrapper is the part that survives an IDL change and
+          the part a consumer imports.
+      - id: q2
+        prompt: >-
+          A teammate calls `getDepositInstruction({...})` and expects the deposit
+          to land on devnet. Predict what they actually get back.
+        multiSelect: false
+        options:
+          - id: a
+            label: An instruction object — they still have to put it in a transaction, sign it, and send it; the builder only assembles the instruction
+            correct: true
+          - id: b
+            label: A transaction signature — the builder signs and submits in one call
+            correct: false
+            feedback: >-
+              A builder builds; it never touches a wallet or the network. Signing
+              and sending are separate steps you wire up in module 2.
+          - id: c
+            label: A promise that resolves once the deposit is confirmed
+            correct: false
+            feedback: >-
+              Nothing is confirmed here — building an instruction is pure, local
+              and synchronous. Confirmation is a module-3 concern with its own
+              commitment ladder.
+        explanation: >-
+          A generated instruction builder returns a plain instruction object: a
+          program address, an ordered account list, and a data payload — exactly
+          the shape you inspected. Getting it on-chain is assemble → sign → send,
+          three steps this course builds up over modules 2 and 3.

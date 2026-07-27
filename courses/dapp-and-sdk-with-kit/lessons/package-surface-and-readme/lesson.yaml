@@ -1,0 +1,111 @@
+id: lesson-dsk-package-surface-and-readme
+slug: package-surface-and-readme
+title: Exports, Types, README, Semver
+skills:
+  - npm-publishing
+  - semver
+  - api-design
+  - technical-writing
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: classify
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - Check for breakage before you check for additions. The line that returns `major` must run before the line that returns `minor`.
+      - Leave the decoy commented. An added field changes an account's byte layout, so it is a `major`, not the `minor` the decoy claims.
+      - "Order: `major` (breakage) → `minor` (added instruction) → `patch` (nothing changed)."
+    tutorNotes:
+      - "Learners leave the `instrAdded → minor` check above the breakage check, so a release that both adds an instruction and changes a layout is classified `minor` — shipping a build-break under a bump consumers trusted not to break them."
+      - "They uncomment the decoy (added field → minor), missing that adding a field changes the account's byte layout, which the semver policy calls a major."
+      - "They read a regenerate-only change (identical instructions and fields) as `minor` because bytes changed on disk; an unchanged IDL is a `patch` by definition."
+      - "They call a removed instruction a `minor` because nothing was added; a removed export is breakage, so it is a `major`."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Your next release adds a `close` instruction and touches no account
+          layout and no existing export. Which bump, under the policy you wrote?
+        multiSelect: false
+        options:
+          - id: a
+            label: Minor — a new instruction is additive, so existing callers are untouched
+            correct: true
+          - id: b
+            label: Major — any change to the instruction set is breaking
+            correct: false
+            feedback: >-
+              Adding is not breaking. A caller who never calls `close` compiles
+              and runs exactly as before, which is the definition of a minor.
+          - id: c
+            label: Patch — no account layout changed
+            correct: false
+            feedback: >-
+              A patch is for regenerating against an unchanged IDL. Here the IDL
+              gained an instruction, so there is new surface — that is a minor.
+        explanation: >-
+          New instruction, nothing removed or relaid-out: additive, so minor.
+          The policy only escalates to major when something a caller depended on
+          is gone or moved.
+      - id: q2
+        prompt: >-
+          You rename the exported `getVault` to `fetchVaultState` and change
+          nothing else. Which bump?
+        multiSelect: false
+        options:
+          - id: a
+            label: Major — a renamed export breaks every consumer's import line
+            correct: true
+          - id: b
+            label: Minor — the underlying behaviour is identical
+            correct: false
+            feedback: >-
+              Behaviour is not the contract; the surface is. `import { getVault }`
+              stops resolving the moment you rename it, which breaks builds — a
+              major.
+          - id: c
+            label: Patch — it is only a name
+            correct: false
+            feedback: >-
+              A name is the API. Renaming an export is exactly the "renamed
+              export" case the policy calls major.
+        explanation: >-
+          Removed field, changed layout, or renamed export — all three break a
+          consumer and all three are major. The rule tracks what a caller
+          depended on, and they depended on the name.
+      - id: q3
+        prompt: >-
+          A consumer installs your package and gets no autocomplete or type
+          errors, even though you shipped `.d.ts` files. Your exports condition
+          reads `{ "import": "./dist/index.js", "types": "./dist/index.d.ts" }`.
+          Why?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`types` is listed after `import`; resolvers read conditions in order and match `import` first, so the `types` entry is never reached"
+            correct: true
+          - id: b
+            label: The `.d.ts` files were not included because `files` must list them explicitly
+            correct: false
+            feedback: >-
+              `files: ["dist"]` already ships everything under `dist`, `.d.ts`
+              included. The types are present; the resolver just never looks at
+              the entry, because of its order.
+          - id: c
+            label: TypeScript ignores the exports map and only reads `"types"` at the top level
+            correct: false
+            feedback: >-
+              Modern TypeScript resolves through the `exports` map, which is why
+              order inside each condition matters. It honours the map — it just
+              takes the first matching condition.
+        explanation: >-
+          Condition order is significant: put `"types"` first in every condition
+          so the resolver sees it before it matches `import` or `require` and
+          stops. Same files, one wrong order, and every consumer loses their
+          types.

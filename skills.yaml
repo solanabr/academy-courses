@@ -134,3 +134,31 @@
   label: IDL
 - slug: solana-explorer
   label: Solana Explorer
+- slug: codama
+  label: Codama Codegen
+- slug: client-codegen
+  label: Client Code Generation
+- slug: api-design
+  label: API Design
+- slug: npm-publishing
+  label: npm Publishing
+- slug: semver
+  label: Semantic Versioning
+- slug: ci
+  label: Continuous Integration
+- slug: deployment
+  label: Deployment
+- slug: wallet-standard
+  label: Wallet Standard
+- slug: signers
+  label: Signers
+- slug: transaction-fees
+  label: Transaction Fees
+- slug: compute-budget
+  label: Compute Budget
+- slug: priority-fees
+  label: Priority Fees
+- slug: simulation
+  label: Transaction Simulation
+- slug: confirmation
+  label: Confirmation & Commitment

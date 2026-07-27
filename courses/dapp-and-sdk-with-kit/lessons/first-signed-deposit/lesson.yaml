@@ -1,0 +1,97 @@
+id: lesson-dsk-first-signed-deposit
+slug: first-signed-deposit
+title: Your First Deposit, From Your Own App
+skills:
+  - transactions
+  - wallet-standard
+  - solana-kit
+  - deployment
+  - web3-frontend
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: assemble
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Subgoal 2: `const lifetimeBlockhash = blockhash;` — a message with no recent blockhash is rejected."
+      - "Subgoal 3: `const instructions = [buildDepositInstruction(owner, amountLamports)];` — call the wrapper, do not rebuild the instruction by hand."
+      - "Subgoal 4: leave `computeUnitLimitSet: false`. The overpay is deliberate — the next lesson measures and fixes it."
+    tutorNotes:
+      - "Learners add a `SetComputeUnitLimit` here to 'do it properly', removing the deliberate 200,000-CU overpay the next lesson exists to measure — leave `computeUnitLimitSet` false."
+      - "They skip the blockhash in subgoal 2, so the assembled message has no lifetime and would be rejected the moment it is sent."
+      - "They rebuild the deposit instruction inline instead of calling the wrapper, reintroducing the discriminator and PDA the published package exists to hide."
+      - "They install the client from a `file:` path to test, which proves it runs on their machine but not that it installs and works from the registry — the one thing publishing was for."
+  - key: deploy
+    type: prose
+    src: deploy.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          To test quickly you install the client with `file:../client` instead
+          of `npm i @your-scope/vault-client`. It works. What have you NOT proven?
+        multiSelect: false
+        options:
+          - id: a
+            label: That the package installs and works from the public registry for someone who is not you — the actual deliverable of publishing
+            correct: true
+          - id: b
+            label: That the wrapper composes the generated client correctly
+            correct: false
+            feedback: >-
+              A local path exercises the same wrapper code, so that part is
+              proven. What is not proven is that the PUBLISHED artifact — its
+              files list, exports map and dependencies — resolves from npm.
+          - id: c
+            label: Nothing — a local path and a registry install are equivalent
+            correct: false
+            feedback: >-
+              They are not equivalent. A local path skips the packed tarball, the
+              `files` allowlist and dependency resolution from the registry — the
+              exact things a first real install can get wrong.
+        explanation: >-
+          Installing from the registry is the first test of the package as a
+          package: its `files` allowlist, its `exports` map, its peer
+          dependencies. A local path reuses your source tree and silently skips
+          all of that, so it can pass while a real `npm i` fails.
+      - id: q2
+        prompt: >-
+          Your deposit goes out with no `SetComputeUnitLimit`. Predict what the
+          priority fee is charged against.
+        multiSelect: false
+        options:
+          - id: a
+            label: The default 200,000 CU per non-builtin instruction — you are billed on the requested limit, not what the transaction actually consumed
+            correct: true
+          - id: b
+            label: The compute units the transaction actually consumed at runtime
+            correct: false
+            feedback: >-
+              That is the trap. The priority fee is charged on the REQUESTED
+              limit, and with no `SetComputeUnitLimit` the request defaults to
+              200,000 CU per instruction — usually far more than a deposit uses.
+          - id: c
+            label: Zero — priority fees only apply when you set a compute unit price
+            correct: false
+            feedback: >-
+              The next lesson does add the price, but the point stands: whatever
+              price applies is multiplied by the REQUESTED limit, and the default
+              request is 200,000 CU. Sizing it down is the saving.
+        explanation: >-
+          With no limit set, the transaction requests the 200,000-CU default per
+          non-builtin instruction, and the priority fee is charged on that
+          requested number — not on consumption. That is the overpay the next
+          lesson measures by diffing your simulated cost against this one.
+  - key: milestone
+    type: openEnded
+    prompt: >-
+      Deploy the app and paste its public URL (e.g. https://your-vault-app.vercel.app).
+      Confirm you sent one real devnet deposit from it. Self-reported — record the
+      URL; module 3 keeps shipping to it.
+    maxWords: 60

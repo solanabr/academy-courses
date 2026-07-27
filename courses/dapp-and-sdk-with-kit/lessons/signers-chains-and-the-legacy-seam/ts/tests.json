@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "signTransaction gives a modifying signer, app broadcasts",
+    "input": "'solana:signTransaction'",
+    "expectedOutput": "result.signer === 'modifying' && result.broadcaster === 'app'"
+  },
+  {
+    "id": "t2",
+    "description": "signAndSendTransaction gives a sending signer, wallet broadcasts",
+    "input": "'solana:signAndSendTransaction'",
+    "expectedOutput": "result.signer === 'sending' && result.broadcaster === 'wallet'"
+  },
+  {
+    "id": "t3",
+    "description": "A message-only wallet cannot send a transaction",
+    "input": "'solana:signMessage'",
+    "expectedOutput": "result.signer === 'message' && result.broadcaster === 'none'"
+  },
+  {
+    "id": "t4",
+    "description": "No signing feature at all yields none/none",
+    "input": "''",
+    "expectedOutput": "result.signer === 'none' && result.broadcaster === 'none'"
+  },
+  {
+    "id": "t5",
+    "description": "The discriminator: a wallet advertising BOTH transaction features gets the modifying signer, because this app must broadcast",
+    "input": "'solana:signAndSendTransaction|solana:signTransaction|solana:signMessage'",
+    "expectedOutput": "result.signer === 'modifying' && result.broadcaster === 'app'"
+  }
+]

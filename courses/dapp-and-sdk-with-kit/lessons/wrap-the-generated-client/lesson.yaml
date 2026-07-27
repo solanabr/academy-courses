@@ -1,0 +1,87 @@
+id: lesson-dsk-wrap-the-generated-client
+slug: wrap-the-generated-client
+title: "Wrap It: the API You'd Actually Want to Import"
+skills:
+  - api-design
+  - codama
+  - solana-kit
+  - pdas
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: wrap
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Subgoal 3: call the generated builder — `getDepositInstruction({ owner, vaultPda, amountLamports })` — and keep its result in a variable."
+      - "Subgoal 4: return `{ ok: true, vaultPda, instruction }`. Reuse the `vaultPda` subgoal 1 already derived; do not derive it again."
+      - Do not touch `deriveVaultPda` or `getDepositInstruction` — they stand in for generated code that codegen overwrites. Compose them; never edit them.
+    tutorNotes:
+      - "Learners edit the `deriveVaultPda` or `getDepositInstruction` helpers to force a test green, instead of composing them in the wrapper — those stand in for generated code, which codegen overwrites on the next run."
+      - "They pass `amountLamports` as a plain number, so subgoal 2's `typeof !== 'bigint'` narrowing rejects it and they blame subgoal 3; the whole client is bigint-typed on purpose."
+      - "They return the raw `getDepositInstruction` result instead of the ergonomic `{ ok, vaultPda, instruction }` shape, so the caller still has to know the internals the wrapper exists to hide."
+      - "They re-derive or hardcode the vault PDA inside subgoal 3 instead of reusing the address subgoal 1 already produced, so the returned `vaultPda` and the instruction's account can silently disagree."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A consumer runs `import { deposit } from '@your-scope/vault-client'` and
+          calls `deposit(owner, 1_000_000n)`. They never derive a PDA or write a
+          discriminator. Which layer did that work?
+        multiSelect: false
+        options:
+          - id: a
+            label: Your wrapper — it called the generated `findVaultPda` and `getDepositInstruction` for them, which is the whole reason the wrapper exists
+            correct: true
+          - id: b
+            label: The consumer's code — they must still pass the derived PDA in
+            correct: false
+            feedback: >-
+              If they had to derive the PDA themselves, the wrapper would have
+              failed at its one job. Hiding the seed and the discriminator is the
+              value the package sells.
+          - id: c
+            label: The Solana runtime — PDAs are derived on-chain at execution time
+            correct: false
+            feedback: >-
+              PDA derivation is pure client-side math over seeds; the runtime
+              only re-checks it. Your wrapper does the derivation before anything
+              is sent.
+        explanation: >-
+          The wrapper composes the generated primitives so the consumer supplies
+          only what they have — an owner and an amount — and gets back a ready
+          instruction. That composition is the product; the generated code
+          underneath is a regenerated implementation detail.
+      - id: q2
+        prompt: >-
+          Your IDL gains a field, you run codegen again, and a bug you had
+          "fixed" by editing `src/generated/instructions/deposit.ts` reappears.
+          Why?
+        multiSelect: false
+        options:
+          - id: a
+            label: Codegen rewrote the whole `src/generated` tree from the IDL, discarding your edit — fixes belong in the wrapper or the IDL, never in generated code
+            correct: true
+          - id: b
+            label: The new field shifted the discriminator, which happened to undo your fix
+            correct: false
+            feedback: >-
+              Adding a field does not rewrite an instruction discriminator, and
+              nothing "undid" the fix — it was overwritten wholesale when the
+              tree regenerated.
+          - id: c
+            label: Codegen preserves edits but reordered them below the new field
+            correct: false
+            feedback: >-
+              There is no edit-preservation. Generated files are written fresh
+              each run; the tool has no record of your changes.
+        explanation: >-
+          This is the rule in one incident: generated code is regenerated output.
+          The wrapper is where a fix lives if it is behavioural, and the IDL is
+          where it lives if the interface is wrong — either survives regeneration,
+          an edit to `src/generated` never does.
