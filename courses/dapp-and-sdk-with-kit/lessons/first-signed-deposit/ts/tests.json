@@ -13,9 +13,9 @@
   },
   {
     "id": "t3",
-    "description": "Subgoal 3: exactly one instruction, the deposit, with the owner signing",
+    "description": "Subgoal 3: exactly one instruction, the deposit, with the user signing",
     "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n, 'B1ockhash1111111111111111111111111111111111'",
-    "expectedOutput": "result.instructions.length === 1 && result.instructions[0].accounts[0].address === '0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+    "expectedOutput": "result.instructions.length === 1 && result.instructions[0].accounts[1].address === '0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
   },
   {
     "id": "t4",

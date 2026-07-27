@@ -25,8 +25,8 @@
   },
   {
     "id": "t5",
-    "description": "Subgoal 4: the returned instruction is well-formed — owner signs, vault is the derived PDA",
+    "description": "Subgoal 4: the returned instruction is well-formed — the vault is the derived PDA, the user signs",
     "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 2500000n",
-    "expectedOutput": "result.instruction.accounts[0].role === 'writable-signer' && result.instruction.accounts[1].address === result.vaultPda"
+    "expectedOutput": "result.instruction.accounts[0].address === result.vaultPda && result.instruction.accounts[1].role === 'writable-signer'"
   }
 ]

@@ -26,7 +26,7 @@ function deposit(
   }
 
   // Subgoal 3 — build the instruction from the generated builder.
-  //   Call getDepositInstruction({ owner, vaultPda, amountLamports }).
+  //   Call getDepositInstruction({ user: owner, vaultPda, amountLamports }).
   // const instruction = ...
 
   // Subgoal 4 — return the ergonomic shape: { ok: true, vaultPda, instruction }.
@@ -43,7 +43,7 @@ function deriveVaultPda(owner: string): string {
 }
 
 function getDepositInstruction(args: {
-  owner: string;
+  user: string;
   vaultPda: string;
   amountLamports: bigint;
 }): {
@@ -54,8 +54,8 @@ function getDepositInstruction(args: {
   return {
     programAddress: "VauLtPr0gram1111111111111111111111111111111",
     accounts: [
-      { address: args.owner, role: "writable-signer" },
       { address: args.vaultPda, role: "writable" },
+      { address: args.user, role: "writable-signer" },
       { address: "11111111111111111111111111111111", role: "readonly" },
     ],
     data: { discriminator: [242, 35, 198, 137, 82, 225, 242, 182], amountLamports: args.amountLamports },
