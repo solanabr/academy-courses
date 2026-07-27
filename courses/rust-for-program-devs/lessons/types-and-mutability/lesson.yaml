@@ -19,6 +19,11 @@ blocks:
       - Build it before you change anything. All four subgoals report at once, and the error codes tell you which kind of mistake each one is — E0384 and E0594 are mutability, E0308 is a width, E0277 is indexing.
       - "Subgoal 2 needs the word `mut` twice, in two different positions: once on the reference in `set_balance`'s parameter (`&mut VaultLike`), once on the `let` binding in `seed_bump`."
       - "Subgoals 3 and 4 are three separate fixes and only one of them touches a function body. `bump_as_u64` needs `u64::from(bump)`. `is_after` and `byte_at` each need a parameter type changed — to `i64` and to `usize` — and the harness at the bottom of the file already pins both, so it is also the answer key."
+    tutorNotes:
+      - "Learners fix one subgoal, rebuild, and panic at the others still failing; `rustc` reports every independent error in one pass, so build once and read the whole to-do list."
+      - "They add `mut` in only one of the two places subgoal 2 needs it (the `&mut VaultLike` parameter and the `let mut` binding), leaving an E0384 or E0594 behind."
+      - "They reach for `as` to turn `u8` into `u64` (banned here, and it truncates the other direction); the fix is `u64::from(bump)`, infallible because every u8 fits."
+      - "They edit the non-editable harness at the bottom to make a type error disappear; it is the answer key and pins `is_after` to `i64` and `byte_at` to `usize`."
   - key: check
     type: quiz
     questions:

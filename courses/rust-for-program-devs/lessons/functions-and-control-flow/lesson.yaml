@@ -19,6 +19,11 @@ blocks:
       - Start with `min_balance`, because the compiler tells you outright which of (F) and (G) is the decoy. Paste one, build, and read the `help:` line — it names the exact character to delete.
       - "`describe_state` needs exactly four arms and the last one must be `_`. Two of the five candidate arms overlap each other; pick the one that leaves 0 to the `0 => \"empty\"` arm rather than swallowing it."
       - "The wrong `dust` arm still compiles, and you will not be told. It produces `warning: unreachable pattern` and then answers \"dust\" for an empty vault — but this platform shows you the compiler log only when the build FAILS, so on a green build that warning is discarded before it reaches you. Nothing external will catch this one. Read your two range arms against the `0 => \"empty\"` arm and decide by hand which of them swallows 0."
+    tutorNotes:
+      - "Learners place the `dust` arm that swallows 0 (`0..=999_999`) above `0 => \"empty\"`; it compiles with only a warn-level `unreachable pattern`, which a green build discards, so nothing external catches it \u2014 read the arms by hand."
+      - "They keep the semicolon body for `min_balance` (`{ a; }`), which discards the value and yields `()`, failing the `u64` return with E0308; the `help:` line names the semicolon to delete."
+      - "They invent arms that are not in the parts bin, or use fewer than four, leaving `match` non-exhaustive (E0004)."
+      - "They order a range arm before `0`, assuming a more-specific pattern wins; `match` is strictly top to bottom, first match wins."
   - key: check
     type: quiz
     questions:

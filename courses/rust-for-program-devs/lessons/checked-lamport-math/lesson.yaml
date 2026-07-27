@@ -21,6 +21,11 @@ blocks:
       - "Build the empty file first. All ten assertions fail with `error[E0080]: evaluation panicked: not yet implemented`, which is `todo!()` being reached — the comments above each group name the cases. Once a function has a real body, a failure prints the assertion verbatim (`assertion failed: matches!(sub_lamports(5, 7), None)`) and names the exact input that is wrong."
       - "`u64` already has the two operations you need, and both are themselves `const fn`, so they are callable from inside yours. Look for the methods whose return type is `Option<u64>`."
       - "For `transfer_lamports`, the obstacle rather than the shape: you cannot use `?`, so there is no way to bail out of the middle of an expression. The second operation therefore has to be inspected somewhere the first one has already succeeded. If you find yourself wanting `?`, that is the right instinct and lesson 12 is where it becomes legal."
+    tutorNotes:
+      - "Learners reach for `?` on the `Option` inside a `const fn`; it is unstable in const context (E0015). Use `match` \u2014 `?` on `Result` becomes legal in lesson 12."
+      - "They use a bare `+` or `-` on lamports (banned, and it panics under `overflow-checks`); `checked_add`/`checked_sub` are themselves `const fn` and return the `Option` you need."
+      - "In `transfer_lamports` they try to bail out mid-expression without `?`; inspect the second operation where the first has already succeeded (a nested `match`), not inside one expression."
+      - "They leave a `todo!()` body and read `E0080: evaluation panicked: not yet implemented` as a compiler bug; that is the const-assertion reaching `todo!()`, and a real body makes the failing assertion print itself with the exact wrong input."
   - key: check
     type: quiz
     questions:

@@ -21,6 +21,11 @@ blocks:
       - "Function 1 is three lines. Guard the length first and return `None`; otherwise hand back the first eight bytes. `split_at` is a `const fn` and returns `(before, after)` — you want `.0`."
       - "Function 2 needs TWO lifetime parameters, not one. Ask the question the compiler is asking: which of the two inputs do the returned bytes come out of? Whichever it is gets the name that also appears in the return type; the other input's lifetime is never mentioned again, and giving both the same name is the over-constraint quiz question 2 is about."
       - "Function 2's body — the constraint, not the code: slice `==` and iterators are both unavailable in a `const fn`, so comparing eight bytes leaves you with indexing. `while` is const; `for` is not. And reuse `discriminator` rather than re-checking the length."
+    tutorNotes:
+      - "Learners give function 2 one lifetime for both inputs; only the input the returned bytes come from needs the name in the return type, and one name for both over-constrains it (the quiz-2 mistake)."
+      - "They reach for slice `==` or iterators in a `const fn`; both are unavailable in const context, so compare the eight bytes with indexing and a `while` loop (`for` is not const)."
+      - "On function 1 they return a shorter slice or panic when `data` is too short; the spec says return `None` \u2014 guard the length first, then hand back `split_at(8).0`."
+      - "They edit the non-editable `mod verify` harness to pass; it calls the functions at compile time, so a wrong length or a `todo!()` body is a build failure, not a silent pass."
 
   # 3 questions, all predict-the-error. q3 revisits lesson 7's bug 4 from the
   # caller's side rather than the callee's.

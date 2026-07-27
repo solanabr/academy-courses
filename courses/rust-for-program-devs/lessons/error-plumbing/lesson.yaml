@@ -21,6 +21,11 @@ blocks:
       - Build it first. The file is not supposed to compile yet, and the four errors are the instructions. Read only the first one — the rest of a Rust error list is usually cascade from the first.
       - "Order before deletion. Both `E0425: cannot find value` errors mean a statement uses a name that a later statement defines, so move the definition up. In `withdraw_amount` the chain is: owner check, read, policy check, subtract."
       - "The two decoys are `let amount = read_amount(data);` (no `?`, so `amount` is a `Result` and the next call rejects it) and `let remaining = balance.checked_sub(amount)?;` (`?` on an `Option`, which cannot work because `None` carries no error to convert). Delete both — the correct subtraction line, with `.ok_or(error!(VaultError::InsufficientFunds))?`, is already in the file."
+    tutorNotes:
+      - "Learners chase all four errors at once; both `E0425: cannot find value` errors mean a statement uses a name a later line defines \u2014 move the definition up, and read only the first error."
+      - "They keep the decoy `let amount = read_amount(data);` (no `?`), so `amount` is a `Result` the next call rejects; the correct line carries `?`."
+      - "They keep the decoy `checked_sub(amount)?` on an `Option`; `?` needs an error to convert and `None` carries none. The correct subtraction uses `.ok_or(error!(VaultError::InsufficientFunds))?`."
+      - "They reorder `withdraw_amount` wrongly; the chain is owner check, read, policy check, subtract \u2014 a check placed after the subtraction guards nothing."
   - key: check
     type: quiz
     questions:

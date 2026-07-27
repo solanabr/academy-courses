@@ -20,6 +20,11 @@ blocks:
       - "Subgoal 2 is four lines. `if let Some(new_balance) = add_lamports(v.balance, amount) { … }` — and the `None` case is deliberately nothing at all."
       - "Subgoal 3, step 1: `let current = balance_of(v);`. You are passing the `&mut` where a `&` is expected, which Rust does for you as a reborrow. Bind the `u64` it returns — do not bind `&v.balance`."
       - "Subgoal 3, step 2: `match sub_lamports(target, current) { Some(gap) => gap, None => 0 }`. `sub_lamports` returning `None` means `target` is below the current balance, so there is nothing to add."
+    tutorNotes:
+      - "In subgoal 3 learners bind `&v.balance` instead of the `u64` that `balance_of` returns; passing `&mut` where `&` is wanted is a reborrow, and you want the number it hands back, not a reference to it."
+      - "They add a zero-amount guard or an `else` for the `None` case in subgoal 2; the `None` case is deliberately nothing, and zero-amount policy lives in a later lesson."
+      - "They delete the `compile_error!` line but leave the `todo!()` under it (or the reverse); both must go together, because `todo!()` alone type-checks and would hide an unwritten body."
+      - "They hold a shared borrow across a later mutation and hit E0502; because `u64` is `Copy`, taking the value ends the borrow and the conflict disappears."
 
   # Predict-the-error, and q4 deliberately re-tests lesson 5's Copy rule from a
   # different angle rather than re-asking it.
