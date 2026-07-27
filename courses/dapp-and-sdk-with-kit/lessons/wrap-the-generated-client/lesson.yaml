@@ -17,7 +17,7 @@ blocks:
     solution: ts/solution.ts
     tests: ts/tests.json
     hints:
-      - "Subgoal 3: call the generated builder — `getDepositInstruction({ owner, vaultPda, amountLamports })` — and keep its result in a variable."
+      - "Subgoal 3: call the generated builder — `getDepositInstruction({ user: owner, vaultPda, amountLamports })` — and keep its result in a variable."
       - "Subgoal 4: return `{ ok: true, vaultPda, instruction }`. Reuse the `vaultPda` subgoal 1 already derived; do not derive it again."
       - Do not touch `deriveVaultPda` or `getDepositInstruction` — they stand in for generated code that codegen overwrites. Compose them; never edit them.
     tutorNotes:

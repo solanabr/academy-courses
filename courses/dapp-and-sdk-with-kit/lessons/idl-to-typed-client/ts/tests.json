@@ -13,15 +13,15 @@
   },
   {
     "id": "t3",
-    "description": "The account order is owner, vault, system program",
+    "description": "The account order is vault, user, system program",
     "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 1000000n",
-    "expectedOutput": "result.accounts[0].address === '0wnerWa11et11111111111111111111111111111111' && result.accounts[1].address === 'Vau1tPDA1111111111111111111111111111111111'"
+    "expectedOutput": "result.accounts[0].address === 'Vau1tPDA1111111111111111111111111111111111' && result.accounts[1].address === '0wnerWa11et11111111111111111111111111111111'"
   },
   {
     "id": "t4",
-    "description": "The signer is the owner, and the vault is writable but not a signer",
+    "description": "The vault is writable but not a signer, and the user signs",
     "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 1000000n",
-    "expectedOutput": "result.accounts[0].role === 'writable-signer' && result.accounts[1].role === 'writable'"
+    "expectedOutput": "result.accounts[0].role === 'writable' && result.accounts[1].role === 'writable-signer'"
   },
   {
     "id": "t5",

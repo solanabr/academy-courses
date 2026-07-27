@@ -14,7 +14,7 @@
 function buildDepositInstruction(
   programAddress: string,
   vaultPda: string,
-  owner: string,
+  user: string,
   amountLamports: bigint
 ): {
   programAddress: string;
@@ -32,8 +32,8 @@ function buildDepositInstruction(
   return {
     programAddress,
     accounts: [
-      { address: owner, role: "writable-signer" }, // pays the lamports, signs
-      { address: vaultPda, role: "writable" }, // receives them
+      { address: vaultPda, role: "writable" }, // the vault — receives the lamports
+      { address: user, role: "writable-signer" }, // the user — pays the lamports, signs
       { address: SYSTEM_PROGRAM, role: "readonly" }, // the CPI target
     ],
     data: {

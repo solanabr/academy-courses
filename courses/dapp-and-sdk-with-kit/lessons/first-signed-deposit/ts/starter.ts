@@ -36,14 +36,14 @@ function assembleDeposit(
 
 // --- your published wrapper's instruction builder — treat as given -------
 function buildDepositInstruction(
-  owner: string,
+  user: string,
   amountLamports: bigint
 ): { programAddress: string; accounts: { address: string; role: string }[]; data: { amountLamports: bigint } } {
   return {
     programAddress: "VauLtPr0gram1111111111111111111111111111111",
     accounts: [
-      { address: owner, role: "writable-signer" },
-      { address: "Vau1t" + owner.slice(0, 38).padEnd(38, "1"), role: "writable" },
+      { address: "Vau1t" + user.slice(0, 38).padEnd(38, "1"), role: "writable" },
+      { address: user, role: "writable-signer" },
       { address: "11111111111111111111111111111111", role: "readonly" },
     ],
     data: { amountLamports },
