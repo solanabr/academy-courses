@@ -1,0 +1,73 @@
+id: lesson-dsk-connect-with-wallet-standard
+slug: connect-with-wallet-standard
+title: Connect a Wallet Without wallet-adapter
+skills:
+  - wallet-standard
+  - solana-kit
+  - react
+  - web3-frontend
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: walkthrough
+    type: prose
+    src: walkthrough.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You switch the app from devnet to mainnet by changing the endpoint
+          string, but the app keeps talking to devnet. Predict the cause.
+        multiSelect: false
+        options:
+          - id: a
+            label: The client was built once and cached — a Kit client is bound to one chain and endpoint, so a switch means rebuilding it (a `useMemo` keyed on the endpoint), not mutating it
+            correct: true
+          - id: b
+            label: The RPC plugin caches responses; clearing the cache would fix it
+            correct: false
+            feedback: >-
+              It is not a response cache. The client instance itself is still
+              pointed at devnet, because a Kit client cannot be re-pointed after
+              it is built — you build a new one.
+          - id: c
+            label: The wallet is still on devnet and the client follows the wallet's chain
+            correct: false
+            feedback: >-
+              The client's chain is fixed at build time by its RPC plugin, not
+              inherited from the wallet. A wallet can refuse a chain, but it does
+              not repoint your client.
+        explanation: >-
+          A Kit client binds one chain and one endpoint when it is built. There
+          is no re-point; a cluster switch rebuilds the client, which in React is
+          a `useMemo` keyed on the endpoint so nothing rebuilds on an ordinary
+          render but a switch does.
+      - id: q2
+        prompt: >-
+          Which import belongs in a Wallet Standard app built on Kit?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`useWallets` from `@solana/kit-plugin-wallet/react` — Wallet Standard discovery, no per-wallet adapter"
+            correct: true
+          - id: b
+            label: "`WalletProvider` and `PhantomWalletAdapter` from the wallet-adapter packages"
+            correct: false
+            feedback: >-
+              That is the old stack this lesson exists to retire. Wallet Standard
+              needs no `WalletProvider` and no per-wallet adapter — the wallet
+              advertises itself to the browser.
+          - id: c
+            label: "`useWallet` from `@solana/wallet-adapter-react`"
+            correct: false
+            feedback: >-
+              `useWallet()` is the wallet-adapter hook. You will learn to READ it
+              (next lesson) because you will meet it in other codebases, but you
+              do not write it here.
+        explanation: >-
+          Wallet Standard is a protocol wallets implement directly, so discovery
+          is `useWallets()` with no adapter package per wallet and no
+          `WalletProvider`. Recognizing which stack an import belongs to is half
+          of not accidentally shipping the deprecated one.

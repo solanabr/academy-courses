@@ -1,0 +1,116 @@
+id: lesson-dsk-simulate-before-you-send
+slug: simulate-before-you-send
+title: Simulate, Then Size the Transaction
+skills:
+  - compute-budget
+  - transaction-fees
+  - simulation
+  - transactions
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: compare
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - One line to finish — `savedLamports = defaultFeeLamports - tightFeeLamports`.
+      - "The fee formula is already written: requested CU times price in micro-lamports, divided by 1,000,000."
+      - Run it with your lesson-7 numbers and read the gap between the default fee and the tight fee.
+    tutorNotes:
+      - "Learners wire the saving backwards or leave it at 0, missing the whole point — you were being billed on 200,000 requested CU while consuming a fraction of it."
+      - "They pass the resource estimator's return `{ computeUnitLimit, loadedAccountsDataSizeLimit }` where a bare number is expected, because they assume it returns just the CU number."
+      - "They set the limit exactly at the observed consumption with no margin, so a slightly heavier run exceeds it and the transaction fails on compute units."
+      - "They reach for `@solana-program/compute-budget`'s estimators, which Kit absorbed, or mix the deprecated compute-unit-limit half with the resource-limit half — the two lines are not interchangeable."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A priority fee is charged against which number — the compute units you
+          requested, or the compute units the transaction consumed?
+        multiSelect: false
+        options:
+          - id: a
+            label: The requested limit — so an unset limit bills you on the 200,000-CU default regardless of what you actually used
+            correct: true
+          - id: b
+            label: The consumed units — the runtime meters real usage and charges that
+            correct: false
+            feedback: >-
+              The runtime meters consumption to enforce the limit, but the
+              priority fee is priced on what you REQUESTED. That gap is the whole
+              overpay.
+          - id: c
+            label: The larger of the two, whichever is higher
+            correct: false
+            feedback: >-
+              It is specifically the requested limit. Since the request is
+              normally higher than consumption, sizing the request down is what
+              saves money.
+        explanation: >-
+          The priority fee multiplies your compute-unit PRICE by your requested
+          LIMIT. Leave the limit unset and the request is 200,000 CU per
+          instruction, so you pay that rate on 200,000 units no matter how little
+          the transaction consumes. Simulate, size the request, and the fee
+          drops.
+      - id: q2
+        prompt: >-
+          You call `estimateResourceLimitsFactory({ rpc })`, get a value back, and
+          pass it straight into a "set the compute unit limit" call, which breaks.
+          Why?
+        multiSelect: false
+        options:
+          - id: a
+            label: The estimator returns `{ computeUnitLimit, loadedAccountsDataSizeLimit }` — an object, not a bare number, so you must read `computeUnitLimit` off it or use the paired apply factory
+            correct: true
+          - id: b
+            label: The estimator is async and you forgot to await it
+            correct: false
+            feedback: >-
+              Awaiting matters, but the specific breakage here is the shape: it
+              resolves to an object with two limits, not a single CU number.
+          - id: c
+            label: The RPC endpoint does not support simulation
+            correct: false
+            feedback: >-
+              Simulation is standard. The failure is a type mismatch — you handed
+              an object to something expecting a number.
+        explanation: >-
+          The resource estimator returns both a compute-unit limit and a
+          loaded-accounts-data-size limit, so its result is an object. Use the
+          matching `estimateAndSetResourceLimitsFactory` to apply it, or read
+          `computeUnitLimit` off the object yourself — do not treat it as a bare
+          number, and do not mix it with the deprecated compute-unit-only line.
+      - id: q3
+        prompt: >-
+          Why add roughly a 10% margin over the simulated compute usage instead
+          of setting the limit exactly at what you measured?
+        multiSelect: false
+        options:
+          - id: a
+            label: Real consumption varies slightly run to run; a limit set at one observed value will occasionally be exceeded and fail the transaction, and 10% absorbs that without meaningfully raising the fee
+            correct: true
+          - id: b
+            label: Solana requires all limits to be multiples of 10%
+            correct: false
+            feedback: >-
+              There is no such rule. The margin is about variance in real usage,
+              not a formatting requirement.
+          - id: c
+            label: The margin is what pays the validator; without it the transaction is not prioritized
+            correct: false
+            feedback: >-
+              Prioritization comes from the price you set, not from a margin on
+              the limit. The margin is a safety buffer against exceeding the
+              limit on a heavier run.
+        explanation: >-
+          Compute usage is not perfectly stable between runs, so a limit pinned
+          to a single simulation will sometimes be too low and the transaction
+          fails with an exceeded-CU error. A ~10% margin covers the variance and
+          costs almost nothing, because the fee scales with the limit and 10%
+          more of a small number is still small.

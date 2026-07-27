@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "A quiet slot (all zeros) is floored to the minimum, not left at 0",
+    "input": "'0|0|0|0|0', 50, 1000",
+    "expectedOutput": "result.microLamports === 1000"
+  },
+  {
+    "id": "t2",
+    "description": "The median of five observed fees",
+    "input": "'100|200|300|400|500', 50, 50",
+    "expectedOutput": "result.microLamports === 300"
+  },
+  {
+    "id": "t3",
+    "description": "A higher percentile picks a higher observed fee",
+    "input": "'100|200|300|400|500', 90, 50",
+    "expectedOutput": "result.microLamports === 400"
+  },
+  {
+    "id": "t4",
+    "description": "An observed fee above the floor is kept as-is",
+    "input": "'5000|10000', 50, 1000",
+    "expectedOutput": "result.microLamports === 5000"
+  },
+  {
+    "id": "t5",
+    "description": "The floor bites when the picked observed fee is below it",
+    "input": "'10|20|30', 0, 1000",
+    "expectedOutput": "result.microLamports === 1000"
+  }
+]

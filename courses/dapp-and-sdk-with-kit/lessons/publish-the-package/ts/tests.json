@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1",
+    "description": "Trusted publisher + new CLI selects OIDC",
+    "input": "true, true, true, true, true",
+    "expectedOutput": "result.ok === true && result.auth === 'oidc'"
+  },
+  {
+    "id": "t2",
+    "description": "Scoped first publish without --access public is stopped with the 402 error",
+    "input": "true, true, false, true, true",
+    "expectedOutput": "result.ok === false && result.error === 'E402_SCOPED_NEEDS_ACCESS_PUBLIC'"
+  },
+  {
+    "id": "t3",
+    "description": "No trusted publisher falls back to the token route",
+    "input": "true, false, true, false, true",
+    "expectedOutput": "result.ok === true && result.auth === 'token'"
+  },
+  {
+    "id": "t4",
+    "description": "An old npm CLI cannot use OIDC even with a trusted publisher",
+    "input": "false, false, false, true, false",
+    "expectedOutput": "result.auth === 'token'"
+  },
+  {
+    "id": "t5",
+    "description": "An unscoped first publish without the flag is fine — the 402 is scoped-only",
+    "input": "false, true, false, true, true",
+    "expectedOutput": "result.ok === true && result.auth === 'oidc'"
+  },
+  {
+    "id": "t6",
+    "description": "A scoped later publish without the flag is fine — the 402 only bites the first publish",
+    "input": "true, false, false, true, true",
+    "expectedOutput": "result.ok === true"
+  }
+]

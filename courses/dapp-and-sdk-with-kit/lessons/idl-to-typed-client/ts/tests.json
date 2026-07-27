@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "The builder returns the program address it was given",
+    "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 1000000n",
+    "expectedOutput": "result.programAddress === 'VauLtPr0gram1111111111111111111111111111111'"
+  },
+  {
+    "id": "t2",
+    "description": "The amount is carried as a bigint, not a number",
+    "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 1000000n",
+    "expectedOutput": "typeof result.data.amountLamports === 'bigint' && result.data.amountLamports === 1000000n"
+  },
+  {
+    "id": "t3",
+    "description": "The account order is owner, vault, system program",
+    "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 1000000n",
+    "expectedOutput": "result.accounts[0].address === '0wnerWa11et11111111111111111111111111111111' && result.accounts[1].address === 'Vau1tPDA1111111111111111111111111111111111'"
+  },
+  {
+    "id": "t4",
+    "description": "The signer is the owner, and the vault is writable but not a signer",
+    "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 1000000n",
+    "expectedOutput": "result.accounts[0].role === 'writable-signer' && result.accounts[1].role === 'writable'"
+  },
+  {
+    "id": "t5",
+    "description": "The data payload carries an 8-byte discriminator",
+    "input": "'VauLtPr0gram1111111111111111111111111111111', 'Vau1tPDA1111111111111111111111111111111111', '0wnerWa11et11111111111111111111111111111111', 5n",
+    "expectedOutput": "Array.isArray(result.data.discriminator) && result.data.discriminator.length === 8"
+  }
+]

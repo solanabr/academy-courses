@@ -1,0 +1,94 @@
+id: lesson-dsk-publish-the-package
+slug: publish-the-package
+title: Publish It
+skills:
+  - npm-publishing
+  - ci
+  - deployment
+  - technical-writing
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: gate
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "auth is `oidc` only when BOTH a trusted publisher is configured AND the CLI is new enough; otherwise `token`."
+      - The 402 only bites a scoped package on its FIRST publish when the public-access flag is missing. All three must be true.
+      - "When you stop the 402, return `ok: false` — detecting it but leaving `ok: true` lets the pipeline walk straight into it."
+    tutorNotes:
+      - "Learners gate the 402 on `isScoped` alone, firing it on every scoped publish instead of only the first — the missing-flag failure only happens on the first publish."
+      - "They compute `auth` from `hasTrustedPublisher` alone and forget the npm-CLI floor, so an old runner that physically cannot do OIDC is still told to use `oidc`."
+      - "They stop an unscoped first publish for a missing `--access public`; the 402 is a scoped-package rule only, and unscoped packages are public by default."
+      - "They set the error string but leave `ok: true`, so the publish proceeds into the exact 402 they just detected."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Your first CI publish of `@your-scope/vault-client` fails with `402
+          Payment Required`. You are on npm's free plan and the package is meant
+          to be public. What is the fix?
+        multiSelect: false
+        options:
+          - id: a
+            label: Publish with `--access public` — a scoped package is private by default, and the first publish must opt into public or npm reads it as a paid private package
+            correct: true
+          - id: b
+            label: Upgrade to a paid npm plan — 402 means the registry requires payment
+            correct: false
+            feedback: >-
+              402 is npm's way of saying "this looks like a private publish on a
+              free plan". The package is meant to be public; the fix is to say so
+              with `--access public`, not to pay.
+          - id: c
+            label: Rename the package to an unscoped name
+            correct: false
+            feedback: >-
+              You can, but you do not have to lose your scope. Scoped public
+              packages are normal — they just need `--access public` on the first
+              publish.
+        explanation: >-
+          Scoped packages default to private, so npm treats a first publish with
+          no access flag as a paid private publish and returns 402. `--access
+          public` on that first publish sets the package public for good; later
+          publishes no longer need it.
+      - id: q2
+        prompt: >-
+          Why prefer OIDC trusted publishing over storing an `NPM_TOKEN` secret
+          in the repo?
+        multiSelect: false
+        options:
+          - id: a
+            label: There is no long-lived secret to leak, and npm attaches provenance proving the bytes were built from the exact commit the workflow ran
+            correct: true
+          - id: b
+            label: OIDC publishes faster because it skips the build step
+            correct: false
+            feedback: >-
+              It does not skip the build — the workflow still runs codegen and
+              `npm publish`. The gain is security and provenance, not speed.
+          - id: c
+            label: A token cannot publish scoped packages at all
+            correct: false
+            feedback: >-
+              A token can publish scoped packages (that is the fallback route).
+              The reason to prefer OIDC is no stored secret plus automatic
+              provenance, not a capability gap.
+        explanation: >-
+          A stored token is a standing liability — anything that reads the repo's
+          secrets can publish as you. OIDC mints a short-lived identity per run
+          and npm records provenance, so a reviewer can verify the published
+          bytes trace to a specific commit. That attestation is the thing a bounty
+          reviewer is looking for.
+  - key: milestone
+    type: openEnded
+    prompt: >-
+      Publish the client and paste the public npm URL of your package
+      (e.g. https://www.npmjs.com/package/@your-scope/vault-client). This is
+      self-reported — record the URL you will install from in the next module.
+    maxWords: 60

@@ -1,0 +1,113 @@
+id: lesson-dsk-price-the-priority-fee
+slug: price-the-priority-fee
+title: Price It From the Network, Not From a Blog Post
+skills:
+  - priority-fees
+  - compute-budget
+  - transaction-fees
+  - transactions
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: price
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Subgoal 2: sort a copy ascending, then `index = Math.floor((percentile / 100) * (sorted.length - 1))`. Use length - 1 so the top percentile lands on the last element, not past it."
+      - "Subgoal 3: `Math.max(picked, floorMicroLamports)` — the floor is what stops a quiet slot from pricing at 0."
+      - "Subgoal 4: return `{ microLamports: floored }`."
+    tutorNotes:
+      - "Learners pass an empty account array to the fee query, so every estimate is a network-wide number rather than one scoped to the vault PDA and fee payer — identical across calls and useless for pricing your contention."
+      - "They skip the floor, so on a quiet devnet the percentile of all-zero observed fees is 0 and the transaction gets no prioritization when they actually wanted some."
+      - "They index the percentile off `length` instead of `length - 1`, running one past the end of the sorted array on the top percentile and reading `undefined`."
+      - "They add a second `SetComputeUnitPrice` thinking more is better; only one of each compute-budget variant is allowed, and a duplicate fails the whole transaction with `DuplicateInstruction`."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You call `getRecentPrioritizationFees` with an empty account array
+          instead of your writable accounts. Predict what your estimate looks
+          like across many calls.
+        multiSelect: false
+        options:
+          - id: a
+            label: Roughly identical and useless — with no accounts to scope to, you get a network-wide figure, not the contention on the vault PDA and fee payer you are actually writing
+            correct: true
+          - id: b
+            label: More accurate, because it samples the whole network
+            correct: false
+            feedback: >-
+              Network-wide is exactly the wrong scope. You want the fees seen for
+              the accounts YOU will write, because that is the contention your
+              transaction competes in.
+          - id: c
+            label: Always zero, because no accounts were specified
+            correct: false
+            feedback: >-
+              It is not zero — it returns a broad, unscoped figure. The problem is
+              that it does not reflect your accounts, so it does not move with the
+              contention you care about.
+        explanation: >-
+          The account array is what scopes the estimate to your write set. Pass
+          the vault PDA and the fee payer and the number tracks the contention you
+          will actually hit; pass an empty array and every call returns the same
+          unscoped figure, which cannot price your transaction.
+      - id: q2
+        prompt: >-
+          Why floor the derived price against a minimum instead of taking the raw
+          percentile of observed fees?
+        multiSelect: false
+        options:
+          - id: a
+            label: On a quiet slot the observed fees can all be zero, so the percentile is 0 — the floor keeps a minimum price when you still want the transaction prioritized
+            correct: true
+          - id: b
+            label: The floor is the maximum you are willing to pay, capping the fee
+            correct: false
+            feedback: >-
+              A floor is a minimum, not a cap. It stops the price falling to zero
+              on a quiet slot; it does not limit how high a busy slot can push it.
+          - id: c
+            label: Percentiles cannot be computed on small samples, so the floor substitutes for them
+            correct: false
+            feedback: >-
+              The percentile is computed fine on any sample. The floor addresses a
+              different problem: a legitimately-zero result on a quiet network.
+        explanation: >-
+          Priority fees are optional and often zero on a quiet devnet, so a raw
+          percentile can hand you a price of 0 — no prioritization. Flooring keeps
+          a minimum so the fee still buys ordering when you want it, while a busy
+          slot pushes the price above the floor on its own.
+      - id: q3
+        prompt: >-
+          You set the compute unit price, then add a second `SetComputeUnitPrice`
+          instruction to bump it. Predict the result.
+        multiSelect: false
+        options:
+          - id: a
+            label: The transaction fails with `DuplicateInstruction` — only one of each compute-budget variant is permitted per transaction
+            correct: true
+          - id: b
+            label: The second one wins and overrides the first
+            correct: false
+            feedback: >-
+              There is no override. Compute-budget instructions are transaction-
+              wide and singular; a second one of the same variant is rejected, not
+              applied.
+          - id: c
+            label: They add together into a higher price
+            correct: false
+            feedback: >-
+              They do not sum. Two of the same compute-budget instruction is a
+              hard error, so the transaction never runs to combine anything.
+        explanation: >-
+          Compute-budget instructions (`SetComputeUnitLimit`, `SetComputeUnitPrice`)
+          are transaction-wide and you may include only one of each. A duplicate
+          is `DuplicateInstruction`, which fails the whole transaction — set the
+          price once, from your derived number.

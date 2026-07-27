@@ -1,0 +1,227 @@
+id: lesson-dsk-what-you-shipped
+slug: what-you-shipped
+title: What You Shipped
+skills:
+  - npm-publishing
+  - solana-kit
+  - wallet-standard
+  - compute-budget
+  - api-design
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: cumulative
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A consumer finds a bug and asks you to patch it in
+          `src/generated/instructions/deposit.ts`. Where does the fix actually
+          belong?
+        multiSelect: false
+        options:
+          - id: a
+            label: In the wrapper (or the IDL, then regenerate) — never in generated code, which the next codegen overwrites
+            correct: true
+          - id: b
+            label: In `src/generated`, since that is where the bug is
+            correct: false
+            feedback: >-
+              An edit there is erased the next time codegen runs. The fix lives in
+              the wrapper if it is behavioural, or the IDL if the interface is
+              wrong.
+          - id: c
+            label: In a fork of Codama
+            correct: false
+            feedback: >-
+              The tool is fine; your wrapper is the seam you own. Patch there, not
+              in the generator.
+        explanation: >-
+          Generated code is regenerated output. The wrapper survives regeneration
+          and is what consumers import, so a behavioural fix goes there; an
+          interface fix goes in the IDL and regenerates.
+      - id: q2
+        prompt: >-
+          Your first CI publish of the scoped package fails with 402. What is the
+          one-flag fix?
+        multiSelect: false
+        options:
+          - id: a
+            label: "`--access public` — a scoped package is private by default and the first publish must opt into public"
+            correct: true
+          - id: b
+            label: Upgrade to a paid npm plan
+            correct: false
+            feedback: >-
+              402 here means npm read it as a private publish on a free plan. The
+              package is public; say so with `--access public`.
+          - id: c
+            label: Add an `NPM_TOKEN` secret
+            correct: false
+            feedback: >-
+              A token is the auth fallback, unrelated to the 402. The 402 is about
+              access level on the first publish of a scoped package.
+        explanation: >-
+          Scoped packages default to private, so the first publish without
+          `--access public` looks like a paid private publish and returns 402. The
+          flag sets it public once and for all.
+      - id: q3
+        prompt: >-
+          The wallet advertises `solana:signAndSendTransaction` and you use it.
+          Who broadcasts?
+        multiSelect: false
+        options:
+          - id: a
+            label: The wallet — you hand it a message and get a signature; you never see the signed bytes
+            correct: true
+          - id: b
+            label: Your app, after the wallet returns the signed transaction
+            correct: false
+            feedback: >-
+              That is the `signTransaction` path. `signAndSend` puts broadcast in
+              the wallet, which is why this app prefers the modifying signer.
+          - id: c
+            label: The RPC node, on a schedule
+            correct: false
+            feedback: >-
+              Nothing schedules a broadcast. With a sending signer the wallet
+              submits it immediately as part of the same call.
+        explanation: >-
+          A sending signer moves broadcast into the wallet. This app prefers a
+          modifying signer precisely so it keeps the transaction long enough to
+          size the compute budget and price the fee before it goes out.
+      - id: q4
+        prompt: >-
+          You change your app's RPC endpoint to point at mainnet, but it keeps
+          hitting devnet. Why, in Kit terms?
+        multiSelect: false
+        options:
+          - id: a
+            label: A Kit client is bound to one chain and endpoint at build; switching means rebuilding the client (a `useMemo` on the endpoint), not mutating it
+            correct: true
+          - id: b
+            label: The RPC plugin cached the responses
+            correct: false
+            feedback: >-
+              It is the client binding, not a response cache. The instance is
+              still built for devnet.
+          - id: c
+            label: The wallet overrides the client's chain
+            correct: false
+            feedback: >-
+              The client's chain is fixed by its RPC plugin at build time; the
+              wallet does not repoint it.
+        explanation: >-
+          Kit binds one chain and endpoint per client at build time, so a cluster
+          switch rebuilds the client. In React that is a `useMemo` keyed on the
+          endpoint — nothing rebuilds on a normal render, but a switch does.
+      - id: q5
+        prompt: >-
+          With no `SetComputeUnitLimit`, your priority fee is charged against
+          what?
+        multiSelect: false
+        options:
+          - id: a
+            label: The requested limit — the 200,000-CU default per instruction — not what the transaction consumed
+            correct: true
+          - id: b
+            label: The consumed compute units
+            correct: false
+            feedback: >-
+              The fee is priced on the request, not consumption. An unset limit
+              requests 200,000 CU, so you pay on that.
+          - id: c
+            label: A flat network minimum
+            correct: false
+            feedback: >-
+              There is no flat minimum here; the fee is your price times your
+              requested limit, and the request defaults to 200,000 CU.
+        explanation: >-
+          Priority fee equals price times requested limit. Leave the limit unset
+          and you request the 200,000-CU default and pay on it — which is why
+          simulating and sizing the limit is real money saved.
+      - id: q6
+        prompt: >-
+          The wallet returns a user rejection. What state should the UI show?
+        multiSelect: false
+        options:
+          - id: a
+            label: Its resting state — the transaction never reached the network, so nothing failed on-chain
+            correct: true
+          - id: b
+            label: A failed transaction with the rejection reason
+            correct: false
+            feedback: >-
+              Nothing was submitted, so there is no on-chain failure. Showing a
+              failure for a decline is dishonest.
+          - id: c
+            label: A retryable state with a resend button
+            correct: false
+            feedback: >-
+              Retry is for a transaction that went out and aged out (blockhash
+              expired). A rejection did not go out.
+        explanation: >-
+          A rejection never reaches the network, so the honest state is resting —
+          the user declined and can start again cleanly. "Failed" is reserved for
+          transactions that actually went out and did not succeed.
+      - id: q7
+        prompt: >-
+          Seeded from Course 3. Your app builds a withdrawal from the
+          program-owned vault PDA. Who must sign it?
+        multiSelect: false
+        options:
+          - id: a
+            label: The owner — the program debits the program-owned vault directly, so the PDA does not sign its own withdrawal
+            correct: true
+          - id: b
+            label: The vault PDA signs for itself
+            correct: false
+            feedback: >-
+              A program-owned account is debited by its program; the PDA does not
+              sign its own withdrawal. Course 3 spent a lesson on why signer seeds
+              are not the mechanism there.
+          - id: c
+            label: No signature is required for a program-owned account
+            correct: false
+            feedback: >-
+              The owner still authorizes the withdrawal with a signature. What is
+              absent is a PDA self-signature over its own debit.
+        explanation: >-
+          Course 3's result carried into your app: the owner signs the withdraw
+          instruction and the program moves the lamports out of the vault it owns
+          directly. Knowing who signs is the same question you answered choosing a
+          wallet signer this course.
+      - id: q8
+        prompt: >-
+          Also from Course 3. Your generated `fetchVault` skips the first 8 bytes
+          of the account before decoding. What are they?
+        multiSelect: false
+        options:
+          - id: a
+            label: The Anchor discriminator — 8 bytes identifying the account type, written at offset 0 and skipped before the fields are read
+            correct: true
+          - id: b
+            label: The account's lamport balance, stored inline
+            correct: false
+            feedback: >-
+              Lamports live in the account's metadata, not in its data bytes. The
+              first 8 data bytes are the discriminator.
+          - id: c
+            label: A length prefix for the struct
+            correct: false
+            feedback: >-
+              A fixed-size Anchor account carries no length prefix. The 8 bytes
+              are the type discriminator, the same ones your Course 1 decoder
+              sliced off.
+        explanation: >-
+          Every Anchor account spends its first 8 bytes on a discriminator hashed
+          from the account type's name. Your generated decoder skips them before
+          reading `owner` and `balance` — the same layout fact you met decoding by
+          hand in Course 1.
+  - key: milestone
+    type: openEnded
+    prompt: >-
+      Paste both URLs — the published npm package and the deployed app — and the
+      Course 3 program id they sit on. Name the one artifact in its three layers.
+    maxWords: 80

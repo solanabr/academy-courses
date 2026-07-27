@@ -1,0 +1,154 @@
+id: lesson-dsk-states-errors-and-reads
+slug: states-errors-and-reads
+title: "Pending, Confirmed, Failed — and What the Chain Actually Says"
+skills:
+  - confirmation
+  - error-handling
+  - account-model
+  - web3-frontend
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: reduce
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - A `switch` on the event is enough. Lifecycle events map to their own state; the interesting decisions are the error events.
+      - "`user-rejected` returns to `idle`, not `failed` — it never reached the network, so there is no failed transaction to show."
+      - "`blockhash-expired` is `retryable`; the three real failures (`preflight-failure`, `program-error`, `insufficient-lamports`) are `failed`; an unknown event returns `current` unchanged."
+    tutorNotes:
+      - "Learners map `user-rejected` to `failed`, painting a red error for a transaction that never left the wallet — it never reached the network, so the honest next state is the resting one."
+      - "They collapse `blockhash-expired` into `failed`, hiding that it is retryable with a fresh blockhash and sending the user back to square one."
+      - "They reach for `connection.confirmTransaction` from memory; Kit has no such method — confirmation is `sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })`."
+      - "They decode a custom program error by hand instead of using the generated error map from the module-1 client, throwing away the concrete payoff of generating the client."
+  - key: deploy
+    type: prose
+    src: deploy.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          The wallet returns a user-rejection. Should the UI show a failed
+          transaction? Predict the honest state.
+        multiSelect: false
+        options:
+          - id: a
+            label: No — it never reached the network, so there is nothing that failed on-chain; return the UI to its resting state
+            correct: true
+          - id: b
+            label: Yes — the user's action failed, so show a failed transaction
+            correct: false
+            feedback: >-
+              Nothing was submitted, so there is no transaction to have failed.
+              Showing a red failure for a rejection is dishonest and alarming —
+              the user simply declined.
+          - id: c
+            label: Yes — show it as failed but with a "retry" button
+            correct: false
+            feedback: >-
+              Retry belongs to a blockhash-expired transaction that really went
+              out. A rejection did not go out; the honest state is resting, not
+              failed-with-retry.
+        explanation: >-
+          A user rejection never reaches the network, so no transaction failed.
+          The honest state is the resting one — the user declined and can try
+          again from a clean slate. Reserve "failed" for transactions that
+          actually went out and did not succeed.
+      - id: q2
+        prompt: >-
+          Which of these transaction outcomes is retryable rather than a hard
+          failure?
+        multiSelect: false
+        options:
+          - id: a
+            label: Blockhash expired — rebuild with a fresh blockhash and resend
+            correct: true
+          - id: b
+            label: A custom program error returned by your vault program
+            correct: false
+            feedback: >-
+              A program error means the program rejected the operation on its
+              merits. Resending the same transaction reproduces it — that is a
+              failure with a reason, not a retry.
+          - id: c
+            label: Insufficient lamports on the fee payer
+            correct: false
+            feedback: >-
+              Resending without funding the payer fails identically. That is a
+              failure until the balance changes, not a retry.
+        explanation: >-
+          A blockhash expires because the transaction aged out before landing —
+          nothing about it was wrong, so a fresh blockhash and a resend is the
+          fix. Program errors and insufficient funds reproduce on resend, so they
+          are failures, not retries.
+      - id: q3
+        prompt: >-
+          Your vault program returns a custom error and the client surfaces a
+          raw error code. What decodes it into a named reason, and why is that
+          the payoff of this course's approach?
+        multiSelect: false
+        options:
+          - id: a
+            label: The generated error map from your Codama client — decoding a program error by name is the concrete return on generating a typed client instead of hand-writing one
+            correct: true
+          - id: b
+            label: A hardcoded switch you write over the numeric codes
+            correct: false
+            feedback: >-
+              You could hand-write one, but then a changed error enum silently
+              drifts from your switch. The generated map regenerates with the
+              IDL — that is exactly why you generated the client.
+          - id: c
+            label: The wallet decodes it before returning
+            correct: false
+            feedback: >-
+              The wallet returns a raw code; it does not know your program's error
+              names. Decoding to a name is your client's job, via the generated
+              error map.
+        explanation: >-
+          The generated client carries a decoded error map keyed to your
+          program's `VaultError` codes, so a raw custom-error code becomes a named
+          reason you can show and act on. That map regenerates with the IDL, which
+          is the whole argument for generating the client rather than hand-writing
+          the decoders.
+      - id: q4
+        prompt: >-
+          Is it honest to display "confirmed" the moment you call send?
+        multiSelect: false
+        options:
+          - id: a
+            label: No — the ladder is processed then confirmed then finalized, and each means something different; show what is actually true at each rung
+            correct: true
+          - id: b
+            label: Yes — sending and confirming are the same event in Kit
+            correct: false
+            feedback: >-
+              They are distinct. Send puts the transaction on the wire;
+              confirmation is a later signal that a supermajority voted on its
+              block. Conflating them tells the user something that is not yet
+              true.
+          - id: c
+            label: Yes, as long as the send did not throw
+            correct: false
+            feedback: >-
+              A send that did not throw only means the transaction was accepted
+              for processing, not confirmed. "Confirmed" is a specific commitment
+              level you have to wait for.
+        explanation: >-
+          `processed` means a validator saw it, `confirmed` means a supermajority
+          voted on its block, and `finalized` means it cannot be rolled back.
+          Painting "confirmed" at send time claims a guarantee you do not have —
+          drive the label from the real commitment the confirmation path reports.
+  - key: milestone
+    type: openEnded
+    prompt: >-
+      Ship the finished app and paste its public URL. Confirm deposit, withdraw,
+      live vault state, a sized compute budget and a network-priced fee all work.
+      Self-reported — this is one of the two artifacts you name in the recap.
+    maxWords: 60

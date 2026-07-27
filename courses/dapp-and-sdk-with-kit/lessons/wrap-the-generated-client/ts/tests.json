@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "description": "Subgoal 3+4: a valid deposit returns ok with an instruction",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n",
+    "expectedOutput": "result.ok === true && result.instruction !== null"
+  },
+  {
+    "id": "t2",
+    "description": "Subgoal 3: the built instruction carries the amount as a bigint",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n",
+    "expectedOutput": "result.instruction.data.amountLamports === 1000000n"
+  },
+  {
+    "id": "t3",
+    "description": "Subgoal 1: the vault PDA is derived from the owner via the generated helper",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n",
+    "expectedOutput": "result.vaultPda.slice(0, 5) === 'Vau1t'"
+  },
+  {
+    "id": "t4",
+    "description": "Subgoal 2: a zero amount is rejected before anything is built",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 0n",
+    "expectedOutput": "result.ok === false && result.instruction === null"
+  },
+  {
+    "id": "t5",
+    "description": "Subgoal 4: the returned instruction is well-formed — owner signs, vault is the derived PDA",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 2500000n",
+    "expectedOutput": "result.instruction.accounts[0].role === 'writable-signer' && result.instruction.accounts[1].address === result.vaultPda"
+  }
+]

@@ -1,0 +1,172 @@
+id: lesson-dsk-signers-chains-and-the-legacy-seam
+slug: signers-chains-and-the-legacy-seam
+title: Which Signer, and Why
+skills:
+  - signers
+  - wallet-standard
+  - solana-kit
+  - web3-frontend
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: select
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - Check `solana:signTransaction` before `solana:signAndSendTransaction` — this app prefers to hold and broadcast the transaction itself.
+      - Leave the decoy commented. A message signer cannot send a transaction, so it must never map to a sending/wallet result.
+      - "Order: signTransaction (modifying/app) → signAndSendTransaction (sending/wallet) → signMessage (message/none) → nothing (none/none)."
+    tutorNotes:
+      - "Learners leave the sending-signer check first, so a wallet advertising both features hands broadcast to the wallet — and module 3 can no longer simulate, size, or price the transaction because it never holds it."
+      - "They uncomment the decoy that routes `solana:signMessage` to a sending signer; a message signer cannot send a transaction at all, only prove identity."
+      - "They treat an empty feature list as message-signing; no signing feature means none/none, which is the case `createSignerFromWalletAccount` throws on."
+      - "They assume `signAndSendTransaction` is always better because the wallet does more work; for this app it removes exactly the control the compute-budget and priority-fee lessons depend on."
+  - key: retrieval
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A wallet advertises only `solana:signAndSendTransaction`. You build a
+          sending signer and sign. Predict who broadcasts and what your app sees.
+        multiSelect: false
+        options:
+          - id: a
+            label: The wallet broadcasts, and your app never sees the signed bytes — it gets a signature back, not a transaction to send
+            correct: true
+          - id: b
+            label: Your app broadcasts after the wallet returns the signed transaction
+            correct: false
+            feedback: >-
+              That is the `signTransaction` path. `signAndSendTransaction` means
+              the wallet does the sending; you never hold the signed bytes.
+          - id: c
+            label: Neither broadcasts until you call a separate confirm step
+            correct: false
+            feedback: >-
+              The wallet sends as part of the same operation. Confirmation is a
+              later, separate concern — but the broadcast already happened, in
+              the wallet.
+        explanation: >-
+          A sending signer moves broadcast into the wallet: you hand it a
+          transaction message and get a signature, never the signed bytes. That
+          is why this app prefers a modifying signer — it needs to hold the
+          transaction to size and price it before it goes out.
+      - id: q2
+        prompt: >-
+          You ask a connected account to sign for `'solana:devnet'` and it
+          throws. Predict the most likely cause.
+        multiSelect: false
+        options:
+          - id: a
+            label: The account can refuse a chain — it is scoped to a different cluster (e.g. mainnet-only) and rejects the devnet request
+            correct: true
+          - id: b
+            label: Chain ids must be numeric; `'solana:devnet'` is malformed
+            correct: false
+            feedback: >-
+              Chain ids are literally these strings — `'solana:devnet'`,
+              `'solana:mainnet'`. The string is correct; the account simply does
+              not serve that chain.
+          - id: c
+            label: Devnet does not support message signing
+            correct: false
+            feedback: >-
+              Signing is not chain-gated like that. The account refused the chain
+              itself — a real runtime error to handle, not a signing-capability
+              gap.
+        explanation: >-
+          A connected account can decline a chain it is not scoped to, and it
+          surfaces as a thrown error at sign time. Handle it like any other
+          runtime failure — the chain id was fine; the account just does not
+          serve that cluster.
+      - id: q3
+        prompt: >-
+          You inherit a codebase that uses `useWallet()`, `publicKey` and
+          `sendTransaction` from wallet-adapter. What does this course tell you
+          to do?
+        multiSelect: false
+        options:
+          - id: a
+            label: Read it fluently and map it — `useWallet()` to Wallet Standard discovery, `publicKey` to the account `address`, `sendTransaction` to a sending signer — without adopting the stack
+            correct: true
+          - id: b
+            label: Migrate the whole app to wallet-adapter for consistency
+            correct: false
+            feedback: >-
+              The course's whole point is the other direction: Kit + Wallet
+              Standard is what you build. You read the old stack; you do not
+              spread it.
+          - id: c
+            label: Ignore it — wallet-adapter is deprecated and irrelevant
+            correct: false
+            feedback: >-
+              It is neither deprecated nor irrelevant — web3.js v1 still holds
+              npm's `latest` tag and out-downloads Kit. You will meet it, so you
+              must be able to read it.
+        explanation: >-
+          "Canonical" and "what you will be paid to touch" have diverged, so the
+          skill is bilingual: build in Kit + Wallet Standard, but read the
+          wallet-adapter idioms fluently enough to map them. Reading is a
+          requirement; writing is not.
+      - id: q4
+        prompt: >-
+          Seeded from Course 3. A withdrawal moves lamports out of a
+          program-owned vault PDA. Who signs the withdraw instruction, and does
+          the PDA sign for itself?
+        multiSelect: false
+        options:
+          - id: a
+            label: The owner signs; the PDA does not sign its own withdrawal — the program debits the program-owned vault directly, which is why signer seeds are not the mechanism there
+            correct: true
+          - id: b
+            label: The PDA signs for itself using its bump as the signature
+            correct: false
+            feedback: >-
+              A bump is not a signature. The program owns the vault account, so
+              it debits it directly; the PDA does not — and cannot — sign its own
+              withdrawal. Course 3 spent a lesson on exactly this.
+          - id: c
+            label: No signature is needed because the vault is program-owned
+            correct: false
+            feedback: >-
+              The instruction still needs the owner's signature to authorize the
+              withdrawal. What is NOT needed is a PDA signature over its own
+              debit — the program moves the lamports directly.
+        explanation: >-
+          This is the Course 3 result you carry into signer selection: a
+          program-owned account is debited by its program directly, so the owner
+          signs the instruction and the PDA never signs its own withdrawal. Knowing
+          who must sign is the same question you are answering when you pick a
+          wallet signer.
+      - id: q5
+        prompt: >-
+          Also from Course 3. Your vault account stores its canonical `bump`.
+          Why store it instead of re-deriving it each time?
+        multiSelect: false
+        options:
+          - id: a
+            label: Re-deriving searches bumps downward from 255 until the address is off-curve, which costs compute every call; storing the found bump lets later instructions validate the PDA without repeating the search
+            correct: true
+          - id: b
+            label: The bump changes over time, so it must be cached to stay consistent
+            correct: false
+            feedback: >-
+              The canonical bump for a fixed set of seeds does not change. It is
+              stored to avoid re-running the search, not because it drifts.
+          - id: c
+            label: Storing it is required for the account to be rent-exempt
+            correct: false
+            feedback: >-
+              Rent-exemption is about the account's lamport balance versus its
+              size, unrelated to the bump. Storing the bump is a compute
+              optimization.
+        explanation: >-
+          Finding the canonical bump means retrying the derivation with a
+          decreasing bump until the result falls off the ed25519 curve — real
+          compute. Storing the bump the search found lets every later instruction
+          re-validate the PDA cheaply, which is why the vault carries a `bump`
+          field.
