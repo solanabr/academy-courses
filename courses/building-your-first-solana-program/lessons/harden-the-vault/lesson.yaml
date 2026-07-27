@@ -21,6 +21,11 @@ blocks:
       - "The harness at the bottom is the acceptance criteria, written in Rust. Read it before you type: it names every field, its type and its position, and it is the only part of the spec the build server can check. The first build reports `error[E0412]: cannot find type TransferBetweenVaults` and `error[E0425]: cannot find value transfer_between_vaults` — nothing exists yet."
       - "Work threat by threat rather than field by field. Attack (a) is answered by re-deriving `from_vault` from the SIGNER's key and asking a second time against the stored `owner` — `constraint = from_vault.owner == user.key() @ VaultError::NotOwner`, because `has_one = owner` would need an account literally named `owner`. Attack (b) is answered by the field types alone. Attack (c) needs you to add nothing at all."
       - "If you have reached for `dup`, stop and reason about what error 2040 is telling you. Both vaults are `mut`, so when `recipient` is the signer the two slots are one account, Anchor refuses the instruction, and that refusal is correct: two deserialised copies, one subtraction, one addition, last write wins, and the caller has minted lamports. `dup` is for aliasing you have proven harmless; this is not that."
+    tutorNotes:
+      - "Learners trust the passed `from_vault` for attack (a); re-derive it from the SIGNER's key and check `constraint = from_vault.owner == user.key()`, so a caller cannot pass someone else's vault."
+      - "They reach for `dup` when `recipient` can equal the signer; both vaults are `mut`, so when the two are one account Anchor refuses with error 2040 \u2014 the fix is the account model, not a `dup` directive."
+      - "They widen a field or reorder the accounts struct; the non-editable harness pins every field, type and position and is the only part of the spec the build server checks."
+      - "They try to move real lamports; this instruction is bookkeeping only (recorded balance), so there is no CPI and no `system_program`."
   - key: retrieval-close
     type: quiz
     questions:

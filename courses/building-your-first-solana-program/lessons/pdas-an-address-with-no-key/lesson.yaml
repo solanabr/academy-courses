@@ -40,6 +40,11 @@ blocks:
         note that the build cannot tell whether you wrote it, only whether it
         *could* be written. Skipping it leaves a vault whose stored bump is 0, and
         every `bump = vault.bump` check in module 3 fails against it.
+    tutorNotes:
+      - "Learners read `no field 'vault' on type '&InitializeVaultBumps'` as a mystery; Anchor grows the bumps struct a field per account only once that account carries a `seeds` constraint, so the error means subgoal 1 is missing."
+      - "They add `seeds = [b\"vault\", user.key().as_ref()],` but forget the trailing comma the `space = ...` line above now needs, so the attribute list stops parsing."
+      - "They store the bump with a literal or a re-derivation instead of `vault.bump = ctx.bumps.vault;`, which reads the canonical bump Anchor already found."
+      - "Compile-only grading cannot tell whether they actually stored the bump; the harness checks shape, so writing `ctx.bumps.vault` is on them."
 
   # Predict-the-error and predict-the-cost, on the two things learners get wrong
   # about PDAs: that a PDA has some hidden key, and that re-deriving is free.

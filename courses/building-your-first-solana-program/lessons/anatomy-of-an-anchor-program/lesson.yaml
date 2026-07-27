@@ -32,6 +32,11 @@ blocks:
         Context<Greet>) -> Result<()>`, with a `msg!` and `Ok(())` in the body.
         At the top level, next to `Version`: `#[derive(Accounts)]` on the line
         above `pub struct Greet {}`.
+    tutorNotes:
+      - "Learners build first and read the four errors as four problems; all four come from the harness referencing the two items they owe (`greet` and `Greet`), so writing both clears them together."
+      - "They add the `greet` handler but forget the `Greet` accounts struct (or the reverse); `Context<Greet>` needs a `#[derive(Accounts)]` struct to exist, so one without the other still fails."
+      - "They put `Greet` inside the `#[program]` module; the accounts struct is a top-level item next to `Version`, not a handler."
+      - "They edit the `version` handler instead of copying its shape into a new `greet`; part 2 wants a second handler, not a changed first one."
   - key: retrieval-close
     type: quiz
     questions:

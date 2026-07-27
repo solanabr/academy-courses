@@ -20,6 +20,11 @@ blocks:
       - "Nothing is broken. This file compiles exactly as shipped — click Build and read it while it runs. The first build of a session pulls and compiles the Anchor crates, so it is the slow one; later builds in the same lesson are seconds."
       - "While it builds, find the two statements in `deposit` that do completely different jobs: one asks another program to move lamports, one updates a number your own program owns. Everything in this module hangs off the fact that those are separate."
       - "Then find the three reasons `user` is `#[account(mut)]` and a `Signer`: lamports leave it, the System Program refuses to debit a non-signer, and that signature is the only authorisation anywhere in the instruction."
+    tutorNotes:
+      - "Learners try to fix the file; it is a worked example that compiles \u2014 build it and read the two statements in `deposit`: one a System Program CPI (`transfer`), one a plain update of a number the program owns."
+      - "They read the slow first build (compiling the Anchor crates cold) as a hang; the second build of the same file is fast."
+      - "They miss why `user` is both `#[account(mut)]` and a `Signer`: lamports leave it (so `mut`), the System Program refuses to debit a non-signer, and that signature is the only authorization in the instruction."
+      - "They expect the CPI to update the recorded balance too; the CPI moves real lamports, and the separate field update is what keeps the vault's own number in step."
   - key: retrieval-close
     type: quiz
     questions:
