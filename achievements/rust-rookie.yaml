@@ -8,7 +8,10 @@ category: skills
 xpReward: 150
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-rust-rookie
+# Retargeted in the catalog migration: course-rust-for-solana is retired and its
+# Rust material was rewritten and expanded into C2 (CATALOG §3). C2 is the Rust
+# course now, so "your first Rust challenge" is the first graded lesson of C2.
 award:
   kind: lessons-completed-in-course
-  course: course-rust-for-solana
+  course: course-rust-for-program-devs
   gte: 1

@@ -5,9 +5,10 @@ description: Specialize in decentralized finance on Solana. Understand AMMs, len
 tag: DeFi
 order: 4
 difficulty: advanced
-# Held for launch (LX-D1). The app hides a shelf only when `courses` is empty
-# (the runtime never reads `draft`), so the hold = draft + empty courses, same
-# shape as the other held paths. To un-hold: drop `draft`, restore
-# `courses: [course-defi-on-solana]`.
+# Held (LX-D1) and now also emptied by the catalog migration: its former course
+# course-defi-on-solana is retired (its one salvageable asset, token-standards,
+# became C5 L2). The app hides a shelf only when `courses` is empty (the runtime
+# never reads `draft`), so the hold = draft + empty courses. Re-populate only
+# with a future DeFi course id — the old one no longer exists.
 draft: true
 courses: []

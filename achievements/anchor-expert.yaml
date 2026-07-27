@@ -8,6 +8,9 @@ category: skills
 xpReward: 300
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-anchor-expert
+# Retargeted in the catalog migration: course-anchor-framework is retired, and
+# its Anchor prose was merged into C3 (CATALOG §3). C3 is now the course that
+# teaches Anchor end to end, so "complete all Anchor lessons" == complete C3.
 award:
   kind: course-completed
-  course: course-anchor-framework
+  course: course-building-first-program

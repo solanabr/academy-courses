@@ -8,6 +8,12 @@ category: progress
 xpReward: 200
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-course-completer
+# Retargeted in the catalog migration: course-solana-fundamentals is retired, and
+# this generic "complete an entire course" badge pointed at it as the path's
+# entry course. The live entry of path-zero-to-deployed is now C2. When C1
+# (course-solana-for-web-devs, #673) lands as the level-1 on-ramp it becomes the
+# entry and this target should move to it — same pattern as achievement-full-stack-solana's
+# path retarget. PROPOSED retarget, flagged for the gate.
 award:
   kind: course-completed
-  course: course-solana-fundamentals
+  course: course-rust-for-program-devs
