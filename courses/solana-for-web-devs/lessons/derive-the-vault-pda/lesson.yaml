@@ -1,0 +1,137 @@
+id: lesson-sfwd-derive-the-vault-pda
+slug: derive-the-vault-pda
+title: Derive the Vault PDA
+skills:
+  - pdas
+  - solana-kit
+  - account-model
+versionStamp:
+  checkedAt: "2026-07-28"
+  packages:
+    "@solana/kit": "7.0.0"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: derive
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Three lines, in this role order: build the seeds, call derive, return the pair. The bin labels (A)–(E) are shuffled — labels are not positions."
+      - "The seed order question is settled by the program, not by you: lesson 1's IDL showed the constant \"vault\" seed first, then the user's key. Pick the seeds line that matches."
+      - "`derive` wants the address of the PROGRAM doing the deriving. One decoy hands it the owner — a wallet. If your run ends with \"no recorded derivation\", read which value you passed as programAddress."
+    tutorNotes:
+      - "Learners pick line (C), the flipped seed order [owner, \"vault\"]. It does not throw — it returns the real recorded address 6jBW…jYjJ — and t1 fails by address mismatch. The teaching point is that wrong seed order is a silent wrong address, not an error; the program fixed the order as [\"vault\", owner] and the IDL says so."
+      - "They pick decoy (B), passing the owner as programAddress. The lookup throws 'no recorded derivation' with the key it built — have them read their own key in the error: the first segment should be the program D7ZF…, not a wallet."
+      - "They hardcode FY86… (visible in the fixtures) and fail t3, which derives for a second owner. The owner argument must flow into the seeds."
+      - "They ask why derive is synchronous here when the lesson says getProgramDerivedAddress is async — the sandbox lookup is recorded, so there is nothing to await; in real Kit code the call must be awaited, and forgetting the await hands you a Promise instead of a [address, bump] pair."
+      - "They expect the bump to always be 255. The second owner's vault records 252 — the search stepped down three times before falling off the curve. If they treat 255 as a constant, t3's bump assertion catches it."
+      - "If they invent their own string keys instead of using utf8()/addressBytes(), the lookup throws. The helpers mirror getUtf8Encoder/getAddressEncoder — seeds are ENCODED bytes in production, never bare JS strings."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Why does the derivation retry with a decreasing bump instead of
+          using the hash directly?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The hash can land ON the ed25519 curve, where a private key
+              could exist — the search walks the bump down until the result
+              is off-curve and therefore unsignable by anyone
+            correct: true
+          - id: b
+            label: >-
+              Retrying makes the address harder to guess
+            correct: false
+            feedback: >-
+              PDAs are not secret — anyone can derive them, which is the
+              point. The retry exists because roughly half of hash outputs
+              are valid curve points, and a PDA must not be one: an on-curve
+              address could have a private key.
+          - id: c
+            label: >-
+              Each retry checks whether the address is already taken by
+              another account
+            correct: false
+            feedback: >-
+              Derivation never touches the chain — it is pure computation.
+              The check is geometric (is this point on the curve?), not a
+              lookup for collisions.
+        explanation: >-
+          A PDA's guarantee is that no private key can ever sign for it,
+          which requires an off-curve address. Since a hash lands on-curve
+          about half the time, the derivation tries bump 255, 254, … until
+          the result falls off the curve; the first success is the canonical
+          bump.
+      - id: q2
+        prompt: >-
+          The vault stores its bump (255) in byte 48. Predict why the program
+          keeps it instead of re-deriving on every call.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Re-deriving repeats the hash-and-check search on-chain — the
+              stored canonical bump turns that into a single byte read
+            correct: true
+          - id: b
+            label: >-
+              The bump changes over time, so the original must be preserved
+            correct: false
+            feedback: >-
+              The derivation is deterministic — same seeds, same program,
+              same bump, forever. Storage is purely an efficiency and safety
+              habit: one read instead of a compute-burning search each call.
+          - id: c
+            label: >-
+              Transactions must include the bump or they are rejected
+            correct: false
+            feedback: >-
+              The runtime does not demand a bump in transactions. Storing it
+              is the program's own choice, so its checks can use the
+              canonical bump cheaply every time.
+        explanation: >-
+          Deriving costs a search (hash, curve check, decrement, repeat).
+          On-chain compute is metered, so well-written programs derive once
+          at creation, store the canonical bump, and read one byte
+          thereafter — which is exactly the byte your decoder extracts.
+      - id: q3
+        prompt: >-
+          Another program copies this vault's code and a user with the same
+          wallet initializes a vault there with the same seeds. Predict the
+          two vault addresses.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Different — the program address is an ingredient of the hash,
+              so identical seeds under different programs derive different
+              PDAs
+            correct: true
+          - id: b
+            label: >-
+              Identical — the seeds fully determine the address
+            correct: false
+            feedback: >-
+              Seeds are only part of the recipe. The deriving program's
+              address is hashed in too, precisely so two programs can never
+              collide on each other's accounts.
+          - id: c
+            label: >-
+              It depends on which program was deployed first
+            correct: false
+            feedback: >-
+              Deployment order is irrelevant — derivation is pure math over
+              seeds + program address + bump. Different program, different
+              address, regardless of history.
+        explanation: >-
+          The program address is baked into the derivation, giving every
+          program its own address namespace. That is also why the exercise's
+          wrong-program fixture (same seeds, System Program) lands on a
+          completely different address.

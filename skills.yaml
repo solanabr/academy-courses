@@ -162,3 +162,8 @@
   label: Transaction Simulation
 - slug: confirmation
   label: Confirmation & Commitment
+- slug: explorer-reading
+  label: Explorer Reading
+- slug: api-currency
+  label: API Currency
+

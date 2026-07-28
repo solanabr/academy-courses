@@ -1,0 +1,35 @@
+[
+  {
+    "id": "t1",
+    "description": "Subgoal 2: the reference vault's owner decodes to the wallet you saw in lesson 1",
+    "input": "'reference-vault'",
+    "expectedOutput": "result.owner === '6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU'",
+    "failureMessage": "Slice exactly bytes 8 through 39 (data.slice(8, 40)) and pass the slice to toBase58 — off-by-one on either end changes every character of the address."
+  },
+  {
+    "id": "t2",
+    "description": "Subgoal 3: the balance reads as a little-endian u64 bigint",
+    "input": "'reference-vault'",
+    "expectedOutput": "result.balance === 100000000n",
+    "failureMessage": "getBigUint64(40, true) — the second argument must be true for little-endian. A big-endian read of these same bytes gives a 17-digit number."
+  },
+  {
+    "id": "t3",
+    "description": "Subgoal 4: the bump is the last byte",
+    "input": "'reference-vault'",
+    "expectedOutput": "result.bump === 255"
+  },
+  {
+    "id": "t4",
+    "description": "Anti-hardcode: a different vault instance decodes to ITS owner, not the reference one",
+    "input": "'second-vault'",
+    "expectedOutput": "result.owner === 'Hr99MUHbQksoGpkSagrhqzvTgCo1BVEHjnACTSsaEJh8'",
+    "failureMessage": "Decode the bytes you were handed. If this returns the 6JFH… owner, the function is transcribing the explorer instead of reading data."
+  },
+  {
+    "id": "t5",
+    "description": "Anti-hardcode: the second vault's balance and bump come from its bytes",
+    "input": "'second-vault'",
+    "expectedOutput": "result.balance === 2500000n && result.bump === 252"
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "t1",
+    "description": "The transfer flow translates end to end (5 steps)",
+    "input": "'transfer'",
+    "expectedOutput": "result.length === 5 && result[0].kit === 'createSolanaRpc(endpoint)' && result[3].kit === 'getTransferSolInstruction({...})'"
+  },
+  {
+    "id": "t2",
+    "description": "The confirm helper maps to the factory form, bound to rpc + subscriptions",
+    "input": "'transfer'",
+    "expectedOutput": "result[4].kit === 'sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })' && result[2].kit === 'generateKeyPairSigner()'"
+  },
+  {
+    "id": "t3",
+    "description": "Anti-hardcode: an account-read flow you have not seen translates too",
+    "input": "'account-read'",
+    "expectedOutput": "result[1].kit === 'address(base58)' && result[2].kit === 'rpc.getAccountInfo(address).send()'",
+    "failureMessage": "Every row of THE MAP must be filled — this sequence exercises rows the transfer flow never touches."
+  },
+  {
+    "id": "t4",
+    "description": "Anti-hardcode: the PDA + wallet fragment — note the await on the Kit derivation",
+    "input": "'pda-dapp'",
+    "expectedOutput": "result[1].kit === 'await getProgramDerivedAddress({ programAddress, seeds })' && result[2].kit === '@solana/kit-plugin-wallet (Wallet Standard)'",
+    "failureMessage": "The Kit PDA derivation is async — the map entry includes the await. And wallet-adapter maps to a protocol (Wallet Standard via kit-plugin-wallet), not to another hook."
+  }
+]

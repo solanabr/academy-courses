@@ -1,0 +1,22 @@
+[
+  {
+    "id": "t1",
+    "description": "The reference owner derives to the exact vault address read in lesson 1",
+    "input": "'6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU'",
+    "expectedOutput": "result.address === 'FY86s1fAwUiFQTjVFYprsiV6fwNH7e955MSUBo73FP4j'",
+    "failureMessage": "If you derived 6jBW…jYjJ, your seed order is flipped — the program defined [\"vault\", owner], constant first. If the lookup threw, check which value you passed as programAddress."
+  },
+  {
+    "id": "t2",
+    "description": "The canonical bump comes back with the address — the same 255 you decoded at byte 48",
+    "input": "'6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU'",
+    "expectedOutput": "result.bump === 255"
+  },
+  {
+    "id": "t3",
+    "description": "Anti-hardcode: a different owner derives to ITS vault, with ITS bump",
+    "input": "'Hr99MUHbQksoGpkSagrhqzvTgCo1BVEHjnACTSsaEJh8'",
+    "expectedOutput": "result.address === 'EMTqK9Cfac1X7c86GUYG5wwGkqR9HpeYkqUDvjLmhgKi' && result.bump === 252",
+    "failureMessage": "The derivation must flow from the owner argument — if this returns the FY86… address, the owner was hardcoded rather than passed through the seeds."
+  }
+]

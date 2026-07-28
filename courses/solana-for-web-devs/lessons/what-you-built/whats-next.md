@@ -1,0 +1,3 @@
+# What Happens Next
+
+Course 2 — *Rust for Program Developers* — starts from the sentence this course ends on: the account bytes your inspector decoded came from a struct someone wrote in Rust, and next it is you writing it. You will compile real Rust on a build server (nothing installed, same as here), learn ownership and borrowing against account-shaped code rather than toy examples, and finish holding `vault_core.rs` — the `VaultState` struct whose serialized bytes are exactly the 49 your decoder reads, with checked arithmetic so a balance can never silently wrap. Your funded wallet rests until Course 3; your inspector waits to be pointed at a vault whose program you wrote yourself.

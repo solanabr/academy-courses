@@ -1,0 +1,46 @@
+[
+  {
+    "id": "t1",
+    "description": "The reference vault: full report with decoded fields matching your lesson-2 decoder",
+    "input": "'reference-vault'",
+    "expectedOutput": "result.type === 'vault' && result.vault.owner === '6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU' && result.vault.balance === 100000000n && result.vault.bump === 255 && result.rentExempt === true && result.sol === '0.101231920' && result.ownerProgram === 'D7ZFoWvEG5NBnkJy6iC98rhwj2qhgq8xhSD42cdTRAQd'"
+  },
+  {
+    "id": "t2",
+    "description": "A wallet: system-owned, rent-exempt, and vault stays null",
+    "input": "'wallet'",
+    "expectedOutput": "result.type === 'system-owned' && result.vault === null && result.rentExempt === true && result.sol === '3.331870864' && result.lamports === 3331870864n"
+  },
+  {
+    "id": "t3",
+    "description": "Missing account: type only, every other field null",
+    "input": "'missing'",
+    "expectedOutput": "result.type === 'missing' && result.lamports === null && result.sol === null && result.ownerProgram === null && result.rentExempt === null && result.vault === null",
+    "failureMessage": "For { value: null } nothing else may be read — every non-type field is null, and reaching into acc.value first throws."
+  },
+  {
+    "id": "t4",
+    "description": "Anti-hardcode: a different vault instance decodes to ITS fields",
+    "input": "'second-vault'",
+    "expectedOutput": "result.type === 'vault' && result.vault.owner === 'Hr99MUHbQksoGpkSagrhqzvTgCo1BVEHjnACTSsaEJh8' && result.vault.balance === 2500000n && result.vault.bump === 252 && result.sol === '0.003731920'"
+  },
+  {
+    "id": "t5",
+    "description": "The program account: type program, never decoded",
+    "input": "'program'",
+    "expectedOutput": "result.type === 'program' && result.vault === null && result.rentExempt === true && result.sol === '0.001141440'"
+  },
+  {
+    "id": "t6",
+    "description": "Vault-program-owned bytes without the shape: 'other', vault null — and NOT rent-exempt",
+    "input": "'truncated-vault'",
+    "expectedOutput": "result.type === 'other' && result.vault === null && result.rentExempt === false && result.lamports === 900000n",
+    "failureMessage": "Two traps in one fixture: the guarded decode (no VaultState shape → no decode) and rent-exemption computed for THIS data length — minRentFor(12) is 974,400, above the 900,000 balance."
+  },
+  {
+    "id": "t7",
+    "description": "A foreign-owned sysvar: 'other', with an honest rent report",
+    "input": "'clock-sysvar'",
+    "expectedOutput": "result.type === 'other' && result.vault === null && result.rentExempt === true && result.ownerProgram === 'Sysvar1111111111111111111111111111111111111'"
+  }
+]

@@ -1,0 +1,158 @@
+id: lesson-sfwd-see-a-live-vault
+slug: see-a-live-vault
+title: See a Live Vault
+skills:
+  - account-model
+  - explorer-reading
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  # Pinned to the frozen devnet reference vault (#599): program
+  # D7ZFoWvEG5NBnkJy6iC98rhwj2qhgq8xhSD42cdTRAQd, upgrade authority burned.
+  # Deliberately carries NO `consumes:` — this is lesson 1, the learner has no
+  # funded wallet and no deployed program yet; the block is read-only here.
+  - key: explore
+    type: program-explorer
+    idl: program.idl.json
+  - key: predict
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You open the vault account `FY86…` in the explorer and its Owner
+          field says `D7ZF…` — the vault program. Predict what that means.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Only the vault program may modify this account's data — on
+              Solana, a data account's owner is a program, not a person
+            correct: true
+          - id: b
+            label: >-
+              The wallet that created the vault is `D7ZF…`, so that person
+              controls it
+            correct: false
+            feedback: >-
+              `D7ZF…` is the program, not a wallet. The person behind the
+              vault is recorded inside the account's data bytes — you will
+              decode that field in the next lesson. The explorer's Owner field
+              is always the owning program.
+          - id: c
+            label: >-
+              The account holds the program's source code
+            correct: false
+            feedback: >-
+              Code lives in the program account, which is marked executable.
+              This account's Executable field says No — its 49 bytes are
+              state, and the Owner field names the one program allowed to
+              change them.
+        explanation: >-
+          Owner on a Solana account means the owning program — the only
+          program permitted to modify the account's data (and debit its
+          lamports). The human "owner" of the vault is a field inside those 49
+          data bytes, which is the next lesson's job.
+      - id: q2
+        prompt: >-
+          The program account `D7ZF…` shows Upgradeable: No. Predict what
+          happens if the original authors want to change its code.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              They cannot — the upgrade authority was removed, so this exact
+              code runs forever; a change means deploying a new program at a
+              new address
+            correct: true
+          - id: b
+            label: >-
+              They redeploy over the same address with a new version
+            correct: false
+            feedback: >-
+              That is what an upgradeable program allows — and exactly what
+              this one gave up. With the authority burned, nobody can write
+              new code to this address, which is why this course can pin it.
+          - id: c
+            label: >-
+              They ask the validators to vote on the change
+            correct: false
+            feedback: >-
+              Validators vote on protocol upgrades, not on individual
+              programs. A program's code changes only through its upgrade
+              authority, and this program no longer has one.
+        explanation: >-
+          Frozen means frozen: with the upgrade authority set to none, the
+          deployed bytes are permanent. That immutability is why every lesson
+          in this course can safely pin this program's address and behavior.
+      - id: q3
+        prompt: >-
+          A friend opens your vault link without `?cluster=devnet` and the
+          explorer reports "Account not found". Predict the actual state of
+          the vault.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Unchanged and fine — the explorer defaulted to mainnet, a
+              different chain where this address holds nothing
+            correct: true
+          - id: b
+            label: >-
+              Deleted — devnet accounts are periodically wiped
+            correct: false
+            feedback: >-
+              Nothing was deleted; the wrong chain was queried. Mainnet and
+              devnet are separate ledgers, and an address that holds an
+              account on one holds nothing on the other. Re-add
+              ?cluster=devnet and the vault is right where it was.
+          - id: c
+            label: >-
+              Below its rent-exempt minimum, so it was garbage-collected
+            correct: false
+            feedback: >-
+              The vault's balance is comfortably above the ~0.0012 SOL
+              minimum for a 49-byte account — read it live and check. The
+              "not found" here is the missing cluster parameter, the single
+              most common explorer mistake.
+        explanation: >-
+          The explorer defaults to mainnet. Same address, different chain, no
+          account — so the report is "not found" even though the devnet
+          account is untouched. Check the cluster parameter before concluding
+          anything about your account.
+      - id: q4
+        prompt: >-
+          The vault account is 49 bytes and rent-exemption for 49 bytes is
+          about 0.0012 SOL. Predict what the account's lamport balance you
+          read in the explorer represents.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The rent-exemption deposit plus everything deposited into the
+              vault — lamports live on the account itself, and the balance
+              moves as learners deposit
+            correct: true
+          - id: b
+            label: >-
+              Exactly the rent-exemption minimum, fixed at creation
+            correct: false
+            feedback: >-
+              It started near the minimum, but deposits land on this same
+              account, so the live balance is minimum plus deposits — which
+              is why this lesson refuses to print the number. Read it off the
+              chain.
+          - id: c
+            label: >-
+              A display estimate — real balances are only visible to the
+              account's owner
+            correct: false
+            feedback: >-
+              Everything on Solana is public. The explorer shows the exact
+              live lamport balance of any account to anyone — that openness
+              is what makes the inspector you build in module 3 possible.
+        explanation: >-
+          An account's lamports are part of the account itself and are fully
+          public. This one carries its rent deposit plus every deposit
+          learners have made — a moving number, which is why the course rule
+          is to read values live, never quote them.
