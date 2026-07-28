@@ -14,8 +14,12 @@ import { solanaDevnetRpc } from "@solana/kit-plugin-rpc";
 import { walletSigner } from "@solana/kit-plugin-wallet";
 
 const client = createClient()
-  .use(solanaDevnetRpc())
-  .use(walletSigner()); // Wallet Standard discovery — no per-wallet adapters
+  // Wallet Standard discovery — no per-wallet adapters. The wallet signer is
+  // the client's payer, so this plugin comes FIRST; and the chain is a
+  // required part of its config — a connected account can refuse a chain it
+  // was not asked to sign for.
+  .use(walletSigner({ chain: "solana:devnet" }))
+  .use(solanaDevnetRpc());
 ```
 
 If a tutorial hands you `ConnectionProvider`, `WalletProvider`, or `PhantomWalletAdapter`, you are reading the legacy stack from lesson 5 — read it, don't copy it.

@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // TEST HARNESS — do not edit. Grading calls runCase with a fixture name and
-// hands your decodeVault the recorded bytes of a REAL devnet account (the
-// grader has no network — these bytes were captured over RPC on 2026-07-28,
-// and you can re-fetch them yourself with the snippet from the lesson).
+// hands your decodeVault the pinned bytes of that fixture (the grader has no
+// network). Provenance of each fixture is stated where it is defined below.
 // ─────────────────────────────────────────────────────────────────────────────
 function runCase(fixtureName: string) {
   const bytes = FIXTURES[fixtureName];
@@ -62,12 +61,15 @@ function toBase58(bytes: Uint8Array): string {
   return out;
 }
 
-// ── RECORDED FIXTURES — real bytes, read over devnet RPC ────────────────────
-// "reference-vault" is FY86s1fAwUiFQTjVFYprsiV6fwNH7e955MSUBo73FP4j, the
-// frozen vault from lesson 1 (balance field as recorded at capture time — the
-// live value keeps moving, which is exactly why the bytes are pinned here).
-// "second-vault" is a different vault instance of the same program: different
-// owner, different balance, different bump.
+// ── PINNED FIXTURES ─────────────────────────────────────────────────────────
+// "reference-vault" is FY86s1fAwUiFQTjVFYprsiV6fwNH7e955MSUBo73FP4j — real
+// bytes captured over devnet RPC on 2026-07-28 (the balance field is as
+// recorded at capture time; the live value keeps moving, which is exactly why
+// the bytes are pinned here — re-fetch them yourself with the lesson snippet).
+// "second-vault" is constructed byte-for-byte to the frozen VaultState layout
+// for a real derived PDA of a different owner — different owner, different
+// balance, different bump; same 49-byte layout, which is all your decoder may
+// rely on.
 const FIXTURES: Record<string, number[]> = {
   "reference-vault": [
     228, 196, 82, 165, 98, 210, 235, 152, 78, 181, 115, 75, 97, 15, 248, 39,

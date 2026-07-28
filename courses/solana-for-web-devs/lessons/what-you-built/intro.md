@@ -4,7 +4,7 @@ Six lessons ago the vault was a URL you could not read. Inventory what exists no
 
 - **A graded, working account inspector** — `classifyAccount` plus `inspect`, passing every fixture including the five failure paths. It reads any devnet address and answers with type, SOL, owner, rent-exemption, and — only when the owner and discriminator prove it — decoded vault fields. It lives in your completed lesson 7, and it is the through-line artifact of this whole track.
 - **Your confirmed devnet transaction** — the deposit you assembled byte-by-byte and a wallet signed in lesson 6. Its explorer signature is on your profile via the lesson-6 reflection: a public, permanent record anyone can verify, showing your fee, your account order (vault first), and the vault's balance moving.
-- **A funded devnet wallet** — connected through Wallet Standard, holding the SOL the faucet gave you minus one base fee. Keep it: **in Course 3 this exact wallet pays your own program's deploy** — rent for the program account and 200+ transactions of upload fees. (Course 2 spends nothing — it is all compiling.)
+- **A funded devnet wallet** — connected through Wallet Standard, holding the SOL the faucet gave you minus your deposit and its base fee. Keep it: **in Course 3 this exact wallet pays your own program's deploy** — rent for the program account and 200+ transactions of upload fees. (Course 2 spends nothing — it is all compiling.)
 - **Your credential and XP** — the on-chain record that you completed these eight lessons, minted to the same wallet.
 
 ## The handoff contract, byte for byte
