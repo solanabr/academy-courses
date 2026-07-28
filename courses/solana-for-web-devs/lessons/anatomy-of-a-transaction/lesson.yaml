@@ -1,0 +1,174 @@
+id: lesson-sfwd-anatomy-of-a-transaction
+slug: anatomy-of-a-transaction
+title: Anatomy of a Transaction
+skills:
+  - transactions
+  - solana-kit
+  - transaction-fees
+  - compute-budget
+versionStamp:
+  checkedAt: "2026-07-28"
+  packages:
+    "@solana/kit": "7.0.0"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: budget
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "One line: `const computeUnitLimit = sim.unitsConsumed + sim.unitsConsumed / 10n;` — the simulated consumption plus a tenth of it, all bigint."
+      - "If t3 fails on the priority fee, check you did NOT change the provided rounding line — 1.65 lamports must charge as 2, never 1."
+      - "Keep every value bigint. Mixing in a Number (like `* 1.1`) throws a TypeError in bigint arithmetic — which is the guardrail working."
+    tutorNotes:
+      - "Learners write the margin as `sim.unitsConsumed * 1.1` and hit 'Cannot mix BigInt and other types'. The bigint form is consumed + consumed / 10n; the error is the precision guardrail from lesson 2, not a grader quirk."
+      - "They fill the blank with 200_000n 'because that is the default'. The default is the disease, not the cure — the whole plan exists to request LESS than 200,000. t1 expects 7366n."
+      - "They fill the blank with sim.unitsConsumed exactly, no margin, giving 6697n. Explain the margin's job: consumption varies slightly run to run, and a limit set at one observed value intermittently fails with exceeded-CU."
+      - "They 'fix' the provided priorityFee line to round down (plain division). t3 exists for this: 1.65 lamports charges as 2. The network rounds against the payer; the +999_999n before dividing is the ceiling."
+      - "They ask why signatureFee is fixed while priorityFee scales: the base fee is 5,000 lamports per signature regardless of work; the priority fee is the bid for compute, priced on the REQUESTED limit. Two different levers."
+      - "If they ask whether the compute-budget instructions must come first: no — that placement is convention. The real rules are one instruction per variant (DuplicateInstruction otherwise) and the 1,400,000-CU clamp."
+  - key: predict
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You send the vault deposit with NO compute-budget instructions at a
+          network moment when the effective price is 10,000 micro-lamports/CU.
+          Predict the priority fee.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              2,000 lamports — the deposit requests the 200,000-CU default,
+              and the fee is charged on that request, not on the 6,697 CU it
+              consumes
+            correct: true
+          - id: b
+            label: >-
+              About 67 lamports — 6,697 consumed × 10,000 ÷ 1,000,000
+            correct: false
+            feedback: >-
+              That would be fair, and it is not what happens. The fee is
+              charged on the REQUESTED limit, and with nothing requested,
+              each non-builtin instruction defaults to 200,000 CU. You pay
+              200,000 × 10,000 ÷ 1e6 = 2,000 lamports — nearly 30× the
+              consumption-based number.
+          - id: c
+            label: >-
+              Zero — priority fees only apply if you set a compute-unit price
+            correct: false
+            feedback: >-
+              In this scenario a price applies; the question is what it
+              multiplies. Answer: the requested limit, which defaulted to
+              200,000 CU. That gap between requested and consumed is the
+              overpay this lesson teaches you to close.
+        explanation: >-
+          Priority fee = price × requested limit ÷ 1e6, and an unset limit
+          requests the 200,000-CU default. 200,000 × 10,000 ÷ 1e6 = 2,000
+          lamports, versus 74 with a simulate-and-tighten limit of 7,366 —
+          same transaction, ~27× the priority fee.
+      - id: q2
+        prompt: >-
+          A transaction carries TWO SetComputeUnitLimit instructions — one at
+          the start, one at the end. Predict the outcome.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It fails with DuplicateInstruction — at most one of each
+              compute-budget variant is allowed, wherever they sit
+            correct: true
+          - id: b
+            label: >-
+              The first one wins, because compute-budget instructions must
+              come first
+            correct: false
+            feedback: >-
+              Placement is a convention, not a rule — the runtime finds
+              compute-budget instructions anywhere. What it will not accept
+              is two of the same kind: that is DuplicateInstruction, a hard
+              failure.
+          - id: c
+            label: >-
+              The larger limit wins, clamped to 1,400,000
+            correct: false
+            feedback: >-
+              There is no merging of duplicates — the transaction fails
+              outright with DuplicateInstruction. The 1,400,000 clamp applies
+              to a single valid limit request, not to resolving two.
+        explanation: >-
+          The real constraints on compute-budget instructions: one per
+          variant (duplicates fail with DuplicateInstruction) and the
+          1,400,000-CU clamp. "Put them first" is style — worth following,
+          but not what the runtime checks.
+      - id: q3
+        prompt: >-
+          Your signed transaction sits in a queue for two minutes before
+          sending. Predict what happens when it finally goes out.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The network refuses it — its blockhash lifetime (about a
+              minute) has expired, so it can never land, and a retry needs a
+              fresh blockhash and a re-sign
+            correct: true
+          - id: b
+            label: >-
+              It lands, but pays a staleness surcharge
+            correct: false
+            feedback: >-
+              There is no surcharge tier — lifetime is binary. Past its
+              blockhash window the transaction is simply invalid, which is a
+              feature: you can safely rebuild and resend knowing the old one
+              cannot also land.
+          - id: c
+            label: >-
+              It waits at the RPC until the blockhash becomes recent again
+            correct: false
+            feedback: >-
+              Blockhashes never become recent again — the chain only moves
+              forward. Expiry is permanent for that transaction, and the
+              remedy is a new message with a fresh blockhash, re-signed.
+        explanation: >-
+          The blockhash lifetime bounds how long a signed transaction can
+          land (~a minute). Expiry is what makes retries safe: an expired
+          transaction can never sneak in later and double-spend your retry.
+          Lesson 6 leans on exactly this when a wallet send goes stale.
+      - id: q4
+        prompt: >-
+          The plan's signature fee is 5,000 lamports for one signer. Add a
+          second required signer to the same transaction and predict the base
+          fee.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              10,000 lamports — the base fee is 5,000 per signature, and half
+              of every base fee is burned
+            correct: true
+          - id: b
+            label: >-
+              Still 5,000 — the fee payer covers one flat fee per transaction
+            correct: false
+            feedback: >-
+              The base fee scales with signature count: 5,000 lamports each.
+              One fee payer still pays it all, but two signatures cost
+              10,000 — which is why signature count is part of predicting
+              cost.
+          - id: c
+            label: >-
+              5,000 plus a priority fee for the extra signer
+            correct: false
+            feedback: >-
+              Signers do not add priority fee — that is priced purely on the
+              requested compute limit. The extra signature adds another
+              5,000-lamport base fee, nothing more.
+        explanation: >-
+          Base fee = 5,000 lamports × signatures (half burned); priority fee
+          = price × requested CU limit ÷ 1e6. Two independent terms — your
+          lesson-6 deposit has one signer, so its floor is exactly 5,000.

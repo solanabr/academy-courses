@@ -1,0 +1,321 @@
+id: lesson-sfwd-what-you-built
+slug: what-you-built
+title: What You Built
+# The union recap: every skill family the course exercised. explorer-reading
+# and api-currency ride here as well as in their home lessons so each new
+# vocabulary tag backs ≥2 lessons (gate 19b reuse bar).
+skills:
+  - account-model
+  - pdas
+  - transactions
+  - solana-kit
+  - transaction-fees
+  - wallet-standard
+  - explorer-reading
+  - api-currency
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  # Cumulative check — ≥1 item per skill tag used anywhere in the course:
+  # q1 borsh-serialization + account-model · q2 pdas · q3 transaction-fees +
+  # compute-budget + transactions · q4 wallet-standard + solana-kit ·
+  # q5 confirmation · q6 error-handling · q7 api-currency · q8 rpc +
+  # explorer-reading
+  - key: cumulative
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          In Course 2 you will write `struct VaultState { owner: Pubkey,
+          balance: u64, bump: u8 }`. A classmate proposes reordering it to
+          put `balance` first "since it changes most". What happens to your
+          lesson-7 inspector against vaults created by that program?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It reports garbage — the serialized field order IS the byte
+              layout, so your decoder's offsets (owner at 8, balance at 40)
+              would now read the wrong bytes
+            correct: true
+          - id: b
+            label: >-
+              Nothing — decoders match fields by name
+            correct: false
+            feedback: >-
+              There are no names in the 49 bytes — only positions. Your
+              decoder reads offsets; the struct defines what lives at each
+              offset. Reorder the struct and every offset shifts, silently.
+          - id: c
+            label: >-
+              The program would fail to compile
+            correct: false
+            feedback: >-
+              Rust compiles any field order happily. The breakage is
+              semantic and silent: two programs disagreeing about what byte
+              40 means. That is why the handoff contract is byte-for-byte.
+        explanation: >-
+          Serialization is positional. The struct's field order determines
+          the account's byte layout, and every reader — your inspector,
+          Course 4's generated client — depends on it. The layout is a
+          contract, and this course taught you both sides of it.
+      - id: q2
+        prompt: >-
+          Course 3 will declare the vault's address with seeds = [b"vault",
+          user.key()]. From lesson 3, why exactly that order and not the
+          reverse?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Because the derivation hashes seeds in order — the program
+              chose ["vault", owner] once, and every client must reproduce
+              it or derive a different, wrong address
+            correct: true
+          - id: b
+            label: >-
+              Constant seeds are required to come first by the runtime
+            correct: false
+            feedback: >-
+              The runtime has no such rule — either order would derive AN
+              address. What matters is agreement: the program fixed
+              ["vault", owner], so that exact order is now part of its
+              interface, forever.
+          - id: c
+            label: >-
+              Reversed seeds would put the address on the ed25519 curve
+            correct: false
+            feedback: >-
+              The bump search guarantees off-curve for any seed order. The
+              reversed order derives a perfectly valid, off-curve — and
+              WRONG — address, which is why your lesson-3 decoy "worked"
+              and still failed.
+        explanation: >-
+          Seed order is part of the address. The choice was arbitrary once,
+          binding forever after — your lesson-3 drill derived the real
+          wrong-order address (6jBW…) to make the silence of that failure
+          mode visible.
+      - id: q3
+        prompt: >-
+          Your lesson-6 deposit paid 5,000 lamports. A mainnet dApp sends
+          the same instruction with a compute-unit price of 50,000
+          micro-lamports and no limit instruction. Its priority fee is?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              50,000 × 200,000 ÷ 1e6 = 10,000 lamports — the unset limit
+              requests the 200,000-CU default, and the fee charges the
+              request, not the ~6,700 consumed
+            correct: true
+          - id: b
+            label: >-
+              50,000 × 6,697 ÷ 1e6 ≈ 335 lamports — fees charge actual
+              consumption
+            correct: false
+            feedback: >-
+              The formula charges the REQUESTED limit. Without a
+              SetComputeUnitLimit, the request defaults to 200,000 CU —
+              that is the ~30× overpay lesson 4's simulate-and-tighten
+              exists to close.
+          - id: c
+            label: >-
+              Zero — priority fees are optional
+            correct: false
+            feedback: >-
+              A price was set, so the priority fee applies — and it
+              multiplies the requested limit. Optional is the price; once
+              present, the arithmetic is fixed.
+        explanation: >-
+          fee = 5,000 × signatures + price × requested CU ÷ 1e6, and the
+          default request is 200,000 CU per non-builtin instruction. Sizing
+          the limit from simulation (6,697 + margin → 7,366) cuts that term
+          ~27× — the single most valuable habit lesson 4 taught.
+      - id: q4
+        prompt: >-
+          Your lesson-6 flow never touched a private key, yet the deposit
+          got signed. Reconstruct who did what.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Your code assembled the full unsigned plan; the wallet —
+              discovered via Wallet Standard — held the key and produced
+              the signature
+            correct: true
+          - id: b
+            label: >-
+              The wallet built the transaction from the amount you typed
+            correct: false
+            feedback: >-
+              The wallet signs what the app assembles — it built nothing.
+              Your buildDepositPlan produced every byte (accounts in IDL
+              order, discriminator, LE amount); the wallet's only power is
+              the signature, and that split is the security model.
+          - id: c
+            label: >-
+              The RPC node co-signed on your behalf
+            correct: false
+            feedback: >-
+              RPC nodes relay; they never hold keys. One signature exists on
+              that transaction — your wallet's — which is also why its base
+              fee was exactly 5,000 lamports.
+        explanation: >-
+          Apps assemble, wallets sign, nodes relay. Wallet Standard is how
+          the app discovered the wallet without a per-wallet adapter, and
+          the assembled-vs-signed split is why a dApp can be open source
+          and still safe to use.
+      - id: q5
+        prompt: >-
+          An exchange credits your deposit at 'confirmed' but releases
+          withdrawals only at 'finalized'. Why the asymmetry?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              'confirmed' (supermajority vote) can in rare cases roll back;
+              'finalized' cannot — so they accept small risk on money coming
+              in, none on money going out
+            correct: true
+          - id: b
+            label: >-
+              'finalized' transactions pay higher fees, which withdrawals
+              justify
+            correct: false
+            feedback: >-
+              Commitment is about observation, not payment — the transaction
+              is the same. The ladder (processed → confirmed → finalized)
+              trades latency for certainty, and the exchange picks a rung
+              per direction of risk.
+          - id: c
+            label: >-
+              Withdrawals require more signatures, which take longer
+            correct: false
+            feedback: >-
+              Signature count is unrelated to commitment. The asymmetry is
+              pure risk accounting on the same ladder your lesson-6 send
+              climbed: reversible-ish at confirmed, irreversible at
+              finalized.
+        explanation: >-
+          The commitment ladder is a risk dial, not a status bar. UIs and
+          businesses choose the rung that matches what a rollback would
+          cost them — the honest-UI principle from lesson 6, applied to
+          money.
+      - id: q6
+        prompt: >-
+          A user reports "my deposit failed" with a screenshot of a wallet
+          rejection popup. Using the lesson-6 taxonomy, what is the correct
+          triage?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Nothing failed on-chain — the rejection is pre-network, there
+              is no signature to look up, and the app should have returned
+              to resting state
+            correct: true
+          - id: b
+            label: >-
+              Find the failed transaction's signature and read its logs
+            correct: false
+            feedback: >-
+              There is no signature — nothing was signed or sent. Logs
+              exist only for taxonomy case 5 (landed and failed on-chain).
+              A rejection leaves no trace anywhere but the UI.
+          - id: c
+            label: >-
+              Ask them to wait for the blockhash to expire and retry
+            correct: false
+            feedback: >-
+              Blockhash expiry applies to transactions that went OUT and
+              aged. A rejection went nowhere; the user can simply try again
+              immediately. Matching symptom to taxonomy case is the whole
+              triage skill.
+        explanation: >-
+          Five ways to not-happen: rejection and faucet-decline are
+          pre-network; expiry, preflight, and on-chain error are not.
+          Triage starts with "did anything reach the network?" — and a
+          rejection never did.
+      - id: q7
+        prompt: >-
+          You inherit a codebase importing @solana/web3.js v1 everywhere
+          and are asked to add one new feature. Per this course, the sound
+          approach is?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Read the v1 code fluently with THE MAP, write your addition
+              in Kit, and keep the seam explicit — never write new v1
+            correct: true
+          - id: b
+            label: >-
+              Rewrite the whole codebase to Kit first
+            correct: false
+            feedback: >-
+              A full rewrite is rarely on offer, and fluent READING is what
+              makes the incremental path viable — v1 still out-downloads
+              Kit (~2.1M vs ~1.65M weekly), so the wild will look like this
+              for years.
+          - id: c
+            label: >-
+              Match the codebase and write the feature in v1 for
+              consistency
+            correct: false
+            feedback: >-
+              Consistency with a superseded stack is how codebases calcify.
+              The course rule: read v1 fluently, write Kit only — new code
+              on the current stack, seam acknowledged.
+        explanation: >-
+          The seam is a fact of the ecosystem (npm's latest tag still
+          ships v1), so the professional skill is asymmetric fluency: read
+          the old world, write the new one.
+      - id: q8
+        prompt: >-
+          Your inspector queries an address and gets { value: null }, but
+          the explorer shows the account exists. Both tools are working
+          correctly. What single difference between the two reads explains
+          it?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              They asked different clusters — the RPC endpoint your client
+              was built with and the explorer's ?cluster parameter decide
+              which chain answers
+            correct: true
+          - id: b
+            label: >-
+              The explorer caches accounts that were later deleted
+            correct: false
+            feedback: >-
+              Both read live. When two correct tools disagree about
+              existence, they are almost certainly not looking at the same
+              chain — the endpoint in createSolanaRpc vs the cluster in the
+              explorer URL.
+          - id: c
+            label: >-
+              getAccountInfo requires the account's owner to sign the
+              request
+            correct: false
+            feedback: >-
+              All account reads are public and unsigned — that openness is
+              what made this whole course possible in a browser. The
+              mismatch is the cluster, the very first trap lesson 1 set.
+        explanation: >-
+          The course's bookend bug: lesson 1's ?cluster=devnet and your
+          RPC endpoint are the same decision expressed twice. Every "it
+          does not exist" report is a claim about ONE chain — always know
+          which one you asked.
+  - key: reflect
+    type: openEnded
+    prompt: >-
+      In at most 150 words: which single artifact from this course does
+      Course 2 pick up, and why must the Rust struct you will write match
+      your lesson-2 decoder byte for byte? Name the concrete failure you
+      would see in your own inspector if it didn't.
+    maxWords: 150
+  - key: next
+    type: prose
+    src: whats-next.md

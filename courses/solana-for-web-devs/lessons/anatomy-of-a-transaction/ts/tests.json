@@ -1,0 +1,28 @@
+[
+  {
+    "id": "t1",
+    "description": "The deposit's requested limit is its simulated 6,697 CU plus a 10% margin",
+    "input": "'vault-deposit', 10000n",
+    "expectedOutput": "result.computeUnitLimit === 7366n",
+    "failureMessage": "Integer bigint math: 6697n + 6697n / 10n = 6697 + 669 = 7366. No floats, no Math.round — bigint division already floors."
+  },
+  {
+    "id": "t2",
+    "description": "At 10,000 micro-lamports/CU the deposit's priority fee rounds up to 74 lamports, total 5,074",
+    "input": "'vault-deposit', 10000n",
+    "expectedOutput": "result.priorityFee === 74n && result.totalFeeLamports === 5074n"
+  },
+  {
+    "id": "t3",
+    "description": "A bare transfer sizes to 165 CU and its priority fee still rounds UP (1.65 → 2 lamports)",
+    "input": "'sol-transfer', 10000n",
+    "expectedOutput": "result.computeUnitLimit === 165n && result.priorityFee === 2n && result.totalFeeLamports === 5002n",
+    "failureMessage": "150 + 150/10 = 165 requested CU; 165 × 10,000 = 1,650,000 micro-lamports = 1.65 lamports, and the network rounds against you: 2."
+  },
+  {
+    "id": "t4",
+    "description": "With a zero priority price only the signature fee remains",
+    "input": "'vault-deposit', 0n",
+    "expectedOutput": "result.priorityFee === 0n && result.totalFeeLamports === 5000n && result.signatureFee === 5000n"
+  }
+]

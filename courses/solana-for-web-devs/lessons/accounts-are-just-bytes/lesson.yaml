@@ -1,0 +1,172 @@
+id: lesson-sfwd-accounts-are-just-bytes
+slug: accounts-are-just-bytes
+title: Accounts Are Just Bytes
+skills:
+  - solana-kit
+  - rpc
+  - account-model
+  - borsh-serialization
+versionStamp:
+  checkedAt: "2026-07-28"
+  packages:
+    "@solana/kit": "7.0.0"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: decode
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Subgoal 2: `toBase58(data.slice(8, 40))` — slice end is exclusive, so 40 means \"up to and including byte 39\"."
+      - "Subgoal 3: `view.getBigUint64(40, true)` — the `true` is little-endian, and the return type is already `bigint`."
+      - "Subgoal 4: `view.getUint8(48)` (or `data[48]`) — one byte, a plain number."
+    tutorNotes:
+      - "Learners pass `false` (or nothing) as getBigUint64's second argument and read the balance big-endian — the result is a huge 17-plus-digit number instead of 100000000n. The fix is the endianness flag, not the offset."
+      - "They slice the owner as data.slice(8, 39) reasoning 'bytes 8 to 39', but slice's end is exclusive — 31 bytes instead of 32, and every character of the base58 output changes. The correct call is slice(8, 40)."
+      - "They convert the balance with Number() to 'make it easier to compare', which passes here but is the exact 2^53 precision bug the lesson warns about — keep it bigint; the tests compare against 100000000n with the n suffix."
+      - "They hardcode the reference vault's owner/balance/bump from the explorer or from t1–t3 and fail t4/t5, which decode a second vault with different bytes. Point them at the fixture actually passed in, not the values they remember."
+      - "They build the DataView as new DataView(data.buffer) without byteOffset/byteLength. It works on these fixtures (the array owns its whole buffer) but is a latent bug worth naming if they ask why the harness passes both."
+      - "If they ask why base58 and not hex: base58 is the display convention for Solana addresses (no 0/O/I/l ambiguity); the chain stores the raw 32 bytes and never the string."
+  - key: predict
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          The balance bytes at offset 40 are [0, 225, 245, 5, 0, 0, 0, 0].
+          Predict what a big-endian read would do to the decoded value.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Produce a completely different, astronomically large number —
+              the byte order is reversed, so 100,000,000 becomes about 6.3 ×
+              10^16
+            correct: true
+          - id: b
+            label: >-
+              Produce the same value — endianness only matters for signed
+              integers
+            correct: false
+            feedback: >-
+              Endianness is byte order, and it applies to every multi-byte
+              integer, signed or not. Reading these eight bytes big-endian
+              treats the 0 as the most significant byte and the value explodes.
+          - id: c
+            label: >-
+              Throw an error — DataView validates the byte order against the
+              account
+            correct: false
+            feedback: >-
+              Bytes carry no self-describing order; DataView reads whatever
+              you ask, silently. That silence is why the little-endian flag is
+              the classic decode bug — nothing fails, the number is just wrong.
+        explanation: >-
+          Little-endian stores the least significant byte first. Reading LE
+          bytes as BE reverses their significance and yields a wildly
+          different value with no error — the bug announces itself only
+          through a nonsense balance.
+      - id: q2
+        prompt: >-
+          Your inspector later fetches an account that is 49 bytes long but
+          its first 8 bytes are not [228, 196, 82, 165, 98, 210, 235, 152].
+          Predict what decodeVault on those bytes would give you.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Garbage that looks plausible — the decode succeeds mechanically,
+              which is exactly why the discriminator must be checked before
+              decoding
+            correct: true
+          - id: b
+            label: >-
+              An exception — the byte reads fail on non-vault data
+            correct: false
+            feedback: >-
+              Nothing fails: any 49 bytes slice into 32 + 8 + 1 just fine, and
+              you get a well-formed wrong answer. The discriminator check is
+              the only thing standing between your inspector and confidently
+              misreading a foreign account.
+          - id: c
+            label: >-
+              All-zero fields — unrecognized accounts decode to defaults
+            correct: false
+            feedback: >-
+              There are no defaults in a byte read. The decoder returns
+              whatever the foreign bytes happen to contain at those offsets —
+              plausible-looking and wrong, which is worse than an error.
+        explanation: >-
+          A layout decode has no built-in validation — any 49 bytes produce an
+          owner, a balance, and a bump. The 8-byte discriminator is the type
+          check, and module 3's inspector refuses to decode unless it matches.
+      - id: q3
+        prompt: >-
+          Lesson 1 showed the ACCOUNT's lamports; today you decoded a
+          `balance` FIELD of 100,000,000 (recorded). Predict how the two
+          relate on the live account.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The account's lamports run higher than the balance field — they
+              also carry the rent-exemption deposit
+            correct: true
+          - id: b
+            label: >-
+              They are the same number read two ways
+            correct: false
+            feedback: >-
+              Close, but no: the lamports include the ~0.0012 SOL
+              rent-exemption deposit the vault must hold for its 49 bytes,
+              on top of what depositors put in. The balance field is the
+              program's own ledger of deposits alone.
+          - id: c
+            label: >-
+              The balance field is denominated in SOL, the lamports in
+              lamports
+            correct: false
+            feedback: >-
+              Both are lamports — everything on-chain is. 100,000,000
+              lamports is 0.1 SOL. The difference between the two numbers is
+              what the account must hold for rent, not the unit.
+        explanation: >-
+          Lamports are the account's actual funds: rent deposit plus
+          deposits. The balance field is state the program maintains — its
+          own record of what was deposited. Keeping program state and raw
+          lamports straight matters in module 2, when your deposit moves both.
+      - id: q4
+        prompt: >-
+          Why does this course insist the balance stays a bigint instead of a
+          JavaScript number?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Balances are u64 and Number silently loses integer precision
+              above 2^53 — real balances cross that line
+            correct: true
+          - id: b
+            label: >-
+              bigint arithmetic is faster
+            correct: false
+            feedback: >-
+              It is usually slower. The reason is correctness: a u64 can hold
+              values up to about 1.8 × 10^19, and Number is only exact to
+              2^53 ≈ 9 × 10^15. Above that, amounts silently round.
+          - id: c
+            label: >-
+              The RPC rejects requests containing plain numbers
+            correct: false
+            feedback: >-
+              The RPC serializes fine either way — that is what makes the bug
+              dangerous. Nothing errors; large amounts just quietly change in
+              your own arithmetic. bigint keeps every lamport exact.
+        explanation: >-
+          A u64's range exceeds Number's exact-integer range (2^53). Convert
+          a large balance to Number and it silently rounds — no error,
+          wrong money. bigint is exact across the whole u64 range, so every
+          lamport value in this course keeps the n.

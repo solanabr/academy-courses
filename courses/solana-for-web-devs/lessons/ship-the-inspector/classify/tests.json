@@ -1,0 +1,47 @@
+[
+  {
+    "id": "t1",
+    "description": "The reference vault classifies as a vault",
+    "input": "'reference-vault'",
+    "expectedOutput": "result === 'vault'"
+  },
+  {
+    "id": "t2",
+    "description": "An existing wallet with zero-length data is system-owned — NOT missing",
+    "input": "'wallet'",
+    "expectedOutput": "result === 'system-owned'",
+    "failureMessage": "Decoy (D) trips here: an account with no data still exists. Only { value: null } is missing."
+  },
+  {
+    "id": "t3",
+    "description": "A { value: null } RPC answer is the only 'missing'",
+    "input": "'missing'",
+    "expectedOutput": "result === 'missing'",
+    "failureMessage": "Existence must be the FIRST branch — every other check dereferences acc.value and throws on null."
+  },
+  {
+    "id": "t4",
+    "description": "The frozen program itself classifies as a program",
+    "input": "'program'",
+    "expectedOutput": "result === 'program'"
+  },
+  {
+    "id": "t5",
+    "description": "Anti-hardcode: a different vault instance is still a vault",
+    "input": "'second-vault'",
+    "expectedOutput": "result === 'vault'"
+  },
+  {
+    "id": "t6",
+    "description": "A real account owned by a foreign program (the clock sysvar) is 'other'",
+    "input": "'clock-sysvar'",
+    "expectedOutput": "result === 'other'"
+  },
+  {
+    "id": "t7",
+    "description": "Vault-program-owned bytes WITHOUT the VaultState shape are 'other', never 'vault'",
+    "input": "'truncated-vault'",
+    "expectedOutput": "result === 'other'",
+    "failureMessage": "Decoy (A) trips here: ownership alone is not enough. The vault branch must also check hasVaultShape — 49 bytes and the discriminator."
+  }
+]

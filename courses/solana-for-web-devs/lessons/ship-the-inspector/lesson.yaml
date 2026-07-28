@@ -1,0 +1,199 @@
+id: lesson-sfwd-ship-the-inspector
+slug: ship-the-inspector
+title: Ship the Inspector
+skills:
+  - solana-kit
+  - rpc
+  - borsh-serialization
+  - pdas
+  - error-handling
+versionStamp:
+  checkedAt: "2026-07-28"
+  packages:
+    "@solana/kit": "7.0.0"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: classify
+    type: code
+    language: typescript
+    starter: classify/starter.ts
+    solution: classify/solution.ts
+    tests: classify/tests.json
+    hints:
+      - "Five branches, and the FIRST must be the null check — every other branch dereferences acc.value."
+      - "Two vault branches are in the bin; only one checks hasVaultShape. The truncated-vault fixture exists to catch the one that doesn't."
+      - "An account with data.length === 0 still exists — the wallet fixture proves it. 'missing' is reserved for { value: null }."
+    tutorNotes:
+      - "Learners order the null check late and t3 dies with a null dereference instead of returning 'missing'. Existence is the first branch by necessity, not style — every other branch reads acc.value."
+      - "They pick decoy (A), classifying by ownership alone, and t7 reports 'vault' for 12 truncated bytes. This is the criterion-5 bug the lesson names: a blind decode succeeds mechanically; the shape check (49 bytes + discriminator) is the only defense."
+      - "They pick decoy (D) and call the zero-data wallet 'missing' at t2. Distinguish the two absences: no ACCOUNT is { value: null }; no DATA is an existing account with an empty byte array — a plain wallet."
+      - "They put the system-owned check after the vault check and worry the order is wrong. Here either order passes — the conditions are mutually exclusive — but executable-before-ownership matters: a program's owner is a loader, and classifying by ownership first would bury 'program'."
+      - "They write branches from memory instead of the bin and drift the return strings ('wallet' instead of 'system-owned'). The five type strings are the contract rung 2 and the tests share — exact strings, from the bin."
+  - key: inspect
+    type: code
+    language: typescript
+    starter: inspect/starter.ts
+    solution: inspect/solution.ts
+    tests: inspect/tests.json
+    hints:
+      - "Start with the missing case: return the all-null report before touching acc.value. Then reuse your rung-1 branch order for type."
+      - "rentExempt compares against minRentFor(v.data.length) — the length of THIS account's data. The truncated-vault fixture is deliberately below its minimum."
+      - "Decode only when type === 'vault': bytes 8..39 through toBase58, getBigUint64(40, true), byte 48 — your lesson-2 decoder, behind the shape check."
+    tutorNotes:
+      - "Learners decode whenever ownerProgram matches, skipping the shape gate, and t6 hands them 12 bytes — the decode then reads past the array (undefined bytes, NaN balance) or fabricates fields. The rule: vault decode happens ONLY when the classification said 'vault', which already includes hasVaultShape."
+      - "They compute rentExempt against a constant (the 49-byte minimum, or lesson 1's ~0.0012 SOL) instead of minRentFor(data.length). t6 (12 bytes, 900,000 lamports, minimum 974,400) and t2 (0 bytes) both break constants — rent scales with THIS account's size."
+      - "They return partial nulls for missing (keeping type plus, say, lamports: 0n). The spec is all-null except type: 0n is a real balance claim about an account that does not exist, and t3 checks every field."
+      - "They build the sol string with Number division (lamports / 1e9) and get float artifacts like '3.3318708639999998'. lamportsToSol is provided and pure-bigint; the 2^53 rule from lesson 2 applies to display code too."
+      - "They forget the wallet/zero-data path and index into an empty array. data.length === 0 is a legal, common account state — the decode must be unreachable for it via the type gate."
+      - "If they ask why inspect takes minRentFor as a parameter: the real getMinimumBalanceForRentExemption is an RPC call; injecting it keeps the inspector a pure, testable function — the same dependency-injection shape the whole course grades with."
+  - key: predict
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A user pastes a validator's VOTE account into your inspector —
+          owned by the Vote program, 3,762 bytes. Predict the report.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              type 'other', vault null — foreign-owned accounts are reported,
+              never decoded
+            correct: true
+          - id: b
+            label: >-
+              An exception — the inspector only supports vault accounts
+            correct: false
+            feedback: >-
+              Paste-any-address is the spec: unknown account kinds are a
+              normal input, not an error. The branch table absorbs them as
+              'other' with an honest lamports/owner/rent report and no
+              decode.
+          - id: c
+            label: >-
+              type 'vault' with garbage fields — 3,762 bytes decode
+              mechanically
+            correct: false
+            feedback: >-
+              Only if the shape gate were missing. The vault branch requires
+              the vault program as owner AND the 49-byte discriminator shape;
+              a vote account fails both and lands in 'other'.
+        explanation: >-
+          'other' is a feature, not a shrug: report what is safely knowable
+          (balance, owner, rent) and refuse what is not (a decode under
+          someone else's layout). That refusal is what separates an
+          inspector from a liar.
+      - id: q2
+        prompt: >-
+          Someone funds a brand-new address with 800,000 lamports and never
+          creates data on it. Your inspector reports it. Predict rentExempt.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              false — a zero-data account's minimum is 890,880 lamports, and
+              800,000 is below it
+            correct: true
+          - id: b
+            label: >-
+              true — accounts with no data owe no rent
+            correct: false
+            feedback: >-
+              Even empty accounts pay for their metadata: minRentFor(0) is
+              890,880 lamports (the 128-byte overhead × 6,960). 800,000 falls
+              short, so the honest report is rentExempt false.
+          - id: c
+            label: >-
+              null — rent only applies to program-owned accounts
+            correct: false
+            feedback: >-
+              Rent-exemption is universal — system-owned, program-owned,
+              sysvars, everything. null is reserved for accounts that do not
+              exist at all.
+        explanation: >-
+          The minimum is (128 + dataLength) × 6,960 lamports, so even zero
+          data costs 890,880. An account below its minimum is real and
+          reportable — and flagging it is exactly the kind of honest detail
+          that makes an inspector useful.
+      - id: q3
+        prompt: >-
+          Your RPC read returns { value: null } for an address the user
+          swears has SOL on it. From this course, what is the FIRST
+          hypothesis to check?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Wrong cluster — the address may hold an account on mainnet
+              while your inspector queried devnet
+            correct: true
+          - id: b
+            label: >-
+              The account was garbage-collected for low rent
+            correct: false
+            feedback: >-
+              Possible in principle, rare in practice — and not the first
+              check. The overwhelmingly common cause of "it exists, you say
+              null" is a cluster mismatch, the same trap as lesson 1's
+              ?cluster=devnet.
+          - id: c
+            label: >-
+              The RPC node is lying
+            correct: false
+            feedback: >-
+              Start with the boring hypothesis: your query went to a
+              different chain than their wallet is looking at. Lesson 1's
+              explorer default and your RPC endpoint choice are the same
+              bug wearing two hats.
+        explanation: >-
+          { value: null } means "no account at this address ON THIS
+          CLUSTER". The endpoint your createSolanaRpc was built with decides
+          which chain answered — the code-side twin of the explorer's
+          ?cluster parameter.
+      - id: q4
+        prompt: >-
+          Why does the truncated-vault fixture exist at all — when would a
+          real inspector meet vault-program-owned bytes that are not a
+          VaultState?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Any program can own several account types (or versions), so
+              owner alone never identifies a layout — the discriminator is
+              the type tag that does
+            correct: true
+          - id: b
+            label: >-
+              It cannot happen — a program's accounts always share one
+              layout
+            correct: false
+            feedback: >-
+              Most real programs own MANY account types — that is why Anchor
+              stamps a discriminator on every one. Owner narrows it to a
+              program; the 8-byte tag picks the type within it.
+          - id: c
+            label: >-
+              Only if the chain corrupts the account's bytes
+            correct: false
+            feedback: >-
+              The chain does not corrupt bytes. The realistic source is
+              legitimate variety: multiple account types, layout versions,
+              or a different program deployed at an address you assumed.
+              The tag check handles all of them the same way.
+        explanation: >-
+          Owner tells you which program may write the account; the
+          discriminator tells you what the bytes claim to be. Real programs
+          own many types, so the pair — owner AND tag — is the minimum
+          honest check before any decode. That is the shape gate you built.
+  - key: reflect
+    type: openEnded
+    prompt: >-
+      Your inspector handles five failure paths: missing account, zero-data
+      account, program account, foreign-owned account, and
+      vault-owned-but-not-a-vault. Which one surprised you most when you
+      first got it wrong (or almost wrong), and what did the fix teach you
+      about how Solana models accounts?
+    maxWords: 120
