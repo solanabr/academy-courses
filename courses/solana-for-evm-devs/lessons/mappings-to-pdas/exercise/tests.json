@@ -1,0 +1,20 @@
+[
+  {
+    "id": "prefix-then-owner",
+    "description": "The namespace prefix comes first, then the owner",
+    "input": "\"alice\"",
+    "expectedOutput": "JSON.stringify(result) === JSON.stringify([\"vault\",\"alice\"])"
+  },
+  {
+    "id": "owner-is-not-hardcoded",
+    "description": "A different owner produces a different seed list \u2014 the owner is threaded through, not baked in",
+    "input": "\"bob\"",
+    "expectedOutput": "JSON.stringify(result) === JSON.stringify([\"vault\",\"bob\"])"
+  },
+  {
+    "id": "exactly-two-seeds",
+    "description": "Two seeds, no more: an extra seed silently changes every derived address",
+    "input": "\"carol\"",
+    "expectedOutput": "result.length === 2"
+  }
+]

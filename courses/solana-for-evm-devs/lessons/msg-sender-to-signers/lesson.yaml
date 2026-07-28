@@ -1,0 +1,90 @@
+id: lesson-sfe-msg-sender-to-signers
+slug: msg-sender-to-signers
+title: From `msg.sender` to Verified Signers
+skills:
+  - signers
+  - program-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A withdraw instruction checks `ctx.accounts.owner.is_signer` and nothing
+          else. An attacker signs with their own keypair and passes someone else's
+          vault. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: The withdrawal succeeds — a valid signature was proven, but never that this signer owns that vault
+            correct: true
+          - id: b
+            label: It fails; the runtime binds signers to the accounts they are authorized over
+            correct: false
+            feedback: >-
+              The runtime verifies signatures. It has no idea which vault a given
+              key is allowed to touch — that relationship exists only in your
+              state, so only your program can check it.
+          - id: c
+            label: It fails, because a signer must own every account in the instruction
+            correct: false
+            feedback: >-
+              No such rule exists. Transactions routinely include accounts the
+              signer has no authority over.
+        explanation: >-
+          "Signed" and "authorized" are different claims. The runtime proves the
+          first; only a comparison against your own state proves the second. This
+          is the single most common port of the Solidity missing-`onlyOwner` bug.
+      - id: q2
+        prompt: >-
+          Where did `tx.origin` go?
+        multiSelect: false
+        options:
+          - id: a
+            label: Nowhere — signer status propagates explicitly through CPI instead of collapsing into one ambient address
+            correct: true
+          - id: b
+            label: It is exposed as the first account in every transaction's account list
+            correct: false
+            feedback: >-
+              The first account is the fee payer by convention, which is not the
+              same thing and must not be treated as an authorization signal.
+          - id: c
+            label: It is available but discouraged, exactly as in Solidity
+            correct: false
+            feedback: >-
+              There is no equivalent value to reach for. The design avoids the
+              flattening that makes `tx.origin` exploitable.
+        explanation: >-
+          The phishing risk in `tx.origin` comes from flattening a call chain into
+          one address. Solana keeps the chain explicit: a callee sees the original
+          signers plus any PDA the caller signed for, and nothing pretends to be a
+          single "who started this".
+      - id: q3
+        prompt: >-
+          Two parties must both authorize an atomic swap. What does that take on
+          Solana?
+        multiSelect: false
+        options:
+          - id: a
+            label: One transaction carrying both signers; the runtime verifies both before execution
+            correct: true
+          - id: b
+            label: An EIP-712 style signature passed as calldata and recovered in-program
+            correct: false
+            feedback: >-
+              That is the Solidity workaround for a transaction envelope that only
+              carries one sender. Solana's envelope carries many.
+          - id: c
+            label: Two transactions and a state machine that pairs them
+            correct: false
+            feedback: >-
+              A valid pattern when the parties genuinely act at different times,
+              but unnecessary here — and it gives up atomicity.
+        explanation: >-
+          Multi-signer transactions are ordinary, not a protocol you implement.
+          Whole categories of Solidity signature plumbing — recovery, replay
+          nonces, deadline checks — simply have no counterpart.

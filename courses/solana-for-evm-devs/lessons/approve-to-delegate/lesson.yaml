@@ -1,0 +1,90 @@
+id: lesson-sfe-approve-to-delegate
+slug: approve-to-delegate
+title: From `approve` to Delegates
+skills:
+  - spl-tokens
+  - program-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          A user has delegated 100 tokens to protocol A. They now approve
+          protocol B for 50 on the same token account. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: B replaces A entirely — the account holds one delegate, and A's authority is gone
+            correct: true
+          - id: b
+            label: Both delegations coexist, as two ERC-20 allowances would
+            correct: false
+            feedback: >-
+              `delegate` is a single optional field on the account, not a map.
+              There is no room for a second entry.
+          - id: c
+            label: The second approval fails while a delegation is outstanding
+            correct: false
+            feedback: >-
+              Nothing rejects it. It silently overwrites — which is convenient for
+              revocation and surprising if you expected ERC-20 accumulation.
+        explanation: >-
+          One delegate per token account. Ported EVM designs that assume several
+          simultaneous approvals need rethinking, usually toward a PDA that owns a
+          dedicated account.
+      - id: q2
+        prompt: >-
+          Why does the ERC-20 approval front-running race — the one that motivated
+          `increaseAllowance` — not arise here?
+        multiSelect: false
+        options:
+          - id: a
+            label: Revocation clears the delegate outright rather than writing a new amount to compare against
+            correct: true
+          - id: b
+            label: Solana transactions are atomic, so no other transaction can interleave
+            correct: false
+            feedback: >-
+              Atomicity applies within a transaction. It does not stop a *separate*
+              transaction from landing first — the ordering hazard would still
+              exist if the mechanism were compare-and-set.
+          - id: c
+            label: Delegated amounts cannot be changed once set, only revoked
+            correct: false
+            feedback: >-
+              They can be re-approved at any time. The point is that revocation is
+              not expressed as "set the amount to zero".
+        explanation: >-
+          The ERC-20 race comes from replacing a non-zero allowance with another
+          non-zero value, giving the spender a window to use the old one. `revoke`
+          is a distinct instruction that clears the field, so there is no window to
+          exploit.
+      - id: q3
+        prompt: >-
+          You port a protocol that relies on a standing infinite approval. What is
+          the idiomatic Solana design?
+        multiSelect: false
+        options:
+          - id: a
+            label: A PDA the protocol owns holds a token account the user deposits into
+            correct: true
+          - id: b
+            label: Delegate the maximum `u64` to the protocol's authority and leave it in place
+            correct: false
+            feedback: >-
+              Mechanically possible and it reproduces exactly the blast radius you
+              were trying to escape — the whole wallet balance, indefinitely.
+          - id: c
+            label: Re-approve before every interaction from the client
+            correct: false
+            feedback: >-
+              Workable but it adds a transaction to every action and still leaves a
+              live delegation between them.
+        explanation: >-
+          Ownership replaces standing permission. The protocol controls an account
+          it owns and the user's wallet carries no outstanding delegate, so the
+          exposure is the deposit rather than the remaining balance.

@@ -1,0 +1,92 @@
+id: lesson-sfe-storage-to-accounts
+slug: storage-to-accounts
+title: Your Program Owns No Storage
+skills:
+  - account-model
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You port a Solidity contract that keeps `mapping(address => uint256)
+          balances` in its own storage. On Solana, where does that state live?
+        multiSelect: false
+        options:
+          - id: a
+            label: In separate accounts your program owns, passed into each instruction
+            correct: true
+          - id: b
+            label: Inside the program account, after the executable bytes
+            correct: false
+            feedback: >-
+              The program account is immutable at runtime — your own code cannot
+              write to it. There is nowhere inside it to put a balance.
+          - id: c
+            label: In a runtime-provided storage map keyed by program id
+            correct: false
+            feedback: >-
+              There is no ambient storage on Solana. If an instruction did not
+              receive an account, that account does not exist as far as the
+              instruction is concerned.
+        explanation: >-
+          Code and state are different accounts. The program is executable and
+          immutable while running; state lives in accounts it owns, and each
+          instruction receives exactly the ones it may touch.
+      - id: q2
+        prompt: >-
+          Your program is passed an account owned by a different program, and it
+          writes to it. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: The runtime rejects the transaction — a program may only write to accounts it owns
+            correct: true
+          - id: b
+            label: The write succeeds; ownership only governs who may close the account
+            correct: false
+            feedback: >-
+              Ownership governs writes. It is the core protection of the account
+              model, not a bookkeeping field.
+          - id: c
+            label: It compiles and silently no-ops, so you must check the owner yourself
+            correct: false
+            feedback: >-
+              Checking the owner yourself is still good practice for accounts you
+              *read*, but an illegal write is refused by the runtime, not ignored.
+        explanation: >-
+          "Only the owner may write" is enforced by the runtime before your logic
+          matters. This is why `owner` checks are the first thing an auditor looks
+          for on accounts you merely read — the runtime protects your writes, not
+          your assumptions about someone else's data.
+      - id: q3
+        prompt: >-
+          Compared with upgrading a Solidity contract behind a proxy, what is
+          different about upgrading a Solana program?
+        multiSelect: false
+        options:
+          - id: a
+            label: State accounts are untouched, because they were never inside the program
+            correct: true
+          - id: b
+            label: State is automatically migrated to the new layout by the runtime
+            correct: false
+            feedback: >-
+              Nothing migrates anything. The runtime has no idea what your `data`
+              bytes mean — that interpretation lives only in your program.
+          - id: c
+            label: Upgrades are impossible; programs are immutable once deployed
+            correct: false
+            feedback: >-
+              A program account can be upgraded by its upgrade authority (or made
+              truly immutable by revoking it). "Immutable at runtime" means the
+              program cannot write to *itself* while executing.
+        explanation: >-
+          Because code and state were never welded together, replacing the code
+          leaves the state exactly where it was. The hazard inverts too: no proxy
+          gymnastics, but also nothing stopping new code from misreading an old
+          layout.

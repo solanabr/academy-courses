@@ -1,0 +1,77 @@
+id: lesson-sfe-gas-to-compute-units
+slug: gas-to-compute-units
+title: From Gas to Compute Units and Priority Fees
+skills:
+  - compute-budget
+  - priority-fees
+  - transaction-fees
+  - typescript
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: exercise/starter.ts
+    solution: exercise/solution.ts
+    tests: exercise/tests.json
+    hints:
+      - "The starter never converts units — it returns micro-lamports. Divide by 1,000,000 to reach lamports."
+      - "`Math.ceil`, not `Math.round` or `Math.floor`. The `rounds-up` case is 1 CU at 1 micro-lamport: a true value of 0.000001 lamports must still be charged as 1."
+    tutorNotes:
+      - "Learners divide but use `Math.floor` or plain truncation, so the sub-lamport case returns 0."
+      - "Some divide by 1,000 (confusing micro- with milli-). The factor between micro-lamports and lamports is 10^6."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You optimize an instruction from 180,000 CU to 120,000 CU and leave the
+          priority bid unchanged. Predict the effect on what a user pays.
+        multiSelect: false
+        options:
+          - id: a
+            label: The priority fee falls proportionally, because it is priced per compute unit requested
+            correct: true
+          - id: b
+            label: Nothing changes — the base fee is flat per signature and compute is not billed
+            correct: false
+            feedback: >-
+              The base fee is indeed flat, but the priority fee is explicitly
+              per compute unit. Requesting fewer units at the same bid is cheaper.
+          - id: c
+            label: It rises, since a tighter limit risks failure and must be compensated with a higher bid
+            correct: false
+            feedback: >-
+              Nothing auto-compensates. A tighter limit is cheaper; whether it is
+              *safe* is a separate judgement you make from simulation.
+        explanation: >-
+          Compute is nearly free in base fees but not in priority fees, which are
+          priced per requested unit. This is why "request 1.4M CU to be safe" is a
+          real cost, and why simulate-then-request is the standard practice.
+      - id: q2
+        prompt: >-
+          Your instruction needs 250,000 CU and you request the default limit.
+          Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: The transaction fails once the budget is exhausted — there is no overage billing
+            correct: true
+          - id: b
+            label: It succeeds and the extra compute is billed at the same rate
+            correct: false
+            feedback: >-
+              There is no overage. The budget is a hard ceiling, not a soft
+              spending limit that bills you for going over.
+          - id: c
+            label: The runtime raises the limit automatically up to the 1.4M maximum
+            correct: false
+            feedback: >-
+              Nothing is raised for you. Requesting more is an explicit
+              `setComputeUnitLimit` instruction you prepend.
+        explanation: >-
+          Unlike gas, where a higher limit simply risks spending more, the compute
+          budget is a hard ceiling. Fitting is a build-time concern, which is why
+          simulation is part of a normal send path rather than a debugging step.

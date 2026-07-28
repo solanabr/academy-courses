@@ -1,0 +1,78 @@
+id: lesson-sfe-mappings-to-pdas
+slug: mappings-to-pdas
+title: From `mapping` to Program-Derived Addresses
+skills:
+  - pdas
+  - account-model
+  - typescript
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: exercise/starter.ts
+    solution: exercise/solution.ts
+    tests: exercise/tests.json
+    hints:
+      - "The starter returns `[owner]` — one seed. The convention in the prose is two: the literal namespace prefix, then the owner."
+      - "Return the prefix as a plain string literal in the array, in first position. `[\"vault\", owner]` — not `[owner, \"vault\"]`, which derives a different address entirely."
+    tutorNotes:
+      - "Learners order the seeds owner-first; the derivation is order-sensitive, so that is a different (and unused) address."
+      - "Some add a third seed such as a bump. The bump is appended by the derivation itself, not authored in the seed list."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Why can nobody produce a signature for a PDA the way they can for a
+          normal wallet address?
+        multiSelect: false
+        options:
+          - id: a
+            label: PDAs are chosen to lie off the ed25519 curve, so no private key exists for them
+            correct: true
+          - id: b
+            label: The runtime maintains a blocklist of derived addresses and refuses their signatures
+            correct: false
+            feedback: >-
+              There is no list. The property is mathematical: the address is not a
+              point on the curve, so it is not a public key any private key maps to.
+          - id: c
+            label: Their private keys are held by the owning program and never exposed
+            correct: false
+            feedback: >-
+              No key exists to hold. The owning program signs by supplying the
+              seeds, which is a different mechanism from holding a secret.
+        explanation: >-
+          Authority over a PDA comes from the derivation, not from a secret. The
+          program proves it may act for the address by producing the seeds that
+          generate it — which is why seeds are effectively an access-control
+          policy written as data.
+      - id: q2
+        prompt: >-
+          You ship v2 of a program and change a PDA seed prefix from `"vault"` to
+          `"vault_v2"`. Predict the effect on existing users.
+        multiSelect: false
+        options:
+          - id: a
+            label: Every existing vault is orphaned — the new derivation points at fresh, empty addresses
+            correct: true
+          - id: b
+            label: Existing accounts are re-derived to the new address automatically on next access
+            correct: false
+            feedback: >-
+              Nothing re-derives or migrates. An address is a function of its
+              seeds; change the seeds and you are simply talking about a different
+              account.
+          - id: c
+            label: The old and new seeds both resolve, since the bump search covers nearby inputs
+            correct: false
+            feedback: >-
+              The bump search varies one appended byte to get off the curve. It
+              does not explore alternative seed contents.
+        explanation: >-
+          Seeds are part of your public interface, exactly like a function
+          signature. Changing them does not migrate anything — it points at
+          different accounts and strands the originals, still holding their rent.

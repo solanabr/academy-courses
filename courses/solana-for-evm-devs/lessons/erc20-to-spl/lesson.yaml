@@ -1,0 +1,79 @@
+id: lesson-sfe-erc20-to-spl
+slug: erc20-to-spl
+title: From ERC-20 to SPL Token
+skills:
+  - spl-tokens
+  - account-model
+  - typescript
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: exercise/starter.ts
+    solution: exercise/solution.ts
+    tests: exercise/tests.json
+    hints:
+      - "The starter hardcodes 18 — the ERC-20 habit. The exponent is the `decimals` argument, which varies per mint on Solana."
+      - "Wrap the multiplication in `Math.round`. `0.07 * 10 ** 2` is 7.000000000000001 in binary floating point, and an un-rounded return fails the last case."
+    tutorNotes:
+      - "The hardcoded 18 is the intended trap: it passes nothing and makes the ERC-20 assumption visible."
+      - "Learners who fix the exponent but skip rounding pass three cases and fail `no-floating-point-dust`; that case exists to teach that base units are integers."
+      - "Production code uses BigInt for real amounts — `number` loses precision past 2^53. Say so if it comes up; the exercise uses `number` to keep the harness simple."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You transfer an SPL token to a wallet that has never held it. Predict.
+        multiSelect: false
+        options:
+          - id: a
+            label: It fails unless the recipient's token account for that mint is created first — and someone pays its rent
+            correct: true
+          - id: b
+            label: It succeeds; the token program creates the account on demand
+            correct: false
+            feedback: >-
+              Nothing is created implicitly, because creation costs rent and the
+              runtime will not decide who pays it.
+          - id: c
+            label: It succeeds and the balance is held on the wallet account itself
+            correct: false
+            feedback: >-
+              Only SOL lives on the wallet account, as `lamports`. Every SPL token
+              balance is a separate account.
+        explanation: >-
+          "Send and it just works" is an ERC-20 assumption that does not survive
+          the account model. This is why client libraries wrap the pattern as
+          `getOrCreateAssociatedTokenAccount` — creation is a funded step, not a
+          side effect.
+      - id: q2
+        prompt: >-
+          Why can a base SPL token not implement fee-on-transfer the way an ERC-20
+          can?
+        multiSelect: false
+        options:
+          - id: a
+            label: It has no code of its own — a mint is data owned by the shared token program
+            correct: true
+          - id: b
+            label: The token program rejects transfers whose amounts do not match exactly
+            correct: false
+            feedback: >-
+              There is no such check to reject; there is simply no place for
+              per-token logic to live in the base program.
+          - id: c
+            label: It can, by setting a fee field on the mint
+            correct: false
+            feedback: >-
+              Not in the base token program. Token-2022 adds a transfer-fee
+              extension — opt-in, visible on the mint, and a deliberate exception
+              rather than the default.
+        explanation: >-
+          Creating a token deploys no code, so there is nothing to override. That
+          is what makes integrating an arbitrary SPL token far less risky than
+          integrating an arbitrary ERC-20 — with Token-2022 extensions as the
+          explicit, inspectable exception.

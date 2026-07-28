@@ -1,0 +1,20 @@
+[
+  {
+    "id": "three-fields-with-bump",
+    "description": "Three u64 fields plus a bump: 8 + 24 + 1 = 33",
+    "input": "3, true",
+    "expectedOutput": "result === 33"
+  },
+  {
+    "id": "empty-account",
+    "description": "No fields and no bump is still 8 bytes \u2014 the discriminator is never free",
+    "input": "0, false",
+    "expectedOutput": "result === 8"
+  },
+  {
+    "id": "bump-costs-exactly-one-byte",
+    "description": "One u64 with a bump is 17, without it 16 \u2014 the bump is a u8, not padded",
+    "input": "1, true",
+    "expectedOutput": "result === 17"
+  }
+]

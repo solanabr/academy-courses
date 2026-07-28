@@ -1,0 +1,90 @@
+id: lesson-sfe-declared-accounts
+slug: declared-accounts
+title: Why Transactions Declare Their Accounts
+skills:
+  - transactions
+  - account-model
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Two transactions are submitted in the same slot. A writes account X;
+          B writes account Y. Predict how they are scheduled.
+        multiSelect: false
+        options:
+          - id: a
+            label: In parallel — their declared account sets do not overlap
+            correct: true
+          - id: b
+            label: Sequentially, in fee order, like any two Ethereum transactions
+            correct: false
+            feedback: >-
+              Sequencing everything is exactly what the declared account list
+              avoids. Non-overlapping transactions have no reason to wait.
+          - id: c
+            label: In parallel only if they call different programs
+            correct: false
+            feedback: >-
+              The program is irrelevant to conflict detection. Two calls into the
+              *same* program run in parallel when they touch different accounts —
+              which is how one SPL Token program serves the whole chain at once.
+        explanation: >-
+          Conflict is decided on accounts, not on programs or on senders. Declaring
+          the account set up front is precisely what makes that decision possible
+          before execution.
+      - id: q2
+        prompt: >-
+          You mark an account writable that your instruction only reads. What does
+          it cost?
+        multiSelect: false
+        options:
+          - id: a
+            label: It takes a write lock, serializing every other transaction that wants to write that account
+            correct: true
+          - id: b
+            label: Nothing — the flag only affects whether your program may write
+            correct: false
+            feedback: >-
+              It does gate your writes, but it is also the input to the scheduler.
+              An unnecessary write lock creates real contention for everyone else.
+          - id: c
+            label: A higher base fee, proportional to the number of writable accounts
+            correct: false
+            feedback: >-
+              The base fee is per signature. The cost of an over-broad write lock
+              is contention, not fees.
+        explanation: >-
+          Write locks are the scarce resource in a parallel scheduler. Marking
+          reads as writes is the Solana analogue of holding a database lock you
+          did not need — invisible in a test, expensive under load.
+      - id: q3
+        prompt: >-
+          Your instruction wants to read account B only if account A holds a
+          particular flag. Predict what that requires.
+        multiSelect: false
+        options:
+          - id: a
+            label: B must be in the account list anyway — the client decides what to include before sending
+            correct: true
+          - id: b
+            label: The program can request B from the runtime once it has read A
+            correct: false
+            feedback: >-
+              There is no facility to fetch an account mid-instruction. The list
+              is fixed when the transaction is built; that fixity is what the
+              scheduler relies on.
+          - id: c
+            label: A and B must be merged into a single account
+            correct: false
+            feedback: >-
+              Sometimes a reasonable design, but not a requirement — passing both
+              and ignoring one is normal and cheap.
+        explanation: >-
+          Conditional access becomes unconditional inclusion. This is the concrete
+          friction of the model: some transactions carry accounts they end up not
+          using, and the client must know enough to include them.

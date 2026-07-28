@@ -1,0 +1,76 @@
+id: lesson-sfe-rent-and-space
+slug: rent-and-space
+title: Rent, and Sizing an Account
+skills:
+  - rent-and-space
+  - account-layout
+  - typescript
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: exercise/starter.ts
+    solution: exercise/solution.ts
+    tests: exercise/tests.json
+    hints:
+      - "The discriminator is unconditional — it is there even when the account has no fields at all. Start your total at 8 rather than at 0."
+      - "`hasBump` contributes 1 byte, not 8. A bump is a `u8`; there is no alignment padding to round it up."
+    tutorNotes:
+      - "Learners returning `numU64Fields * 8` forget the 8-byte discriminator; the `empty-account` case is what catches it."
+      - "Some add 8 for the bump by pattern-matching the u64 size. A bump is a u8 — exactly 1 byte."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You size a vault account at 49 bytes and later want to add a
+          `Vec<Pubkey>` of up to 10 delegates. Predict what has to happen.
+        multiSelect: false
+        options:
+          - id: a
+            label: The account must be reallocated to a larger size and topped up with the rent difference
+            correct: true
+          - id: b
+            label: Nothing — the account grows on write, like a Solidity dynamic array
+            correct: false
+            feedback: >-
+              Nothing grows implicitly. The byte count was fixed when the account
+              was created; writing past it is an error, not an extension.
+          - id: c
+            label: The `Vec` is stored in a separate account automatically
+            correct: false
+            feedback: >-
+              Splitting state across accounts is a design you choose, never
+              something the runtime does for you.
+        explanation: >-
+          Size is declared, not discovered. Growing means `realloc` plus more
+          rent — which is exactly why worst-case sizing up front is such a common
+          pattern in production programs.
+      - id: q2
+        prompt: >-
+          A user closes their vault account. What happens to the lamports that
+          made it rent-exempt?
+        multiSelect: false
+        options:
+          - id: a
+            label: They are returned to whichever account the close instruction nominates
+            correct: true
+          - id: b
+            label: They are burned, since they paid for storage already consumed
+            correct: false
+            feedback: >-
+              Rent is a refundable deposit, not a consumed fee. That is precisely
+              why closing accounts is a normal operation rather than a write-off.
+          - id: c
+            label: They stay locked forever; only the data is cleared
+            correct: false
+            feedback: >-
+              If that were true, every abandoned account would permanently lock
+              SOL. Reclaiming the deposit is the point of closing.
+        explanation: >-
+          Rent-exemption is a deposit held against space. Give the space back and
+          you get the deposit back — the closest EVM analogue is the (much
+          smaller) gas refund for zeroing storage.

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "typical-bid",
+    "description": "200,000 CU at 5,000 micro-lamports/CU is 1,000 lamports",
+    "input": "200000, 5000",
+    "expectedOutput": "result === 1000"
+  },
+  {
+    "id": "no-bid-is-free",
+    "description": "A zero bid costs nothing in priority \u2014 the base signature fee is separate",
+    "input": "200000, 0",
+    "expectedOutput": "result === 0"
+  },
+  {
+    "id": "rounds-up",
+    "description": "A partial lamport rounds up: 1 CU at 1 micro-lamport is charged as 1 lamport, not 0",
+    "input": "1, 1",
+    "expectedOutput": "result === 1"
+  },
+  {
+    "id": "limit-drives-cost",
+    "description": "Requesting 1.4M CU at the same bid costs seven times a 200k request \u2014 over-requesting is not free",
+    "input": "1400000, 5000",
+    "expectedOutput": "result === 7000"
+  }
+]
