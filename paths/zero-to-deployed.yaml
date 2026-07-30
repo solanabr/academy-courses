@@ -5,11 +5,12 @@ description: The complete path from zero to your first deployed Solana program. 
 tag: Foundation
 order: 1
 difficulty: beginner
-# The live sequential ladder (trackId 1, trackLevel 2->5) after the catalog
-# migration. C1 (`course-solana-for-web-devs`, trackLevel 1) slots in FRONT of
-# this list when it lands (#673); it is the level-1 on-ramp and is authored
-# fresh, so it is intentionally absent until then.
+# The live sequential ladder (trackId 1, trackLevel 1->5) after the catalog
+# migration. C1 (`course-solana-for-web-devs`, trackLevel 1) is the level-1
+# on-ramp and now holds the front slot (#673 flip wave); the ladder reads
+# C1 -> C2 -> C3 -> C4 -> C5.
 courses:
+  - course-solana-for-web-devs
   - course-rust-for-program-devs
   - course-building-first-program
   - course-dapp-sdk-kit
