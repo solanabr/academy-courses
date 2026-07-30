@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-sfe-storage-to-accounts": 0,
+    "lesson-sfe-rent-and-space": 1,
+    "lesson-sfe-mappings-to-pdas": 2,
+    "lesson-sfe-msg-sender-to-signers": 3,
+    "lesson-sfe-gas-to-compute-units": 4,
+    "lesson-sfe-declared-accounts": 5,
+    "lesson-sfe-erc20-to-spl": 6,
+    "lesson-sfe-approve-to-delegate": 7,
+    "lesson-sfe-what-changes": 8
+  },
+  "retired": [],
+  "next": 9
+}

@@ -1,0 +1,68 @@
+id: course-solana-for-evm-devs
+slug: solana-for-evm-devs
+title: Solana for EVM Developers
+description: >-
+  You already ship on the EVM. You know why `msg.sender` is trustworthy, what a
+  `mapping` costs you, and how a revert unwinds state. None of that knowledge is
+  wasted here — but almost all of it is filed in the wrong drawer. This course
+  re-files it. Storage becomes accounts you allocate and pay rent for. A
+  `mapping` becomes a program-derived address you compute off-chain before you
+  ever send a transaction. `msg.sender` becomes a list of signers the runtime
+  verified before your code ran. Gas becomes a compute budget you can measure
+  and a priority fee you set separately. `approve` becomes a delegate that can
+  be revoked. You finish able to read a Solana transaction and say what it
+  touches, what it costs, and who authorized it — without translating it back
+  into Solidity first. Version stamp — `@solana/kit` 7.0.0 ·
+  `@solana-program/compute-budget` 0.17.0 · `@solana-program/token` 0.15.0 ·
+  `anchor-lang` 1.1.2 · authored 2026-07-30.
+difficulty: intermediate
+duration: 6
+xpPerLesson: 20
+xpReward: 500
+creatorRewardXp: 30
+minCompletionsForReward: 10
+# Unsequenced elective (owner 2026-07-30): trackId/trackLevel 0 keeps this course
+# OFF the sequential trackId 1 / trackLevel 1-5 path, so it cannot collide with
+# C1 (solana-for-web-devs, 1/1) — both values are effectively immutable once the
+# course is created on-chain.
+trackId: 0
+trackLevel: 0
+# creator: platform authority per owner 2026-07-30; swap to instructor wallet
+# before on-chain create.
+creator: B7o8NfV81HzjuZFWQTTx3Xdvh77Dqoajwib3kWEnvzJF
+modules:
+  - key: sfe-state
+    title: State Lives in Accounts
+    description: >-
+      The single largest mental move: a Solana program owns no storage. Code and
+      state are different accounts, state is allocated with a size you choose and
+      paid for with rent, and the `mapping` you would have reached for becomes an
+      address you derive. Get this module wrong and everything after it reads as
+      arbitrary.
+    lessons:
+      - lesson-sfe-storage-to-accounts
+      - lesson-sfe-rent-and-space
+      - lesson-sfe-mappings-to-pdas
+  - key: sfe-execution
+    title: Execution, Signers, and Fees
+    description: >-
+      Who authorized this, what will it touch, and what does it cost — three
+      questions the EVM answers implicitly and Solana makes you answer up front.
+      `msg.sender` becomes a verified signer list, gas becomes a compute budget
+      priced separately from priority, and the account list you must declare in
+      advance is the reason transactions can run in parallel.
+    lessons:
+      - lesson-sfe-msg-sender-to-signers
+      - lesson-sfe-gas-to-compute-units
+      - lesson-sfe-declared-accounts
+  - key: sfe-tokens
+    title: Tokens and Composability
+    description: >-
+      ERC-20 is a contract you deploy; SPL Token is one program everybody shares,
+      and your balance is an account it owns on your behalf. That inversion
+      changes what a transfer is, where `approve` lives, and why composing two
+      protocols is a CPI rather than an external call into unknown code.
+    lessons:
+      - lesson-sfe-erc20-to-spl
+      - lesson-sfe-approve-to-delegate
+      - lesson-sfe-what-changes

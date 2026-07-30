@@ -54,6 +54,24 @@ Three positioning claims are **retired** because they do not survive contact wit
 
 **Total: 57 lessons.** Note the shape: 8 / 14 / 15 / 11 / 9. Length follows material. The largest-audience on-ramp is the _shortest_; the documented industry drop-off cliff is the _second longest_. This is the inverse of the current catalog, where the beginner on-ramp has the least prose (2,175 words) and the advanced DeFi course has the most (4,927).
 
+### Addendum — adopted electives (outside the path)
+
+The five courses above are the **sequential path**: `trackId 1`, `trackLevel 1–5`, each consuming the previous course's artifact. A course that is neither a rung of that path nor a rewrite of an existing one is an **elective**: it ships at `trackId 0 / trackLevel 0`, is entered directly, hands nothing forward, and is therefore free to be adopted from outside this blueprint without renumbering anything. Both fields are effectively immutable after on-chain creation, so the 0/0 placement is the decision, not a placeholder.
+
+Everything else in this document still binds an elective — §6's currency ruling and version stamps, §4's structural principles, §5's authoring rules, and the licensing section — because those are contracts about quality, not about sequence.
+
+| #   | Slug                    | Title                    | Stack area                                                                                            | Segment                    | Lessons (modules) | Artifact                                                                                | trackId/trackLevel | Adopted    | Author                     |
+| --- | ----------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- | -------------------------- | ----------------- | ----------------------------------------------------------------------------------------- | ------------------ | ---------- | -------------------------- |
+| 6   | `solana-for-evm-devs`   | Solana for EVM Developers | Mental-model translation — account model, rent, PDAs, signers, compute budget, SPL Token, vs the EVM  | 2 (EVM devs crossing over) | **9** (3/3/3)     | No build artifact — a conceptual translation table plus four graded reasoning exercises | **0 / 0**          | 2026-07-30 | David Potolski (`Potolski`) |
+
+**Why it is an elective and not a rung.** It presumes working Solidity, which no course on the path does, and it produces no artifact the next course consumes — so it cannot sit at `trackLevel 1` (occupied by C1, immutable on-chain) and it would break the through-line anywhere else. It is a **side door into C2/C3** for segment-2 developers who already ship on the EVM: finish it and the natural next move is `rust-for-program-devs` or straight to `building-your-first-solana-program`.
+
+**Economics.** `xpPerLesson` 20 · `xpReward` 500 · `creatorRewardXp` 30 · `minCompletionsForReward` 10 — house values, identical to the path courses. **Version stamp: `@solana/kit` 7.0.0, `@solana-program/compute-budget` 0.17.0, `@solana-program/token` 0.15.0, `anchor-lang` 1.1.2, checked 2026-07-30.**
+
+**Open item (PB-7).** `creator` is currently the platform authority `B7o8Nf…`, per owner decision 2026-07-30. It must be swapped to the instructor's own wallet **before on-chain create** — `creator` is immutable afterwards, and this course is the platform's first genuinely external-instructor submission, which is exactly the case PB-7 exists for.
+
+**Precedent this sets.** Adoption is a real intake path, not a one-off. An externally authored course enters as an elective at 0/0, passes the same adversarial review and the same §6 currency gate as anything written in-house, and never renumbers the path. Add a row here when one lands.
+
 ### Why each course exists
 
 **1 — `solana-for-web-devs` (8).** The on-ramp gates the whole funnel: ~84% of paid Earn dev work is reachable with TypeScript alone, and every later act assumes a signer and an RPC. Differentiation is dateable — solana.com labels `@solana/web3.js` v1 _and_ `@solana/wallet-adapter-*` superseded, and every free alternative teaches them. Being the first sequenced, graded, version-stamped Kit curriculum is a real claim while it lasts. Lesson 1 reads _our_ deployed reference vault, so the learner uses the product before building it — fixing the structural asymmetry where act one otherwise consumes nothing. Eight, not twelve: the current course spends position 2 on a local Rust/Anchor install (the exact friction the build server exists to remove) and three of its five challenges are mock objects. First executed code lands at lesson 2 instead of lesson 5, and the first completion moment is reachable in one sitting.

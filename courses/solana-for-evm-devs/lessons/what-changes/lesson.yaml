@@ -1,0 +1,70 @@
+id: lesson-sfe-what-changes
+slug: what-changes
+title: What Actually Changed
+skills:
+  - solana-fundamentals
+  - account-model
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          Which EVM instinct transfers to Solana essentially unchanged?
+        multiSelect: false
+        options:
+          - id: a
+            label: Access control is the dominant bug class, and checked arithmetic is not optional
+            correct: true
+          - id: b
+            label: Minimize writes above all, because storage writes dominate cost
+            correct: false
+            feedback: >-
+              That is an `SSTORE` instinct. Solana's recurring cost is rent for
+              space; compute inside your budget is close to free, so the
+              optimization target moves.
+          - id: c
+            label: Assume 18 decimals unless told otherwise
+            correct: false
+            feedback: >-
+              A convention that does not hold here. USDC is 6, wrapped SOL is 9,
+              many NFTs are 0 — read `decimals` from the mint.
+        explanation: >-
+          The security instincts survive the move; the storage-cost instincts do
+          not. Keep the paranoia about who is authorized and about overflow, and
+          rebuild the intuitions about what state costs.
+      - id: q2
+        prompt: >-
+          A colleague says "Solana is just Ethereum with parallel execution
+          bolted on". What is the most accurate correction?
+        multiSelect: false
+        options:
+          - id: a
+            label: Parallelism is a consequence of declaring accounts up front, not a feature added on top
+            correct: true
+          - id: b
+            label: The models are the same; Solana is only faster hardware and bigger blocks
+            correct: false
+            feedback: >-
+              The account model, PDAs and the shared token program are structural
+              differences, not throughput tuning.
+          - id: c
+            label: Solana cannot express what the EVM can, so it trades capability for speed
+            correct: false
+            feedback: >-
+              The expressive gaps are narrow. What changes is where state lives and
+              how authority is proven, not what can be built.
+        explanation: >-
+          The declared account list comes first; parallel scheduling is what that
+          declaration makes possible. Nearly every ergonomic friction in this
+          course pays for that one property.
+  - key: reflect
+    type: openEnded
+    prompt: >-
+      Pick one system you have built on the EVM. Which single part of it would
+      change most under the account model — and would it come out simpler or more
+      complicated? Be specific about the state.
+    maxWords: 180

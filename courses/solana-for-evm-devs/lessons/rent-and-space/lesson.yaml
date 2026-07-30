@@ -1,0 +1,84 @@
+id: lesson-sfe-rent-and-space
+slug: rent-and-space
+title: Rent, and Sizing an Account
+skills:
+  - rent-and-space
+  - account-layout
+  - typescript
+versionStamp:
+  checkedAt: "2026-07-30"
+  packages:
+    "@anchor-lang/core": "1.1.2"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: exercise
+    type: code
+    language: typescript
+    starter: exercise/starter.ts
+    solution: exercise/solution.ts
+    tests: exercise/tests.json
+    hints:
+      - "The discriminator is unconditional — it is there even when the account has no fields at all. Start your total at 8 rather than at 0."
+      - "`hasBump` contributes 1 byte, not 8. A bump is a `u8`; there is no alignment padding to round it up."
+    tutorNotes:
+      - "Learners returning `numU64Fields * 8` forget the 8-byte discriminator; the `empty-account` case is what catches it."
+      - "Some add 8 for the bump by pattern-matching the u64 size. A bump is a u8 — exactly 1 byte."
+      - "They ask why they are counting bytes by hand when Anchor has `#[derive(InitSpace)]` and `Vault::INIT_SPACE`. The honest answer: in real code you use it, and you should. But `INIT_SPACE` does NOT include the 8-byte discriminator — the idiomatic constraint is `space = 8 + Vault::INIT_SPACE` — so the one number the macro leaves you to remember is exactly the one this exercise drills. A learner who never counted by hand writes `space = Vault::INIT_SPACE` and is eight bytes short."
+      - "They ask what happens if the number is too small. Not a silent truncation: the write fails and the transaction fails. Too LARGE is the quieter bug — it never errors, every user just overpays the rent deposit forever, and nobody notices until someone reads an account and finds a tail of zeros."
+      - "\"Then why not allocate 10 KB and stop worrying?\" Because the deposit scales with size and the payer is usually the user, and because 10 KB is the hard per-instruction allocation ceiling anyway. Sizing is a real design decision, which is the point of the lesson."
+      - "If they ask about `String` or `Vec`: the 4-byte length prefix in the table is the *header*, not the contents. A `Vec<Pubkey>` capped at 10 is `4 + 10 * 32`, and you must size for the cap because nothing grows on write."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You size a vault account at 49 bytes and later want to add a
+          `Vec<Pubkey>` of up to 10 delegates. Predict what has to happen.
+        multiSelect: false
+        options:
+          - id: a
+            label: The account must be reallocated to a larger size and topped up with the rent difference
+            correct: true
+          - id: b
+            label: Nothing — the account grows on write, like a Solidity dynamic array
+            correct: false
+            feedback: >-
+              Nothing grows implicitly. The byte count was fixed when the account
+              was created; writing past it is an error, not an extension.
+          - id: c
+            label: The `Vec` is stored in a separate account automatically
+            correct: false
+            feedback: >-
+              Splitting state across accounts is a design you choose, never
+              something the runtime does for you.
+        explanation: >-
+          Size is declared, not discovered. Growing means `realloc` plus more
+          rent — which is exactly why worst-case sizing up front is such a common
+          pattern in production programs.
+      - id: q2
+        prompt: >-
+          A user closes their vault account. What happens to the lamports that
+          made it rent-exempt?
+        multiSelect: false
+        options:
+          - id: a
+            label: They are returned to whichever account the close instruction nominates
+            correct: true
+          - id: b
+            label: They are burned, since they paid for storage already consumed
+            correct: false
+            feedback: >-
+              Rent is a refundable deposit, not a consumed fee. That is precisely
+              why closing accounts is a normal operation rather than a write-off.
+          - id: c
+            label: They stay locked forever; only the data is cleared
+            correct: false
+            feedback: >-
+              If that were true, every abandoned account would permanently lock
+              SOL. Reclaiming the deposit is the point of closing.
+        explanation: >-
+          Rent-exemption is a deposit held against space. Give the space back and
+          you get the deposit back — the closest EVM analogue is the (much
+          smaller) gas refund for zeroing storage.

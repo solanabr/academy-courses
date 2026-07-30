@@ -1,0 +1,26 @@
+[
+  {
+    "id": "usdc-six-decimals",
+    "description": "1.5 USDC at 6 decimals is 1,500,000 base units",
+    "input": "1.5, 6",
+    "expectedOutput": "result === 1500000"
+  },
+  {
+    "id": "zero-decimals",
+    "description": "A 0-decimal token (a typical NFT) converts 1 to 1 \u2014 decimals must be read, not assumed",
+    "input": "1, 0",
+    "expectedOutput": "result === 1"
+  },
+  {
+    "id": "wrapped-sol-nine-decimals",
+    "description": "0.5 wrapped SOL at 9 decimals is 500,000,000 lamports",
+    "input": "0.5, 9",
+    "expectedOutput": "result === 500000000"
+  },
+  {
+    "id": "no-floating-point-dust",
+    "description": "0.07 at 2 decimals is exactly 7 \u2014 binary floating point makes this 7.000000000000001 without rounding",
+    "input": "0.07, 2",
+    "expectedOutput": "result === 7"
+  }
+]
