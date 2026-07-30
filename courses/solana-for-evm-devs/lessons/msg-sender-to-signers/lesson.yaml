@@ -50,8 +50,9 @@ blocks:
             label: It is exposed as the first account in every transaction's account list
             correct: false
             feedback: >-
-              The first account is the fee payer by convention, which is not the
-              same thing and must not be treated as an authorization signal.
+              The first account is the fee payer — that position is fixed by the
+              protocol, not a convention — but paying a fee is not authorizing
+              anything, so it must never be read as an authorization signal.
           - id: c
             label: It is available but discouraged, exactly as in Solidity
             correct: false

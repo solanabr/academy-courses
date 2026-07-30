@@ -1,5 +1,7 @@
 # A `mapping` becomes an address you can compute
 
+> Version stamp — `@solana/kit` 7.0.0 · authored 2026-07-30.
+
 `balances[user]` is a hash of the slot number and the key, resolved by the EVM at
 read time inside the contract's storage. You never see the location; you just
 index.
@@ -12,15 +14,37 @@ anything.
 That address is a **program-derived address** — a PDA.
 
 ```ts
-const [vaultPda, bump] = PublicKey.findProgramAddressSync(
-  [Buffer.from("vault"), owner.toBuffer()],
-  programId
-);
+import {
+  getProgramDerivedAddress,
+  getUtf8Encoder,
+  getAddressEncoder,
+} from "@solana/kit";
+
+const [vaultPda, bump] = await getProgramDerivedAddress({
+  programAddress: VAULT_PROGRAM,
+  seeds: [
+    getUtf8Encoder().encode("vault"),
+    getAddressEncoder().encode(owner),
+  ],
+});
 ```
 
-Given the same seeds and the same program id, everyone computes the same
+Given the same seeds and the same program address, everyone computes the same
 address — your frontend, your tests, another protocol integrating with you. The
 mapping key became part of the address itself.
+
+Two things to notice in that snippet, because both bite EVM developers on day
+one. Seeds are **encoded bytes**, never bare JavaScript strings — the encoders
+are how `"vault"` and a 32-byte address become the byte sequences that get
+hashed. And the call is **awaited**: the derivation searches (see below), so it
+is async, and a forgotten `await` hands you a `Promise` where an address should
+be. That is the single most common porting mistake into this API.
+
+> **In the wild (checked 2026-07-30).** Almost every PDA snippet you will find
+> on Stack Overflow or in an existing repo reads
+> `PublicKey.findProgramAddressSync(seeds, programId)` from `@solana/web3.js`
+> v1 — synchronous, `Buffer`-based, and still holding npm's `latest` tag. It is
+> superseded. Read it fluently; write `getProgramDerivedAddress`.
 
 ## The two properties that matter
 
@@ -34,8 +58,8 @@ contract's storage is simply "being that contract".
 **The bump is the search.** Most seed combinations land *on* the curve, which
 would be a valid keypair address and therefore unusable. So the derivation
 appends a byte — the bump — and counts down from 255 until it finds an off-curve
-result. `findProgramAddressSync` returns the first one it finds (the *canonical*
-bump). Programs store that bump so they never repeat the search, and so an
+result. `getProgramDerivedAddress` returns the first one it finds (the
+*canonical* bump). Programs store that bump so they never repeat the search, and so an
 attacker cannot supply a different, non-canonical bump to derive a second valid
 address for the same logical key.
 

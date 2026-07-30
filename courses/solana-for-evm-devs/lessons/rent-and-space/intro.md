@@ -1,13 +1,26 @@
 # Storage costs rent, and the size is yours to choose
 
+> Version stamp — Anchor 1.1.2 (`@anchor-lang/core` 1.1.2) · authored
+> 2026-07-30.
+
 On the EVM you pay for storage once, at write time, in gas. `SSTORE` is
 expensive precisely because the network stores that word forever. There is no
 ongoing cost and no size declaration — you write to slot 7 and slot 7 exists.
 
 Solana charges differently. An account occupies validator memory for as long as
 it exists, so it must hold a minimum lamport balance proportional to its size.
-That balance is called **rent**, and an account holding at least two years'
-worth is **rent-exempt** — the only state anyone actually creates in practice.
+That balance is called **rent**, and an account holding it is **rent-exempt**.
+
+Read "rent" as a **deposit**, not a subscription. The name is historical: Solana
+once did debit accounts periodically, and an account that ran dry was collected.
+That mechanism is gone. Today rent-exemption is enforced by the runtime *at
+creation* — an account that does not hold the minimum for its size is not
+created at all, the instruction fails, and there is no such thing as a
+partially-funded account slowly draining. Nothing is billed over time and
+nothing is erased for non-payment. Every account on the chain is rent-exempt,
+because the runtime accepts no other kind.
+
+The deposit stays yours: close the account and it comes back in full.
 
 Two things follow, and both are alien coming from Solidity.
 

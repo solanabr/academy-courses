@@ -5,6 +5,11 @@ skills:
   - spl-tokens
   - account-model
   - typescript
+versionStamp:
+  checkedAt: "2026-07-30"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@solana-program/token": "0.15.0"
 blocks:
   - key: intro
     type: prose
@@ -22,6 +27,8 @@ blocks:
       - "The hardcoded 18 is the intended trap: it passes nothing and makes the ERC-20 assumption visible."
       - "Learners who fix the exponent but skip rounding pass three cases and fail `no-floating-point-dust`; that case exists to teach that base units are integers."
       - "Production code uses BigInt for real amounts — `number` loses precision past 2^53. Say so if it comes up; the exercise uses `number` to keep the harness simple."
+      - "\"Where does `decimals` actually come from?\" The mint account, read once — it is a field on the mint, not on the token account and not on the wallet. If they are about to hardcode 6 because \"everything is USDC\", that is the same bug as hardcoding 18, one chain over."
+      - "They ask why the ATA derivation in the intro has THREE seeds when lesson 3's vault had two. The token program address sits in the middle — `[owner, token_program, mint]` — because the same wallet can hold the same mint under classic SPL Token and under Token-2022, and those must be different accounts. It is also derived under the Associated Token Account program, not under the token program in its own seed list; people miss that and get an address that does not exist."
   - key: check
     type: quiz
     questions:
@@ -47,9 +54,9 @@ blocks:
               balance is a separate account.
         explanation: >-
           "Send and it just works" is an ERC-20 assumption that does not survive
-          the account model. This is why client libraries wrap the pattern as
-          `getOrCreateAssociatedTokenAccount` — creation is a funded step, not a
-          side effect.
+          the account model. The idiomatic answer is to prepend an idempotent
+          create-ATA instruction to the same transaction as the transfer —
+          creation is a funded step you author, not a side effect.
       - id: q2
         prompt: >-
           Why can a base SPL token not implement fee-on-transfer the way an ERC-20

@@ -1,5 +1,8 @@
 # Gas splits into two separate things
 
+> Version stamp — `@solana/kit` 7.0.0 · `@solana-program/compute-budget` 0.17.0
+> · authored 2026-07-30.
+
 On the EVM, one number does two jobs. Gas meters how much work you did *and*, via
 gas price, how badly you want to be included. Raise the price and you buy
 priority; run an expensive loop and you pay more for the same priority.
@@ -29,15 +32,34 @@ Two consequences that will surprise you:
 
 ## Setting them
 
-Both are instructions from the Compute Budget program, prepended to your
+Both are instructions from the Compute Budget program, added to your
 transaction:
 
 ```ts
-ComputeBudgetProgram.setComputeUnitLimit({ units: 300_000 });
-ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 5_000 });
+import {
+  getSetComputeUnitLimitInstruction,
+  getSetComputeUnitPriceInstruction,
+} from "@solana-program/compute-budget";
+
+getSetComputeUnitLimitInstruction({ units: 300_000 });
+getSetComputeUnitPriceInstruction({ microLamports: 5_000 });
 ```
 
-The first says how much room you need. The second is your priority bid.
+The first says how much room you need. The second is your priority bid. They are
+plain instructions like any other — you append them to a transaction message and
+they carry no accounts.
+
+Two honest footnotes. Putting them first is a **convention, not a protocol
+rule**: the runtime finds them anywhere in the transaction. The real constraints
+are at most one of each kind (a duplicate fails with `DuplicateInstruction`) and
+the 1.4M-CU clamp. And for *estimating* the limit rather than hardcoding it, the
+current API lives in Kit itself — `estimateResourceLimitsFactory({ rpc })` and
+`estimateAndSetResourceLimitsFactory(estimator)` — not in this package.
+
+> **In the wild (checked 2026-07-30).** The snippet you will find in nearly
+> every tutorial is `ComputeBudgetProgram.setComputeUnitLimit({...})` from
+> `@solana/web3.js` v1, a static class method. Same two instructions, superseded
+> API. Read it; write the builders above.
 
 ## The arithmetic worth internalizing
 

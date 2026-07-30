@@ -5,6 +5,10 @@ skills:
   - pdas
   - account-model
   - typescript
+versionStamp:
+  checkedAt: "2026-07-30"
+  packages:
+    "@solana/kit": "7.0.0"
 blocks:
   - key: intro
     type: prose
@@ -19,8 +23,12 @@ blocks:
       - "The starter returns `[owner]` — one seed. The convention in the prose is two: the literal namespace prefix, then the owner."
       - "Return the prefix as a plain string literal in the array, in first position. `[\"vault\", owner]` — not `[owner, \"vault\"]`, which derives a different address entirely."
     tutorNotes:
-      - "Learners order the seeds owner-first; the derivation is order-sensitive, so that is a different (and unused) address."
-      - "Some add a third seed such as a bump. The bump is appended by the derivation itself, not authored in the seed list."
+      - "Learners order the seeds owner-first; the derivation is order-sensitive, so that is a different (and unused) address. Stress that this does not throw — it returns a perfectly real address that simply is not the vault. Wrong seed order is a silent wrong address, never an error."
+      - "Some add a third seed such as a bump, and `exactly-two-seeds` catches it. This is the lesson's most common confusion, so name the two roles apart: the SEEDS are your program's public interface, chosen by you; the BUMP is the search result the derivation appends by itself to land off the curve. You author seeds, never a bump. (The exception — a program replaying its own stored canonical bump to sign — is a different call and comes later.)"
+      - "\"Why store the bump at all, then?\" Two reasons, and the second is a security bug. The search costs real compute on-chain, and — more importantly — several bumps below the canonical one may also land off-curve, each deriving a DIFFERENT valid address for the same logical key. Storing and re-checking the canonical bump is what stops an attacker handing you a second vault for the same owner."
+      - "They ask why the exercise returns plain strings when the intro shows `getUtf8Encoder().encode(...)`. The exercise isolates ordering with no crypto in the sandbox; in production seeds are ENCODED bytes, never bare JS strings, and a string handed straight to the real API is a type error."
+      - "They forget the `await` when they later write real Kit code. `getProgramDerivedAddress` is async — the bump search is why — so a missing await yields a `Promise` where an address should be. It is the number one porting mistake from `findProgramAddressSync`, which was synchronous."
+      - "Someone will ask what happens if the seeds exceed the limit: a seed is at most 32 bytes and there are at most 16 of them. Hashing a long value down to 32 bytes yourself is the normal escape hatch, and it is why you see `hash(name)` as a seed rather than the name."
   - key: check
     type: quiz
     questions:

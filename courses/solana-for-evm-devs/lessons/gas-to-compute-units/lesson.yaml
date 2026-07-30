@@ -6,6 +6,11 @@ skills:
   - priority-fees
   - transaction-fees
   - typescript
+versionStamp:
+  checkedAt: "2026-07-30"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@solana-program/compute-budget": "0.17.0"
 blocks:
   - key: intro
     type: prose
@@ -20,8 +25,12 @@ blocks:
       - "The starter never converts units — it returns micro-lamports. Divide by 1,000,000 to reach lamports."
       - "`Math.ceil`, not `Math.round` or `Math.floor`. The `rounds-up` case is 1 CU at 1 micro-lamport: a true value of 0.000001 lamports must still be charged as 1."
     tutorNotes:
-      - "Learners divide but use `Math.floor` or plain truncation, so the sub-lamport case returns 0."
+      - "Learners divide but use `Math.floor` or plain truncation, so the sub-lamport case returns 0. The network rounds against the payer, never in their favour."
       - "Some divide by 1,000 (confusing micro- with milli-). The factor between micro-lamports and lamports is 10^6."
+      - "The big one: they conflate the LIMIT with the PRICE. Two instructions, two jobs — the limit is how much room you reserve (a hard ceiling; exceed it and the transaction fails), the price is your bid per unit reserved. Raising the limit does not make you go faster; raising the price does not give you more room. Ask a stuck learner which one fixes an out-of-CU failure: the limit — and it costs real money at the current price."
+      - "Follow-on from the same confusion: they expect the fee to scale with compute CONSUMED, as gas does. It scales with compute REQUESTED. This is why `limit-drives-cost` exists — 1.4M CU at the same bid costs seven times a 200k request even if the instruction burns 6,000 units. \"Request 1.4M to be safe\" is a real bill."
+      - "\"So does optimizing my program save users money?\" Mostly no, and that surprises people coming from `SSTORE` accounting. Base fee is flat per signature and priority is per unit REQUESTED, so the saving only lands if you also lower the requested limit. What optimization really buys is headroom — fitting under the ceiling — not fees."
+      - "If they ask where the number to request comes from: simulate the transaction, read the units actually consumed, add roughly 10% margin. Consumption varies slightly run to run, so a limit pinned at one observed value fails intermittently. Simulate-then-tighten is a normal part of the send path here, not a debugging step."
   - key: check
     type: quiz
     questions:
@@ -70,7 +79,7 @@ blocks:
             correct: false
             feedback: >-
               Nothing is raised for you. Requesting more is an explicit
-              `setComputeUnitLimit` instruction you prepend.
+              `getSetComputeUnitLimitInstruction` you add to the transaction.
         explanation: >-
           Unlike gas, where a higher limit simply risks spending more, the compute
           budget is a hard ceiling. Fitting is a build-time concern, which is why

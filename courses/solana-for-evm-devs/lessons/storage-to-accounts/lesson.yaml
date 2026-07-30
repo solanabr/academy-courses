@@ -56,13 +56,16 @@ blocks:
             label: It compiles and silently no-ops, so you must check the owner yourself
             correct: false
             feedback: >-
-              Checking the owner yourself is still good practice for accounts you
-              *read*, but an illegal write is refused by the runtime, not ignored.
+              Closer than it looks — the store does land in the buffer — but it is
+              not ignored. The runtime compares the account after your instruction
+              returns and fails the whole transaction, discarding every effect.
         explanation: >-
-          "Only the owner may write" is enforced by the runtime before your logic
-          matters. This is why `owner` checks are the first thing an auditor looks
-          for on accounts you merely read — the runtime protects your writes, not
-          your assumptions about someone else's data.
+          "Only the owner may write" is verified by the runtime after your
+          instruction returns, and an illegal change fails the transaction rather
+          than reverting inside your code. This is why `owner` checks are the
+          first thing an auditor looks for on accounts you merely *read* — the
+          runtime protects your writes, not your assumptions about someone else's
+          data.
       - id: q3
         prompt: >-
           Compared with upgrading a Solidity contract behind a proxy, what is

@@ -12,15 +12,23 @@ description: >-
   and a priority fee you set separately. `approve` becomes a delegate that can
   be revoked. You finish able to read a Solana transaction and say what it
   touches, what it costs, and who authorized it — without translating it back
-  into Solidity first.
+  into Solidity first. Version stamp — `@solana/kit` 7.0.0 ·
+  `@solana-program/compute-budget` 0.17.0 · `@solana-program/token` 0.15.0 ·
+  `anchor-lang` 1.1.2 · authored 2026-07-30.
 difficulty: intermediate
 duration: 6
 xpPerLesson: 20
 xpReward: 500
-creatorRewardXp: 25
-minCompletionsForReward: 5
-trackId: 1
-trackLevel: 1
+creatorRewardXp: 30
+minCompletionsForReward: 10
+# Unsequenced elective (owner 2026-07-30): trackId/trackLevel 0 keeps this course
+# OFF the sequential trackId 1 / trackLevel 1-5 path, so it cannot collide with
+# C1 (solana-for-web-devs, 1/1) — both values are effectively immutable once the
+# course is created on-chain.
+trackId: 0
+trackLevel: 0
+# creator: platform authority per owner 2026-07-30; swap to instructor wallet
+# before on-chain create.
 creator: B7o8NfV81HzjuZFWQTTx3Xdvh77Dqoajwib3kWEnvzJF
 modules:
   - key: sfe-state

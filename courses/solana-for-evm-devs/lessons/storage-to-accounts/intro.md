@@ -19,8 +19,17 @@ it is stricter than anything in the EVM:
 
 Every account carries an `owner` field — the public key of the program allowed
 to modify its data. When your program writes to an account it does not own, the
-runtime rejects the transaction. Not a revert your code chose; a refusal before
-your logic gets a say.
+whole transaction fails. Not a revert your code chose; a refusal the runtime
+imposes on you.
+
+Worth being precise about *when*, because it is not what a Solidity developer
+expects. The write itself is not trapped at the moment it happens — your program
+is handed a mutable buffer and the store lands in memory. The runtime verifies
+ownership **after your instruction returns**, comparing the account against what
+it looked like going in; an illegal change fails the transaction and every
+effect is discarded. So your code can appear to "succeed" right up until it
+does not. The guarantee is on the committed result, not on the individual
+instruction that produced it.
 
 This is why you will see Solana developers say "the program owns the account"
 where you would say "the contract holds the state". The account exists
@@ -62,5 +71,7 @@ job, which is why Solana programs spend real effort on serialization in a way
 Solidity developers never have to think about.
 
 Hold on to the envelope. `lamports` and `owner` come back in the next lesson, in
-a way that has no EVM analogue at all: on Solana, keeping data alive costs money
-continuously, and an account that stops paying can be erased.
+a way that has no EVM analogue at all: on Solana an account must hold a minimum
+lamport balance for its size before the runtime will let it exist at all. That
+balance is a **refundable deposit**, not a meter — nothing is ever billed
+against it over time, and no account is erased for non-payment.
