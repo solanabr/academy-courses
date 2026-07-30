@@ -1,0 +1,318 @@
+id: lesson-sfwd-kit-or-legacy
+slug: kit-or-legacy
+title: Kit, or What You'll Find in the Wild
+skills:
+  - solana-kit
+  - api-currency
+  - transactions
+  - account-model
+  - pdas
+versionStamp:
+  checkedAt: "2026-07-28"
+  packages:
+    "@solana/kit": "7.0.0"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  # Cumulative retrieval across lessons 1-4, each item framed against
+  # UNFAMILIAR legacy code — spacing checkpoint, per the catalog's
+  # concept-retrieval shape.
+  - key: cumulative
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          In a v1 codebase you read
+          `const info = await connection.getAccountInfo(new PublicKey(addr));
+          console.log(info.owner.toBase58());`
+          For the vault account from lesson 1, what does that log?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The vault PROGRAM's address, D7ZF… — owner on an account is the
+              owning program, in v1 and Kit alike
+            correct: true
+          - id: b
+            label: >-
+              The wallet address stored inside the vault's data
+            correct: false
+            feedback: >-
+              The wallet lives at bytes 8–39 of the account DATA and needs
+              your decoder. `info.owner` is the account's owning program —
+              same account model, older API.
+          - id: c
+            label: >-
+              The fee payer of the last transaction to touch the account
+            correct: false
+            feedback: >-
+              No API surfaces that. The account model is package-independent:
+              owner means owning program, and the human owner is a field your
+              lesson-2 decoder reads.
+        explanation: >-
+          The account model does not change with the SDK: owner is the owning
+          program. Different clothes (`info.owner.toBase58()` vs the
+          `ownerProgram` you will read in Kit), same fact from lesson 1.
+      - id: q2
+        prompt: >-
+          A v1 snippet reads a vault balance with
+          `data.readBigUInt64LE(40)` (Node Buffer API). Which lesson-2 fact
+          is it depending on?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The layout — a u64 at offset 40, little-endian — which belongs
+              to the PROGRAM's account definition, not to any SDK
+            correct: true
+          - id: b
+            label: >-
+              A v1-specific byte order that Kit later changed
+            correct: false
+            feedback: >-
+              Byte order is a property of the stored bytes, decided by the
+              program that wrote them. Node's readBigUInt64LE, your
+              DataView's getBigUint64(40, true), and Kit's getU64Decoder all
+              read the same little-endian bytes.
+          - id: c
+            label: >-
+              Nothing — offset 40 is where balances live on all Solana
+              accounts
+            correct: false
+            feedback: >-
+              There is no universal balance offset; each program defines its
+              own layout. Offset 40 is specific to this vault's
+              discriminator + owner + balance + bump arrangement.
+        explanation: >-
+          Layouts belong to programs, not SDKs. Whatever the reading code
+          looks like — Buffer, DataView, or Kit codec — it must encode the
+          same knowledge: u64, offset 40, little-endian.
+      - id: q3
+        prompt: >-
+          You port `PublicKey.findProgramAddressSync([Buffer.from('vault'),
+          owner.toBuffer()], programId)` to Kit and write
+          `const [addr] = getProgramDerivedAddress({ programAddress, seeds })`.
+          It compiles, then things break downstream. Why?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The await is missing — Kit's derivation is async, so addr holds
+              a piece of a Promise, not an address
+            correct: true
+          - id: b
+            label: >-
+              The seed order flipped during the port
+            correct: false
+            feedback: >-
+              The order shown matches: constant first, then owner — the same
+              order lesson 3 taught. The bug is the missing await; the v1
+              function was synchronous and the Kit one is not.
+          - id: c
+            label: >-
+              Kit returns only the address, not a pair
+            correct: false
+            feedback: >-
+              Kit returns the [address, bump] pair too. What changed is the
+              synchrony: forget the await and you destructure a Promise —
+              the single most common porting mistake on this exact line.
+        explanation: >-
+          v1's derivation was sync; Kit's is async. The seams where sync
+          became async are exactly where ports break silently — the compiler
+          is happy, and the value is a Promise fragment.
+      - id: q4
+        prompt: >-
+          A v1 tutorial sends with no compute-budget instructions and calls
+          the fee "5,000 lamports, flat". From lesson 4, when is that claim
+          actually right?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Only when no compute-unit price applies — with any priority
+              price, the unset limit means paying it on the 200,000-CU
+              default per instruction
+            correct: true
+          - id: b
+            label: >-
+              Always — the 5,000 base fee is the whole fee on every chain
+            correct: false
+            feedback: >-
+              The base fee is 5,000 per signature, but the priority fee rides
+              on top: price × REQUESTED limit ÷ 1e6, and unset means the
+              200,000 default. The tutorial's claim quietly assumes price
+              zero.
+          - id: c
+            label: >-
+              Never — every transaction pays a priority fee
+            correct: false
+            feedback: >-
+              A zero-price transaction really does pay just the base fee —
+              your lesson-4 t4 case computed exactly that. The claim is
+              wrong only once a price applies, which on busy networks is
+              whenever you want to land.
+        explanation: >-
+          Fee = 5,000 × signatures + price × requested CU ÷ 1e6. The old
+          "flat fee" folklore is the price-zero special case — true in the
+          tutorial, expensive on a network where priority fees decide
+          inclusion.
+      - id: q5
+        prompt: >-
+          Reading a v1 codebase you meet `clusterApiUrl('devnet')` in one
+          file and a hardcoded mainnet URL in another. Kit's replacement is
+          "an explicit endpoint string". What problem is that explicitness
+          solving?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Which chain the code targets becomes visible and searchable at
+              every call site — no helper hiding a cluster choice you then
+              debug for an hour, lesson 1's ?cluster lesson in code form
+            correct: true
+          - id: b
+            label: >-
+              clusterApiUrl endpoints were rate-limited harder than literal
+              strings
+            correct: false
+            feedback: >-
+              Rate limits attach to endpoints, not to how the URL string was
+              produced. The gain is legibility: the chain your code talks to
+              is written where you can read it, grep it, and diff it.
+          - id: c
+            label: >-
+              Kit cannot construct URLs at runtime
+            correct: false
+            feedback: >-
+              Kit accepts any string, computed or not. The design choice is
+              to stop hiding the cluster decision inside a helper — the same
+              class of confusion as the explorer's silent mainnet default.
+        explanation: >-
+          "Account not found" from looking at the wrong chain is the same bug
+          whether a URL helper hid it or an explorer default did. Explicit
+          endpoints make the chain choice reviewable — one of the quiet
+          quality-of-life reasons the stack moved.
+      - id: q6
+        prompt: >-
+          A legacy snippet stores a balance as
+          `const bal = Number(info.lamports);` and a code reviewer flags it.
+          From lesson 2, when exactly does this line corrupt data?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              When the value exceeds 2^53 — Number silently rounds large
+              integers, so big balances change with no error
+            correct: true
+          - id: b
+            label: >-
+              Whenever the account is a PDA
+            correct: false
+            feedback: >-
+              PDAs have nothing to do with it — the hazard is numeric range.
+              Number is exact only to 2^53, and u64 lamport values can
+              exceed it; past that line, silent rounding.
+          - id: c
+            label: >-
+              Never — lamports always fit in a JavaScript number
+            correct: false
+            feedback: >-
+              A u64 ranges to ~1.8 × 10^19 and Number is exact to ~9 × 10^15.
+              Large treasuries and token amounts cross that line in
+              production. bigint end to end is the rule this course keeps.
+        explanation: >-
+          The 2^53 boundary is the whole argument for bigint lamports. The
+          legacy line works in demos and corrupts exactly when the money gets
+          big — the worst possible failure profile.
+  - key: drill
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Every right-hand answer is written verbatim in THE MAP table in the lesson above — this drill is open book; the work is connecting each legacy call to its row."
+      - "Two of the graded sequences never appear in the transfer flow: the account-read and the PDA/wallet fragment. Fill the WHOLE map, not just the rows the first test touches."
+      - "Copy the strings exactly — `await getProgramDerivedAddress({ programAddress, seeds })` includes the await, because in Kit that call really is async."
+    tutorNotes:
+      - "Learners fill only the rows the visible transfer flow uses and fail t3/t4, which grade an account-read and a PDA/wallet sequence. The map is the deliverable; the three plans are just probes into it."
+      - "They paraphrase the right-hand strings ('use address()' instead of 'address(base58)') and fail on strict equality. The lesson table is the answer key verbatim — this is retrieval-and-transcription by design, not creative writing."
+      - "They map findProgramAddressSync to 'getProgramDerivedAddress(...)' WITHOUT the await. The map entry includes the await deliberately — the sync-to-async seam is the most common real porting bug, and the string encodes it."
+      - "They map useWallet() to another React hook name. The answer is a protocol shift, not a hook rename: '@solana/kit-plugin-wallet (Wallet Standard)' — wallets implement the standard themselves; no per-wallet adapter packages exist in the Kit world."
+      - "They edit LEGACY_PLANS to make tests pass instead of filling MAP. The harness section is marked do-not-edit; redirect them to the empty strings in MAP."
+      - "If they ask why v1 fluency matters when they will never write it: the npm latest tag still ships v1 and ~2.1M weekly downloads read as existing codebases — reading the wild is a paid skill; writing it is technical debt."
+  - key: spot
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          First file of a bounty codebase you are evaluating shows
+          `import { useWallet } from '@solana/wallet-adapter-react'`. What
+          have you learned?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The codebase is on the legacy wallet stack — expect v1
+              patterns throughout; read fluently, and budget for the fact
+              that new code you write in Kit will sit across a seam
+            correct: true
+          - id: b
+            label: >-
+              Nothing — wallet-adapter is wallet plumbing, unrelated to
+              which SDK the codebase uses
+            correct: false
+            feedback: >-
+              The stacks travel together: wallet-adapter pairs with v1
+              web3.js in practice, and a codebase importing it will almost
+              certainly speak Connection/PublicKey everywhere. One import
+              line is a reliable fingerprint.
+          - id: c
+            label: >-
+              The codebase is broken — wallet-adapter no longer works
+            correct: false
+            feedback: >-
+              It works fine and runs half the dApps you have used —
+              superseded is not broken. The read is strategic: legacy stack
+              throughout, plan your reading and your seam accordingly.
+        explanation: >-
+          Package imports are the fastest codebase fingerprint. wallet-adapter
+          means the v1 world; Kit-side it would be @solana/kit-plugin-wallet
+          and Wallet Standard discovery. Neither is broken — but you should
+          know which world you are in by line 1.
+      - id: q2
+        prompt: >-
+          A 2024 tutorial's code runs `npm i @solana/web3.js` and uses
+          `new Connection(...)`. A colleague says "that package is
+          deprecated, the install must have failed". What actually happened?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The install worked — @solana/web3.js's latest tag still ships
+              v1, so the tutorial runs today even though the stack is
+              officially superseded
+            correct: true
+          - id: b
+            label: >-
+              npm redirected the install to @solana/kit
+            correct: false
+            feedback: >-
+              npm never swaps packages on you. The name @solana/web3.js
+              still resolves to v1 at the latest tag — which is precisely
+              why so much of the wild is still written in it.
+          - id: c
+            label: >-
+              The tutorial cannot run on current devnet
+            correct: false
+            feedback: >-
+              v1 talks to devnet fine — the chain does not care which client
+              library built the request. Superseded describes the
+              maintenance status and direction of the ecosystem, not an
+              on/off switch.
+        explanation: >-
+          The seam, stated with dates: solana.com labels v1 superseded, yet
+          npm's latest tag ships it and ~2.1M weekly downloads keep it alive.
+          Both facts are true at once — which is exactly why this lesson
+          teaches you to read one stack and write the other.

@@ -1,0 +1,157 @@
+id: lesson-sfwd-connect-fund-and-send
+slug: connect-fund-and-send
+title: Connect, Fund, and Send It
+skills:
+  - wallet-standard
+  - transactions
+  - confirmation
+  - error-handling
+  - solana-kit
+versionStamp:
+  checkedAt: "2026-07-28"
+  packages:
+    "@solana/kit": "7.0.0"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  # Reused verbatim from bfsp's airdrop lesson: the platform funding button.
+  # Produces the funded-wallet capability that Course 3's deploy consumes.
+  - key: fund
+    type: wallet-funding
+    produces: funded-wallet
+  - key: assemble
+    type: code
+    language: typescript
+    starter: ts/starter.ts
+    solution: ts/solution.ts
+    tests: ts/tests.json
+    hints:
+      - "Subgoal 2: `const lifetimeBlockhash = blockhash;` — pass the argument through; a message with no lifetime is rejected on send."
+      - "Subgoal 3: three entries, in IDL order — `vaultFor(wallet)` as \"writable\", the wallet as \"writable-signer\", `SYSTEM_PROGRAM` as \"readonly\". Vault FIRST."
+      - "Subgoal 4: `[...DEPOSIT_DISCRIMINATOR, ...u64le(lamports)]` — tag first, then the amount's 8 little-endian bytes."
+    tutorNotes:
+      - "The classic order bug: learners list the user account first 'because the user is doing the deposit'. The program reads accounts by POSITION — the IDL fixes [vault, user, system_program], vault first, and t2/t3 grade exactly that. Swapped order on-chain is not a warning; it is a wrong call."
+      - "They skip subgoal 2 and return the empty-string lifetime. Explain via lesson 4: the blockhash is the transaction's lifetime; without it the network rejects the message immediately — the field is not decorative."
+      - "They put the amount bytes BEFORE the discriminator, or encode the amount big-endian. The wire format is tag-then-args, and the u64 is little-endian — t4's exact byte string [242,…,182,64,66,15,0,0,0,0,0] is the check; u64le() already does the LE write for them."
+      - "They hardcode the FY86… vault or the reference wallet and fail t5, which plans a deposit for a different wallet. Both the vault (via vaultFor) and the encoded amount must flow from the arguments."
+      - "They ask why the plan has no signature anywhere. By design: the wallet holds the key and signs; the app only assembles. If their mental model has the app touching a private key, correct it now — that division is the security model of every dApp they will ever build."
+      - "They ask why the System Program is in a deposit into OUR program's vault. First deposit may need the vault account created, and account creation is the System Program's job — the program CPIs into it. Course 3 makes them write that call."
+  - key: send
+    type: prose
+    src: send.md
+  - key: predict
+    type: quiz
+    questions:
+      - id: q1
+        prompt: >-
+          You click Deposit, the wallet pops up, and you hit Reject. Predict
+          the honest UI state and the on-chain record.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Back to resting; no on-chain record at all — nothing was
+              signed, so nothing reached the network
+            correct: true
+          - id: b
+            label: >-
+              A failed transaction with your rejection as the error
+            correct: false
+            feedback: >-
+              A failed transaction is one that went out and did not succeed.
+              A rejection never left the wallet — there is no signature, no
+              fee, no record. Showing a red failure for it is the dishonest
+              UI this lesson warns about.
+          - id: c
+            label: >-
+              A pending transaction that expires after a minute
+            correct: false
+            feedback: >-
+              Pending describes something in flight. Nothing is in flight —
+              the transaction was never signed. The blockhash-expiry clock
+              matters only for transactions that actually went out.
+        explanation: >-
+          The failure taxonomy's first rule: rejection is pre-network.
+          Failed is only honest for things that were sent — expired,
+          preflight-rejected, or landed-and-failed. A rejection is none of
+          those.
+      - id: q2
+        prompt: >-
+          Your deposit lands, and the explorer shows the transaction
+          succeeded with a fee of 5,000 lamports. From lesson 4, what does
+          that fee tell you about the transaction you sent?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              One signature and no priority price — the base fee alone,
+              exactly the floor your lesson-4 plan predicted
+            correct: true
+          - id: b
+            label: >-
+              The network waived the priority fee because the deposit was
+              small
+            correct: false
+            feedback: >-
+              Fees never scale with the amount moved. 5,000 = 5,000 × 1
+              signature + 0 priority — you simply sent without a
+              compute-unit price, so only the base fee applied.
+          - id: c
+            label: >-
+              A discounted devnet rate
+            correct: false
+            feedback: >-
+              Devnet and mainnet share the fee rules; only the SOL is free.
+              5,000 lamports is the per-signature base fee — the lesson-4
+              formula with one signer and price zero.
+        explanation: >-
+          fee = 5,000 × signatures + price × requested CU ÷ 1e6. Reading
+          5,000 off the explorer tells you: one signer, zero priority price.
+          The reflection below asks you to make exactly this comparison on
+          your own transaction.
+      - id: q3
+        prompt: >-
+          Curious, you send a second deposit with amount 0. Predict what the
+          explorer shows.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              A landed, FAILED transaction — custom program error 6002
+              (ZeroAmount), with the fee paid
+            correct: true
+          - id: b
+            label: >-
+              Nothing — the wallet blocks zero-amount transactions
+            correct: false
+            feedback: >-
+              The wallet checks signatures, not business rules. The
+              transaction is perfectly well-formed; it is the PROGRAM that
+              refuses it, on-chain, with the error its IDL names: 6002
+              ZeroAmount. Landed failures pay their fee.
+          - id: c
+            label: >-
+              A success that moved zero lamports
+            correct: false
+            feedback: >-
+              This program explicitly rejects zero — error 6002 in the IDL
+              you read in lesson 1. It lands, fails, and charges the base
+              fee: taxonomy case 5, the only kind of failure with a
+              signature and logs.
+        explanation: >-
+          Case 5 of the taxonomy: an on-chain program refusal. The
+          transaction has a signature, logs, and a named error (6002
+          ZeroAmount) — and the fee is paid, because validators did the work
+          of executing it to its refusal.
+  - key: milestone
+    type: openEnded
+    prompt: >-
+      Paste your deposit's explorer link
+      (https://explorer.solana.com/tx/<signature>?cluster=devnet), then answer
+      two things in a few sentences. One: what did the wallet do that your
+      buildDepositPlan could not — why does that split exist? Two: open the
+      transaction's fee in the explorer and compare it to the cost you
+      predicted in lesson 4 — did the numbers match, and if not, which term
+      of the formula explains the difference?
+    maxWords: 150

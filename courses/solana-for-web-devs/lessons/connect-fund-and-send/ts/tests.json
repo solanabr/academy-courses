@@ -1,0 +1,36 @@
+[
+  {
+    "id": "t1",
+    "description": "Subgoal 1+2: the wallet pays, and the plan carries the given blockhash as its lifetime",
+    "input": "'6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU', 'GJRYBLa6XmfnUicWpkccesM9SsDDbKAFYPDVzWqXAX2h', 1000000n",
+    "expectedOutput": "result.feePayer === '6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU' && result.lifetimeBlockhash === 'GJRYBLa6XmfnUicWpkccesM9SsDDbKAFYPDVzWqXAX2h'",
+    "failureMessage": "A message without a recent-blockhash lifetime is rejected the moment it is sent — pass the blockhash argument through."
+  },
+  {
+    "id": "t2",
+    "description": "Subgoal 3: the FIRST account is the wallet's vault PDA, writable — IDL order is the program's interface",
+    "input": "'6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU', 'GJRYBLa6XmfnUicWpkccesM9SsDDbKAFYPDVzWqXAX2h', 1000000n",
+    "expectedOutput": "result.instructions[0].accounts[0].address === 'FY86s1fAwUiFQTjVFYprsiV6fwNH7e955MSUBo73FP4j' && result.instructions[0].accounts[0].role === 'writable'",
+    "failureMessage": "The IDL lists [vault, user, system_program] — vault FIRST. The program reads accounts by position; user-first is a different, failing call."
+  },
+  {
+    "id": "t3",
+    "description": "Subgoal 3: then the signing wallet, then the System Program — exactly three accounts",
+    "input": "'6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU', 'GJRYBLa6XmfnUicWpkccesM9SsDDbKAFYPDVzWqXAX2h', 1000000n",
+    "expectedOutput": "result.instructions[0].accounts.length === 3 && result.instructions[0].accounts[1].address === '6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU' && result.instructions[0].accounts[1].role === 'writable-signer' && result.instructions[0].accounts[2].address === '11111111111111111111111111111111' && result.instructions[0].accounts[2].role === 'readonly'"
+  },
+  {
+    "id": "t4",
+    "description": "Subgoal 4: data = 8-byte deposit discriminator, then the amount as u64 LE",
+    "input": "'6JFH1dxqiw6Dc81CbWdx4TUT8CvAfgwZg33wQrSytZsU', 'GJRYBLa6XmfnUicWpkccesM9SsDDbKAFYPDVzWqXAX2h', 1000000n",
+    "expectedOutput": "result.instructions[0].data.join(',') === '242,35,198,137,82,225,242,182,64,66,15,0,0,0,0,0'",
+    "failureMessage": "Discriminator first, then u64le(lamports). 1,000,000 = 0x0F4240, little-endian bytes [64, 66, 15, 0, 0, 0, 0, 0]."
+  },
+  {
+    "id": "t5",
+    "description": "Anti-hardcode: a different wallet deposits into ITS vault, with ITS amount encoded",
+    "input": "'Hr99MUHbQksoGpkSagrhqzvTgCo1BVEHjnACTSsaEJh8', 'JCB6HzS1PGGBAxqCJKM48VVfaAdrqvPo9WBEDFEZbT2a', 2500000n",
+    "expectedOutput": "result.instructions[0].accounts[0].address === 'EMTqK9Cfac1X7c86GUYG5wwGkqR9HpeYkqUDvjLmhgKi' && result.instructions[0].data.join(',') === '242,35,198,137,82,225,242,182,160,37,38,0,0,0,0,0' && result.feePayer === 'Hr99MUHbQksoGpkSagrhqzvTgCo1BVEHjnACTSsaEJh8'",
+    "failureMessage": "Both the vault (via vaultFor) and the encoded amount must flow from the arguments — nothing about the reference wallet may be hardcoded."
+  }
+]

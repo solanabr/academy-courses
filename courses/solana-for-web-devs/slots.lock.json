@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-sfwd-see-a-live-vault": 0,
+    "lesson-sfwd-accounts-are-just-bytes": 1,
+    "lesson-sfwd-derive-the-vault-pda": 2,
+    "lesson-sfwd-anatomy-of-a-transaction": 3,
+    "lesson-sfwd-kit-or-legacy": 4,
+    "lesson-sfwd-connect-fund-and-send": 5,
+    "lesson-sfwd-ship-the-inspector": 6,
+    "lesson-sfwd-what-you-built": 7
+  },
+  "retired": [],
+  "next": 8
+}
