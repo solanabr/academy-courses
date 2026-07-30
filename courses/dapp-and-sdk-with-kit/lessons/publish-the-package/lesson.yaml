@@ -91,4 +91,7 @@ blocks:
       Publish the client and paste the public npm URL of your package
       (e.g. https://www.npmjs.com/package/@your-scope/vault-client). This is
       self-reported — record the URL you will install from in the next module.
-    maxWords: 60
+      Then, in a sentence or two: what does a consumer installing your package
+      get that copying your app's source would not give them, and what does
+      your semver policy promise them on the next publish?
+    maxWords: 120
