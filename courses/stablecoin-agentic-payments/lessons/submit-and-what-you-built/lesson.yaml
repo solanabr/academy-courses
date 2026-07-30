@@ -11,15 +11,18 @@ blocks:
     type: prose
     src: what-you-built.md
 
-  - key: submit
+  - key: reflect
     type: openEnded
-    maxWords: 200
+    maxWords: 250
     prompt: >-
-      Paste the URL of the Superteam Earn listing you submitted to, and the URL
-      of what you submitted. Then, in three lines: which rail the work uses
-      (fixed delegation, recurring delegation, subscription plan, Solana Pay or
-      x402), which Brazilian use case it serves, and the one thing in your
-      submission a reviewer can run themselves.
+      Without re-reading the recap: pick the two rails you would be most likely
+      to confuse in a proposal (fixed delegation, recurring delegation,
+      subscription plan, Solana Pay, x402) and explain the difference in one
+      sentence each, the way you would to a reviewer. Then name the one idea
+      from this course that most changed how you would design a paid product
+      for the Brazilian market, and say why. This is not graded and awards no
+      XP — the Earn submission itself happens through the handoff after your
+      credential, not in this box.
 
   # Cumulative retrieval. Coverage of every skill tag used in this course:
   #   q1  payment-model-selection, solana-pay

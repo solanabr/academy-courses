@@ -93,5 +93,7 @@ blocks:
     prompt: >-
       Deploy the app and paste its public URL (e.g. https://your-vault-app.vercel.app).
       Confirm you sent one real devnet deposit from it. Self-reported — record the
-      URL; module 3 keeps shipping to it.
-    maxWords: 60
+      URL; module 3 keeps shipping to it. Then, in a sentence or two: which part
+      of that deposit did your installed package do, and which part could only
+      the wallet do — why does that split exist?
+    maxWords: 120

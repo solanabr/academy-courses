@@ -151,4 +151,7 @@ blocks:
       Ship the finished app and paste its public URL. Confirm deposit, withdraw,
       live vault state, a sized compute budget and a network-priced fee all work.
       Self-reported — this is one of the two artifacts you name in the recap.
-    maxWords: 60
+      Then, in a sentence or two: why does the app size its compute budget from
+      a simulation instead of a hardcoded constant — what goes wrong with the
+      constant?
+    maxWords: 120
