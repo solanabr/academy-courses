@@ -1,0 +1,45 @@
+id: lesson-b2s-mine-your-own-chain
+slug: mine-your-own-chain
+title: "Mine your own chain: Bitcoin with nobody else on it"
+skills:
+  - transactions
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "On your fresh regtest chain you must mine 101 blocks before you can spend the first block's reward. Why 101 and not 1?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A coinbase (block-reward) output only becomes spendable after 100 confirmations, so the first reward needs 100 blocks mined on top of it"
+            correct: true
+          - id: b
+            label: "Regtest requires exactly 101 blocks before any transaction is allowed"
+            correct: false
+            feedback: "You can send transactions earlier; the specific constraint is COINBASE MATURITY. Only newly minted block rewards are locked for 100 confirmations — ordinary outputs are spendable immediately."
+          - id: c
+            label: "Each block can only hold 1 BTC, so you need 101 blocks to afford a fee"
+            correct: false
+            feedback: "Block subsidy is not 1 BTC, and this is not about affording a fee. The 100-block wait is the coinbase-maturity rule that stops a just-mined reward from being spent before the chain has built confirmations on it."
+        explanation: "Coinbase outputs — the freshly minted block subsidy — mature only after 100 confirmations. So to spend block 1's reward you mine blocks 2 through 101 (100 on top), and `generatetoaddress 101` is the standard regtest way to get there."
+      - id: q2
+        prompt: "Which command mines blocks on a modern Bitcoin Core regtest node, and what does it need?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`generatetoaddress`, given a count and an address to receive the coinbase rewards"
+            correct: true
+          - id: b
+            label: "`setgenerate true`, which mines to the default wallet automatically"
+            correct: false
+            feedback: "`setgenerate` is the old, removed API. Current Bitcoin Core uses `generatetoaddress`, which forces you to name the receiving address explicitly."
+          - id: c
+            label: "`mineblocks`, a built-in that needs no arguments"
+            correct: false
+            feedback: "There is no `mineblocks` RPC. Mining on regtest is `generatetoaddress <nblocks> <address>`; the address is where each block's coinbase reward is paid."
+        explanation: "Regtest lets you mint blocks on demand with `generatetoaddress <count> <address>` — instant, difficulty-1 blocks whose rewards go to the address you name. It replaced the older `setgenerate` and makes the coinbase recipient explicit."

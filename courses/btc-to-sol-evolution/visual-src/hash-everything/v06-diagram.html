@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: a chain of digests
+     purpose: show why editing an old block visibly breaks every block after it
+     data: three blocks left to right; each contains "prev: <digest>" referencing the one before a red edit on block 1 cascades: block 1 digest changes -> block 2 "prev" mismatch -> block 3 mismatch side note: holding only the tip digest is enough to detect any edit anywhere upstream
+     prompt: Three linked block boxes, dark background, monospace. Each shows a truncated digest and a "prev:" field pointing at the previous box. A red pencil on block 1, red cascade arrows invalidating blocks 2 and 3. A small callout on the final digest: "64 chars summarize everything before". No decoration.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:489px;height:502px;bottom:-253px;right:-253px;border-radius:50% 53% 55% 59% / 57% 58% 54% 38%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:565px;height:409px;left:-315px;top:132px;border-radius:43% 42% 47% 63% / 35% 41% 63% 47%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .chain { margin-top:36px; display:flex; align-items:center; gap:0; }
+  .blk { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:24px 26px; position:relative; }
+  .blk .hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .blk .name { font-family:var(--font-display); font-weight:900; font-size:20px; color:var(--text-primary);
+    letter-spacing:.02em; }
+  .blk .field { margin-top:12px; }
+  .blk .lab { font-family:var(--font-body); font-weight:800; font-size:11px; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--text-muted); }
+  .blk .val { font-family:var(--font-mono); font-weight:700; font-size:19px; color:var(--text-primary);
+    margin-top:4px; }
+  .blk.hit { border-color:rgba(192,57,43,0.45); background:rgba(192,57,43,0.05); }
+  .blk.hit .val.self { color:#a5342a; }
+  .blk .val.bad { color:#a5342a; }
+  .edit { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.04em;
+    background:#c0392b; color:#fff; padding:4px 12px; border-radius:var(--radius-pill); }
+  .flag { display:inline-block; margin-top:6px; font-family:var(--font-body); font-weight:800;
+    font-size:12px; color:#a5342a; }
+  .link { flex:0 0 74px; position:relative; }
+  .callout { margin-top:26px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:21px; font-weight:500; line-height:1.4; }
+  .callout b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">a chain of digests</div>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">edit one block, break the rest</h2>
+  <div class="chain">
+    <div class="blk hit">
+      <div class="hd"><span class="name">block 1</span><span class="edit">&#9998; edited</span></div>
+      <div class="field"><div class="lab">prev</div><div class="val">a1c0&hellip;9f3e</div></div>
+      <div class="field"><div class="lab">this digest</div><div class="val self bad">7e42&hellip;b0d1</div></div>
+    </div>
+    <div class="link">
+      <svg width="74" height="60" viewBox="0 0 74 60" aria-hidden="true">
+        <line x1="0" y1="30" x2="60" y2="30" stroke="#c0392b" stroke-width="3"/>
+        <polygon points="72,30 56,22 56,38" fill="#c0392b"/>
+      </svg>
+    </div>
+    <div class="blk hit">
+      <div class="hd"><span class="name">block 2</span></div>
+      <div class="field"><div class="lab">prev</div><div class="val bad">7e42&hellip;b0d1 &ne;</div><span class="flag">mismatch</span></div>
+      <div class="field"><div class="lab">this digest</div><div class="val self bad">c93a&hellip;5f77</div></div>
+    </div>
+    <div class="link">
+      <svg width="74" height="60" viewBox="0 0 74 60" aria-hidden="true">
+        <line x1="0" y1="30" x2="60" y2="30" stroke="#c0392b" stroke-width="3"/>
+        <polygon points="72,30 56,22 56,38" fill="#c0392b"/>
+      </svg>
+    </div>
+    <div class="blk hit">
+      <div class="hd"><span class="name">block 3</span></div>
+      <div class="field"><div class="lab">prev</div><div class="val bad">c93a&hellip;5f77 &ne;</div><span class="flag">mismatch</span></div>
+      <div class="field"><div class="lab">this digest (tip)</div><div class="val self bad">04be&hellip;a8e2</div></div>
+    </div>
+  </div>
+  <div class="callout">Hold only the tip &mdash; those <b>64 chars summarize everything before</b>. One byte changed in block 1 and every downstream <code style="font-family:var(--font-mono);color:var(--stbr-yellow);">prev</code> stops matching.</div>
+</div>
+</body></html>

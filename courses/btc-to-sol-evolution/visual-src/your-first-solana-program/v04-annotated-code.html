@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: what the deploy command actually did
+     purpose: show that you never named an address, the keypair supplied it, and doubles as the upgrade authority
+     data: $ solana program deploy ./target/deploy/first_program.so # ^ uploads this sBPF bytecode, in chunks # CLI silently reads target/deploy/first_program-keypair.json # -> takes its PUBLIC KEY -> that IS the program ID Program Id: <PROGRAM_ID> # <- copy this; it is the keypair's pubkey # the SAME keypair is also the upgrade authority (guard the file)
+     prompt: Monospace annotated-code panel, dark background. The deploy command on top, the printed Program Id at the bottom, and three annotation comments in a warm accent connecting the keypair file to both "program ID" and "upgrade authority". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:524px;height:565px;top:-313px;right:-313px;border-radius:51% 60% 57% 44% / 41% 64% 38% 38%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:364px;height:471px;bottom:-232px;left:699px;border-radius:61% 50% 39% 48% / 47% 48% 51% 57%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:30px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:42px 48px; font-family:var(--font-mono); font-size:20px; line-height:1.7; color:var(--text-on-dark); }
+  .panel .cmd { color:var(--stbr-cream); }
+  .panel .cmd .prompt { color:var(--stbr-emerald); font-weight:800; }
+  .panel .cmd .file { color:var(--stbr-yellow); font-weight:700; }
+  .panel .cmt { color:var(--stbr-ink-300); }
+  .panel .cmt .hl { color:var(--stbr-yellow); font-weight:700; }
+  .panel .rule { height:1px; background:var(--border-on-dark); margin:26px 0; }
+  .panel .out { color:var(--stbr-cream); }
+  .panel .out .pid { background:var(--stbr-yellow); color:var(--text-on-accent); font-weight:800;
+    padding:3px 12px; border-radius:8px; }
+  .panel .callout { display:flex; align-items:flex-start; gap:14px; margin-top:6px; }
+  .panel .callout .bar { flex:0 0 3px; align-self:stretch; background:var(--stbr-emerald); border-radius:2px; }
+  .panel .callout .txt { font-family:var(--font-body); font-size:16px; line-height:1.4; color:var(--stbr-ink-300); }
+  .panel .callout .txt b { color:var(--stbr-cream); }
+</style>
+  <div class="stbr-eyebrow">you never named an address</div>
+  <h2 class="viz-title">what the deploy command actually did</h2>
+  <div class="panel">
+    <div class="cmd"><span class="prompt">$</span> solana program deploy <span class="file">./target/deploy/first_program.so</span></div>
+    <div class="cmt"><span class="hl">#</span> &uarr; uploads this sBPF bytecode, in chunks</div>
+    <div class="cmt"><span class="hl">#</span> CLI silently reads <span class="file" style="color:var(--stbr-yellow)">target/deploy/first_program-keypair.json</span></div>
+    <div class="cmt" style="padding-left:22px"><span class="hl">#</span> &rarr; takes its <span class="hl">PUBLIC KEY</span> &rarr; that IS the program ID</div>
+    <div class="rule"></div>
+    <div class="out">Program Id: <span class="pid">&lt;PROGRAM_ID&gt;</span></div>
+    <div class="callout" style="margin-top:20px"><div class="bar"></div><div class="txt"><b>copy this</b> &mdash; it is the keypair's public key, the address strangers will invoke</div></div>
+    <div class="callout"><div class="bar"></div><div class="txt">the <b>same keypair</b> is also the <b>upgrade authority</b> &mdash; guard the file, lose it and the program freezes</div></div>
+  </div>
+</div>
+</body></html>

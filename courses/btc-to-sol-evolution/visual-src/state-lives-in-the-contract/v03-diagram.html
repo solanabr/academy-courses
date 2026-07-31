@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: the four-field account, and the slot your number sits in
+     purpose: certify that the persisted number lives in a storage slot reachable through the account's storageRoot
+     data: Counter contract account = { nonce: 0 (tx count / replay counter) balance: 0 wei (1 ETH = 1e18 wei) storageRoot: 0x8f2c... (256-bit Merkle Patricia Trie root) --> points to storage map codeHash: 0x9b1e... (hash of the Counter bytecode) } storageRoot --> Merkle Patricia Trie --> slot 0 : 2 <- your `number` SSTORE writes a slot ; SLOAD reads a slot ; the root re-commits on every write
+     prompt: Diagram, dark background, monospace. A box titled "account (4 fields)" listing nonce/balance/storageRoot/codeHash. An arrow from storageRoot to a small trie graphic that bottoms out in a "slot 0 = 2" leaf. Label the write arrow "SSTORE" and a read arrow "SLOAD". Caption under the leaf: "committed to the chain, not the process". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:539px;height:512px;right:-298px;top:137px;border-radius:61% 41% 59% 57% / 62% 35% 54% 39%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:535px;height:581px;bottom:-337px;left:595px;border-radius:57% 44% 63% 44% / 54% 58% 35% 45%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { display:flex; align-items:center; gap:20px; margin-top:20px; }
+  .acct { flex:0 0 500px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:26px 30px; color:var(--text-on-dark); }
+  .acct .at { font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--stbr-cream); margin-bottom:18px; }
+  .acct .at span { color:var(--stbr-ink-300); font-weight:600; letter-spacing:0; text-transform:none; }
+  .fld { display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:baseline;
+    padding:12px 0; border-top:1px solid var(--border-on-dark); font-family:var(--font-mono); }
+  .fld:first-of-type { border-top:0; }
+  .fld .fk { color:var(--stbr-ink-300); font-size:16px; }
+  .fld .fv { font-size:17px; color:var(--stbr-cream); }
+  .fld .fv .cm { font-family:var(--font-body); font-size:13px; color:var(--stbr-ink-500); }
+  .fld.root { background:rgba(255,210,63,0.12); margin:0 -14px; padding:12px 14px; border-radius:var(--radius-sm); border-top:0; }
+  .fld.root .fk { color:var(--stbr-yellow); font-weight:800; }
+  .fld.root .fv { color:var(--stbr-yellow); font-weight:800; }
+  .bridge { flex:0 0 130px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+  .op-chip { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.05em;
+    padding:5px 13px; border-radius:var(--radius-pill); }
+  .op-chip.w { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .op-chip.r { background:var(--surface-inverse); color:var(--stbr-cream); border:1.5px solid var(--stbr-emerald); }
+  .trie { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-xl); padding:24px 28px; }
+  .trie .tt { font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--stbr-emerald); text-align:center; margin-bottom:4px; }
+  .trie .tsub { font-family:var(--font-body); font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:14px; }
+  .tnode { text-align:center; }
+  .rootn { display:inline-block; font-family:var(--font-mono); font-size:16px; font-weight:700;
+    color:var(--text-primary); background:var(--surface-paper); border:1.5px solid var(--border-subtle);
+    border-radius:var(--radius-md); padding:10px 20px; }
+  .branch { display:flex; justify-content:center; gap:14px; margin:12px 0; }
+  .bn { flex:0 0 92px; font-family:var(--font-mono); font-size:14px; color:var(--text-muted);
+    background:var(--surface-paper); border:1px dashed var(--border-subtle); border-radius:var(--radius-sm); padding:8px 0; text-align:center; }
+  .leaf { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:8px; }
+  .leafbox { font-family:var(--font-mono); font-size:24px; font-weight:900; color:var(--text-on-accent);
+    background:var(--stbr-yellow); border-radius:var(--radius-md); padding:14px 28px; }
+  .leaf .yn { font-family:var(--font-body); font-size:15px; font-weight:700; color:var(--stbr-emerald); }
+  .cap { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:20px 32px; text-align:center; font-size:21px; font-weight:600; }
+  .cap b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the four-field account, and your slot inside it</div>
+  <h2 class="viz-title">where the number actually sits</h2>
+  <div class="dg">
+    <div class="acct">
+      <div class="at">Counter account <span>&mdash; 4 fields</span></div>
+      <div class="fld"><span class="fk">nonce</span><span class="fv">0 <span class="cm">tx count / replay counter</span></span></div>
+      <div class="fld"><span class="fk">balance</span><span class="fv">0 wei <span class="cm">1 ETH = 1e18 wei</span></span></div>
+      <div class="fld root"><span class="fk">storageRoot</span><span class="fv">0x8f2c&hellip; <span class="cm" style="color:var(--stbr-yellow-600);">MPT root &rarr; storage</span></span></div>
+      <div class="fld"><span class="fk">codeHash</span><span class="fv">0x9b1e&hellip; <span class="cm">hash of Counter bytecode</span></span></div>
+    </div>
+    <div class="bridge">
+      <div class="op-chip w">SSTORE &rarr;</div>
+      <svg width="120" height="34" viewBox="0 0 120 34"><line x1="4" y1="17" x2="108" y2="17" stroke="#008b4c" stroke-width="3"/><polygon points="118,17 104,10 104,24" fill="#008b4c"/></svg>
+      <div class="op-chip r">&larr; SLOAD</div>
+    </div>
+    <div class="trie">
+      <div class="tt">Merkle Patricia Trie</div>
+      <div class="tsub">reached through storageRoot &middot; re-committed on every write</div>
+      <div class="tnode"><span class="rootn">trie root 0x8f2c&hellip;</span></div>
+      <div style="text-align:center;color:var(--stbr-emerald);font-size:20px;font-weight:900;">&darr;</div>
+      <div class="branch"><span class="bn">0x&hellip;a</span><span class="bn">0x&hellip;3</span><span class="bn">0x&hellip;f</span></div>
+      <div style="text-align:center;color:var(--stbr-emerald);font-size:20px;font-weight:900;">&darr;</div>
+      <div class="leaf"><span class="leafbox">slot 0 = 2</span><span class="yn">&larr; your <code>number</code></span></div>
+    </div>
+  </div>
+  <div class="cap">The number is <b>committed to the chain</b>, not the process &mdash; a slot under the account's storageRoot.</div>
+</div>
+</body></html>

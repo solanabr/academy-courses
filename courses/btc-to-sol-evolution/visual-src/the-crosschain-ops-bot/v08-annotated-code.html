@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: wire a rung into the supervisor, the three moves
+     purpose: show how one prior script (watcher.py) becomes a supervised agent, the worked example the reader repeats
+     data: # 1. register it in the manifest as an agent row row = { "name": "face", "cmd": ["python", "watcher.py"], "chain": None, "key": None } # 2. spawn it from the supervisor's start path, record the pid back into the row pid = subprocess.Popen(row["cmd"]).pid manifest.set_pid(row["name"], pid) # now reconciled on every resume # 3. point it at the shared state/ dir, not its own private memory env = { "STATE_DIR": "state/" } # face paints from the shared cursor + manifest
+     prompt: Monospace annotated-code panel, dark background. Three numbered blocks. Highlight the manifest row and the set_pid line in a warm accent. Margin note: "a standalone script becomes a child the supervisor spawns, reconciles, and resurrects". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:489px;height:450px;right:-292px;top:292px;border-radius:56% 55% 42% 47% / 43% 61% 46% 65%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:26px; background:var(--surface-inverse); border-radius:var(--radius-xl); padding:34px 40px; font-family:var(--font-mono); font-size:18px; line-height:1.55; color:var(--text-on-dark); }
+  .step { display:flex; gap:20px; }
+  .step + .step { margin-top:26px; padding-top:26px; border-top:1px solid var(--border-on-dark); }
+  .num { flex:0 0 40px; height:40px; border-radius:50%; background:var(--surface-brand); color:var(--text-on-brand); font-family:var(--font-body); font-weight:900; font-size:19px; display:flex; align-items:center; justify-content:center; }
+  .step .body { flex:1; }
+  .step .hdr { font-family:var(--font-body); font-weight:800; font-size:15px; letter-spacing:.05em; color:var(--stbr-yellow); margin-bottom:12px; text-transform:uppercase; }
+  .cmt { color:var(--stbr-ink-500); }
+  .kw { color:var(--stbr-yellow); font-weight:700; }
+  .fn { color:var(--stbr-cream); }
+  .str { color:var(--stbr-ink-300); }
+  .hl { background:var(--stbr-yellow); color:var(--stbr-dark); border-radius:6px; padding:6px 12px; display:inline-block; margin:4px 0; }
+  .hl .fn, .hl .str, .hl .kw { color:var(--stbr-dark); }
+  .note { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:20px 30px; font-size:19px; font-weight:600; }
+  .note b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">wire a rung into the supervisor</div>
+  <h2 class="viz-title">a standalone script, in three moves</h2>
+  <div class="panel">
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body">
+        <div class="hdr">register it in the manifest as an agent row</div>
+        <div class="hl">row = { <span class="str">"name"</span>: <span class="str">"face"</span>, <span class="str">"cmd"</span>: [<span class="str">"python"</span>, <span class="str">"watcher.py"</span>], <span class="str">"chain"</span>: <span class="kw">None</span>, <span class="str">"key"</span>: <span class="kw">None</span> }</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body">
+        <div class="hdr">spawn it from the supervisor's start path, record the pid back</div>
+        <div>pid = subprocess.<span class="fn">Popen</span>(row[<span class="str">"cmd"</span>]).pid</div>
+        <div class="hl">manifest.<span class="fn">set_pid</span>(row[<span class="str">"name"</span>], pid)&nbsp;&nbsp;<span class="cmt" style="color:#5a5030;"># now reconciled on every resume</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div class="body">
+        <div class="hdr">point it at the shared state/ dir, not its own private memory</div>
+        <div>env = { <span class="str">"STATE_DIR"</span>: <span class="str">"state/"</span> }&nbsp;&nbsp;<span class="cmt"># face paints from the shared cursor + manifest</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="note">A standalone script becomes a child the supervisor <b>spawns, reconciles, and resurrects</b> &mdash; same three moves for every rung.</div>
+</div>
+</body></html>

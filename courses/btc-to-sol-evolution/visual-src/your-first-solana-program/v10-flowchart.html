@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: run-first to live, in six commands
+     purpose: give a skim-path recap of the exact pipeline that certifies a live, loader-owned program
+     data: install (release.anza.xyz) -> solana config set --url devnet -> solana airdrop 2 -> cargo build-sbf (emits first_program.so + first_program-keypair.json) -> solana program deploy ./target/deploy/first_program.so (prints the program ID) -> solana account <program-id> (executable: true, owner: loader-v3) gate: live on devnet, owned by the loader, and stateless
+     prompt: Left-to-right flowchart, dark background, monospace. Six command nodes in sequence as listed, with the build node branching to show its two emitted files. The final node is visually distinct and labeled "the gate: executable + loader-owned". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:478px;height:493px;top:-229px;right:-229px;border-radius:44% 53% 54% 62% / 46% 52% 65% 43%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:531px;height:466px;left:-325px;top:165px;border-radius:55% 39% 46% 59% / 35% 40% 64% 53%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { margin-top:26px; display:flex; flex-direction:column; gap:18px; }
+  .rowf { display:flex; align-items:stretch; gap:0; }
+  .step { background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-md);
+    padding:16px 20px; display:flex; flex-direction:column; justify-content:center; min-width:0; }
+  .step .n { font-family:var(--font-body); font-weight:800; font-size:11px; letter-spacing:.07em;
+    text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:7px; }
+  .step .c { font-family:var(--font-mono); font-weight:700; font-size:16px; color:var(--text-primary); line-height:1.3; }
+  .step .c .flag { color:var(--stbr-green); }
+  .arr { flex:0 0 46px; display:flex; align-items:center; justify-content:center; }
+  .arr.dn { flex:0 0 auto; justify-content:flex-start; padding-left:40px; }
+  .files { flex:0 0 auto; display:flex; flex-direction:column; gap:10px; justify-content:center; }
+  .file { background:rgba(0,139,76,0.06); border:1.5px solid rgba(0,139,76,0.30); border-radius:var(--radius-sm);
+    padding:9px 15px; font-family:var(--font-mono); font-size:14px; color:var(--stbr-emerald); font-weight:700; }
+  .step.gate { background:var(--stbr-yellow); border-color:var(--stbr-yellow); }
+  .step.gate .n { color:var(--text-on-accent); opacity:.8; }
+  .step.gate .c { color:var(--text-on-accent); }
+  .e1 { flex:1; } .e2 { flex:1.35; } .e3 { flex:1.1; } .e4 { flex:1.4; }
+</style>
+  <div class="stbr-eyebrow">run-first to live</div>
+  <h2 class="viz-title">from nothing to a live program, in six commands</h2>
+  <div class="fc">
+    <div class="rowf">
+      <div class="step e1"><div class="n">1 &middot; install</div><div class="c">release.anza.xyz</div></div>
+      <div class="arr"><svg width="40" height="20" viewBox="0 0 40 20"><line x1="2" y1="10" x2="28" y2="10" stroke="#1b231d" stroke-width="2.5"/><polygon points="38,10 25,4 25,16" fill="#1b231d"/></svg></div>
+      <div class="step e2"><div class="n">2 &middot; point at devnet</div><div class="c">solana config set --url devnet</div></div>
+      <div class="arr"><svg width="40" height="20" viewBox="0 0 40 20"><line x1="2" y1="10" x2="28" y2="10" stroke="#1b231d" stroke-width="2.5"/><polygon points="38,10 25,4 25,16" fill="#1b231d"/></svg></div>
+      <div class="step e3"><div class="n">3 &middot; fund</div><div class="c">solana airdrop 2</div></div>
+    </div>
+    <div class="arr dn"><svg width="20" height="30" viewBox="0 0 20 30"><line x1="10" y1="2" x2="10" y2="18" stroke="#1b231d" stroke-width="2.5"/><polygon points="10,28 4,15 16,15" fill="#1b231d"/></svg></div>
+    <div class="rowf">
+      <div class="step e2"><div class="n">4 &middot; build</div><div class="c">cargo build-sbf</div></div>
+      <div class="arr"><svg width="40" height="20" viewBox="0 0 40 20"><line x1="2" y1="10" x2="28" y2="10" stroke="#008b4c" stroke-width="2.5"/><polygon points="38,10 25,4 25,16" fill="#008b4c"/></svg></div>
+      <div class="files">
+        <div class="file">first_program.so</div>
+        <div class="file">first_program-keypair.json</div>
+      </div>
+      <div class="arr"><svg width="40" height="20" viewBox="0 0 40 20"><line x1="2" y1="10" x2="28" y2="10" stroke="#1b231d" stroke-width="2.5"/><polygon points="38,10 25,4 25,16" fill="#1b231d"/></svg></div>
+      <div class="step e4"><div class="n">5 &middot; deploy (prints program ID)</div><div class="c">solana program deploy ./target/deploy/first_program.so</div></div>
+    </div>
+    <div class="arr dn"><svg width="20" height="30" viewBox="0 0 20 30"><line x1="10" y1="2" x2="10" y2="18" stroke="#1b231d" stroke-width="2.5"/><polygon points="10,28 4,15 16,15" fill="#1b231d"/></svg></div>
+    <div class="rowf">
+      <div class="step e4"><div class="n">6 &middot; verify</div><div class="c">solana account &lt;program-id&gt;</div></div>
+      <div class="arr"><svg width="40" height="20" viewBox="0 0 40 20"><line x1="2" y1="10" x2="28" y2="10" stroke="#008b4c" stroke-width="2.5"/><polygon points="38,10 25,4 25,16" fill="#008b4c"/></svg></div>
+      <div class="step gate e4"><div class="n">the gate</div><div class="c">executable: true&nbsp;&middot;&nbsp;owner: loader-v3&nbsp;&middot;&nbsp;stateless</div></div>
+    </div>
+  </div>
+</div>
+</body></html>

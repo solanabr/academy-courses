@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: the day one line points at mainnet
+     purpose: certify the trade-off, devnet's kindness was a lie you needed, and mainnet charges for the truth
+     data: devnet / regtest (training wheels) | mainnet (the real thing) money: free from a faucet, worthless | money: real, and the balance is someone's adversaries: none, nobody is trying | adversaries: standing, and breaking you pays mistakes: redeploy them away for free | mistakes: permanent state, real loss a green test suite means: your code runs | a green test suite means: your code runs (not that it's safe)
+     prompt: Two-column comparison card, dark theme. Left column "devnet / regtest" cool-tinted, right column "mainnet" warm-tinted. Four aligned rows: money, adversaries, mistakes, and the meaning of a green test suite. Monospace. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:390px;height:528px;bottom:-324px;left:563px;border-radius:56% 56% 36% 44% / 52% 47% 60% 42%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cols { display:flex; gap:24px; margin-top:24px; align-items:stretch; }
+  .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; display:flex; flex-direction:column; }
+  .col.dev { border-color:rgba(0,139,76,0.34); background:rgba(0,139,76,0.05); }
+  .col.main { border-color:rgba(192,57,43,0.30); background:rgba(192,57,43,0.05); }
+  .col h3 { margin:0; padding:18px 26px; font-size:17px; font-weight:900; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--text-on-brand); font-family:var(--font-mono); }
+  .col.dev h3 { background:var(--surface-brand); }
+  .col.main h3 { background:#c0392b; color:#fff; }
+  .col .item { padding:18px 26px; font-size:18px; line-height:1.34; color:var(--text-primary);
+    border-top:1.5px solid var(--border-subtle); min-height:78px; display:flex; flex-direction:column; justify-content:center; }
+  .col .item:first-of-type { border-top:0; }
+  .col .k { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .col.dev .item b { color:var(--stbr-emerald); }
+  .col.main .item b { color:#a5342a; }
+  .verdict { margin-top:22px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:20px; font-weight:600; line-height:1.4; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">the day one line points at mainnet</div>
+  <h2 class="viz-title">devnet was a kindness. mainnet charges for the truth.</h2>
+  <div class="cols">
+    <div class="col dev">
+      <h3>devnet / regtest &mdash; training wheels</h3>
+      <div class="item"><span class="k">money</span><span>free from a faucet, <b>worthless</b></span></div>
+      <div class="item"><span class="k">adversaries</span><span>none &mdash; nobody is trying</span></div>
+      <div class="item"><span class="k">mistakes</span><span>redeploy them away for free</span></div>
+      <div class="item"><span class="k">a green test suite means</span><span>your code runs</span></div>
+    </div>
+    <div class="col main">
+      <h3>mainnet &mdash; the real thing</h3>
+      <div class="item"><span class="k">money</span><span>real, and the balance is <b>someone's</b></span></div>
+      <div class="item"><span class="k">adversaries</span><span>standing, and breaking you pays</span></div>
+      <div class="item"><span class="k">mistakes</span><span><b>permanent state</b>, real loss</span></div>
+      <div class="item"><span class="k">a green test suite means</span><span>your code runs (<b>not</b> that it's safe)</span></div>
+    </div>
+  </div>
+  <div class="verdict">A passing suite proves your code <b>runs</b>. On mainnet, the untested case is the one an adversary is paid to find.</div>
+</div>
+</body></html>

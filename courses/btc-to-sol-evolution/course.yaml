@@ -1,0 +1,51 @@
+id: course-btc-to-sol-evolution
+slug: btc-to-sol-evolution
+title: "From Bitcoin to Solana: The Evolution of Blockchain Technology"
+description: "Run, script, and explain every generation of blockchain from Bitcoin to Solana, then ship a personal ops bot that manages wallets and agents on both."
+difficulty: beginner
+duration: 15
+xpPerLesson: 20
+xpReward: 300
+creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+# Unsequenced elective (owner 2026-07-31): trackId/trackLevel 0 keeps this course
+# OFF the sequential trackId 1 / trackLevel 1-5 path, so it cannot collide with
+# the parked catalog if it is ever restored from _draft/.
+trackId: 0
+trackLevel: 0
+modules:
+  - key: crypto
+    title: "Trust math, not people"
+    lessons:
+      - lesson-b2s-the-trust-machine
+      - lesson-b2s-hash-everything
+      - lesson-b2s-sign-and-verify
+  - key: bitcoin-core
+    title: "A ledger nobody owns"
+    lessons:
+      - lesson-b2s-mine-your-own-chain
+      - lesson-b2s-spend-a-utxo
+  - key: bitcoin-infra
+    title: "Talking to chains the way software does"
+    lessons:
+      - lesson-b2s-speak-rpc
+      - lesson-b2s-watch-the-mempool
+  - key: blockchain-20
+    title: "Programmable money"
+    lessons:
+      - lesson-b2s-state-lives-in-the-contract
+      - lesson-b2s-a-market-with-no-marketmaker
+  - key: solana-core
+    title: "The throughput bet"
+    lessons:
+      - lesson-b2s-your-first-solana-program
+      - lesson-b2s-the-throughput-bet
+  - key: solana-advanced
+    title: "Compose, don't fork"
+    lessons:
+      - lesson-b2s-an-anchor-vault
+      - lesson-b2s-wire-a-bot-and-a-face
+  - key: capstone
+    title: "Your bot, both chains"
+    lessons:
+      - lesson-b2s-the-crosschain-ops-bot
+      - lesson-b2s-where-you-go-from-here

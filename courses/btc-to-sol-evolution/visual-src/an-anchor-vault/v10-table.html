@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: the three tasks that finish the vault
+     purpose: give one map of what each exercise builds and what a pass proves, so none of the footguns is left open
+     data: task | what you write | what a pass proves Completion | the withdraw signer_seeds array | the keyless vault signs its own outbound transfer; the round-trip goes green Solo | a test signed by a non-owner keypair | has_one halts the drain; the call fails with VaultError::Unauthorized Harden | a rent-floor guard plus its test | a withdrawal that would strand the vault below rent-exempt is rejected, not silently purged
+     prompt: Three-row task table, dark theme, monospace, columns "task / what you write / what a pass proves". Shade the header row; tag the Harden row "closes the silent footgun". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:491px;height:480px;bottom:-275px;right:-275px;border-radius:43% 51% 45% 39% / 60% 60% 53% 64%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:476px;height:411px;left:-280px;top:388px;border-radius:44% 46% 41% 41% / 47% 52% 37% 39%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; margin-top:30px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:20px 26px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:28px 26px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; font-size:20px; line-height:1.35; }
+  .ct td.task { font-family:var(--font-display); font-weight:900; color:var(--text-primary); font-size:24px; }
+  .ct td.write code { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; font-size:18px; }
+  .ct td.proves b { color:var(--text-primary); }
+  .ct td.proves code { font-family:var(--font-mono); color:var(--text-primary); font-weight:700; }
+  .ct tr.harden td { background:rgba(0,139,76,0.09); border-bottom-color:rgba(0,139,76,0.22); }
+  .ct tr.harden td.task { color:var(--stbr-emerald); }
+  .pill { display:inline-block; background:var(--stbr-yellow); color:var(--text-on-accent);
+    font-family:var(--font-body); font-size:12px; font-weight:800; padding:5px 12px;
+    border-radius:var(--radius-pill); margin-top:10px; letter-spacing:.04em; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">the three tasks that finish the vault</div>
+  <h2 class="viz-title">what each exercise proves</h2>
+  <table class="ct">
+    <tr><th style="width:22%">task</th><th style="width:36%">what you write</th><th>what a pass proves</th></tr>
+    <tr><td class="task">Completion</td><td class="write">the withdraw <code>signer_seeds</code> array</td><td class="proves">the keyless vault signs its own outbound transfer; the round-trip goes <b>green</b></td></tr>
+    <tr><td class="task">Solo</td><td class="write">a test signed by a <b>non-owner</b> keypair</td><td class="proves"><code>has_one</code> halts the drain; the call fails with <code>VaultError::Unauthorized</code></td></tr>
+    <tr class="harden"><td class="task">Harden<span class="pill">closes the silent footgun</span></td><td class="write">a <b>rent-floor guard</b> plus its test</td><td class="proves">a withdrawal that would strand the vault below rent-exempt is <b>rejected, not silently purged</b></td></tr>
+  </table>
+</div>
+</body></html>

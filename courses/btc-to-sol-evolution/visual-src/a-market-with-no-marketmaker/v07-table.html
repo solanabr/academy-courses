@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: the four ways a first AMM swap goes sideways
+     purpose: pre-empt the footguns that make amountOut disagree with the formula
+     data: | mistake | what you see | the fix | | --- | --- | --- | | fee taken on the OUTPUT, not the input | amountOut slightly off, never matches | take 997/1000 on _amountIn before the formula | | reading x*y = k as exact | confused why k drifted up to 1,000,272.79 | fee stays in: the real invariant is x*y >= k_initial | | trusting the quoted spot price as your fill | you budgeted 100 TKB, got 90.66 | you execute at the worse secant price; size it in | | seeding addLiquidity at an off ratio | later deposit reverts or moves the price | first deposit sets price; after, reserve0*_amount1 == reserve1*_amount0 |
+     prompt: Four-row table, dark background, monospace, emphasized header row. Shade the fee-on-output row a faint red as the most common first error. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:488px;height:472px;bottom:-268px;left:-268px;border-radius:47% 40% 40% 61% / 51% 42% 38% 64%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:18px; margin-top:30px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 24px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:20px 24px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.38; }
+  .ct td.mis { font-weight:700; color:var(--text-primary); }
+  .ct code { font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--stbr-emerald); }
+  .ct tr.err td { background:rgba(192,57,43,0.06); border-bottom-color:rgba(192,57,43,0.22); }
+  .ct tr.err td.mis { color:#a5342a; }
+  .ct tr.err code { color:#a5342a; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .pill { display:inline-block; background:#c0392b; color:#fff;
+    font-family:var(--font-body); font-size:11px; font-weight:800; padding:4px 11px;
+    border-radius:var(--radius-pill); margin-left:10px; vertical-align:middle; letter-spacing:.03em; }
+</style>
+  <div class="stbr-eyebrow">the four ways a first AMM swap goes sideways</div>
+  <h2 class="viz-title">the footguns that make amountOut disagree</h2>
+  <table class="ct">
+    <tr><th style="width:30%">mistake</th><th style="width:33%">what you see</th><th>the fix</th></tr>
+    <tr class="err">
+      <td class="mis">fee taken on the OUTPUT, not the input<span class="pill">most common</span></td>
+      <td>amountOut slightly off, never matches</td>
+      <td>take <code>997/1000</code> on <code>_amountIn</code> before the formula</td>
+    </tr>
+    <tr>
+      <td class="mis">reading x&middot;y = k as exact</td>
+      <td>confused why k drifted up to 1,000,272.79</td>
+      <td>fee stays in: the real invariant is <code>x&middot;y &ge; k_initial</code></td>
+    </tr>
+    <tr>
+      <td class="mis">trusting the quoted spot price as your fill</td>
+      <td>you budgeted 100 TKB, got 90.66</td>
+      <td>you execute at the worse secant price; size it in</td>
+    </tr>
+    <tr>
+      <td class="mis">seeding addLiquidity at an off ratio</td>
+      <td>later deposit reverts or moves the price</td>
+      <td>first deposit sets price; after, <code>reserve0&middot;_amount1 == reserve1&middot;_amount0</code></td>
+    </tr>
+  </table>
+</div>
+</body></html>

@@ -1,0 +1,45 @@
+id: lesson-b2s-spend-a-utxo
+slug: spend-a-utxo
+title: "Spend a UTXO: there is no balance, only unspent outputs"
+skills:
+  - transactions
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Bitcoin has no account balances. When your wallet says '10 BTC', what do you actually control?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A set of unspent transaction outputs (UTXOs) that add up to 10 BTC"
+            correct: true
+          - id: b
+            label: "A single balance field of 10 stored under your address"
+            correct: false
+            feedback: "That is the account model (Ethereum, Solana). Bitcoin keeps no balance field anywhere; your 'balance' is just the sum your wallet computes over the UTXOs you can spend."
+          - id: c
+            label: "A 10 BTC entry in the miners' database that they decrement when you pay"
+            correct: false
+            feedback: "There is no per-account ledger for miners to decrement. Payment consumes specific UTXOs entirely and creates new ones; the balance is an emergent total, not a stored number."
+        explanation: "In the UTXO model, coins exist only as discrete unspent outputs. Your wallet's 'balance' is the sum of the UTXOs whose spending conditions you can satisfy — there is no account object holding a number."
+      - id: q2
+        prompt: "You hold one 10 BTC UTXO and want to pay 3 BTC. What happens to the other 7?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The 10 BTC UTXO is spent in full; the transaction creates a 3 BTC output to the payee and a ~7 BTC change output back to you"
+            correct: true
+          - id: b
+            label: "Only 3 BTC leaves the UTXO; it keeps a 7 BTC balance"
+            correct: false
+            feedback: "A UTXO cannot be partially spent — it is consumed whole. To keep the remainder you must create a CHANGE output back to an address you control, minus the fee."
+          - id: c
+            label: "The 7 BTC is lost to the network as a fee"
+            correct: false
+            feedback: "The fee is the small difference between inputs and outputs, not the entire remainder. Without a change output the 7 BTC WOULD be handed to the miner — which is exactly why wallets always add change."
+        explanation: "UTXOs are spent entirely. Paying 3 from a 10 BTC output means the transaction outputs 3 to the recipient and change (about 7, minus fee) back to you. Forgetting the change output donates the remainder to the miner as fee."

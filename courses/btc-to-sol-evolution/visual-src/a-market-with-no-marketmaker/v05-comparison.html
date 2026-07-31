@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: one determinism rule, two opposite faces
+     purpose: frame the oracle problem as the flip side of the exact determinism that made module 0's hash reproducible
+     data: the rule underneath both: every node must compute an identical result from identical inputs, or consensus breaks --- what determinism GIVES you (module 0): a hash is pure computation over its inputs, nothing external every machine recomputes the same digest, forever -> reproducibility you can trust --- what the same determinism FORBIDS (this pool): a live price fetch would read the outside world mid-execution node A and node B call a second apart and get different numbers -> they disagree on state, the block never forms [the oracle problem]
+     prompt: Two-column comparison card, dark background, monospace. A shared header states the determinism rule. Left column "gives, module 0 hash" tinted neutral; right column "forbids, live price fetch" tinted red and ending in "no consensus". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:548px;height:520px;bottom:-291px;right:-291px;border-radius:45% 54% 44% 51% / 61% 42% 42% 44%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .rule { margin-top:24px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:22px 30px; display:flex; align-items:center; gap:22px; }
+  .rule .tag { flex:0 0 auto; font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.13em; text-transform:uppercase; color:var(--stbr-yellow); }
+  .rule .txt { font-size:20px; line-height:1.35; }
+  .rule .txt b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+  .cols { display:flex; gap:24px; margin-top:20px; align-items:stretch; }
+  .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; display:flex; flex-direction:column; }
+  .col.gives { border-color:rgba(27,35,29,0.20); background:rgba(27,35,29,0.03); }
+  .col.forbids { border-color:rgba(192,57,43,0.30); background:rgba(192,57,43,0.05); }
+  .col h3 { margin:0; padding:20px 28px; font-size:16px; font-weight:900; letter-spacing:.07em;
+    text-transform:uppercase; display:flex; align-items:baseline; gap:12px; }
+  .col.gives h3 { background:var(--surface-brand-deep); color:var(--text-on-brand); }
+  .col.forbids h3 { background:#c0392b; color:#fff; }
+  .col h3 .sm { font-family:var(--font-body); font-weight:600; font-size:13px; letter-spacing:.02em;
+    text-transform:none; opacity:.85; }
+  .col .item { padding:22px 28px; font-size:19px; line-height:1.4; color:var(--text-primary);
+    border-top:1.5px solid var(--border-subtle); flex:1; display:flex; align-items:center; }
+  .col .item:first-of-type { border-top:0; }
+  .col code { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); }
+  .col.forbids .item b { color:#a5342a; }
+  .col .arrow { padding:16px 28px; font-family:var(--font-mono); font-size:16px; font-weight:800;
+    border-top:1.5px solid var(--border-subtle); }
+  .col.gives .arrow { color:var(--stbr-emerald); background:rgba(0,139,76,0.07); }
+  .col.forbids .arrow { color:#fff; background:#c0392b; text-transform:uppercase; letter-spacing:.06em; }
+</style>
+  <div class="stbr-eyebrow">one determinism rule, two opposite faces</div>
+  <h2 class="viz-title">the oracle problem is determinism's flip side</h2>
+  <div class="rule">
+    <div class="tag">the rule underneath both</div>
+    <div class="txt">Every node must compute an <b>identical result from identical inputs</b>, or consensus breaks.</div>
+  </div>
+  <div class="cols">
+    <div class="col gives">
+      <h3>what it gives you <span class="sm">module 0 &mdash; the hash</span></h3>
+      <div class="item"><span>a hash is <b>pure computation</b> over its inputs, nothing external</span></div>
+      <div class="item"><span>every machine recomputes the same digest, forever</span></div>
+      <div class="arrow">&rarr; reproducibility you can trust</div>
+    </div>
+    <div class="col forbids">
+      <h3>what it forbids <span class="sm">this pool &mdash; a live price fetch</span></h3>
+      <div class="item"><span>a <b>live price fetch</b> would read the outside world mid-execution</span></div>
+      <div class="item"><span>node A and node B call a second apart and get <b>different numbers</b></span></div>
+      <div class="arrow">&rarr; they disagree on state &mdash; no consensus</div>
+    </div>
+  </div>
+</div>
+</body></html>

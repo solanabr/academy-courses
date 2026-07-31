@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: getblock on block 1, walked field by field
+     purpose: show the reader the previousblockhash and the coinbase inside a block they minted
+     data: $ bitcoin-cli -regtest getblock $(bitcoin-cli -regtest getblockhash 1) { "hash": "1a3f...e7", # block 1's own fingerprint (yours differs) "confirmations": 101, # block 1 plus the 100 blocks resting on top of it "height": 1, "tx": [ "b7c2...9f" ], # exactly one transaction: the coinbase (mints 50 BTC) "merkleroot": "b7c2...9f", # one tx, so the root equals that tx's digest "previousblockhash": "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", "bits": "207fffff" # the encoded difficulty target: regtest's floor }
+     prompt: Terminal/JSON mock, dark theme, monospace. Highlight "previousblockhash" with a callout "= the hash chain from lesson 1" and "tx" with a callout "the coinbase: new coins, no sender". Keep the genesis hash legible but unhighlighted. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:533px;height:484px;right:-288px;top:280px;border-radius:36% 56% 42% 45% / 55% 47% 41% 53%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .jwrap { margin-top:20px; display:grid; grid-template-columns:1fr 344px; gap:30px; align-items:start; }
+  .json { background:var(--surface-inverse); border-radius:var(--radius-xl); padding:30px 38px;
+    font-family:var(--font-mono); font-size:18px; line-height:1.62; color:var(--text-on-dark); }
+  .json .prompt { color:var(--stbr-ink-300); display:block; margin-bottom:14px; }
+  .json .prompt .pr { color:var(--stbr-emerald); font-weight:800; }
+  .json .k { color:var(--stbr-cream); }
+  .json .s { color:var(--stbr-ink-300); }
+  .json .n { color:var(--stbr-ink-300); }
+  .json .cmt { color:var(--stbr-ink-500); }
+  .json .row { display:block; }
+  .json .row.pad { padding-left:22px; }
+  .kv-hl { background:rgba(0,139,76,0.22); border-left:3px solid var(--stbr-emerald);
+    padding:3px 10px 3px 12px; margin-left:-13px; border-radius:0 6px 6px 0; display:block; }
+  .kv-hl.y { background:rgba(255,210,63,0.16); border-left-color:var(--stbr-yellow); }
+  .kv-hl .k { color:var(--stbr-emerald); font-weight:800; }
+  .kv-hl.y .k { color:var(--stbr-yellow); font-weight:800; }
+  .calls { display:flex; flex-direction:column; gap:20px; padding-top:10px; }
+  .call { border-radius:var(--radius-lg); padding:20px 24px; font-family:var(--font-body); }
+  .call .fld { font-family:var(--font-mono); font-weight:800; font-size:17px; }
+  .call .txt { font-size:18px; line-height:1.4; margin-top:9px; color:var(--text-secondary); }
+  .call.g { background:rgba(0,139,76,0.10); border:2px solid rgba(0,139,76,0.34); }
+  .call.g .fld { color:var(--stbr-emerald); }
+  .call.y { background:rgba(255,210,63,0.16); border:2px solid rgba(217,166,8,0.42); }
+  .call.y .fld { color:var(--stbr-yellow-700); }
+</style>
+  <div class="stbr-eyebrow">getblock on block 1, field by field</div>
+  <h2 class="viz-title">inside a block you minted</h2>
+  <div class="jwrap">
+    <div class="json">
+      <span class="prompt"><span class="pr">$</span> bitcoin-cli -regtest getblock $(bitcoin-cli -regtest getblockhash 1)</span>
+      <span class="row">{</span>
+      <span class="row pad"><span class="k">"hash":</span> <span class="s">"1a3f&hellip;e7"</span>, <span class="cmt"># block 1's fingerprint (yours differs)</span></span>
+      <span class="row pad"><span class="k">"confirmations":</span> <span class="n">101</span>, <span class="cmt"># block 1 + the 100 resting on top</span></span>
+      <span class="row pad"><span class="k">"height":</span> <span class="n">1</span>,</span>
+      <span class="row pad"><span class="kv-hl y"><span class="k">"tx":</span> [ <span class="s">"b7c2&hellip;9f"</span> ],</span></span>
+      <span class="row pad"><span class="k">"merkleroot":</span> <span class="s">"b7c2&hellip;9f"</span>, <span class="cmt"># one tx, so root = that tx</span></span>
+      <span class="row pad"><span class="kv-hl"><span class="k">"previousblockhash":</span></span></span>
+      <span class="row pad"><span class="s" style="padding-left:22px;">"0f9188f13cb7b2c71f2a335e</span></span>
+      <span class="row pad"><span class="s" style="padding-left:22px;">3a4fc328bf5beb436012afca</span></span>
+      <span class="row pad"><span class="s" style="padding-left:22px;">590b1a11466e2206"</span>,</span>
+      <span class="row pad"><span class="k">"bits":</span> <span class="s">"207fffff"</span> <span class="cmt"># regtest's difficulty floor</span></span>
+      <span class="row">}</span>
+    </div>
+    <div class="calls">
+      <div class="call y">
+        <div class="fld">"tx"</div>
+        <div class="txt">the coinbase &mdash; new coins, no sender. This is where the 50 BTC is minted.</div>
+      </div>
+      <div class="call g">
+        <div class="fld">"previousblockhash"</div>
+        <div class="txt">the same hash chain from lesson 1 &mdash; it points at the block underneath, sealing the order.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

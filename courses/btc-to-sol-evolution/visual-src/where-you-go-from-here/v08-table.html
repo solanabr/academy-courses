@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: three honest answers for your upgrade authority
+     purpose: certify the deploy-time choice, each authority option is a different promise with a named cost
+     data: upgrade authority | what it buys you | what it costs a single key in your wallet | ships fastest; patch a bug the morning you find it | one phished seed or rogue insider swaps your code for a drainer overnight a multisig across several holders | no one person can push an upgrade alone | slower, coordinated releases burned, deployed immutable | the audited code is the code forever | you lose the ability to fix a flaw once it ships
+     prompt: Three-row table, dark background, monospace headers "upgrade authority / what it buys you / what it costs". Tint the "what it costs" column amber. No logos, no icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:509px;height:540px;top:-301px;right:-301px;border-radius:36% 40% 59% 65% / 64% 54% 62% 63%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:536px;height:382px;left:-315px;top:139px;border-radius:53% 63% 60% 55% / 58% 44% 44% 55%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:19px; margin-top:32px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 24px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th.cost { background:var(--stbr-dark-700); color:var(--stbr-yellow); }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:26px 24px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:top; line-height:1.42; }
+  .ct td.auth { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:20px; }
+  .ct td.cost { background:rgba(255,210,63,0.13); border-bottom-color:rgba(217,166,8,0.28); color:var(--text-primary); font-weight:600; }
+  .ct td.cost b { color:#a5342a; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">three honest answers for your upgrade authority</div>
+  <h2 class="viz-title">who can change the code, and what it costs</h2>
+  <table class="ct">
+    <tr>
+      <th style="width:30%">upgrade authority</th>
+      <th style="width:34%">what it buys you</th>
+      <th class="cost">what it costs</th>
+    </tr>
+    <tr>
+      <td class="auth">a single key in your wallet</td>
+      <td>ships fastest &mdash; patch a bug the morning you find it</td>
+      <td class="cost">one phished seed or rogue insider <b>swaps your code for a drainer</b> overnight</td>
+    </tr>
+    <tr>
+      <td class="auth">a multisig across several holders</td>
+      <td>no one person can push an upgrade alone</td>
+      <td class="cost">slower, coordinated releases</td>
+    </tr>
+    <tr>
+      <td class="auth">burned &mdash; deployed immutable</td>
+      <td>the audited code is the code forever</td>
+      <td class="cost">you lose the ability to <b>fix a flaw</b> once it ships</td>
+    </tr>
+  </table>
+</div>
+</body></html>

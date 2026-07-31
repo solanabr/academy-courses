@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: two footguns, and how to tell them apart
+     purpose: separate transport failure from RPC-level refusal so the learner reads the right symptom
+     data: | mistake | symptom | where it fails | what it is | | --- | --- | --- | --- | | wrong port (8332 instead of 18443) | Connection refused / timeout | the request never reaches a node | TRANSPORT error, the wire, not the node | | params as an object where an array is expected | HTTP 200, but result:null and error populated | the request reached the node and the node refused | RPC-LEVEL error, the node, not the wire | | node stopped (bitcoin-cli -regtest stop) | Connection refused | the request never reaches a node | TRANSPORT error, identical shape to wrong port |
+     prompt: Three-row table, dark background, monospace headers "mistake / symptom / where it fails / what it is". Color the two TRANSPORT rows one accent and the RPC-LEVEL row another, to teach the two-bucket distinction at a glance. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:477px;height:423px;bottom:-248px;left:715px;border-radius:49% 49% 57% 62% / 44% 35% 40% 54%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; margin-top:26px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 22px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.07em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { padding:20px 22px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; font-size:16.5px; line-height:1.38; }
+  .ct td.mk { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:16px; }
+  .ct td.mk code { color:var(--stbr-emerald); }
+  .ct tr.transport td { background:rgba(0,139,76,0.07); border-bottom-color:rgba(0,139,76,0.16); }
+  .ct tr.rpc td { background:rgba(255,210,63,0.16); border-bottom-color:rgba(240,189,31,0.35); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .sym { font-family:var(--font-mono); font-size:15px; color:var(--text-primary); }
+  .bucket { display:inline-block; font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.05em; text-transform:uppercase; padding:5px 13px; border-radius:var(--radius-pill); }
+  .bucket.t { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .bucket.r { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .bnote { display:block; margin-top:9px; font-family:var(--font-body); font-size:14px;
+    color:var(--text-secondary); }
+  .legend { display:flex; gap:26px; margin-top:20px; font-family:var(--font-body); font-weight:700;
+    font-size:14px; color:var(--text-secondary); }
+  .legend .sw { display:inline-block; width:15px; height:15px; border-radius:4px; vertical-align:middle;
+    margin-right:9px; }
+  .legend .sw.t { background:var(--stbr-emerald); }
+  .legend .sw.r { background:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">two footguns, and how to tell them apart</div>
+  <h2 class="viz-title">the wire, or the node?</h2>
+  <table class="ct">
+    <tr><th style="width:27%">mistake</th><th style="width:25%">symptom</th><th style="width:23%">where it fails</th><th>what it is</th></tr>
+    <tr class="transport"><td class="mk">wrong port<br><code>8332</code> instead of <code>18443</code></td><td><span class="sym">Connection refused / timeout</span></td><td>the request never reaches a node</td><td><span class="bucket t">transport error</span><span class="bnote">the wire, not the node</span></td></tr>
+    <tr class="rpc"><td class="mk">params as an object where an array is expected</td><td><span class="sym">HTTP 200, but result:null and error populated</span></td><td>the request reached the node, and the node refused</td><td><span class="bucket r">rpc-level error</span><span class="bnote">the node, not the wire</span></td></tr>
+    <tr class="transport"><td class="mk">node stopped<br><code>bitcoin-cli -regtest stop</code></td><td><span class="sym">Connection refused</span></td><td>the request never reaches a node</td><td><span class="bucket t">transport error</span><span class="bnote">identical shape to wrong port</span></td></tr>
+  </table>
+  <div class="legend">
+    <span><span class="sw t"></span>transport &mdash; it never reached the node</span>
+    <span><span class="sw r"></span>rpc-level &mdash; the node ran and refused</span>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- timeline: the line between key and code, drawn and bent
+     purpose: place the EOA/contract distinction and its 2025-2026 softening on one dated line
+     data: 2015 (Ethereum launch): two account types drawn hard, EOA is key-controlled and initiates txs; contract is code-controlled and only responds 2025-05-07 (Pectra hardfork, EIP-7702): an EOA may temporarily set its codeHash to point at a contract, for the duration of one transaction 2026-04-29 (Solidity 0.8.35): erc7201 builtin for namespaced storage slots, "where state lives in the account" becomes first-class through-line: persistent, autonomous storage still belongs only to contract accounts
+     prompt: Horizontal timeline, dark background, three dated nodes as listed, left to right. A dashed line labeled "the EOA / contract boundary" runs across; at the 2025 node it bends but does not break. Small badge on the final node: "storage still contract-only". Monospace labels, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:536px;height:577px;top:-323px;right:-323px;border-radius:59% 52% 37% 38% / 36% 41% 43% 55%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:517px;height:442px;bottom:-234px;left:703px;border-radius:51% 53% 46% 45% / 47% 56% 49% 59%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tl { position:relative; margin-top:40px; }
+  /* boundary label pinned above the dashed line */
+  .blabel { display:inline-block; font-family:var(--font-body); font-weight:800;
+    font-size:14px; letter-spacing:.05em; color:var(--stbr-green);
+    background:rgba(48,108,64,0.10); padding:7px 16px; border-radius:var(--radius-pill); margin-bottom:14px; }
+  /* the marker band: dates + dashed boundary + dots, all above the cards */
+  .band { position:relative; height:150px; }
+  .boundary { position:absolute; left:0; right:0; top:0; z-index:0; }
+  .marks { position:absolute; left:0; right:0; top:0; display:flex; z-index:2; }
+  .mark { flex:1; text-align:center; }
+  .mark .date { font-family:var(--font-mono); font-weight:800; font-size:22px; color:var(--text-primary); }
+  .mark .sub { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-top:3px; }
+  .mark .dot { width:24px; height:24px; border-radius:50%; background:var(--stbr-emerald);
+    border:6px solid var(--surface-page); margin:22px auto 0; box-sizing:content-box; }
+  .mark.you .dot { width:36px; height:36px; background:var(--stbr-yellow); margin:16px auto 0; }
+  /* the cards row, below the band, never crossed by any line */
+  .cards { display:flex; gap:36px; margin-top:14px; align-items:stretch; }
+  .card { flex:1; background:var(--surface-card); border:1.5px solid var(--border-subtle);
+    border-radius:var(--radius-xl); padding:22px 26px; font-size:17px; line-height:1.4;
+    color:var(--text-primary); }
+  .card b { color:var(--stbr-emerald); }
+  .card .mono { font-family:var(--font-mono); font-weight:700; }
+  .card.you { border-color:var(--stbr-yellow); background:rgba(255,210,63,0.08); }
+  .badge { display:inline-block; margin-top:14px; font-family:var(--font-body); font-size:12px;
+    font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--text-on-accent);
+    background:var(--stbr-yellow); padding:6px 13px; border-radius:var(--radius-pill); }
+</style>
+  <div class="stbr-eyebrow">the key / code boundary, drawn and bent</div>
+  <h2 class="viz-title">where state lives, over eleven years</h2>
+  <div class="tl">
+    <div class="blabel">the EOA / contract boundary &mdash; it bends, it does not break</div>
+    <div class="band">
+      <!-- dashed boundary: level, dips at the middle (2025) node, level again; endpoints at the dot centres -->
+      <svg class="boundary" viewBox="0 0 1456 150" preserveAspectRatio="none" width="100%" height="150">
+        <path d="M 243 122 L 640 122 L 728 150 L 816 122 L 1213 122"
+          fill="none" stroke="#306c40" stroke-width="2.5" stroke-dasharray="9 8"/>
+      </svg>
+      <div class="marks">
+        <div class="mark">
+          <div class="date">2015</div><div class="sub">Ethereum launch</div>
+          <div class="dot"></div>
+        </div>
+        <div class="mark">
+          <div class="date">2025-05-07</div><div class="sub">Pectra &middot; EIP-7702</div>
+          <div class="dot"></div>
+        </div>
+        <div class="mark you">
+          <div class="date">2026-04-29</div><div class="sub">Solidity 0.8.35</div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">Two account types drawn <b>hard</b>: an <span class="mono">EOA</span> is key-controlled and initiates txs; a <span class="mono">contract</span> is code-controlled and only responds.</div>
+      <div class="card">An EOA may <b>temporarily</b> point its <span class="mono">codeHash</span> at a contract &mdash; for the duration of one transaction.</div>
+      <div class="card you"><span class="mono">erc7201</span> builtin for namespaced storage slots &mdash; &ldquo;where state lives in the account&rdquo; becomes first-class.
+        <span class="badge">storage still contract-only</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

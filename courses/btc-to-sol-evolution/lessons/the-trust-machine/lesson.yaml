@@ -1,0 +1,45 @@
+id: lesson-b2s-the-trust-machine
+slug: the-trust-machine
+title: "Double-spend yourself: the fifty-year bug"
+skills:
+  - solana-fundamentals
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You copy one coin.json to Bob and Carol and both accept it. What single property of money have you just broken, and what fixes it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Double-spend prevention — a shared ledger that records the coin as spent once and rejects the second transfer"
+            correct: true
+          - id: b
+            label: "Encryption — the coin should have been encrypted so only one person could open it"
+            correct: false
+            feedback: "Encryption hides data; it does nothing to stop the SAME coin being handed to two people. The problem is agreement on what was spent, not secrecy."
+          - id: c
+            label: "Nothing — digital cash has always allowed this"
+            correct: false
+            feedback: "It is exactly the failure digital cash could not ship with. Preventing it — without a copy being usable twice — is the whole problem Bitcoin set out to solve."
+        explanation: "A digital coin is a file, and files copy for free, so the same coin can be 'spent' twice. The fix is a ledger everyone agrees on that marks the coin spent the first time and rejects the second — the double-spend problem, unsolved for digital money until 2009."
+      - id: q2
+        prompt: "Bitcoin's genesis block (2009-01-03) embeds the headline 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks.' Why put a newspaper headline in the first block?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It is a timestamp and a statement — it proves the chain was not pre-mined before that date, and nods at the bank-bailout world it was reacting to"
+            correct: true
+          - id: b
+            label: "It is required by the Bitcoin protocol — every block must embed a news headline"
+            correct: false
+            feedback: "No block before or since is required to carry a headline. It was a one-time message in the genesis coinbase, not a protocol rule."
+          - id: c
+            label: "It encrypts the first 50 BTC so only Satoshi can spend them"
+            correct: false
+            feedback: "The text is plaintext in the coinbase, not encryption. The genesis reward is unspendable for an unrelated client quirk, not because of the headline."
+        explanation: "The headline does double duty: no one could have produced that exact 2009-01-03 front page earlier, so it timestamps the chain's birth; and it names the crisis — bank bailouts — that a trust-minimized money was a response to."

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: an input dereferences {txid, vout}, like a pointer
+     purpose: certify the footgun, a txid alone is ambiguous; you need the output index too
+     data: spending tx.vin[0] = { txid: 7b1e4c9a..., vout: 1 } ---dereference---> source tx 7b1e4c9a... has TWO outputs: vout 0: 10.00000000 (payment) vout 1: 39.99997640 (change) <== this is the coin being spent txid alone lands on the transaction; only txid + vout lands on a specific coin footgun: same txid, wrong index -> "missing inputs" or spending the wrong output
+     prompt: Diagram, dark background, monospace. Left: a "vin[0]" box holding {txid, vout:1}. A dashed arrow labeled "dereference" points right into a "source tx" box listing two outputs, index 0 and index 1, with the arrow terminating on index 1 (highlighted). A red note: "txid alone is ambiguous, two outputs share it". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:456px;height:448px;right:-266px;top:195px;border-radius:64% 37% 36% 65% / 55% 45% 38% 56%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:527px;height:505px;bottom:-292px;left:423px;border-radius:64% 51% 42% 52% / 48% 54% 52% 65%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { display:flex; align-items:center; gap:12px; margin-top:34px; }
+  .vin { flex:0 0 360px; background:var(--surface-card); border:2px solid rgba(48,108,64,0.36);
+    border-radius:var(--radius-lg); padding:24px 28px; }
+  .vin .k { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-emerald); }
+  .vin .obj { font-family:var(--font-mono); font-size:19px; color:var(--text-primary); margin-top:14px; line-height:1.6; }
+  .vin .obj .field { color:var(--stbr-green); }
+  .vin .obj .hit { color:var(--stbr-dark); background:var(--stbr-yellow); padding:1px 7px; border-radius:6px; font-weight:800; }
+  .conn { flex:1; position:relative; height:150px; }
+  .conn svg { position:absolute; inset:0; width:100%; height:100%; }
+  .conn .clab { position:absolute; left:50%; top:34px; transform:translateX(-50%);
+    font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.04em;
+    color:var(--stbr-emerald); background:var(--surface-page); padding:4px 12px; white-space:nowrap; }
+  .src { flex:0 0 500px; background:var(--surface-inverse); border-radius:var(--radius-lg); padding:24px 28px; color:var(--text-on-dark); }
+  .src .k { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-yellow); }
+  .src .txid { font-family:var(--font-mono); font-size:16px; color:var(--stbr-ink-300); margin:8px 0 16px; }
+  .outrow { display:flex; align-items:center; gap:14px; font-family:var(--font-mono); font-size:19px;
+    padding:14px 18px; border-radius:var(--radius-md); border:1.5px solid var(--border-on-dark); margin-top:10px; color:var(--stbr-cream); }
+  .outrow .oi { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--stbr-ink-300); flex:0 0 62px; }
+  .outrow.spent { background:rgba(255,210,63,0.14); border-color:var(--stbr-yellow); }
+  .outrow.spent .oi { color:var(--stbr-yellow); }
+  .outrow.spent .tick { margin-left:auto; color:var(--stbr-yellow); font-weight:800; font-size:14px; font-family:var(--font-body); }
+  .note { margin-top:26px; display:flex; align-items:center; gap:16px; background:rgba(192,57,43,0.06);
+    border:2px solid rgba(192,57,43,0.28); border-radius:var(--radius-lg); padding:18px 28px; }
+  .note .bang { flex:0 0 auto; font-family:var(--font-body); font-weight:900; font-size:13px; letter-spacing:.1em;
+    text-transform:uppercase; color:#fff; background:#c0392b; padding:5px 13px; border-radius:var(--radius-pill); }
+  .note .ntxt { font-size:20px; color:var(--text-secondary); line-height:1.4; }
+  .note .ntxt b { color:#a5342a; }
+</style>
+  <div class="stbr-eyebrow">an input dereferences {txid, vout}</div>
+  <h2 class="viz-title">a coin is a pointer, not just a txid</h2>
+  <div class="dg">
+    <div class="vin">
+      <div class="k">spending tx &middot; vin[0]</div>
+      <div class="obj">{<br>&nbsp;&nbsp;<span class="field">txid</span>: 7b1e4c9a&hellip;,<br>&nbsp;&nbsp;<span class="field">vout</span>: <span class="hit">1</span><br>}</div>
+    </div>
+    <div class="conn">
+      <svg viewBox="0 0 380 150" preserveAspectRatio="none">
+        <line x1="6" y1="75" x2="352" y2="105" stroke="#008b4c" stroke-width="3" stroke-dasharray="9 7"/>
+        <polygon points="368,109 346,96 349,116" fill="#008b4c"/>
+      </svg>
+      <span class="clab">dereference</span>
+    </div>
+    <div class="src">
+      <div class="k">source tx</div>
+      <div class="txid">7b1e4c9a&hellip; &mdash; has TWO outputs</div>
+      <div class="outrow"><span class="oi">vout 0</span><span>10.00000000</span></div>
+      <div class="outrow spent"><span class="oi">vout 1</span><span>39.99997640</span><span class="tick">&larr; the coin being spent</span></div>
+    </div>
+  </div>
+  <div class="note">
+    <span class="bang">footgun</span>
+    <div class="ntxt">The txid alone lands on the transaction; only <b>txid + vout</b> lands on a specific coin. Same txid, wrong index &rarr; <b>"missing inputs"</b> or you spend the wrong output.</div>
+  </div>
+</div>
+</body></html>

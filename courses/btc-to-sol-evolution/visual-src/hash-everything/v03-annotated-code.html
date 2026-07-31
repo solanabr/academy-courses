@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: where the avalanche is manufactured
+     purpose: show the fold-forward loop so "one byte scrambles everything" is mechanical, not magic
+     data: state = IV # fixed 256-bit starting constant for chunk in split(message, 512): # fixed-size blocks, taken in order state = compress(state, chunk) # 64 rounds of mixing; disturbance spreads # ^ a changed byte lives in exactly ONE chunk here... # ...but this state feeds the NEXT chunk, so it compounds forward digest = state # always 256 bits out, whatever went in
+     prompt: Monospace annotated-code panel, dark background. Render the lines as code. Draw a curved arrow from the `state = compress(...)` line back to the top of the loop to emphasize feed-forward. Highlight the two comment lines in a warm accent. Caption: "one changed byte, folded forward 64 rounds per chunk".
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:526px;height:517px;top:-318px;right:-318px;border-radius:59% 65% 38% 55% / 51% 56% 60% 41%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:459px;height:386px;left:-243px;top:384px;border-radius:48% 63% 42% 59% / 40% 41% 53% 41%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .code { position:relative; margin-top:28px; background:var(--surface-inverse);
+    border-radius:var(--radius-xl); padding:40px 46px 40px 54px; }
+  .lines { position:relative; z-index:1; font-family:var(--font-mono); font-size:21px;
+    line-height:2.05; }
+  .ln { white-space:pre; color:var(--text-on-dark); }
+  .ln .kw { color:var(--stbr-yellow); font-weight:700; }
+  .ln .cm { color:var(--stbr-ink-300); }
+  .ln.note { color:var(--stbr-dark); background:var(--stbr-yellow); border-radius:8px;
+    padding:2px 12px; display:inline-block; font-weight:600; }
+  .ln.note .cm { color:var(--stbr-dark); }
+  .loop { position:absolute; left:18px; top:104px; }
+  .caption { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:22px; font-weight:600; line-height:1.4; }
+  .caption b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">where the avalanche is manufactured</div>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 26px;">one byte, folded forward</h2>
+  <div class="code">
+    <!-- feed-forward loop arrow: from the compress line up to the for loop -->
+    <svg class="loop" width="30" height="60" viewBox="0 0 30 60" aria-hidden="true">
+      <path d="M28 51 L10 51 L10 12" fill="none" stroke="#008b4c" stroke-width="3"/>
+      <polygon points="10,0 3,16 17,16" fill="#008b4c"/>
+    </svg>
+    <div class="lines">
+<div class="ln">state = IV                              <span class="cm"># fixed 256-bit starting constant</span></div>
+<div class="ln"><span class="kw">for</span> chunk <span class="kw">in</span> split(message, 512):        <span class="cm"># fixed-size blocks, taken in order</span></div>
+<div class="ln">    state = compress(state, chunk)      <span class="cm"># 64 rounds of mixing; disturbance spreads</span></div>
+<div class="ln note">    # ^ a changed byte lives in exactly ONE chunk here...</div>
+<div class="ln note">    # ...but this state feeds the NEXT chunk, so it compounds forward</div>
+<div class="ln">digest = state                          <span class="cm"># always 256 bits out, whatever went in</span></div>
+    </div>
+  </div>
+  <div class="caption">The changed byte starts in <b>one</b> chunk &mdash; but each chunk's <code style="color:var(--stbr-yellow);font-family:var(--font-mono);">state</code> feeds the next, folded forward <b>64 rounds per chunk</b> until it touches every output bit.</div>
+</div>
+</body></html>

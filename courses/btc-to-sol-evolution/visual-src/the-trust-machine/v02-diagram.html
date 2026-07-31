@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: two ways to write, one door left open
+     purpose: certify that validation lives downstream of the data its owner can rewrite
+     data: path A (users): transfer() -> balance check -> update the balances dict [REJECTED possible] path B (owner): balances['you'] = 1_000_000 -> update the balances dict [no check runs] both paths end at: the same dict, in the same process the check sits BELOW the data; the owner writes ABOVE it
+     prompt: Diagram, dark background, monospace. Two arrows entering a single "balances dict" box. Top arrow labeled "users" passes through a gate node "balance check" (can read REJECTED). Bottom arrow labeled "owner" is drawn around the gate, bypassing it entirely, tinted red. Caption under the box: "validation is downstream of the data". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:515px;height:486px;top:-280px;right:-280px;border-radius:59% 51% 55% 49% / 59% 55% 58% 54%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:543px;height:520px;bottom:-286px;left:-286px;border-radius:65% 55% 61% 38% / 56% 42% 46% 60%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:535px;height:500px;bottom:-268px;right:-268px;border-radius:61% 45% 64% 56% / 64% 59% 46% 51%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { position:relative; margin-top:30px; height:560px; }
+  .lane { position:absolute; display:flex; align-items:center; gap:22px; }
+  .laneA { left:0; top:0; }
+  .laneB { left:0; top:262px; }
+  .tag { font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.09em; text-transform:uppercase; padding:8px 16px; border-radius:var(--radius-pill); }
+  .tag.users { background:rgba(0,139,76,0.12); color:var(--stbr-emerald); }
+  .tag.owner { background:rgba(192,57,43,0.12); color:#a5342a; }
+  .box { background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-lg); padding:20px 26px; font-family:var(--font-mono); font-size:19px; color:var(--text-primary); }
+  .gate { background:rgba(0,139,76,0.08); border:2px solid rgba(0,139,76,0.36); border-radius:var(--radius-lg); padding:18px 24px; text-align:center; }
+  .gate .g { font-family:var(--font-mono); font-weight:800; font-size:19px; color:var(--stbr-emerald); }
+  .gate .r { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:#a5342a; margin-top:6px; }
+  .writebox { background:rgba(192,57,43,0.06); border:2px solid rgba(192,57,43,0.32); border-radius:var(--radius-lg); padding:20px 26px; font-family:var(--font-mono); font-size:19px; color:#a5342a; font-weight:700; }
+  .arr { width:44px; height:3px; background:var(--stbr-emerald); position:relative; flex:0 0 44px; }
+  .arr::after { content:""; position:absolute; right:-2px; top:-6px; border:8px solid transparent; border-left:12px solid var(--stbr-emerald); }
+  .dict { position:absolute; left:0; right:0; bottom:0; background:var(--surface-inverse); border-radius:var(--radius-xl); padding:26px 34px; display:flex; align-items:center; gap:26px; }
+  .dict .k { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--stbr-yellow); }
+  .dict .v { font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--text-on-dark); }
+  .dict .note { margin-left:auto; font-family:var(--font-body); font-weight:700; font-size:16px; color:var(--stbr-ink-300); text-align:right; line-height:1.35; }
+  .svglayer { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+  .bypasslab { position:absolute; left:632px; top:150px; background:#c0392b; color:#fff; font-family:var(--font-body); font-weight:800; font-size:15px; padding:7px 16px; border-radius:var(--radius-pill); }
+</style>
+  <div class="stbr-eyebrow">two ways to write, one door left open</div>
+  <h2 class="viz-title">validation is downstream of the data</h2>
+  <div class="dg">
+    <svg class="svglayer" viewBox="0 0 1456 560" preserveAspectRatio="none">
+      <!-- owner bypass: from writebox down and around the gate, into the dict, red dashed -->
+      <path d="M 470 330 L 470 372 L 1290 372 L 1290 470" fill="none" stroke="#c0392b" stroke-width="3.5" stroke-dasharray="10 8"/>
+      <polygon points="1290,494 1281,470 1299,470" fill="#c0392b"/>
+      <!-- users path continues from gate into the dict, emerald solid -->
+      <path d="M 900 92 L 1000 92 L 1000 470" fill="none" stroke="#008b4c" stroke-width="3.5"/>
+      <polygon points="1000,494 991,470 1009,470" fill="#008b4c"/>
+    </svg>
+    <div class="lane laneA">
+      <span class="tag users">users</span>
+      <div class="box">transfer()</div>
+      <div class="arr"></div>
+      <div class="gate"><div class="g">balance check</div><div class="r">can read REJECTED</div></div>
+    </div>
+    <div class="lane laneB">
+      <span class="tag owner">owner</span>
+      <div class="writebox">balances['you'] = 1_000_000</div>
+    </div>
+    <div class="bypasslab">no check runs &mdash; drawn around the gate</div>
+    <div class="dict">
+      <span class="k">the balances dict</span>
+      <span class="v">{ ... }</span>
+      <span class="note">the check sits BELOW the data;<br>the owner writes ABOVE it</span>
+    </div>
+  </div>
+</div>
+</body></html>

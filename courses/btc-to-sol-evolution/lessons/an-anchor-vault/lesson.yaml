@@ -1,0 +1,55 @@
+id: lesson-b2s-an-anchor-vault
+slug: an-anchor-vault
+title: "A vault only its program can open"
+skills:
+  - anchor
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: wire-deposit
+    type: code
+    language: rust
+    buildType: buildable
+    starter: wire-deposit/starter.rs
+    solution: wire-deposit/solution.rs
+    tests: wire-deposit/tests.json
+    hints:
+      - "A PDA has no key; the program signs for it with the vault seeds plus the canonical bump — so the bump must be stored to be reused."
+      - "Add `pub vault_bump: u8` and `pub state_bump: u8` to VaultState; field order does not matter to Anchor."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your vault is a PDA — an address with no private key. Why does the program STORE the canonical bump in the vault's state account instead of re-deriving it each call?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Re-deriving the canonical bump scans bumps 255→down and costs compute every call; storing it once lets the program sign for the PDA cheaply with the known bump"
+            correct: true
+          - id: b
+            label: "Because the bump is secret and must be hidden in an account"
+            correct: false
+            feedback: "The bump is not a secret — it is a single public byte anyone can recompute. It is stored to avoid paying to FIND it again, not to hide it."
+          - id: c
+            label: "Because a PDA changes its bump over time and must be cached"
+            correct: false
+            feedback: "The canonical bump for a given set of seeds is fixed forever. It does not change; storing it is purely to skip the repeated derivation cost on later instructions."
+        explanation: "A PDA has no key, so the program authorises actions for it by signing with its seeds plus the canonical bump. Finding that bump means iterating from 255 down until the address is off-curve — real compute — so you store it at init and reuse the stored byte, saving ~1,500 CU per access."
+      - id: q2
+        prompt: "The deposit handler does `balance.checked_add(amount).ok_or(VaultError::Overflow)?` instead of `balance += amount`. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Unchecked addition can overflow and, with overflow checks on, panic; `checked_add` returns None so you convert it into a clean, typed program error"
+            correct: true
+          - id: b
+            label: "`checked_add` is faster than `+`"
+            correct: false
+            feedback: "It is not about speed — it is about safety. Plain `+` risks a wrapping overflow or a panic on bad input; `checked_add` makes the overflow case explicit and lets you return a defined error instead of aborting."
+          - id: c
+            label: "Anchor forbids the `+` operator entirely"
+            correct: false
+            feedback: "Anchor does not ban `+`; Rust will happily compile it. The discipline is deliberate: in program code you use checked arithmetic so an attacker-supplied amount can't overflow silently or panic your instruction."
+        explanation: "In on-chain code an overflow is an attack surface: it either wraps to a wrong value or panics. `checked_add` returns `None` on overflow, and `.ok_or(VaultError::Overflow)?` turns that into a typed error the caller can read — the safe pattern for every balance update."

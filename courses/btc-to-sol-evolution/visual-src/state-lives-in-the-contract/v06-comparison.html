@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: unspent-output set vs mutable account map
+     purpose: certify why per-address persistent state is expressible in one model and structurally absent in the other
+     data: Bitcoin (UTXO set) | Ethereum (account map) global state = set of unspent outputs | global state = map of address -> 4-field account a UTXO is spend-once, consumed whole | a storage slot is mutable, rewritten in place script authorizes a spend, then output is gone | contract code runs, then SSTOREs a slot that persists no key-value store attached to a script | per-contract 256->256 map under storageRoot "balance of X" = scan and sum outputs | "balance of X" = one SLOAD of a slot cannot hold a token balance | holds arbitrary persistent per-address state
+     prompt: Two-column comparison card, dark background, monospace headers "Bitcoin (UTXO set)" and "Ethereum (account map)". Six aligned rows as listed. Tint the final Bitcoin cell amber ("cannot") and the final Ethereum cell green ("can"). No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:458px;height:441px;top:-243px;right:-243px;border-radius:40% 55% 36% 59% / 58% 44% 38% 56%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { display:grid; grid-template-columns:210px 1fr 1fr; margin-top:22px;
+    border:2px solid var(--border-subtle); border-radius:var(--radius-lg); overflow:hidden;
+    font-size:17px; }
+  .cmp > div { padding:16px 22px; border-top:1.5px solid var(--border-subtle); display:flex;
+    align-items:center; line-height:1.32; }
+  .cmp .hc { border-top:0; font-family:var(--font-display); font-weight:900; font-size:16px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--text-on-brand); }
+  .cmp .hc.axis { background:var(--surface-inverse); color:var(--stbr-cream); }
+  .cmp .hc.btc { background:var(--surface-brand-deep); }
+  .cmp .hc.eth { background:var(--surface-brand); }
+  .cmp .ax { font-family:var(--font-body); font-weight:800; color:var(--text-primary);
+    background:var(--surface-paper); font-size:15px; }
+  .cmp .cell { color:var(--text-secondary); background:var(--surface-card); }
+  .cmp .cell b { color:var(--text-primary); }
+  .cmp .cell .mono { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); }
+  .cmp .amber { background:rgba(217,166,8,0.12); color:var(--stbr-yellow-700); font-weight:700; }
+  .cmp .amber b { color:var(--stbr-yellow-700); }
+  .cmp .green { background:rgba(0,139,76,0.10); color:var(--stbr-emerald); font-weight:700; }
+  .cmp .green b { color:var(--stbr-emerald); }
+</style>
+  <div class="stbr-eyebrow">unspent-output set vs mutable account map</div>
+  <h2 class="viz-title">why only one model can hold a balance</h2>
+  <div class="cmp">
+    <div class="hc axis">the axis</div>
+    <div class="hc btc">Bitcoin &mdash; UTXO set</div>
+    <div class="hc eth">Ethereum &mdash; account map</div>
+
+    <div class="ax">global state</div>
+    <div class="cell">a <b>set of unspent outputs</b></div>
+    <div class="cell">a <b>map</b> of address &rarr; 4-field account</div>
+
+    <div class="ax">the unit</div>
+    <div class="cell">a UTXO is <b>spend-once</b>, consumed whole</div>
+    <div class="cell">a storage slot is <b>mutable</b>, rewritten in place</div>
+
+    <div class="ax">after execution</div>
+    <div class="cell">script authorizes a spend, then the output is <b>gone</b></div>
+    <div class="cell">contract code runs, then <span class="mono">SSTORE</span>s a slot that <b>persists</b></div>
+
+    <div class="ax">storage shape</div>
+    <div class="cell">no key-value store attached to a script</div>
+    <div class="cell">per-contract 256&rarr;256 map under <span class="mono">storageRoot</span></div>
+
+    <div class="ax">balance of X</div>
+    <div class="cell"><b>scan and sum</b> outputs</div>
+    <div class="cell">one <span class="mono">SLOAD</span> of a slot</div>
+
+    <div class="ax">persistent per-address state</div>
+    <div class="cell amber"><b>cannot</b> hold a token balance</div>
+    <div class="cell green"><b>can</b> hold arbitrary persistent state</div>
+  </div>
+</div>
+</body></html>

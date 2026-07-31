@@ -1,0 +1,45 @@
+id: lesson-b2s-speak-rpc
+slug: speak-rpc
+title: "Speak RPC: your node is just an API server"
+skills:
+  - rpc
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your `bitcoin-cli` commands are a thin wrapper over what, and how does a program talk to the node without the CLI?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "JSON-RPC over HTTP — a program POSTs a JSON request naming a method and params to the node's RPC port"
+            correct: true
+          - id: b
+            label: "A private binary protocol only the CLI can speak"
+            correct: false
+            feedback: "Nothing about it is CLI-private. `bitcoin-cli` just formats a JSON-RPC call; any HTTP client that POSTs the same JSON to the RPC port gets the same answer, which is how bots drive the node."
+          - id: c
+            label: "Direct database reads of the node's files"
+            correct: false
+            feedback: "You do not read the node's data files; you ask the running node over its JSON-RPC API. That is what keeps access consistent and safe while the node is live."
+        explanation: "`bitcoin-cli` is a convenience shell over the node's JSON-RPC HTTP interface. Any language that can POST `{method, params}` to the RPC port speaks to bitcoind directly — which is exactly how you script it into a bot."
+      - id: q2
+        prompt: "Which RPC port does a Bitcoin Core node listen on in regtest mode?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "18443"
+            correct: true
+          - id: b
+            label: "8332"
+            correct: false
+            feedback: "8332 is the MAINNET RPC port. Regtest deliberately uses a different port (18443) so a local test node never collides with a real one."
+          - id: c
+            label: "8080"
+            correct: false
+            feedback: "8080 is a generic HTTP port, not Bitcoin Core's. Mainnet RPC is 8332 and regtest RPC is 18443."
+        explanation: "Bitcoin Core separates RPC ports by network so they never clash: 8332 on mainnet, 18443 on regtest. Point your JSON-RPC client at 18443 when driving a regtest node."

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: the acceptance matrix, five methods, byte-for-byte
+     purpose: give the learner an exact, checkable definition of done for the wrapper
+     data: | method | wrapper call | bitcoin-cli equivalent | expected result shape | | --- | --- | --- | --- | | getblockchaininfo | python3 btc_rpc.py getblockchaininfo | bitcoin-cli -regtest getblockchaininfo | dict, includes "chain": "regtest" | | getblockcount | python3 btc_rpc.py getblockcount | bitcoin-cli -regtest getblockcount | integer (your chain height) | | getbestblockhash | python3 btc_rpc.py getbestblockhash | bitcoin-cli -regtest getbestblockhash | 64-hex hash of your tip | | getblockhash 0 | python3 btc_rpc.py getblockhash 0 | bitcoin-cli -regtest getblockhash 0 | regtest genesis hash 0f9188f1... (same on every regtest node) | | getmempoolinfo | python3 btc_rpc.py getmempoolinfo | bitcoin-cli -regtest getmempoolinfo | dict, "size": 0 on an idle chain |
+     prompt: Four-column table, dark background, monospace headers "method / wrapper call / bitcoin-cli equivalent / expected result shape". Shade the getblockhash row faintly to flag the deterministic genesis hash as a hard check. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:527px;height:484px;right:-298px;top:269px;border-radius:44% 60% 57% 38% / 36% 50% 53% 36%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; margin-top:30px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 22px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.07em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:18px 22px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; font-size:16.5px; line-height:1.35; }
+  .ct td.m { font-family:var(--font-mono); font-weight:800; color:var(--text-primary); font-size:18px; }
+  .ct td.call, .ct td.eq { font-family:var(--font-mono); font-size:15px; color:var(--text-primary); }
+  .ct td.eq { color:var(--text-muted); }
+  .ct td .hash { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; }
+  .ct tr.pick td { background:rgba(255,210,63,0.16); border-bottom-color:rgba(240,189,31,0.35); }
+  .ct tr.pick td.m { color:var(--text-primary); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .pill { display:inline-block; background:var(--stbr-yellow); color:var(--text-on-accent);
+    font-family:var(--font-body); font-size:11px; font-weight:800; padding:4px 11px;
+    border-radius:var(--radius-pill); margin-left:10px; vertical-align:middle;
+    letter-spacing:.04em; text-transform:uppercase; }
+</style>
+  <div class="stbr-eyebrow">the acceptance matrix, byte-for-byte</div>
+  <h2 class="viz-title">five methods: your definition of done</h2>
+  <table class="ct">
+    <tr><th style="width:20%">method</th><th style="width:27%">wrapper call</th><th style="width:26%">bitcoin-cli equivalent</th><th>expected result shape</th></tr>
+    <tr><td class="m">getblockchaininfo</td><td class="call">btc_rpc.py getblockchaininfo</td><td class="eq">bitcoin-cli -regtest getblockchaininfo</td><td>dict, includes <span class="hash">"chain":"regtest"</span></td></tr>
+    <tr><td class="m">getblockcount</td><td class="call">btc_rpc.py getblockcount</td><td class="eq">bitcoin-cli -regtest getblockcount</td><td>integer (your chain height)</td></tr>
+    <tr><td class="m">getbestblockhash</td><td class="call">btc_rpc.py getbestblockhash</td><td class="eq">bitcoin-cli -regtest getbestblockhash</td><td>64-hex hash of your tip</td></tr>
+    <tr class="pick"><td class="m">getblockhash 0<span class="pill">hard check</span></td><td class="call">btc_rpc.py getblockhash 0</td><td class="eq">bitcoin-cli -regtest getblockhash 0</td><td>genesis <span class="hash">0f9188f1&hellip;</span> &mdash; same on every regtest node</td></tr>
+    <tr><td class="m">getmempoolinfo</td><td class="call">btc_rpc.py getmempoolinfo</td><td class="eq">bitcoin-cli -regtest getmempoolinfo</td><td>dict, <span class="hash">"size":0</span> on an idle chain</td></tr>
+  </table>
+</div>
+</body></html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: the four verifications, predict, then run
+     purpose: give the solo exercise a falsifiable matrix so "which fails and why" is checkable, not vibes
+     data: | signature by | verify with | message | result | why | | --- | --- | --- | --- | --- | | key 1 | pub 1 (correct) | true | PASS | right key, untouched bytes | | key 1 | pub 1 (correct) | tampered 1 byte | FAIL | bytes differ -> fingerprint differs | | key 1 | pub 2 (wrong) | true | FAIL | signature was not made by key 2 | | key 1 | pub 2 (wrong) | tampered | FAIL | wrong key AND wrong bytes | accept: the one correct-key + untouched-message row is the ONLY pass; the other three fail
+     prompt: Four-row truth-table, dark background, monospace headers. Green PASS cell on row 1, red FAIL cells on rows 2-4. A right-hand "why" column in muted text. Footer line "only one row passes" spanning the table. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:545px;height:556px;top:-340px;right:-340px;border-radius:38% 47% 45% 56% / 60% 37% 48% 64%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:480px;height:489px;left:-276px;top:165px;border-radius:55% 38% 38% 59% / 46% 51% 59% 58%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:19px; margin-top:28px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 22px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.07em; text-transform:uppercase; }
+  .ct th.center { text-align:center; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:18px 22px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-primary); vertical-align:middle; font-family:var(--font-mono); font-size:18px; }
+  .ct td.why { font-family:var(--font-body); font-size:16px; color:var(--text-muted); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .ct td.res { text-align:center; font-weight:900; letter-spacing:.03em; }
+  .res.pass { background:rgba(0,139,76,0.12); color:var(--stbr-emerald); }
+  .res.fail { background:rgba(192,57,43,0.08); color:#a5342a; }
+  .mut { color:var(--text-muted); }
+  .foot { margin-top:20px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:20px 30px; font-size:20px; font-weight:600; }
+  .foot b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">predict, then run</div>
+  <h2 class="viz-title">the four verifications</h2>
+  <table class="ct">
+    <tr>
+      <th style="width:14%">signed by</th>
+      <th style="width:19%">verify with</th>
+      <th style="width:18%">message</th>
+      <th class="center" style="width:12%">result</th>
+      <th style="width:37%">why</th>
+    </tr>
+    <tr>
+      <td>key 1</td>
+      <td>pub 1 <span class="mut">(correct)</span></td>
+      <td>true</td>
+      <td class="res pass">PASS</td>
+      <td class="why">right key, untouched bytes</td>
+    </tr>
+    <tr>
+      <td>key 1</td>
+      <td>pub 1 <span class="mut">(correct)</span></td>
+      <td>tampered 1 byte</td>
+      <td class="res fail">FAIL</td>
+      <td class="why">bytes differ &rarr; fingerprint differs</td>
+    </tr>
+    <tr>
+      <td>key 1</td>
+      <td>pub 2 <span class="mut">(wrong)</span></td>
+      <td>true</td>
+      <td class="res fail">FAIL</td>
+      <td class="why">signature was not made by key 2</td>
+    </tr>
+    <tr>
+      <td>key 1</td>
+      <td>pub 2 <span class="mut">(wrong)</span></td>
+      <td>tampered</td>
+      <td class="res fail">FAIL</td>
+      <td class="why">wrong key AND wrong bytes</td>
+    </tr>
+  </table>
+  <div class="foot">The correct-key, untouched-message row is the <b>only</b> pass. The other three fail.</div>
+</div>
+</body></html>

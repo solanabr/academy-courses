@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: every Solana account is the same five fields
+     purpose: certify that program and data accounts share one struct; owner and executable carry the distinction
+     data: Account { lamports: u64, // SOL balance, in lamports (the smallest unit of SOL) data: [u8], // arbitrary byte array: bytecode for a program, state for a data account owner: Pubkey, // the program that controls this account and may change `data` executable: bool, // true for a program account, false for a data account rent_epoch: u64, // legacy rent bookkeeping field }
+     prompt: Monospace annotated-code panel, dark background. Render the struct as code. Highlight `owner` and `executable` in a warm accent with a side callout: "these two fields, not the address, tell you program vs data". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:537px;height:444px;right:-293px;top:324px;border-radius:42% 60% 38% 64% / 54% 52% 64% 39%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:515px;height:530px;bottom:-285px;left:350px;border-radius:37% 46% 64% 56% / 53% 55% 41% 44%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:26px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:38px 44px; display:flex; gap:44px; align-items:center; }
+  .code { flex:1; font-family:var(--font-mono); font-size:21px; line-height:1.85; }
+  .code .ln { display:block; white-space:pre; color:var(--text-on-dark); }
+  .code .kw { color:var(--stbr-emerald); font-weight:700; }
+  .code .fld { color:var(--stbr-cream); }
+  .code .ty { color:var(--stbr-ink-300); }
+  .code .cm { color:var(--stbr-ink-500); }
+  .code .hi { background:var(--stbr-yellow); color:var(--stbr-dark); font-weight:700;
+    border-radius:6px; padding:1px 8px; }
+  .code .hi .ty { color:var(--stbr-green); }
+  .call { flex:0 0 400px; border-left:3px solid var(--stbr-yellow); padding:8px 0 8px 28px; }
+  .call .tag { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--stbr-yellow); margin-bottom:14px; }
+  .call .txt { font-family:var(--font-body); font-size:22px; line-height:1.5; color:var(--text-on-dark); }
+  .call .txt b { color:var(--stbr-yellow); }
+  .call .txt code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:700; }
+</style>
+  <div class="stbr-eyebrow">every account, one struct</div>
+  <h2 class="viz-title">the same five fields</h2>
+  <div class="panel">
+    <div class="code">
+      <span class="ln"><span class="kw">struct</span> <span class="fld">Account</span> {</span>
+      <span class="ln">    <span class="fld">lamports</span>: <span class="ty">u64</span>,      <span class="cm">// SOL balance, in lamports (smallest unit)</span></span>
+      <span class="ln">    <span class="fld">data</span>: <span class="ty">[u8]</span>,        <span class="cm">// bytecode for a program, state for data</span></span>
+      <span class="ln">    <span class="hi"><span class="fld">owner</span>: <span class="ty">Pubkey</span></span>,    <span class="cm">// the program that controls this account</span></span>
+      <span class="ln">    <span class="hi"><span class="fld">executable</span>: <span class="ty">bool</span></span>, <span class="cm">// true = program, false = data account</span></span>
+      <span class="ln">    <span class="fld">rent_epoch</span>: <span class="ty">u64</span>,    <span class="cm">// legacy rent bookkeeping</span></span>
+      <span class="ln">}</span>
+    </div>
+    <div class="call">
+      <div class="tag">the distinction lives here</div>
+      <div class="txt">These <b>two fields</b> &mdash; <code>owner</code> and <code>executable</code>, not the address &mdash; tell you program vs data.</div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: two ways to model money, and which one Bitcoin picked
+     purpose: certify the balance-is-a-fiction reveal by contrasting the account model with the UTXO model
+     data: question | account model (a ledger row) | UTXO model (Bitcoin) where is my balance stored? | as a number in my row | nowhere, wallet SUMS my UTXOs what does a payment do? | decrements/increments rows | consumes whole outputs, creates new ones can two payments touch it at once?| no, same row, must serialize| yes, different UTXOs, independent what proves I own it? | the ledger says so | a signature that unlocks the output cost of the design | one shared mutable balance | change-outputs, coin-selection, bigger data
+     prompt: Five-row comparison table, dark background, monospace headers "question / account model / UTXO model". Shade the "nowhere, wallet SUMS my UTXOs" cell to flag it as the reveal. Amber-tint the final "cost" row. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:569px;height:584px;top:-331px;right:-331px;border-radius:60% 60% 41% 63% / 50% 53% 42% 35%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:379px;height:477px;bottom:-262px;left:820px;border-radius:56% 64% 41% 36% / 54% 57% 40% 42%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:19px; margin-top:30px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 24px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:20px 24px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.35; }
+  .ct td.q { font-weight:700; color:var(--text-primary); }
+  .ct td.utxo { color:var(--text-primary); }
+  .ct td.reveal { background:rgba(0,139,76,0.10); border-bottom-color:rgba(0,139,76,0.22);
+    color:var(--stbr-emerald); font-family:var(--font-mono); font-weight:700; }
+  .ct tr.cost td { background:rgba(255,210,63,0.16); border-bottom-color:rgba(240,189,31,0.35); }
+  .ct tr.cost td.q { color:var(--stbr-dark); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">two ways to model money</div>
+  <h2 class="viz-title">where does your balance actually live?</h2>
+  <table class="ct">
+    <tr><th style="width:30%">question</th><th style="width:33%">account model (a ledger row)</th><th>UTXO model (Bitcoin)</th></tr>
+    <tr><td class="q">where is my balance stored?</td><td>as a number in my row</td><td class="reveal">nowhere &mdash; wallet SUMS my UTXOs</td></tr>
+    <tr><td class="q">what does a payment do?</td><td>decrements / increments rows</td><td class="utxo">consumes whole outputs, creates new ones</td></tr>
+    <tr><td class="q">can two payments touch it at once?</td><td>no &mdash; same row, must serialize</td><td class="utxo">yes &mdash; different UTXOs, independent</td></tr>
+    <tr><td class="q">what proves I own it?</td><td>the ledger says so</td><td class="utxo">a signature that unlocks the output</td></tr>
+    <tr class="cost"><td class="q">cost of the design</td><td>one shared mutable balance</td><td class="utxo">change-outputs, coin-selection, bigger data</td></tr>
+  </table>
+</div>
+</body></html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: a swap that survives a restart
+     purpose: show the four-step Jupiter swap wired as one idempotent, cursor-guarded operation
+     data: # op guard: skip if this op id is already in cursor.jsonl OR already landed on-chain if applied(op_id): return quote = GET /quote?inputMint=..&outputMint=..&amount=..&slippageBps=.. # slippageBps: max drift, 1bp = 0.01% swapTx = POST /swap { quote, userPublicKey } # returns a base64 transaction tx = deserialize(base64(swapTx)); tx.sign(operatorKeypair) sig = connection.sendRawTransaction(tx) append(cursor.jsonl, op_id) # only AFTER confirmation -> next restart SKIPs this op
+     prompt: Monospace annotated-code panel, dark background. Five step lines plus the guard at top and the cursor append at bottom, both highlighted in a warm accent. Margin note: "guard first, append last = idempotent across a kill -9". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:586px;height:545px;top:-339px;right:-339px;border-radius:54% 43% 47% 61% / 59% 39% 48% 47%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:24px; background:var(--surface-inverse); border-radius:var(--radius-xl); padding:32px 38px; font-family:var(--font-mono); font-size:17px; line-height:1.5; color:var(--text-on-dark); }
+  .ln { display:flex; align-items:center; gap:16px; padding:4px 0; }
+  .ln .code { flex:1; }
+  .cmt { color:var(--stbr-ink-500); }
+  .kw { color:var(--stbr-cream); font-weight:700; }
+  .fn { color:var(--stbr-cream); }
+  .str { color:var(--stbr-ink-300); }
+  .guard { background:var(--stbr-yellow); color:var(--stbr-dark); border-radius:8px; padding:12px 16px; margin:2px 0 8px; }
+  .guard .code { color:var(--stbr-dark); }
+  .guard .fn, .guard .kw { color:var(--stbr-dark); font-weight:700; }
+  .guard .gl { font-family:var(--font-body); font-weight:800; font-size:13px; color:var(--stbr-dark); }
+  .append { background:var(--stbr-yellow); color:var(--stbr-dark); border-radius:8px; padding:12px 16px; margin:8px 0 2px; }
+  .append .code { color:var(--stbr-dark); }
+  .append .fn, .append .str { color:var(--stbr-dark); font-weight:700; }
+  .append .gl { font-family:var(--font-body); font-weight:800; font-size:13px; color:var(--stbr-dark); }
+  .stepnote { color:var(--stbr-ink-500); font-size:15px; }
+  .note { margin-top:22px; display:flex; align-items:center; gap:16px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:20px 30px; }
+  .note .k { font-family:var(--font-body); font-weight:900; font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--stbr-yellow); flex:0 0 auto; }
+  .note .v { font-size:19px; font-weight:600; }
+  .note .v code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">a swap that survives a restart</div>
+  <h2 class="viz-title">guard first, append last</h2>
+  <div class="panel">
+    <div class="cmt"># op guard: skip if this op id is already in cursor.jsonl OR already landed on-chain</div>
+    <div class="guard"><span class="code"><span class="kw">if</span> <span class="fn">applied</span>(op_id): <span class="kw">return</span></span><span class="gl">&larr; the idempotency gate</span></div>
+    <div class="ln"><span class="code">quote = <span class="fn">GET</span> /quote?inputMint=..&amp;outputMint=..&amp;amount=..&amp;slippageBps=..</span><span class="stepnote"># 1bp = 0.01% max drift</span></div>
+    <div class="ln"><span class="code">swapTx = <span class="fn">POST</span> /swap { quote, userPublicKey }</span><span class="stepnote"># returns a base64 tx</span></div>
+    <div class="ln"><span class="code">tx = <span class="fn">deserialize</span>(<span class="fn">base64</span>(swapTx)); tx.<span class="fn">sign</span>(operatorKeypair)</span></div>
+    <div class="ln"><span class="code">sig = connection.<span class="fn">sendRawTransaction</span>(tx)</span></div>
+    <div class="append"><span class="code"><span class="fn">append</span>(cursor.jsonl, op_id)</span><span class="gl">&larr; only AFTER confirmation &rarr; next restart SKIPs this op</span></div>
+  </div>
+  <div class="note"><span class="k">the invariant</span><span class="v">guard first, append last <code>= idempotent</code> across a <code>kill -9</code> &mdash; a crash between send and append re-checks on-chain, never double-swaps</span></div>
+</div>
+</body></html>

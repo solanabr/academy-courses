@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: why self-writes would break the scheduler
+     purpose: certify how an honest up-front account list lets the runtime parallelize, and why a self-writing program would force everything back into sequence
+     data: honest path (what statelessness buys): tx declares every account it reads/writes, up front -> runtime proves two txs are disjoint -> schedules them side by side across cores (parallel, fast) broken path (if a program could write its own or any account mid-run): the up-front list becomes a lie: true accounts known only AFTER running -> runtime cannot prove disjoint -> falls back to running everything in order (one slow computer)
+     prompt: Top-to-bottom diagram, dark background, monospace. Two labeled lanes: an "honest path" that branches down to "parallel across cores", and a "broken path" that collapses down to "sequential, one slow computer". A caption ties them together: "stateless programs keep the access list honest, so the scheduler stays free to parallelize". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:509px;height:425px;bottom:-225px;left:-225px;border-radius:59% 59% 58% 36% / 65% 41% 64% 35%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .lanes { margin-top:26px; display:flex; gap:28px; align-items:stretch; }
+  .lane { flex:1; border-radius:var(--radius-lg); border:2px solid; padding:24px 26px; display:flex; flex-direction:column; }
+  .lane.honest { border-color:rgba(0,139,76,0.34); background:rgba(0,139,76,0.05); }
+  .lane.broken { border-color:rgba(192,57,43,0.30); background:rgba(192,57,43,0.05); }
+  .lane .hd { font-family:var(--font-display); font-weight:900; font-size:20px; letter-spacing:-.01em; }
+  .lane.honest .hd { color:var(--stbr-emerald); }
+  .lane.broken .hd { color:#a5342a; }
+  .lane .sub { font-family:var(--font-body); font-weight:700; font-size:13px; letter-spacing:.02em;
+    color:var(--text-muted); margin-top:4px; }
+  .step { background:var(--surface-card); border:1.5px solid var(--border-subtle); border-radius:var(--radius-md);
+    padding:16px 20px; font-family:var(--font-mono); font-size:16.5px; color:var(--text-primary); line-height:1.35;
+    min-height:74px; box-sizing:border-box; display:flex; align-items:center; }
+  .down { text-align:center; font-size:22px; font-weight:900; margin:10px 0; }
+  .lane.honest .down { color:var(--stbr-emerald); }
+  .lane.broken .down { color:#a5342a; }
+  .term { border-radius:var(--radius-md); padding:20px 22px; margin-top:auto; text-align:center;
+    font-family:var(--font-display); font-weight:900; font-size:20px; line-height:1.15; }
+  .term .t2 { display:block; font-family:var(--font-body); font-weight:700; font-size:14px; letter-spacing:.03em;
+    margin-top:7px; opacity:.85; }
+  .lane.honest .term { background:var(--surface-brand); color:var(--text-on-brand); }
+  .lane.broken .term { background:#c0392b; color:#fff; }
+  .cap { margin-top:28px; background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-lg);
+    padding:22px 30px; font-size:20px; font-weight:500; line-height:1.4; text-align:center; }
+  .cap b { color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">why the rule exists</div>
+  <h2 class="viz-title">self-writes would break the scheduler</h2>
+  <div class="lanes">
+    <div class="lane honest">
+      <div class="hd">honest path</div>
+      <div class="sub">what statelessness buys</div>
+      <div class="down">&nbsp;</div>
+      <div class="step">tx declares every account it reads / writes, up front</div>
+      <div class="down">&darr;</div>
+      <div class="step">runtime proves two txs are disjoint</div>
+      <div class="down">&darr;</div>
+      <div class="term">parallel across cores<span class="t2">schedules them side by side &mdash; fast</span></div>
+    </div>
+    <div class="lane broken">
+      <div class="hd">broken path</div>
+      <div class="sub">if a program could write any account mid-run</div>
+      <div class="down">&nbsp;</div>
+      <div class="step">the up-front list becomes a lie: true accounts known only AFTER running</div>
+      <div class="down">&darr;</div>
+      <div class="step">runtime cannot prove disjoint</div>
+      <div class="down">&darr;</div>
+      <div class="term">sequential<span class="t2">runs everything in order &mdash; one slow computer</span></div>
+    </div>
+  </div>
+  <div class="cap">Stateless programs keep the access list <b>honest</b>, so the scheduler stays free to parallelize.</div>
+</div>
+</body></html>

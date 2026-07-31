@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: build, sign, send, the only path there is
+     purpose: name each stage of the kit pipeline so the reader sees one uniform flow, not a fork
+     data: createSolanaRpc(url) : the HTTP front door to a node createKeyPairSignerFromBytes(bytes) : load a key off disk -> a signer (the pen) getDepositInstructionAsync({ owner, amount }) : generated; derives the PDAs + packs the instruction pipe(createTransactionMessage({version:0}), setTransactionMessageFeePayerSigner(owner) : who pays + signs setTransactionMessageLifetimeUsingBlockhash(bh) : dates it against a recent block appendTransactionMessageInstruction(ix)) : drop the instruction in signTransactionMessageWithSigners(message) : each attached signer signs sendAndConfirm(signed, {commitment:"confirmed"}) : send + wait until it lands
+     prompt: Vertical annotated-code panel, dark background, monospace. Left column: the call. Right column: its one-line job. Bracket the three pipe steps together and label the bracket "build the message". Highlight signTransactionMessageWithSigners as "signers attached earlier sign now". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:452px;height:499px;bottom:-247px;right:-247px;border-radius:37% 43% 57% 54% / 50% 44% 46% 58%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+  <div class="stbr-eyebrow">the kit pipeline</div>
+  <h2 style="font-size:46px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:6px 0 18px;">one path: build, sign, send</h2>
+  <div style="background:var(--surface-inverse);border-radius:var(--radius-xl);padding:28px 44px;font-family:var(--font-mono);font-size:17px;color:var(--text-on-dark);">
+    <div style="display:grid;grid-template-columns:580px 1fr;gap:20px 34px;align-items:baseline;">
+      <code style="color:var(--stbr-yellow);">createSolanaRpc(url)</code><span style="color:var(--stbr-ink-300);">the HTTP front door to a node</span>
+      <code style="color:var(--stbr-yellow);">createKeyPairSignerFromBytes(bytes)</code><span style="color:var(--stbr-ink-300);">load a key off disk, a signer (the pen)</span>
+      <code style="color:var(--stbr-yellow);">getDepositInstructionAsync({ owner, amount })</code><span style="color:var(--stbr-ink-300);">generated: derives the PDAs, packs the instruction</span>
+    </div>
+    <div style="border-left:3px solid var(--stbr-emerald);padding:8px 0 8px 24px;margin:16px 0;">
+      <div style="font-family:var(--font-body);font-size:13px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--stbr-emerald);margin-bottom:10px;">build the message</div>
+      <div style="display:grid;grid-template-columns:540px 1fr;gap:18px 30px;align-items:baseline;">
+        <code style="color:var(--stbr-cream);">pipe(createTransactionMessage({ v: 0 }),</code><span></span>
+        <code style="color:var(--stbr-cream);padding-left:26px;">setTransactionMessageFeePayerSigner(owner)</code><span style="color:var(--stbr-ink-300);">who pays and signs</span>
+        <code style="color:var(--stbr-cream);padding-left:26px;">setTransactionMessageLifetimeUsingBlockhash(bh)</code><span style="color:var(--stbr-ink-300);">dates it against a recent block</span>
+        <code style="color:var(--stbr-cream);padding-left:26px;">appendTransactionMessageInstruction(ix))</code><span style="color:var(--stbr-ink-300);">drop the instruction in</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:580px 1fr;gap:20px 34px;align-items:center;">
+      <code style="color:var(--stbr-dark);background:var(--stbr-yellow);padding:6px 14px;border-radius:8px;justify-self:start;">signTransactionMessageWithSigners(message)</code><span style="color:var(--stbr-yellow);font-family:var(--font-body);font-weight:700;">the attached signers sign now</span>
+      <code style="color:var(--stbr-yellow);margin-top:14px;">sendAndConfirm(signed, { commitment: "confirmed" })</code><span style="color:var(--stbr-ink-300);margin-top:14px;">send, then wait until it lands</span>
+    </div>
+  </div>
+</div>
+</body></html>

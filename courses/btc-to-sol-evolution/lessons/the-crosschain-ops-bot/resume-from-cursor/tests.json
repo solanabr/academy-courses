@@ -1,0 +1,26 @@
+[
+  {
+    "id": "t1",
+    "description": "skips already-applied operations (id <= cursor), keeps order",
+    "input": "5, '3:sol 4:btc 5:sol 6:btc 7:sol'",
+    "expectedOutput": "result.toApply.length === 2 && result.toApply[0].id === 6 && result.toApply[0].kind === 'btc' && result.toApply[1].id === 7"
+  },
+  {
+    "id": "t2",
+    "description": "advances the cursor to the highest applied id",
+    "input": "5, '6:btc 7:sol'",
+    "expectedOutput": "result.nextCursor === 7"
+  },
+  {
+    "id": "t3",
+    "description": "a fresh start (cursor 0) applies the whole log",
+    "input": "0, '1:sol 2:btc'",
+    "expectedOutput": "result.toApply.length === 2 && result.nextCursor === 2"
+  },
+  {
+    "id": "t4",
+    "description": "nothing new leaves the cursor unchanged and applies nothing",
+    "input": "9, '1:sol 9:btc'",
+    "expectedOutput": "result.toApply.length === 0 && result.nextCursor === 9"
+  }
+]

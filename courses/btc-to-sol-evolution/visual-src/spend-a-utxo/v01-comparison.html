@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: two answers to "how much do I have"
+     purpose: certify that balance is a computed summary while the UTXO set is what the chain stores
+     data: getbalance | one number: 50.00000000 | wallet-side | a summary the wallet computed listunspent 0 | a list: [ { 50.00000000, vout 0... } ] | chain-side | the actual stored outputs relationship: balance == sum of the amounts in the listunspent array the chain stores the RIGHT column; the left column does not exist until a wallet adds it up
+     prompt: Two-row comparison card, dark background, monospace. Left row "getbalance" shows a single large number 50.00000000 tagged "wallet-side / computed". Right row "listunspent" shows a small list of output boxes tagged "chain-side / stored". A brace under both: "balance = SUM(outputs)". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:493px;height:485px;top:-263px;right:-263px;border-radius:58% 59% 62% 42% / 54% 54% 36% 39%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:472px;height:501px;left:-224px;top:285px;border-radius:56% 50% 54% 52% / 54% 38% 38% 54%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { display:flex; gap:24px; margin-top:30px; align-items:stretch; }
+  .cmp .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; display:flex; flex-direction:column; }
+  .cmp .col.wallet { border-color:rgba(48,108,64,0.32); background:rgba(48,108,64,0.05); }
+  .cmp .col.chain { border-color:rgba(0,139,76,0.36); background:rgba(0,139,76,0.06); }
+  .cmp .head { padding:20px 28px; display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
+  .cmp .wallet .head { background:var(--surface-brand-deep); }
+  .cmp .chain .head { background:var(--surface-brand); }
+  .cmp .cmd { font-family:var(--font-mono); font-weight:800; font-size:22px; color:var(--text-on-brand); }
+  .cmp .tag { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--text-on-brand); opacity:.85; }
+  .cmp .body { flex:1; padding:32px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+  .bignum { font-family:var(--font-mono); font-weight:900; font-size:46px; color:var(--text-primary); letter-spacing:-.01em; }
+  .subnote { font-size:16px; color:var(--text-muted); text-align:center; }
+  .outs { display:flex; flex-direction:column; gap:12px; width:100%; }
+  .out { font-family:var(--font-mono); font-size:19px; color:var(--text-primary); background:var(--surface-card);
+    border:1.5px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px 20px;
+    display:flex; justify-content:space-between; align-items:center; }
+  .out .idx { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--stbr-emerald); }
+  .brace { margin-top:24px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:24px 34px; text-align:center; font-size:22px; font-weight:600; line-height:1.4; }
+  .brace code { font-family:var(--font-mono); font-weight:800; color:var(--stbr-yellow); }
+  .brace .lead { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--stbr-emerald); display:block; margin-bottom:10px; }
+</style>
+  <div class="stbr-eyebrow">two answers to "how much do i have"</div>
+  <h2 class="viz-title">a summary vs. what the chain stores</h2>
+  <div class="cmp">
+    <div class="col wallet">
+      <div class="head"><span class="cmd">getbalance</span><span class="tag">wallet-side / computed</span></div>
+      <div class="body">
+        <div class="bignum">50.00000000</div>
+        <div class="subnote">one number the wallet added up &mdash; it does not exist on the chain</div>
+      </div>
+    </div>
+    <div class="col chain">
+      <div class="head"><span class="cmd">listunspent 0</span><span class="tag">chain-side / stored</span></div>
+      <div class="body">
+        <div class="outs">
+          <div class="out"><span>50.00000000</span><span class="idx">vout 0</span></div>
+        </div>
+        <div class="subnote">the actual stored outputs &mdash; what the chain really holds</div>
+      </div>
+    </div>
+  </div>
+  <div class="brace">
+    <span class="lead">the relationship</span>
+    <code>balance = SUM(outputs)</code> &mdash; the left column does not exist until a wallet adds up the right one.
+  </div>
+</div>
+</body></html>

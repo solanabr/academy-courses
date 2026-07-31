@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: the node is the floor; everything else is a client
+     purpose: certify that wallets, explorers, and bots share one architecture, an RPC client in front of the node that holds the only truth
+     data: THE NODE (holds the chain, validates rules, is the single source of truth) ^ ^ ^ ^ | JSON-RPC | JSON-RPC | JSON-RPC | JSON-RPC desktop wallet | block explorer | trading bot | exchange deposit watcher | | | | a UI over calls | web pages over calls | a loop over calls | a loop over calls bottom line: strip the UI off any of them and you find the same POST you just sent
+     prompt: Flowchart, dark background, monospace. A wide "THE NODE" bar at the bottom. Four client boxes above it (wallet, explorer, bot, exchange watcher), each connected down to the node by an arrow labeled "JSON-RPC". A caption under the node bar: "the only source of truth". No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:550px;height:541px;top:-307px;right:-307px;border-radius:64% 54% 49% 65% / 46% 37% 60% 61%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:428px;height:427px;bottom:-240px;left:688px;border-radius:53% 63% 48% 59% / 51% 50% 57% 37%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { margin-top:30px; }
+  .clients { display:flex; gap:22px; }
+  .cli { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:22px 22px; text-align:center; }
+  .cli .nm { font-family:var(--font-mono); font-weight:800; font-size:19px; color:var(--text-primary); }
+  .cli .sub { font-size:14.5px; color:var(--text-secondary); margin-top:9px; line-height:1.35; }
+  .conns { position:relative; height:82px; }
+  .conns svg { position:absolute; inset:0; width:100%; height:100%; }
+  .conns .lane { position:absolute; top:26px; display:flex; justify-content:center; }
+  .conns .chip { font-family:var(--font-mono); font-weight:800; font-size:13px; color:var(--stbr-emerald);
+    background:var(--surface-page); padding:3px 12px; border-radius:var(--radius-pill);
+    border:1.5px solid rgba(0,139,76,0.30); }
+  .node { background:var(--surface-inverse); border-radius:var(--radius-xl); padding:30px 40px; text-align:center; }
+  .node .t { font-family:var(--font-display); font-weight:900; font-size:34px; letter-spacing:.02em;
+    color:var(--text-on-dark); }
+  .node .d { font-size:17px; color:var(--stbr-ink-300); margin-top:10px; }
+  .node .d b { color:var(--stbr-yellow); }
+  .cap { margin-top:20px; text-align:center; font-size:22px; font-weight:800; color:var(--stbr-green); }
+  .cap b { color:var(--stbr-emerald); font-family:var(--font-mono); }
+</style>
+  <div class="stbr-eyebrow">the node is the floor; the rest are clients</div>
+  <h2 class="viz-title">strip the ui, find the same post</h2>
+  <div class="fc">
+    <div class="clients">
+      <div class="cli"><div class="nm">desktop wallet</div><div class="sub">a UI over calls</div></div>
+      <div class="cli"><div class="nm">block explorer</div><div class="sub">web pages over calls</div></div>
+      <div class="cli"><div class="nm">trading bot</div><div class="sub">a loop over calls</div></div>
+      <div class="cli"><div class="nm">exchange deposit watcher</div><div class="sub">a loop over calls</div></div>
+    </div>
+    <div class="conns">
+      <svg viewBox="0 0 1456 82" preserveAspectRatio="none">
+        <g stroke="#008b4c" stroke-width="2.5" fill="#008b4c">
+          <line x1="182" y1="0" x2="182" y2="66"/><polygon points="182,78 174,60 190,60"/>
+          <line x1="546" y1="0" x2="546" y2="66"/><polygon points="546,78 538,60 554,60"/>
+          <line x1="910" y1="0" x2="910" y2="66"/><polygon points="910,78 902,60 918,60"/>
+          <line x1="1274" y1="0" x2="1274" y2="66"/><polygon points="1274,78 1266,60 1282,60"/>
+        </g>
+      </svg>
+      <div class="lane" style="left:0;width:25%"><span class="chip">JSON-RPC</span></div>
+      <div class="lane" style="left:25%;width:25%"><span class="chip">JSON-RPC</span></div>
+      <div class="lane" style="left:50%;width:25%"><span class="chip">JSON-RPC</span></div>
+      <div class="lane" style="left:75%;width:25%"><span class="chip">JSON-RPC</span></div>
+    </div>
+    <div class="node">
+      <div class="t">THE NODE</div>
+      <div class="d">holds the chain, validates the rules, is the <b>single source of truth</b></div>
+    </div>
+    <div class="cap">strip the UI off any of them and you find the same <b>POST</b> you just sent</div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: a commitment, prove you knew it without saying it
+     purpose: show the commit / publish / reveal / verify loop and where the honesty comes from
+     data: write prediction.txt -> shasum -a 256 -> publish 64-char digest (reveals nothing) [time passes] reveal prediction.txt -> anyone re-hashes it -> compare against the published digest match = you knew it then; mismatch = you are improvising
+     prompt: Left-to-right flowchart, dark background, monospace labels, nodes as in the data. A dashed vertical line labeled "time passes" separates the commit side from the reveal side. The final compare node branches to a green "match: proven" and a red "mismatch: improvised". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:580px;height:570px;top:-309px;right:-309px;border-radius:50% 58% 44% 49% / 49% 35% 64% 53%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:468px;height:486px;left:-283px;top:173px;border-radius:37% 38% 50% 45% / 45% 52% 43% 64%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:527px;height:516px;bottom:-283px;right:-283px;border-radius:37% 65% 58% 62% / 42% 52% 51% 43%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { margin-top:30px; display:flex; flex-direction:column; gap:20px; }
+  .row { display:flex; align-items:center; gap:0; }
+  .side-lbl { flex:0 0 118px; font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--stbr-green); line-height:1.3; }
+  .node { flex:0 0 auto; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:18px 20px; text-align:center; }
+  .node .t { font-family:var(--font-mono); font-weight:800; font-size:18px; color:var(--text-primary);
+    line-height:1.15; }
+  .node .s { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-top:6px; }
+  .arr { flex:0 0 38px; text-align:center; color:var(--stbr-emerald); font-size:24px; font-weight:900; }
+  /* dashed "time passes" band between the commit row and the reveal row */
+  .divide { display:flex; align-items:center; gap:16px; padding-left:118px; }
+  .divide .rule { flex:1; height:0; border-top:3px dashed var(--stbr-cream-300); }
+  .divide .lbl { flex:0 0 auto; font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--stbr-green); }
+  /* compare -> two outcomes, kept fully on-canvas */
+  .fork { flex:0 0 42px; align-self:stretch; }
+  .branch { flex:0 0 auto; display:flex; flex-direction:column; gap:14px; }
+  .out { border-radius:var(--radius-md); padding:14px 20px; text-align:left; min-width:230px; }
+  .out .h { font-family:var(--font-mono); font-weight:800; font-size:16px; }
+  .out .d { font-family:var(--font-body); font-size:14px; margin-top:4px; }
+  .out.good { background:var(--surface-brand); }
+  .out.good .h { color:var(--stbr-yellow); } .out.good .d { color:var(--text-on-brand); }
+  .out.bad { background:#c0392b; }
+  .out.bad .h, .out.bad .d { color:#fff; }
+</style>
+  <div class="stbr-eyebrow">prove you knew it without saying it</div>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">commit, then reveal</h2>
+  <div class="fc">
+    <div class="row">
+      <div class="side-lbl">commit</div>
+      <div class="node"><div class="t">prediction.txt</div><div class="s">write it, keep it secret</div></div>
+      <div class="arr">&rarr;</div>
+      <div class="node"><div class="t">shasum -a 256</div><div class="s">hash the file</div></div>
+      <div class="arr">&rarr;</div>
+      <div class="node"><div class="t">publish digest</div><div class="s">64 chars, reveals nothing</div></div>
+    </div>
+    <div class="divide"><div class="rule"></div><div class="lbl">time passes</div><div class="rule"></div></div>
+    <div class="row">
+      <div class="side-lbl">reveal &amp; verify</div>
+      <div class="node"><div class="t">reveal file</div><div class="s">show prediction.txt</div></div>
+      <div class="arr">&rarr;</div>
+      <div class="node"><div class="t">re-hash</div><div class="s">anyone recomputes it</div></div>
+      <div class="arr">&rarr;</div>
+      <div class="node" style="border-color:var(--stbr-emerald);border-width:2.5px;"><div class="t">compare</div><div class="s">published vs fresh</div></div>
+      <svg class="fork" width="42" height="150" viewBox="0 0 42 150" aria-hidden="true">
+        <path d="M0 75 L20 75 L20 34" fill="none" stroke="#008b4c" stroke-width="3"/>
+        <polygon points="20,22 13,37 27,37" fill="#008b4c"/>
+        <path d="M0 75 L20 75 L20 116" fill="none" stroke="#c0392b" stroke-width="3"/>
+        <polygon points="20,128 13,113 27,113" fill="#c0392b"/>
+      </svg>
+      <div class="branch">
+        <div class="out good"><div class="h">match</div><div class="d">you knew it then</div></div>
+        <div class="out bad"><div class="h">mismatch</div><div class="d">you are improvising</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

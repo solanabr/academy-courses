@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: a hash is a number, and the target is a line it must fall under
+     purpose: make "your block's hash must be less than or equal to the target" concrete before proof-of-work builds on it
+     data: the 256-bit number line: 0 ......................................... ~1.16 x 10^77 (max) read any block hash as one number sitting somewhere on this line target HIGH (near the max) -> winning band is almost the whole line -> nearly every hash wins (easy) target LOW (near zero) -> winning band is a thin sliver near 0 -> almost no hash wins (hard) rule: hash-as-number <= target -> block is valid difficulty = how far down toward zero the target has been dragged
+     prompt: Horizontal number-line diagram, dark theme, monospace. Line runs 0 on the left to ~1.16 x 10^77 on the right. Two target markers: one near the right labeled "easy, wide winning band" with most of the line shaded green, one near the left labeled "hard, thin sliver" with only a slice near 0 shaded green. Caption: "hash <= target wins". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:556px;height:519px;bottom:-296px;right:-296px;border-radius:55% 59% 41% 52% / 36% 60% 46% 35%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .lines { margin-top:30px; display:flex; flex-direction:column; gap:40px; }
+  .lane { }
+  .lane .cap { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+  .lane .cap .t { font-family:var(--font-display); font-weight:900; font-size:20px; color:var(--text-primary); }
+  .lane .cap .t .band { font-family:var(--font-body); font-weight:700; font-size:16px; margin-left:12px; }
+  .lane.easy .cap .t .band { color:var(--stbr-emerald); }
+  .lane.hard .cap .t .band { color:#c0392b; }
+  .lane .cap .rule { font-family:var(--font-mono); font-size:15px; color:var(--text-muted); }
+  .line { position:relative; height:62px; border-radius:var(--radius-md);
+    background:var(--surface-inverse); overflow:hidden; }
+  .win { position:absolute; left:0; top:0; bottom:0; background:rgba(0,139,76,0.55);
+    border-right:3px solid var(--stbr-emerald); }
+  .win .wtxt { position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--stbr-cream); white-space:nowrap; }
+  .win.thin { background:var(--stbr-emerald); border-right:3px solid var(--stbr-emerald); }
+  .marker { position:absolute; top:-14px; bottom:-14px; width:3px; background:var(--stbr-yellow); z-index:2; }
+  .marker .tag { position:absolute; top:-30px; left:50%; transform:translateX(-50%);
+    background:var(--stbr-yellow); color:var(--text-on-accent); font-family:var(--font-body);
+    font-weight:800; font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+    padding:4px 11px; border-radius:var(--radius-pill); white-space:nowrap; }
+  .ends { display:flex; justify-content:space-between; margin-top:11px;
+    font-family:var(--font-mono); font-size:14px; color:var(--text-muted); }
+  .caption { margin-top:36px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:20px; font-weight:600; line-height:1.4; }
+  .caption code { font-family:var(--font-mono); font-weight:800; color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">a hash is a number; the target is a line</div>
+  <h2 class="viz-title">the block's hash must fall under the target</h2>
+  <div class="lines">
+    <div class="lane easy">
+      <div class="cap"><div class="t">target HIGH<span class="band">easy &mdash; wide winning band, nearly every hash wins</span></div><div class="rule">hash-as-number &le; target</div></div>
+      <div class="line">
+        <div class="win" style="width:82%"><span class="wtxt">winning band &mdash; hash wins here</span></div>
+        <div class="marker" style="left:82%"><span class="tag">target</span></div>
+      </div>
+      <div class="ends"><span>0</span><span>&harr; a block hash sits somewhere on this line &harr;</span><span>&asymp; 1.16 &times; 10<sup>77</sup> (max)</span></div>
+    </div>
+    <div class="lane hard">
+      <div class="cap"><div class="t">target LOW<span class="band">hard &mdash; thin sliver near 0, almost no hash wins</span></div><div class="rule">difficulty = how far toward 0 the target is dragged</div></div>
+      <div class="line">
+        <div class="win thin" style="width:5%"></div>
+        <div class="marker" style="left:5%"><span class="tag">target</span></div>
+      </div>
+      <div class="ends"><span>0</span><span>&harr; same line, same numbers &harr;</span><span>&asymp; 1.16 &times; 10<sup>77</sup> (max)</span></div>
+    </div>
+  </div>
+  <div class="caption"><code>hash &le; target</code> wins. Lower the target toward zero and the winning band shrinks &mdash; that shrinking band is difficulty.</div>
+</div>
+</body></html>

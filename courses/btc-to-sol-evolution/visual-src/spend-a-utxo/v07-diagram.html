@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: two transactions, disjoint state, verified in any order
+     purpose: certify that UTXO verification is order-free because X and Y read no shared byte of state
+     data: tx X.vin -> 7b1e4c9a... vout 0 (10.00000000) verified on core 1: exists? unspent? witness fits? -> accept tx Y.vin -> 7b1e4c9a... vout 1 (39.99997640) verified on core 2: exists? unspent? witness fits? -> accept X touches only output 0; Y touches only output 1 -> disjoint state, no shared read/write order X-then-Y == Y-then-X == both in parallel -> identical result (accept, accept)
+     prompt: Diagram, dark background, monospace. Left: two transaction boxes "tx X" and "tx Y". Arrows point to two separate output boxes, "vout 0: 10.00000000" and "vout 1: 39.99997640", each on its own lane / CPU core. A caption spanning both lanes: "disjoint state -> any order, or parallel, same answer". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:505px;height:452px;top:-271px;right:-271px;border-radius:48% 62% 41% 62% / 47% 57% 63% 54%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:453px;height:378px;left:-243px;top:256px;border-radius:61% 38% 48% 42% / 38% 46% 62% 51%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .lanes { display:flex; gap:24px; margin-top:30px; }
+  .lane { flex:1; border:2px solid var(--border-subtle); border-radius:var(--radius-lg); overflow:hidden; }
+  .lane .core { background:var(--surface-brand-deep); color:var(--text-on-brand); padding:12px 24px;
+    font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em; text-transform:uppercase; }
+  .lane .inner { padding:24px 26px; display:flex; flex-direction:column; gap:16px; }
+  .txbox { background:var(--surface-card); border:2px solid rgba(0,139,76,0.30); border-radius:var(--radius-md);
+    padding:16px 20px; }
+  .txbox .n { font-family:var(--font-mono); font-weight:900; font-size:22px; color:var(--stbr-emerald); }
+  .txbox .s { font-family:var(--font-mono); font-size:16px; color:var(--text-secondary); margin-top:6px; }
+  .down { text-align:center; color:var(--stbr-emerald); font-size:24px; font-weight:900; }
+  .outbox { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-md); padding:16px 20px; }
+  .outbox .oh { font-family:var(--font-mono); font-weight:800; font-size:18px; color:var(--stbr-cream); }
+  .outbox .oh .amt { color:var(--stbr-yellow); }
+  .checks { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .chk { font-family:var(--font-body); font-size:13px; color:var(--stbr-ink-300);
+    border:1px solid var(--border-on-dark); border-radius:var(--radius-pill); padding:4px 11px; }
+  .verdict-mini { margin-top:12px; font-family:var(--font-body); font-weight:800; font-size:14px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--stbr-emerald); }
+  .caption { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; text-align:center; font-size:22px; font-weight:600; line-height:1.4; }
+  .caption code { font-family:var(--font-mono); font-weight:800; color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">two transactions, disjoint state</div>
+  <h2 class="viz-title">verified in any order, or in parallel</h2>
+  <div class="lanes">
+    <div class="lane">
+      <div class="core">core 1</div>
+      <div class="inner">
+        <div class="txbox"><div class="n">tx X</div><div class="s">vin &rarr; 7b1e4c9a&hellip; vout 0</div></div>
+        <div class="down">&darr;</div>
+        <div class="outbox">
+          <div class="oh">vout 0: <span class="amt">10.00000000</span></div>
+          <div class="checks"><span class="chk">exists?</span><span class="chk">unspent?</span><span class="chk">witness fits?</span></div>
+          <div class="verdict-mini">&rarr; accept</div>
+        </div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="core">core 2</div>
+      <div class="inner">
+        <div class="txbox"><div class="n">tx Y</div><div class="s">vin &rarr; 7b1e4c9a&hellip; vout 1</div></div>
+        <div class="down">&darr;</div>
+        <div class="outbox">
+          <div class="oh">vout 1: <span class="amt">39.99997640</span></div>
+          <div class="checks"><span class="chk">exists?</span><span class="chk">unspent?</span><span class="chk">witness fits?</span></div>
+          <div class="verdict-mini">&rarr; accept</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">X touches only output 0, Y touches only output 1 &mdash; no shared read/write. <code>X-then-Y == Y-then-X == parallel</code>, identical result.</div>
+</div>
+</body></html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: where the client comes from
+     purpose: show that anchor build plus codama, not the developer, authors the client the bot imports
+     data: Rust program (lib.rs) -> anchor build -> target/idl/vault.json (instructions, args, accounts) -> node codama.mjs -> bot/generated/ (a typed function per instruction, a decoder per account, a PDA helper) -> the bot imports bot/generated -> every call is checked at compile time edit the program -> rebuild -> regenerate; the client is never hand-edited
+     prompt: Top-to-bottom flowchart, dark background, monospace. A "Rust program" node feeds "anchor build", which feeds "vault.json", which feeds a "codama" node, which feeds a "bot/generated" node, which feeds a single "bot" node. A dashed loop from bot back to build labeled "rebuild + regenerate, never hand-edit". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:542px;height:517px;top:-329px;right:-329px;border-radius:35% 63% 36% 63% / 50% 50% 39% 63%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:581px;height:545px;bottom:-328px;left:-328px;border-radius:51% 63% 35% 55% / 51% 65% 54% 65%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:501px;height:469px;bottom:-238px;right:-238px;border-radius:56% 40% 47% 53% / 39% 46% 51% 62%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { display:flex; align-items:center; gap:0; margin-top:40px; }
+  .fc .node { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:22px 14px; text-align:center; }
+  .fc .node .t { font-weight:800; font-size:19px; color:var(--text-primary); line-height:1.15; }
+  .fc .node .s { font-family:var(--font-mono); font-size:13px; color:var(--text-muted); margin-top:7px; }
+  .fc .step { background:var(--surface-brand); border-color:var(--surface-brand); }
+  .fc .step .t { color:var(--text-on-brand); }
+  .fc .dest { background:var(--surface-inverse); border-color:var(--surface-inverse); }
+  .fc .dest .t { color:var(--text-on-dark); } .fc .dest .s { color:var(--stbr-ink-300); }
+  .fc .arr { flex:0 0 42px; text-align:center; color:var(--stbr-emerald); font-size:30px; font-weight:900; }
+  .loop { margin-top:38px; border:2px dashed var(--stbr-emerald); border-radius:var(--radius-pill);
+    padding:15px 28px; color:var(--stbr-green); font-weight:700; text-align:center; font-size:19px; }
+</style>
+  <div class="stbr-eyebrow">where the client comes from</div>
+  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 4px;">anchor build and codama author the client, not you</h2>
+  <div class="fc">
+    <div class="node"><div class="t">Rust program</div><div class="s">lib.rs</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node step"><div class="t">anchor build</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="t">vault.json</div><div class="s">the IDL</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node step"><div class="t">codama</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="t">bot/generated</div><div class="s">fns, decoders, PDAs</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node dest"><div class="t">the bot</div><div class="s">checked at compile time</div></div>
+  </div>
+  <div class="loop">edit the program &rarr; rebuild &rarr; regenerate, and the client rewrites itself, never hand-edited</div>
+</div>
+</body></html>

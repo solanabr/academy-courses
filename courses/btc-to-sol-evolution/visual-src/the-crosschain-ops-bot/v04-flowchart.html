@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: the resume decision, skip or apply
+     purpose: certify the completion TODO, after reloading the cursor, decide skip-or-apply for the next queued op
+     data: up -> read cursor.jsonl -> next queued op = op N is op N id <= cursor? --yes--> SKIP (already confirmed) -> advance --no--> on-chain check: did it already land? --yes--> record + SKIP (idempotent) --no--> APPLY op N -> confirm -> append id to cursor
+     prompt: Top-down flowchart, dark background, monospace. Decision diamonds "id <= cursor?" and "already on-chain?". Two SKIP terminals (green) and one APPLY path (amber) that loops back to append the new id to the cursor. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:533px;height:491px;top:-268px;right:-268px;border-radius:46% 35% 43% 57% / 51% 65% 40% 42%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:483px;height:490px;left:-277px;top:85px;border-radius:63% 57% 46% 57% / 58% 57% 54% 54%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:620px;height:599px;bottom:-334px;right:-334px;border-radius:42% 51% 42% 35% / 63% 55% 57% 48%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { position:relative; margin-top:20px; height:604px; }
+  .fc svg.wires { position:absolute; inset:0; width:100%; height:604px; z-index:0; }
+  .nd { position:absolute; z-index:1; box-sizing:border-box; }
+  .box { background:var(--surface-card); border:2px solid var(--border-strong); border-radius:var(--radius-md); padding:15px 20px; text-align:center; font-family:var(--font-mono); font-weight:700; font-size:17px; color:var(--text-primary); }
+  .box.start { background:var(--surface-inverse); color:var(--text-on-dark); border-color:var(--surface-inverse); }
+  .box.start b { color:var(--stbr-yellow); }
+  .box.sub { font-family:var(--font-body); font-weight:600; font-size:15px; color:var(--text-secondary); }
+  .box.sub b { font-family:var(--font-mono); color:var(--text-primary); }
+  .dia { width:230px; height:120px; display:flex; align-items:center; justify-content:center; text-align:center; background:var(--surface-brand); color:var(--text-on-brand); font-family:var(--font-mono); font-weight:800; font-size:17px; border-radius:var(--radius-md); padding:0 18px; line-height:1.2; }
+  .term { border-radius:var(--radius-pill); padding:15px 26px; text-align:center; font-family:var(--font-body); font-weight:800; font-size:17px; }
+  .term.skip { background:rgba(0,139,76,0.12); border:2px solid var(--stbr-emerald); color:var(--stbr-emerald); }
+  .term.apply { background:var(--stbr-yellow); color:var(--text-on-accent); border:2px solid var(--stbr-yellow-700); }
+  .term small { display:block; font-weight:600; font-size:13px; color:var(--text-secondary); margin-top:3px; }
+  .term.apply small { color:var(--stbr-dark); opacity:.75; }
+  .elab { position:absolute; z-index:2; font-family:var(--font-body); font-weight:800; font-size:13px; padding:4px 12px; border-radius:var(--radius-pill); }
+  .elab.yes { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .elab.no { background:var(--surface-inverse); color:var(--text-on-dark); }
+</style>
+  <div class="stbr-eyebrow">the resume decision, skip or apply</div>
+  <h2 class="viz-title">skip what already landed, apply the rest</h2>
+  <div class="fc">
+    <svg class="wires" viewBox="0 0 1456 604" preserveAspectRatio="none">
+      <defs><marker id="ah" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#1b231d"/></marker></defs>
+      <!-- spine: start -> op N -> dia1 -> dia2 -> apply -->
+      <line x1="300" y1="76" x2="300" y2="100" stroke="#1b231d" stroke-width="2.5" marker-end="url(#ah)"/>
+      <line x1="300" y1="158" x2="300" y2="184" stroke="#1b231d" stroke-width="2.5" marker-end="url(#ah)"/>
+      <line x1="300" y1="310" x2="300" y2="350" stroke="#1b231d" stroke-width="2.5" marker-end="url(#ah)"/>
+      <line x1="300" y1="476" x2="300" y2="520" stroke="#c9a21f" stroke-width="2.5" marker-end="url(#ah)"/>
+      <!-- dia1 yes -> skip1 (right) -->
+      <path d="M 415 250 L 980 250" fill="none" stroke="#008b4c" stroke-width="2.5" marker-end="url(#ah)"/>
+      <!-- dia2 yes -> skip2 (right) -->
+      <path d="M 415 416 L 980 416" fill="none" stroke="#008b4c" stroke-width="2.5" marker-end="url(#ah)"/>
+      <!-- apply -> confirm -> cursor append, then loop up the far right back into cursor.jsonl feeding op N -->
+      <path d="M 415 563 L 1180 563 L 1180 36 L 372 36" fill="none" stroke="#c9a21f" stroke-width="2.5" stroke-dasharray="9 7" marker-end="url(#ah)"/>
+    </svg>
+    <div class="nd box start" style="left:150px;top:20px;width:300px;"><b>up</b> &rarr; read cursor.jsonl</div>
+    <div class="nd box" style="left:150px;top:106px;width:300px;">next queued op = <b>op N</b></div>
+    <div class="nd dia" style="left:185px;top:190px;">id &le; cursor?</div>
+    <div class="nd dia" style="left:185px;top:356px;">already<br>on-chain?</div>
+    <div class="nd term apply" style="left:150px;top:526px;width:300px;">APPLY op N<small>confirm &rarr; append id to cursor</small></div>
+    <div class="nd term skip" style="left:990px;top:224px;width:300px;">SKIP<small>already confirmed &rarr; advance</small></div>
+    <div class="nd term skip" style="left:990px;top:390px;width:300px;">record + SKIP<small>idempotent, already landed</small></div>
+    <div class="nd box sub" style="left:990px;top:534px;width:300px;">appended id feeds the <b>next</b> restart's cursor</div>
+    <div class="elab yes" style="left:640px;top:224px;">yes</div>
+    <div class="elab no" style="left:238px;top:318px;">no</div>
+    <div class="elab yes" style="left:640px;top:390px;">yes</div>
+    <div class="elab no" style="left:238px;top:490px;">no</div>
+  </div>
+</div>
+</body></html>

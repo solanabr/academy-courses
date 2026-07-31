@@ -1,0 +1,69 @@
+id: lesson-b2s-the-crosschain-ops-bot
+slug: the-crosschain-ops-bot
+title: "Pull the plug: the cross-chain operator that wakes up where it left off"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: resume-from-cursor
+    type: code
+    language: typescript
+    starter: resume-from-cursor/starter.ts
+    solution: resume-from-cursor/solution.ts
+    tests: resume-from-cursor/tests.json
+    hints:
+      - "Keep only ops whose id is strictly greater than the cursor."
+      - "The new cursor is the max id you actually applied, or the old cursor when nothing is new."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "For your ops bot to survive a `kill -9` and resume correctly, which three artifacts must it have persisted?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The keypair(s), a cursor (last confirmed slot / sequence id), and the spawned-agent manifest"
+            correct: true
+          - id: b
+            label: "Only the keypair — everything else can be recomputed from the chain"
+            correct: false
+            feedback: "The keypair alone is not enough. Without a persisted CURSOR the bot cannot tell what it already did, and without the agent manifest it loses track of what it spawned — both are needed to resume without redoing work."
+          - id: c
+            label: "A full copy of the blockchain"
+            correct: false
+            feedback: "You never persist the chain itself; you query it. What must be local and durable is the bot's own state: its keys, its progress cursor, and its registry of spawned agents."
+        explanation: "A cold-restart-safe supervisor persists three things: the keypair(s) (so its address is stable across restarts), a cursor marking the last operation it confirmed (so it skips already-applied work), and the agent manifest (what it spawned). Everything else it re-reads from chain."
+      - id: q2
+        prompt: "Every operation the bot submits AFTER its cursor must be idempotent or on-chain-guarded. Why is that the rule?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "On resume the bot may re-see operations it already sent; without idempotency or an on-chain check it would double-execute them"
+            correct: true
+          - id: b
+            label: "Because Solana charges double fees for repeated operations"
+            correct: false
+            feedback: "Fees are not the concern — correctness is. A crash between 'submitted' and 'cursor advanced' means the op could run twice on resume, so it must be safe to repeat or blocked by an on-chain check."
+          - id: c
+            label: "Because idempotency makes transactions faster"
+            correct: false
+            feedback: "It is not a performance rule. It exists because a restart can replay in-flight operations; making them idempotent (or guarding them on-chain) is what prevents a double-spend or double-action."
+        explanation: "There is always a window where an op was submitted but the cursor hadn't advanced when the bot died. On restart it will retry from the last saved cursor, so any op past it must either be safe to run twice (idempotent) or rejected on-chain the second time."
+      - id: q3
+        prompt: "Wormhole secures messages with 19 named guardians and a 13-of-19 quorum. In the bridge trust taxonomy, which tier is that, and what do you trust?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "External-validator-set — you trust an honest majority of the named validators; an M-of-N compromise breaks the bridge"
+            correct: true
+          - id: b
+            label: "Trust-minimized — you trust only code and the underlying chains' consensus"
+            correct: false
+            feedback: "Trust-minimized means ZK or light-client proofs enforce transfers on-chain with no external quorum. A 13-of-19 guardian vote is a proof-of-authority validator set, so trust rests on those named parties, not just code."
+          - id: c
+            label: "Custodial — a single company holds the assets"
+            correct: false
+            feedback: "Custodial is one operator or multisig holding funds. Wormhole spreads trust across 19 guardians with a 13-of-19 quorum — an external validator set, not a single custodian."
+        explanation: "The taxonomy runs custodial → external-validator-set → trust-minimized. Wormhole's 13-of-19 guardian quorum is the middle tier: security holds while an honest majority of the named set holds, and a sufficient M-of-N compromise breaks it. (Wormhole also does not natively bridge native BTC.)"

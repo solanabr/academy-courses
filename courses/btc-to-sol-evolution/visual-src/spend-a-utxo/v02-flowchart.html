@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: one transaction, consuming and producing
+     purpose: certify that a payment destroys whole outputs and creates new ones, with the fee as the leftover gap
+     data: CONSUMED (vin) PRODUCED (vout) coinbase output #0: 50.00000000 -> payment (vout 0): 10.00000000 -> to bcrt1qkx8...e6r change (vout 1): 39.99997640 -> back to your wallet arithmetic: 50.00000000 in == 10.00000000 + 39.99997640 + fee fee = 50.00000000 - 49.99997640 = 0.00002360 (2360 sats), captured by NO output
+     prompt: Left-to-right flowchart, dark background, monospace. One input box "50.00000000 (coinbase #0)" on the left, an arrow into a transaction node, two output boxes on the right: "10.00000000 payment" and "39.99997640 change". A thin red sliver between the arrows labeled "fee 2360 sats (no output holds it)". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:558px;height:550px;bottom:-298px;right:-298px;border-radius:45% 51% 45% 47% / 41% 43% 49% 64%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:547px;height:481px;left:-303px;top:274px;border-radius:50% 50% 61% 47% / 40% 40% 37% 53%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { display:flex; align-items:center; gap:28px; margin-top:40px; }
+  .side { flex:0 0 380px; display:flex; flex-direction:column; }
+  .side.out { gap:20px; }
+  .colhead { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:14px; }
+  .box { border-radius:var(--radius-lg); padding:22px 26px; border:2px solid var(--border-subtle);
+    background:var(--surface-card); }
+  .box.in { border-color:rgba(48,108,64,0.36); background:rgba(48,108,64,0.05); }
+  .box .amt { font-family:var(--font-mono); font-weight:900; font-size:30px; color:var(--text-primary); }
+  .box .role { font-family:var(--font-body); font-size:15px; color:var(--text-muted); margin-top:7px; }
+  .box.pay { border-color:rgba(0,139,76,0.40); background:rgba(0,139,76,0.07); }
+  .box.pay .amt { color:var(--stbr-emerald); }
+  .box.chg { border-color:rgba(48,108,64,0.30); }
+  .txn { flex:1; align-self:stretch; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .txnode { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-lg);
+    padding:26px 30px; text-align:center; width:100%; }
+  .txnode .lbl { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--stbr-yellow); }
+  .txnode .eq { font-family:var(--font-mono); font-size:17px; color:var(--stbr-ink-300); margin-top:12px; line-height:1.5; }
+  .txnode .eq b { color:var(--stbr-cream); }
+  .arr { flex:0 0 34px; text-align:center; color:var(--stbr-emerald); font-size:30px; font-weight:900; }
+  .fee { margin-top:26px; display:flex; align-items:center; gap:16px; background:rgba(192,57,43,0.06);
+    border:2px solid rgba(192,57,43,0.28); border-radius:var(--radius-lg); padding:18px 28px; }
+  .fee .sliver { flex:0 0 8px; align-self:stretch; min-height:34px; background:#c0392b; border-radius:var(--radius-pill); }
+  .fee .ftxt { font-size:20px; color:var(--text-secondary); line-height:1.4; }
+  .fee .ftxt b { color:#a5342a; font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">one transaction, consuming and producing</div>
+  <h2 class="viz-title">whole coins in, new coins out</h2>
+  <div class="fc">
+    <div class="side">
+      <div class="colhead">consumed (vin)</div>
+      <div class="box in"><div class="amt">50.00000000</div><div class="role">coinbase output #0</div></div>
+    </div>
+    <div class="arr">&rarr;</div>
+    <div class="txn">
+      <div class="txnode">
+        <div class="lbl">transaction</div>
+        <div class="eq"><b>50.00000000</b> in&nbsp;==&nbsp;10.00000000<br>+&nbsp;39.99997640&nbsp;+&nbsp;fee</div>
+      </div>
+    </div>
+    <div class="arr">&rarr;</div>
+    <div class="side out">
+      <div class="colhead">produced (vout)</div>
+      <div class="box pay"><div class="amt">10.00000000</div><div class="role">payment (vout 0) &rarr; bcrt1qkx8&hellip;e6r</div></div>
+      <div class="box chg"><div class="amt">39.99997640</div><div class="role">change (vout 1) &rarr; back to your wallet</div></div>
+    </div>
+  </div>
+  <div class="fee">
+    <div class="sliver"></div>
+    <div class="ftxt">fee = 50.00000000 &minus; 49.99997640 = <b>0.00002360</b> (2360 sats) &mdash; captured by no output, it is the leftover gap.</div>
+  </div>
+</div>
+</body></html>

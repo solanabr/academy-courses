@@ -1,0 +1,61 @@
+id: lesson-b2s-hash-everything
+slug: hash-everything
+title: "Hash everything: the 64 characters under every blockchain"
+skills:
+  - solana-fundamentals
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "`printf 'solana'` and `printf 'Solana'` produce completely different SHA-256 digests — not similar ones. What property is that, and why does it matter?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The avalanche effect — a one-bit change scrambles the whole output, so a digest can fingerprint data with no partial-match leakage"
+            correct: true
+          - id: b
+            label: "Randomness — SHA-256 adds a random salt each run, so outputs differ"
+            correct: false
+            feedback: "SHA-256 is deterministic: the same input always gives the same 64-hex digest. Re-run either command and you get an identical result. The difference comes from the input differing by one bit, not from randomness."
+          - id: c
+            label: "A collision — the two inputs collided into different buckets"
+            correct: false
+            feedback: "A collision is when DIFFERENT inputs share the SAME digest. Here different inputs give different digests — the normal, desired behaviour, not a collision."
+        explanation: "Flipping one bit of input (the 's'/'S' case) changes about half the output bits — the avalanche effect. Combined with determinism, that is what lets a digest act as a tamper-evident fingerprint: any change at all yields an unrecognisably different hash."
+      - id: q2
+        prompt: "A SHA-256 digest is always the same size regardless of input. How big, expressed as hex characters?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "64 hex characters (256 bits)"
+            correct: true
+          - id: b
+            label: "256 hex characters"
+            correct: false
+            feedback: "256 is the BIT length. Each hex character encodes 4 bits, so 256 bits render as 256 / 4 = 64 hex characters."
+          - id: c
+            label: "It varies with the input length"
+            correct: false
+            feedback: "A hash function maps any input, one byte or a gigabyte, to a FIXED-size output. For SHA-256 that is always 256 bits = 64 hex characters."
+        explanation: "SHA-256 emits 256 bits for any input; at 4 bits per hex digit that is 64 characters. The fixed width is what makes digests usable as uniform identifiers and Merkle-tree nodes."
+      - id: q3
+        prompt: "The 2017 'SHAttered' result produced two different PDF files with the same SHA-1 hash. What does that tell you about algorithm choice?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "SHA-1 is collision-broken and must not be used where collision resistance matters; prefer SHA-256"
+            correct: true
+          - id: b
+            label: "All hash functions are broken, including SHA-256"
+            correct: false
+            feedback: "SHAttered broke SHA-1 specifically. SHA-256 is a different, larger construction with no practical collision known; the lesson is to retire SHA-1, not to abandon hashing."
+          - id: c
+            label: "It means SHA-1 outputs are now reversible"
+            correct: false
+            feedback: "A collision is two inputs sharing one output; it is not a preimage (reversing a hash to its input). SHAttered found a collision, which is why SHA-1 is unsafe for signatures and integrity, but it did not make SHA-1 reversible."
+        explanation: "A demonstrated collision means an attacker can craft two inputs with the same digest, defeating any signature or integrity check built on that hash. SHAttered retired SHA-1 for security use; SHA-256, with a far larger space and no practical collision, is the default."

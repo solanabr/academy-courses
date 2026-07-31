@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: kit v6 vs v7, and why you pin v6
+     purpose: pin the real install constraint so the reader does not reach for the newest and break the build
+     data: @solana/kit v7 (latest) | shipped: 2026-06-30 | newest primitives | but: the generated-client packages do not support it yet | install it and npm refuses (peer conflict) @solana/kit v6 (^6.10.0) | one line back | what the generated client + @solana/react both require | install this: the whole toolchain agrees the rule | pin @solana/kit@^6.10.0 for any project with a codama-generated client | move to v7 only once @solana-program + @solana/react publish v7 lines
+     prompt: Two-row comparison card, dark theme, monospace. Top row "v7 (latest, do not use yet)" tinted faint red, bottom row "v6 (^6.10.0, use this)" tinted faint green. A bottom band: "the generated client sets the version, not the newest release". No logos.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:617px;height:554px;top:-331px;right:-331px;border-radius:60% 45% 39% 40% / 40% 49% 58% 39%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:486px;height:463px;bottom:-228px;left:-228px;border-radius:53% 64% 37% 62% / 35% 38% 54% 50%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { display:flex; flex-direction:column; gap:22px; margin-top:34px; }
+  .cmp .row { display:flex; align-items:stretch; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; }
+  .cmp .row.bad { background:rgba(192,57,43,0.06); border-color:rgba(192,57,43,0.28); }
+  .cmp .row.good { background:rgba(0,139,76,0.09); border-color:rgba(0,139,76,0.34); }
+  .cmp .lead { flex:0 0 350px; padding:28px 32px; border-right:2px solid rgba(27,35,29,0.08); display:flex; flex-direction:column; justify-content:center; }
+  .cmp .ver { font-family:var(--font-mono); font-weight:800; font-size:27px; color:var(--text-primary); }
+  .cmp .tag { align-self:flex-start; margin-top:12px; font-family:var(--font-body); font-weight:800; font-size:14px; padding:6px 14px; border-radius:var(--radius-pill); }
+  .cmp .bad .tag { background:#c0392b; color:#fff; }
+  .cmp .good .tag { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .cmp .detail { flex:1; padding:26px 32px; display:flex; flex-direction:column; justify-content:center; gap:10px; font-size:20px; color:var(--text-secondary); line-height:1.4; }
+  .cmp .detail b { color:var(--text-primary); }
+  .cmp .detail code { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; }
+  .verdict { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:24px 32px; font-size:21px; font-weight:600; line-height:1.4; }
+  .verdict code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the version you must pin</div>
+  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">kit v6, not v7</h2>
+  <div class="cmp">
+    <div class="row bad">
+      <div class="lead"><div class="ver">@solana/kit v7</div><span class="tag">do not use yet</span></div>
+      <div class="detail"><span>shipped 2026-06-30, the newest primitives</span><span><b>but</b> the generated-client packages do not support it, so <b>npm refuses to install</b> (peer conflict)</span></div>
+    </div>
+    <div class="row good">
+      <div class="lead"><div class="ver">@solana/kit v6</div><span class="tag">use this</span></div>
+      <div class="detail"><span>one line back, <code>^6.10.0</code></span><span>what the generated client <b>and</b> @solana/react both require; the whole toolchain agrees</span></div>
+    </div>
+  </div>
+  <div class="verdict">Pin <code>@solana/kit@^6.10.0</code> for any project with a codama-generated client. The generated client sets the version, not the newest release.</div>
+</div>
+</body></html>

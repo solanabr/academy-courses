@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the command that proves your deployed code is your published code
+     purpose: walk verify-from-repo field by field so the reader can name every argument
+     data: solana-verify verify-from-repo \ -u $NETWORK_URL \ # which cluster to read the deployed program from --program-id $PROGRAM_ID \ # the on-chain address you are vouching for https://github.com/$REPO_PATH \ # the public source anyone can rebuild --commit-hash $COMMIT_HASH # the exact commit, so "the source" is unambiguous # result: rebuilds from that commit, fingerprints both sides, reports match / mismatch
+     prompt: Monospace annotated-code panel, dark background. Render the command across lines with each argument commented to its right. Highlight --commit-hash and its comment in a warm accent (the pin that makes "the source" unambiguous). Caption: "a program-id, a repo, a commit, anyone can re-run this against you". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:522px;height:505px;bottom:-287px;left:400px;border-radius:56% 57% 62% 51% / 48% 36% 56% 39%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { background:var(--surface-inverse); border-radius:var(--radius-xl); padding:40px 46px;
+    font-family:var(--font-mono); font-size:20px; color:var(--text-on-dark); margin-top:28px; }
+  .panel .grid { display:grid; grid-template-columns:640px 1fr; gap:16px 34px; align-items:baseline; }
+  .panel .cmd { color:var(--stbr-cream); }
+  .panel .cmd .arg { color:var(--stbr-yellow); }
+  .panel .cmt { color:var(--stbr-ink-300); font-size:18px; }
+  .panel .indent { padding-left:34px; }
+  .panel .pin { background:rgba(255,210,63,0.14); border-left:3px solid var(--stbr-yellow);
+    border-radius:6px; padding:8px 12px; margin-left:20px; }
+  .panel .pin .arg { color:var(--stbr-yellow); font-weight:800; }
+  .panel .pin-cmt { color:var(--stbr-yellow); font-size:18px; font-weight:600; align-self:center; }
+  .panel .result { margin-top:26px; padding-top:20px; border-top:1px solid var(--border-on-dark);
+    color:var(--stbr-emerald); font-weight:700; font-size:18px; }
+  .caption { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:20px; font-weight:600; line-height:1.4; }
+  .caption code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">prove your deployed code is your published code</div>
+  <h2 class="viz-title">anyone can re-run this against you</h2>
+  <div class="panel">
+    <div class="grid">
+      <span class="cmd">solana-verify <span class="arg">verify-from-repo</span> \</span><span class="cmt"></span>
+      <span class="cmd indent">-u $NETWORK_URL \</span><span class="cmt"># which cluster to read the deployed program from</span>
+      <span class="cmd indent">--program-id $PROGRAM_ID \</span><span class="cmt"># the on-chain address you are vouching for</span>
+      <span class="cmd indent">https://github.com/$REPO_PATH \</span><span class="cmt"># the public source anyone can rebuild</span>
+      <span class="cmd indent pin">--commit-hash $COMMIT_HASH</span><span class="pin-cmt"># the exact commit, so "the source" is unambiguous</span>
+    </div>
+    <div class="result"># result: rebuilds from that commit, fingerprints both sides, reports match / mismatch</div>
+  </div>
+  <div class="caption">A <code>--program-id</code>, a repo, a <code>--commit-hash</code> &mdash; anyone can re-run this against you and check the fingerprints line up.</div>
+</div>
+</body></html>

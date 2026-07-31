@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: three tiers of bridge trust
+     purpose: certify the taxonomy every cross-chain leg gets sorted into
+     data: Custodial | holds the assets: a company or multisig | you trust: operator key security + legal integrity | breaks when: keys stolen, or firm coerced/insolvent | examples: WBTC, renBTC External-validator-set | holds the assets: a named validator roster | you trust: an honest majority of the set AND the contract | breaks when: M-of-N compromise, or a contract bug (Wormhole 2022) | examples: Wormhole (19 guardians, 13-of-19 for a VAA) Trust-minimized | holds the assets: enforced on-chain by proofs | you trust: code correctness + the chains' own consensus | breaks when: a proof-system or implementation bug | examples: ZK / light-client bridges
+     prompt: Three-row comparison card, dark background, monospace. Columns: "holds the assets", "you trust", "breaks when", "examples". Amber band on the External-validator-set row noting "the contract is part of the trust, not just the validators". No logos.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:514px;height:475px;bottom:-288px;right:-288px;border-radius:64% 54% 59% 63% / 57% 39% 37% 37%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { margin-top:22px; display:flex; flex-direction:column; gap:14px; }
+  .head { display:grid; grid-template-columns:280px 1.15fr 1.15fr 1.25fr 1.15fr; gap:0 20px; padding:0 26px; }
+  .head span { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.10em; text-transform:uppercase; color:var(--text-muted); }
+  .tier { display:grid; grid-template-columns:280px 1.15fr 1.15fr 1.25fr 1.15fr; gap:0 20px; align-items:stretch; border-radius:var(--radius-lg); border:2px solid var(--border-subtle); background:var(--surface-card); overflow:hidden; }
+  .tier .lead { padding:22px 24px; display:flex; align-items:center; }
+  .tier .lead .nm { font-family:var(--font-mono); font-weight:800; font-size:22px; color:var(--text-primary); line-height:1.15; }
+  .tier .cell { padding:22px 4px; font-family:var(--font-body); font-size:16px; color:var(--text-secondary); line-height:1.32; display:flex; align-items:center; }
+  .tier .cell code { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; font-size:14px; }
+  .tier .cell b { color:var(--text-primary); }
+  .tier.mid { border-color:rgba(240,189,31,0.55); background:rgba(255,210,63,0.10); }
+  .tier.mid .lead { background:rgba(255,210,63,0.18); }
+  .amber { display:flex; align-items:center; gap:16px; margin-top:-2px; margin-bottom:12px; padding:14px 26px; background:var(--surface-accent); border-radius:var(--radius-md); }
+  .amber .k { font-family:var(--font-body); font-weight:900; font-size:12px; letter-spacing:.10em; text-transform:uppercase; color:var(--text-on-accent); flex:0 0 auto; }
+  .amber .v { font-family:var(--font-body); font-size:17px; font-weight:600; color:var(--text-on-accent); }
+  .verdict { margin-top:14px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:20px 30px; font-size:19px; font-weight:600; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">three tiers of bridge trust</div>
+  <h2 class="viz-title">what every cross-chain leg sorts into</h2>
+  <div class="cmp">
+    <div class="head"><span></span><span>holds the assets</span><span>you trust</span><span>breaks when</span><span>examples</span></div>
+    <div class="tier">
+      <div class="lead"><div class="nm">Custodial</div></div>
+      <div class="cell">a company or multisig</div>
+      <div class="cell">operator key security <b>+</b> legal integrity</div>
+      <div class="cell">keys stolen, or firm coerced / insolvent</div>
+      <div class="cell"><code>WBTC</code>, <code>renBTC</code></div>
+    </div>
+    <div class="tier mid">
+      <div class="lead"><div class="nm">External<br>validator-set</div></div>
+      <div class="cell">a named validator roster</div>
+      <div class="cell">an honest majority of the set <b>and</b> the contract</div>
+      <div class="cell">M-of-N compromise, or a contract bug (Wormhole 2022)</div>
+      <div class="cell">Wormhole &mdash; 19 guardians, <b>13-of-19</b> for a VAA</div>
+    </div>
+    <div class="tier">
+      <div class="lead"><div class="nm">Trust-<br>minimized</div></div>
+      <div class="cell">enforced on-chain by proofs</div>
+      <div class="cell">code correctness <b>+</b> the chains' own consensus</div>
+      <div class="cell">a proof-system or implementation bug</div>
+      <div class="cell">ZK / light-client bridges</div>
+    </div>
+  </div>
+  <div class="amber"><span class="k">on the middle tier</span><span class="v">the contract is part of the trust, not just the validators &mdash; the 2022 Wormhole hack was a contract bug, not a key theft</span></div>
+  <div class="verdict">Fewer trust assumptions is safer, not cheaper. Name the tier before you cross &mdash; <b>the leg you don't classify is the one that drains you</b>.</div>
+</div>
+</body></html>

@@ -1,0 +1,46 @@
+id: lesson-b2s-state-lives-in-the-contract
+slug: state-lives-in-the-contract
+title: "The number that remembers: why a coded ledger needs accounts, not UTXOs"
+skills:
+  - account-model
+  - solana-programs
+  - defi
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Ethereum dropped Bitcoin's UTXOs for an account model so a contract could 'remember' a number. What does an EVM account hold that a UTXO does not?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Persistent per-account state — a balance, a nonce, and (for contracts) a storage tree and code hash that survive between transactions"
+            correct: true
+          - id: b
+            label: "Nothing different — accounts are just UTXOs with another name"
+            correct: false
+            feedback: "They are structurally different. A UTXO is a one-shot output consumed whole; an EVM account is a durable object with mutable storage a contract updates in place across many transactions."
+          - id: c
+            label: "Only a balance, with no way to store contract data"
+            correct: false
+            feedback: "Contract accounts specifically add a storage root and a code hash on top of balance and nonce. That mutable storage is exactly what lets a contract keep a running value between calls."
+        explanation: "A UTXO is spent once and gone; an EVM account persists — balance, nonce, and for contracts a storageRoot and codeHash. That durable, updatable storage is what lets 'the number that remembers' exist, and it is the model Solana also uses (state in accounts)."
+      - id: q2
+        prompt: "Gas and denominations: which pair is correct on the EVM?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 21,000 gas"
+            correct: true
+          - id: b
+            label: "1 ETH = 10^9 wei, and a transfer costs 5,000 gas"
+            correct: false
+            feedback: "10^9 (a gwei) is the wrong scale for wei, and 5,000 is Solana's per-signature lamport fee, not EVM gas. On the EVM a simple transfer is 21,000 gas and 1 ETH is 10^18 wei."
+          - id: c
+            label: "1 ETH = 10^6 wei, and gas is free on a local devnet"
+            correct: false
+            feedback: "Wei is 10^18 to the ETH, not 10^6, and gas is charged (in the fork's test ETH) even locally — a base transfer is 21,000 gas."
+        explanation: "Wei is the EVM's base unit at 10^18 per ETH, and the intrinsic cost of a value transfer is 21,000 gas. Those two numbers anchor almost every EVM fee calculation."

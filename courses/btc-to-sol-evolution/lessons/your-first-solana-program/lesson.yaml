@@ -1,0 +1,55 @@
+id: lesson-b2s-your-first-solana-program
+slug: your-first-solana-program
+title: "Push code you can never edit: your first program on devnet"
+skills:
+  - account-model
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: ping-program
+    type: code
+    language: rust
+    buildType: buildable
+    starter: ping-program/starter.rs
+    solution: ping-program/solution.rs
+    tests: ping-program/tests.json
+    hints:
+      - "The verification harness at the bottom already names both missing pieces — build first and read which names it can't find."
+      - "`Context<Ping>` needs `Ping` to carry #[derive(Accounts)] (that derive supplies the Bumps impl), not #[account]."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "What turns your Rust into a program the Solana runtime can execute, and how is the deployed program account marked?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`cargo build-sbf` compiles it to an sBPF binary; once deployed the program account is flagged `executable`"
+            correct: true
+          - id: b
+            label: "`cargo run` starts the program as a long-running server on the validator"
+            correct: false
+            feedback: "A Solana program is not a server and never 'runs' continuously. You compile to sBPF with `cargo build-sbf` and deploy the bytecode; the runtime invokes it per instruction, and its account is marked executable."
+          - id: c
+            label: "`rustc` produces a native binary you upload directly"
+            correct: false
+            feedback: "Plain `rustc` targets your machine, not the SVM. Solana needs the sBPF target, which `cargo build-sbf` produces; the deployed account is then executable."
+        explanation: "`cargo build-sbf` emits the sBPF bytecode the Solana VM runs. Deploying it creates a program account whose `executable` flag is true — the runtime will only invoke code from accounts carrying that flag."
+      - id: q2
+        prompt: "You deployed under the BPF Loader Upgradeable. What does 'upgradeable' let you do, and who can?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The upgrade authority can replace the program's bytecode at the SAME program id later, without changing its address"
+            correct: true
+          - id: b
+            label: "Anyone can modify the program's code once it is on-chain"
+            correct: false
+            feedback: "Only the upgrade authority can. 'Upgradeable' means the code behind the id can be replaced BY THAT AUTHORITY; it is not open to everyone."
+          - id: c
+            label: "The program's data accounts are automatically migrated when the code changes"
+            correct: false
+            feedback: "An upgrade swaps code only. State lives in separate accounts and is untouched; any data migration is your job, which is what makes the stateless-program design clean to upgrade."
+        explanation: "Under the BPF Loader Upgradeable the program account points to executable data the upgrade authority can swap, so you fix or extend the program at the same id. State sits in other accounts and is unaffected — code and data are decoupled."

@@ -1,0 +1,45 @@
+id: lesson-b2s-sign-and-verify
+slug: sign-and-verify
+title: "Sign and verify: identity without an account"
+skills:
+  - solana-fundamentals
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "With an ed25519 keypair, who can produce a valid signature over a message, and who can check it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Only the holder of the private key can sign; anyone holding the public key can verify"
+            correct: true
+          - id: b
+            label: "Anyone with the public key can both sign and verify"
+            correct: false
+            feedback: "The public key only VERIFIES. If it could also sign, it would not be safe to publish — and publishing it is the whole point. Signing requires the secret half."
+          - id: c
+            label: "Only the signer can verify their own signature"
+            correct: false
+            feedback: "Verification is public by design: that is what lets a validator, a counterparty, or a whole network confirm you authorised something without ever seeing your private key."
+        explanation: "Public-key signatures are asymmetric: the private key signs, the public key verifies. That split is what gives you identity without an account — you prove control of a key over a specific message, and anyone can check it, but no one can forge it without the secret."
+      - id: q2
+        prompt: "A signature is valid for a given message and public key. What exactly does that prove — and not prove?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It proves the private-key holder authorised THAT message; it does not keep the message secret"
+            correct: true
+          - id: b
+            label: "It proves the message is encrypted and only the recipient can read it"
+            correct: false
+            feedback: "Signing and encrypting are different operations. A signature authenticates who authorised a message and that it was not altered; it does not hide the contents. On Solana the signed transaction is public."
+          - id: c
+            label: "It proves the signer's real-world identity (name, nationality)"
+            correct: false
+            feedback: "It binds an action to a KEY, not to a legal identity. Who controls the key is a separate, off-chain question; the signature only shows that whoever holds it approved this exact message."
+        explanation: "A valid signature ties a specific message to whoever holds the private key and shows the message was not tampered with after signing. It says nothing about secrecy or legal identity — it is authorisation and integrity, not encryption or KYC."

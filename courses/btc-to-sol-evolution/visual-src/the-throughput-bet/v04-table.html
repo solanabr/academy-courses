@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: why you cannot bolt parallelism onto the EVM
+     purpose: certify shift two's derivation, dynamic access defeats every fix except declaring access
+     data: | attempted fix | what happens | verdict | | --- | --- | --- | | add more cores | machine still cannot tell which transactions are safe to run together | no gain | | guess slots, run optimistically | trades the problem for collision detection and re-runs; under contention slides back to sequential | no gain | | make the transaction declare what it will touch | access is known before execution, as data (an AccountMeta list) | this is the fix |
+     prompt: Three-row table, dark background, monospace headers "attempted fix / what happens / verdict". Grey out the first two "no gain" rows; highlight the final "this is the fix" row in a warm accent. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:545px;height:503px;top:-268px;right:-268px;border-radius:50% 37% 36% 55% / 38% 47% 36% 56%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:388px;height:501px;bottom:-262px;left:727px;border-radius:39% 61% 50% 65% / 37% 38% 47% 41%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:21px; margin-top:34px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:20px 26px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:24px 26px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.4; }
+  .ct td.fix { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:20px; }
+  .ct td .mono { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; }
+  .ct tr.dead td { color:var(--text-muted); }
+  .ct tr.dead td.fix { color:var(--text-muted); }
+  .ct tr.win td { background:rgba(255,210,63,0.16); border-bottom-color:rgba(217,166,8,0.35);
+    color:var(--text-primary); }
+  .ct tr.win td.fix { color:var(--stbr-dark); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .verdict { display:inline-block; font-family:var(--font-body); font-size:13px; font-weight:800;
+    padding:5px 13px; border-radius:var(--radius-pill); }
+  .verdict.no { background:var(--stbr-ink-100); color:var(--text-muted); }
+  .verdict.yes { background:var(--stbr-yellow); color:var(--text-on-accent); }
+</style>
+  <div class="stbr-eyebrow">the derivation, step two</div>
+  <h2 class="viz-title">why the EVM cannot go parallel</h2>
+  <table class="ct">
+    <tr><th style="width:30%">attempted fix</th><th style="width:52%">what happens</th><th>verdict</th></tr>
+    <tr class="dead"><td class="fix">add more cores</td><td>the machine still cannot tell which transactions are safe to run together</td><td><span class="verdict no">no gain</span></td></tr>
+    <tr class="dead"><td class="fix">guess slots, run optimistically</td><td>trades the problem for collision detection and re-runs; under contention it slides back to sequential</td><td><span class="verdict no">no gain</span></td></tr>
+    <tr class="win"><td class="fix">declare what it will touch</td><td>access is known before execution, as data &mdash; an <span class="mono">AccountMeta</span> list</td><td><span class="verdict yes">this is the fix</span></td></tr>
+  </table>
+</div>
+</body></html>

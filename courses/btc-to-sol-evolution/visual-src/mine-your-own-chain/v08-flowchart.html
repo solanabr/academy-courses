@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: what the reset script does
+     purpose: certify the completion artifact's control flow before the reader writes the TODOs
+     data: start -> bitcoin-cli -regtest stop (ignore error if already down) -> wait -> [TODO] rm -rf the regtest datadir (chain + wallet gone) -> bitcoind -regtest -daemon (fresh, empty chain at height 0) -> wait -> [TODO] createwallet + getnewaddress + generatetoaddress 101 -> getblockcount == 101 ? -> yes: reset done | no: node not up yet, wait and retry
+     prompt: Top-to-bottom flowchart, dark theme, monospace. Two nodes marked [TODO] tinted amber (the parts the reader fills in). A decision diamond at the bottom checking getblockcount == 101. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:586px;height:505px;bottom:-310px;right:-310px;border-radius:37% 54% 47% 35% / 35% 52% 61% 38%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:557px;height:466px;left:-310px;top:170px;border-radius:49% 57% 60% 43% / 38% 64% 60% 39%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .flow { margin-top:20px; display:flex; flex-direction:column; align-items:center; }
+  .node { position:relative; width:640px; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-md); padding:15px 26px; text-align:center; }
+  .node .cmd { font-family:var(--font-mono); font-size:17px; font-weight:700; color:var(--text-primary); }
+  .node .note { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-top:5px; }
+  .node.start { width:auto; background:var(--surface-inverse); color:var(--text-on-dark); border-color:var(--surface-inverse);
+    border-radius:var(--radius-pill); padding:12px 34px; font-family:var(--font-display); font-weight:900;
+    font-size:16px; letter-spacing:.08em; text-transform:uppercase; }
+  .node.todo { background:rgba(255,210,63,0.16); border:2px solid var(--stbr-yellow-700); }
+  .node.todo .badge { position:absolute; top:-13px; left:24px; background:var(--stbr-yellow);
+    color:var(--text-on-accent); font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.08em; text-transform:uppercase; padding:4px 12px; border-radius:var(--radius-pill); }
+  .node.todo .cmd { color:var(--stbr-dark); }
+  .diamond { width:520px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border:2px solid var(--surface-inverse); border-radius:var(--radius-md); padding:17px 26px; text-align:center;
+    font-family:var(--font-mono); font-weight:800; font-size:18px; }
+  .diamond .q { color:var(--stbr-yellow); }
+  .conn { width:3px; height:26px; background:var(--stbr-dark); position:relative; }
+  .conn::after { content:""; position:absolute; bottom:-1px; left:-4px;
+    border-left:6px solid transparent; border-right:6px solid transparent; border-top:9px solid var(--stbr-dark); }
+  .branches { width:640px; display:flex; justify-content:space-between; margin-top:14px; }
+  .branch { flex:0 0 300px; }
+  .branch .lab { font-family:var(--font-mono); font-weight:800; font-size:14px; margin-bottom:8px; text-align:center; }
+  .branch.yes .lab { color:var(--stbr-emerald); }
+  .branch.no .lab { color:#c0392b; }
+  .branch .box { border-radius:var(--radius-md); padding:14px 22px; text-align:center;
+    font-family:var(--font-body); font-weight:700; font-size:16px; }
+  .branch.yes .box { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .branch.no .box { background:rgba(192,57,43,0.08); border:2px solid rgba(192,57,43,0.35); color:#a5281c; }
+</style>
+  <div class="stbr-eyebrow">what the reset script does</div>
+  <h2 class="viz-title">the control flow behind the TODOs</h2>
+  <div class="flow">
+    <div class="node start">start</div>
+    <div class="conn"></div>
+    <div class="node"><div class="cmd">bitcoin-cli -regtest stop</div><div class="note">ignore the error if it's already down &rarr; wait</div></div>
+    <div class="conn"></div>
+    <div class="node todo"><span class="badge">TODO</span><div class="cmd">rm -rf the regtest datadir</div><div class="note">chain + wallet gone</div></div>
+    <div class="conn"></div>
+    <div class="node"><div class="cmd">bitcoind -regtest -daemon</div><div class="note">fresh, empty chain at height 0 &rarr; wait</div></div>
+    <div class="conn"></div>
+    <div class="node todo"><span class="badge">TODO</span><div class="cmd">createwallet + getnewaddress + generatetoaddress 101</div><div class="note">refill the lab</div></div>
+    <div class="conn"></div>
+    <div class="diamond"><span class="q">getblockcount == 101</span> ?</div>
+    <div class="branches">
+      <div class="branch yes"><div class="lab">&darr; YES</div><div class="box">reset done</div></div>
+      <div class="branch no"><div class="lab">&darr; NO</div><div class="box">node not up yet &mdash; wait and retry</div></div>
+    </div>
+  </div>
+</div>
+</body></html>

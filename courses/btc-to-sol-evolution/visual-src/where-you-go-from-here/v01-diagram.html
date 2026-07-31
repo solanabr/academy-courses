@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: the toolkit became the bot
+     purpose: certify that every artifact fed the next and all of them fed the capstone, zero throwaways
+     data: ledger.py (the foil, replaced) hashit -> keytool (fingerprints -> identity) regtest-chain -> rpc-watcher-bot (money with no center -> the plumbing that watches it) evm-amm (a market with no market-maker) first-solana-program -> anchor-vault -> anchor-vault-plus-bot (state up front -> a rule-governed PDA -> driven by a bot) ALL of the above -> crosschain-ops-bot (one operator, both chains)
+     prompt: Left-to-right accretion diagram, dark background, monospace. Small artifact nodes grouped by module, arrows showing each feeding the next, and every branch converging on a single larger node "crosschain-ops-bot" on the right. ledger.py drawn faded/struck-through as "the foil, replaced". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:499px;height:502px;top:-257px;right:-257px;border-radius:43% 40% 42% 60% / 52% 50% 56% 44%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:526px;height:499px;bottom:-294px;left:-294px;border-radius:45% 35% 59% 59% / 58% 53% 65% 39%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { display:flex; align-items:center; gap:0; margin-top:26px; }
+  .chains { flex:1 1 auto; display:flex; flex-direction:column; gap:16px; }
+  .chain { display:flex; align-items:center; gap:9px; }
+  .chip { background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-md);
+    padding:11px 15px; font-family:var(--font-mono); font-weight:700; font-size:16px; color:var(--text-primary); white-space:nowrap; }
+  .chip.foil { border-style:dashed; border-color:var(--stbr-ink-300); color:var(--text-muted);
+    text-decoration:line-through; background:transparent; }
+  .foilnote { font-family:var(--font-body); font-weight:700; font-size:13px; font-style:italic;
+    color:var(--text-muted); margin-left:4px; text-decoration:none; }
+  .miniarr { color:var(--stbr-emerald); font-size:18px; font-weight:900; }
+  .subnote { font-family:var(--font-body); font-size:13px; color:var(--text-secondary); margin-left:6px; line-height:1.25; white-space:normal; }
+  .converge { flex:0 0 84px; align-self:stretch; display:flex; }
+  .converge svg { display:block; width:84px; height:100%; }
+  .capstone { flex:0 0 336px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-xl); padding:34px 30px; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+  .capstone .k { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--stbr-yellow); margin-bottom:14px; }
+  .capstone .name { font-family:var(--font-mono); font-weight:800; font-size:26px; color:var(--text-on-brand); line-height:1.12; }
+  .capstone .sub { font-family:var(--font-body); font-size:17px; color:var(--stbr-cream); margin-top:16px;
+    padding-top:16px; border-top:1px solid var(--border-on-dark); line-height:1.35; }
+  .cap { margin-top:26px; text-align:center; font-family:var(--font-body); font-weight:800; font-size:15px;
+    letter-spacing:.05em; color:var(--stbr-green); }
+</style>
+  <div class="stbr-eyebrow">the toolkit became the bot</div>
+  <h2 class="viz-title" style="font-size:50px;margin:6px 0 0;">every artifact fed the next &mdash; zero throwaways</h2>
+  <div class="dg">
+    <div class="chains">
+      <div class="chain"><span class="chip foil">ledger.py</span><span class="foilnote">the foil, replaced</span></div>
+      <div class="chain"><span class="chip">hashit</span><span class="miniarr">&rarr;</span><span class="chip">keytool</span><span class="subnote">fingerprints &rarr; identity</span></div>
+      <div class="chain"><span class="chip">regtest-chain</span><span class="miniarr">&rarr;</span><span class="chip">rpc-watcher-bot</span><span class="subnote">money with no center &rarr; the plumbing that watches it</span></div>
+      <div class="chain"><span class="chip">evm-amm</span><span class="subnote">a market with no market-maker</span></div>
+      <div class="chain"><span class="chip">first-solana-program</span><span class="miniarr">&rarr;</span><span class="chip">anchor-vault</span><span class="miniarr">&rarr;</span><span class="chip">anchor-vault-plus-bot</span></div>
+      <div class="chain"><span class="subnote" style="margin-left:0">state up front &rarr; a rule-governed PDA &rarr; driven by a bot</span></div>
+    </div>
+    <div class="converge">
+      <svg viewBox="0 0 84 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 8 C50 8 44 50 84 50" stroke="#008b4c" stroke-width="2.4" fill="none" vector-effect="non-scaling-stroke"/>
+        <path d="M0 30 C50 30 44 50 84 50" stroke="#008b4c" stroke-width="2.4" fill="none" vector-effect="non-scaling-stroke"/>
+        <path d="M0 50 C50 50 44 50 84 50" stroke="#008b4c" stroke-width="2.4" fill="none" vector-effect="non-scaling-stroke"/>
+        <path d="M0 70 C50 70 44 50 84 50" stroke="#008b4c" stroke-width="2.4" fill="none" vector-effect="non-scaling-stroke"/>
+        <path d="M0 92 C50 92 44 50 84 50" stroke="#008b4c" stroke-width="2.4" fill="none" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+    <div class="capstone">
+      <div class="k">all of the above &rarr;</div>
+      <div class="name">crosschain-<br>ops-bot</div>
+      <div class="sub">one operator, both chains</div>
+    </div>
+  </div>
+  <div class="cap">every branch converges on the capstone &mdash; nothing built was thrown away</div>
+</div>
+</body></html>

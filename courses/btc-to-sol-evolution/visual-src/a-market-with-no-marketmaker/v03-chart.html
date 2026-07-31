@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- chart: tangent vs secant, why size costs you
+     purpose: make price impact geometric, so "execution is always worse than spot" is a picture, not a slogan
+     data: curve: x*y = k = 1,000,000 (a hyperbola, reserves x across, reserves y up) start point: (x=1000, y=1000); spot price = slope of TANGENT here = 1.0 TKB/TKA your trade: push +100 TKA -> slide to (1100, 909.3389) execution price = slope of the SECANT from (1000,1000) to (1100,909.3389) = 0.9066 bigger trade (+500 TKA) -> slide to (1500, 667.334) -> secant even steeper = 0.6653 takeaway: farther along the curve = steeper secant = worse fill
+     prompt: Line chart, dark background, monospace labels. Draw the hyperbola x*y=1e6 in the first quadrant. Mark the start point (1000,1000); draw the tangent line (label "spot 1.0") and two secants to (1100,909) and (1500,667), each labeled with its slope. Shade the widening gap between tangent and secant as "price impact". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:533px;height:458px;top:-278px;right:-278px;border-radius:48% 41% 59% 60% / 61% 61% 35% 47%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:440px;height:457px;bottom:-227px;left:398px;border-radius:42% 53% 35% 45% / 56% 35% 43% 41%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .wrap { display:flex; gap:44px; margin-top:20px; align-items:center; }
+  .plot { flex:0 0 900px; position:relative; }
+  .ax-y { position:absolute; left:-6px; top:52%; transform:rotate(-90deg); transform-origin:left;
+    font-family:var(--font-mono); font-size:14px; color:var(--text-muted); letter-spacing:.05em; }
+  .ax-x { text-align:center; font-family:var(--font-mono); font-size:14px; color:var(--text-muted);
+    letter-spacing:.05em; margin-top:8px; }
+  .side { flex:1; display:flex; flex-direction:column; gap:16px; justify-content:center; }
+  .leg { border-radius:var(--radius-md); padding:16px 20px; border:2px solid; }
+  .leg .t { font-family:var(--font-body); font-weight:800; font-size:14px; text-transform:uppercase;
+    letter-spacing:.06em; }
+  .leg .v { font-family:var(--font-mono); font-weight:800; font-size:24px; margin-top:4px; }
+  .leg.spot { border-color:rgba(27,35,29,0.22); background:rgba(27,35,29,0.04); }
+  .leg.spot .t, .leg.spot .v { color:var(--text-primary); }
+  .leg.s1 { border-color:rgba(0,139,76,0.34); background:rgba(0,139,76,0.07); }
+  .leg.s1 .t, .leg.s1 .v { color:var(--stbr-emerald); }
+  .leg.s2 { border-color:rgba(240,189,31,0.5); background:rgba(255,210,63,0.16); }
+  .leg.s2 .t, .leg.s2 .v { color:var(--text-primary); }
+  .leg .sub { font-family:var(--font-body); font-size:13px; color:var(--text-muted); margin-top:3px; }
+  .cap { margin-top:18px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-md); padding:18px 26px; font-size:17px; line-height:1.4; }
+  .cap b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">tangent vs secant, why size costs you</div>
+  <h2 class="viz-title">execution is always worse than spot</h2>
+  <div class="wrap">
+    <div class="plot">
+      <svg width="900" height="500" viewBox="0 0 1000 590" font-family="var(--font-mono)">
+        <!-- plot origin offset: axes drawn at left=60, chart box 920x560 starting x=60 y=6 -->
+        <g transform="translate(60,6)">
+          <!-- axes -->
+          <line x1="0" y1="0" x2="0" y2="560" stroke="#b8bdb6" stroke-width="2"/>
+          <line x1="0" y1="560" x2="920" y2="560" stroke="#b8bdb6" stroke-width="2"/>
+          <!-- price-impact wedge: between tangent and secant P0->P2 -->
+          <polygon points="306.7,275.6 710.2,423.4 500.4,382.2" fill="#ffd23f" fill-opacity="0.34"/>
+          <!-- hyperbola x*y = 1,000,000 -->
+          <polyline fill="none" stroke="#008b4c" stroke-width="4" points="0.0,3.2 32.3,46.6 64.6,85.1 96.8,119.4 129.1,150.2 161.4,178.0 193.7,203.2 226.0,226.2 258.2,247.2 290.5,266.5 322.8,284.3 355.1,300.7 387.4,316.0 419.6,330.1 451.9,343.4 484.2,355.7 516.5,367.3 548.8,378.1 581.1,388.3 613.3,397.9 645.6,407.0 677.9,415.6 710.2,423.7 742.5,431.4 774.7,438.7 807.0,445.7 839.3,452.3 871.6,458.6 903.9,464.6 920.0,467.5"/>
+          <!-- tangent at P0 (spot 1.0) -->
+          <line x1="113.0" y1="168.9" x2="500.4" y2="382.2" stroke="#1b231d" stroke-width="2.5" stroke-dasharray="9 6"/>
+          <!-- secant P0 -> P1 -->
+          <line x1="306.7" y1="275.6" x2="387.4" y2="315.8" stroke="#007340" stroke-width="3"/>
+          <!-- secant P0 -> P2 -->
+          <line x1="306.7" y1="275.6" x2="710.2" y2="423.4" stroke="#d9a608" stroke-width="3.5"/>
+          <!-- points -->
+          <circle cx="306.7" cy="275.6" r="9" fill="#1b231d"/>
+          <circle cx="387.4" cy="315.8" r="8" fill="#008b4c"/>
+          <circle cx="710.2" cy="423.4" r="10" fill="#ffd23f" stroke="#d9a608" stroke-width="3"/>
+          <!-- point labels -->
+          <text x="300" y="258" text-anchor="end" fill="#1b231d" font-size="16" font-weight="700">start (1000, 1000)</text>
+          <text x="398" y="311" fill="#008b4c" font-size="15" font-weight="700">(1100, 909.3)</text>
+          <text x="720" y="428" fill="#1b231d" font-size="15" font-weight="700">(1500, 667.3)</text>
+          <!-- line labels -->
+          <text x="126" y="162" fill="#1b231d" font-size="15" font-weight="800">tangent = spot 1.0</text>
+          <text x="512" y="404" fill="#d9a608" font-size="17" font-weight="800">price impact</text>
+        </g>
+      </svg>
+      <div class="ax-x">reserve x (TKA)  &mdash;&mdash;&gt;</div>
+      <div class="ax-y">reserve y (TKB)</div>
+    </div>
+    <div class="side">
+      <div class="leg spot"><div class="t">spot (tangent slope)</div><div class="v">1.0000</div><div class="sub">the price at the start point</div></div>
+      <div class="leg s1"><div class="t">+100 TKA fill (secant)</div><div class="v">0.9066</div><div class="sub">slide to (1100, 909.3)</div></div>
+      <div class="leg s2"><div class="t">+500 TKA fill (secant)</div><div class="v">0.6653</div><div class="sub">slide to (1500, 667.3) &mdash; far steeper</div></div>
+    </div>
+  </div>
+  <div class="cap">Farther along the curve = <b>steeper secant</b> = worse fill. That widening gap between tangent and secant is the price impact.</div>
+</div>
+</body></html>

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "t1",
+    "description": "The file compiles on the build server against anchor-lang 1.1.2",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ a handler named `ping` exists inside #[program], taking Context<Ping> and returning Result<()>",
+    "input": "",
+    "expectedOutput": "true"
+  },
+  {
+    "id": "t3",
+    "description": "Compiles ⇒ `Ping` exists, has no fields, and carries #[derive(Accounts)]",
+    "input": "",
+    "expectedOutput": "true"
+  }
+]

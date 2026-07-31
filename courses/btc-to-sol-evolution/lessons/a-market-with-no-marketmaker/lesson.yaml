@@ -1,0 +1,62 @@
+id: lesson-b2s-a-market-with-no-marketmaker
+slug: a-market-with-no-marketmaker
+title: "A market with no market maker: deploy an AMM and swap against it"
+skills:
+  - account-model
+  - solana-programs
+  - defi
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "A constant-product AMM holds reserves x and y. What must stay true across a swap (ignoring fees), and what does it imply?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "x · y = k stays constant, so draining a reserve to zero would take an infinite amount of the other token — the pool can't be fully emptied"
+            correct: true
+          - id: b
+            label: "x + y = k stays constant, so prices are always 1:1"
+            correct: false
+            feedback: "The invariant is the PRODUCT x·y, not the sum. A sum-based rule would fix a 1:1 price; the product rule is what creates a price that moves with the trade and a pool that can't be drained."
+          - id: c
+            label: "x = y at all times, so the two reserves are always equal"
+            correct: false
+            feedback: "Reserves are only equal at one specific price. The invariant is x·y = k; as one reserve falls the other must rise to keep the product constant, which is what sets the exchange rate."
+        explanation: "The pool defends x·y = k on every trade. Because that curve is a hyperbola asymptotic to both axes, taking the last unit of a reserve would cost an unbounded amount of the other token — so a constant-product pool can be depleted toward, but never to, zero."
+      - id: q2
+        prompt: "Why can't the AMM contract just call a price API at execution time to get a fair price?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Consensus requires deterministic execution — every node must compute the same result, and an external HTTP call would return different values on different nodes. That's the oracle problem"
+            correct: true
+          - id: b
+            label: "API calls are too slow for a blockchain, but they are otherwise allowed"
+            correct: false
+            feedback: "It is not a latency limitation — external calls are forbidden by determinism. If nodes could fetch live data, they would disagree on the outcome and consensus would break."
+          - id: c
+            label: "Smart contracts are not allowed to read any data at all"
+            correct: false
+            feedback: "Contracts read on-chain data freely; that is deterministic. What they cannot do is reach OFF-chain at execution time. The fix is an oracle that writes the off-chain value on-chain first, so the contract just reads storage."
+        explanation: "Determinism is non-negotiable: identical inputs must yield identical state on every validator, so a mid-execution web call — which could return anything — is impossible. Oracles solve it by fetching off-chain, then writing the value on-chain as a normal transaction the contract can deterministically read."
+      - id: q3
+        prompt: "A 0.3% fee (r = 0.997) stays in the pool. What does that do to the invariant k over many swaps?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "k grows — the retained fee means reserves satisfy x·y ≥ k_initial, compounding value for liquidity providers"
+            correct: true
+          - id: b
+            label: "k stays exactly constant forever; fees go to the protocol, not the pool"
+            correct: false
+            feedback: "With a constant-product AMM the swap fee is left IN the pool, so the product ratchets up after each trade. LPs earn precisely because k drifts above its starting value."
+          - id: c
+            label: "k shrinks as fees are paid out to traders"
+            correct: false
+            feedback: "Traders pay the fee; they do not receive it. It accrues to the pool, so k rises rather than falls — that growth is the LP return."
+        explanation: "Because the 0.3% fee is retained in the reserves, each swap nudges x·y above its previous value: the true relation is x·y ≥ k_initial and k compounds. That accumulation is how liquidity providers are paid for supplying the pool."

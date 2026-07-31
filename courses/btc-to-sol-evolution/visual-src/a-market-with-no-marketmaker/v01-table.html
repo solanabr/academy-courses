@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: how the pool mints your LP shares
+     purpose: separate the first-deposit rule (geometric mean) from every deposit after it (proportional, minimum of the two ratios)
+     data: | deposit | shares minted | why this rule | | --- | --- | --- | | first, into an empty pool | sqrt(amount0 · amount1) | the geometric mean sets an opening price independent of which token you value the pool in | | every deposit after | totalShares · min(Δx / reserve0, Δy / reserve1) | the minimum ignores any excess off the live ratio, you donate it and get no shares for it | | your run: seed 1000 + 1000 | sqrt(1000 · 1000) = 1000 | exactly the `LP shares: 1000` receipt you saw |
+     prompt: Three-row table, dark background, monospace, emphasized header row. Shade the first-deposit row a faint accent to mark it as the special case, and render both formulas in code-styled cells. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:514px;height:461px;right:-291px;top:298px;border-radius:48% 65% 36% 35% / 57% 63% 39% 44%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:505px;height:478px;bottom:-296px;left:-296px;border-radius:57% 49% 53% 35% / 62% 62% 63% 55%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:20px; margin-top:34px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:20px 26px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:24px 26px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.4; }
+  .ct td.dep { font-weight:700; color:var(--text-primary); font-size:20px; }
+  .ct code { font-family:var(--font-mono); font-size:19px; font-weight:700; color:var(--stbr-emerald);
+    background:rgba(0,139,76,0.08); padding:7px 12px; border-radius:var(--radius-sm); display:inline-block; }
+  .ct code sub { font-size:14px; }
+  .ct tr.first td { background:rgba(255,210,63,0.14); border-bottom-color:rgba(240,189,31,0.35); }
+  .ct tr.first td.dep { color:var(--stbr-dark); }
+  .ct tr.first code { color:var(--stbr-dark); background:rgba(255,210,63,0.30); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .pill { display:inline-block; background:var(--stbr-yellow); color:var(--text-on-accent);
+    font-family:var(--font-body); font-size:12px; font-weight:800; padding:5px 12px;
+    border-radius:var(--radius-pill); margin-left:12px; vertical-align:middle; letter-spacing:.03em; }
+  .run code { color:var(--stbr-dark); background:transparent; padding:0; font-size:20px; }
+  .run .r { color:var(--stbr-emerald); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">how the pool mints your LP shares</div>
+  <h2 class="viz-title">first deposit sets the price; the rest just follow</h2>
+  <table class="ct">
+    <tr><th style="width:26%">deposit</th><th style="width:32%">shares minted</th><th>why this rule</th></tr>
+    <tr class="first">
+      <td class="dep">first, into an empty pool<span class="pill">special case</span></td>
+      <td><code>&radic;(amount<sub>0</sub> &middot; amount<sub>1</sub>)</code></td>
+      <td>the geometric mean sets an opening price independent of which token you value the pool in</td>
+    </tr>
+    <tr>
+      <td class="dep">every deposit after</td>
+      <td><code>totalShares &middot; min(&Delta;x/reserve<sub>0</sub>, &Delta;y/reserve<sub>1</sub>)</code></td>
+      <td>the minimum ignores any excess off the live ratio &mdash; you donate it and get no shares for it</td>
+    </tr>
+    <tr class="run">
+      <td class="dep">your run: seed 1000 + 1000</td>
+      <td><code>&radic;(1000 &middot; 1000) = <span class="r">1000</span></code></td>
+      <td>exactly the <code style="font-size:18px;">LP shares: 1000</code> receipt you saw</td>
+    </tr>
+  </table>
+</div>
+</body></html>

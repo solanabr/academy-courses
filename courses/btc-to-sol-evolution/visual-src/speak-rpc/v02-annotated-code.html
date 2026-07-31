@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the JSON-RPC envelope, field by field
+     purpose: teach the reader to read the request, the success response, and the error response so a wrapper's behavior is never a mystery
+     data: REQUEST (what you send): { "jsonrpc": "1.0", # protocol version bitcoind speaks "id": "demo", # your label; echoed back so you can match replies "method": "getblockchaininfo", # the function you want run "params": [] # a POSITIONAL array of arguments (order matters) } SUCCESS RESPONSE: { "result": { "chain": "regtest"... }, # the payload you asked for "error": null, # null means it worked "id": "demo" # matches the id you sent } ERROR RESPONSE: { "result": null, # nothing to return "error": { "code": -8, "message": "..." }, # the node ran, and refused "id": "demo" }
+     prompt: Annotated-code panel, dark background, monospace. Three stacked JSON blocks labeled REQUEST, SUCCESS RESPONSE, ERROR RESPONSE. Highlight "params" in the request and "error" in both responses in a warm accent. Draw a thin line linking the "id" field across all three. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:391px;height:422px;bottom:-240px;left:589px;border-radius:60% 37% 47% 44% / 41% 40% 43% 53%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { position:relative; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:34px 40px; margin-top:26px; }
+  .cols { display:flex; gap:34px; }
+  .blk { flex:1; }
+  .blk .cap { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:14px; }
+  .blk .code { font-family:var(--font-mono); font-size:15.5px; line-height:1.85;
+    color:var(--stbr-cream); white-space:nowrap; }
+  .blk .code .p { color:var(--stbr-ink-500); }
+  .blk .key { color:var(--stbr-ink-300); }
+  .blk .str { color:var(--stbr-cream); }
+  .hl { background:var(--stbr-yellow); color:var(--stbr-dark); border-radius:5px; padding:1px 7px; font-weight:700; }
+  .idline { position:relative; }
+  .iddot { display:inline-block; width:10px; height:10px; border-radius:50%;
+    background:var(--stbr-emerald); vertical-align:middle; margin-left:8px; }
+  .idbar { display:flex; align-items:center; gap:14px; margin-top:24px;
+    border-top:1px solid var(--border-on-dark); padding-top:20px; }
+  .idbar .chip { font-family:var(--font-body); font-weight:800; font-size:13px;
+    background:var(--stbr-emerald); color:var(--text-on-brand); padding:6px 14px; border-radius:var(--radius-pill); }
+  .idbar .txt { font-size:16px; color:var(--stbr-ink-300); }
+  .idbar .txt code { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; }
+</style>
+  <div class="stbr-eyebrow">the json-rpc envelope, field by field</div>
+  <h2 class="viz-title">read the request, read both replies</h2>
+  <div class="panel">
+    <div class="cols">
+      <div class="blk">
+        <div class="cap">request &mdash; what you send</div>
+        <div class="code">{<br>
+          &nbsp;&nbsp;<span class="key">"jsonrpc"</span>: <span class="str">"1.0"</span>,<span class="p"> &nbsp;# protocol version</span><br>
+          &nbsp;&nbsp;<span class="idline"><span class="key">"id"</span>: <span class="str">"demo"</span>,<span class="iddot"></span></span><span class="p"> # echoed back</span><br>
+          &nbsp;&nbsp;<span class="key">"method"</span>: <span class="str">"getblockchaininfo"</span>,<br>
+          &nbsp;&nbsp;<span class="key">"params"</span>: <span class="hl">[]</span><span class="p"> &nbsp;# positional array</span><br>
+        }</div>
+      </div>
+      <div class="blk">
+        <div class="cap">success response</div>
+        <div class="code">{<br>
+          &nbsp;&nbsp;<span class="key">"result"</span>: { <span class="str">"chain":"regtest"</span> &hellip; },<br>
+          &nbsp;&nbsp;<span class="key">"error"</span>: <span class="hl">null</span>,<span class="p"> &nbsp;# null means it worked</span><br>
+          &nbsp;&nbsp;<span class="idline"><span class="key">"id"</span>: <span class="str">"demo"</span><span class="iddot"></span></span><span class="p"> &nbsp;# matches what you sent</span><br>
+        }</div>
+      </div>
+      <div class="blk">
+        <div class="cap">error response</div>
+        <div class="code">{<br>
+          &nbsp;&nbsp;<span class="key">"result"</span>: null,<span class="p"> &nbsp;# nothing to return</span><br>
+          &nbsp;&nbsp;<span class="key">"error"</span>: <span class="hl">{ "code": -8, &hellip; }</span>,<span class="p"> # node refused</span><br>
+          &nbsp;&nbsp;<span class="idline"><span class="key">"id"</span>: <span class="str">"demo"</span><span class="iddot"></span></span><br>
+        }</div>
+      </div>
+    </div>
+    <div class="idbar">
+      <span class="chip">the thread</span>
+      <span class="txt">every reply carries back the same <code>"id"</code> you sent &mdash; that is how you match a response to its request.</span>
+    </div>
+  </div>
+</div>
+</body></html>

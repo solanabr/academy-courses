@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: what you get, and what each thing costs
+     purpose: certify that today's four wins are the same four bills
+     data: | what you get | what it costs | | --- | --- | | immutable code | lose the keypair/authority and it is frozen forever | | public, readable bytecode | anyone reads every byte; no security by obscurity | | stored on-chain | real rent: a per-byte reserve locked for the account's life | | stateless program | every mutable value needs its own account, created + passed in |
+     prompt: Two-column table, dark background, monospace headers "what you get / what it costs". Four rows as listed. Emphasize the header row; right-align nothing. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:526px;height:441px;right:-338px;top:241px;border-radius:45% 58% 46% 62% / 61% 55% 44% 41%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:411px;height:467px;bottom:-250px;left:625px;border-radius:42% 43% 44% 51% / 52% 42% 60% 42%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:21px; margin-top:30px; }
+  .ct th { text-align:left; padding:20px 30px; font-family:var(--font-display); font-weight:900;
+    font-size:16px; letter-spacing:.08em; text-transform:uppercase; }
+  .ct th.get { background:var(--surface-brand); color:var(--text-on-brand); width:42%;
+    border-top-left-radius:var(--radius-md); }
+  .ct th.cost { background:var(--surface-inverse); color:var(--text-on-dark);
+    border-top-right-radius:var(--radius-md); }
+  .ct td { padding:26px 30px; border-bottom:2px solid var(--border-subtle); vertical-align:middle; line-height:1.4; }
+  .ct td.get { background:rgba(0,139,76,0.07); color:var(--text-primary); font-weight:600; font-size:21px; }
+  .ct td.get code { font-family:var(--font-mono); font-weight:800; color:var(--stbr-emerald); }
+  .ct td.cost { background:var(--surface-card); color:var(--text-secondary); }
+  .ct td.cost b { color:var(--text-primary); }
+  .ct tr:last-child td.get { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td.cost { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">today's four wins are four bills</div>
+  <h2 class="viz-title">what you get, and what it costs</h2>
+  <table class="ct">
+    <tr><th class="get">what you get</th><th class="cost">what it costs</th></tr>
+    <tr><td class="get">immutable code</td><td class="cost">lose the keypair/authority and it is <b>frozen forever</b></td></tr>
+    <tr><td class="get">public, readable bytecode</td><td class="cost">anyone reads every byte; <b>no security by obscurity</b></td></tr>
+    <tr><td class="get">stored on-chain</td><td class="cost">real rent: a <b>per-byte reserve</b> locked for the account's life</td></tr>
+    <tr><td class="get">stateless program</td><td class="cost">every mutable value needs <b>its own account</b>, created + passed in</td></tr>
+  </table>
+</div>
+</body></html>

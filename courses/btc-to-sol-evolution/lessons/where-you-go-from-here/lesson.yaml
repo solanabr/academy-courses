@@ -1,0 +1,44 @@
+id: lesson-b2s-where-you-go-from-here
+slug: where-you-go-from-here
+title: "Cut the net: where you go from here"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You run `anchor build --verifiable` / `solana-verify`. What does that let anyone confirm?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "That the bytecode deployed on-chain was built from the public source you point them at — a reproducible build"
+            correct: true
+          - id: b
+            label: "That your program has no security bugs"
+            correct: false
+            feedback: "A verifiable build proves provenance, not safety. It shows the on-chain binary matches the given source; it says nothing about whether that source is bug-free — that needs audits and tests."
+          - id: c
+            label: "That the program is automatically audited by the Solana Foundation"
+            correct: false
+            feedback: "Verification is a reproducibility check you run, not an audit anyone performs. It links deployed bytecode to source; audits (e.g. via the anza-xyz/security-audits repo) are a separate, human process."
+        explanation: "A verifiable build recompiles the source in a pinned environment and checks the hash against the deployed bytecode, so third parties can confirm the running program really is the published code. It is about provenance and trust, not a guarantee of correctness or security."
+      - id: q2
+        prompt: "Where would you go to study real Solana program vulnerabilities before writing production code?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Curated attack collections and audit write-ups such as sealevel-attacks and Neodyme's research"
+            correct: true
+          - id: b
+            label: "Only the official Anchor docs — third-party security material is unreliable"
+            correct: false
+            feedback: "The official docs teach the framework, not the exploit catalogue. Resources like sealevel-attacks and Neodyme exist specifically to show the account-confusion, signer, and arithmetic bugs that hit real programs."
+          - id: c
+            label: "There is no public material on Solana exploits"
+            correct: false
+            feedback: "There is a substantial body of it — sealevel-attacks, Neodyme's blog, and the anza-xyz/security-audits repo among them. Studying known failure classes is how you avoid repeating them."
+        explanation: "The fastest way to write safer programs is to study how others were broken: sealevel-attacks catalogues the classic account/signer/CPI bugs, Neodyme publishes deep write-ups, and the Foundation-commissioned reports live in anza-xyz/security-audits. Learn the failure classes, then defend against them."

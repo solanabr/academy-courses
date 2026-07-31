@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: one tiny swap, one large swap, same pool
+     purpose: certify the solo result, execution price degrades with size against the quoted spot
+     data: pool before both: x = 1000 TKA, y = 1000 TKB -> spot price y/x = 1.0 TKB/TKA --- tiny swap: in 1 TKA amountOut = 1000*0.997*1 / (1000 + 0.997*1) = 0.99601 TKB execution price = 0.99601 / 1 = 0.99601 -> ~0.4% worse than spot --- large swap: in 500 TKA amountOut = 1000*0.997*500 / (1000 + 0.997*500) = 332.666 TKB execution price = 332.666 / 500 = 0.66533 -> ~33.5% worse than spot --- same pool, same spot 1.0; the size is the whole difference
+     prompt: Two-column comparison card, dark background, monospace. Left column "tiny (1 TKA)", right column "large (500 TKA)", rows: amountOut, execution price, gap vs spot. A shared header shows spot = 1.0. Tint the large-swap gap (-33.5%) red, the tiny gap (-0.4%) neutral. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:511px;height:418px;top:-221px;right:-221px;border-radius:60% 58% 63% 55% / 56% 59% 44% 49%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:487px;height:424px;left:-242px;top:321px;border-radius:45% 59% 65% 39% / 58% 47% 48% 56%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .pool { margin-top:24px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:20px 30px; display:flex; align-items:center; gap:28px; }
+  .pool .tag { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--stbr-yellow); }
+  .pool .r { font-family:var(--font-mono); font-size:19px; font-weight:700; color:var(--stbr-cream); }
+  .pool .spot { margin-left:auto; font-family:var(--font-mono); font-size:19px; color:var(--stbr-cream); }
+  .pool .spot b { color:var(--stbr-yellow); font-weight:800; }
+  .cols { display:flex; gap:24px; margin-top:20px; align-items:stretch; }
+  .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; }
+  .col.tiny { border-color:rgba(0,139,76,0.34); background:rgba(0,139,76,0.05); }
+  .col.large { border-color:rgba(192,57,43,0.30); background:rgba(192,57,43,0.05); }
+  .col h3 { margin:0; padding:20px 28px; font-size:20px; font-weight:900; letter-spacing:.02em;
+    color:var(--text-on-brand); font-family:var(--font-mono); }
+  .col.tiny h3 { background:var(--surface-brand); }
+  .col.large h3 { background:#c0392b; color:#fff; }
+  .col .row { padding:20px 28px; border-top:1.5px solid var(--border-subtle); }
+  .col .k { font-family:var(--font-body); font-weight:700; font-size:14px; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--text-muted); }
+  .col .v { font-family:var(--font-mono); font-weight:800; font-size:22px; color:var(--text-primary); margin-top:6px; }
+  .col .form { font-family:var(--font-mono); font-size:14px; color:var(--text-secondary); margin-top:6px; }
+  .col .gap { font-family:var(--font-mono); font-weight:900; font-size:34px; }
+  .col.tiny .gap { color:var(--stbr-emerald); }
+  .col.large .gap { color:#c0392b; }
+  .verdict { margin-top:22px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 32px; font-size:21px; font-weight:600; line-height:1.4; }
+  .verdict b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">one tiny swap, one large swap, same pool</div>
+  <h2 class="viz-title">execution price degrades with size</h2>
+  <div class="pool">
+    <span class="tag">pool before both</span>
+    <span class="r">x = 1000 TKA &nbsp;&middot;&nbsp; y = 1000 TKB</span>
+    <span class="spot">spot y/x = <b>1.0</b> TKB/TKA</span>
+  </div>
+  <div class="cols">
+    <div class="col tiny">
+      <h3>tiny &mdash; in 1 TKA</h3>
+      <div class="row"><div class="k">amountOut</div><div class="v">0.99601 TKB</div><div class="form">1000&middot;0.997&middot;1 / (1000 + 0.997&middot;1)</div></div>
+      <div class="row"><div class="k">execution price</div><div class="v">0.99601</div><div class="form">0.99601 / 1</div></div>
+      <div class="row"><div class="k">gap vs spot</div><div class="gap">&minus;0.4%</div></div>
+    </div>
+    <div class="col large">
+      <h3>large &mdash; in 500 TKA</h3>
+      <div class="row"><div class="k">amountOut</div><div class="v">332.666 TKB</div><div class="form">1000&middot;0.997&middot;500 / (1000 + 0.997&middot;500)</div></div>
+      <div class="row"><div class="k">execution price</div><div class="v">0.66533</div><div class="form">332.666 / 500</div></div>
+      <div class="row"><div class="k">gap vs spot</div><div class="gap">&minus;33.5%</div></div>
+    </div>
+  </div>
+  <div class="verdict">Same pool, same spot <b>1.0</b> &mdash; the size is the whole difference.</div>
+</div>
+</body></html>

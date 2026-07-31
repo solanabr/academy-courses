@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: the sign / verify loop
+     purpose: show the two halves doing two different jobs, and exactly which inputs each side gets
+     data: SIGN side (you, holding the secret): message bytes ---+ +--> [ private key ] --> 64-byte signature (fingerprint the message, lock the fingerprint) --- hand over: message + signature + public key (NEVER the private key) ---> VERIFY side (any stranger): message bytes ---+ signature ---+--> [ public key ] --> "Verified" / "Failure" public key ---+ (fingerprint the message, check the lock against it) change any message byte on the verify side -> fingerprint differs -> Failure
+     prompt: Left-to-right flowchart, dark background, monospace. Left cluster labeled "SIGN" feeds message + private key into a signature. A wide arrow across the middle carries "message + signature + public key" to the right cluster labeled "VERIFY", which branches to green "Verified" and red "Failure". Draw the private key boxed in red on the left only, with a lock icon, and a note "never crosses the arrow". No decorative icons beyond the lock.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:451px;height:418px;right:-246px;top:159px;border-radius:39% 43% 37% 38% / 36% 51% 60% 51%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:504px;height:476px;bottom:-237px;left:584px;border-radius:52% 61% 54% 63% / 43% 38% 41% 56%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { display:flex; align-items:stretch; gap:0; margin-top:28px; }
+  .cluster { border-radius:var(--radius-xl); padding:26px 26px 24px; border:2px solid var(--border-subtle); background:var(--surface-card); }
+  .cluster .ch { font-family:var(--font-display); font-weight:900; font-size:20px; letter-spacing:.08em;
+    text-transform:uppercase; margin-bottom:4px; }
+  .cluster .cs { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-bottom:18px; }
+  .sign { flex:0 0 470px; }
+  .sign .ch { color:var(--stbr-emerald); }
+  .verify { flex:1; }
+  .verify .ch { color:var(--stbr-emerald); }
+  .box { border-radius:var(--radius-md); padding:14px 18px; font-family:var(--font-mono); font-size:16px;
+    font-weight:700; color:var(--text-primary); background:var(--surface-paper); border:2px solid var(--border-subtle); }
+  .inrow { display:flex; align-items:center; gap:14px; }
+  .instack { display:flex; flex-direction:column; gap:10px; flex:1; }
+  .miniarr { color:var(--stbr-dark); font-size:22px; font-weight:900; flex:0 0 auto; }
+  .keybox { background:rgba(192,57,43,0.08); border:2px solid #c0392b; color:#a5342a;
+    border-radius:var(--radius-md); padding:14px 18px; display:flex; align-items:center; gap:12px; }
+  .keybox .lk { font-size:22px; }
+  .keybox .kt { font-family:var(--font-mono); font-weight:800; font-size:16px; }
+  .result { border-radius:var(--radius-md); padding:14px 18px; font-family:var(--font-mono);
+    font-weight:800; font-size:18px; text-align:center; margin-top:12px; }
+  .sig { background:var(--surface-inverse); border-color:var(--surface-inverse); color:var(--stbr-yellow); }
+  /* the crossing arrow: a self-contained inline SVG (in-flow, cannot escape the
+     bridge) draws the horizontal line + arrowhead; the payload pill sits ON the
+     line via a negative top margin; the note sits directly beneath. */
+  .bridge { flex:0 0 240px; align-self:center; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; }
+  .bridge .arrow { display:block; width:240px; height:20px; }
+  .bridge .payload { margin-top:-26px; position:relative; z-index:2;
+    font-family:var(--font-mono); font-weight:800; font-size:14px; color:var(--text-primary);
+    background:var(--surface-page); border:2px solid var(--stbr-emerald); border-radius:var(--radius-pill);
+    padding:8px 14px; text-align:center; line-height:1.25; }
+  .bridge .never { margin-top:14px; font-family:var(--font-body); font-weight:800; font-size:13px;
+    color:#a5342a; text-align:center; line-height:1.3; }
+  .branch { display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .out { border-radius:var(--radius-md); padding:16px 22px; font-family:var(--font-mono); font-weight:900;
+    font-size:19px; display:flex; align-items:center; gap:12px; }
+  .out.ok { background:rgba(0,139,76,0.11); border:2px solid rgba(0,139,76,0.4); color:var(--stbr-emerald); }
+  .out.bad { background:rgba(192,57,43,0.09); border:2px solid rgba(192,57,43,0.35); color:#a5342a; }
+  .out .m { font-size:22px; }
+  .vbody { display:flex; gap:22px; align-items:center; }
+  .vfeed { flex:1; display:flex; flex-direction:column; gap:10px; }
+  .procnote { font-family:var(--font-body); font-size:13.5px; color:var(--text-muted); margin-top:10px; line-height:1.35; }
+  .tamper { font-family:var(--font-body); font-size:13.5px; font-weight:700; color:#a5342a; margin-top:14px; line-height:1.35; }
+</style>
+  <div class="stbr-eyebrow">the sign / verify loop</div>
+  <h2 class="viz-title">two halves, two jobs, one key never crosses</h2>
+  <div class="fc">
+    <div class="cluster sign">
+      <div class="ch">sign</div>
+      <div class="cs">you, holding the secret</div>
+      <div class="inrow">
+        <div class="instack">
+          <div class="box">message bytes</div>
+          <div class="keybox"><span class="lk">&#128274;</span><span class="kt">private key</span></div>
+        </div>
+        <span class="miniarr">&rarr;</span>
+        <div class="result sig" style="margin-top:0;flex:0 0 150px;">64-byte<br>signature</div>
+      </div>
+      <div class="procnote">Fingerprint the message, lock the fingerprint. The private key stays here &mdash; it is never handed over.</div>
+    </div>
+
+    <div class="bridge">
+      <svg class="arrow" viewBox="0 0 240 20" preserveAspectRatio="none" aria-hidden="true">
+        <line x1="4" y1="10" x2="224" y2="10" stroke="#008b4c" stroke-width="4"/>
+        <polygon points="238,10 222,18 222,2" fill="#008b4c"/>
+      </svg>
+      <div class="payload">message<br>+ signature<br>+ public key</div>
+      <div class="never">the private key never crosses</div>
+    </div>
+
+    <div class="cluster verify">
+      <div class="ch">verify</div>
+      <div class="cs">any stranger</div>
+      <div class="vbody">
+        <div class="vfeed">
+          <div class="box">message bytes</div>
+          <div class="box">signature</div>
+          <div class="box" style="color:var(--stbr-emerald);border-color:rgba(0,139,76,0.4);background:rgba(0,139,76,0.06);">public key</div>
+        </div>
+        <span class="miniarr">&rarr;</span>
+        <div class="branch">
+          <div class="out ok"><span class="m">&#10003;</span> Verified</div>
+          <div class="out bad"><span class="m">&#10007;</span> Failure</div>
+        </div>
+      </div>
+      <div class="tamper">Change any message byte &rarr; the fingerprint differs &rarr; Failure.</div>
+    </div>
+  </div>
+</div>
+</body></html>

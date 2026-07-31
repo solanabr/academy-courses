@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: the trapdoor between the two keys
+     purpose: certify that handing out the public key leaks nothing, the link runs one way only
+     data: private key (32 bytes, secret) | easy: one fixed computation v public key (32 bytes, published freely) attempt to run it backward: public key ---X---> private key infeasible: recovering it is the elliptic-curve discrete-log problem (best known attack ~= 2^128 security; computationally infeasible, NOT the same as brute-forcing a hash preimage)
+     prompt: Vertical diagram, dark background, monospace. A downward green arrow labeled "easy" from a red "private key" box to a green "public key" box. Below, a separate upward arrow drawn dashed and crossed out in red, labeled "infeasible". Caption: "trapdoor: one way only". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:510px;height:463px;top:-264px;right:-264px;border-radius:49% 49% 41% 56% / 45% 62% 64% 36%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:553px;height:436px;left:-332px;top:284px;border-radius:44% 65% 45% 46% / 47% 49% 38% 61%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { display:flex; align-items:stretch; gap:56px; margin-top:36px; }
+  .stack { flex:0 0 540px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .kbox { width:100%; border-radius:var(--radius-lg); padding:26px 32px; text-align:center; border:2px solid; }
+  .kbox.priv { background:rgba(192,57,43,0.07); border-color:rgba(192,57,43,0.32); }
+  .kbox.pub { background:rgba(0,139,76,0.08); border-color:rgba(0,139,76,0.36); }
+  .kbox .kt { font-family:var(--font-mono); font-weight:900; font-size:26px; }
+  .kbox.priv .kt { color:#a5342a; }
+  .kbox.pub .kt { color:var(--stbr-emerald); }
+  .kbox .ks { font-family:var(--font-body); font-size:16px; color:var(--text-muted); margin-top:8px; }
+  .arrows { position:relative; height:158px; width:100%; display:flex; align-items:center; justify-content:center; }
+  .flab { position:absolute; font-family:var(--font-body); font-weight:800; font-size:15px;
+    padding:6px 15px; border-radius:var(--radius-pill); letter-spacing:.03em; white-space:nowrap; }
+  .flab.easy { left:calc(50% + 40px); top:32px; background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .flab.infz { right:calc(50% + 40px); top:92px; background:#c0392b; color:#fff; }
+  .note { flex:1; background:var(--surface-inverse); border-radius:var(--radius-lg); padding:32px 36px; color:var(--text-on-dark); display:flex; flex-direction:column; justify-content:center; }
+  .note .cap { font-family:var(--font-display); font-weight:900; font-size:32px; color:var(--stbr-yellow); line-height:1.08; }
+  .note .body { font-size:18px; color:var(--stbr-ink-300); margin:16px 0 0; line-height:1.5; }
+  .note .body + .body { margin-top:14px; padding-top:14px; border-top:1px solid var(--border-on-dark); }
+  .note .body b { color:var(--stbr-cream); }
+  .note .sec { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the trapdoor between the two keys</div>
+  <h2 class="viz-title">one way only</h2>
+  <div class="dg">
+    <div class="stack">
+      <div class="kbox priv"><div class="kt">private key</div><div class="ks">32 bytes, secret</div></div>
+      <div class="arrows">
+        <svg width="90" height="158" viewBox="0 0 90 158">
+          <!-- easy: down, solid emerald (left lane) -->
+          <line x1="30" y1="6" x2="30" y2="132" stroke="#008b4c" stroke-width="4"/>
+          <polygon points="30,150 21,130 39,130" fill="#008b4c"/>
+          <!-- infeasible: up, dashed red, crossed out (right lane) -->
+          <line x1="60" y1="150" x2="60" y2="26" stroke="#c0392b" stroke-width="3" stroke-dasharray="8 7"/>
+          <polygon points="60,8 51,28 69,28" fill="#c0392b"/>
+          <line x1="46" y1="102" x2="74" y2="74" stroke="#c0392b" stroke-width="4.5"/>
+          <line x1="46" y1="74" x2="74" y2="102" stroke="#c0392b" stroke-width="4.5"/>
+        </svg>
+        <span class="flab easy">easy: one fixed computation</span>
+        <span class="flab infz">infeasible</span>
+      </div>
+      <div class="kbox pub"><div class="kt">public key</div><div class="ks">32 bytes, published freely</div></div>
+    </div>
+    <div class="note">
+      <div class="cap">trapdoor:<br>one way only</div>
+      <div class="body">Deriving the public key is <b>one fixed computation</b> down. Running it <b>backward</b> &mdash; recovering the private key from the public one &mdash; is the elliptic-curve discrete-log problem.</div>
+      <div class="body">Best known attack <span class="sec">&asymp; 2<sup>128</sup></span> security: computationally infeasible &mdash; <b>not</b> the same as brute-forcing a hash preimage.</div>
+    </div>
+  </div>
+</div>
+</body></html>

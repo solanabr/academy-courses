@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the swap that priced you, line by line
+     purpose: certify that amountOut is exactly the constant-product formula with the 997/1000 fee, not a lookup
+     data: function swap(address _tokenIn, uint256 _amountIn) external returns (uint256 amountOut) { bool isToken0 = _tokenIn == address(token0); (uint256 x, uint256 y) = isToken0 // x = reserveIn, y = reserveOut ? (reserve0, reserve1) : (reserve1, reserve0); uint256 rDx = (_amountIn * 997) / 1000; // r*Dx: keep 997 of every 1000 in amountOut = (y * rDx) / (x + rDx); // Dy = y*r*Dx / (x + r*Dx) // move tokens, then update reserves so x*y never shrinks }
+     prompt: Monospace annotated-code panel, dark background. Render the lines as Solidity. Highlight `(_amountIn * 997) / 1000` in a warm accent with a callout "the 0.3% fee, in three digits". Draw a bracket from the amountOut line to a side note "y*r*dx / (x + r*dx), the whole quote". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:558px;height:548px;top:-321px;right:-321px;border-radius:36% 63% 42% 56% / 40% 49% 36% 39%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:562px;height:499px;bottom:-276px;left:-276px;border-radius:56% 44% 65% 50% / 60% 41% 38% 48%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .code { background:var(--surface-inverse); border-radius:var(--radius-xl); padding:38px 44px;
+    font-family:var(--font-mono); font-size:20px; line-height:1.85; color:var(--text-on-dark); margin-top:26px; }
+  .code .ln { white-space:pre; }
+  .kw { color:#7fd6a3; }
+  .ty { color:var(--stbr-yellow); }
+  .cm { color:var(--stbr-ink-500); }
+  .fn { color:var(--stbr-cream); }
+  .code .hl { background:var(--stbr-yellow); color:var(--stbr-dark); font-weight:800;
+    padding:2px 6px; border-radius:6px; }
+  .row { display:flex; align-items:center; gap:20px; }
+  .row .grow { flex:1; }
+  .chip { flex:0 0 auto; font-family:var(--font-body); font-weight:800; font-size:14px;
+    padding:8px 15px; border-radius:var(--radius-pill); white-space:nowrap; }
+  .chip.acc { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .chip.br { background:var(--stbr-emerald); color:var(--text-on-brand);
+    border-radius:var(--radius-md); text-transform:none; }
+  .brk { border-left:3px solid var(--stbr-emerald); margin-left:2px; padding-left:16px; }
+</style>
+  <div class="stbr-eyebrow">the swap that priced you, line by line</div>
+  <h2 class="viz-title">amountOut is the formula, not a lookup</h2>
+  <div class="code">
+    <div class="ln"><span class="kw">function</span> <span class="fn">swap</span>(<span class="ty">address</span> _tokenIn, <span class="ty">uint256</span> _amountIn) <span class="kw">external returns</span> (<span class="ty">uint256</span> amountOut) {</div>
+    <div class="ln">    <span class="ty">bool</span> isToken0 = _tokenIn == <span class="fn">address</span>(token0);</div>
+    <div class="ln">    (<span class="ty">uint256</span> x, <span class="ty">uint256</span> y) = isToken0   <span class="cm">// x = reserveIn, y = reserveOut</span></div>
+    <div class="ln">        ? (reserve0, reserve1) : (reserve1, reserve0);</div>
+    <div class="row">
+      <div class="ln grow">    <span class="ty">uint256</span> rDx = <span class="hl">(_amountIn * 997) / 1000</span>;</div>
+      <div class="chip acc">the 0.3% fee, in three digits</div>
+    </div>
+    <div class="row">
+      <div class="ln grow brk">    amountOut = (y * rDx) / (x + rDx);</div>
+      <div class="chip br">Dy = y&middot;r&middot;Dx / (x + r&middot;Dx) &mdash; the whole quote</div>
+    </div>
+    <div class="ln">    <span class="cm">// move tokens, then update reserves so x*y never shrinks</span></div>
+    <div class="ln">}</div>
+  </div>
+</div>
+</body></html>

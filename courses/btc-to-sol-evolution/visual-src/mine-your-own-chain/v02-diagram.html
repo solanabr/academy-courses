@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: a block points back with a hash, the chain from lesson 1, one level up
+     purpose: certify that previousblockhash is the same hash chain the reader already built
+     data: block 0 (genesis) hash: 0f9188f1...2206 (identical on every regtest node) block 1 { previousblockhash: 0f9188f1...2206, merkleroot: <tx digest>, tx: [coinbase] } block 2 { previousblockhash: <block 1 hash>, merkleroot: <tx digest>, tx: [coinbase] } ... block 101 { previousblockhash: <block 100 hash>... } <- the tip edit any old block -> its hash changes -> the next block's previousblockhash no longer matches -> every seal after it breaks
+     prompt: Left-to-right diagram, dark theme, monospace. Block boxes 0,1,2...,101 linked by arrows drawn from each block's "previousblockhash" field back to the prior block. A red pencil on block 1 with a red cascade breaking arrows 2..101. Callout on block 0: "genesis, hardcoded, its 50 BTC unspendable". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:580px;height:482px;top:-290px;right:-290px;border-radius:36% 57% 53% 42% / 63% 37% 43% 45%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .chain { margin-top:64px; display:flex; align-items:stretch; justify-content:center; }
+  .blk { position:relative; flex:0 0 210px; background:var(--surface-card);
+    border:2px solid var(--border-subtle); border-radius:var(--radius-lg); padding:18px 20px 20px; }
+  .blk.gen { border-color:var(--stbr-emerald); }
+  .blk.edited { border:2px solid #c0392b; background:rgba(192,57,43,0.06); }
+  .blk .h { font-family:var(--font-display); font-weight:900; font-size:16px;
+    text-transform:uppercase; letter-spacing:.06em; color:var(--stbr-emerald); }
+  .blk.edited .h { color:#c0392b; }
+  .blk .field { font-family:var(--font-mono); font-size:13px; color:var(--text-secondary);
+    margin-top:12px; line-height:1.45; }
+  .blk .field .lbl { color:var(--text-muted); }
+  .blk .field .v { color:var(--text-primary); font-weight:700; }
+  .arr { position:relative; flex:0 0 60px; align-self:center; height:3px; background:var(--stbr-dark); }
+  .arr::before { content:""; position:absolute; left:-2px; top:-4px;
+    border-top:6px solid transparent; border-bottom:6px solid transparent;
+    border-right:9px solid var(--stbr-dark); }
+  .arr.broken { background:repeating-linear-gradient(90deg,#c0392b 0 8px,transparent 8px 15px); }
+  .arr.broken::before { border-right-color:#c0392b; }
+  .gap { flex:0 0 34px; align-self:center; text-align:center; font-family:var(--font-mono);
+    font-weight:900; font-size:26px; color:var(--text-muted); }
+  .pencil { position:absolute; top:-38px; left:50%; transform:translateX(-50%);
+    background:#c0392b; color:#fff; font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.05em; text-transform:uppercase; padding:5px 12px; border-radius:var(--radius-pill);
+    white-space:nowrap; }
+  .pencil::after { content:""; position:absolute; left:50%; bottom:-7px; transform:translateX(-50%);
+    border-left:6px solid transparent; border-right:6px solid transparent; border-top:7px solid #c0392b; }
+  .gcall { position:absolute; bottom:-64px; left:0; width:230px;
+    font-family:var(--font-body); font-size:15px; line-height:1.35; color:var(--stbr-emerald); font-weight:700; }
+  .breaklab { position:absolute; top:-40px; left:355px; right:0; text-align:center;
+    color:#c0392b; font-family:var(--font-body); font-weight:800; font-size:16px; letter-spacing:.02em; }
+  .caption { margin-top:96px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:20px; font-weight:500; line-height:1.45; }
+  .caption b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">a block points back with a hash</div>
+  <h2 class="viz-title">the same chain, one level up</h2>
+  <div class="chain">
+    <div class="blk gen">
+      <div class="h">block 0</div>
+      <div class="field"><span class="lbl">hash</span><br><span class="v">0f9188f1&hellip;2206</span></div>
+      <div class="field"><span class="lbl">genesis, hardcoded</span></div>
+      <div class="gcall">genesis &mdash; hardcoded, its 50&nbsp;BTC unspendable</div>
+    </div>
+    <div class="arr"></div>
+    <div class="blk edited">
+      <div class="pencil">&#9998; edit any old block</div>
+      <div class="h">block 1</div>
+      <div class="field"><span class="lbl">prev</span><br><span class="v">0f9188f1&hellip;2206</span></div>
+      <div class="field"><span class="lbl">merkleroot</span> <span class="v">&lt;tx&gt;</span></div>
+    </div>
+    <div class="arr broken"></div>
+    <div class="blk">
+      <div class="h">block 2</div>
+      <div class="field"><span class="lbl">prev</span><br><span class="v">&lt;block 1&gt;</span></div>
+      <div class="field"><span class="lbl">merkleroot</span> <span class="v">&lt;tx&gt;</span></div>
+    </div>
+    <div class="arr broken"></div>
+    <div class="gap">&hellip;</div>
+    <div class="arr broken"></div>
+    <div class="blk">
+      <div class="h">block 101</div>
+      <div class="field"><span class="lbl">prev</span><br><span class="v">&lt;block 100&gt;</span></div>
+      <div class="field"><span class="lbl">the tip</span></div>
+    </div>
+    <div class="breaklab">&#9889; its hash changes &rarr; every prev after it stops matching &rarr; seals 2&hellip;101 break</div>
+  </div>
+  <div class="caption">Each block's <b>previousblockhash</b> is the fingerprint of the one before it. Rewrite an old block and every seal built on top of it fails &mdash; the chain is the hash chain from lesson 1.</div>
+</div>
+</body></html>

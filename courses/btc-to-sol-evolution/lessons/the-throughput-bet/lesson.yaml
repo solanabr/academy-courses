@@ -1,0 +1,61 @@
+id: lesson-b2s-the-throughput-bet
+slug: the-throughput-bet
+title: "The throughput bet: why Solana runs in parallel and what it costs"
+skills:
+  - account-model
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Solana executes many transactions in parallel where Ethereum runs them one at a time. What makes that possible?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Every instruction declares all accounts it may read or write up front, so the runtime runs transactions with non-overlapping writable sets simultaneously and serialises only those that conflict"
+            correct: true
+          - id: b
+            label: "Solana simply has faster hardware, so it runs the same sequential loop quicker"
+            correct: false
+            feedback: "Speed is not just hardware. The structural bet is that up-front account declarations let the scheduler know which transactions touch disjoint state and can run at once — a parallelism the EVM's model cannot express."
+          - id: c
+            label: "Solana skips checking account conflicts entirely"
+            correct: false
+            feedback: "It does not skip the check — it depends on it. Because each transaction lists its writable accounts, the runtime can safely parallelise the non-conflicting ones and serialise the rest, rather than running everything in sequence."
+        explanation: "Sealevel parallelism rests on the account model: each instruction names every account it may touch and whether it writes. Transactions whose writable sets don't overlap run concurrently; only writer-writer conflicts on the same account force serialisation."
+      - id: q2
+        prompt: "What is the base transaction fee on Solana, and what happens to it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "5,000 lamports per signature, with 50% burned and 50% paid to the validator"
+            correct: true
+          - id: b
+            label: "21,000 gas, all paid to the validator"
+            correct: false
+            feedback: "21,000 gas is Ethereum's transfer cost. Solana's base fee is 5,000 lamports per signature, and half of it is burned rather than all going to the validator."
+          - id: c
+            label: "Zero — Solana transactions are free"
+            correct: false
+            feedback: "They are cheap, not free. Every signature costs 5,000 lamports at the base rate (half burned, half to the validator), on top of any priority fee you add."
+        explanation: "Solana charges a flat 5,000 lamports per signature as the base fee; half is burned and half goes to the current leader. Priority fees (compute-unit price × requested limit) are separate and added on top."
+      - id: q3
+        prompt: "A whole Solana transaction is capped at how many bytes, and why that number?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "1,232 bytes — the IPv6 minimum MTU of 1,280 minus 48 bytes of headers"
+            correct: true
+          - id: b
+            label: "Unlimited, as long as you pay enough fees"
+            correct: false
+            feedback: "There is a hard cap, independent of fees. It is 1,232 bytes, chosen so a transaction fits in a single IPv6 packet (1,280 MTU minus 48 bytes of headers) and never fragments."
+          - id: c
+            label: "10 megabytes, matching the account size limit"
+            correct: false
+            feedback: "That confuses transactions with accounts. A transaction must fit one network packet: 1,232 bytes (1,280 IPv6 MTU minus 48 header bytes)."
+        explanation: "A Solana transaction must fit in one IPv6 packet with no fragmentation: 1,280-byte minimum MTU minus 48 bytes of headers leaves 1,232 bytes. That cap is why account lists and instruction data have to stay compact."

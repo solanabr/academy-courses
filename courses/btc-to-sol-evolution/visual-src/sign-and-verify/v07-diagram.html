@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: a wallet, unwrapped
+     purpose: certify the aha, a wallet is a keypair, not an account on a server
+     data: what people picture: [ WALLET ] -> logs into -> [ server ] -> holds -> [ your balance row ] (none of this exists) what is actually inside: private key (secret) --derives--> public key --encodes--> the address you share "ownership" = records that only the private key can authorize spending from not present anywhere: no account, no stored balance under your name, no server to log into
+     prompt: Diagram, dark background, monospace. Top row shows the naive "wallet -> server -> balance" model, greyed out and crossed through. Below it the real contents: a red "private key" box, arrow "derives" to a green "public key" box, arrow "encodes" to an "address" tag. A footer strip lists what is NOT present. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:505px;height:478px;right:-264px;top:134px;border-radius:39% 46% 62% 63% / 59% 49% 49% 51%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:504px;height:421px;bottom:-225px;left:-225px;border-radius:57% 47% 40% 45% / 61% 53% 39% 39%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:24px; }
+  .lbl { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:12px; }
+  /* naive model, greyed + crossed */
+  .naive { position:relative; display:flex; align-items:center; gap:20px;
+    background:var(--surface-paper); border:2px dashed var(--stbr-ink-300); border-radius:var(--radius-lg);
+    padding:22px 30px; opacity:0.62; }
+  .naive .nb { font-family:var(--font-mono); font-weight:800; font-size:19px; color:var(--text-muted);
+    text-transform:uppercase; letter-spacing:.03em; }
+  .naive .narr { color:var(--stbr-ink-500); font-size:15px; font-family:var(--font-body); font-weight:700; }
+  .naive .strike { position:absolute; left:24px; right:24px; top:50%; height:3px; background:#c0392b; }
+  .naive-note { text-align:center; font-family:var(--font-body); font-weight:800; font-size:14px;
+    color:#a5342a; margin-top:10px; letter-spacing:.02em; }
+  .real { display:flex; align-items:center; gap:0; margin-top:30px; }
+  .rb { border-radius:var(--radius-lg); padding:22px 30px; text-align:center; border:2px solid; }
+  .rb.priv { background:rgba(192,57,43,0.07); border-color:rgba(192,57,43,0.32); flex:0 0 300px; }
+  .rb.pub { background:rgba(0,139,76,0.08); border-color:rgba(0,139,76,0.36); flex:0 0 300px; }
+  .rb.addr { background:var(--surface-inverse); border-color:var(--surface-inverse); flex:0 0 300px; }
+  .rb .rt { font-family:var(--font-mono); font-weight:900; font-size:23px; }
+  .rb.priv .rt { color:#a5342a; }
+  .rb.pub .rt { color:var(--stbr-emerald); }
+  .rb.addr .rt { color:var(--stbr-yellow); }
+  .rb .rs { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-top:6px; }
+  .rb.addr .rs { color:var(--stbr-ink-300); }
+  .conn { flex:1; display:flex; flex-direction:column; align-items:center; padding:0 6px; }
+  .conn .cl { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--stbr-green); margin-bottom:6px; }
+  .conn svg { display:block; }
+  .own { margin-top:24px; font-size:18px; color:var(--text-secondary); line-height:1.4; }
+  .own b { color:var(--text-primary); }
+  .absent { margin-top:20px; background:rgba(192,57,43,0.06); border:2px solid rgba(192,57,43,0.24);
+    border-radius:var(--radius-lg); padding:18px 28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .absent .ah { font-family:var(--font-display); font-weight:900; font-size:15px; letter-spacing:.06em;
+    text-transform:uppercase; color:#a5342a; }
+  .absent .chip { font-family:var(--font-mono); font-size:16px; font-weight:700; color:#a5342a;
+    background:rgba(192,57,43,0.10); padding:6px 14px; border-radius:var(--radius-pill); }
+</style>
+  <div class="stbr-eyebrow">a wallet, unwrapped</div>
+  <h2 class="viz-title">a wallet is a keypair, not an account</h2>
+  <div class="dg">
+    <div class="lbl">what people picture</div>
+    <div class="naive">
+      <span class="nb">wallet</span><span class="narr">logs into &rarr;</span>
+      <span class="nb">server</span><span class="narr">holds &rarr;</span>
+      <span class="nb">your balance row</span>
+      <div class="strike"></div>
+    </div>
+    <div class="naive-note">none of this exists</div>
+
+    <div class="lbl" style="margin-top:26px;">what is actually inside</div>
+    <div class="real">
+      <div class="rb priv"><div class="rt">private key</div><div class="rs">secret</div></div>
+      <div class="conn"><div class="cl">derives</div>
+        <svg width="120" height="18" viewBox="0 0 120 18"><line x1="0" y1="9" x2="104" y2="9" stroke="#306c40" stroke-width="3"/><polygon points="118,9 100,18 100,0" fill="#306c40"/></svg>
+      </div>
+      <div class="rb pub"><div class="rt">public key</div><div class="rs">safe to share</div></div>
+      <div class="conn"><div class="cl">encodes</div>
+        <svg width="120" height="18" viewBox="0 0 120 18"><line x1="0" y1="9" x2="104" y2="9" stroke="#306c40" stroke-width="3"/><polygon points="118,9 100,18 100,0" fill="#306c40"/></svg>
+      </div>
+      <div class="rb addr"><div class="rt">the address</div><div class="rs">what you share</div></div>
+    </div>
+    <div class="own"><b>&ldquo;Ownership&rdquo;</b> = the network records that only the private key can authorize spending from this address.</div>
+    <div class="absent">
+      <span class="ah">not present anywhere</span>
+      <span class="chip">no account</span>
+      <span class="chip">no stored balance under your name</span>
+      <span class="chip">no server to log into</span>
+    </div>
+  </div>
+</div>
+</body></html>

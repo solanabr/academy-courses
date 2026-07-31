@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the whole watcher is one set difference
+     purpose: show the diff-loop mechanism the reader implements in the first TODO
+     data: seen = current() # baseline once, at startup; not reported as arrivals loop every POLL_SECONDS: now = current() # the node's mempool, this instant arrivals = now - seen # set difference: txids present now, absent before for txid in arrivals: print(describe(txid)) # report each new tx with its fee and size seen = now # remember, so the next tick shows only the next arrivals
+     prompt: Monospace annotated-code panel, dark background. Render as code. Draw a curved arrow from "seen = now" back to the top of the loop to show state carried forward. Highlight the "arrivals = now - seen" line in a warm accent. Caption: "one subtraction is the whole watcher".
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:584px;height:521px;top:-337px;right:-337px;border-radius:39% 64% 54% 36% / 65% 55% 47% 63%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:447px;height:559px;bottom:-327px;left:413px;border-radius:64% 55% 64% 55% / 50% 55% 52% 37%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { position:relative; margin-top:30px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:40px 54px 40px 46px; }
+  .code { display:grid; grid-template-columns:1fr; gap:0; font-family:var(--font-mono); font-size:20px; line-height:1.62; }
+  .ln { display:flex; align-items:baseline; padding:5px 0; }
+  .ln .src { color:var(--stbr-cream); white-space:pre; }
+  .ln .cmt { color:var(--stbr-ink-300); margin-left:auto; padding-left:36px; font-size:16px; }
+  .kw { color:var(--stbr-emerald); font-weight:700; }
+  .ln.baseline { border-bottom:1px solid var(--border-on-dark); padding-bottom:16px; margin-bottom:6px; }
+  .loop { border-left:3px solid var(--stbr-emerald); padding-left:26px; margin-left:2px; }
+  .ln.hl { background:var(--stbr-yellow); border-radius:8px; padding:9px 16px; margin:8px -16px; }
+  .ln.hl .src { color:var(--text-on-accent); font-weight:800; }
+  .ln.hl .cmt { color:var(--stbr-dark); font-weight:600; }
+  .backedge { position:absolute; left:14px; top:150px; bottom:74px; width:26px; }
+  .caption { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 32px; font-size:21px; font-weight:600; }
+  .caption b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the whole watcher is one set difference</div>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">one subtraction is the loop</h2>
+  <div class="panel">
+    <svg class="backedge" viewBox="0 0 26 220" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M20 214 L8 214 L8 6 L20 6" fill="none" stroke="#008b4c" stroke-width="3"/>
+      <polygon points="20,6 8,1 8,11" fill="#008b4c"/>
+    </svg>
+    <div class="code">
+      <div class="ln baseline"><span class="src">seen = current()</span><span class="cmt"># baseline once, at startup, not reported as arrivals</span></div>
+      <div class="ln"><span class="src"><span class="kw">loop</span> every POLL_SECONDS:</span></div>
+      <div class="loop">
+        <div class="ln"><span class="src">now = current()</span><span class="cmt"># the node's mempool, this instant</span></div>
+        <div class="ln hl"><span class="src">arrivals = now - seen</span><span class="cmt"># set difference: txids present now, absent before</span></div>
+        <div class="ln"><span class="src"><span class="kw">for</span> txid <span class="kw">in</span> arrivals:</span></div>
+        <div class="ln"><span class="src">    print(describe(txid))</span><span class="cmt"># report each new tx with its fee and size</span></div>
+        <div class="ln"><span class="src">seen = now</span><span class="cmt"># remember, so next tick shows only the next arrivals</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="caption">The back-arrow is the state carried forward: <b>seen = now</b> feeds the next tick, so each pass reports only what is genuinely new.</div>
+</div>
+</body></html>

@@ -1,0 +1,55 @@
+id: lesson-b2s-wire-a-bot-and-a-face
+slug: wire-a-bot-and-a-face
+title: "Sign it yourself: a bot for the vault, then a button"
+skills:
+  - anchor
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: plan-deposit
+    type: code
+    language: typescript
+    starter: plan-deposit/starter.ts
+    solution: plan-deposit/solution.ts
+    tests: plan-deposit/tests.json
+    hints:
+      - "Subgoal 2: the transaction lifetime is the recentBlockhash argument."
+      - "Subgoal 3: call depositInstruction(owner, amountLamports); do not rebuild the account list by hand."
+      - "Subgoal 4: the commitment is the string 'confirmed'."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your Anchor program emits an IDL. What produces the typed TypeScript client your bot and frontend import, in the @solana/kit stack?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Codama — it reads the IDL and generates typed instruction builders, PDA helpers, and account decoders"
+            correct: true
+          - id: b
+            label: "You hand-write the client from the program's Rust source"
+            correct: false
+            feedback: "You do not transcribe Rust by hand. Codama consumes the on-chain IDL and emits the typed client — instruction builders, PDA finders, decoders — so the client tracks the program automatically."
+          - id: c
+            label: "The Anchor `Program` object, which is the kit-native client"
+            correct: false
+            feedback: "Anchor's `Program` client pins you to web3.js v1. In the kit stack you generate a kit-native client from the IDL with Codama instead."
+        explanation: "Codama turns the program's IDL into a typed kit client: `getXInstructionAsync` builders, `findXPda` helpers, and `fetchX` decoders. The bot and the browser both import it — only the signer differs between them."
+      - id: q2
+        prompt: "The same deposit runs from a Node bot and from a browser button. What is the ONE thing that differs between them?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The signer — a bot signs with a loaded keypair; the browser signs with the connected wallet"
+            correct: true
+          - id: b
+            label: "The instruction — the browser needs a different deposit instruction than the bot"
+            correct: false
+            feedback: "The instruction is identical; both build it from the same generated client. What changes is who signs it: a keypair in the bot, the wallet in the browser."
+          - id: c
+            label: "The program — you deploy a separate program for browser use"
+            correct: false
+            feedback: "One program serves both. The account model and instruction are the same everywhere; only the signer (keypair vs wallet adapter) swaps out, which is the whole point of the shared client."
+        explanation: "Assembling and sending the transaction is identical across environments — same instruction, same client. The bot supplies a keypair signer; the browser supplies a wallet signer via the wallet standard. Isolating the signer is what lets one codebase drive both."

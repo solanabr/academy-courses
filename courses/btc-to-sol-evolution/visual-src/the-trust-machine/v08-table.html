@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: nothing new, everything assembled
+     purpose: preview that Bitcoin's genius was combination, not invention, each part becomes a later module
+     data: ingredient | already existed for | what it provides | you build it in hash chain | decades (this module, next lesson) | tamper-evident history | Module 0-1 public-key signatures | since the 1970s | proof of who authorized a spend | Module 0 peer-to-peer gossip | pre-Bitcoin file sharing | no central server to seize | Module 2 costly work + reward | the new bolt | makes lying cost more than it pays | Module 1
+     prompt: Four-row table, dark background, monospace headers "ingredient / already existed for / what it provides / you build it in". The last row (costly work + reward) highlighted as "the new bolt". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:502px;height:480px;top:-242px;right:-242px;border-radius:42% 65% 63% 37% / 39% 55% 52% 36%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:480px;height:485px;bottom:-228px;left:-228px;border-radius:54% 36% 46% 38% / 41% 63% 38% 63%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:20px; margin-top:32px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:20px 26px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.07em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:24px 26px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.35; }
+  .ct td.ing { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:21px; }
+  .ct td.prov { color:var(--text-primary); }
+  .mod { display:inline-block; font-family:var(--font-body); font-size:13px; font-weight:800;
+    padding:5px 13px; border-radius:var(--radius-pill); background:rgba(0,139,76,0.11); color:var(--stbr-emerald); white-space:nowrap; }
+  .ct tr.bolt td { background:rgba(255,210,63,0.15); border-bottom-color:rgba(240,189,31,0.4); }
+  .ct tr.bolt td.ing { color:var(--stbr-dark); }
+  .ct tr.bolt .mod { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .newbolt { display:inline-block; margin-left:12px; font-family:var(--font-body); font-size:12px; font-weight:800;
+    letter-spacing:.06em; text-transform:uppercase; background:var(--stbr-yellow); color:var(--text-on-accent);
+    padding:4px 11px; border-radius:var(--radius-pill); vertical-align:middle; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">nothing new, everything assembled</div>
+  <h2 class="viz-title">Bitcoin was combination, not invention</h2>
+  <table class="ct">
+    <tr>
+      <th style="width:24%">ingredient</th>
+      <th style="width:24%">already existed for</th>
+      <th style="width:34%">what it provides</th>
+      <th>you build it in</th>
+    </tr>
+    <tr>
+      <td class="ing">hash chain</td>
+      <td>decades <span style="color:var(--text-muted)">(this module, next lesson)</span></td>
+      <td class="prov">tamper-evident history</td>
+      <td><span class="mod">Module 0&ndash;1</span></td>
+    </tr>
+    <tr>
+      <td class="ing">public-key signatures</td>
+      <td>since the 1970s</td>
+      <td class="prov">proof of who authorized a spend</td>
+      <td><span class="mod">Module 0</span></td>
+    </tr>
+    <tr>
+      <td class="ing">peer-to-peer gossip</td>
+      <td>pre-Bitcoin file sharing</td>
+      <td class="prov">no central server to seize</td>
+      <td><span class="mod">Module 2</span></td>
+    </tr>
+    <tr class="bolt">
+      <td class="ing">costly work + reward<span class="newbolt">the new bolt</span></td>
+      <td>the new bolt</td>
+      <td class="prov">makes lying cost more than it pays</td>
+      <td><span class="mod">Module 1</span></td>
+    </tr>
+  </table>
+</div>
+</body></html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: from Rust to a deployable binary
+     purpose: certify what cargo build-sbf produced and which artifact becomes the address
+     data: lib.rs (Rust source) -> cargo build-sbf (LLVM backend) -> target/deploy/first_program.so (sBPF bytecode: the deployable binary) -> target/deploy/first_program-keypair.json (generated once; its pubkey = program ID) the .so gets uploaded; the keypair's public key becomes the permanent on-chain address
+     prompt: Left-to-right diagram, dark background, monospace. A "lib.rs" node flows through a "cargo build-sbf / LLVM" box, which emits two artifacts: a ".so (sBPF bytecode)" box and a "-keypair.json" box. An arrow from the keypair box labeled "public key -> program ID" points at a small "on-chain address" node. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:467px;height:489px;bottom:-245px;right:-245px;border-radius:51% 49% 65% 53% / 41% 40% 57% 35%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:564px;height:467px;left:-332px;top:318px;border-radius:47% 48% 56% 43% / 40% 38% 39% 50%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:40px; display:flex; align-items:center; gap:0; }
+  .node { background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-lg);
+    padding:22px 26px; }
+  .node .k { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.07em;
+    text-transform:uppercase; color:var(--stbr-emerald); }
+  .node .v { font-family:var(--font-mono); font-weight:700; font-size:18px; color:var(--text-primary); margin-top:8px; }
+  .node .s { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-top:6px; line-height:1.3; }
+  .node.src { flex:0 0 200px; }
+  .node.build { background:var(--surface-inverse); border-color:var(--surface-inverse); flex:0 0 240px; }
+  .node.build .k { color:var(--stbr-yellow); }
+  .node.build .v { color:var(--text-on-dark); }
+  .node.build .s { color:var(--stbr-ink-300); }
+  .arts { display:flex; flex-direction:column; gap:22px; }
+  .node.art { flex:0 0 auto; width:340px; box-sizing:border-box; }
+  .node.art.key { border-color:rgba(0,139,76,0.36); background:rgba(0,139,76,0.06); }
+  .node.addr { background:var(--stbr-yellow); border-color:var(--stbr-yellow); flex:0 0 176px; text-align:center; }
+  .node.addr .k { color:var(--text-on-accent); opacity:.75; }
+  .node.addr .v { color:var(--text-on-accent); font-size:17px; }
+  .arr { flex:0 0 auto; display:flex; align-items:center; justify-content:center; }
+  /* right connector: anchors on the keypair box, so it lines up with the bottom artifact */
+  .keyarr { flex:0 0 176px; align-self:stretch; display:flex; flex-direction:column; justify-content:flex-end; }
+  .keyarr .anchor { height:126px; display:flex; flex-direction:column; align-items:stretch; justify-content:center; }
+  .keyarr .chip { align-self:center; margin-bottom:6px; white-space:nowrap;
+    font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.04em;
+    background:var(--stbr-yellow); color:var(--text-on-accent); padding:5px 12px; border-radius:var(--radius-pill); }
+  .addrcol { align-self:stretch; display:flex; flex-direction:column; justify-content:flex-end; }
+  .cap { margin-top:36px; background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-lg);
+    padding:22px 30px; font-size:19px; font-weight:500; line-height:1.4; }
+  .cap b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">from Rust to a deployable binary</div>
+  <h2 class="viz-title">what cargo build-sbf produced</h2>
+  <div class="dg">
+    <div class="node src"><div class="k">Rust source</div><div class="v">lib.rs</div></div>
+    <div class="arr"><svg width="60" height="24" viewBox="0 0 60 24"><line x1="2" y1="12" x2="48" y2="12" stroke="#1b231d" stroke-width="3"/><polygon points="58,12 44,5 44,19" fill="#1b231d"/></svg></div>
+    <div class="node build"><div class="k">LLVM backend</div><div class="v">cargo build-sbf</div></div>
+    <div class="arr"><svg width="60" height="120" viewBox="0 0 60 120"><line x1="2" y1="60" x2="26" y2="60" stroke="#1b231d" stroke-width="3"/><line x1="26" y1="30" x2="26" y2="90" stroke="#1b231d" stroke-width="3"/><line x1="26" y1="30" x2="48" y2="30" stroke="#1b231d" stroke-width="3"/><line x1="26" y1="90" x2="48" y2="90" stroke="#1b231d" stroke-width="3"/><polygon points="58,30 44,23 44,37" fill="#1b231d"/><polygon points="58,90 44,83 44,97" fill="#1b231d"/></svg></div>
+    <div class="arts">
+      <div class="node art"><div class="k">the deployable binary</div><div class="v">target/deploy/first_program.so</div><div class="s">sBPF bytecode &mdash; this gets uploaded</div></div>
+      <div class="node art key"><div class="k">generated once</div><div class="v">first_program-keypair.json</div><div class="s">its public key = program ID</div></div>
+    </div>
+    <div class="keyarr">
+      <div class="anchor">
+        <span class="chip">public key &rarr; program ID</span>
+        <svg width="100%" height="20" viewBox="0 0 176 20" preserveAspectRatio="none"><line x1="0" y1="10" x2="164" y2="10" stroke="#f0bd1f" stroke-width="3.5"/><polygon points="176,10 162,3 162,17" fill="#f0bd1f"/></svg>
+      </div>
+    </div>
+    <div class="addrcol">
+      <div class="node addr"><div class="k">permanent</div><div class="v">on-chain<br>address</div></div>
+    </div>
+  </div>
+  <div class="cap">The <b>.so</b> is uploaded; the keypair's <b>public key</b> becomes the program's permanent on-chain address.</div>
+</div>
+</body></html>
