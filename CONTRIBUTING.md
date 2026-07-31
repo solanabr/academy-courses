@@ -39,7 +39,7 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 **No orphan files.** Every file in a lesson directory must be referenced by a block (`src`, `starter`, `solution`, `tests`, `idl`) or linked from a prose `.md`.
 
-**A non-draft learning path needs at least one course.** Mark work-in-progress paths `draft: true`.
+**An empty learning path must say why it is empty.** A path with no courses is hidden by the app either way, so it has to declare intent: `draft: true` means courses are on the way (and it must list them — `draft: true` with `courses: []` is an error), `retired: true` means permanently emptied with the id preserved (and its `courses` must stay empty). See [paths/README.md](./paths/README.md).
 
 ## Quizzes
 

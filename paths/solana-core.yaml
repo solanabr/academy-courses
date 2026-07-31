@@ -10,7 +10,7 @@ order: 8
 difficulty: beginner
 # Retired (LX-D1): superseded by path-zero-to-deployed, which fixes this path's
 # ordering error (capstone directly after fundamentals, skipping Rust/Anchor).
-# Id kept — never delete a live path id. Emptying `courses` is what removes the
-# shelf from the catalog; `draft` keeps the empty shelf schema-legal.
-draft: true
+# The id is kept — path ids are permanent once live. `retired: true` records
+# that the emptiness is permanent rather than "coming soon" (#627).
+retired: true
 courses: []

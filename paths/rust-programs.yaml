@@ -6,7 +6,7 @@ tag: Builder
 order: 2
 difficulty: intermediate
 # Retired (LX-D1): both member courses now live inside path-zero-to-deployed.
-# Id kept — never delete a live path id. Emptying `courses` is what removes the
-# shelf from the catalog; `draft` keeps the empty shelf schema-legal.
-draft: true
+# The id is kept — path ids are permanent once live. `retired: true` records
+# that the emptiness is permanent rather than "coming soon" (#627).
+retired: true
 courses: []

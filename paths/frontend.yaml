@@ -5,10 +5,11 @@ description: Build production-ready Solana dApp frontends. Master wallet integra
 tag: UI/UX
 order: 3
 difficulty: intermediate
-# Retired in the catalog migration: its only course, course-solana-frontend, is
-# retired, and its successor material lives inside C4 (course-dapp-sdk-kit) on
-# path-zero-to-deployed. Id kept — never delete a live path id. Emptying
-# `courses` removes the shelf from the catalog; `draft` keeps the empty shelf
-# schema-legal.
-draft: true
+# Retired in the catalog migration (LX-D1): its only course,
+# course-solana-frontend, is retired, and its successor material lives inside
+# C4 (course-dapp-sdk-kit) on path-zero-to-deployed. The id is kept — path ids
+# are permanent once live. `retired: true` records that the emptiness is
+# permanent rather than "coming soon" (#627); the app hides the shelf because
+# `courses` is empty, not because of this flag.
+retired: true
 courses: []
