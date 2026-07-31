@@ -7,6 +7,7 @@ skills:
   - confirmation
   - error-handling
   - solana-kit
+  - keypairs-wallets
 versionStamp:
   checkedAt: "2026-07-28"
   packages:

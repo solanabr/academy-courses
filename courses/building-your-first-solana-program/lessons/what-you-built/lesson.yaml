@@ -9,6 +9,7 @@ skills:
   - program-build
   - idl
   - solana-explorer
+  - program-testing
 blocks:
   - key: intro
     type: prose

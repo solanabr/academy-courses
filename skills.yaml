@@ -6,8 +6,8 @@
   label: Transactions
 - slug: keypairs-wallets
   label: Keypairs & Wallets
-- slug: rpc
-  label: RPC & Networking
+- slug: rpc-reads
+  label: RPC Reads
 - slug: rust
   label: Rust
 - slug: borsh-serialization
@@ -26,32 +26,17 @@
   label: Deployment & Devnet
 - slug: spl-tokens
   label: SPL Tokens
-- slug: defi
-  label: DeFi
-- slug: amm
-  label: Automated Market Makers
-- slug: lending
-  label: Lending & Borrowing
-- slug: staking
-  label: Staking
-- slug: oracles
-  label: Oracles
-- slug: wallet-adapter
-  label: Wallet Adapter
 - slug: react
   label: React
+  reviewExempt: true
 - slug: web3-frontend
   label: Web3 Frontend
-- slug: siws
-  label: Sign-In With Solana
 - slug: typescript
   label: TypeScript
 - slug: solana-kit
   label: Solana Kit
 - slug: token-2022
   label: Token-2022
-- slug: transfer-hook
-  label: Transfer Hook
 - slug: error-handling
   label: Error Handling
 - slug: protocol-versioning
@@ -110,6 +95,7 @@
   label: Result
 - slug: rust-modules
   label: Modules & Visibility
+  reviewExempt: true
 - slug: checked-arithmetic
   label: Checked Arithmetic
 - slug: compiler-errors
@@ -144,8 +130,6 @@
   label: npm Publishing
 - slug: semver
   label: Semantic Versioning
-- slug: ci
-  label: Continuous Integration
 - slug: deployment
   label: Deployment
 - slug: wallet-standard

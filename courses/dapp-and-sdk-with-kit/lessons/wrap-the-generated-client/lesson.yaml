@@ -6,6 +6,7 @@ skills:
   - codama
   - solana-kit
   - pdas
+  - client-codegen
 blocks:
   - key: intro
     type: prose

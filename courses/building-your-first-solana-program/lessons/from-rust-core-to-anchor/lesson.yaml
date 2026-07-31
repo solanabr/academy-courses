@@ -5,6 +5,8 @@ skills:
   - anchor
   - solana-programs
   - program-build
+  - build-server
+  - toolchain-versions
 blocks:
   - key: intro
     type: prose

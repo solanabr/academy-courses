@@ -6,6 +6,9 @@ skills:
   - rust-borrowing
   - rust-lifetimes
   - checked-arithmetic
+  - rust-control-flow
+  - rust-move-semantics
+  - rust-slices
 blocks:
   # No new material. Eight items, DELIBERATELY INTERLEAVED: module-2 ownership
   # questions alternate with module-1 numeric and control-flow questions, and

@@ -3,7 +3,7 @@ slug: accounts-are-just-bytes
 title: Accounts Are Just Bytes
 skills:
   - solana-kit
-  - rpc
+  - rpc-reads
   - account-model
   - borsh-serialization
 versionStamp:

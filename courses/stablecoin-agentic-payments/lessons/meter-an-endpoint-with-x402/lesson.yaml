@@ -5,6 +5,7 @@ skills:
   - x402-protocol
   - api-monetization
   - solana-kit
+  - protocol-versioning
 blocks:
   - key: intro
     type: prose
