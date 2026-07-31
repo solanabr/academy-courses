@@ -16,30 +16,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Only the holder of the private key can sign; anyone holding the public key can verify"
-            correct: true
+            label: "Anyone holding the public key can produce and check signatures — that is why it is called public"
+            correct: false
+            feedback: "The public key only VERIFIES. If it could also sign, publishing it would hand everyone your spending power. The asymmetry — private key signs, public key checks — is the entire trick."
           - id: b
-            label: "Anyone with the public key can both sign and verify"
-            correct: false
-            feedback: "The public key only VERIFIES. If it could also sign, it would not be safe to publish — and publishing it is the whole point. Signing requires the secret half."
+            label: "Only the holder of the private key can sign; anyone with the public key can verify"
+            correct: true
           - id: c
-            label: "Only the signer can verify their own signature"
+            label: "Only the key's owner can verify a signature — everyone else must take the owner's word for it"
             correct: false
-            feedback: "Verification is public by design: that is what lets a validator, a counterparty, or a whole network confirm you authorised something without ever seeing your private key."
-        explanation: "Public-key signatures are asymmetric: the private key signs, the public key verifies. That split is what gives you identity without an account — you prove control of a key over a specific message, and anyone can check it, but no one can forge it without the secret."
+            feedback: "Backwards: verification is the universal side. Any stranger with your public key can check a signature mathematically; only signing is restricted, to whoever holds the private key."
+        explanation: "The asymmetry is the point: signing requires the private key, verifying requires only the public key. That lets you prove authorship to strangers without revealing the secret — the foundation of every blockchain transaction, where thousands of nodes verify signatures produced by one key they will never see."
       - id: q2
         prompt: "A signature is valid for a given message and public key. What exactly does that prove — and not prove?"
         multiSelect: false
         options:
           - id: a
-            label: "It proves the private-key holder authorised THAT message; it does not keep the message secret"
-            correct: true
+            label: "It proves the message was encrypted in transit and nobody else could read it"
+            correct: false
+            feedback: "Signatures provide authenticity, not secrecy — the message travels in plaintext. Anyone can read it; what nobody can do is forge the private-key holder's authorization of it."
           - id: b
-            label: "It proves the message is encrypted and only the recipient can read it"
+            label: "It proves which person legally owns the key — signatures bind keys to real-world identity"
             correct: false
-            feedback: "Signing and encrypting are different operations. A signature authenticates who authorised a message and that it was not altered; it does not hide the contents. On Solana the signed transaction is public."
+            feedback: "Nothing in the math names a human. A signature proves 'the private key behind this public key authorized this message'. Attaching a person to that key is a separate, social problem — and on-chain, the key IS the identity."
           - id: c
-            label: "It proves the signer's real-world identity (name, nationality)"
-            correct: false
-            feedback: "It binds an action to a KEY, not to a legal identity. Who controls the key is a separate, off-chain question; the signature only shows that whoever holds it approved this exact message."
-        explanation: "A valid signature ties a specific message to whoever holds the private key and shows the message was not tampered with after signing. It says nothing about secrecy or legal identity — it is authorisation and integrity, not encryption or KYC."
+            label: "It proves the private-key holder authorized THAT exact message; it does not hide the message or identify a human"
+            correct: true
+        explanation: "A valid signature binds a specific message to a specific public key: the private-key holder authorized these exact bytes, and any tampering invalidates it. It offers no confidentiality (the message is readable) and no real-world identity (keys are pseudonymous) — precisely the properties a public ledger needs."

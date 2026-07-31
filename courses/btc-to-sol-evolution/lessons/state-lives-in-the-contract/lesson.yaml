@@ -17,30 +17,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Persistent per-account state — a balance, a nonce, and (for contracts) a storage tree and code hash that survive between transactions"
-            correct: true
+            label: "A bigger scripting language — EVM accounts are UTXOs whose locking scripts happen to be Turing-complete"
+            correct: false
+            feedback: "It is a deeper change than scripting power. A UTXO is consumed when spent and remembers nothing; an EVM account PERSISTS — balance, nonce, and for contracts a storage tree that carries state from one transaction to the next."
           - id: b
-            label: "Nothing different — accounts are just UTXOs with another name"
-            correct: false
-            feedback: "They are structurally different. A UTXO is a one-shot output consumed whole; an EVM account is a durable object with mutable storage a contract updates in place across many transactions."
+            label: "Persistent per-account state — a balance, a nonce, and (for contracts) storage and code that survive between transactions"
+            correct: true
           - id: c
-            label: "Only a balance, with no way to store contract data"
+            label: "Only a mutable balance — contract data itself still lives off-chain with just its hash on-chain"
             correct: false
-            feedback: "Contract accounts specifically add a storage root and a code hash on top of balance and nonce. That mutable storage is exactly what lets a contract keep a running value between calls."
-        explanation: "A UTXO is spent once and gone; an EVM account persists — balance, nonce, and for contracts a storageRoot and codeHash. That durable, updatable storage is what lets 'the number that remembers' exist, and it is the model Solana also uses (state in accounts)."
+            feedback: "Contract storage is fully on-chain: every contract account carries its own key-value storage tree, replicated by every node. That persistent on-chain 'memory' is exactly what your counter contract wrote to."
+        explanation: "A UTXO is a one-shot value container: spend it and it is gone, remembering nothing. An EVM account is durable — it keeps a balance, a replay-protecting nonce, and for contracts a storage tree plus code that persist across transactions. That persistence is what makes a contract able to 'remember' your counter between calls."
       - id: q2
         prompt: "Gas and denominations: which pair is correct on the EVM?"
         multiSelect: false
         options:
           - id: a
+            label: "1 ETH = 10^9 wei, and a plain ETH transfer costs 21,000 gas"
+            correct: false
+            feedback: "The gas figure is right but the denomination is off by 10^9 — you are thinking of gwei (10^9 gwei per ETH, used for quoting gas prices). Wei is the base unit: 10^18 per ETH."
+          - id: b
+            label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 210,000 gas"
+            correct: false
+            feedback: "Denomination right, gas wrong by 10×: a simple ETH transfer costs a flat 21,000 gas. Six-figure gas is contract-deployment territory, not a bare value transfer."
+          - id: c
             label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 21,000 gas"
             correct: true
-          - id: b
-            label: "1 ETH = 10^9 wei, and a transfer costs 5,000 gas"
-            correct: false
-            feedback: "10^9 (a gwei) is the wrong scale for wei, and 5,000 is Solana's per-signature lamport fee, not EVM gas. On the EVM a simple transfer is 21,000 gas and 1 ETH is 10^18 wei."
-          - id: c
-            label: "1 ETH = 10^6 wei, and gas is free on a local devnet"
-            correct: false
-            feedback: "Wei is 10^18 to the ETH, not 10^6, and gas is charged (in the fork's test ETH) even locally — a base transfer is 21,000 gas."
-        explanation: "Wei is the EVM's base unit at 10^18 per ETH, and the intrinsic cost of a value transfer is 21,000 gas. Those two numbers anchor almost every EVM fee calculation."
+        explanation: "Wei is the base unit: 10^18 wei per ETH (gas prices are quoted in gwei, 10^9 wei, which is the usual source of confusion). A bare value transfer costs a fixed 21,000 gas; anything touching contract code or storage costs more, metered per EVM operation."

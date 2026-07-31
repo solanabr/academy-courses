@@ -17,46 +17,46 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "x · y = k stays constant, so draining a reserve to zero would take an infinite amount of the other token — the pool can't be fully emptied"
-            correct: true
+            label: "x + y = k stays constant, so the pool always trades at the fixed 1:1 price it launched with"
+            correct: false
+            feedback: "x + y = k is a constant-SUM curve. It quotes a fixed price, so an arbitrageur can profitably empty one side the moment the outside market moves — the product form is what makes draining a reserve cost infinitely much."
           - id: b
-            label: "x + y = k stays constant, so prices are always 1:1"
-            correct: false
-            feedback: "The invariant is the PRODUCT x·y, not the sum. A sum-based rule would fix a 1:1 price; the product rule is what creates a price that moves with the trade and a pool that can't be drained."
+            label: "x · y = k stays constant, so the price moves along the curve and no swap can drain either reserve to zero"
+            correct: true
           - id: c
-            label: "x = y at all times, so the two reserves are always equal"
+            label: "x − y = k stays constant, so the pool rebalances toward equal reserves after every swap"
             correct: false
-            feedback: "Reserves are only equal at one specific price. The invariant is x·y = k; as one reserve falls the other must rise to keep the product constant, which is what sets the exchange rate."
-        explanation: "The pool defends x·y = k on every trade. Because that curve is a hyperbola asymptotic to both axes, taking the last unit of a reserve would cost an unbounded amount of the other token — so a constant-product pool can be depleted toward, but never to, zero."
+            feedback: "No AMM keeps the difference constant, and nothing pushes the reserves toward equality — the ratio y/x IS the price, and it moves with every swap along the x·y = k curve."
+        explanation: "The invariant is the product: x·y = k. Buying token y removes some y and adds some x, and the curve reprices continuously — the closer a reserve gets to zero, the more of the other token each additional unit costs, approaching infinity. That is why a constant-product pool can always quote a price and can never be swept empty by trading."
       - id: q2
         prompt: "Why can't the AMM contract just call a price API at execution time to get a fair price?"
         multiSelect: false
         options:
           - id: a
-            label: "Consensus requires deterministic execution — every node must compute the same result, and an external HTTP call would return different values on different nodes. That's the oracle problem"
-            correct: true
+            label: "Oracles are banned at the protocol level — no contract may ever consume off-chain data"
+            correct: false
+            feedback: "Oracles exist and are widely used — but they work by WRITING signed prices on-chain first, where every node reads the same value. The impossible thing is the contract itself reaching out over the network at execution time."
           - id: b
-            label: "API calls are too slow for a blockchain, but they are otherwise allowed"
+            label: "An HTTP call would take too long — determinism is preserved, but the block-time budget is too tight"
             correct: false
-            feedback: "It is not a latency limitation — external calls are forbidden by determinism. If nodes could fetch live data, they would disagree on the outcome and consensus would break."
+            feedback: "Latency is real but secondary. The killer is determinism: two validators calling the same API can get different answers (or one times out), and consensus requires every node to compute the identical result."
           - id: c
-            label: "Smart contracts are not allowed to read any data at all"
-            correct: false
-            feedback: "Contracts read on-chain data freely; that is deterministic. What they cannot do is reach OFF-chain at execution time. The fix is an oracle that writes the off-chain value on-chain first, so the contract just reads storage."
-        explanation: "Determinism is non-negotiable: identical inputs must yield identical state on every validator, so a mid-execution web call — which could return anything — is impossible. Oracles solve it by fetching off-chain, then writing the value on-chain as a normal transaction the contract can deterministically read."
+            label: "Consensus requires deterministic execution — every node must compute the same result, and a live API call could return different answers to different nodes"
+            correct: true
+        explanation: "Every validator re-executes every transaction and must arrive at byte-identical state. A live network call injects non-determinism — different responses, timeouts, reorderings — so it cannot exist inside execution. Prices either emerge from the pool's own reserves (the AMM trick) or arrive as signed on-chain data written by an oracle."
       - id: q3
         prompt: "A 0.3% fee (r = 0.997) stays in the pool. What does that do to the invariant k over many swaps?"
         multiSelect: false
         options:
           - id: a
-            label: "k grows — the retained fee means reserves satisfy x·y ≥ k_initial, compounding value for liquidity providers"
+            label: "k grows — the retained fee leaves slightly more in the reserves after every swap, compounding value for liquidity providers"
             correct: true
           - id: b
-            label: "k stays exactly constant forever; fees go to the protocol, not the pool"
+            label: "k stays exactly constant — the invariant is enforced as an equality, and fees accrue in a separate protocol treasury"
             correct: false
-            feedback: "With a constant-product AMM the swap fee is left IN the pool, so the product ratchets up after each trade. LPs earn precisely because k drifts above its starting value."
+            feedback: "The 0.3% stays IN the pool's reserves, and the check is x'·y' ≥ k, not equality. Each swap leaves the product a little larger than before; that steady growth is the liquidity providers' yield."
           - id: c
-            label: "k shrinks as fees are paid out to traders"
+            label: "k shrinks slowly — fees are paid out to traders as rebates, bleeding the reserves over time"
             correct: false
-            feedback: "Traders pay the fee; they do not receive it. It accrues to the pool, so k rises rather than falls — that growth is the LP return."
-        explanation: "Because the 0.3% fee is retained in the reserves, each swap nudges x·y above its previous value: the true relation is x·y ≥ k_initial and k compounds. That accumulation is how liquidity providers are paid for supplying the pool."
+            feedback: "Traders PAY the fee — they never receive it. The fee portion of every input stays in the reserves, so the product x·y ratchets upward with each swap rather than bleeding down."
+        explanation: "With the fee retained, each swap satisfies x'·y' ≥ k rather than strict equality — the pool keeps 0.3% of every input, so the product grows monotonically with volume. LP tokens redeem a share of the reserves, which is how trading volume translates into LP earnings without any external payout."

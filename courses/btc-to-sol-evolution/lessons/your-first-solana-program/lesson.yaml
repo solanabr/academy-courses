@@ -26,30 +26,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "`cargo build-sbf` compiles it to an sBPF binary; once deployed the program account is flagged `executable`"
+            label: "`cargo build-sbf` compiles it to an sBPF binary; once deployed, the program account is flagged `executable`"
             correct: true
           - id: b
-            label: "`cargo run` starts the program as a long-running server on the validator"
+            label: "`cargo build --release` produces the binary; the runtime marks it executable after its first successful transaction"
             correct: false
-            feedback: "A Solana program is not a server and never 'runs' continuously. You compile to sBPF with `cargo build-sbf` and deploy the bytecode; the runtime invokes it per instruction, and its account is marked executable."
+            feedback: "A native x86 binary cannot run on-chain — validators execute sBPF bytecode, which is what cargo build-sbf targets. And the executable flag is set at deployment, not earned through usage."
           - id: c
-            label: "`rustc` produces a native binary you upload directly"
+            label: "`anchor deploy` compiles the Rust to sBPF on the validator itself, so nothing is built locally"
             correct: false
-            feedback: "Plain `rustc` targets your machine, not the SVM. Solana needs the sBPF target, which `cargo build-sbf` produces; the deployed account is then executable."
-        explanation: "`cargo build-sbf` emits the sBPF bytecode the Solana VM runs. Deploying it creates a program account whose `executable` flag is true — the runtime will only invoke code from accounts carrying that flag."
+            feedback: "Validators never compile your code — they receive finished sBPF bytecode. Compilation happens on your machine (cargo build-sbf, which anchor build wraps); deploy only uploads the result into an account marked executable."
+        explanation: "cargo build-sbf cross-compiles your Rust to sBPF — Solana's sandboxed BPF dialect — producing a .so the validator can run. Deployment writes that bytecode into an account and sets its executable flag, which is all that distinguishes a 'program' from any other account: on Solana, programs are accounts whose data is code."
       - id: q2
         prompt: "You deployed under the BPF Loader Upgradeable. What does 'upgradeable' let you do, and who can?"
         multiSelect: false
         options:
           - id: a
-            label: "The upgrade authority can replace the program's bytecode at the SAME program id later, without changing its address"
-            correct: true
+            label: "Anyone can push new bytecode to the program id — 'upgradeable' means open to community contribution"
+            correct: false
+            feedback: "Only the designated upgrade AUTHORITY can replace the bytecode; everyone else's attempts are rejected. And if that authority is burned, the program becomes permanently immutable."
           - id: b
-            label: "Anyone can modify the program's code once it is on-chain"
+            label: "The upgrade authority can migrate the program and all its data accounts to a fresh address in one step"
             correct: false
-            feedback: "Only the upgrade authority can. 'Upgradeable' means the code behind the id can be replaced BY THAT AUTHORITY; it is not open to everyone."
+            feedback: "Upgrades replace bytecode at the SAME address — that is the entire point: clients and PDAs keep working. Data accounts are untouched; any layout migration is your program's problem to handle in code."
           - id: c
-            label: "The program's data accounts are automatically migrated when the code changes"
-            correct: false
-            feedback: "An upgrade swaps code only. State lives in separate accounts and is untouched; any data migration is your job, which is what makes the stateless-program design clean to upgrade."
-        explanation: "Under the BPF Loader Upgradeable the program account points to executable data the upgrade authority can swap, so you fix or extend the program at the same id. State sits in other accounts and is unaffected — code and data are decoupled."
+            label: "The upgrade authority can replace the program's bytecode at the same program id, without changing its address"
+            correct: true
+        explanation: "The upgradeable loader splits a program into an address and swappable bytecode: the upgrade authority — and only it — can deploy new code to the same program id, so integrations and PDAs survive upgrades. Burn the authority and the code freezes forever; until then, 'who holds the upgrade authority' is part of the program's trust model."

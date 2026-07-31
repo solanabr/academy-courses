@@ -26,30 +26,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
+            label: "The Anchor `Program` object — @anchor-lang/core is the kit-native client generated from your IDL"
+            correct: false
+            feedback: "Anchor's Program client pins you to web3.js v1, not kit. In the kit stack you feed the IDL to Codama, which emits typed instruction builders, PDA helpers, and account decoders as standalone generated code."
+          - id: b
             label: "Codama — it reads the IDL and generates typed instruction builders, PDA helpers, and account decoders"
             correct: true
-          - id: b
-            label: "You hand-write the client from the program's Rust source"
-            correct: false
-            feedback: "You do not transcribe Rust by hand. Codama consumes the on-chain IDL and emits the typed client — instruction builders, PDA finders, decoders — so the client tracks the program automatically."
           - id: c
-            label: "The Anchor `Program` object, which is the kit-native client"
+            label: "tsc — importing the IDL JSON makes TypeScript derive the callable client types automatically"
             correct: false
-            feedback: "Anchor's `Program` client pins you to web3.js v1. In the kit stack you generate a kit-native client from the IDL with Codama instead."
-        explanation: "Codama turns the program's IDL into a typed kit client: `getXInstructionAsync` builders, `findXPda` helpers, and `fetchX` decoders. The bot and the browser both import it — only the signer differs between them."
+            feedback: "tsc can type a JSON literal, but it cannot invent runtime logic — encoders, PDA derivation, instruction layouts. That generated code comes from Codama reading the IDL, not from the compiler."
+        explanation: "Codama is the IDL-to-client compiler of the kit stack: point it at your Anchor IDL and it generates getXInstructionAsync builders, findXPda helpers, and fetchX account decoders — kit-native, tree-shakable, no Anchor runtime attached. Bot and frontend import the same generated package."
       - id: q2
         prompt: "The same deposit runs from a Node bot and from a browser button. What is the ONE thing that differs between them?"
         multiSelect: false
         options:
           - id: a
-            label: "The signer — a bot signs with a loaded keypair; the browser signs with the connected wallet"
-            correct: true
+            label: "The RPC endpoint — browsers must go through a different class of RPC node than bots"
+            correct: false
+            feedback: "Both can talk to the exact same RPC. What differs is who holds the key: the bot loads a keypair from disk, the browser asks the connected wallet to sign — the transaction they build is identical."
           - id: b
-            label: "The instruction — the browser needs a different deposit instruction than the bot"
+            label: "The instruction — the wallet adapter wraps deposits in its own instruction format for browser safety"
             correct: false
-            feedback: "The instruction is identical; both build it from the same generated client. What changes is who signs it: a keypair in the bot, the wallet in the browser."
+            feedback: "The wallet changes nothing about the instruction; it only supplies signatures. Same program, same accounts, same data — the only seam between bot and browser is which signer is plugged into the pipeline."
           - id: c
-            label: "The program — you deploy a separate program for browser use"
-            correct: false
-            feedback: "One program serves both. The account model and instruction are the same everywhere; only the signer (keypair vs wallet adapter) swaps out, which is the whole point of the shared client."
-        explanation: "Assembling and sending the transaction is identical across environments — same instruction, same client. The bot supplies a keypair signer; the browser supplies a wallet signer via the wallet standard. Isolating the signer is what lets one codebase drive both."
+            label: "The signer — the bot signs with a loaded keypair, the browser with the connected wallet; everything else is the same code"
+            correct: true
+        explanation: "The kit pipeline — build message, set fee payer, set blockhash lifetime, append the Codama-generated instruction, sign, send — is identical in both worlds. The only variable is the signer plugged in: a file-loaded keypair in the bot, the wallet's signer in the browser. One code path, two key custodians."

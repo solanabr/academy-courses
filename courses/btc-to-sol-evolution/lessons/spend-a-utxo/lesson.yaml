@@ -16,30 +16,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A set of unspent transaction outputs (UTXOs) that add up to 10 BTC"
-            correct: true
+            label: "A row in the miners' shared account database with balance = 10, decremented when you pay"
+            correct: false
+            feedback: "No such database exists — miners keep no account table. Bitcoin's state is the UTXO set; your '10 BTC' is your wallet summing the unspent outputs your keys can unlock."
           - id: b
-            label: "A single balance field of 10 stored under your address"
+            label: "A single on-chain balance field stored under your address, updated in place by each payment"
             correct: false
-            feedback: "That is the account model (Ethereum, Solana). Bitcoin keeps no balance field anywhere; your 'balance' is just the sum your wallet computes over the UTXOs you can spend."
+            feedback: "Bitcoin has no balance field to update. The 10 BTC is a SUM your wallet computes over discrete unspent outputs — which is why a payment must consume whole outputs and hand back change."
           - id: c
-            label: "A 10 BTC entry in the miners' database that they decrement when you pay"
-            correct: false
-            feedback: "There is no per-account ledger for miners to decrement. Payment consumes specific UTXOs entirely and creates new ones; the balance is an emergent total, not a stored number."
-        explanation: "In the UTXO model, coins exist only as discrete unspent outputs. Your wallet's 'balance' is the sum of the UTXOs whose spending conditions you can satisfy — there is no account object holding a number."
+            label: "A set of unspent transaction outputs (UTXOs) your keys can unlock, which happen to sum to 10 BTC"
+            correct: true
+        explanation: "There is no balance anywhere on-chain — only the UTXO set. A 'balance' is a wallet-side fiction: the sum of unspent outputs your keys control, maybe one 10 BTC output, maybe seven odd-sized ones. Every payment consumes some of those outputs entirely and creates new ones."
       - id: q2
         prompt: "You hold one 10 BTC UTXO and want to pay 3 BTC. What happens to the other 7?"
         multiSelect: false
         options:
           - id: a
-            label: "The 10 BTC UTXO is spent in full; the transaction creates a 3 BTC output to the payee and a ~7 BTC change output back to you"
+            label: "The 10 BTC UTXO is consumed whole; the transaction creates a 3 BTC output to the payee and a ~7 BTC change output back to you"
             correct: true
           - id: b
-            label: "Only 3 BTC leaves the UTXO; it keeps a 7 BTC balance"
+            label: "The UTXO is split in place — 3 BTC is carved off while the same output keeps a 7 BTC remainder"
             correct: false
-            feedback: "A UTXO cannot be partially spent — it is consumed whole. To keep the remainder you must create a CHANGE output back to an address you control, minus the fee."
+            feedback: "Outputs are indivisible — they can only be spent in full. Getting 'change' means your transaction explicitly creates a NEW output paying the remainder back to an address you control."
           - id: c
-            label: "The 7 BTC is lost to the network as a fee"
+            label: "You can pay exactly 3 BTC only if you also hold a 3 BTC UTXO; otherwise the node rejects the payment"
             correct: false
-            feedback: "The fee is the small difference between inputs and outputs, not the entire remainder. Without a change output the 7 BTC WOULD be handed to the miner — which is exactly why wallets always add change."
-        explanation: "UTXOs are spent entirely. Paying 3 from a 10 BTC output means the transaction outputs 3 to the recipient and change (about 7, minus fee) back to you. Forgetting the change output donates the remainder to the miner as fee."
+            feedback: "You never need exact denominations. Any set of UTXOs covering the amount works, because the transaction returns the surplus to you as a change output (minus the fee)."
+        explanation: "UTXOs spend like banknotes: whole, never partially. Paying 3 from a 10 means consuming the 10 and minting two outputs — 3 to the payee, ~7 back to yourself as change (the gap is the miner fee). Forgetting the change output is the classic footgun: whatever the outputs don't claim, the miner keeps."

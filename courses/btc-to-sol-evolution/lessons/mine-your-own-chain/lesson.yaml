@@ -16,30 +16,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A coinbase (block-reward) output only becomes spendable after 100 confirmations, so the first reward needs 100 blocks mined on top of it"
-            correct: true
+            label: "Regtest's difficulty adjustment needs 101 blocks before the chain accepts standard transactions"
+            correct: false
+            feedback: "Regtest runs at near-zero difficulty and has no warm-up period for transactions. The 101 comes from a consensus rule about block rewards: a coinbase output needs 100 confirmations before it may be spent."
           - id: b
-            label: "Regtest requires exactly 101 blocks before any transaction is allowed"
+            label: "Wallets refuse to spend outputs younger than 101 blocks as a reorg-safety default you can turn off"
             correct: false
-            feedback: "You can send transactions earlier; the specific constraint is COINBASE MATURITY. Only newly minted block rewards are locked for 100 confirmations — ordinary outputs are spendable immediately."
+            feedback: "It is not a wallet preference — coinbase maturity (100 confirmations) is a consensus rule, and no flag disables it. Mining 101 blocks makes exactly one reward — the first block's — spendable."
           - id: c
-            label: "Each block can only hold 1 BTC, so you need 101 blocks to afford a fee"
-            correct: false
-            feedback: "Block subsidy is not 1 BTC, and this is not about affording a fee. The 100-block wait is the coinbase-maturity rule that stops a just-mined reward from being spent before the chain has built confirmations on it."
-        explanation: "Coinbase outputs — the freshly minted block subsidy — mature only after 100 confirmations. So to spend block 1's reward you mine blocks 2 through 101 (100 on top), and `generatetoaddress 101` is the standard regtest way to get there."
+            label: "A coinbase (block-reward) output only matures after 100 confirmations, so you mine 100 blocks on top of the first one — 101 total"
+            correct: true
+        explanation: "Coinbase outputs are consensus-locked for 100 blocks. If a reorg orphaned a block whose freshly-spent reward had already propagated, every downstream payment would unravel — so rewards must age past plausible reorg depth before entering circulation. Block 1's reward becomes spendable once 100 blocks sit on top of it: height 101."
       - id: q2
         prompt: "Which command mines blocks on a modern Bitcoin Core regtest node, and what does it need?"
         multiSelect: false
         options:
           - id: a
-            label: "`generatetoaddress`, given a count and an address to receive the coinbase rewards"
+            label: "`generatetoaddress`, given a block count and an address to receive the rewards"
             correct: true
           - id: b
-            label: "`setgenerate true`, which mines to the default wallet automatically"
+            label: "`setgenerate true`, which flips the node into continuous background mining until you stop it"
             correct: false
-            feedback: "`setgenerate` is the old, removed API. Current Bitcoin Core uses `generatetoaddress`, which forces you to name the receiving address explicitly."
+            feedback: "setgenerate was removed from Bitcoin Core years ago. There is no background miner on a modern regtest node — you mint blocks explicitly with generatetoaddress <count> <address>."
           - id: c
-            label: "`mineblocks`, a built-in that needs no arguments"
+            label: "`getnewaddress` — creating a fresh address triggers the node to mine its reward into it"
             correct: false
-            feedback: "There is no `mineblocks` RPC. Mining on regtest is `generatetoaddress <nblocks> <address>`; the address is where each block's coinbase reward is paid."
-        explanation: "Regtest lets you mint blocks on demand with `generatetoaddress <count> <address>` — instant, difficulty-1 blocks whose rewards go to the address you name. It replaced the older `setgenerate` and makes the coinbase recipient explicit."
+            feedback: "getnewaddress only derives a wallet address; it never mines anything. You pass that address TO generatetoaddress, which is what actually creates blocks and directs the coinbase rewards."
+        explanation: "generatetoaddress <count> <address> instantly mines <count> regtest blocks and pays each coinbase reward to <address>. It replaced the removed setgenerate; on regtest difficulty is trivial, so 'mining' is just block assembly — which is what makes a laptop-speed private chain possible."

@@ -16,30 +16,30 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Double-spend prevention — a shared ledger that records the coin as spent once and rejects the second transfer"
-            correct: true
+            label: "Confidentiality — the coin file should have been encrypted so only its rightful owner could read it"
+            correct: false
+            feedback: "Encryption cannot help: Bob and Carol each hold a perfect, decryptable copy, and encrypting a file does not stop cp from duplicating it. The broken property is scarcity, and only a shared spent-once record restores it."
           - id: b
-            label: "Encryption — the coin should have been encrypted so only one person could open it"
-            correct: false
-            feedback: "Encryption hides data; it does nothing to stop the SAME coin being handed to two people. The problem is agreement on what was spent, not secrecy."
+            label: "Scarcity — double-spend prevention needs a shared ledger that records the coin as spent once and rejects the second transfer"
+            correct: true
           - id: c
-            label: "Nothing — digital cash has always allowed this"
+            label: "Integrity — a checksum inside coin.json would have exposed the copies as forgeries"
             correct: false
-            feedback: "It is exactly the failure digital cash could not ship with. Preventing it — without a copy being usable twice — is the whole problem Bitcoin set out to solve."
-        explanation: "A digital coin is a file, and files copy for free, so the same coin can be 'spent' twice. The fix is a ledger everyone agrees on that marks the coin spent the first time and rejects the second — the double-spend problem, unsolved for digital money until 2009."
+            feedback: "There is no forgery to detect — the copies are byte-for-byte identical, so every checksum passes. The problem is not a corrupted coin but the same valid coin accepted twice: a ledger problem, not a file problem."
+        explanation: "Copying the file twice double-spent it — the one failure a currency cannot survive, because effortless duplication destroys scarcity. No per-file trick (encryption, checksums, signatures) fixes it: the coin needs global history. A ledger makes ownership a shared record where the second spend of the same value is visible and rejected."
       - id: q2
-        prompt: "Bitcoin's genesis block (2009-01-03) embeds the headline 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks.' Why put a newspaper headline in the first block?"
+        prompt: "Bitcoin's genesis block (2009-01-03) embeds the headline 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks.' Why put a newspaper headline in block zero?"
         multiSelect: false
         options:
           - id: a
-            label: "It is a timestamp and a statement — it proves the chain was not pre-mined before that date, and nods at the bank-bailout world it was reacting to"
+            label: "It is a timestamp and a statement — proof the chain was not pre-mined before that date, and a nod at the bailout system Bitcoin answers"
             correct: true
           - id: b
-            label: "It is required by the Bitcoin protocol — every block must embed a news headline"
+            label: "It seeded the initial mining difficulty — the headline's hash set the target the first blocks had to beat"
             correct: false
-            feedback: "No block before or since is required to carry a headline. It was a one-time message in the genesis coinbase, not a protocol rule."
+            feedback: "Difficulty came from a hardcoded target, not from hashing news. The headline is a proof-of-no-earlier-start — you cannot cite tomorrow's front page today — plus a pointed editorial choice."
           - id: c
-            label: "It encrypts the first 50 BTC so only Satoshi can spend them"
+            label: "It was the payload of the first payment — Satoshi buying the newspaper's front page with the genesis reward"
             correct: false
-            feedback: "The text is plaintext in the coinbase, not encryption. The genesis reward is unspendable for an unrelated client quirk, not because of the headline."
-        explanation: "The headline does double duty: no one could have produced that exact 2009-01-03 front page earlier, so it timestamps the chain's birth; and it names the crisis — bank bailouts — that a trust-minimized money was a response to."
+            feedback: "The genesis coinbase paid no one — its 50 BTC is famously unspendable. The text rides in the coinbase's free-form field purely as a verifiable timestamp and a message."
+        explanation: "The headline does two jobs. Technically it is a timestamp floor: a block containing that day's front page cannot have been mined earlier, so the chain provably was not pre-mined. Rhetorically it names the target — a banking system mid-bailout — making block zero both an experiment's birth certificate and its manifesto."
