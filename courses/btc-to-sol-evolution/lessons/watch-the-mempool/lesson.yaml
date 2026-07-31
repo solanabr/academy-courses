@@ -2,7 +2,7 @@ id: lesson-b2s-watch-the-mempool
 slug: watch-the-mempool
 title: "Watch the mempool: your first chain-watching bot"
 skills:
-  - rpc
+  - rpc-reads
   - transactions
 blocks:
   - key: intro

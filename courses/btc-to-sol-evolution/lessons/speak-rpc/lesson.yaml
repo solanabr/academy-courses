@@ -2,7 +2,7 @@ id: lesson-b2s-speak-rpc
 slug: speak-rpc
 title: "Speak RPC: your node is just an API server"
 skills:
-  - rpc
+  - rpc-reads
   - transactions
 blocks:
   - key: intro

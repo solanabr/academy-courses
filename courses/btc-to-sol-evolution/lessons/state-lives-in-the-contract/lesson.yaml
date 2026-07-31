@@ -4,7 +4,6 @@ title: "The number that remembers: why a coded ledger needs accounts, not UTXOs"
 skills:
   - account-model
   - solana-programs
-  - defi
 blocks:
   - key: intro
     type: prose

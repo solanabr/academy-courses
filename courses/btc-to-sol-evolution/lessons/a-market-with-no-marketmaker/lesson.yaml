@@ -4,7 +4,6 @@ title: "A market with no market maker: deploy an AMM and swap against it"
 skills:
   - account-model
   - solana-programs
-  - defi
 blocks:
   - key: intro
     type: prose
