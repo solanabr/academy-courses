@@ -24,7 +24,7 @@ Chain ids are strings: `'solana:devnet'`, `'solana:mainnet'`. A connected accoun
 
 ## The seam — read it, don't write it
 
-The old stack has not gone away. `@solana/web3.js` v1 still holds npm's `latest` tag and out-downloads Kit (roughly 2.1M vs 1.65M weekly at the time of writing), and `@solana/wallet-adapter-react` is around 810k/week with a repo that is still maintained. "Canonical" and "what you will be paid to touch" have diverged: you will open codebases that use `useWallet()`, `publicKey` and `sendTransaction`, and you need to read them fluently — map `useWallet()` to Wallet Standard discovery, `publicKey` to the connected account's `address`, `sendTransaction` to a sending signer. Learn to read it. Do not learn to write it; this app does not.
+The old stack has not gone away. `@solana/web3.js` v1 still holds npm's `latest` tag (1.98.4) and out-downloads Kit — 2.08M vs 1.60M weekly downloads as of 2026-07-30 — and `@solana/wallet-adapter-react` is at 749k/week with a repo that is still maintained. Re-pull those numbers before you quote them; they are a snapshot, not a constant. "Canonical" and "what you will be paid to touch" have diverged: you will open codebases that use `useWallet()`, `publicKey` and `sendTransaction`, and you need to read them fluently — map `useWallet()` to Wallet Standard discovery, `publicKey` to the connected account's `address`, `sendTransaction` to a sending signer. Learn to read it. Do not learn to write it; this app does not.
 
 ## The exercise
 

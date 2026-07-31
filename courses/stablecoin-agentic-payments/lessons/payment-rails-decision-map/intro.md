@@ -46,7 +46,7 @@ Name the seam. Pin the versions. Write down which override you took and why. Tha
 
 Solana Pay is on your decision map as an **answer**; it is not on your `package.json`.
 
-Read the current reference at `solana.com/docs/payments`. Do **not** use `solana.com/developers/payments` — at time of writing it still quotes USDC statistics dated 1/31/22 and a Shopify integration that has moved on.
+Read the current reference at `solana.com/docs/payments`. Do **not** use `solana.com/developers/payments` — as of 2026-07 it still quotes USDC statistics dated 1/31/22 and a Shopify integration that has moved on.
 
 ## Rail 3 — x402
 
