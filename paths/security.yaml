@@ -5,5 +5,11 @@ description: Learn to audit Solana programs for vulnerabilities. Understand comm
 tag: Security
 order: 7
 difficulty: advanced
-draft: true
+# Shelved scaffold: extracted from live Sanity (CS-8) and never populated — no
+# course has ever pointed here. Under the #627 ruling an empty shelf must
+# declare WHY it is empty, and "draft" now means courses are on the way; none
+# are, so this is retired. The id is kept and un-retiring is explicitly allowed:
+# when a security/auditing course exists, drop `retired` and list it in the
+# same change.
+retired: true
 courses: []
