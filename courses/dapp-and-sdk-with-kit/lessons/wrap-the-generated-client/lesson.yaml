@@ -7,6 +7,11 @@ skills:
   - solana-kit
   - pdas
   - client-codegen
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@codama/renderers-js": "2.3.0"
 blocks:
   - key: intro
     type: prose

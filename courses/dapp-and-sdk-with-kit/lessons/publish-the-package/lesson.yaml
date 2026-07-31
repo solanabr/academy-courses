@@ -6,6 +6,10 @@ skills:
   - deployment
   - technical-writing
   - semver
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@codama/renderers-js": "2.3.0"
 blocks:
   - key: intro
     type: prose

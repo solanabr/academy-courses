@@ -6,6 +6,12 @@ skills:
   - fixed-delegation
   - solana-kit
   - pdas
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@solana/subscriptions": "0.4.0"
+    "@solana/kit-plugin-rpc": "0.13.0"
 blocks:
   - key: intro
     type: prose
