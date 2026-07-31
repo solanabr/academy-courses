@@ -2,9 +2,20 @@
 
 > **Version stamp — checked 2026-07-25.** `@solana/kit@7.0.0` · `@solana/subscriptions@0.4.0` (exact) · `@x402/core`, `@x402/svm`, `@x402/express`, `@x402/fetch` all `2.19.0`. Subscriptions Delegation Program: `De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44`. This course is TypeScript only — no Rust, no local toolchain.
 
-You finished Course 4 with a deployed app and a published client. It earns nothing.
+If you came through Course 4 you finished it with a deployed app and a published client. Either way, the app this course starts from earns nothing.
 
 Nothing in it charges anybody. There is no subscription, no metered route, no allowance, no invoice. This module fixes exactly that, and the first decision is not a line of code — it is which payment rail your requirement actually needs, because picking the wrong one costs you a rewrite three lessons later.
+
+## Starting here, with no Course 4 behind you
+
+This course is a deliberate entry point. If you write TypeScript, have never touched Rust and want the payments material on its own, start here — nothing below needs a program you wrote, and every exercise in this course runs against fixtures rather than against your own deployment.
+
+What normally arrives from Course 4 is a pair of artifacts: a **deployed app** and a **published client** for it. Here is what stands in for each:
+
+- **The deployed app** — the frozen devnet reference vault, program `D7ZFoWvEG5NBnkJy6iC98rhwj2qhgq8xhSD42cdTRAQd`, vault PDA `FY86s1fAwUiFQTjVFYprsiV6fwNH7e955MSUBo73FP4j`. Its upgrade authority is revoked, so the address and the byte layout will not move under you. It is the thing you are putting a price on when a lesson says "your app".
+- **The published client** — there is no npm package to install, and you do not need one. The IDL is committed at [`onchain-academy/reference-vault/vault_program.idl.json`](https://github.com/solanabr/superteam-academy/blob/main/onchain-academy/reference-vault/vault_program.idl.json), which is everything a generated client is built from; and the exercises in this course exercise the *payment* side — subscription authorities, delegations, x402 challenges — never the vault's own instructions. If you want the typed client anyway, generating it from that IDL is Course 4's lesson 1.
+
+The rails, the caps, the 402 handshake and the compliance boundary are all the same either way. The one thing the fallback does not do is earn the credential: that still requires **your own** artifact, the app and client you built, not a reference someone else deployed.
 
 There are three rails worth knowing on Solana today, and one legal boundary that decides whether a requirement is even buildable from Brazil.
 
