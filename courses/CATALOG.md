@@ -5,6 +5,13 @@ contain, the shape each lesson takes, and the exact APIs/versions to teach. `CON
 to author *mechanically* (schemas, CI, ids); this tells you *what* to author and *why*.
 
 - **Status:** approved blueprint, 2026-07-25. Nothing here is authored yet.
+- **Status addendum (2026-07-31):** the authored track-1 courses (C1–C5) and the `solana-for-evm-devs`
+  elective are **parked in `courses/_draft/`** pending quality review, along with `paths/_draft/zero-to-deployed.yaml`
+  and the achievements that referenced them. The live catalog is currently the single elective
+  `course-btc-to-sol-evolution` (trackId 0 / trackLevel 0, not part of this blueprint);
+  `achievement-course-completer` targets it while it is the only live course. This blueprint remains
+  the authoring contract for the track-1 catalog — restoring a course means moving it back to
+  `courses/<slug>/` unchanged.
 - **Strategic record** (the research it derives from, the platform work it depends on) lives in the app repo:
   `docs/superpowers/specs/2026-07-25-*.md` in `solanabr/superteam-academy`.
 - **How a course ships:** one PR per course in this repo → merged content stages → the app repo bumps

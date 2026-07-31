@@ -18,6 +18,25 @@ courses/<slug>/
 
 Copy [`_template/`](./_template) to start a new course. Everything is validated in CI; `_template/` itself is linted but **never published**.
 
+## `_draft/` — parked courses
+
+`courses/_draft/<slug>/` holds courses that are staged out of the live catalog. The linter discovers courses only at `courses/<slug>/` (fixed depth), so anything under `_draft/` is **invisible to lint and never compiled/published** — but note that live `paths/` and `achievements/` files must not reference a drafted course id (dangling references are CI errors). The same convention exists as `paths/_draft/` and `achievements/_draft/`. To restore a course, `git mv` it back to `courses/<slug>/` unchanged — its `slots.lock.json` travels with it and must not be regenerated.
+
+## Images and visual assets
+
+Images live in a per-lesson `assets/` folder and are embedded from the lesson's prose markdown with a relative link:
+
+```
+courses/<slug>/lessons/<lesson>/
+  intro.md               # …contains ![alt text](assets/v01-diagram.png)
+  assets/
+    v01-diagram.png
+```
+
+Every file inside a lesson folder must be referenced from a block or from prose markdown — an unreferenced file is a CI error (orphan check). Write meaningful alt text; it's the accessibility caption.
+
+A course may also keep the *sources* that generated its images (HTML/CSS renders, etc.) in a course-level `visual-src/` folder — e.g. `courses/<slug>/visual-src/<lesson>/v01-diagram.html`. Course-level folders outside `lessons/` are ignored by the linter and never published; they exist so visuals stay editable and re-renderable from the repo.
+
 ## `course.yaml`
 
 ```yaml

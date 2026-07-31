@@ -8,12 +8,11 @@ category: progress
 xpReward: 200
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-course-completer
-# This generic "complete an entire course" badge always targets the entry course
-# of path-zero-to-deployed. The 2026-07-27 catalog migration retired
-# course-solana-fundamentals and parked the target on C2 (content #21 / monorepo
-# #798) only because C1 did not exist yet. C1 (course-solana-for-web-devs) is now
-# authored and holds the path's front slot, so the target moves to it — the
-# planned move tracked on monorepo #673 (C1 flip wave).
+# This generic "complete an entire course" badge targets the live entry-point
+# course. History: parked on C2 (content #21), moved to C1 course-solana-for-web-devs
+# on the C1 flip wave (monorepo #673). On 2026-07-31 the track-1 catalog was parked
+# in courses/_draft/ and course-btc-to-sol-evolution became the only live course,
+# so the target moves with it. Retarget again when the catalog is restored.
 award:
   kind: course-completed
-  course: course-solana-for-web-devs
+  course: course-btc-to-sol-evolution

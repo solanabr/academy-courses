@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 *.log
+
+# local course-production staging (agent output; never commit directly)
+academy-pass1/
+academy-raw/
