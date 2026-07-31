@@ -91,7 +91,7 @@ Everything else in this document still binds an elective — §6's currency ruli
 | DeFi / AMM           | Zero Brasil demand; commoditized by Cyfrin's free 48-lesson course; our version is untyped JS calculators                           |
 | Mobile               | ~3 Earn listings in 12 months; Android tooling kills the zero-install promise; Blueshift owns it with 4 courses                     |
 | Standalone security  | Most crowded listings on Earn (135 subs for $1,000); saturated by Ackee + Blueshift; threads through C3 instead                     |
-| Indexing             | ~$35 per competitor; mainnet LaserStream gRPC paywalled at $499/mo; one lesson in C4                                                |
+| Indexing             | ~$35 per competitor; mainnet LaserStream gRPC paywalled at $499/mo; **deferred, not covered** — no shipped lesson teaches it, and C5 L4 defers the thread explicitly ("Do not build it here") |
 | Blinks / Actions     | SDK frozen ~20 months (`@solana/actions` 1.6.6, 2024-11-05); disabled by default in Phantom                                         |
 | Pinocchio / assembly | Blueshift's territory — and Anchor v2 alpha is itself Pinocchio-based `no_std`, so the course would be obsoleted by its own subject |
 | Standalone AI-agents | Biggest purse, worst odds; lives inside C5 as a payments primitive                                                                  |
