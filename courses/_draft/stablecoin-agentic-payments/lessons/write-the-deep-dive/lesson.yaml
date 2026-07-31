@@ -6,6 +6,8 @@ skills:
   - version-pinning
   - subscriptions-program
   - x402-protocol
+  - subscription-authority
+  - recurring-delegation
 blocks:
   - key: shape
     type: prose

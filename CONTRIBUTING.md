@@ -35,11 +35,11 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 **Every course needs a creator wallet.** `course.creator` must be a real Solana address — that's how the author gets credited (and earns creator XP). It becomes `Course.creator` on-chain and **cannot be changed after the course is created**, so use the wallet you actually want paid.
 
-**Capabilities are ordered.** A block that `consumes: [deployed-program]` must appear after a block that produces it, anywhere earlier in the course. Only a `wallet-funding` block can produce `funded-wallet`; only a `deployable` `code` block can produce `deployed-program`.
+**Capabilities are ordered.** A block that `consumes: [deployed-program]` must appear after a block that produces it, anywhere earlier in the course — **or in a course listed earlier on a learning path this course sits on** (`paths/*.yaml`), which is how a course declares that it consumes the previous course's output. Only a `wallet-funding` block can produce `funded-wallet`; only a `deployable` `code` block can produce `deployed-program`. Producing across the boundary is a path-order fact only: it does not set `prerequisiteCourse`, which is written on-chain and gates enrollment.
 
 **No orphan files.** Every file in a lesson directory must be referenced by a block (`src`, `starter`, `solution`, `tests`, `idl`) or linked from a prose `.md`.
 
-**A non-draft learning path needs at least one course.** Mark work-in-progress paths `draft: true`.
+**An empty learning path must say why it is empty.** A path with no courses is hidden by the app either way, so it has to declare intent: `draft: true` means courses are on the way (and it must list them — `draft: true` with `courses: []` is an error), `retired: true` means permanently emptied with the id preserved (and its `courses` must stay empty). A path that never shipped to learners is deleted outright rather than retired — there is no id to reserve. See [paths/README.md](./paths/README.md).
 
 ## Quizzes
 

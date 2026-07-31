@@ -6,6 +6,11 @@ skills:
   - idl
   - client-codegen
   - solana-kit
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@codama/renderers-js": "2.3.0"
 blocks:
   - key: intro
     type: prose
@@ -13,6 +18,15 @@ blocks:
   - key: inspect
     type: code
     language: typescript
+    # The input to this course is C3's output: a devnet program id and the Anchor
+    # IDL published against it. Codama generates from that IDL, so this block
+    # cannot be done without it. Satisfied by C3's
+    # `deploy-and-publish-the-idl` (produces: deployed-program), which precedes
+    # this course on path-zero-to-deployed. A learner who does not have their own
+    # program follows along against the frozen reference vault (see intro.md) —
+    # the credential still requires their own artifact.
+    consumes:
+      - deployed-program
     starter: ts/starter.ts
     solution: ts/solution.ts
     tests: ts/tests.json

@@ -38,7 +38,7 @@ award: { kind: lessons-completed, gte: 1 }   # REQUIRED — see below
 award: { kind: course-completed, course: course-solana-fundamentals }
 
 # a learning-path badge
-award: { kind: path-completed, path: path-solana-core }
+award: { kind: path-completed, path: path-zero-to-deployed }
 
 # a 7-day streak
 award: { kind: streak, days: 7 }

@@ -1,16 +1,35 @@
 id: lesson-rpd-what-you-built
 slug: what-you-built
 title: What You Built
+# The recap quiz now carries ≥1 question per distinct C2 skill tag, so this
+# list is the full C2 vocabulary rather than a subset — it is what the lesson
+# actually re-tests. Keep it in sync with the q1–q25 mapping in the quiz block.
 skills:
-  - rust-ownership
-  - rust-structs
-  - rust-enums
-  - rust-result
-  - checked-arithmetic
-  - rust-lifetimes
-  - rust-traits
   - account-layout
+  - anchor
+  - borsh-serialization
+  - build-server
+  - checked-arithmetic
+  - compiler-errors
+  - debugging
+  - error-handling
   - pdas
+  - program-security
+  - rust
+  - rust-borrowing
+  - rust-control-flow
+  - rust-enums
+  - rust-lifetimes
+  - rust-modules
+  - rust-move-semantics
+  - rust-option
+  - rust-ownership
+  - rust-result
+  - rust-slices
+  - rust-structs
+  - rust-traits
+  - rust-types
+  - toolchain-versions
 blocks:
   - key: reread
     type: prose
@@ -284,6 +303,781 @@ blocks:
           verifies, and a wildcard is what you trade it away for. Two match sites
           with no wildcard gave you a to-do list in lesson 11; the same thing
           happens across a course boundary here.
+      # q8–q25 close the recap's tag coverage: the quiz now carries at least one
+      # question per distinct skill tag used anywhere in C2. Mapping (q1–q7 are
+      # the original seven): q1 rust-structs · q2 error-handling / rust-result ·
+      # q3 rust-borrowing (via ownership in a signature) · q4 account-layout ·
+      # q5 pdas · q6 rust-lifetimes · q7 rust-enums · q8 rust-types ·
+      # q9 rust-control-flow · q10 rust · q11 checked-arithmetic · q12 rust-option ·
+      # q13 rust-slices · q14 rust-borrowing · q15 rust-move-semantics ·
+      # q16 rust-modules · q17 borsh-serialization · q18 program-security ·
+      # q19 compiler-errors · q20 debugging · q21 build-server ·
+      # q22 toolchain-versions · q23 rust-ownership · q24 rust-traits · q25 anchor.
+      - id: q8
+        prompt: >-
+          You index a byte slice with a `u64` you already have in hand:
+          `data[offset]` where `offset: u64`. On the SBF target `usize` is also
+          8 bytes wide. Predict the build.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Red, `E0308` — indexing wants `usize`, and Rust performs no
+              implicit numeric conversion, not even between two types of
+              identical width. You write `offset as usize`, or take the
+              parameter as `usize` in the first place.
+            correct: true
+          - id: b
+            label: >-
+              Green — on this target `usize` and `u64` are 64 bits, so they are
+              the same type.
+            correct: false
+            feedback: >-
+              Same width, different types. That equal width is exactly why
+              treating them as interchangeable is a habit that survives here and
+              breaks the first time something is not 64-bit.
+          - id: c
+            label: >-
+              Green, with a warning about a lossy conversion.
+            correct: false
+            feedback: >-
+              No conversion is attempted, so there is nothing to warn about.
+              Rust converts nothing for you — not even the lossless direction.
+          - id: d
+            label: >-
+              Red in a debug build only; a release build coerces numeric types.
+            correct: false
+            feedback: >-
+              No profile makes Rust insert a numeric conversion. The one
+              arithmetic behaviour the profile controls is `overflow-checks`, and
+              that changes what happens at run time, not what typechecks.
+        explanation: >-
+          "Rust converts nothing for you" is the rule with the widest reach in
+          lesson 2, and `usize` is where it bites people who have already
+          internalised it for `u8` → `u64`. `usize` is the index type; on SBF it
+          happens to be 8 bytes, which makes the conflation invisible until it
+          isn't.
+      - id: q9
+        prompt: >-
+          `fn min_balance(a: u64, b: u64) -> u64 { if a < b { a; } else { b; } }`
+          — predict the exact shape of the failure.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `E0308`, reported twice — once per arm. A semicolon discards the
+              value, so `{ a; }` evaluates to `()` while the signature promises
+              `u64`, and the `help:` says "remove this semicolon to return this
+              value".
+            correct: true
+          - id: b
+            label: >-
+              `E0308` once, at the function's closing brace, since that is where
+              the missing value shows up.
+            correct: false
+            feedback: >-
+              The compiler checks each arm against the expectation the return
+              type created, so it reports per arm and puts the caret on the
+              discarded expression — which is what makes the `help:` actionable.
+          - id: c
+            label: >-
+              Green — a trailing semicolon inside a block is a style choice.
+            correct: false
+            feedback: >-
+              It is the whole rule, not a style: `{ a }` is `a`, `{ a; }` is
+              `()`. A semicolon turns an expression into a statement whose value
+              is nothing useful.
+          - id: d
+            label: >-
+              Red with `E0004`, non-exhaustive patterns — the `if` does not cover
+              every case.
+            correct: false
+            feedback: >-
+              An `if`/`else` covers both branches by construction, and `E0004` is
+              a `match`-arm coverage error. There is no `match` here.
+        explanation: >-
+          `if` is an expression in Rust — which is why the language has no
+          ternary — and a function's value is its tail expression, the last one
+          with no semicolon. Both facts collapse into one character, and this is
+          the error JavaScript developers hit in their first week.
+      - id: q10
+        prompt: >-
+          Lesson 1's whole file was `pub fn vault_core_banner() -> Result<()> {
+          msg!(…); Ok(()) }`. Which of these are true?
+        multiSelect: true
+        options:
+          - id: a
+            label: >-
+              `()` is the unit type — a real type with exactly one value — which
+              is why it can be put inside `Ok(...)` like anything else.
+            correct: true
+          - id: b
+            label: >-
+              `Ok(())` carries no semicolon because it is the function's tail
+              expression: the value the function evaluates to.
+            correct: true
+          - id: c
+            label: >-
+              A Solana program signals failure by returning an `Err`, not by
+              unwinding. There is no `throw`; failure is a value you return.
+            correct: true
+          - id: d
+            label: >-
+              `()` is Rust's `null`, so `Ok(())` is how you say "nothing was
+              found".
+            correct: false
+            feedback: >-
+              `()` is "no meaningful value", not "absence of a value". Absence is
+              `Option::None` — a different type, with a different job, and the
+              compiler will not let you confuse them. That is lesson 4.
+        explanation: >-
+          Three of Rust's smallest facts, all visible in an eight-line file:
+          everything is an expression, nothing is in scope you did not import,
+          and errors are values. The last one is why `Result<()>` is a program's
+          standard return shape and why `.unwrap()` never appears in this
+          course's code.
+      - id: q11
+        prompt: >-
+          `let new_balance = balance - amount;` with `balance = 5` and
+          `amount = 7`, compiled by *this* course's build server. What happens,
+          and what does the caller see?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It panics — the build crate sets `overflow-checks = true` in
+              `[profile.release]`. The instruction aborts with no error code and
+              no message, so the caller cannot tell "you asked for too much" from
+              "the program has a bug".
+            correct: true
+          - id: b
+            label: >-
+              It wraps to 18 446 744 073 709 551 614 and the vault believes it
+              holds eighteen quintillion lamports.
+            correct: false
+            feedback: >-
+              That is a release build with overflow checks **off**. This crate
+              turns them on, which converts a silent corruption into a loud
+              crash — strictly better, and still not an error you can return.
+          - id: c
+            label: >-
+              It returns `None`, which is why the caller has to handle the
+              failure before touching a number.
+            correct: false
+            feedback: >-
+              Only `checked_sub` returns `None`. Plain `-` has type `u64`; there
+              is no `None` for it to hand back.
+          - id: d
+            label: >-
+              It saturates at 0, since `u64` is unsigned.
+            correct: false
+            feedback: >-
+              `saturating_sub` does that, and you have to ask for it by name.
+              Nothing in Rust saturates by default.
+        explanation: >-
+          Three answers depending on how the program was compiled — panic, wrap,
+          or `None` — and only the third is a value you can return. That the
+          profile flag saves you here is exactly the trap: code whose correctness
+          depends on a `[profile.release]` setting is one `Cargo.toml` edit away
+          from being wrong.
+      - id: q12
+        prompt: >-
+          Lesson 4's `sub_lamports` is a `const fn` and uses `match`, not `?`.
+          Why was `?` unavailable, and what would `.unwrap()` have done there?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `?` desugars to calls into the `Try` machinery, which are not
+              `const fn` — you get `E0015`. And a `.unwrap()` on `None` reached
+              during const evaluation fails the *build*, not the program: it
+              fails at your keyboard.
+            correct: true
+          - id: b
+            label: >-
+              `?` only works on `Result`, never on `Option`.
+            correct: false
+            feedback: >-
+              `?` works on `Option` too — it returns `None` early. The constraint
+              here is const-evaluation, not the type.
+          - id: c
+            label: >-
+              `?` needs a declared error type, which `Option` has no equivalent
+              of; `.unwrap()` would have panicked on-chain at run time.
+            correct: false
+            feedback: >-
+              The run-time half is the mistake. This function is called from a
+              `const _: () = assert!(…)`, so it is evaluated while the file
+              compiles — a panic there is a compile error.
+          - id: d
+            label: >-
+              Nothing prevented `?`; `match` was a style choice the lesson spec
+              made.
+            correct: false
+            feedback: >-
+              `E0015` is a hard error: "`?` is not allowed on `Option<u64>` in
+              constant functions". The spec said `match` because `?` does not
+              compile there.
+        explanation: >-
+          `Option<u64>` and `u64` are different types, so the `None` case cannot
+          be deferred to run time the way a null dereference can. `const fn` is
+          what turned that into a *graded* property: ten `const _: () = assert!`
+          lines make a `sub_lamports` that quietly calls `checked_add` go red,
+          which a compile-only grader could not otherwise catch.
+      - id: q13
+        prompt: >-
+          Bug 4 in lesson 7 returned `&owned[..8]`, where `owned` is a `Vec<u8>`
+          created inside the function. Predict the error and the fix.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `E0515` — `owned` is dropped when the function returns, so the
+              reference would point at freed memory. Every returned reference has
+              to borrow from something that outlives the call: a parameter does,
+              a local does not.
+            correct: true
+          - id: b
+            label: >-
+              `E0106`, missing lifetime specifier — the signature does not say
+              which input the return borrows from.
+            correct: false
+            feedback: >-
+              That is the *next* lesson's error, and it needs two input
+              references. Here there is one candidate and elision already filled
+              it in; the problem is that the data is local, not that it is
+              ambiguous.
+          - id: c
+            label: >-
+              Green — `&[u8]` is just an address plus a length, 16 bytes, so
+              returning it copies the view out and nothing dangles.
+            correct: false
+            feedback: >-
+              Copying the view copies the address. The buffer it points into is
+              still dropped at the closing brace, which is the entire failure.
+          - id: d
+            label: >-
+              Green — `Vec<u8>` allocates on the heap, so its buffer survives the
+              stack frame.
+            correct: false
+            feedback: >-
+              The heap buffer is *owned* by the `Vec`, and dropping the `Vec`
+              frees it. Ownership decides when a value dies, not where it lives.
+        explanation: >-
+          `Vec<u8>` owns its buffer; `&[u8]` looks at one. That distinction is
+          the whole of bug 4, and the question it forces — *which* input does the
+          returned reference borrow from? — is the question lifetime annotations
+          exist to answer.
+      - id: q14
+        prompt: >-
+          `E0502`, from lesson 7: `let before = &v.balance;` then
+          `credit(v, shortfall);` then `*before`. The caret is on the mutable
+          borrow. What is actually wrong, and what is the fix?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The third span is the problem — the shared borrow is *used again
+              afterwards*, which is what keeps it alive across the mutation. Take
+              the `u64` by value instead; it is `Copy`, and a copied number
+              cannot conflict with anything.
+            correct: true
+          - id: b
+            label: >-
+              The mutable borrow is too early; move `credit(v, …)` below the
+              final use of `before`.
+            correct: false
+            feedback: >-
+              Later is not the axis — overlap is. Reordering without dropping the
+              shared borrow's last use just relocates the same overlap.
+          - id: c
+            label: >-
+              Wrap `v` in a `RefCell` so the two borrows are checked at run time
+              instead of at compile time.
+            correct: false
+            feedback: >-
+              That trades a compile error for a run-time panic, and the lesson
+              warns about it by name: if you have talked yourself into a
+              `RefCell`, re-read the error first.
+          - id: d
+            label: >-
+              Split `balance` and `bump` into separate variables — two mutable
+              borrows of one struct are never allowed.
+            correct: false
+            feedback: >-
+              Two mutable borrows of *different fields* coexist happily; the
+              checker tracks each field as its own place. The error that is about
+              the same place twice is `E0499`, and this is not it.
+        explanation: >-
+          Borrow errors name three spans and the last one usually carries the
+          fix. The mutable borrow gets the caret because that is where the rule
+          was violated, but what created the violation is the shared borrow still
+          being live — so the move is to stop holding it, not to reshuffle the
+          mutation.
+      - id: q15
+        prompt: >-
+          `E0382: use of moved value: vault` — `consume_and_log(vault);` then
+          `vault.balance`. Which reading leads to the right fix?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The dashes mark where you lost the value, the caret where you used
+              it afterwards. The question is never "how do I get it back" but
+              "did that function need to own it at all?" — usually not, and the
+              fix is a borrow.
+            correct: true
+          - id: b
+            label: >-
+              Reassign `vault` after the call so the binding is valid again.
+            correct: false
+            feedback: >-
+              You would be binding a different value. The compiler's objection is
+              not that the name is empty; it is that the value it named now
+              belongs to someone else.
+          - id: c
+            label: >-
+              `#[derive(Clone)]` and clone at the call site — the canonical fix.
+            correct: false
+            feedback: >-
+              It compiles, and it is the fallback rather than the first move.
+              Clone when the callee genuinely needs ownership; a `&` costs
+              nothing and is usually what was meant.
+          - id: d
+            label: >-
+              It would not happen if `VaultState`'s fields were `pub`.
+            correct: false
+            feedback: >-
+              Visibility controls who can *name* a field, never who owns the
+              value — the same distinction as `pub` versus `mut` in lesson 2.
+        explanation: >-
+          In JavaScript `const b = a` gives two names for one object; in Rust it
+          gives one owner and one dead name. Reading `E0382` bottom-up — used
+          here, lost there — turns it from an arbitrary rejection into a question
+          about the callee's signature, which is where the fix lives.
+      - id: q16
+        prompt: >-
+          Lesson 13 writes `mod vault { … }` inline rather than putting it in a
+          `vault.rs`. What in the crate forces that?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              The manifest says `path = "src/lib.rs"`, and the editor's file *is*
+              `src/lib.rs` — one starter, one file, one crate. `mod vault;` would
+              send the compiler looking for `src/vault.rs`, which does not exist.
+            correct: true
+          - id: b
+            label: >-
+              Anchor requires every program module to be inline.
+            correct: false
+            feedback: >-
+              It does not; real Anchor programs are split across files freely.
+              The constraint is this platform's one-file submission, not the
+              framework.
+          - id: c
+            label: >-
+              Only inline modules can be `pub`.
+            correct: false
+            feedback: >-
+              Both kinds can be `pub`. `mod x;` and `mod x { }` differ in where
+              the source lives, not in visibility.
+          - id: d
+            label: >-
+              `crate-type = ["cdylib", "lib"]` disallows file modules.
+            correct: false
+            feedback: >-
+              `crate-type` picks the output artifacts — the shared object the
+              chain loads, plus an ordinary Rust library that something could
+              import. It says nothing about where modules live.
+        explanation: >-
+          The `Cargo.toml` you never see decides what your code is allowed to
+          say. Reading it once explains the inline module, the `overflow-checks`
+          behaviour of lesson 4, the edition ceiling, and why `borsh = "1.5.7"`
+          compiles as 1.8.0.
+      - id: q17
+        prompt: >-
+          `#[derive(InitSpace)]` computes `INIT_SPACE` from the field types.
+          Which of these are true?
+        multiSelect: true
+        options:
+          - id: a
+            label: >-
+              A `String` capped at 16 characters costs `4 + 16 = 20` bytes — the
+              borsh length prefix is 4 bytes, not 1 and not zero. Forgetting it
+              is the classic under-allocation.
+            correct: true
+          - id: b
+            label: >-
+              `Option<T>` costs a 1-byte present/absent tag *plus* the size of
+              `T`, even when the value is `None` — borsh writes a fixed layout,
+              with no "absent field" on the wire.
+            correct: true
+          - id: c
+            label: >-
+              `INIT_SPACE` is 41 for `VaultState` and excludes the 8-byte
+              discriminator, which is why allocation is written
+              `space = 8 + VaultState::INIT_SPACE`.
+            correct: true
+          - id: d
+            label: >-
+              A `String` with no `max_len` gets a sensible default so the derive
+              can still compute a size.
+            correct: false
+            feedback: >-
+              `InitSpace` refuses to guess — `error: Expected max_len attribute.`
+              A `String` has no size until you name one, and an account has to
+              have a size. Refusing is the correct behaviour.
+        explanation: >-
+          Borsh encodes fields back to back, little-endian, with no padding and
+          no field names on the wire — so the struct *is* the layout, and the
+          derive is doing arithmetic you could do by hand. The `8 +` is on you
+          every single time; hardcoding the total instead of deriving it from the
+          const is what under-allocates.
+      - id: q18
+        prompt: >-
+          Why is unchecked arithmetic an *exploit* class in on-chain programs
+          rather than a robustness nit — and where does `.unwrap()` sit in the
+          same argument?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Because with overflow checks off a release build wraps **silently**
+              — no panic, no log, no signal of any kind — so the program acts on
+              a wrong balance and the next line commits it. `.unwrap()` is banned
+              for the mirror reason: it turns a case you could have returned into
+              an abort the caller cannot read.
+            correct: true
+          - id: b
+            label: >-
+              Because the overflow is a lint the attacker suppresses with an
+              `#[allow]` attribute.
+            correct: false
+            feedback: >-
+              There is no lint to suppress. Wrapping is *defined* release
+              behaviour, which is precisely what makes it silent and what makes
+              it exploitable.
+          - id: c
+            label: >-
+              It is not one — `overflow-checks = true` in the build profile
+              closes it.
+            correct: false
+            feedback: >-
+              That flag converts silent corruption into a loud crash, which is
+              strictly better and still not an error you can return. It is also a
+              property of the profile rather than of your code.
+          - id: d
+            label: >-
+              Because `u64` underflow is undefined behaviour in Rust, as it is in
+              C.
+            correct: false
+            feedback: >-
+              Rust defines both outcomes: panic with checks on, two's-complement
+              wrap with them off. Defined and wrong is the point — undefined it
+              is not.
+        explanation: >-
+          `checked_sub` + `ok_or` is the only shape that produces something a
+          client can act on: a code and a `#[msg]` string you wrote. A panic tells
+          the caller that something went wrong; the checked path tells them what.
+          That is lesson 4's argument, restated at the manifest level in lesson
+          13 and enforced by your own `VaultError` variants.
+      - id: q19
+        prompt: >-
+          Your build comes back with nine errors. Which of these are true about
+          how to read them?
+        multiSelect: true
+        options:
+          - id: a
+            label: >-
+              Fix the **first** error and rebuild. One real mistake often
+              produces a wall, because everything downstream is being checked
+              against a type the compiler had to guess at.
+            correct: true
+          - id: b
+            label: >-
+              "expected … found …" reads in that order: expected is what the
+              surrounding code demands, found is what you gave it.
+            correct: true
+          - id: c
+            label: >-
+              The numbered code — `E0308` — is stable and documented, with a page
+              and a minimal example per code. Search the code, not the message.
+            correct: true
+          - id: d
+            label: >-
+              `rustc` stops at the first error the way a JavaScript runtime stops
+              at the first exception, so one build can only ever reveal one bug.
+            correct: false
+            feedback: >-
+              The opposite: `rustc` keeps going and reports every *independent*
+              error in one pass. Four unrelated mistakes give four errors in one
+              build — one round-trip per batch of work, not one per bug.
+        explanation: >-
+          Both halves are true at once, which is what makes the reading rule
+          non-obvious: the compiler reports independent errors in parallel, and
+          *dependent* ones cascade from a single cause. Fixing the first and
+          rebuilding is how you tell the two apart cheaply.
+      - id: q20
+        prompt: >-
+          A file compiles green and contains `warning: unreachable pattern`. What
+          do you see, and what does the green tell you?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Nothing — the runner reports success and discards the log, so a
+              green file with warnings is indistinguishable from one with none.
+              And green means it compiled against the real Anchor toolchain: more
+              than a linter can say, and one bit.
+            correct: true
+          - id: b
+            label: >-
+              The warnings, without the error output — warnings always print,
+              they just do not fail the build.
+            correct: false
+            feedback: >-
+              They do not fail the build, and on this platform you never see them
+              on a pass. Read "this only produces a warning" as "nothing here
+              will tell you".
+          - id: c
+            label: >-
+              Nothing by default, but you can raise the log level in the editor
+              to surface warnings on a passing build.
+            correct: false
+            feedback: >-
+              There is no such control. It is a real limitation of the platform,
+              worth knowing rather than working around.
+          - id: d
+            label: >-
+              Nothing, and that is fine: a green build against the pinned
+              toolchain does prove the file is correct.
+            correct: false
+            feedback: >-
+              It proves the file *compiled*. Lesson 4's `const _: () = assert!`
+              lines exist precisely because compiling is not correctness — a
+              `sub_lamports` that calls `checked_add` compiles perfectly.
+        explanation: >-
+          The build log is the **failure** interface: a failing build hands you
+          the compiler's whole output, a passing one hands you a line and a build
+          id. Everything you know about debugging here follows from that one
+          platform fact, including why `unreachable_patterns` — one of Rust's
+          highest-value warnings — is invisible to you on a pass.
+      - id: q21
+        prompt: >-
+          Your first build took 70 seconds; the next one came back in three.
+          What was the first one doing, and what does "compiled for SBF" mean
+          here?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              Compiling Anchor and its whole dependency tree, not your eight
+              lines — later builds reuse that work. SBF is the bytecode format
+              validators execute, which is why nothing is installed on your
+              machine and no `.so` is uploaded from it.
+            correct: true
+          - id: b
+            label: >-
+              Provisioning a fresh container per build; SBF is the name of the
+              build server's queue.
+            correct: false
+            feedback: >-
+              SBF is Solana's bytecode target — `cargo-build-sbf` is the command
+              that produces it. The first-build cost is a cold dependency cache.
+          - id: c
+            label: >-
+              Running your program's tests; SBF is a packaging step after
+              compilation.
+            correct: false
+            feedback: >-
+              Nothing runs your code. Grading on the Rust path is a compilation
+              check, which is exactly why lessons 4 and 8 smuggle behaviour
+              checks in as compile-time assertions.
+          - id: d
+            label: >-
+              Downloading rustup and the platform toolchain into your browser
+              session.
+            correct: false
+            feedback: >-
+              Nothing is installed anywhere near you. The server already has the
+              toolchain — that is the entire point of the loop, and it is the
+              same loop for Course 3.
+        explanation: >-
+          One file goes to a server that already has the Solana platform
+          toolchain, it compiles for SBF, and the result comes back. No `rustup`,
+          no toolchain to keep in sync with a tutorial, and no upload of a built
+          artifact from your machine.
+      - id: q22
+        prompt: >-
+          The version stamps say `anchor-lang 1.1.2`, `borsh 1.5.7 declared /
+          1.8.0 resolved`, and a pinned `rustc` from platform-tools v1.54. Which
+          of these follow?
+        multiSelect: true
+        options:
+          - id: a
+            label: >-
+              The pinned `rustc` is a **ceiling**: any language feature
+              stabilised after it does not exist for you, whatever the release
+              notes say and however new the Rust on your laptop is.
+            correct: true
+          - id: b
+            label: >-
+              `borsh = "1.5.7"` is a range — `>=1.5.7, <2.0.0` — which is why
+              1.8.0 is what actually compiles. `=1.5.7` is the exact pin.
+            correct: true
+          - id: c
+            label: >-
+              `CpiContext::new(ctx.accounts.system_program.to_account_info(), …)`
+              is the Anchor 0.x shape and does not compile against 1.1.2, where
+              it is `CpiContext::new(System::id(), …)`.
+            correct: true
+          - id: d
+            label: >-
+              You can check the stamp against the build log, which prints the
+              `rustc` version and the target triple.
+            correct: false
+            feedback: >-
+              `cargo-build-sbf` prints neither. That absence is exactly why every
+              lesson carries a version stamp — the stamp is the source of truth,
+              and there is no banner to check it against.
+        explanation: >-
+          Anchor 1.0 was a breaking major release, so most Anchor material on the
+          internet by volume was written against 0.2x or 0.3x. "Rust from 2024"
+          is not a version: when you copy code from anywhere, the first question
+          is what it was written against.
+      - id: q23
+        prompt: >-
+          In JavaScript, `const backup = vault; backup.balance = 0n;` mutates the
+          original. Give the Rust reading of `let backup = vault;` — first where
+          `vault` is a `VaultState`, then where it is a `u64`.
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              `VaultState` **moves**: `vault` is no longer usable and touching it
+              is `E0382`. A `u64` **copies**: it is `Copy`, small enough to sit
+              in a register, so both bindings stay valid and independent.
+            correct: true
+          - id: b
+            label: >-
+              Both move; `Copy` only changes whether the compiler emits a memcpy.
+            correct: false
+            feedback: >-
+              `Copy` changes whether the original stays usable, which is its
+              entire observable meaning. A `u64` you "moved from" is still there.
+          - id: c
+            label: >-
+              Both copy — Rust deep-copies on assignment, which is why it needs
+              no garbage collector.
+            correct: false
+            feedback: >-
+              Rust never deep-copies implicitly; `Clone` is opt-in and explicit.
+              Moves are what remove the need for a collector.
+          - id: d
+            label: >-
+              `VaultState` gets a shallow copy: two names, one buffer, exactly
+              like JavaScript.
+            correct: false
+            feedback: >-
+              That aliasing is the thing Rust exists to prevent. After a move
+              there is exactly one owner, and the old name is not it.
+        explanation: >-
+          Every value you touched in the first four lessons was a number small
+          enough to duplicate for free, which is why ownership never argued with
+          you until lesson 5. The moment a value owns something — a `Vec<u8>`, a
+          struct of your own — assignment stops meaning what it means in
+          JavaScript.
+      - id: q24
+        prompt: >-
+          `#[derive(Default)]` on `VaultState`. Which of these are true?
+        multiSelect: true
+        options:
+          - id: a
+            label: >-
+              It is a macro: at compile time it reads your fields and writes out
+              an `impl Default for VaultState`, then hands that block to the
+              compiler. No runtime reflection — by the time the program is bytes
+              on-chain the field names are gone.
+            correct: true
+          - id: b
+            label: >-
+              `VaultState::new` exists only because you wrote it (an inherent
+              impl); `VaultState::default()` exists because `Default` is a
+              standard trait, which is what lets generic code — including much of
+              Anchor — call it without knowing your type.
+            correct: true
+          - id: c
+            label: >-
+              You can implement a trait for a type long after it was defined, in
+              a different block and even a different crate, as long as either the
+              trait or the type is yours.
+            correct: true
+          - id: d
+            label: >-
+              A trait implementation is declared inside the type, the way
+              `class Vault implements Serializable` declares it in TypeScript.
+            correct: false
+            feedback: >-
+              That is the TypeScript shape. In Rust the struct is one block and
+              each promise is another — and that separation is the entire
+              explanation of what `#[derive]` is able to do.
+        explanation: >-
+          An `impl` block is just some code that sits next to your struct, and a
+          derive is a macro that writes one for you. Writing the `Default` impl
+          by hand once is what stops `#[derive]` being magic; there is nothing to
+          learn the second time.
+      - id: q25
+        prompt: >-
+          `#[account]` on `VaultState`. What does it generate, and why does
+          deleting `declare_id!` produce an error whose caret lands on
+          `#[account]`?
+        multiSelect: false
+        options:
+          - id: a
+            label: >-
+              It generates `AnchorSerialize`/`AnchorDeserialize`/`Clone`,
+              `AccountSerialize`, `AccountDeserialize`, `Discriminator` and
+              `impl Owner` — and the `Owner` impl's body reads `crate::ID`, which
+              `declare_id!` defines. Remove it and you get
+              `E0425: cannot find value ID in the crate root`, pointing at the
+              expansion site.
+            correct: true
+          - id: b
+            label: >-
+              It generates the account-validation checks the instruction runs
+              before your handler body.
+            correct: false
+            feedback: >-
+              That is `#[derive(Accounts)]`, which goes on an account *list*.
+              `#[account]` describes the bytes stored inside one program-owned
+              account. Course 3 makes you tell them apart under time pressure.
+          - id: c
+            label: >-
+              It generates `INIT_SPACE`, which is why the struct knows its own
+              size.
+            correct: false
+            feedback: >-
+              That is `#[derive(InitSpace)]`, a separate derive — and it excludes
+              the 8-byte discriminator, which is the `8 +` you owe on every
+              allocation.
+          - id: d
+            label: >-
+              Nothing at run time: the discriminator is computed by the client
+              from the type name and sent along with the call.
+            correct: false
+            feedback: >-
+              The discriminator is a `const` inside your program — the first 8
+              bytes of `sha256("account:VaultState")` — and `try_deserialize`
+              compares against it *before* decoding anything. That comparison is
+              the type safety.
+        explanation: >-
+          Macro-generated code fails where the expansion happened, not where you
+          made the mistake, which is why this is worth meeting here rather than
+          in Course 3 with forty lines of your own to suspect. And
+          `try_deserialize`'s discriminator check is what turns a bag of bytes
+          into a typed account: hand a program somebody else's account and you
+          get `AccountDiscriminatorMismatch`, not a plausible-looking balance.
   - key: reflect
     type: openEnded
     maxWords: 120

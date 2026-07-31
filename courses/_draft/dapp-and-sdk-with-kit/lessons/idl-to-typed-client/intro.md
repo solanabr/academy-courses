@@ -4,6 +4,18 @@ You finished Course 3 holding two things: a program id on devnet, and an Anchor 
 
 > **Version stamp — kit 7.0.0, @codama/renderers-js 2.3.0, checked 2026-07-27.** This is the most version-fragile course in the catalog: it sits on sub-1.0 Kit plugins. Every version below is pinned at authoring and verified against the live registry. A kit-8 release (an `8.0.0-canary` was published 2026-07-24) would invalidate these stamps first — check the date before trusting them.
 
+## If you don't have your own program from Course 3
+
+Skipped C3, lost the program id, or have a deploy that will not come back? You can still follow every lesson in this course. There is a **frozen devnet reference vault** — a permanent deployment of exactly the program C3 builds, with its upgrade authority revoked, so it will never move or change:
+
+- **Program id** — `D7ZFoWvEG5NBnkJy6iC98rhwj2qhgq8xhSD42cdTRAQd` (devnet)
+- **Vault PDA** — `FY86s1fAwUiFQTjVFYprsiV6fwNH7e955MSUBo73FP4j`, derived from seeds `["vault", owner]`
+- **IDL** — [`onchain-academy/reference-vault/vault_program.idl.json`](https://github.com/solanabr/superteam-academy/blob/main/onchain-academy/reference-vault/vault_program.idl.json), field-identical to the IDL published on-chain against that program id
+
+Point your Codama config's `idl` at that file instead of your own and every generated builder in this course comes out the same shape. One detail the IDL fixes and you must not "fix" back: `deposit` and `withdraw` take their accounts in the order `[vault, user, system_program]` — **vault first**.
+
+Read this as a way to keep moving, not as a substitute. The credential for this course is earned against **your own** artifact — your deployed program and the client you publish from it. The reference vault gets you through the lessons; it does not get you the credential.
+
 ## What Codama does
 
 [Codama](https://github.com/codama-idl/codama) reads an IDL and generates a client: typed instruction builders, account decoders, PDA helpers and a decoded error map. Its config lives at your repo root:

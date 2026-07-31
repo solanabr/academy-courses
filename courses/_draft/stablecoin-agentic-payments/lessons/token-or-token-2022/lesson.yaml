@@ -4,8 +4,16 @@ title: "Token or Token-2022: The Decision Rule"
 skills:
   - spl-tokens
   - token-2022
-  - transfer-hook
   - solana-kit
+  - version-pinning
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@solana/subscriptions": "0.4.0"
+    "@x402/svm": "2.19.0"
+    "@solana-program/token": "0.15.0"
+    "@solana-program/token-2022": "0.13.0"
 blocks:
   - key: intro
     type: prose

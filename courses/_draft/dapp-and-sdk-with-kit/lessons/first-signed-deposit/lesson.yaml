@@ -7,6 +7,10 @@ skills:
   - solana-kit
   - deployment
   - web3-frontend
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
 blocks:
   - key: intro
     type: prose
@@ -14,6 +18,13 @@ blocks:
   - key: assemble
     type: code
     language: typescript
+    # One real devnet deposit into the learner's own vault: it needs the program
+    # from C3 (`deploy-and-publish-the-idl`) and a wallet with devnet SOL to pay
+    # the fee and the deposit (C1 `connect-fund-and-send` / C3 `fund-your-wallet`).
+    # Both courses precede this one on path-zero-to-deployed.
+    consumes:
+      - deployed-program
+      - funded-wallet
     starter: ts/starter.ts
     solution: ts/solution.ts
     tests: ts/tests.json

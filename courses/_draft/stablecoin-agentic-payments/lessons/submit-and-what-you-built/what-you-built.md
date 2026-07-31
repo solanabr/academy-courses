@@ -48,7 +48,7 @@ Now the part most people skip.
 
 **Where they live.** Two termini this course specifically unlocks:
 
-1. **Payments technical demos** — around $100 of reward per competitor, second only to Rust listings on that measure. You have a metered endpoint and a paid tier already running.
+1. **Payments technical demos** — the two Superteam Canada listings paid $2,750 each and drew 44 submissions (the code sample) and 31 (the deep dive): **$62.5 and $88.7 of reward per competitor**, second only to Rust listings on that measure. You have a metered endpoint and a paid tier already running.
 2. **Educational modules** — $2,500–$3,000, typically closing near 10 submissions. Your deep dive from the last lesson is most of one.
 
 **How to read a listing, which is a skill in itself.** Competition is a function of **time-to-deadline**, not of category. The Zeroclaw listing sat at twelve submissions or fewer for most of its run and closed at 52 as the deadline approached. A submission count you read today tells you where that listing is in its life, not how contested it is. So: **never quote a single-day count as a competition rate.** Filter for **newly-opened development listings** and compare medians across listings that have actually closed.
