@@ -6,6 +6,10 @@ skills:
   - semver
   - api-design
   - technical-writing
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
 blocks:
   - key: intro
     type: prose

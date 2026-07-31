@@ -5,6 +5,13 @@ skills:
   - x402-protocol
   - protocol-versioning
   - solana-kit
+versionStamp:
+  checkedAt: "2026-07-31"
+  packages:
+    "@solana/kit": "7.0.0"
+    "@x402/core": "2.19.0"
+    "@x402/svm": "2.19.0"
+    "@x402/fetch": "2.19.0"
 blocks:
   - key: intro
     type: prose
