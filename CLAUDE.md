@@ -42,4 +42,6 @@ This tree was originally extracted from the CMS that the platform used before co
 
 ## Not yet wired end-to-end
 
-`course.creator` flows to `Course.creator` on-chain, but the `wallet → platform user` linkage (`profiles.wallet_address`) is what makes a creator's name and profile render in the app — a course whose creator wallet has no linked profile still works, it just shows the raw address. `teachers.yaml` is informational; nothing enforces it yet.
+`course.creator` flows to `Course.creator` on-chain, but the `wallet → platform user` linkage (`profiles.wallet_address`) is what makes a creator's name and profile render in the app — a course whose creator wallet has no linked profile still works, it just shows the raw address.
+
+**The creator wallet IS the teacher pointer** (owner ruling, 2026-07-28). There is no teacher registry file and no `githubId` indirection: `course.creator` → `profiles.wallet_address` → the teacher's platform account is the whole model. The one requirement it puts on you is real: a course must be created on-chain with the instructor's **actual** wallet the first time, because `creator` is immutable afterwards.
