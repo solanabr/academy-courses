@@ -6,6 +6,8 @@ skills:
   - solana-pay
   - x402-protocol
   - brazil-compliance
+  - api-monetization
+  - subscriptions-program
 blocks:
   - key: intro
     type: prose

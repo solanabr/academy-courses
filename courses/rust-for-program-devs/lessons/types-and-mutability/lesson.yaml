@@ -4,6 +4,7 @@ title: Types, Mutability, and Why the Compiler Argues
 skills:
   - rust
   - rust-types
+  - compiler-errors
 blocks:
   - key: intro
     type: prose

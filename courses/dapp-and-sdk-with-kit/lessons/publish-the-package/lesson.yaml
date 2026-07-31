@@ -3,9 +3,9 @@ slug: publish-the-package
 title: Publish It
 skills:
   - npm-publishing
-  - ci
   - deployment
   - technical-writing
+  - semver
 blocks:
   - key: intro
     type: prose

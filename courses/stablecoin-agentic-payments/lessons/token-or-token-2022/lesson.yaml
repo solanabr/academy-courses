@@ -4,8 +4,8 @@ title: "Token or Token-2022: The Decision Rule"
 skills:
   - spl-tokens
   - token-2022
-  - transfer-hook
   - solana-kit
+  - version-pinning
 blocks:
   - key: intro
     type: prose

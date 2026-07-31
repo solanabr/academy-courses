@@ -3,7 +3,7 @@ slug: ship-the-inspector
 title: Ship the Inspector
 skills:
   - solana-kit
-  - rpc
+  - rpc-reads
   - borsh-serialization
   - pdas
   - error-handling

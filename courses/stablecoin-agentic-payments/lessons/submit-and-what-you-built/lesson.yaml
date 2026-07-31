@@ -6,6 +6,7 @@ skills:
   - payment-model-selection
   - agent-budgets
   - brazil-compliance
+  - solana-pay
 blocks:
   - key: recap
     type: prose
