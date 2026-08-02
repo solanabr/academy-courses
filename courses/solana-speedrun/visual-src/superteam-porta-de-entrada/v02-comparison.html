@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: Mesmo funil, três prêmios diferentes
+     purpose: provar que os três casos brasileiros entraram pelo mesmo funil Superteam e que o que muda é o prêmio que cada um levou
+     data: Entrada comum, o funil Superteam (hackathon, comunidade, eventos). BlindPay, prêmio: batch da Y Combinator. Cloak, prêmio: aceleração da Colosseum mais R$ 1,3 milhão captado. Triad Markets, prêmio: capital anjo e patrocínio da Breakpoint.
+     prompt: one shared entry funnel splitting into three outcome cards, phone-first vertical stack, big bold company names, high contrast, each card naming the prize it won, minimal flat illustration
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md. -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:454px;height:452px;top:-228px;right:-228px;border-radius:48% 62% 51% 49% / 43% 53% 51% 63%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:414px;height:468px;bottom:-249px;left:676px;border-radius:40% 46% 56% 37% / 43% 45% 41% 57%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+  <div class="stbr-eyebrow">Mesmo funil, prêmios diferentes</div>
+  <h2 class="viz-title">Uma entrada, três chegadas</h2>
+
+  <!-- Shared entry funnel -->
+  <div style="background:var(--surface-inverse);border-radius:var(--radius-lg);
+              padding:22px 34px;display:flex;align-items:center;gap:24px;margin-bottom:22px;">
+    <div style="font-family:var(--font-display);font-weight:900;font-size:13px;letter-spacing:0.14em;
+                text-transform:uppercase;color:var(--stbr-yellow);white-space:nowrap;">Entrada comum</div>
+    <div style="font-family:var(--font-display);font-weight:900;font-size:26px;line-height:1;
+                color:var(--stbr-cream);white-space:nowrap;">Funil Superteam</div>
+    <div style="font-family:var(--font-body);font-size:16px;color:var(--stbr-cream);opacity:0.85;">
+                hackathon &middot; comunidade &middot; eventos</div>
+  </div>
+
+  <!-- Split into three outcome cards (fixed height, prize bottom-anchored so the row aligns) -->
+  <div style="display:flex;gap:24px;align-items:flex-start;">
+
+    <!-- BlindPay -->
+    <div style="flex:1;position:relative;height:230px;background:var(--surface-card);
+                border-radius:var(--radius-lg);border:2px solid var(--border-subtle);">
+      <div style="padding:26px 26px 0;">
+        <div style="font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1.02;
+                    color:var(--text-primary);">BlindPay</div>
+        <div style="font-family:var(--font-body);font-size:15px;color:var(--text-secondary);
+                    margin-top:8px;line-height:1.35;">API de pagamentos em stablecoin.</div>
+      </div>
+      <div style="position:absolute;left:26px;right:26px;bottom:26px;padding-top:16px;
+                  border-top:1.5px solid var(--border-subtle);">
+        <div style="font-family:var(--font-display);font-weight:900;font-size:11px;
+                    letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);">Prêmio</div>
+        <div style="font-family:var(--font-display);font-weight:900;font-size:22px;line-height:1.12;
+                    color:var(--stbr-emerald);margin-top:6px;">Batch da Y Combinator</div>
+      </div>
+    </div>
+
+    <!-- Cloak -->
+    <div style="flex:1;position:relative;height:230px;background:var(--surface-card);
+                border-radius:var(--radius-lg);border:2px solid var(--border-subtle);">
+      <div style="padding:26px 26px 0;">
+        <div style="font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1.02;
+                    color:var(--text-primary);">Cloak</div>
+        <div style="font-family:var(--font-body);font-size:15px;color:var(--text-secondary);
+                    margin-top:8px;line-height:1.35;">Camada de privacidade, feita por estudantes do Inteli.</div>
+      </div>
+      <div style="position:absolute;left:26px;right:26px;bottom:26px;padding-top:16px;
+                  border-top:1.5px solid var(--border-subtle);">
+        <div style="font-family:var(--font-display);font-weight:900;font-size:11px;
+                    letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);">Prêmio</div>
+        <div style="font-family:var(--font-display);font-weight:900;font-size:22px;line-height:1.12;
+                    color:var(--stbr-emerald);margin-top:6px;">Aceleração Colosseum + R$ 1,3 mi</div>
+      </div>
+    </div>
+
+    <!-- Triad Markets -->
+    <div style="flex:1;position:relative;height:230px;background:var(--surface-card);
+                border-radius:var(--radius-lg);border:2px solid var(--border-subtle);">
+      <div style="padding:26px 26px 0;">
+        <div style="font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1.02;
+                    color:var(--text-primary);">Triad Markets</div>
+        <div style="font-family:var(--font-body);font-size:15px;color:var(--text-secondary);
+                    margin-top:8px;line-height:1.35;">Mercado de previsão do Brasil.</div>
+      </div>
+      <div style="position:absolute;left:26px;right:26px;bottom:26px;padding-top:16px;
+                  border-top:1.5px solid var(--border-subtle);">
+        <div style="font-family:var(--font-display);font-weight:900;font-size:11px;
+                    letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);">Prêmio</div>
+        <div style="font-family:var(--font-display);font-weight:900;font-size:22px;line-height:1.12;
+                    color:var(--stbr-emerald);margin-top:6px;">Capital anjo + patrocínio da Breakpoint</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body></html>

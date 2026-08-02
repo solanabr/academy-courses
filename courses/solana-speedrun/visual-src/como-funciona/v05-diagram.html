@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: O relógio antes do voto
+     purpose: Mostrar o Proof of History carimbando a ordem dos eventos antes do consenso
+     data: Uma linha de tempo criptográfica carimba eventos em ordem (evento A antes de B antes de C). Só depois de a ordem estar carimbada a rede vota. O relógio em si não é o consenso.
+     prompt: Diagrama phone-first, tipografia grande, no máximo 3 elementos, alto contraste; um relógio ou corrente de carimbos ordenando eventos, com o passo de votação vindo depois.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:479px;height:433px;top:-241px;right:-241px;border-radius:52% 60% 44% 41% / 43% 36% 39% 42%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:477px;height:486px;bottom:-247px;left:-247px;border-radius:37% 58% 64% 62% / 59% 52% 36% 65%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .p4-clock { background:var(--surface-inverse); border-radius:var(--radius-xl); padding:28px 34px;
+              margin-top:14px; }
+  .p4-clock .k { font-family:var(--font-body); font-weight:800; font-size:20px; letter-spacing:.12em;
+                 text-transform:uppercase; color:var(--stbr-yellow); margin-bottom:18px; }
+  .p4-stamps { display:flex; align-items:center; gap:14px; }
+  .p4-stamp { flex:1; background:var(--surface-card); border-radius:var(--radius-lg); padding:20px 22px;
+              text-align:center; }
+  .p4-stamp .ev { font-family:var(--font-display); font-weight:900; font-size:30px; color:var(--text-primary);
+                  line-height:1.05; }
+  .p4-stamp .hash { font-family:var(--font-mono); font-weight:700; font-size:20px; color:var(--stbr-emerald);
+                    margin-top:8px; }
+  .p4-oarrow { flex:0 0 46px; height:26px; }
+  .p4-gate { display:flex; flex-direction:column; align-items:center; margin:6px 0; }
+  .p4-gate svg { width:34px; height:40px; }
+  .p4-chip { font-family:var(--font-body); font-weight:800; font-size:22px; color:var(--stbr-dark);
+             background:var(--stbr-yellow); padding:12px 26px; border-radius:var(--radius-pill); }
+  .p4-vote { background:var(--surface-card); border:2px solid var(--stbr-emerald); border-radius:var(--radius-xl);
+             padding:26px 34px; display:flex; align-items:center; gap:24px; }
+  .p4-vote .badge { font-family:var(--font-body); font-weight:800; font-size:19px; letter-spacing:.08em;
+                    text-transform:uppercase; color:var(--stbr-cream); background:var(--surface-brand);
+                    padding:12px 22px; border-radius:var(--radius-pill); white-space:nowrap; }
+  .p4-vote .txt { font-family:var(--font-display); font-weight:900; font-size:30px; color:var(--text-primary);
+                  line-height:1.1; }
+  .p4-note { font-family:var(--font-body); font-size:22px; color:var(--text-secondary); margin-top:16px;
+             text-align:center; }
+  .p4-note b { color:var(--stbr-yellow-700); }
+</style>
+  <div class="stbr-eyebrow">o que a Solana faz antes do consenso</div>
+  <h2 class="viz-title">O relógio antes do voto</h2>
+  <div class="p4-clock">
+    <div class="k">Proof of History · o relógio carimba a ordem</div>
+    <div class="p4-stamps">
+      <div class="p4-stamp"><div class="ev">Evento A</div><div class="hash">9f3a…</div></div>
+      <svg class="p4-oarrow" viewBox="0 0 46 26"><line x1="0" y1="13" x2="38" y2="13" stroke="#f5e8ca" stroke-width="3"/><polygon points="46,13 36,7 36,19" fill="#f5e8ca"/></svg>
+      <div class="p4-stamp"><div class="ev">Evento B</div><div class="hash">c1d8…</div></div>
+      <svg class="p4-oarrow" viewBox="0 0 46 26"><line x1="0" y1="13" x2="38" y2="13" stroke="#f5e8ca" stroke-width="3"/><polygon points="46,13 36,7 36,19" fill="#f5e8ca"/></svg>
+      <div class="p4-stamp"><div class="ev">Evento C</div><div class="hash">7b20…</div></div>
+    </div>
+  </div>
+  <div class="p4-gate">
+    <svg viewBox="0 0 34 40"><line x1="17" y1="0" x2="17" y2="30" stroke="#1b231d" stroke-width="3"/><polygon points="17,40 9,28 25,28" fill="#1b231d"/></svg>
+    <div class="p4-chip">só depois da ordem carimbada</div>
+  </div>
+  <div class="p4-vote">
+    <span class="badge">Votação</span>
+    <span class="txt">a rede vota na ordem que o relógio já fixou</span>
+  </div>
+  <div class="p4-note">o relógio <b>ordena os eventos</b> — ele não é o consenso</div>
+</div>
+</body></html>

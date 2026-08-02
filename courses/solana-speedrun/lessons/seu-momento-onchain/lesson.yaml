@@ -1,0 +1,63 @@
+id: lesson-ssr-seu-momento-onchain
+slug: seu-momento-onchain
+title: "Seu momento onchain"
+skills:
+  - solana-fundamentals
+  - account-model
+  - transactions
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Você faz um PIX de R$ 50 no stand de onramp. O que acontece com o seu dinheiro?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Fica guardado numa conta da Superteam, que promete devolver quando você pedir"
+            correct: false
+            feedback: "Onramp não é custódia: ninguém segura seu dinheiro por você. O valor é convertido e cai direto na SUA carteira, sob seu controle."
+          - id: b
+            label: "Vira dólar digital (stablecoin) direto na sua carteira, sob o seu controle"
+            correct: true
+          - id: c
+            label: "Compra SOL automaticamente, e você precisa vender o token quando quiser sair"
+            correct: false
+            feedback: "O onramp entrega stablecoin: dólar digital de valor estável, não um ativo volátil. Comprar SOL é uma escolha sua, depois, se você quiser."
+        explanation: "Onramp é a porta de entrada: converte reais em dólar digital que chega direto na sua carteira. De lá, você decide o que fazer: guardar, render numa vault ou negociar numa DEX."
+      - id: q2
+        prompt: "Qual é a vantagem real de negociar numa DEX (corretora descentralizada)?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Não existe taxa nenhuma, então os preços são sempre melhores que nas corretoras"
+            correct: false
+            feedback: "Taxas existem: os centavos da rede e a taxa da pool. A vantagem da DEX é custódia e acesso, não gratuidade."
+          - id: b
+            label: "Um funcionário da corretora aprova cada operação, o que dá uma camada extra de segurança"
+            correct: false
+            feedback: "É o contrário, e essa é a graça: não há aprovador humano. O contrato executa sozinho, e é daí que vem o acesso 24/7 sem depender de ninguém."
+          - id: c
+            label: "Você negocia direto da sua carteira, a qualquer hora, sem entregar a custódia do dinheiro a ninguém"
+            correct: true
+        explanation: "DEX é um mercado que roda em código na chain: você troca ativos direto da carteira, 24/7, sem intermediário segurando seu dinheiro. É por isso que 54% do volume global de DEX roda na Solana."
+      - id: q3
+        prompt: "O que uma vault da Kamino faz com o seu dólar digital?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Executa uma estratégia de rendimento automatizada: você deposita em 1 clique e ela trabalha por você"
+            correct: true
+          - id: b
+            label: "Empresta o seu dinheiro para a equipe da Kamino investir manualmente no mercado"
+            correct: false
+            feedback: "Não existe gestor humano segurando seu dinheiro: é um contrato público executando uma estratégia automática, visível onchain a qualquer momento."
+          - id: c
+            label: "Trava o seu dinheiro por um ano em troca de juros fixos garantidos pelo protocolo"
+            correct: false
+            feedback: "Rendimento em DeFi é variável e o depósito continua líquido: você entra e sai quando quiser. Juro fixo garantido é promessa de banco, não de protocolo."
+        explanation: "Vault é um cofre programado: você deposita em 1 clique e a estratégia (emprestar, prover liquidez) roda sozinha, com o rendimento aparecendo na sua posição. A Kamino gere ~US$ 2 bi assim."

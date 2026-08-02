@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: Código de um lado, dados do outro
+     purpose: Mostrar que programas não guardam estado e que cada saldo vive na própria conta (ATA)
+     data: Três blocos. O bloco Programa (código, sem estado) tem uma seta de leitura e escrita para o grupo Contas (caixinhas de dados). Uma carteira liga-se a várias contas de saldo; cada par carteira mais token tem exatamente 1 ATA.
+     prompt: Diagrama phone-first, tipografia grande, no máximo 3 elementos, alto contraste; um bloco Programa à esquerda, um grupo de Contas à direita, uma seta de leitura e escrita ligando os dois.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:552px;height:517px;top:-335px;right:-335px;border-radius:48% 65% 57% 35% / 40% 46% 56% 61%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:466px;height:383px;left:-223px;top:364px;border-radius:52% 39% 60% 52% / 56% 47% 48% 48%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .d1-wrap { display:flex; align-items:stretch; gap:0; margin-top:16px; }
+  .d1-prog { flex:0 0 500px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+             padding:38px 40px; display:flex; flex-direction:column; }
+  .d1-prog .k { font-family:var(--font-body); font-weight:800; font-size:20px; letter-spacing:.12em;
+                text-transform:uppercase; color:var(--stbr-yellow); }
+  .d1-prog .t { font-family:var(--font-display); font-weight:900; font-size:44px; line-height:1.05;
+                color:var(--stbr-cream); margin:12px 0 6px; }
+  .d1-prog .s { font-family:var(--font-body); font-size:22px; color:var(--stbr-ink-300); }
+  .d1-code { margin-top:auto; background:var(--stbr-dark-900); border:1.5px solid var(--border-on-dark);
+             border-radius:var(--radius-md); padding:22px 26px; font-family:var(--font-mono);
+             font-size:22px; line-height:1.5; color:var(--stbr-cream); }
+  .d1-code .cm { color:var(--stbr-emerald); }
+  .d1-mid { flex:0 0 190px; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; }
+  .d1-mid .lab { font-family:var(--font-body); font-weight:800; font-size:20px; color:var(--text-primary);
+                 margin-bottom:10px; text-align:center; }
+  .d1-acc { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+            border-radius:var(--radius-xl); padding:34px 38px; display:flex; flex-direction:column; }
+  .d1-acc .k { font-family:var(--font-body); font-weight:800; font-size:20px; letter-spacing:.12em;
+               text-transform:uppercase; color:var(--stbr-emerald); }
+  .d1-acc .t { font-family:var(--font-display); font-weight:900; font-size:34px; line-height:1.05;
+               color:var(--text-primary); margin:8px 0 20px; }
+  .d1-wallet { align-self:flex-start; background:var(--surface-brand-deep); color:var(--stbr-cream);
+               font-family:var(--font-body); font-weight:800; font-size:22px; padding:12px 26px;
+               border-radius:var(--radius-pill); margin-bottom:16px; }
+  .d1-ata { display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:var(--radius-md);
+            border:1.5px solid var(--border-subtle); background:var(--surface-paper); margin-bottom:12px; }
+  .d1-ata.hi { border:2px solid var(--stbr-yellow-700); background:#fff6d6; }
+  .d1-ata .tok { font-family:var(--font-mono); font-weight:800; font-size:24px; color:var(--text-primary);
+                 flex:1; }
+  .d1-ata .bal { font-family:var(--font-body); font-size:19px; color:var(--text-secondary); }
+  .d1-ata .tag { font-family:var(--font-body); font-weight:800; font-size:17px; letter-spacing:.04em;
+                 color:var(--stbr-emerald); background:rgba(0,139,76,0.12); padding:5px 12px;
+                 border-radius:var(--radius-sm); }
+  .d1-ata.hi .tag { color:var(--stbr-yellow-700); background:rgba(240,189,31,0.22); }
+  .d1-note { font-family:var(--font-body); font-size:20px; color:var(--text-secondary); margin-top:6px; }
+  .d1-note b { color:var(--stbr-yellow-700); }
+</style>
+  <div class="stbr-eyebrow">como a Solana separa lógica de dados</div>
+  <h2 class="viz-title">Código de um lado, dados do outro</h2>
+  <div class="d1-wrap">
+    <div class="d1-prog">
+      <div class="k">Programa</div>
+      <div class="t">Código puro</div>
+      <div class="s">não guarda estado nem saldo</div>
+      <div class="d1-code"><span class="cm">// só lógica</span><br>fn&nbsp;transferir(de,&nbsp;para)&nbsp;{<br>&nbsp;&nbsp;…<br>}</div>
+    </div>
+    <div class="d1-mid">
+      <div class="lab">lê e escreve</div>
+      <svg width="190" height="80" viewBox="0 0 190 80">
+        <line x1="18" y1="30" x2="172" y2="30" stroke="#1b231d" stroke-width="3"/>
+        <polygon points="172,30 154,21 154,39" fill="#1b231d"/>
+        <line x1="18" y1="54" x2="172" y2="54" stroke="#008b4c" stroke-width="3"/>
+        <polygon points="18,54 36,45 36,63" fill="#008b4c"/>
+      </svg>
+    </div>
+    <div class="d1-acc">
+      <div class="k">Contas</div>
+      <div class="t">Onde o saldo mora</div>
+      <div class="d1-wallet">Sua carteira</div>
+      <div class="d1-ata"><span class="tok">+ SOL</span><span class="bal">saldo</span><span class="tag">1 ATA</span></div>
+      <div class="d1-ata hi"><span class="tok">+ USDC</span><span class="bal">saldo</span><span class="tag">1 ATA</span></div>
+      <div class="d1-ata"><span class="tok">+ BONK</span><span class="bal">saldo</span><span class="tag">1 ATA</span></div>
+      <div class="d1-note">cada <b>carteira + token</b> tem exatamente uma conta (ATA)</div>
+    </div>
+  </div>
+</div>
+</body></html>

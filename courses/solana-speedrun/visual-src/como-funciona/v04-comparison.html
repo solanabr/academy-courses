@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: Taxa local contra leilão global
+     purpose: Contrastar as taxas de vizinhança da Solana com o leilão global do Ethereum
+     data: Coluna Solana: só quem disputa o ingresso do show paga prioridade; o envio de USDC ao lado segue em centavos. Coluna Ethereum: um app quente encarece o leilão para a rede toda.
+     prompt: Comparação phone-first lado a lado, tipografia grande, no máximo 3 elementos, alto contraste; à esquerda Solana com uma taxa baixa isolada, à direita Ethereum com uma taxa alta contaminando tudo.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:598px;height:527px;bottom:-326px;right:-326px;border-radius:63% 41% 39% 65% / 41% 35% 51% 52%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:456px;height:511px;left:-248px;top:254px;border-radius:35% 51% 53% 47% / 37% 63% 54% 39%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .c3-grid { display:flex; gap:26px; align-items:stretch; margin-top:14px; }
+  .c3-col { flex:1; border:2px solid var(--border-subtle); border-radius:var(--radius-xl);
+            overflow:hidden; background:var(--surface-card); display:flex; flex-direction:column; }
+  .c3-col > h3 { margin:0; padding:20px 30px; font-family:var(--font-display); font-weight:900;
+                 font-size:30px; color:var(--stbr-cream); background:var(--surface-inverse); }
+  .c3-col > h3 .sm { display:block; font-family:var(--font-body); font-weight:700; font-size:18px;
+                     letter-spacing:.06em; text-transform:uppercase; color:var(--stbr-yellow); margin-top:4px; }
+  .c3-body { padding:26px 30px; display:flex; flex-direction:column; gap:16px; flex:1; }
+  .c3-field { padding:18px; border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:14px; }
+  .c3-field.eth { background:#fff6d6; border:2px dashed var(--stbr-yellow-700); }
+  .c3-item { display:flex; align-items:center; justify-content:space-between; gap:16px;
+             padding:16px 20px; border-radius:var(--radius-md); background:var(--surface-paper);
+             border:1.5px solid var(--border-subtle); }
+  .c3-item .lbl { font-family:var(--font-body); font-weight:700; font-size:22px; color:var(--text-primary); }
+  .c3-fee { font-family:var(--font-display); font-weight:900; font-size:24px; padding:8px 18px;
+            border-radius:var(--radius-pill); white-space:nowrap; }
+  .c3-fee.low { background:var(--surface-brand); color:var(--stbr-cream); }
+  .c3-fee.high { background:var(--stbr-yellow); color:var(--stbr-dark); }
+  .c3-cap { font-family:var(--font-body); font-size:20px; color:var(--text-secondary); margin-top:auto;
+            padding-top:6px; }
+  .c3-verdict { margin-top:22px; background:var(--surface-brand); color:var(--stbr-cream);
+                border-radius:var(--radius-lg); padding:24px 34px; display:flex; align-items:center; gap:24px; }
+  .c3-verdict .vk { font-family:var(--font-body); font-weight:800; font-size:18px; letter-spacing:.12em;
+                    text-transform:uppercase; opacity:.85; white-space:nowrap; }
+  .c3-verdict .vt { font-family:var(--font-display); font-weight:900; font-size:30px; line-height:1.08; }
+  .c3-verdict .vt b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">quem paga quando a rede fica cheia</div>
+  <h2 class="viz-title">Taxa local contra leilão global</h2>
+  <div class="c3-grid">
+    <div class="c3-col">
+      <h3>Solana<span class="sm">taxa local</span></h3>
+      <div class="c3-body">
+        <div class="c3-item"><span class="lbl">Ingresso do show concorrido</span><span class="c3-fee high">prioridade</span></div>
+        <div class="c3-item"><span class="lbl">Enviar USDC ao lado</span><span class="c3-fee low">centavos</span></div>
+        <div class="c3-cap">só quem disputa o show paga a mais — o envio ao lado nem sente</div>
+      </div>
+    </div>
+    <div class="c3-col">
+      <h3>Ethereum<span class="sm">leilão global</span></h3>
+      <div class="c3-body">
+        <div class="c3-field eth">
+          <div class="c3-item"><span class="lbl">Um app fica quente</span><span class="c3-fee high">leilão sobe</span></div>
+          <div class="c3-item"><span class="lbl">Toda a rede junto</span><span class="c3-fee high">caro p/ todos</span></div>
+        </div>
+        <div class="c3-cap">um app quente encarece a taxa da rede inteira</div>
+      </div>
+    </div>
+  </div>
+  <div class="c3-verdict">
+    <span class="vk">a diferença</span>
+    <span class="vt">Na Solana a taxa é <b>local</b>. No Ethereum, <b>global</b>.</span>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: Um sistema financeiro inteiro, aberto
+     purpose: mostrar que a Solana não é só a moeda SOL, e sim finança de verdade com instituições reais operando nela
+     data: Ações tokenizadas: 60+ papéis dos EUA. Ouro e crédito: virados em token, negociáveis 24h. Cofres de investimento: rendimento em 1 clique. Quem já construiu aqui: Western Union, Visa, BlackRock, Franklin Templeton, Apollo, PayPal.
+     prompt: layout phone-first, big type, max 3 elements visíveis por vez (o resto rola), high contrast; tabela de duas colunas, nomes das instituições como texto, nunca como logo.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:523px;height:491px;top:-293px;right:-293px;border-radius:36% 58% 39% 51% / 40% 47% 54% 41%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:524px;height:507px;left:-275px;top:326px;border-radius:49% 47% 41% 64% / 43% 42% 46% 46%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tbl { margin-top:28px; border:2px solid var(--border-strong); border-radius:var(--radius-xl);
+         overflow:hidden; }
+  .thead { display:flex; background:var(--surface-inverse); color:var(--text-on-dark); }
+  .thead .c1 { flex:0 0 460px; padding:22px 34px; font-family:var(--font-display);
+               font-weight:800; font-size:22px; letter-spacing:.02em; }
+  .thead .c2 { flex:1; padding:22px 34px; font-family:var(--font-display); font-weight:800;
+               font-size:22px; border-left:2px solid var(--border-on-dark); }
+  .trow { display:flex; align-items:center; background:var(--surface-card);
+          border-top:2px solid var(--border-subtle); }
+  .trow .c1 { flex:0 0 460px; padding:26px 34px; font-family:var(--font-display);
+              font-weight:var(--weight-black); font-size:34px; line-height:1.04;
+              color:var(--text-primary); }
+  .trow .c2 { flex:1; padding:26px 34px; font-size:27px; font-weight:600;
+              color:var(--text-secondary); line-height:1.15; border-left:2px solid var(--border-subtle); }
+  .trow.key { background:var(--stbr-cream-200); }
+  .trow.key .c2 { padding:22px 34px; }
+  .pills { display:flex; flex-wrap:wrap; gap:12px; }
+  .pill { background:var(--surface-brand); color:var(--text-on-brand);
+          border-radius:var(--radius-md); padding:11px 22px; font-size:22px; font-weight:700; }
+</style>
+  <div class="stbr-eyebrow">não é só a moeda SOL</div>
+  <h2 class="viz-title">um sistema financeiro inteiro, aberto</h2>
+  <div class="tbl">
+    <div class="thead"><div class="c1">o que roda aqui</div><div class="c2">na prática</div></div>
+    <div class="trow"><div class="c1">Ações tokenizadas</div><div class="c2">60+ papéis dos EUA</div></div>
+    <div class="trow"><div class="c1">Ouro e crédito</div><div class="c2">virados em token, negociáveis 24h</div></div>
+    <div class="trow"><div class="c1">Cofres de investimento</div><div class="c2">rendimento em 1 clique</div></div>
+    <div class="trow key">
+      <div class="c1">Quem já construiu aqui</div>
+      <div class="c2"><div class="pills">
+        <span class="pill">Western Union</span><span class="pill">Visa</span><span class="pill">BlackRock</span><span class="pill">Franklin Templeton</span><span class="pill">Apollo</span><span class="pill">PayPal</span><span class="pill">JPMorgan</span>
+      </div></div>
+    </div>
+  </div>
+</div>
+</body></html>

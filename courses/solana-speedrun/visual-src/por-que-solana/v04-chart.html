@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- chart: A escada de velocidade (sempre com rótulo)
+     purpose: mostrar os três números de TPS sem enganar, separando o que é real, o que é teto de projeto e o que é demonstração
+     data: REAL (mainnet hoje): 1.000 a 4.000 operações por segundo. TEÓRICO (teto de arquitetura, nunca sustentado): 65.000. SIMULADO (demonstração Firedancer em ambiente de teste): 1.000.000. Legenda: só o degrau REAL é o que a rede entrega de verdade agora.
+     prompt: layout phone-first, big type, max 3 elements (três degraus rotulados), high contrast; escada de três degraus subindo, cada degrau com seu rótulo real, teórico ou simulado bem visível.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:497px;height:473px;bottom:-258px;right:-258px;border-radius:55% 63% 41% 41% / 58% 43% 40% 57%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:460px;height:426px;left:-265px;top:139px;border-radius:54% 39% 36% 44% / 55% 52% 48% 57%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ladder { margin-top:26px; display:flex; align-items:flex-end; gap:26px; }
+  .rung { flex:1; border-radius:var(--radius-xl); padding:26px 30px; box-sizing:border-box;
+          display:flex; flex-direction:column; justify-content:flex-start; }
+  .rung .tag { align-self:flex-start; font-family:var(--font-display); font-weight:var(--weight-black);
+               font-size:30px; letter-spacing:0.06em; padding:8px 20px; border-radius:var(--radius-sm);
+               line-height:1; }
+  .rung .num { font-family:var(--font-display); font-weight:var(--weight-black); line-height:1;
+               letter-spacing:-0.02em; font-size:60px; margin-top:20px; }
+  .rung .unit { font-size:19px; font-weight:700; letter-spacing:.02em; margin-top:8px; }
+  .rung .sub { font-size:18px; font-weight:500; line-height:1.25; margin-top:12px; }
+
+  /* REAL — the hero: what the network actually delivers */
+  .rung.real { height:260px; background:var(--surface-brand); }
+  .rung.real .tag { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .rung.real .num, .rung.real .unit { color:var(--text-on-brand); }
+  .rung.real .sub { color:var(--stbr-yellow); font-weight:700; }
+
+  /* TEÓRICO / SIMULADO — muted, clearly NOT delivered today */
+  .rung.muted { background:var(--surface-card); border:2px solid var(--border-strong); }
+  .rung.muted .tag { background:var(--surface-inverse); color:var(--text-on-dark); }
+  .rung.muted .num { color:var(--text-primary); }
+  .rung.muted .unit { color:var(--text-muted); }
+  .rung.muted .sub { color:var(--text-secondary); }
+  .rung.teorico { height:360px; }
+  .rung.simulado { height:460px; }
+
+  .legend { margin-top:24px; background:var(--surface-inverse); color:var(--text-on-dark);
+            border-radius:var(--radius-lg); padding:20px 30px; font-size:22px; font-weight:500; line-height:1.35; }
+  .legend b { color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">TPS: velocidade da Solana</div>
+  <h2 class="viz-title">a escada de velocidade</h2>
+  <div class="ladder">
+    <div class="rung real">
+      <div class="tag">REAL</div>
+      <div class="num">1.000–4.000</div>
+      <div class="unit">operações por segundo</div>
+      <div class="sub">mainnet hoje</div>
+    </div>
+    <div class="rung muted teorico">
+      <div class="tag">TEÓRICO</div>
+      <div class="num">65.000</div>
+      <div class="unit">operações por segundo</div>
+      <div class="sub">teto de arquitetura, nunca sustentado</div>
+    </div>
+    <div class="rung muted simulado">
+      <div class="tag">SIMULADO</div>
+      <div class="num">1.000.000</div>
+      <div class="unit">operações por segundo</div>
+      <div class="sub">demonstração Firedancer em ambiente de teste</div>
+    </div>
+  </div>
+  <div class="legend">Só o degrau <b>REAL</b> é o que a rede entrega de verdade hoje. Os outros são teto de projeto e demonstração.</div>
+</div>
+</body></html>

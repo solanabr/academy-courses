@@ -1,0 +1,47 @@
+id: lesson-ssr-superteam-porta-de-entrada
+slug: superteam-porta-de-entrada
+title: "Superteam: sua porta de entrada"
+skills:
+  - solana-fundamentals
+  - account-model
+  - transactions
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Qual é o caminho mais direto para começar a GANHAR no ecossistema, segundo a lição?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Comprar SOL e esperar valorizar"
+            correct: false
+            feedback: "Isso é investir, não participar. O caminho da Superteam é ganhar por TRABALHO: código, design, conteúdo — sem depender do preço de nada."
+          - id: b
+            label: "Conseguir um convite de alguém de dentro da comunidade — os prêmios são fechados para os membros mais antigos"
+            correct: false
+            feedback: "Não precisa de convite: os bounties do Superteam Earn são abertos e públicos — qualquer pessoa pode competir hoje."
+          - id: c
+            label: "Pegar um bounty aberto no Superteam Earn — inclusive os 3 bounties técnicos open source de todo mês"
+            correct: true
+        explanation: "Bounties são tarefas abertas com prêmio: 3 técnicos open source garantidos por mês, mais os pontuais de eventos, conteúdo e design. Entrega boa = pagamento, sem processo seletivo."
+      - id: q2
+        prompt: "O que Cloak, Triad Markets e BlindPay têm em comum?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "São startups de fundadores brasileiros construindo produtos reais na Solana — privacidade, mercados de previsão e pagamentos"
+            correct: true
+          - id: b
+            label: "São bancos tradicionais testando blockchain em laboratório"
+            correct: false
+            feedback: "São o oposto: startups nativas de cripto com clientes e receita reais — a prova de que o caminho desta lição leva a empresa de verdade."
+          - id: c
+            label: "São memecoins criadas pela comunidade brasileira"
+            correct: false
+            feedback: "Nenhum dos três é token de comunidade: são produtos com clientes e receita — privacidade, mercados e pagamentos — construídos por fundadores brasileiros na Solana."
+        explanation: "Os três entraram pelo mesmo funil Superteam; o que mudou foi o prêmio: BlindPay venceu a trilha brasileira e foi para o batch da YC, Cloak captou R$ 1,3 milhão e foi acelerada pela Colosseum, e a Triad Markets levantou capital anjo e virou patrocinadora da Breakpoint. O mesmo funil está aberto para você."
