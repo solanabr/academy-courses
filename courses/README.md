@@ -20,7 +20,12 @@ Copy [`_template/`](./_template) to start a new course. Everything is validated 
 
 ## `_draft/` — parked courses
 
-`courses/_draft/<slug>/` holds courses that are staged out of the live catalog. The linter discovers courses only at `courses/<slug>/` (fixed depth), so anything under `_draft/` is **invisible to lint and never compiled/published** — but note that live `paths/` and `achievements/` files must not reference a drafted course id (dangling references are CI errors). The same convention exists as `paths/_draft/` and `achievements/_draft/`. To restore a course, `git mv` it back to `courses/<slug>/` unchanged — its `slots.lock.json` travels with it and must not be regenerated.
+`courses/_draft/<slug>/` holds courses that are staged out of the live catalog. Two separate mechanisms make this work, and both matter:
+
+- **Never compiled/published:** the monorepo's content pipeline excludes any path containing a `_draft/` segment from the synced tree (monorepo #973, `lib/content/compile` — the same exclusion that keeps `courses/_template/` out). Parked content cannot reach the bundle, the app, or a `content.lock` bump.
+- **Invisible to lint:** the linter discovers content only at fixed depth (`courses/<slug>/`, `paths/<name>.yaml`, …) and skips `_draft/` as a named convention — so parked files are neither validated nor blocking. A consequence worth internalizing: **a green content-lint check says nothing about parked files.** Anything restored out of `_draft/` gets linted for the first time on that PR.
+
+Live `paths/` and `achievements/` files must not reference a drafted course id (dangling references are CI errors — park the referencing file together with its target, or retarget it). The same convention exists as `paths/_draft/` and `achievements/_draft/`. To restore a course, `git mv` it back to `courses/<slug>/` unchanged — its `slots.lock.json` travels with it and must not be regenerated.
 
 ## Images and visual assets
 
