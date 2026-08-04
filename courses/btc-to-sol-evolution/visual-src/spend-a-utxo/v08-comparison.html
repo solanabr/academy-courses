@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: the UTXO bargain, what you win, what you cannot express
+     purpose: certify the trade-off by naming the paired cost, and point forward to the EVM chapter
+     data: UTXO model (Bitcoin) | account model (foreshadow: the EVM) transactions are self-contained proofs | transfers read/write a shared balance verify in any order, even in parallel | must agree on order before verifying no global mutable state to contend over | one mutable number per account WIN: parallel-verifiable, stateless | WIN: shared state is natural WALL: a contract "everyone updates" is painful | WALL: serialized, one shared computer (next module)
+     prompt: Two-column comparison, dark background, monospace. Left column "UTXO / Bitcoin", right column "account model / EVM (next)". Green "WIN" rows and amber "WALL" rows aligned across both columns. A small forward arrow at the bottom-right: "-> EVM chapter". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:526px;height:474px;top:-282px;right:-282px;border-radius:55% 37% 61% 37% / 56% 48% 51% 58%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:457px;height:501px;bottom:-283px;left:732px;border-radius:61% 61% 38% 44% / 35% 56% 64% 59%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cols { display:flex; gap:24px; margin-top:26px; align-items:stretch; }
+  .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; display:flex; flex-direction:column; }
+  .col.utxo { border-color:rgba(0,139,76,0.36); background:rgba(0,139,76,0.05); }
+  .col.evm { border-color:rgba(48,108,64,0.30); background:rgba(48,108,64,0.04); }
+  .col h3 { margin:0; padding:18px 26px; font-size:17px; font-weight:900; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--text-on-brand); }
+  .col.utxo h3 { background:var(--surface-brand); }
+  .col.evm h3 { background:var(--surface-brand-deep); }
+  .col h3 .sub { font-family:var(--font-body); font-weight:700; font-size:12px; letter-spacing:.05em;
+    text-transform:none; opacity:.85; margin-left:8px; }
+  .item { padding:16px 26px; font-size:18px; line-height:1.3; color:var(--text-primary);
+    border-top:1.5px solid var(--border-subtle); min-height:66px; display:flex; align-items:center; }
+  .item:first-of-type { border-top:0; }
+  .item .badge { flex:0 0 auto; font-family:var(--font-body); font-weight:800; font-size:11px;
+    letter-spacing:.06em; text-transform:uppercase; padding:3px 10px; border-radius:var(--radius-pill); margin-right:12px; }
+  .item.win .badge { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .item.wall .badge { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .item.win { color:var(--text-primary); }
+  .item.wall { background:rgba(255,210,63,0.10); }
+  .fwd { margin-top:24px; display:flex; align-items:center; justify-content:flex-end; gap:16px; }
+  .fwd .band { flex:1; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:20px 30px; font-size:20px; font-weight:600; line-height:1.4; }
+  .fwd .band b { color:var(--stbr-cream); }
+  .fwd .go { flex:0 0 auto; background:var(--stbr-yellow); color:var(--text-on-accent);
+    border-radius:var(--radius-pill); padding:16px 28px; font-family:var(--font-mono); font-weight:800; font-size:20px; white-space:nowrap; }
+</style>
+  <div class="stbr-eyebrow">the utxo bargain</div>
+  <h2 class="viz-title">what you win, what you cannot express</h2>
+  <div class="cols">
+    <div class="col utxo">
+      <h3>UTXO<span class="sub">Bitcoin</span></h3>
+      <div class="item">transactions are self-contained proofs</div>
+      <div class="item">verify in any order, even in parallel</div>
+      <div class="item">no global mutable state to contend over</div>
+      <div class="item win"><span class="badge">win</span>parallel-verifiable, stateless</div>
+      <div class="item wall"><span class="badge">wall</span>a contract "everyone updates" is painful</div>
+    </div>
+    <div class="col evm">
+      <h3>account model<span class="sub">the EVM, next</span></h3>
+      <div class="item">transfers read / write a shared balance</div>
+      <div class="item">must agree on order before verifying</div>
+      <div class="item">one mutable number per account</div>
+      <div class="item win"><span class="badge">win</span>shared state is natural</div>
+      <div class="item wall"><span class="badge">wall</span>serialized, one shared computer</div>
+    </div>
+  </div>
+  <div class="fwd">
+    <div class="band">The paired cost is the same fact twice: statelessness buys parallelism but <b>refuses shared state</b>.</div>
+    <div class="go">&rarr; EVM chapter</div>
+  </div>
+</div>
+</body></html>

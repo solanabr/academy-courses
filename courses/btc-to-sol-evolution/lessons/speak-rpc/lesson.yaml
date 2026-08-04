@@ -1,0 +1,45 @@
+id: lesson-b2s-speak-rpc
+slug: speak-rpc
+title: "Speak RPC: your node is just an API server"
+skills:
+  - rpc-reads
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your `bitcoin-cli` commands are a thin wrapper over what, and how does a program talk to the node without the CLI?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "JSON-RPC over HTTP — a program POSTs a JSON body naming a method and params to the node's RPC port"
+            correct: true
+          - id: b
+            label: "gRPC with protobuf schemas — bitcoin-cli ships the compiled .proto definitions programs must share"
+            correct: false
+            feedback: "Bitcoin Core predates gRPC and never adopted it. The wire format is plain JSON-RPC over HTTP — any language that can POST a JSON body can drive the node with no special client library."
+          - id: c
+            label: "Direct reads of the node's database files — the CLI is essentially a LevelDB viewer"
+            correct: false
+            feedback: "Touching a running node's datafiles risks corruption and bypasses all mempool and wallet logic. The CLI is a thin HTTP client for the same JSON-RPC interface your own programs should use."
+        explanation: "Every bitcoin-cli command is a JSON-RPC call: an HTTP POST like {\"method\": \"getblockcount\", \"params\": []} against the node's RPC port. Any language with an HTTP client speaks it directly — which is why bots, explorers, and exchanges never shell out to the CLI."
+      - id: q2
+        prompt: "Which RPC port does a Bitcoin Core node listen on in regtest mode?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "8332"
+            correct: false
+            feedback: "8332 is MAINNET's RPC port. Each network gets its own — the separation keeps a stray command from ever hitting real funds. Regtest listens on 18443."
+          - id: b
+            label: "18443"
+            correct: true
+          - id: c
+            label: "18332"
+            correct: false
+            feedback: "Close — 18332 is TESTNET's RPC port. Regtest sits one convention over, on 18443."
+        explanation: "Ports encode the network: 8332 mainnet, 18332 testnet, 18443 regtest. Your regtest experiments talk to 18443, and the wrong-port error you get otherwise is a safety feature — it makes it hard to point test tooling at real money by accident."

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: one pipeline, two pens
+     purpose: certify that the bot and the button share every step except which signer they load
+     data: shared for both: getDepositInstructionAsync({ owner: signer, amount }) -> pipe(build message) -> sign the bot: signer = createKeyPairSignerFromBytes(diskBytes) ; send = sendAndConfirmTransactionFactory the button: signer = useWalletAccountTransactionSendingSigner(account) ; send = signAndSendTransactionMessageWithSigners the wall between them: WHO the signer is (disk key vs browser wallet), and nothing else
+     prompt: Diagram, dark background, monospace. A single shared vertical pipeline in the center (instruction -> build -> sign). Two labeled inputs feed the top: "bot: disk keypair" on the left, "button: wallet signer" on the right, merging into the same pipeline. Caption under it: "same pipeline, the only variable is the signer". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:437px;height:420px;top:-230px;right:-230px;border-radius:51% 53% 35% 38% / 52% 50% 58% 53%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:506px;height:493px;bottom:-257px;left:-257px;border-radius:37% 58% 53% 35% / 35% 41% 38% 47%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:26px; }
+  .pens { display:flex; gap:26px; }
+  .pen { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-lg); padding:22px 28px; }
+  .pen .k { font-family:var(--font-body); font-weight:800; font-size:15px; text-transform:uppercase; letter-spacing:.07em; color:var(--stbr-emerald); }
+  .pen .v { font-family:var(--font-mono); font-size:17px; color:var(--text-primary); margin-top:9px; }
+  .merge { text-align:center; color:var(--stbr-green); font-size:17px; font-weight:800; margin:14px 0; letter-spacing:.04em; }
+  .shared { background:var(--surface-inverse); border-radius:var(--radius-lg); padding:26px 32px; }
+  .shared .lbl { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--stbr-yellow); margin-bottom:16px; }
+  .stages { display:flex; align-items:center; }
+  .stage { flex:1; text-align:center; font-family:var(--font-mono); font-size:16px; color:var(--text-on-dark); }
+  .sarr { flex:0 0 44px; text-align:center; color:var(--stbr-emerald); font-size:26px; font-weight:900; }
+  .sends { display:flex; gap:26px; margin-top:18px; }
+  .send { flex:1; border:2px dashed var(--stbr-cream-300); border-radius:var(--radius-lg); padding:18px 26px; }
+  .send .k { font-weight:800; color:var(--text-secondary); font-size:14px; text-transform:uppercase; letter-spacing:.06em; }
+  .send .v { font-family:var(--font-mono); font-size:16px; color:var(--text-primary); margin-top:7px; }
+  .cap { text-align:center; margin-top:24px; font-size:21px; font-weight:800; color:var(--stbr-green); }
+</style>
+  <div class="stbr-eyebrow">the bot and the button</div>
+  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">one pipeline, two pens</h2>
+  <div class="dg">
+    <div class="pens">
+      <div class="pen"><div class="k">bot: disk keypair</div><div class="v">createKeyPairSignerFromBytes(diskBytes)</div></div>
+      <div class="pen"><div class="k">button: wallet signer</div><div class="v">useWalletAccountTransactionSendingSigner(account)</div></div>
+    </div>
+    <div class="merge">&darr;&nbsp;&nbsp; both feed the same signer slot &nbsp;&nbsp;&darr;</div>
+    <div class="shared">
+      <div class="lbl">identical for both</div>
+      <div class="stages">
+        <div class="stage">getDepositInstructionAsync({ owner: signer })</div>
+        <div class="sarr">&rarr;</div>
+        <div class="stage">pipe(build the message)</div>
+        <div class="sarr">&rarr;</div>
+        <div class="stage">signTransactionMessageWithSigners</div>
+      </div>
+    </div>
+    <div class="sends">
+      <div class="send"><div class="k">bot sends with</div><div class="v">sendAndConfirmTransactionFactory</div></div>
+      <div class="send"><div class="k">button sends with</div><div class="v">signAndSendTransactionMessageWithSigners</div></div>
+    </div>
+    <div class="cap">same pipeline, the only variable is who holds the pen</div>
+  </div>
+</div>
+</body></html>

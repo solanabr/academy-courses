@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: every leg in the design, tagged
+     purpose: certify the assessment, name the trust tier of each cross-chain leg out loud
+     data: | leg | cross-chain? | trust tier | note | | --- | --- | --- | --- | | BTC regtest fund (generatetoaddress) | no (local node) | trust-minimized (your own regtest) | free money, no counterparty | | SOL devnet airdrop (kit airdrop) | no (faucet) | custodial faucet, zero value | 2 SOL cap, rate-limited | | Jupiter v6 swap (SOL only) | no (same chain) | on-chain program trust | trust the aggregator + pools, settled on Solana | | BTC -> Solana bridge (stretch) | YES | tBTC: external-validator-set (threshold ECDSA multisig, audited) / WBTC, renBTC: custodial | Wormhole cannot bridge native BTC (2025); this leg survives every reboot |
+     prompt: Four-column table, dark background, monospace. Emphasize the header row. Shade the final row (BTC -> Solana bridge) faint red as the only leg that adds a surviving trust assumption. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:568px;height:507px;bottom:-278px;right:-278px;border-radius:59% 48% 44% 60% / 38% 47% 65% 44%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; margin-top:30px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 22px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:20px 22px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; font-size:17px; line-height:1.32; }
+  .ct td.leg { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:17px; }
+  .ct td.leg code { color:var(--stbr-emerald); font-weight:700; }
+  .cc { font-family:var(--font-body); font-weight:800; font-size:14px; padding:5px 13px; border-radius:var(--radius-pill); display:inline-block; }
+  .cc.no { background:rgba(0,139,76,0.12); color:var(--stbr-emerald); }
+  .cc.yes { background:#c0392b; color:#fff; }
+  .tier { font-family:var(--font-body); font-weight:700; color:var(--text-primary); }
+  .ct tr.flag td { background:rgba(192,57,43,0.07); border-bottom-color:rgba(192,57,43,0.20); }
+  .ct tr.flag td.leg { color:#a5342a; }
+  .ct tr.flag .tier { color:#a5342a; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">every leg in the design, tagged</div>
+  <h2 class="viz-title">name each leg's trust tier out loud</h2>
+  <table class="ct">
+    <tr><th style="width:29%">leg</th><th style="width:15%">cross-chain?</th><th style="width:24%">trust tier</th><th>note</th></tr>
+    <tr>
+      <td class="leg">BTC regtest fund<br><code>generatetoaddress</code></td>
+      <td><span class="cc no">no &mdash; local node</span></td>
+      <td><span class="tier">trust-minimized</span><br>your own regtest</td>
+      <td>free money, no counterparty</td>
+    </tr>
+    <tr>
+      <td class="leg">SOL devnet airdrop<br><code>kit airdrop</code></td>
+      <td><span class="cc no">no &mdash; faucet</span></td>
+      <td><span class="tier">custodial faucet</span><br>zero value</td>
+      <td>2 SOL cap, rate-limited</td>
+    </tr>
+    <tr>
+      <td class="leg">Jupiter v6 swap<br><code>SOL only</code></td>
+      <td><span class="cc no">no &mdash; same chain</span></td>
+      <td><span class="tier">on-chain program trust</span></td>
+      <td>trust the aggregator + pools, settled on Solana</td>
+    </tr>
+    <tr class="flag">
+      <td class="leg">BTC &rarr; Solana bridge<br><code>stretch</code></td>
+      <td><span class="cc yes">YES</span></td>
+      <td><span class="tier">tBTC: external-validator-set</span><br>(threshold ECDSA, audited) / WBTC, renBTC: custodial</td>
+      <td>Wormhole cannot bridge native BTC (2025); this leg survives every reboot</td>
+    </tr>
+  </table>
+</div>
+</body></html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: what a transaction actually costs
+     purpose: certify the three charges and their fixed rules, none is an open auction
+     data: | charge | rule | key number | where it goes | | --- | --- | --- | --- | | base fee | flat per signature | 5,000 lamports per signature | 50% burned, 50% to the validator | | priority fee | you set price and limit | ceil(compute_unit_price * compute_unit_limit / 1,000,000) lamports | to the validator; orders you in its queue | | compute ceiling | hard cap, not for sale | 1,400,000 CU per transaction | n/a: compute is bounded | | rent-exempt minimum | refundable size-based deposit | (account_data_len + 128) × 3,480 lamports/byte-year × 2 years | held by the account; returned on close |
+     prompt: Four-row table, dark background, monospace headers "charge / rule / key number / where it goes". Shade the base-fee row to flag the 50% burn. Right-align the key-number column. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:496px;height:499px;bottom:-238px;right:-238px;border-radius:39% 59% 59% 51% / 42% 59% 59% 65%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:527px;height:476px;left:-332px;top:300px;border-radius:46% 54% 51% 54% / 42% 56% 65% 65%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:19px; margin-top:32px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 24px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.07em; text-transform:uppercase; }
+  .ct th.num { text-align:right; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:20px 24px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.38; }
+  .ct td.charge { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:19px; }
+  .ct td.num { text-align:right; font-family:var(--font-mono); font-weight:700; color:var(--text-primary);
+    font-size:17px; white-space:nowrap; }
+  .ct td.num .unit { color:var(--text-muted); font-weight:400; }
+  .ct tr.flag td { background:rgba(255,210,63,0.15); border-bottom-color:rgba(217,166,8,0.32); }
+  .ct tr.flag td.charge { color:var(--stbr-dark); }
+  .ct tr.flag td .burn { color:var(--stbr-dark); font-weight:800; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">none of it is an open auction</div>
+  <h2 class="viz-title">what a transaction actually costs</h2>
+  <table class="ct">
+    <tr><th style="width:20%">charge</th><th style="width:26%">rule</th><th class="num" style="width:26%">key number</th><th>where it goes</th></tr>
+    <tr class="flag">
+      <td class="charge">base fee</td>
+      <td>flat, per signature</td>
+      <td class="num">5,000 <span class="unit">lamports / sig</span></td>
+      <td><span class="burn">50% burned</span>, 50% to the validator</td>
+    </tr>
+    <tr>
+      <td class="charge">priority fee</td>
+      <td>you set price and limit</td>
+      <td class="num">&lceil;price &times; limit / 1e6&rceil; <span class="unit">lamports</span></td>
+      <td>to the validator; orders you in its queue</td>
+    </tr>
+    <tr>
+      <td class="charge">compute ceiling</td>
+      <td>hard cap, not for sale</td>
+      <td class="num">1,400,000 <span class="unit">CU / tx</span></td>
+      <td>n/a &mdash; compute is bounded</td>
+    </tr>
+    <tr>
+      <td class="charge">rent-exempt min</td>
+      <td>refundable, size-based deposit</td>
+      <td class="num">(bytes + 128) &times; 3,480 <span class="unit">&times; 2 yr</span></td>
+      <td>held by the account; returned on close</td>
+    </tr>
+  </table>
+</div>
+</body></html>

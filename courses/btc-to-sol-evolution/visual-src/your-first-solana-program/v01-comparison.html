@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: the toolchain moved houses, old habits deploy nothing
+     purpose: certify why the install URL and the build command both changed, so a stale tutorial can't strand you
+     data: install URL | OLD: release.solana.com (solana-labs/solana) | NOW: release.anza.xyz (anza-xyz/agave) build command | OLD: cargo build-bpf (deprecated) | NOW: cargo build-sbf (LLVM -> sBPF .so) CLI identity | OLD: solana-labs client | NOW: solana-cli 4.1.1 (Agave) why it moved | the client was handed off from solana-labs to Anza's agave repo
+     prompt: Two-column comparison card, dark background, monospace. Left column "OLD", right column "NOW", rows "install URL / build command / CLI identity". A single band across the bottom: "same tool, new home: anza-xyz/agave". No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:583px;height:532px;top:-335px;right:-335px;border-radius:56% 53% 50% 49% / 58% 38% 61% 50%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:388px;height:555px;bottom:-325px;left:772px;border-radius:39% 49% 41% 65% / 43% 58% 59% 51%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { display:flex; flex-direction:column; margin-top:30px; border-radius:var(--radius-lg); overflow:hidden; border:2px solid var(--border-subtle); }
+  .cmp .head { display:flex; background:var(--surface-inverse); }
+  .cmp .head .cell { flex:1; padding:20px 30px; font-family:var(--font-display); font-weight:900; font-size:15px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-on-dark); }
+  .cmp .head .rowlab { flex:0 0 300px; padding:20px 30px; font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--stbr-ink-300); }
+  .cmp .head .old { color:var(--stbr-ink-300); }
+  .cmp .head .now { color:var(--stbr-yellow); }
+  .cmp .row { display:flex; border-top:2px solid var(--border-subtle); }
+  .cmp .rowlab { flex:0 0 300px; padding:26px 30px; background:var(--surface-paper); font-family:var(--font-body); font-weight:800; font-size:16px; color:var(--text-primary); display:flex; align-items:center; letter-spacing:.02em; }
+  .cmp .cell { flex:1; padding:26px 30px; font-size:19px; line-height:1.4; color:var(--text-secondary); display:flex; align-items:center; border-left:2px solid var(--border-subtle); }
+  .cmp .cell.old code { font-family:var(--font-mono); font-weight:700; color:var(--text-muted); }
+  .cmp .cell.now { background:rgba(0,139,76,0.07); }
+  .cmp .cell.now code { font-family:var(--font-mono); font-weight:800; color:var(--stbr-emerald); }
+  .verdict { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:24px 34px; font-size:22px; font-weight:600; line-height:1.4; }
+  .verdict code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the toolchain moved houses</div>
+  <h2 class="viz-title">old habits deploy nothing</h2>
+  <div class="cmp">
+    <div class="head">
+      <div class="rowlab"></div>
+      <div class="cell old">OLD</div>
+      <div class="cell now">NOW</div>
+    </div>
+    <div class="row">
+      <div class="rowlab">install URL</div>
+      <div class="cell old"><code>release.solana.com</code></div>
+      <div class="cell now"><code>release.anza.xyz</code></div>
+    </div>
+    <div class="row">
+      <div class="rowlab">build command</div>
+      <div class="cell old"><code>cargo build-bpf</code>&nbsp;<span>(deprecated)</span></div>
+      <div class="cell now"><code>cargo build-sbf</code>&nbsp;<span>(LLVM &rarr; sBPF .so)</span></div>
+    </div>
+    <div class="row">
+      <div class="rowlab">CLI identity</div>
+      <div class="cell old">solana-labs client</div>
+      <div class="cell now"><code>solana-cli 4.1.1</code>&nbsp;<span>(Agave)</span></div>
+    </div>
+  </div>
+  <div class="verdict">Same tool, new home: the client was handed off from solana-labs to <code>anza-xyz/agave</code>.</div>
+</div>
+</body></html>

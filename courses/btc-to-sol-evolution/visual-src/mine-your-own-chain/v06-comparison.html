@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: the same rules, one with the cost switched off
+     purpose: certify why proof-of-work secures mainnet and why regtest is a lab, not a currency
+     data: axis | mainnet Bitcoin | your regtest chain difficulty | tens of trillions (auto-adjusts) | the protocol floor (~1) work per block | ~10^20 hashes across the network | one attempt, found instantly hardware | purpose-built ASICs, hundreds of EH/s | your laptop, idle time per block | ~10 minutes by design | milliseconds cost to append | real electricity, real money | free cost to REWRITE | redo all that work faster than everyone| free (this is the catch)
+     prompt: Two-column comparison, dark theme, monospace, one row per axis. Tint the final row ("cost to rewrite") red on the regtest side. Caption: "no cost to append = no cost to rewrite". No logos, no icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:557px;height:588px;bottom:-323px;right:-323px;border-radius:55% 57% 50% 55% / 47% 57% 43% 53%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { margin-top:26px; border-radius:var(--radius-xl); overflow:hidden; border:2px solid var(--border-subtle); }
+  .cmp .grid { display:grid; grid-template-columns:280px 1fr 1fr; }
+  .cmp .hd { background:var(--surface-inverse); color:var(--text-on-dark); padding:20px 26px;
+    font-family:var(--font-display); font-weight:900; font-size:19px; }
+  .cmp .hd.axis { font-size:14px; letter-spacing:.1em; text-transform:uppercase; color:var(--stbr-ink-300);
+    display:flex; align-items:center; }
+  .cmp .hd .sub { display:block; font-family:var(--font-body); font-weight:600; font-size:14px;
+    color:var(--stbr-ink-300); margin-top:5px; letter-spacing:0; text-transform:none; }
+  .cmp .hd.main { color:var(--stbr-emerald); }
+  .cmp .hd.reg { color:var(--stbr-yellow); }
+  .cmp .ax { padding:19px 26px; font-family:var(--font-body); font-weight:800; font-size:17px;
+    color:var(--text-primary); background:var(--surface-paper); border-top:1.5px solid var(--border-subtle);
+    display:flex; align-items:center; }
+  .cmp .cell { padding:19px 26px; font-family:var(--font-mono); font-size:16.5px; line-height:1.4;
+    color:var(--text-secondary); background:var(--surface-card); border-top:1.5px solid var(--border-subtle);
+    display:flex; align-items:center; }
+  .cmp .cell.mid { border-left:1.5px solid var(--border-subtle); }
+  .cmp .cell b { color:var(--text-primary); }
+  .cmp .cell.danger { background:rgba(192,57,43,0.08); color:#a5281c; font-weight:700; }
+  .cmp .cell.danger b { color:#c0392b; }
+  .verdict { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:22px; font-weight:600; line-height:1.4; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">the same rules, cost switched off</div>
+  <h2 class="viz-title">why proof-of-work secures mainnet</h2>
+  <div class="cmp">
+    <div class="grid">
+      <div class="hd axis">axis</div>
+      <div class="hd main">mainnet Bitcoin<span class="sub">the currency</span></div>
+      <div class="hd reg" style="border-left:1.5px solid var(--border-on-dark);">your regtest chain<span class="sub">the lab</span></div>
+
+      <div class="ax">difficulty</div>
+      <div class="cell">tens of <b>trillions</b> (auto-adjusts)</div>
+      <div class="cell mid">the protocol floor (<b>~1</b>)</div>
+
+      <div class="ax">work per block</div>
+      <div class="cell"><b>~10<sup>20</sup></b> hashes across the network</div>
+      <div class="cell mid">one attempt, <b>found instantly</b></div>
+
+      <div class="ax">hardware</div>
+      <div class="cell">purpose-built ASICs, <b>hundreds of EH/s</b></div>
+      <div class="cell mid">your laptop, idle</div>
+
+      <div class="ax">time per block</div>
+      <div class="cell"><b>~10 minutes</b> by design</div>
+      <div class="cell mid">milliseconds</div>
+
+      <div class="ax">cost to append</div>
+      <div class="cell">real electricity, <b>real money</b></div>
+      <div class="cell mid"><b>free</b></div>
+
+      <div class="ax">cost to REWRITE</div>
+      <div class="cell">redo all that work <b>faster than everyone</b></div>
+      <div class="cell mid danger"><b>free</b> &mdash; this is the catch</div>
+    </div>
+  </div>
+  <div class="verdict"><b>No cost to append = no cost to rewrite.</b> Regtest keeps every rule except the price, so it's a lab, not a currency.</div>
+</div>
+</body></html>

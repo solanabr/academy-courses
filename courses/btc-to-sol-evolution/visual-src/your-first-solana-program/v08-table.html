@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: rent is a per-byte deposit, concentrated in the big account
+     purpose: certify that rent-exemption is an up-front reserve that scales with account size, so the cost lands almost entirely on the ProgramData account
+     data: | account | size | rent-exempt reserve | | --- | --- | --- | | program (proxy) | a few dozen bytes | tiny, effectively free | | ProgramData | the whole .so | the real deposit, priced by the byte, locked for life |
+     prompt: Two-row comparison table, dark background, monospace, headers "account / size / rent-exempt reserve". Shade the ProgramData row to mark it as where the SOL is actually locked. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:498px;height:507px;top:-272px;right:-272px;border-radius:47% 42% 45% 49% / 47% 65% 40% 48%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:434px;height:437px;left:-253px;top:164px;border-radius:60% 39% 65% 54% / 63% 44% 42% 61%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:395px;height:489px;bottom:-310px;left:785px;border-radius:46% 51% 62% 58% / 38% 62% 42% 41%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:22px; margin-top:36px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:22px 30px; font-family:var(--font-display); font-weight:800; font-size:16px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:34px 30px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.4; }
+  .ct td.acct { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:23px; }
+  .ct td.size { font-size:20px; }
+  .ct tr.pick td { background:rgba(0,139,76,0.09); border-bottom-color:rgba(0,139,76,0.22); }
+  .ct tr.pick td.acct { color:var(--stbr-emerald); }
+  .ct tr.pick td.reserve b { color:var(--stbr-emerald); }
+  .ct td.reserve b { color:var(--text-primary); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .pill { display:inline-block; background:var(--stbr-emerald); color:var(--text-on-brand);
+    font-family:var(--font-body); font-size:13px; font-weight:800; padding:5px 13px;
+    border-radius:var(--radius-pill); margin-left:14px; vertical-align:middle; }
+</style>
+  <div class="stbr-eyebrow">rent is a per-byte deposit</div>
+  <h2 class="viz-title">where the SOL is actually locked</h2>
+  <table class="ct">
+    <tr><th style="width:32%">account</th><th style="width:28%">size</th><th>rent-exempt reserve</th></tr>
+    <tr><td class="acct">program (proxy)</td><td class="size">a few dozen bytes</td><td class="reserve"><b>tiny</b>, effectively free</td></tr>
+    <tr class="pick"><td class="acct">ProgramData<span class="pill">the real deposit</span></td><td class="size">the whole <code>.so</code></td><td class="reserve"><b>priced by the byte</b>, locked for life</td></tr>
+  </table>
+</div>
+</body></html>

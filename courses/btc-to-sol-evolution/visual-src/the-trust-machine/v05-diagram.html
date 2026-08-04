@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: two honest nodes, two different histories
+     purpose: certify that network delay alone breaks agreement, before anyone even lies
+     data: Alice broadcasts T1 "pay Bob 100" and T2 "pay Carol 100" (she owns 100 once) node Tokyo receives: T1 then T2 -> records Bob paid, Carol REJECTED node Sao Paulo receives: T2 then T1 -> records Carol paid, Bob REJECTED both nodes are honest. both are correct about what they saw. they disagree on history, and no shared clock exists to say who is "first"
+     prompt: Diagram, dark background, monospace. One "Alice" node at top emitting two labeled messages T1 and T2. Two receiver nodes below, "Tokyo" and "Sao Paulo", each with an ordered inbox showing the two messages in opposite order. Each node's ledger conclusion is a box, the two boxes contradicting. A greyed-out clock icon, crossed out, labeled "no global clock". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:454px;height:460px;top:-228px;right:-228px;border-radius:48% 49% 57% 44% / 51% 60% 59% 41%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:486px;height:490px;left:-280px;top:183px;border-radius:65% 45% 57% 58% / 49% 36% 37% 35%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:22px; }
+  .alice { background:var(--surface-inverse); border-radius:var(--radius-lg); padding:20px 30px; display:flex; align-items:center; gap:24px; }
+  .alice .who { font-family:var(--font-mono); font-weight:800; font-size:22px; color:var(--stbr-yellow); }
+  .alice .say { font-family:var(--font-body); font-size:17px; color:var(--stbr-ink-300); }
+  .alice .msgs { margin-left:auto; display:flex; gap:12px; }
+  .msg { font-family:var(--font-mono); font-weight:800; font-size:16px; padding:9px 16px; border-radius:var(--radius-pill); }
+  .msg.t1 { background:rgba(0,139,76,0.20); color:#7fe0ac; border:1.5px solid rgba(0,139,76,0.55); }
+  .msg.t2 { background:rgba(255,210,63,0.18); color:var(--stbr-yellow); border:1.5px solid rgba(255,210,63,0.55); }
+  .fan { display:flex; align-items:center; justify-content:center; gap:340px; margin:6px 0; }
+  .fan svg { display:block; }
+  .pair { display:flex; gap:34px; margin-top:4px; }
+  .rc { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-lg); padding:22px 26px; }
+  .rc .name { font-family:var(--font-mono); font-weight:800; font-size:21px; color:var(--text-primary); margin-bottom:14px; }
+  .inbox { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .inbox .ord { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-muted); flex:0 0 68px; }
+  .pkt { font-family:var(--font-mono); font-weight:700; font-size:17px; padding:8px 15px; border-radius:var(--radius-sm); }
+  .pkt.t1 { background:rgba(0,139,76,0.12); color:var(--stbr-emerald); }
+  .pkt.t2 { background:rgba(255,210,63,0.20); color:var(--stbr-dark); }
+  .arrow-in { color:var(--text-muted); font-size:18px; }
+  .concl { border-radius:var(--radius-md); padding:16px 20px; font-family:var(--font-mono); font-weight:700; font-size:18px; display:flex; align-items:center; gap:12px; }
+  .concl.a { background:rgba(0,139,76,0.09); border:2px solid rgba(0,139,76,0.34); color:var(--text-primary); }
+  .concl.b { background:rgba(255,210,63,0.14); border:2px solid rgba(240,189,31,0.5); color:var(--text-primary); }
+  .concl .rej { color:#a5342a; font-weight:800; }
+  .footer { display:flex; align-items:center; gap:24px; margin-top:22px; background:var(--surface-inverse); border-radius:var(--radius-lg); padding:22px 30px; }
+  .footer .clock { flex:0 0 auto; position:relative; }
+  .footer .txt { font-size:18px; color:var(--stbr-ink-300); line-height:1.4; }
+  .footer .txt b { color:var(--stbr-cream); }
+  .footer .noclk { font-family:var(--font-mono); font-weight:800; color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">two honest nodes, two different histories</div>
+  <h2 class="viz-title">no shared clock says who was first</h2>
+  <div class="dg">
+    <div class="alice">
+      <span class="who">Alice</span>
+      <span class="say">owns 100 once &mdash; broadcasts both</span>
+      <div class="msgs"><span class="msg t1">T1 &middot; pay Bob 100</span><span class="msg t2">T2 &middot; pay Carol 100</span></div>
+    </div>
+    <div class="fan">
+      <svg width="120" height="34"><line x1="118" y1="2" x2="4" y2="30" stroke="#306c40" stroke-width="2.5"/><polygon points="2,32 12,26 14,20" fill="#306c40"/></svg>
+      <svg width="120" height="34"><line x1="2" y1="2" x2="116" y2="30" stroke="#306c40" stroke-width="2.5"/><polygon points="118,32 108,20 106,26" fill="#306c40"/></svg>
+    </div>
+    <div class="pair">
+      <div class="rc">
+        <div class="name">node Tokyo</div>
+        <div class="inbox"><span class="ord">receives</span><span class="pkt t1">T1</span><span class="arrow-in">&rarr;</span><span class="pkt t2">T2</span></div>
+        <div class="concl a">records Bob paid, <span class="rej">Carol REJECTED</span></div>
+      </div>
+      <div class="rc">
+        <div class="name">node S&atilde;o Paulo</div>
+        <div class="inbox"><span class="ord">receives</span><span class="pkt t2">T2</span><span class="arrow-in">&rarr;</span><span class="pkt t1">T1</span></div>
+        <div class="concl b">records Carol paid, <span class="rej">Bob REJECTED</span></div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="clock">
+        <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="20" fill="none" stroke="#767f73" stroke-width="3"/><line x1="26" y1="26" x2="26" y2="14" stroke="#767f73" stroke-width="3"/><line x1="26" y1="26" x2="35" y2="30" stroke="#767f73" stroke-width="3"/><line x1="9" y1="9" x2="43" y2="43" stroke="#c0392b" stroke-width="4"/></svg>
+      </div>
+      <div class="txt">Both nodes are <b>honest</b>, and both are <b>correct</b> about what they saw. They disagree on history &mdash; and <span class="noclk">no global clock</span> exists to say who is "first".</div>
+    </div>
+  </div>
+</div>
+</body></html>

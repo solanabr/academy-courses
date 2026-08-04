@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: one call, three costumes
+     purpose: certify that bitcoin-cli, curl, and Python are the same HTTP request with different amounts of ceremony hidden
+     data: bitcoin-cli -regtest getblockchaininfo | hides: port, cookie, JSON envelope, response unwrap | you write: a method name | good for: humans at a terminal curl ... --data-binary '{...}' :18443 | hides: nothing | you write: the full envelope + auth by hand | good for: seeing the raw wire, quick debugging requests.post(url, auth=..., json={...}) | hides: nothing you did not choose to hide | you write: the envelope as a dict | good for: programs, bots, everything in this course all three | send: the same JSON body to the same port | get back: the same result | differ only in: how much ceremony is pre-filled
+     prompt: Three-row comparison card, dark theme, monospace. Columns: "tool", "what it hides", "what you write", "best for". A single band across the bottom spanning all rows: "same JSON body, same port, same result". No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:543px;height:504px;bottom:-273px;left:-273px;border-radius:45% 51% 64% 49% / 51% 43% 62% 38%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { display:flex; gap:22px; margin-top:32px; align-items:stretch; }
+  .col { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); overflow:hidden; display:flex; flex-direction:column; }
+  .col.pick { border-color:rgba(0,139,76,0.40); background:rgba(0,139,76,0.05); }
+  .col h3 { margin:0; padding:22px 26px; font-family:var(--font-mono); font-weight:800;
+    font-size:20px; color:var(--text-on-dark); background:var(--surface-inverse);
+    line-height:1.25; word-break:break-word; }
+  .col.pick h3 { background:var(--surface-brand); color:var(--text-on-brand); }
+  .col .cell { padding:18px 26px; border-top:1.5px solid var(--border-subtle); }
+  .col.pick .cell { border-top-color:rgba(0,139,76,0.18); }
+  .col .k { font-family:var(--font-body); font-weight:800; font-size:12px;
+    letter-spacing:.09em; text-transform:uppercase; color:var(--text-muted); }
+  .col .v { font-size:18px; color:var(--text-primary); margin-top:6px; line-height:1.4; }
+  .col.pick .v b { color:var(--stbr-emerald); }
+  .verdict { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:22px; font-weight:600;
+    text-align:center; line-height:1.4; }
+  .verdict code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">one call, three costumes</div>
+  <h2 class="viz-title">same request, different ceremony</h2>
+  <div class="cmp">
+    <div class="col">
+      <h3>bitcoin-cli</h3>
+      <div class="cell"><div class="k">what it hides</div><div class="v">port, cookie, the JSON envelope, the response unwrap</div></div>
+      <div class="cell"><div class="k">what you write</div><div class="v">a method name</div></div>
+      <div class="cell"><div class="k">best for</div><div class="v">humans at a terminal</div></div>
+    </div>
+    <div class="col">
+      <h3>curl</h3>
+      <div class="cell"><div class="k">what it hides</div><div class="v">nothing</div></div>
+      <div class="cell"><div class="k">what you write</div><div class="v">the full envelope <b>+</b> auth, by hand</div></div>
+      <div class="cell"><div class="k">best for</div><div class="v">seeing the raw wire, quick debugging</div></div>
+    </div>
+    <div class="col pick">
+      <h3>requests.post</h3>
+      <div class="cell"><div class="k">what it hides</div><div class="v">nothing you did not choose to hide</div></div>
+      <div class="cell"><div class="k">what you write</div><div class="v">the envelope as a dict</div></div>
+      <div class="cell"><div class="k">best for</div><div class="v"><b>programs, bots, everything in this course</b></div></div>
+    </div>
+  </div>
+  <div class="verdict">All three send the <code>same JSON body</code> to the <code>same port</code> and get back the <code>same result</code> &mdash; they differ only in how much ceremony is pre-filled.</div>
+</div>
+</body></html>

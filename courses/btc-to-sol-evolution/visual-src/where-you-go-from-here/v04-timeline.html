@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- timeline: the safety net was built out of failures
+     purpose: place the security tooling and the incident that forced the network onto one line
+     data: Aug 2021 Neodyme publishes "Solana Smart Contracts: Common Pitfalls", still the reference (through) the same traps your checked-arithmetic and account-validation habits guarded against Apr 2026 an exploit drains Drift: roughly $270M initially, about $295M final per Drift's recovery plan days later Solana Incident Response Network stands up: Asymmetric Research, OtterSec, Neodyme, Squads, ZeroShadow
+     prompt: Horizontal timeline, dark background, monospace. Three dated nodes: Aug 2021 (Neodyme pitfalls), Apr 2026 (Drift exploit, ~$270M initial rising to ~$295M final, tinted red), and the network founding days later. An arrow from the exploit node to the network node labeled "built in response". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:489px;height:463px;right:-305px;top:283px;border-radius:65% 42% 41% 57% / 36% 54% 35% 61%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:544px;height:516px;bottom:-276px;left:-276px;border-radius:44% 51% 44% 64% / 65% 62% 43% 54%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tl { display:flex; position:relative; margin-top:88px; padding:0 40px; }
+  .tl::before { content:""; position:absolute; left:120px; right:120px; top:51px; height:3px; background:var(--stbr-emerald); z-index:0; }
+  /* thicker "built in response" span between exploit (node 2) and network (node 3) */
+  .tl .resp-span { position:absolute; left:50%; right:120px; top:47px; height:11px; border-radius:var(--radius-pill); background:var(--stbr-yellow); z-index:1; }
+  .tl .resp-lab { position:absolute; left:62%; top:14px; font-family:var(--font-body); font-weight:800;
+    font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:var(--stbr-green); }
+  .node { flex:1; text-align:center; position:relative; padding:0 16px; }
+  .date { font-family:var(--font-mono); font-weight:800; font-size:20px; color:var(--text-primary); height:38px; }
+  .dot { width:22px; height:22px; border-radius:50%; background:var(--stbr-emerald); border:5px solid var(--surface-page); margin:0 auto; position:relative; z-index:2; box-sizing:content-box; }
+  .node.exploit .dot { background:#c0392b; }
+  .lab { font-size:18px; color:var(--text-secondary); margin-top:20px; line-height:1.32; }
+  .lab .t { font-family:var(--font-mono); font-weight:800; color:var(--text-primary); display:block; font-size:19px; margin-bottom:6px; }
+  .node.exploit .lab .t { color:#a5342a; }
+  .figure { display:inline-block; margin-top:12px; font-family:var(--font-mono); font-size:15px; font-weight:800;
+    color:#a5342a; background:rgba(192,57,43,0.09); padding:5px 13px; border-radius:var(--radius-pill); }
+  .roster { display:inline-block; margin-top:12px; font-family:var(--font-body); font-size:14px; font-weight:700;
+    color:var(--stbr-emerald); background:rgba(0,139,76,0.10); padding:6px 14px; border-radius:var(--radius-pill); line-height:1.35; }
+</style>
+  <div class="stbr-eyebrow">the safety net was built out of failures</div>
+  <h2 class="viz-title">an exploit, then the network that answered it</h2>
+  <div class="tl">
+    <div class="resp-span"></div>
+    <div class="resp-lab">built in response</div>
+    <div class="node">
+      <div class="date">Aug 2021</div><div class="dot"></div>
+      <div class="lab"><span class="t">Neodyme pitfalls</span>"Solana Smart Contracts: Common Pitfalls" &mdash; still the reference; the traps your checked-arithmetic and account-validation habits guard against</div>
+    </div>
+    <div class="node exploit">
+      <div class="date">Apr 2026</div><div class="dot"></div>
+      <div class="lab"><span class="t">Drift is drained</span>an exploit drains Drift</div>
+      <div class="figure">&approx; $270M initial &rarr; $295M final</div>
+    </div>
+    <div class="node">
+      <div class="date">days later</div><div class="dot"></div>
+      <div class="lab"><span class="t">Incident Response Network</span>the Solana Incident Response Network stands up</div>
+      <div class="roster">Asymmetric Research &middot; OtterSec &middot; Neodyme &middot; Squads &middot; ZeroShadow</div>
+    </div>
+  </div>
+</div>
+</body></html>

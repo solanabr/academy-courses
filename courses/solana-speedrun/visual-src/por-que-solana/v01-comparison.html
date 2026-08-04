@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: PIX foi só o começo
+     purpose: ancorar a velocidade da Solana numa referência que o público brasileiro já sente no bolso todo dia
+     data: PIX (transferência): segundos, quase grátis. TED (banco tradicional): horas, com tarifa. Ethereum (rede cripto famosa): minutos, taxa que passa de US$ 1. Solana: menos de meio segundo por operação, taxa típica abaixo de US$ 0,01.
+     prompt: layout phone-first (vertical, leitura no celular em pé), big type, max 3 elements por tela, high contrast; quatro barras curtas empilhadas, Solana destacada em verde no rodapé.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:451px;height:500px;bottom:-235px;right:-235px;border-radius:59% 58% 38% 44% / 61% 65% 58% 61%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:525px;height:490px;left:-297px;top:245px;border-radius:51% 41% 37% 49% / 38% 61% 44% 63%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { margin-top:30px; display:flex; flex-direction:column; gap:18px; }
+  .rowc { display:flex; align-items:stretch; gap:22px; background:var(--surface-card);
+          border:2px solid var(--border-subtle); border-radius:var(--radius-xl); padding:26px 34px; }
+  .rowc.win { background:var(--surface-brand); border-color:var(--surface-brand); }
+  .name { flex:0 0 300px; display:flex; flex-direction:column; justify-content:center; }
+  .name .n { font-family:var(--font-display); font-weight:var(--weight-black); font-size:44px;
+             line-height:1.0; color:var(--text-primary); }
+  .rowc.win .name .n { color:var(--text-on-brand); }
+  .name .k { font-size:18px; color:var(--text-muted); margin-top:6px; }
+  .rowc.win .name .k { color:var(--stbr-yellow); }
+  .attrs { flex:1; display:flex; gap:22px; }
+  .attr { flex:1; display:flex; flex-direction:column; justify-content:center;
+          border-left:2px solid var(--border-subtle); padding-left:26px; }
+  .rowc.win .attr { border-left-color:var(--border-on-dark); }
+  .attr .al { font-size:16px; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
+              color:var(--text-muted); }
+  .rowc.win .attr .al { color:var(--stbr-yellow); }
+  .attr .av { font-size:30px; font-weight:800; color:var(--text-primary); line-height:1.08; margin-top:6px; }
+  .rowc.win .attr .av { color:var(--text-on-brand); }
+</style>
+  <div class="stbr-eyebrow">velocidade &amp; taxa</div>
+  <h2 class="viz-title">PIX foi só o começo</h2>
+  <div class="cmp">
+    <div class="rowc">
+      <div class="name"><div class="n">PIX</div><div class="k">transferência</div></div>
+      <div class="attrs">
+        <div class="attr"><div class="al">velocidade</div><div class="av">segundos</div></div>
+        <div class="attr"><div class="al">taxa</div><div class="av">quase grátis</div></div>
+      </div>
+    </div>
+    <div class="rowc">
+      <div class="name"><div class="n">TED</div><div class="k">banco tradicional</div></div>
+      <div class="attrs">
+        <div class="attr"><div class="al">velocidade</div><div class="av">horas</div></div>
+        <div class="attr"><div class="al">taxa</div><div class="av">com tarifa</div></div>
+      </div>
+    </div>
+    <div class="rowc">
+      <div class="name"><div class="n">Ethereum</div><div class="k">rede cripto famosa</div></div>
+      <div class="attrs">
+        <div class="attr"><div class="al">velocidade</div><div class="av">minutos</div></div>
+        <div class="attr"><div class="al">taxa</div><div class="av">passa de US$ 1</div></div>
+      </div>
+    </div>
+    <div class="rowc win">
+      <div class="name"><div class="n">Solana</div><div class="k">o próximo passo</div></div>
+      <div class="attrs">
+        <div class="attr"><div class="al">velocidade</div><div class="av">&lt; meio segundo</div></div>
+        <div class="attr"><div class="al">taxa</div><div class="av">&lt; US$ 0,01</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

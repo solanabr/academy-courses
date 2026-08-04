@@ -18,6 +18,30 @@ courses/<slug>/
 
 Copy [`_template/`](./_template) to start a new course. Everything is validated in CI; `_template/` itself is linted but **never published**.
 
+## `_draft/` — parked courses
+
+`courses/_draft/<slug>/` holds courses that are staged out of the live catalog. Two separate mechanisms make this work, and both matter:
+
+- **Never compiled/published:** the monorepo's content pipeline excludes any path containing a `_draft/` segment from the synced tree (monorepo #973, `lib/content/compile` — the same exclusion that keeps `courses/_template/` out). Parked content cannot reach the bundle, the app, or a `content.lock` bump.
+- **Invisible to lint:** the linter discovers content only at fixed depth (`courses/<slug>/`, `paths/<name>.yaml`, …) and skips `_draft/` as a named convention — so parked files are neither validated nor blocking. A consequence worth internalizing: **a green content-lint check says nothing about parked files.** Anything restored out of `_draft/` gets linted for the first time on that PR.
+
+Live `paths/` and `achievements/` files must not reference a drafted course id (dangling references are CI errors — park the referencing file together with its target, or retarget it). The same convention exists as `paths/_draft/` and `achievements/_draft/`. To restore a course, `git mv` it back to `courses/<slug>/` unchanged — its `slots.lock.json` travels with it and must not be regenerated.
+
+## Images and visual assets
+
+Images live in a per-lesson `assets/` folder and are embedded from the lesson's prose markdown with a relative link:
+
+```
+courses/<slug>/lessons/<lesson>/
+  intro.md               # …contains ![alt text](assets/v01-diagram.png)
+  assets/
+    v01-diagram.png
+```
+
+Every file inside a lesson folder must be referenced from a block or from prose markdown — an unreferenced file is a CI error (orphan check). Write meaningful alt text; it's the accessibility caption.
+
+A course may also keep the *sources* that generated its images (HTML/CSS renders, etc.) in a course-level `visual-src/` folder — e.g. `courses/<slug>/visual-src/<lesson>/v01-diagram.html`. Course-level folders outside `lessons/` are ignored by the linter and never published; they exist so visuals stay editable and re-renderable from the repo.
+
 ## `course.yaml`
 
 ```yaml

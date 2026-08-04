@@ -1,0 +1,69 @@
+id: lesson-b2s-the-crosschain-ops-bot
+slug: the-crosschain-ops-bot
+title: "Pull the plug: the cross-chain operator that wakes up where it left off"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: resume-from-cursor
+    type: code
+    language: typescript
+    starter: resume-from-cursor/starter.ts
+    solution: resume-from-cursor/solution.ts
+    tests: resume-from-cursor/tests.json
+    hints:
+      - "Keep only ops whose id is strictly greater than the cursor."
+      - "The new cursor is the max id you actually applied, or the old cursor when nothing is new."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "For your ops bot to survive a `kill -9` and resume correctly, which three artifacts must it have persisted?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The keypair(s), a cursor (last confirmed slot / sequence id), and the spawned-agent manifest"
+            correct: true
+          - id: b
+            label: "The keypair(s) and the cursor — spawned agents re-register themselves when they notice the parent restarted"
+            correct: false
+            feedback: "Child agents cannot announce themselves to a parent that has forgotten they exist — the fresh process has no memory of what the old one spawned. The manifest is the bot's only record of its own children."
+          - id: c
+            label: "The cursor and the manifest — the keypair can be re-derived from on-chain data after a restart"
+            correct: false
+            feedback: "Nothing on-chain contains a private key, by design. Lose the keypair and the bot restarts as a stranger to its own accounts. Keys must be persisted locally (or derived from a persisted seed)."
+        explanation: "Three things cannot be recomputed after a kill -9: the keypair (its address and spending power), the cursor (how far it got), and the agent manifest (what it spawned). Everything else — balances, confirmations, chain state — is re-readable from the chain. Persist those three and a cold restart becomes a resume instead of a do-over."
+      - id: q2
+        prompt: "Every operation the bot submits AFTER its cursor must be idempotent or on-chain-guarded. Why is that the rule?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Because validators de-duplicate by fee payer, so replayed operations would be silently dropped and leave gaps"
+            correct: false
+            feedback: "The network only rejects EXACT duplicate signatures, briefly. A resumed bot REBUILDS its operations — new blockhash, new signature — so the chain happily executes the 'same' operation twice. The guard has to be yours."
+          - id: b
+            label: "It is a performance rule — idempotent operations can be batched and confirmed faster"
+            correct: false
+            feedback: "Idempotency here buys correctness, not speed. A crash between submitting an op and advancing the cursor makes re-seeing ops inevitable, and only idempotent or guarded ops survive that without double-executing."
+          - id: c
+            label: "On resume the bot may re-see operations it already sent; without idempotency or an on-chain guard it would double-execute them"
+            correct: true
+        explanation: "The crash window is unavoidable: the bot can die after an operation lands but before the cursor advances. On resume it will replay everything past the cursor — so each such operation must either change nothing the second time (idempotent) or be rejected by an on-chain check (guarded). That one rule is what makes kill -9 survivable."
+      - id: q3
+        prompt: "Wormhole secures messages with 19 named guardians and a 13-of-19 quorum. In the bridge trust taxonomy, which tier is that, and what do you trust?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Trust-minimized — guardian signatures are verified on-chain, so you trust only code and the two chains' consensus"
+            correct: false
+            feedback: "On-chain signature checks do not change WHO you trust: the guardians. If 13 of the 19 keys collude or leak, a forged message verifies perfectly. Trust-minimized designs (light clients) need no such committee at all."
+          - id: b
+            label: "External-validator-set — you trust an honest majority of the named guardians; compromise 13 of 19 keys and the bridge is broken"
+            correct: true
+          - id: c
+            label: "Custodial — Wormhole the company holds the locked assets and signs releases from its own infrastructure"
+            correct: false
+            feedback: "No single company signs alone — that is precisely what the 19-guardian, 13-of-19 quorum replaces. It sits between custodial (one signer) and trust-minimized (no signers): a named external committee."
+        explanation: "Wormhole is the external-validator-set tier: a fixed committee attests to cross-chain messages, and its threshold — 13 of 19 guardian keys — IS the security boundary. Stronger than one custodian, weaker than a light client that verifies the source chain's own consensus. Naming the committee you trust is the first question to ask of any bridge."

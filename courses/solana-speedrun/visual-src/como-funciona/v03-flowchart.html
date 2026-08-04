@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: Caixas em paralelo, não uma fila
+     purpose: Mostrar que transações que não se cruzam rodam ao mesmo tempo pelo Sealevel
+     data: Várias transações entram declarando suas contas. As que tocam contas diferentes seguem por caixas separados ao mesmo tempo; só as que disputam a mesma conta entram na mesma fila.
+     prompt: Fluxograma phone-first, tipografia grande, no máximo 3 elementos, alto contraste; duas ou três faixas paralelas de caixa de supermercado com transações independentes correndo lado a lado.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:522px;height:514px;right:-282px;top:251px;border-radius:46% 49% 43% 63% / 38% 64% 49% 53%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:417px;height:458px;bottom:-253px;left:490px;border-radius:50% 46% 38% 37% / 60% 52% 59% 58%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .f2-intake { background:var(--surface-inverse); color:var(--stbr-cream); border-radius:var(--radius-lg);
+               padding:20px 30px; font-family:var(--font-body); font-size:24px; font-weight:600;
+               margin:14px 0 24px; text-align:center; }
+  .f2-intake b { color:var(--stbr-yellow); font-weight:800; }
+  .f2-lane { display:flex; align-items:center; gap:20px; padding:18px 22px; border-radius:var(--radius-lg);
+             border:2px solid var(--border-subtle); background:var(--surface-card); margin-bottom:16px; }
+  .f2-lane.hi { border:2px solid var(--stbr-yellow-700); background:#fff6d6; }
+  .f2-name { flex:0 0 320px; }
+  .f2-name .n { font-family:var(--font-display); font-weight:900; font-size:26px; color:var(--text-primary);
+                line-height:1.05; }
+  .f2-name .sub { font-family:var(--font-body); font-size:19px; color:var(--text-secondary); margin-top:4px; }
+  .f2-flow { flex:1; display:flex; align-items:center; gap:14px; }
+  .f2-tx { font-family:var(--font-mono); font-weight:800; font-size:22px; padding:12px 20px;
+           border-radius:var(--radius-md); background:rgba(0,139,76,0.10); color:var(--stbr-emerald-800);
+           border:1.5px solid rgba(0,139,76,0.35); }
+  .f2-lane.hi .f2-tx { background:rgba(240,189,31,0.20); color:var(--stbr-yellow-700);
+                       border-color:var(--stbr-yellow-700); }
+  .f2-arrow { width:30px; height:16px; }
+  .f2-badge { flex:0 0 auto; font-family:var(--font-body); font-weight:800; font-size:19px;
+              padding:9px 18px; border-radius:var(--radius-pill); background:var(--surface-brand);
+              color:var(--stbr-cream); white-space:nowrap; }
+  .f2-lane.hi .f2-badge { background:var(--stbr-yellow); color:var(--stbr-dark); }
+  .f2-queue { display:flex; align-items:center; gap:6px; }
+</style>
+  <div class="stbr-eyebrow">o motor paralelo da Solana (Sealevel)</div>
+  <h2 class="viz-title">Caixas em paralelo, não uma fila</h2>
+  <div class="f2-intake">Transações entram — cada uma <b>declara quais contas vai tocar</b></div>
+
+  <div class="f2-lane">
+    <div class="f2-name"><div class="n">Contas diferentes</div><div class="sub">não se cruzam</div></div>
+    <div class="f2-flow">
+      <span class="f2-tx">tx&nbsp;A</span>
+      <svg class="f2-arrow" viewBox="0 0 30 16"><line x1="0" y1="8" x2="24" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="30,8 22,3 22,13" fill="#008b4c"/></svg>
+      <span class="f2-tx">tx&nbsp;B</span>
+    </div>
+    <div class="f2-badge">roda ao mesmo tempo</div>
+  </div>
+
+  <div class="f2-lane">
+    <div class="f2-name"><div class="n">Outras contas</div><div class="sub">lane separada</div></div>
+    <div class="f2-flow">
+      <span class="f2-tx">tx&nbsp;C</span>
+      <svg class="f2-arrow" viewBox="0 0 30 16"><line x1="0" y1="8" x2="24" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="30,8 22,3 22,13" fill="#008b4c"/></svg>
+      <span class="f2-tx">tx&nbsp;D</span>
+    </div>
+    <div class="f2-badge">roda ao mesmo tempo</div>
+  </div>
+
+  <div class="f2-lane hi">
+    <div class="f2-name"><div class="n">Mesma conta</div><div class="sub">disputam o mesmo saldo</div></div>
+    <div class="f2-flow">
+      <span class="f2-queue"><span class="f2-tx">tx&nbsp;E</span><span class="f2-tx">tx&nbsp;F</span><span class="f2-tx">tx&nbsp;G</span></span>
+    </div>
+    <div class="f2-badge">entram na mesma fila</div>
+  </div>
+</div>
+</body></html>

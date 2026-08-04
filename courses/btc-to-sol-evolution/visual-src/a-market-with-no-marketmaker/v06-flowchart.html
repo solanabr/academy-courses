@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: why a contract can't fetch a price, and how one arrives anyway
+     purpose: contrast the forbidden live fetch with the deterministic storage read that replaces it
+     data: FORBIDDEN (breaks consensus): swap() --live HTTP--> price API node A reads $10.00 | node B reads $10.02 (call happened a second later) -> nodes disagree on state -> no block [the oracle problem] WORKS (deterministic): step 1: oracle middleware (e.g. Chainlink) fetches + validates off-chain price step 2: middleware posts it on-chain as a normal transaction -> stored value step 3: swap() reads that stored value (a load from storage, same on every node) -> every node computes the identical result -> block agrees
+     prompt: Two-lane flowchart, dark background, monospace. Top lane "forbidden": swap() arrow to a cloud "price API", forking to two nodes with different values, ending in a red "no consensus". Bottom lane "works": oracle -> on-chain write -> storage slot -> swap() reads it, ending in a green "all nodes agree". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:458px;height:381px;right:-240px;top:284px;border-radius:47% 43% 55% 42% / 47% 54% 57% 58%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:437px;height:479px;bottom:-275px;left:430px;border-radius:61% 57% 44% 37% / 39% 53% 63% 59%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .lane { border-radius:var(--radius-xl); padding:24px 28px; margin-top:22px; }
+  .lane.bad { background:rgba(192,57,43,0.06); border:2px solid rgba(192,57,43,0.28); }
+  .lane.good { background:rgba(0,139,76,0.07); border:2px solid rgba(0,139,76,0.32); }
+  .lane .hd { font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.1em;
+    text-transform:uppercase; margin-bottom:18px; }
+  .lane.bad .hd { color:#c0392b; }
+  .lane.good .hd { color:var(--stbr-emerald); }
+  .flow { display:flex; align-items:center; gap:0; }
+  .node { background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-md); padding:15px 18px; text-align:center; }
+  .node .n { font-family:var(--font-mono); font-weight:800; font-size:17px; color:var(--text-primary); }
+  .node .s { font-family:var(--font-body); font-size:13px; color:var(--text-muted); margin-top:5px; }
+  .arr { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; padding:0 12px; min-width:70px; }
+  .arr .lbl { font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); margin-bottom:4px; white-space:nowrap; }
+  .arr .line { color:var(--text-primary); font-size:22px; font-weight:900; line-height:1; }
+  .cloud { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-pill);
+    padding:16px 26px; font-family:var(--font-mono); font-weight:800; font-size:17px; text-align:center; }
+  .fork { flex:0 0 auto; display:flex; flex-direction:column; gap:12px; padding:0 8px; }
+  .fork .nd { background:var(--surface-card); border:2px solid rgba(192,57,43,0.35);
+    border-radius:var(--radius-md); padding:10px 16px; font-family:var(--font-mono); font-size:15px;
+    font-weight:700; color:var(--text-primary); white-space:nowrap; }
+  .fork .nd b { color:#c0392b; }
+  .end { flex:0 0 auto; border-radius:var(--radius-md); padding:16px 22px; text-align:center;
+    font-family:var(--font-display); font-weight:900; font-size:19px; letter-spacing:.02em; }
+  .end.no { background:#c0392b; color:#fff; }
+  .end.yes { background:var(--surface-brand); color:var(--text-on-brand); }
+  .node.emph { background:var(--surface-brand-deep); border-color:var(--surface-brand-deep); }
+  .node.emph .n { color:var(--text-on-brand); }
+  .node.emph .s { color:rgba(245,232,202,0.8); }
+</style>
+  <div class="stbr-eyebrow">why a contract can't fetch a price, and how one arrives anyway</div>
+  <h2 class="viz-title">a live fetch breaks consensus; a stored read doesn't</h2>
+  <div class="lane bad">
+    <div class="hd">forbidden &mdash; breaks consensus</div>
+    <div class="flow">
+      <div class="node"><div class="n">swap()</div><div class="s">needs a price</div></div>
+      <div class="arr"><span class="lbl">live HTTP</span><span class="line">&rarr;</span></div>
+      <div class="cloud">price API</div>
+      <div class="arr"><span class="line">&rarr;</span></div>
+      <div class="fork">
+        <div class="nd">node A reads <b>$10.00</b></div>
+        <div class="nd">node B reads <b>$10.02</b> <span style="color:var(--text-muted);font-weight:500;">(a second later)</span></div>
+      </div>
+      <div class="arr"><span class="lbl">disagree</span><span class="line">&rarr;</span></div>
+      <div class="end no">no consensus<br><span style="font-family:var(--font-body);font-weight:600;font-size:13px;">no block forms</span></div>
+    </div>
+  </div>
+  <div class="lane good">
+    <div class="hd">works &mdash; deterministic</div>
+    <div class="flow">
+      <div class="node"><div class="n">oracle middleware</div><div class="s">e.g. Chainlink: fetch + validate off-chain</div></div>
+      <div class="arr"><span class="lbl">posts tx</span><span class="line">&rarr;</span></div>
+      <div class="node emph"><div class="n">on-chain write</div><div class="s">a normal transaction</div></div>
+      <div class="arr"><span class="line">&rarr;</span></div>
+      <div class="node"><div class="n">stored value</div><div class="s">a storage slot</div></div>
+      <div class="arr"><span class="lbl">load, same everywhere</span><span class="line">&rarr;</span></div>
+      <div class="node"><div class="n">swap() reads it</div><div class="s">identical on every node</div></div>
+      <div class="arr"><span class="line">&rarr;</span></div>
+      <div class="end yes">all nodes agree<br><span style="font-family:var(--font-body);font-weight:600;font-size:13px;">block agrees</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

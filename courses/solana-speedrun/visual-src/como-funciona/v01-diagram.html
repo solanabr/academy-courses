@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+  .globe-panel { background: var(--stbr-dark); border-radius: var(--radius-xl);
+                 width: 560px; flex: none; padding: 34px 36px 28px; }
+  .globe { position: relative; width: 400px; height: 400px; margin: 0 auto; }
+  .globe .ring { position: absolute; inset: 0; border: 3px dashed rgba(245,232,202,0.45);
+                 border-radius: 50%; }
+  .globe .dot { position: absolute; width: 16px; height: 16px; border-radius: 50%;
+                background: var(--stbr-yellow); }
+  .globe .core { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+                 text-align: center; }
+  .globe .core .n { font-family: var(--font-display); font-weight: 900; font-size: 64px;
+                    line-height: 1; color: var(--stbr-cream); }
+  .globe .core .t { font-family: var(--font-display); font-weight: 900; font-size: 25px;
+                    color: var(--stbr-yellow); margin-top: 6px; }
+  .globe-cap { font-family: var(--font-body); font-size: 17px; line-height: 1.35;
+               color: rgba(245,232,202,0.85); text-align: center; margin-top: 20px; }
+  .globe-cap strong { color: var(--stbr-cream); }
+  .powers { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+  .powers .head { font-family: var(--font-display); font-weight: 900; font-size: 27px;
+                  color: var(--text-primary); }
+  .power { background: var(--stbr-white); border-radius: var(--radius-lg);
+           padding: 26px 28px; display: flex; gap: 20px; align-items: flex-start; }
+  .power .badge { flex: none; width: 52px; height: 52px; border-radius: 50%;
+                  background: var(--stbr-yellow); color: var(--stbr-dark);
+                  font-family: var(--font-display); font-weight: 900; font-size: 26px;
+                  display: flex; align-items: center; justify-content: center; }
+  .power .txt { font-family: var(--font-display); font-weight: 900; font-size: 25px;
+                line-height: 1.18; color: var(--text-primary); }
+  .power .txt em { font-style: normal; color: var(--stbr-emerald); }
+</style></head>
+<body>
+<!-- diagram: Um megacomputador global, e os superpoderes de quem programa
+     purpose: Materializar a ideia grande: milhares de máquinas agindo como um computador só, e o que isso destrava para quem escreve código
+     data: À esquerda, um globo formado por milhares de máquinas independentes agindo como UM computador que ninguém desliga, censura ou adultera. À direita, três superpoderes de quem programa: 1. publicar código que vira serviço financeiro global, no ar 24/7; 2. sem pedir permissão a banco ou governo; 3. alcance imediato: qualquer pessoa com celular, no mundo inteiro.
+     prompt: Diagrama phone-first, tipografia grande, no máximo 3 grupos, alto contraste; globo de nós conectados à esquerda representando um computador único, três cartões de superpoder empilhados à direita.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:552px;height:517px;top:-335px;right:-335px;border-radius:48% 65% 57% 35% / 40% 46% 56% 61%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:466px;height:383px;left:-223px;top:364px;border-radius:52% 39% 60% 52% / 56% 47% 48% 48%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+  <div class="stbr-eyebrow">A ideia grande, antes da mecânica</div>
+  <h2 class="viz-title">Um megacomputador global</h2>
+
+  <div style="display:flex;gap:34px;align-items:stretch;">
+    <div class="globe-panel">
+      <div class="globe">
+        <div class="ring"></div>
+        <div class="dot" style="top:192px;left:376px;"></div>
+        <div class="dot" style="top:111px;left:354px;"></div>
+        <div class="dot" style="top:52px;left:295px;"></div>
+        <div class="dot" style="top:30px;left:192px;"></div>
+        <div class="dot" style="top:52px;left:89px;"></div>
+        <div class="dot" style="top:111px;left:30px;"></div>
+        <div class="dot" style="top:192px;left:8px;"></div>
+        <div class="dot" style="top:273px;left:30px;"></div>
+        <div class="dot" style="top:332px;left:89px;"></div>
+        <div class="dot" style="top:354px;left:192px;"></div>
+        <div class="dot" style="top:332px;left:295px;"></div>
+        <div class="dot" style="top:273px;left:354px;"></div>
+        <div class="core">
+          <div class="n">1</div>
+          <div class="t">computador</div>
+        </div>
+      </div>
+      <div class="globe-cap"><strong>Milhares de máquinas independentes</strong> agindo como uma só.
+        Ninguém desliga, ninguém censura, ninguém adultera.</div>
+    </div>
+
+    <div class="powers">
+      <div class="head">Os superpoderes de quem programa</div>
+      <div class="power">
+        <div class="badge">1</div>
+        <div class="txt">Publica um código e ele vira um <em>serviço financeiro global</em>, no ar 24/7</div>
+      </div>
+      <div class="power">
+        <div class="badge">2</div>
+        <div class="txt"><em>Sem pedir permissão</em> a banco ou governo</div>
+      </div>
+      <div class="power">
+        <div class="badge">3</div>
+        <div class="txt">Alcance imediato: <em>qualquer pessoa com celular</em>, no mundo inteiro</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

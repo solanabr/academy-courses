@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: the road out, as tools you can open today
+     purpose: certify the send-off is grounded in real, specific, free resources, not vibes
+     data: need | resource | how you use it prove your code is your code | anchor build --verifiable / solana-verify | rebuild + fingerprint-match the deployed binary learn the exploits | github.com/coral-xyz/sealevel-attacks | patch each insecure/ into its secure/ the standard pitfalls | Neodyme pitfalls (neodyme.io) + workshop.neodyme.io | check your habits against the classic traps a professional review | OtterSec, Neodyme, Halborn, Zellic, Trail of Bits, Ackee | commission an audit when funds justify it what an audit contains | github.com/anza-xyz/security-audits | read real reports before commissioning one read production code | solana-developers/program-examples, solana-labs/solana-program-library | study patterns in native Rust, Anchor, Pinocchio, SPL the code you can't read | Jupiter Metis (closed-source, metis.builders v7) | study via audits + SDK integration, not source
+     prompt: Seven-row table, dark background, monospace headers "need / resource / how you use it". Tint the last row (closed source) a faint grey to mark it distinct. No logos.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:548px;height:493px;top:-264px;right:-264px;border-radius:51% 38% 51% 51% / 60% 42% 57% 57%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:14px; margin-top:18px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:11px 20px; font-family:var(--font-display); font-weight:800; font-size:12px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:11px 20px; border-bottom:1.5px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:top; line-height:1.3; }
+  .ct td.need { font-weight:800; color:var(--text-primary); }
+  .ct td.res { font-family:var(--font-mono); font-size:14px; color:var(--stbr-emerald); font-weight:700; line-height:1.4; }
+  .ct tr.closed td { background:rgba(118,127,115,0.12); border-bottom-color:rgba(118,127,115,0.24); }
+  .ct tr.closed td.need { color:var(--text-secondary); }
+  .ct tr.closed td.res { color:var(--text-muted); }
+  .ct tr.closed td .tag { display:inline-block; margin-left:8px; font-family:var(--font-body);
+    font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--text-muted); background:rgba(118,127,115,0.22); padding:2px 8px; border-radius:var(--radius-pill); vertical-align:middle; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">the road out, as tools you can open today</div>
+  <h2 class="viz-title" style="font-size:42px;margin:4px 0 0;">real resources, not vibes</h2>
+  <table class="ct">
+    <tr>
+      <th style="width:24%">need</th>
+      <th style="width:40%">resource</th>
+      <th>how you use it</th>
+    </tr>
+    <tr>
+      <td class="need">prove your code is your code</td>
+      <td class="res">anchor build --verifiable / solana-verify</td>
+      <td>rebuild + fingerprint-match the deployed binary</td>
+    </tr>
+    <tr>
+      <td class="need">learn the exploits</td>
+      <td class="res">github.com/coral-xyz/sealevel-attacks</td>
+      <td>patch each <span style="font-family:var(--font-mono)">insecure/</span> into its <span style="font-family:var(--font-mono)">secure/</span></td>
+    </tr>
+    <tr>
+      <td class="need">the standard pitfalls</td>
+      <td class="res">Neodyme pitfalls (neodyme.io) + workshop.neodyme.io</td>
+      <td>check your habits against the classic traps</td>
+    </tr>
+    <tr>
+      <td class="need">a professional review</td>
+      <td class="res">OtterSec, Neodyme, Halborn, Zellic, Trail of Bits, Ackee</td>
+      <td>commission an audit when funds justify it</td>
+    </tr>
+    <tr>
+      <td class="need">what an audit contains</td>
+      <td class="res">github.com/anza-xyz/security-audits</td>
+      <td>read real reports before commissioning one</td>
+    </tr>
+    <tr>
+      <td class="need">read production code</td>
+      <td class="res">solana-developers/program-examples, solana-labs/solana-program-library</td>
+      <td>study patterns in native Rust, Anchor, Pinocchio, SPL</td>
+    </tr>
+    <tr class="closed">
+      <td class="need">the code you can't read <span class="tag">closed source</span></td>
+      <td class="res">Jupiter Metis (metis.builders v7)</td>
+      <td>study via audits + SDK integration, not source</td>
+    </tr>
+  </table>
+</div>
+</body></html>

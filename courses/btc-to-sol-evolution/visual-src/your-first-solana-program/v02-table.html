@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: reading Rust at a glance (you don't need to know Rust today)
+     purpose: give an absolute beginner just enough to read the entrypoint without learning the language
+     data: | you'll see | what it means | | --- | --- | | `use path::Thing;` | an import: pulls a name in from a library | | `fn name(args) -> T { }` | a function; the arrow names what it hands back | | `name!(...)` | the trailing `!` marks a macro: code that writes code before compiling | | `struct Foo { ... }` | a named bundle of fields, a record; none here yet, common later | | `impl Foo { ... }` | functions attached to a struct; none here yet, common later | | `_name` | a leading underscore means "declared but intentionally unused" |
+     prompt: Six-row reference table, dark background, monospace, headers "you'll see / what it means". Visually group the two "common later" rows so a beginner sees they don't apply to today's code. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:535px;height:468px;right:-309px;top:218px;border-radius:49% 46% 59% 55% / 51% 64% 41% 50%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:386px;height:410px;bottom:-232px;left:571px;border-radius:56% 54% 57% 46% / 46% 54% 51% 63%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:20px; margin-top:26px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 26px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); width:38%; }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:19px 26px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.35; }
+  .ct td.syn { color:var(--text-primary); font-size:20px; }
+  .ct td.syn code { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); }
+  .ct tr.later td { background:rgba(118,127,115,0.09); color:var(--text-muted); }
+  .ct tr.later td.syn code { color:var(--text-muted); }
+  .ct tr.later.first td.syn { position:relative; }
+  .later-tag { display:inline-block; margin-left:12px; font-family:var(--font-body); font-size:12px;
+    font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--stbr-dark);
+    background:var(--stbr-cream-300); padding:4px 11px; border-radius:var(--radius-pill); vertical-align:middle; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">you don't need to know Rust today</div>
+  <h2 class="viz-title">reading Rust at a glance</h2>
+  <table class="ct">
+    <tr><th>you'll see</th><th>what it means</th></tr>
+    <tr><td class="syn"><code>use path::Thing;</code></td><td>an import: pulls a name in from a library</td></tr>
+    <tr><td class="syn"><code>fn name(args) -&gt; T { }</code></td><td>a function; the arrow names what it hands back</td></tr>
+    <tr><td class="syn"><code>name!(...)</code></td><td>the trailing <code>!</code> marks a macro: code that writes code before compiling</td></tr>
+    <tr class="later first"><td class="syn"><code>struct Foo { ... }</code><span class="later-tag">common later</span></td><td>a named bundle of fields, a record &mdash; none in today's code yet</td></tr>
+    <tr class="later"><td class="syn"><code>impl Foo { ... }</code><span class="later-tag">common later</span></td><td>functions attached to a struct &mdash; none in today's code yet</td></tr>
+    <tr><td class="syn"><code>_name</code></td><td>a leading underscore means "declared but intentionally unused"</td></tr>
+  </table>
+</div>
+</body></html>

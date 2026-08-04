@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: the same withdraw, with and without the guard
+     purpose: certify that has_one is the load-bearing control, not defensive decoration
+     data: | WITHOUT has_one = authority | WITH has_one = authority attacker signs as self | seeds still re-derive YOUR vault | signer.key != stored authority what the program does | signs with your seeds, sends out | halts before any CPI result | vault drained by a stranger | Error: Unauthorized (your custom error) who the address binds | the money to the owner (only) | the money to the owner who the check binds | nobody | the withdrawal to the owner
+     prompt: Two-column comparison, dark theme, monospace. Left column tinted red ("insecure"), right column green ("secure"). Five labeled rows as listed; emphasize the "result" row. Bottom band: "the address says whose; the check says who's asking". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:549px;height:493px;right:-310px;top:161px;border-radius:37% 55% 39% 61% / 54% 42% 57% 42%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:589px;height:527px;bottom:-335px;left:-335px;border-radius:45% 59% 56% 65% / 48% 41% 40% 64%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { margin-top:24px; border-radius:var(--radius-lg); overflow:hidden; border:2px solid var(--border-subtle); }
+  .cmp .r { display:grid; grid-template-columns:250px 1fr 1fr; align-items:stretch; }
+  .cmp .hd .axis { background:var(--surface-inverse); }
+  .cmp .hd .h { padding:20px 26px; font-family:var(--font-display); font-weight:900; font-size:16px;
+    letter-spacing:.07em; text-transform:uppercase; color:#fff; display:flex; align-items:center; gap:10px; }
+  .cmp .hd .h.bad { background:#c0392b; }
+  .cmp .hd .h.good { background:var(--surface-brand); color:var(--text-on-brand); }
+  .cmp .hd .h .badge { font-family:var(--font-body); font-size:12px; font-weight:800; background:rgba(255,255,255,0.22);
+    padding:4px 10px; border-radius:var(--radius-pill); letter-spacing:.05em; }
+  .cmp .axis { padding:19px 26px; display:flex; align-items:center; font-family:var(--font-body);
+    font-weight:800; font-size:15px; color:var(--text-secondary); background:var(--surface-paper); }
+  .cmp .c { padding:19px 26px; border-left:1.5px solid var(--border-subtle); display:flex; align-items:center;
+    font-size:18px; line-height:1.3; }
+  .cmp .body .r { border-top:1.5px solid var(--border-subtle); }
+  .cmp .c.bad { color:#a5342a; background:rgba(192,57,43,0.05); }
+  .cmp .c.good { color:var(--stbr-emerald); background:rgba(0,139,76,0.05); }
+  .cmp .c code { font-family:var(--font-mono); font-weight:700; }
+  .cmp .r.hl .axis { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .cmp .r.hl .c { font-weight:800; font-size:19px; }
+  .cmp .r.hl .c.bad { background:rgba(192,57,43,0.11); }
+  .cmp .r.hl .c.good { background:rgba(0,139,76,0.11); }
+  .cmp .hd .axis-lbl { padding:20px 26px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--text-on-dark); display:flex; align-items:center; }
+  .verdict { margin-top:22px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 32px; text-align:center; font-size:22px; font-weight:600; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">the same withdraw, with and without the guard</div>
+  <h2 class="viz-title">has_one is the load-bearing control</h2>
+  <div class="cmp">
+    <div class="r hd">
+      <div class="axis-lbl">the withdraw</div>
+      <div class="h bad">without has_one <span class="badge">insecure</span></div>
+      <div class="h good">with has_one <span class="badge">secure</span></div>
+    </div>
+    <div class="body">
+      <div class="r"><div class="axis">attacker signs as self</div><div class="c bad">seeds still re-derive YOUR vault</div><div class="c good"><code>signer.key != stored authority</code></div></div>
+      <div class="r"><div class="axis">what the program does</div><div class="c bad">signs with your seeds, sends out</div><div class="c good">halts before any CPI</div></div>
+      <div class="r hl"><div class="axis">result</div><div class="c bad">vault drained by a stranger</div><div class="c good"><code>Error: Unauthorized</code></div></div>
+      <div class="r"><div class="axis">who the address binds</div><div class="c bad">the money to the owner (only)</div><div class="c good">the money to the owner</div></div>
+      <div class="r"><div class="axis">who the check binds</div><div class="c bad">nobody</div><div class="c good">the withdrawal to the owner</div></div>
+    </div>
+  </div>
+  <div class="verdict">The address says <b>whose</b>; the check says <b>who's asking</b>.</div>
+</div>
+</body></html>

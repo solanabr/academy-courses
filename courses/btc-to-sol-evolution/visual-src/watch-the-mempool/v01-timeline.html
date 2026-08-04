@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- timeline: the life of one transaction, from broadcast to confirmed
+     purpose: fix the four stages the lab just walked, and mark where the watcher lives
+     data: 1. build + broadcast: sendtoaddress creates a signed tx, the node accepts it 2. mempool (the queue): getrawmempool returns the txid; no block yet 3. mined: generatetoaddress puts the tx inside a block 4. confirmed: mempool drains to []; the tx now lives in the chain the watcher's whole job lives between stage 2 and stage 3, the gap before mining
+     prompt: Horizontal timeline, dark background, monospace. Four labeled nodes left to right as in the data. Shade the span between node 2 (mempool) and node 3 (mined) and label it "the gap the watcher watches". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:529px;height:495px;top:-251px;right:-251px;border-radius:35% 47% 45% 62% / 40% 64% 43% 40%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:500px;height:365px;left:-285px;top:183px;border-radius:42% 60% 48% 52% / 61% 35% 42% 41%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .tl { position:relative; margin-top:70px; padding:0 12px; }
+  /* the track spans full width; dot centres land at 12.5/37.5/62.5/87.5% (4 equal nodes) */
+  .track { position:relative; height:96px; }
+  .track::before { content:""; position:absolute; left:12.5%; right:12.5%; top:44px; height:3px; background:var(--stbr-emerald); z-index:0; }
+  /* shaded span = the gap BETWEEN node 2 (37.5%) and node 3 (62.5%) */
+  .gap { position:absolute; top:26px; height:40px; left:37.5%; right:37.5%;
+    background:rgba(255,210,63,0.22); border:2px solid var(--stbr-yellow); border-radius:var(--radius-pill); z-index:0; }
+  .gaplbl { position:absolute; top:2px; left:50%; transform:translateX(-50%); white-space:nowrap;
+    font-family:var(--font-body); font-weight:800; font-size:15px; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--text-on-accent); background:var(--stbr-yellow); padding:8px 18px; border-radius:var(--radius-pill); z-index:2; }
+  .nodes { position:relative; display:flex; z-index:1; margin-top:8px; }
+  .node { flex:1; text-align:center; padding:0 10px; }
+  .num { font-family:var(--font-display); font-weight:900; font-size:15px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-emerald); height:26px; }
+  .dot { width:20px; height:20px; border-radius:50%; background:var(--stbr-emerald);
+    border:5px solid var(--surface-page); margin:0 auto; box-sizing:content-box; }
+  .ttl { font-family:var(--font-body); font-weight:800; font-size:20px; color:var(--text-primary); margin-top:20px; }
+  .sub { font-family:var(--font-mono); font-size:15px; color:var(--text-muted); margin-top:9px; line-height:1.35; }
+  .foot { margin-top:34px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:20px; font-weight:500; line-height:1.45; }
+  .foot b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">the life of one transaction</div>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">from broadcast to confirmed</h2>
+  <div class="tl">
+    <div class="track">
+      <div class="gap"></div>
+      <div class="gaplbl">the gap the watcher watches</div>
+    </div>
+    <div class="nodes">
+      <div class="node"><div class="num">1 &middot; broadcast</div><div class="dot"></div><div class="ttl">build + broadcast</div><div class="sub">sendtoaddress signs a tx;<br>the node accepts it</div></div>
+      <div class="node"><div class="num">2 &middot; mempool</div><div class="dot"></div><div class="ttl">the queue</div><div class="sub">getrawmempool returns<br>the txid; no block yet</div></div>
+      <div class="node"><div class="num">3 &middot; mined</div><div class="dot"></div><div class="ttl">mined</div><div class="sub">generatetoaddress puts<br>the tx inside a block</div></div>
+      <div class="node"><div class="num">4 &middot; confirmed</div><div class="dot"></div><div class="ttl">confirmed</div><div class="sub">mempool drains to [];<br>the tx lives in the chain</div></div>
+    </div>
+  </div>
+  <div class="foot">The watcher's whole job lives <b>between stage 2 and stage 3</b> &mdash; the gap after a tx enters the queue and before a block claims it.</div>
+</div>
+</body></html>

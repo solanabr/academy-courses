@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: what statefulness costs, and what spend-once buys back
+     purpose: certify the trade named in prose, expressiveness bought with permanent state cost and new bug classes
+     data: axis | Ethereum accounts + storage | Bitcoin spend-once UTXOs per-address balance | one SLOAD, expressible | not expressible cost to write state | every SSTORE is metered gas | no persistent write exists storage over time | held by every full node ~forever (state bloat) | outputs consumed on spend, bounded parallelism | slots can collide; needs ordering | unrelated outputs never touch; trivially parallel bug surface | reentrancy + race conditions on shared state | immune to that whole class verdict | expressiveness at a permanent, metered price | cheaper + safer, but cannot hold a balance
+     prompt: Three-column table, dark background, monospace headers "axis / Ethereum accounts + storage / Bitcoin spend-once UTXOs". Six rows as listed. Tint the Ethereum cost/bloat/bug cells amber and the Bitcoin "not expressible" cell amber; green the two "verdict" strengths. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:534px;height:519px;bottom:-254px;right:-254px;border-radius:53% 55% 37% 49% / 61% 40% 41% 56%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:18px; margin-top:20px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 22px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.06em; text-transform:uppercase; vertical-align:middle; }
+  .ct th.eth { background:var(--surface-brand); }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:18px 22px; border-bottom:1.5px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.32; }
+  .ct td.ax { font-family:var(--font-body); font-weight:800; color:var(--text-primary);
+    background:var(--surface-paper); font-size:15px; }
+  .ct td .mono { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); }
+  .ct td b { color:var(--text-primary); }
+  .ct td.amber { background:rgba(217,166,8,0.12); color:var(--stbr-yellow-700); font-weight:700; }
+  .ct td.amber b, .ct td.amber .mono { color:var(--stbr-yellow-700); }
+  .ct tr.verdict td { background:rgba(0,139,76,0.10); border-bottom:0; color:var(--stbr-emerald); font-weight:700; font-size:19px; }
+  .ct tr.verdict td.ax { background:var(--surface-brand); color:var(--text-on-brand); font-family:var(--font-display); font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+  .ct tr.verdict td b { color:var(--stbr-emerald); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+</style>
+  <div class="stbr-eyebrow">what statefulness costs, what spend-once buys back</div>
+  <h2 class="viz-title">the trade: expressiveness for permanence</h2>
+  <table class="ct">
+    <tr><th style="width:22%">axis</th><th class="eth" style="width:39%">Ethereum &mdash; accounts + storage</th><th style="width:39%">Bitcoin &mdash; spend-once UTXOs</th></tr>
+    <tr><td class="ax">per-address balance</td><td>one <span class="mono">SLOAD</span> &mdash; <b>expressible</b></td><td class="amber"><b>not expressible</b></td></tr>
+    <tr><td class="ax">cost to write state</td><td class="amber">every <span class="mono">SSTORE</span> is <b>metered gas</b></td><td>no persistent write exists</td></tr>
+    <tr><td class="ax">storage over time</td><td class="amber">held by every full node ~forever <b>(state bloat)</b></td><td>outputs consumed on spend &mdash; bounded</td></tr>
+    <tr><td class="ax">parallelism</td><td>slots can collide &mdash; needs ordering</td><td>unrelated outputs never touch &mdash; trivially parallel</td></tr>
+    <tr><td class="ax">bug surface</td><td class="amber"><b>reentrancy + race conditions</b> on shared state</td><td>immune to that whole class</td></tr>
+    <tr class="verdict"><td class="ax">verdict</td><td><b>expressiveness</b> at a permanent, metered price</td><td><b>cheaper + safer</b> &mdash; but cannot hold a balance</td></tr>
+  </table>
+</div>
+</body></html>

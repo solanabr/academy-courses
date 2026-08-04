@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: from a devnet program to a mainnet deploy
+     purpose: sequence the send-off tooling into one actionable path the reader can follow
+     data: devnet program (green tests) -> verifiable build (anchor build --verifiable / solana-verify) -> self-review against sealevel-attacks + Neodyme pitfalls -> external audit (OtterSec / Neodyme / Halborn / Zellic / Trail of Bits / Ackee) -> decide upgrade authority (who can change it, can they be stopped) -> integrate a real protocol (read its audits + SDK) -> mainnet deploy note: this is the road beyond the course; each step costs time or money, and skipping one is how the exploits happen
+     prompt: Left-to-right flowchart, dark background, monospace. Six nodes in the order listed, ending on "mainnet deploy" (warm-tinted). A thin cost bar under the chain labeled "time / money at every step". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:455px;height:470px;bottom:-233px;left:-233px;border-radius:58% 50% 41% 40% / 39% 35% 42% 59%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .flow { display:flex; align-items:stretch; margin-top:36px; }
+  .node { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:22px 18px; display:flex; flex-direction:column; justify-content:flex-start; text-align:center; }
+  .node .step { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:10px; }
+  .node .t { font-family:var(--font-display); font-weight:900; font-size:19px; line-height:1.1;
+    letter-spacing:-0.01em; color:var(--text-primary); margin-bottom:9px; }
+  .node .s { font-family:var(--font-mono); font-size:13px; color:var(--text-secondary); line-height:1.35; }
+  .node.final { background:var(--stbr-yellow); border-color:var(--stbr-yellow-700); }
+  .node.final .step { color:var(--stbr-dark); }
+  .node.final .t { color:var(--stbr-dark); }
+  .node.final .s { color:var(--stbr-dark); font-weight:600; }
+  .arr { flex:0 0 40px; display:flex; align-items:center; justify-content:center; color:var(--stbr-emerald); font-size:30px; font-weight:900; }
+  .costbar { display:flex; align-items:center; gap:20px; margin-top:26px; background:var(--surface-inverse);
+    color:var(--text-on-dark); border-radius:var(--radius-lg); padding:18px 30px; }
+  .costbar .cap { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--stbr-yellow); white-space:nowrap; }
+  .costbar .msg { font-size:19px; color:var(--stbr-ink-300); line-height:1.4; }
+  .costbar .msg b { color:var(--stbr-cream); }
+</style>
+  <div class="stbr-eyebrow">from a devnet program to a mainnet deploy</div>
+  <h2 class="viz-title">the road beyond the course</h2>
+  <div class="flow">
+    <div class="node"><div class="step">start</div><div class="t">devnet program</div><div class="s">green tests</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="step">step 1</div><div class="t">verifiable build</div><div class="s">anchor build --verifiable / solana-verify</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="step">step 2</div><div class="t">self-review</div><div class="s">sealevel-attacks + Neodyme pitfalls</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="step">step 3</div><div class="t">external audit</div><div class="s">OtterSec / Neodyme / Halborn / Zellic / Trail of Bits / Ackee</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="step">step 4</div><div class="t">upgrade authority</div><div class="s">who can change it, can they be stopped</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node"><div class="step">step 5</div><div class="t">integrate a protocol</div><div class="s">read its audits + SDK</div></div>
+    <div class="arr">&rarr;</div>
+    <div class="node final"><div class="step">ship</div><div class="t">mainnet deploy</div><div class="s">real funds, permanent state</div></div>
+  </div>
+  <div class="costbar">
+    <span class="cap">time / money at every step</span>
+    <span class="msg">Each step costs time or money &mdash; and <b>skipping one is how the exploits happen</b>.</span>
+  </div>
+</div>
+</body></html>

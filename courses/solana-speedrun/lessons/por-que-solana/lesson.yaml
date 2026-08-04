@@ -1,0 +1,47 @@
+id: lesson-ssr-por-que-solana
+slug: por-que-solana
+title: "Por que todo mundo fala de Solana"
+skills:
+  - solana-fundamentals
+  - account-model
+  - transactions
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Depois do que você acabou de ler: o que roda na Solana hoje?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Basicamente só a moeda SOL e memecoins — especulação de curto prazo, sem produto financeiro de verdade"
+            correct: false
+            feedback: "Esse é o estereótipo que a lição desmonta: especulação existe, mas o que cresce é o sistema financeiro — ações, ouro, crédito, mercados de previsão."
+          - id: b
+            label: "Um sistema financeiro melhorado: ações tokenizadas, ouro, crédito, mercados de previsão e gradualmente, todos os mercados e ativos"
+            correct: true
+          - id: c
+            label: "Projetos de teste, ainda sem valor real em jogo"
+            correct: false
+            feedback: "BlackRock, Franklin Templeton e PayPal não rodam teste de laboratório: são produtos reais com dinheiro real, na mainnet, hoje."
+        explanation: "A tese não é 'cripto rápida', é finança inteira rodando aberta: ativos tradicionais tokenizados + produtos que só existem onchain, com instituições reais operando neles."
+      - id: q2
+        prompt: "Dizemos que a Solana é 'monolítica'. O que isso significa na prática?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Todos os apps e usuários vivem numa única chain, sem fatiar as pessoas em dezenas de L2s"
+            correct: true
+          - id: b
+            label: "Que uma única empresa controla todos os servidores da rede — e é por isso que ela consegue ser tão rápida"
+            correct: false
+            feedback: "Monolítica descreve a ARQUITETURA (um estado só), não o controle: a rede é operada por milhares de validadores independentes."
+          - id: c
+            label: "O código dos apps nunca pode ser atualizado"
+            correct: false
+            feedback: "Programas na Solana podem ser atualizados (ou congelados de propósito). Monolítica é sobre onde o ESTADO vive, não sobre imutabilidade do código."
+        explanation: "Monolítica = um único estado compartilhado: seu ativo e o app que você usa estão sempre no mesmo lugar, sem pontes entre L2s. O custo honesto disso é exigir validadores mais fortes."

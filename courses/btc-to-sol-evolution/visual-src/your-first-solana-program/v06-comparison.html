@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: EVM contract vs Solana program
+     purpose: differentiate the stateless Solana program from EVM's colocated code-and-storage
+     data: | EVM contract | Solana program code lives | in the contract account | in a separate ProgramData account (loader-v3) state lives | in the SAME account (contract storage) | in SEPARATE data accounts you pass in self-write | the contract writes its own storage | the program CANNOT write its own account mental model | code + database, colocated | code and data are different accounts
+     prompt: Two-column comparison, dark background, monospace. Left "EVM contract", right "Solana program", rows "code lives / state lives / self-write / mental model". Shade the "self-write" row to flag it as the sharpest difference. No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:529px;height:496px;bottom:-296px;right:-296px;border-radius:46% 54% 36% 62% / 41% 60% 48% 63%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:463px;height:454px;left:-231px;top:245px;border-radius:57% 54% 35% 41% / 48% 61% 38% 37%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp { display:flex; flex-direction:column; margin-top:26px; border-radius:var(--radius-lg); overflow:hidden; border:2px solid var(--border-subtle); }
+  .cmp .head { display:flex; }
+  .cmp .head .rowlab { flex:0 0 250px; background:var(--surface-inverse); }
+  .cmp .head .cell { flex:1; padding:20px 30px; font-family:var(--font-display); font-weight:900; font-size:17px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-on-dark); }
+  .cmp .head .evm { background:var(--surface-brand-deep); }
+  .cmp .head .sol { background:var(--surface-brand); }
+  .cmp .row { display:flex; border-top:2px solid var(--border-subtle); }
+  .cmp .rowlab { flex:0 0 250px; padding:24px 28px; background:var(--surface-paper); font-family:var(--font-body); font-weight:800; font-size:15px; color:var(--text-primary); display:flex; align-items:center; letter-spacing:.02em; }
+  .cmp .cell { flex:1; padding:24px 30px; font-size:19px; line-height:1.4; color:var(--text-secondary); display:flex; align-items:center; border-left:2px solid var(--border-subtle); }
+  .cmp .cell b { color:var(--text-primary); }
+  .cmp .row.key .rowlab { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .cmp .row.key .cell { background:rgba(255,210,63,0.14); color:var(--text-primary); font-weight:500; }
+  .cmp .row.key .cell b { color:var(--stbr-emerald); }
+  .cmp .row.key .cell.evm b { color:#a5342a; }
+  .keytag { display:inline-block; margin-top:8px; font-family:var(--font-body); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--text-on-accent); }
+</style>
+  <div class="stbr-eyebrow">stateless, by design</div>
+  <h2 class="viz-title">EVM contract vs Solana program</h2>
+  <div class="cmp">
+    <div class="head">
+      <div class="rowlab"></div>
+      <div class="cell evm">EVM contract</div>
+      <div class="cell sol">Solana program</div>
+    </div>
+    <div class="row">
+      <div class="rowlab">code lives</div>
+      <div class="cell evm">in the contract account</div>
+      <div class="cell sol">in a separate <b>ProgramData</b> account (loader-v3)</div>
+    </div>
+    <div class="row">
+      <div class="rowlab">state lives</div>
+      <div class="cell evm">in the <b>same</b> account (contract storage)</div>
+      <div class="cell sol">in <b>separate</b> data accounts you pass in</div>
+    </div>
+    <div class="row key">
+      <div class="rowlab">self-write<div class="keytag">the sharpest difference</div></div>
+      <div class="cell evm">the contract writes its <b>own</b> storage</div>
+      <div class="cell sol">the program <b>cannot</b> write its own account</div>
+    </div>
+    <div class="row">
+      <div class="rowlab">mental model</div>
+      <div class="cell evm">code + database, colocated</div>
+      <div class="cell sol">code and data are different accounts</div>
+    </div>
+  </div>
+</div>
+</body></html>

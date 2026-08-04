@@ -1,0 +1,29 @@
+id: lesson-b2s-watch-the-mempool
+slug: watch-the-mempool
+title: "Watch the mempool: your first chain-watching bot"
+skills:
+  - rpc-reads
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your watcher polls 'the mempool' for unconfirmed transactions. What is the catch in that phrase?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "'The mempool' is a single on-chain structure that every node stores byte-for-byte"
+            correct: false
+            feedback: "The mempool is neither on-chain nor shared verbatim. It is each node's private pool of unconfirmed transactions; relay timing and local policy differ, so two nodes routinely hold different sets."
+          - id: b
+            label: "Unconfirmed transactions are invisible until mined, so polling the mempool only ever shows the last block"
+            correct: false
+            feedback: "The mempool is exactly where transactions ARE visible before mining — that is its purpose and why your watcher polls it. The catch is different: it is per-node, so what you see is one node's view."
+          - id: c
+            label: "There is no single global mempool — each node keeps its own, so what you see depends on which node you ask"
+            correct: true
+        explanation: "'The mempool' is a misnomer — every node maintains its own pool of unconfirmed transactions, shaped by what it has heard and its relay policy. A watcher reports one node's view, usually close to but never guaranteed identical to any other's. Fee estimators, MEV searchers, and explorers all live with that partial view."

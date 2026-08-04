@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: sign it, verify it, break it
+     purpose: certify the run-first payoff, a good signature verifies with only the public key, and one tampered byte kills it
+     data: $ openssl genpkey -algorithm ed25519 -out key.pem # (silent) mint the private key $ openssl pkey -in key.pem -pubout -out pub.pem # (silent) extract the public half $ printf 'send 100 to bob' > msg.txt # the message $ openssl pkeyutl -sign -inkey key.pem -rawin \ -in msg.txt -out sig.bin # 64-byte signature -> sig.bin $ openssl pkeyutl -verify -pubin -inkey pub.pem \ -rawin -in msg.txt -sigfile sig.bin Signature Verified Successfully # <-- private key never shown to verifier $ printf 'send 900 to bob' > msg.txt # tamper: 1 -> 9, one byte $ openssl pkeyutl -verify -pubin -inkey pub.pem \ -rawin -in msg.txt -sigfile sig.bin Signature Verification Failure # <-- proof evaporates, exits nonzero
+     prompt: Terminal transcript mock, dark theme, monospace. Green check annotation on the "Signature Verified Successfully" line with a callout "public key only, no secret". Red X annotation on "Signature Verification Failure" with a callout "one byte changed". Grey out the two silent keygen lines. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:498px;height:478px;bottom:-242px;left:-242px;border-radius:35% 39% 59% 59% / 65% 63% 45% 57%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .term { background:var(--surface-inverse); border-radius:var(--radius-xl); padding:36px 42px;
+    font-family:var(--font-mono); font-size:17px; line-height:1.55; color:var(--text-on-dark); margin-top:26px; }
+  .term .ln { display:flex; align-items:baseline; }
+  .term .pr { color:var(--stbr-emerald); font-weight:800; flex:0 0 auto; margin-right:12px; }
+  .term .cmd { color:var(--stbr-cream); white-space:pre; }
+  .term .cont { color:var(--stbr-cream); white-space:pre; padding-left:26px; }
+  .term .cm { color:var(--stbr-ink-500); }
+  .term .silent { opacity:0.42; }
+  .term .out { color:var(--stbr-ink-300); }
+  .term .sep { height:16px; }
+  .rowline { display:flex; align-items:center; gap:16px; }
+  .verdict { font-weight:800; }
+  .verdict.ok { color:var(--stbr-emerald); }
+  .verdict.bad { color:#e8705f; }
+  .callout { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-body);
+    font-weight:800; font-size:14px; padding:7px 15px; border-radius:var(--radius-pill); }
+  .callout.ok { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .callout.bad { background:#c0392b; color:#fff; }
+  .mark { font-family:var(--font-mono); font-weight:900; }
+</style>
+  <div class="stbr-eyebrow">sign it, verify it, break it</div>
+  <h2 class="viz-title">a public key checks it, one byte breaks it</h2>
+  <div class="term">
+    <div class="ln silent"><span class="pr">$</span><span class="cmd">openssl genpkey -algorithm ed25519 -out key.pem</span></div>
+    <div class="ln silent"><span class="pr">&nbsp;</span><span class="cm">  # (silent) mint the private key</span></div>
+    <div class="ln silent"><span class="pr">$</span><span class="cmd">openssl pkey -in key.pem -pubout -out pub.pem</span></div>
+    <div class="ln silent"><span class="pr">&nbsp;</span><span class="cm">  # (silent) extract the public half</span></div>
+    <div class="sep"></div>
+    <div class="ln"><span class="pr">$</span><span class="cmd">printf 'send 100 to bob' &gt; msg.txt</span><span class="cm">&nbsp;&nbsp;# the message</span></div>
+    <div class="ln"><span class="pr">$</span><span class="cmd">openssl pkeyutl -sign -inkey key.pem -rawin \</span></div>
+    <div class="ln"><span class="pr">&nbsp;</span><span class="cont">-in msg.txt -out sig.bin</span><span class="cm">&nbsp;&nbsp;# 64-byte signature &rarr; sig.bin</span></div>
+    <div class="sep"></div>
+    <div class="ln"><span class="pr">$</span><span class="cmd">openssl pkeyutl -verify -pubin -inkey pub.pem \</span></div>
+    <div class="ln"><span class="pr">&nbsp;</span><span class="cont">-rawin -in msg.txt -sigfile sig.bin</span></div>
+    <div class="rowline" style="margin:8px 0 4px;">
+      <span class="verdict ok"><span class="mark">&#10003;</span> Signature Verified Successfully</span>
+      <span class="callout ok"><span class="mark">&#10003;</span> public key only, no secret</span>
+    </div>
+    <div class="sep"></div>
+    <div class="ln"><span class="pr">$</span><span class="cmd">printf 'send 900 to bob' &gt; msg.txt</span><span class="cm">&nbsp;&nbsp;# tamper: 1 &rarr; 9, one byte</span></div>
+    <div class="ln"><span class="pr">$</span><span class="cmd">openssl pkeyutl -verify -pubin -inkey pub.pem \</span></div>
+    <div class="ln"><span class="pr">&nbsp;</span><span class="cont">-rawin -in msg.txt -sigfile sig.bin</span></div>
+    <div class="rowline" style="margin:8px 0 0;">
+      <span class="verdict bad"><span class="mark">&#10007;</span> Signature Verification Failure</span>
+      <span class="callout bad"><span class="mark">&#10007;</span> one byte changed</span>
+    </div>
+  </div>
+</div>
+</body></html>

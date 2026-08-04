@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: Do toque ao brinde em 4 passos
+     purpose: Mostrar o caminho completo do claim para o leitor executar sem travar em nenhum passo
+     data: Passo 1 tocar no botão ou no QR do claim -> Passo 2 confirmar com Google ou wallet -> Passo 3 o cNFT aparece na carteira -> Passo 4 mostrar no balcão de brindes, que vira seu ticket
+     prompt: Fluxograma vertical mobile-first pensado para celular na mão, tipografia grande, alto contraste, no máximo 3 caixas em foco por vez, quatro passos numerados ligados por setas terminando na caixa do balcão de brindes
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:482px;height:384px;right:-286px;top:389px;border-radius:56% 54% 55% 45% / 38% 52% 42% 63%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:481px;height:503px;bottom:-240px;left:-240px;border-radius:64% 35% 35% 59% / 45% 53% 53% 37%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .flow { display:flex; flex-direction:column; margin-top:26px; }
+  .row { display:flex; align-items:center; gap:30px; }
+  .badge { flex:0 0 100px; height:100px; border-radius:var(--radius-pill);
+    background:var(--surface-brand); color:var(--stbr-cream);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:900; font-size:52px; line-height:1; }
+  .card { flex:1 1 auto; min-height:100px; background:var(--surface-card);
+    border:2px solid var(--border-subtle); border-radius:var(--radius-xl);
+    padding:20px 34px; display:flex; align-items:center; }
+  .card .lbl { font-family:var(--font-body); font-weight:700; font-size:26px;
+    line-height:1.25; color:var(--text-primary); }
+  /* down-arrow connector, aligned under the badge column */
+  .conn { display:flex; align-items:center; }
+  .conn .rail { flex:0 0 100px; text-align:center;
+    color:var(--stbr-emerald); font-size:34px; font-weight:900; line-height:1; }
+  .conn .sp { flex:1 1 auto; }
+  /* the payoff step: merch table = the ticket */
+  .row.pay .badge { background:var(--surface-accent); color:var(--stbr-dark); }
+  .row.pay .card { background:var(--surface-accent); border-color:var(--stbr-yellow-600); }
+  .row.pay .card .lbl { color:var(--stbr-dark); font-weight:800; }
+  .row.pay .card .lbl b { display:block; font-size:18px; font-weight:800;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--stbr-green-800); margin-top:8px; }
+</style>
+  <div class="stbr-eyebrow">do toque ao brinde em 4 passos</div>
+  <h2 class="viz-title" style="font-size:48px;margin:6px 0 4px;">seu claim, sem travar</h2>
+  <div class="flow">
+    <div class="row">
+      <div class="badge">1</div>
+      <div class="card"><div class="lbl">Toque no botão ou aponte a câmera pro QR do claim</div></div>
+    </div>
+    <div class="conn"><div class="rail">&darr;</div><div class="sp"></div></div>
+    <div class="row">
+      <div class="badge">2</div>
+      <div class="card"><div class="lbl">Confirme com Google ou com sua wallet</div></div>
+    </div>
+    <div class="conn"><div class="rail">&darr;</div><div class="sp"></div></div>
+    <div class="row">
+      <div class="badge">3</div>
+      <div class="card"><div class="lbl">O cNFT aparece na sua carteira</div></div>
+    </div>
+    <div class="conn"><div class="rail">&darr;</div><div class="sp"></div></div>
+    <div class="row pay">
+      <div class="badge">4</div>
+      <div class="card"><div class="lbl">Mostre no balcão de brindes<b>ele é o seu ticket</b></div></div>
+    </div>
+  </div>
+</div>
+</body></html>

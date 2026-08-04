@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the record account, byte by byte
+     purpose: certify the space math and the stored-bump optimization the reader will rely on
+     data: field bytes why it exists authority 32 who may withdraw; checked on every withdraw balance 8 running tally; only ever touched with checked math vault_bump 1 stored so we never re-search the vault PDA (~1,500 CU/call) state_bump 1 stored so we never re-search this record PDA INIT_SPACE = 42 ; account size = VaultState::DISCRIMINATOR.len() + INIT_SPACE = 8 + 42 = 50 bytes the leading 8 is the discriminator; DISCRIMINATOR.len() names it instead of hardcoding 8
+     prompt: Four-row table over a struct diagram, dark theme, monospace. Show each field with its byte width and purpose; a summation bar underneath adding 8 + 42 = 50. Highlight the two bump rows with a "stored, never re-derived" tag. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:444px;height:442px;top:-220px;right:-220px;border-radius:53% 48% 54% 44% / 59% 59% 39% 52%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:458px;height:464px;left:-276px;top:114px;border-radius:50% 49% 55% 49% / 61% 36% 49% 42%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .viz-title { font-size:40px; margin:4px 0 16px; }
+  .panel { background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:26px 40px 30px; color:var(--text-on-dark); }
+  .fields { display:flex; flex-direction:column; }
+  .fh, .frow { display:flex; align-items:center; }
+  .fh > span, .frow > span { flex:0 0 auto; }
+  .c-name { width:200px; }
+  .c-bytes { width:90px; }
+  .c-why { flex:1 1 auto; min-width:0; }
+  .c-tag { width:230px; display:flex; justify-content:flex-end; }
+  .fh { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-ink-500); padding-bottom:12px; border-bottom:1px solid var(--border-on-dark); }
+  .frow { padding:16px 0; border-bottom:1px solid var(--border-on-dark); }
+  .frow .c-name { font-family:var(--font-mono); font-weight:800; font-size:20px; color:var(--stbr-cream); }
+  .frow .c-bytes { font-family:var(--font-mono); font-weight:900; font-size:21px; color:var(--stbr-emerald); }
+  .frow .c-why { font-size:16px; color:var(--stbr-ink-300); line-height:1.3; }
+  .frow.bump .c-name { color:var(--stbr-yellow); }
+  .stored { font-family:var(--font-body); font-weight:800; font-size:12px;
+    background:var(--stbr-yellow); color:var(--text-on-accent); padding:6px 14px; border-radius:var(--radius-pill);
+    line-height:1.2; white-space:nowrap; }
+  .sum { margin-top:22px; display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
+    background:rgba(0,139,76,0.14); border:1.5px solid rgba(0,139,76,0.4);
+    border-radius:var(--radius-md); padding:18px 28px; font-family:var(--font-mono); }
+  .sum .eq { font-size:19px; color:var(--stbr-cream); }
+  .sum .eq b { color:var(--stbr-emerald); font-weight:900; }
+  .sum .tot { margin-left:auto; font-size:24px; font-weight:900; color:var(--stbr-yellow); }
+  .sum .disc { flex-basis:100%; font-family:var(--font-body); font-size:14px; color:var(--stbr-ink-300); margin-top:4px; line-height:1.35; }
+  .sum .disc code { font-family:var(--font-mono); color:var(--stbr-cream); }
+</style>
+  <div class="stbr-eyebrow">the record account, byte by byte</div>
+  <h2 class="viz-title">42 bytes of state, plus the 8-byte tag</h2>
+  <div class="panel">
+    <div class="fields">
+      <div class="fh"><span class="c-name">field</span><span class="c-bytes">bytes</span><span class="c-why">why it exists</span><span class="c-tag"></span></div>
+      <div class="frow"><span class="c-name">authority</span><span class="c-bytes">32</span><span class="c-why">who may withdraw; checked on every withdraw</span><span class="c-tag"></span></div>
+      <div class="frow"><span class="c-name">balance</span><span class="c-bytes">8</span><span class="c-why">running tally; only ever touched with checked math</span><span class="c-tag"></span></div>
+      <div class="frow bump"><span class="c-name">vault_bump</span><span class="c-bytes">1</span><span class="c-why">so we never re-search the vault PDA (~1,500 CU/call)</span><span class="c-tag"><span class="stored">stored, never re-derived</span></span></div>
+      <div class="frow bump"><span class="c-name">state_bump</span><span class="c-bytes">1</span><span class="c-why">so we never re-search this record PDA</span><span class="c-tag"><span class="stored">stored, never re-derived</span></span></div>
+    </div>
+    <div class="sum">
+      <span class="eq"><b>DISCRIMINATOR.len()</b> 8&nbsp;&nbsp;+&nbsp;&nbsp;<b>INIT_SPACE</b> 42</span>
+      <span class="tot">= 50 bytes</span>
+      <span class="disc">the leading 8 is the discriminator; <code>VaultState::DISCRIMINATOR.len()</code> names it instead of hardcoding 8</span>
+    </div>
+  </div>
+</div>
+</body></html>

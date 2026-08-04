@@ -1,0 +1,45 @@
+id: lesson-b2s-sign-and-verify
+slug: sign-and-verify
+title: "Sign and verify: identity without an account"
+skills:
+  - solana-fundamentals
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "With an ed25519 keypair, who can produce a valid signature over a message, and who can check it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Anyone holding the public key can produce and check signatures — that is why it is called public"
+            correct: false
+            feedback: "The public key only VERIFIES. If it could also sign, publishing it would hand everyone your spending power. The asymmetry — private key signs, public key checks — is the entire trick."
+          - id: b
+            label: "Only the holder of the private key can sign; anyone with the public key can verify"
+            correct: true
+          - id: c
+            label: "Only the key's owner can verify a signature — everyone else must take the owner's word for it"
+            correct: false
+            feedback: "Backwards: verification is the universal side. Any stranger with your public key can check a signature mathematically; only signing is restricted, to whoever holds the private key."
+        explanation: "The asymmetry is the point: signing requires the private key, verifying requires only the public key. That lets you prove authorship to strangers without revealing the secret — the foundation of every blockchain transaction, where thousands of nodes verify signatures produced by one key they will never see."
+      - id: q2
+        prompt: "A signature is valid for a given message and public key. What exactly does that prove — and not prove?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It proves the message was encrypted in transit and nobody else could read it"
+            correct: false
+            feedback: "Signatures provide authenticity, not secrecy — the message travels in plaintext. Anyone can read it; what nobody can do is forge the private-key holder's authorization of it."
+          - id: b
+            label: "It proves which person legally owns the key — signatures bind keys to real-world identity"
+            correct: false
+            feedback: "Nothing in the math names a human. A signature proves 'the private key behind this public key authorized this message'. Attaching a person to that key is a separate, social problem — and on-chain, the key IS the identity."
+          - id: c
+            label: "It proves the private-key holder authorized THAT exact message; it does not hide the message or identify a human"
+            correct: true
+        explanation: "A valid signature binds a specific message to a specific public key: the private-key holder authorized these exact bytes, and any tampering invalidates it. It offers no confidentiality (the message is readable) and no real-world identity (keys are pseudonymous) — precisely the properties a public ledger needs."

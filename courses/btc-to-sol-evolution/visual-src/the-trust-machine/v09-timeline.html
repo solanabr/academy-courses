@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- timeline: fifty years of the same bug getting fixed
+     purpose: place the course's six modules on one line the reader can navigate by
+     data: 1976 public-key crypto (module 0) -> 1998 DigiCash dies, centralized (module 0's villain) -> 2008-10-31 whitepaper -> 2009-01-03 genesis block (modules 1-2) -> 2015-07-30 Ethereum mainnet (Frontier): programmable ledger (module 3) -> 2020-03-16 Solana mainnet-beta: the throughput bet (modules 4-5) -> 2026 you: capstone bot on both chains (module 6)
+     prompt: Horizontal timeline, dark background, seven dated nodes as listed. Module tags as small badges under their nodes. The final node visually distinct (the reader). Monospace labels, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:589px;height:536px;top:-330px;right:-330px;border-radius:42% 61% 58% 46% / 48% 41% 41% 58%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:444px;height:441px;left:-242px;top:203px;border-radius:46% 45% 46% 42% / 64% 60% 44% 43%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:484px;height:525px;bottom:-280px;left:637px;border-radius:42% 59% 46% 65% / 52% 61% 38% 54%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tl { display:flex; position:relative; margin-top:74px; padding:0 8px; }
+  .tl::before { content:""; position:absolute; left:44px; right:44px; top:51px; height:3px; background:var(--stbr-emerald); z-index:0; }
+  .node { flex:1; text-align:center; position:relative; padding:0 8px; }
+  .date { font-family:var(--font-mono); font-weight:800; font-size:17px; color:var(--text-primary); height:36px; }
+  .dot { width:20px; height:20px; border-radius:50%; background:var(--stbr-emerald); border:5px solid var(--surface-page); margin:0 auto; position:relative; z-index:1; box-sizing:content-box; }
+  .node.you .dot { width:32px; height:32px; background:var(--stbr-yellow); margin-top:-11px; }
+  .lab { font-size:16px; color:var(--text-secondary); margin-top:18px; line-height:1.25; }
+  .node.you .lab { color:var(--text-primary); font-weight:800; }
+  .mod { display:inline-block; margin-top:11px; font-family:var(--font-body); font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--stbr-emerald); background:rgba(0,139,76,0.11); padding:3px 10px; border-radius:var(--radius-pill); }
+  .node.you .mod { color:var(--text-on-accent); background:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">fifty years of the same bug, getting fixed</div>
+  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">the road you are about to walk</h2>
+  <div class="tl">
+    <div class="node"><div class="date">1976</div><div class="dot"></div><div class="lab">public-key crypto</div><div class="mod">module 0</div></div>
+    <div class="node"><div class="date">1998</div><div class="dot"></div><div class="lab">DigiCash dies, centralized</div><div class="mod">module 0</div></div>
+    <div class="node"><div class="date">2008</div><div class="dot"></div><div class="lab">the Bitcoin whitepaper</div></div>
+    <div class="node"><div class="date">2009</div><div class="dot"></div><div class="lab">the genesis block</div><div class="mod">modules 1-2</div></div>
+    <div class="node"><div class="date">2015</div><div class="dot"></div><div class="lab">Ethereum: a programmable ledger</div><div class="mod">module 3</div></div>
+    <div class="node"><div class="date">2020</div><div class="dot"></div><div class="lab">Solana: the throughput bet</div><div class="mod">modules 4-5</div></div>
+    <div class="node you"><div class="date">2026</div><div class="dot"></div><div class="lab">you: a bot on both chains</div><div class="mod">module 6</div></div>
+  </div>
+</div>
+</body></html>

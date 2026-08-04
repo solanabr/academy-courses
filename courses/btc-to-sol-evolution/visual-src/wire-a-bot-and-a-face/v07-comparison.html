@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: poll like Bitcoin, or subscribe like Solana
+     purpose: certify that accountNotifications replaces the module-2 polling loop with a pushed update
+     data: Bitcoin watcher (module 2) | loop forever: ask on a timer, scan each answer | YOU ask | latency = your poll interval | wastes calls when nothing changed | stops when your loop stops kit accountNotifications | subscribe once, the node pushes new bytes | the CHAIN tells you | latency = one block at your commitment | zero calls until something actually changes | stops when the abortSignal fires shared shape | both react to on-chain state the client cares about | both decode bytes into a typed balance | the difference is ask-versus-be-told
+     prompt: Two-column comparison card, dark theme, monospace. Left column "poll (Bitcoin)", right column "subscribe (accountNotifications)", rows for mechanism, who initiates, latency, waste, teardown. A band across the bottom: "same watcher, minus the loop". No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:528px;height:393px;right:-294px;top:170px;border-radius:51% 35% 37% 56% / 43% 45% 42% 44%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .cmp2 { margin-top:22px; }
+  .grid { display:grid; grid-template-columns:220px 1fr 1fr; border:1.5px solid var(--border-subtle); border-radius:var(--radius-lg); overflow:hidden; }
+  .grid > div { padding:14px 22px; display:flex; flex-direction:column; justify-content:center; }
+  .grid .rowlab { background:var(--surface-paper); }
+  .grid .h { }
+  .grid .h .lbl { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+  .grid .h .name { font-family:var(--font-mono); font-weight:800; font-size:21px; margin-top:4px; }
+  .grid .h.poll { background:var(--surface-inverse); }
+  .grid .h.poll .lbl { color:var(--stbr-ink-300); }
+  .grid .h.poll .name { color:var(--text-on-dark); }
+  .grid .h.sub { background:var(--surface-brand); }
+  .grid .h.sub .lbl { color:var(--stbr-cream); opacity:0.9; }
+  .grid .h.sub .name { color:var(--text-on-brand); }
+  .grid .attr { background:var(--surface-paper); font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); }
+  .grid .cell { font-size:17px; line-height:1.3; }
+  .grid .cell.p { background:var(--surface-card); color:var(--text-secondary); }
+  .grid .cell.s { background:rgba(0,139,76,0.08); color:var(--text-primary); font-weight:600; }
+  .grid .cell.s code { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:800; }
+  .grid .who { font-family:var(--font-mono); font-weight:800; }
+  .grid .cell.p .who { color:var(--text-primary); }
+  .grid .cell.s .who { color:var(--stbr-emerald); }
+  .grid .rb { border-bottom:1.5px solid var(--border-subtle); }
+  .grid .rr { border-right:1.5px solid var(--border-subtle); }
+  .shared { margin-top:18px; display:grid; grid-template-columns:220px 1fr; border:1.5px solid var(--border-subtle); border-radius:var(--radius-lg); overflow:hidden; }
+  .shared .sk { background:var(--surface-paper); padding:16px 22px; font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--stbr-green); display:flex; align-items:center; border-right:1.5px solid var(--border-subtle); }
+  .shared .sv { padding:16px 22px; font-size:16px; color:var(--text-secondary); line-height:1.35; display:flex; align-items:center; }
+  .shared .sv b { color:var(--text-primary); }
+  .verdict { margin-top:18px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:18px 28px; font-size:21px; font-weight:600; line-height:1.3; text-align:center; }
+  .verdict b { font-weight:800; color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">poll, or be told</div>
+  <h2 style="font-size:48px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:6px 0 0;">same watcher, minus the loop</h2>
+  <div class="cmp2">
+    <div class="grid">
+      <div class="rowlab rb rr"></div>
+      <div class="h poll rb rr"><span class="lbl">poll &mdash; bitcoin (module 2)</span><span class="name">the timer loop</span></div>
+      <div class="h sub rb"><span class="lbl">subscribe &mdash; kit</span><span class="name">accountNotifications</span></div>
+
+      <div class="attr rb rr">mechanism</div>
+      <div class="cell p rb rr">loop forever: ask on a timer, scan each answer</div>
+      <div class="cell s rb">subscribe once, the node <b>pushes</b> new bytes</div>
+
+      <div class="attr rb rr">who initiates</div>
+      <div class="cell p rb rr"><span class="who">YOU</span>&nbsp;ask, every tick</div>
+      <div class="cell s rb">the&nbsp;<span class="who">CHAIN</span>&nbsp;tells you</div>
+
+      <div class="attr rb rr">latency</div>
+      <div class="cell p rb rr">your poll interval</div>
+      <div class="cell s rb">one block at your commitment</div>
+
+      <div class="attr rb rr">waste</div>
+      <div class="cell p rb rr">burns calls when nothing changed</div>
+      <div class="cell s rb">zero calls until something actually changes</div>
+
+      <div class="attr rr">teardown</div>
+      <div class="cell p rr">stops when your loop stops</div>
+      <div class="cell s">stops when the&nbsp;<code>abortSignal</code>&nbsp;fires</div>
+    </div>
+  </div>
+  <div class="shared">
+    <div class="sk">shared shape</div>
+    <div class="sv">both react to on-chain state the client cares about, and both&nbsp;<b>decode bytes into a typed balance</b>&nbsp;&mdash; the difference is ask-versus-be-told.</div>
+  </div>
+  <div class="verdict">It is the module-2 watcher with the polling loop deleted: <b>subscribe once, be told</b>.</div>
+</div>
+</body></html>

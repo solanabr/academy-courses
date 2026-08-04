@@ -1,0 +1,63 @@
+id: lesson-ssr-como-funciona
+slug: como-funciona
+title: "Como isso é possível"
+skills:
+  - solana-fundamentals
+  - account-model
+  - transactions
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Onde ficam os seus saldos na Solana?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Dentro do próprio código do programa que criou o token, junto com a lógica de transferência"
+            correct: false
+            feedback: "É exatamente o contrário — e essa separação é a ideia central da lição: programas são código SEM estado; eles leem e escrevem contas."
+          - id: b
+            label: "Nos servidores da Solana Foundation"
+            correct: false
+            feedback: "Não existe servidor central: o estado é replicado pelos validadores da rede. A pergunta era outra — em que ESTRUTURA o saldo vive."
+          - id: c
+            label: "Em contas separadas do código — cada saldo de token vive na sua própria conta (ATA)"
+            correct: true
+        explanation: "Código (programas) e dados (contas) são separados. Cada par carteira+token tem sua própria conta de saldo, a ATA — e é essa separação que destrava o paralelismo da próxima pergunta."
+      - id: q2
+        prompt: "Por que a Solana consegue processar milhares de transações AO MESMO TEMPO?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Cada transação declara antes quais contas vai tocar — as que não se cruzam rodam em paralelo"
+            correct: true
+          - id: b
+            label: "Porque são poucos validadores, então coordenar é rápido"
+            correct: false
+            feedback: "A velocidade não vem de centralizar — vem da arquitetura: como as transações declaram suas contas, dá para saber quais são independentes e rodá-las juntas."
+          - id: c
+            label: "Ela processa as transações uma por uma, igual às outras chains, só que em computadores muito mais rápidos"
+            correct: false
+            feedback: "Fila única veloz ainda é fila única — é o modelo das outras chains. O salto da Solana é abrir VÁRIOS caixas: paralelismo real entre transações que não se tocam."
+        explanation: "Como toda transação lista suas contas antecipadamente, o runtime enxerga quais não conflitam e as executa em paralelo — vários caixas de supermercado, não uma fila única mais rápida."
+      - id: q3
+        prompt: "Um show concorrido está vendendo ingressos onchain enquanto você envia USDC para um amigo. O que acontece com a SUA taxa?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Sobe junto com a do show: congestionamento em qualquer app encarece a rede inteira para todo mundo"
+            correct: false
+            feedback: "Esse é o modelo de leilão GLOBAL (Ethereum): um app quente encarece tudo. Na Solana a disputa é precificada por conta disputada — e a sua transação não disputa nada."
+          - id: b
+            label: "Continua custando centavos: só quem disputa o MESMO estado (o ingresso) paga prioridade"
+            correct: true
+          - id: c
+            label: "Nada, porque transações na Solana são sempre gratuitas"
+            correct: false
+            feedback: "Taxas existem (frações de centavo) e taxas de prioridade também — a diferença é que a disputa fica LOCAL, presa à conta disputada, em vez de contaminar a rede."
+        explanation: "Fee markets locais: a competição por prioridade acontece por conta disputada. Quem briga pelo ingresso paga mais; seu envio de USDC segue barato porque toca outras contas."

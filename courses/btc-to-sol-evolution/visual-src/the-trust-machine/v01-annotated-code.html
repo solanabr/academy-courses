@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the ledger catches the double-spend
+     purpose: show the exact moment centralized bookkeeping solves the copy problem
+     data: OK: you -> bob (100) REJECTED: you has 0, tried to send 100 {'you': 0, 'bob': 100, 'carol': 0}
+     prompt: Terminal output mock, three lines as listed. Green check annotation on line 1, red X annotation on line 2 with a callout "the copy trick just died", neutral on line 3. Dark terminal theme, monospace.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:541px;height:579px;top:-327px;right:-327px;border-radius:53% 40% 47% 39% / 59% 58% 49% 63%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:595px;height:523px;bottom:-323px;left:-323px;border-radius:61% 37% 49% 49% / 62% 43% 46% 61%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:509px;height:441px;bottom:-239px;right:-239px;border-radius:54% 63% 58% 45% / 35% 56% 54% 45%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .term { margin-top:32px; background:var(--surface-inverse); border-radius:var(--radius-xl); overflow:hidden; }
+  .term .bar { display:flex; align-items:center; gap:11px; padding:18px 28px; border-bottom:1px solid var(--border-on-dark); }
+  .term .bar i { width:14px; height:14px; border-radius:50%; display:block; }
+  .term .bar .t { margin-left:14px; font-family:var(--font-mono); font-size:15px; color:var(--stbr-ink-300); }
+  .term .body { padding:14px 40px 34px; }
+  .line { display:flex; align-items:center; gap:26px; padding:22px 0; border-bottom:1px solid var(--border-on-dark); }
+  .line:last-child { border-bottom:0; }
+  .gutter { flex:0 0 44px; font-family:var(--font-display); font-weight:900; font-size:30px; text-align:center; }
+  .gutter.ok { color:var(--stbr-emerald); }
+  .gutter.no { color:#e2554a; }
+  .gutter.mut { color:var(--stbr-ink-500); }
+  .code { font-family:var(--font-mono); font-size:24px; line-height:1.35; color:var(--text-on-dark); }
+  .code .tag { font-weight:800; letter-spacing:.04em; margin-right:14px; }
+  .code .tag.ok { color:var(--stbr-emerald); }
+  .code .tag.no { color:#e2554a; }
+  .code .dim { color:var(--stbr-ink-300); }
+  .code .amt { color:var(--stbr-yellow); font-weight:700; }
+  .callout { flex:0 0 auto; margin-left:auto; background:var(--stbr-yellow); color:var(--text-on-accent); font-family:var(--font-body); font-weight:800; font-size:16px; padding:9px 18px; border-radius:var(--radius-pill); white-space:nowrap; }
+  .final .code { color:var(--stbr-cream); }
+</style>
+  <div class="stbr-eyebrow">the ledger catches the double-spend</div>
+  <h2 class="viz-title">the copy trick just died</h2>
+  <div class="term">
+    <div class="bar"><i style="background:#e2554a;"></i><i style="background:var(--stbr-yellow);"></i><i style="background:var(--stbr-emerald);"></i><span class="t">python ledger.py</span></div>
+    <div class="body">
+      <div class="line">
+        <div class="gutter ok">&check;</div>
+        <div class="code"><span class="tag ok">OK</span>you &rarr; bob <span class="amt">(100)</span></div>
+      </div>
+      <div class="line">
+        <div class="gutter no">&times;</div>
+        <div class="code"><span class="tag no">REJECTED</span><span class="dim">you has</span> <span class="amt">0</span><span class="dim">, tried to send</span> <span class="amt">100</span></div>
+        <div class="callout">the copy trick just died</div>
+      </div>
+      <div class="line final">
+        <div class="gutter mut">&rsaquo;</div>
+        <div class="code">{ <span class="dim">'you':</span> 0, <span class="dim">'bob':</span> 100, <span class="dim">'carol':</span> 0 }</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

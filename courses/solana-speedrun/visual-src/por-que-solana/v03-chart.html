@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- chart: Não é hype, é receita
+     purpose: fechar a lição com duas métricas duras que provam tração real, não especulação
+     data: Participação da Solana no volume global de negociação em corretoras descentralizadas: 54%. Receita dos aplicativos da Solana em um único trimestre: US$ 257 milhões.
+     prompt: layout phone-first, big type, max 3 elements (dois números grandes mais um rótulo), high contrast; dois cartões numéricos gigantes, um em cima do outro, sem eixo poluído.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:550px;height:352px;right:-323px;top:413px;border-radius:62% 44% 39% 49% / 65% 49% 42% 45%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:400px;height:414px;bottom:-238px;left:701px;border-radius:53% 44% 43% 65% / 65% 61% 46% 51%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .grid { margin-top:26px; display:grid; grid-template-columns:1fr 1fr;
+          grid-auto-rows:262px; gap:22px; }
+  .stat { border-radius:var(--radius-2xl); padding:38px 46px; box-sizing:border-box; display:block; }
+  .stat.hero { background:var(--surface-brand); }
+  .stat.plain { background:var(--surface-card); border:2px solid var(--border-subtle); }
+  .stat .num { display:block; font-family:var(--font-display); font-weight:var(--weight-black);
+               line-height:1; letter-spacing:-0.02em; font-size:80px; }
+  .stat.hero .num { color:var(--text-on-brand); }
+  .stat.plain .num { color:var(--surface-brand); }
+  .stat .lab { display:block; font-size:25px; font-weight:600; line-height:1.28; margin-top:20px; }
+  .stat.hero .lab { color:var(--text-on-brand); }
+  .stat.plain .lab { color:var(--text-secondary); }
+  .stat .lab b { font-weight:800; color:var(--text-primary); }
+  .stat.hero .lab b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">não é hype, é recorde</div>
+  <h2 class="viz-title">tração real, não especulação</h2>
+  <div class="grid">
+    <div class="stat hero">
+      <div class="num">54%</div>
+      <div class="lab">do volume global em corretoras descentralizadas (DEXs) é Solana</div>
+    </div>
+    <div class="stat plain">
+      <div class="num">US$ 257 mi</div>
+      <div class="lab">de receita dos apps num trimestre — <b>9º trimestre seguido em 1º lugar</b></div>
+    </div>
+    <div class="stat plain">
+      <div class="num">56%</div>
+      <div class="lab">das transações reais em junho de 2026, somando todas as redes</div>
+    </div>
+    <div class="stat plain">
+      <div class="num">US$ 15–16 bi</div>
+      <div class="lab">em stablecoins na rede — <b>recorde histórico</b></div>
+    </div>
+  </div>
+</div>
+</body></html>

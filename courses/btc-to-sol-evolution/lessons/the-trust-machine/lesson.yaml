@@ -1,0 +1,45 @@
+id: lesson-b2s-the-trust-machine
+slug: the-trust-machine
+title: "Double-spend yourself: the fifty-year bug"
+skills:
+  - solana-fundamentals
+  - keypairs-wallets
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You copy one coin.json to Bob and Carol and both accept it. What single property of money have you just broken, and what fixes it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Confidentiality — the coin file should have been encrypted so only its rightful owner could read it"
+            correct: false
+            feedback: "Encryption cannot help: Bob and Carol each hold a perfect, decryptable copy, and encrypting a file does not stop cp from duplicating it. The broken property is scarcity, and only a shared spent-once record restores it."
+          - id: b
+            label: "Scarcity — double-spend prevention needs a shared ledger that records the coin as spent once and rejects the second transfer"
+            correct: true
+          - id: c
+            label: "Integrity — a checksum inside coin.json would have exposed the copies as forgeries"
+            correct: false
+            feedback: "There is no forgery to detect — the copies are byte-for-byte identical, so every checksum passes. The problem is not a corrupted coin but the same valid coin accepted twice: a ledger problem, not a file problem."
+        explanation: "Copying the file twice double-spent it — the one failure a currency cannot survive, because effortless duplication destroys scarcity. No per-file trick (encryption, checksums, signatures) fixes it: the coin needs global history. A ledger makes ownership a shared record where the second spend of the same value is visible and rejected."
+      - id: q2
+        prompt: "Bitcoin's genesis block (2009-01-03) embeds the headline 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks.' Why put a newspaper headline in block zero?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It is a timestamp and a statement — proof the chain was not pre-mined before that date, and a nod at the bailout system Bitcoin answers"
+            correct: true
+          - id: b
+            label: "It seeded the initial mining difficulty — the headline's hash set the target the first blocks had to beat"
+            correct: false
+            feedback: "Difficulty came from a hardcoded target, not from hashing news. The headline is a proof-of-no-earlier-start — you cannot cite tomorrow's front page today — plus a pointed editorial choice."
+          - id: c
+            label: "It was the payload of the first payment — Satoshi buying the newspaper's front page with the genesis reward"
+            correct: false
+            feedback: "The genesis coinbase paid no one — its 50 BTC is famously unspendable. The text rides in the coinbase's free-form field purely as a verifiable timestamp and a message."
+        explanation: "The headline does two jobs. Technically it is a timestamp floor: a block containing that day's front page cannot have been mined earlier, so the chain provably was not pre-mined. Rhetorically it names the target — a banking system mid-bailout — making block zero both an experiment's birth certificate and its manifesto."

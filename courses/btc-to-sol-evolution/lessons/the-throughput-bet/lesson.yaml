@@ -1,0 +1,61 @@
+id: lesson-b2s-the-throughput-bet
+slug: the-throughput-bet
+title: "The throughput bet: why Solana runs in parallel and what it costs"
+skills:
+  - account-model
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Solana executes many transactions in parallel where Ethereum runs them one at a time. What makes that possible?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The runtime speculatively executes everything and rolls back whichever transactions turn out to conflict"
+            correct: false
+            feedback: "Sealevel does not guess and undo — it KNOWS. Account access is declared before execution, so conflicts are computed up front and conflicting transactions are simply scheduled sequentially. Optimistic execute-and-rollback is how some OTHER chains parallelize."
+          - id: b
+            label: "Validator hardware — the same one-at-a-time execution loop just runs on much faster machines"
+            correct: false
+            feedback: "Faster hardware cannot parallelize a model that forbids it: the EVM offers no way to know what state a transaction touches before running it. Solana's up-front account declaration is what unlocks running many transactions at once."
+          - id: c
+            label: "Every transaction declares all accounts it reads or writes up front, so the runtime can safely run non-overlapping transactions in parallel"
+            correct: true
+        explanation: "The account-declaration rule is the throughput bet: because every transaction names its reads and writes before execution, the scheduler can prove two transactions are independent and run them simultaneously — many readers of one account in parallel, writers serialized. Declared access, not faster hardware, is the unlock."
+      - id: q2
+        prompt: "What is the base transaction fee on Solana, and what happens to it?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "5,000 lamports per signature, all of it paid to the validator that includes the transaction"
+            correct: false
+            feedback: "Right number, wrong destination: half of every base fee is BURNED — destroyed forever — and the validator receives the other half. The burn makes spam impose a real, permanent cost."
+          - id: b
+            label: "5,000 lamports per signature — 50% burned, 50% paid to the validator"
+            correct: true
+          - id: c
+            label: "5,000 lamports per compute unit consumed, burned in full"
+            correct: false
+            feedback: "The base fee is per SIGNATURE, not per compute unit — a simple transfer and a heavy program call pay the same base fee. (Compute-based pricing exists only as optional priority fees.) And only half is burned; the validator keeps the rest."
+        explanation: "The base fee is 5,000 lamports (0.000005 SOL) per signature — flat, regardless of compute used. Half burns, permanently shrinking supply; half pays the block producer. Optional priority fees, priced per compute unit, sit on top when you want to outbid others for scarce blockspace."
+      - id: q3
+        prompt: "A whole Solana transaction is capped at how many bytes, and why that number?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "1,232 bytes — the IPv6 minimum MTU of 1,280 minus 48 bytes of headers"
+            correct: true
+          - id: b
+            label: "4,096 bytes — one memory page, so a transaction always fits a single page buffer"
+            correct: false
+            feedback: "Page size has nothing to do with it. The cap is a NETWORK constant: transactions travel as single packets, so they must fit the IPv6 minimum MTU of 1,280 bytes, minus 48 bytes of headers — 1,232 for the payload."
+          - id: c
+            label: "1,232 bytes — the most data one slot leader can sign-verify within its 400 ms slot"
+            correct: false
+            feedback: "Right number, wrong reason — signature throughput is not the constraint (validators verify thousands per slot). The 1,232 comes from networking: the 1,280-byte IPv6 minimum MTU minus 40 bytes of IPv6 header and 8 of fragment header."
+        explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the cap is the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction. Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables."

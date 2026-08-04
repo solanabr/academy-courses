@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: write the key before you fund it
+     purpose: certify the generate-then-fund ordering on both chains, with the two footguns flagged inline
+     data: # BTC agent (your btc_rpc.py wrapper over Bitcoin Core RPC) rpc = BitcoinRPC() rpc.call("createwallet", ["bot"]) addr = rpc.call("getnewaddress") save('state/btc.key', addr) # <- BEFORE the next line, or restart = new address rpc.call("generatetoaddress", [101, addr]) # 100-block maturity + 1; 100 is NOT enough # SOL agent (@solana/kit) const seed = crypto.getRandomValues(new Uint8Array(32)) save('state/sol.key', JSON.stringify(Array.from(seed))) # 32-byte seed, saved first const signer = await createKeyPairSignerFromPrivateKeyBytes(seed) await airdrop({ recipientAddress: signer.address, lamports: lamports(2_000_000_000n) }) # once; 2 SOL cap, HTTP 429 on repeat
+     prompt: Monospace annotated-code panel, dark background. Two blocks (BTC, SOL). Highlight the two save() lines in a warm accent. Red margin note on generatetoaddress: "101, not 100". Red margin note on the airdrop line: "run once, then persist". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:494px;height:472px;top:-252px;right:-252px;border-radius:54% 64% 49% 64% / 50% 40% 44% 61%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:26px; background:var(--surface-inverse); border-radius:var(--radius-xl); padding:34px 40px; font-family:var(--font-mono); font-size:18px; line-height:1.5; color:var(--text-on-dark); }
+  .panel .cmt { color:var(--stbr-ink-500); }
+  .panel .kw { color:var(--stbr-cream); font-weight:700; }
+  .panel .fn { color:var(--stbr-cream); }
+  .panel .str { color:var(--stbr-ink-300); }
+  .blocklabel { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.13em; text-transform:uppercase; color:var(--stbr-yellow); margin:0 0 14px; }
+  .blocklabel.two { margin-top:34px; padding-top:30px; border-top:1px solid var(--border-on-dark); }
+  .ln { display:flex; align-items:center; gap:16px; padding:3px 0; }
+  .ln .code { flex:1; }
+  .ln.save { background:var(--stbr-yellow); color:var(--stbr-dark); border-radius:8px; padding:8px 14px; margin:6px 0; }
+  .ln.save .fn, .ln.save .str { color:var(--stbr-dark); }
+  .ln.save .save-note { font-family:var(--font-body); font-weight:800; font-size:13px; color:var(--stbr-dark); }
+  .note-r { flex:0 0 auto; font-family:var(--font-body); font-weight:800; font-size:13px; color:#fff; background:#c0392b; border-radius:var(--radius-pill); padding:5px 14px; white-space:nowrap; }
+</style>
+  <div class="stbr-eyebrow">write the key before you fund it</div>
+  <h2 class="viz-title">generate, persist, then fund</h2>
+  <div class="panel">
+    <div class="blocklabel">btc agent &mdash; btc_rpc.py over Bitcoin Core RPC</div>
+    <div class="ln"><span class="code">rpc = <span class="fn">BitcoinRPC</span>()</span></div>
+    <div class="ln"><span class="code">rpc.<span class="fn">call</span>(<span class="str">"createwallet"</span>, [<span class="str">"bot"</span>])</span></div>
+    <div class="ln"><span class="code">addr = rpc.<span class="fn">call</span>(<span class="str">"getnewaddress"</span>)</span></div>
+    <div class="ln save"><span class="code"><span class="fn">save</span>(<span class="str">'state/btc.key'</span>, addr)</span><span class="save-note">&larr; save FIRST, or restart = new address</span></div>
+    <div class="ln"><span class="code">rpc.<span class="fn">call</span>(<span class="str">"generatetoaddress"</span>, [<span class="fn">101</span>, addr])</span><span class="note-r">101, not 100 (maturity + 1)</span></div>
+    <div class="blocklabel two">sol agent &mdash; @solana/kit</div>
+    <div class="ln"><span class="code"><span class="kw">const</span> seed = crypto.<span class="fn">getRandomValues</span>(<span class="kw">new</span> <span class="fn">Uint8Array</span>(32))</span></div>
+    <div class="ln save"><span class="code"><span class="fn">save</span>(<span class="str">'state/sol.key'</span>, <span class="fn">JSON.stringify</span>(<span class="fn">Array.from</span>(seed)))</span><span class="save-note">&larr; 32-byte seed, saved first</span></div>
+    <div class="ln"><span class="code"><span class="kw">const</span> signer = <span class="kw">await</span> <span class="fn">createKeyPairSignerFromPrivateKeyBytes</span>(seed)</span></div>
+    <div class="ln"><span class="code"><span class="kw">await</span> <span class="fn">airdrop</span>({ recipientAddress: signer.address, lamports: <span class="fn">lamports</span>(2_000_000_000n) })</span><span class="note-r">run once, then persist &mdash; HTTP 429 on repeat</span></div>
+  </div>
+</div>
+</body></html>

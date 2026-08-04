@@ -1,0 +1,55 @@
+id: lesson-b2s-wire-a-bot-and-a-face
+slug: wire-a-bot-and-a-face
+title: "Sign it yourself: a bot for the vault, then a button"
+skills:
+  - anchor
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: plan-deposit
+    type: code
+    language: typescript
+    starter: plan-deposit/starter.ts
+    solution: plan-deposit/solution.ts
+    tests: plan-deposit/tests.json
+    hints:
+      - "Subgoal 2: the transaction lifetime is the recentBlockhash argument."
+      - "Subgoal 3: call depositInstruction(owner, amountLamports); do not rebuild the account list by hand."
+      - "Subgoal 4: the commitment is the string 'confirmed'."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your Anchor program emits an IDL. What produces the typed TypeScript client your bot and frontend import, in the @solana/kit stack?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The Anchor `Program` object — @anchor-lang/core is the kit-native client generated from your IDL"
+            correct: false
+            feedback: "Anchor's Program client pins you to web3.js v1, not kit. In the kit stack you feed the IDL to Codama, which emits typed instruction builders, PDA helpers, and account decoders as standalone generated code."
+          - id: b
+            label: "Codama — it reads the IDL and generates typed instruction builders, PDA helpers, and account decoders"
+            correct: true
+          - id: c
+            label: "tsc — importing the IDL JSON makes TypeScript derive the callable client types automatically"
+            correct: false
+            feedback: "tsc can type a JSON literal, but it cannot invent runtime logic — encoders, PDA derivation, instruction layouts. That generated code comes from Codama reading the IDL, not from the compiler."
+        explanation: "Codama is the IDL-to-client compiler of the kit stack: point it at your Anchor IDL and it generates getXInstructionAsync builders, findXPda helpers, and fetchX account decoders — kit-native, tree-shakable, no Anchor runtime attached. Bot and frontend import the same generated package."
+      - id: q2
+        prompt: "The same deposit runs from a Node bot and from a browser button. What is the ONE thing that differs between them?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The RPC endpoint — browsers must go through a different class of RPC node than bots"
+            correct: false
+            feedback: "Both can talk to the exact same RPC. What differs is who holds the key: the bot loads a keypair from disk, the browser asks the connected wallet to sign — the transaction they build is identical."
+          - id: b
+            label: "The instruction — the wallet adapter wraps deposits in its own instruction format for browser safety"
+            correct: false
+            feedback: "The wallet changes nothing about the instruction; it only supplies signatures. Same program, same accounts, same data — the only seam between bot and browser is which signer is plugged into the pipeline."
+          - id: c
+            label: "The signer — the bot signs with a loaded keypair, the browser with the connected wallet; everything else is the same code"
+            correct: true
+        explanation: "The kit pipeline — build message, set fee payer, set blockhash lifetime, append the Codama-generated instruction, sign, send — is identical in both worlds. The only variable is the signer plugged in: a file-loaded keypair in the bot, the wallet's signer in the browser. One code path, two key custodians."

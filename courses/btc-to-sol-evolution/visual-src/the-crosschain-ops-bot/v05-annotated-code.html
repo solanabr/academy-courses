@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: manifest.json, the PID registry the supervisor reconciles
+     purpose: certify what the manifest maps (pid -> chain -> address) and the stale-PID failure it prevents on respawn
+     data: // state/manifest.json, one row per agent: pid, chain, persisted address { "agents": [ { "name": "btc-agent", "pid": 40412, "chain": "btc-regtest", "address": "bcrt1q…", "key": "state/btc.key" }, { "name": "sol-agent", "pid": 40413, "chain": "sol-devnet", "address": "<sol pubkey>", "key": "state/sol.key" } ] } // on resume, per row: is this pid still running AND still this agent? // yes -> leave it running (do NOT double-spawn) // no -> respawn, rewrite pid (recover the orphan) // stale pid 40413 trusted blindly: // - OS recycled it -> "still alive" -> agent NEVER respawned -> orphaned funded key // - kill 40413 -> signals the WRONG process -> real agent survives, bystander dies
+     prompt: Monospace annotated-code panel, dark background. Top: the JSON manifest with the pid/chain/address triple highlighted per row in a warm accent. Bottom: the reconcile rule, with the two stale-pid outcomes in a red margin band labeled "a pid you don't reconcile is a liability". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:541px;height:465px;top:-251px;right:-251px;border-radius:35% 55% 47% 41% / 47% 57% 62% 63%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:24px; background:var(--surface-inverse); border-radius:var(--radius-xl); padding:30px 38px; font-family:var(--font-mono); font-size:16px; line-height:1.5; color:var(--text-on-dark); }
+  .panel .cmt { color:var(--stbr-ink-500); }
+  .panel .key { color:var(--stbr-cream); }
+  .panel .str { color:var(--stbr-ink-300); }
+  .panel .hl { background:var(--stbr-yellow); color:var(--stbr-dark); border-radius:5px; padding:1px 6px; font-weight:700; }
+  .row { padding-left:22px; }
+  .reconcile { margin-top:26px; padding-top:22px; border-top:1px solid var(--border-on-dark); }
+  .reconcile .cmt b { color:var(--stbr-cream); }
+  .reconcile .ok { color:var(--stbr-emerald); }
+  .liability { margin-top:22px; background:var(--surface-inverse); border-left:6px solid #e5544a; border-radius:var(--radius-lg); padding:20px 30px; }
+  .liability .lb { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.11em; text-transform:uppercase; color:#ff8b7d; margin-bottom:14px; }
+  .liability .out { font-family:var(--font-mono); font-size:16px; color:var(--stbr-cream); line-height:1.45; }
+  .liability .out + .out { margin-top:10px; }
+  .liability .out b { color:#ff8b7d; }
+</style>
+  <div class="stbr-eyebrow">manifest.json, the pid registry</div>
+  <h2 class="viz-title">reconcile every pid, or orphan a funded key</h2>
+  <div class="panel">
+    <div class="cmt">// state/manifest.json &mdash; one row per agent: pid, chain, persisted address</div>
+    <div>{ <span class="key">"agents"</span>: [</div>
+    <div class="row">{ <span class="key">"name"</span>: <span class="str">"btc-agent"</span>, <span class="hl">"pid": 40412</span>, <span class="hl">"chain": "btc-regtest"</span>, <span class="hl">"address": "bcrt1q…"</span>, <span class="key">"key"</span>: <span class="str">"state/btc.key"</span> },</div>
+    <div class="row">{ <span class="key">"name"</span>: <span class="str">"sol-agent"</span>, <span class="hl">"pid": 40413</span>, <span class="hl">"chain": "sol-devnet"</span>, <span class="hl">"address": "&lt;sol pubkey&gt;"</span>, <span class="key">"key"</span>: <span class="str">"state/sol.key"</span> }</div>
+    <div>] }</div>
+    <div class="reconcile">
+      <div class="cmt">// on resume, per row: is this pid still running <b>and</b> still this agent?</div>
+      <div class="cmt"><span class="ok">// yes</span> &rarr; leave it running (do NOT double-spawn)</div>
+      <div class="cmt"><span class="ok">// no</span> &nbsp;&rarr; respawn, rewrite pid (recover the orphan)</div>
+    </div>
+  </div>
+  <div class="liability">
+    <div class="lb">a pid you don't reconcile is a liability</div>
+    <div class="out">stale pid <b>40413</b> trusted blindly &mdash; OS recycled it &rarr; reads "still alive" &rarr; agent <b>never respawned</b> &rarr; orphaned funded key</div>
+    <div class="out"><b>kill 40413</b> &rarr; signals the <b>wrong</b> process &rarr; real agent survives, an innocent bystander dies</div>
+  </div>
+</div>
+</body></html>

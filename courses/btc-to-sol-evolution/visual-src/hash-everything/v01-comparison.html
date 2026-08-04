@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: the avalanche effect, byte by byte
+     purpose: make the total scramble visible instead of asserted
+     data: input 'solana' -> 615666dae9d3625adaef933e4c1ed0158f657a22c2f570edcd1f7caa68e16413 input 'Solana' -> be4b0c384393cc429273174b28eac42c83a693537b42a87d440da614d4b346a9 note: single changed input byte; zero positional overlap worth highlighting
+     prompt: Two rows, monospace, dark background: each input string on the left, its full 64-char digest on the right. Highlight the single differing input letter; do NOT highlight digest positions, since the point is that nothing aligns. Caption: "one byte in, everything out".
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:543px;height:448px;right:-332px;top:151px;border-radius:50% 46% 57% 46% / 58% 50% 57% 41%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:430px;height:430px;bottom:-225px;left:-225px;border-radius:42% 64% 53% 65% / 41% 62% 43% 48%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .av { margin-top:34px; display:flex; flex-direction:column; gap:22px; }
+  .av .row { display:flex; align-items:stretch; border-radius:var(--radius-lg); overflow:hidden;
+    border:2px solid var(--border-subtle); }
+  .av .in { flex:0 0 320px; background:var(--surface-inverse); display:flex; flex-direction:column;
+    justify-content:center; padding:26px 32px; }
+  .av .in .k { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--stbr-emerald); }
+  .av .in .s { font-family:var(--font-mono); font-weight:800; font-size:30px; color:var(--text-on-dark);
+    margin-top:10px; letter-spacing:.02em; }
+  .av .in .s em { font-style:normal; background:var(--stbr-yellow); color:var(--text-on-accent);
+    border-radius:6px; padding:2px 6px; }
+  .av .dg { flex:1; background:var(--surface-card); display:flex; align-items:center; padding:26px 34px;
+    font-family:var(--font-mono); font-size:26px; font-weight:700; letter-spacing:.06em; line-height:1.45;
+    color:var(--text-primary); word-break:break-all; }
+  .caption { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:22px; font-weight:600; line-height:1.4; }
+  .caption b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the avalanche effect, byte by byte</div>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">one byte in, everything out</h2>
+  <div class="av">
+    <div class="row">
+      <div class="in"><div class="k">input</div><div class="s">'<em>s</em>olana'</div></div>
+      <div class="dg">615666dae9d3625adaef933e4c1ed0158f657a22c2f570edcd1f7caa68e16413</div>
+    </div>
+    <div class="row">
+      <div class="in"><div class="k">input</div><div class="s">'<em>S</em>olana'</div></div>
+      <div class="dg">be4b0c384393cc429273174b28eac42c83a693537b42a87d440da614d4b346a9</div>
+    </div>
+  </div>
+  <div class="caption">A single flipped input byte &mdash; <b>s &rarr; S</b> &mdash; and <b>zero</b> of the 64 output characters line up. Nothing is nudged; everything is scrambled.</div>
+</div>
+</body></html>

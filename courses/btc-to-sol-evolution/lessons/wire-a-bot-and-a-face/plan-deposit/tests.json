@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1",
+    "description": "Subgoal 1: the fee payer is the owner",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n, 'B1ockhash1111111111111111111111111111111111'",
+    "expectedOutput": "result.feePayer === '0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+  },
+  {
+    "id": "t2",
+    "description": "Subgoal 2: the transaction lifetime is the recent blockhash",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n, 'B1ockhash1111111111111111111111111111111111'",
+    "expectedOutput": "result.lifetime === 'B1ockhash1111111111111111111111111111111111'"
+  },
+  {
+    "id": "t3",
+    "description": "Subgoal 3: exactly one instruction, the deposit, with the owner signing first",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n, 'B1ockhash1111111111111111111111111111111111'",
+    "expectedOutput": "result.instructions.length === 1 && result.instructions[0].accounts[0].address === '0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && result.instructions[0].accounts[0].role === 'writable-signer'"
+  },
+  {
+    "id": "t4",
+    "description": "Subgoal 3: the deposit instruction carries the amount",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 2500000n, 'B1ockhash1111111111111111111111111111111111'",
+    "expectedOutput": "result.instructions[0].data.amount === 2500000n"
+  },
+  {
+    "id": "t5",
+    "description": "Subgoal 3: the deposit touches the System Program as readonly",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n, 'B1ockhash1111111111111111111111111111111111'",
+    "expectedOutput": "result.instructions[0].accounts.some(function (a) { return a.address === '11111111111111111111111111111111' && a.role === 'readonly'; })"
+  },
+  {
+    "id": "t6",
+    "description": "Subgoal 4: the deposit is confirmed at the 'confirmed' commitment",
+    "input": "'0wnerWa11etAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 1000000n, 'B1ockhash1111111111111111111111111111111111'",
+    "expectedOutput": "result.commitment === 'confirmed'"
+  }
+]

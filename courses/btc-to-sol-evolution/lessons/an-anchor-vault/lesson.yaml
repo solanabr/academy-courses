@@ -1,0 +1,55 @@
+id: lesson-b2s-an-anchor-vault
+slug: an-anchor-vault
+title: "A vault only its program can open"
+skills:
+  - anchor
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: wire-deposit
+    type: code
+    language: rust
+    buildType: buildable
+    starter: wire-deposit/starter.rs
+    solution: wire-deposit/solution.rs
+    tests: wire-deposit/tests.json
+    hints:
+      - "A PDA has no key; the program signs for it with the vault seeds plus the canonical bump — so the bump must be stored to be reused."
+      - "Add `pub vault_bump: u8` and `pub state_bump: u8` to VaultState; field order does not matter to Anchor."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your vault is a PDA — an address with no private key. Why does the program STORE the canonical bump in the vault's state account instead of re-deriving it every time?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Because find_program_address is non-deterministic — without a stored bump the program might derive a different address each call"
+            correct: false
+            feedback: "Derivation is fully deterministic — same seeds, same program id, same result every time. What it costs is compute: the 255-downward scan re-runs on every call, which is exactly why you cache the answer once."
+          - id: b
+            label: "Because the canonical bump can change when the program is upgraded, so state must pin the value from initialization"
+            correct: false
+            feedback: "The bump never changes — it depends only on the seeds and the program id, not on the program's bytecode. The reason to store it is cost: re-scanning for it burns roughly 1,500 CU on every access."
+          - id: c
+            label: "Re-deriving scans bump candidates from 255 downward and burns compute on every call; storing it once lets the program sign CPIs with the exact bump cheaply"
+            correct: true
+        explanation: "find_program_address loops from bump 255 downward until it finds an address off the ed25519 curve — deterministic, but ~1,500 CU per call. Storing the canonical bump at initialization turns every later derivation and PDA-signed CPI into a single cheap create_program_address with known seeds. Same address, a fraction of the compute."
+      - id: q2
+        prompt: "The deposit handler does `balance.checked_add(amount).ok_or(VaultError::Overflow)?` instead of `balance += amount`. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`checked_add` compiles to a single guarded instruction, so it is faster than `+` at runtime"
+            correct: false
+            feedback: "It is not about speed — checked arithmetic is marginally slower. It is about control: `+` can wrap or panic on overflow, while checked_add returns None that the handler converts into a clean, named program error."
+          - id: b
+            label: "Unchecked addition can overflow or panic; `checked_add` returns None on overflow, which the handler converts into a clean VaultError instead of a crash"
+            correct: true
+          - id: c
+            label: "Anchor's IDL cannot encode the `+` operator on u64 fields, so the checked helpers are required"
+            correct: false
+            feedback: "The IDL describes accounts and instruction arguments, not Rust expressions — `+` compiles fine. The rule is a safety discipline: balance math must never wrap or panic; it must surface as a typed error the client can read."
+        explanation: "In release builds unchecked `+` silently wraps; with overflow checks on, it panics and aborts the whole transaction with an opaque error. checked_add makes the failure a value — None — which ok_or turns into VaultError::Overflow: an explicit, auditable, client-readable outcome. In money code, arithmetic must fail loudly and by name."

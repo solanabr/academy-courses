@@ -1,0 +1,45 @@
+id: lesson-b2s-mine-your-own-chain
+slug: mine-your-own-chain
+title: "Mine your own chain: Bitcoin with nobody else on it"
+skills:
+  - transactions
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "On your fresh regtest chain you must mine 101 blocks before you can spend the first block's reward. Why 101 and not 1?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Regtest's difficulty adjustment needs 101 blocks before the chain accepts standard transactions"
+            correct: false
+            feedback: "Regtest runs at near-zero difficulty and has no warm-up period for transactions. The 101 comes from a consensus rule about block rewards: a coinbase output needs 100 confirmations before it may be spent."
+          - id: b
+            label: "Wallets refuse to spend outputs younger than 101 blocks as a reorg-safety default you can turn off"
+            correct: false
+            feedback: "It is not a wallet preference — coinbase maturity (100 confirmations) is a consensus rule, and no flag disables it. Mining 101 blocks makes exactly one reward — the first block's — spendable."
+          - id: c
+            label: "A coinbase (block-reward) output only matures after 100 confirmations, so you mine 100 blocks on top of the first one — 101 total"
+            correct: true
+        explanation: "Coinbase outputs are consensus-locked for 100 blocks. If a reorg orphaned a block whose freshly-spent reward had already propagated, every downstream payment would unravel — so rewards must age past plausible reorg depth before entering circulation. Block 1's reward becomes spendable once 100 blocks sit on top of it: height 101."
+      - id: q2
+        prompt: "Which command mines blocks on a modern Bitcoin Core regtest node, and what does it need?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`generatetoaddress`, given a block count and an address to receive the rewards"
+            correct: true
+          - id: b
+            label: "`setgenerate true`, which flips the node into continuous background mining until you stop it"
+            correct: false
+            feedback: "setgenerate was removed from Bitcoin Core years ago. There is no background miner on a modern regtest node — you mint blocks explicitly with generatetoaddress <count> <address>."
+          - id: c
+            label: "`getnewaddress` — creating a fresh address triggers the node to mine its reward into it"
+            correct: false
+            feedback: "getnewaddress only derives a wallet address; it never mines anything. You pass that address TO generatetoaddress, which is what actually creates blocks and directs the coinbase rewards."
+        explanation: "generatetoaddress <count> <address> instantly mines <count> regtest blocks and pays each coinbase reward to <address>. It replaced the removed setgenerate; on regtest difficulty is trivial, so 'mining' is just block assembly — which is what makes a laptop-speed private chain possible."

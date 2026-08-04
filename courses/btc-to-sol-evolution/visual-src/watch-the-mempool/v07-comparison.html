@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: "polling vs push: two ways to hear a tx arrived"
+     purpose: name the trade-off this watcher makes and the capstone will inherit
+     data: polling (what you built) | how: ask getrawmempool every N seconds, diff | good: simple, near-stateless, works on any RPC | cost: late by up to one interval, and chatty (refetches even when nothing changed) push (ZMQ / websockets) | how: the node streams each new tx the instant it accepts it | good: near-zero latency, no wasted calls | cost: holds a live connection, must reconnect on drops, misses events during any gap verdict: poll to learn and to watch low stakes; move to push when latency and volume start costing real money
+     prompt: Two-column comparison card, dark background, monospace. Columns "polling" and "push", rows "how / good / cost". A verdict band across the bottom. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:490px;height:505px;top:-257px;right:-257px;border-radius:48% 44% 64% 36% / 38% 44% 52% 39%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:399px;height:502px;bottom:-305px;left:760px;border-radius:58% 61% 47% 47% / 57% 45% 37% 64%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cols { display:flex; gap:24px; margin-top:28px; align-items:stretch; }
+  .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; display:flex; flex-direction:column; }
+  .col.poll { border-color:rgba(0,139,76,0.34); background:rgba(0,139,76,0.05); }
+  .col.push { border-color:var(--border-subtle); background:var(--surface-card); }
+  .col h3 { margin:0; padding:22px 30px; font-size:22px; font-weight:900; color:var(--text-on-brand);
+    display:flex; align-items:baseline; gap:14px; }
+  .col.poll h3 { background:var(--surface-brand); }
+  .col.push h3 { background:var(--surface-inverse); color:var(--text-on-dark); }
+  .col h3 .sub { font-family:var(--font-body); font-size:14px; font-weight:700; letter-spacing:.04em;
+    text-transform:uppercase; opacity:.85; }
+  .col .row { padding:22px 30px; border-top:1.5px solid var(--border-subtle); }
+  .col .row:first-of-type { border-top:0; }
+  .col .rk { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-green); margin-bottom:9px; }
+  .col .rv { font-size:19px; color:var(--text-primary); line-height:1.4; }
+  .col .rv code { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); font-size:17px; }
+  .col .rv.cost { color:var(--text-secondary); }
+  .verdict { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:21px; font-weight:600; line-height:1.42; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">polling vs push: two ways to hear a tx arrived</div>
+  <h2 class="viz-title" style="font-size:52px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">ask, or be told</h2>
+  <div class="cols">
+    <div class="col poll">
+      <h3>polling <span class="sub">what you built</span></h3>
+      <div class="row"><div class="rk">how</div><div class="rv">ask <code>getrawmempool</code> every N seconds, diff the result</div></div>
+      <div class="row"><div class="rk">good</div><div class="rv">simple, near-stateless, works on any RPC</div></div>
+      <div class="row"><div class="rk">cost</div><div class="rv cost">late by up to one interval, and chatty &mdash; refetches even when nothing changed</div></div>
+    </div>
+    <div class="col push">
+      <h3>push <span class="sub">ZMQ / websockets</span></h3>
+      <div class="row"><div class="rk">how</div><div class="rv">the node streams each new tx the instant it accepts it</div></div>
+      <div class="row"><div class="rk">good</div><div class="rv">near-zero latency, no wasted calls</div></div>
+      <div class="row"><div class="rk">cost</div><div class="rv cost">holds a live connection, must reconnect on drops, misses events during any gap</div></div>
+    </div>
+  </div>
+  <div class="verdict"><b>Poll to learn</b> and to watch low stakes; move to push when latency and volume start costing real money.</div>
+</div>
+</body></html>

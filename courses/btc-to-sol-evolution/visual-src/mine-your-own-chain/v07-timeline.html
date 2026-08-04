@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- timeline: why block 1's 50 BTC unlocks at height 101, not height 1
+     purpose: certify the coinbase maturity rule the reader just hit in getbalance
+     data: height 1 | block 1 mined, coinbase mints 50 BTC to you | blocks on top: 0 | spendable: no height 51 | 50 blocks stacked on block 1 | blocks on top: 50 | spendable: no height 100 | 99 blocks stacked on block 1 | blocks on top: 99 | spendable: no (getbalance 0.00000000) height 101 | 100 blocks stacked on block 1 | blocks on top: 100 | spendable: YES (getbalance 50.00000000) rule: coinbase outputs mature after 100 confirmations -> mine 101 blocks before spending
+     prompt: Horizontal timeline, dark theme, four nodes at heights 1, 51, 100, 101. A locked padlock on the first three, an open lock at height 101. A balance readout under each node (0.00000000 until the last, then 50.00000000). Monospace, no icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:459px;height:504px;right:-270px;top:323px;border-radius:38% 45% 50% 51% / 35% 54% 36% 44%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:513px;height:493px;bottom:-248px;left:758px;border-radius:57% 47% 42% 41% / 60% 62% 43% 44%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tl { display:flex; position:relative; margin-top:70px; padding:0 8px; }
+  .tl::before { content:""; position:absolute; left:60px; right:60px; top:57px; height:3px;
+    background:var(--stbr-emerald); z-index:0; }
+  .node { flex:1; text-align:center; position:relative; padding:0 10px; }
+  .height { font-family:var(--font-mono); font-weight:800; font-size:19px; color:var(--text-primary); height:34px; }
+  .height .n { font-size:24px; }
+  .dot { width:22px; height:22px; border-radius:50%; background:var(--stbr-emerald);
+    border:5px solid var(--surface-page); margin:0 auto; position:relative; z-index:1; box-sizing:content-box; }
+  .node.open .dot { width:34px; height:34px; background:var(--stbr-yellow); margin-top:-12px; }
+  .lock { margin-top:22px; font-size:34px; line-height:1; color:var(--stbr-ink-500); }
+  .node.open .lock { color:var(--stbr-yellow-700); }
+  .stacked { font-family:var(--font-body); font-size:14px; color:var(--text-muted); margin-top:12px; line-height:1.3; }
+  .bal { display:inline-block; margin-top:14px; font-family:var(--font-mono); font-weight:800; font-size:17px;
+    padding:8px 15px; border-radius:var(--radius-md); background:var(--surface-inverse); color:var(--stbr-ink-300); }
+  .node.open .bal { background:var(--stbr-yellow); color:var(--text-on-accent); }
+  .verdict { position:absolute; top:-6px; left:0; right:0; text-align:center; }
+  .rule { margin-top:44px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:22px 30px; font-size:20px; font-weight:500; line-height:1.4; }
+  .rule code { font-family:var(--font-mono); font-weight:800; color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">why block 1's 50 BTC unlocks at height 101</div>
+  <h2 class="viz-title">a coinbase matures after 100 confirmations</h2>
+  <div class="tl">
+    <div class="node">
+      <div class="height">height <span class="n">1</span></div>
+      <div class="dot"></div>
+      <div class="lock">&#128274;</div>
+      <div class="stacked">block 1 mined<br>0 blocks on top</div>
+      <div class="bal">0.00000000</div>
+    </div>
+    <div class="node">
+      <div class="height">height <span class="n">51</span></div>
+      <div class="dot"></div>
+      <div class="lock">&#128274;</div>
+      <div class="stacked">50 blocks stacked<br>still immature</div>
+      <div class="bal">0.00000000</div>
+    </div>
+    <div class="node">
+      <div class="height">height <span class="n">100</span></div>
+      <div class="dot"></div>
+      <div class="lock">&#128274;</div>
+      <div class="stacked">99 blocks on top<br>one short</div>
+      <div class="bal">0.00000000</div>
+    </div>
+    <div class="node open">
+      <div class="height">height <span class="n">101</span></div>
+      <div class="dot"></div>
+      <div class="lock">&#128275;</div>
+      <div class="stacked">100 blocks on top<br>mature &mdash; spendable</div>
+      <div class="bal">50.00000000</div>
+    </div>
+  </div>
+  <div class="rule">Coinbase outputs mature after <code>100 confirmations</code> &mdash; so you mine 101 blocks before that first reward is spendable.</div>
+</div>
+</body></html>

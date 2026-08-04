@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: the 1,232-byte wall is a networking limit, not an economic one
+     purpose: certify where the transaction size cap comes from and why it bounds account count
+     data: IPv6 MTU: 1,280 bytes (largest guaranteed unfragmented packet) minus headers: 48 bytes = max Solana tx: 1,232 bytes total every declared account address costs 32 bytes of that budget consequence: a hard limit on how many accounts one tx can name -> Address Lookup Tables
+     prompt: Diagram, dark background, monospace. A horizontal budget bar of 1,280 bytes with a 48-byte segment sliced off ("headers"), leaving a 1,232-byte usable region. Inside it, repeated 32-byte blocks labeled "account address" filling up until full, with an overflow marker "-> use a Lookup Table". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:420px;height:516px;right:-228px;top:264px;border-radius:65% 44% 35% 41% / 63% 52% 53% 43%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:519px;height:488px;bottom:-284px;left:-284px;border-radius:51% 48% 47% 36% / 53% 43% 48% 53%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:34px; }
+  .scale { display:flex; align-items:stretch; height:26px; margin-bottom:10px; font-family:var(--font-mono);
+    font-size:13px; color:var(--text-muted); }
+  .scale .mtu { flex:1280; display:flex; justify-content:space-between; }
+  .budget { display:flex; align-items:stretch; height:120px; border-radius:var(--radius-lg);
+    overflow:hidden; border:2px solid var(--border-strong); }
+  .headers { flex:48; background:repeating-linear-gradient(45deg, #c0392b, #c0392b 6px, #a5342a 6px, #a5342a 12px);
+    display:flex; align-items:center; justify-content:center; min-width:70px; }
+  .headers .lab { font-family:var(--font-body); font-weight:800; font-size:12px; color:#fff;
+    text-transform:uppercase; letter-spacing:.05em; text-align:center; line-height:1.3; }
+  .usable { flex:1232; background:var(--surface-inverse); display:flex; align-items:center; gap:6px; padding:0 12px; }
+  .blk { flex:1; height:76px; border-radius:6px; background:var(--stbr-emerald); display:flex;
+    align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:800;
+    font-size:13px; color:var(--text-on-brand); }
+  .blk.tail { background:var(--stbr-emerald-800); color:var(--stbr-ink-300); }
+  .over { flex:0 0 190px; background:var(--stbr-yellow); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:0 14px; }
+  .over .arr { font-family:var(--font-display); font-weight:900; font-size:24px; color:var(--stbr-dark); }
+  .over .t { font-family:var(--font-body); font-weight:800; font-size:15px; color:var(--stbr-dark);
+    line-height:1.25; margin-top:4px; }
+  .brace { display:flex; margin-top:12px; font-family:var(--font-mono); font-size:15px; }
+  .brace .b1 { flex:48; }
+  .brace .b2 { flex:1232; text-align:center; color:var(--stbr-emerald); font-weight:800;
+    border-top:2px solid var(--stbr-emerald); padding-top:8px; }
+  .facts { display:flex; gap:20px; margin-top:30px; }
+  .fact { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:20px 24px; }
+  .fact .n { font-family:var(--font-mono); font-weight:900; font-size:26px; color:var(--text-primary); }
+  .fact .d { font-family:var(--font-body); font-size:15px; color:var(--text-secondary); margin-top:6px; line-height:1.35; }
+  .fact.hot { background:rgba(0,139,76,0.08); border-color:rgba(0,139,76,0.34); }
+  .fact.hot .n { color:var(--stbr-emerald); }
+</style>
+  <div class="stbr-eyebrow">a networking limit, not an economic one</div>
+  <h2 class="viz-title">the 1,232-byte wall</h2>
+  <div class="dg">
+    <div class="scale"><div class="mtu"><span>0</span><span>IPv6 MTU: 1,280 bytes &mdash; largest guaranteed unfragmented packet</span></div></div>
+    <div class="budget">
+      <div class="headers"><span class="lab">headers<br>&minus;48 B</span></div>
+      <div class="usable">
+        <div class="blk">32 B</div><div class="blk">32 B</div><div class="blk">32 B</div>
+        <div class="blk">32 B</div><div class="blk">32 B</div><div class="blk">32 B</div>
+        <div class="blk">32 B</div><div class="blk tail">32 B</div><div class="blk tail">&hellip;</div>
+      </div>
+      <div class="over"><div class="arr">&rarr;</div><div class="t">use a Lookup Table</div></div>
+    </div>
+    <div class="brace"><div class="b1"></div><div class="b2">1,232 bytes usable</div></div>
+    <div class="facts">
+      <div class="fact"><div class="n">1,280 &minus; 48</div><div class="d">MTU minus packet headers leaves the usable transaction budget</div></div>
+      <div class="fact hot"><div class="n">= 1,232 B</div><div class="d">the hard cap on one Solana transaction, total</div></div>
+      <div class="fact"><div class="n">32 B each</div><div class="d">every declared account address spends 32 bytes &mdash; so account count is bounded</div></div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: full node, light client, and what your watcher needs
+     purpose: place SPV in the trust spectrum and show the mempool is a full-node-only view
+     data: full node | stores: every block + the unspent-coin set (100s of GB) | validates: every rule itself | trusts: nobody past the code | sees the mempool: YES SPV light client | stores: block headers only (~80 bytes each) | validates: proof-of-work on headers + a Merkle proof of inclusion | trusts: the hashpower majority validated, and its peers do not lie by omission | sees the mempool: NO your watcher | rides on: a full node (btc_rpc.py) | validates: nothing new, it just reads | trusts: its own node | sees the mempool: YES, because its node keeps one punchline: the queue you watch is exactly what a light client is blind to
+     prompt: Three-column comparison card, dark background, monospace. Columns "full node", "SPV light client", "your watcher", rows "stores / validates / trusts / sees the mempool". Green the two YES cells and red the one NO. Bottom band: "the mempool is a full-node-only view". No logos.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:418px;height:376px;right:-227px;top:160px;border-radius:61% 49% 43% 65% / 39% 35% 47% 48%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:529px;height:503px;bottom:-265px;left:555px;border-radius:50% 51% 35% 63% / 64% 65% 43% 61%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .grid { display:grid; grid-template-columns:170px 1fr 1fr 1fr; gap:0; margin-top:28px;
+    border:2px solid var(--border-subtle); border-radius:var(--radius-lg); overflow:hidden; background:var(--surface-card); }
+  .hcell { padding:18px 22px; font-family:var(--font-display); font-weight:900; font-size:19px;
+    color:var(--text-on-dark); background:var(--surface-inverse); }
+  .hcell.mine { background:var(--surface-brand); color:var(--text-on-brand); }
+  .hcell.rowhdr { background:var(--surface-inverse); font-size:14px; }
+  .rlab { padding:20px 22px; font-family:var(--font-body); font-weight:800; font-size:14px;
+    letter-spacing:.05em; text-transform:uppercase; color:var(--stbr-green);
+    background:var(--surface-paper); border-top:1.5px solid var(--border-subtle); display:flex; align-items:center; }
+  .rlab span { display:block; line-height:1.3; }
+  .cell { padding:20px 22px; font-size:18px; color:var(--text-primary); line-height:1.35;
+    border-top:1.5px solid var(--border-subtle); border-left:1.5px solid var(--border-subtle);
+    display:flex; align-items:center; }
+  .cell code { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); font-size:17px; }
+  .cell .muted { color:var(--text-muted); font-size:16px; }
+  .yn { font-family:var(--font-display); font-weight:900; font-size:22px; letter-spacing:.04em; }
+  .cell.yes { background:rgba(0,139,76,0.10); }
+  .cell.yes .yn { color:var(--stbr-emerald); }
+  .cell.no { background:rgba(192,57,43,0.08); }
+  .cell.no .yn { color:#c0392b; }
+  .verdict { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:22px; font-weight:600; line-height:1.4; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">full node, light client, and your watcher</div>
+  <h2 class="viz-title" style="font-size:50px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">the mempool is a full-node view</h2>
+  <div class="grid">
+    <div class="hcell rowhdr">&nbsp;</div>
+    <div class="hcell">full node</div>
+    <div class="hcell">SPV light client</div>
+    <div class="hcell mine">your watcher</div>
+
+    <div class="rlab">stores</div>
+    <div class="cell">every block + the unspent-coin set <span class="muted">(100s of GB)</span></div>
+    <div class="cell">block headers only <span class="muted">(~80 bytes each)</span></div>
+    <div class="cell">rides on a full node <code>(btc_rpc.py)</code></div>
+
+    <div class="rlab">validates</div>
+    <div class="cell">every rule itself</div>
+    <div class="cell">PoW on headers + a Merkle proof of inclusion</div>
+    <div class="cell">nothing new &mdash; it just reads</div>
+
+    <div class="rlab">trusts</div>
+    <div class="cell">nobody past the code</div>
+    <div class="cell">the hashpower majority, and peers not to lie by omission</div>
+    <div class="cell">its own node</div>
+
+    <div class="rlab"><span>sees the<br>mempool</span></div>
+    <div class="cell yes"><span class="yn">YES</span></div>
+    <div class="cell no"><span class="yn">NO</span></div>
+    <div class="cell yes"><span class="yn">YES</span></div>
+  </div>
+  <div class="verdict">The queue you watch is <b>exactly what a light client is blind to</b> &mdash; the mempool is a full-node-only view.</div>
+</div>
+</body></html>

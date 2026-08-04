@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: two things the curve guarantees
+     purpose: certify the pool never empties (asymptote) and that k grows every trade (fee stays in)
+     data: guarantee 1, never dry: x*y = k is asymptotic to both axes draining reserve to 0 needs an INFINITE amount of the other token -> a quote always exists, however bad guarantee 2, k ratchets up: all 100 TKA enters reserves, but only 99.7 (997/1000) drives the output leftover fee stays in the pool forever pre-swap k = 1,000,000 -> post-swap product = 1,000,272.79 real invariant: x*y >= k_initial (LP yield, compounding)
+     prompt: Two-panel diagram, dark background, monospace. Left panel: a hyperbola hugging but never touching the axes, with a label "infinite token needed to reach 0". Right panel: a small bar for k before (1,000,000) and after (1,000,272.79), the delta tinted green and labeled "fee retained = LP yield". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:490px;height:371px;right:-272px;top:334px;border-radius:37% 40% 46% 36% / 57% 58% 64% 48%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:483px;height:482px;bottom:-267px;left:-267px;border-radius:46% 52% 58% 58% / 42% 51% 38% 44%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { display:flex; gap:30px; margin-top:30px; align-items:stretch; }
+  .panel { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-xl); padding:30px 34px; display:flex; flex-direction:column; }
+  .panel .g { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-emerald); }
+  .panel h3 { font-family:var(--font-display); font-weight:900; font-size:27px; margin:8px 0 20px;
+    color:var(--text-primary); letter-spacing:-0.01em; }
+  .plotbox { position:relative; align-self:center; }
+  .axlab { font-family:var(--font-mono); font-size:13px; fill:var(--text-muted); }
+  .pnote { margin-top:auto; padding-top:20px; font-family:var(--font-body); font-size:17px;
+    line-height:1.4; color:var(--text-secondary); }
+  .pnote b { color:var(--text-primary); }
+  /* right panel: k ratchet — horizontal bars, block layout (no fragile flex-end column) */
+  .kwrap { margin:6px 0 4px; }
+  .kline { margin-bottom:22px; }
+  .khead { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .khead .lab { font-family:var(--font-body); font-size:14px; font-weight:700; color:var(--text-secondary);
+    text-transform:uppercase; letter-spacing:.05em; }
+  .khead .num { font-family:var(--font-mono); font-weight:800; font-size:20px; color:var(--text-primary); }
+  .track { height:34px; border-radius:var(--radius-md); border:2px solid var(--stbr-green);
+    background:var(--surface-paper); overflow:hidden; display:flex; }
+  .track .base { background:var(--stbr-green); }
+  .track.pre .base { width:100%; }
+  .track.post .base { width:86%; }
+  .track.post .fee { width:14%; background:var(--stbr-yellow); display:flex; align-items:center;
+    justify-content:center; font-family:var(--font-mono); font-weight:800; font-size:14px;
+    color:var(--text-on-accent); border-left:2px solid var(--stbr-green); }
+  .deltatag { align-self:center; background:rgba(0,139,76,0.09); border:1.5px solid rgba(0,139,76,0.3);
+    color:var(--stbr-emerald); font-family:var(--font-mono); font-weight:800; font-size:16px;
+    padding:8px 16px; border-radius:var(--radius-pill); margin-top:2px; }
+  .inv { align-self:center; margin-top:16px; font-family:var(--font-mono); font-size:17px;
+    color:var(--text-primary); font-weight:700; }
+  .inv b { color:var(--stbr-emerald); }
+</style>
+  <div class="stbr-eyebrow">two things the curve guarantees</div>
+  <h2 class="viz-title">it never dries, and k only ratchets up</h2>
+  <div class="dg">
+    <div class="panel">
+      <div class="g">guarantee 1 &mdash; never dry</div>
+      <h3>x &middot; y = k is asymptotic to both axes</h3>
+      <div class="plotbox">
+        <svg width="440" height="360" viewBox="0 0 440 360">
+          <g transform="translate(46,10)">
+            <line x1="0" y1="0" x2="0" y2="330" stroke="#b8bdb6" stroke-width="2"/>
+            <line x1="0" y1="330" x2="380" y2="330" stroke="#b8bdb6" stroke-width="2"/>
+            <polyline fill="none" stroke="#008b4c" stroke-width="4" points="6.6,57.3 19.8,130.0 33.0,172.1 46.3,199.6 59.5,218.9 72.7,233.2 85.9,244.3 99.1,253.1 112.3,260.2 125.6,266.2 138.8,271.2 152.0,275.5 165.2,279.2 178.4,282.4 191.7,285.2 204.9,287.7 218.1,290.0 231.3,292.0 244.5,293.9 257.7,295.5 271.0,297.0 284.2,298.4 297.4,299.7 310.6,300.9 323.8,302.0 337.0,303.0 350.3,303.9 363.5,304.8 376.7,305.6"/>
+            <text class="axlab" x="356" y="326">x &rarr; 0</text>
+            <text class="axlab" x="6" y="66">y &rarr; 0</text>
+          </g>
+        </svg>
+      </div>
+      <div class="pnote">Draining a reserve to <b>0</b> needs an <b>infinite</b> amount of the other token &mdash; so a quote always exists, however bad.</div>
+    </div>
+    <div class="panel">
+      <div class="g">guarantee 2 &mdash; k ratchets up</div>
+      <h3>the retained fee grows k every trade</h3>
+      <div class="kwrap">
+        <div class="kline">
+          <div class="khead"><span class="lab">k before</span><span class="num">1,000,000</span></div>
+          <div class="track pre"><div class="base"></div></div>
+        </div>
+        <div class="kline">
+          <div class="khead"><span class="lab">product after</span><span class="num">1,000,272.79</span></div>
+          <div class="track post"><div class="base"></div><div class="fee">+272.79</div></div>
+        </div>
+      </div>
+      <div class="deltatag">fee retained = LP yield</div>
+      <div class="inv">real invariant: x &middot; y <b>&ge;</b> k<sub>initial</sub></div>
+      <div class="pnote">All 100 TKA enters reserves, but only <b>99.7</b> (997/1000) drives the output. The leftover stays in the pool forever.</div>
+    </div>
+  </div>
+</div>
+</body></html>

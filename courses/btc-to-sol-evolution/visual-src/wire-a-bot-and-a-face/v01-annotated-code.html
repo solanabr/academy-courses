@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the deposit lands on-chain
+     purpose: certify that a headless script moved real lamports into the deployed vault
+     data: vault balance before: 0 sent: 2Zj7Kq...gT9vXeL # a network receipt; yours differs every run vault balance after: 100000000 # lamports, up by the 0.1 SOL you deposited
+     prompt: Three-line terminal mock, dark background, monospace. Green check beside line 3. Annotate line 2 as "network receipt", lines 1 and 3 as "same account, re-fetched before and after". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:531px;height:577px;top:-323px;right:-323px;border-radius:50% 63% 58% 59% / 57% 59% 39% 50%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:571px;height:555px;bottom:-299px;left:-299px;border-radius:61% 65% 63% 60% / 45% 41% 40% 53%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:524px;height:462px;bottom:-280px;left:557px;border-radius:47% 48% 42% 64% / 65% 41% 41% 54%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .term { margin-top:34px; background:var(--surface-inverse); border-radius:var(--radius-xl); overflow:hidden; }
+  .term .bar { display:flex; align-items:center; gap:12px; padding:18px 30px; border-bottom:1px solid var(--border-on-dark); }
+  .term .bar .dot { width:14px; height:14px; border-radius:var(--radius-pill); }
+  .term .bar .title { margin-left:14px; font-family:var(--font-mono); font-size:15px; color:var(--stbr-ink-300); letter-spacing:.02em; }
+  .term .body { padding:40px 44px; display:flex; flex-direction:column; gap:30px; }
+  .line { display:grid; grid-template-columns:64px 1fr 300px; align-items:center; gap:34px; }
+  .gutter { font-family:var(--font-mono); font-size:20px; color:var(--stbr-ink-500); text-align:right; }
+  .code { font-family:var(--font-mono); font-size:22px; line-height:1.4; color:var(--text-on-dark); }
+  .code .prompt { color:var(--stbr-emerald); font-weight:800; }
+  .code .key { color:var(--stbr-ink-300); }
+  .code .num { color:var(--stbr-cream); font-weight:700; }
+  .code .sig { color:var(--stbr-dark); background:var(--stbr-yellow); font-weight:700; padding:4px 12px; border-radius:8px; }
+  .code .comment { color:var(--stbr-ink-500); }
+  .line.landed { background:rgba(0,139,76,0.16); border-left:3px solid var(--stbr-emerald); margin:0 -44px; padding:16px 44px 16px 41px; }
+  .line.landed .num { color:var(--stbr-emerald); }
+  .check { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:var(--radius-pill); background:var(--stbr-emerald); margin-right:14px; vertical-align:middle; }
+  .note { box-sizing:border-box; width:100%; display:flex; flex-direction:column; font-family:var(--font-body); border-radius:var(--radius-md); padding:12px 20px; }
+  .note .hd { font-size:16px; font-weight:700; line-height:1.3; }
+  .note .sub { font-size:14px; font-weight:500; line-height:1.3; margin-top:4px; }
+  .note.receipt { background:var(--stbr-yellow); }
+  .note.receipt .hd { color:var(--stbr-dark); }
+  .note.receipt .sub { color:var(--stbr-dark); opacity:0.72; }
+  .note.refetch { background:rgba(0,139,76,0.14); border:2px solid var(--stbr-emerald); }
+  .note.refetch .hd { color:var(--stbr-cream); }
+  .note.refetch .sub { color:var(--stbr-ink-300); }
+</style>
+  <div class="stbr-eyebrow">the deposit lands on-chain</div>
+  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">real lamports, moved by a script</h2>
+  <div class="term">
+    <div class="bar">
+      <span class="dot" style="background:#c0392b;"></span>
+      <span class="dot" style="background:var(--stbr-yellow);"></span>
+      <span class="dot" style="background:var(--stbr-emerald);"></span>
+      <span class="title">deposit.ts &mdash; node</span>
+    </div>
+    <div class="body">
+      <div class="line">
+        <span class="gutter">1</span>
+        <span class="code"><span class="prompt">&rsaquo;</span> <span class="key">vault balance before:</span> <span class="num">0</span></span>
+        <span class="note refetch"><span class="hd">same account</span><span class="sub">re-fetched before</span></span>
+      </div>
+      <div class="line">
+        <span class="gutter">2</span>
+        <span class="code"><span class="prompt">&rsaquo;</span> <span class="key">sent:</span> <span class="sig">2Zj7Kq&hellip;gT9vXeL</span></span>
+        <span class="note receipt"><span class="hd">network receipt</span><span class="sub">yours differs every run</span></span>
+      </div>
+      <div class="line landed">
+        <span class="gutter"><span class="check"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 L6.5 12 L13 4" fill="none" stroke="#f5e8ca" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+        <span class="code"><span class="prompt">&rsaquo;</span> <span class="key">vault balance after:</span> <span class="num">100000000</span> <span class="comment"># lamports, up by 0.1 SOL</span></span>
+        <span class="note refetch"><span class="hd">same account</span><span class="sub">re-fetched after</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

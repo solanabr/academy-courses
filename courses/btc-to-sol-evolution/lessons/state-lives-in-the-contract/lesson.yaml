@@ -1,0 +1,45 @@
+id: lesson-b2s-state-lives-in-the-contract
+slug: state-lives-in-the-contract
+title: "The number that remembers: why a coded ledger needs accounts, not UTXOs"
+skills:
+  - account-model
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Ethereum dropped Bitcoin's UTXOs for an account model so a contract could 'remember' a number. What does an EVM account hold that a UTXO does not?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A bigger scripting language — EVM accounts are UTXOs whose locking scripts happen to be Turing-complete"
+            correct: false
+            feedback: "It is a deeper change than scripting power. A UTXO is consumed when spent and remembers nothing; an EVM account PERSISTS — balance, nonce, and for contracts a storage tree that carries state from one transaction to the next."
+          - id: b
+            label: "Persistent per-account state — a balance, a nonce, and (for contracts) storage and code that survive between transactions"
+            correct: true
+          - id: c
+            label: "Only a mutable balance — contract data itself still lives off-chain with just its hash on-chain"
+            correct: false
+            feedback: "Contract storage is fully on-chain: every contract account carries its own key-value storage tree, replicated by every node. That persistent on-chain 'memory' is exactly what your counter contract wrote to."
+        explanation: "A UTXO is a one-shot value container: spend it and it is gone, remembering nothing. An EVM account is durable — it keeps a balance, a replay-protecting nonce, and for contracts a storage tree plus code that persist across transactions. That persistence is what makes a contract able to 'remember' your counter between calls."
+      - id: q2
+        prompt: "Gas and denominations: which pair is correct on the EVM?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "1 ETH = 10^9 wei, and a plain ETH transfer costs 21,000 gas"
+            correct: false
+            feedback: "The gas figure is right but the denomination is off by 10^9 — you are thinking of gwei (10^9 gwei per ETH, used for quoting gas prices). Wei is the base unit: 10^18 per ETH."
+          - id: b
+            label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 210,000 gas"
+            correct: false
+            feedback: "Denomination right, gas wrong by 10×: a simple ETH transfer costs a flat 21,000 gas. Six-figure gas is contract-deployment territory, not a bare value transfer."
+          - id: c
+            label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 21,000 gas"
+            correct: true
+        explanation: "Wei is the base unit: 10^18 wei per ETH (gas prices are quoted in gwei, 10^9 wei, which is the usual source of confusion). A bare value transfer costs a fixed 21,000 gas; anything touching contract code or storage costs more, metered per EVM operation."

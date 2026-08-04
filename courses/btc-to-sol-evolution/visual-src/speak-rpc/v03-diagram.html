@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: cookie auth, the key is a file on disk
+     purpose: show that RPC authorization is a shared secret read from a local file, not a privilege the CLI holds by identity
+     data: bitcoind starts -> writes ~/.bitcoin/regtest/.cookie (contents: __cookie__:randompassword) the file rotates: every restart writes a fresh password, invalidating the old one three clients, one key: bitcoin-cli -> reads .cookie automatically -> authorized curl -> you pass --user "$(cat .cookie)" -> authorized btc_rpc.py -> reads .cookie in __init__ -> authorized no cookie / wrong password -> node returns HTTP 401, does nothing alternative: fixed rpcuser/rpcpassword in bitcoin.conf (survives restart; leak risk is permanent)
+     prompt: Diagram, dark background, monospace. A central "bitcoind" node writing to a ".cookie file" box. Three client boxes (bitcoin-cli, curl, btc_rpc.py) each drawing an arrow through the .cookie box before reaching the node. A greyed "random webpage" box with a red X, blocked at the node with "401". No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:557px;height:391px;right:-307px;top:350px;border-radius:38% 44% 55% 41% / 41% 55% 39% 57%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:24px; }
+  .node { background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg);
+    padding:20px 30px; display:flex; align-items:baseline; gap:16px; }
+  .node .nm { font-family:var(--font-mono); font-weight:900; font-size:24px; }
+  .node .sub { font-size:16px; color:var(--stbr-cream); opacity:.9; }
+  .writes { text-align:center; color:var(--stbr-green); font-weight:800; font-size:15px;
+    letter-spacing:.04em; margin:12px 0; }
+  .cookie { background:var(--surface-inverse); border:2px solid var(--stbr-yellow); border-radius:var(--radius-lg);
+    padding:20px 30px; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+  .cookie .path { font-family:var(--font-mono); font-weight:800; font-size:20px; color:var(--stbr-yellow); }
+  .cookie .contents { font-family:var(--font-mono); font-size:15px; color:var(--stbr-ink-300); }
+  .cookie .rot { font-family:var(--font-body); font-size:13.5px; font-weight:700; color:var(--stbr-cream);
+    background:rgba(245,232,202,0.12); padding:6px 13px; border-radius:var(--radius-pill); }
+  .reads { text-align:center; color:var(--stbr-emerald); font-weight:800; font-size:15px;
+    letter-spacing:.04em; margin:12px 0; }
+  .clients { display:flex; gap:18px; }
+  .cli { flex:1; background:var(--surface-card); border:2px solid rgba(0,139,76,0.34);
+    border-radius:var(--radius-lg); padding:18px 20px; }
+  .cli .nm { font-family:var(--font-mono); font-weight:800; font-size:18px; color:var(--text-primary); }
+  .cli .how { font-size:14px; color:var(--text-secondary); margin-top:8px; line-height:1.35; }
+  .cli .ok { display:inline-block; margin-top:12px; font-family:var(--font-body); font-weight:800;
+    font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--stbr-emerald);
+    background:rgba(0,139,76,0.11); padding:4px 12px; border-radius:var(--radius-pill); }
+  .blocked { flex:1; background:rgba(192,57,43,0.05); border:2px dashed rgba(192,57,43,0.42);
+    border-radius:var(--radius-lg); padding:18px 20px; }
+  .blocked .nm { font-family:var(--font-mono); font-weight:800; font-size:18px; color:#a5342a; text-decoration:line-through; }
+  .blocked .how { font-size:14px; color:var(--text-muted); margin-top:8px; line-height:1.35; }
+  .blocked .no { display:inline-block; margin-top:12px; font-family:var(--font-body); font-weight:800;
+    font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#c0392b;
+    padding:4px 12px; border-radius:var(--radius-pill); }
+</style>
+  <div class="stbr-eyebrow">cookie auth: the key is a file on disk</div>
+  <h2 class="viz-title">a shared secret, not an identity</h2>
+  <div class="dg">
+    <div class="node"><span class="nm">bitcoind</span><span class="sub">on start, writes a fresh password to disk</span></div>
+    <div class="writes">&darr;&nbsp;&nbsp; writes on startup &nbsp;&nbsp;&darr;</div>
+    <div class="cookie">
+      <div><div class="path">~/.bitcoin/regtest/.cookie</div><div class="contents">__cookie__:randompassword</div></div>
+      <div class="rot">rotates every restart &mdash; old password dies</div>
+    </div>
+    <div class="reads">&darr;&nbsp;&nbsp; every client reads the same cookie before it reaches the node &nbsp;&nbsp;&darr;</div>
+    <div class="clients">
+      <div class="cli"><div class="nm">bitcoin-cli</div><div class="how">reads .cookie automatically</div><span class="ok">authorized</span></div>
+      <div class="cli"><div class="nm">curl</div><div class="how">you pass --user "$(cat .cookie)"</div><span class="ok">authorized</span></div>
+      <div class="cli"><div class="nm">btc_rpc.py</div><div class="how">reads .cookie in __init__</div><span class="ok">authorized</span></div>
+      <div class="blocked"><div class="nm">random webpage</div><div class="how">no cookie, or the wrong password</div><span class="no">HTTP 401 &mdash; does nothing</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

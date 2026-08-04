@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: one deploy, two accounts
+     purpose: certify the loader-v3 split, the address you invoke is a proxy; the code lives in ProgramData
+     data: program account (your program ID) ProgramData account owner: BPFLoaderUpgradeab1e11111111... owner: BPFLoaderUpgradeab1e11111111... executable: true executable: false length: a few dozen bytes -> points to ProgramData data: your sBPF bytecode (the whole .so) the front door strangers invoke -----------> + upgrade authority + last-deployed slot tiny (cheap) large (you pay for every byte; reserve lives here)
+     prompt: Two boxes side by side, dark background, monospace. Left box "program account (program ID)" with its fields; right box "ProgramData account" with its fields. A bold arrow from the left box's "length" line to the right box labeled "points to". Caption under both: "invoke the proxy; the code and the authority live in ProgramData". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:496px;height:350px;right:-267px;top:164px;border-radius:64% 58% 63% 62% / 53% 50% 61% 43%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:514px;height:506px;bottom:-303px;left:766px;border-radius:37% 59% 36% 61% / 44% 52% 59% 36%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { margin-top:32px; display:flex; align-items:stretch; gap:0; }
+  .acct { border-radius:var(--radius-lg); padding:26px 30px; display:flex; flex-direction:column; }
+  .acct .name { font-family:var(--font-display); font-weight:900; font-size:22px; letter-spacing:-.01em; }
+  .acct .sub { font-family:var(--font-body); font-weight:700; font-size:13px; letter-spacing:.06em;
+    text-transform:uppercase; margin-top:4px; }
+  .acct .fields { margin-top:20px; display:flex; flex-direction:column; gap:11px; font-family:var(--font-mono); font-size:16px; }
+  .acct .fields .f { display:flex; gap:8px; line-height:1.35; }
+  .acct .fields .f .fk { color:var(--stbr-ink-500); flex:0 0 auto; }
+  .foot { margin-top:auto; padding-top:18px; font-family:var(--font-body); font-size:14px; line-height:1.35; }
+  /* left: proxy — white card, tiny */
+  .acct.proxy { flex:0 0 480px; background:var(--surface-card); border:2px solid var(--border-subtle); }
+  .acct.proxy .name { color:var(--text-primary); }
+  .acct.proxy .sub { color:var(--stbr-emerald); }
+  .acct.proxy .fields .f .fv { color:var(--text-primary); }
+  .acct.proxy .fields .f.len { color:var(--stbr-emerald); font-weight:800; }
+  .acct.proxy .foot { color:var(--text-muted); border-top:1.5px solid var(--border-subtle); }
+  /* connector */
+  .link { flex:1; position:relative; display:flex; align-items:center; justify-content:center; }
+  .link .chip { position:absolute; top:calc(50% - 52px); left:50%; transform:translateX(-50%); white-space:nowrap;
+    font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.04em;
+    background:var(--stbr-yellow); color:var(--text-on-accent); padding:6px 15px; border-radius:var(--radius-pill); }
+  /* right: ProgramData — dark field, large (the code + authority live here) */
+  .acct.data { flex:0 0 560px; background:var(--surface-inverse); border:2px solid var(--surface-inverse); }
+  .acct.data .name { color:var(--stbr-yellow); }
+  .acct.data .sub { color:var(--stbr-ink-300); }
+  .acct.data .fields { color:var(--text-on-dark); }
+  .acct.data .fields .f .fk { color:var(--stbr-ink-500); }
+  .acct.data .fields .f .fv { color:var(--stbr-cream); }
+  .acct.data .foot { color:var(--stbr-ink-300); border-top:1px solid var(--border-on-dark); }
+  .cap { margin-top:30px; text-align:center; font-size:20px; font-weight:600; color:var(--text-primary); }
+  .cap b { color:var(--stbr-emerald); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the loader-v3 split</div>
+  <h2 class="viz-title">one deploy, two accounts</h2>
+  <div class="dg">
+    <div class="acct proxy">
+      <div class="name">program account</div>
+      <div class="sub">your program ID &mdash; the front door strangers invoke</div>
+      <div class="fields">
+        <div class="f"><span class="fk">owner:</span><span class="fv">BPFLoaderUpgradeab1e11111111...</span></div>
+        <div class="f"><span class="fk">executable:</span><span class="fv">true</span></div>
+        <div class="f len"><span class="fk">length:</span><span class="fv">a few dozen bytes &rarr; points to ProgramData</span></div>
+      </div>
+      <div class="foot">tiny &mdash; cheap to rent</div>
+    </div>
+    <div class="link">
+      <span class="chip">points to</span>
+      <svg width="100%" height="30" viewBox="0 0 160 30" preserveAspectRatio="none"><line x1="2" y1="15" x2="146" y2="15" stroke="#f0bd1f" stroke-width="4"/><polygon points="158,15 142,6 142,24" fill="#f0bd1f"/></svg>
+    </div>
+    <div class="acct data">
+      <div class="name">ProgramData account</div>
+      <div class="sub">where the code and the authority live</div>
+      <div class="fields">
+        <div class="f"><span class="fk">owner:</span><span class="fv">BPFLoaderUpgradeab1e11111111...</span></div>
+        <div class="f"><span class="fk">executable:</span><span class="fv">false</span></div>
+        <div class="f"><span class="fk">data:</span><span class="fv">your sBPF bytecode (the whole .so)</span></div>
+        <div class="f"><span class="fk">+</span><span class="fv">upgrade authority + last-deployed slot</span></div>
+      </div>
+      <div class="foot">large &mdash; you pay for every byte; the rent reserve lives here</div>
+    </div>
+  </div>
+  <div class="cap">Invoke the proxy; the code and the authority live in <b>ProgramData</b>.</div>
+</div>
+</body></html>

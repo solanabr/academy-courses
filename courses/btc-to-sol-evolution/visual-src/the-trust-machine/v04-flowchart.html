@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: what "send $500 abroad" actually runs
+     purpose: make the hidden chain of referees concrete, every hop is a ledger.py you must trust and pay
+     data: you -> your bank (ledger update, FX spread) -> correspondent bank A (fee, hold for review) -> correspondent bank B (fee, another jurisdiction) -> recipient bank (ledger update) -> your friend elapsed: days | skimmed: a slice at every hop | each hop: a transfer() you did not choose
+     prompt: Left-to-right flowchart, dark background, monospace. Five bank nodes between a "you" node and a "friend" node, each labeled with a small fee tag and a clock icon. A running total bar underneath shows fees accumulating and days elapsing. No logos, no decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:594px;height:553px;top:-326px;right:-326px;border-radius:50% 56% 48% 50% / 54% 46% 56% 54%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:522px;height:447px;bottom:-245px;left:692px;border-radius:53% 43% 35% 54% / 60% 42% 51% 37%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .flow { display:flex; align-items:stretch; gap:10px; margin-top:30px; }
+  .node { flex:1 1 0; display:flex; }
+  .arrcell { flex:0 0 34px; display:flex; align-items:center; justify-content:center; }
+  .arrcell svg { display:block; }
+  .chip { width:100%; box-sizing:border-box; min-height:150px; border-radius:var(--radius-lg); padding:16px 12px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .chip.end { background:var(--surface-inverse); border:2px solid var(--stbr-dark); }
+  .chip.bank { background:var(--surface-card); border:2px solid var(--border-subtle); }
+  .chip .who { font-family:var(--font-mono); font-weight:800; font-size:16px; color:var(--text-primary); line-height:1.22; }
+  .chip.end .who { color:var(--text-on-dark); }
+  .chip .fee { font-family:var(--font-body); font-weight:800; font-size:12px; padding:4px 10px; border-radius:var(--radius-pill); background:rgba(192,57,43,0.12); color:#a5342a; margin-top:11px; }
+  .chip .clk { display:flex; align-items:center; gap:5px; font-family:var(--font-body); font-weight:700; font-size:12px; color:var(--text-muted); margin-top:9px; line-height:1.2; }
+  .chip .clk svg { flex:0 0 14px; }
+  .totalwrap { margin-top:34px; }
+  .totalbar { display:flex; height:42px; border-radius:var(--radius-pill); overflow:hidden; border:2px solid var(--stbr-dark); }
+  .seg { flex:1; border-right:2px solid var(--surface-page); }
+  .seg:last-child { border-right:0; }
+  .seg.s1 { background:rgba(0,139,76,0.30); }
+  .seg.s2 { background:rgba(0,139,76,0.48); }
+  .seg.s3 { background:rgba(48,108,64,0.72); }
+  .seg.s4 { background:var(--stbr-green); }
+  .seg.s5 { background:var(--stbr-yellow); }
+  .totalrow { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-top:16px; }
+  .totalrow .l { font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-secondary); flex:1 1 auto; }
+  .totalrow .r { display:flex; gap:12px; flex:0 0 auto; }
+  .stat { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-pill); padding:9px 20px; font-family:var(--font-mono); font-weight:800; font-size:16px; white-space:nowrap; }
+  .stat b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">what "send $500 abroad" actually runs</div>
+  <h2 class="viz-title">every hop is a referee you pay</h2>
+  <div class="flow">
+    <div class="node"><div class="chip end"><div class="who">you</div></div></div>
+    <div class="arrcell"><svg width="26" height="16"><line x1="0" y1="8" x2="18" y2="8" stroke="#1b231d" stroke-width="2.5"/><polygon points="26,8 16,3 16,13" fill="#1b231d"/></svg></div>
+    <div class="node"><div class="chip bank"><div class="who">your bank</div><span class="fee">FX spread</span><div class="clk"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="6" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="16" y2="14" stroke="#767f73" stroke-width="2"/></svg>ledger update</div></div></div>
+    <div class="arrcell"><svg width="26" height="16"><line x1="0" y1="8" x2="18" y2="8" stroke="#1b231d" stroke-width="2.5"/><polygon points="26,8 16,3 16,13" fill="#1b231d"/></svg></div>
+    <div class="node"><div class="chip bank"><div class="who">correspondent<br>bank A</div><span class="fee">+ fee</span><div class="clk"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="6" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="16" y2="14" stroke="#767f73" stroke-width="2"/></svg>hold for review</div></div></div>
+    <div class="arrcell"><svg width="26" height="16"><line x1="0" y1="8" x2="18" y2="8" stroke="#1b231d" stroke-width="2.5"/><polygon points="26,8 16,3 16,13" fill="#1b231d"/></svg></div>
+    <div class="node"><div class="chip bank"><div class="who">correspondent<br>bank B</div><span class="fee">+ fee</span><div class="clk"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="6" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="16" y2="14" stroke="#767f73" stroke-width="2"/></svg>another jurisdiction</div></div></div>
+    <div class="arrcell"><svg width="26" height="16"><line x1="0" y1="8" x2="18" y2="8" stroke="#1b231d" stroke-width="2.5"/><polygon points="26,8 16,3 16,13" fill="#1b231d"/></svg></div>
+    <div class="node"><div class="chip bank"><div class="who">recipient<br>bank</div><span class="fee">+ fee</span><div class="clk"><svg width="14" height="14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="12" y2="6" stroke="#767f73" stroke-width="2"/><line x1="12" y1="12" x2="16" y2="14" stroke="#767f73" stroke-width="2"/></svg>ledger update</div></div></div>
+    <div class="arrcell"><svg width="26" height="16"><line x1="0" y1="8" x2="18" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="26,8 16,3 16,13" fill="#008b4c"/></svg></div>
+    <div class="node"><div class="chip end"><div class="who">your friend</div></div></div>
+  </div>
+  <div class="totalwrap">
+    <div class="totalbar"><div class="seg s1"></div><div class="seg s2"></div><div class="seg s3"></div><div class="seg s4"></div><div class="seg s5"></div></div>
+    <div class="totalrow">
+      <span class="l">a slice skimmed at every hop &mdash; each hop a transfer() you did not choose</span>
+      <span class="r"><span class="stat">elapsed: <b>days</b></span><span class="stat">skimmed: <b>a slice per hop</b></span></span>
+    </div>
+  </div>
+</div>
+</body></html>

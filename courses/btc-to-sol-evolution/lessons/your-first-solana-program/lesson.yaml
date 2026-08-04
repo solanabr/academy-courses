@@ -1,0 +1,55 @@
+id: lesson-b2s-your-first-solana-program
+slug: your-first-solana-program
+title: "Push code you can never edit: your first program on devnet"
+skills:
+  - account-model
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: ping-program
+    type: code
+    language: rust
+    buildType: buildable
+    starter: ping-program/starter.rs
+    solution: ping-program/solution.rs
+    tests: ping-program/tests.json
+    hints:
+      - "The verification harness at the bottom already names both missing pieces — build first and read which names it can't find."
+      - "`Context<Ping>` needs `Ping` to carry #[derive(Accounts)] (that derive supplies the Bumps impl), not #[account]."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "What turns your Rust into a program the Solana runtime can execute, and how is the deployed program account marked?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`cargo build-sbf` compiles it to an sBPF binary; once deployed, the program account is flagged `executable`"
+            correct: true
+          - id: b
+            label: "`cargo build --release` produces the binary; the runtime marks it executable after its first successful transaction"
+            correct: false
+            feedback: "A native x86 binary cannot run on-chain — validators execute sBPF bytecode, which is what cargo build-sbf targets. And the executable flag is set at deployment, not earned through usage."
+          - id: c
+            label: "`anchor deploy` compiles the Rust to sBPF on the validator itself, so nothing is built locally"
+            correct: false
+            feedback: "Validators never compile your code — they receive finished sBPF bytecode. Compilation happens on your machine (cargo build-sbf, which anchor build wraps); deploy only uploads the result into an account marked executable."
+        explanation: "cargo build-sbf cross-compiles your Rust to sBPF — Solana's sandboxed BPF dialect — producing a .so the validator can run. Deployment writes that bytecode into an account and sets its executable flag, which is all that distinguishes a 'program' from any other account: on Solana, programs are accounts whose data is code."
+      - id: q2
+        prompt: "You deployed under the BPF Loader Upgradeable. What does 'upgradeable' let you do, and who can?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Anyone can push new bytecode to the program id — 'upgradeable' means open to community contribution"
+            correct: false
+            feedback: "Only the designated upgrade AUTHORITY can replace the bytecode; everyone else's attempts are rejected. And if that authority is burned, the program becomes permanently immutable."
+          - id: b
+            label: "The upgrade authority can migrate the program and all its data accounts to a fresh address in one step"
+            correct: false
+            feedback: "Upgrades replace bytecode at the SAME address — that is the entire point: clients and PDAs keep working. Data accounts are untouched; any layout migration is your program's problem to handle in code."
+          - id: c
+            label: "The upgrade authority can replace the program's bytecode at the same program id, without changing its address"
+            correct: true
+        explanation: "The upgradeable loader splits a program into an address and swappable bytecode: the upgrade authority — and only it — can deploy new code to the same program id, so integrations and PDAs survive upgrades. Burn the authority and the code freezes forever; until then, 'who holds the upgrade authority' is part of the program's trust model."

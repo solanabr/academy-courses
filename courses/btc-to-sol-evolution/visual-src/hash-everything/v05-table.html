@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: three kinds of "hard to break", and what each one guards
+     purpose: separate the hardness properties so "one-way" stops being a single vague claim
+     data: | property | attacker's task | what breaks if it falls | rough cost, 256-bit hash | | --- | --- | --- | --- | | preimage resistance | given a digest, find ANY input for it | reverse a commitment; recover a hashed password | ~2^256 | | second-preimage resistance | given a fixed input, find a DIFFERENT one with the same digest | forge a swap for a known, published file | ~2^256 | | collision resistance | find ANY two distinct inputs sharing a digest (attacker picks both) | craft twin docs, sign the benign one, present the evil twin (SHAttered) | ~2^128 (birthday bound) |
+     prompt: Clean four-column table, dark background, monospace. Emphasize the header row. Right-align the cost column. Shade the collision row a faint red to flag it as the weakest and first to fall. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:497px;height:374px;right:-272px;top:358px;border-radius:38% 62% 49% 59% / 47% 57% 40% 51%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:525px;height:478px;bottom:-235px;left:418px;border-radius:65% 36% 62% 65% / 62% 51% 40% 40%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:18px; margin-top:30px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:18px 22px; font-family:var(--font-display); font-weight:800; font-size:14px;
+    letter-spacing:.07em; text-transform:uppercase; vertical-align:bottom; }
+  .ct th.num { text-align:right; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:22px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:top; line-height:1.4; }
+  .ct td.prop { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); font-size:19px; }
+  .ct td.num { font-family:var(--font-mono); font-weight:800; color:var(--text-primary); text-align:right;
+    white-space:nowrap; }
+  .ct tr.fall td { background:rgba(192,57,43,0.06); border-bottom-color:rgba(192,57,43,0.20); }
+  .ct tr.fall td.prop { color:#a5342a; }
+  .ct tr.fall td.num { color:#a5342a; }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .ct td b { color:var(--text-primary); }
+  .ct tr.fall td b { color:#a5342a; }
+  .pill { display:inline-block; background:#c0392b; color:#fff; font-family:var(--font-body);
+    font-size:12px; font-weight:800; padding:4px 11px; border-radius:var(--radius-pill); margin-left:10px;
+    vertical-align:middle; letter-spacing:.02em; }
+</style>
+  <div class="stbr-eyebrow">three kinds of "hard to break"</div>
+  <h2 class="viz-title" style="font-size:52px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">what each hardness guards</h2>
+  <table class="ct">
+    <tr>
+      <th style="width:23%">property</th>
+      <th style="width:29%">attacker's task</th>
+      <th style="width:32%">what breaks if it falls</th>
+      <th class="num" style="width:16%">cost, 256-bit</th>
+    </tr>
+    <tr>
+      <td class="prop">preimage<br>resistance</td>
+      <td>given a digest, find <b>any</b> input for it</td>
+      <td>reverse a commitment; recover a hashed password</td>
+      <td class="num">&asymp; 2<sup>256</sup></td>
+    </tr>
+    <tr>
+      <td class="prop">second-preimage<br>resistance</td>
+      <td>given a <b>fixed</b> input, find a different one with the same digest</td>
+      <td>forge a swap for a known, published file</td>
+      <td class="num">&asymp; 2<sup>256</sup></td>
+    </tr>
+    <tr class="fall">
+      <td class="prop">collision<br>resistance<span class="pill">weakest</span></td>
+      <td>find <b>any</b> two distinct inputs sharing a digest (attacker picks both)</td>
+      <td>craft twin docs, sign the benign one, present the evil twin <b>(SHAttered)</b></td>
+      <td class="num">&asymp; 2<sup>128</sup></td>
+    </tr>
+  </table>
+</div>
+</body></html>

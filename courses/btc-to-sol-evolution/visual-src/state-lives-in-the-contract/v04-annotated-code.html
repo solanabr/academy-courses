@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: how balanceOf finds one holder's slot with a single read
+     purpose: certify that a token balance is one key-derived slot fetched by one SLOAD, not a scan
+     data: mapping(address => uint256) balances; // declared at base slot p balanceOf(holder): slot = keccak256(holder . p) <- hash the key with the base slot to locate the cell value = SLOAD(slot) <- exactly one read, cost independent of transfer history return value <- one hash, one read, one number contrast: a Bitcoin balance = scan the UTXO set and sum every output (grows with history)
+     prompt: Terminal-style annotated panel, dark background, monospace. Show the mapping declaration, then the three-step derivation (keccak256 -> SLOAD -> return) with a green callout reading "one hash + one read". A dim amber footer line for the Bitcoin scan-and-sum contrast. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:572px;height:545px;bottom:-309px;left:-309px;border-radius:55% 59% 61% 56% / 57% 62% 62% 64%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .panel { margin-top:20px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:32px 40px; font-family:var(--font-mono); color:var(--text-on-dark); }
+  .decl { font-size:20px; padding-bottom:22px; margin-bottom:24px; border-bottom:1px solid var(--border-on-dark); }
+  .decl .kw { color:var(--stbr-emerald); font-weight:800; }
+  .decl .id { color:var(--stbr-cream); }
+  .decl .cm { color:var(--stbr-ink-500); font-family:var(--font-body); font-size:15px; }
+  .fn { color:var(--stbr-yellow); font-size:19px; font-weight:800; margin-bottom:16px; }
+  .steps { display:grid; grid-template-columns:44px 1fr 300px; gap:18px 26px; align-items:center; }
+  .steps .n { font-family:var(--font-body); font-weight:900; font-size:17px; color:var(--stbr-emerald);
+    width:40px; height:40px; border-radius:50%; border:2px solid var(--stbr-emerald);
+    display:flex; align-items:center; justify-content:center; }
+  .steps .code { font-size:19px; color:var(--stbr-cream); }
+  .steps .code em { font-style:normal; color:var(--stbr-yellow); }
+  .steps .code .fx { color:var(--stbr-emerald); font-weight:700; }
+  .steps .note { font-family:var(--font-body); font-size:15px; color:var(--stbr-ink-300); line-height:1.35; }
+  .callout { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:18px 28px; display:flex; align-items:center; gap:16px; }
+  .callout .big { font-family:var(--font-display); font-weight:900; font-size:26px; color:var(--text-on-brand); white-space:nowrap; }
+  .callout .txt { font-family:var(--font-body); font-size:17px; line-height:1.35; }
+  .callout .txt b { color:var(--stbr-yellow); }
+  .footer { margin-top:20px; border:1.5px solid var(--stbr-yellow-700); border-radius:var(--radius-lg);
+    padding:16px 26px; font-family:var(--font-body); font-size:17px; color:var(--stbr-yellow-700);
+    line-height:1.4; background:rgba(217,166,8,0.06); }
+  .footer b { color:var(--stbr-dark); }
+  .footer code { font-family:var(--font-mono); font-weight:700; }
+</style>
+  <div class="stbr-eyebrow">one hash, one read, one number</div>
+  <h2 class="viz-title">balanceOf finds a slot, it does not scan</h2>
+  <div class="panel">
+    <div class="decl"><span class="kw">mapping</span>(address =&gt; uint256) <span class="id">balances</span>;&nbsp;&nbsp;<span class="cm">// declared at base slot p</span></div>
+    <div class="fn">balanceOf(holder):</div>
+    <div class="steps">
+      <div class="n">1</div>
+      <div class="code">slot = <span class="fx">keccak256</span>(holder <em>.</em> p)</div>
+      <div class="note">hash the key with the base slot to locate the cell</div>
+      <div class="n">2</div>
+      <div class="code">value = <span class="fx">SLOAD</span>(slot)</div>
+      <div class="note">exactly one read &mdash; cost independent of transfer history</div>
+      <div class="n">3</div>
+      <div class="code"><span class="fx">return</span> value</div>
+      <div class="note">one hash, one read, one number</div>
+    </div>
+    <div class="callout">
+      <div class="big">one hash + one read</div>
+      <div class="txt">The balance is a <b>key-derived slot</b> fetched by a single <code style="color:var(--stbr-yellow);font-family:var(--font-mono);">SLOAD</code> &mdash; O(1), no matter how many transfers came before.</div>
+    </div>
+  </div>
+  <div class="footer">Contrast &mdash; a <b>Bitcoin balance</b> = <code>scan the UTXO set and sum every output</code>. That cost grows with history; a slot read does not.</div>
+</div>
+</body></html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: why an open vote can't referee a ledger
+     purpose: certify the Sybil result the reader just ran, free identities means a majority is for sale
+     data: one attacker -> a for-loop -> 1000 "independent" voters (voter_1.py ... voter_1000.py) honest participants: 9 real people, 9 votes vote outcome: attacker controls 1000 of 1009 ballots -> the lie wins 99% "consensus" fix attempts: (a) close the list -> a keeper decides membership = a referee returns; (b) cost per identity -> foreshadows proof-of-work, the Bitcoin module
+     prompt: Diagram, dark background, monospace. Left: a single "attacker" node with a for-loop icon fanning out to a dense grid of 1000 identical faceless voter nodes. Right: a small cluster of 9 distinct "honest" nodes. A tally bar shows 1000 vs 9. Red label over the grid: "identities are free". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:436px;height:499px;right:-224px;top:86px;border-radius:57% 56% 56% 45% / 61% 54% 39% 50%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:381px;height:540px;bottom:-294px;left:830px;border-radius:64% 37% 64% 55% / 40% 62% 56% 65%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .dg { display:flex; gap:26px; margin-top:24px; align-items:stretch; }
+  .side { border-radius:var(--radius-lg); padding:22px 26px; display:flex; flex-direction:column; }
+  .attacker { flex:1.9; background:rgba(192,57,43,0.05); border:2px solid rgba(192,57,43,0.30); }
+  .honest { flex:1; background:rgba(0,139,76,0.06); border:2px solid rgba(0,139,76,0.32); }
+  .side .h { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:14px; }
+  .attacker .h { color:#a5342a; }
+  .honest .h { color:var(--stbr-emerald); }
+  .srcrow { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+  .src { font-family:var(--font-mono); font-weight:800; font-size:17px; color:var(--text-primary); background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px 16px; }
+  .loop { font-family:var(--font-mono); font-size:15px; color:#a5342a; background:rgba(192,57,43,0.10); border:1.5px dashed rgba(192,57,43,0.45); border-radius:var(--radius-sm); padding:10px 14px; }
+  .fanarr { color:#a5342a; font-size:22px; font-weight:900; }
+  .gridwrap { position:relative; }
+  .vgrid { display:grid; grid-template-columns:repeat(20, 1fr); gap:5px; }
+  .vcell { aspect-ratio:1; background:rgba(192,57,43,0.42); border-radius:2px; }
+  .gridlab { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .gridlab span { background:#c0392b; color:#fff; font-family:var(--font-body); font-weight:800; font-size:17px; padding:9px 20px; border-radius:var(--radius-pill); letter-spacing:.02em; }
+  .filecap { font-family:var(--font-mono); font-size:14px; color:var(--text-muted); margin-top:12px; }
+  .hgrid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:auto; }
+  .hcell { width:52px; height:52px; background:var(--surface-card); border:2px solid var(--stbr-emerald); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:800; font-size:15px; color:var(--stbr-emerald); }
+  .hnote { font-family:var(--font-body); font-size:15px; color:var(--text-secondary); margin-top:14px; }
+  .tally { margin-top:22px; }
+  .tbar { display:flex; height:46px; border-radius:var(--radius-pill); overflow:hidden; border:2px solid var(--stbr-dark); }
+  .tbar .att { flex:0 0 99.1%; background:#c0392b; display:flex; align-items:center; padding:0 24px; font-family:var(--font-mono); font-weight:800; font-size:18px; color:#fff; }
+  .tbar .hon { flex:1; background:var(--stbr-emerald); }
+  .tcap { display:flex; justify-content:space-between; margin-top:12px; font-family:var(--font-body); font-weight:700; font-size:15px; }
+  .tcap .lie { color:#a5342a; }
+  .tcap .real { color:var(--stbr-emerald); }
+  .fixes { display:flex; gap:20px; margin-top:22px; }
+  .fix { flex:1; border-radius:var(--radius-md); padding:18px 22px; font-size:16px; line-height:1.4; }
+  .fix.a { background:var(--surface-card); border:2px solid var(--border-subtle); color:var(--text-secondary); }
+  .fix.b { background:var(--surface-inverse); color:var(--stbr-ink-300); }
+  .fix .fh { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; }
+  .fix.a .fh { color:var(--text-primary); }
+  .fix.b .fh { color:var(--stbr-yellow); }
+  .fix b { color:var(--text-primary); }
+  .fix.b b { color:var(--stbr-cream); }
+</style>
+  <div class="stbr-eyebrow">why an open vote can't referee a ledger</div>
+  <h2 class="viz-title">identities are free</h2>
+  <div class="dg">
+    <div class="side attacker">
+      <div class="h">one attacker &rarr; a for-loop</div>
+      <div class="srcrow">
+        <span class="src">attacker</span>
+        <span class="loop">for i in range(1000):</span>
+        <span class="fanarr">&rarr;</span>
+      </div>
+      <div class="gridwrap">
+        <div class="vgrid">
+          <div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div>
+          <div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div>
+          <div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div>
+          <div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div>
+          <div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div><div class="vcell"></div>
+        </div>
+        <div class="gridlab"><span>1000 "independent" voters</span></div>
+      </div>
+      <div class="filecap">voter_1.py &middot; voter_2.py &middot; &hellip; &middot; voter_1000.py</div>
+    </div>
+    <div class="side honest">
+      <div class="h">9 real people, 9 votes</div>
+      <div class="hgrid">
+        <div class="hcell">1</div><div class="hcell">2</div><div class="hcell">3</div>
+        <div class="hcell">4</div><div class="hcell">5</div><div class="hcell">6</div>
+        <div class="hcell">7</div><div class="hcell">8</div><div class="hcell">9</div>
+      </div>
+      <div class="hnote">distinct participants &mdash; one identity each</div>
+    </div>
+  </div>
+  <div class="tally">
+    <div class="tbar"><div class="att">attacker controls 1000 of 1009 ballots</div><div class="hon"></div></div>
+    <div class="tcap"><span class="lie">the lie wins 99% "consensus"</span><span class="real">9 honest votes drowned</span></div>
+  </div>
+  <div class="fixes">
+    <div class="fix a"><div class="fh">fix attempt (a)</div><span>close the list &rarr; but now a keeper decides membership &mdash; <b>a referee returns</b></span></div>
+    <div class="fix b"><div class="fh">fix attempt (b)</div><span>put a <b>cost per identity</b> &rarr; foreshadows proof-of-work, the Bitcoin module</span></div>
+  </div>
+</div>
+</body></html>

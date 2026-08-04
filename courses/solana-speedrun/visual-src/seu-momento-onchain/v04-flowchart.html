@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .node { background: var(--stbr-white); border-radius: var(--radius-lg);
+          padding: 20px 36px; text-align: center; }
+  .node .t { font-family: var(--font-display); font-weight: 900; font-size: 28px;
+             line-height: 1.1; color: var(--text-primary); }
+  .node .s { font-family: var(--font-body); font-size: 17px; color: var(--text-secondary);
+             margin-top: 4px; }
+  .node.dark { background: var(--stbr-dark); }
+  .node.dark .t { color: var(--stbr-cream); }
+  .node.dark .s { color: rgba(245,232,202,0.8); }
+  .arrow { width: 4px; height: 26px; background: var(--stbr-emerald); }
+  .paths { display: flex; gap: 20px; align-items: stretch; }
+  .path { flex: 1; background: var(--stbr-white); border-radius: var(--radius-lg);
+          padding: 20px 24px; text-align: center; border-top: 8px solid var(--stbr-emerald); }
+  .path .t { font-family: var(--font-display); font-weight: 900; font-size: 24px;
+             line-height: 1.1; color: var(--text-primary); }
+  .path .s { font-family: var(--font-body); font-size: 16px; color: var(--text-secondary);
+             margin-top: 5px; line-height: 1.3; }
+  .path.hot { border-top-color: var(--stbr-yellow); }
+  .final { background: var(--stbr-emerald); border-radius: var(--radius-lg);
+           padding: 22px 40px; text-align: center; }
+  .final .t { font-family: var(--font-display); font-weight: 900; font-size: 30px;
+              color: var(--stbr-cream); }
+  .final .t em { font-style: normal; color: var(--stbr-yellow); }
+</style></head>
+<body>
+<!-- flowchart: Do PIX ao rendimento
+     purpose: Mostrar o caminho completo do dinheiro depois do evento, do PIX à posição rendendo onchain
+     data: PIX no stand -> stablecoin na carteira -> três caminhos (guardar, vault Kamino, LP Meteora) -> rendimento visível onchain
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:615px;height:511px;top:-327px;right:-327px;border-radius:56% 43% 64% 36% / 64% 61% 35% 36%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:464px;height:448px;left:-252px;top:196px;border-radius:63% 35% 36% 57% / 41% 50% 64% 41%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+  <div class="stbr-eyebrow">O caminho do dinheiro</div>
+  <h2 class="viz-title">Do PIX ao rendimento</h2>
+
+  <div class="stage">
+    <div class="node dark">
+      <div class="t">PIX no stand de onramp</div>
+      <div class="s">reais entram</div>
+    </div>
+    <div class="arrow"></div>
+    <div class="node">
+      <div class="t">Dólar digital na SUA carteira</div>
+      <div class="s">stablecoin, sob o seu controle</div>
+    </div>
+    <div class="arrow"></div>
+    <div class="paths" style="width:100%;">
+      <div class="path">
+        <div class="t">Guardar</div>
+        <div class="s">parado, líquido, seu</div>
+      </div>
+      <div class="path hot">
+        <div class="t">Vault da Kamino</div>
+        <div class="s">rendimento em 1 clique</div>
+      </div>
+      <div class="path">
+        <div class="t">LP na Meteora</div>
+        <div class="s">taxas de cada troca</div>
+      </div>
+    </div>
+    <div class="arrow"></div>
+    <div class="final">
+      <div class="t">Rendimento <em>visível onchain</em>, na sua posição</div>
+    </div>
+  </div>
+</div>
+</body></html>

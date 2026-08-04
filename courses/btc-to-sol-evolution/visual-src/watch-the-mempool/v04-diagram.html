@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: there is no "the" mempool
+     purpose: certify that each node holds its own queue, so a single global mempool is a fiction
+     data: a broadcast reaches nodes at different times over the p2p network node A (your regtest node): mempool = { tx1 } <- the one your watcher polls node B (a peer): mempool = { tx1, tx2 } (saw tx2 you never will) node C (far away): mempool = { } (your tx has not arrived yet) causes of divergence: propagation delay, size limits + eviction, minimum-fee policy each node keeps its own; "the mempool" names an object that does not exist
+     prompt: Diagram, dark background, monospace. Three node boxes A/B/C, each showing a distinct mempool set. Dashed p2p links between them with small delay labels. A caption band across the bottom: "no shared object; each node keeps its own". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:523px;height:522px;top:-296px;right:-296px;border-radius:64% 52% 59% 64% / 61% 47% 54% 47%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:592px;height:490px;bottom:-303px;left:-303px;border-radius:63% 64% 63% 50% / 64% 52% 63% 41%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  /* inset the whole diagram so node C (top-right) clears the corner decoration blob */
+  .dg { margin-top:30px; margin-left:110px; margin-right:110px; }
+  .nodes { position:relative; display:flex; align-items:stretch; gap:0; z-index:1; }
+  .node { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
+    border-radius:var(--radius-lg); padding:24px 28px; }
+  .node.mine { border-color:var(--stbr-emerald); border-width:3px; background:rgba(0,139,76,0.06); }
+  .node .nm { font-family:var(--font-display); font-weight:900; font-size:22px; color:var(--text-primary); }
+  .node .role { font-family:var(--font-body); font-size:14px; font-weight:700; color:var(--stbr-emerald);
+    text-transform:uppercase; letter-spacing:.05em; margin-top:4px; min-height:18px; }
+  .node .set { font-family:var(--font-mono); font-size:20px; color:var(--text-primary); margin-top:18px;
+    background:var(--surface-paper); border-radius:var(--radius-sm); padding:14px 16px; border:1.5px solid var(--border-subtle); }
+  .node .set .k { color:var(--stbr-emerald); font-weight:700; }
+  .node .why { font-size:15px; color:var(--text-muted); margin-top:14px; line-height:1.35; }
+  .link { flex:0 0 96px; align-self:center; text-align:center; padding-top:70px; }
+  .link .wire { border-top:3px dashed var(--stbr-ink-300); margin:0 6px 8px; }
+  .link .delay { font-family:var(--font-mono); font-size:14px; color:var(--text-muted); }
+  .causes { margin-top:26px; display:flex; gap:16px; }
+  .cause { flex:1; border:1.5px solid var(--border-subtle); border-radius:var(--radius-md);
+    padding:16px 20px; background:var(--surface-card); }
+  .cause .ct { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--stbr-green); }
+  .cause .cd { font-size:16px; color:var(--text-secondary); margin-top:6px; line-height:1.3; }
+  .band { margin-top:22px; background:var(--surface-inverse); color:var(--text-on-dark);
+    border-radius:var(--radius-lg); padding:22px 32px; text-align:center; font-size:22px; font-weight:600; }
+  .band b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">there is no "the" mempool</div>
+  <h2 class="viz-title" style="font-size:52px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">each node keeps its own queue</h2>
+  <div class="dg">
+    <div class="nodes">
+      <div class="node mine">
+        <div class="nm">node A</div><div class="role">your regtest node</div>
+        <div class="set">{ <span class="k">tx1</span> }</div>
+        <div class="why">the one your watcher polls</div>
+      </div>
+      <div class="link"><div class="wire"></div><div class="delay">~80 ms</div></div>
+      <div class="node">
+        <div class="nm">node B</div><div class="role">a peer</div>
+        <div class="set">{ <span class="k">tx1</span>, <span class="k">tx2</span> }</div>
+        <div class="why">saw tx2 you never will</div>
+      </div>
+      <div class="link"><div class="wire"></div><div class="delay">~300 ms</div></div>
+      <div class="node">
+        <div class="nm">node C</div><div class="role">far away</div>
+        <div class="set">{ &nbsp;}</div>
+        <div class="why">your tx has not arrived yet</div>
+      </div>
+    </div>
+    <div class="causes">
+      <div class="cause"><div class="ct">propagation delay</div><div class="cd">a broadcast reaches nodes at different times</div></div>
+      <div class="cause"><div class="ct">size limits + eviction</div><div class="cd">a full mempool drops its cheapest txs</div></div>
+      <div class="cause"><div class="ct">minimum-fee policy</div><div class="cd">each node sets its own floor to relay</div></div>
+    </div>
+    <div class="band">No shared object &mdash; <b>"the mempool"</b> names a thing that does not exist.</div>
+  </div>
+</div>
+</body></html>

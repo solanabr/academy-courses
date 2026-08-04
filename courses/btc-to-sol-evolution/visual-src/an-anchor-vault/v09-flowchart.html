@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: the three ways a withdraw can end
+     purpose: certify that a balance in the rent-exempt gap is a silent failure, not a caught error
+     data: withdraw runs -> what balance does it leave in the vault? leaves it comfortably ABOVE the rent-exempt floor -> safe, vault survives closes the account to EXACTLY zero, returns every lamport (rent included) -> safe, vault gone on purpose leaves it ABOVE zero but BELOW the floor (the gap) -> passes every test now... -> next epoch boundary: runtime sweeps, finds it under-funded, purges it -> whatever was left is reclaimed; owner's money gone; no error logged
+     prompt: Top-down flowchart, dark theme, monospace. One decision node ("resulting vault balance?") branching to three outcomes: two green ("above floor", "exactly zero"), one red ("in the gap") that flows down through an "epoch sweep -> purge -> money gone" chain. Callout on the red path: "green tests, silent loss". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:457px;height:455px;bottom:-222px;left:-222px;border-radius:54% 41% 55% 53% / 46% 43% 40% 45%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { margin-top:22px; }
+  .decide { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-lg);
+    padding:18px 30px; text-align:center; display:inline-flex; flex-direction:column; align-items:center; }
+  .decwrap { display:flex; justify-content:center; }
+  .decide .k { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--stbr-yellow); }
+  .decide .q { font-family:var(--font-mono); font-weight:800; font-size:20px; color:var(--stbr-cream); margin-top:4px; }
+  .fork { display:flex; justify-content:center; gap:60px; color:var(--stbr-green); font-size:22px; font-weight:900; margin:6px 0; }
+  .fork span { width:31%; text-align:center; }
+  .cols { display:flex; gap:26px; align-items:flex-start; }
+  .out { flex:1; border-radius:var(--radius-lg); border:2px solid; padding:20px 24px; }
+  .out .cond { font-size:17px; line-height:1.35; color:var(--text-primary); }
+  .out .cond b { font-weight:800; }
+  .out .verdict { margin-top:14px; font-family:var(--font-body); font-weight:800; font-size:15px;
+    padding:8px 14px; border-radius:var(--radius-pill); display:inline-block; }
+  .out.safe { background:rgba(0,139,76,0.08); border-color:rgba(0,139,76,0.36); }
+  .out.safe .verdict { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .out.safe b { color:var(--stbr-emerald); }
+  .out.bad { background:rgba(192,57,43,0.06); border-color:rgba(192,57,43,0.30); }
+  .out.bad .cond b { color:#a5342a; }
+  .out.bad .verdict { background:#c0392b; color:#fff; }
+  .chain { margin-top:16px; display:flex; flex-direction:column; gap:9px; }
+  .link { display:flex; align-items:center; gap:12px; font-family:var(--font-mono); font-size:15px;
+    color:var(--text-secondary); background:var(--surface-paper); border:1.5px solid rgba(192,57,43,0.22);
+    border-radius:var(--radius-md); padding:11px 16px; }
+  .link .step { flex:0 0 auto; color:#c0392b; font-weight:900; }
+  .link.final { background:var(--surface-inverse); border-color:var(--surface-inverse); color:var(--stbr-cream); }
+  .link.final b { color:#e88a7d; }
+  .dnr { color:#c0392b; font-size:18px; font-weight:900; text-align:center; margin:2px 0; }
+  .callout { margin-top:16px; background:var(--stbr-yellow); color:var(--text-on-accent);
+    border-radius:var(--radius-md); padding:16px 22px; text-align:center; font-family:var(--font-display);
+    font-weight:900; font-size:22px; }
+</style>
+  <div class="stbr-eyebrow">the three ways a withdraw can end</div>
+  <h2 class="viz-title">a balance in the gap is a silent loss</h2>
+  <div class="fc">
+    <div class="decwrap"><div class="decide"><span class="k">withdraw runs</span><span class="q">what balance does it leave in the vault?</span></div></div>
+    <div class="fork"><span>&darr;</span><span>&darr;</span><span>&darr;</span></div>
+    <div class="cols">
+      <div class="out safe"><div class="cond">leaves it comfortably <b>ABOVE</b> the rent-exempt floor</div><div class="verdict">safe &mdash; vault survives</div></div>
+      <div class="out safe"><div class="cond">closes the account to <b>EXACTLY zero</b>, returns every lamport (rent included)</div><div class="verdict">safe &mdash; vault gone on purpose</div></div>
+      <div class="out bad">
+        <div class="cond">leaves it <b>ABOVE zero but BELOW the floor</b> &mdash; the gap</div>
+        <div class="verdict">passes every test now&hellip;</div>
+        <div class="chain">
+          <div class="link"><span class="step">then &rarr;</span> next epoch boundary: runtime sweeps</div>
+          <div class="dnr">&darr;</div>
+          <div class="link"><span class="step">finds &rarr;</span> the account under-funded, purges it</div>
+          <div class="dnr">&darr;</div>
+          <div class="link final"><span class="step">result &rarr;</span> whatever was left is reclaimed; <b>owner's money gone; no error logged</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout">green tests, silent loss</div>
+  </div>
+</div>
+</body></html>

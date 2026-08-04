@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: the number that survived two separate transactions
+     purpose: certify that state persisted across independent transactions, not within one process
+     data: start: number = 0 (deployed, fresh slot) cast send increment() -> tx #1, own block number = 1 cast send increment() -> tx #2, own block number = 2 <- no shared memory between calls cast call number() -> read only returns 2 <- the value was WAITING for you key point: two writes in two transactions, one read later, and the value held
+     prompt: Terminal-style annotated panel, dark background, monospace. Four rows as listed. Green arrows on the two "cast send" rows; a callout between them reading "separate transactions, separate blocks, nothing in your shell remembered". A blue highlight on the final "returns 2" with the note "read back from chain state". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:554px;height:520px;bottom:-277px;right:-277px;border-radius:48% 39% 54% 48% / 45% 63% 39% 40%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .term { margin-top:20px; background:var(--surface-inverse); border-radius:var(--radius-xl);
+    padding:34px 40px; font-family:var(--font-mono); color:var(--text-on-dark); }
+  .term .head { display:flex; align-items:center; gap:12px; font-family:var(--font-body);
+    font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--stbr-ink-300); border-bottom:1px solid var(--border-on-dark);
+    padding-bottom:16px; margin-bottom:20px; }
+  .term .head .dot { width:12px; height:12px; border-radius:50%; background:var(--stbr-ink-500); }
+  .rows { display:grid; grid-template-columns:1fr 320px; gap:16px 30px; align-items:center; }
+  .rows .cmd { font-size:20px; }
+  .rows .cmd .p { color:var(--stbr-emerald); font-weight:800; }
+  .rows .cmd .op { color:var(--stbr-cream); }
+  .rows .cmd .cm { color:var(--stbr-ink-500); }
+  .rows .note { font-family:var(--font-body); font-size:15px; font-weight:600;
+    color:var(--stbr-ink-300); line-height:1.35; }
+  .rows .note .arr { color:var(--stbr-emerald); font-weight:900; }
+  .start { color:var(--stbr-ink-300); font-size:19px; margin-bottom:6px; }
+  .start b { color:var(--stbr-yellow); font-weight:800; }
+  .callout { margin:14px 0; border-left:3px solid var(--stbr-emerald); padding:12px 0 12px 22px;
+    font-family:var(--font-body); font-size:16px; font-weight:600; color:var(--stbr-cream);
+    line-height:1.4; }
+  .callout b { color:var(--stbr-emerald); }
+  .readback { background:rgba(0,139,76,0.16); border:1.5px solid var(--stbr-emerald);
+    border-radius:var(--radius-md); padding:16px 22px; font-size:21px; }
+  .readback .val { color:var(--stbr-yellow); font-weight:900; }
+  .rb-note { font-family:var(--font-body); font-size:16px; font-weight:700;
+    color:var(--stbr-emerald); align-self:center; }
+  .key { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:22px 32px; font-size:21px; font-weight:600; line-height:1.4; }
+  .key b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
+</style>
+  <div class="stbr-eyebrow">the number that survived two transactions</div>
+  <h2 class="viz-title">two writes, one read, the value held</h2>
+  <div class="term">
+    <div class="head"><span class="dot"></span> counter &mdash; anvil / cast session</div>
+    <div class="start"><span class="cm">// deployed, fresh slot</span> &nbsp; number = <b>0</b></div>
+    <div class="rows">
+      <div class="cmd"><span class="p">cast send</span> <span class="op">increment()</span> <span class="cm"># tx #1, own block</span> &nbsp;&rarr;&nbsp; number = 1</div>
+      <div class="note"><span class="arr">&rarr;</span> a transaction, its own block</div>
+    </div>
+    <div class="callout">Between the two sends: <b>separate transactions, separate blocks</b> &mdash; nothing in your shell remembered the first one.</div>
+    <div class="rows">
+      <div class="cmd"><span class="p">cast send</span> <span class="op">increment()</span> <span class="cm"># tx #2, own block</span> &nbsp;&rarr;&nbsp; number = 2</div>
+      <div class="note"><span class="arr">&rarr;</span> a second, independent transaction</div>
+      <div class="cmd" style="margin-top:6px;"><span class="readback"><span class="p">cast call</span> <span class="op">number()</span> <span class="cm">// read-only</span> &nbsp;&rarr;&nbsp; returns <span class="val">2</span></span></div>
+      <div class="rb-note" style="margin-top:6px;">read back from chain state &mdash; the value was <b style="color:var(--stbr-yellow);">waiting</b> for you</div>
+    </div>
+  </div>
+  <div class="key">Two writes in two transactions, one read minutes later &mdash; and the value <b>held</b>. State lives in the contract, not the process.</div>
+</div>
+</body></html>

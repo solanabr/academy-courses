@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- table: getmempoolentry, the fields that turn a txid into a fee rate
+     purpose: source the numbers the watcher reports and set up the fee-rate flag exercise
+     data: field | meaning | used for fees.base | the fee the tx pays, in BTC | multiply by 100,000,000 for satoshis vsize | the tx's virtual size, in vbytes | the denominator of the fee rate time | when THIS node first saw the tx | age and local ordering --- | --- | --- fee rate = fees.base * 1e8 / vsize -> satoshis per vbyte (sat/vB) a "high-fee" tx is simply one whose sat/vB clears a threshold you choose
+     prompt: Clean three-column table, dark background, monospace headers "field / meaning / used for". Emphasize the header row. Below the table, render the fee-rate formula line as a highlighted code strip. No icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:538px;height:488px;top:-266px;right:-266px;border-radius:44% 39% 60% 63% / 45% 64% 57% 54%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:551px;height:549px;bottom:-286px;left:-286px;border-radius:47% 40% 65% 38% / 49% 46% 44% 38%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .ct { width:100%; border-collapse:separate; border-spacing:0; font-size:21px; margin-top:34px; }
+  .ct th { background:var(--surface-inverse); color:var(--text-on-dark); text-align:left;
+    padding:20px 28px; font-family:var(--font-display); font-weight:800; font-size:15px;
+    letter-spacing:.08em; text-transform:uppercase; }
+  .ct th:first-child { border-top-left-radius:var(--radius-md); }
+  .ct th:last-child { border-top-right-radius:var(--radius-md); }
+  .ct td { background:var(--surface-card); padding:24px 28px; border-bottom:2px solid var(--border-subtle);
+    color:var(--text-secondary); vertical-align:middle; line-height:1.4; }
+  .ct td.field { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); font-size:22px; }
+  .ct td.mean { color:var(--text-primary); }
+  .ct td.mean code { font-family:var(--font-mono); font-weight:700; color:var(--text-primary); }
+  .ct tr:last-child td:first-child { border-bottom-left-radius:var(--radius-md); }
+  .ct tr:last-child td:last-child { border-bottom-right-radius:var(--radius-md); }
+  .formula { margin-top:26px; background:var(--stbr-yellow); border-radius:var(--radius-lg);
+    padding:24px 32px; display:flex; align-items:center; gap:22px; }
+  .formula .eq { font-family:var(--font-mono); font-weight:800; font-size:24px; color:var(--text-on-accent); white-space:nowrap; }
+  .formula .arrow { font-family:var(--font-mono); font-weight:900; font-size:24px; color:var(--stbr-emerald); }
+  .formula .out { font-family:var(--font-mono); font-weight:800; font-size:24px; color:var(--text-on-accent); }
+  .note { margin-top:18px; font-size:19px; color:var(--text-secondary); line-height:1.45; }
+  .note b { color:var(--text-primary); }
+  .note code { font-family:var(--font-mono); font-weight:700; color:var(--stbr-emerald); }
+</style>
+  <div class="stbr-eyebrow">getmempoolentry, the fields that make a fee rate</div>
+  <h2 class="viz-title" style="font-size:52px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">from txid to sat/vB</h2>
+  <table class="ct">
+    <tr><th style="width:24%">field</th><th style="width:42%">meaning</th><th>used for</th></tr>
+    <tr><td class="field">fees.base</td><td class="mean">the fee the tx pays, in BTC</td><td>multiply by <code>100,000,000</code> for satoshis</td></tr>
+    <tr><td class="field">vsize</td><td class="mean">the tx's virtual size, in vbytes</td><td>the denominator of the fee rate</td></tr>
+    <tr><td class="field">time</td><td class="mean">when <b>this</b> node first saw the tx</td><td>age and local ordering</td></tr>
+  </table>
+  <div class="formula">
+    <span class="eq">fee rate = fees.base &times; 1e8 / vsize</span>
+    <span class="arrow">&rarr;</span>
+    <span class="out">satoshis per vbyte (sat/vB)</span>
+  </div>
+  <div class="note">A <b>"high-fee"</b> tx is simply one whose <code>sat/vB</code> clears a threshold you choose.</div>
+</div>
+</body></html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- timeline: the leader schedule is fixed before your transaction exists
+     purpose: certify that stake-weighted PoH pins the recipient validator ~2 days ahead
+     data: epoch start: stake-weighted Proof of History assigns every leader slot for the whole epoch (~2 days) during the epoch: the schedule is public and fixed; anyone can compute who leads at any slot you broadcast: you already know which validator (current or next leader) will receive your tx contrast Bitcoin: the producer is only known AFTER the block is mined
+     prompt: Horizontal timeline, dark background, monospace. A bar spanning "~2 days = 1 epoch" pre-filled with leader-slot ticks assigned at the left edge. A "you broadcast" marker mid-bar points at an already-labeled slot. A greyed Bitcoin lane below with its producer marked "?" only at the far right. No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:563px;height:553px;top:-294px;right:-294px;border-radius:41% 51% 58% 41% / 60% 52% 48% 55%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:456px;height:492px;bottom:-263px;left:371px;border-radius:48% 38% 64% 56% / 64% 41% 43% 37%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tl { margin-top:34px; }
+  .lane { margin-bottom:12px; }
+  .lname { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.1em;
+    text-transform:uppercase; margin-bottom:12px; display:flex; justify-content:space-between; align-items:baseline; }
+  .lane.sol .lname { color:var(--stbr-emerald); }
+  .lname .span { color:var(--text-muted); font-weight:700; letter-spacing:.02em; }
+  .assigned { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.04em;
+    color:var(--text-on-brand); background:var(--stbr-emerald); padding:3px 12px; border-radius:var(--radius-pill); }
+  .bar { position:relative; height:76px; border-radius:var(--radius-md); background:var(--surface-inverse);
+    display:flex; align-items:center; padding:0 6px; overflow:hidden; }
+  .slot { flex:1; margin:0 3px; height:44px; border-radius:6px; background:var(--stbr-dark-700);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-mono);
+    font-size:13px; color:var(--stbr-ink-300); }
+  .slot.hit { background:var(--stbr-yellow); color:var(--stbr-dark); font-weight:800; }
+  .marker { position:relative; height:74px; margin-top:6px; }
+  .mk { position:absolute; top:0; display:flex; flex-direction:column; align-items:center; transform:translateX(-50%); }
+  .mk .chip { font-family:var(--font-body); font-weight:800; font-size:14px; color:var(--text-on-accent);
+    background:var(--stbr-yellow); padding:6px 16px; border-radius:var(--radius-pill); white-space:nowrap; }
+  .mk .stem { width:3px; height:26px; background:var(--stbr-dark); margin-top:4px; position:relative; }
+  .mk .stem::after { content:""; position:absolute; top:-2px; left:50%; transform:translateX(-50%);
+    border-left:7px solid transparent; border-right:7px solid transparent; border-bottom:10px solid var(--stbr-dark); }
+  .lane.btc { margin-top:30px; opacity:0.72; }
+  .lane.btc .lname { color:var(--text-muted); }
+  .btcbar { position:relative; height:64px; border-radius:var(--radius-md); background:var(--surface-card);
+    border:2px dashed var(--stbr-ink-300); display:flex; align-items:center; padding:0 26px; }
+  .btcbar .txt { font-family:var(--font-mono); font-size:16px; color:var(--text-muted); }
+  .btcbar .qslot { position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    width:76px; height:44px; border-radius:6px; background:var(--stbr-ink-100); border:1.5px solid var(--stbr-ink-300);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:900; font-size:26px; color:var(--text-muted); }
+  .btcbar .qlab { position:absolute; right:14px; top:-24px; font-family:var(--font-body);
+    font-weight:800; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); }
+</style>
+  <div class="stbr-eyebrow">stake-weighted Proof of History pins the recipient</div>
+  <h2 class="viz-title">the schedule is fixed before your tx exists</h2>
+  <div class="tl">
+    <div class="lane sol">
+      <div class="lname"><span>Solana &mdash; leader slots assigned at epoch start</span><span class="assigned">assigned once, ~2 days ahead</span></div>
+      <div class="bar">
+        <div class="slot">V&#8321;</div><div class="slot">V&#8324;</div><div class="slot">V&#8322;</div>
+        <div class="slot">V&#8327;</div><div class="slot hit">V&#8325;</div><div class="slot">V&#8323;</div>
+        <div class="slot">V&#8321;&#8320;</div><div class="slot">V&#8326;</div><div class="slot">V&#8322;</div>
+        <div class="slot">V&#8328;</div><div class="slot">V&#8324;</div><div class="slot">V&#8329;</div>
+      </div>
+      <div class="marker">
+        <div class="mk" style="left:37.5%;"><div class="chip">you broadcast &rarr; slot V&#8325;</div><div class="stem"></div></div>
+      </div>
+    </div>
+    <div class="lane btc">
+      <div class="lname"><span>Bitcoin &mdash; producer only known AFTER the block is mined</span><span class="span">~1 epoch = ~2 days</span></div>
+      <div class="btcbar">
+        <div class="txt">no schedule &mdash; the winning miner is unknown until the block lands</div>
+        <div class="qlab">producer</div>
+        <div class="qslot">?</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

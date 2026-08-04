@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- diagram: a Merkle tree, one root seals the whole batch
+     purpose: show leaves folding up to a single root and one edit cascading to the top
+     data: leaves (hash of each record): alice->bob:5 -> 18a2ab4d... bob->carol:2 -> 7b5c3411... carol->dave:1 -> f569e3a5... dave->alice:3 -> fe09df56... parents: node(leaf0,leaf1) -> 170d621b... ; node(leaf2,leaf3) -> 9cddfb14... root: node(170d621b, 9cddfb14) -> 498d6dde... tamper: change leaf1 to bob->carol:9 -> its parent changes -> root becomes d6d7e957...
+     prompt: Binary-tree diagram, dark background, monospace: four leaves along the bottom, two parent nodes above, one root at the top, arrows pointing UP (children into parent). Put a red pencil on leaf "bob->carol:2" and draw a red cascade up through its parent to the root. Small callout on the root: "64 chars seal all 4 records". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:501px;height:436px;right:-290px;top:283px;border-radius:55% 50% 55% 43% / 58% 56% 43% 36%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:484px;height:484px;bottom:-240px;left:652px;border-radius:57% 47% 56% 58% / 57% 63% 55% 65%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .tree { position:relative; width:1456px; height:560px; margin-top:22px; }
+  .wires { position:absolute; top:0; left:0; width:1456px; height:560px; z-index:0; }
+  .nd { position:absolute; z-index:1; box-sizing:border-box; border-radius:var(--radius-md);
+    padding:14px 18px; text-align:center; }
+  .nd .lab { font-family:var(--font-body); font-weight:800; font-size:11px; letter-spacing:.09em;
+    text-transform:uppercase; }
+  .nd .h { font-family:var(--font-mono); font-weight:800; margin-top:5px; }
+  /* leaves */
+  .leaf { width:270px; height:96px; background:var(--surface-card); border:2px solid var(--border-subtle); }
+  .leaf .lab { color:var(--stbr-emerald); }
+  .leaf .rec { font-family:var(--font-mono); font-weight:700; font-size:17px; color:var(--text-primary); }
+  .leaf .h { font-size:15px; color:var(--text-muted); margin-top:6px; }
+  /* parents */
+  .par { width:300px; height:74px; background:var(--surface-inverse); }
+  .par .lab { color:var(--stbr-yellow); }
+  .par .h { font-size:19px; color:var(--text-on-dark); }
+  /* root */
+  .root { width:360px; height:74px; background:var(--surface-brand); }
+  .root .lab { color:var(--stbr-cream); }
+  .root .h { font-size:22px; color:var(--stbr-yellow); }
+  /* tamper */
+  .leaf.hit { border-color:rgba(192,57,43,0.5); background:rgba(192,57,43,0.06); }
+  .leaf.hit .rec, .leaf.hit .h { color:#a5342a; }
+  .par.hit { background:#7d1f16; }
+  .root.hit .h { color:#ffd23f; }
+  /* edit chip: contained BELOW leaf 1, never spilling above the card */
+  .edit { position:absolute; z-index:2; font-family:var(--font-body); font-weight:800; font-size:12px;
+    background:#c0392b; color:#fff; padding:5px 12px; border-radius:var(--radius-pill); white-space:nowrap; }
+  .callout { position:absolute; z-index:2; font-family:var(--font-body); font-weight:800; font-size:15px;
+    color:var(--text-primary); background:var(--stbr-yellow); padding:8px 15px; border-radius:var(--radius-md);
+    line-height:1.25; max-width:220px; }
+</style>
+  <div class="stbr-eyebrow">a Merkle tree, one root seals the batch</div>
+  <h2 class="viz-title" style="font-size:50px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">four records fold up to one root</h2>
+  <div class="tree">
+    <svg class="wires" width="1456" height="560" viewBox="0 0 1456 560" preserveAspectRatio="none" aria-hidden="true">
+      <!-- node edges (px, tree space):
+           leaves top=400  center-x 155/475/981/1301
+           parents bottom=232 top=158  center-x 315/1141
+           root bottom=74 top=0  center-x 728
+           connectors: leaf-top -> horizontal at y=300 -> parent-bottom (232);
+                        parent-top(158) -> horizontal at y=110 -> root-bottom (74) -->
+      <!-- leaf0 -> parentL (clean) -->
+      <path d="M155 400 L155 300 L315 300 L315 234" fill="none" stroke="#008b4c" stroke-width="2.5"/>
+      <!-- leaf1 -> parentL (tampered, red) -->
+      <path d="M475 400 L475 300 L315 300 L315 234" fill="none" stroke="#c0392b" stroke-width="3"/>
+      <polygon points="315,222 308,236 322,236" fill="#c0392b"/>
+      <!-- leaf2 -> parentR (clean) -->
+      <path d="M981 400 L981 300 L1141 300 L1141 234" fill="none" stroke="#008b4c" stroke-width="2.5"/>
+      <!-- leaf3 -> parentR (clean) -->
+      <path d="M1301 400 L1301 300 L1141 300 L1141 234" fill="none" stroke="#008b4c" stroke-width="2.5"/>
+      <polygon points="1141,222 1134,236 1148,236" fill="#008b4c"/>
+      <!-- parentL -> root (tampered, red) -->
+      <path d="M315 158 L315 110 L728 110 L728 76" fill="none" stroke="#c0392b" stroke-width="3"/>
+      <!-- parentR -> root (clean) -->
+      <path d="M1141 158 L1141 110 L728 110 L728 76" fill="none" stroke="#008b4c" stroke-width="2.5"/>
+      <polygon points="728,64 721,78 735,78" fill="#c0392b"/>
+    </svg>
+
+    <!-- root -->
+    <div class="nd root hit" style="left:548px; top:0;">
+      <div class="lab">merkle root</div>
+      <div class="h">498d6dde &rarr; d6d7e957</div>
+    </div>
+    <div class="callout" style="left:930px; top:2px;">64 chars seal<br>all 4 records</div>
+
+    <!-- parents -->
+    <div class="nd par hit" style="left:165px; top:158px;">
+      <div class="lab">node(leaf0, leaf1)</div>
+      <div class="h">170d621b &rarr; changed</div>
+    </div>
+    <div class="nd par" style="left:991px; top:158px;">
+      <div class="lab">node(leaf2, leaf3)</div>
+      <div class="h">9cddfb14</div>
+    </div>
+
+    <!-- leaves -->
+    <div class="nd leaf" style="left:20px; top:400px;">
+      <div class="lab">leaf 0</div>
+      <div class="rec">alice&rarr;bob:5</div>
+      <div class="h">18a2ab4d&hellip;</div>
+    </div>
+    <div class="nd leaf hit" style="left:340px; top:400px;">
+      <div class="lab">leaf 1</div>
+      <div class="rec">bob&rarr;carol:9</div>
+      <div class="h">7b5c3411&hellip; changed</div>
+    </div>
+    <!-- edit chip sits BELOW leaf 1 (contained, y after leaf bottom ~496) -->
+    <div class="edit" style="left:350px; top:508px;">&#9998; edit: bob&rarr;carol:2 &rarr; :9</div>
+    <div class="nd leaf" style="left:846px; top:400px;">
+      <div class="lab">leaf 2</div>
+      <div class="rec">carol&rarr;dave:1</div>
+      <div class="h">f569e3a5&hellip;</div>
+    </div>
+    <div class="nd leaf" style="left:1166px; top:400px;">
+      <div class="lab">leaf 3</div>
+      <div class="rec">dave&rarr;alice:3</div>
+      <div class="h">fe09df56&hellip;</div>
+    </div>
+  </div>
+</div>
+</body></html>

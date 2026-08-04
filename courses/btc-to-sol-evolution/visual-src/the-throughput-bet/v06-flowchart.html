@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: no waiting room, straight to the known leader
+     purpose: certify that Gulf Stream routes to a leader you can identify before broadcast
+     data: Bitcoin / EVM: you -> broadcast -> GLOBAL MEMPOOL (unordered waiting room) -> some miner/validator picks and orders at block time (you learn who AFTER) Solana: you -> read the leader schedule (public, fixed this epoch) -> Gulf Stream forwards the tx DIRECTLY to the current and next scheduled leader -> leader orders it in its local queue (you knew who BEFORE broadcast)
+     prompt: Two-lane flowchart, dark background, monospace. Top lane ends in a cloud labeled "global mempool" feeding a question-mark producer node. Bottom lane skips any pool: a direct arrow from "you" to a single named "leader" node, with a small calendar icon labeled "schedule known ~2 days out". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:550px;height:368px;right:-306px;top:195px;border-radius:56% 61% 53% 45% / 63% 49% 38% 59%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:479px;height:479px;bottom:-294px;left:548px;border-radius:46% 53% 36% 44% / 59% 49% 39% 46%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .lanes { margin-top:30px; display:flex; flex-direction:column; gap:26px; }
+  .lane { border-radius:var(--radius-xl); padding:26px 30px; }
+  .lane.old { background:var(--surface-card); border:2px solid var(--border-subtle); }
+  .lane.sol { background:var(--surface-inverse); }
+  .lhead { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.11em;
+    text-transform:uppercase; margin-bottom:20px; }
+  .lane.old .lhead { color:var(--text-muted); }
+  .lane.sol .lhead { color:var(--stbr-yellow); }
+  .track { display:flex; align-items:center; gap:0; }
+  .node { border-radius:var(--radius-md); padding:16px 20px; text-align:center; }
+  .node .t { font-family:var(--font-display); font-weight:800; font-size:18px; line-height:1.15; }
+  .node .s { font-family:var(--font-mono); font-size:14px; margin-top:6px; }
+  .lane.old .node { background:var(--surface-paper); border:1.5px solid var(--border-subtle); }
+  .lane.old .node .t { color:var(--text-secondary); }
+  .lane.old .node .s { color:var(--text-muted); }
+  .cloud { background:var(--stbr-ink-100); border:2px dashed var(--stbr-ink-300);
+    border-radius:var(--radius-pill); padding:16px 30px; }
+  .cloud .t { color:var(--text-secondary); }
+  .qnode { background:var(--surface-paper); border:1.5px solid var(--border-subtle); }
+  .qmark { font-family:var(--font-display); font-weight:900; font-size:30px; color:var(--text-muted); }
+  .lane.sol .node { background:var(--stbr-dark-700); }
+  .lane.sol .node .t { color:var(--text-on-dark); }
+  .lane.sol .node .s { color:var(--stbr-ink-300); }
+  .lane.sol .node.leader { background:var(--stbr-yellow); }
+  .lane.sol .node.leader .t { color:var(--stbr-dark); }
+  .lane.sol .node.leader .s { color:var(--stbr-green); font-weight:700; }
+  .seg { flex:1; height:3px; position:relative; margin:0 8px; min-width:36px; }
+  .lane.old .seg { background:var(--stbr-ink-300); }
+  .lane.sol .seg { background:var(--stbr-emerald); }
+  .seg::after { content:""; position:absolute; right:-2px; top:50%; transform:translateY(-50%);
+    border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:10px solid; }
+  .lane.old .seg::after { border-left-color:var(--stbr-ink-300); }
+  .lane.sol .seg::after { border-left-color:var(--stbr-emerald); }
+  .cal { display:inline-flex; align-items:center; gap:8px; font-family:var(--font-body);
+    font-weight:800; font-size:13px; color:var(--stbr-dark); background:rgba(27,35,29,0.10);
+    padding:5px 12px; border-radius:var(--radius-pill); margin-top:10px; }
+</style>
+  <div class="stbr-eyebrow">no waiting room</div>
+  <h2 class="viz-title">straight to the known leader</h2>
+  <div class="lanes">
+    <div class="lane old">
+      <div class="lhead">Bitcoin / EVM &mdash; you learn who AFTER</div>
+      <div class="track">
+        <div class="node"><div class="t">you</div><div class="s">broadcast</div></div>
+        <div class="seg"></div>
+        <div class="cloud node"><div class="t">global mempool</div><div class="s">unordered waiting room</div></div>
+        <div class="seg"></div>
+        <div class="node qnode"><div class="t"><span class="qmark">?</span> producer</div><div class="s">picks &amp; orders at block time</div></div>
+      </div>
+    </div>
+    <div class="lane sol">
+      <div class="lhead">Solana &mdash; you knew who BEFORE broadcast</div>
+      <div class="track">
+        <div class="node"><div class="t">you</div><div class="s">read the leader schedule</div></div>
+        <div class="seg"></div>
+        <div class="node"><div class="t">Gulf Stream</div><div class="s">forwards directly, no pool</div></div>
+        <div class="seg"></div>
+        <div class="node leader"><div class="t">leader</div><div class="s">orders it in its local queue</div><span class="cal">&#128197; schedule known ~2 days out</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

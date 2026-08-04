@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- flowchart: the owner check: the gate that lets state live outside code
+     purpose: certify the guarantee from shift one, only the owning program may write an account's data
+     data: program tries to write bytes into a data account's `data` -> runtime compares account.owner against the writing program's id -> owner == program id? YES -> write lands NO -> entire transaction fails before a single byte changes the check runs on every write; `owner` is a live gate, not a creation label
+     prompt: Vertical flowchart, dark background, monospace. A "write attempt" node flows into a diamond decision "account.owner == program id?". Green edge "yes" to a "write lands" node; red edge "no" to a "whole tx fails, zero bytes changed" node. Small caption: "runs on every write". No decorative icons.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:533px;height:577px;top:-315px;right:-315px;border-radius:52% 61% 53% 39% / 63% 42% 37% 56%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:572px;height:378px;left:-338px;top:316px;border-radius:42% 45% 52% 47% / 48% 65% 52% 35%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:545px;height:464px;bottom:-266px;right:-266px;border-radius:36% 53% 51% 55% / 53% 59% 65% 48%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .fc { margin-top:26px; display:flex; flex-direction:column; align-items:center; }
+  .box { background:var(--surface-card); border:2px solid var(--border-subtle); border-radius:var(--radius-lg);
+    padding:22px 34px; text-align:center; }
+  .box .t { font-family:var(--font-display); font-weight:900; font-size:22px; color:var(--text-primary); }
+  .box .s { font-family:var(--font-mono); font-size:16px; color:var(--text-secondary); margin-top:6px; }
+  .arr { width:3px; height:34px; background:var(--stbr-dark); position:relative; }
+  .arr::after { content:""; position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+    border-left:8px solid transparent; border-right:8px solid transparent; border-top:11px solid var(--stbr-dark); }
+  .diamond { width:520px; height:150px; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-inverse); text-align:center;
+    clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+  .diamond .q { font-family:var(--font-mono); font-weight:700; font-size:22px; color:var(--stbr-yellow);
+    max-width:300px; line-height:1.3; }
+  .branch { display:flex; gap:120px; align-items:flex-start; margin-top:8px; }
+  .lane { display:flex; flex-direction:column; align-items:center; }
+  .edge { display:flex; align-items:center; gap:14px; height:44px; }
+  .edge .line { width:3px; height:44px; position:relative; }
+  .edge .line::after { content:""; position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+    border-left:8px solid transparent; border-right:8px solid transparent; border-top:11px solid; }
+  .lane.yes .line { background:var(--stbr-emerald); }
+  .lane.yes .line::after { border-top-color:var(--stbr-emerald); }
+  .lane.no .line { background:#c0392b; }
+  .lane.no .line::after { border-top-color:#c0392b; }
+  .chip { font-family:var(--font-body); font-weight:800; font-size:14px; letter-spacing:.06em;
+    text-transform:uppercase; padding:5px 14px; border-radius:var(--radius-pill); }
+  .lane.yes .chip { background:var(--stbr-emerald); color:var(--text-on-brand); }
+  .lane.no .chip { background:#c0392b; color:#fff; }
+  .box.win { border-color:rgba(0,139,76,0.36); background:rgba(0,139,76,0.08); }
+  .box.win .t { color:var(--stbr-emerald); }
+  .box.fail { border-color:rgba(192,57,43,0.30); background:rgba(192,57,43,0.05); }
+  .box.fail .t { color:#a5342a; }
+  .cap { margin-top:26px; font-family:var(--font-body); font-weight:800; font-size:14px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--stbr-green); text-align:center; }
+</style>
+  <div class="stbr-eyebrow">the gate that lets state live outside code</div>
+  <h2 class="viz-title">the owner check</h2>
+  <div class="fc">
+    <div class="box"><div class="t">write attempt</div><div class="s">program writes bytes into a data account's <code style="color:var(--stbr-emerald)">data</code></div></div>
+    <div class="arr"></div>
+    <div class="diamond"><div class="q">account.owner == program id?</div></div>
+    <div class="branch">
+      <div class="lane yes">
+        <div class="edge"><div class="line"></div><span class="chip">yes</span></div>
+        <div class="box win"><div class="t">write lands</div><div class="s">the bytes are committed</div></div>
+      </div>
+      <div class="lane no">
+        <div class="edge"><div class="line"></div><span class="chip">no</span></div>
+        <div class="box fail"><div class="t">whole tx fails</div><div class="s">zero bytes changed</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap">runs on every write &mdash; owner is a live gate, not a creation label</div>
+</div>
+</body></html>

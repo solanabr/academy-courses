@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- comparison: read-sharing is free, write-sharing is the collision
+     purpose: certify shift two's read/write rule, the is_writable flag, not the address, decides parallelism
+     data: both WRITE the same account | Alice + Carol both write dex_pool | writable sets intersect | serialized: Carol waits for the next batch both READ the same account | Dave + Erin both read dex_pool | is_writable = false on each | parallel: same batch, side by side what Sealevel intersects | only the writable sets, never the full account lists | reads never collide | a shared account chokes only when someone writes it the deciding field | the is_writable flag on the AccountMeta | not the address it points at | flag = free or fatal
+     prompt: Two-column comparison, dark background, monospace. Left column "shared WRITE" tinted red (two txs stacked single-file). Right column "shared READ" tinted green (two txs side by side in one batch). Bottom band spanning both: "Sealevel intersects writable sets only; the is_writable flag decides". No logos.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:517px;height:496px;top:-284px;right:-284px;border-radius:42% 54% 43% 39% / 52% 45% 43% 38%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:593px;height:505px;bottom:-304px;left:-304px;border-radius:35% 54% 57% 45% / 41% 35% 62% 50%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<style>
+  .cols { display:flex; gap:24px; margin-top:26px; align-items:stretch; }
+  .col { flex:1; border-radius:var(--radius-lg); overflow:hidden; border:2px solid; display:flex; flex-direction:column; }
+  .col.wr { border-color:rgba(192,57,43,0.30); background:rgba(192,57,43,0.05); }
+  .col.rd { border-color:rgba(0,139,76,0.34); background:rgba(0,139,76,0.05); }
+  .col h3 { margin:0; padding:18px 28px; font-size:17px; font-weight:900; letter-spacing:.08em;
+    text-transform:uppercase; display:flex; align-items:baseline; gap:12px; }
+  .col.wr h3 { background:#c0392b; color:#fff; }
+  .col.rd h3 { background:var(--surface-brand); color:var(--text-on-brand); }
+  .col h3 .lede { font-family:var(--font-mono); font-weight:800; font-size:19px; letter-spacing:0; }
+  .stackviz { padding:22px 28px; display:flex; flex-direction:column; gap:12px; }
+  .stackviz.side { flex-direction:row; }
+  .txn { border-radius:var(--radius-md); padding:14px 18px; font-family:var(--font-mono);
+    font-weight:700; font-size:18px; color:var(--text-on-dark); background:var(--surface-inverse); }
+  .stackviz.side .txn { flex:1; text-align:center; }
+  .flow { text-align:center; font-family:var(--font-body); font-weight:800; font-size:13px;
+    letter-spacing:.05em; }
+  .col.wr .flow { color:#a5342a; }
+  .col.rd .flow { color:var(--stbr-emerald); }
+  .item { padding:16px 28px; font-size:18px; line-height:1.35; color:var(--text-primary);
+    border-top:1.5px solid var(--border-subtle); }
+  .item .k { font-family:var(--font-mono); font-weight:700; }
+  .col.wr .item b { color:#a5342a; }
+  .col.rd .item b { color:var(--stbr-emerald); }
+  .verdict { margin-top:24px; background:var(--surface-brand); color:var(--text-on-brand);
+    border-radius:var(--radius-lg); padding:24px 32px; font-size:21px; font-weight:600; line-height:1.4; }
+  .verdict code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
+  .verdict b { color:var(--stbr-yellow); }
+</style>
+  <div class="stbr-eyebrow">the is_writable flag decides</div>
+  <h2 class="viz-title">read-sharing is free, write-sharing collides</h2>
+  <div class="cols">
+    <div class="col wr">
+      <h3>shared write <span class="lede">serialized</span></h3>
+      <div class="stackviz">
+        <div class="txn">Alice &rarr; writes dex_pool</div>
+        <div class="flow">&darr; Carol waits for the next batch &darr;</div>
+        <div class="txn">Carol &rarr; writes dex_pool</div>
+      </div>
+      <div class="item"><span class="k">writable sets intersect</span> &mdash; runs <b>single file</b></div>
+    </div>
+    <div class="col rd">
+      <h3>shared read <span class="lede">parallel</span></h3>
+      <div class="stackviz side">
+        <div class="txn">Dave &rarr; reads dex_pool</div>
+        <div class="txn">Erin &rarr; reads dex_pool</div>
+      </div>
+      <div class="item"><span class="k">is_writable = false</span> on each &mdash; runs <b>side by side</b></div>
+    </div>
+  </div>
+  <div class="verdict">Sealevel intersects <b>only the writable sets</b>, never the full account lists. A shared account chokes only when someone writes it &mdash; the deciding field is the <code>is_writable</code> flag, not the address it points at.</div>
+</div>
+</body></html>

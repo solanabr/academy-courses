@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-ssr-por-que-solana": 0,
+    "lesson-ssr-como-funciona": 1,
+    "lesson-ssr-superteam-porta-de-entrada": 2,
+    "lesson-ssr-seu-momento-onchain": 3
+  },
+  "retired": [],
+  "next": 4
+}

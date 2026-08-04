@@ -1,0 +1,44 @@
+id: lesson-b2s-where-you-go-from-here
+slug: where-you-go-from-here
+title: "Cut the net: where you go from here"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You run `anchor build --verifiable` / `solana-verify`. What does that let anyone confirm?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "That the on-chain bytecode was built from the exact public source you point them at — a reproducible build"
+            correct: true
+          - id: b
+            label: "That the program passed the security review Solana requires before a verifiable deploy"
+            correct: false
+            feedback: "No review gate exists — anyone can deploy anything. A verifiable build proves source-to-bytecode correspondence so others can READ what is deployed; whether that code is safe is still on you and your auditors."
+          - id: c
+            label: "That the deployed program can no longer be upgraded out from under its users"
+            correct: false
+            feedback: "Verifiability and upgradeability are orthogonal: the upgrade authority can still swap the bytecode later (and verification against the old source would then fail). Freezing a program means burning its upgrade authority — a separate act."
+        explanation: "A verifiable build is reproducibility: a pinned toolchain in a container produces bit-identical bytecode from the published source, so anyone can hash the on-chain program and confirm it matches. It proves WHAT is deployed, not that it is safe or immutable — those take audits and a burned upgrade authority respectively."
+      - id: q2
+        prompt: "Where would you go to study real Solana program vulnerabilities before writing production code?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The validator's source code — real vulnerabilities live at the consensus level, not in individual programs"
+            correct: false
+            feedback: "Program-level bugs — missing signer checks, account confusion, unchecked arithmetic — are where user funds actually get drained, and they are YOUR responsibility. The curated attack collections exist because these same mistakes repeat across projects."
+          - id: b
+            label: "Curated attack collections and audit write-ups such as sealevel-attacks and Neodyme's research"
+            correct: true
+          - id: c
+            label: "Private audit archives — real exploit patterns circulate only under NDA between security firms"
+            correct: false
+            feedback: "The opposite: this field publishes aggressively. sealevel-attacks, Neodyme's write-ups, and public post-mortems document real exploit classes with runnable examples — free to study before you write a line of production code."
+        explanation: "The canonical study set is public: coral-xyz/sealevel-attacks catalogs the recurring program-level exploit classes (missing signer checks, account substitution, arithmetic errors) as paired vulnerable/fixed examples, and audit firms like Neodyme publish detailed write-ups of real findings. Reading them first is the cheapest security work you will ever do."
