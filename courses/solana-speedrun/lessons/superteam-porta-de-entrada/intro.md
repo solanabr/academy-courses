@@ -16,7 +16,7 @@ A BlindPay, API de pagamentos em stablecoin, venceu a trilha brasileira do hacka
 
 A Cloak, feita por estudantes do Inteli, captou R$ 1,3 milhão e foi para São Francisco receber aceleração da Colosseum.
 
-![Time da Cloak na Breakpoint: estudantes do Inteli que captaram R$ 1,3 milhão e entraram em aceleração em São Francisco](assets/cloak-breakpoint.png)
+![Time da Cloak na Breakpoint: estudantes do Inteli que captaram R$ 1,3 milhão e entraram em aceleração em São Francisco](assets/cloak-breakpoint.jpg)
 
 E a Triad Markets levantou capital anjo e virou patrocinadora da própria Breakpoint.
 
