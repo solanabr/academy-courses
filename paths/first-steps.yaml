@@ -1,0 +1,18 @@
+id: path-first-steps
+slug: first-steps
+title: First Steps
+description: Your first steps onchain. Understand how blockchains evolved from Bitcoin to Solana, then go hands-on and make your first moves on the network in minutes.
+tag: Foundation
+order: 1
+difficulty: beginner
+# The public-alpha path (owner call, 2026-08-04): the two live electives, concept
+# first, hands-on second. Display name intentionally echoes the existing
+# `achievement-first-steps` badge ("Complete your first lesson") — same spirit,
+# different namespace (path- vs achievement-), no id collision.
+# When the track-1 catalog is restored from `_draft/`, `zero-to-deployed` comes
+# back as the main track; this path stays as the pre-track on-ramp shelf.
+# NOTE: solana-speedrun is PT-BR; btc-to-sol-evolution is EN. The mixed-locale
+# shelf is a known alpha compromise until the content-i18n mechanism (#580) ships.
+courses:
+  - course-btc-to-sol-evolution
+  - course-solana-speedrun
