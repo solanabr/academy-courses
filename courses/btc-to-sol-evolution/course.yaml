@@ -3,10 +3,11 @@ slug: btc-to-sol-evolution
 title: "From Bitcoin to Solana: The Evolution of Blockchain Technology"
 description: "Run, script, and explain every generation of blockchain from Bitcoin to Solana, then ship a personal ops bot that manages wallets and agents on both."
 difficulty: beginner
-duration: 15
+duration: 18
 xpPerLesson: 20
 xpReward: 300
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+thumbnail: assets/banner.webp
 # Unsequenced elective (owner 2026-07-31): trackId/trackLevel 0 keeps this course
 # OFF the sequential trackId 1 / trackLevel 1-5 path, so it cannot collide with
 # the parked catalog if it is ever restored from _draft/.
