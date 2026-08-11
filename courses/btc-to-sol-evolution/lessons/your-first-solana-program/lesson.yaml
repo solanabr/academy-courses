@@ -12,6 +12,7 @@ blocks:
     type: code
     language: rust
     buildType: buildable
+    deployable: true
     starter: ping-program/starter.rs
     solution: ping-program/solution.rs
     tests: ping-program/tests.json
