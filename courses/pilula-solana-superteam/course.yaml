@@ -1,0 +1,17 @@
+id: course-pilula-solana-superteam
+slug: pilula-solana-superteam
+title: "Pílula Solana & Superteam"
+description: "A pílula de 2 minutos: por que o sistema financeiro está migrando pra Solana, o truque que a deixa rápida, e como você ganha dinheiro nela pela Superteam Brasil."
+difficulty: beginner
+duration: 0.03
+xpPerLesson: 20
+xpReward: 20
+creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+trackId: 0
+trackLevel: 0
+thumbnail: assets/banner.webp
+modules:
+  - key: pilula
+    title: "A Pílula"
+    lessons:
+      - lesson-psp-solana-em-2-minutos

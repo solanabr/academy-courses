@@ -1,0 +1,77 @@
+id: lesson-psp-solana-em-2-minutos
+slug: solana-em-2-minutos
+title: "Solana em 2 minutos (e como ganhar dinheiro nela)"
+skills:
+  - solana-fundamentals
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "A Solana é rápida como o quê, na comparação da pílula?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Como um boleto, que compensa em dias"
+            correct: false
+            feedback: "Ao contrário: boleto e TED levam horas ou dias. A âncora da lição é o PIX, instantâneo, e a Solana joga nesse time, com operação em menos de meio segundo."
+          - id: b
+            label: "Como o PIX: confirma em menos de meio segundo e custa menos de 1 centavo"
+            correct: true
+          - id: c
+            label: "Como a fila do banco, que anda quando dá"
+            correct: false
+            feedback: "A graça é justamente NÃO ser fila: a operação confirma quase na hora, como um PIX, e por menos de um centavo."
+        explanation: "PIX é a âncora: a Solana traz essa mesma velocidade instantânea e quase gratuita, mas pra qualquer ativo, não só pra uma transferência."
+      - id: q2
+        prompt: "Por que a Solana consegue ser tão veloz?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Porque processa várias transações ao mesmo tempo, em paralelo, vários caixas abertos, não uma fila única"
+            correct: true
+          - id: b
+            label: "Porque quase ninguém usa a rede ainda, então sobra espaço"
+            correct: false
+            feedback: "É o contrário: a Solana processa mais transações reais que todas as outras redes somadas. A velocidade vem da arquitetura, não de estar vazia."
+          - id: c
+            label: "Porque um único banco central controla e coordena tudo"
+            correct: false
+            feedback: "Ninguém controla: são milhares de máquinas independentes agindo como uma só. O truque é o paralelismo, rodar juntas as transações que não se cruzam."
+        explanation: "Em vez de uma fila única, a Solana abre vários caixas ao mesmo tempo: transações que não se cruzam rodam em paralelo. Por isso a fila anda e a taxa fica em centavos."
+      - id: q3
+        prompt: "Quem já constrói na Solana com dinheiro de verdade?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Só projetos de teste, ainda sem valor real em jogo"
+            correct: false
+            feedback: "Não são testes de laboratório: são produtos reais, com dinheiro real, na rede pública, hoje."
+          - id: b
+            label: "Ninguém grande ainda, só entusiastas de cripto"
+            correct: false
+            feedback: "Gigantes já estão dentro: Visa, BlackRock, PayPal, e a JPMorgan, maior banco dos EUA, emitiu commercial paper nativo na rede em dezembro de 2025."
+          - id: c
+            label: "Gigantes como Visa, BlackRock, PayPal e a JPMorgan, o maior banco dos EUA"
+            correct: true
+        explanation: "Dinheiro de verdade, na rede pública: em dez/2025 a JPMorgan estruturou uma emissão de commercial paper nativa na Solana pra Galaxy Digital, liquidada em USDC, ao lado de Visa, BlackRock e PayPal."
+      - id: q4
+        prompt: "Como se ganha dinheiro na Superteam Brasil?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Num sorteio entre os membros da comunidade"
+            correct: false
+            feedback: "Não é sorte nem indicação: é trabalho. Você entrega um bounty, você recebe."
+          - id: b
+            label: "Entregando trabalho nos bounties abertos do Superteam Earn, de código a design e conteúdo"
+            correct: true
+          - id: c
+            label: "Comprando SOL e esperando a moeda valorizar"
+            correct: false
+            feedback: "Isso é investir, não participar. O caminho da Superteam é ganhar por trabalho, sem depender do preço de nada, já saíram mais de US$ 650 mil por bounties."
+        explanation: "Bounty é desafio aberto com prêmio em dólar: entregou bem, recebeu. Já saíram mais de US$ 650 mil por esse caminho, e ainda tem vagas, hackathons e aceleração."
