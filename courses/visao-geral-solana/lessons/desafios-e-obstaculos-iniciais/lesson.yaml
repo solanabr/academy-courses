@@ -1,0 +1,65 @@
+id: lesson-vgs-desafios-iniciais
+slug: desafios-e-obstaculos-iniciais
+title: "Desafios e Obstáculos Iniciais"
+skills:
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: video
+    type: video
+    url: "https://www.youtube.com/watch?v=XgeKLcVD3Os"
+  - key: check
+    type: quiz
+    questions:
+      - id: q1-early-instability
+        prompt: "Quando a Solana transitou de protótipo de laboratório para rede ativa sob estresse real, qual padrão operacional caracterizou os primeiros desafios de estabilidade?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Períodos de alta vazão causaram esgotamento de recursos nos validadores (memória e backpressure de I/O), resultando em perda de pacotes e paradas parciais de consenso (slot skipping)."
+            correct: true
+          - id: opt-b
+            label: "Falha matemática definitiva no algoritmo de hash que impediu qualquer gravação de dados no livro-razão."
+            correct: false
+            feedback: "A criptografia e a ordenação por Proof of History funcionaram; o desafio esteve na gestão de recursos do sistema e I/O sob estresse."
+          - id: opt-c
+            label: "Corrupção irreparável do histórico inicial por ausência de nós mineradores na rede."
+            correct: false
+            feedback: "A Solana opera com validadores em Proof of Stake e consenso Tower BFT, não utilizando mineração."
+        explanation: "Os primeiros testes de estresse em ambiente ativo revelaram modos de falha práticos: o acúmulo de transações provocou esgotamento de memória (OOM), saturação de filas e latência de agendamento, levando validadores a pular slots de votação."
+
+      - id: q2-incident-workflow
+        prompt: "Em uma blockchain de alta vazão, qual é a sequência de etapas recomendada no fluxo de trabalho para responder a incidentes e alcançar uma remediação durável?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Desligar permanentemente todos os nós que reportaram alertas e reiniciar a rede do zero sem registrar logs."
+            correct: false
+            feedback: "Desligar nós sem análise impede o isolamento da causa raiz e arrisca a segurança do consenso."
+          - id: opt-b
+            label: "Detectar o problema via telemetria → realizar triagem rápida → aplicar mitigação temporária para estabilizar o consenso → isolar a causa raiz → desenvolver patch com testes de regressão → comunicar com transparência."
+            correct: true
+          - id: opt-c
+            label: "Ignorar alertas de perda de pacotes até que o próximo hard fork anual programado ocorra."
+            correct: false
+            feedback: "Incidentes de consenso e perda de pacotes exigem resposta operacional coordenada e imediata dos validadores."
+        explanation: "O fluxo estruturado de resposta a incidentes envolve detecção contínua por telemetria, contenção operacional rápida, reprodução em ambiente isolado para encontrar a causa raiz, publicação de patch com testes de regressão e comunicação clara à comunidade."
+
+      - id: q3-engineering-shift
+        prompt: "Como as lições aprendidas com os desafios iniciais redirecionaram o foco da engenharia de desenvolvimento da Solana?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Forçaram a equipe a abandonar a máquina virtual e tornar a rede uma cadeia de pagamento estática sem contratos."
+            correct: false
+            feedback: "A capacidade de execução de programas foi mantida e otimizada com controles mais estritos de execução."
+          - id: opt-b
+            label: "Deslocaram o foco da busca por vazão máxima teórica para a construção de comportamento previsível, observabilidade detalhada e controle rigoroso de recursos nos validadores."
+            correct: true
+          - id: opt-c
+            label: "Eliminaram a telemetria e o monitoramento de validadores para economizar ciclos de processamento de CPU."
+            correct: false
+            feedback: "Pelo contrário: a telemetria e a observabilidade foram ampliadas para diagnosticar gargalos com rapidez."
+        explanation: "A transição madura da engenharia da Solana consistiu em trocar a prioridade exclusiva de pico de transações por estabilidade sustentável, limites defensivos de memória, controle de backpressure de rede e comunicação transparente."

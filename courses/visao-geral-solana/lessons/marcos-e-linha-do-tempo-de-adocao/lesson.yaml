@@ -1,0 +1,65 @@
+id: lesson-vgs-marcos-e-adocao
+slug: marcos-e-linha-do-tempo-de-adocao
+title: "Marcos e Linha do Tempo de Adoção"
+skills:
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: video
+    type: video
+    url: "https://www.youtube.com/watch?v=OqgDtLY8ZAs"
+  - key: check
+    type: quiz
+    questions:
+      - id: q1-bridge-model
+        prompt: "No modelo mental que compara o ciclo de vida da rede à construção de uma ponte em fases, qual é a função das testnets e dos stress tests antes do lançamento da mainnet?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Realizar lançamentos comerciais de produtos de consumo final sem envolver operadores de validadores."
+            correct: false
+            feedback: "As testnets são ambientes técnicos voltados para validação de protocolos, operadores de nós e ferramentas."
+          - id: opt-b
+            label: "Validar suportes fundamentais de consenso e limites de runtime sob condições adversas e carga distribuída antes de abrir o livro-razão a valor real."
+            correct: true
+          - id: opt-c
+            label: "Substituir o código-fonte em Rust por um banco de dados relacional tradicional."
+            correct: false
+            feedback: "As testnets testam o próprio cliente validador distribuído sob estresse, sem substituir sua arquitetura."
+        explanation: "Construir uma rede é como erguer uma ponte: primeiro assentam-se as fundações teóricas; depois, realizam-se testes de carga sob estresse (testnets) para certificar a estabilidade antes da liberação ao tráfego público (mainnet)."
+
+      - id: q2-tech-vs-ecosystem
+        prompt: "Ao monitorar o impacto de um 'release técnico' do protocolo (como uma atualização de parâmetros de consenso), qual conjunto de métricas deve ser inspecionado prioritariamente?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Telemetria de sistema, incluindo tempos de bloco, latência de confirmação, taxas de erro em respostas RPC e utilização de recursos dos validadores."
+            correct: true
+          - id: opt-b
+            label: "Quantidade de seguidores em redes sociais e menções em fóruns de discussão não técnicos."
+            correct: false
+            feedback: "Engenheiros e analistas técnicos monitoram telemetria direta do nó para verificar a estabilidade do protocolo."
+          - id: opt-c
+            label: "Contagem de forks de templates de front-end criados por designers gráficos."
+            correct: false
+            feedback: "Métricas de front-end não refletem se o release de consenso manteve a integridade do runtime."
+        explanation: "Releases técnicos afetam o comportamento central da rede e exigem análise de telemetria imediata (latência, tempo de bloco, uso de recursos e erros RPC); eventos de ecossistema afetam a experiência do desenvolvedor e refletem-se em deploys de programas e criação de contas."
+
+      - id: q3-adoption-signals
+        prompt: "De acordo com o framework de análise de marcos da lição, quais sinais observáveis refletem a progressão real da adoção de desenvolvedores e integradores?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Especulação de preços em mercados secundários sem novos deploys de programas na rede."
+            correct: false
+            feedback: "Preços de mercado não comprovam a maturidade técnica nem o uso das ferramentas de desenvolvimento."
+          - id: opt-b
+            label: "Deploys estáveis de programas, aumento na contagem de validadores independentes, novos tipos de transação e atividade contínua de tooling e SDKs."
+            correct: true
+          - id: opt-c
+            label: "Volume de mensagens publicitárias divulgadas em canais institucionais."
+            correct: false
+            feedback: "Anúncios institucionais são declarações de intenção; a adoção real é medida por evidências observáveis on-chain e em repositórios."
+        explanation: "Adoção técnica genuína é comprovada por indicadores tangíveis: diversidade de validadores operando o software, novos programas implantados no livro-razão e sustentação na manutenção de SDKs e bibliotecas clientes."

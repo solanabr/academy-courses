@@ -1,0 +1,65 @@
+id: lesson-vgs-origens-fundacao
+slug: origens-e-historia-da-fundacao
+title: "Origens e História da Fundação"
+skills:
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: video
+    type: video
+    url: "https://www.youtube.com/watch?v=L65KvCbTqRo"
+  - key: check
+    type: quiz
+    questions:
+      - id: q1-poh-clockwork
+        prompt: "Qual é o papel fundamental da 'primitiva de tempo verificável' (Proof of History) no modelo mental da Solana, em contraste com a ordenação probabilística tradicional?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Eliminar a necessidade de validadores e de armazenamento do livro-razão na rede."
+            correct: false
+            feedback: "A Solana continua dependendo de validadores distribuídos que executam e armazenam o estado do livro-razão."
+          - id: opt-b
+            label: "Estabelecer uma sequência cronológica determinística de eventos localmente e antes do consenso, reduzindo a sobrecarga de coordenação entre os nós."
+            correct: true
+          - id: opt-c
+            label: "Garantir que todos os blocos tenham confirmação probabilística lenta para maximizar a resistência a reorganizações profundas."
+            correct: false
+            feedback: "A confirmação probabilística em janelas longas é a característica do modelo Proof of Work do Bitcoin, e não a proposta de baixa latência da Solana."
+        explanation: "O modelo mental da Solana trata o livro-razão como um relógio coordenado: ao incorporar uma primitiva de tempo verificável (Proof of History), a rede desacopla a passagem do tempo da troca de mensagens de consenso, permitindo ordenação determinística de alta velocidade."
+
+      - id: q2-founding-team
+        prompt: "De acordo com o histórico de fundação da Solana, como a complementaridade técnica da equipe inicial acelerou a transição do protótipo para uma rede testável?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "Combinou arquitetos de protocolo, engenheiros de sistemas de baixa latência e liderança de outreach, permitindo validar o design em testnets e benchmarks medidos."
+            correct: true
+          - id: opt-b
+            label: "Dependeu exclusivamente de pesquisadores teóricos de matemática pura sem experiência em implementação de software de sistemas."
+            correct: false
+            feedback: "A equipe fundadora destacou-se exatamente por sua forte bagagem em engenharia de sistemas de telecomunicações e software de baixo nível."
+          - id: opt-c
+            label: "Focou apenas em campanhas de divulgação antes de construir código funcional ou testnets internas."
+            correct: false
+            feedback: "O progresso inicial baseou-se em marcos técnicos concretos: protótipo, testnets privadas e benchmarks de desempenho medidos antes da abertura pública."
+        explanation: "A equipe fundadora da Solana reuniu papéis complementares: arquitetura de protocolo para desenhar as primitivas de tempo, engenharia de sistemas para transformar protótipos em código de alto desempenho e outreach para engajar desenvolvedores e validadores nos testes."
+
+      - id: q3-solana-vs-bitcoin
+        prompt: "Como as prioridades de design da fundação da Solana diferem das motivações centrais que moldaram a criação do Bitcoin?"
+        multiSelect: false
+        options:
+          - id: opt-a
+            label: "A Solana buscou eliminar contratos inteligentes, enquanto o Bitcoin focou em execução paralela de alta frequência."
+            correct: false
+            feedback: "O Bitcoin possui uma linguagem de script deliberadamente restrita, enquanto a Solana foi desenhada como um livro-razão rápido e programável."
+          - id: opt-b
+            label: "O Bitcoin adotou execução paralela em GPUs, enquanto a Solana limitou sua validação a computadores de baixa frequência de clock."
+            correct: false
+            feedback: "A Solana foi projetada para aproveitar hardware multicore moderno e paralelismo, enquanto o Bitcoin priorizou simplicidade em hardware de baixo consumo."
+          - id: opt-c
+            label: "O Bitcoin priorizou resistência à censura e escassez monetária tolerando maior latência, enquanto a Solana enfatizou alta vazão, baixa latência e execução rápida para aplicações de alta frequência."
+            correct: true
+        explanation: "As prioridades fundadoras determinam os trade-offs: o Bitcoin tolera janelas longas de confirmação para reforçar a segurança em consistência eventual; a Solana prioriza baixa latência e alta vazão para viabilizar mercados rápidos e microtransações."
