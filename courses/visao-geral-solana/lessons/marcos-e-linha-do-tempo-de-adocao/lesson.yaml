@@ -22,13 +22,13 @@ blocks:
             correct: true
             feedback: "Correto! Assim como uma ponte exige pilares sólidos antes de suportar tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir para o ecossistema."
           - id: b
-            label: "A rede é construída de forma instantânea e imutável, sem admitir fases de testes ou expansões graduais."
+            label: "A rede deve ser entendida como uma implantação única e instantânea, sem fases de testes ou expansões graduais."
             correct: false
             feedback: "A lição enfatiza que o ciclo de vida da rede é progressivo e dividido em fases interdependentes de construção e teste."
           - id: c
-            label: "A ponte representa um protocolo de transferência de arquivos entre sistemas operacionais isolados."
+            label: "A rede deve manter apenas a fase de fundação inicial, sem avançar para abertura pública ou testes sob estresse."
             correct: false
-            feedback: "A metáfora é empregada para descrever as fases de engenharia e maturidade da rede, não uma ferramenta de arquivos."
+            feedback: "A metáfora da ponte ilustra a necessidade de progredir desde a fundação até a capacidade plena para suportar o tráfego do ecossistema."
         explanation: "A analogia da ponte explica que a rede precisa primeiro de suportes fundamentais sólidos (consenso e runtime), seguidos de testes de estresse em testnet, abertura controlada e expansão contínua."
       - id: q2
         prompt: "Qual é a distinção entre 'Releases Técnicos' e 'Eventos do Ecossistema' na análise de evolução de uma blockchain?"
@@ -39,16 +39,16 @@ blocks:
             correct: true
             feedback: "Exato! Releases técnicos afetam a operação e o desempenho do protocolo; eventos de ecossistema ampliam a base de desenvolvedores e a criação de aplicações."
           - id: b
-            label: "Releases técnicos são voltados exclusivamente a usuários leigos, enquanto eventos do ecossistema são atualizações no código do protocolo."
+            label: "Releases técnicos expandem apenas o engajamento da comunidade, enquanto eventos do ecossistema alteram o código do protocolo."
             correct: false
             feedback: "É o oposto: releases técnicos são atualizações de software de rede; eventos do ecossistema envolvem comunidade e criadores de projetos."
           - id: c
-            label: "Não existe distinção: ambos representam exatamente o mesmo tipo de atividade e geram as mesmas métricas."
+            label: "Não existe distinção de efeitos: ambas as categorias produzem exatamente as mesmas alterações no código e na rede."
             correct: false
-            feedback: "A lição destaca que cada classe de marco possui objetivos diferentes e exige métricas de observação distintas."
+            feedback: "A lição destaca que cada classe de marco possui objetivos diferentes e afeta métricas distintas."
         explanation: "A lição ensina a separar marcos de protocolo (que alteram performance e robustez técnica) de marcos de ecossistema (que impulsionam adoção e projetos práticos)."
       - id: q3
-        prompt: "Por que a lição orienta a tratar os marcos históricos como 'transições funcionais' em vez de simples datas comemorativas?"
+        prompt: "Por que a lição orienta a tratar os marcos históricos como 'transições funcionais' em vez de simples datas cronológicas?"
         multiSelect: false
         options:
           - id: a
@@ -56,11 +56,11 @@ blocks:
             correct: true
             feedback: "Perfeito! Avaliar marcos como transições funcionais permite associar melhorias técnicas a mudanças reais em métricas de rede e adesão de desenvolvedores."
           - id: b
-            label: "Porque datas cronológicas são proibidas na documentação de projetos de tecnologia."
+            label: "Porque os marcos devem ser tratados apenas como datas de calendário, sem correlação com mecanismos técnicos ou métricas."
             correct: false
             feedback: "Datas são referências de ordenação úteis, mas o valor analítico está no mecanismo exercitado e no efeito mensurável gerado."
           - id: c
-            label: "Porque cada marco histórico invalida e substitui todo o histórico de blocos anterior da blockchain."
+            label: "Porque os marcos servem unicamente para registrar o encerramento definitivo de desenvolvimentos na rede."
             correct: false
-            feedback: "A evolução da rede é contínua e cumulativa, preservando a integridade e a história do livro-razão."
+            feedback: "Os marcos marcam transições e aberturas para novas fases de capacidade e adoção, e não o encerramento do desenvolvimento."
         explanation: "Tratar marcos como transições funcionais transforma a cronologia em um modelo prático de análise: cada lançamento técnico é vinculado ao mecanismo exercitado e ao sinal de adoção gerado."
