@@ -1,9 +1,9 @@
 id: course-visao-geral-solana
 slug: visao-geral-solana
 title: "Visão Geral da Blockchain Solana"
-description: "Apresentação completa das origens, arquitetura, desafios iniciais e marcos de evolução da Solana a partir do currículo canônico da Forge College."
+description: "Apresentar aos alunos a blockchain Solana, abordando sua história fundamental e arquitetura central. Usar analogias e recursos visuais para tornar conceitos complexos acessíveis a iniciantes."
 difficulty: beginner
-duration: 1.9
+duration: 1.7
 xpPerLesson: 20
 xpReward: 60
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ

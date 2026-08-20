@@ -14,53 +14,53 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Quais modos de falha operacionais surgiram quando a Solana passou do estágio de protótipo para a rede ativa em produção?"
+        prompt: "Quais problemas operacionais surgiram quando a Solana passou do estágio de protótipo para a rede ativa em produção?"
         multiSelect: false
         options:
           - id: a
             label: "Esgotamento de recursos nos nós validadores, latência de agendamento e backpressure de I/O sob alta carga de mensagens."
             correct: true
-            feedback: "Correto! O alto volume de tráfego expôs limites práticos de memória, filas de pacotes e agendamento nos validadores sob estresse de produção."
+            feedback: "Correto! O alto volume de tráfego expôs limites práticos de memória, processamento e agendamento nos validadores sob estresse de produção."
           - id: b
-            label: "Erros de consenso que geraram gastos duplos e bifurcações irreversíveis no livro-razão contábil."
+            label: "Falhas criptográficas no algoritmo de hash que corromperam o histórico contábil da rede."
             correct: false
-            feedback: "A integridade dos dados e o consenso criptográfico foram preservados; os desafios foram de saturação operacional e estabilidade de nós."
+            feedback: "A criptografia e a integridade matemática funcionaram; as falhas foram operacionais de saturação de recursos dos nós."
           - id: c
-            label: "Falhas na função criptográfica SHA-256 utilizada no fluxo de Proof of History."
+            label: "Ausência total de tráfego de mensagens entre os validadores da rede."
             correct: false
-            feedback: "A matemática do Proof of History funcionou conforme esperado; os gargalos ocorreram no processamento de I/O e capacidade de ingestão de pacotes."
-        explanation: "A transição para produção revelou que a busca por alta vazão gerava modos de falha operacionais práticos (esgotamento de recursos e backpressure), deslocando o foco da engenharia para previsibilidade e observabilidade."
+            feedback: "Pelo contrário, o problema foi justamente o excesso de mensagens e dados saturando a capacidade dos nós."
+        explanation: "A lição explica que a busca por alta vazão revelou desafios práticos de engenharia: saturação de CPU/memória, latência de agendamento e backpressure de I/O em momentos de pico."
       - id: q2
-        prompt: "De acordo com a análise de logs de validadores abordada na lição, quais padrões de eventos sinalizam instabilidade operacional em um nó?"
+        prompt: "De acordo com o exemplo de análise de logs de validador apresentado na lição, quais padrões de eventos indicam instabilidade operacional em um nó?"
         multiSelect: false
         options:
           - id: a
-            label: "Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas RPC e pausas anômalas no processamento."
+            label: "Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas RPC e pausas excessivas de processamento."
             correct: true
-            feedback: "Exato! Na telemetria de validadores, slots ignorados e pausas excessivas indicam que o validador não está conseguindo acompanhar o ritmo do líder ou responder a requisições."
+            feedback: "Exato! Na análise de logs, slots ignorados, falhas em chamadas RPC e pausas anômalas são os principais sinais de que o validador está sobrecarregado."
           - id: b
-            label: "Diminuição automática no tamanho dos blocos gerados pelo nó validador líder."
+            label: "Eventos regulares de blocos confirmados com sucesso e sem atrasos de rede."
             correct: false
-            feedback: "O tamanho do bloco não é reduzido dinamicamente por métricas de log de clientes individuais."
+            feedback: "Confirmações regulares sem atrasos indicam operação saudável, e não instabilidade."
           - id: c
-            label: "Rejeição de transações exclusivamente por ausência de assinaturas criptográficas válidas."
+            label: "Mensagens indicando redução do tráfego para zero em todos os canais de comunicação."
             correct: false
-            feedback: "Assinaturas inválidas são descartadas no fluxo normal de verificação e não constituem sintoma primário de instabilidade de nó."
-        explanation: "No código e nos exemplos de log analisados na lição, eventos como 'slot skipped', erros de RPC e pausas anômalas de processamento são os indicadores primários de degradação de performance."
+            feedback: "A instabilidade nos logs decorre de sobrecarga e falhas de resposta, não de cessação total de tráfego."
+        explanation: "No código e na explicação da lição, eventos estruturados de 'slot skipped', erros de RPC e pausas de processamento são extraídos para diagnosticar a perda de sincronia do validador."
       - id: q3
-        prompt: "Qual é a relação entre mitigações de curto prazo e remediações duráveis no fluxo de resposta a incidentes de uma rede blockchain?"
+        prompt: "Qual é a função das mitigações de curto prazo em relação às remediações duráveis no fluxo de resposta a incidentes?"
         multiSelect: false
         options:
           - id: a
-            label: "Mitigações de curto prazo substituem em definitivo a necessidade de desenvolver patches arquiteturais."
-            correct: false
-            feedback: "Mitigações temporárias apenas estabilizam o sistema para permitir que a equipe desenvolva correções definitivas com segurança."
-          - id: b
-            label: "Mitigações de curto prazo estabilizam a rede e restauram o consenso imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural."
+            label: "Mitigações de curto prazo estabilizam a rede e restabelecem o consenso imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural."
             correct: true
-            feedback: "Perfeito! Durante um incidente, a prioridade é conter o dano e reestabelecer o liveness; em seguida, desenvolvem-se patches duráveis para eliminar a classe de falha."
-          - id: c
-            label: "Remediações duráveis devem ser aplicadas diretamente em produção sem fase prévia de contenção ou diagnóstico."
+            feedback: "Perfeito! A prioridade imediata em um incidente é conter o impacto e recuperar a estabilidade; depois, desenvolve-se o patch durável para eliminar a causa raiz."
+          - id: b
+            label: "Mitigações de curto prazo substituem definitivamente a necessidade de desenvolver correções na raiz do problema."
             correct: false
-            feedback: "Alterações arquiteturais profundas exigem testes rigorosos e não devem ser improvisadas durante o calor do incidente sem contenção prévia."
-        explanation: "O fluxo de incidentes separa claramente a contenção emergencial (mitigação de curto prazo para restaurar a rede) da solução de engenharia durável (patch que corrige a causa raiz)."
+            feedback: "Mitigações apenas contêm o sintoma imediato; sem um patch definitivo na causa raiz, a falha pode se repetir."
+          - id: c
+            label: "Remediações duráveis devem ser aplicadas diretamente sem qualquer contenção ou estabilização prévia."
+            correct: false
+            feedback: "O fluxo de resposta estruturado exige primeiro triagem e mitigação de curto prazo antes de implantar soluções definitivas."
+        explanation: "A lição divide o fluxo em detecção, triagem, mitigação de curto prazo (estabilização emergencial) e remediação durável (eliminação da causa raiz)."

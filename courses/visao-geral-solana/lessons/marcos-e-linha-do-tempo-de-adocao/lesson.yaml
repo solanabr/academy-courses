@@ -14,53 +14,53 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "No modelo mental apresentado na lição, como o ciclo de vida dos releases da rede é comparado à construção de uma ponte?"
+        prompt: "No modelo mental apresentado na lição, como as fases de evolução da rede são comparadas à construção de uma grande ponte?"
         multiSelect: false
         options:
           - id: a
-            label: "A ponte representa uma ferramenta exclusiva para transferir tokens entre duas blockchains distintas."
-            correct: false
-            feedback: "A analogia da ponte é usada para descrever as fases de engenharia e sustentação de uma infraestrutura robusta, e não uma bridge de tokens."
-          - id: b
-            label: "A rede evolui em fases sucessivas: suportes fundamentais (consenso e runtime), testes sob estresse em testnets, abertura pública e expansão de capacidade."
+            label: "A rede evolui em etapas sucessivas: assentamento de suportes fundamentais (consenso/runtime), testes sob estresse em testnets, abertura pública e expansão de capacidade."
             correct: true
-            feedback: "Correto! Assim como uma ponte precisa de pilares sólidos antes de suportar tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir para o ecossistema amplo."
-          - id: c
-            label: "A rede é considerada uma estrutura estática imutável que não admite novas fases de suporte após a implantação inicial."
+            feedback: "Correto! Assim como uma ponte exige pilares sólidos antes de suportar tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir para o ecossistema."
+          - id: b
+            label: "A rede é construída de forma instantânea e imutável, sem admitir fases de testes ou expansões graduais."
             correct: false
-            feedback: "A evolução de uma blockchain de alta performance é contínua e passa por sucessivas fases de release e aprimoramento."
-        explanation: "A metáfora da ponte ilustra que a rede é construída em etapas interdependentes: fundação técnica, stress-tests, lançamento público e ampliação contínua da capacidade."
+            feedback: "A lição enfatiza que o ciclo de vida da rede é progressivo e dividido em fases interdependentes de construção e teste."
+          - id: c
+            label: "A ponte representa um protocolo de transferência de arquivos entre sistemas operacionais isolados."
+            correct: false
+            feedback: "A metáfora é empregada para descrever as fases de engenharia e maturidade da rede, não uma ferramenta de arquivos."
+        explanation: "A analogia da ponte explica que a rede precisa primeiro de suportes fundamentais sólidos (consenso e runtime), seguidos de testes de estresse em testnet, abertura controlada e expansão contínua."
       - id: q2
-        prompt: "Qual é a diferença fundamental entre 'Releases Técnicos' e 'Eventos do Ecossistema' na evolução de uma blockchain?"
+        prompt: "Qual é a distinção entre 'Releases Técnicos' e 'Eventos do Ecossistema' na análise de evolução de uma blockchain?"
         multiSelect: false
         options:
           - id: a
-            label: "Releases técnicos alteram o desempenho e a estabilidade da rede; eventos do ecossistema expandem a atividade dos desenvolvedores, casos de uso e engajamento."
+            label: "Releases técnicos alteram o comportamento, estabilidade e capacidade da rede; eventos do ecossistema expandem a atividade dos desenvolvedores, casos de uso e engajamento."
             correct: true
-            feedback: "Exato! Releases de protocolo impactam a telemetria dos validadores e a capacidade do runtime; eventos de ecossistema impulsionam a camada de aplicação e a adoção."
+            feedback: "Exato! Releases técnicos afetam a operação e o desempenho do protocolo; eventos de ecossistema ampliam a base de desenvolvedores e a criação de aplicações."
           - id: b
-            label: "Releases técnicos são conduzidos exclusivamente por usuários finais, enquanto eventos do ecossistema são atualizações de software nos nós."
+            label: "Releases técnicos são voltados exclusivamente a usuários leigos, enquanto eventos do ecossistema são atualizações no código do protocolo."
             correct: false
-            feedback: "É o inverso: releases técnicos são atualizações de protocolo para validadores; eventos de ecossistema envolvem a comunidade e desenvolvedores de dApps."
+            feedback: "É o oposto: releases técnicos são atualizações de software de rede; eventos do ecossistema envolvem comunidade e criadores de projetos."
           - id: c
-            label: "Não há distinção prática: ambos os tipos de marco são avaliados unicamente pela contagem de nós validadores."
+            label: "Não existe distinção: ambos representam exatamente o mesmo tipo de atividade e geram as mesmas métricas."
             correct: false
-            feedback: "A lição destaca que cada tipo de marco requer métricas distintas: telemetria técnica para releases e métricas de atividade de usuário/desenvolvedor para eventos."
-        explanation: "Releases técnicos estabelecem as fundações operacionais e a capacidade da rede, enquanto eventos do ecossistema convertem essa capacidade em adoção real e atividade de mercado."
+            feedback: "A lição destaca que cada classe de marco possui objetivos diferentes e exige métricas de observação distintas."
+        explanation: "A lição ensina a separar marcos de protocolo (que alteram performance e robustez técnica) de marcos de ecossistema (que impulsionam adoção e projetos práticos)."
       - id: q3
-        prompt: "Ao analisar a linha do tempo de adoção de uma blockchain, por que os marcos devem ser tratados como 'transições funcionais'?"
+        prompt: "Por que a lição orienta a tratar os marcos históricos como 'transições funcionais' em vez de simples datas comemorativas?"
         multiSelect: false
         options:
           - id: a
-            label: "Porque cada marco exercita um mecanismo técnico específico e gera indicadores observáveis mensuráveis no comportamento da rede."
+            label: "Porque cada marco exercita um mecanismo técnico específico e gera indicadores mensuráveis no comportamento e na adoção da rede."
             correct: true
-            feedback: "Perfeito! Em vez de encarar marcos como simples datas no calendário, analisá-los como transições funcionais permite correlacionar melhorias técnicas a dados observáveis de adoção."
+            feedback: "Perfeito! Avaliar marcos como transições funcionais permite associar melhorias técnicas a mudanças reais em métricas de rede e adesão de desenvolvedores."
           - id: b
-            label: "Porque marcos servem apenas como anúncios de marketing sem reflexo na operação ou métricas da rede."
+            label: "Porque datas cronológicas são proibidas na documentação de projetos de tecnologia."
             correct: false
-            feedback: "Marcos funcionais reais geram mudanças observáveis na telemetria, volume de transações e comportamento dos contratos."
+            feedback: "Datas são referências de ordenação úteis, mas o valor analítico está no mecanismo exercitado e no efeito mensurável gerado."
           - id: c
-            label: "Porque cada novo marco exige que todo o protocolo seja reescrito do zero pelos desenvolvedores."
+            label: "Porque cada marco histórico invalida e substitui todo o histórico de blocos anterior da blockchain."
             correct: false
-            feedback: "A evolução da rede é cumulativa e iterativa, construindo sobre as camadas de consenso e runtime consolidadas."
-        explanation: "Tratar marcos como transições funcionais transforma uma cronologia histórica em um método rigoroso de análise técnica e de adoção de ecossistemas."
+            feedback: "A evolução da rede é contínua e cumulativa, preservando a integridade e a história do livro-razão."
+        explanation: "Tratar marcos como transições funcionais transforma a cronologia em um modelo prático de análise: cada lançamento técnico é vinculado ao mecanismo exercitado e ao sinal de adoção gerado."

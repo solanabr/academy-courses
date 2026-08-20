@@ -18,49 +18,49 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Aumentar o tamanho do bloco para armazenar mais transações em cada intervalo de mineração."
+            label: "Aumentar o tamanho do bloco para armazenar mais transações em cada intervalo de ordenação."
             correct: false
-            feedback: "Aumentar o tamanho do bloco não resolve o problema fundamental da falta de sincronização temporal entre os nós distribuídos."
+            feedback: "Aumentar o tamanho dos blocos não resolve o problema de sincronização de tempo entre nós distribuídos."
           - id: b
-            label: "Codificar a passagem do tempo em um fluxo de computação sequencial verificável (SHA-256), permitindo que os nós concordem com a ordem dos eventos sem comunicação constante."
+            label: "Codificar a passagem do tempo em um fluxo criptográfico sequencial (SHA-256), permitindo que os nós verifiquem a passagem do tempo de forma independente e assíncrona."
             correct: true
-            feedback: "Correto! Ao transformar o livro-razão em um relógio global via hashing sequencial, os nós verificam o tempo de forma independente e assíncrona."
+            feedback: "Correto! Ao transformar a passagem do tempo em uma função criptográfica verificável, os nós concordam com a ordem dos eventos sem necessidade de comunicação constante."
           - id: c
-            label: "Substituir a descentralização por um servidor centralizado fornecedor de carimbos de tempo (timestamp authority)."
+            label: "Substituir a verificação distribuída por uma autoridade centralizada de carimbos de tempo."
             correct: false
-            feedback: "A proposta do Proof of History é justamente prover uma fonte descentralizada e criptograficamente verificável de tempo sem autoridades centrais."
-        explanation: "Anatoly percebeu que concordar com o tempo era o principal gargalo em sistemas distribuídos. O Proof of History introduziu um relógio criptográfico contínuo antes da camada de consenso."
+            feedback: "A proposta é justamente manter a verificação descentralizada e auditável sem depender de uma entidade central."
+        explanation: "Na lição, Anatoly percebeu que sistemas distribuídos gastavam muito tempo comunicando-se para sincronizar relógios. O Proof of History resolve isso codificando o tempo em um fluxo de computação sequencial verificável."
       - id: q2
-        prompt: "Como a experiência prévia da equipe fundadora na Qualcomm influenciou a abordagem técnica da arquitetura da Solana?"
+        prompt: "Como a experiência prévia da equipe fundadora em engenharia de sistemas e telecomunicações influenciou a abordagem da Solana?"
         multiSelect: false
         options:
           - id: a
-            label: "Direcionou o design para otimização de hardware moderno, processamento paralelo e paralelismo de rede, tratando o hardware como um recurso a ser totalmente utilizado."
+            label: "Direcionou o projeto para maximizar o uso de hardware moderno e processamento paralelo, priorizando alta vazão e baixa latência."
             correct: true
-            feedback: "Exato! A bagagem em sistemas embarcados e telecomunicações levou a equipe a projetar uma blockchain que escala acompanhando o avanço do hardware e da largura de banda."
+            feedback: "Exato! A bagagem em sistemas embarcados e telecomunicações levou a equipe a tratar hardware moderno e largura de banda como recursos que a arquitetura deve aproveitar ao máximo."
           - id: b
-            label: "Focou na criação de chips dedicados (ASICs) proprietários como requisito para a execução de nós validadores."
+            label: "Focou exclusivamente na redução dos requisitos de hardware para permitir execução em nós de baixíssima capacidade."
             correct: false
-            feedback: "A Solana foi projetada para utilizar processadores multicore, GPUs e componentes de computação padrão de mercado de alto desempenho, e não ASICs proprietários."
+            feedback: "Ao contrário: a equipe projetou a rede para escalar acompanhando a capacidade do hardware moderno, em vez de se limitar a configurações mínimas."
           - id: c
-            label: "Priorizou linguagens interpretadas de fácil aprendizado para simplificar o runtime em detrimento de performance."
+            label: "Priorizou a criação de uma rede estática sem suporte a processamento concorrente."
             correct: false
-            feedback: "A equipe priorizou controle de baixo nível e máxima eficiência de memória e processamento, escolhendo Rust e instruções nativas de máquina."
-        explanation: "A vivência em modems, compressão de sinais e sistemas operacionais de tempo real na Qualcomm levou os fundadores a projetar um sistema altamente paralelo e sem gargalos de hardware desnecessários."
+            feedback: "A arquitetura foi desenhada desde a origem para suportar concorrência e processamento paralelo."
+        explanation: "A lição destaca que os fundadores vieram da área de telecomunicações e sistemas embarcados, moldando uma arquitetura focada em paralelismo, eficiência de hardware e alta vazão."
       - id: q3
-        prompt: "Qual é a principal distinção de prioridade entre as escolhas de design da Solana e as do Bitcoin?"
+        prompt: "Qual é a principal distinção de prioridade entre as escolhas de design da Solana e as do Bitcoin apresentada na lição?"
         multiSelect: false
         options:
           - id: a
-            label: "O Bitcoin prioriza contratos inteligentes complexos, enquanto a Solana foca apenas em pagamentos simples ponto a ponto."
-            correct: false
-            feedback: "O Bitcoin tem um modelo de scripting intencionalmente restrito, enquanto a Solana suporta contratos e execução paralela de alta complexidade."
-          - id: b
-            label: "O Bitcoin utiliza um relógio criptográfico contínuo, enquanto a Solana depende de blocos discretos minerados a cada dez minutos."
-            correct: false
-            feedback: "É exatamente o oposto: o Bitcoin opera com blocos discretos sem relógio, enquanto a Solana incorpora o Proof of History como relógio contínuo."
-          - id: c
-            label: "O Bitcoin prioriza validação em hardware mínimo e blocos discretos com intervalos longos; a Solana prioriza alta vazão e baixa latência integrando tempo contínuo ao fluxo de execução."
+            label: "O Bitcoin prioriza validação com requisitos mínimos de hardware e blocos discretos; a Solana prioriza alta vazão e baixa latência integrando tempo contínuo ao fluxo de execução."
             correct: true
-            feedback: "Perfeito! O Bitcoin foi projetado para maximizar a auditabilidade simples descentralizada, enquanto a Solana foi desenhada para operar na velocidade das redes e do hardware moderno."
-        explanation: "As duas redes representam respostas fundamentais a prioridades distintas: o Bitcoin priorizou requisitos mínimos de nó e blocos discretos; a Solana priorizou vazão máxima e latência mínima com tempo integrado."
+            feedback: "Perfeito! O Bitcoin foi projetado para maximizar a auditabilidade com requisitos mínimos de nó, enquanto a Solana priorizou vazão máxima e latência mínima com tempo integrado."
+          - id: b
+            label: "O Bitcoin prioriza execução paralela contínua, enquanto a Solana prioriza blocos discretos com longos intervalos de espera."
+            correct: false
+            feedback: "É o inverso: o Bitcoin utiliza blocos discretos espaçados, enquanto a Solana integra a ordenação baseada em tempo contínuo."
+          - id: c
+            label: "Não há distinção de prioridade: ambas foram concebidas com exatamente as mesmas metas de vazão e latência."
+            correct: false
+            feedback: "A lição estabelece que as duas redes adotaram trade-offs e prioridades fundamentais distintos."
+        explanation: "A comparação na lição mostra que o Bitcoin priorizou descentralização com requisitos mínimos de hardware e blocos discretos, enquanto a Solana escolheu priorizar alta vazão e baixa latência com execução orientada ao tempo."

@@ -8,10 +8,10 @@
 
 > **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.
 >
-> **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.</div>
+> **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.
+
 Estabilidade técnica e preocupações de confiabilidade Crescimento da rede e restrições operacionais nos estágios iniciais Incidentes de segurança e esforços de remediação iniciais Compromissos entre financiamento e alocação de recursos Canais de feedback da comunidade e respostas iniciais
 
-<div class="lesson-highlight-meta">
 Fundação Conceitual
 30 min de leitura
 
@@ -44,63 +44,45 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
 
-fn main() -> io::Result<()> {
-    let file = File::open("validator.log")?;
-    let reader = io::BufReader::new(file);
-    let mut counts: HashMap<String, usize> = HashMap::new();
+fn main() -> io::Result {
+ let file = File::open("validator.log")?;
+ let reader = io::BufReader::new(file);
+ let mut counts: HashMap = HashMap::new();
 
-    for line in reader.lines() {
-        let line = line?;
-        if let Some(event) = parse_event(&line) {
-            *counts.entry(event).or_insert(0) += 1;
-        }
-    }
+ for line in reader.lines() {
+ let line = line?;
+ if let Some(event) = parse_event(&line) {
+ *counts.entry(event).or_insert(0) += 1;
+ }
+ }
 
-    for (event, count) in counts.iter() {
-        println!("{}: {}", event, count);
-    }
-    Ok(())
+ for (event, count) in counts.iter() {
+ println!("{}: {}", event, count);
+ }
+ Ok(())
 }
 
-fn parse_event(line: &str) -> Option<String> {
-    if line.contains("slot skipped") {
-        return Some("slot_skipped".to_string());
-    }
-    if line.contains("rpc error") {
-        return Some("rpc_error".to_string());
-    }
-    if line.contains("panic") {
-        return Some("panic".to_string());
-    }
-    None
+fn parse_event(line: &str) -> Option {
+ if line.contains("slot skipped") {
+ return Some("slot_skipped".to_string());
+ }
+ if line.contains("rpc error") {
+ return Some("rpc_error".to_string());
+ }
+ if line.contains("panic") {
+ return Some("panic".to_string());
+ }
+ None
 }
-
 ```
 
 Explicação linha a linha:
 
-<li>
-`use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
-
-</li>
-<li>
-A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
-
-</li>
-<li>
-`let mut counts: HashMap<String, usize> = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`.
-
-Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
-
-</li>
-<li>
-A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
-
-</li>
-<li>
-Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
-
-</li>
+1. `use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
+2. A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
+3. `let mut counts: HashMap = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`. Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
+4. A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
+5. Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
 
 Por que isso importa: quando uma interrupção começa, saber quais tipos de eventos disparam ajuda a entender se você está olhando para quedas de rede, backpressure em RPC, panics do runtime ou pausas de garbage collection. Este código é intencionalmente pequeno: o primeiro passo prático em muitas respostas a incidentes é quantificar os sintomas antes de propor uma correção.
 
@@ -120,31 +102,12 @@ A linha do tempo de ações tipicamente seguiu este padrão: detecção de sinto
 
 Para tornar os trade-offs visíveis, compare três escolhas de remediação que os engenheiros consideraram durante este incidente:
 
-<table>
-<thead>
-<tr><th>Opção</th><th>O que muda</th><th>Prós</th><th>Contras</th></tr>
-</thead>
-<tbody>
-<tr>
-<td>Limitação rápida</td>
-<td>Limitar a vazão de RPCs de entrada</td>
-<td>Alívio imediato, baixo risco de código</td>
-<td>Reduz capacidade e taxa de transferência percebida pelos usuários</td>
-</tr>
-<tr>
-<td>Reiniciar validadores</td>
-<td>Resetar memória/threads</td>
-<td>Reinício rápido e efetivo do estado</td>
-<td>Causa breves lacunas de disponibilidade e interrompe a rotação de líderes</td>
-</tr>
-<tr>
-<td>Patch de código</td>
-<td>Corrigir vazamento ou adicionar backpressure</td>
-<td>Correção de longo prazo, preserva capacidade</td>
-<td>Ciclo de desenvolvimento + revisão mais longo; risco de regressões</td>
-</tr>
-</tbody>
-</table>
+| Opção | O que muda | Prós | Contras |
+| :--- | :--- | :--- | :--- |
+| Limitação rápida | Limitar a vazão de RPCs de entrada | Alívio imediato, baixo risco de código | Reduz capacidade e taxa de transferência percebida pelos usuários |
+| Reiniciar validadores | Resetar memória/threads | Reinício rápido e efetivo do estado | Causa breves lacunas de disponibilidade e interrompe a rotação de líderes |
+| Patch de código | Corrigir vazamento ou adicionar backpressure | Correção de longo prazo, preserva capacidade | Ciclo de desenvolvimento + revisão mais longo; risco de regressões |
+
 Engenheiros frequentemente combinam opções: aplicar uma limitação rápida para estabilizar a rede enquanto desenvolvem um patch de código para o vazamento subjacente. Um exemplo de remediação concreta da prática inicial da Solana foi adicionar limites no estilo token-bucket nos handlers RPC para que rajadas súbitas não esgotassem CPU e memória; essa alteração prioriza segurança sobre a vazão máxima até que um alocador ou correção de runtime mais refinada esteja pronta.
 
 Por que este exemplo é útil pedagogicamente: conecta sintomas (o que você vê) a causas mecanicistas (o que está acontecendo em threads, memória e I/O) e a trade-offs de engenharia concretos (mitigação de curto prazo versus correções de longo prazo). Quando revisar o código ou o postmortem depois, pergunte: quais sinais foram mais informativos, quais controles temporários foram aceitáveis e como essa escolha reordenou prioridades de engenharia adiante?
@@ -177,12 +140,9 @@ Este fluxo de trabalho enfatiza verificações mensuráveis em cada etapa: limit
 
 ## Conclusão & Principais Lições
 
->
-Agora você deve entender três lições concretas sobre os desafios iniciais da Solana e como eles moldaram prioridades. Primeiro, escolhas de design para alta vazão revelaram modos de falha práticos — esgotamento de recursos, latência de agendamento e backpressure de I/O — que exigiram deslocar o foco da engenharia de desempenho bruto para comportamento robusto e previsível. Essa mudança não é uma crítica; é a progressão natural quando um sistema deixa condições de laboratório e encontra cargas de trabalho do mundo real variadas.
-
-Segundo, a resposta a incidentes enfatizou detecção mensurável e mitigação em estágio. Limitações de curto prazo e reinícios são ferramentas valiosas para interromper falhas em cascata imediatas, mas confiabilidade durável exigiu patches direcionados, melhor instrumentação e mudanças de fluxo de trabalho. Esses esforços de remediação alteraram decisões de alocação de recursos: equipes frequentemente adiaram novas funcionalidades de desempenho para investir em observabilidade e programação defensiva.
-
-Terceiro, canais da comunidade e comunicação transparente de incidentes foram alavancas operacionais cruciais. Publicar cronogramas, etapas de mitigação e orientações de upgrade acelerou respostas coordenadas de operadores e reduziu a carga operacional sobre a equipe central. O princípio prático a lembrar é este: quando existe uma rede ativa, coordenação social e triagem técnica clara são tão importantes quanto qualquer correção de código isolada.
+> Agora você deve entender três lições concretas sobre os desafios iniciais da Solana e como eles moldaram prioridades. Primeiro, escolhas de design para alta vazão revelaram modos de falha práticos — esgotamento de recursos, latência de agendamento e backpressure de I/O — que exigiram deslocar o foco da engenharia de desempenho bruto para comportamento robusto e previsível. Essa mudança não é uma crítica; é a progressão natural quando um sistema deixa condições de laboratório e encontra cargas de trabalho do mundo real variadas.
+> Segundo, a resposta a incidentes enfatizou detecção mensurável e mitigação em estágio. Limitações de curto prazo e reinícios são ferramentas valiosas para interromper falhas em cascata imediatas, mas confiabilidade durável exigiu patches direcionados, melhor instrumentação e mudanças de fluxo de trabalho. Esses esforços de remediação alteraram decisões de alocação de recursos: equipes frequentemente adiaram novas funcionalidades de desempenho para investir em observabilidade e programação defensiva.
+> Terceiro, canais da comunidade e comunicação transparente de incidentes foram alavancas operacionais cruciais. Publicar cronogramas, etapas de mitigação e orientações de upgrade acelerou respostas coordenadas de operadores e reduziu a carga operacional sobre a equipe central. O princípio prático a lembrar é este: quando existe uma rede ativa, coordenação social e triagem técnica clara são tão importantes quanto qualquer correção de código isolada.
 
 ---
 
