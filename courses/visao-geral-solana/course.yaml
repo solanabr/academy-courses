@@ -1,19 +1,18 @@
 id: course-visao-geral-solana
 slug: visao-geral-solana
 title: "Visão Geral da Blockchain Solana"
-description: "Compreenda as origens, a história de fundação, os desafios técnicos superados e os principais marcos da evolução da Solana."
+description: "Apresentação completa das origens, arquitetura, desafios iniciais e marcos de evolução da Solana a partir do currículo canônico da Forge College."
 difficulty: beginner
-duration: 1.5
+duration: 1.9
 xpPerLesson: 20
 xpReward: 60
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+thumbnail: assets/banner.png
 trackId: 0
 trackLevel: 0
-thumbnail: assets/banner.png
 modules:
-  - key: historia-e-fundacao
+  - key: origens-e-historia
     title: "Origens e História da Solana"
-    description: "Como a Solana nasceu, os problemas que Anatoly Yakovenko buscou resolver e os primeiros desafios de rede."
     lessons:
       - lesson-vgs-origens-fundacao
       - lesson-vgs-desafios-iniciais

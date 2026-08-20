@@ -1,12 +1,14 @@
-> 🎧 **Ouça também em áudio:** [Ouvir este episódio no Spotify](https://open.spotify.com/episode/2EYDgXUPTSlatnc50iMwmK)
+### Ouça também em áudio
+
+[Ouvir este episódio no Spotify](https://open.spotify.com/episode/2EYDgXUPTSlatnc50iMwmK)
 
 ---
 
 ## Recapitulação & Introdução
 
-> 🎯 **Objetivo:** Mapear os principais marcos no desenvolvimento inicial da Solana e entender padrões de adoção inicial e crescimento de projetos.
+> **Objetivo:** Mapear os principais marcos no desenvolvimento inicial da Solana e entender padrões de adoção inicial e crescimento de projetos.
 >
-> 💡 **Por que agora:** Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.</div>
+> **Por que agora:** Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.</div>
 Principais lançamentos públicos Progressão de testnet para mainnet Colaborações e integrações notáveis Indicadores de adoção inicial e atividade de rede Como marcos influenciaram prioridades subsequentes
 
 <div class="lesson-highlight-meta">

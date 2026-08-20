@@ -1,12 +1,14 @@
-> 🎧 **Ouça também em áudio:** [Ouvir este episódio no Spotify](https://open.spotify.com/episode/3pn4cMDQGqOZV9KCd44oDM)
+### Ouça também em áudio
+
+[Ouvir este episódio no Spotify](https://open.spotify.com/episode/3pn4cMDQGqOZV9KCd44oDM)
 
 ---
 
 ## Recapitulação & Introdução
 
-> 🎯 **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.
+> **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.
 >
-> 💡 **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.</div>
+> **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.</div>
 Estabilidade técnica e preocupações de confiabilidade Crescimento da rede e restrições operacionais nos estágios iniciais Incidentes de segurança e esforços de remediação iniciais Compromissos entre financiamento e alocação de recursos Canais de feedback da comunidade e respostas iniciais
 
 <div class="lesson-highlight-meta">

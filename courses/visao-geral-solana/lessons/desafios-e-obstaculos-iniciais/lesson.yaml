@@ -14,53 +14,53 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Qual era a causa raiz predominante das interrupções e degradações de desempenho no início da mainnet beta da Solana?"
+        prompt: "Quais modos de falha operacionais surgiram quando a Solana passou do estágio de protótipo para a rede ativa em produção?"
         multiSelect: false
         options:
           - id: a
-            label: "Ataques de gasto duplo que corromperam o estado contábil da blockchain."
-            correct: false
-            feedback: "O consenso e a integridade criptográfica nunca foram violados; os problemas foram de saturação e esgotamento de recursos."
-          - id: b
-            label: "Inundação de transações (spam de bots) via UDP/TPU sem custos ou priorização, esgotando recursos dos nós validadores."
+            label: "Esgotamento de recursos nos nós validadores, latência de agendamento e backpressure de I/O sob alta carga de mensagens."
             correct: true
-            feedback: "Correto! A ausência de taxas de priorização e o envio massivo de pacotes UDP por bots de arbitragem sobrecarregavam a memória e CPU dos validadores."
-          - id: c
-            label: "Falha criptográfica no algoritmo SHA-256 do Proof of History."
+            feedback: "Correto! O alto volume de tráfego expôs limites práticos de memória, filas de pacotes e agendamento nos validadores sob estresse de produção."
+          - id: b
+            label: "Erros de consenso que geraram gastos duplos e bifurcações irreversíveis no livro-razão contábil."
             correct: false
-            feedback: "A matemática do Proof of History funcionou como projetada; o gargalo foi a camada de rede e ingestão de transações."
-        explanation: "Sem mempool tradicional e com envio de pacotes UDP sem rate-limiting no nível de aplicação, picos de tráfego causavam perda massiva de pacotes e travamento de validadores por exaustão de memória."
+            feedback: "A integridade dos dados e o consenso criptográfico foram preservados; os desafios foram de saturação operacional e estabilidade de nós."
+          - id: c
+            label: "Falhas na função criptográfica SHA-256 utilizada no fluxo de Proof of History."
+            correct: false
+            feedback: "A matemática do Proof of History funcionou conforme esperado; os gargalos ocorreram no processamento de I/O e capacidade de ingestão de pacotes."
+        explanation: "A transição para produção revelou que a busca por alta vazão gerava modos de falha operacionais práticos (esgotamento de recursos e backpressure), deslocando o foco da engenharia para previsibilidade e observabilidade."
       - id: q2
-        prompt: "Como a resposta da comunidade de engenharia da Solana evoluiu diante dos incidentes operacionais?"
+        prompt: "De acordo com a análise de logs de validadores abordada na lição, quais padrões de eventos sinalizam instabilidade operacional em um nó?"
         multiSelect: false
         options:
           - id: a
-            label: "Transição de mitigação emergencial para soluções estruturais duráveis como QUIC, Stake-Weighted QoS e Mercados de Taxas Localizadas."
+            label: "Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas RPC e pausas anômalas no processamento."
             correct: true
-            feedback: "Exato! A rede substituiu UDP por QUIC, implementou QoS ponderado por stake para proteger validadores honestos e criou taxas de prioridade por conta/estado."
+            feedback: "Exato! Na telemetria de validadores, slots ignorados e pausas excessivas indicam que o validador não está conseguindo acompanhar o ritmo do líder ou responder a requisições."
           - id: b
-            label: "Centralização permanente do sequenciamento de blocos em um único servidor da fundação."
+            label: "Diminuição automática no tamanho dos blocos gerados pelo nó validador líder."
             correct: false
-            feedback: "A Solana manteve sua governança e liderança de blocos descentralizada entre milhares de validadores."
+            feedback: "O tamanho do bloco não é reduzido dinamicamente por métricas de log de clientes individuais."
           - id: c
-            label: "Aumento do tempo de bloco de 400ms para 15 minutos para reduzir o volume de dados."
+            label: "Rejeição de transações exclusivamente por ausência de assinaturas criptográficas válidas."
             correct: false
-            feedback: "O tempo de slot foi preservado em ~400ms, com aprimoramentos focados na camada de transporte e agendamento."
-        explanation: "A engenharia tratou cada incidente como aprendizado para implementar defesas duráveis: QUIC para controle de fluxo, SWQoS para garantia de entrega proporcional e mercados de taxas localizadas para conter hotspots."
+            feedback: "Assinaturas inválidas são descartadas no fluxo normal de verificação e não constituem sintoma primário de instabilidade de nó."
+        explanation: "No código e nos exemplos de log analisados na lição, eventos como 'slot skipped', erros de RPC e pausas anômalas de processamento são os indicadores primários de degradação de performance."
       - id: q3
-        prompt: "Qual é a distinção entre uma mitigação de curto prazo e um patch arquitetural durável em resposta a um incidente de rede?"
+        prompt: "Qual é a relação entre mitigações de curto prazo e remediações duráveis no fluxo de resposta a incidentes de uma rede blockchain?"
         multiSelect: false
         options:
           - id: a
-            label: "Mitigações são mudanças definitivas de código; patches duráveis são apenas reinicializações manuais de validadores."
+            label: "Mitigações de curto prazo substituem em definitivo a necessidade de desenvolver patches arquiteturais."
             correct: false
-            feedback: "É exatamente o inverso."
+            feedback: "Mitigações temporárias apenas estabilizam o sistema para permitir que a equipe desenvolva correções definitivas com segurança."
           - id: b
-            label: "Mitigações estabilizam a rede temporariamente (ex: ajustes de buffer/filtros), enquanto patches duráveis corrigem o mecanismo estrutural (ex: QUIC e SWQoS)."
+            label: "Mitigações de curto prazo estabilizam a rede e restauram o consenso imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural."
             correct: true
-            feedback: "Perfeito! Mitigações restabelecem o liveness no curto prazo, enquanto patches arquiteturais eliminam a classe de falha de forma duradoura."
+            feedback: "Perfeito! Durante um incidente, a prioridade é conter o dano e reestabelecer o liveness; em seguida, desenvolvem-se patches duráveis para eliminar a classe de falha."
           - id: c
-            label: "Não há distinção: toda intervenção em blockchain é considerada um patch permanente."
+            label: "Remediações duráveis devem ser aplicadas diretamente em produção sem fase prévia de contenção ou diagnóstico."
             correct: false
-            feedback: "Na prática de engenharia de alta vazão, a separação clara entre resposta imediata e reengenharia estrutural é indispensável."
-        explanation: "Durante um incidente, a prioridade imediata é restaurar o consenso com mitigações seguras, seguida pelo desenvolvimento, auditoria e implantação de patches arquiteturais duráveis."
+            feedback: "Alterações arquiteturais profundas exigem testes rigorosos e não devem ser improvisadas durante o calor do incidente sem contenção prévia."
+        explanation: "O fluxo de incidentes separa claramente a contenção emergencial (mitigação de curto prazo para restaurar a rede) da solução de engenharia durável (patch que corrige a causa raiz)."

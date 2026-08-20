@@ -14,53 +14,53 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Por que a fase de 'Mainnet Beta' da Solana foi designada explicitamente com o rótulo 'Beta'?"
+        prompt: "No modelo mental apresentado na lição, como o ciclo de vida dos releases da rede é comparado à construção de uma ponte?"
         multiSelect: false
         options:
           - id: a
-            label: "Porque a rede ainda não processava transações com valor financeiro real."
+            label: "A ponte representa uma ferramenta exclusiva para transferir tokens entre duas blockchains distintas."
             correct: false
-            feedback: "A Mainnet Beta já transferia SOL real e ativos com valor econômico genuíno desde o primeiro dia."
+            feedback: "A analogia da ponte é usada para descrever as fases de engenharia e sustentação de uma infraestrutura robusta, e não uma bridge de tokens."
           - id: b
-            label: "Para sinalizar que o protocolo, embora funcional com valor real, continuaria recebendo otimizações e hardening sob estresse de produção."
+            label: "A rede evolui em fases sucessivas: suportes fundamentais (consenso e runtime), testes sob estresse em testnets, abertura pública e expansão de capacidade."
             correct: true
-            feedback: "Correto! O rótulo Beta comunicava transparência: a rede estava viva e auditada, mas sujeita a upgrades contínuos de estabilidade, recursos e maturidade de software."
+            feedback: "Correto! Assim como uma ponte precisa de pilares sólidos antes de suportar tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir para o ecossistema amplo."
           - id: c
-            label: "Porque todos os nós validadores eram operados exclusivamente por uma única empresa."
+            label: "A rede é considerada uma estrutura estática imutável que não admite novas fases de suporte após a implantação inicial."
             correct: false
-            feedback: "A Mainnet Beta já contava com centenas de operadores independentes distribuídos globalmente."
-        explanation: "A designação Mainnet Beta refletia a filosofia de testar e iterar em produção com transparência técnica sobre a evolução contínua das primitivas do protocolo."
+            feedback: "A evolução de uma blockchain de alta performance é contínua e passa por sucessivas fases de release e aprimoramento."
+        explanation: "A metáfora da ponte ilustra que a rede é construída em etapas interdependentes: fundação técnica, stress-tests, lançamento público e ampliação contínua da capacidade."
       - id: q2
-        prompt: "Qual é a principal diferença de impacto entre um 'Release Técnico de Protocolo' e um 'Evento do Ecossistema'?"
+        prompt: "Qual é a diferença fundamental entre 'Releases Técnicos' e 'Eventos do Ecossistema' na evolução de uma blockchain?"
         multiSelect: false
         options:
           - id: a
-            label: "Releases de protocolo alteram telemetria, vazão e capacidades do runtime; eventos do ecossistema expandem volume de usuários, liquidez e diversidade de dApps."
+            label: "Releases técnicos alteram o desempenho e a estabilidade da rede; eventos do ecossistema expandem a atividade dos desenvolvedores, casos de uso e engajamento."
             correct: true
-            feedback: "Exato! Releases técnicos afetam o comportamento do validador e a segurança da rede; eventos de ecossistema geram tração de mercado e adoção prática."
+            feedback: "Exato! Releases de protocolo impactam a telemetria dos validadores e a capacidade do runtime; eventos de ecossistema impulsionam a camada de aplicação e a adoção."
           - id: b
-            label: "Eventos do ecossistema exigem hard forks da rede, enquanto releases de protocolo não requerem atualização de validadores."
+            label: "Releases técnicos são conduzidos exclusivamente por usuários finais, enquanto eventos do ecossistema são atualizações de software nos nós."
             correct: false
-            feedback: "Releases de software exigem que validadores atualizem seus binários; eventos de ecossistema são atividades dos desenvolvedores e usuários na camada de aplicação."
+            feedback: "É o inverso: releases técnicos são atualizações de protocolo para validadores; eventos de ecossistema envolvem a comunidade e desenvolvedores de dApps."
           - id: c
-            label: "Não existe diferença prática: ambos medem apenas o número de commits no GitHub."
+            label: "Não há distinção prática: ambos os tipos de marco são avaliados unicamente pela contagem de nós validadores."
             correct: false
-            feedback: "Métricas técnicas avaliam latência e TPS; métricas de ecossistema avaliam TVL, carteiras ativas diárias e volume de transações."
-        explanation: "Releases técnicos expandem as capacidades fundamentais do sistema (capacidade de processamento e robustez), criando a base sobre a qual eventos de ecossistema (hackathons, DeFi, NFTs) constroem adoção sustentável."
+            feedback: "A lição destaca que cada tipo de marco requer métricas distintas: telemetria técnica para releases e métricas de atividade de usuário/desenvolvedor para eventos."
+        explanation: "Releases técnicos estabelecem as fundações operacionais e a capacidade da rede, enquanto eventos do ecossistema convertem essa capacidade em adoção real e atividade de mercado."
       - id: q3
-        prompt: "Como os Hackathons da Solana (ex: Ignition, Riptide, Grizzlython) impactaram o ciclo de desenvolvimento da rede?"
+        prompt: "Ao analisar a linha do tempo de adoção de uma blockchain, por que os marcos devem ser tratados como 'transições funcionais'?"
         multiSelect: false
         options:
           - id: a
-            label: "Serviram apenas como eventos de marketing sem gerar novos produtos ou protocolos."
-            correct: false
-            feedback: "Muitos dos principais protocolos de DeFi, infraestrutura e pagamentos da Solana nasceram diretamente em seus hackathons."
-          - id: b
-            label: "Atuaram como catalisadores de inovação e stress-tests reais de demanda, trazendo novas equipes de desenvolvedores e gerando casos de uso nativos."
+            label: "Porque cada marco exercita um mecanismo técnico específico e gera indicadores observáveis mensuráveis no comportamento da rede."
             correct: true
-            feedback: "Perfeito! Os hackathons atraíram milhares de desenvolvedores globais, testando os limites da rede com casos de uso que impulsionaram melhorias técnicas e novos padrões de contratos."
-          - id: c
-            label: "Foram usados para substituir o desenvolvimento do cliente validador principal."
+            feedback: "Perfeito! Em vez de encarar marcos como simples datas no calendário, analisá-los como transições funcionais permite correlacionar melhorias técnicas a dados observáveis de adoção."
+          - id: b
+            label: "Porque marcos servem apenas como anúncios de marketing sem reflexo na operação ou métricas da rede."
             correct: false
-            feedback: "Os hackathons focam em aplicações e ferramentas de desenvolvedor, complementando o desenvolvimento do core protocol."
-        explanation: "Hackathons globais funcionaram como motores de ecossistema, convertendo o throughput técnico da rede em valor de aplicação e acelerando o flywheel de adoção."
+            feedback: "Marcos funcionais reais geram mudanças observáveis na telemetria, volume de transações e comportamento dos contratos."
+          - id: c
+            label: "Porque cada novo marco exige que todo o protocolo seja reescrito do zero pelos desenvolvedores."
+            correct: false
+            feedback: "A evolução da rede é cumulativa e iterativa, construindo sobre as camadas de consenso e runtime consolidadas."
+        explanation: "Tratar marcos como transições funcionais transforma uma cronologia histórica em um método rigoroso de análise técnica e de adoção de ecossistemas."

@@ -1,12 +1,14 @@
-> 🎧 **Ouça também em áudio:** [Ouvir este episódio no Spotify](https://open.spotify.com/episode/3HwG3Tj6o0o6y12y3h9vVb)
+### Ouça também em áudio
+
+[Ouvir este episódio no Spotify](https://open.spotify.com/episode/3HwG3Tj6o0o6y12y3h9vVb)
 
 ---
 
 ## Recapitulação & Introdução
 
-> 🎯 **Objetivo:** Traçar a história de origem da Solana e identificar as motivações fundadoras e a equipe inicial que lançou o projeto.
+> **Objetivo:** Traçar a história de origem da Solana e identificar as motivações fundadoras e a equipe inicial que lançou o projeto.
 >
-> 💡 **Por que agora:** Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.</div>
+> **Por que agora:** Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.</div>
 Motivações iniciais por trás da criação da Solana Equipe fundadora e seus papéis Visão técnica inicial e prioridades Primeiras fontes de financiamento e mecanismos de apoio Primeiros marcos públicos e anúncios
 
 <div class="lesson-highlight-meta">
