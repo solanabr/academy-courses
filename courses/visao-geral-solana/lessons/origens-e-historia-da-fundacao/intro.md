@@ -6,15 +6,6 @@
 
 ## Recapitulação & Introdução
 
-> **Objetivo:** Traçar a história de origem da Solana e identificar as motivações fundadoras e a equipe inicial que lançou o projeto.
->
-> **Por que agora:** Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.
-
-Motivações iniciais por trás da criação da Solana Equipe fundadora e seus papéis Visão técnica inicial e prioridades Primeiras fontes de financiamento e mecanismos de apoio Primeiros marcos públicos e anúncios
-
-Fundação Histórica
-25 min de leitura
-
 **Objetivo:** Traçar a história de origem da Solana e identificar as motivações fundadoras e a equipe inicial que lançou o projeto.
 
 **Por que agora:** Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.

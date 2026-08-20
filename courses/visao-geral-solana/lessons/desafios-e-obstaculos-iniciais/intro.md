@@ -6,15 +6,6 @@
 
 ## Recapitulação & Introdução
 
-> **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.
->
-> **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.
-
-Estabilidade técnica e preocupações de confiabilidade Crescimento da rede e restrições operacionais nos estágios iniciais Incidentes de segurança e esforços de remediação iniciais Compromissos entre financiamento e alocação de recursos Canais de feedback da comunidade e respostas iniciais
-
-Fundação Conceitual
-30 min de leitura
-
 O whitepaper que você acabou de estudar enquadra a criptomoeda como um sistema de dinheiro eletrônico peer-to-peer que resolve o duplo gasto com marcação temporal e blocos encadeados. Você deve recordar a ideia específica de que ordenar transações de forma consistente (via timestamping e encadeamento) é o mecanismo que torna possível um livro razão canônico único apesar de participantes adversariais. Esse mecanismo concreto — ordenação + histórico acordado — é a âncora para entender por que uma blockchain deve priorizar tanto o progresso do consenso quanto a segurança.
 
 Agora passamos do desenho conceitual do whitepaper para os obstáculos práticos que uma blockchain de alta vazão encontrou ao migrar do papel para a produção. A conexão é direta: o whitepaper assume um conjunto particular de trade-offs envolvendo latência, vazão e modelos de adversário, mas quando equipes tentaram implementar esses trade-offs em software real e em redes reais, realidades operacionais inesperadas surgiram. Nesta lição você vai identificar os principais desafios técnicos e organizacionais que a Solana enfrentou no início e verá como esses desafios deslocaram as prioridades de desenvolvimento de trade-offs puramente teóricos para trabalho pragmático de confiabilidade.
@@ -39,48 +30,53 @@ Ao final desta lição você será capaz de:
 
 Quando problemas de estabilidade ocorrem em um validador em execução, engenheiros frequentemente começam extraindo eventos estruturados dos logs e buscando padrões como mensagens frequentes de "slot skipped", chamadas RPC falhas repetidas ou pausas de GC. O código abaixo é um exemplo compacto em Rust que analisa um log simplificado de validador, conta tipos de evento e sinaliza ocorrências incomumente frequentes de "slot skipped". Este é um diagnóstico pequeno que você pode adaptar para qualquer runtime que emita eventos com timestamp.
 
-```
+
+
+```rust
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
 
-fn main() -> io::Result {
- let file = File::open("validator.log")?;
- let reader = io::BufReader::new(file);
- let mut counts: HashMap = HashMap::new();
+fn main() -> io::Result<()> {
+    let file = File::open("validator.log")?;
+    let reader = io::BufReader::new(file);
+    let mut counts: HashMap<String, usize> = HashMap::new();
 
- for line in reader.lines() {
- let line = line?;
- if let Some(event) = parse_event(&line) {
- *counts.entry(event).or_insert(0) += 1;
- }
- }
+    for line in reader.lines() {
+        let line = line?;
+        if let Some(event) = parse_event(&line) {
+            *counts.entry(event).or_insert(0) += 1;
+        }
+    }
 
- for (event, count) in counts.iter() {
- println!("{}: {}", event, count);
- }
- Ok(())
+    for (event, count) in counts.iter() {
+        println!("{}: {}", event, count);
+    }
+    Ok(())
 }
 
-fn parse_event(line: &str) -> Option {
- if line.contains("slot skipped") {
- return Some("slot_skipped".to_string());
- }
- if line.contains("rpc error") {
- return Some("rpc_error".to_string());
- }
- if line.contains("panic") {
- return Some("panic".to_string());
- }
- None
+fn parse_event(line: &str) -> Option<String> {
+    if line.contains("slot skipped") {
+        return Some("slot_skipped".to_string());
+    }
+    if line.contains("rpc error") {
+        return Some("rpc_error".to_string());
+    }
+    if line.contains("panic") {
+        return Some("panic".to_string());
+    }
+    None
 }
 ```
+
+
 
 Explicação linha a linha:
 
 1. `use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
 2. A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
-3. `let mut counts: HashMap = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`. Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
+3. `let mut counts: HashMap = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`.
+Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
 4. A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
 5. Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
 

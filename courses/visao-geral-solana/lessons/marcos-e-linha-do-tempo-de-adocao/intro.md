@@ -6,15 +6,6 @@
 
 ## Recapitulação & Introdução
 
-> **Objetivo:** Mapear os principais marcos no desenvolvimento inicial da Solana e entender padrões de adoção inicial e crescimento de projetos.
->
-> **Por que agora:** Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.
-
-Principais lançamentos públicos Progressão de testnet para mainnet Colaborações e integrações notáveis Indicadores de adoção inicial e atividade de rede Como marcos influenciaram prioridades subsequentes
-
-Fundação Conceitual
-30 min de leitura
-
 **Objetivo:** Mapear os principais marcos no desenvolvimento inicial da Solana e entender padrões de adoção inicial e crescimento de projetos.
 
 **Por que agora:** Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.
