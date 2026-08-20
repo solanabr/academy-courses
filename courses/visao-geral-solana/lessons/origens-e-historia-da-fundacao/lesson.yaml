@@ -4,62 +4,63 @@ title: "Origens e História da Fundação"
 skills:
   - solana-fundamentals
 blocks:
-  - key: intro
-    type: prose
-    src: intro.md
   - key: video
     type: video
-    url: "https://www.youtube.com/watch?v=L65KvCbTqRo"
-  - key: check
+    url: "https://www.youtube.com/watch?v=kYZZsLzEwGg"
+  - key: content
+    type: prose
+    src: intro.md
+  - key: quiz
     type: quiz
     questions:
-      - id: q1-poh-clockwork
-        prompt: "Qual é o papel fundamental da 'primitiva de tempo verificável' (Proof of History) no modelo mental da Solana, em contraste com a ordenação probabilística tradicional?"
+      - id: q1
+        prompt: "Qual foi a principal percepção técnica (insight) de Anatoly Yakovenko na fundação da Solana?"
         multiSelect: false
         options:
-          - id: opt-a
-            label: "Eliminar a necessidade de validadores e de armazenamento do livro-razão na rede."
+          - id: a
+            label: "Aumentar o tamanho do bloco para acomodar mais transações por segundo."
             correct: false
-            feedback: "A Solana continua dependendo de validadores distribuídos que executam e armazenam o estado do livro-razão."
-          - id: opt-b
-            label: "Estabelecer uma sequência cronológica determinística de eventos localmente e antes do consenso, reduzindo a sobrecarga de coordenação entre os nós."
+            feedback: "Aumentar o bloco isoladamente sobrecarrega a propagação de rede sem resolver o problema de sincronização de tempo."
+          - id: b
+            label: "Usar uma Função de Atraso Verificável (VDF/PoH) como um relógio global descentralizado antes do consenso."
             correct: true
-          - id: opt-c
-            label: "Garantir que todos os blocos tenham confirmação probabilística lenta para maximizar a resistência a reorganizações profundas."
+            feedback: "Correto! Ao criar um fluxo sequencial e verificável de tempo via SHA-256 (Proof of History), os nós concordam com o tempo sem depender de comunicação de rede ponto a ponto constante."
+          - id: c
+            label: "Criar uma segunda camada (Layer 2) sobre o Bitcoin para liquidação instantânea."
             correct: false
-            feedback: "A confirmação probabilística em janelas longas é a característica do modelo Proof of Work do Bitcoin, e não a proposta de baixa latência da Solana."
-        explanation: "O modelo mental da Solana trata o livro-razão como um relógio coordenado: ao incorporar uma primitiva de tempo verificável (Proof of History), a rede desacopla a passagem do tempo da troca de mensagens de consenso, permitindo ordenação determinística de alta velocidade."
-
-      - id: q2-founding-team
-        prompt: "De acordo com o histórico de fundação da Solana, como a complementaridade técnica da equipe inicial acelerou a transição do protótipo para uma rede testável?"
+            feedback: "A Solana foi projetada como uma blockchain Layer 1 de estado único e alta vazão, e não como uma Layer 2 do Bitcoin."
+        explanation: "Anatoly Yakovenko percebeu que a falta de um relógio confiável era o principal gargalo de escalabilidade em sistemas distribuídos. O Proof of History introduziu uma referência de tempo criptográfica contínua antes do consenso."
+      - id: q2
+        prompt: "Como a formação da equipe inicial fundadora da Solana (ex-engenheiros da Qualcomm) influenciou sua arquitetura?"
         multiSelect: false
         options:
-          - id: opt-a
-            label: "Combinou arquitetos de protocolo, engenheiros de sistemas de baixa latência e liderança de outreach, permitindo validar o design em testnets e benchmarks medidos."
+          - id: a
+            label: "Trouxe experiência em sistemas embarcados, redes móveis e otimização em nível de hardware."
             correct: true
-          - id: opt-b
-            label: "Dependeu exclusivamente de pesquisadores teóricos de matemática pura sem experiência em implementação de software de sistemas."
+            feedback: "Exato! A equipe aplicou técnicas da indústria de telecomunicações e hardware, tratando o hardware moderno (CPUs multicore, GPUs, redes velozes) como recurso a ser totalmente utilizado."
+          - id: b
+            label: "Focou exclusivamente em linguagens interpretadas para facilitar o onboarding de desenvolvedores web."
             correct: false
-            feedback: "A equipe fundadora destacou-se exatamente por sua forte bagagem em engenharia de sistemas de telecomunicações e software de baixo nível."
-          - id: opt-c
-            label: "Focou apenas em campanhas de divulgação antes de construir código funcional ou testnets internas."
+            feedback: "A equipe escolheu Rust e BPF/SBF para garantir execução nativa de alto desempenho e controle rigoroso de memória."
+          - id: c
+            label: "Priorizou simplicidade de execução sequencial em nós de capacidade mínima de computação."
             correct: false
-            feedback: "O progresso inicial baseou-se em marcos técnicos concretos: protótipo, testnets privadas e benchmarks de desempenho medidos antes da abertura pública."
-        explanation: "A equipe fundadora da Solana reuniu papéis complementares: arquitetura de protocolo para desenhar as primitivas de tempo, engenharia de sistemas para transformar protótipos em código de alto desempenho e outreach para engajar desenvolvedores e validadores nos testes."
-
-      - id: q3-solana-vs-bitcoin
-        prompt: "Como as prioridades de design da fundação da Solana diferem das motivações centrais que moldaram a criação do Bitcoin?"
+            feedback: "Pelo contrário: a Solana foi desenhada para escalar vertical e horizontalmente acompanhando a curva da Lei de Moore."
+        explanation: "A bagagem da equipe na Qualcomm em processamento paralelo, modems e compressão de sinais direcionou o design da Solana para maximizar a eficiência do hardware moderno."
+      - id: q3
+        prompt: "Qual é a diferença fundamental de prioridade entre a Solana e o Bitcoin em relação ao tempo e execução?"
         multiSelect: false
         options:
-          - id: opt-a
-            label: "A Solana buscou eliminar contratos inteligentes, enquanto o Bitcoin focou em execução paralela de alta frequência."
+          - id: a
+            label: "O Bitcoin foca em maximizar transações por segundo enquanto a Solana foca em armazenamento de valor lento."
             correct: false
-            feedback: "O Bitcoin possui uma linguagem de script deliberadamente restrita, enquanto a Solana foi desenhada como um livro-razão rápido e programável."
-          - id: opt-b
-            label: "O Bitcoin adotou execução paralela em GPUs, enquanto a Solana limitou sua validação a computadores de baixa frequência de clock."
+            feedback: "É o oposto: o Bitcoin prioriza verificação simples e auditabilidade em hardware básico, enquanto a Solana maximiza vazão e baixa latência."
+          - id: b
+            label: "O Bitcoin usa relógios atômicos centralizados e a Solana não usa nenhuma referência temporal."
             correct: false
-            feedback: "A Solana foi projetada para aproveitar hardware multicore moderno e paralelismo, enquanto o Bitcoin priorizou simplicidade em hardware de baixo consumo."
-          - id: opt-c
-            label: "O Bitcoin priorizou resistência à censura e escassez monetária tolerando maior latência, enquanto a Solana enfatizou alta vazão, baixa latência e execução rápida para aplicações de alta frequência."
+            feedback: "O Bitcoin ordena eventos por blocos discretos minerados sem relógio contínuo; a Solana usa Proof of History como relógio criptográfico descentralizado."
+          - id: c
+            label: "O Bitcoin prioriza segurança e descentralização com blocos discretos de 10 min; a Solana integra tempo contínuo para viabilizar execução paralela em alta velocidade."
             correct: true
-        explanation: "As prioridades fundadoras determinam os trade-offs: o Bitcoin tolera janelas longas de confirmação para reforçar a segurança em consistência eventual; a Solana prioriza baixa latência e alta vazão para viabilizar mercados rápidos e microtransações."
+            feedback: "Perfeito! O Bitcoin usa intervalos de ~10 minutos para garantir que qualquer nó global sincronize; a Solana usa Proof of History para permitir slots de 400ms e processamento paralelo."
+        explanation: "O Bitcoin foi projetado para maximizar a auditabilidade descentralizada com requisitos mínimos de hardware, enquanto a Solana foi desenhada para funcionar na velocidade da física e das redes modernas."

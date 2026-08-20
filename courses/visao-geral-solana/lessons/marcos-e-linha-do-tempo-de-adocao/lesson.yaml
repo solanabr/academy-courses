@@ -4,62 +4,63 @@ title: "Marcos e Linha do Tempo de Adoção"
 skills:
   - solana-fundamentals
 blocks:
-  - key: intro
-    type: prose
-    src: intro.md
   - key: video
     type: video
     url: "https://www.youtube.com/watch?v=OqgDtLY8ZAs"
-  - key: check
+  - key: content
+    type: prose
+    src: intro.md
+  - key: quiz
     type: quiz
     questions:
-      - id: q1-bridge-model
-        prompt: "No modelo mental que compara o ciclo de vida da rede à construção de uma ponte em fases, qual é a função das testnets e dos stress tests antes do lançamento da mainnet?"
+      - id: q1
+        prompt: "Por que a fase de 'Mainnet Beta' da Solana foi designada explicitamente com o rótulo 'Beta'?"
         multiSelect: false
         options:
-          - id: opt-a
-            label: "Realizar lançamentos comerciais de produtos de consumo final sem envolver operadores de validadores."
+          - id: a
+            label: "Porque a rede ainda não processava transações com valor financeiro real."
             correct: false
-            feedback: "As testnets são ambientes técnicos voltados para validação de protocolos, operadores de nós e ferramentas."
-          - id: opt-b
-            label: "Validar suportes fundamentais de consenso e limites de runtime sob condições adversas e carga distribuída antes de abrir o livro-razão a valor real."
+            feedback: "A Mainnet Beta já transferia SOL real e ativos com valor econômico genuíno desde o primeiro dia."
+          - id: b
+            label: "Para sinalizar que o protocolo, embora funcional com valor real, continuaria recebendo otimizações e hardening sob estresse de produção."
             correct: true
-          - id: opt-c
-            label: "Substituir o código-fonte em Rust por um banco de dados relacional tradicional."
+            feedback: "Correto! O rótulo Beta comunicava transparência: a rede estava viva e auditada, mas sujeita a upgrades contínuos de estabilidade, recursos e maturidade de software."
+          - id: c
+            label: "Porque todos os nós validadores eram operados exclusivamente por uma única empresa."
             correct: false
-            feedback: "As testnets testam o próprio cliente validador distribuído sob estresse, sem substituir sua arquitetura."
-        explanation: "Construir uma rede é como erguer uma ponte: primeiro assentam-se as fundações teóricas; depois, realizam-se testes de carga sob estresse (testnets) para certificar a estabilidade antes da liberação ao tráfego público (mainnet)."
-
-      - id: q2-tech-vs-ecosystem
-        prompt: "Ao monitorar o impacto de um 'release técnico' do protocolo (como uma atualização de parâmetros de consenso), qual conjunto de métricas deve ser inspecionado prioritariamente?"
+            feedback: "A Mainnet Beta já contava com centenas de operadores independentes distribuídos globalmente."
+        explanation: "A designação Mainnet Beta refletia a filosofia de testar e iterar em produção com transparência técnica sobre a evolução contínua das primitivas do protocolo."
+      - id: q2
+        prompt: "Qual é a principal diferença de impacto entre um 'Release Técnico de Protocolo' e um 'Evento do Ecossistema'?"
         multiSelect: false
         options:
-          - id: opt-a
-            label: "Telemetria de sistema, incluindo tempos de bloco, latência de confirmação, taxas de erro em respostas RPC e utilização de recursos dos validadores."
+          - id: a
+            label: "Releases de protocolo alteram telemetria, vazão e capacidades do runtime; eventos do ecossistema expandem volume de usuários, liquidez e diversidade de dApps."
             correct: true
-          - id: opt-b
-            label: "Quantidade de seguidores em redes sociais e menções em fóruns de discussão não técnicos."
+            feedback: "Exato! Releases técnicos afetam o comportamento do validador e a segurança da rede; eventos de ecossistema geram tração de mercado e adoção prática."
+          - id: b
+            label: "Eventos do ecossistema exigem hard forks da rede, enquanto releases de protocolo não requerem atualização de validadores."
             correct: false
-            feedback: "Engenheiros e analistas técnicos monitoram telemetria direta do nó para verificar a estabilidade do protocolo."
-          - id: opt-c
-            label: "Contagem de forks de templates de front-end criados por designers gráficos."
+            feedback: "Releases de software exigem que validadores atualizem seus binários; eventos de ecossistema são atividades dos desenvolvedores e usuários na camada de aplicação."
+          - id: c
+            label: "Não existe diferença prática: ambos medem apenas o número de commits no GitHub."
             correct: false
-            feedback: "Métricas de front-end não refletem se o release de consenso manteve a integridade do runtime."
-        explanation: "Releases técnicos afetam o comportamento central da rede e exigem análise de telemetria imediata (latência, tempo de bloco, uso de recursos e erros RPC); eventos de ecossistema afetam a experiência do desenvolvedor e refletem-se em deploys de programas e criação de contas."
-
-      - id: q3-adoption-signals
-        prompt: "De acordo com o framework de análise de marcos da lição, quais sinais observáveis refletem a progressão real da adoção de desenvolvedores e integradores?"
+            feedback: "Métricas técnicas avaliam latência e TPS; métricas de ecossistema avaliam TVL, carteiras ativas diárias e volume de transações."
+        explanation: "Releases técnicos expandem as capacidades fundamentais do sistema (capacidade de processamento e robustez), criando a base sobre a qual eventos de ecossistema (hackathons, DeFi, NFTs) constroem adoção sustentável."
+      - id: q3
+        prompt: "Como os Hackathons da Solana (ex: Ignition, Riptide, Grizzlython) impactaram o ciclo de desenvolvimento da rede?"
         multiSelect: false
         options:
-          - id: opt-a
-            label: "Especulação de preços em mercados secundários sem novos deploys de programas na rede."
+          - id: a
+            label: "Serviram apenas como eventos de marketing sem gerar novos produtos ou protocolos."
             correct: false
-            feedback: "Preços de mercado não comprovam a maturidade técnica nem o uso das ferramentas de desenvolvimento."
-          - id: opt-b
-            label: "Deploys estáveis de programas, aumento na contagem de validadores independentes, novos tipos de transação e atividade contínua de tooling e SDKs."
+            feedback: "Muitos dos principais protocolos de DeFi, infraestrutura e pagamentos da Solana nasceram diretamente em seus hackathons."
+          - id: b
+            label: "Atuaram como catalisadores de inovação e stress-tests reais de demanda, trazendo novas equipes de desenvolvedores e gerando casos de uso nativos."
             correct: true
-          - id: opt-c
-            label: "Volume de mensagens publicitárias divulgadas em canais institucionais."
+            feedback: "Perfeito! Os hackathons atraíram milhares de desenvolvedores globais, testando os limites da rede com casos de uso que impulsionaram melhorias técnicas e novos padrões de contratos."
+          - id: c
+            label: "Foram usados para substituir o desenvolvimento do cliente validador principal."
             correct: false
-            feedback: "Anúncios institucionais são declarações de intenção; a adoção real é medida por evidências observáveis on-chain e em repositórios."
-        explanation: "Adoção técnica genuína é comprovada por indicadores tangíveis: diversidade de validadores operando o software, novos programas implantados no livro-razão e sustentação na manutenção de SDKs e bibliotecas clientes."
+            feedback: "Os hackathons focam em aplicações e ferramentas de desenvolvedor, complementando o desenvolvimento do core protocol."
+        explanation: "Hackathons globais funcionaram como motores de ecossistema, convertendo o throughput técnico da rede em valor de aplicação e acelerando o flywheel de adoção."
