@@ -1,66 +1,96 @@
 id: lesson-vgs-desafios-iniciais
 slug: desafios-e-obstaculos-iniciais
-title: "Desafios e Obstáculos Iniciais"
+title: Desafios e Obstáculos Iniciais
 skills:
-  - solana-fundamentals
+- solana-fundamentals
 blocks:
-  - key: video
-    type: video
-    url: "https://www.youtube.com/watch?v=XgeKLcVD3Os"
-  - key: content
-    type: prose
-    src: intro.md
-  - key: quiz
-    type: quiz
-    questions:
-      - id: q1
-        prompt: "Quais problemas operacionais surgiram quando a Solana passou do estágio de protótipo para a rede ativa em produção?"
-        multiSelect: false
-        options:
-          - id: a
-            label: "Esgotamento de recursos nos nós validadores, latência de agendamento e backpressure de I/O sob alta carga de mensagens."
-            correct: true
-            feedback: "Correto! O alto volume de tráfego expôs limites práticos de memória, processamento e agendamento nos validadores sob estresse de produção."
-          - id: b
-            label: "Redução drástica do tráfego para níveis próximos de zero, deixando os nós sem mensagens para processar."
-            correct: false
-            feedback: "O desafio foi exatamente o oposto: a sobrecarga e o volume intenso de mensagens que saturaram os recursos dos nós."
-          - id: c
-            label: "Incapacidade dos nós em executar qualquer instrução mesmo sem receber mensagens da rede."
-            correct: false
-            feedback: "Os nós funcionavam normalmente em condições padrão; a instabilidade decorria da alta carga e estresse de concorrência em produção."
-        explanation: "A lição explica que a busca por alta vazão revelou desafios práticos de engenharia: saturação de CPU/memória, latência de agendamento e backpressure de I/O em momentos de pico."
-      - id: q2
-        prompt: "De acordo com o exemplo de análise de logs de validador apresentado na lição, quais padrões de eventos indicam instabilidade operacional em um nó?"
-        multiSelect: false
-        options:
-          - id: a
-            label: "Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas RPC e pausas excessivas de processamento."
-            correct: true
-            feedback: "Exato! Na análise de logs, slots ignorados, falhas em chamadas RPC e pausas anômalas são os principais sinais de que o validador está sobrecarregado."
-          - id: b
-            label: "Eventos regulares de confirmação de blocos no prazo previsto e sem mensagens de erro nos canais RPC."
-            correct: false
-            feedback: "Confirmações regulares sem atrasos indicam operação saudável, e não instabilidade."
-          - id: c
-            label: "Ausência completa de registros de logs gerados pelos validadores durante a operação."
-            correct: false
-            feedback: "A instabilidade é diagnosticada pela presença de eventos anômalos nos logs, e não pela ausência de arquivos de log."
-        explanation: "No código e na explicação da lição, eventos estruturados de 'slot skipped', erros de RPC e pausas de processamento são extraídos para diagnosticar a perda de sincronia do validador."
-      - id: q3
-        prompt: "Qual é a função das mitigações de curto prazo em relação às remediações duráveis no fluxo de resposta a incidentes?"
-        multiSelect: false
-        options:
-          - id: a
-            label: "Mitigações de curto prazo estabilizam a rede e restabelecem o consenso imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural."
-            correct: true
-            feedback: "Perfeito! A prioridade imediata em um incidente é conter o impacto e recuperar a estabilidade; depois, desenvolve-se o patch durável para eliminar a causa raiz."
-          - id: b
-            label: "Mitigações de curto prazo tornam desnecessária qualquer investigação da causa raiz ou correção durável futura."
-            correct: false
-            feedback: "Mitigações apenas contêm o sintoma imediato; sem um patch definitivo na causa raiz, a falha pode se repetir."
-          - id: c
-            label: "Mitigações de curto prazo devem ser ignoradas, aplicando-se apenas patches finais diretamente durante a crise."
-            correct: false
-            feedback: "O fluxo de resposta estruturado exige primeiro triagem e mitigação emergencial para conter danos antes de projetar soluções definitivas."
-        explanation: "A lição divide o fluxo em detecção, triagem, mitigação de curto prazo (estabilização emergencial) e remediação durável (eliminação da causa raiz)."
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=XgeKLcVD3Os
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Quais problemas operacionais surgiram quando a Solana passou do estágio
+      de protótipo para a rede ativa em produção?
+    multiSelect: false
+    options:
+    - id: a
+      label: Esgotamento de recursos nos nós validadores, latência de agendamento
+        e backpressure de I/O sob alta carga de mensagens.
+      correct: true
+      feedback: Correto! O alto volume de tráfego expôs limites práticos de memória,
+        processamento e agendamento nos validadores sob estresse de produção.
+    - id: b
+      label: Redução drástica do tráfego para níveis próximos de zero, deixando os
+        nós sem mensagens para processar.
+      correct: false
+      feedback: 'O desafio foi exatamente o oposto: a sobrecarga e o volume intenso
+        de mensagens que saturaram os recursos dos nós.'
+    - id: c
+      label: Incapacidade dos nós em executar qualquer instrução mesmo sem receber
+        mensagens da rede.
+      correct: false
+      feedback: Os nós funcionavam normalmente em condições padrão; a instabilidade
+        decorria da alta carga e estresse de concorrência em produção.
+    explanation: 'A lição explica que a busca por alta vazão revelou desafios práticos
+      de engenharia: saturação de CPU/memória, latência de agendamento e backpressure
+      de I/O em momentos de pico.'
+  - id: q2
+    prompt: De acordo com o exemplo de análise de logs de validador apresentado na
+      lição, quais padrões de eventos indicam instabilidade operacional em um nó?
+    multiSelect: false
+    options:
+    - id: a
+      label: Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas
+        RPC e pausas excessivas de processamento.
+      correct: true
+      feedback: Exato! Na análise de logs, slots ignorados, falhas em chamadas RPC
+        e pausas anômalas são os principais sinais de que o validador está sobrecarregado.
+    - id: b
+      label: Eventos regulares de confirmação de blocos no prazo previsto e sem mensagens
+        de erro nos canais RPC.
+      correct: false
+      feedback: Confirmações regulares sem atrasos indicam operação saudável, e não
+        instabilidade.
+    - id: c
+      label: Ausência completa de registros de logs gerados pelos validadores durante
+        a operação.
+      correct: false
+      feedback: A instabilidade é diagnosticada pela presença de eventos anômalos
+        nos logs, e não pela ausência de arquivos de log.
+    explanation: No código e na explicação da lição, eventos estruturados de 'slot
+      skipped', erros de RPC e pausas de processamento são extraídos para diagnosticar
+      a perda de sincronia do validador.
+  - id: q3
+    prompt: Qual é a função das mitigações de curto prazo em relação às remediações
+      duráveis no fluxo de resposta a incidentes?
+    multiSelect: false
+    options:
+    - id: a
+      label: Mitigações de curto prazo estabilizam a rede e restabelecem o consenso
+        imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural.
+      correct: true
+      feedback: Perfeito! A prioridade imediata em um incidente é conter o impacto
+        e recuperar a estabilidade; depois, desenvolve-se o patch durável para eliminar
+        a causa raiz.
+    - id: b
+      label: Mitigações de curto prazo tornam desnecessária qualquer investigação
+        da causa raiz ou correção durável futura.
+      correct: false
+      feedback: Mitigações apenas contêm o sintoma imediato; sem um patch definitivo
+        na causa raiz, a falha pode se repetir.
+    - id: c
+      label: Mitigações de curto prazo devem ser ignoradas, aplicando-se apenas patches
+        finais diretamente durante a crise.
+      correct: false
+      feedback: O fluxo de resposta estruturado exige primeiro triagem e mitigação
+        emergencial para conter danos antes de projetar soluções definitivas.
+    explanation: A lição divide o fluxo em detecção, triagem, mitigação de curto prazo
+      (estabilização emergencial) e remediação durável (eliminação da causa raiz).

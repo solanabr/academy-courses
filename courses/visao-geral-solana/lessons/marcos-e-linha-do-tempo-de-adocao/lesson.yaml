@@ -1,66 +1,99 @@
 id: lesson-vgs-marcos-e-adocao
 slug: marcos-e-linha-do-tempo-de-adocao
-title: "Marcos e Linha do Tempo de Adoção"
+title: Marcos e Linha do Tempo de Adoção
 skills:
-  - solana-fundamentals
+- solana-fundamentals
 blocks:
-  - key: video
-    type: video
-    url: "https://www.youtube.com/watch?v=OqgDtLY8ZAs"
-  - key: content
-    type: prose
-    src: intro.md
-  - key: quiz
-    type: quiz
-    questions:
-      - id: q1
-        prompt: "No modelo mental apresentado na lição, como as fases de evolução da rede são comparadas à construção de uma grande ponte?"
-        multiSelect: false
-        options:
-          - id: a
-            label: "A rede evolui em etapas sucessivas: assentamento de suportes fundamentais (consenso/runtime), testes sob estresse em testnets, abertura pública e expansão de capacidade."
-            correct: true
-            feedback: "Correto! Assim como uma ponte exige pilares sólidos antes de suportar tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir para o ecossistema."
-          - id: b
-            label: "A rede deve ser entendida como uma implantação única e instantânea, sem fases de testes ou expansões graduais."
-            correct: false
-            feedback: "A lição enfatiza que o ciclo de vida da rede é progressivo e dividido em fases interdependentes de construção e teste."
-          - id: c
-            label: "A rede deve manter apenas a fase de fundação inicial, sem avançar para abertura pública ou testes sob estresse."
-            correct: false
-            feedback: "A metáfora da ponte ilustra a necessidade de progredir desde a fundação até a capacidade plena para suportar o tráfego do ecossistema."
-        explanation: "A analogia da ponte explica que a rede precisa primeiro de suportes fundamentais sólidos (consenso e runtime), seguidos de testes de estresse em testnet, abertura controlada e expansão contínua."
-      - id: q2
-        prompt: "Qual é a distinção entre 'Releases Técnicos' e 'Eventos do Ecossistema' na análise de evolução de uma blockchain?"
-        multiSelect: false
-        options:
-          - id: a
-            label: "Releases técnicos alteram o comportamento, estabilidade e capacidade da rede; eventos do ecossistema expandem a atividade dos desenvolvedores, casos de uso e engajamento."
-            correct: true
-            feedback: "Exato! Releases técnicos afetam a operação e o desempenho do protocolo; eventos de ecossistema ampliam a base de desenvolvedores e a criação de aplicações."
-          - id: b
-            label: "Releases técnicos expandem apenas o engajamento da comunidade, enquanto eventos do ecossistema alteram o código do protocolo."
-            correct: false
-            feedback: "É o oposto: releases técnicos são atualizações de software de rede; eventos do ecossistema envolvem comunidade e criadores de projetos."
-          - id: c
-            label: "Não existe distinção de efeitos: ambas as categorias produzem exatamente as mesmas alterações no código e na rede."
-            correct: false
-            feedback: "A lição destaca que cada classe de marco possui objetivos diferentes e afeta métricas distintas."
-        explanation: "A lição ensina a separar marcos de protocolo (que alteram performance e robustez técnica) de marcos de ecossistema (que impulsionam adoção e projetos práticos)."
-      - id: q3
-        prompt: "Por que a lição orienta a tratar os marcos históricos como 'transições funcionais' em vez de simples datas cronológicas?"
-        multiSelect: false
-        options:
-          - id: a
-            label: "Porque cada marco exercita um mecanismo técnico específico e gera indicadores mensuráveis no comportamento e na adoção da rede."
-            correct: true
-            feedback: "Perfeito! Avaliar marcos como transições funcionais permite associar melhorias técnicas a mudanças reais em métricas de rede e adesão de desenvolvedores."
-          - id: b
-            label: "Porque os marcos devem ser tratados apenas como datas de calendário, sem correlação com mecanismos técnicos ou métricas."
-            correct: false
-            feedback: "Datas são referências de ordenação úteis, mas o valor analítico está no mecanismo exercitado e no efeito mensurável gerado."
-          - id: c
-            label: "Porque os marcos servem unicamente para registrar o encerramento definitivo de desenvolvimentos na rede."
-            correct: false
-            feedback: "Os marcos marcam transições e aberturas para novas fases de capacidade e adoção, e não o encerramento do desenvolvimento."
-        explanation: "Tratar marcos como transições funcionais transforma a cronologia em um modelo prático de análise: cada lançamento técnico é vinculado ao mecanismo exercitado e ao sinal de adoção gerado."
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=OqgDtLY8ZAs
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: No modelo mental apresentado na lição, como as fases de evolução da rede
+      são comparadas à construção de uma grande ponte?
+    multiSelect: false
+    options:
+    - id: a
+      label: 'A rede evolui em etapas sucessivas: assentamento de suportes fundamentais
+        (consenso/runtime), testes sob estresse em testnets, abertura pública e expansão
+        de capacidade.'
+      correct: true
+      feedback: Correto! Assim como uma ponte exige pilares sólidos antes de suportar
+        tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir
+        para o ecossistema.
+    - id: b
+      label: A rede deve ser entendida como uma implantação única e instantânea, sem
+        fases de testes ou expansões graduais.
+      correct: false
+      feedback: A lição enfatiza que o ciclo de vida da rede é progressivo e dividido
+        em fases interdependentes de construção e teste.
+    - id: c
+      label: A rede deve manter apenas a fase de fundação inicial, sem avançar para
+        abertura pública ou testes sob estresse.
+      correct: false
+      feedback: A metáfora da ponte ilustra a necessidade de progredir desde a fundação
+        até a capacidade plena para suportar o tráfego do ecossistema.
+    explanation: A analogia da ponte explica que a rede precisa primeiro de suportes
+      fundamentais sólidos (consenso e runtime), seguidos de testes de estresse em
+      testnet, abertura controlada e expansão contínua.
+  - id: q2
+    prompt: Qual é a distinção entre 'Releases Técnicos' e 'Eventos do Ecossistema'
+      na análise de evolução de uma blockchain?
+    multiSelect: false
+    options:
+    - id: a
+      label: Releases técnicos alteram o comportamento, estabilidade e capacidade
+        da rede; eventos do ecossistema expandem a atividade dos desenvolvedores,
+        casos de uso e engajamento.
+      correct: true
+      feedback: Exato! Releases técnicos afetam a operação e o desempenho do protocolo;
+        eventos de ecossistema ampliam a base de desenvolvedores e a criação de aplicações.
+    - id: b
+      label: Releases técnicos expandem apenas o engajamento da comunidade, enquanto
+        eventos do ecossistema alteram o código do protocolo.
+      correct: false
+      feedback: 'É o oposto: releases técnicos são atualizações de software de rede;
+        eventos do ecossistema envolvem comunidade e criadores de projetos.'
+    - id: c
+      label: 'Não existe distinção de efeitos: ambas as categorias produzem exatamente
+        as mesmas alterações no código e na rede.'
+      correct: false
+      feedback: A lição destaca que cada classe de marco possui objetivos diferentes
+        e afeta métricas distintas.
+    explanation: A lição ensina a separar marcos de protocolo (que alteram performance
+      e robustez técnica) de marcos de ecossistema (que impulsionam adoção e projetos
+      práticos).
+  - id: q3
+    prompt: Por que a lição orienta a tratar os marcos históricos como 'transições
+      funcionais' em vez de simples datas cronológicas?
+    multiSelect: false
+    options:
+    - id: a
+      label: Porque cada marco exercita um mecanismo técnico específico e gera indicadores
+        mensuráveis no comportamento e na adoção da rede.
+      correct: true
+      feedback: Perfeito! Avaliar marcos como transições funcionais permite associar
+        melhorias técnicas a mudanças reais em métricas de rede e adesão de desenvolvedores.
+    - id: b
+      label: Porque os marcos devem ser tratados apenas como datas de calendário,
+        sem correlação com mecanismos técnicos ou métricas.
+      correct: false
+      feedback: Datas são referências de ordenação úteis, mas o valor analítico está
+        no mecanismo exercitado e no efeito mensurável gerado.
+    - id: c
+      label: Porque os marcos servem unicamente para registrar o encerramento definitivo
+        de desenvolvimentos na rede.
+      correct: false
+      feedback: Os marcos marcam transições e aberturas para novas fases de capacidade
+        e adoção, e não o encerramento do desenvolvimento.
+    explanation: 'Tratar marcos como transições funcionais transforma a cronologia
+      em um modelo prático de análise: cada lançamento técnico é vinculado ao mecanismo
+      exercitado e ao sinal de adoção gerado.'
