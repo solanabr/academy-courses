@@ -7,7 +7,7 @@
 > **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.  
 > **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.  
 > **Conceitos:**   
-> **Tempo de leitura:** 20 min
+> **Tempo de leitura:** 30 min
 
 ---
 
