@@ -1,0 +1,14 @@
+id: achievement-helping-hand
+name: Helping Hand
+description: Post your first answer in the forum
+icon: message-square
+glyph: "↪"
+solTier: false
+category: community
+xpReward: 30
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-helping-hand
+award:
+  kind: community-stat
+  stat: totalAnswers
+  gte: 1

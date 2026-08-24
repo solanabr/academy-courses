@@ -1,0 +1,13 @@
+id: achievement-twenty-five
+name: Twenty-Five
+description: Complete 25 lessons
+icon: trophy
+glyph: "25"
+solTier: false
+category: progress
+xpReward: 150
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-twenty-five
+award:
+  kind: lessons-completed
+  gte: 25

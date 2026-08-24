@@ -6,4 +6,6 @@ icon: Code
 xpReward: 35
 targetValue: 1
 resetType: daily
-active: true
+# Deactivated at launch: no lesson in the live catalog carries a `code` block,
+# so this quest can never progress. Flip back when challenge lessons ship.
+active: false

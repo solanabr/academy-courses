@@ -1,0 +1,14 @@
+id: achievement-accepted
+name: Accepted Answer
+description: Have one of your answers accepted
+icon: check-circle
+glyph: "✓"
+solTier: false
+category: community
+xpReward: 75
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-accepted
+award:
+  kind: community-stat
+  stat: acceptedAnswers
+  gte: 1

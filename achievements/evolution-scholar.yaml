@@ -1,0 +1,13 @@
+id: achievement-evolution-scholar
+name: Evolution Scholar
+description: Complete From Bitcoin to Solana
+icon: graduation-cap
+glyph: "✦"
+solTier: false
+category: progress
+xpReward: 150
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-evolution-scholar
+award:
+  kind: course-completed
+  course: course-btc-to-sol-evolution

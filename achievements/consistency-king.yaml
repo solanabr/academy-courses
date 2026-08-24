@@ -5,7 +5,7 @@ icon: trophy
 glyph: ∞
 solTier: true
 category: streaks
-xpReward: 500
+xpReward: 400
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-consistency-king
 award:

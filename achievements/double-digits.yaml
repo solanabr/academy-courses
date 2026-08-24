@@ -1,0 +1,13 @@
+id: achievement-double-digits
+name: Double Digits
+description: Complete 10 lessons
+icon: rocket
+glyph: "10"
+solTier: false
+category: progress
+xpReward: 80
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-double-digits
+award:
+  kind: lessons-completed
+  gte: 10
