@@ -5,7 +5,7 @@ icon: crown
 glyph: "30"
 solTier: false
 category: streaks
-xpReward: 300
+xpReward: 200
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-monthly-master
 award:

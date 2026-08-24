@@ -1,0 +1,14 @@
+id: achievement-first-word
+name: First Word
+description: Start your first forum thread
+icon: message-circle
+glyph: "✎"
+solTier: false
+category: community
+xpReward: 30
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-first-word
+award:
+  kind: community-stat
+  stat: totalThreads
+  gte: 1

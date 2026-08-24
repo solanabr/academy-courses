@@ -5,7 +5,7 @@ icon: flame
 glyph: 7×
 solTier: false
 category: streaks
-xpReward: 100
+xpReward: 75
 maxSupply: 0
 metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-week-warrior
 award:

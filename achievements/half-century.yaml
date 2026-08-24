@@ -1,0 +1,13 @@
+id: achievement-half-century
+name: Half Century
+description: Complete 50 lessons
+icon: crown
+glyph: "50"
+solTier: true
+category: progress
+xpReward: 250
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-half-century
+award:
+  kind: lessons-completed
+  gte: 50

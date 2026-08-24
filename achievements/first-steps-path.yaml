@@ -1,0 +1,13 @@
+id: achievement-first-steps-path
+name: First Steps Complete
+description: Complete every course in the First Steps path
+icon: graduation-cap
+glyph: "✧"
+solTier: true
+category: progress
+xpReward: 200
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-first-steps-path
+award:
+  kind: path-completed
+  path: path-first-steps

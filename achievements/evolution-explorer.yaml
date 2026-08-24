@@ -1,0 +1,14 @@
+id: achievement-evolution-explorer
+name: Five Chapters In
+description: Complete 5 lessons of From Bitcoin to Solana
+icon: compass
+glyph: "⅓"
+solTier: false
+category: progress
+xpReward: 50
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-evolution-explorer
+award:
+  kind: lessons-completed-in-course
+  course: course-btc-to-sol-evolution
+  gte: 5

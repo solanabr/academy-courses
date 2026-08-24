@@ -3,7 +3,7 @@ name: Complete a Lesson
 description: Finish any lesson today
 type: lesson
 icon: BookOpen
-xpReward: 25
+xpReward: 20
 targetValue: 1
 resetType: daily
 active: true

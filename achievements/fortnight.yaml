@@ -1,0 +1,13 @@
+id: achievement-fortnight
+name: Fortnight
+description: Maintain a 14-day learning streak
+icon: flame
+glyph: "14"
+solTier: false
+category: streaks
+xpReward: 125
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-fortnight
+award:
+  kind: streak
+  days: 14

@@ -1,0 +1,13 @@
+id: achievement-warmed-up
+name: Warmed Up
+description: Complete 3 lessons
+icon: footprints
+glyph: "03"
+solTier: false
+category: progress
+xpReward: 40
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-warmed-up
+award:
+  kind: lessons-completed
+  gte: 3

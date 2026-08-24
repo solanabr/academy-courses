@@ -1,0 +1,13 @@
+id: achievement-getting-traction
+name: Getting Traction
+description: Complete 5 lessons
+icon: rocket
+glyph: "05"
+solTier: false
+category: progress
+xpReward: 50
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-getting-traction
+award:
+  kind: lessons-completed
+  gte: 5

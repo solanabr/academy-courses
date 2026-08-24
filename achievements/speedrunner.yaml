@@ -1,0 +1,13 @@
+id: achievement-speedrunner
+name: Speedrunner
+description: Complete the Solana Speedrun course
+icon: flame
+glyph: "»"
+solTier: false
+category: progress
+xpReward: 75
+maxSupply: 0
+metadataUri: https://superteam-academy.vercel.app/api/achievements/metadata?id=achievement-speedrunner
+award:
+  kind: course-completed
+  course: course-solana-speedrun
