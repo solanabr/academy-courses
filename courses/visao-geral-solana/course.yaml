@@ -1,0 +1,20 @@
+id: course-visao-geral-solana
+slug: visao-geral-solana
+title: "Visão Geral da Blockchain Solana"
+description: "Apresentar aos alunos a blockchain Solana, abordando sua história fundamental e arquitetura central. Usar analogias e recursos visuais para tornar conceitos complexos acessíveis a iniciantes."
+difficulty: beginner
+duration: 1.7
+xpPerLesson: 20
+xpReward: 60
+creator: Em8D6XyuXvNUK1YgLKBaji7HbbrZZq7fCdq3sGMXqxVZ
+creatorRewardXp: 30
+thumbnail: assets/banner.png
+trackId: 0
+trackLevel: 0
+modules:
+  - key: origens-e-historia
+    title: "Origens e História da Solana"
+    lessons:
+      - lesson-vgs-origens-fundacao
+      - lesson-vgs-desafios-iniciais
+      - lesson-vgs-marcos-e-adocao

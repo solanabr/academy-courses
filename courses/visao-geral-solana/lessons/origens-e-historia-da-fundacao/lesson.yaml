@@ -1,0 +1,101 @@
+id: lesson-vgs-origens-fundacao
+slug: origens-e-historia-da-fundacao
+title: Origens e História da Fundação
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=L65KvCbTqRo
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Qual foi o insight central de Anatoly Yakovenko na concepção do Proof
+      of History para a Solana?
+    multiSelect: false
+    options:
+    - id: a
+      label: Aumentar o tamanho dos blocos de dados para armazenar mais transações
+        em cada intervalo de tempo.
+      correct: false
+      feedback: Aumentar o tamanho dos blocos não resolve a necessidade de sincronização
+        contínua de relógios entre nós distribuídos.
+    - id: b
+      label: Codificar a passagem do tempo em um fluxo criptográfico sequencial (SHA-256),
+        permitindo que os nós verifiquem o tempo de forma independente e assíncrona.
+      correct: true
+      feedback: Correto! Ao transformar a passagem do tempo em uma função criptográfica
+        verificável, os nós concordam com a ordem dos eventos sem necessidade de comunicação
+        constante.
+    - id: c
+      label: Eliminar a verificação criptográfica do tempo e confiar na medição de
+        relógios locais de cada nó individual.
+      correct: false
+      feedback: Relógios locais não são confiáveis em sistemas distribuídos; o Proof
+        of History foi criado justamente para fornecer uma fonte criptograficamente
+        verificável de tempo.
+    explanation: Na lição, Anatoly percebeu que sistemas distribuídos gastavam muito
+      tempo comunicando-se para sincronizar relógios. O Proof of History resolve isso
+      codificando o tempo em um fluxo de computação sequencial verificável.
+  - id: q2
+    prompt: Como a experiência prévia da equipe fundadora em engenharia de sistemas
+      e telecomunicações influenciou a abordagem da Solana?
+    multiSelect: false
+    options:
+    - id: a
+      label: Direcionou o projeto para maximizar o uso de hardware moderno e processamento
+        paralelo, priorizando alta vazão e baixa latência.
+      correct: true
+      feedback: Exato! A bagagem em sistemas embarcados e telecomunicações levou a
+        equipe a tratar hardware moderno e largura de banda como recursos que a arquitetura
+        deve aproveitar ao máximo.
+    - id: b
+      label: Direcionou o projeto para limitar deliberadamente o uso dos recursos
+        de hardware, evitando a execução em paralelo.
+      correct: false
+      feedback: 'Ao contrário: a equipe projetou a rede para aproveitar integralmente
+        os avanços de hardware moderno e execução concorrente.'
+    - id: c
+      label: Focou exclusivamente na execução sequencial estrita em uma única thread
+        para simplificar a lógica dos nós.
+      correct: false
+      feedback: A arquitetura foi projetada desde o início para execução paralela
+        e suporte a alta concorrência.
+    explanation: A lição destaca que os fundadores vieram da área de telecomunicações
+      e sistemas embarcados, moldando uma arquitetura focada em paralelismo, eficiência
+      de hardware e alta vazão.
+  - id: q3
+    prompt: Qual é a principal distinção de prioridade entre as escolhas de design
+      da Solana e as do Bitcoin apresentada na lição?
+    multiSelect: false
+    options:
+    - id: a
+      label: O Bitcoin prioriza validação com requisitos mínimos de hardware e blocos
+        discretos; a Solana prioriza alta vazão e baixa latência integrando tempo
+        contínuo ao fluxo de execução.
+      correct: true
+      feedback: Perfeito! O Bitcoin foi projetado para maximizar a auditabilidade
+        com requisitos mínimos de nó, enquanto a Solana priorizou vazão máxima e latência
+        mínima com tempo integrado.
+    - id: b
+      label: O Bitcoin prioriza vazão contínua em tempo real, enquanto a Solana prioriza
+        blocos discretos com intervalos espaçados.
+      correct: false
+      feedback: 'É o inverso: o Bitcoin utiliza blocos discretos espaçados, enquanto
+        a Solana integra a ordenação baseada em tempo contínuo.'
+    - id: c
+      label: 'Não há distinção de prioridade: ambas compartilham as mesmas metas de
+        vazão, latência e requisitos de hardware.'
+      correct: false
+      feedback: A lição estabelece que as duas redes adotaram trade-offs e prioridades
+        fundamentais distintos.
+    explanation: A comparação na lição mostra que o Bitcoin priorizou descentralização
+      com requisitos mínimos de hardware e blocos discretos, enquanto a Solana escolheu
+      priorizar alta vazão e baixa latência com execução orientada ao tempo.
