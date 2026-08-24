@@ -6,26 +6,12 @@
 
 > **Objetivo:** Mapear os principais marcos no desenvolvimento inicial da Solana e entender padrões de adoção inicial e crescimento de projetos.  
 > **Por que agora:** Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.  
-> **Conceitos:**   
+> **Conceitos:** Principais lançamentos públicos; Progressão de testnet para mainnet; Colaborações e integrações notáveis; Indicadores de adoção inicial e atividade de rede; Como marcos influenciaram prioridades subsequentes  
 > **Tempo de leitura:** 30 min
 
 ---
 
 ## Recapitulação & Introdução
-
-<strong>Por que agora:</strong> Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.
-Principais lançamentos públicos Progressão de testnet para mainnet Colaborações e integrações notáveis Indicadores de adoção inicial e atividade de rede Como marcos influenciaram prioridades subsequentes
-
-Fundação Conceitual
-30 min de leitura
-
-**Objetivo:** Mapear os principais marcos no desenvolvimento inicial da Solana e entender padrões de adoção inicial e crescimento de projetos.
-
-**Por que agora:** Uma linha do tempo liga as metas dos fundadores e os problemas iniciais a marcos observáveis no crescimento do projeto.
-
-**Conceitos:** Lançamentos públicos e releases importantes; Progressão de testnet para mainnet; Colaborações e integrações de projetos notáveis; Indicadores de adoção inicial e atividade de rede; Como marcos influenciaram prioridades subsequentes.
-
-*Fundação Conceitual · 30 min de leitura*
 
 Uma cadeia de registros com carimbo de tempo impõe uma história ordenada: cada registro referencia um estado anterior com ligação criptográfica, de modo que reordenamentos ou inserções tornam-se detectáveis. Você lembra da lição anterior que o whitepaper da Solana dá forte ênfase a primitivas orientadas ao tempo e ordenação para alcançar vazão e finalização, e que estruturas no estilo Merkle foram propostas para provas compactas de inclusão. Esses mecanismos concretos são as ferramentas básicas que são exercitadas e validadas pelos marcos de produto — cada release de rede, testnet e integração mostra uma forma de o projeto passar da teoria para um comportamento mensurável.
 

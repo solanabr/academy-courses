@@ -6,30 +6,12 @@
 
 > **Objetivo:** Traçar a história de origem da Solana e identificar as motivações fundadoras e a equipe inicial que lançou o projeto.  
 > **Por que agora:** Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.  
-> **Conceitos:**   
+> **Conceitos:** Motivações iniciais por trás da criação da Solana; Equipe fundadora e seus papéis; Visão técnica inicial e prioridades; Primeiras fontes de financiamento e mecanismos de apoio; Primeiros marcos públicos e anúncios  
 > **Tempo de leitura:** 25 min
 
 ---
 
 ## Recapitulação & Introdução
-
-<strong>Por que agora:</strong> Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.
-Motivações iniciais por trás da criação da Solana Equipe fundadora e seus papéis Visão técnica inicial e prioridades Primeiras fontes de financiamento e mecanismos de apoio Primeiros marcos públicos e anúncios
-
-Fundação Histórica
-25 min de leitura
-
-**Objetivo:** Traçar a história de origem da Solana e identificar as motivações fundadoras e a equipe inicial que lançou o projeto.
-
-**Por que agora:** Comece pela história de origem para fundamentar desenvolvimentos técnicos e sociais posteriores nos objetivos iniciais do projeto.
-
-- Motivações iniciais por trás da criação da Solana
-- Equipe fundadora e seus papéis
-- Visão técnica inicial e prioridades
-- Primeiras fontes de financiamento e mecanismos de apoio
-- Primeiros marcos públicos e anúncios
-
-**Fundação Histórica** — 25 min de leitura
 
 A Solana começou como resposta a uma questão prática de engenharia: como escalar um livro-razão permissionless sem sacrificar finalidade ou vazão? Relembre na lição anterior como o problema do gasto-duplo e os limites de intermediários monetários centralizados motivaram as escolhas de design de Satoshi para o Bitcoin. Você já entende como o Bitcoin priorizou resistência à censura e validação descentralizada em detrimento de vazão de transações; essa postura de design anterior estabelece o contraste necessário para entender por que os fundadores da Solana priorizaram trade-offs diferentes.
 

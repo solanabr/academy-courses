@@ -6,18 +6,12 @@
 
 > **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.  
 > **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.  
-> **Conceitos:**   
+> **Conceitos:** Estabilidade técnica e preocupações de confiabilidade; Crescimento da rede e restrições operacionais nos estágios iniciais; Incidentes de segurança e esforços de remediação iniciais; Compromissos entre financiamento e alocação de recursos; Canais de feedback da comunidade e respostas iniciais  
 > **Tempo de leitura:** 30 min
 
 ---
 
 ## Recapitulação & Introdução
-
-<strong>Por que agora:</strong> Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.
-Estabilidade técnica e preocupações de confiabilidade Crescimento da rede e restrições operacionais nos estágios iniciais Incidentes de segurança e esforços de remediação iniciais Compromissos entre financiamento e alocação de recursos Canais de feedback da comunidade e respostas iniciais
-
-Fundação Conceitual
-30 min de leitura
 
 O whitepaper que você acabou de estudar enquadra a criptomoeda como um sistema de dinheiro eletrônico peer-to-peer que resolve o duplo gasto com marcação temporal e blocos encadeados. Você deve recordar a ideia específica de que ordenar transações de forma consistente (via timestamping e encadeamento) é o mecanismo que torna possível um livro razão canônico único apesar de participantes adversariais. Esse mecanismo concreto — ordenação + histórico acordado — é a âncora para entender por que uma blockchain deve priorizar tanto o progresso do consenso quanto a segurança.
 
