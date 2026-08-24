@@ -9,10 +9,11 @@ to author *mechanically* (schemas, CI, ids); this tells you *what* to author and
   elective are **parked in `courses/_draft/`** pending quality review, along with `paths/_draft/zero-to-deployed.yaml`
   and the achievements that referenced them. The live catalog is currently the two alpha electives —
   `course-btc-to-sol-evolution` and `course-solana-speedrun` (both trackId 0 / trackLevel 0, not part
-  of this blueprint) — shelved together on `paths/first-steps.yaml`;
-  `achievement-course-completer` targets `course-btc-to-sol-evolution` while the track-1 catalog is
-  parked. This blueprint remains the authoring contract for the track-1 catalog — restoring a course
-  means moving it back to `courses/<slug>/` unchanged.
+  of this blueprint) — shelved together on `paths/first-steps.yaml`. This blueprint remains the
+  authoring contract for the track-1 catalog — restoring a course means moving it back to
+  `courses/<slug>/` unchanged.
+- **Achievements addendum (2026-08-24):** owner ruling — no course-specific achievements except
+  `achievement-speedrunner`. Don't add a "complete course X" badge when authoring a course.
 - **Strategic record** (the research it derives from, the platform work it depends on) lives in the app repo:
   `docs/superpowers/specs/2026-07-25-*.md` in `solanabr/superteam-academy`.
 - **How a course ships:** one PR per course in this repo → merged content stages → the app repo bumps
