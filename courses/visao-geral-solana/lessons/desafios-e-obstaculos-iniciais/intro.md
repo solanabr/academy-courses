@@ -4,10 +4,13 @@
 
 ---
 
-> **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.  
-> **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.  
-> **Conceitos:** Estabilidade técnica e preocupações de confiabilidade; Crescimento da rede e restrições operacionais nos estágios iniciais; Incidentes de segurança e esforços de remediação iniciais; Compromissos entre financiamento e alocação de recursos; Canais de feedback da comunidade e respostas iniciais  
-> **Tempo de leitura:** 30 min
+**Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.
+
+**Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.
+
+**Conceitos:** Estabilidade técnica e preocupações de confiabilidade; Crescimento da rede e restrições operacionais nos estágios iniciais; Incidentes de segurança e esforços de remediação iniciais; Compromissos entre financiamento e alocação de recursos; Canais de feedback da comunidade e respostas iniciais
+
+**Tempo de leitura:** 30 min
 
 ---
 
