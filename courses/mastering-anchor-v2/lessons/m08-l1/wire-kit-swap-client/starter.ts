@@ -17,15 +17,22 @@
  *
  * Fill in subgoals 1–4. Do NOT rebuild the swap instruction by hand — call the
  * generated `swapInstruction` below.
+ *
+ * @param owner           the swap's caller; pays the fee and signs
+ * @param amountIn        tokens in, in base units
+ * @param minOut          the slippage floor: fail rather than take less than this
+ * @param recentBlockhash the transaction's lifetime
+ * @param splPeer         e.g. "^7.0.0" — the range @solana-program/token declares
+ * @param kitLatest       e.g. "8.0.0" — npm's `latest` today (a trap)
  */
-function planSwapClient(input: {
-  owner: string;
-  amountIn: bigint;
-  minOut: bigint;
-  recentBlockhash: string;
-  splPeer: string;   // e.g. "^7.0.0" — the range @solana-program/token declares
-  kitLatest: string; // e.g. "8.0.0" — npm's `latest` today (a trap)
-}): {
+function planSwapClient(
+  owner: string,
+  amountIn: bigint,
+  minOut: bigint,
+  recentBlockhash: string,
+  splPeer: string,
+  kitLatest: string
+): {
   pinnedKitMajor: number;
   feePayer: string;
   lifetime: string;

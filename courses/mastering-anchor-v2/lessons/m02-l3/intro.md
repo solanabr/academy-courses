@@ -126,7 +126,7 @@ cargo install --git https://github.com/otter-sec/anchor.git \
   --branch anchor-next anchor-cli --locked --force
 ```
 
-![A seven-step timeline showing wincode 0.5 and solana-address 0.6 drifting apart until #[account(borsh)] broke, then issue #4937 closing with the pins reconciled.](assets/v07-timeline.png)
+![A seven-step timeline showing wincode 0.5 and solana-address 0.6 drifting apart until the account borsh attribute broke, then issue #4937 closing with the pins reconciled.](assets/v07-timeline.png)
 
 ## Lab: model a mixed account
 

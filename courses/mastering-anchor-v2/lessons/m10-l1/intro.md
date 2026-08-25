@@ -93,7 +93,7 @@ This is the break in the hook. In 0.32, an SPL interface instruction, the classi
 
 What replaced it, and why? The reason is unification. Every ordinary Anchor instruction is already dispatched by matching its discriminator, the leading bytes of the instruction data. Interface instructions needed the *same* thing, dispatch by a specific, externally-defined discriminator, but they had a bespoke macro to do it. 1.0 collapses the special case into the general one. A transfer hook's `execute` is now declared like any other instruction, except you tell Anchor which discriminator to match:
 
-![The 0.32 #[interface(...)] macro on a transfer hook becomes a 1.0 #[instruction(discriminator = ...SPL_DISCRIMINATOR_SLICE)] attribute using ordinary discriminator dispatch.](assets/v04-annotated-code.png)
+![The 0.32 interface macro on a transfer hook becomes a 1.0 instruction attribute carrying an explicit SPL discriminator slice, using ordinary discriminator dispatch.](assets/v04-annotated-code.png)
 
 The discriminator comes from the SPL interface itself, exposed as an `SPL_DISCRIMINATOR_SLICE` constant, so you are matching the exact bytes the interface defines rather than trusting a macro to know them for you. The fix: delete the `#[interface]` attribute and declare the instruction normally with `#[instruction(discriminator = ...SPL_DISCRIMINATOR_SLICE)]`.
 

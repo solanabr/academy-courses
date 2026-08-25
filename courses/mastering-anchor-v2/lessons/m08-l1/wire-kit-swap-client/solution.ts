@@ -6,14 +6,14 @@
  *
  * Pure — no RPC, no signing, no imports — so it grades deterministically.
  */
-function planSwapClient(input: {
-  owner: string;
-  amountIn: bigint;
-  minOut: bigint;
-  recentBlockhash: string;
-  splPeer: string;
-  kitLatest: string;
-}): {
+function planSwapClient(
+  owner: string,
+  amountIn: bigint,
+  minOut: bigint,
+  recentBlockhash: string,
+  splPeer: string,
+  kitLatest: string
+): {
   pinnedKitMajor: number;
   feePayer: string;
   lifetime: string;
@@ -25,16 +25,16 @@ function planSwapClient(input: {
 } {
   // Subgoal 1 — pin kit to the major your @solana-program dep peers on (splPeer),
   // NOT the latest published kit. "^7.0.0" -> 7.
-  const pinnedKitMajor = parseInt(input.splPeer.replace(/[^0-9.]/g, ""), 10);
+  const pinnedKitMajor = parseInt(splPeer.replace(/[^0-9.]/g, ""), 10);
 
   // Subgoal 2 — the fee payer is the swap's caller (owner).
-  const feePayer = input.owner;
+  const feePayer = owner;
 
   // Subgoal 3 — the transaction lifetime is the recent blockhash.
-  const lifetime = input.recentBlockhash;
+  const lifetime = recentBlockhash;
 
   // Subgoal 4 — append exactly the swap instruction from your generated client.
-  const instructions = [swapInstruction(input.owner, input.amountIn, input.minOut)];
+  const instructions = [swapInstruction(owner, amountIn, minOut)];
 
   return { pinnedKitMajor, feePayer, lifetime, instructions };
 }
