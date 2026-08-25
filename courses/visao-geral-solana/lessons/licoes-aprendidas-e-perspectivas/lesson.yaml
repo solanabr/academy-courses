@@ -1,0 +1,15 @@
+id: lesson-vgs-licoes-aprendidas-e-perspectivas
+slug: licoes-aprendidas-e-perspectivas
+title: "Lições Aprendidas e Perspectivas"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=v5twkx98I_k
+- key: content
+  type: prose
+  src: intro.md
