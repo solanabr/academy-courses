@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Segundo a lição, como se transforma um marco histórico em uma afirmação arquitetônica?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Nomeando um componente, declarando seu mecanismo e declarando sua implicação."
+      correct: true
+      feedback: "Correto! Componente, mecanismo e implicação formam a estrutura da afirmação."
+    - id: b
+      label: "Citando a data do evento e o nome de quem o anunciou."
+      correct: false
+      feedback: "Data e autoria sozinhas não constituem uma afirmação arquitetônica."
+    - id: c
+      label: "Comparando a cotação do token antes e depois do evento."
+      correct: false
+      feedback: "A lição não usa preço como base da afirmação arquitetônica."
+    explanation: "A afirmação arquitetônica nomeia um componente, declara seu mecanismo e sua implicação."
+  - id: q2
+    prompt: "Quais componentes a lição pede que sejam resumidos em uma tabela de responsabilidades e implicações?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
+      correct: true
+      feedback: "Correto! São os componentes-chave listados para a tabela do relatório."
+    - id: b
+      label: "HTTP, TCP, DNS e TLS."
+      correct: false
+      feedback: "Esses são protocolos de rede genéricos, não os componentes da lição."
+    - id: c
+      label: "SQL, Redis, Kafka e Nginx."
+      correct: false
+      feedback: "Esses componentes não fazem parte da arquitetura discutida."
+    explanation: "A tabela cobre PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
+  - id: q3
+    prompt: "Que tipo de evidência a lição recomenda coletar via RPC para sustentar as afirmações do relatório?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Pequenas sondagens somente leitura, registradas como evidência datada."
+      correct: true
+      feedback: "Correto! São leituras pontuais e datadas, sem efeito sobre a rede."
+    - id: b
+      label: "Transações de escrita que alterem o estado de contas de teste."
+      correct: false
+      feedback: "A lição pede sondagens somente leitura, não escritas."
+    - id: c
+      label: "Capturas de tela de redes sociais dos fundadores."
+      correct: false
+      feedback: "Esse não é o tipo de evidência técnica proposto."
+    explanation: "Pequenas sondagens RPC somente leitura servem como evidência datada para o relatório."

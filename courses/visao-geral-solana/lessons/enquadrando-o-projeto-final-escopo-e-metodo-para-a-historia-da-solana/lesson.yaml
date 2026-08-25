@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Qual é o modelo mental proposto para enquadrar o projeto final?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Linha do tempo combinada com mapa de arquitetura, ligando eventos a mudanças do sistema."
+      correct: true
+      feedback: "Correto! O modelo liga o eixo temporal ao eixo arquitetural."
+    - id: b
+      label: "Um diagrama de fluxo de caixa do projeto."
+      correct: false
+      feedback: "O modelo proposto não é financeiro."
+    - id: c
+      label: "Uma matriz de risco de segurança de contratos."
+      correct: false
+      feedback: "Não é o modelo apresentado nesta lição."
+    explanation: "O modelo é linha do tempo + mapa de arquitetura, ligando eventos a mudanças do sistema."
+  - id: q2
+    prompt: "Qual é a sequência do fluxo de trabalho recomendado na lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Research, Source, Structure, Validate, atendendo aos critérios de saída antes de avançar."
+      correct: true
+      feedback: "Correto! Cada etapa tem critérios de saída que precisam ser cumpridos."
+    - id: b
+      label: "Validate, Structure, Source, Research, em ordem inversa."
+      correct: false
+      feedback: "A validação é a última etapa, não a primeira."
+    - id: c
+      label: "Structure, Research, Validate, Source."
+      correct: false
+      feedback: "A pesquisa e a checagem de fontes precedem a estruturação."
+    explanation: "O fluxo é Research, Source, Structure e Validate, com critérios de saída em cada etapa."
+  - id: q3
+    prompt: "Por que a lição pede que os diagramas sejam anotados com artefatos primários e níveis de confiança?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Para que as afirmações do relatório sejam auditáveis."
+      correct: true
+      feedback: "Correto! A anotação torna cada afirmação rastreável à sua evidência."
+    - id: b
+      label: "Para reduzir o número de páginas do relatório final."
+      correct: false
+      feedback: "A anotação não tem finalidade de compressão."
+    - id: c
+      label: "Para dispensar a necessidade de bibliografia."
+      correct: false
+      feedback: "A bibliografia continua sendo exigida no relatório."
+    explanation: "Anotar artefatos primários e níveis de confiança torna as afirmações auditáveis."

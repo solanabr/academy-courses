@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Segundo o mapeamento de componentes apresentado na lição, qual é a responsabilidade do gossip?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Membresia — manter a visão de quais nós participam da rede."
+      correct: true
+      feedback: "Correto! Gossip cuida de membresia, enquanto a propagação distribui payloads."
+    - id: b
+      label: "Armazenamento persistente do estado das contas."
+      correct: false
+      feedback: "Isso é responsabilidade do accounts DB, não do gossip."
+    - id: c
+      label: "Execução determinística de programas."
+      correct: false
+      feedback: "Execução determinística é papel do runtime BPF."
+    explanation: "No mapeamento da lição: gossip = membresia, propagação = payloads, accounts DB = estado, runtime BPF = execução, snapshotter = bootstrapping."
+  - id: q2
+    prompt: "Quais são as fases do ciclo de vida de um validador descritas na lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "join/bootstrap, follower, leader e resync."
+      correct: true
+      feedback: "Correto! Cada fase enfatiza componentes diferentes do runtime."
+    - id: b
+      label: "compilação, auditoria, listagem e arquivamento."
+      correct: false
+      feedback: "Essas não são fases do ciclo de vida de um validador nesta lição."
+    - id: c
+      label: "mineração, halving, fork e merge."
+      correct: false
+      feedback: "Esses termos não descrevem o ciclo de vida apresentado."
+    explanation: "O ciclo é join/bootstrap, follower, leader e resync, cada fase enfatizando componentes distintos."
+  - id: q3
+    prompt: "Qual padrão de roteamento de mensagens a lição associa a buscas direcionadas de dados?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "RPC."
+      correct: true
+      feedback: "Correto! RPC atende fetches direcionados; gossip carrega metadados e a propagação, payloads de alto volume."
+    - id: b
+      label: "Gossip."
+      correct: false
+      feedback: "Gossip é usado para metadados de membresia, não para buscas direcionadas."
+    - id: c
+      label: "Snapshotter."
+      correct: false
+      feedback: "O snapshotter serve a bootstrapping rápido, não a roteamento de consultas."
+    explanation: "Gossip para metadados, propagação para payloads de alto volume e RPC para fetches direcionados."

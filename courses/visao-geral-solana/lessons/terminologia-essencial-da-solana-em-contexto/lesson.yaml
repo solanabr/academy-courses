@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Segundo a lição, qual é a distinção entre validadores, nós e clientes?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Validadores são atores de consenso; nós são processos em execução e endpoints RPC; clientes são SDKs ou programas que submetem transações."
+      correct: true
+      feedback: "Correto! São três papéis distintos, frequentemente confundidos."
+    - id: b
+      label: "Validadores são SDKs; nós são carteiras; clientes são mineradores."
+      correct: false
+      feedback: "Nenhum desses papéis corresponde ao que a lição descreve."
+    - id: c
+      label: "Os três termos designam exatamente a mesma entidade."
+      correct: false
+      feedback: "A lição distingue explicitamente os três papéis."
+    explanation: "Validadores participam do consenso, nós são processos e endpoints RPC, clientes submetem transações."
+  - id: q2
+    prompt: "O que uma transação declara, conforme a lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Quais contas serão lidas ou escritas."
+      correct: true
+      feedback: "Correto! Essa declaração é o que permite planejar a execução."
+    - id: b
+      label: "A quantidade de validadores que devem votar nela."
+      correct: false
+      feedback: "O número de votantes não é declarado pela transação."
+    - id: c
+      label: "O preço de mercado do token no momento do envio."
+      correct: false
+      feedback: "A transação não declara preço de mercado."
+    explanation: "Programas executam lógica, contas armazenam estado e lamports, e transações declaram as contas lidas ou escritas."
+  - id: q3
+    prompt: "O que são lamports segundo a lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "A menor unidade nativa, que aparece em taxas, aluguel e diferenças de saldo das contas."
+      correct: true
+      feedback: "Correto! Por isso lamports surgem nas saídas de transação e nos saldos pré/pós."
+    - id: b
+      label: "Um formato de arquivo usado para exportar logs de programa."
+      correct: false
+      feedback: "Lamports são unidade de valor, não formato de arquivo."
+    - id: c
+      label: "O nome do explorador oficial de blocos da rede."
+      correct: false
+      feedback: "Lamports não designam um explorador."
+    explanation: "Lamports são a menor unidade nativa e aparecem em taxas, aluguel e diferenças de saldo."

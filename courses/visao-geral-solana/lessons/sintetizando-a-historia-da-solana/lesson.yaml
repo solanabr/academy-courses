@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Quantos marcos explicativos a lição recomenda selecionar, e com que exigência?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "De cinco a oito marcos, cada um justificado por evidência primária ou forte evidência secundária."
+      correct: true
+      feedback: "Correto! A faixa e a exigência de evidência são explícitas na lição."
+    - id: b
+      label: "Exatamente vinte marcos, sem necessidade de justificar cada um."
+      correct: false
+      feedback: "A lição não pede vinte marcos nem dispensa a justificativa."
+    - id: c
+      label: "Um único marco, escolhido pelo maior impacto de mídia."
+      correct: false
+      feedback: "A lição pede uma faixa de cinco a oito marcos com evidência."
+    explanation: "Selecione de cinco a oito marcos explicativos, cada um sustentado por evidência primária ou forte evidência secundária."
+  - id: q2
+    prompt: "Quais são os três elementos do Arcabouço da Linha Narrativa apresentado na lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Espinha (marcos), conectores (mecanismos) e painéis de evidência (citações)."
+      correct: true
+      feedback: "Correto! A espinha ordena, os conectores explicam e os painéis sustentam."
+    - id: b
+      label: "Introdução, desenvolvimento e conclusão."
+      correct: false
+      feedback: "Esses são elementos genéricos de redação, não o arcabouço da lição."
+    - id: c
+      label: "Hipótese, experimento e resultado."
+      correct: false
+      feedback: "Esse é um formato experimental, não o arcabouço narrativo apresentado."
+    explanation: "O arcabouço tem espinha (marcos), conectores (mecanismos) e painéis de evidência (citações)."
+  - id: q3
+    prompt: "Qual é a exigência do rascunho de síntese pedido na lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "De 500 a 800 palavras, ligando explicitamente ao menos dois eventos a escolhas arquiteturais."
+      correct: true
+      feedback: "Correto! E as afirmações mais fracas devem ser anotadas para revisão por pares."
+    - id: b
+      label: "Exatamente 2.000 palavras, sem vincular eventos à arquitetura."
+      correct: false
+      feedback: "A extensão e a exigência de vínculo estão diferentes do que a lição pede."
+    - id: c
+      label: "Um resumo de uma frase, sem citações."
+      correct: false
+      feedback: "A lição pede um rascunho substancial com vínculos explícitos."
+    explanation: "O rascunho tem 500 a 800 palavras e liga pelo menos dois eventos a escolhas arquiteturais."

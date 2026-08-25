@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Qual é a regra de confirmação proposta pelo modelo de evidência em camadas da lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Exigir dois sinais entre docs, repositório, on-chain e comunidade antes de aceitar uma alegação."
+      correct: true
+      feedback: "Correto! A confirmação cruzada em duas camadas é o critério proposto."
+    - id: b
+      label: "Aceitar a alegação assim que ela aparecer na documentação oficial."
+      correct: false
+      feedback: "Uma única fonte não satisfaz o critério de dois sinais."
+    - id: c
+      label: "Descartar qualquer alegação que não tenha registro on-chain."
+      correct: false
+      feedback: "A lição não exige exclusividade on-chain, e sim dois sinais entre as camadas."
+    explanation: "As camadas são docs, repositório, on-chain e comunidade, e a regra é exigir dois sinais."
+  - id: q2
+    prompt: "Que tipo de artefato a lição manda priorizar ao julgar se um projeto é mantido?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Artefatos criptográficos e de versão, como tags de release e CI."
+      correct: true
+      feedback: "Correto! Esses artefatos são mais difíceis de forjar do que sinais sociais."
+    - id: b
+      label: "A quantidade de mensagens no canal da comunidade."
+      correct: false
+      feedback: "Atividade de comunidade é apenas uma das camadas e não a prioritária aqui."
+    - id: c
+      label: "A data de criação do domínio do site do projeto."
+      correct: false
+      feedback: "Esse não é um dos artefatos priorizados pela lição."
+    explanation: "Tags de release e CI são os artefatos de versão priorizados para julgar manutenção."
+  - id: q3
+    prompt: "Qual é a finalidade de registrar linhas de comparação concisas para cada projeto?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Apoiar análises posteriores de incentivos e arquitetura."
+      correct: true
+      feedback: "Correto! As notas de comparação alimentam a análise seguinte."
+    - id: b
+      label: "Gerar automaticamente um relatório de auditoria de segurança."
+      correct: false
+      feedback: "A lição não promete auditoria automática a partir dessas notas."
+    - id: c
+      label: "Substituir a leitura da documentação do projeto."
+      correct: false
+      feedback: "As notas complementam, não substituem, a leitura das fontes."
+    explanation: "As linhas de comparação servem de base para análises de incentivos e arquitetura."

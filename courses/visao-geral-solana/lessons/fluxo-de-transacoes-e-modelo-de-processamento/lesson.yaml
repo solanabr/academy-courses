@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Qual é a sequência de estágios pela qual uma transação passa, conforme a lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Entrada, validação, ordenação pelo leader, execução e confirmação."
+      correct: true
+      feedback: "Correto! Cada estágio tem um componente responsável associado."
+    - id: b
+      label: "Confirmação, execução, entrada, ordenação e validação."
+      correct: false
+      feedback: "A confirmação é o estágio final, não o inicial."
+    - id: c
+      label: "Ordenação, confirmação, entrada, execução e validação."
+      correct: false
+      feedback: "A entrada precede a ordenação, e a confirmação encerra o fluxo."
+    explanation: "O fluxo vai de entrada e validação a ordenação pelo leader, execução e confirmação."
+  - id: q2
+    prompt: "Qual é o propósito das checagens de assinatura e preflight realizadas na entrada?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Evitar carga desnecessária sobre os leaders, rejeitando cedo mensagens inválidas."
+      correct: true
+      feedback: "Correto! Essas checagens filtram na entrada para poupar os componentes seguintes."
+    - id: b
+      label: "Garantir que a transação seja incluída em um slot escolhido pelo cliente."
+      correct: false
+      feedback: "Essas checagens não determinam em qual slot a transação entra."
+    - id: c
+      label: "Substituir a necessidade de votação dos validators."
+      correct: false
+      feedback: "A votação continua sendo parte do fluxo; as checagens de entrada não a substituem."
+    explanation: "Checagens de assinatura e preflight na entrada previnem carga desnecessária nos leaders."
+  - id: q3
+    prompt: "Segundo a lição, para que serve a tabela comparativa de estágios ao depurar um problema?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Para mapear sintomas aos checkpoints e aos componentes responsáveis."
+      correct: true
+      feedback: "Correto! A tabela liga sintoma, checkpoint e componente responsável."
+    - id: b
+      label: "Para estimar o custo em lamports de cada transação."
+      correct: false
+      feedback: "A tabela é de diagnóstico, não de cálculo de custo."
+    - id: c
+      label: "Para escolher qual carteira o usuário final deve instalar."
+      correct: false
+      feedback: "A tabela não trata de escolha de carteira."
+    explanation: "A tabela comparativa mapeia sintomas a checkpoints e componentes responsáveis durante a depuração."

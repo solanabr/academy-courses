@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Qual trade-off a lição associa ao sequenciamento pelo líder combinado com execução paralela?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Aumentam o throughput, mas restringem a diversidade de validators."
+      correct: true
+      feedback: "Correto! É o trade-off central entre escalabilidade e descentralização discutido."
+    - id: b
+      label: "Reduzem o throughput, mas ampliam a diversidade de validators."
+      correct: false
+      feedback: "O efeito descrito é o oposto: mais throughput, menos diversidade."
+    - id: c
+      label: "Não afetam nem o throughput nem a diversidade de validators."
+      correct: false
+      feedback: "A lição trata justamente do impacto dessas escolhas em ambos."
+    explanation: "Sequenciamento pelo líder e execução paralela elevam o TPS ao custo de restringir a diversidade de validators."
+  - id: q2
+    prompt: "O que a lição indica como consequência de hardware desalinhado com as otimizações de software?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Backpressure e latência de cauda."
+      correct: true
+      feedback: "Correto! As otimizações assumem redes e armazenamento rápidos; sem isso surgem backpressure e latência de cauda."
+    - id: b
+      label: "Aumento automático da diversidade geográfica dos validators."
+      correct: false
+      feedback: "Não é a consequência descrita na lição."
+    - id: c
+      label: "Eliminação da necessidade de escalonamento determinístico."
+      correct: false
+      feedback: "O escalonamento determinístico continua necessário para tratar conflitos."
+    explanation: "Otimizações de software assumem rede e armazenamento rápidos; hardware desalinhado gera backpressure e latência de cauda."
+  - id: q3
+    prompt: "Segundo a lição, qual é a contrapartida do uso de travas finas na execução?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Permitem mais concorrência, mas exigem escalonamento determinístico e gestão de retries."
+      correct: true
+      feedback: "Correto! Ganha-se concorrência ao custo de coordenação determinística e tratamento de retries."
+    - id: b
+      label: "Eliminam completamente a possibilidade de conflitos entre transações."
+      correct: false
+      feedback: "Conflitos continuam existindo e precisam ser gerenciados."
+    - id: c
+      label: "Tornam o escalonamento irrelevante para o resultado da execução."
+      correct: false
+      feedback: "O escalonamento determinístico é justamente uma exigência adicional."
+    explanation: "Travas finas permitem concorrência, mas exigem escalonamento determinístico e gestão de retries."

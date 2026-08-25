@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Como a lição descreve a organização em camadas do ecossistema Solana?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Consenso e validadores na base, runtime e programas no meio, serviços para desenvolvedores nas bordas."
+      correct: true
+      feedback: "Correto! É exatamente a estratificação apresentada."
+    - id: b
+      label: "Carteiras na base, consenso no meio e programas nas bordas."
+      correct: false
+      feedback: "As carteiras são pontos de contato do desenvolvedor, não a camada base."
+    - id: c
+      label: "Indexadores na base, contas no meio e validadores nas bordas."
+      correct: false
+      feedback: "Validadores e consenso formam a base, não as bordas."
+    explanation: "O ecossistema é em camadas: consenso e validadores na base, runtime e programas no meio e serviços de desenvolvedor nas bordas."
+  - id: q2
+    prompt: "Qual é a distinção entre programas e contas apresentada na lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Programas são executores stateless; contas armazenam dados persistentes e lamports."
+      correct: true
+      feedback: "Correto! Por isso o layout das contas deve considerar rent e concorrência."
+    - id: b
+      label: "Programas armazenam o estado persistente e as contas executam a lógica."
+      correct: false
+      feedback: "É o inverso do que a lição ensina."
+    - id: c
+      label: "Programas e contas são o mesmo objeto, apenas com nomes distintos."
+      correct: false
+      feedback: "A lição os distingue explicitamente por função."
+    explanation: "Programas executam sem manter estado; contas guardam dados persistentes e lamports."
+  - id: q3
+    prompt: "Quais elementos a lição aponta como pontos de contato do desenvolvedor com o ecossistema?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Nós RPC, indexadores e carteiras."
+      correct: true
+      feedback: "Correto! A tarefa deve ser mapeada ao serviço correto entre esses pontos de contato."
+    - id: b
+      label: "Apenas o mecanismo de consenso."
+      correct: false
+      feedback: "O consenso é a camada base, não o ponto de contato do desenvolvedor."
+    - id: c
+      label: "Somente o runtime BPF."
+      correct: false
+      feedback: "O runtime é camada intermediária, não o ponto de contato descrito."
+    explanation: "Nós RPC, indexadores e carteiras são os pontos de contato do desenvolvedor."

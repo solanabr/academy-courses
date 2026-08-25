@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Na analogia da linha de montagem usada na lição, qual é a sequência dos estágios?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Ordenação (estampagem) → propagação (transportadoras) → execução paralela (trabalhadores) → votação/junção → finalização (embalagem)."
+      correct: true
+      feedback: "Correto! É exatamente a sequência da linha de montagem apresentada."
+    - id: b
+      label: "Execução paralela → ordenação → finalização → propagação → votação."
+      correct: false
+      feedback: "A ordenação vem antes da propagação e da execução na analogia apresentada."
+    - id: c
+      label: "Votação → finalização → ordenação → propagação → execução paralela."
+      correct: false
+      feedback: "A votação e a finalização são estágios finais, não iniciais."
+    explanation: "A linha de montagem vai de ordenação a propagação, execução paralela, votação/junção e finalização."
+  - id: q2
+    prompt: "Quais objetivos arquitetônicos a lição aponta como guias das escolhas de design?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Vazão, latência, paralelismo e ordenação auditável."
+      correct: true
+      feedback: "Correto! São os quatro objetivos que orientam o design descrito."
+    - id: b
+      label: "Anonimato total, resistência a censura e emissão fixa de moeda."
+      correct: false
+      feedback: "Esses não são os objetivos arquitetônicos discutidos nesta lição."
+    - id: c
+      label: "Compatibilidade retroativa com o Bitcoin e mineração por prova de trabalho."
+      correct: false
+      feedback: "A lição não apresenta esses itens como objetivos de design."
+    explanation: "Vazão, latência, paralelismo e ordenação auditável são os objetivos declarados."
+  - id: q3
+    prompt: "Qual é a implicação prática, para quem projeta transações e contas, do uso de execução paralela?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Minimizar conflitos entre contas, para que o paralelismo produza ganho real de vazão."
+      correct: true
+      feedback: "Correto! Sem reduzir conflitos, a execução paralela não se converte em vazão."
+    - id: b
+      label: "Concentrar todas as escritas em uma única conta compartilhada."
+      correct: false
+      feedback: "Isso aumentaria conflitos e anularia o ganho da execução paralela."
+    - id: c
+      label: "Evitar assinar transações localmente antes da submissão."
+      correct: false
+      feedback: "A assinatura local não é o fator que limita o ganho do paralelismo."
+    explanation: "Projetar transações e contas para minimizar conflitos é o que permite que a execução paralela gere vazão real."

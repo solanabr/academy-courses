@@ -13,3 +13,57 @@ blocks:
 - key: content
   type: prose
   src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "No mapeamento de terminologia para papel apresentado na lição, o que corresponde a `account`?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Dados e estado."
+      correct: true
+      feedback: "Correto! `program` é lógica on-chain, `account` é dado/estado e RPC/indexer é acesso a dados."
+    - id: b
+      label: "Lógica on-chain executada por transações."
+      correct: false
+      feedback: "Essa é a definição de `program`, não de `account`."
+    - id: c
+      label: "Camada de acesso e consulta a dados."
+      correct: false
+      feedback: "Essa é a função de RPC e indexadores."
+    explanation: "O mapeamento é: `program` = lógica on-chain, `account` = dados/estado, RPC/indexer = acesso a dados."
+  - id: q2
+    prompt: "Como a lição sugere classificar um projeto a partir de sua documentação?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Pelo que a documentação enfatiza: program IDs indicam protocolo, métricas RPC indicam infraestrutura e fluxos de assinatura indicam wallets/clients."
+      correct: true
+      feedback: "Correto! A ênfase da documentação revela a categoria do projeto."
+    - id: b
+      label: "Pela ordem alfabética do nome do projeto."
+      correct: false
+      feedback: "A lição propõe um critério funcional, não alfabético."
+    - id: c
+      label: "Pelo número de seguidores em redes sociais."
+      correct: false
+      feedback: "Esse não é um dos sinais propostos."
+    explanation: "A ênfase da documentação (program IDs, métricas RPC, fluxos de assinatura) indica a categoria do projeto."
+  - id: q3
+    prompt: "Na metáfora da cidade usada na lição, a que correspondem os indexers?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Bibliotecas."
+      correct: true
+      feedback: "Correto! Validators são utilities, indexers são bibliotecas, programs são fábricas e wallets são casas."
+    - id: b
+      label: "Fábricas."
+      correct: false
+      feedback: "Fábricas correspondem aos programs."
+    - id: c
+      label: "Utilities."
+      correct: false
+      feedback: "Utilities correspondem aos validators."
+    explanation: "Na metáfora: validators = utilities, indexers = bibliotecas, programs = fábricas, wallets = casas."
