@@ -1,0 +1,15 @@
+id: lesson-vgs-sintetizando-a-historia-da-solana
+slug: sintetizando-a-historia-da-solana
+title: "Sintetizando a História da Solana"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=EM4fQJLjAXo
+- key: content
+  type: prose
+  src: intro.md

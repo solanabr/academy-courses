@@ -1,0 +1,15 @@
+id: lesson-vgs-analisando-a-arquitetura-da-solana-para-o-relatorio
+slug: analisando-a-arquitetura-da-solana-para-o-relatorio
+title: "Analisando a Arquitetura da Solana para o Relatório"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=5I1L1FTfEOw
+- key: content
+  type: prose
+  src: intro.md
