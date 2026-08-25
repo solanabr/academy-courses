@@ -28,13 +28,11 @@ Comece esta lição esperando revisitar modos de falha e trade-offs familiares q
 
 Ao final desta lição você será capaz de:
 
-<ul class="lesson-objectives-checklist">
-<li class="lesson-objective-item"><strong>Explicar</strong> os principais problemas de estabilidade técnica que surgiram quando a Solana passou de protótipo para rede ativa e por que esses problemas são importantes para o progresso do consenso.</li>
-<li class="lesson-objective-item"><strong>Descrever</strong> pelo menos duas restrições operacionais concretas (limites de recursos, agendamento em tempo de execução) que influenciaram mudanças de design iniciais.</li>
-<li class="lesson-objective-item"><strong>Traçar</strong> a sequência de um incidente inicial de segurança ou disponibilidade e resumir as etapas de remediação adotadas.</li>
-<li class="lesson-objective-item"><strong>Articular</strong> como decisões de financiamento e alocação de recursos moldaram a priorização entre recursos de desempenho e engenharia de confiabilidade.</li>
-<li class="lesson-objective-item"><strong>Avaliar</strong> o papel que os canais de feedback da comunidade desempenharam ao revelar problemas e orientar correções de curto prazo.</li>
-</ul>
+- **Explicar** os principais problemas de estabilidade técnica que surgiram quando a Solana passou de protótipo para rede ativa e por que esses problemas são importantes para o progresso do consenso.
+- **Descrever** pelo menos duas restrições operacionais concretas (limites de recursos, agendamento em tempo de execução) que influenciaram mudanças de design iniciais.
+- **Traçar** a sequência de um incidente inicial de segurança ou disponibilidade e resumir as etapas de remediação adotadas.
+- **Articular** como decisões de financiamento e alocação de recursos moldaram a priorização entre recursos de desempenho e engenharia de confiabilidade.
+- **Avaliar** o papel que os canais de feedback da comunidade desempenharam ao revelar problemas e orientar correções de curto prazo.
 
 ---
 
@@ -112,31 +110,11 @@ A linha do tempo de ações tipicamente seguiu este padrão: detecção de sinto
 
 Para tornar os trade-offs visíveis, compare três escolhas de remediação que os engenheiros consideraram durante este incidente:
 
-<table>
-<thead>
-<tr><th>Opção</th><th>O que muda</th><th>Prós</th><th>Contras</th></tr>
-</thead>
-<tbody>
-<tr>
-<td>Limitação rápida</td>
-<td>Limitar a vazão de RPCs de entrada</td>
-<td>Alívio imediato, baixo risco de código</td>
-<td>Reduz capacidade e taxa de transferência percebida pelos usuários</td>
-</tr>
-<tr>
-<td>Reiniciar validadores</td>
-<td>Resetar memória/threads</td>
-<td>Reinício rápido e efetivo do estado</td>
-<td>Causa breves lacunas de disponibilidade e interrompe a rotação de líderes</td>
-</tr>
-<tr>
-<td>Patch de código</td>
-<td>Corrigir vazamento ou adicionar backpressure</td>
-<td>Correção de longo prazo, preserva capacidade</td>
-<td>Ciclo de desenvolvimento + revisão mais longo; risco de regressões</td>
-</tr>
-</tbody>
-</table>
+| Opção | O que muda | Prós | Contras |
+| --- | --- | --- | --- |
+| Limitação rápida | Limitar a vazão de RPCs de entrada | Alívio imediato, baixo risco de código | Reduz capacidade e taxa de transferência percebida pelos usuários |
+| Reiniciar validadores | Resetar memória/threads | Reinício rápido e efetivo do estado | Causa breves lacunas de disponibilidade e interrompe a rotação de líderes |
+| Patch de código | Corrigir vazamento ou adicionar backpressure | Correção de longo prazo, preserva capacidade | Ciclo de desenvolvimento + revisão mais longo; risco de regressões |
 
 Engenheiros frequentemente combinam opções: aplicar uma limitação rápida para estabilizar a rede enquanto desenvolvem um patch de código para o vazamento subjacente. Um exemplo de remediação concreta da prática inicial da Solana foi adicionar limites no estilo token-bucket nos handlers RPC para que rajadas súbitas não esgotassem CPU e memória; essa alteração prioriza segurança sobre a vazão máxima até que um alocador ou correção de runtime mais refinada esteja pronta.
 
@@ -184,12 +162,10 @@ Terceiro, canais da comunidade e comunicação transparente de incidentes foram 
 
 ## Recapitulação Rápida
 
-<ul class="lesson-recap-takeaways">
-<li>Problemas de estabilidade iniciais deslocaram prioridades de vazão máxima para comportamento previsível e observável.</li>
-<li>O diagnóstico combina logs, métricas e pequenas reproduções; limitações de curto prazo estabilizam enquanto patches são desenvolvidos.</li>
-<li>Fluxo de resposta a incidentes: detectar &rarr; triagem &rarr; mitigar &rarr; causa raiz &rarr; patch &rarr; comunicar.</li>
-<li>Transparência com a comunidade ajudou a coordenar upgrades e reduzir esforço operacional duplicado.</li>
-</ul>
+- Problemas de estabilidade iniciais deslocaram prioridades de vazão máxima para comportamento previsível e observável.
+- O diagnóstico combina logs, métricas e pequenas reproduções; limitações de curto prazo estabilizam enquanto patches são desenvolvidos.
+- Fluxo de resposta a incidentes: detectar → triagem → mitigar → causa raiz → patch → comunicar.
+- Transparência com a comunidade ajudou a coordenar upgrades e reduzir esforço operacional duplicado.
 
 ---
 
