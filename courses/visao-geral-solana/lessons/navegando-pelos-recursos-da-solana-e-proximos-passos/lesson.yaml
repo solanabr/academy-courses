@@ -1,0 +1,15 @@
+id: lesson-vgs-navegando-pelos-recursos-da-solana-e-proximos-passos
+slug: navegando-pelos-recursos-da-solana-e-proximos-passos
+title: "Navegando pelos Recursos da Solana e Próximos Passos"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=wYMqHYZxVII
+- key: content
+  type: prose
+  src: intro.md

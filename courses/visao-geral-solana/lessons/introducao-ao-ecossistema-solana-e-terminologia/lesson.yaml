@@ -1,0 +1,15 @@
+id: lesson-vgs-introducao-ao-ecossistema-solana-e-terminologia
+slug: introducao-ao-ecossistema-solana-e-terminologia
+title: "Introdução ao Ecossistema Solana e Terminologia"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=c8RsQrbHcG4
+- key: content
+  type: prose
+  src: intro.md
