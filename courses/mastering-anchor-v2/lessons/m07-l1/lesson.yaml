@@ -1,0 +1,76 @@
+id: lesson-mav2-m07-l1
+slug: m07-l1
+title: "What V2 kills at compile time"
+skills:
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You mark two mutable Account<T> parameters in one instruction and spell the opt-out as plain `dup` (no `unsafe`), then run `anchor build` in V2. What happens?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The program fails to compile — plain `dup` is rejected and the error tells you to write `unsafe(dup)`."
+            correct: true
+          - id: b
+            label: "It compiles, and the duplicate-mutable check simply fires at runtime in the dispatcher, exactly as it did in v1."
+            correct: false
+            feedback: "Tempting because the dispatcher's runtime dup check really does still exist in V2 — but you never reach it, because the bare-`dup` spelling fails the build before a binary exists."
+          - id: c
+            label: "It compiles with a warning, because MUT_MASK is computed only for `zero_copy` accounts and skips ordinary slots."
+            correct: false
+            feedback: "MUT_MASK is a compile-time const over every account the instruction declares, and on V2 defaults every `Account<T>` is already a Pod zero-copy view, so there is no ordinary slot for it to skip. The missing `unsafe` is a hard error, not a warning."
+        explanation: "In V2, opting out of duplicate-mutable protection is spelled `unsafe(dup)`; writing bare `dup` is a compile error that names the fix. The MUT_MASK bitset is computed at compile time; the duplicate check itself still runs in the dispatcher, but the compiler blocks the unsafe spelling before you ever get there."
+      - id: q2
+        prompt: "You try the classic type-cosplay attack — load a Vault account's bytes as a Config in V2. Why does it no longer type-check?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "V2 adds a runtime discriminator re-check on every field access, so the mismatch is caught the moment you read a field."
+            correct: false
+            feedback: "The block is at compile time, not a new per-field runtime check; discriminators are unchanged by default."
+          - id: b
+            label: "`Account<T>` requires `T: Pod`, so the declared type fixes the layout at compile time and the types never interconvert."
+            correct: true
+          - id: c
+            label: "`Account<T>` now writes the type's name into the account header and compares that string against `T` on every load."
+            correct: false
+            feedback: "This was one of the naive v1-era fixes the lesson rules out: it stores an extra field and still checks at runtime. V2 stores no type names — discriminators remain the sha256 default, and the new guarantee is Pod typing at compile time."
+        explanation: "V2's Account<T> is zero-copy and requires T: Pod; the bytes are cast to the declared type at compile time. You cannot smuggle a Vault in where a Config is expected because the types (and their Pod layouts) are fixed at compile time — the cosplay never builds. Two clocks are running here: at load, a QuarterVault handed to an `Account<Config>` slot is still rejected by the runtime discriminator check exactly as in v1. What V2 adds is closing the byte-level escape hatch — with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the deliberate `bytemuck::from_bytes::<Config>(&data[8..])` cast you would need instead is something a reviewer can grep for in one pass."
+      - id: q3
+        prompt: "You hold a typed reference to an account and try to read its fields while a `CpiHandle` for that account is still live. What does V2 do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Runtime panic — V2 detects the aliasing borrow when the CPI returns and aborts before the stale field is read."
+            correct: false
+            feedback: "Plausible if you picture CpiHandle as a RefCell-style runtime guard like v1's account borrows. It is not: the borrow is an ordinary Rust borrow the compiler tracks, so the read is rejected at build time and no CPI ever runs."
+          - id: b
+            label: "It works, and as in v1 you must call `.reload()` on the account after the CPI to see the updated bytes."
+            correct: false
+            feedback: "This is exactly the v1 muscle memory V2 retires. The stale read no longer compiles while the handle is live, and once the handle is dropped the typed view is already fresh — there is no `.reload()` step to remember."
+          - id: c
+            label: "Compile error — the CpiHandle holds a Rust borrow that excludes typed data access until the handle is dropped."
+            correct: true
+        explanation: "A CpiHandle is a borrow-tracked handle; while it is alive it holds a Rust borrow that prevents typed access to the same data. The stale-after-CPI class that `.reload()` used to paper over is now a compile error."
+      - id: q4
+        prompt: "A teammate concludes 'V2 is secure by default, so we can skip the audit.' Grounded in this lesson, what is the best response?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Three of the four classes became compile errors and the fourth is inert — but V2 is an unaudited alpha, so the audit stands."
+            correct: true
+          - id: b
+            label: "Correct — type cosplay, dup-mut, CPI aliasing, and bump recalc are all impossible on the V2 defaults, so review adds little."
+            correct: false
+            feedback: "Three of those are genuine compile errors and bump recalc merely re-derives the canonical bump the account stored — but missing signer/owner checks, account substitution, and arithmetic bugs all still compile and run, and the framework itself is unaudited."
+          - id: c
+            label: "Wrong direction — V2 removes no vulnerability classes; the 8.8x figure in PR #4914 was a compute benchmark, not a security claim."
+            correct: false
+            feedback: "The 8.8x number really is a CU benchmark and should never be cited as security, which is what makes this tempting — but V2 does convert type cosplay, dup-mut, and CPI aliasing into compile errors. The point is that it does not convert all eleven classes."
+        explanation: "V2 turns type cosplay, dup-mut, and CPI aliasing into compile errors, and leaves bump recalculation compiling but inert — a real gain. But it is an unaudited alpha whose docs explicitly call the defaults 'not a substitute for review,' and whole classes (signer/owner, arithmetic, logic) survive. Compile-time wins narrow the attack surface; they do not retire the audit. Keep the ratio in view: four of the Solana Foundation's eleven taxonomy classes were re-run here, and the headline numbers from PR #4914 (94% bytecode, 8.8x compute, both revised down) are size-and-speed claims, never security ones. The second-order risk is worse than any single bug: a team that believes the compiler catches its security bugs reviews less precisely exactly where the compiler is silent, which is where the money leaves."

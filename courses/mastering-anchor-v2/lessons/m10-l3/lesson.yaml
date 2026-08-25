@@ -1,0 +1,60 @@
+id: lesson-mav2-m10-l3
+slug: m10-l3
+title: "Migration capstone: port a 0.31/1.0 program to V2"
+skills:
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m10-l3-q1
+        prompt: "Your port compiles locally with `anchor build` and you assume it is V2-ready. Then it behaves nothing like V2. What is the most likely toolchain mistake?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "You omitted `CARGO_PROFILE_RELEASE_LTO=off` from the cargo install, so the CLI fell back to building the program with v1 codegen semantics."
+            correct: false
+            feedback: "`CARGO_PROFILE_RELEASE_LTO=off` is only a macOS workaround for the release build blowing up; it is not a version switch and never selects v1 codegen. The real variable is which `anchor-cli` was on PATH."
+          - id: c
+            label: "You compiled with the machine's ambient `anchor-cli 1.1.2` instead of the isolated, pinned V2 RC toolchain."
+            correct: true
+          - id: b
+            label: "You left `AccountLoader` in the source, and because V2 repurposed that type, its presence pins the crate to v1 compatibility codegen."
+            correct: false
+            feedback: "V2 does repurpose `AccountLoader`, which makes this tempting, but no symbol in your source can select a framework major version. Only the toolchain that compiled the crate does."
+        explanation: "The local machine has anchor 1.1.2 installed, which cannot build V2. The port must compile against the isolated V2 RC toolchain (documented git install from anchor-next, pinned in verify/Dockerfile). If `anchor build` used the ambient 1.1.2, you produced a v1 artifact and no amount of source edits will make it behave like V2. Two things that do NOT control this: `CARGO_PROFILE_RELEASE_LTO=off` is purely a macOS release-build workaround, and no type in your source — `AccountLoader` included — switches codegen between framework major versions. The tell is a build that emits zero of the deprecations and borrow errors this lesson promises; when that happens, re-run `anchor --version` and expect `2.0.0-rc.1`, not `1.1.2`."
+      - id: m10-l3-q2
+        prompt: "Mid-port, `cargo build` succeeds but prints a deprecation warning underlining `has_one` in a constraint you copied over. The test would still pass. Why resolve it anyway?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Because `has_one` is deprecated in favor of `address = parent.field`, and on a moving RC deprecated syntax is what a later tag is most likely to remove."
+            correct: true
+          - id: b
+            label: "Because `anchor test` promotes deprecation warnings to hard errors under V2's default profile, so the LiteSVM suite cannot go green until the warning is gone."
+            correct: false
+            feedback: "`anchor test` does not promote deprecation warnings to errors — the prompt itself says the test still passes. You resolve it for migration durability, not because it blocks the gate."
+          - id: c
+            label: "Because in V2 `has_one` still parses but no longer emits the equality check, so the authority comparison is silently skipped at runtime."
+            correct: false
+            feedback: "`has_one` still parses AND still performs the equality check in V2 — it is deprecated, not broken, which is exactly why the test passes. The reason to replace it is that a moving RC is likely to delete deprecated syntax."
+        explanation: "The has_one deprecation warning is the framework driving the migration: V2 wants `address = parent.field`, and the parser stores the has_one span precisely so codegen can underline it. On an RC that is still changing, resolving deprecations to zero is how you keep the port building against the next version -- the warning is a checklist item, not noise. Concretely, the warning names its own replacement: move the check onto the sibling account as `#[account(address = state.authority)]`, then rebuild until the deprecation count is zero. Note also what the warning does not do — it never fails the build or the LiteSVM suite, and `has_one` keeps performing its equality check today, so the only thing pushing you to edit is the migration checklist itself."
+      - id: m10-l3-q3
+        prompt: "You copy a v1 pattern that reads `vault.amount` right after a CPI that moved lamports, then calls `vault.reload()`. The V2 build fails. What does letting the compiler drive tell you to do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Add `unsafe(dup)` to the vault's `#[account(...)]` constraint, since that opt-out relaxes V2's account borrow checking for reads taken around a CPI."
+            correct: false
+            feedback: "`unsafe(dup)` is the opt-out for duplicate mutable accounts, and it is enforced at validation before your handler ever runs. It has nothing to do with a borrow held across a live `CpiContext` and will not clear this error."
+          - id: b
+            label: "Re-enable `.reload()` through the `anchor-lang` compat feature and call it after `system_program::transfer` exactly as the v1 code did."
+            correct: false
+            feedback: "There is no compat feature that restores `.reload()` — V2 removed the method outright because the CpiHandle borrow model makes the stale read it patched impossible to write in the first place."
+          - id: c
+            label: "Remove the `.reload()` call and restructure so no typed access to the vault is held while the `CpiContext` holds its borrow."
+            correct: true
+        explanation: "V2 has no `.reload()` because the CpiHandle borrow model makes typed access during a live CPI a compile error -- the exact stale-data bug `.reload()` existed to patch is now unrepresentable. Letting the compiler drive means reading the borrow error as instruction: drop the reload, and structure the code so the vault's typed data is not borrowed across the CPI. In practice the build hands you two errors that map one-to-one onto two edits: E0599 (no method `reload`) says delete that line, and E0502 (typed read inside the borrow window) says hoist the scalars you need — the state address and the vault bump — into locals BEFORE you build the `CpiContext`, then take a fresh typed borrow only after the call has been consumed."

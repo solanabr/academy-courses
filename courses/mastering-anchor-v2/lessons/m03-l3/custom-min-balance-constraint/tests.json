@@ -1,0 +1,6 @@
+[
+  { "id": "t1", "input": "500, 100", "expectedOutput": "true", "description": "balance above the floor passes" },
+  { "id": "t2", "input": "100, 100", "expectedOutput": "true", "description": "balance exactly at the floor passes" },
+  { "id": "t3", "input": "50, 100", "expectedOutput": "false", "description": "balance below the floor is rejected" },
+  { "id": "t4", "input": "0, 1", "expectedOutput": "false", "description": "an empty account is rejected by a 1-lamport floor" }
+]

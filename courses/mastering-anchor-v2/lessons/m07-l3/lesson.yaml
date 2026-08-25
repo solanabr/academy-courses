@@ -1,0 +1,76 @@
+id: lesson-mav2-m07-l3
+slug: m07-l3
+title: "The audit checklist as a lab; fuzz as the assessment"
+skills:
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "After hours of clean runs, `anchor fuzz` reports a crash on your swap. In this lesson's framing, what does that mean?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Crucible's LibAFL mutator produced a malformed input; re-run the campaign until it comes back clean."
+            correct: false
+            feedback: "Crucible saves the failing sequence as a crash artifact and replays it deterministically with `--replay`, so a reproducible crash is a finding, not mutator noise — that is the entire point of running it."
+          - id: b
+            label: "sBPF edge coverage was still climbing, so the crash is a false positive from a half-explored branch."
+            correct: false
+            feedback: "A crash artifact is a concrete failing input sequence you can replay; low coverage means you have not explored enough of the program yet, not that the crash you already have is fake."
+          - id: c
+            label: "You broke it — the fuzzer found a concrete input for which your invariants do not hold."
+            correct: true
+        explanation: "In this course, a green fuzz case = you broke it: anchor fuzz (Crucible, LibAFL/LiteSVM with sBPF edge coverage) surfaced an input that violates an invariant. Replay the crash artifact, fix the bug, and re-fuzz — a crash is a success of the process. The order is load-bearing: crash, replay, patch, re-fuzz. Patch first and you throw away the artifact that proved the bug was real and deterministic."
+      - id: q2
+        prompt: "Which tool does `anchor fuzz` actually run under the hood in V2?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Crucible (`crucible-fuzz-cli`), a LibAFL engine driving a LiteSVM runtime."
+            correct: true
+          - id: b
+            label: "Trident (Ackee), wired in as the default backend behind the `fuzz` subcommand."
+            correct: false
+            feedback: "Trident is a real, maintained alternative, but it is not the built-in path: its cadence stalled (0.12.0 from 2025-11-27) and Anchor wired Crucible into the CLI instead."
+          - id: c
+            label: "cargo-fuzz with libFuzzer, run over a native (non-sBPF) build of the program."
+            correct: false
+            feedback: "anchor fuzz executes the compiled `.so` inside LiteSVM and traces sBPF edges; cargo-fuzz/libFuzzer would instrument a native host build, which is not the bytecode that runs on-chain."
+        explanation: "anchor fuzz is Crucible (crucible-fuzz-cli), embedded in the CLI, using a LibAFL/LiteSVM backend with sBPF edge coverage. Trident (Ackee) is a one-paragraph alternative whose release cadence stalled; it is not the default. Checked 2026-08-22: it is `master`'s CLI that pins `crucible-fuzz-cli = \"0.2.1\"` and dispatches `Command::Fuzz` into it, while the anchor-next RC CLI ships `anchor coverage` and has no `fuzz` subcommand at all."
+      - id: q3
+        prompt: "Your audit checklist passes and fuzzing is clean. A stakeholder asks 'so it is proven secure?' What is the grounded answer?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Yes — a clean stateful fuzz run plus a fully green checklist is a proof of correctness."
+            correct: false
+            feedback: "A clean run is an average-case statement over the inputs and sequences the fuzzer happened to explore in the time you gave it; the bug that ships is usually a worst-case corner the search never reached."
+          - id: b
+            label: "No — a clean run means 'not found yet': confidence, never proof that bugs are absent."
+            correct: true
+          - id: c
+            label: "Only if you also run Trident, whose Ackee harness gives proof-grade coverage guarantees."
+            correct: false
+            feedback: "No fuzzer is proof-grade — Trident is coverage-guided testing exactly like Crucible, it is not even the built-in path, and running a second fuzzer would not turn testing into proof."
+        explanation: "Fuzzing found 4 correctness bugs in Anchor's OWN framework, which also carries Miri witnesses and Kani configs — and the docs still call the defaults 'not a substitute for review.' Testing and audit raise confidence; they never prove the absence of bugs. Of that toolchain only Miri (undefined behavior in unsafe code) and Kani (bounded model checking) make proof-shaped claims at all, and only about the narrow properties they model."
+      - id: q4
+        prompt: "You want the fuzzer to explore state that only appears after several instructions run in sequence. Which run mode fits?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The stateless default is enough — each iteration restarts from setup, so depth accrues across runs."
+            correct: false
+            feedback: "Stateless clones the post-setup snapshot every iteration and throws the world away afterwards, so nothing accrues: every attempt re-pays for the first steps and stops at `--max-actions` (default 8)."
+          - id: b
+            label: "`anchor coverage`, since its LCOV export is what steers the fuzzer into deeper program states."
+            correct: false
+            feedback: "anchor coverage is a readout over `anchor test` traces, and fuzz coverage comes from `run --coverage` — either way coverage is the map, not the vehicle; `--stateful` is what actually gets you there."
+          - id: c
+            label: "`anchor fuzz run` with `--stateful`, so mutated actions extend live states instead of restarting."
+            correct: true
+        explanation: "anchor fuzz run ... --stateful chains instructions so the fuzzer can reach states that only exist after a sequence of calls — the ones a single-shot run never sees. Coverage (LCOV) is a separate readout, not the mode. Mechanically: stateful keeps a coverage-indexed pool of live program states (`--pool-size`, default 256,000) and applies one mutated action per iteration to a state drawn from that pool, growing chains to `--max-depth` (default 15), while the stateless default clones the post-setup snapshot, runs a mutated sequence up to `--max-actions` (default 8), and discards it."

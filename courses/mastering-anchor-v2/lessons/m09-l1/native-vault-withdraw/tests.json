@@ -1,0 +1,32 @@
+[
+  {
+    "id": "t1",
+    "input": "100, 40",
+    "expectedOutput": "60",
+    "description": "a normal withdraw returns the remaining balance"
+  },
+  {
+    "id": "t2",
+    "input": "100, 150",
+    "expectedOutput": "-1",
+    "description": "an over-withdraw is rejected with -1 via checked_sub"
+  },
+  {
+    "id": "t3",
+    "input": "100, 0",
+    "expectedOutput": "-2",
+    "description": "a zero-amount withdraw is rejected with -2"
+  },
+  {
+    "id": "t4",
+    "input": "0, 0",
+    "expectedOutput": "-2",
+    "description": "zero amount is rejected before the balance check"
+  },
+  {
+    "id": "t5",
+    "input": "50, 50",
+    "expectedOutput": "0",
+    "description": "draining the vault to exactly zero is allowed"
+  }
+]

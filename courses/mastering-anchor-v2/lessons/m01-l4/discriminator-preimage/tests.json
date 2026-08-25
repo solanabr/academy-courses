@@ -1,0 +1,20 @@
+[
+  {
+    "id": "t1",
+    "description": "an account struct hashes from the account: namespace",
+    "input": "\"account\", \"CabinetCounter\"",
+    "expectedOutput": "account:CabinetCounter"
+  },
+  {
+    "id": "t2",
+    "description": "an instruction handler hashes from global:, not instruction:",
+    "input": "\"instruction\", \"increment\"",
+    "expectedOutput": "global:increment"
+  },
+  {
+    "id": "t3",
+    "description": "an event struct hashes from the event: namespace",
+    "input": "\"event\", \"HighScore\"",
+    "expectedOutput": "event:HighScore"
+  }
+]

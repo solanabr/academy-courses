@@ -1,0 +1,69 @@
+id: lesson-mav2-m04-l1
+slug: m04-l1
+title: "CPI basics and signing as a PDA"
+skills:
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: resolve-withdrawal
+    type: code
+    language: rust
+    starter: resolve-withdrawal/starter.rs
+    solution: resolve-withdrawal/solution.rs
+    tests: resolve-withdrawal/tests.json
+    hints:
+      - "Check the three failure cases first, then compute the safe remainder."
+      - "The rent-exempt floor is what keeps the PDA alive; letting the balance fall below it can close the account."
+  - key: check
+    type: quiz
+    questions:
+      - id: m04-l1-q1
+        prompt: "You wired the vault's withdraw to sign as a PDA. What do you pass to invoke_signed as the signer seeds?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The SOL vault's own seeds plus its stored canonical bump: [b\"sol\", owner.as_ref(), &[state.sol_bump]]."
+            correct: true
+          - id: b
+            label: "The authority's secret key bytes, read off the Signer account, since the authority owns the vault."
+            correct: false
+            feedback: "A Signer exposes no secret key to the program, and a PDA has no private key at all. PDA signing is a runtime permission granted from seeds plus the bump, never a keypair."
+          - id: c
+            label: "A bump recomputed by calling find_program_address for [b\"sol\", owner] inside the withdraw handler."
+            correct: false
+            feedback: "That compiles and usually works, which is what makes it tempting. But find_program_address walks bumps downward from 255 with a syscall per attempt, so you pay for the search on every withdraw, and a hand-rolled derivation can land on a non-canonical address. Store the bump at init and reuse it."
+        explanation: "A PDA is off the ed25519 curve and has no private key, so the runtime lets the owning program sign for it by presenting the exact seeds plus the canonical bump. You stored that bump at initialization precisely so withdraw can rebuild the signer seeds cheaply and deterministically. Note whose seeds they are: withdraw moves lamports out of the zero-data SOL PDA, so the seeds are [b\"sol\", owner] with state.sol_bump, not the state PDA's own [b\"vault\", owner]. Re-derivation is bound to the calling program's ID, which is why no other program can present those seeds and sign for your vault."
+      - id: m04-l1-q2
+        prompt: "In Anchor V2, what does CpiContext::new take as its program argument, and how are the accounts passed?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "An AccountInfo for the target program, with accounts as plain typed structs."
+            correct: false
+            feedback: "That is the pre-1.0 shape, and it is still what a lot of tutorials show. V2 changed both halves: the program argument type and the way accounts are handed over."
+          - id: b
+            label: "A &Address for the program, with accounts as CpiHandle borrow-tracked handles."
+            correct: true
+          - id: c
+            label: "A Pubkey by value for the program, with accounts as plain &mut references."
+            correct: false
+            feedback: "The Anchor 1.0 line did take the program as a Pubkey, so this is the natural half-migration guess. V2 takes a &Address and wraps each account in a CpiHandle instead of a bare mutable reference."
+        explanation: "V2's CpiContext::new(program: &Address, accounts) is the shape you will type all lesson. The accounts arrive as CpiHandle borrow-tracked handles, obtained with .cpi_handle() for a read and .cpi_handle_mut() for a write, which is the detail that makes the next lesson's compile-time safety possible. The PDA signer rides along separately through .with_signer(signer_seeds), the ergonomic wrapper over the raw invoke_signed syscall."
+      - id: m04-l1-q3
+        prompt: "Your withdraw debits state.balance after the transfer. Which line is safe under the house rules?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "state.balance = state.balance - amount; // safe: rustc panics on underflow"
+            correct: false
+            feedback: "A default debug build does panic, which is where that belief comes from. Build the same code with rustc -O, as a deployed program effectively is, and the subtraction wraps silently to a value near u64::MAX instead. Neither outcome is acceptable on a custody path."
+          - id: b
+            label: "state.balance -= amount; // safe: the require! above proved amount <= vault lamports"
+            correct: false
+            feedback: "The guard proves the request fits the SOL vault's lamport balance. state.balance is the separate ledger figure, and the two can drift apart, so the debit can still underflow. Use checked_sub."
+          - id: c
+            label: "state.balance = state.balance.checked_sub(amount).ok_or(VaultError::Underflow)?;"
+            correct: true
+        explanation: "checked_sub returns None on underflow instead of panicking, and the ? turns that into a clean program error the caller can handle. On a custody path this is the difference between a rejected transaction and an aborted instruction with a confusing panic log. It also matters because atomicity only rewinds errors, not silent bugs: if the debit raises, the whole instruction aborts and the transfer that already ran unwinds with it, but a wrap never raises, so nothing rolls back and the vault is left believing it holds eighteen quintillion lamports. Make the bug an error."

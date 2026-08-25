@@ -1,0 +1,60 @@
+id: lesson-mav2-m01-l2
+slug: m01-l2
+title: "Two parallel lines, and the install that fights you"
+skills:
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m01-l2-q1
+        prompt: "You try to install the V2 RC with avm and it fails. Why does avm choke, and what is the documented path?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "avm's attestation check needs a GitHub Release object; the v2 tag has none, so you build from anchor-next"
+            correct: true
+          - id: b
+            label: "avm refuses prerelease version strings by policy; pass --force to avm install so it accepts the 2.0.0-rc.1 tag anyway"
+            correct: false
+            feedback: "avm install has no --force escape hatch, and prerelease strings are not the blocker: the v2 tag simply has no GitHub Release object for avm to verify an attestation against."
+          - id: c
+            label: "the CLI is published on npm as @anchor-lang/core@2, so you npm install that package before avm can resolve the version"
+            correct: false
+            feedback: "Tempting because Anchor 1.0 really did rename the TS client to @anchor-lang/core — but that package is the JavaScript client, there is no v2 of it, and the CLI is a Rust binary cargo builds from the anchor-next branch."
+        explanation: "avm verifies GitHub attestations; the v2 tag has no Release object (only /releases/tags/v2.0.0-rc.1 404s), so the documented channel is the anchor-next git install. Concretely: cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force, where --branch pins the frontier source, --locked honors the committed Cargo.lock (reproducibility that matters on an RC), and --force overwrites any anchor-cli already in ~/.cargo/bin."
+      - id: m01-l2-q2
+        prompt: "On macOS the RC build dies during LTO. Which line belongs in your pins/setup notes as the fix?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "rustup toolchain install nightly"
+            correct: false
+            feedback: "Tempting if you read an RC as needing nightly, but the RC pins a stable MSRV of 1.89.0 (the scaffold writes rust-toolchain.toml), and installing nightly does not disable the link-time optimization pass that is crashing."
+          - id: b
+            label: "CARGO_PROFILE_RELEASE_LTO=off"
+            correct: true
+          - id: c
+            label: "export ANCHOR_BUILD_LTO=false"
+            correct: false
+            feedback: "Anchor exposes no LTO switch of its own; LTO is a cargo release-profile setting, so the knob is the CARGO_PROFILE_RELEASE_* env var cargo already reads."
+        explanation: "The documented macOS workaround disables release LTO via the cargo profile env var; record it with a freshness note in the central pins file. LTO is cargo's final cross-crate optimization pass, so the override is a standard CARGO_PROFILE_RELEASE_* variable — on Linux the same prefix is harmless, which lets one install command work everywhere."
+      - id: m01-l2-q3
+        prompt: "crates.io tags the release 'rc' while the project's own benchmarks page calls it 'alpha.' How should the course handle the mismatch?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Pick 'rc' — crates.io is the canonical registry, so its label overrides the project's own docs"
+            correct: false
+            feedback: "The registry is not an authority on maturity — the 2026-08-12 crates.io publish is itself undocumented and untested for CLI installs. Taking its word silently deletes the signal the reader needs."
+          - id: b
+            label: "Pick 'alpha' — the benchmarks page is maintainer-written, so it is the more accurate signal"
+            correct: false
+            feedback: "Both labels are maintainer-written, which is exactly the problem. Picking the conservative one still resolves a tension the project never resolved, and the unresolved tension is the maturity signal."
+          - id: c
+            label: "Teach the conflict verbatim, and pin the exact installed version with a re-verify date"
+            correct: true
+        explanation: "C6: the project labels it both 'rc' and 'alpha'; the course surfaces the conflict and pins-and-reverifies rather than laundering it. An 'rc' claims near-shippable and an 'alpha' claims expect-breakage, so when one build carries both words the honest read is 'somewhere in between' — which is why PINS.md carries a verified date column and why issue #4937 (wincode 0.5 vs solana-address 0.6 breaking #[account(borsh)]) was caught by --locked plus a human re-check rather than by a label."

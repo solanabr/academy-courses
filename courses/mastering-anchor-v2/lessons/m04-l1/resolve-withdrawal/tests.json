@@ -1,0 +1,26 @@
+[
+  {
+    "id": "t1",
+    "input": "1000000, 890880, 100000",
+    "expectedOutput": "100000",
+    "description": "A withdrawal that leaves the vault rent-exempt returns the requested amount."
+  },
+  {
+    "id": "t2",
+    "input": "1000000, 890880, 0",
+    "expectedOutput": "-1",
+    "description": "A zero request is refused with -1."
+  },
+  {
+    "id": "t3",
+    "input": "500000, 0, 900000",
+    "expectedOutput": "-2",
+    "description": "An over-withdraw (requested > balance) is refused with -2 instead of underflowing."
+  },
+  {
+    "id": "t4",
+    "input": "1000000, 950000, 100000",
+    "expectedOutput": "-3",
+    "description": "A withdrawal that would drop the remainder below the rent-exempt minimum is refused with -3."
+  }
+]

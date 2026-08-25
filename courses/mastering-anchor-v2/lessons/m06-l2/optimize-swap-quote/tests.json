@@ -1,0 +1,26 @@
+[
+  {
+    "id": "t1",
+    "description": "0.3% fee (30 bps), equal 1M reserves, 10k in — fee-adjusted constant product",
+    "input": "1000000, 1000000, 10000, 30",
+    "expectedOutput": "9871"
+  },
+  {
+    "id": "t2",
+    "description": "0.3% fee, uneven reserves (5M in / 2M out), 100k in",
+    "input": "5000000, 2000000, 100000, 30",
+    "expectedOutput": "39100"
+  },
+  {
+    "id": "t3",
+    "description": "zero fee behaves like the plain constant product (starter and solution agree here)",
+    "input": "1000000, 1000000, 1000, 0",
+    "expectedOutput": "999"
+  },
+  {
+    "id": "t4",
+    "description": "0.3% fee, large trade (500k into 1M/1M) where the missing fee is obvious",
+    "input": "1000000, 1000000, 500000, 30",
+    "expectedOutput": "332665"
+  }
+]

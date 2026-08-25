@@ -1,0 +1,60 @@
+id: lesson-mav2-m05-l1
+slug: m05-l1
+title: "token_interface & transfer_checked: upgrade the vault and escrow to SPL"
+skills:
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m05-l1-q1
+        prompt: "You upgraded the quarter-vault from lamport custody to SPL and the withdraw test now fails to compile, pointing at your transfer CPI. What is the most likely cause in Anchor V2?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "You signed with the vault PDA's seeds; the token program only honors a real keypair signature, so custody needs a delegate."
+            correct: false
+            feedback: "PDA-signed token transfers are exactly how program-owned vaults move funds. .with_signer over the stored bump grants the PDA signer privilege for a token CPI the same way it did for the System Program transfer — no approve/delegate step is involved."
+          - id: b
+            label: "You called a bare transfer; V2's token seat expects transfer_checked, which needs the mint and its decimals."
+            correct: true
+          - id: c
+            label: "You kept the [b\"vault\", authority] seeds; a token account's authority PDA must be re-derived under the token program's id."
+            correct: false
+            feedback: "Tempting because seeds::program does exist for PDAs another program owns — but the vault's authority PDA still belongs to your program, so it derives under your id with the same seeds and stored bump. Custody changes; identity doesn't."
+        explanation: "The whole point of the upgrade lab is that the PDA/CPI skeleton is untouched: seeds, bump, and address auth stay. What changes is the custody layer — the system-program lamport transfer becomes a PDA-signed transfer_checked, which in V2 carries the mint account and decimals. Forgetting those is the classic first compile error."
+      - id: m05-l1-q2
+        prompt: "Why does the upgrade use InterfaceAccount<T> for the vault's token account instead of Account<TokenAccount>?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "InterfaceAccount<T> skips the owner check on load, so it costs fewer CUs than Account<TokenAccount>."
+            correct: false
+            feedback: "Owner and discriminator checks still run inside load either way. The V2 speedup came from making Account<T> itself zero-copy — InterfaceAccount<T> is an alias of it, so there is no CU difference to buy."
+          - id: b
+            label: "Account<TokenAccount> was removed in V2; token_interface's InterfaceAccount<T> is its only replacement."
+            correct: false
+            feedback: "InterfaceAccount<T> is an alias of Account<T>, not a replacement for it — Account<T> is very much alive, and Account<TokenAccount> with a token_interface import behaves identically. The reason is program compatibility, not removal."
+          - id: c
+            label: "InterfaceAccount<T> serves both classic SPL Token and Token-2022 through one code path."
+            correct: true
+        explanation: "token_interface exists so a single program works against both the SPL Token program and the Token-2022 program. InterfaceAccount<T> — an alias of Account<T> — is what lets the same account type validate either. Hardcoding Account<TokenAccount> to one program is the trap m05-l3 shows biting you when a Token-2022 mint arrives. The payoff of the one code path is that your program is never hardcoded to a single token program: the same instruction takes a classic mint today and a Token-2022 mint tomorrow. And you pay nothing for the capability, because Account<T> is already the zero-copy fast path in V2 — the compatible path and the fast path are now the same path. Note the real mechanism is which module T came from, not the wrapper: the token_interface types accept either program, the plain token types pin the classic one."
+      - id: m05-l1-q3
+        prompt: "You want a custom error when the escrow's authority account has the wrong owner, so you write address = maker @ EscrowErr::BadAuthority on an Account<T>. It returns a generic IllegalOwner instead of your error. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Owner and discriminator checks run inside load, ahead of any constraint hook you attach."
+            correct: true
+          - id: b
+            label: "address = only compares keys and has no @ error slot, so V2 substitutes a built-in error."
+            correct: false
+            feedback: "address = maker @ EscrowErr::BadAuthority compiles and does raise your error on a key mismatch — the @ slot is real. The issue is ordering: the load-time owner check fires before the address comparison ever runs."
+          - id: c
+            label: "has_one replaced address in V2, so the constraint never compiled into the accounts struct."
+            correct: false
+            feedback: "It's the reverse: has_one is the deprecated spelling and address = parent.field is its V2 replacement. The constraint compiled and executed fine; a load-time owner check simply preceded it."
+        explanation: "Because those checks sit inside load, the generic owner error fires first and your custom message never gets a chance to surface. On Account<T>, load runs the owner and discriminator checks before any constraint hook, so an owner mismatch surfaces as ProgramError::IllegalOwner and your custom message never appears. When you need a custom owner error, drop to UncheckedAccount and assert owner explicitly — a footgun worth flagging inline while wiring escrow auth."

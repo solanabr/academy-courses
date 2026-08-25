@@ -1,0 +1,73 @@
+id: course-mastering-anchor-v2
+slug: mastering-anchor-v2
+title: "Master Anchor V2"
+description: "By the end you can design, build, test, secure, and ship a production-grade Anchor V2 program to devnet, and, on the gated migrator track, migrate a 0.31/1.0 codebase to V2 with a map of what changed and why."
+difficulty: advanced
+duration: 48
+xpPerLesson: 20
+xpReward: 500
+creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+trackId: 0
+trackLevel: 0
+thumbnail: assets/banner.webp
+modules:
+  - key: orientation-anatomy-macros
+    title: "Orientation, anatomy & the macro expansion"
+    lessons:
+      - lesson-mav2-m01-l1
+      - lesson-mav2-m01-l2
+      - lesson-mav2-m01-l3
+      - lesson-mav2-m01-l4
+  - key: accounts-pod-data
+    title: "Accounts & data modeling under Pod (the V2 thesis, applied)"
+    lessons:
+      - lesson-mav2-m02-l1
+      - lesson-mav2-m02-l2
+      - lesson-mav2-m02-l3
+  - key: pdas-constraints
+    title: "PDAs, constraints & the extensible constraint system"
+    lessons:
+      - lesson-mav2-m03-l1
+      - lesson-mav2-m03-l2
+      - lesson-mav2-m03-l3
+  - key: cpi-composition
+    title: "CPIs & composition: the CpiHandle borrow model"
+    lessons:
+      - lesson-mav2-m04-l1
+      - lesson-mav2-m04-l2
+      - lesson-mav2-m04-l3
+  - key: tokens-framework-seat
+    title: "Tokens from the framework's seat (mechanics only)"
+    lessons:
+      - lesson-mav2-m05-l1
+      - lesson-mav2-m05-l2
+      - lesson-mav2-m05-l3
+  - key: observe-profile-debug
+    title: "Observe your program: profile, debug, cover, optimize"
+    lessons:
+      - lesson-mav2-m06-l1
+      - lesson-mav2-m06-l2
+  - key: security-v2-defaults
+    title: "Security under V2 defaults (the re-derivation)"
+    lessons:
+      - lesson-mav2-m07-l1
+      - lesson-mav2-m07-l2
+      - lesson-mav2-m07-l3
+  - key: ship-idl-verify
+    title: "Ship it: IDL, clients, and a verifiable build"
+    lessons:
+      - lesson-mav2-m08-l1
+      - lesson-mav2-m08-l2
+  - key: peel-and-prove
+    title: "Peel & prove"
+    lessons:
+      - lesson-mav2-m09-l1
+      - lesson-mav2-m09-l2
+      - lesson-mav2-m09-l3
+  - key: migrate-and-conclude
+    title: "Migrate & conclude (the migration MODULE; migration lessons gated)"
+    lessons:
+      - lesson-mav2-m10-l1
+      - lesson-mav2-m10-l2
+      - lesson-mav2-m10-l3
+      - lesson-mav2-m10-l4

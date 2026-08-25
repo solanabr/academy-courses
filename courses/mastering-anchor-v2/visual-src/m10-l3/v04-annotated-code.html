@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- annotated-code: The borrow error is the migration step
+     purpose: show how the V2 borrow-check error text maps one-to-one onto the two edits it is demanding
+     data: Compiler output (V2): error[E0502]: cannot borrow `ctx.accounts` as immutable because it is also borrowed as mutable |  let cpi_ctx = CpiContext::new_with_signer(.., Transfer { |      from: ctx.accounts.vault.cpi_handle_mut().. }, signer);  // mutable borrow starts here |  let before = ctx.accounts.state.total_withdrawn;  // ^ immutable borrow in the window |  system_program::transfer(cpi_ctx, amount)?;       // mutable borrow used here error[E0599]: no method named `reload` found for `BorshAccount<VaultState>` Read it as two instructions: E0599 (no reload) -> delete the .reload()? line; the method is gone by design, nothing to restore E0502 (typed read inside the borrow window) -> hoist the scalars you need (state_key, vault_bump) into locals BEFORE you build the CpiContext; read state AFTER the call consumes it Result: no borrow is alive while the CpiHandle is; the stale read is now unrepresentable, not patched
+     prompt: Two-panel annotated code graphic. Left panel: the failing v1-style withdraw tail with two red error banners (E0502 typed read inside the borrow window, E0599 no reload) and leader lines to the offending lines. Right panel: the two corresponding fixes as green annotations (delete reload; hoist scalar reads before the CPI, re-borrow after). Monospace code. The graphic should read as "error text -> exact edit", reinforcing let-the-compiler-drive.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:482px;height:502px;top:-264px;right:-264px;border-radius:51% 42% 55% 43% / 40% 42% 65% 54%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:447px;height:419px;bottom:-229px;left:-229px;border-radius:42% 56% 52% 52% / 64% 35% 62% 61%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:534px;height:517px;bottom:-274px;right:-274px;border-radius:42% 35% 65% 47% / 46% 58% 64% 65%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cols { display:flex; gap:26px; align-items:stretch; }
+  .term { width:846px; flex:0 0 846px; background:var(--surface-inverse);
+          border-radius:var(--radius-xl); padding:18px 22px 20px; }
+  .term .top { font-family:var(--font-mono); font-size:12px; color:var(--stbr-cream);
+               opacity:.5; letter-spacing:.04em; margin-bottom:12px; }
+  .err { border-left:4px solid var(--stbr-yellow); padding:8px 0 8px 14px; }
+  .err + .err { margin-top:14px; }
+  .ecode { display:inline-block; background:var(--stbr-yellow); color:var(--stbr-dark);
+           font-family:var(--font-mono); font-weight:700; font-size:12.5px;
+           padding:2px 9px; border-radius:var(--radius-sm); margin-bottom:6px; }
+  .emsg { font-family:var(--font-mono); font-size:13.5px; line-height:1.4;
+          color:var(--stbr-cream); }
+  .code { margin-top:9px; }
+  .ln { font-family:var(--font-mono); font-size:13px; line-height:1.55;
+        color:var(--stbr-cream); white-space:pre; }
+  .ln .g { opacity:.35; }
+  .ln .c { color:var(--stbr-yellow); }
+  .ln .d { opacity:.55; }
+
+  .fixes { flex:1; }
+  .fix + .fix { margin-top:14px; }
+  .fix { background:var(--surface-card); border:1.5px solid var(--border-subtle);
+         border-top:5px solid var(--stbr-emerald); border-radius:var(--radius-lg);
+         padding:14px 18px; }
+  .fix .fh { display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+  .fix .fb { font-family:var(--font-mono); font-weight:700; font-size:12.5px;
+             background:var(--stbr-dark); color:var(--stbr-cream);
+             padding:2px 9px; border-radius:var(--radius-sm); }
+  .fix .fl { font-family:var(--font-display); font-weight:900; font-size:11px;
+             letter-spacing:.13em; text-transform:uppercase; color:var(--stbr-emerald); }
+  .fix .ft { font-family:var(--font-display); font-weight:900; font-size:19px;
+             line-height:1.2; color:var(--text-primary); }
+  .fix .fp { font-family:var(--font-body); font-size:13.5px; line-height:1.45;
+             color:var(--text-secondary); margin-top:7px; }
+  .fix .fp code { font-family:var(--font-mono); font-size:12.5px; color:var(--text-primary);
+                  font-weight:600; }
+  .result { margin-top:16px; background:var(--surface-brand); border-radius:var(--radius-lg);
+            padding:13px 24px; display:flex; align-items:center; gap:18px; }
+  .result .rk { font-family:var(--font-display); font-weight:900; font-size:12px;
+                letter-spacing:.14em; text-transform:uppercase;
+                color:var(--stbr-cream); opacity:.7; flex:0 0 auto; }
+  .result .rt { font-family:var(--font-display); font-weight:900; font-size:19px;
+                line-height:1.2; color:var(--text-on-brand); }
+</style>
+  <div class="stbr-eyebrow">the error text is the edit</div>
+  <h2 class="viz-title">the borrow error is the migration step</h2>
+
+  <div class="cols">
+    <div class="term">
+      <div class="top">$ cargo build &nbsp;&middot;&nbsp; anchor-cli 2.0.0-rc.1</div>
+
+      <div class="err">
+        <span class="ecode">error[E0502]</span>
+        <div class="emsg">cannot borrow <span class="c">`ctx.accounts`</span> as immutable because it is also borrowed as mutable</div>
+        <div class="code">
+<div class="ln"><span class="g">  |</span>  let cpi_ctx = CpiContext::new_with_signer(.., Transfer {</div>
+<div class="ln"><span class="g">  |</span>      from: ctx.accounts.vault.cpi_handle_mut().. }, signer);</div>
+<div class="ln"><span class="g">  |</span>            <span class="c">-------------------------------</span> <span class="d">mutable borrow starts here</span></div>
+<div class="ln"><span class="g">  |</span>  let before = ctx.accounts.state.total_withdrawn;</div>
+<div class="ln"><span class="g">  |</span>               <span class="c">^^^^^^^^^^^^^^^^^^</span> <span class="d">immutable borrow in the window</span></div>
+<div class="ln"><span class="g">  |</span>  system_program::transfer(cpi_ctx, amount)?;</div>
+<div class="ln"><span class="g">  |</span>  <span class="c">------------------------------------------</span> <span class="d">mutable borrow used here</span></div>
+        </div>
+      </div>
+
+      <div class="err">
+        <span class="ecode">error[E0599]</span>
+        <div class="emsg">no method named <span class="c">`reload`</span> found for <span class="c">`BorshAccount&lt;VaultState&gt;`</span></div>
+      </div>
+    </div>
+
+    <div class="fixes">
+      <div class="fix">
+        <div class="fh"><span class="fb">E0502</span><span class="fl">reads as</span></div>
+        <div class="ft">hoist the scalars, re-borrow after</div>
+        <div class="fp">Pull <code>state_key</code> and <code>vault_bump</code> into locals <b>before</b> you build the <code>CpiContext</code>. Read <code>state</code> only <b>after</b> the call consumes the handle.</div>
+      </div>
+
+      <div class="fix">
+        <div class="fh"><span class="fb">E0599</span><span class="fl">reads as</span></div>
+        <div class="ft">delete the <span style="font-family:var(--font-mono);font-size:18px">.reload()?</span> line</div>
+        <div class="fp">The method is gone by design &mdash; there is nothing to restore, so there is nothing to call.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result">
+    <div class="rk">result</div>
+    <div class="rt">No borrow is alive while the CpiHandle is &mdash; the stale read is now unrepresentable, not patched.</div>
+  </div>
+</div>
+</body></html>

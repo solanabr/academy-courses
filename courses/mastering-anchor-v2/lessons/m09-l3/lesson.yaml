@@ -1,0 +1,60 @@
+id: lesson-mav2-m09-l3
+slug: m09-l3
+title: "Capstone: run the whole arcade floor"
+skills:
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m09-l3-q1
+        prompt: "Your floor-registry increments each cabinet's play counter by CPI-ing into the counter program from module 2. Why does the course insist this wiring be written as worked CPI steps rather than handed to you pre-built?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Because a CPI into another program can only be exercised against a live cluster, so the wiring cannot be unit-tested at all."
+            correct: false
+            feedback: "Tempting if you assume cross-program calls need a real validator, but they do not: LiteSVM runs the compiled programs in process, and the Surfpool localnet run in Step 8 stands the whole five-program floor up on your machine before devnet."
+          - id: b
+            label: "Because turning on a rung's `cpi` feature changes its bytecode, so the counter must be redeployed to a fresh program id first."
+            correct: false
+            feedback: "The `features = [\"cpi\"]` flag is set on the dependency in the *registry's* Cargo.toml and only makes `cabinet_counter::cpi::*` available to the registry's build. The deployed counter is untouched: it keeps the program id from its own `declare_id!`, and the registry CPIs that already-deployed address."
+          - id: c
+            label: "Because the capstone gates on you producing the composition yourself — accretion is demonstrated, never handed over finished."
+            correct: true
+        explanation: "The no-undemonstrated-accretion rule: the capstone gates on your producing the composition, so the CPI edges (including the counter increment) are worked steps you write, not a finished registry you receive. A pre-built wiring would prove nothing about your ability to compose the rungs — the wiring itself is the artifact under test, which is why R1 is worked in full as a template and R2, R3, and R4 are yours."
+      - id: m09-l3-q2
+        prompt: "Before the devnet deploy, the capstone runs the three-program floor together on a Surfpool localnet via anchor test. What does that step catch that per-program unit tests do not?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Cross-program integration failures that only surface when all five programs run against the same accounts together."
+            correct: true
+          - id: b
+            label: "Compile errors in a single instruction handler, such as a `CpiHandle` type mismatch inside the registry's `settle_prize`."
+            correct: false
+            feedback: "Tempting because the RC's handle grammar is where most early errors land, but `anchor build` (and `cargo build-sbf` before the Mollusk tests) rejects a bad handle type long before anything runs. The localnet run is about programs interacting, not compiling."
+          - id: c
+            label: "Whether each rung's IDL was written to its on-chain metadata account, which clients need to decode the registry's accounts."
+            correct: false
+            feedback: "IDL upload is a ship-module metadata step (Program Metadata), and a missing IDL breaks clients, not the programs. The localnet run exercises on-chain composition, which does not read the IDL at all."
+        explanation: "Unit tests prove each rung in isolation; the Surfpool localnet run stands up the whole floor so the registry's CPIs into every rung run together — the integration failures that only appear when programs compose are caught locally, before devnet. Concretely: the registry's CPIs into the counter, vault, escrow, and swap are never exercised together by isolated unit tests, so a seam bug like the registry deriving the escrow's vault from `[b\"vault\", escrow.key()]` while the test helper created it from `[b\"vault\", operator.key()]` passes every single-program suite and fails only when both programs sit on the same accounts."
+      - id: m09-l3-q3
+        prompt: "The capstone gate is a local verify-from-repo against your devnet deploy. The remote OtterSec submit-job and Squads v4 execution were only demonstrated, labelled 'mainnet-only — beyond this course's cluster'. Why is the local devnet verify still a real proof?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It isn't — verify-from-repo only compares hashes locally; only the `--remote` OtterSec job produces a verifiable build."
+            correct: false
+            feedback: "Tempting because the public registry entry is what other people can look up, but `--remote` submits your build to that registry and only runs against mainnet. That is distribution. The reproducibility proof is the local Docker rebuild whose hash matches the on-chain program."
+          - id: b
+            label: "Because solana-verify rebuilds the program from your source and matches the hash against the deployed devnet bytecode."
+            correct: true
+          - id: c
+            label: "Because a program keeps the same address across clusters, so a devnet verify carries over to the mainnet deployment."
+            correct: false
+            feedback: "Each deploy is its own program account on its own cluster, and nothing about a devnet hash says anything about a mainnet one. What the devnet verify proves is that your source reproduces the bytecode you deployed — on whatever cluster you point it at."
+        explanation: "Verification is bytecode reproducibility: solana-verify rebuilds from source in Docker and matches the hash against the deployed program. Running that locally against your devnet deploy is the real proof; the remote OtterSec submission and Squads v4 execution are mainnet-only distribution/authority steps, demonstrated and labelled as out of cluster — the remote job publishes to a registry, the multisig governs upgrade authority, and neither is the verification proof itself. Note also what the match does not buy you: it is a claim about provenance, not correctness. A verified build of a buggy program is a faithfully reproduced bug."

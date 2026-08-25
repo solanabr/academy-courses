@@ -1,0 +1,7 @@
+[
+  { "id": "t1", "input": "vec![100, 50, 20], 75, 3", "expectedOutput": "50", "description": "a new high score evicts the lowest and becomes the new cutoff" },
+  { "id": "t2", "input": "vec![100, 50, 20], 10, 3", "expectedOutput": "20", "description": "a score below the cutoff is rejected on a full board" },
+  { "id": "t3", "input": "vec![100, 50], 75, 3", "expectedOutput": "50", "description": "a score is admitted freely while the board is under capacity" },
+  { "id": "t4", "input": "vec![], 42, 3", "expectedOutput": "42", "description": "the first score on an empty board is the cutoff" },
+  { "id": "t5", "input": "vec![30, 30, 30], 30, 3", "expectedOutput": "30", "description": "a tie does not evict; you must strictly beat the cutoff" }
+]

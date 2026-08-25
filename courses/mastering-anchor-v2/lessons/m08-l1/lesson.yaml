@@ -1,0 +1,70 @@
+id: lesson-mav2-m08-l1
+slug: m08-l1
+title: "Ship a client: the IDL, Program Metadata, and a Codama/kit client"
+skills:
+  - solana-kit
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: wire-kit-swap-client
+    type: code
+    language: typescript
+    starter: wire-kit-swap-client/starter.ts
+    solution: wire-kit-swap-client/solution.ts
+    tests: wire-kit-swap-client/tests.json
+    hints:
+      - "The kit major comes from splPeer ('^7.0.0' -> 7), never from kitLatest."
+      - "Don't rebuild the instruction — call the provided swapInstruction(owner, amountIn, minOut)."
+  - key: check
+    type: quiz
+    questions:
+      - id: m08-l1-q1
+        prompt: "You just generated the swap's kit client. Your package.json already has @solana-program/token@0.15.0 (which peers on ^7.0.0), and you're about to add @solana/kit. What do you pin?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "^8 — pin the newest kit (8.0.0) so the client stays current"
+            correct: false
+            feedback: "kit 8.0.0 is npm latest, but @solana-program/token 0.15.0 peers on @solana/kit ^7.0.0; pinning ^8 breaks the peer graph and the install fails."
+          - id: b
+            label: "^7 — match the major your @solana-program deps peer on"
+            correct: true
+          - id: c
+            label: "'latest' so npm always resolves the newest kit for you"
+            correct: false
+            feedback: "'latest' is exactly what the durable rule forbids: a kit major bump can break your peers overnight — kit 8 became latest the day it shipped."
+        explanation: "The durable rule (CF4): pin @solana/kit to the major your @solana-program dependencies declare, never to 'latest'. Today that major is 7, even though kit 8.0.0 is the newest published version."
+      - id: m08-l1-q2
+        prompt: "A teammate says 'skip Codama — just import @anchor-lang/core for the V2 client.' What's actually wrong with that?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Nothing — @anchor-lang/core 1.1.2 is the official Anchor V2 client for @solana/kit"
+            correct: false
+            feedback: "@anchor-lang/core is real and official — it's the renamed successor to @coral-xyz/anchor — but npm latest 1.1.2 still depends on @solana/web3.js v1. It's the v1-era client wearing a new name, not a kit client."
+          - id: b
+            label: "It works, but only inside a bundler; Node send scripts need the Codama client instead"
+            correct: false
+            feedback: "Runtime environment isn't the issue — @anchor-lang/core imports fine in a Node script. The problem is the SDK line underneath it: web3.js v1, not @solana/kit."
+          - id: c
+            label: "There's no official V2 TS package; @anchor-lang/core is still on the web3.js v1 line"
+            correct: true
+        explanation: "The honest TS state: no official V2 package exists. @anchor-lang/core (npm latest 1.1.2) is the v1-era client. The first-party path is anchor codama convert + generate -l js, which renders a typed @solana/kit client. Reaching for the package that looks official quietly pins you back to web3.js v1 — the exact SDK line V2 exists to move off of."
+      - id: m08-l1-q3
+        prompt: "You want any client — not just yours — to be able to read your program's interface on-chain. Which step does that?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Run anchor idl init, which writes the IDL through the Program Metadata Program"
+            correct: true
+          - id: b
+            label: "Commit target/idl/token_ticket_swap.json and have callers fetch the raw GitHub URL"
+            correct: false
+            feedback: "A repo file only serves people who already have your repo — a wallet or explorer holding nothing but a program id can't resolve it. The Program Metadata Program stores the IDL at a canonical PDA any client derives from the program id alone."
+          - id: c
+            label: "Embed the IDL as a #[constant] in the program so callers read it from the binary"
+            correct: false
+            feedback: "Nothing in v2 ships the IDL inside the executable — #[constant] only surfaces a value in the generated IDL JSON, it doesn't make the binary self-describing. The on-chain copy lives in a separate Program Metadata account."
+        explanation: "anchor idl init (and anchor idl upgrade for later edits) writes the IDL to the Program Metadata Program at the canonical [program, seed] PDA — permissionless to read, writable only by the program's upgrade authority — so any client can resolve your interface from the chain. Anchor removed its own built-in IDL instructions in 1.0 and V2 inherits that removal. The trade-off: the IDL account costs rent, and the on-chain copy is only as current as your last idl upgrade."
