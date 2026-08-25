@@ -1,0 +1,15 @@
+id: lesson-vgs-componentes-centrais-do-runtime-e-papeis-dos-validadores
+slug: componentes-centrais-do-runtime-e-papeis-dos-validadores
+title: "Componentes Centrais do Runtime e Papéis dos Validadores"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=1qPv6hgzsTw
+- key: content
+  type: prose
+  src: intro.md

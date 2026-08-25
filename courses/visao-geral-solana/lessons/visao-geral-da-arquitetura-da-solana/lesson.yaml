@@ -1,0 +1,15 @@
+id: lesson-vgs-visao-geral-da-arquitetura-da-solana
+slug: visao-geral-da-arquitetura-da-solana
+title: "Visão geral da arquitetura da Solana"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=zp_ivK8JWUo
+- key: content
+  type: prose
+  src: intro.md

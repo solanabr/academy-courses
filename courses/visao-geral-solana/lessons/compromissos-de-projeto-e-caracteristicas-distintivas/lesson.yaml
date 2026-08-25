@@ -1,0 +1,15 @@
+id: lesson-vgs-compromissos-de-projeto-e-caracteristicas-distintivas
+slug: compromissos-de-projeto-e-caracteristicas-distintivas
+title: "Compromissos de Projeto e Características Distintivas"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=POsUrfnHnoA
+- key: content
+  type: prose
+  src: intro.md
