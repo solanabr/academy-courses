@@ -30,7 +30,7 @@ Ao final desta lição, você será capaz de mapear cada estágio do ciclo de vi
 
 Especificamente, você será capaz de: (1) descrever o pipeline de submissão do cliente até o ponto de entrada; (2) listar os passos básicos de validação realizados antes da ordenação; (3) explicar como os leaders ordenam e tratam transações conflitantes; (4) distinguir confirmação de finalização no modelo Solana; e (5) raciocinar sobre como cada estágio contribui para a latência de ponta a ponta e para a taxa de transferência sustentada. Esses objetivos são testáveis: você deve ser capaz de reconstruir a tabela de mapeamento de memória e explicar qual checkpoint inspecionaria para depurar uma transação travada.
 
-## Core Transaction Concepts: Submission, Validation, Ordering, Confirmation
+## Conceitos Centrais de Transação: Submissão, Validação, Ordenação e Confirmação
 
 Comece pelo pipeline de submissão: quando você constrói uma transação off-chain, ela contém instruções, endereços de contas e um conjunto de assinaturas provando autoridade. Você assina localmente e submete a transação para um endpoint RPC próximo ou diretamente para um validator via rede gossip ou transporte estilo QUIC. Na entrada, o nó receptor trata a mensagem como um candidato não processado e executa checagens sintáticas e de assinatura para confirmar que a mensagem está bem formada. Essas checagens de recebimento são projetadas para rejeitar pacotes malformados ou não assinados rapidamente, de forma que componentes a jusante vejam apenas transações plausíveis.
 
@@ -44,7 +44,7 @@ Confirmação e finalização são resultados distintos. Confirmação refere-se
 
 Ao longo desses estágios, fontes de latência incluem propagação de rede para nós e para o leader, tempo de verificação de assinatura, atrasos de enfileiramento em leaders sob alta carga e tempo de execução dentro do runtime. A taxa de transferência é moldada pela duração do slot do leader, políticas de empacotamento de blocos, eficiência da propagação adiante e taxas de conflito entre transações. Entender as responsabilidades de cada estágio esclarece quais logs e métricas inspecionar quando uma transação está lenta, rejeitada ou falhando repetidamente.
 
-## How This Shows Up in the Real World: A Concrete Trace
+## Como Isso Aparece no Mundo Real: Um Rastreamento Concreto
 
 Imagine que você submeta uma instrução do tipo transferência a partir do seu cliente através de um nó RPC. O artefato imediato que você recebe é ou um sucesso RPC com a assinatura submetida ou um erro explicando a rejeição. Se você receber um reconhecimento de submissão, o nó RPC realizou checagens de entrada e encaminhou a transação para a rede gossip e para leaders prospectivos. Na prática, a primeira observação será se o RPC retornou um `blockhash not found` ou um erro de validação de assinatura; esses indicam falhas no checkpoint de entrada antes da ordenação.
 
@@ -56,7 +56,7 @@ Após a execução, o leader broadcasta o bloco e o conjunto de validators vota 
 
 Finalmente, considerações de latência e taxa de transferência surgem em traços repetidos. Sob baixa contenção e carga leve, a latência ponta a ponta da submissão até uma confirmação pode variar de dezenas a centenas de milissegundos; sob carga alta, enfileiramentos em leaders e reexecuções por conflitos inflacionam a latência e reduzem a taxa de transferência efetiva. Passos concretos de depuração que você realizará incluem checar mensagens de rejeição na entrada, rastrear inclusão em um slot via `getSignatureStatuses`, inspecionar logs de execução via `getTransaction` e observar contagens de confirmação. Esses passos mapeiam-se diretamente para os checkpoints de verificação que incluiremos na tabela comparativa para que você possa raciocinar sobre onde um problema se originou.
 
-## Comparison Table: Stages, Responsible Components, and Verification Checkpoints
+## Tabela Comparativa: Estágios, Componentes Responsáveis e Checkpoints de Verificação
 
 Diferenças-chave: Abaixo está um mapeamento estruturado que você usará como artefato: para cada estágio da transação, os componente(s) responsáveis e o checkpoint de verificação que você pode observar ou inspecionar. A tabela captura o caminho normal; tratamento excepcional (retries, rejeições) referenciará os mesmos checkpoints, mas com indicadores de erro.
 

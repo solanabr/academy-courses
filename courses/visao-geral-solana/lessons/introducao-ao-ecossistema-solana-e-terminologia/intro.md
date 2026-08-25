@@ -33,7 +33,7 @@ Após trabalhar com esta lição, você será capaz de:
 
 Cada objetivo é testável: você deverá ser capaz de relacionar um componente do ecossistema a uma tarefa de desenvolvedor, explicar por que um termo importa para decisões de design e descrever implicações práticas dos papéis dos participantes.
 
-## Core Components of the Solana Ecosystem
+## Componentes Centrais do Ecossistema Solana
 
 Comece imaginando o ecossistema Solana como uma pilha em camadas onde cada camada fornece serviços para a camada acima. Na base estão os validadores e o tecido de rede que mantêm o livro-razão compartilhado. Acima disso está o runtime que executa programas (os smart contracts da Solana) e aplica o modelo de contas. Ao redor dessas peças centrais estão componentes de infraestrutura voltados para desenvolvedores: nós RPC para chamadas remotas, indexadores e provedores de dados para leituras históricas e análises, carteiras que gerenciam chaves e assinam transações, e serviços off-chain como oráculos e servidores backend que interagem com programas on-chain.
 
@@ -52,7 +52,7 @@ Nós RPC e SDKs clientes: nós RPC expõem endpoints JSON-RPC que permitem subme
 
 Entender esses componentes em termos de camadas esclarece quem faz o quê e onde residem as responsabilidades. Por exemplo, quando você observa uma resposta lenta de um RPC, pode determinar se o gargalo é o nó, a rede ou o pipeline do indexador. Ao projetar um dApp, você escolhe quais camadas controlar (programas, front end) e em quais confiar (indexadores, provedores de carteira). Esse mapeamento de responsabilidade para ponto de contato é a base prática que você usará nas lições subsequentes.
 
-## Mental Models: Accounts, Programs, and the Transaction Flow
+## Modelos Mentais: Contas, Programas e o Fluxo de Transações
 
 O Modelo Mental: Um modelo mental prático que simplifica a arquitetura conta-programa da Solana é imaginar uma coleção de cofres etiquetados (contas) e um conjunto de instruções de chaveiro (programas) que podem abrir, alterar ou transferir o conteúdo quando apresentadas as chaves e autorizações corretas. Cada cofre armazena dados e valor; um chaveiro tem as regras sobre quais operações são permitidas no cofre. Um cliente leva uma lista de cofres e operações de chaveiro (uma transação) ao livro-razão, e o líder atual executa as instruções contra os cofres referenciados em um único passo atômico.
 
@@ -64,7 +64,7 @@ Esse modelo revela três regras práticas de design que você reutilizará: prim
 
 Finalmente, a metáfora dos cofre-e-chaveiro também ajuda ao depurar ou ler rastros de transações. Quando uma transação falha por incompatibilidade de conta ou assinante faltante, trate a falha como uma lista de cofres mal especificada ou uma chave ausente. Quando a execução consumir unidades de computação inesperadas, inspecione quais instruções modificaram quais contas e se houve grandes cópias de contas ou operações criptográficas pesadas envolvidas. Usar a metáfora acelera mapear erros em tempo de execução para correções de projeto.
 
-## Example: Mapping a Simple dApp to the Solana Ecosystem
+## Exemplo: Mapeando um dApp Simples no Ecossistema Solana
 
 Percorra um exemplo concreto: um marketplace on-chain simples onde vendedores listam itens e compradores fazem ofertas. Use este cenário para mapear cada ator e peça de infraestrutura para os componentes que introduzimos. Você verá como escolhas de arquitetura e terminologia se aplicam a um fluxo de trabalho real de desenvolvedor.
 

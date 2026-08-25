@@ -34,7 +34,7 @@ Após concluir esta lição você será capaz de:
 
 Esses objetivos são concretos e testáveis: você praticará classificando alguns projetos representativos e justificando sua classificação usando a terminologia e os indicadores acima.
 
-## Core Concepts: Major Project Categories and How Terms Map to Roles
+## Conceitos Centrais: Principais Categorias de Projetos e Como os Termos se Mapeiam aos Papéis
 
 Comece tratando o ecossistema Solana como uma pilha em camadas. No nível mais baixo está a própria rede: validators, blocos e estado do ledger. Acima disso estão serviços de infraestrutura — nós RPC, indexers e telemetria dos validators — cuja função é expor dados do ledger e aceitar transações. Sobre a infraestrutura ficam os on-chain programs (smart contracts) que implementam a lógica de aplicação. Clientes off-chain — wallets, apps front-end e serviços de backend — constroem e assinam transações e apresentam UX em torno das interações com programs. Quando você mapeia a terminologia para essas camadas, o mapeamento é concreto: um `program` implementa lógica que altera `accounts`, um nó RPC expõe endpoints para enviar transações e consultar estado de accounts, e uma wallet gerencia keypairs e paga taxas de transação.
 
@@ -52,7 +52,7 @@ Ao avaliar um projeto, foque em como ele usa os termos centrais. Por exemplo, um
 
 Indicadores de participação ativa de desenvolvedores estão igualmente ligados a esses papéis. Para programs, procure commits frequentes no repositório do program, scripts de deploy claros referenciando program IDs e evidências on-chain de atividade de upgrade ou interações com o program. Para projetos de infraestrutura, verifique dashboards de uptime, relatórios de latência de RPC e status de sincronização de indexer. Para wallets e apps de consumidor, priorize notas de lançamento que mostrem compatibilidade com a runtime atual e vetores de teste explícitos para construção de transações. Usaremos esses indicadores específicos por categoria no exemplo prático que segue.
 
-## How This Shows Up in the Real World: Concrete Project Examples
+## Como Isso Aparece no Mundo Real: Exemplos Concretos de Projetos
 
 Você internalizará melhor as categorias caminhando por três projetos concretos e vendo como terminologia e indicadores aparecem na prática. Para cada exemplo abaixo, observe quais termos são enfatizados na docs, onde o estado vive e de quais serviços externos eles dependem. Esses exemplos mostram como classificar projetos de forma rápida e defensável.
 
@@ -64,7 +64,7 @@ Exemplo 3 — Um marketplace de NFT e storefront: marketplaces combinam uma UI o
 
 Ao longo desses exemplos você usará as mesmas regras de classificação: onde um projeto documenta program IDs e esquemas de accounts, trate-o como um on-chain program ou protocolo; onde a documentação prioriza superfície de API e garantias de sincronização de dados, trate-o como infraestrutura; onde a ênfase está em fluxos de assinatura, chaves de usuário e UX, trate-o como um cliente ou integração de wallet. Esses mapeamentos são práticos: eles permitem decidir onde procurar verificação autoritativa (explorers on-chain para programs, páginas de status para infraestrutura, notes de release e SDKs para wallets e clientes).
 
-## Mental Model: The City Metaphor for Interdependencies and Signals
+## Modelo Mental: A Metáfora da Cidade para Interdependências e Sinais
 
 The Mental Model: Use uma metáfora da cidade para raciocinar sobre interdependências. Trate a rede Solana como a infraestrutura da cidade: validators são usinas de energia e hubs de trânsito que mantêm a cidade funcionando; servidores RPC e indexers são os quiosques de informação e bibliotecas da cidade que indexam e retransmitem atualizações; programs on-chain são fábricas e serviços públicos que executam tarefas específicas; wallets e apps de consumidor são as casas e lojas onde as pessoas interagem com os serviços. Esse modelo mental facilita ver como mudanças em uma parte afetam outra.
 

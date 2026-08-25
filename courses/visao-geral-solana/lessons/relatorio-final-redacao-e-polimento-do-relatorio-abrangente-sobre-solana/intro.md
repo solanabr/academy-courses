@@ -30,7 +30,7 @@ Ao final desta lição você será capaz de: declarar claramente um resumo execu
 
 Cada objetivo se relaciona com a lista de verificação de entregáveis que você usou na Lição 1 e com as práticas de coleta de evidências da Lição 2. Você usará os mapeamentos arquiteturais da Lição 3 para apoiar afirmações explicativas em vez de repetir descrições técnicas. O sucesso será medido segundo critérios de aceitação concretos na seção seguinte.
 
-## Acceptance Criteria
+## Critérios de Aceitação
 
 Os critérios de aceitação definem exatamente como "concluído" se parece para este incremento do capstone. Você deve produzir um único documento que atenda aos padrões verificáveis a seguir; cada critério abaixo mapeia para a rubrica do módulo e pode ser validado por pares ou instrutores.
 
@@ -50,7 +50,7 @@ Os critérios de aceitação definem exatamente como "concluído" se parece para
 
 Atender a esses critérios de aceitação significa que seu artefato satisfaz a rubrica do módulo e está pronto para submissão. Se algum item falhar, sinalize-o na nota de capa e registre quais seções precisam de revisão adicional.
 
-## Build / Implement / Test
+## Construir / Implementar / Testar
 
 Comece criando um documento de trabalho baseado no esboço do capstone da Lição 1. Use o esboço como esqueleto e importe as seções do rascunho histórico da Lição 2 e as notas arquitetônicas da Lição 3 em pastas ou seções distintas no documento. Sua tarefa imediata é organização: converta notas dispersas no fluxo final do relatório e então execute três tipos de passagens — estrutural, de conteúdo e de citação — para atingir os critérios de aceitação.
 
@@ -75,7 +75,7 @@ Lista de verificação de Submissão/Demonstração (anexar como página final):
 
 Se o tempo permitir, faça um polimento final no tom e na clareza: elimine voz passiva quando ela enfraquecer a causalidade, substitua qualificadores ambíguos por formulações respaldadas por evidência e verifique se as entradas da bibliografia usam pontuação e capitalização consistentes. Salve uma cópia versionada e prepare o pacote de revisão por pares contendo o relatório, um guia de revisão por pares de uma página e quaisquer apêndices ou notas brutas para transparência.
 
-## Checkpoint: Verify Milestone Completion
+## Checkpoint: Verificar a Conclusão do Marco
 
 Neste checkpoint você validará se o documento atende aos critérios de aceitação. Use as verificações concretas a seguir para determinar se o marco está completo. Cada verificação é aprovada/reprovada e deve ser registrada em uma nota curta de revisão que acompanha sua submissão. Se alguma verificação falhar, liste os passos de remediação e o tempo estimado para correção.
 

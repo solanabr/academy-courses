@@ -36,7 +36,7 @@ Ao final desta lição você será capaz de:
 
 Esses objetivos são acionáveis: você deve sair com parágrafos adequados para inserção no relatório e um método reproduzível para transformar alegações históricas em declarações arquitetônicas com evidência.
 
-## Core Architectural Concepts and Component Roles
+## Conceitos Arquiteturais Centrais e Papéis dos Componentes
 
 A arquitetura da Solana se organiza em torno de um pequeno conjunto de componentes interligados e alguns princípios de design. Em alto nível, a arquitetura foca em maximizar o throughput por nó individual e o paralelismo entre nós ao deslocar trabalho para etapas anteriores no ciclo de vida da transação, introduzir uma fonte de tempo verificável e permitir execução concorrente de programas. Os componentes mais consequentes para entender no relatório são: Proof of History (PoH), o líder/escalação de líderes, Tower BFT, Turbine, Gulf Stream, Sealevel, Pipelining/Stages, Cloudbreak e Archivers. Cada um desempenha um papel específico que corresponde a um princípio arquitetônico.
 
@@ -57,7 +57,7 @@ Ao redigir a visão técnica, sempre emparelhe a descrição de cada componente 
 
 Finalmente, evite tratar os componentes como isolados; enfatize a composição: PoH permite que Tower BFT referencie o tempo sem mensagens adicionais, enquanto Turbine e Gulf Stream juntos otimizam propagação de blocos e distribuição de transações. Esses comportamentos conjuntos são frequentemente onde aparecem trade-offs, e eles formam subseções úteis na visão técnica.
 
-## How This Shows Up in the Real World: Mapping Architecture to Historical Decisions
+## Como Isso Aparece no Mundo Real: Mapeando a Arquitetura para Decisões Históricas
 
 Para tornar a arquitetura significativa no relatório, você precisa de mapeamentos concretos de eventos históricos para ênfases arquitetônicas. Comece selecionando três marcos da sua linha do tempo onde uma decisão de engenharia ou declaração pública influenciou a arquitetura — por exemplo: a introdução do PoH em notas de design iniciais, um lançamento específico que melhorou o Turbine ou a propagação de pacotes, e um voto ou RFC que alterou o agendamento de líderes ou a lógica de encaminhamento de transações. Para cada marco, produza uma afirmação curta que vincule o evento a uma mudança de componente e depois anexe a evidência primária (commit, post no blog ou RFC) da sua matriz de evidências.
 
@@ -75,7 +75,7 @@ Como exemplo concreto: considere a introdução do PoH. Sua frase de mecanismo p
 
 Use esse fluxo de trabalho para gerar três mapeamentos; quando montados, esses mapeamentos tornam-se a espinha dorsal da seção de visão técnica do seu relatório. Cada mapeamento é curto, factual e vinculado a evidências para que o leitor veja não apenas o que a arquitetura faz, mas quando e por que essa escolha foi feita historicamente.
 
-## Code Walkthrough: Using RPC to Collect Evidence for an Architecture Claim
+## Análise de Código: Usando RPC para Coletar Evidências de uma Afirmação Arquitetural
 
 Sondas pequenas e reprodutíveis são evidências úteis para o relatório: elas mostram o estado atual do cluster e podem validar alegações sobre rotação de líderes, duração de época ou configurações de throughput de transações. Abaixo está um exemplo compacto em TypeScript usando `@solana/web3.js` que busca informações de época e o cronograma de líderes. Execute isto contra o cluster que você citou na sua linha do tempo (testnet ou mainnet conforme apropriado) e cole o JSON de saída no apêndice de evidências.
 
