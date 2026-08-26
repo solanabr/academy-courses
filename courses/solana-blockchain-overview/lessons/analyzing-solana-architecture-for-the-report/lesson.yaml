@@ -1,0 +1,73 @@
+id: lesson-sbo-analyzing-solana-architecture-for-the-report
+slug: analyzing-solana-architecture-for-the-report
+title: Analyzing Solana Architecture for the Report
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=QKAwlHlf_PY
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: How do you turn a historical milestone into an architecture claim?
+    multiSelect: false
+    options:
+    - id: a
+      label: Name a component, state its mechanism, and state its implication.
+      correct: true
+      feedback: Correct! Component, mechanism, implication is the required shape.
+    - id: b
+      label: Restate the milestone's date in technical language.
+      correct: false
+      feedback: A date restated is still not a claim about architecture.
+    - id: c
+      label: Quote a community member's reaction to it.
+      correct: false
+      feedback: Reactions are not architecture claims.
+    explanation: Name a component, state its mechanism, and state its implication.
+  - id: q2
+    prompt: Which components does the lesson ask you to summarise in a table?
+    multiSelect: false
+    options:
+    - id: a
+      label: Wallets, explorers, and indexers.
+      correct: false
+      feedback: Those are developer-facing services, not the core components listed
+        here.
+    - id: b
+      label: PoH, Turbine, Gulf Stream, Sealevel, and Tower BFT, with responsibilities
+        and implications.
+      correct: true
+      feedback: Correct! Those five components anchor the technical overview.
+    - id: c
+      label: Only PoH, since the others are implementation details.
+      correct: false
+      feedback: The lesson names five components, not one.
+    explanation: Summarise PoH, Turbine, Gulf Stream, Sealevel and Tower BFT with
+      a short table of responsibilities and implications.
+  - id: q3
+    prompt: What kind of probes should support the report's technical overview?
+    multiSelect: false
+    options:
+    - id: a
+      label: Write transactions sent to mainnet to test behaviour.
+      correct: false
+      feedback: The lesson specifies read-only probes.
+    - id: b
+      label: Load tests that saturate a public RPC endpoint.
+      correct: false
+      feedback: That is neither small nor read-only.
+    - id: c
+      label: Small read-only probes such as RPC output, collected as dated evidence.
+      correct: true
+      feedback: Correct! Read-only and dated keeps the evidence safe and auditable.
+    explanation: Collect small read-only probes such as RPC output as dated evidence
+      for the technical overview.

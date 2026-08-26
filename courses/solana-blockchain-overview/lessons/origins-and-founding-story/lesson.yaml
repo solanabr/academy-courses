@@ -1,0 +1,80 @@
+id: lesson-sbo-origins-and-founding-story
+slug: origins-and-founding-story
+title: Origins and Founding Story
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=peXN_6GVEJc
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: According to the lesson, what did Solana's origin story centre on?
+    multiSelect: false
+    options:
+    - id: a
+      label: Reducing coordination overhead by introducing a verifiable network time
+        primitive, optimising for throughput and low latency.
+      correct: true
+      feedback: Correct! The verifiable time primitive is what lowers coordination
+        overhead.
+    - id: b
+      label: Maximising anonymity by removing all timestamps from the ledger.
+      correct: false
+      feedback: The lesson describes adding a verifiable time primitive, not removing
+        timestamps.
+    - id: c
+      label: Replicating Bitcoin's design exactly, with no change in priorities.
+      correct: false
+      feedback: The lesson contrasts Solana's founding priorities with Bitcoin's foundations.
+    explanation: Solana's origin centred on reducing coordination overhead via a verifiable
+      network time primitive, optimising for throughput and low latency.
+  - id: q2
+    prompt: How does the lesson describe the role of early funding and public milestones?
+    multiSelect: false
+    options:
+    - id: a
+      label: As a replacement for running public testnets.
+      correct: false
+      feedback: Testnets and benchmarks are described separately as part of converting
+        prototypes into public artefacts.
+    - id: b
+      label: As coordination mechanisms that validated technical assumptions and attracted
+        developer participation.
+      correct: true
+      feedback: Correct! They functioned as coordination signals, not just financial
+        events.
+    - id: c
+      label: As purely financial events with no effect on technical direction.
+      correct: false
+      feedback: The lesson presents them as validating assumptions and drawing developers
+        in.
+    explanation: Early funding and public milestones acted as coordination mechanisms
+      validating assumptions and attracting developers.
+  - id: q3
+    prompt: What combination of founding roles does the lesson identify?
+    multiSelect: false
+    options:
+    - id: a
+      label: Marketing, legal, and compliance only.
+      correct: false
+      feedback: Those are not the founding roles the lesson names.
+    - id: b
+      label: A single founder handling every responsibility alone.
+      correct: false
+      feedback: The lesson describes a combination of distinct roles.
+    - id: c
+      label: Protocol architecture, systems engineering, and developer outreach.
+      correct: true
+      feedback: Correct! Together they converted prototypes into public testnets and
+        benchmarks.
+    explanation: Founding roles combined protocol architecture, systems engineering
+      and developer outreach.

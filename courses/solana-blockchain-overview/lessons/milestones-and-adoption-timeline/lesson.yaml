@@ -1,0 +1,76 @@
+id: lesson-sbo-milestones-and-adoption-timeline
+slug: milestones-and-adoption-timeline
+title: Milestones and Adoption Timeline
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=I3r2_iZ8FNI
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: How does the lesson say milestones should be treated?
+    multiSelect: false
+    options:
+    - id: a
+      label: As functional transitions that map implementation steps to measurable
+        adoption signals, not mere dates.
+      correct: true
+      feedback: Correct! A milestone is a change in what you can measure, not a calendar
+        entry.
+    - id: b
+      label: As calendar entries whose only value is chronological ordering.
+      correct: false
+      feedback: The lesson explicitly warns against treating them as mere dates.
+    - id: c
+      label: As marketing announcements with no technical content.
+      correct: false
+      feedback: Milestones are tied to mechanisms exercised and observable indicators.
+    explanation: Milestones map implementation steps to measurable adoption signals;
+      they are functional transitions, not mere dates.
+  - id: q2
+    prompt: Which metrics does the lesson pair with each milestone type?
+    multiSelect: false
+    options:
+    - id: a
+      label: Social media follower counts for both.
+      correct: false
+      feedback: Those are not the metrics the lesson pairs with milestones.
+    - id: b
+      label: Telemetry for protocol releases, developer activity for ecosystem events.
+      correct: true
+      feedback: Correct! The metric must match the type of milestone being assessed.
+    - id: c
+      label: Token price for both protocol releases and ecosystem events.
+      correct: false
+      feedback: Price is not one of the signals the lesson proposes.
+    explanation: Use telemetry for protocol releases and developer activity for ecosystem
+      events.
+  - id: q3
+    prompt: What annotation turns a historical timeline into analysis?
+    multiSelect: false
+    options:
+    - id: a
+      label: Recording only the announcement date and its author.
+      correct: false
+      feedback: Date and authorship alone do not produce analysis.
+    - id: b
+      label: Recording the number of press articles published.
+      correct: false
+      feedback: That is not the annotation the lesson asks for.
+    - id: c
+      label: Recording the mechanism exercised and the immediate observable indicator
+        for each milestone.
+      correct: true
+      feedback: Correct! Mechanism plus observable indicator is what converts history
+        into analysis.
+    explanation: Annotate each milestone with the mechanism exercised and its immediate
+      observable indicator.

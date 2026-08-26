@@ -1,0 +1,73 @@
+id: lesson-sbo-overview-of-solanas-architecture
+slug: overview-of-solanas-architecture
+title: Overview of Solana's Architecture
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=OzAxS-V9rAs
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: According to the lesson, what drives Solana's architectural choices?
+    multiSelect: false
+    options:
+    - id: a
+      label: Goals of throughput, latency, parallelism, and auditable ordering.
+      correct: true
+      feedback: Correct! Architecture is goal-driven in this lesson's framing.
+    - id: b
+      label: A requirement to remain byte-compatible with Ethereum.
+      correct: false
+      feedback: Compatibility is not one of the drivers the lesson names.
+    - id: c
+      label: Minimising the total number of accounts on the network.
+      correct: false
+      feedback: That is not an architectural goal described here.
+    explanation: 'Architecture is goal-driven: throughput, latency, parallelism, and
+      auditable ordering guide the design.'
+  - id: q2
+    prompt: In the assembly-line mental model, what is the correct order of stages?
+    multiSelect: false
+    options:
+    - id: a
+      label: Execution → ordering → propagation → finalization → voting.
+      correct: false
+      feedback: Ordering precedes propagation and execution in the model.
+    - id: b
+      label: Ordering → propagation → parallel execution → voting/joining → finalization.
+      correct: true
+      feedback: Correct! Stamping, conveyors, workers, joining, packaging.
+    - id: c
+      label: Finalization → ordering → voting → propagation → execution.
+      correct: false
+      feedback: Finalization is the last stage, not the first.
+    explanation: The assembly line runs ordering (stamping) → propagation (conveyors)
+      → parallel execution (workers) → voting/joining → finalization (packaging).
+  - id: q3
+    prompt: What practical implication does the lesson draw for developers?
+    multiSelect: false
+    options:
+    - id: a
+      label: Always write to the same account so ordering is simpler.
+      correct: false
+      feedback: That maximises conflicts and defeats parallel execution.
+    - id: b
+      label: Avoid signing transactions client-side.
+      correct: false
+      feedback: That is not the implication the lesson draws.
+    - id: c
+      label: Design transactions and accounts to minimise conflicts so parallel execution
+        delivers real throughput.
+      correct: true
+      feedback: Correct! Parallelism only pays off when account conflicts are low.
+    explanation: Minimise account conflicts so parallel execution produces real throughput
+      gains.

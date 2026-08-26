@@ -1,0 +1,75 @@
+id: lesson-sbo-design-tradeoffs-and-distinctive-features
+slug: design-tradeoffs-and-distinctive-features
+title: Design Tradeoffs and Distinctive Features
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=Gkyok5NZAKI
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: What tradeoff does the lesson attach to leader sequencing and parallel
+      execution?
+    multiSelect: false
+    options:
+    - id: a
+      label: They increase TPS but constrain validator diversity.
+      correct: true
+      feedback: Correct! Throughput is bought partly with participation constraints.
+    - id: b
+      label: They reduce TPS but broaden validator diversity.
+      correct: false
+      feedback: The relationship described is the opposite.
+    - id: c
+      label: They have no effect on who can run a validator.
+      correct: false
+      feedback: The lesson explicitly links them to validator diversity.
+    explanation: Leader sequencing and parallel execution raise TPS while constraining
+      validator diversity.
+  - id: q2
+    prompt: What happens when hardware is misaligned with the software's assumptions?
+    multiSelect: false
+    options:
+    - id: a
+      label: Transactions are silently re-signed by the leader.
+      correct: false
+      feedback: That is not a described behaviour.
+    - id: b
+      label: Backpressure and tail latency, because optimisations assume fast networks
+        and storage.
+      correct: true
+      feedback: Correct! The software's assumptions become the operator's hardware
+        floor.
+    - id: c
+      label: Nothing measurable, since the runtime adapts automatically.
+      correct: false
+      feedback: The lesson states misalignment causes backpressure and tail latency.
+    explanation: Software optimisations assume fast networks and storage; misaligned
+      hardware causes backpressure and tail latency.
+  - id: q3
+    prompt: What do fine-grained locks require in exchange for concurrency?
+    multiSelect: false
+    options:
+    - id: a
+      label: A single global lock held for the whole block.
+      correct: false
+      feedback: That would eliminate the concurrency the locks provide.
+    - id: b
+      label: Manual approval of each conflicting transaction.
+      correct: false
+      feedback: That is not part of the model described.
+    - id: c
+      label: Deterministic scheduling and retry management.
+      correct: true
+      feedback: Correct! Concurrency has a scheduling and retry cost.
+    explanation: Fine-grained locks enable concurrency but require deterministic scheduling
+      and retry management.

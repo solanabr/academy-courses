@@ -1,0 +1,75 @@
+id: lesson-sbo-final-report-drafting-and-polishing-the-comprehensive-solana-report
+slug: final-report-drafting-and-polishing-the-comprehensive-solana-report
+title: 'Final Report: Drafting and Polishing the Comprehensive Solana Report'
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=CnBkkDjHYUM
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: What does the final report combine?
+    multiSelect: false
+    options:
+    - id: a
+      label: The capstone outline, the historical draft, and the architectural notes,
+        into one document.
+      correct: true
+      feedback: Correct! The three prior artefacts converge here.
+    - id: b
+      label: Only the historical draft, published on its own.
+      correct: false
+      feedback: All three artefacts are combined.
+    - id: c
+      label: A new piece of research written from scratch.
+      correct: false
+      feedback: The report integrates what you already produced.
+    explanation: Combine the capstone outline, the historical draft, and the architectural
+      notes into a single document.
+  - id: q2
+    prompt: Which acceptance criteria must the report meet?
+    multiSelect: false
+    options:
+    - id: a
+      label: Approval from a validator operator.
+      correct: false
+      feedback: That is not one of the criteria.
+    - id: b
+      label: A timeline with citations, architecture explanations, explicit linkages,
+        and a complete bibliography.
+      correct: true
+      feedback: Correct! All four are required for acceptance.
+    - id: c
+      label: A minimum word count and nothing else.
+      correct: false
+      feedback: Length alone is not an acceptance criterion.
+    explanation: The report needs a cited timeline, architecture explanations, explicit
+      linkages, and a complete bibliography.
+  - id: q3
+    prompt: What are the three build passes before the peer-review packet?
+    multiSelect: false
+    options:
+    - id: a
+      label: Draft, print, and archive.
+      correct: false
+      feedback: Those are not the passes the lesson defines.
+    - id: b
+      label: Spelling, formatting, and publishing.
+      correct: false
+      feedback: The passes are structural, content, and citation.
+    - id: c
+      label: Structural, content, and citation passes, followed by the checkpoint
+        checklist.
+      correct: true
+      feedback: Correct! Each pass targets a different class of defect.
+    explanation: Complete the structural, content, and citation passes, run the checkpoint
+      checklist, then prepare the peer-review packet.

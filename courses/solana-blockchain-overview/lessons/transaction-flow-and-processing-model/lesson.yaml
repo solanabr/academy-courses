@@ -1,0 +1,75 @@
+id: lesson-sbo-transaction-flow-and-processing-model
+slug: transaction-flow-and-processing-model
+title: Transaction Flow and Processing Model
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=aYwCmXc5vAU
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: What are the stages a transaction passes through, per the lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: Intake, validation, leader ordering, execution, and confirmation.
+      correct: true
+      feedback: Correct! Each stage has a responsible component.
+    - id: b
+      label: Ordering, intake, confirmation, validation, and execution.
+      correct: false
+      feedback: Intake and validation precede leader ordering.
+    - id: c
+      label: Execution, confirmation, and nothing else.
+      correct: false
+      feedback: The lesson describes five stages, not two.
+    explanation: Transactions pass through intake, validation, leader ordering, execution,
+      and confirmation; each stage has a responsible component.
+  - id: q2
+    prompt: Why do signature and preflight checks happen at intake?
+    multiSelect: false
+    options:
+    - id: a
+      label: They replace the need for validator votes.
+      correct: false
+      feedback: Voting remains part of confirmation.
+    - id: b
+      label: They prevent unnecessary load on leaders by rejecting bad transactions
+        early.
+      correct: true
+      feedback: Correct! Filtering early protects the leader stage.
+    - id: c
+      label: They guarantee the transaction will succeed at execution time.
+      correct: false
+      feedback: Execution-time failures still occur and reveal conflicts or program
+        errors.
+    explanation: Intake-time signature and preflight checks keep unnecessary load
+      off leaders; execution-time failures still surface conflicts or program errors.
+  - id: q3
+    prompt: Which of these is an observable listed in the lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: The leader's physical datacentre address.
+      correct: false
+      feedback: That is not one of the observables listed.
+    - id: b
+      label: The wallet owner's identity document.
+      correct: false
+      feedback: That is not an observable of transaction processing.
+    - id: c
+      label: Inclusion in a slot, transaction receipts and logs, validator votes,
+        and finalized block queries.
+      correct: true
+      feedback: Correct! These observables let you locate where a transaction stands.
+    explanation: Observables include RPC submission responses, inclusion in a slot,
+      receipts and logs, validator votes, and finalized block queries.

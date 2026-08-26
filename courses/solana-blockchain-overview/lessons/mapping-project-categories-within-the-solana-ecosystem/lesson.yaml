@@ -1,0 +1,75 @@
+id: lesson-sbo-mapping-project-categories-within-the-solana-ecosystem
+slug: mapping-project-categories-within-the-solana-ecosystem
+title: Mapping Project Categories within the Solana Ecosystem
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=jncLYLCb94c
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Which terminology-to-role mapping does the lesson give?
+    multiSelect: false
+    options:
+    - id: a
+      label: '`program` = on-chain logic; `account` = data/state; RPC/indexer = data
+        access.'
+      correct: true
+      feedback: Correct! Mapping terms to roles is what makes classification possible.
+    - id: b
+      label: '`program` = data/state; `account` = on-chain logic.'
+      correct: false
+      feedback: Those two are reversed.
+    - id: c
+      label: RPC/indexer = consensus participation.
+      correct: false
+      feedback: RPC and indexers provide data access, not consensus.
+    explanation: '`program` is on-chain logic, `account` is data/state, and RPC/indexers
+      provide data access.'
+  - id: q2
+    prompt: How does the lesson tell you to classify a project from its documentation?
+    multiSelect: false
+    options:
+    - id: a
+      label: By the age of the domain name.
+      correct: false
+      feedback: That is not one of the signals described.
+    - id: b
+      label: Program IDs → protocol; RPC metrics → infrastructure; signing flows →
+        wallets/clients.
+      correct: true
+      feedback: Correct! What the docs emphasise reveals the category.
+    - id: c
+      label: By the size of the team listed on the About page.
+      correct: false
+      feedback: Team size is not a classification signal here.
+    explanation: 'Classify by documentation emphasis: program IDs indicate a protocol,
+      RPC metrics indicate infrastructure, and signing flows indicate wallets or clients.'
+  - id: q3
+    prompt: Which health signals does the lesson pair with each category?
+    multiSelect: false
+    options:
+    - id: a
+      label: Social media engagement for every category.
+      correct: false
+      feedback: The lesson prescribes category-specific technical signals.
+    - id: b
+      label: Token price for every category.
+      correct: false
+      feedback: Price is not a category health signal here.
+    - id: c
+      label: On-chain activity for programs, uptime/latency for infrastructure, SDK
+        and release notes for wallets.
+      correct: true
+      feedback: Correct! The health signal must match the category.
+    explanation: 'Check health with category-specific signals: on-chain activity for
+      programs, uptime and latency for infrastructure, SDK and release notes for wallets.'

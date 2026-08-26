@@ -1,0 +1,73 @@
+id: lesson-sbo-synthesizing-solana-history
+slug: synthesizing-solana-history
+title: Synthesizing Solana History
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=tr6tNbmBrQU
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: How many explanatory milestones should the synthesis select?
+    multiSelect: false
+    options:
+    - id: a
+      label: Five to eight, each justified with primary or strong secondary evidence.
+      correct: true
+      feedback: Correct! Each milestone must carry its evidence.
+    - id: b
+      label: Exactly twenty, regardless of evidence.
+      correct: false
+      feedback: The lesson specifies five to eight.
+    - id: c
+      label: One, chosen for maximum impact.
+      correct: false
+      feedback: A single milestone cannot carry the storyline.
+    explanation: Select five to eight explanatory milestones, each justified with
+      primary or strong secondary evidence.
+  - id: q2
+    prompt: What are the three parts of the Storyline Scaffold?
+    multiSelect: false
+    options:
+    - id: a
+      label: Hypothesis, experiment, result.
+      correct: false
+      feedback: That is not the scaffold the lesson defines.
+    - id: b
+      label: Backbone (milestones), connectors (mechanisms), evidence panels (citations).
+      correct: true
+      feedback: Correct! Mechanisms are what connect one milestone to the next.
+    - id: c
+      label: Introduction, body, conclusion.
+      correct: false
+      feedback: That is a generic essay shape, not the scaffold defined here.
+    explanation: The Storyline Scaffold is backbone (milestones), connectors (mechanisms),
+      and evidence panels (citations).
+  - id: q3
+    prompt: What are the requirements for the draft produced in this lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: Any length, with no requirement to link events to architecture.
+      correct: false
+      feedback: Explicit architectural linkage is required.
+    - id: b
+      label: A bullet list with no prose.
+      correct: false
+      feedback: The deliverable is a prose draft.
+    - id: c
+      label: 500–800 words, linking at least two events explicitly to architectural
+        choices, with weaker claims annotated for peer review.
+      correct: true
+      feedback: Correct! Length, linkage, and annotation are all required.
+    explanation: Produce a 500–800 word draft that explicitly links at least two events
+      to architectural choices and annotates weaker claims for peer review.

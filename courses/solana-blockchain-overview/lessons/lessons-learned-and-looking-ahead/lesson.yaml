@@ -1,0 +1,74 @@
+id: lesson-sbo-lessons-learned-and-looking-ahead
+slug: lessons-learned-and-looking-ahead
+title: Lessons Learned and Looking Ahead
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=_dXV3a-dfig
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Which recurring themes does the lesson identify across Solana's history?
+    multiSelect: false
+    options:
+    - id: a
+      label: Throughput-first design, rapid iteration, tooling-driven concentration,
+        and narrative framing.
+      correct: true
+      feedback: Correct! These four themes recur across the period studied.
+    - id: b
+      label: Privacy-first design, slow release cadence, and hardware neutrality.
+      correct: false
+      feedback: Those are not the themes the lesson identifies.
+    - id: c
+      label: Regulatory compliance, token buybacks, and exchange listings.
+      correct: false
+      feedback: The lesson's themes are technical and ecological, not market-oriented.
+    explanation: The recurring themes are throughput-first design, rapid iteration,
+      tooling-driven concentration, and narrative framing.
+  - id: q2
+    prompt: Which concrete signals does the lesson tell you to watch?
+    multiSelect: false
+    options:
+    - id: a
+      label: Conference attendance and podcast downloads.
+      correct: false
+      feedback: Those are not the signals listed.
+    - id: b
+      label: Validator diversity, emergency patch cadence, app concentration, and
+        governance messages.
+      correct: true
+      feedback: Correct! These are measurable and expose the health behind the narrative.
+    - id: c
+      label: Token price, trading volume, and market capitalisation.
+      correct: false
+      feedback: Market indicators are not the signals the lesson proposes.
+    explanation: Watch validator diversity, emergency patch cadence, app concentration,
+      and governance messages.
+  - id: q3
+    prompt: What is the purpose of the short checklist introduced in the lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: To rank projects by market share.
+      correct: false
+      feedback: The checklist is about narrative evaluation, not ranking.
+    - id: b
+      label: To automate validator deployment.
+      correct: false
+      feedback: The checklist is analytical, not operational.
+    - id: c
+      label: To evaluate retrospective narratives against measurable evidence.
+      correct: true
+      feedback: Correct! The checklist tests a story against evidence you can measure.
+    explanation: The checklist evaluates retrospective narratives against measurable
+      evidence.

@@ -1,0 +1,74 @@
+id: lesson-sbo-key-solana-terminology-in-context
+slug: key-solana-terminology-in-context
+title: Key Solana Terminology in Context
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=wHUQUbTUMS0
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: How does the lesson distinguish validators, nodes, and clients?
+    multiSelect: false
+    options:
+    - id: a
+      label: Validators are consensus actors; nodes are running processes and RPC
+        endpoints; clients are SDKs or programs that submit transactions.
+      correct: true
+      feedback: Correct! Each term names a different position in the system.
+    - id: b
+      label: All three are synonyms for a machine running the Solana software.
+      correct: false
+      feedback: The lesson draws explicit distinctions between them.
+    - id: c
+      label: Clients are consensus actors and validators are SDKs.
+      correct: false
+      feedback: Those roles are inverted.
+    explanation: Validators take part in consensus, nodes are running processes and
+      RPC endpoints, and clients are SDKs or programs submitting transactions.
+  - id: q2
+    prompt: What does a transaction declare, according to the lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: The market price of SOL at submission time.
+      correct: false
+      feedback: That is not part of a transaction's declaration.
+    - id: b
+      label: Which accounts it reads or writes.
+      correct: true
+      feedback: Correct! That declaration is what makes conflict detection possible.
+    - id: c
+      label: The exact validator that must execute it.
+      correct: false
+      feedback: Transactions do not choose their executing validator.
+    explanation: Programs execute logic, accounts store state and lamports, and transactions
+      declare which accounts are read or written.
+  - id: q3
+    prompt: What should you use an explorer for when diagnosing behaviour?
+    multiSelect: false
+    options:
+    - id: a
+      label: To edit account balances directly.
+      correct: false
+      feedback: Explorers are read-only diagnostic tools.
+    - id: b
+      label: To re-sign a failed transaction on the user's behalf.
+      correct: false
+      feedback: Explorers do not sign transactions.
+    - id: c
+      label: To find signatures, status, fees, account pre/post balances, and program
+        logs.
+      correct: true
+      feedback: Correct! Those fields are the diagnostic surface.
+    explanation: Explorers expose signatures, status, fees, account pre/post balances,
+      and program logs for diagnosis.

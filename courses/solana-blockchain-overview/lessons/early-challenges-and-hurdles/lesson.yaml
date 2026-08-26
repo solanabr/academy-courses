@@ -1,0 +1,73 @@
+id: lesson-sbo-early-challenges-and-hurdles
+slug: early-challenges-and-hurdles
+title: Early Challenges and Hurdles
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=yZOZCfBWiTE
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: What priority shift did early stability issues cause, according to the
+      lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: From peak throughput toward predictable, observable behaviour.
+      correct: true
+      feedback: Correct! Reliability and observability displaced raw peak performance.
+    - id: b
+      label: From decentralisation toward a fully permissioned network.
+      correct: false
+      feedback: That is not the shift the lesson describes.
+    - id: c
+      label: From software engineering toward hardware manufacturing.
+      correct: false
+      feedback: The lesson does not describe such a pivot.
+    explanation: Early stability issues moved priorities from peak throughput to predictable,
+      observable behaviour.
+  - id: q2
+    prompt: What is the incident-response workflow presented in the lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: Ignore, escalate, restart, and hope.
+      correct: false
+      feedback: That is not the workflow described.
+    - id: b
+      label: Detect, triage, mitigate, root-cause, patch, communicate.
+      correct: true
+      feedback: Correct! Mitigation stabilises while the durable patch is developed.
+    - id: c
+      label: Patch, deploy, announce, and close without triage.
+      correct: false
+      feedback: Triage and root-cause analysis are explicit steps in the lesson's
+        workflow.
+    explanation: The workflow is detect, triage, mitigate, root-cause, patch, communicate.
+  - id: q3
+    prompt: What role did community transparency play?
+    multiSelect: false
+    options:
+    - id: a
+      label: It replaced the need for targeted code patches.
+      correct: false
+      feedback: Durable reliability still required targeted patches and instrumentation.
+    - id: b
+      label: It slowed down operators by adding noise.
+      correct: false
+      feedback: The lesson presents transparency as reducing duplicated effort.
+    - id: c
+      label: It helped coordinate upgrades and reduced duplicated operational effort.
+      correct: true
+      feedback: Correct! Transparency was an operational lever, not just communication.
+    explanation: Community transparency coordinated upgrades and cut duplicated operational
+      effort.
