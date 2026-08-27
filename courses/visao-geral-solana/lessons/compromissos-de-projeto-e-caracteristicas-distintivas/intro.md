@@ -42,6 +42,8 @@ A tabela abaixo resume como uma escolha por favorecer throughput se manifesta na
 
 Você deve ser capaz de nomear cada linha e explicar como o mecanismo (o que) leva tanto a benefícios de desempenho (como) quanto à descentralização restringida (por que isso importa). Na prática, esses trade-offs explicam por que uma rede que alcança milhares de transações por segundo também pode ter requisitos de validator concentrados e por que operadores frequentemente medem tanto TPS quanto participação acessível de validators ao avaliar descentralização.
 
+![Throughput vs Descentralização](assets/v01-throughput-vs-descentralizacao.png)
+
 ## Throughput, Latência e Coordenação Hardware–Software (Workflow)
 
 Visão Geral do Processo: Você deve enxergar o comportamento de alto throughput da Solana como um fluxo de trabalho coordenado que liga escolhas de ordenação no software às capacidades do hardware. Comece pelo líder: o líder recebe transações e realiza batching e pré-processamento. Esses lotes são encaminhados para o runtime onde contas são prefetchadas para a memória, travas de leitura/escrita são aplicadas na granularidade de conta, e a execução paralela prossegue sob escalonamento determinístico. Após a execução, os resultados são coletados, assinaturas são agregadas e o bloco é propagado. Cada estágio desse pipeline é ajustado para reduzir latência e maximizar a utilização de núcleos de CPU, largura de banda de rede e throughput de NVMe.
@@ -57,6 +59,8 @@ Aqui está o fluxo de trabalho de alto nível que você deve ser capaz de rastre
 5. Replicação e finalização via passos de consenso.
 
 Cada estágio depende das suposições de hardware e software anteriores. Por exemplo, o estágio de prefetch assume leituras aleatórias rápidas de armazenamento local; se as leituras forem lentas, núcleos paralelos ficam ociosos ou executam menos trabalho, reduzindo o throughput efetivo. Da mesma forma, jitter de rede aumenta a latência efetiva de propagação e reduz a capacidade do líder de manter um sequenciamento rápido. Essas dependências criam alavancas operacionais: você pode melhorar throughput reduzindo IO por transação (otimizando o layout de dados), aumentando concorrência com particionamento cuidadoso de contas, ou reduzindo latência de cauda priorizando hardware de rede com baixo jitter. Ao escrever suas notas de síntese, mapeie cada estágio do fluxo de trabalho para um potencial gargalo e para uma mitigação operacional. Esse mapeamento ajuda você a traduzir trade-offs em nível de arquitetura em passos acionáveis de monitoramento e manutenção.
+
+![Pipeline: Throughput e Hardware](assets/v02-pipeline-throughput-e-hardware.png)
 
 ## Análise de Código: Execução Paralela Simplificada e Tratamento de Conflitos (Rust-like)
 
@@ -103,6 +107,8 @@ Explicação linha a linha e por blocos:
 - Comportamento de conflito e retry: este esboço não inclui lógica de retry. No runtime da Solana, uma transação que conflita é ou ordenada para evitar o conflito ou abortada e reexecutada pelo cliente; retries aumentam a latência e reduzem o throughput efetivo.
 
 Como usar este exemplo ao analisar trade-offs: imagine substituir o `Mutex` global por travas por conta e adicionar uma ordenação determinística onde transações adquirem travas pela ordem de ID da conta. Você raciocinará sobre como essa mudança aumenta o paralelismo, mas adiciona complexidade ao gerenciamento de travas e aumenta o bookkeeping por transação. Esse é o cerne do trade-off de coordenação hardware–software: você ganha throughput, mas somente se padrões de acesso à memória, escalonamento de threads e subsistemas de IO alinharem-se com as suposições do software.
+
+![Travas, Conflitos e Retries](assets/v03-travas-conflitos-retries.png)
 
 ## Conclusão & Principais Lições
 

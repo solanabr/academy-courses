@@ -57,6 +57,8 @@ Ao redigir a visão técnica, sempre emparelhe a descrição de cada componente 
 
 Finalmente, evite tratar os componentes como isolados; enfatize a composição: PoH permite que Tower BFT referencie o tempo sem mensagens adicionais, enquanto Turbine e Gulf Stream juntos otimizam propagação de blocos e distribuição de transações. Esses comportamentos conjuntos são frequentemente onde aparecem trade-offs, e eles formam subseções úteis na visão técnica.
 
+![Princípios e Componentes Chave](assets/v01-principios-e-componentes-chave.png)
+
 ## Como Isso Aparece no Mundo Real: Mapeando a Arquitetura para Decisões Históricas
 
 Para tornar a arquitetura significativa no relatório, você precisa de mapeamentos concretos de eventos históricos para ênfases arquitetônicas. Comece selecionando três marcos da sua linha do tempo onde uma decisão de engenharia ou declaração pública influenciou a arquitetura — por exemplo: a introdução do PoH em notas de design iniciais, um lançamento específico que melhorou o Turbine ou a propagação de pacotes, e um voto ou RFC que alterou o agendamento de líderes ou a lógica de encaminhamento de transações. Para cada marco, produza uma afirmação curta que vincule o evento a uma mudança de componente e depois anexe a evidência primária (commit, post no blog ou RFC) da sua matriz de evidências.
@@ -74,6 +76,8 @@ Aqui está um fluxo de trabalho repetível que você usará para criar esses map
 Como exemplo concreto: considere a introdução do PoH. Sua frase de mecanismo poderia ser: *"Proof of History foi introduzido como uma sequência verificável de hashes que timestamps eventos, permitindo que validators consumam a sequência local de um líder sem coordenação extra."* A frase de implicação poderia ser: *"Isso reduziu o tráfego de consenso entre nós e permitiu que líderes otimizassem a construção de blocos para throughput, mas aumentou a dependência do sistema em um modelo de sequenciamento dirigido pelo líder."* Em seguida, anexe sua entrada da linha do tempo e o excerto do whitepaper como evidência, e opcionalmente inclua uma pequena sondagem de código que mostre parâmetros de época dirigidos por PoH ou rotação de líderes para indicar que o conceito está ativo no cluster.
 
 Use esse fluxo de trabalho para gerar três mapeamentos; quando montados, esses mapeamentos tornam-se a espinha dorsal da seção de visão técnica do seu relatório. Cada mapeamento é curto, factual e vinculado a evidências para que o leitor veja não apenas o que a arquitetura faz, mas quando e por que essa escolha foi feita historicamente.
+
+![Eventos Históricos → Decisões Arquitetônicas](assets/v02-eventos-historicos-decisoes-arquitetonicas.png)
 
 ## Análise de Código: Usando RPC para Coletar Evidências de uma Afirmação Arquitetural
 
@@ -105,6 +109,8 @@ Explicação linha a linha e como usar a saída:
 **Como integrar ao relatório:** Salve o JSON impresso e inclua uma legenda de uma linha que explique por que a sondagem importa: por exemplo, "Snapshot do cronograma de líderes demonstra a frequência da rotação de líderes e sustenta a alegação de que o sequenciamento dirigido por líderes é uma escolha de design prática em implantações atuais." Mantenha sondagens pequenas e datadas — elas são evidência pontual que complementa sua linha do tempo histórica, não a substitui.
 
 Nota: este trecho é projetado apenas para coleta de evidências. Não inclua chaves de carteira, assinaturas ou envio de transações nessas sondagens; o objetivo é validação somente leitura dos parâmetros atuais do cluster.
+
+![Sonda RPC: Coletando Evidências](assets/v03-sonda-rpc-coletando-evidencias.png)
 
 ## Conclusão & Principais Lições
 

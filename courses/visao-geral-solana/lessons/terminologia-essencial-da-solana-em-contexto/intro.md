@@ -42,6 +42,8 @@ Mecanicamente, validadores executam o runtime que invoca programas e atualiza co
 
 Implicação: quando um guia diz para "pedir a um validador para confirmar", normalmente significa consultar o estado produzido pelo consenso; quando diz para "chamar o RPC", refere-se à API do nó. Essa distinção importa ao interpretar mensagens de erro. Por exemplo, uma transação rejeitada por um nó RPC com um erro de preflight pode ainda ser aceita por um nó configurado de forma diferente se esse nó oferecer configurações de simulação de preflight distintas. Entender esses papéis fará com que você interprete melhor instruções operacionais e identifique se uma instrução se refere ao estado de consenso (validador) ou a uma interface de serviço (nó/RPC) à qual clientes se conectam.
 
+![Validador, Nó e Cliente — Mapa Rápido](assets/v01-validador-no-e-cliente-mapa-rapido.png)
+
 ## Modelo Mental: Programas, Contas e Transações (a Metáfora do Correio)
 
 Modelo Mental: Use uma metáfora concreta para guardar detalhes na memória: pense na Solana como um serviço postal distribuído. Programas são as regras e máquinas do correio—equipamentos de triagem e procedimentos dos atendentes que definem como os itens são processados. Contas são as caixas de correio e envelopes que carregam dados e tokens; elas têm proprietários, tamanhos e saldos. Transações são os envelopes que você entrega ao atendente com instruções sobre quais máquinas executar e quais caixas acessar.
@@ -60,6 +62,8 @@ Por que isso importa na prática: quando você lê um doc da Solana que diz "for
 
 Finalmente, essa metáfora esclarece logs e erros retornados. Se uma transação falha com a mensagem "Program failed to complete", pense em um atolamento da máquina: o atendente parou de processar ao encontrar um formato de envelope inesperado ou falta de selo. Saber qual conta a máquina estava operando (a partir dos logs ou do trace no explorador) direciona você para a caixa e o conjunto de regras exatos a serem inspecionados a seguir.
 
+![Metáfora do Correio: Programas, Contas e Transações](assets/v02-metafora-do-correio.png)
+
 ## Exemplo Passo a Passo: Uma Transação de Transferência de Token (conceitual)
 
 Percorra um cenário conciso e concreto: um usuário envia uma transferência de token SPL de uma carteira para outra. Este walkthrough foca em como a terminologia aparece na prática; é conceitual e evita comandos ao vivo intencionalmente.
@@ -75,6 +79,8 @@ Passo 3 — Execução pelos validadores: Um validador escalonado como líder in
 Passo 4 — Resultado e visão no explorador: Após o processamento, exploradores indexam e exibem seus campos. Ao abrir a transação em um explorador, campos típicos que você lerá incluem: assinaturas (a assinatura da transação), status (sucesso ou erro), taxa cobrada (em lamports), lista de contas tocadas com saldos pré e pós, mensagens de log do programa e o slot/confirmações. Quando um guia pede para você "inspecionar os logs do programa pela assinatura da transação", use o campo de assinatura para encontrar o trace exato da execução. Logs de programa frequentemente contêm mensagens legíveis pelo desenvolvedor que são valiosas para diagnosticar por que uma instrução falhou.
 
 Implicação: na documentação, quando instruções listam "pré-condições" como "a conta do destinatário deve estar inicializada" eles estão dizendo quais caixas devem já existir e estar isentas de aluguel antes do atendente processar o envelope. Reconhecer cada etapa e onde termos específicos aparecem permitirá que você traduza notas curtas de protocolo em verificações concretas quando depois inspecionar transações reais ou ler READMEs de contratos.
+
+![Fluxo Conceitual: Transferência SPL](assets/v03-fluxo-conceitual-transferencia-spl.png)
 
 ## Conclusão & Principais Lições
 

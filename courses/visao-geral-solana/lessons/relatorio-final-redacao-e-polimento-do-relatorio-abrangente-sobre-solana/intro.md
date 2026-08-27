@@ -50,6 +50,8 @@ Os critérios de aceitação definem exatamente como "concluído" se parece para
 
 Atender a esses critérios de aceitação significa que seu artefato satisfaz a rubrica do módulo e está pronto para submissão. Se algum item falhar, sinalize-o na nota de capa e registre quais seções precisam de revisão adicional.
 
+![Estrutura Obrigatória do Relatório](assets/v01-estrutura-obrigatoria-do-relatorio.png)
+
 ## Construir / Implementar / Testar
 
 Comece criando um documento de trabalho baseado no esboço do capstone da Lição 1. Use o esboço como esqueleto e importe as seções do rascunho histórico da Lição 2 e as notas arquitetônicas da Lição 3 em pastas ou seções distintas no documento. Sua tarefa imediata é organização: converta notas dispersas no fluxo final do relatório e então execute três tipos de passagens — estrutural, de conteúdo e de citação — para atingir os critérios de aceitação.
@@ -75,6 +77,8 @@ Lista de verificação de Submissão/Demonstração (anexar como página final):
 
 Se o tempo permitir, faça um polimento final no tom e na clareza: elimine voz passiva quando ela enfraquecer a causalidade, substitua qualificadores ambíguos por formulações respaldadas por evidência e verifique se as entradas da bibliografia usam pontuação e capitalização consistentes. Salve uma cópia versionada e prepare o pacote de revisão por pares contendo o relatório, um guia de revisão por pares de uma página e quaisquer apêndices ou notas brutas para transparência.
 
+![Fluxo de Redação e Revisão](assets/v02-fluxo-de-redacao-e-revisao.png)
+
 ## Checkpoint: Verificar a Conclusão do Marco
 
 Neste checkpoint você validará se o documento atende aos critérios de aceitação. Use as verificações concretas a seguir para determinar se o marco está completo. Cada verificação é aprovada/reprovada e deve ser registrada em uma nota curta de revisão que acompanha sua submissão. Se alguma verificação falhar, liste os passos de remediação e o tempo estimado para correção.
@@ -92,6 +96,8 @@ Verificação 5 — Consistência de citação e bibliografia: faça uma varredu
 Verificação 6 — Prontidão para revisão por pares: assegure que o pacote de revisão por pares contenha o PDF do relatório, um guia de revisão por pares de uma página explicando a rubrica e a nota de capa listando questões pendentes. Anexe todas as figuras e diagramas brutos em um apêndice. Se o pacote estiver incompleto, identifique qual componente falta e estime o tempo de correção.
 
 Resultados esperados do checkpoint: a) uma nota curta de revisão assinada com resultados aprovado/reprovado para cada verificação, b) o relatório finalizado em PDF se todas as verificações forem aprovadas, ou c) um plano de remediação com correções priorizadas se alguma verificação falhar. Quando todas as verificações forem aprovadas, marque o marco como completo e faça o upload do documento na área de submissão definida nas instruções do curso. Se um par sinalizar problemas, agende um sprint de revisão curto e reexecute este checkpoint após as correções.
+
+![Checklist de Verificação do Marco](assets/v03-checklist-de-verificacao-do-marco.png)
 
 ## Conclusão & Principais Lições
 

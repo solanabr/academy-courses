@@ -46,6 +46,8 @@ Mantenha clara a distinção entre padrões gerais de blockchain e escolhas espe
 
 Operacionalmente, esses objetivos influenciam papéis dos nós e a topologia: a rede espera que líderes produzam entradas ordenadas rapidamente, validators executem agressivamente e votem com frequência, e nós RPC respondam a leituras e gravações de clientes com snapshots de baixa latência. Você verá esses papéis mais de perto na próxima lição, mas por ora lembre-se da cadeia de design: objetivos -> mecanismos -> consequências operacionais. Essa cadeia é a maneira mais simples de prever como um novo recurso ou padrão de carga afetará o sistema.
 
+![Objetivos Arquitetônicos](assets/v01-objetivos-arquitetonicos.png)
+
 ## Modelo mental: o livro-razão de alto desempenho como linha de montagem
 
 O Modelo Mental: Use a metáfora da linha de montagem para raciocinar sobre a arquitetura da Solana. Imagine um piso de fábrica onde insumos brutos (transações enviadas por clientes) entram em uma extremidade e produtos acabados (estado do ledger finalizado) emergem na outra. A linha tem estações distintas: recepção e estampagem (ordenação/carimbos de tempo), transportadoras de distribuição (propagação), trabalhadores paralelos (execução), controle de qualidade e junção (resolução de forks e votação), e embalagem (marcadores de finalidade). Mapear o protocolo nessa metáfora ajuda a prever gargalos e onde a concorrência pode ocorrer com segurança.
@@ -68,6 +70,8 @@ Use esse modelo mental ao analisar desempenho ou depurar comportamentos: pergunt
 | Controle de Qualidade e Junção | Validar, votar e resolver forks | Votação de validators e lógica de escolha de fork |
 | Embalagem | Marcar saídas finalizadas | Marcadores de finalidade e estado confirmado do ledger |
 
+![Modelo Linha de Montagem](assets/v02-modelo-linha-de-montagem.png)
+
 ## Ciclo de vida da transação: do cliente ao estado finalizado
 
 Visão do Processo: Rastreie uma transação típica em nível de sistema para ver onde ocorrem ordenação, propagação, execução e finalidade. O ciclo de vida se divide em estágios discretos: construção e assinatura, submissão e roteamento, ordenação e criação de entradas, propagação e execução antecipada, votação e escolha de fork, e finalização. Para cada estágio, observe se a atividade é do lado do cliente, em nível de rede ou em nível de runtime/validator.
@@ -85,6 +89,8 @@ Votação e escolha de fork (camada de consenso): validators trocam votos sobre 
 Finalização (estabilidade visível à aplicação): após peso de votos suficiente e confirmação, as transações são consideradas finalizadas e incorporadas em snapshots de estado imutáveis. Mecanismos de finalidade variam entre protocolos; em termos específicos da Solana, validators marcam checkpoints e o ledger reflete uma sequência durável. Para aplicações, a finalização é o ponto em que o estado pode ser tratado como estável para lógica de negócio e coordenação off-chain.
 
 Por que esse fluxo importa na prática: ao projetar clientes ou programas, o estágio em que você espera confirmação determina como lidar com lógica de retry, idempotência e observação de estado. Por exemplo, se você assumir finalidade imediatamente após a submissão, pode enviar transações duplicadas em conflito; em vez disso, projete considerando a latência observada entre submissão e finalização e implemente idempotência ou detecção de conflito adequadamente. Entender o ciclo de vida também ajuda a escolher os pontos de integração corretos para monitoramento, depuração e tuning de desempenho.
+
+![Ciclo de Vida da Transação](assets/v03-ciclo-de-vida-da-transacao.png)
 
 ## Conclusão & Principais Lições
 

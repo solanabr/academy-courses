@@ -46,6 +46,8 @@ Concretamente, quando você coloca um marco como "implementação de uma otimiza
 
 Esse modelo mental também orienta a priorização. Se você tiver tempo limitado, escolha itens da linha do tempo que conectem a múltiplos nós no mapa arquitetural — esses são eventos de alto impacto que moldaram vários subsistemas. Por outro lado, isole eventos periféricos (por exemplo, pequenas mudanças de tooling documentadas apenas em issues de repositórios) como "candidatos a apêndice" que oferecem profundidade sem distrair a narrativa principal. Pensar em mapas paralelos converte um corpo de evidências potencialmente difuso em um esqueleto narrativo estruturado que você pode rastrear e defender.
 
+![Modelo Mental: Linha do Tempo vs Mapa](assets/v01-modelo-mental-linha-do-tempo-vs-mapa.png)
+
 ## Fluxo de Trabalho: Pesquisar, Fonte, Estruturar, Validar
 
 Visão Geral do Processo: Estabeleça um fluxo de trabalho repetível que transforme recursos dispersos em um relatório em capítulos coerente. O fluxo de trabalho tem quatro fases: Research (coletar), Source (catalogar e rotular), Structure (esboçar e mapear) e Validate (corroborar e finalizar). Cada fase contém tarefas concretas e critérios de saída que você pode checar antes de avançar. Recomendamos executar esse fluxo iterativamente: complete uma passagem para temas de alto nível primeiro e depois itere mais profundamente nos capítulos priorizados.
@@ -71,6 +73,8 @@ Por que isso importa na prática: um fluxo de trabalho documentado evita que voc
 
 Finalmente, salve seus metadados e mapas em um formato portátil (por exemplo, CSV ou arquivo de notas estruturadas) para que você, revisores ou futuros mantenedores possam re-executar a fase de validação se novas fontes surgirem. A estrutura do fluxo de trabalho reduz a carga cognitiva e mantém o relatório focado em afirmações substanciadas em vez de especulação.
 
+![Fluxo de Trabalho: Pesquisar → Fonte → Estruturar → Validar](assets/v02-fluxo-pesquisar-fonte-estruturar-validar.png)
+
 ## Exemplo: Delimitação de uma Seção de Arquitetura — Das Fontes à Narrativa
 
 Trabalhe com um exemplo concreto para ver como o modelo mental e o fluxo de trabalho operam de ponta a ponta. Suponha que você precise rascunhar uma seção intitulada "Processamento de Transações e Throughput: 2019–2023." Você converterá recursos coletados em uma narrativa curta, baseada em evidências, mais um diagrama de arquitetura anotado. Comece declarando o objetivo desta seção: explicar como mudanças no pipeline de transações afetaram o throughput e as ferramentas de desenvolvimento entre 2019 e 2023, e fornecer um diagrama anotado mostrando os componentes e interfaces do pipeline.
@@ -86,6 +90,8 @@ Passo 4: Construir o diagrama e anotá-lo. Seu diagrama deve ser um diagrama de 
 Passo 5: Validar e sinalizar ambiguidades. Execute os critérios de saída de validação: garanta que cada afirmação importante seja suportada por pelo menos dois itens primários corroborantes ou esteja explicitamente rotulada como fonte única. Para interpretações contestadas, apresente ambos os lados e inclua os links brutos em um apêndice. Documente quaisquer suposições que você teve de fazer (por exemplo, inferir condições de operação para benchmarks) e observe como essas suposições afetam a confiança.
 
 Por que isso importa: este exemplo mostra como converter sinais de fonte em uma seção de arquitetura defensável em vez de um texto opinativo. Ao vincular anotações em diagramas a artefatos específicos e rótulos de confiança, você torna a seção útil tanto para engenheiros que querem detalhes técnicos quanto para historiadores que precisam de evidência rastreável. Essa abordagem também prepara você para a próxima lição, onde sintetizaremos os itens de linha do tempo selecionados em uma narrativa integrada com citações explícitas e declarações de corroboração.
+
+![Das Evidências à Narrativa](assets/v03-das-evidencias-a-narrativa.png)
 
 ## Conclusão & Principais Lições
 

@@ -43,6 +43,8 @@ Por que essa metáfora ajuda a raciocinar sobre limites e modos de falha: se um 
 
 Use esse modelo mental enquanto você elabora notas anotadas: para cada componente pergunte, 'Isto é um guardião da partitura, um intérprete, um mensageiro ou um gerente de palco?' Essa classificação reduz rapidamente quais interfaces o componente precisa e quais modos de falha observar. Ao se preparar para rastrear uma transação na próxima lição, mantenha essa metáfora em mente: você verá o maestro ordenar, os músicos interpretarem, o mensageiro encaminhar e o gerente de palco criar snapshots do estado.
 
+![Mapa da Metáfora para Componentes](assets/v01-mapa-metafora-componentes.png)
+
 ## Componentes Centrais do Runtime e Responsabilidades
 
 Aqui enumeramos os principais componentes do runtime que você encontrará e o que cada um faz de forma concreta. Trate isto como um exercício de mapeamento: para cada componente, anote uma responsabilidade primária e um tipo de entrada ou saída que ele trata. Apresentamos uma tabela compacta e depois expandimos cada linha com implicações operacionais e interfaces.
@@ -65,6 +67,8 @@ O runtime de execução BPF é determinístico e sandboxed. Suas entradas são a
 
 Por que isto importa na prática: conhecer esses limites ajuda a prever onde surgem gargalos de desempenho e onde instrumentar ao depurar. Por exemplo, gravações lentas em disco no banco de dados de contas aparecem como comprometimento atrasado; chatter excessivo no gossip aumenta CPU e pressão de rede sem melhorar a finalização. Ao mapear cada componente nas suas notas, também anote seu recurso dominante: CPU, memória, disco ou rede. Esse mapeamento será diretamente útil em operações, ajuste de performance e para entender por que validadores se comportam de forma diferente sob carga.
 
+![Quatro Componentes-Chave do Runtime](assets/v02-quatro-componentes-chave-runtime.png)
+
 ## Fluxo de Trabalho: Ciclo de Vida do Validador, Roteamento de Mensagens e Snapshots de Estado
 
 Visão do Processo: Percorra o ciclo de vida típico do validador e os fluxos de mensagens que conectam os componentes. Apresente o ciclo de vida em fases: join/bootstrap, operação como follower, operação como leader e resync/bootstrapping. Para cada fase descrevemos as mensagens trocadas, quais componentes estão ativos e quais transições de estado ocorrem.
@@ -80,6 +84,8 @@ Resync / Recuperação de Falha: se o nó detectar que está desatualizado ou pe
 Padrões de roteamento de mensagens resumidos: gossip carrega metadados pequenos e autoritativos e listas de pares; camadas de propagação transportam payloads de alto volume (transações e shreds) usando distribuição em fanout ou baseada em árvore; RPC atende consultas sob demanda e transferências direcionadas, especialmente para artefatos grandes como snapshots. Cada padrão tem trade-offs: gossip é baixa latência mas limitado em payload, propagação é eficiente em escala mas mais complexa, e RPC é confiável para transferências grandes ou direcionadas mas aumenta a carga no nó que atende.
 
 Por que essa visão de workflow importa: quando você depois rastrear uma única transação pelo sistema, você se referirá a essas fases para decidir onde procurar atrasos ou discrepâncias. Anote suas notas com as interações esperadas dos componentes por fase e com mensagens de exemplo (por exemplo, 'cliente -> RPC -> pool do líder -> execução -> gravação no accounts DB -> propagação de shreds'). Essa sequência é o esqueleto que você vai embelezar nos diagramas de fluxo de transação da próxima lição.
+
+![Ciclo de Vida do Validador](assets/v03-ciclo-de-vida-do-validador.png)
 
 ## Conclusão & Principais Lições
 

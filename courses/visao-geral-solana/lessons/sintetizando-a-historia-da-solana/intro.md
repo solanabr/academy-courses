@@ -53,6 +53,8 @@ Quando você converter a tabela em prosa, siga a ordem cronológica e use o rót
 
 Por fim, priorize a concisão: uma seção histórica do capstone não é uma história abrangente. Escolha os marcos que são mais explicativos para sua narrativa arquitetural e omita eventos periféricos, a menos que iluminem um tema técnico específico. Se você mantiver mais de oito eventos candidatos, crie uma lista curta de "também notáveis" em suas notas, mas não force cada item no resumo de 500–800 palavras.
 
+![Linha do Tempo: Afirmações e Evidências](assets/v01-linha-do-tempo-afirmacoes-e-evidencias.png)
+
 ## Como Isso Se Manifesta na Prática: Uma Síntese Trabalhada
 
 Imagine que você tem os seguintes entregáveis brutos das lições anteriores: uma matriz de priorização de evidências completa, uma pasta de fontes primárias coletadas (notas de lançamento, posts oficiais do blog, o whitepaper) e um esboço narrativo estruturado que nomeia sete marcos candidatos. Sua tarefa é converter esses artefatos em um resumo histórico de 500–800 palavras que seja citado por fontes e conecte pelo menos dois marcos a escolhas arquiteturais. Os passos abaixo são as ações exatas que você deve executar, com resultados esperados para cada passo.
@@ -73,6 +75,8 @@ Para tornar isso concreto, aqui está um parágrafo ilustrativo que você pode a
 
 Use esse modelo: afirmação do evento, citação, explicação do mecanismo e implicação arquitetural. Após completar o rascunho, anote quaisquer declarações que dependam de evidências mais fracas para que os revisores saibam onde solicitar mais suporte. Esse rascunho anotado é o artefato que você submeterá para a seção histórica do capstone e o ponto de partida para a revisão por pares contra os critérios de sucesso.
 
+![Fluxo: Transformando Entregáveis em Síntese](assets/v02-fluxo-transformando-entregaveis-em-sintese.png)
+
 ## Um Modelo Mental para Síntese: O Arcabouço da Linha Narrativa
 
 O Modelo Mental: Adote o modelo mental "Arcabouço da Linha Narrativa": pense no resumo histórico como um arcabouço curto que suporta três camadas de conteúdo — espinha, conectores e painéis de evidência. A espinha é a coluna cronológica: o punhado de marcos que você selecionou porque melhor explicam resultados arquiteturais. Conectores são sentenças curtas que traduzem eventos em mecanismos ("o lançamento X reduziu a latência ao mudar Y"). Painéis de evidência são as citações e breves trechos que dão peso a cada item da espinha.
@@ -86,6 +90,8 @@ Para visualizar o arcabouço, imagine um diagrama curto onde postes verticais s�
 Use o Arcabouço da Linha Narrativa para lidar com incerteza. Quando a evidência for inconclusiva, marque o painel de evidência como "requer confirmação" em vez de deletar o conector. Isso mantém o rascunho narrativo coerente enquanto sinaliza onde os revisores devem investigar. O arcabouço também ajuda a priorizar edições: reduza primeiro o comprimento da espinha para atender ao limite de palavras, depois refine os conectores para clareza e, por fim, fortaleça os painéis de evidência para credibilidade.
 
 Por fim, lembre-se de que um arcabouço é projetado para ser temporário: o rascunho final deve ler fluentemente sem a estrutura do arcabouço visível ao leitor. O arcabouço é uma ferramenta de produção que mantém você focado nas três tarefas distintas necessárias para produzir um resumo histórico baseado em evidências e ligado à arquitetura.
+
+![Arcabouço da Linha Narrativa](assets/v03-arcabouco-da-linha-narrativa.png)
 
 ## Conclusão & Principais Lições
 

@@ -66,6 +66,10 @@ Esse modelo revela três regras práticas de design que você reutilizará: prim
 
 Finalmente, a metáfora dos cofre-e-chaveiro também ajuda ao depurar ou ler rastros de transações. Quando uma transação falha por incompatibilidade de conta ou assinante faltante, trate a falha como uma lista de cofres mal especificada ou uma chave ausente. Quando a execução consumir unidades de computação inesperadas, inspecione quais instruções modificaram quais contas e se houve grandes cópias de contas ou operações criptográficas pesadas envolvidas. Usar a metáfora acelera mapear erros em tempo de execução para correções de projeto.
 
+![Programas vs Contas — Impacto no Design](assets/v02-programas-vs-contas-impacto-no-design.png)
+
+![Fluxo de Transação — Modelo Mental](assets/v03-fluxo-de-transacao-modelo-mental.png)
+
 ## Exemplo: Mapeando um dApp Simples no Ecossistema Solana
 
 Percorra um exemplo concreto: um marketplace on-chain simples onde vendedores listam itens e compradores fazem ofertas. Use este cenário para mapear cada ator e peça de infraestrutura para os componentes que introduzimos. Você verá como escolhas de arquitetura e terminologia se aplicam a um fluxo de trabalho real de desenvolvedor.
@@ -77,6 +81,8 @@ Pontos de contato do desenvolvedor e mapeamento da infraestrutura: primeiro, voc
 Considerações operacionais: armazenamento para contas de listagem consome rent a menos que a conta seja rent-exempt. Isso significa que você deve provisionar lamports ao criar contas de listagem para evitar recuperação posterior. Se a criação de listagens for frequente, você pode projetar um modelo de contas agrupadas para reduzir overhead de rent por listagem. Você também precisa considerar concorrência: se múltiplos compradores tentarem fazer ofertas para a mesma listagem simultaneamente, o programa deve lidar com potenciais transações conflitantes, possivelmente usando um padrão de bloqueio dentro dos dados da conta ou ordenando ofertas por meio de transações que consomem uma conta nonce única.
 
 Por que esse mapeamento importa: ao conectar explicitamente as funcionalidades do marketplace às peças do ecossistema, você pode tomar decisões concretas. Por exemplo, escolha um provedor de indexador com atualizações rápidas e conscientes de finalidade se sua UI precisa de listagens quase em tempo real. Escolha uma integração de carteira que suporte a experiência de assinatura desejada (aprovação por pop-up, deep link mobile). Decida se hospedar seu próprio RPC para confiabilidade ou confiar em um provedor gerenciado com base na carga esperada e nos padrões de acesso. Este exemplo mostra como terminologia e papéis de componente moldam decisões práticas de arquitetura que você enfrentará ao construir na Solana.
+
+![Marketplace: On-Chain vs Off-Chain](assets/v04-marketplace-on-chain-vs-off-chain.png)
 
 ## Conclusão & Principais Lições
 

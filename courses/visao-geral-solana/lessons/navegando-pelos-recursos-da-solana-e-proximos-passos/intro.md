@@ -45,6 +45,8 @@ Aplique o mapa à terminologia conforme a encontra. Quando você ler a entrada d
 
 ![Mapa de Recursos em Camadas](assets/v01-mapa-de-recursos-em-camadas.png)
 
+![Mapa de Recursos por Camada](assets/v02-mapa-de-recursos-por-camada.png)
+
 ## Fluxo de Trabalho: Checklist Prático para Navegar pelos Recursos da Solana
 
 Visão Geral do Processo: Fornecemos um fluxo de trabalho repetível que você usará sempre que começar a explorar um projeto Solana. Siga estes passos em ordem e trate cada passo como uma heurística rápida, não como uma garantia. O objetivo é coletar evidências consistentes que você poderá comparar depois entre projetos, especialmente ao preparar análises relacionadas a incentivos.
@@ -70,6 +72,8 @@ Use a seguinte tabela como referência compacta que você pode reproduzir ao faz
 
 Aplique este fluxo de trabalho de forma consistente quando você curar recursos para uma matriz comparativa. As linhas da matriz são os projetos e as colunas são os sinais dos recursos; isso produz entradas estruturadas para análises posteriores sobre incentivos ou trade-offs de arquitetura.
 
+![Checklist Prático de Navegação](assets/v03-checklist-pratico-de-navegacao.png)
+
 ## Exemplo Concreto: Explorar um Projeto e Preparar Notas de Comparação
 
 Percorra uma sessão de scouting específica que você fará em uma ferramenta hipotética Solana chamada "LedgerX" (um nome substituto). Você praticará o fluxo de trabalho e extrairá terminologia e sinais que importam para a análise de incentivos. Comece localizando a página de documentação canônica do LedgerX e registre o escopo declarado do projeto: por exemplo, "middleware de carteira on-chain para agrupamento de tokens". Esse escopo fornece o primeiro conjunto de termos que você mapeará para categorias posteriores: "wallet", "middleware", "batching".
@@ -83,6 +87,8 @@ Agora verifique a camada de rede ao vivo: encontre quaisquer program IDs documen
 Finalmente, inspecione sinais comunitários: procure um Discord ativo ou um tópico de fórum onde desenvolvedores respondam a questões de integração. Um projeto bem mantido terá guias de solução de problemas concisos, um changelog e um roadmap ou lista de marcos explícita. Resuma suas evidências em uma linha de comparação curta que você poderá adicionar a uma matriz. Para o LedgerX sua linha poderia ser: "Commits recentes: ativo; Releases: tags semânticas presentes; Docs: focada em integração; On-chain: uso baixo mas recente; Comunidade: moderadores responsivos." Traduza cada item em uma pontuação de confiança (alta/média/baixa) e inclua notas sobre terminologia que importará ao avaliar incentivos (por exemplo, "batch window pode afetar o tempo de acumulação de taxas").
 
 Este exemplo concreto mostra como terminologia, evidência de repositório, docs e rastros on-chain se combinam em um resumo conciso e comparável. Ao repetir esse processo em múltiplos projetos, você terá entradas padronizadas que alimentam diretamente o trabalho comparativo exigido pelos próximos módulos.
+
+![De Sinal a Inferência](assets/v04-de-sinal-a-inferencia.png)
 
 ## Conclusão & Principais Lições
 
