@@ -43,6 +43,8 @@ Para operacionalizar o mapa, introduzimos três regras de decisão que você usa
 
 Aplique o mapa à terminologia conforme a encontra. Quando você ler a entrada de um glossário de projeto ou o README, anote a camada de recurso que ela representa e observe quais evidências confirmariam a alegação. Com o tempo, esse hábito treina você a ler documentação não como verdade final, mas como uma camada de evidência em um processo de verificação mais amplo — exatamente a mentalidade que você usará ao preparar comparações nos módulos seguintes.
 
+![Mapa de Recursos em Camadas](assets/v01-mapa-de-recursos-em-camadas.png)
+
 ## Fluxo de Trabalho: Checklist Prático para Navegar pelos Recursos da Solana
 
 Visão Geral do Processo: Fornecemos um fluxo de trabalho repetível que você usará sempre que começar a explorar um projeto Solana. Siga estes passos em ordem e trate cada passo como uma heurística rápida, não como uma garantia. O objetivo é coletar evidências consistentes que você poderá comparar depois entre projetos, especialmente ao preparar análises relacionadas a incentivos.

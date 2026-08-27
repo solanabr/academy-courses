@@ -44,6 +44,8 @@ Confirmação e finalização são resultados distintos. Confirmação refere-se
 
 Ao longo desses estágios, fontes de latência incluem propagação de rede para nós e para o leader, tempo de verificação de assinatura, atrasos de enfileiramento em leaders sob alta carga e tempo de execução dentro do runtime. A taxa de transferência é moldada pela duração do slot do leader, políticas de empacotamento de blocos, eficiência da propagação adiante e taxas de conflito entre transações. Entender as responsabilidades de cada estágio esclarece quais logs e métricas inspecionar quando uma transação está lenta, rejeitada ou falhando repetidamente.
 
+![Pipeline de Submissão e Validação](assets/v01-pipeline-submissao-e-validacao.png)
+
 ## Como Isso Aparece no Mundo Real: Um Rastreamento Concreto
 
 Imagine que você submeta uma instrução do tipo transferência a partir do seu cliente através de um nó RPC. O artefato imediato que você recebe é ou um sucesso RPC com a assinatura submetida ou um erro explicando a rejeição. Se você receber um reconhecimento de submissão, o nó RPC realizou checagens de entrada e encaminhou a transação para a rede gossip e para leaders prospectivos. Na prática, a primeira observação será se o RPC retornou um `blockhash not found` ou um erro de validação de assinatura; esses indicam falhas no checkpoint de entrada antes da ordenação.
@@ -55,6 +57,8 @@ O tratamento de conflitos aparece quando duas transações tocam as mesmas conta
 Após a execução, o leader broadcasta o bloco e o conjunto de validators vota sobre a validade do bloco. Você verá as confirmações aumentarem conforme validators a jusante incluem votos referenciando o bloco do leader. Na prática, o endpoint RPC expõe uma contagem de confirmações e a altura do bloco; observar esses valores ao longo do tempo demonstra como a confirmação se acumula. Se o cluster observar votos suficientes conforme sua política, o bloco caminha para a finalização. Do ponto de vista operacional, eventos relacionados à finalização são mais lentos e aparecem como comprometimento persistente de blocos em nós arquivistas e em consultas por blocos finalizados.
 
 Finalmente, considerações de latência e taxa de transferência surgem em traços repetidos. Sob baixa contenção e carga leve, a latência ponta a ponta da submissão até uma confirmação pode variar de dezenas a centenas de milissegundos; sob carga alta, enfileiramentos em leaders e reexecuções por conflitos inflacionam a latência e reduzem a taxa de transferência efetiva. Passos concretos de depuração que você realizará incluem checar mensagens de rejeição na entrada, rastrear inclusão em um slot via `getSignatureStatuses`, inspecionar logs de execução via `getTransaction` e observar contagens de confirmação. Esses passos mapeiam-se diretamente para os checkpoints de verificação que incluiremos na tabela comparativa para que você possa raciocinar sobre onde um problema se originou.
+
+![Rastro Concreto: do RPC à Confirmação](assets/v02-rastro-concreto-rpc-a-confirmacao.png)
 
 ## Tabela Comparativa: Estágios, Componentes Responsáveis e Checkpoints de Verificação
 
@@ -74,6 +78,8 @@ Diferenças-chave: Abaixo está um mapeamento estruturado que você usará como 
 Use a tabela como checklist ao solucionar problemas. Por exemplo, se sua transação nunca for encontrada em um slot, verifique as linhas de entrada e propagação gossip: uma rejeição na entrada ou um gargalo de propagação aparecerá em erros RPC ou na ausência no mempool. Se sua transação aparece em um slot mas mostra execução com falha, inspecione a linha do executor do Runtime: logs do programa e códigos de status explicam a falha. Se as confirmações pararem de aumentar, monitore as linhas de Broadcast & Votação e Confirmação para determinar se particionamento de rede ou liveness de validators estão em jogo.
 
 Como exercício, tente anotar cada linha da tabela com latências esperadas sob carga leve e pesada. Artefatos típicos de baixa carga incluem entrada subsegundo e inclusão no leader dentro de um ou dois slots. Sob carga alta, a entrada ainda pode ser rápida para transações válidas, mas enfileiramento em leaders e reexecuções por conflitos aumentam o tempo até confirmação. Essa anotação te treina a prever onde aparecem gargalos e quais dados de checkpoint coletar para análises post-mortem.
+
+![Estágios, Componentes e Checkpoints](assets/v03-estagios-componentes-e-checkpoints.png)
 
 ## Conclusão & Principais Lições
 

@@ -52,6 +52,8 @@ Nós RPC e SDKs clientes: nós RPC expõem endpoints JSON-RPC que permitem subme
 
 Entender esses componentes em termos de camadas esclarece quem faz o quê e onde residem as responsabilidades. Por exemplo, quando você observa uma resposta lenta de um RPC, pode determinar se o gargalo é o nó, a rede ou o pipeline do indexador. Ao projetar um dApp, você escolhe quais camadas controlar (programas, front end) e em quais confiar (indexadores, provedores de carteira). Esse mapeamento de responsabilidade para ponto de contato é a base prática que você usará nas lições subsequentes.
 
+![Visão Geral do Ecossistema Solana](assets/v01-mapa-componentes-centrais-solana.png)
+
 ## Modelos Mentais: Contas, Programas e o Fluxo de Transações
 
 O Modelo Mental: Um modelo mental prático que simplifica a arquitetura conta-programa da Solana é imaginar uma coleção de cofres etiquetados (contas) e um conjunto de instruções de chaveiro (programas) que podem abrir, alterar ou transferir o conteúdo quando apresentadas as chaves e autorizações corretas. Cada cofre armazena dados e valor; um chaveiro tem as regras sobre quais operações são permitidas no cofre. Um cliente leva uma lista de cofres e operações de chaveiro (uma transação) ao livro-razão, e o líder atual executa as instruções contra os cofres referenciados em um único passo atômico.
