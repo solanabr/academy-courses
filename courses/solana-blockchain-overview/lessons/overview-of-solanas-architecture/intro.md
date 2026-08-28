@@ -164,6 +164,6 @@ The point at which a transaction's effects are considered stable and safe to rel
 ## References & Further Reading
 
 - [Solana: A Protocol for a New Era of Blockchain Scalability (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Protocol Design)
-- [Solana Architecture Overview](https://docs.solana.com/cluster/overview) — *Solana Docs* (Architecture Overview)
-- [Sealevel: Solana's Parallel Smart Contracts Runtime (Technical Notes)](https://docs.solana.com/developing/runtime) — *Solana Labs* (Runtime & Execution)
+- [Solana Architecture Overview](https://docs.anza.xyz/clusters) — *Solana Docs* (Architecture Overview)
+- [The Solana Runtime on a Validator (technical notes)](https://docs.anza.xyz/validator/runtime) — *Agave / Anza Docs* (Runtime & Execution)
 - [Design Patterns for High-Performance Block Propagation](https://medium.com/solana-labs) — *Solana Engineering Blog* (Networking & Propagation)

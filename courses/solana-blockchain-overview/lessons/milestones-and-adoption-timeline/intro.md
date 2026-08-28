@@ -149,7 +149,7 @@ System-level metrics such as block time, latency, and error rates used to assess
 ## References & Further Reading
 
 - [Solana: A new architecture for a high performance blockchain (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Primary Technical)
-- [Solana Documentation: Network Overview and Releases](https://docs.solana.com/introduction/overview) — *Solana Docs* (Documentation)
-- [Solana Mainnet Beta Launch Announcement](https://solana.com/news/solana-mainnet-beta-launch) — *Solana Blog* (Announcements)
+- [Solana Documentation: Overview](https://solana.com/docs) — *Solana Docs* (Documentation)
+- [Official Solana News and Announcements](https://solana.com/news) — *Solana News* (Announcements)
 - [Solana Ecosystem Registry and Project Integrations](https://solana.com/ecosystem) — *Solana* (Ecosystem)
-- [Technical Review and Early Adoption Patterns](https://arxiv.org/abs/2011.09070) — *Academic / Industry Analysis* (Analysis)
+- [Solana Clusters: Devnet, Testnet and Mainnet Beta](https://docs.anza.xyz/clusters) — *Agave / Anza Docs* (Analysis)

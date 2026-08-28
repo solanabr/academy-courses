@@ -157,8 +157,8 @@ A time period used to organize stake activation/deactivation and the leader sche
 
 ## References & Further Reading
 
-- [Solana: A Technical Overview](https://docs.solana.com/cluster/overview) — *Solana Labs Documentation* (Core Protocol)
-- [Accounts and Programs](https://docs.solana.com/developing/programming-model/overview) — *Solana Developer Docs* (Developer Documentation)
-- [Validators and the Runtime](https://docs.solana.com/running-validator/validator-setup) — *Solana Docs - Validators* (Operational Concepts)
-- [Solana: High-performance Blockchain](https://arxiv.org/abs/2102.10050) — *arXiv / Solana Whitepaper* (Design Paper)
-- [JSON-RPC API Reference](https://docs.solana.com/developing/clients/jsonrpc-api) — *Solana Labs* (Ecosystem Tools)
+- [Solana: A Technical Overview](https://docs.anza.xyz/clusters) — *Solana Labs Documentation* (Core Protocol)
+- [Accounts and Programs](https://solana.com/docs/core/programs) — *Solana Developer Docs* (Developer Documentation)
+- [Setting Up an Agave Validator](https://docs.anza.xyz/operations/setup-a-validator) — *Agave / Anza Docs* (Operational Concepts)
+- [Solana: A New Architecture for a High Performance Blockchain (whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Design Paper)
+- [JSON-RPC API Reference](https://solana.com/docs/rpc) — *Solana Labs* (Ecosystem Tools)

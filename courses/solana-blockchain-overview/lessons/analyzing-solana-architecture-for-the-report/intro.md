@@ -179,6 +179,6 @@ A consensus mechanism that builds on classical BFT ideas but leverages Proof of 
 ## References & Further Reading
 
 - [Solana: A new architecture for a high performance blockchain (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Architecture Overview)
-- [Solana Docs — Overview & Core Concepts](https://docs.solana.com/overview) — *Solana Documentation* (Technical Documentation)
-- [Proof of History and Consensus Concepts](https://docs.solana.com/overview#proof-of-history) — *Solana Documentation* (Component Details)
-- [solana-web3.js API Reference](https://solana-labs.github.io/solana-web3.js/) — *Solana Labs / GitHub Pages* (APIs & Tooling)
+- [Solana Docs — Overview & Core Concepts](https://solana.com/docs) — *Solana Documentation* (Technical Documentation)
+- [Proof of History and Fork Generation](https://docs.anza.xyz/consensus/fork-generation) — *Agave / Anza Docs* (Component Details)
+- [JavaScript/TypeScript SDK for Solana](https://solana.com/docs/clients/official/javascript) — *Solana Docs* (APIs & Tooling)

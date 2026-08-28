@@ -161,7 +161,7 @@ A tabular summary that maps claims or sections to their supporting primary and s
 ## References & Further Reading
 
 - [Solana: A new architecture for a high performance blockchain (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Core Protocol)
-- [Solana Developer Documentation — solana-docs](https://docs.solana.com/) — *Solana Docs* (Documentation)
+- [Solana Developer Documentation — solana-docs](https://solana.com/docs) — *Solana Docs* (Documentation)
 - [Solana GitHub — core repository and release history](https://github.com/solana-labs/solana) — *Solana on GitHub* (Code Repository)
 - [Solana Releases and Changelog (selected release notes)](https://github.com/solana-labs/solana/releases) — *Solana Releases* (Technical Announcement)
-- [Solana Governance Proposals and Discussions](https://forums.solana.com/) — *Solana Community Forums / Governance* (Community & Governance)
+- [Solana Governance Proposals and Discussions](https://forum.solana.com/) — *Solana Community Forums / Governance* (Community & Governance)

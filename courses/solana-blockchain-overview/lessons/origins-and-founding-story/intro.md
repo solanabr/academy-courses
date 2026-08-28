@@ -146,6 +146,6 @@ An observable release or event—such as a testnet launch, benchmark report, or 
 
 ## References & Further Reading
 
-- [Solana: A New Architecture for a High Performance Blockchain (technical overview)](https://solana.com/solana-whitepaper) — *Solana Foundation (technical blog)* (Primary Sources)
-- [Verifiable Delay Functions and Time in Distributed Systems](https://example.org/verifiable-delay-functions-paper) — *Academic paper / technical notes* (Technical Background)
-- [Solana Testnet Launch Announcements and Performance Benchmarks](https://solana.com/announcements/testnet-launch) — *Official release notes and blog posts* (Ecosystem & Milestones)
+- [Solana: A New Architecture for a High Performance Blockchain (technical overview)](https://solana.com/solana-whitepaper.pdf) — *Solana Foundation (technical blog)* (Primary Sources)
+- [Verifiable Delay Functions (Boneh, Bonneau, Bünz, Fisch)](https://eprint.iacr.org/2018/601) — *IACR ePrint Archive* (Technical Background)
+- [Official Solana News and Announcements](https://solana.com/news) — *Solana News* (Ecosystem & Milestones)

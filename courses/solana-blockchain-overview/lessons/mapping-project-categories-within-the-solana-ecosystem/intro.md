@@ -147,7 +147,7 @@ A standardized account for holding SPL tokens tied to a wallet address; many app
 
 ## References & Further Reading
 
-- [Solana Developer Documentation: Programs](https://docs.solana.com/developing/programs/overview) — *Solana Labs* (Official Documentation)
-- [SPL Token Standard (spl-token)](https://spl.solana.com/token) — *Solana Labs* (Token Standards)
+- [Solana Developer Documentation: Programs](https://solana.com/docs/core/programs) — *Solana Labs* (Official Documentation)
+- [SPL Token Standard (spl-token)](https://www.solana-program.com/docs/token) — *Solana Labs* (Token Standards)
 - [Solana Explorer: Program and Transaction Search](https://explorer.solana.com) — *Solana Explorer* (Explorers & Tools)
-- [Running an RPC Node and Best Practices](https://docs.solana.com/running-validator/validator-operations) — *Solana Labs Documentation* (Infrastructure Guides)
+- [Operating a Validator (guides and best practices)](https://docs.anza.xyz/operations) — *Agave / Anza Docs* (Infrastructure Guides)

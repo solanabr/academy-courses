@@ -159,7 +159,7 @@ A component that manages voting behavior and lockouts to help validators reach c
 
 ## References & Further Reading
 
-- [Solana Architecture Overview](https://docs.solana.com/cluster/architecture) — *Solana Docs* (Core Architecture)
-- [Running a Validator](https://docs.solana.com/running-validator) — *Solana Docs* (Validators & Operations)
-- [Programs and the BPF Runtime](https://docs.solana.com/developing/on-chain-programs/overview) — *Solana Docs* (Runtime & Execution)
-- [Snapshots and Ledger](https://docs.solana.com/cluster/snapshots) — *Solana Docs* (State & Storage)
+- [Agave Validator Architecture](https://docs.anza.xyz/architecture) — *Agave / Anza Docs* (Core Architecture)
+- [Running a Validator](https://docs.anza.xyz/operations) — *Solana Docs* (Validators & Operations)
+- [Programs and the BPF Runtime](https://solana.com/docs/core/programs) — *Solana Docs* (Runtime & Execution)
+- [Blockstore: Ledger Storage](https://docs.anza.xyz/validator/blockstore) — *Agave / Anza Docs* (State & Storage)

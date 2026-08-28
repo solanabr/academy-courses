@@ -170,6 +170,6 @@ Names of Solana runtime and networking components; each term denotes a system re
 ## References & Further Reading
 
 - [Solana: A new architecture for a high performance blockchain (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Primary Source)
-- [Solana Architecture](https://docs.solana.com/architecture) — *Solana Docs* (Official Documentation)
-- [Cluster Overview and Validator Responsibilities](https://docs.solana.com/cluster/overview) — *Solana Docs* (Official Documentation)
-- [Solana: Performance and Scalability Design Notes](https://solana.com/blog/solana-performance) — *Solana Blog* (Engineering Blog)
+- [Solana Architecture](https://docs.anza.xyz/architecture) — *Solana Docs* (Official Documentation)
+- [Cluster Overview and Validator Responsibilities](https://docs.anza.xyz/clusters) — *Solana Docs* (Official Documentation)
+- [Agave Validator Architecture (design notes)](https://docs.anza.xyz/architecture) — *Agave / Anza Docs* (Engineering Blog)

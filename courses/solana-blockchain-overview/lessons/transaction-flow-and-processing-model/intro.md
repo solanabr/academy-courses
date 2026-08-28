@@ -151,7 +151,7 @@ The process of identifying transactions that cannot both succeed because they wr
 
 ## References & Further Reading
 
-- [Solana: Technical Overview and Architecture](https://docs.solana.com/introduction) — *Solana Documentation* (Protocol Specification)
-- [Transaction Processing and Runtime: How Transactions Are Processed](https://docs.solana.com/developing/clients/jsonrpc-api#transaction-status) — *Solana Docs - Transactions* (Runtime & Transaction Processing)
-- [Leader Schedule and Voting Mechanisms](https://docs.solana.com/cluster/overview#leader-schedule) — *Solana Developer Resources* (Leader Scheduling and Consensus)
-- [Using RPC Methods to Trace Transaction Lifecycle](https://docs.solana.com/developing/clients/jsonrpc-api) — *Solana RPC API Guide* (Practical Debugging)
+- [Solana: Technical Overview and Architecture](https://solana.com/docs) — *Solana Documentation* (Protocol Specification)
+- [Transaction Processing and Runtime: How Transactions Are Processed](https://solana.com/docs/rpc) — *Solana Docs - Transactions* (Runtime & Transaction Processing)
+- [Leader Schedule and Voting Mechanisms](https://docs.anza.xyz/consensus/leader-rotation) — *Solana Developer Resources* (Leader Scheduling and Consensus)
+- [Using RPC Methods to Trace Transaction Lifecycle](https://solana.com/docs/rpc) — *Solana RPC API Guide* (Practical Debugging)

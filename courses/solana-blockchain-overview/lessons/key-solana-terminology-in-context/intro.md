@@ -157,8 +157,8 @@ A web service that indexes blocks and transactions and displays signatures, stat
 
 ## References & Further Reading
 
-- [Solana Docs: Core Concepts](https://docs.solana.com/introduction) — *Solana Foundation* (Core Documentation)
-- [Solana JSON RPC API Reference](https://docs.solana.com/developing/clients/jsonrpc-api) — *Solana Labs* (Developer Reference)
-- [SPL Token Program](https://spl.solana.com/token) — *Solana Program Library* (Token Standards)
-- [Understanding Transactions in Solana Explorer](https://explorer.solana.com/faq) — *Solana Explorer Docs* (Explorers & Tools)
-- [Accounts and State on Solana](https://docs.solana.com/developing/programming-model/accounts) — *Solana Documentation* (Runtime & Accounts)
+- [Solana Docs: Core Concepts](https://solana.com/docs) — *Solana Foundation* (Core Documentation)
+- [Solana JSON RPC API Reference](https://solana.com/docs/rpc) — *Solana Labs* (Developer Reference)
+- [SPL Token Program](https://www.solana-program.com/docs/token) — *Solana Program Library* (Token Standards)
+- [Solana Explorer](https://explorer.solana.com/) — *Solana Explorer* (Explorers & Tools)
+- [Accounts and State on Solana](https://solana.com/docs/core/accounts) — *Solana Documentation* (Runtime & Accounts)

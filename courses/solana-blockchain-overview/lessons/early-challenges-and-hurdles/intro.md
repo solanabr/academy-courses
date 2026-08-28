@@ -191,7 +191,7 @@ Concrete, testable conditions that must be met before a fix is considered verifi
 
 ## References & Further Reading
 
-- [Validator Operation and Maintenance](https://docs.solana.com/running-validator) — *Solana Docs* (Official Documentation)
+- [Validator Operation and Maintenance](https://docs.anza.xyz/operations) — *Solana Docs* (Official Documentation)
 - [Solana Status - Incident History](https://status.solana.com/) — *Solana Status* (Status & Incidents)
-- [Solana Network Outage: Engineering Discussion and Response (analysis)](https://www.coindesk.com/markets/2021/09/15/solana-network-outage-explained/) — *CoinDesk* (Postmortem Reporting)
+- [Cluster Restart: Official Response Procedure](https://docs.anza.xyz/operations/guides/restart-cluster) — *Agave / Anza Docs* (Postmortem Reporting)
 - [solana GitHub - example PRs and issues (searchable archive)](https://github.com/solana-labs/solana/issues) — *GitHub - solana-labs* (Source Code & Fixes)

@@ -165,8 +165,8 @@ A compact annotation for a milestone that lists the strongest primary source and
 
 ## References & Further Reading
 
-- [Solana: A new architecture for high performance blockchains (whitepaper)](https://arxiv.org/abs/1803.09334) — *Solana Labs / arXiv* (Primary Technical Source)
-- [Solana Documentation — Introduction and Core Concepts](https://docs.solana.com/introduction) — *Solana Docs* (Official Documentation)
-- [Solana Blog and Release Notes](https://solana.com/blog) — *Solana Blog* (Official Blog / Release Notes)
-- [A technical overview of Solana's architecture and scaling choices](https://medium.com/@solana-labs/technical-overview) — *Independent technical writeup* (Technical Analysis)
-- [Solana Project History and Major Releases](https://docs.solana.com/cluster/release-notes) — *Solana Documentation / Releases* (Historical Timeline)
+- [Solana: A new architecture for high performance blockchains (whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Primary Technical Source)
+- [Solana Documentation — Introduction and Core Concepts](https://solana.com/docs) — *Solana Docs* (Official Documentation)
+- [Solana Blog and Release Notes](https://solana.com/news) — *Solana Blog* (Official Blog / Release Notes)
+- [Solana Labs on Medium — technical publications](https://medium.com/solana-labs) — *Solana Labs* (Technical Analysis)
+- [Agave Releases (release history)](https://github.com/anza-xyz/agave/releases) — *Anza / GitHub* (Historical Timeline)

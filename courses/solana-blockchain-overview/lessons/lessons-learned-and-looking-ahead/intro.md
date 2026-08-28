@@ -161,7 +161,7 @@ The frequency and speed of protocol changes; rapid cadence increases exposure to
 
 ## References & Further Reading
 
-- [Solana: A new architecture for high performance blockchains (whitepaper)](https://solana.com/solana-whitepaper) — *Solana Labs* (Primary Source)
-- [Solana Docs: Cluster Architecture and Validator Operation](https://docs.solana.com/cluster/overview) — *Solana Documentation* (Technical Documentation)
-- [Operational Lessons from Blockchain Outages (technical analysis)](https://engineering.example.com/blockchain-outages-analysis) — *Independent engineering analysis* (Postmortem & Analysis)
+- [Solana: A new architecture for high performance blockchains (whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Primary Source)
+- [Solana Docs: Cluster Architecture and Validator Operation](https://docs.anza.xyz/clusters) — *Solana Documentation* (Technical Documentation)
+- [Validator Monitoring Best Practices](https://docs.anza.xyz/operations/best-practices/monitoring) — *Agave / Anza Docs* (Postmortem & Analysis)
 - [Bitcoin: A Peer-to-Peer Electronic Cash System](https://bitcoin.org/bitcoin.pdf) — *Satoshi Nakamoto* (Comparative Context)
