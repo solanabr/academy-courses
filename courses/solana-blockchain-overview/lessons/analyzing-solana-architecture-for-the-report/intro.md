@@ -93,7 +93,8 @@ Use this workflow to generate three such mappings; when assembled, those mapping
 
 Small, reproducible probes are useful evidence for the report: they show the current cluster state and can validate claims about leader rotation, epoch length, or transaction throughput settings. Below is a compact TypeScript example using `@solana/web3.js` that fetches epoch information and the leader schedule. Run this against the cluster you cited in your timeline (testnet or mainnet as appropriate) and paste the JSON output into your evidence appendix.
 
-`import { Connection, clusterApiUrl } from '@solana/web3.js';
+```typescript
+import { Connection, clusterApiUrl } from '@solana/web3.js';
 
 async function probeCluster() {
  const url = clusterApiUrl('mainnet-beta');
@@ -107,7 +108,7 @@ async function probeCluster() {
 }
 
 probeCluster().catch(console.error);
-`
+```
 Line-by-line explanation and how to use the output:
 
 **Imports and connection:** `import { Connection, clusterApiUrl }` pulls the client utilities. `clusterApiUrl('mainnet-beta')` returns a canonical RPC endpoint; if your timeline references testnet or devnet, substitute that string. `new Connection(url, 'confirmed')` constructs a client with the desired commitment level — the commitment affects what state snapshot you receive.

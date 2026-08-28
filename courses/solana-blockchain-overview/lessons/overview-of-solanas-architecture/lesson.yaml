@@ -3,6 +3,7 @@ slug: overview-of-solanas-architecture
 title: Overview of Solana's Architecture
 skills:
 - solana-fundamentals
+- transactions
 blocks:
 - key: header
   type: prose
@@ -20,10 +21,6 @@ blocks:
     prompt: According to the lesson, what drives Solana's architectural choices?
     multiSelect: false
     options:
-    - id: a
-      label: Goals of throughput, latency, parallelism, and auditable ordering.
-      correct: true
-      feedback: Correct! Architecture is goal-driven in this lesson's framing.
     - id: b
       label: A requirement to remain byte-compatible with Ethereum.
       correct: false
@@ -32,6 +29,10 @@ blocks:
       label: Minimising the total number of accounts on the network.
       correct: false
       feedback: That is not an architectural goal described here.
+    - id: a
+      label: Goals of throughput, latency, parallelism, and auditable ordering.
+      correct: true
+      feedback: Correct! Architecture is goal-driven in this lesson's framing.
     explanation: 'Architecture is goal-driven: throughput, latency, parallelism, and
       auditable ordering guide the design.'
   - id: q2
@@ -57,13 +58,17 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: Always write to the same account so ordering is simpler.
+      label: Always write to the same account so that ordering is simpler and the
+        leader has less scheduling work to do.
       correct: false
-      feedback: That maximises conflicts and defeats parallel execution.
+      feedback: A shared hot account serialises the work and removes the benefit of
+        parallel execution.
     - id: b
-      label: Avoid signing transactions client-side.
+      label: Avoid signing transactions client-side, letting the leader attach signatures
+        once ordering has been decided.
       correct: false
-      feedback: That is not the implication the lesson draws.
+      feedback: Signing is a client responsibility; it is not something the leader
+        can take over.
     - id: c
       label: Design transactions and accounts to minimise conflicts so parallel execution
         delivers real throughput.

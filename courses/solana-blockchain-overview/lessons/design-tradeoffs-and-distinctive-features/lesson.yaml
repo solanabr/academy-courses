@@ -3,6 +3,7 @@ slug: design-tradeoffs-and-distinctive-features
 title: Design Tradeoffs and Distinctive Features
 skills:
 - solana-fundamentals
+- account-model
 blocks:
 - key: header
   type: prose
@@ -40,9 +41,11 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: Transactions are silently re-signed by the leader.
+      label: Transactions are silently re-signed by the leader, so slower hardware
+        simply produces a longer confirmation time.
       correct: false
-      feedback: That is not a described behaviour.
+      feedback: Leaders never re-sign transactions; signatures come from the client
+        and are fixed.
     - id: b
       label: Backpressure and tail latency, because optimisations assume fast networks
         and storage.
@@ -50,15 +53,21 @@ blocks:
       feedback: Correct! The software's assumptions become the operator's hardware
         floor.
     - id: c
-      label: Nothing measurable, since the runtime adapts automatically.
+      label: Nothing measurable, since the runtime adapts automatically to whatever
+        network and storage speed it is given.
       correct: false
-      feedback: The lesson states misalignment causes backpressure and tail latency.
+      feedback: The optimisations assume fast networks and storage; when that assumption
+        breaks, latency does too.
     explanation: Software optimisations assume fast networks and storage; misaligned
       hardware causes backpressure and tail latency.
   - id: q3
     prompt: What do fine-grained locks require in exchange for concurrency?
     multiSelect: false
     options:
+    - id: c
+      label: Deterministic scheduling and retry management.
+      correct: true
+      feedback: Correct! Concurrency has a scheduling and retry cost.
     - id: a
       label: A single global lock held for the whole block.
       correct: false
@@ -67,9 +76,5 @@ blocks:
       label: Manual approval of each conflicting transaction.
       correct: false
       feedback: That is not part of the model described.
-    - id: c
-      label: Deterministic scheduling and retry management.
-      correct: true
-      feedback: Correct! Concurrency has a scheduling and retry cost.
     explanation: Fine-grained locks enable concurrency but require deterministic scheduling
       and retry management.

@@ -40,35 +40,46 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: Conference attendance and podcast downloads.
+      label: Conference attendance and podcast downloads, taken together as a proxy
+        for how healthy the network has become.
       correct: false
-      feedback: Those are not the signals listed.
+      feedback: Attention metrics say nothing about validator diversity or patch cadence.
     - id: b
       label: Validator diversity, emergency patch cadence, app concentration, and
         governance messages.
       correct: true
       feedback: Correct! These are measurable and expose the health behind the narrative.
     - id: c
-      label: Token price, trading volume, and market capitalisation.
+      label: Token price, trading volume, and market capitalisation, read as the fastest
+        summary of the network's trajectory.
       correct: false
-      feedback: Market indicators are not the signals the lesson proposes.
+      feedback: The lesson asks for operational and governance signals rather than
+        market ones.
     explanation: Watch validator diversity, emergency patch cadence, app concentration,
       and governance messages.
   - id: q3
-    prompt: What is the purpose of the short checklist introduced in the lesson?
+    prompt: According to the lesson, which signal indicates that application concentration
+      on a network is rising?
     multiSelect: false
     options:
     - id: a
-      label: To rank projects by market share.
+      label: The number of programming languages supported by the network's official
+        SDKs grows with each release.
       correct: false
-      feedback: The checklist is about narrative evaluation, not ranking.
-    - id: b
-      label: To automate validator deployment.
-      correct: false
-      feedback: The checklist is analytical, not operational.
+      feedback: SDK breadth describes the tooling surface, not where real activity
+        is concentrated.
     - id: c
-      label: To evaluate retrospective narratives against measurable evidence.
+      label: A few programs and a few RPC providers account for most of the network's
+        transactions and reads.
       correct: true
-      feedback: Correct! The checklist tests a story against evidence you can measure.
-    explanation: The checklist evaluates retrospective narratives against measurable
-      evidence.
+      feedback: Correct! Concentration is measured by how much of the total activity
+        a small set of actors carries.
+    - id: b
+      label: The average transaction fee paid by users falls steadily over a sustained
+        period of time.
+      correct: false
+      feedback: Lower fees indicate spare capacity or a pricing change, not which
+        applications hold the activity.
+    explanation: Concentration shows up when a small number of programs and infrastructure
+      providers account for most of the network's activity — a few applications carrying
+      most transactions, and a few RPC providers serving most reads.

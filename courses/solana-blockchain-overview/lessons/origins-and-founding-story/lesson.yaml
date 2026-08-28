@@ -20,21 +20,24 @@ blocks:
     prompt: According to the lesson, what did Solana's origin story centre on?
     multiSelect: false
     options:
+    - id: b
+      label: Maximising anonymity by removing all timestamps from the ledger, so that
+        ordering cannot be reconstructed by observers.
+      correct: false
+      feedback: The lesson describes adding a verifiable time primitive, not removing
+        the ability to order events.
     - id: a
       label: Reducing coordination overhead by introducing a verifiable network time
         primitive, optimising for throughput and low latency.
       correct: true
       feedback: Correct! The verifiable time primitive is what lowers coordination
         overhead.
-    - id: b
-      label: Maximising anonymity by removing all timestamps from the ledger.
-      correct: false
-      feedback: The lesson describes adding a verifiable time primitive, not removing
-        timestamps.
     - id: c
-      label: Replicating Bitcoin's design exactly, with no change in priorities.
+      label: Replicating Bitcoin's design exactly, keeping the same block cadence
+        and hardware assumptions rather than changing priorities.
       correct: false
-      feedback: The lesson contrasts Solana's founding priorities with Bitcoin's foundations.
+      feedback: The lesson contrasts Solana's founding priorities with Bitcoin's foundations
+        instead of reproducing them.
     explanation: Solana's origin centred on reducing coordination overhead via a verifiable
       network time primitive, optimising for throughput and low latency.
   - id: q2
@@ -42,10 +45,11 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: As a replacement for running public testnets.
+      label: As a replacement for running public testnets, since committed capital
+        already demonstrated the design worked.
       correct: false
-      feedback: Testnets and benchmarks are described separately as part of converting
-        prototypes into public artefacts.
+      feedback: Testnets and benchmarks are described separately as the way prototypes
+        became public artefacts.
     - id: b
       label: As coordination mechanisms that validated technical assumptions and attracted
         developer participation.
@@ -53,16 +57,22 @@ blocks:
       feedback: Correct! They functioned as coordination signals, not just financial
         events.
     - id: c
-      label: As purely financial events with no effect on technical direction.
+      label: As purely financial events, recorded in the timeline but with no effect
+        on technical direction or developer interest.
       correct: false
-      feedback: The lesson presents them as validating assumptions and drawing developers
-        in.
+      feedback: The lesson presents them as validating technical assumptions and drawing
+        developers in.
     explanation: Early funding and public milestones acted as coordination mechanisms
       validating assumptions and attracting developers.
   - id: q3
     prompt: What combination of founding roles does the lesson identify?
     multiSelect: false
     options:
+    - id: c
+      label: Protocol architecture, systems engineering, and developer outreach.
+      correct: true
+      feedback: Correct! Together they converted prototypes into public testnets and
+        benchmarks.
     - id: a
       label: Marketing, legal, and compliance only.
       correct: false
@@ -71,10 +81,5 @@ blocks:
       label: A single founder handling every responsibility alone.
       correct: false
       feedback: The lesson describes a combination of distinct roles.
-    - id: c
-      label: Protocol architecture, systems engineering, and developer outreach.
-      correct: true
-      feedback: Correct! Together they converted prototypes into public testnets and
-        benchmarks.
     explanation: Founding roles combined protocol architecture, systems engineering
       and developer outreach.

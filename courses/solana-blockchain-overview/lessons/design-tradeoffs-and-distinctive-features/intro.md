@@ -74,7 +74,8 @@ Each stage depends on preceding hardware and software assumptions. For example, 
 
 The code below is a small, simplified Rust-like sketch that models parallel execution across a pool of worker threads. It focuses on account-level locking and how conflicts cause retries. You will use this snippet to reason concretely about why deterministic scheduling, fine-grained locks, and fast memory access matter to throughput.
 
-`// Simplified pseudo-code for parallel transaction execution
+```rust
+// Simplified pseudo-code for parallel transaction execution
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -105,7 +106,9 @@ fn execute_transactions_parallel(mut txs: Vec<Transaction>, accounts: Arc<Mutex<
 
  for t in pool { let _ = t.join(); }
 }
-`Line-by-line and block explanation:
+```
+
+Line-by-line and block explanation:
 
 - Import and types: The snippet uses shared-memory synchronization primitives. In the real runtime, locks are more fine-grained and avoid a single global `Mutex`; this example intentionally shows the cost when locks are coarse.
 - `Account` and `Transaction` structs: each transaction lists account IDs it reads and writes. In production, Solana's runtime computes read/write sets and schedules non-conflicting transactions concurrently.

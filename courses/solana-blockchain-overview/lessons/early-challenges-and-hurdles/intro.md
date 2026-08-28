@@ -40,7 +40,8 @@ By the end of this lesson you will be able to:
 
 When stability problems occur in a running validator, engineers often start by extracting structured events from logs and looking for patterns such as frequent "slot skipped" messages, repeated failed RPC calls, or GC pauses. The code below is a compact Rust example that parses a simplified validator log, counts event types, and flags unusually frequent "slot skipped" occurrences. This is a small diagnostic you can adapt for any runtime that emits timestamped events.
 
-`use std::collections::HashMap;
+```rust
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
 
@@ -74,7 +75,9 @@ fn parse_event(line: &str) -> Option<String> {
  }
  None
 }
-`Line-by-line explanation:
+```
+
+Line-by-line explanation:
 
 1. `use std::collections::HashMap;` and the subsequent `use` lines import basic I/O and collection utilities. You will need these for counting occurrences and reading files.
 2. The `main` function opens a file named `validator.log` and wraps it in a buffered reader to iterate lines efficiently. If the file is missing the program returns an error — in practice you might wire this to a streaming source rather than a file.

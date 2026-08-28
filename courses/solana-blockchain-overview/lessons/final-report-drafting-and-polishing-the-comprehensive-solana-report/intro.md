@@ -153,7 +153,7 @@ A Solana-adapted Practical Byzantine Fault Tolerance variant that uses PoH as a 
 
 A dedicated report section that maps specific historical events to architectural decisions with causal statements and supporting citations.
 
-### Primary source
+### Primary Source
 
 An original document or direct evidence such as a whitepaper, engineering blog post from the protocol team, or official documentation used to support factual claims.
 

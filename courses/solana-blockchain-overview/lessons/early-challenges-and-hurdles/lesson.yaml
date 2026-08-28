@@ -21,14 +21,14 @@ blocks:
       lesson?
     multiSelect: false
     options:
-    - id: a
-      label: From peak throughput toward predictable, observable behaviour.
-      correct: true
-      feedback: Correct! Reliability and observability displaced raw peak performance.
     - id: b
       label: From decentralisation toward a fully permissioned network.
       correct: false
       feedback: That is not the shift the lesson describes.
+    - id: a
+      label: From peak throughput toward predictable, observable behaviour.
+      correct: true
+      feedback: Correct! Reliability and observability displaced raw peak performance.
     - id: c
       label: From software engineering toward hardware manufacturing.
       correct: false
@@ -39,14 +39,14 @@ blocks:
     prompt: What is the incident-response workflow presented in the lesson?
     multiSelect: false
     options:
-    - id: a
-      label: Ignore, escalate, restart, and hope.
-      correct: false
-      feedback: That is not the workflow described.
     - id: b
       label: Detect, triage, mitigate, root-cause, patch, communicate.
       correct: true
       feedback: Correct! Mitigation stabilises while the durable patch is developed.
+    - id: a
+      label: Ignore, escalate, restart, and hope.
+      correct: false
+      feedback: That is not the workflow described.
     - id: c
       label: Patch, deploy, announce, and close without triage.
       correct: false
@@ -58,13 +58,17 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: It replaced the need for targeted code patches.
+      label: It replaced the need for targeted code patches, since operators could
+        work around defects once they were described publicly.
       correct: false
-      feedback: Durable reliability still required targeted patches and instrumentation.
+      feedback: Transparency coordinated the response; the durable fixes still had
+        to be written and shipped.
     - id: b
-      label: It slowed down operators by adding noise.
+      label: It slowed operators down by adding noise, so incident detail was withheld
+        until each patch had already shipped.
       correct: false
-      feedback: The lesson presents transparency as reducing duplicated effort.
+      feedback: The lesson credits open communication with reducing duplicated effort,
+        not with creating noise.
     - id: c
       label: It helped coordinate upgrades and reduced duplicated operational effort.
       correct: true

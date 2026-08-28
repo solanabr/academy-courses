@@ -20,11 +20,6 @@ blocks:
     prompt: What is the layered-evidence rule the lesson introduces?
     multiSelect: false
     options:
-    - id: a
-      label: Use docs, repo, on-chain data, and community — and require two signals
-        to confirm a claim.
-      correct: true
-      feedback: Correct! One source alone is not confirmation.
     - id: b
       label: Trust the project's own documentation as the single source of truth.
       correct: false
@@ -33,6 +28,11 @@ blocks:
       label: Accept any claim repeated by three community members.
       correct: false
       feedback: Community is one layer, not a substitute for the others.
+    - id: a
+      label: Use docs, repo, on-chain data, and community — and require two signals
+        to confirm a claim.
+      correct: true
+      feedback: Correct! One source alone is not confirmation.
     explanation: Use layered evidence across docs, repo, on-chain data and community,
       requiring two signals to confirm a claim.
   - id: q2
@@ -40,18 +40,21 @@ blocks:
       maintained?
     multiSelect: false
     options:
-    - id: a
-      label: The visual polish of the marketing site.
-      correct: false
-      feedback: Presentation is not evidence of maintenance.
     - id: b
       label: Cryptographic and version artefacts such as release tags and CI.
       correct: true
       feedback: Correct! These are harder to fake than prose.
-    - id: c
-      label: The number of stars on the repository.
+    - id: a
+      label: The visual polish of the marketing site, which shows how much the team
+        invests in its public presence.
       correct: false
-      feedback: Stars are not the artefacts the lesson prioritises.
+      feedback: Presentation says nothing about whether the code is still being maintained.
+    - id: c
+      label: The number of stars on the repository, which accumulates as more developers
+        discover the project.
+      correct: false
+      feedback: Stars accumulate historically and can stay high long after maintenance
+        stops.
     explanation: Prioritise cryptographic and version artefacts — release tags, CI
       — when judging maintenance.
   - id: q3
@@ -59,13 +62,17 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: A full transcript of every community chat message.
+      label: A full transcript of every community chat message about the project,
+        kept as raw supporting evidence.
       correct: false
-      feedback: The lesson asks for concise comparison rows, not transcripts.
+      feedback: Raw transcripts are not comparable across projects and do not support
+        architecture analysis.
     - id: b
-      label: Only the project's name and website.
+      label: Only the project's name and its official website, so the list stays short
+        and easy to scan later.
       correct: false
-      feedback: That would not support the later analysis.
+      feedback: Name and site record none of the signals you verified, so nothing
+        can be compared.
     - id: c
       label: Concise comparison rows that support later incentive and architecture
         analysis.

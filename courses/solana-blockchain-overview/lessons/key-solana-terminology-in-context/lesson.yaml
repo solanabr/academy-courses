@@ -3,6 +3,7 @@ slug: key-solana-terminology-in-context
 title: Key Solana Terminology in Context
 skills:
 - solana-fundamentals
+- transactions
 blocks:
 - key: header
   type: prose
@@ -20,19 +21,23 @@ blocks:
     prompt: How does the lesson distinguish validators, nodes, and clients?
     multiSelect: false
     options:
+    - id: b
+      label: All three are synonyms for a machine running the Solana software, differing
+        only in how operators refer to them.
+      correct: false
+      feedback: The lesson separates consensus actor, running process, and submitting
+        software as distinct roles.
+    - id: c
+      label: Clients are the consensus actors, validators are SDKs, and nodes are
+        the wallets that hold user balances.
+      correct: false
+      feedback: 'Each role is swapped: validators vote, clients submit, and nodes
+        are the running processes.'
     - id: a
       label: Validators are consensus actors; nodes are running processes and RPC
         endpoints; clients are SDKs or programs that submit transactions.
       correct: true
       feedback: Correct! Each term names a different position in the system.
-    - id: b
-      label: All three are synonyms for a machine running the Solana software.
-      correct: false
-      feedback: The lesson draws explicit distinctions between them.
-    - id: c
-      label: Clients are consensus actors and validators are SDKs.
-      correct: false
-      feedback: Those roles are inverted.
     explanation: Validators take part in consensus, nodes are running processes and
       RPC endpoints, and clients are SDKs or programs submitting transactions.
   - id: q2
@@ -58,13 +63,17 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: To edit account balances directly.
+      label: To edit account balances directly when a transfer settles for the wrong
+        amount on a user's account.
       correct: false
-      feedback: Explorers are read-only diagnostic tools.
+      feedback: Explorers are read-only views of chain state; they cannot write to
+        accounts.
     - id: b
-      label: To re-sign a failed transaction on the user's behalf.
+      label: To re-sign a failed transaction on the user's behalf so it can be retried
+        without opening the wallet.
       correct: false
-      feedback: Explorers do not sign transactions.
+      feedback: Signing requires the keypair and happens in the wallet, never in an
+        explorer.
     - id: c
       label: To find signatures, status, fees, account pre/post balances, and program
         logs.

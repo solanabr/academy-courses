@@ -3,6 +3,7 @@ slug: introducing-the-solana-ecosystem-and-terminology
 title: Introducing the Solana Ecosystem and Terminology
 skills:
 - solana-fundamentals
+- account-model
 blocks:
 - key: header
   type: prose
@@ -20,34 +21,38 @@ blocks:
     prompt: How does the lesson describe the layering of Solana's ecosystem?
     multiSelect: false
     options:
+    - id: b
+      label: Wallets and SDKs at the base, consensus and validators in the middle,
+        runtime and programs around the edges.
+      correct: false
+      feedback: 'The layers are inverted: consensus and validators carry the ecosystem,
+        and tooling sits at the edges.'
+    - id: c
+      label: A single flat layer in which validators, programs, indexers, and wallets
+        are interchangeable components.
+      correct: false
+      feedback: The lesson describes layers with distinct responsibilities, not interchangeable
+        parts.
     - id: a
       label: Consensus and validators at the base, runtime and programs in the middle,
         developer-facing services around the edges.
       correct: true
       feedback: Correct! That is the layered picture the lesson presents.
-    - id: b
-      label: Wallets at the base, consensus in the middle, and RPC at the top.
-      correct: false
-      feedback: Consensus and validators form the base layer.
-    - id: c
-      label: A single flat layer where every component is interchangeable.
-      correct: false
-      feedback: The lesson describes distinct layers with distinct roles.
     explanation: 'The ecosystem is layered: consensus and validators at the base,
       runtime and programs in the middle, developer-facing services at the edges.'
   - id: q2
     prompt: What is the relationship between programs and accounts?
     multiSelect: false
     options:
-    - id: a
-      label: Programs and accounts are two names for the same object.
-      correct: false
-      feedback: They are distinct concepts with distinct responsibilities.
     - id: b
       label: Programs are stateless executors; accounts store persistent data and
         lamports.
       correct: true
       feedback: Correct! Design account layouts with rent and concurrency in mind.
+    - id: a
+      label: Programs and accounts are two names for the same object.
+      correct: false
+      feedback: They are distinct concepts with distinct responsibilities.
     - id: c
       label: Programs store persistent state; accounts execute logic.
       correct: false
@@ -62,13 +67,13 @@ blocks:
       label: Gossip and the snapshotter.
       correct: false
       feedback: Those are internal validator components, not developer touchpoints.
-    - id: b
-      label: Leader scheduling and fork choice.
-      correct: false
-      feedback: Those are consensus concerns, not developer-facing services.
     - id: c
       label: RPC nodes, indexers, and wallets.
       correct: true
       feedback: Correct! Map each task to the correct service when building or debugging.
+    - id: b
+      label: Leader scheduling and fork choice.
+      correct: false
+      feedback: Those are consensus concerns, not developer-facing services.
     explanation: RPC nodes, indexers, and wallets are the developer touchpoints to
       map tasks against.

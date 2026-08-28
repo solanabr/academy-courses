@@ -26,13 +26,17 @@ blocks:
       correct: true
       feedback: Correct! The three prior artefacts converge here.
     - id: b
-      label: Only the historical draft, published on its own.
+      label: Only the historical draft, published on its own once the architectural
+        notes have been set aside.
       correct: false
-      feedback: All three artefacts are combined.
+      feedback: Dropping the architectural notes removes the linkage the report is
+        assessed on.
     - id: c
-      label: A new piece of research written from scratch.
+      label: A new piece of research written from scratch, replacing the artefacts
+        produced earlier in the module.
       correct: false
-      feedback: The report integrates what you already produced.
+      feedback: The final report consolidates the earlier artefacts rather than discarding
+        them.
     explanation: Combine the capstone outline, the historical draft, and the architectural
       notes into a single document.
   - id: q2
@@ -40,36 +44,43 @@ blocks:
     multiSelect: false
     options:
     - id: a
-      label: Approval from a validator operator.
+      label: Approval from a validator operator, obtained before the report can be
+        submitted for peer review.
       correct: false
-      feedback: That is not one of the criteria.
+      feedback: No external sign-off is required; the criteria are about evidence
+        and argument.
     - id: b
       label: A timeline with citations, architecture explanations, explicit linkages,
         and a complete bibliography.
       correct: true
       feedback: Correct! All four are required for acceptance.
     - id: c
-      label: A minimum word count and nothing else.
+      label: A minimum word count and a formatted cover page, with no requirement
+        about citations or linkage.
       correct: false
-      feedback: Length alone is not an acceptance criterion.
+      feedback: Formatting does not substitute for citations, architecture explanations,
+        and explicit links.
     explanation: The report needs a cited timeline, architecture explanations, explicit
       linkages, and a complete bibliography.
   - id: q3
     prompt: What are the three build passes before the peer-review packet?
     multiSelect: false
     options:
-    - id: a
-      label: Draft, print, and archive.
-      correct: false
-      feedback: Those are not the passes the lesson defines.
-    - id: b
-      label: Spelling, formatting, and publishing.
-      correct: false
-      feedback: The passes are structural, content, and citation.
     - id: c
       label: Structural, content, and citation passes, followed by the checkpoint
         checklist.
       correct: true
       feedback: Correct! Each pass targets a different class of defect.
+    - id: a
+      label: Draft, print, and archive, treating the report as finished once a physical
+        copy has been produced.
+      correct: false
+      feedback: Those are distribution steps, not the quality passes the lesson defines.
+    - id: b
+      label: Spelling, formatting, and publishing, applied in sequence once the content
+        is considered complete.
+      correct: false
+      feedback: Surface passes miss the structural and citation work the peer-review
+        packet depends on.
     explanation: Complete the structural, content, and citation passes, run the checkpoint
       checklist, then prepare the peer-review packet.
