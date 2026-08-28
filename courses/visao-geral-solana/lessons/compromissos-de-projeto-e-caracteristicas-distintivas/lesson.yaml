@@ -20,14 +20,14 @@ blocks:
     prompt: "Qual trade-off a lição associa ao sequenciamento pelo líder combinado com execução paralela?"
     multiSelect: false
     options:
-    - id: a
-      label: "Aumentam o throughput, mas restringem a diversidade de validators."
-      correct: true
-      feedback: "Correto! É o trade-off central entre escalabilidade e descentralização discutido."
     - id: b
       label: "Reduzem o throughput, mas ampliam a diversidade de validators."
       correct: false
       feedback: "O efeito descrito é o oposto: mais throughput, menos diversidade."
+    - id: a
+      label: "Aumentam o throughput, mas restringem a diversidade de validators."
+      correct: true
+      feedback: "Correto! É o trade-off central entre escalabilidade e descentralização discutido."
     - id: c
       label: "Não afetam nem o throughput nem a diversidade de validators."
       correct: false

@@ -142,6 +142,6 @@ Um lançamento ou evento observável — como o lançamento de uma testnet, rela
 
 ## Referências & Leitura Complementar
 
-- [Solana: A New Architecture for a High Performance Blockchain (visão técnica)](https://solana.com/solana-whitepaper) — *Solana Foundation (blog técnico)* (Fontes Primárias)
-- [Verifiable Delay Functions and Time in Distributed Systems](https://example.org/verifiable-delay-functions-paper) — *Artigo acadêmico / notas técnicas* (Contexto Técnico)
-- [Solana Testnet Launch Announcements and Performance Benchmarks](https://solana.com/announcements/testnet-launch) — *Notas de release oficiais e posts de blog* (Ecossistema e Marcos)
+- [Solana: A New Architecture for a High Performance Blockchain (visão técnica)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Fontes Primárias)
+- [Verifiable Delay Functions (Boneh, Bonneau, Bünz, Fisch)](https://eprint.iacr.org/2018/601) — *IACR ePrint Archive* (Artigo Acadêmico)
+- [Notícias e Anúncios Oficiais da Solana](https://solana.com/news) — *Solana News* (Anúncios oficiais)

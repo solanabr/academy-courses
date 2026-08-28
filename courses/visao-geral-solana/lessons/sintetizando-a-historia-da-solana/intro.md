@@ -147,8 +147,8 @@ Uma anotação compacta para um marco que lista a fonte primária mais forte e q
 
 ## Referências & Leitura Complementar
 
-- [Solana: Uma nova arquitetura para blockchains de alto desempenho (whitepaper)](https://arxiv.org/abs/1803.09334) — *Solana Labs / arXiv* (Fonte Técnica Primária)
-- [Documentação da Solana — Introdução e Conceitos Principais](https://docs.solana.com/introduction) — *Solana Docs* (Documentação Oficial)
-- [Blog e Notas de Lançamento da Solana](https://solana.com/blog) — *Solana Blog* (Blog Oficial / Notas de Lançamento)
-- [Uma visão técnica da arquitetura da Solana e escolhas de escalabilidade](https://medium.com/@solana-labs/technical-overview) — *Análise técnica independente* (Análise Técnica)
-- [Histórico do Projeto Solana e Principais Lançamentos](https://docs.solana.com/cluster/release-notes) — *Documentação da Solana / Lançamentos* (Linha do Tempo Histórica)
+- [Solana: Uma nova arquitetura para blockchains de alto desempenho (whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Fonte Primária)
+- [Documentação da Solana — Introdução e Conceitos Principais](https://solana.com/docs) — *Solana Docs* (Documentação Oficial)
+- [Blog e Notas de Lançamento da Solana](https://solana.com/news) — *Solana Blog* (Blog Oficial / Notas de Lançamento)
+- [Solana Labs no Medium — publicações técnicas](https://medium.com/solana-labs) — *Solana Labs* (Publicações Técnicas)
+- [Releases do Agave (histórico de lançamentos)](https://github.com/anza-xyz/agave/releases) — *Anza / GitHub* (Linha do Tempo de Releases)

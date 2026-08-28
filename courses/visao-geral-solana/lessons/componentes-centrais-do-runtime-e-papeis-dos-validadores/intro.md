@@ -143,7 +143,7 @@ Um componente que gerencia o comportamento de votação e lockouts para ajudar v
 
 ## Referências & Leitura Complementar
 
-- [Visão Geral da Arquitetura da Solana](https://docs.solana.com/cluster/architecture) — *Documentação Solana* (Arquitetura Central)
-- [Operando um Validador](https://docs.solana.com/running-validator) — *Documentação Solana* (Validadores e Operações)
-- [Programas e o Runtime BPF](https://docs.solana.com/developing/on-chain-programs/overview) — *Documentação Solana* (Runtime e Execução)
-- [Snapshots e Ledger](https://docs.solana.com/cluster/snapshots) — *Documentação Solana* (Estado e Armazenamento)
+- [Arquitetura do Validador Agave](https://docs.anza.xyz/architecture) — *Agave / Anza Docs* (Arquitetura Central)
+- [Operando um Validador](https://docs.anza.xyz/operations) — *Documentação Solana* (Validadores e Operações)
+- [Programas e o Runtime BPF](https://solana.com/docs/core/programs) — *Documentação Solana* (Runtime e Execução)
+- [Blockstore: Armazenamento do Ledger](https://docs.anza.xyz/validator/blockstore) — *Agave / Anza Docs* (Estado e Armazenamento)

@@ -147,7 +147,7 @@ A frequência e velocidade das mudanças no protocolo; cadência rápida aumenta
 
 ## Referências & Leitura Complementar
 
-- [Solana: Uma nova arquitetura para blockchains de alto desempenho (whitepaper)](https://solana.com/solana-whitepaper) — *Solana Labs* (Fonte Primária)
-- [Documentação Solana: Arquitetura do Cluster e Operação de Validadores](https://docs.solana.com/cluster/overview) — *Documentação Solana* (Documentação Técnica)
-- [Lições Operacionais a partir de Falhas em Blockchains (análise técnica)](https://engineering.example.com/blockchain-outages-analysis) — *Análise de engenharia independente* (Postmortem & Análise)
+- [Solana: Uma nova arquitetura para blockchains de alto desempenho (whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Fonte Primária)
+- [Documentação Solana: Arquitetura do Cluster e Operação de Validadores](https://docs.anza.xyz/clusters) — *Documentação Solana* (Documentação Técnica)
+- [Boas Práticas de Monitoramento de Validadores](https://docs.anza.xyz/operations/best-practices/monitoring) — *Agave / Anza Docs* (Operações)
 - [Bitcoin: Um Sistema de Dinheiro Eletrônico Peer-to-Peer](https://bitcoin.org/bitcoin.pdf) — *Satoshi Nakamoto* (Contexto Comparativo)

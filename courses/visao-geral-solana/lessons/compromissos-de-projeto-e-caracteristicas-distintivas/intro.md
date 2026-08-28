@@ -164,6 +164,6 @@ A latência em percentis altos experimentada pelas transações mais lentas; fre
 ## Referências & Leitura Complementar
 
 - [Solana: A New Architecture for a High Performance Blockchain (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Arquitetura & Design)
-- [Sealevel: Solana's Parallel Smart Contract Runtime](https://docs.solana.com/developing/runtime/overview) — *Solana Docs* (Runtime & Execução Paralela)
-- [Validator Hardware & Performance Recommendations](https://docs.solana.com/running-validator/validator-reqs) — *Solana Docs* (Orientação Operacional)
-- [Tower BFT: Solana's Consensus Mechanism Overview](https://docs.solana.com/cluster/consensus) — *Solana Docs* (Consenso e Finalização)
+- [O Runtime da Solana no Validador](https://docs.anza.xyz/validator/runtime) — *Agave / Anza Docs* (Runtime & Execução Paralela)
+- [Validator Hardware & Performance Recommendations](https://docs.anza.xyz/operations/requirements) — *Solana Docs* (Orientação Operacional)
+- [Consenso e Geração de Forks na Solana](https://docs.anza.xyz/consensus/fork-generation) — *Agave / Anza Docs* (Consenso e Finalização)

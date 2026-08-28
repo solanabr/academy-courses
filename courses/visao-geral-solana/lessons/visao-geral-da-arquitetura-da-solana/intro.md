@@ -150,6 +150,6 @@ O ponto em que os efeitos de uma transação são considerados estáveis e segur
 ## Referências & Leitura Complementar
 
 - [Solana: Um Protocolo para uma Nova Era de Escalabilidade em Blockchain (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Design de Protocolo)
-- [Visão geral da arquitetura Solana](https://docs.solana.com/cluster/overview) — *Documentação Solana* (Visão Geral da Arquitetura)
-- [Sealevel: Runtime paralelo de smart contracts da Solana (Notas Técnicas)](https://docs.solana.com/developing/runtime) — *Solana Labs* (Runtime e Execução)
+- [Visão geral da arquitetura Solana](https://docs.anza.xyz/clusters) — *Documentação Solana* (Visão Geral da Arquitetura)
+- [O Runtime da Solana no Validador (Notas Técnicas)](https://docs.anza.xyz/validator/runtime) — *Agave / Anza Docs* (Runtime e Execução)
 - [Padrões de design para propagação de blocos de alto desempenho](https://medium.com/solana-labs) — *Blog de Engenharia da Solana* (Rede e Propagação)

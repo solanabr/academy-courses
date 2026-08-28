@@ -37,10 +37,6 @@ blocks:
     prompt: "Quais componentes a lição pede que sejam resumidos em uma tabela de responsabilidades e implicações?"
     multiSelect: false
     options:
-    - id: a
-      label: "PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
-      correct: true
-      feedback: "Correto! São os componentes-chave listados para a tabela do relatório."
     - id: b
       label: "HTTP, TCP, DNS e TLS."
       correct: false
@@ -49,15 +45,15 @@ blocks:
       label: "SQL, Redis, Kafka e Nginx."
       correct: false
       feedback: "Esses componentes não fazem parte da arquitetura discutida."
+    - id: a
+      label: "PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
+      correct: true
+      feedback: "Correto! São os componentes-chave listados para a tabela do relatório."
     explanation: "A tabela cobre PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
   - id: q3
     prompt: "Que tipo de evidência a lição recomenda coletar via RPC para sustentar as afirmações do relatório?"
     multiSelect: false
     options:
-    - id: a
-      label: "Pequenas sondagens somente leitura, registradas como evidência datada."
-      correct: true
-      feedback: "Correto! São leituras pontuais e datadas, sem efeito sobre a rede."
     - id: b
       label: "Transações de escrita que alterem o estado de contas de teste."
       correct: false
@@ -66,4 +62,8 @@ blocks:
       label: "Capturas de tela de redes sociais dos fundadores."
       correct: false
       feedback: "Esse não é o tipo de evidência técnica proposto."
+    - id: a
+      label: "Pequenas sondagens somente leitura, registradas como evidência datada."
+      correct: true
+      feedback: "Correto! São leituras pontuais e datadas, sem efeito sobre a rede."
     explanation: "Pequenas sondagens RPC somente leitura servem como evidência datada para o relatório."

@@ -37,10 +37,6 @@ blocks:
     prompt: "Quais objetivos arquitetônicos a lição aponta como guias das escolhas de design?"
     multiSelect: false
     options:
-    - id: a
-      label: "Vazão, latência, paralelismo e ordenação auditável."
-      correct: true
-      feedback: "Correto! São os quatro objetivos que orientam o design descrito."
     - id: b
       label: "Anonimato total, resistência a censura e emissão fixa de moeda."
       correct: false
@@ -49,6 +45,10 @@ blocks:
       label: "Compatibilidade retroativa com o Bitcoin e mineração por prova de trabalho."
       correct: false
       feedback: "A lição não apresenta esses itens como objetivos de design."
+    - id: a
+      label: "Vazão, latência, paralelismo e ordenação auditável."
+      correct: true
+      feedback: "Correto! São os quatro objetivos que orientam o design descrito."
     explanation: "Vazão, latência, paralelismo e ordenação auditável são os objetivos declarados."
   - id: q3
     prompt: "Qual é a implicação prática, para quem projeta transações e contas, do uso de execução paralela?"

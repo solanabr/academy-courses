@@ -20,10 +20,6 @@ blocks:
     prompt: "Segundo o mapeamento de componentes apresentado na lição, qual é a responsabilidade do gossip?"
     multiSelect: false
     options:
-    - id: a
-      label: "Membresia — manter a visão de quais nós participam da rede."
-      correct: true
-      feedback: "Correto! Gossip cuida de membresia, enquanto a propagação distribui payloads."
     - id: b
       label: "Armazenamento persistente do estado das contas."
       correct: false
@@ -32,19 +28,23 @@ blocks:
       label: "Execução determinística de programas."
       correct: false
       feedback: "Execução determinística é papel do runtime BPF."
+    - id: a
+      label: "Membresia — manter a visão de quais nós participam da rede."
+      correct: true
+      feedback: "Correto! Gossip cuida de membresia, enquanto a propagação distribui payloads."
     explanation: "No mapeamento da lição: gossip = membresia, propagação = payloads, accounts DB = estado, runtime BPF = execução, snapshotter = bootstrapping."
   - id: q2
     prompt: "Quais são as fases do ciclo de vida de um validador descritas na lição?"
     multiSelect: false
     options:
-    - id: a
-      label: "join/bootstrap, follower, leader e resync."
-      correct: true
-      feedback: "Correto! Cada fase enfatiza componentes diferentes do runtime."
     - id: b
       label: "compilação, auditoria, listagem e arquivamento."
       correct: false
       feedback: "Essas não são fases do ciclo de vida de um validador nesta lição."
+    - id: a
+      label: "join/bootstrap, follower, leader e resync."
+      correct: true
+      feedback: "Correto! Cada fase enfatiza componentes diferentes do runtime."
     - id: c
       label: "mineração, halving, fork e merge."
       correct: false

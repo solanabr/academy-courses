@@ -145,7 +145,7 @@ Matriz de Fontes: um resumo tabular que mapeia afirmações ou seções para sua
 ## Referências & Leitura Complementar
 
 - [Solana: Uma nova arquitetura para uma blockchain de alto desempenho (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Protocolo Principal)
-- [Documentação para Desenvolvedores Solana — solana-docs](https://docs.solana.com/) — *Solana Docs* (Documentação)
+- [Documentação para Desenvolvedores Solana — solana-docs](https://solana.com/docs) — *Solana Docs* (Documentação)
 - [Solana no GitHub — repositório principal e histórico de releases](https://github.com/solana-labs/solana) — *Solana on GitHub* (Repositório de Código)
 - [Releases e Changelog da Solana (notas de release selecionadas)](https://github.com/solana-labs/solana/releases) — *Solana Releases* (Anúncio Técnico)
-- [Propostas e Discussões de Governança da Solana](https://forums.solana.com/) — *Fóruns da Comunidade Solana / Governança* (Comunidade & Governança)
+- [Propostas e Discussões de Governança da Solana](https://forum.solana.com/) — *Fóruns da Comunidade Solana / Governança* (Comunidade & Governança)

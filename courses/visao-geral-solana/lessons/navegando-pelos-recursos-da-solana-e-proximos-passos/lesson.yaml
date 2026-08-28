@@ -54,10 +54,6 @@ blocks:
     prompt: "Qual é a finalidade de registrar linhas de comparação concisas para cada projeto?"
     multiSelect: false
     options:
-    - id: a
-      label: "Apoiar análises posteriores de incentivos e arquitetura."
-      correct: true
-      feedback: "Correto! As notas de comparação alimentam a análise seguinte."
     - id: b
       label: "Gerar automaticamente um relatório de auditoria de segurança."
       correct: false
@@ -66,4 +62,8 @@ blocks:
       label: "Substituir a leitura da documentação do projeto."
       correct: false
       feedback: "As notas complementam, não substituem, a leitura das fontes."
+    - id: a
+      label: "Apoiar análises posteriores de incentivos e arquitetura."
+      correct: true
+      feedback: "Correto! As notas de comparação alimentam a análise seguinte."
     explanation: "As linhas de comparação servem de base para análises de incentivos e arquitetura."

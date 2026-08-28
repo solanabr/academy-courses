@@ -141,8 +141,8 @@ Um período de tempo usado para organizar ativação/desativação de stake e a 
 
 ## Referências & Leitura Complementar
 
-- [Solana: A Technical Overview](https://docs.solana.com/cluster/overview) — *Documentação da Solana Labs* (Protocolo Central)
-- [Accounts and Programs](https://docs.solana.com/developing/programming-model/overview) — *Documentação de Desenvolvedores da Solana* (Documentação para Desenvolvedores)
-- [Validators and the Runtime](https://docs.solana.com/running-validator/validator-setup) — *Docs da Solana - Validators* (Conceitos Operacionais)
-- [Solana: High-performance Blockchain](https://arxiv.org/abs/2102.10050) — *arXiv / Whitepaper da Solana* (Artigo de Design)
-- [JSON-RPC API Reference](https://docs.solana.com/developing/clients/jsonrpc-api) — *Solana Labs* (Ferramentas do Ecossistema)
+- [Solana: A Technical Overview](https://docs.anza.xyz/clusters) — *Documentação da Solana Labs* (Protocolo Central)
+- [Accounts and Programs](https://solana.com/docs/core/programs) — *Documentação de Desenvolvedores da Solana* (Documentação para Desenvolvedores)
+- [Configurando um Validador Agave](https://docs.anza.xyz/operations/setup-a-validator) — *Agave / Anza Docs* (Conceitos Operacionais)
+- [Solana: A New Architecture for a High Performance Blockchain (whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Fonte Primária)
+- [JSON-RPC API Reference](https://solana.com/docs/rpc) — *Solana Labs* (Ferramentas do Ecossistema)

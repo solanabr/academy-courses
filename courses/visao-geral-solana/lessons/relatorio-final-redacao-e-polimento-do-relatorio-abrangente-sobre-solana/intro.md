@@ -154,6 +154,6 @@ Turbine / Gulf Stream / Sealevel: nomes de componentes de runtime e rede da Sola
 ## Referências & Leitura Complementar
 
 - [Solana: Uma nova arquitetura para uma blockchain de alto desempenho (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Fonte Primária)
-- [Arquitetura da Solana](https://docs.solana.com/architecture) — *Documentação Solana* (Documentação Oficial)
-- [Visão Geral do Cluster e Responsabilidades dos Validadores](https://docs.solana.com/cluster/overview) — *Documentação Solana* (Documentação Oficial)
-- [Solana: Notas de Design sobre Desempenho e Escalabilidade](https://solana.com/blog/solana-performance) — *Blog da Solana* (Blog de Engenharia)
+- [Arquitetura da Solana](https://docs.anza.xyz/architecture) — *Documentação Solana* (Documentação Oficial)
+- [Visão Geral do Cluster e Responsabilidades dos Validadores](https://docs.anza.xyz/clusters) — *Documentação Solana* (Documentação Oficial)
+- [Arquitetura do Validador Agave (notas de design)](https://docs.anza.xyz/architecture) — *Agave / Anza Docs* (Arquitetura)

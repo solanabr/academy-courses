@@ -147,7 +147,7 @@ Métricas de nível de sistema, como tempo de bloco, latência e taxas de erro, 
 ## Referências & Leitura Complementar
 
 - [Solana: Uma nova arquitetura para uma blockchain de alto desempenho (Whitepaper)](https://solana.com/solana-whitepaper.pdf) — *Solana Labs* (Técnico Primário)
-- [Documentação da Solana: Visão Geral da Rede e Lançamentos](https://docs.solana.com/introduction/overview) — *Solana Docs* (Documentação)
-- [Anúncio do Lançamento da Mainnet Beta da Solana](https://solana.com/news/solana-mainnet-beta-launch) — *Blog da Solana* (Anúncios)
+- [Documentação da Solana: Visão Geral](https://solana.com/docs) — *Solana Docs* (Documentação)
+- [Notícias e Anúncios Oficiais da Solana](https://solana.com/news) — *Solana News* (Anúncios)
 - [Registro do Ecossistema Solana e Integrações de Projetos](https://solana.com/ecosystem) — *Solana* (Ecossistema)
-- [Revisão Técnica e Padrões de Adoção Inicial](https://arxiv.org/abs/2011.09070) — *Análise Acadêmica / da Indústria* (Análise)
+- [Clusters da Solana: Devnet, Testnet e Mainnet Beta](https://docs.anza.xyz/clusters) — *Agave / Anza Docs* (Documentação Técnica)

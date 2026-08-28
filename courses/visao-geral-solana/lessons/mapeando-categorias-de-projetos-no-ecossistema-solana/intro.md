@@ -133,7 +133,7 @@ Uma account padronizada para guardar SPL tokens vinculada a um endereço de wall
 
 ## Referências & Leitura Complementar
 
-- [Documentação do desenvolvedor Solana: Programs](https://docs.solana.com/developing/programs/overview) — *Solana Labs* (Documentação Oficial)
-- [Padrão SPL Token (spl-token)](https://spl.solana.com/token) — *Solana Labs* (Padrões de Token)
+- [Documentação do desenvolvedor Solana: Programs](https://solana.com/docs/core/programs) — *Solana Docs* (Documentação Oficial)
+- [Padrão SPL Token (spl-token)](https://www.solana-program.com/docs/token) — *Solana Labs* (Padrões de Token)
 - [Solana Explorer: Busca de Programas e Transações](https://explorer.solana.com) — *Solana Explorer* (Exploradores e Ferramentas)
-- [Executando um nó RPC e melhores práticas](https://docs.solana.com/running-validator/validator-operations) — *Documentação Solana Labs* (Guias de Infraestrutura)
+- [Operando um Validador (guias e melhores práticas)](https://docs.anza.xyz/operations) — *Agave / Anza Docs* (Guias de Infraestrutura)

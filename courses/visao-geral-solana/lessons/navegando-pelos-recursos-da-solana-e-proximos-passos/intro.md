@@ -141,8 +141,8 @@ Uma das categorias de recursos (documentação, repositório, on-chain, comunida
 
 ## Referências & Leitura Complementar
 
-- [Documentação Solana — Conceitos Centrais e RPC](https://docs.solana.com/) — *Solana Docs* (Documentação Oficial)
+- [Documentação Solana — Conceitos Centrais e RPC](https://solana.com/docs) — *Solana Docs* (Documentação Oficial)
 - [solana-labs/solana — Repositório no GitHub](https://github.com/solana-labs/solana) — *GitHub* (Repositórios de Desenvolvedores)
-- [Anchor Book — Um Framework para Programas Solana](https://book.anchor-lang.com/) — *Anchor* (Documentação do Framework)
+- [Anchor Book — Um Framework para Programas Solana](https://www.anchor-lang.com/docs) — *Anchor* (Documentação do Framework)
 - [Solana Explorer — Inspecionar Transações e Atividade de Programas](https://explorer.solana.com/) — *Solana Explorer* (Referência On-chain)
-- [Programa SPL Token](https://spl.solana.com/token) — *SPL* (Padrões de Token)
+- [Programa SPL Token](https://www.solana-program.com/docs/token) — *SPL* (Padrões de Token)

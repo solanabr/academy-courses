@@ -137,7 +137,7 @@ O processo de identificar transações que não podem ambas ter sucesso porque e
 
 ## Referências & Leitura Complementar
 
-- [Solana: Visão Técnica e Arquitetura](https://docs.solana.com/introduction) — *Documentação Solana* (Especificação do Protocolo)
-- [Processamento de Transações e Runtime: Como as Transações São Processadas](https://docs.solana.com/developing/clients/jsonrpc-api#transaction-status) — *Solana Docs - Transactions* (Runtime & Processamento de Transações)
-- [Escala de Leaders e Mecanismos de Votação](https://docs.solana.com/cluster/overview#leader-schedule) — *Recursos para Desenvolvedores Solana* (Escalonamento de Leader e Consenso)
-- [Usando Métodos RPC para Rastrear o Ciclo de Vida da Transação](https://docs.solana.com/developing/clients/jsonrpc-api) — *Guia da API RPC Solana* (Depuração Prática)
+- [Solana: Visão Técnica e Arquitetura](https://solana.com/docs) — *Documentação Solana* (Especificação do Protocolo)
+- [Processamento de Transações e Runtime: Como as Transações São Processadas](https://solana.com/docs/rpc) — *Solana Docs - Transactions* (Runtime & Processamento de Transações)
+- [Escala de Leaders e Mecanismos de Votação](https://docs.anza.xyz/consensus/leader-rotation) — *Recursos para Desenvolvedores Solana* (Escalonamento de Leader e Consenso)
+- [Usando Métodos RPC para Rastrear o Ciclo de Vida da Transação](https://solana.com/docs/rpc) — *Guia da API RPC Solana* (Depuração Prática)

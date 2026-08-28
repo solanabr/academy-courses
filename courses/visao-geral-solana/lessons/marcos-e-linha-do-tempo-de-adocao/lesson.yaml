@@ -76,12 +76,6 @@ blocks:
       funcionais' em vez de simples datas cronológicas?
     multiSelect: false
     options:
-    - id: a
-      label: Porque cada marco exercita um mecanismo técnico específico e gera indicadores
-        mensuráveis no comportamento e na adoção da rede.
-      correct: true
-      feedback: Perfeito! Avaliar marcos como transições funcionais permite associar
-        melhorias técnicas a mudanças reais em métricas de rede e adesão de desenvolvedores.
     - id: b
       label: Porque os marcos devem ser tratados apenas como datas de calendário,
         sem correlação com mecanismos técnicos ou métricas.
@@ -94,6 +88,12 @@ blocks:
       correct: false
       feedback: Os marcos marcam transições e aberturas para novas fases de capacidade
         e adoção, e não o encerramento do desenvolvimento.
+    - id: a
+      label: Porque cada marco exercita um mecanismo técnico específico e gera indicadores
+        mensuráveis no comportamento e na adoção da rede.
+      correct: true
+      feedback: Perfeito! Avaliar marcos como transições funcionais permite associar
+        melhorias técnicas a mudanças reais em métricas de rede e adesão de desenvolvedores.
     explanation: 'Tratar marcos como transições funcionais transforma a cronologia
       em um modelo prático de análise: cada lançamento técnico é vinculado ao mecanismo
       exercitado e ao sinal de adoção gerado.'

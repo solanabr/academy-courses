@@ -37,14 +37,14 @@ blocks:
     prompt: "Como a lição sugere classificar um projeto a partir de sua documentação?"
     multiSelect: false
     options:
-    - id: a
-      label: "Pelo que a documentação enfatiza: program IDs indicam protocolo, métricas RPC indicam infraestrutura e fluxos de assinatura indicam wallets/clients."
-      correct: true
-      feedback: "Correto! A ênfase da documentação revela a categoria do projeto."
     - id: b
       label: "Pela ordem alfabética do nome do projeto."
       correct: false
       feedback: "A lição propõe um critério funcional, não alfabético."
+    - id: a
+      label: "Pelo que a documentação enfatiza: program IDs indicam protocolo, métricas RPC indicam infraestrutura e fluxos de assinatura indicam wallets/clients."
+      correct: true
+      feedback: "Correto! A ênfase da documentação revela a categoria do projeto."
     - id: c
       label: "Pelo número de seguidores em redes sociais."
       correct: false
@@ -54,10 +54,6 @@ blocks:
     prompt: "Na metáfora da cidade usada na lição, a que correspondem os indexers?"
     multiSelect: false
     options:
-    - id: a
-      label: "Bibliotecas."
-      correct: true
-      feedback: "Correto! Validators são utilities, indexers são bibliotecas, programs são fábricas e wallets são casas."
     - id: b
       label: "Fábricas."
       correct: false
@@ -66,4 +62,8 @@ blocks:
       label: "Utilities."
       correct: false
       feedback: "Utilities correspondem aos validators."
+    - id: a
+      label: "Bibliotecas."
+      correct: true
+      feedback: "Correto! Validators são utilities, indexers são bibliotecas, programs são fábricas e wallets são casas."
     explanation: "Na metáfora: validators = utilities, indexers = bibliotecas, programs = fábricas, wallets = casas."

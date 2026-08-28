@@ -37,14 +37,14 @@ blocks:
     prompt: "Quais são os critérios de aceitação do relatório final?"
     multiSelect: false
     options:
-    - id: a
-      label: "Linha do tempo com citações, explicações arquiteturais, ligações explícitas entre elas e bibliografia completa."
-      correct: true
-      feedback: "Correto! São os quatro critérios de aceitação declarados."
     - id: b
       label: "Apenas um limite máximo de páginas e uma capa formatada."
       correct: false
       feedback: "Os critérios são de conteúdo e evidência, não de formatação de capa."
+    - id: a
+      label: "Linha do tempo com citações, explicações arquiteturais, ligações explícitas entre elas e bibliografia completa."
+      correct: true
+      feedback: "Correto! São os quatro critérios de aceitação declarados."
     - id: c
       label: "Somente a presença de imagens e diagramas coloridos."
       correct: false
@@ -54,10 +54,6 @@ blocks:
     prompt: "Quais são as passagens de construção previstas antes do pacote de revisão por pares?"
     multiSelect: false
     options:
-    - id: a
-      label: "Estrutural, de conteúdo e de citação."
-      correct: true
-      feedback: "Correto! Depois delas vem a lista de verificação do checkpoint."
     - id: b
       label: "Compilação, testes unitários e deploy."
       correct: false
@@ -66,4 +62,8 @@ blocks:
       label: "Tradução, diagramação e impressão."
       correct: false
       feedback: "Não são as passagens descritas na lição."
+    - id: a
+      label: "Estrutural, de conteúdo e de citação."
+      correct: true
+      feedback: "Correto! Depois delas vem a lista de verificação do checkpoint."
     explanation: "As passagens são estrutural, de conteúdo e de citação, seguidas do checkpoint e do pacote de revisão por pares."

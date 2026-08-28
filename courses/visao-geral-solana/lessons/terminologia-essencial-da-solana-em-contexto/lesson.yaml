@@ -20,10 +20,6 @@ blocks:
     prompt: "Segundo a lição, qual é a distinção entre validadores, nós e clientes?"
     multiSelect: false
     options:
-    - id: a
-      label: "Validadores são atores de consenso; nós são processos em execução e endpoints RPC; clientes são SDKs ou programas que submetem transações."
-      correct: true
-      feedback: "Correto! São três papéis distintos, frequentemente confundidos."
     - id: b
       label: "Validadores são SDKs; nós são carteiras; clientes são mineradores."
       correct: false
@@ -32,6 +28,10 @@ blocks:
       label: "Os três termos designam exatamente a mesma entidade."
       correct: false
       feedback: "A lição distingue explicitamente os três papéis."
+    - id: a
+      label: "Validadores são atores de consenso; nós são processos em execução e endpoints RPC; clientes são SDKs ou programas que submetem transações."
+      correct: true
+      feedback: "Correto! São três papéis distintos, frequentemente confundidos."
     explanation: "Validadores participam do consenso, nós são processos e endpoints RPC, clientes submetem transações."
   - id: q2
     prompt: "O que uma transação declara, conforme a lição?"
@@ -54,14 +54,14 @@ blocks:
     prompt: "O que são lamports segundo a lição?"
     multiSelect: false
     options:
-    - id: a
-      label: "A menor unidade nativa, que aparece em taxas, aluguel e diferenças de saldo das contas."
-      correct: true
-      feedback: "Correto! Por isso lamports surgem nas saídas de transação e nos saldos pré/pós."
     - id: b
       label: "Um formato de arquivo usado para exportar logs de programa."
       correct: false
       feedback: "Lamports são unidade de valor, não formato de arquivo."
+    - id: a
+      label: "A menor unidade nativa, que aparece em taxas, aluguel e diferenças de saldo das contas."
+      correct: true
+      feedback: "Correto! Por isso lamports surgem nas saídas de transação e nos saldos pré/pós."
     - id: c
       label: "O nome do explorador oficial de blocos da rede."
       correct: false

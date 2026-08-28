@@ -205,7 +205,7 @@ Condições concretas e testáveis que devem ser atendidas antes que uma correç
 
 ## Referências & Leitura Complementar
 
-- [Operação e Manutenção de Validator](https://docs.solana.com/running-validator) — *Documentação Solana* (Documentação Oficial)
+- [Operação e Manutenção de Validator](https://docs.anza.xyz/operations) — *Documentação Solana* (Documentação Oficial)
 - [Solana Status - Histórico de Incidentes](https://status.solana.com/) — *Status da Solana* (Status e Incidentes)
-- [Interrupção da Rede Solana: Discussão de Engenharia e Resposta (análise)](https://www.coindesk.com/markets/2021/09/15/solana-network-outage-explained/) — *CoinDesk* (Relatórios Postmortem)
+- [Reinício de Cluster: Procedimento Oficial de Resposta](https://docs.anza.xyz/operations/guides/restart-cluster) — *Agave / Anza Docs* (Resposta a Incidentes)
 - [GitHub - solana: PRs e issues de exemplo (arquivo pesquisável)](https://github.com/solana-labs/solana/issues) — *GitHub - solana-labs* (Código-Fonte e Correções)

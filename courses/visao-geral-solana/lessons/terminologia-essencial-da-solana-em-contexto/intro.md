@@ -143,8 +143,8 @@ Um serviço web que indexa blocos e transações e exibe assinaturas, status, ta
 
 ## Referências & Leitura Complementar
 
-- [Documentação Solana: Conceitos Fundamentais](https://docs.solana.com/introduction) — *Solana Foundation* (Documentação Principal)
-- [Referência da API JSON RPC da Solana](https://docs.solana.com/developing/clients/jsonrpc-api) — *Solana Labs* (Referência do Desenvolvedor)
-- [Programa SPL Token](https://spl.solana.com/token) — *Solana Program Library* (Padrões de Token)
-- [Entendendo Transações no Explorer da Solana](https://explorer.solana.com/faq) — *Solana Explorer Docs* (Exploradores e Ferramentas)
-- [Contas e Estado na Solana](https://docs.solana.com/developing/programming-model/accounts) — *Solana Documentation* (Runtime e Contas)
+- [Documentação Solana: Conceitos Fundamentais](https://solana.com/docs) — *Solana Foundation* (Documentação Principal)
+- [Referência da API JSON RPC da Solana](https://solana.com/docs/rpc) — *Solana Labs* (Referência do Desenvolvedor)
+- [Programa SPL Token](https://www.solana-program.com/docs/token) — *Solana Program Library* (Padrões de Token)
+- [Solana Explorer](https://explorer.solana.com/) — *Solana Explorer* (Exploradores e Ferramentas)
+- [Contas e Estado na Solana](https://solana.com/docs/core/accounts) — *Solana Documentation* (Runtime e Contas)
