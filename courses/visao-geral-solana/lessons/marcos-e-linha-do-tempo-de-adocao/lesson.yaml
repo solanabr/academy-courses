@@ -30,17 +30,18 @@ blocks:
         tráfego pesado, a rede consolida suas primitivas de consenso antes de abrir
         para o ecossistema.
     - id: b
-      label: A rede deve ser entendida como uma implantação única e instantânea, sem
-        fases de testes ou expansões graduais.
+      label: A rede é implantada de uma só vez, em um único evento público que já
+        entrega consenso, runtime e capacidade final, sem testnets nem expansões posteriores.
       correct: false
-      feedback: A lição enfatiza que o ciclo de vida da rede é progressivo e dividido
-        em fases interdependentes de construção e teste.
+      feedback: A lição descreve fases sucessivas — fundação, testes sob estresse,
+        abertura pública e expansão —, não um evento único.
     - id: c
-      label: A rede deve manter apenas a fase de fundação inicial, sem avançar para
-        abertura pública ou testes sob estresse.
+      label: A rede permanece indefinidamente na fase de fundação, aperfeiçoando consenso
+        e runtime em ambiente fechado, sem jamais abrir para uso público ou testes
+        sob carga real.
       correct: false
-      feedback: A metáfora da ponte ilustra a necessidade de progredir desde a fundação
-        até a capacidade plena para suportar o tráfego do ecossistema.
+      feedback: A analogia da ponte inclui explicitamente a abertura pública e a expansão
+        de capacidade como fases seguintes.
     explanation: A analogia da ponte explica que a rede precisa primeiro de suportes
       fundamentais sólidos (consenso e runtime), seguidos de testes de estresse em
       testnet, abertura controlada e expansão contínua.

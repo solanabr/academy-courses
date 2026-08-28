@@ -77,17 +77,19 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: O Bitcoin prioriza vazão contínua em tempo real, enquanto a Solana prioriza
-        blocos discretos com intervalos espaçados.
+      label: O Bitcoin prioriza vazão contínua em tempo real e execução paralela,
+        enquanto a Solana prioriza blocos discretos com intervalos espaçados para
+        reduzir requisitos de hardware.
       correct: false
-      feedback: 'É o inverso: o Bitcoin utiliza blocos discretos espaçados, enquanto
-        a Solana integra a ordenação baseada em tempo contínuo.'
+      feedback: 'Invertido: são as bases do Bitcoin que assumem blocos discretos e
+        hardware modesto; a vazão contínua é a prioridade da Solana.'
     - id: c
       label: 'Não há distinção de prioridade: ambas compartilham as mesmas metas de
-        vazão, latência e requisitos de hardware.'
+        vazão, latência e requisitos de hardware, diferindo apenas na função de hash
+        usada no consenso.'
       correct: false
-      feedback: A lição estabelece que as duas redes adotaram trade-offs e prioridades
-        fundamentais distintos.
+      feedback: A lição contrasta prioridades de projeto opostas; a diferença não
+        se reduz à escolha de função de hash.
     - id: a
       label: O Bitcoin prioriza validação com requisitos mínimos de hardware e blocos
         discretos; a Solana prioriza alta vazão e baixa latência integrando tempo

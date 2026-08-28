@@ -90,7 +90,7 @@ Agora você deve ter um mapa mental claro do ecossistema Solana: uma pilha em ca
 
 Três princípios práticos para lembrar: 1) projete o layout de contas intencionalmente porque contas são o único armazenamento persistente e o rent importa para dados de longa duração; 2) minimize contenção de contas mutáveis para preservar execução paralela e reduzir latência; 3) mapeie pontos de contato do desenvolvedor para responsabilidades da infraestrutura para que você possa escolher serviços apropriados (por exemplo, selecionar indexadores para consultas históricas ou decidir se deve rodar um RPC). Esses princípios traduzem a terminologia em escolhas acionáveis que você utilizará nas lições seguintes.
 
-Esta lição estabelece o vocabulário e os padrões básicos de raciocínio necessários. A próxima lição — Key Solana Terminology in Context — colocará esses termos em exemplos concretos e rastros de transações para que você os veja usados em transações reais e arquiteturas de projeto. Com o vocabulário compartilhado estabelecido aqui, você poderá acompanhar esses exemplos contextualizados com menos atrito e fazer perguntas mais precisas sobre tradeoffs de design e técnicas de implementação.
+Esta lição estabelece o vocabulário e os padrões básicos de raciocínio necessários. A próxima lição — Terminologia Essencial da Solana em Contexto — colocará esses termos em exemplos concretos e rastros de transações para que você os veja usados em transações reais e arquiteturas de projeto. Com o vocabulário compartilhado estabelecido aqui, você poderá acompanhar esses exemplos contextualizados com menos atrito e fazer perguntas mais precisas sobre tradeoffs de design e técnicas de implementação.
 
 ## Recapitulação Rápida
 
@@ -101,7 +101,7 @@ Esta lição estabelece o vocabulário e os padrões básicos de raciocínio nec
 
 ## Próximos Passos
 
-Prossiga para a próxima lição, "Key Solana Terminology in Context", onde colocaremos o vocabulário desta lição em rastros de transações concretos e em pequenos exemplos de código para que você veja os termos aplicados de ponta a ponta. À medida que avançar, esteja preparado para identificar as contas, programas e interações RPC em uma transação de exemplo e traçar como o estado muda ao longo dos blocos.
+Prossiga para a próxima lição, "Terminologia Essencial da Solana em Contexto", onde colocaremos o vocabulário desta lição em rastros de transações concretos e em pequenos exemplos de código para que você veja os termos aplicados de ponta a ponta. À medida que avançar, esteja preparado para identificar as contas, programas e interações RPC em uma transação de exemplo e traçar como o estado muda ao longo dos blocos.
 
 Antes da próxima lição, revise suas anotações sobre o modelo conta-programa e pense em um fluxo on-chain simples que você queira mapear (por exemplo: transferência de token, listagem em marketplace, fechamento de escrow). Ter um fluxo concreto em mente tornará os exemplos contextualizados seguintes mais fáceis de acompanhar.
 

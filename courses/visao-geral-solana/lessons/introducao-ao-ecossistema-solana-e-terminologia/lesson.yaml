@@ -3,6 +3,7 @@ slug: introducao-ao-ecossistema-solana-e-terminologia
 title: "Introdução ao Ecossistema Solana e Terminologia"
 skills:
 - solana-fundamentals
+- account-model
 blocks:
 - key: header
   type: prose
@@ -21,17 +22,17 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Carteiras na base, consenso no meio e programas nas bordas."
+      label: "Carteiras e SDKs na base, consenso e validadores no meio, runtime e programas nas bordas do ecossistema."
       correct: false
-      feedback: "As carteiras são pontos de contato do desenvolvedor, não a camada base."
+      feedback: "As camadas estão invertidas: consenso e validadores sustentam o ecossistema, e as ferramentas ficam nas bordas."
     - id: a
       label: "Consenso e validadores na base, runtime e programas no meio, serviços para desenvolvedores nas bordas."
       correct: true
       feedback: "Correto! É exatamente a estratificação apresentada."
     - id: c
-      label: "Indexadores na base, contas no meio e validadores nas bordas."
+      label: "Uma camada única e plana, em que indexadores, contas, validadores e carteiras são componentes intercambiáveis."
       correct: false
-      feedback: "Validadores e consenso formam a base, não as bordas."
+      feedback: "A lição descreve camadas com papéis distintos, não componentes intercambiáveis."
     explanation: "O ecossistema é em camadas: consenso e validadores na base, runtime e programas no meio e serviços de desenvolvedor nas bordas."
   - id: q2
     prompt: "Qual é a distinção entre programas e contas apresentada na lição?"

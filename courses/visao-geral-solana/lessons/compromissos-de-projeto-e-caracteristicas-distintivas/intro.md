@@ -66,7 +66,8 @@ Cada estágio depende das suposições de hardware e software anteriores. Por ex
 
 O código abaixo é um pequeno esboço simplificado do tipo Rust que modela execução paralela através de um pool de threads de trabalho. Foca no travamento em nível de conta e em como conflitos causam retries. Você usará esse trecho para raciocinar concretamente por que escalonamento determinístico, travas finas e acesso rápido à memória importam para o throughput.
 
-`// Pseudo-código simplificado para execução paralela de transações
+```rust
+// Pseudo-código simplificado para execução paralela de transações
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -97,7 +98,7 @@ fn execute_transactions_parallel(mut txs: Vec<Transaction>, accounts: Arc<Mutex<
 
  for t in pool { let _ = t.join(); }
 }
-`
+```
 Explicação linha a linha e por blocos:
 
 - Import e tipos: o trecho usa primitivos de sincronização de memória compartilhada. No runtime real, as travas são mais finas e evitam um único `Mutex` global; este exemplo mostra intencionalmente o custo quando as travas são grosseiras.
@@ -131,23 +132,23 @@ Prepare uma síntese curta: liste três trade-offs arquiteturais que você consi
 
 ## Glossário
 
-### Throughput
+### Vazão (throughput)
 
 Número de transações processadas por unidade de tempo; orienta escolhas sobre batching, paralelismo e capacidade de rede.
 
-### Latency
+### Latência
 
 Tempo desde a submissão da transação até a confirmação; a latência de cauda é especialmente sensível a IO e jitter de rede.
 
-### Leader Sequencing
+### Sequenciamento pelo Líder (leader sequencing)
 
 O papel de um nó líder em ordenar transações antes da execução; reduz a coordenação entre nós ao custo de centralizar a responsabilidade de ordenação.
 
-### Fine-grained Locking
+### Travas Finas (fine-grained locking)
 
 Estratégia de travamento que mira contas individuais ou pequenas unidades de estado para permitir execução concorrente de transações não conflitantes.
 
-### Deterministic Scheduling
+### Escalonamento Determinístico
 
 Política do runtime que impõe uma ordem repetível de operações para evitar mudanças de estado não determinísticas entre validators.
 
@@ -155,7 +156,7 @@ Política do runtime que impõe uma ordem repetível de operações para evitar 
 
 Quando um estágio do pipeline desacelera devido a limites de recursos, fazendo filas a montante crescerem e aumentando latência ou abortos.
 
-### Tail Latency
+### Latência de Cauda (tail latency)
 
 A latência em percentis altos experimentada pelas transações mais lentas; frequentemente revela contenção de recursos ou incompatibilidades de hardware.
 

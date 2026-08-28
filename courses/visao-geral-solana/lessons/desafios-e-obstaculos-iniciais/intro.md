@@ -40,7 +40,7 @@ Ao final desta lição você será capaz de:
 
 Quando problemas de estabilidade ocorrem em um validador em execução, engenheiros frequentemente começam extraindo eventos estruturados dos logs e buscando padrões como mensagens frequentes de "slot skipped", chamadas RPC falhas repetidas ou pausas de GC. O código abaixo é um exemplo compacto em Rust que analisa um log simplificado de validador, conta tipos de evento e sinaliza ocorrências incomumente frequentes de "slot skipped". Este é um diagnóstico pequeno que você pode adaptar para qualquer runtime que emita eventos com timestamp.
 
-```
+```rust
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -79,22 +79,17 @@ fn parse_event(line: &str) -> Option<String> {
 
 Explicação linha a linha:
 
-1. 
-`use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
+1. `use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
 
-2. 
-A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
+2. A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
 
-3. 
-`let mut counts: HashMap<String, usize> = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`.
+3. `let mut counts: HashMap<String, usize> = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`.
 
-Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
+   Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
 
-4. 
-A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
+4. A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
 
-5. 
-Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
+5. Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
 
 Por que isso importa: quando uma interrupção começa, saber quais tipos de eventos disparam ajuda a entender se você está olhando para quedas de rede, backpressure em RPC, panics do runtime ou pausas de garbage collection. Este código é intencionalmente pequeno: o primeiro passo prático em muitas respostas a incidentes é quantificar os sintomas antes de propor uma correção.
 
@@ -177,7 +172,7 @@ Prepare-se para ler a próxima lição, "Explicando os Mecanismos Centrais do Wh
 
 ## Glossário
 
-### Slot skipped
+### Slot ignorado (slot skipped)
 
 Um evento em que um líder ou validador agendado falha em produzir ou validar um bloco dentro da janela de tempo esperada, indicando problemas de liveness ou de agendamento.
 
@@ -185,19 +180,19 @@ Um evento em que um líder ou validador agendado falha em produzir ou validar um
 
 Um padrão defensivo que desacelera ou descarta requisições de entrada para prevenir esgotamento de recursos e preservar a estabilidade do sistema sob carga.
 
-### Token-bucket throttling
+### Limitação de taxa (token-bucket throttling)
 
 Uma técnica de rate-limiting que permite rajadas até uma capacidade e reabastece a uma taxa constante, usada para suavizar picos de requisições.
 
-### Canary rollout
+### Implantação canário (canary rollout)
 
 Uma estratégia de implantação em estágios que expõe uma mudança a um pequeno subconjunto de nós ou usuários para detectar regressões antes do rollout completo.
 
-### Triaging packet
+### Pacote de Triagem
 
 Uma coleção compacta de artefatos de diagnóstico (logs, métricas, topologia) montada rapidamente para classificar um incidente e guiar os respondedores.
 
-### Acceptance criteria
+### Critérios de Aceitação
 
 Condições concretas e testáveis que devem ser atendidas antes que uma correção seja considerada verificada e segura para implantar em toda a rede.
 

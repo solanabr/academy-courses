@@ -3,6 +3,7 @@ slug: terminologia-essencial-da-solana-em-contexto
 title: "Terminologia Essencial da Solana em Contexto"
 skills:
 - solana-fundamentals
+- transactions
 blocks:
 - key: header
   type: prose
@@ -21,13 +22,13 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Validadores são SDKs; nós são carteiras; clientes são mineradores."
+      label: "Validadores são SDKs de cliente; nós são carteiras de usuário; clientes são mineradores que produzem blocos."
       correct: false
-      feedback: "Nenhum desses papéis corresponde ao que a lição descreve."
+      feedback: "Cada papel está trocado: validadores participam do consenso e clientes apenas submetem transações."
     - id: c
-      label: "Os três termos designam exatamente a mesma entidade."
+      label: "Os três termos designam exatamente a mesma entidade: qualquer máquina que execute o software da rede Solana."
       correct: false
-      feedback: "A lição distingue explicitamente os três papéis."
+      feedback: "A lição separa explicitamente ator de consenso, processo em execução e software que submete transações."
     - id: a
       label: "Validadores são atores de consenso; nós são processos em execução e endpoints RPC; clientes são SDKs ou programas que submetem transações."
       correct: true
@@ -55,15 +56,15 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Um formato de arquivo usado para exportar logs de programa."
+      label: "Um formato de arquivo usado para exportar os logs de execução de um programa on-chain."
       correct: false
-      feedback: "Lamports são unidade de valor, não formato de arquivo."
+      feedback: "Logs de programa são texto retornado pelo runtime; lamport é unidade de valor, não formato de arquivo."
     - id: a
       label: "A menor unidade nativa, que aparece em taxas, aluguel e diferenças de saldo das contas."
       correct: true
       feedback: "Correto! Por isso lamports surgem nas saídas de transação e nos saldos pré/pós."
     - id: c
-      label: "O nome do explorador oficial de blocos da rede."
+      label: "O nome do explorador oficial de blocos usado para inspecionar transações da rede."
       correct: false
-      feedback: "Lamports não designam um explorador."
+      feedback: "Exploradores são interfaces de leitura; lamport é a menor unidade nativa de valor."
     explanation: "Lamports são a menor unidade nativa e aparecem em taxas, aluguel e diferenças de saldo."

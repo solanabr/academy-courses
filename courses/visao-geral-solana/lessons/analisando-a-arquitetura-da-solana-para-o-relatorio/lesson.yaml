@@ -3,6 +3,7 @@ slug: analisando-a-arquitetura-da-solana-para-o-relatorio
 title: "Analisando a Arquitetura da Solana para o Relatório"
 skills:
 - solana-fundamentals
+- rpc-reads
 blocks:
 - key: header
   type: prose
@@ -38,17 +39,17 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "HTTP, TCP, DNS e TLS."
+      label: "Carteiras, exploradores e indexadores, por serem os pontos de contato visíveis do usuário."
       correct: false
-      feedback: "Esses são protocolos de rede genéricos, não os componentes da lição."
+      feedback: "Esses são serviços de ecossistema, e não componentes centrais da arquitetura do protocolo."
     - id: c
-      label: "SQL, Redis, Kafka e Nginx."
+      label: "Apenas o PoH, tratando Turbine, Gulf Stream, Sealevel e Tower BFT como detalhes de implementação."
       correct: false
-      feedback: "Esses componentes não fazem parte da arquitetura discutida."
+      feedback: "A lição pede a tabela completa: cada componente carrega uma implicação distinta para o relatório."
     - id: a
-      label: "PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
+      label: "PoH, Turbine, Gulf Stream, Sealevel e Tower BFT, com responsabilidades e implicações."
       correct: true
-      feedback: "Correto! São os componentes-chave listados para a tabela do relatório."
+      feedback: "Correto! São os cinco componentes que a tabela do relatório precisa cobrir."
     explanation: "A tabela cobre PoH, Turbine, Gulf Stream, Sealevel e Tower BFT."
   - id: q3
     prompt: "Que tipo de evidência a lição recomenda coletar via RPC para sustentar as afirmações do relatório?"

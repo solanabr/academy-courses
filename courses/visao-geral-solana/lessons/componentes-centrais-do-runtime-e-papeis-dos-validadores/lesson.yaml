@@ -3,6 +3,7 @@ slug: componentes-centrais-do-runtime-e-papeis-dos-validadores
 title: "Componentes Centrais do Runtime e Papéis dos Validadores"
 skills:
 - solana-fundamentals
+- account-model
 blocks:
 - key: header
   type: prose

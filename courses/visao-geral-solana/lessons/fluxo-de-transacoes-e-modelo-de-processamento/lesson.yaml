@@ -3,6 +3,7 @@ slug: fluxo-de-transacoes-e-modelo-de-processamento
 title: "Fluxo de Transações e Modelo de Processamento"
 skills:
 - solana-fundamentals
+- transactions
 blocks:
 - key: header
   type: prose
@@ -51,19 +52,19 @@ blocks:
       feedback: "Correto! Essas checagens filtram na entrada para poupar os componentes seguintes."
     explanation: "Checagens de assinatura e preflight na entrada previnem carga desnecessária nos leaders."
   - id: q3
-    prompt: "Segundo a lição, para que serve a tabela comparativa de estágios ao depurar um problema?"
+    prompt: "Qual destes é um observável que a lição indica coletar ao depurar uma transação?"
     multiSelect: false
     options:
     - id: a
-      label: "Para mapear sintomas aos checkpoints e aos componentes responsáveis."
+      label: "Inclusão em um slot, recibos e logs da transação, votos dos validators e consultas a blocos finalizados."
       correct: true
-      feedback: "Correto! A tabela liga sintoma, checkpoint e componente responsável."
+      feedback: "Correto! São sinais observáveis em cada checkpoint do pipeline."
     - id: b
-      label: "Para estimar o custo em lamports de cada transação."
+      label: "O endereço do datacenter físico em que o leader do slot estava sendo executado no momento do envio."
       correct: false
-      feedback: "A tabela é de diagnóstico, não de cálculo de custo."
+      feedback: "A localização física do leader não é exposta pelo pipeline nem ajuda a localizar o estágio com falha."
     - id: c
-      label: "Para escolher qual carteira o usuário final deve instalar."
+      label: "O documento de identidade do titular da carteira que assinou e submeteu a transação à rede."
       correct: false
-      feedback: "A tabela não trata de escolha de carteira."
-    explanation: "A tabela comparativa mapeia sintomas a checkpoints e componentes responsáveis durante a depuração."
+      feedback: "A rede valida assinaturas criptográficas, não identidades civis."
+    explanation: "A lição lista observáveis verificáveis na própria rede: inclusão em um slot, recibos e logs da transação, votos dos validators e consultas a blocos finalizados."

@@ -38,17 +38,17 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Apenas um limite máximo de páginas e uma capa formatada."
+      label: "Um limite máximo de páginas e uma capa formatada segundo o modelo entregue no início do módulo."
       correct: false
-      feedback: "Os critérios são de conteúdo e evidência, não de formatação de capa."
+      feedback: "Formatação não substitui citações, explicações arquiteturais e as ligações explícitas entre elas."
     - id: a
       label: "Linha do tempo com citações, explicações arquiteturais, ligações explícitas entre elas e bibliografia completa."
       correct: true
       feedback: "Correto! São os quatro critérios de aceitação declarados."
     - id: c
-      label: "Somente a presença de imagens e diagramas coloridos."
+      label: "A presença de imagens e diagramas coloridos em cada seção, independentemente das fontes citadas."
       correct: false
-      feedback: "Ilustração não é um dos critérios de aceitação listados."
+      feedback: "Diagramas ajudam a leitura, mas os critérios de aceitação são sobre evidência e vínculo argumentativo."
     explanation: "Os critérios são linha do tempo com citações, explicações arquiteturais, ligações explícitas e bibliografia completa."
   - id: q3
     prompt: "Quais são as passagens de construção previstas antes do pacote de revisão por pares?"

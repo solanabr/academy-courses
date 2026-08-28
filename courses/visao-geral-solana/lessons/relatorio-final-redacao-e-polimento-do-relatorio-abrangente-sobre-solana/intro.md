@@ -121,11 +121,11 @@ Após submeter este incremento do capstone, prepare-se para a próxima lição, 
 
 ## Glossário
 
-### Executive summary
+### Resumo Executivo
 
 Resumo executivo: uma declaração concisa de uma página que captura as principais conclusões do relatório, as evidências-chave e as recomendações para revisão rápida.
 
-### Proof of History (PoH)
+### Prova de História (PoH)
 
 Proof of History (PoH): uma técnica de sincronização específica da Solana que ordena eventos via carimbos de tempo verificáveis, permitindo alto throughput enquanto reduz a sobrecarga de coordenação global.
 
@@ -133,15 +133,15 @@ Proof of History (PoH): uma técnica de sincronização específica da Solana qu
 
 Tower BFT: uma variante adaptada de Practical Byzantine Fault Tolerance na Solana que usa PoH como relógio para simplificar a eleição de líderes e finalizar blocos.
 
-### Linkage section
+### Seção de Ligação
 
 Seção de ligação: uma seção dedicada do relatório que mapeia eventos históricos específicos para decisões arquiteturais com declarações causais e citações de apoio.
 
-### Primary source
+### Fonte Primária
 
 Fonte primária: um documento original ou evidência direta, como um whitepaper, post de engenharia da equipe do protocolo ou documentação oficial, usado para fundamentar afirmações factuais.
 
-### Peer-review packet
+### Pacote de Revisão por Pares
 
 Pacote de revisão por pares: um conjunto de submissão incluindo o PDF do relatório, um guia de revisão por pares de uma página, nota de capa listando questões em aberto e quaisquer apêndices ou diagramas brutos.
 

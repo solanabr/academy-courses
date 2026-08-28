@@ -3,6 +3,7 @@ slug: visao-geral-da-arquitetura-da-solana
 title: "Visão geral da arquitetura da Solana"
 skills:
 - solana-fundamentals
+- transactions
 blocks:
 - key: header
   type: prose
@@ -25,13 +26,13 @@ blocks:
       correct: true
       feedback: "Correto! É exatamente a sequência da linha de montagem apresentada."
     - id: b
-      label: "Execução paralela → ordenação → finalização → propagação → votação."
+      label: "Execução paralela (trabalhadores) → ordenação (estampagem) → finalização (embalagem) → propagação (transportadoras) → votação/junção."
       correct: false
-      feedback: "A ordenação vem antes da propagação e da execução na analogia apresentada."
+      feedback: "A execução não pode preceder a ordenação: é o líder que estampa a ordem antes de qualquer trabalho paralelo."
     - id: c
-      label: "Votação → finalização → ordenação → propagação → execução paralela."
+      label: "Votação/junção → finalização (embalagem) → ordenação (estampagem) → propagação (transportadoras) → execução paralela (trabalhadores)."
       correct: false
-      feedback: "A votação e a finalização são estágios finais, não iniciais."
+      feedback: "Votação e finalização são os últimos estágios da linha de montagem, não os primeiros."
     explanation: "A linha de montagem vai de ordenação a propagação, execução paralela, votação/junção e finalização."
   - id: q2
     prompt: "Quais objetivos arquitetônicos a lição aponta como guias das escolhas de design?"

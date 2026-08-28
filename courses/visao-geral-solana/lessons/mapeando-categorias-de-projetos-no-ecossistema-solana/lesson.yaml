@@ -3,6 +3,7 @@ slug: mapeando-categorias-de-projetos-no-ecossistema-solana
 title: "Mapeando categorias de projetos no ecossistema Solana"
 skills:
 - solana-fundamentals
+- rpc-reads
 blocks:
 - key: header
   type: prose
@@ -38,32 +39,32 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Pela ordem alfabética do nome do projeto."
+      label: "Pela idade do domínio e pelo tamanho da equipe listada na página \"Sobre\", que indicam a maturidade da categoria."
       correct: false
-      feedback: "A lição propõe um critério funcional, não alfabético."
+      feedback: "Idade de domínio e tamanho de equipe falam de maturidade organizacional, não de qual papel técnico o projeto ocupa."
     - id: a
       label: "Pelo que a documentação enfatiza: program IDs indicam protocolo, métricas RPC indicam infraestrutura e fluxos de assinatura indicam wallets/clients."
       correct: true
-      feedback: "Correto! A ênfase da documentação revela a categoria do projeto."
+      feedback: "Correto! O que a documentação coloca em destaque revela a categoria do projeto."
     - id: c
-      label: "Pelo número de seguidores em redes sociais."
+      label: "Pelo volume de commits no repositório público, que separa protocolos de infraestrutura e de aplicações de usuário."
       correct: false
-      feedback: "Esse não é um dos sinais propostos."
+      feedback: "Atividade de repositório é sinal de manutenção, e não distingue protocolo, infraestrutura e wallet."
     explanation: "A ênfase da documentação (program IDs, métricas RPC, fluxos de assinatura) indica a categoria do projeto."
   - id: q3
-    prompt: "Na metáfora da cidade usada na lição, a que correspondem os indexers?"
+    prompt: "Quais sinais de saúde a lição associa a cada categoria de projeto?"
     multiSelect: false
     options:
     - id: b
-      label: "Fábricas."
+      label: "Engajamento em redes sociais serve como sinal de saúde para todas as categorias, sem distinção."
       correct: false
-      feedback: "Fábricas correspondem aos programs."
+      feedback: "Engajamento social não mede disponibilidade de infraestrutura nem atividade on-chain."
     - id: c
-      label: "Utilities."
+      label: "O preço do token nativo serve como sinal de saúde para todas as categorias, sem distinção."
       correct: false
-      feedback: "Utilities correspondem aos validators."
+      feedback: "Preço é um sinal de mercado e não diferencia as categorias entre si."
     - id: a
-      label: "Bibliotecas."
+      label: "Atividade on-chain para programas, uptime e latência para infraestrutura, notas de release e SDKs para wallets."
       correct: true
-      feedback: "Correto! Validators são utilities, indexers são bibliotecas, programs são fábricas e wallets são casas."
-    explanation: "Na metáfora: validators = utilities, indexers = bibliotecas, programs = fábricas, wallets = casas."
+      feedback: "Correto! Cada categoria é avaliada pelo sinal que corresponde à sua função."
+    explanation: "Cada categoria tem seu próprio sinal: atividade on-chain para programas, uptime e latência para infraestrutura de RPC e indexação, e notas de release e SDKs para wallets e clientes."

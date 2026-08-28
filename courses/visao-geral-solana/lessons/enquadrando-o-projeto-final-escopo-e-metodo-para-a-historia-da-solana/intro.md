@@ -16,7 +16,7 @@
 
 ## Recapitulação & Introdução
 
-Você concluiu recentemente "Navigating Solana Resources and Next Steps", onde praticou identificar tipos de recursos autoritativos para a visão geral do ecossistema Solana e aprendeu a construir e curar um glossário para a terminologia específica da Solana. Nessa lição você trabalhou com três verificações concretas de autoridade: artefatos primários do protocolo (whitepapers, RFCs, commits do repositório principal), documentação canônica (páginas oficiais em docs.solana.com e referências de API) e repositórios de código mantidos (commits ativos, mantenedores claros, triagem de issues). Você também usou sinais que indicam projetos ativos, como tags de release recentes, rastreadores de issues responsivos e propostas de governança atualizadas. Essas heurísticas concretas são a base de evidências imediata que reutilizaremos aqui.
+Você concluiu recentemente "Navegando pelos Recursos da Solana e Próximos Passos", onde praticou identificar tipos de recursos autoritativos para a visão geral do ecossistema Solana e aprendeu a construir e curar um glossário para a terminologia específica da Solana. Nessa lição você trabalhou com três verificações concretas de autoridade: artefatos primários do protocolo (whitepapers, RFCs, commits do repositório principal), documentação canônica (páginas oficiais em docs.solana.com e referências de API) e repositórios de código mantidos (commits ativos, mantenedores claros, triagem de issues). Você também usou sinais que indicam projetos ativos, como tags de release recentes, rastreadores de issues responsivos e propostas de governança atualizadas. Essas heurísticas concretas são a base de evidências imediata que reutilizaremos aqui.
 
 Agora passamos de coletar e validar recursos para enquadrar o projeto final: decidir o que o relatório cobrirá, como você avaliará o sucesso e quais métodos usará para montar as seções de narrativa e arquitetura. Esta lição explica como traduzir os hábitos de pesquisa que você praticou em limites de escopo reproduzíveis, critérios de sucesso e métodos documentados para montar um relatório sobre a história e a arquitetura da Solana. No segundo parágrafo apresentamos os elementos centrais que você deve decidir agora: escopo temporal (quais anos ou marcos incluir), escopo temático (quais camadas arquiteturais e dinâmicas sociais tratar), estratégia de evidência (como converter sinais de recursos em afirmações citadas) e layout organizacional (como as seções mapeiam para fontes e critérios de avaliação).
 
@@ -40,7 +40,7 @@ O Modelo Mental: Adote um modelo mental combinado que trate o projeto final como
 
 Mecanicamente, use a linha do tempo para ordenar evidências e o mapa arquitetural para categorizá-las. Por exemplo, quando encontrar um commit ou uma nota de release que mencione uma mudança no pipeline de transações, coloque esse item na linha do tempo na data apropriada e também anexe-o ao nó "pipeline de transações" no seu mapa de arquitetura. Essa dupla colocação ajuda a rastrear causalidade: a mudança no pipeline de transações ocorreu após um incidente de escala? Ela precedeu uma melhoria de throughput? Ao alinhar itens entre os dois mapas, você força ligações explícitas entre eventos históricos e consequências arquiteturais.
 
-Para cada item mapeado você capturará três campos de metadados: tipo de fonte, status de corroboração e nível de confiança. Tipo de fonte usa as heurísticas de "Navigating Solana Resources and Next Steps" — marque itens como artefato primário do protocolo, documentação oficial, commit de código, comunicação de mantenedor (issue, comentário de PR) ou análise secundária (blogs, artigos acadêmicos). O status de corroboração registra se uma, duas ou três fontes primárias independentes confirmam o mesmo fato. Nível de confiança é seu juízo de trabalho (alto, médio, baixo) baseado no tipo de fonte e na corroboração. Esses campos de metadados criam um conjunto de dados pesquisável e auditável que apoia a narrativa e permite justificar por que certas afirmações são enfatizadas.
+Para cada item mapeado você capturará três campos de metadados: tipo de fonte, status de corroboração e nível de confiança. Tipo de fonte usa as heurísticas de "Navegando pelos Recursos da Solana e Próximos Passos" — marque itens como artefato primário do protocolo, documentação oficial, commit de código, comunicação de mantenedor (issue, comentário de PR) ou análise secundária (blogs, artigos acadêmicos). O status de corroboração registra se uma, duas ou três fontes primárias independentes confirmam o mesmo fato. Nível de confiança é seu juízo de trabalho (alto, médio, baixo) baseado no tipo de fonte e na corroboração. Esses campos de metadados criam um conjunto de dados pesquisável e auditável que apoia a narrativa e permite justificar por que certas afirmações são enfatizadas.
 
 Concretamente, quando você coloca um marco como "implementação de uma otimização no runtime" na linha do tempo, anexe o hash do commit, a nota de release e qualquer discussão contemporânea em issues como entradas vinculadas. Então, no mapa de arquitetura, marque o nó runtime com uma anotação que referencia esses links. Se fontes secundárias interpretarem a mudança de forma diferente, observe a divergência e mantenha essas perspectivas para a seção de análise em vez da linha do tempo factual. Manter essa separação entre fatos verificáveis (entradas da linha do tempo com evidências primárias) e interpretação (análise que sintetiza fatos) preserva clareza e evita afirmações exageradas.
 
@@ -52,7 +52,7 @@ Esse modelo mental também orienta a priorização. Se você tiver tempo limitad
 
 Visão Geral do Processo: Estabeleça um fluxo de trabalho repetível que transforme recursos dispersos em um relatório em capítulos coerente. O fluxo de trabalho tem quatro fases: Research (coletar), Source (catalogar e rotular), Structure (esboçar e mapear) e Validate (corroborar e finalizar). Cada fase contém tarefas concretas e critérios de saída que você pode checar antes de avançar. Recomendamos executar esse fluxo iterativamente: complete uma passagem para temas de alto nível primeiro e depois itere mais profundamente nos capítulos priorizados.
 
-Fase 1 — Research (coletar): Use os tipos de recurso e verificações de autoridade de "Navigating Solana Resources and Next Steps." Comece pelo whitepaper da Solana e pela documentação oficial, depois adicione logs de commits do repositório core, notas de release principais e comunicações primárias como propostas de governança ou anúncios da equipe central. Registre cada item com metadados bibliográficos: título, autor/mantenedor, data, URL e tipo. O critério de saída desta fase é uma coleção pesquisável que cubra seu escopo temporal com pelo menos um artefato primário por marco importante.
+Fase 1 — Research (coletar): Use os tipos de recurso e verificações de autoridade de "Navegando pelos Recursos da Solana e Próximos Passos." Comece pelo whitepaper da Solana e pela documentação oficial, depois adicione logs de commits do repositório core, notas de release principais e comunicações primárias como propostas de governança ou anúncios da equipe central. Registre cada item com metadados bibliográficos: título, autor/mantenedor, data, URL e tipo. O critério de saída desta fase é uma coleção pesquisável que cubra seu escopo temporal com pelo menos um artefato primário por marco importante.
 
 Fase 2 — Source (catalogar e rotular): Para cada item coletado atribua os campos de metadados descritos no modelo mental: tipo de fonte, status de corroboração e nível de confiança. Marque cada item com os(s) nó(s) arquiteturais do seu mapa. Gere uma matriz de fontes que resuma quantas fontes primárias, secundárias e terciárias suportam cada fato alegado. O critério de saída é uma matriz de fontes onde nenhuma alegação narrativa importante tem menos de duas fontes corroborantes, a menos que a alegação seja explicitamente rotulada como "fonte única" com justificativa.
 
@@ -99,7 +99,7 @@ Agora você tem um plano claro para transformar os recursos brutos que coletou e
 
 Segundo, use o mapa de arquitetura como um quadro organizador: anexe evidências aos componentes para explicar por que eventos específicos importaram. Esse mapeamento converte commits e notas de release dispersos em uma narrativa analítica que leitores não especialistas conseguem seguir. Também ajuda a priorizar: eventos que afetam múltiplos nós de arquitetura são evidências de alto valor para o projeto final.
 
-Terceiro, operacionalize seu fluxo de trabalho com critérios de saída para cada fase: colete até alcançar cobertura mínima do seu escopo temporal, catalogue com metadados de corroboração, esboce capítulos com evidências mapeadas e valide afirmações contestadas. Esses pontos de verificação impedem que você deslize para especulação e tornam o relatório reproduzível para revisores. Ao prosseguir para "Synthesizing Solana History", traga sua linha do tempo, mapa de arquitetura e matriz de fontes: eles são as matérias-primas que a próxima lição ensinará a converter em uma narrativa coerente e um capítulo arquitetural anotado.
+Terceiro, operacionalize seu fluxo de trabalho com critérios de saída para cada fase: colete até alcançar cobertura mínima do seu escopo temporal, catalogue com metadados de corroboração, esboce capítulos com evidências mapeadas e valide afirmações contestadas. Esses pontos de verificação impedem que você deslize para especulação e tornam o relatório reproduzível para revisores. Ao prosseguir para "Sintetizando a História da Solana", traga sua linha do tempo, mapa de arquitetura e matriz de fontes: eles são as matérias-primas que a próxima lição ensinará a converter em uma narrativa coerente e um capítulo arquitetural anotado.
 
 ## Recapitulação Rápida
 
@@ -110,33 +110,33 @@ Terceiro, operacionalize seu fluxo de trabalho com critérios de saída para cad
 
 ## Próximos Passos
 
-Prepare-se para a próxima lição, "Synthesizing Solana History", completando três itens práticos: (1) monte sua planilha de linha do tempo com pelo menos cinco marcos principais e artefatos primários associados, (2) produza um mapa arquitetural em primeira versão que identifique pelo menos quatro componentes centrais e marque cada um com um ou dois links de evidência, e (3) rascunhe critérios de sucesso para a entrega do projeto final usando as verificações mensuráveis descritas aqui (limiares mínimos de corroboração, requisitos de diagramas e conteúdo de apêndice). Traga esses artefatos para a próxima lição; iremos sintetizá-los em uma narrativa integrada e mostrar como apresentar reivindicações contestadas de forma transparente.
+Prepare-se para a próxima lição, "Sintetizando a História da Solana", completando três itens práticos: (1) monte sua planilha de linha do tempo com pelo menos cinco marcos principais e artefatos primários associados, (2) produza um mapa arquitetural em primeira versão que identifique pelo menos quatro componentes centrais e marque cada um com um ou dois links de evidência, e (3) rascunhe critérios de sucesso para a entrega do projeto final usando as verificações mensuráveis descritas aqui (limiares mínimos de corroboração, requisitos de diagramas e conteúdo de apêndice). Traga esses artefatos para a próxima lição; iremos sintetizá-los em uma narrativa integrada e mostrar como apresentar reivindicações contestadas de forma transparente.
 
 ---
 
 ## Glossário
 
-### Primary Source
+### Fonte Primária
 
 Uma fonte primária é um artefato original e contemporâneo, como um whitepaper, commit, nota de lançamento ou proposta de governança, usado como evidência direta.
 
-### Secondary Source
+### Fonte Secundária
 
 Uma fonte secundária é um item interpretativo ou analítico, como um post de blog, artigo ou artigo acadêmico, que explica ou contextualiza fontes primárias mas requer corroboração.
 
-### Corroboration
+### Corroboração
 
 Corroboração: confirmação independente do mesmo fato por múltiplas fontes primárias ou por artefatos que se apoiam mutuamente.
 
-### Architectural Map
+### Mapa Arquitetural
 
 Mapa Arquitetural: uma representação diagramática dos componentes do sistema e suas interfaces usada para anexar evidências e anotações.
 
-### Confidence Level
+### Nível de Confiança
 
 Nível de Confiança: um juízo de trabalho (alto, médio, baixo) baseado no tipo de fonte, na corroboração e na consistência entre as evidências.
 
-### Source Matrix
+### Matriz de Fontes
 
 Matriz de Fontes: um resumo tabular que mapeia afirmações ou seções para suas fontes primárias e secundárias de apoio para verificação.
 

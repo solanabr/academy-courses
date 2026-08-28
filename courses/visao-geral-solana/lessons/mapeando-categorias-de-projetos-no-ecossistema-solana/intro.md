@@ -70,7 +70,7 @@ Ao longo desses exemplos você usará as mesmas regras de classificação: onde 
 
 ## Modelo Mental: A Metáfora da Cidade para Interdependências e Sinais
 
-The Mental Model: Use uma metáfora da cidade para raciocinar sobre interdependências. Trate a rede Solana como a infraestrutura da cidade: validators são usinas de energia e hubs de trânsito que mantêm a cidade funcionando; servidores RPC e indexers são os quiosques de informação e bibliotecas da cidade que indexam e retransmitem atualizações; programs on-chain são fábricas e serviços públicos que executam tarefas específicas; wallets e apps de consumidor são as casas e lojas onde as pessoas interagem com os serviços. Esse modelo mental facilita ver como mudanças em uma parte afetam outra.
+O Modelo Mental: Use uma metáfora da cidade para raciocinar sobre interdependências. Trate a rede Solana como a infraestrutura da cidade: validators são usinas de energia e hubs de trânsito que mantêm a cidade funcionando; servidores RPC e indexers são os quiosques de informação e bibliotecas da cidade que indexam e retransmitem atualizações; programs on-chain são fábricas e serviços públicos que executam tarefas específicas; wallets e apps de consumidor são as casas e lojas onde as pessoas interagem com os serviços. Esse modelo mental facilita ver como mudanças em uma parte afetam outra.
 
 Quando uma fábrica (um on-chain program) muda seu processo — por exemplo, um upgrade de program que altera o layout de instruções — as lojas (wallets, marketplaces) precisam atualizar como constroem e desserializam transações. Se a biblioteca da cidade (indexer) perder entradas, as lojas mostrarão dados defasados, levando usuários a refazer operações. Se uma usina (cluster de validators) reduzir capacidade, confirmações de transação ficam mais lentas e a UX degrada. Mapear esses papéis esclarece dependências: um marketplace saudável precisa tanto de fábricas estáveis (programs) quanto de bibliotecas responsivas (indexers) e de assinaturas confiáveis nas casas (wallets).
 
@@ -99,7 +99,7 @@ Mantenha a metáfora da cidade em mente como um atalho de raciocínio: ela torna
 
 ## Próximos Passos
 
-Seu próximo passo concreto é estudar "Navigating Solana Resources and Next Steps", onde guiaremos você até os docs oficiais, registros de programs e explorers que permitem verificar as classificações que você aprendeu. Para praticar, prepare-se para classificar três projetos: um on-chain program, um RPC/indexer e uma wallet ou marketplace, usando as checagens e a terminologia desta lição. Na próxima lição mostraremos exatamente onde clicar e quais páginas ler para confirmar program IDs, uptime e logs de transação.
+Seu próximo passo concreto é estudar "Navegando pelos Recursos da Solana e Próximos Passos", onde guiaremos você até os docs oficiais, registros de programs e explorers que permitem verificar as classificações que você aprendeu. Para praticar, prepare-se para classificar três projetos: um on-chain program, um RPC/indexer e uma wallet ou marketplace, usando as checagens e a terminologia desta lição. Na próxima lição mostraremos exatamente onde clicar e quais páginas ler para confirmar program IDs, uptime e logs de transação.
 
 ---
 
@@ -109,11 +109,11 @@ Seu próximo passo concreto é estudar "Navigating Solana Resources and Next Ste
 
 Um identificador único on-chain para um programa Solana implantado; você o usa para encontrar instruções do programa, logs e interações de accounts em explorers.
 
-### Account (Solana)
+### Conta (account)
 
 Um contêiner de dados on-chain que armazena estado mutável e saldos de tokens; programs operam sobre accounts passadas em instruções.
 
-### RPC Node
+### Nó RPC
 
 Um endpoint de remote procedure call que aceita transações e fornece dados do ledger; provedores de infraestrutura executam nós RPC para expor APIs.
 
@@ -121,7 +121,7 @@ Um endpoint de remote procedure call que aceita transações e fornece dados do 
 
 O padrão de token da Solana para tokens fungíveis e não-fungíveis; inclui mint, token accounts e o token program que aplica transferências.
 
-### Indexer
+### Indexador (indexer)
 
 Um serviço off-chain que processa o histórico do ledger para fornecer streams de eventos consultáveis, históricos de mudanças de accounts e logs de programs para aplicações.
 

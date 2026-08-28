@@ -103,7 +103,7 @@ Terceiro, limites de snapshot e interfaces de componentes são as alavancas prá
 
 ## Próximos Passos
 
-Prepare notas anotadas breves mapeando cada componente do runtime para uma responsabilidade e um par entrada/saída; essas notas são seu artefato para esta lição. Quando estiver pronto, avance para a próxima lição: "Transaction Flow and Processing Model." Lá você aplicará esses mapeamentos de componentes para traçar uma transação desde a submissão do cliente até a ordenação, execução, commitment e finalidade.
+Prepare notas anotadas breves mapeando cada componente do runtime para uma responsabilidade e um par entrada/saída; essas notas são seu artefato para esta lição. Quando estiver pronto, avance para a próxima lição: "Fluxo de Transações e Modelo de Processamento." Lá você aplicará esses mapeamentos de componentes para traçar uma transação desde a submissão do cliente até a ordenação, execução, commitment e finalidade.
 
 Como um exercício rápido antes de continuar, escolha um componente das suas notas e responda: qual recurso (CPU, memória, disco, rede) você instrumentaria primeiro se esse componente ficasse lento sob carga? Mantenha essa resposta à mão para os exemplos de depuração da próxima lição.
 

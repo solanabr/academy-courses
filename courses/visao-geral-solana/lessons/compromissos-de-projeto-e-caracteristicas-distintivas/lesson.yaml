@@ -3,6 +3,7 @@ slug: compromissos-de-projeto-e-caracteristicas-distintivas
 title: "Compromissos de Projeto e Características Distintivas"
 skills:
 - solana-fundamentals
+- account-model
 blocks:
 - key: header
   type: prose

@@ -98,7 +98,7 @@ Três princípios práticos devem guiar sua forma de pensar sobre a arquitetura 
 
 Segundo, trate ordenação, propagação e execução como estágios separáveis. A arquitetura separa intencionalmente o sequenciamento rápido do consenso pesado e da execução. Esse desacoplamento é a razão pela qual o sistema pode alcançar alta vazão, mas também cria pontos onde inconsistências transitórias e conflitos devem ser tratados por votação e regras de escolha de fork. Manter os estágios distintos esclarece onde olhar ao diagnosticar problemas de desempenho ou correção.
 
-Terceiro, a estrutura da carga de trabalho importa. Execução paralela traz ganhos apenas quando transações tocam estados disjuntos. Para desenvolvimento prático, estruture contas e movimentos para reduzir contenção e tornar o paralelismo do runtime efetivo. Esses princípios preparam você para entender responsabilidades de validators e detalhes internos do runtime na próxima lição: Core Runtime Components and Validator Roles, onde desmontamos os componentes que você viu em alto nível e examinamos como implementam os objetivos e estágios aqui cobertos.
+Terceiro, a estrutura da carga de trabalho importa. Execução paralela traz ganhos apenas quando transações tocam estados disjuntos. Para desenvolvimento prático, estruture contas e movimentos para reduzir contenção e tornar o paralelismo do runtime efetivo. Esses princípios preparam você para entender responsabilidades de validators e detalhes internos do runtime na próxima lição: Componentes Centrais do Runtime e Papéis dos Validadores, onde desmontamos os componentes que você viu em alto nível e examinamos como implementam os objetivos e estágios aqui cobertos.
 
 ## Recapitulação Rápida
 
@@ -109,7 +109,7 @@ Terceiro, a estrutura da carga de trabalho importa. Execução paralela traz gan
 
 ## Próximos Passos
 
-Prossiga para a próxima lição, "Core Runtime Components and Validator Roles", onde desmontamos os componentes concretos que você conheceu em alto nível: o papel de líder/slot para ordenação, responsabilidades de execução dos validators e os módulos de runtime que viabilizam a execução paralela. Antes de avançar, revise o ciclo de vida da transação e o mapeamento da linha de montagem para que você possa reconhecer o propósito operacional de cada componente quando inspecionarmos logs e parâmetros de configuração em detalhe.
+Prossiga para a próxima lição, "Componentes Centrais do Runtime e Papéis dos Validadores", onde desmontamos os componentes concretos que você conheceu em alto nível: o papel de líder/slot para ordenação, responsabilidades de execução dos validators e os módulos de runtime que viabilizam a execução paralela. Antes de avançar, revise o ciclo de vida da transação e o mapeamento da linha de montagem para que você possa reconhecer o propósito operacional de cada componente quando inspecionarmos logs e parâmetros de configuração em detalhe.
 
 Ao abrir a próxima lição, esteja pronto para mapear nomes e processos específicos do runtime para os estágios desta lição. Esse preparo permitirá traduzir conceitos abstratos em ações práticas ao configurar nós ou projetar programas que tenham bom desempenho sob carga.
 

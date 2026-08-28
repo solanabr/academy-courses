@@ -29,6 +29,7 @@ Ao final desta lição, você será capaz de:
 - Identificar três indicadores concretos de adoção (por exemplo: endereços ativos, picos de volume de transações e integrações de projetos) e relacioná-los a marcos específicos.
 - Analisar como lançamentos técnicos iniciais mudaram prioridades do projeto (por exemplo, de vazão bruta para ferramentas ou descentralização de validadores).
 - Usar um modelo mental simples de linha do tempo para avaliar se um futuro marco provavelmente afetará a adoção por desenvolvedores ou a segurança da rede.
+
 Cada objetivo está formulado para ser testável: você deve ser capaz de apontar para um marco e explicar qual mecanismo ele exerceu, quais métricas mudaram e qual prioridade estratégica essa mudança sinalizou.
 
 ---
@@ -122,15 +123,15 @@ Uma fase de lançamento pública em que a configuração de produção é aberta
 
 Um ambiente de rede destinado a testes distribuídos que espelha o comportamento de produção sem usar ativos ou configurações da mainnet.
 
-### Program Deployment
+### Implantação de Programa
 
 O ato de publicar um contrato inteligente ou programa on-chain em uma rede; indica atividade de desenvolvedor e adoção de funcionalidades.
 
-### Validator Participation
+### Participação de Validadores
 
 O número e a diversidade de nós que processam e validam blocos ativamente; um sinal chave de descentralização e saúde operacional.
 
-### Adoption Indicator
+### Indicador de Adoção
 
 Um sinal mensurável, como endereços únicos, tipos de transação ou projetos de tooling, que sugere aumento de uso real da rede.
 
@@ -138,7 +139,7 @@ Um sinal mensurável, como endereços únicos, tipos de transação ou projetos 
 
 Uma coleção de bibliotecas e ferramentas que facilitam para desenvolvedores construir e interagir com programas on-chain e APIs.
 
-### Telemetry
+### Telemetria
 
 Métricas de nível de sistema, como tempo de bloco, latência e taxas de erro, usadas para avaliar a saúde técnica após um release.
 

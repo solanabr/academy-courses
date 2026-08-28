@@ -18,7 +18,7 @@
 
 Você está identificando os princípios arquitetônicos centrais da Solana e traduzindo-os em resumos fundamentados por evidências para a visão técnica do relatório do projeto final. Você já definiu o escopo e o método para este capstone, coletou fontes primárias e secundárias e produziu uma síntese histórica do desenvolvimento da Solana; esta lição converte esse trabalho histórico em uma análise focada na arquitetura que você pode citar e incluir no relatório.
 
-Concretamente, de "Framing the Capstone: Scope and Method for Solana's Story" você trouxe a estrutura do capstone, a planilha de coleta de evidências e o modelo de relatório que define a seção de visão técnica. De "Synthesizing Solana History" você trouxe a linha do tempo histórica, as anotações de marcos, a matriz de avaliação de evidências e o rascunho narrativo que liga decisões de marco a mudanças arquitetônicas. Esses artefatos — o documento de escopo, a matriz de evidências, a linha do tempo e o rascunho histórico — são seus materiais iniciais aqui.
+Concretamente, de "Enquadrando o Projeto Final: Escopo e Método para a História da Solana" você trouxe a estrutura do capstone, a planilha de coleta de evidências e o modelo de relatório que define a seção de visão técnica. De "Sintetizando a História da Solana" você trouxe a linha do tempo histórica, as anotações de marcos, a matriz de avaliação de evidências e o rascunho narrativo que liga decisões de marco a mudanças arquitetônicas. Esses artefatos — o documento de escopo, a matriz de evidências, a linha do tempo e o rascunho histórico — são seus materiais iniciais aqui.
 
 Nesta lição, orientamos você a extrair temas em nível de arquitetura (princípios de design, responsabilidades de componentes e trade-offs do sistema) a partir desse material histórico, mapeando componentes para decisões observadas e citando evidências. Você praticará converter alegações em estilo historiador ("a latência de rede moldou o design dos validators") em declarações arquiteturais ("Gulf Stream move o encaminhamento de transações para os validators para minimizar a latência do mempool, permitindo maior throughput sob certas suposições de rede") que podem ser inseridas diretamente na visão técnica do relatório do capstone.
 
@@ -83,6 +83,7 @@ Use esse fluxo de trabalho para gerar três mapeamentos; quando montados, esses 
 
 Sondas pequenas e reprodutíveis são evidências úteis para o relatório: elas mostram o estado atual do cluster e podem validar alegações sobre rotação de líderes, duração de época ou configurações de throughput de transações. Abaixo está um exemplo compacto em TypeScript usando `@solana/web3.js` que busca informações de época e o cronograma de líderes. Execute isto contra o cluster que você citou na sua linha do tempo (testnet ou mainnet conforme apropriado) e cole o JSON de saída no apêndice de evidências.
 
+```typescript
 import { Connection, clusterApiUrl } from '@solana/web3.js';
 
 async function probeCluster() {
@@ -97,6 +98,7 @@ async function probeCluster() {
 }
 
 probeCluster().catch(console.error);
+```
 
 Explicação linha a linha e como usar a saída:
 
@@ -134,7 +136,7 @@ Prepare-se para a próxima lição, "Relatório Final: Redação e Polimento do 
 
 ## Glossário
 
-### Proof of History (PoH)
+### Prova de História (PoH)
 
 Uma sequência criptográfica verificável de hashes que codifica informação de ordenação e fornece uma fonte de tempo local e reproduzível para sequenciar eventos sem mensagens adicionais de consenso.
 

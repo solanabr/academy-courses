@@ -101,7 +101,7 @@ Na prática, esta lição o prepara para ler detalhes de implementação e trade
 
 ## Próximos Passos
 
-Para a próxima lição, prossiga para "Design Tradeoffs and Distinctive Features." Você aplicará o mapeamento estágio-para-componente desta lição para avaliar por que a Solana faz escolhas específicas em torno de ordenação, finalidade e desempenho do runtime. Antes de avançar, revise a tabela comparativa e tente anotar latências esperadas e modos de falha para cada linha; esse trabalho preparatório tornará a discussão de trade-offs mais concreta e fácil de avaliar.
+Para a próxima lição, prossiga para "Compromissos de Projeto e Características Distintivas." Você aplicará o mapeamento estágio-para-componente desta lição para avaliar por que a Solana faz escolhas específicas em torno de ordenação, finalidade e desempenho do runtime. Antes de avançar, revise a tabela comparativa e tente anotar latências esperadas e modos de falha para cada linha; esse trabalho preparatório tornará a discussão de trade-offs mais concreta e fácil de avaliar.
 
 Recomendamos manter essa tabela à mão como referência quando você ler documentação em nível de protocolo ou logs de validators no próximo módulo sobre consenso e segurança.
 
@@ -109,27 +109,27 @@ Recomendamos manter essa tabela à mão como referência quando você ler docume
 
 ## Glossário
 
-### Intake (transaction intake)
+### Recepção (transaction intake)
 
 O recebimento inicial e as checagens leves que um nó realiza sobre uma transação submetida, incluindo validação sintática e verificação de assinatura antes da propagação ou enfileiramento.
 
-### Preflight simulation
+### Simulação de preflight
 
 Uma execução voltada ao cliente, sem commit, de uma transação em um nó para prever sucesso ou falha e expor erros de runtime esperados antes da submissão real.
 
-### Leader (slot producer)
+### Líder (produtor de slot)
 
 O validator agendado para montar, ordenar e executar transações para um slot específico; responsável por construir entries que se tornam blocos.
 
-### Confirmation
+### Confirmação
 
 Uma medida probabilística indicando que blocos subsequentes referenciam o bloco contendo a transação; as confirmações crescem à medida que validators votam em descendentes.
 
-### Finalization
+### Finalização
 
 O estado em que a rede trata um bloco como irreversível sob condições normais, tipicamente após votos suficientes ou políticas de checkpoint serem atendidas.
 
-### Conflict detection
+### Detecção de conflitos
 
 O processo de identificar transações que não podem ambas ter sucesso porque escrevem em estado sobreposto ou dependem de condições de conta mutuamente exclusivas.
 

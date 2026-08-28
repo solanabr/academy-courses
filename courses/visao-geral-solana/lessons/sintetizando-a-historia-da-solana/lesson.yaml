@@ -21,13 +21,13 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Exatamente vinte marcos, sem necessidade de justificar cada um."
+      label: "Exatamente vinte marcos, listados em ordem cronológica e sem exigência de evidência para cada um."
       correct: false
-      feedback: "A lição não pede vinte marcos nem dispensa a justificativa."
+      feedback: "Vinte itens sem exigência de evidência produzem uma lista, não uma síntese explicativa."
     - id: c
-      label: "Um único marco, escolhido pelo maior impacto de mídia."
+      label: "Um único marco, escolhido pelo maior impacto de mídia, servindo como resumo de toda a trajetória."
       correct: false
-      feedback: "A lição pede uma faixa de cinco a oito marcos com evidência."
+      feedback: "Um marco isolado não sustenta uma narrativa que ligue eventos a escolhas arquiteturais."
     - id: a
       label: "De cinco a oito marcos, cada um justificado por evidência primária ou forte evidência secundária."
       correct: true
@@ -38,30 +38,30 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: "Introdução, desenvolvimento e conclusão."
+      label: "Introdução, desenvolvimento e conclusão, herdados da estrutura clássica de redação escolar."
       correct: false
-      feedback: "Esses são elementos genéricos de redação, não o arcabouço da lição."
+      feedback: "Essa é uma estrutura genérica de texto; o arcabouço da lição é específico para evidência histórica."
     - id: a
       label: "Espinha (marcos), conectores (mecanismos) e painéis de evidência (citações)."
       correct: true
       feedback: "Correto! A espinha ordena, os conectores explicam e os painéis sustentam."
     - id: c
-      label: "Hipótese, experimento e resultado."
+      label: "Hipótese, experimento e resultado, herdados do método experimental das ciências naturais."
       correct: false
-      feedback: "Esse é um formato experimental, não o arcabouço narrativo apresentado."
+      feedback: "O arcabouço não é experimental: ele organiza marcos, mecanismos e citações."
     explanation: "O arcabouço tem espinha (marcos), conectores (mecanismos) e painéis de evidência (citações)."
   - id: q3
     prompt: "Qual é a exigência do rascunho de síntese pedido na lição?"
     multiSelect: false
     options:
     - id: b
-      label: "Exatamente 2.000 palavras, sem vincular eventos à arquitetura."
+      label: "Exatamente 2.000 palavras, sem exigência de vincular eventos históricos a escolhas de arquitetura."
       correct: false
-      feedback: "A extensão e a exigência de vínculo estão diferentes do que a lição pede."
+      feedback: "O tamanho está errado e a vinculação explícita entre evento e arquitetura é justamente o que se pede."
     - id: c
-      label: "Um resumo de uma frase, sem citações."
+      label: "Um resumo de uma única frase, sem citações e sem indicação das evidências que o sustentam."
       correct: false
-      feedback: "A lição pede um rascunho substancial com vínculos explícitos."
+      feedback: "Uma frase não comporta os dois vínculos evento-arquitetura exigidos nem as citações."
     - id: a
       label: "De 500 a 800 palavras, ligando explicitamente ao menos dois eventos a escolhas arquiteturais."
       correct: true

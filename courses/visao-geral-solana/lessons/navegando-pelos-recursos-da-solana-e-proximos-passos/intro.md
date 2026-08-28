@@ -113,27 +113,27 @@ Se tiver tempo, escolha um termo desconhecido que você encontrou na documentaç
 
 ## Glossário
 
-### Authoritative resource
+### Recurso Autoritativo
 
 Uma fonte publicada ou endossada pela equipe do projeto ou pela fundação governante que documenta comportamento pretendido, APIs e notas de release; usada para estabelecer afirmações canônicas sobre um projeto.
 
-### Release tag
+### Tag de Release
 
 Um marcador de versão em um repositório que identifica código liberado (frequentemente versionamento semântico como `v1.2.0`) e sinaliza a cadência formal de releases de um projeto e possíveis orientações de migração.
 
-### On-chain program ID
+### Program ID on-chain
 
 Um identificador público para um smart contract ou programa implantado na Solana; encontrar transações associadas ajuda a verificar se um projeto está ativo na rede.
 
-### Issue triage
+### Triagem de Issues
 
 O processo de gerenciar e responder a bugs e solicitações de funcionalidade reportadas em um repositório; triagem ativa indica esforço contínuo de manutenção e priorização.
 
-### Semantic versioning
+### Versionamento Semântico
 
 Uma convenção de versionamento (major.minor.patch) que sinaliza mudanças breaking versus atualizações compatíveis e ajuda integradores a planejar upgrades.
 
-### Evidence layer
+### Camada de Evidência
 
 Uma das categorias de recursos (documentação, repositório, on-chain, comunidade) usada como uma fonte discreta de sinais ao avaliar afirmações sobre um projeto.
 

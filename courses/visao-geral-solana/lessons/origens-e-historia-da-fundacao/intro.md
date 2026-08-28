@@ -32,6 +32,7 @@ Ao final desta lição você será capaz de:
 - Descrever as prioridades técnicas iniciais da Solana — por exemplo, vazão, latência e execução em estado único — e explicar como essas prioridades se mapeiam para escolhas de design específicas.
 - Resumir as fontes de financiamento iniciais e os mecanismos de apoio que permitiram o desenvolvimento e o lançamento público da Solana.
 - Reconhecer os primeiros marcos públicos e anúncios, e explicar como esses marcos sinalizaram a prontidão do projeto para desenvolvedores e investidores.
+
 Esses objetivos são concretos e testáveis: você fará referência a pessoas nomeadas, mecanismos e datas, e conectará motivações a decisões de design iniciais. Esperamos que você use esse vocabulário na próxima lição quando ler a documentação técnica original e as declarações públicas da Solana.
 
 ---
