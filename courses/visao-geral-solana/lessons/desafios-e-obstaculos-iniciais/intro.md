@@ -4,20 +4,17 @@
 
 ---
 
-> **Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.  
-> **Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.  
-> **Conceitos:**   
-> **Tempo de leitura:** 30 min
+**Objetivo:** Identificar os principais desafios que a Solana enfrentou durante o desenvolvimento inicial e como eles moldaram as prioridades.
+
+**Por que agora:** Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.
+
+**Conceitos:** Estabilidade técnica e preocupações de confiabilidade; Crescimento da rede e restrições operacionais nos estágios iniciais; Incidentes de segurança e esforços de remediação iniciais; Compromissos entre financiamento e alocação de recursos; Canais de feedback da comunidade e respostas iniciais
+
+**Tempo de leitura:** 30 min
 
 ---
 
 ## Recapitulação & Introdução
-
-<strong>Por que agora:</strong> Depois de aprender a história de origem, examine obstáculos concretos que redirecionaram o foco do desenvolvimento.
-Estabilidade técnica e preocupações de confiabilidade Crescimento da rede e restrições operacionais nos estágios iniciais Incidentes de segurança e esforços de remediação iniciais Compromissos entre financiamento e alocação de recursos Canais de feedback da comunidade e respostas iniciais
-
-Fundação Conceitual
-30 min de leitura
 
 O whitepaper que você acabou de estudar enquadra a criptomoeda como um sistema de dinheiro eletrônico peer-to-peer que resolve o duplo gasto com marcação temporal e blocos encadeados. Você deve recordar a ideia específica de que ordenar transações de forma consistente (via timestamping e encadeamento) é o mecanismo que torna possível um livro razão canônico único apesar de participantes adversariais. Esse mecanismo concreto — ordenação + histórico acordado — é a âncora para entender por que uma blockchain deve priorizar tanto o progresso do consenso quanto a segurança.
 
@@ -31,13 +28,11 @@ Comece esta lição esperando revisitar modos de falha e trade-offs familiares q
 
 Ao final desta lição você será capaz de:
 
-<ul class="lesson-objectives-checklist">
-<li class="lesson-objective-item"><strong>Explicar</strong> os principais problemas de estabilidade técnica que surgiram quando a Solana passou de protótipo para rede ativa e por que esses problemas são importantes para o progresso do consenso.</li>
-<li class="lesson-objective-item"><strong>Descrever</strong> pelo menos duas restrições operacionais concretas (limites de recursos, agendamento em tempo de execução) que influenciaram mudanças de design iniciais.</li>
-<li class="lesson-objective-item"><strong>Traçar</strong> a sequência de um incidente inicial de segurança ou disponibilidade e resumir as etapas de remediação adotadas.</li>
-<li class="lesson-objective-item"><strong>Articular</strong> como decisões de financiamento e alocação de recursos moldaram a priorização entre recursos de desempenho e engenharia de confiabilidade.</li>
-<li class="lesson-objective-item"><strong>Avaliar</strong> o papel que os canais de feedback da comunidade desempenharam ao revelar problemas e orientar correções de curto prazo.</li>
-</ul>
+- **Explicar** os principais problemas de estabilidade técnica que surgiram quando a Solana passou de protótipo para rede ativa e por que esses problemas são importantes para o progresso do consenso.
+- **Descrever** pelo menos duas restrições operacionais concretas (limites de recursos, agendamento em tempo de execução) que influenciaram mudanças de design iniciais.
+- **Traçar** a sequência de um incidente inicial de segurança ou disponibilidade e resumir as etapas de remediação adotadas.
+- **Articular** como decisões de financiamento e alocação de recursos moldaram a priorização entre recursos de desempenho e engenharia de confiabilidade.
+- **Avaliar** o papel que os canais de feedback da comunidade desempenharam ao revelar problemas e orientar correções de curto prazo.
 
 ---
 
@@ -45,7 +40,7 @@ Ao final desta lição você será capaz de:
 
 Quando problemas de estabilidade ocorrem em um validador em execução, engenheiros frequentemente começam extraindo eventos estruturados dos logs e buscando padrões como mensagens frequentes de "slot skipped", chamadas RPC falhas repetidas ou pausas de GC. O código abaixo é um exemplo compacto em Rust que analisa um log simplificado de validador, conta tipos de evento e sinaliza ocorrências incomumente frequentes de "slot skipped". Este é um diagnóstico pequeno que você pode adaptar para qualquer runtime que emita eventos com timestamp.
 
-```
+```rust
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, BufRead};
@@ -84,22 +79,17 @@ fn parse_event(line: &str) -> Option<String> {
 
 Explicação linha a linha:
 
-1. 
-`use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
+1. `use std::collections::HashMap;` e as linhas `use` subsequentes importam utilitários básicos de I/O e coleções. Você precisará deles para contar ocorrências e ler arquivos.
 
-2. 
-A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
+2. A função `main` abre um arquivo chamado `validator.log` e o envolve em um leitor com buffer para iterar as linhas de forma eficiente. Se o arquivo estiver ausente, o programa retorna um erro — na prática você pode ligar isso a uma fonte de streaming em vez de um arquivo.
 
-3. 
-`let mut counts: HashMap<String, usize> = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`.
+3. `let mut counts: HashMap<String, usize> = HashMap::new();` cria um mapa onde as chaves são identificadores de evento e os valores são contagens. Os identificadores de evento são strings normalizadas como `slot_skipped`.
 
-Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
+   Dentro do loop, o programa chama `parse_event` para cada linha. Se o parsing retornar um evento, ele incrementa o contador correspondente. Esse padrão é robusto: separa a lógica de parsing da lógica de agregação para que você possa adicionar mais detectores sem mudar a estrutura de contagem.
 
-4. 
-A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
+4. A função `parse_event` demonstra uma abordagem mínima: checagens simples de substrings para marcadores conhecidos. Em produção, você substituiria isso por parsing estruturado (por exemplo, parsing JSON se os logs forem emitidos em JSON) e incluiria extração de timestamp para calcular taxas por minuto.
 
-5. 
-Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
+5. Após a agregação, o programa imprime cada evento e sua contagem. A partir dessas contagens você pode detectar rapidamente candidatos a anomalia, por exemplo se `slot_skipped` aparecer milhares de vezes em um segmento curto de log.
 
 Por que isso importa: quando uma interrupção começa, saber quais tipos de eventos disparam ajuda a entender se você está olhando para quedas de rede, backpressure em RPC, panics do runtime ou pausas de garbage collection. Este código é intencionalmente pequeno: o primeiro passo prático em muitas respostas a incidentes é quantificar os sintomas antes de propor uma correção.
 
@@ -115,31 +105,11 @@ A linha do tempo de ações tipicamente seguiu este padrão: detecção de sinto
 
 Para tornar os trade-offs visíveis, compare três escolhas de remediação que os engenheiros consideraram durante este incidente:
 
-<table>
-<thead>
-<tr><th>Opção</th><th>O que muda</th><th>Prós</th><th>Contras</th></tr>
-</thead>
-<tbody>
-<tr>
-<td>Limitação rápida</td>
-<td>Limitar a vazão de RPCs de entrada</td>
-<td>Alívio imediato, baixo risco de código</td>
-<td>Reduz capacidade e taxa de transferência percebida pelos usuários</td>
-</tr>
-<tr>
-<td>Reiniciar validadores</td>
-<td>Resetar memória/threads</td>
-<td>Reinício rápido e efetivo do estado</td>
-<td>Causa breves lacunas de disponibilidade e interrompe a rotação de líderes</td>
-</tr>
-<tr>
-<td>Patch de código</td>
-<td>Corrigir vazamento ou adicionar backpressure</td>
-<td>Correção de longo prazo, preserva capacidade</td>
-<td>Ciclo de desenvolvimento + revisão mais longo; risco de regressões</td>
-</tr>
-</tbody>
-</table>
+| Opção | O que muda | Prós | Contras |
+| --- | --- | --- | --- |
+| Limitação rápida | Limitar a vazão de RPCs de entrada | Alívio imediato, baixo risco de código | Reduz capacidade e taxa de transferência percebida pelos usuários |
+| Reiniciar validadores | Resetar memória/threads | Reinício rápido e efetivo do estado | Causa breves lacunas de disponibilidade e interrompe a rotação de líderes |
+| Patch de código | Corrigir vazamento ou adicionar backpressure | Correção de longo prazo, preserva capacidade | Ciclo de desenvolvimento + revisão mais longo; risco de regressões |
 
 Engenheiros frequentemente combinam opções: aplicar uma limitação rápida para estabilizar a rede enquanto desenvolvem um patch de código para o vazamento subjacente. Um exemplo de remediação concreta da prática inicial da Solana foi adicionar limites no estilo token-bucket nos handlers RPC para que rajadas súbitas não esgotassem CPU e memória; essa alteração prioriza segurança sobre a vazão máxima até que um alocador ou correção de runtime mais refinada esteja pronta.
 
@@ -187,12 +157,10 @@ Terceiro, canais da comunidade e comunicação transparente de incidentes foram 
 
 ## Recapitulação Rápida
 
-<ul class="lesson-recap-takeaways">
-<li>Problemas de estabilidade iniciais deslocaram prioridades de vazão máxima para comportamento previsível e observável.</li>
-<li>O diagnóstico combina logs, métricas e pequenas reproduções; limitações de curto prazo estabilizam enquanto patches são desenvolvidos.</li>
-<li>Fluxo de resposta a incidentes: detectar &rarr; triagem &rarr; mitigar &rarr; causa raiz &rarr; patch &rarr; comunicar.</li>
-<li>Transparência com a comunidade ajudou a coordenar upgrades e reduzir esforço operacional duplicado.</li>
-</ul>
+- Problemas de estabilidade iniciais deslocaram prioridades de vazão máxima para comportamento previsível e observável.
+- O diagnóstico combina logs, métricas e pequenas reproduções; limitações de curto prazo estabilizam enquanto patches são desenvolvidos.
+- Fluxo de resposta a incidentes: detectar → triagem → mitigar → causa raiz → patch → comunicar.
+- Transparência com a comunidade ajudou a coordenar upgrades e reduzir esforço operacional duplicado.
 
 ---
 
@@ -204,7 +172,7 @@ Prepare-se para ler a próxima lição, "Explicando os Mecanismos Centrais do Wh
 
 ## Glossário
 
-### Slot skipped
+### Slot ignorado (slot skipped)
 
 Um evento em que um líder ou validador agendado falha em produzir ou validar um bloco dentro da janela de tempo esperada, indicando problemas de liveness ou de agendamento.
 
@@ -212,19 +180,19 @@ Um evento em que um líder ou validador agendado falha em produzir ou validar um
 
 Um padrão defensivo que desacelera ou descarta requisições de entrada para prevenir esgotamento de recursos e preservar a estabilidade do sistema sob carga.
 
-### Token-bucket throttling
+### Limitação de taxa (token-bucket throttling)
 
 Uma técnica de rate-limiting que permite rajadas até uma capacidade e reabastece a uma taxa constante, usada para suavizar picos de requisições.
 
-### Canary rollout
+### Implantação canário (canary rollout)
 
 Uma estratégia de implantação em estágios que expõe uma mudança a um pequeno subconjunto de nós ou usuários para detectar regressões antes do rollout completo.
 
-### Triaging packet
+### Pacote de Triagem
 
 Uma coleção compacta de artefatos de diagnóstico (logs, métricas, topologia) montada rapidamente para classificar um incidente e guiar os respondedores.
 
-### Acceptance criteria
+### Critérios de Aceitação
 
 Condições concretas e testáveis que devem ser atendidas antes que uma correção seja considerada verificada e segura para implantar em toda a rede.
 
@@ -232,7 +200,7 @@ Condições concretas e testáveis que devem ser atendidas antes que uma correç
 
 ## Referências & Leitura Complementar
 
-- [Operação e Manutenção de Validator](https://docs.solana.com/running-validator) — *Documentação Solana* (Documentação Oficial)
+- [Operação e Manutenção de Validator](https://docs.anza.xyz/operations) — *Documentação Solana* (Documentação Oficial)
 - [Solana Status - Histórico de Incidentes](https://status.solana.com/) — *Status da Solana* (Status e Incidentes)
-- [Interrupção da Rede Solana: Discussão de Engenharia e Resposta (análise)](https://www.coindesk.com/markets/2021/09/15/solana-network-outage-explained/) — *CoinDesk* (Relatórios Postmortem)
+- [Reinício de Cluster: Procedimento Oficial de Resposta](https://docs.anza.xyz/operations/guides/restart-cluster) — *Agave / Anza Docs* (Resposta a Incidentes)
 - [GitHub - solana: PRs e issues de exemplo (arquivo pesquisável)](https://github.com/solana-labs/solana/issues) — *GitHub - solana-labs* (Código-Fonte e Correções)

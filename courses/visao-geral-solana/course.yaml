@@ -3,12 +3,12 @@ slug: visao-geral-solana
 title: "Visão Geral da Blockchain Solana"
 description: "Apresentar aos alunos a blockchain Solana, abordando sua história fundamental e arquitetura central. Usar analogias e recursos visuais para tornar conceitos complexos acessíveis a iniciantes."
 difficulty: beginner
-duration: 1.7
+duration: 7.0
 xpPerLesson: 20
-xpReward: 60
+xpReward: 320
 creator: Em8D6XyuXvNUK1YgLKBaji7HbbrZZq7fCdq3sGMXqxVZ
 creatorRewardXp: 30
-thumbnail: assets/banner.png
+thumbnail: assets/banner.jpg
 trackId: 0
 trackLevel: 0
 modules:
@@ -18,3 +18,25 @@ modules:
       - lesson-vgs-origens-fundacao
       - lesson-vgs-desafios-iniciais
       - lesson-vgs-marcos-e-adocao
+      - lesson-vgs-licoes-aprendidas-e-perspectivas
+  - key: arquitetura-central
+    title: "Compreendendo a Arquitetura Central da Solana"
+    lessons:
+      - lesson-vgs-visao-geral-da-arquitetura-da-solana
+      - lesson-vgs-componentes-centrais-do-runtime-e-papeis-dos-validadores
+      - lesson-vgs-fluxo-de-transacoes-e-modelo-de-processamento
+      - lesson-vgs-compromissos-de-projeto-e-caracteristicas-distintivas
+  - key: ecossistema-e-terminologia
+    title: "Exploração do Ecossistema Solana e Terminologia"
+    lessons:
+      - lesson-vgs-introducao-ao-ecossistema-solana-e-terminologia
+      - lesson-vgs-terminologia-essencial-da-solana-em-contexto
+      - lesson-vgs-mapeando-categorias-de-projetos-no-ecossistema-solana
+      - lesson-vgs-navegando-pelos-recursos-da-solana-e-proximos-passos
+  - key: projeto-final
+    title: "Projeto Final: Documentando a Jornada e a Arquitetura da Solana"
+    lessons:
+      - lesson-vgs-enquadrando-o-projeto-final-escopo-e-metodo-para-a-historia-da-solana
+      - lesson-vgs-sintetizando-a-historia-da-solana
+      - lesson-vgs-analisando-a-arquitetura-da-solana-para-o-relatorio
+      - lesson-vgs-relatorio-final-redacao-e-polimento-do-relatorio-abrangente-sobre-solana
