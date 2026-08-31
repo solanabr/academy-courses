@@ -19,14 +19,14 @@
 //   - include `links.next` ({ type: 'post', href }) only when nextActionHref was provided
 // Do NOT emit `message` or `links` keys when their inputs are absent.
 
-export interface ActionPostResponse {
+interface ActionPostResponse {
   type: 'transaction';
   transaction: string;
   message?: string;
   links?: { next: { type: 'post'; href: string } };
 }
 
-export function buildActionPostResponse(
+function buildActionPostResponse(
   transactionBase64: string,
   message?: string | null,
   nextActionHref?: string | null,

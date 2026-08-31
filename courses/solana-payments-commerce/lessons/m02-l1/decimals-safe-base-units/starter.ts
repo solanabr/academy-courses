@@ -11,6 +11,6 @@
 // TODO: rewrite toBaseUnits so it parses the decimal string EXACTLY, with no
 // floating-point math. Reject an amount with more fractional digits than the mint
 // has decimals (that is an over-precise amount the mint cannot represent).
-export function toBaseUnits(amount: string, decimals: number): bigint {
+function toBaseUnits(amount: string, decimals: number): bigint {
   return BigInt(Math.round(parseFloat(amount) * 10 ** decimals));
 }

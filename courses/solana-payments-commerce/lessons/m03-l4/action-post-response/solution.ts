@@ -2,14 +2,14 @@
 // Reference solution: assemble a spec-conformant ActionPostResponse.
 // Called positionally: buildActionPostResponse(transactionBase64, message?, nextActionHref?)
 
-export interface ActionPostResponse {
+interface ActionPostResponse {
   type: 'transaction';
   transaction: string;
   message?: string;
   links?: { next: { type: 'post'; href: string } };
 }
 
-export function buildActionPostResponse(
+function buildActionPostResponse(
   transactionBase64: string,
   message?: string | null,
   nextActionHref?: string | null,

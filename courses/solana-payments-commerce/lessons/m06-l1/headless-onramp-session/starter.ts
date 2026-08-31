@@ -13,7 +13,7 @@
 // TODO: this starter leaks the address into the URL and defaults to the
 // wrong network. Fix both halves so the tests pass.
 
-export interface OnrampInit {
+interface OnrampInit {
   requestBody: {
     addresses: { address: string; blockchains: string[] }[];
     assets: string[];
@@ -21,7 +21,7 @@ export interface OnrampInit {
   onrampUrl: string;
 }
 
-export function initHeadlessOnramp(
+function initHeadlessOnramp(
   destinationAddress: string,
   sessionToken: string,
   fiatAmount: number
