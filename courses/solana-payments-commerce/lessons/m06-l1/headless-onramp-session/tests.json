@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1",
+    "description": "the session request binds the destination on Solana, not Ethereum",
+    "input": "'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r', 'tok_abc123', 25",
+    "expectedOutput": "result.requestBody.addresses[0].blockchains[0] === 'solana'"
+  },
+  {
+    "id": "t2",
+    "description": "the client URL carries the session token",
+    "input": "'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r', 'tok_abc123', 25",
+    "expectedOutput": "result.onrampUrl.includes('sessionToken=tok_abc123')"
+  },
+  {
+    "id": "t3",
+    "description": "the client URL defaults the network to Solana",
+    "input": "'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r', 'tok_abc123', 25",
+    "expectedOutput": "result.onrampUrl.includes('defaultNetwork=solana')"
+  },
+  {
+    "id": "t4",
+    "description": "the raw wallet address must never appear in the client URL",
+    "input": "'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r', 'tok_abc123', 25",
+    "expectedOutput": "!result.onrampUrl.includes('GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r')"
+  },
+  {
+    "id": "t5",
+    "description": "the destination address is bound in the server-side session request",
+    "input": "'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r', 'tok_abc123', 25",
+    "expectedOutput": "result.requestBody.addresses[0].address === 'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r'"
+  },
+  {
+    "id": "t6",
+    "description": "the preset fiat amount is carried into the onramp URL",
+    "input": "'GjWvVdN8pXqR3fY7kZ2mLbT4hQ9sA6cE1uP5wX8nD2r', 'tok_abc123', 25",
+    "expectedOutput": "result.onrampUrl.includes('presetFiatAmount=25')"
+  }
+]

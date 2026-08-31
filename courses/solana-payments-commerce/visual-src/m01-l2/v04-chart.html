@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- chart: Sending $200 home: corridor cost vs the network's cut
+     purpose: turn the remittance claim into a picture: the corridor's 6.6% average dwarfs a base fee that stays under a cent on the same transfer
+     data: Cost of moving the same $200 across a border Traditional remittance corridor, 6.6% average cost: $13.20 per transfer (Helius stablecoin-payments guide, fetched 2026-08-21) Solana base network fee, one signature: 5000 lamports = 0.000005 SOL, which is $0.00075 at $150 per SOL and $0.0015 at $300; sub-cent at any recent SOL price
+     prompt: Single-comparison bar chart with two bars for the cost of moving the same $200: one tall bar at $13.20 labeled "traditional corridor, 6.6% average", one bar at under one cent labeled "Solana base fee, flat per signature". The second bar is invisible at linear scale, so print its dollar value beside it rather than relying on bar height. Subtitle the chart with the $200 ticket so the comparison reads at a glance.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:510px;height:513px;right:-311px;top:99px;border-radius:65% 65% 55% 37% / 49% 50% 36% 47%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:429px;height:496px;bottom:-289px;left:694px;border-radius:47% 35% 40% 37% / 61% 46% 65% 63%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .sub { font-family:var(--font-body); font-size:20px; color:var(--text-secondary); margin:-6px 0 10px; }
+  .stage { background:var(--surface-card); border-radius:var(--radius-2xl); padding:34px 60px 26px; margin-top:14px; }
+  .bars { display:flex; justify-content:center; align-items:flex-end; gap:200px; height:420px;
+          border-bottom:2.5px solid var(--border-strong); }
+  .bcol { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
+  .bcol .val { font-family:var(--font-display); font-weight:900; font-size:40px; color:var(--text-primary); margin-bottom:10px; white-space:nowrap; }
+  .bcol .val small { display:block; font-family:var(--font-body); font-weight:400; font-size:15px; color:var(--text-muted); text-align:center; margin-top:4px; }
+  .bcol .bar { width:190px; border-radius:8px 8px 0 0; }
+  .labels { display:flex; justify-content:center; gap:200px; padding-top:14px; }
+  .labels .lb { width:190px; text-align:center; font-family:var(--font-body); line-height:1.3; }
+  .labels .lb b { display:block; font-family:var(--font-display); font-weight:800; font-size:20px; color:var(--text-primary); margin-bottom:4px; }
+  .labels .lb span { font-size:15px; color:var(--text-secondary); }
+  .cap { margin-top:14px; font-family:var(--font-body); font-size:14px; color:var(--text-muted); text-align:center; }
+</style>
+  <div class="stbr-eyebrow">sending money home</div>
+  <h2 class="viz-title" style="font-size:48px;">$13.20 vs less than a cent</h2>
+  <div class="sub">cost of moving the same <b>$200</b> across a border</div>
+  <div class="stage">
+    <div class="bars">
+      <div class="bcol">
+        <div class="val">$13.20</div>
+        <div class="bar" style="height:340px; background:var(--stbr-emerald);"></div>
+      </div>
+      <div class="bcol">
+        <div class="val">$0.00075&ndash;$0.0015<small>invisible at this scale &mdash; read the number, not the bar</small></div>
+        <div class="bar" style="height:6px; background:var(--stbr-yellow); border-radius:3px;"></div>
+      </div>
+    </div>
+    <div class="labels">
+      <div class="lb"><b>traditional corridor</b><span>6.6% average cost per transfer</span></div>
+      <div class="lb"><b>Solana base fee</b><span>flat per signature, any amount</span></div>
+    </div>
+    <div class="cap">corridor: 6.6% average remittance cost (Helius stablecoin-payments guide) &middot; base fee: 5000 lamports = 0.000005 SOL &mdash; $0.00075 at $150/SOL, $0.0015 at $300; sub-cent at any recent SOL price</div>
+  </div>
+</div>
+</body></html>

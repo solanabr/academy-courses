@@ -1,0 +1,76 @@
+id: lesson-spc-m06-l2
+slug: m06-l2
+title: "Acceptance and corridors: Stripe, MoonPay Commerce, and PIX"
+skills:
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q5
+        prompt: "A US buyer pays Wavelength for a record with USDC on Solana through Stripe's pay-with-crypto. You check the Stripe dashboard the next morning. What did you receive, and what is the refund path?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A fiat balance: Stripe settles pay-with-crypto to your Stripe balance, and refunds go back as stablecoins to the originating wallet."
+            correct: true
+          - id: b
+            label: "USDC in a Stripe-custodied wallet you withdraw on-chain, with refunds issued as on-chain reversals of the original transfer."
+            correct: false
+            feedback: "Settlement is to a fiat balance, and on-chain transfers are not reversible; refunds are push payments as stablecoins."
+          - id: c
+            label: "Nothing until a 24-hour finalization clears, after which the buyer must re-initiate any refund from their wallet."
+            correct: false
+            feedback: "Settlement is to your fiat balance, and refunds are merchant-initiated push payments, not a buyer re-initiation."
+        explanation: "Stripe pay-with-crypto accepts USDC on Solana but settles to your fiat Stripe balance, so you are not holding crypto. Refunds are push payments of stablecoins back to the originating wallet, the same reverse-transfer shape you built in the reconciliation lesson. There is no chargeback and no on-chain reversal."
+      - id: q6
+        prompt: "A wave of Brazilian buyers expects to pay Wavelength with PIX. Which corridor choice matches the research, and what is the settlement expectation?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Stripe pay-with-crypto, which lists PIX among its supported settlement rails for Brazil."
+            correct: false
+            feedback: "Stripe's crypto acceptance is stablecoin-network-based; PIX is Sphere's rail, not Stripe's."
+          - id: b
+            label: "Sphere, whose rails include PIX alongside SEPA and ACH, with settlement quoted under 30 minutes."
+            correct: true
+          - id: c
+            label: "MoonPay Commerce, the only processor in the roster offering a PIX payout."
+            correct: false
+            feedback: "Sphere is the PIX anchor in the research; MoonPay Commerce is not the PIX choice here."
+        explanation: "Sphere is the Brazil corridor anchor: its rails include PIX alongside SEPA and ACH, with settlement quoted under 30 minutes. That is exactly why a corridor decision is a per-geography table rather than one processor: Sphere wins Brazil and would do nothing for your US card buyer."
+      - id: q7
+        prompt: "Wavelength prices records in USD but charges in USDC. A buyer asks why the USDC amount is exact rather than rounded off a floating rate. How does the lesson frame display pricing, and where does deeper oracle work live?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "USDC floats against USD like any other token, so you quote a mid-price off an oracle, eat the spread, and wire that feed here in full."
+            correct: false
+            feedback: "USDC is a USD peg charged 1:1, so there is no spread to eat, and deep oracle pricing is not taught in this course."
+          - id: b
+            label: "You must run your own price feed for every record, since oracle integration is a core payments-course skill."
+            correct: false
+            feedback: "For a USD-pegged stablecoin the display price is 1:1; oracle depth is handed off, not a core skill here."
+          - id: c
+            label: "USD-priced records are charged in exact USDC 1:1; oracle pricing for volatile assets is handed to the DeFi and RWA course."
+            correct: true
+        explanation: "Because USDC is a USD peg, a USD-priced record is charged as the same number of USDC, 1:1, with no oracle needed. Display pricing only gets interesting for volatile assets, and that oracle-based pricing depth is named here and handed to the DeFi and RWA Engineering course, which covers it end to end. Building a price feed for a pegged stablecoin is wasted work."
+      - id: q8
+        prompt: "Writing Wavelength's corridor decision record, you cite MoonPay Commerce. What is the accurate framing of what it is and how you cite its volume?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It is ex-Helio (hel.io redirects into MoonPay), and volume figures carry a source and date because the number moves."
+            correct: true
+          - id: b
+            label: "It is a Stripe competitor built from scratch in 2026, and its $40M single-payment volume is an audited constant you can quote flat in the record."
+            correct: false
+            feedback: "It is ex-Helio rather than a from-scratch build, and marketed volume is a moving figure, not an audited constant."
+          - id: c
+            label: "It is the Solana Foundation's official acceptance processor, and its volume comes from verifiable on-chain reads."
+            correct: false
+            feedback: "It is a MoonPay product, not a Foundation processor, and the figure is a marketed dated number, not an on-chain read."
+        explanation: "MoonPay Commerce is the former Helio: hel.io redirects into MoonPay's commerce arm. Its marketed volume, over $40M in single-payment volume since the October 2025 launch with 88% on Solana, is a moving figure, so the decision record cites it with source and date. Treating any marketed volume number as a fixed constant is the footgun the whole numbers-discipline rule guards against."

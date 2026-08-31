@@ -1,0 +1,77 @@
+id: lesson-spc-m08-l3
+slug: m08-l3
+title: "The production gate: a go-live checklist that means it"
+skills:
+  - transactions
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m08-l3-q1
+        prompt: "You're setting the confirmation policy per payment value in the gate: a $12 record sale versus a $9,000 wholesale order. What does the official guidance suggest?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "`confirmed` for the everyday record sale; `finalized` for the high-value or compliance-sensitive wholesale order."
+            correct: true
+          - id: b
+            label: "`finalized` for both, since money is money and only finality is ever safe."
+            correct: false
+            feedback: "Finalizing everything adds latency the small sale doesn't need; the guidance scales commitment to value."
+          - id: c
+            label: "`processed` for the record so checkout feels instant, and `confirmed` for the wholesale order."
+            correct: false
+            feedback: "processed is UI-only and can be dropped in forks, so it is never a settlement gate for real money."
+        explanation: "The policy scales commitment to value: `confirmed` covers most payments, `finalized` protects high-value or compliance-sensitive ones, and `processed` is UI-only (never the gate that releases goods)."
+      - id: m08-l3-q2
+        prompt: "The gate asks for a priority-fee posture on payment transactions. How deep should THIS course go?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Build a full fee-estimation service that samples recent prioritization fees per writable account and retunes the micro-lamport bid every slot."
+            correct: false
+            feedback: "That's landing science this course hands off; the gate wants a practical recipe, not a tuning engine."
+          - id: b
+            label: "State a one-box practical recipe for payment txs and hand transaction-landing depth to the Client-Side Mastery course."
+            correct: true
+          - id: c
+            label: "Skip priority fees; payments are low-value, so the base 5000-lamport fee always lands them."
+            correct: false
+            feedback: "Under congestion a bare base-fee tx can be dropped; a practical priority-fee floor still matters."
+        explanation: "This is a boundary the course keeps honest: a one-box priority-fee recipe lands payment transactions reliably, and the deep landing strategy belongs to Client-Side Mastery. The gate names the handoff rather than faking depth."
+      - id: m08-l3-q3
+        prompt: "Your webhook worker has been quietly failing for days and orders aren't being fulfilled. Which gate row is designed to catch this?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The commitment-policy row, because the worker releases orders only at `confirmed` and these payments never reached that level."
+            correct: false
+            feedback: "The transactions confirmed fine; the failure is in ingestion, not commitment."
+          - id: b
+            label: "The idempotency row, because duplicate events are piling up unprocessed."
+            correct: false
+            feedback: "Idempotency guards against double-fulfillment, not silent non-delivery."
+          - id: c
+            label: "The webhook-failure-monitoring row: Helius auto-disables a webhook after sustained failure, so alert on failure rate."
+            correct: true
+        explanation: "Silent webhook failure stops fulfillment without an obvious error, and a Helius webhook can auto-disable itself after sustained failure. The monitoring row exists precisely to alert on the failure rate before orders quietly stop."
+      - id: m08-l3-q4
+        prompt: "You go looking for a Solana-native merchant accounting/reporting SaaS to close the books and find nothing purpose-built. What's the honest gate posture?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "State it as an observed market gap as of your build date and ship your own reconciliation export as the interim answer."
+            correct: true
+          - id: b
+            label: "Block go-live until a vendor exists, since you can't operate a store without accounting software."
+            correct: false
+            feedback: "You already have reference/memo reconciliation; the missing SaaS is a note, not a blocker."
+          - id: c
+            label: "Assume Stripe's dashboard covers it, since Stripe settles some of the crypto payments."
+            correct: false
+            feedback: "Stripe's dashboard covers its own rails, not your on-chain Solana Pay and x402 ledger."
+        explanation: "Honest gaps are teaching content in a young market: with no purpose-built Solana merchant-accounting SaaS at build time, you state the gap with its date and lean on your own reference/memo reconciliation export until one exists."
