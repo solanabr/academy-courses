@@ -1,0 +1,79 @@
+id: lesson-spc-m03-l1
+slug: m03-l1
+title: "Checkout with a QR: the Solana Pay spec, live"
+skills:
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check-overview
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You build a Solana Pay transfer request to charge 12.50 USDC and, because USDC has 6 decimals, you write amount=12500000 in the URL. Your test wallet asks the customer to pay 12,500,000 USDC. What went wrong?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The spl-token parameter has to come before amount in the query string, otherwise the wallet falls back to native SOL and scales your number by nine decimals instead of six."
+            correct: false
+            feedback: "Query-parameter order is irrelevant to how the amount is interpreted; the mint is set by spl-token wherever it appears, and there is no silent SOL fallback."
+          - id: b
+            label: "validateTransfer rejects base-unit amounts, so you must call findReference first to normalize the decimals."
+            correct: false
+            feedback: "validateTransfer runs later, server-side, against the settled transfer; it is not why the URL charged the wrong amount."
+          - id: c
+            label: "A Solana Pay amount is in decimal token units, not base units: write amount=12.5 and the wallet applies the mint's decimals."
+            correct: true
+        explanation: "The Solana Pay spec defines amount as a UI (decimal) quantity of the token, and the wallet multiplies by the mint's decimals to get base units. Writing base units in the URL charges the customer that many whole tokens. This is the single most common Solana Pay checkout bug."
+      - id: q2
+        prompt: "You npm i @solana/pay, then open the canonical Solana Pay GitHub repo to read the source, but the README is a CLI for agentic payments (x402/MPP). Where is the classic checkout library you just installed?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It still lives in that repo at typescript/packages/solana-pay/; only the headline product moved to the agentic CLI."
+            correct: true
+          - id: b
+            label: "It was deprecated in favor of @solana-commerce/kit, the supported successor you should migrate the checkout to instead."
+            correct: false
+            feedback: "Commerce Kit is beta ('APIs may change') and is not a replacement for the Solana Pay library; the classic library is still shipped and current."
+          - id: c
+            label: "It moved to anza-xyz/solana-pay when Anza took over client tooling, so the package you installed is published from there and the Foundation copy is an archived mirror."
+            correct: false
+            feedback: "Both solana-labs/solana-pay and anza-xyz/solana-pay redirect to solana-foundation/pay; nothing is archived, and the classic library is a subpackage there rather than a separate repo."
+        explanation: "The Foundation's payments energy visibly moved from QR checkout to HTTP/agent payments: the canonical repo now leads with the agentic CLI, and npm i -g @solana/pay even installs that CLI binary. The classic checkout library survives at typescript/packages/solana-pay/, which is why lessons link the subpackage path, never the repo root."
+  - key: check-lab
+    type: quiz
+    questions:
+      - id: q3
+        prompt: "Your checkout page shows the QR. Server-side, how does your watcher learn the customer actually paid, and what does it match on?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It trusts the wallet's success callback in the browser and records the sale as soon as the page reports done."
+            correct: false
+            feedback: "Frontend confirmations are spoofable; trusting the browser is the exact anti-pattern the back-office module (m04) exists to fix."
+          - id: b
+            label: "It subscribes with watchReference (a WebSocket subscription) on the reference key you embedded, then confirms the transfer with validateTransfer."
+            correct: true
+          - id: c
+            label: "It periodically re-reads the QR image and decodes the resulting signature once the wallet stamps it back onto the code."
+            correct: false
+            feedback: "The QR is a static payment request; the signature is never written back to the image. Detection happens on-chain by reference, not by re-reading the QR."
+        explanation: "You chose the reference key before the payment existed, so you can search for a transfer carrying it. watchReference opens a WebSocket subscription that fires when a matching transfer appears, and validateTransfer then confirms the amount, recipient, and mint are what you expected. The browser is never the source of truth."
+      - id: q4
+        prompt: "You attach a fresh random 32-byte reference key to each checkout. A customer pays. Given the transfer already has a unique signature, why did you need the reference at all?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The reference is derived from the customer's wallet address at scan time, so it doubles as a refund handle and lets you push money back later without ever asking them for an address."
+            correct: false
+            feedback: "You generate the reference yourself, before the customer has scanned anything; it is random bytes carrying no wallet identity, so it cannot serve as a refund handle."
+          - id: b
+            label: "The reference encrypts the amount in the URL so the customer cannot tamper with the price before paying."
+            correct: false
+            feedback: "References do not encrypt anything; the amount is plainly in the URL. Tamper-resistance is exactly why the next lesson moves pricing server-side."
+          - id: c
+            label: "You cannot know the signature in advance, but you did choose the reference, so it is the join key that ties one on-chain transfer to one order."
+            correct: true
+        explanation: "The signature only exists after the payment lands, so you cannot pre-register it against an order. The reference is a value you pick up front and embed, letting findReference/watchReference locate the exact transfer for a given order without unique deposit addresses. It is the join key between your ledger and the chain."

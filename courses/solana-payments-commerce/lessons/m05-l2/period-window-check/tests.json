@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1-due-after-full-period",
+    "description": "A day-cadence sub whose 24h window has fully elapsed is due; the next window is measured in seconds.",
+    "input": "true, 0, 900000, 24, 1000000",
+    "expectedOutput": "result.shouldPull === true && result.reason === 'due' && result.nextEligibleTs === 986400"
+  },
+  {
+    "id": "t2-too-early-hours-not-seconds",
+    "description": "Only ~13.9h since the last pull: a correct seconds-based window holds the charge (the ×3600 bug would fire early).",
+    "input": "true, 0, 900000, 24, 950000",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'too-early' && result.nextEligibleTs === 986400"
+  },
+  {
+    "id": "t3-expired-never-charges",
+    "description": "The sub is past its expiresAtTs, so it is never pulled even though its period window is open.",
+    "input": "true, 1000000, 900000, 24, 1000050",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'expired'"
+  },
+  {
+    "id": "t4-canceled",
+    "description": "An inactive (cancelled) subscription is never pulled.",
+    "input": "false, 0, 900000, 24, 1000000",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'canceled' && result.nextEligibleTs === 0"
+  },
+  {
+    "id": "t5-zero-expiry-is-not-expired",
+    "description": "expiresAtTs of 0 means no expiry, so the decision falls through to the seconds-based window (here, too early).",
+    "input": "true, 0, 900000, 48, 1000000",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'too-early' && result.nextEligibleTs === 1072800"
+  },
+  {
+    "id": "t6-boundary-is-due",
+    "description": "At exactly lastChargedTs + period the window is open and the pull fires.",
+    "input": "true, 0, 900000, 24, 986400",
+    "expectedOutput": "result.shouldPull === true && result.reason === 'due'"
+  }
+]

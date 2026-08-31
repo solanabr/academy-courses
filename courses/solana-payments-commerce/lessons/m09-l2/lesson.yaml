@@ -1,0 +1,60 @@
+id: lesson-spc-m09-l2
+slug: m09-l2
+title: "Where the rails go from here"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m09l2-q1-frozen-moving
+        prompt: "You are handing this stack to a colleague in three months. Which part of what you built is MOST likely to have changed its pins or behavior by then?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The Solana Pay v1 transfer-request URL format, whose spec page is visibly 2023-vintage and still names FTX and Slope in its wallet examples, so a rewrite must be overdue."
+            correct: false
+            feedback: "The v1 spec is frozen, and frozen means stable, not stale-and-changing; the URL format is one of the LEAST likely things to move."
+          - id: b
+            label: "The blinks Actions spec fields, since the blinks tooling was described as frozen and effectively unpublished since 2025."
+            correct: false
+            feedback: "Frozen tooling is the opposite of fast-moving; the blinks lane is among the LEAST likely to shift pins in three months."
+          - id: c
+            label: "The Subscriptions program client and MPP, since @solana/subscriptions was days old on mainnet and MPP is an Internet-Draft that expires 2027-02-19."
+            correct: true
+        explanation: "The course drew the frozen/moving line on purpose. Frozen surfaces (the Solana Pay v1 spec, the blinks tooling) are safe precisely because they are stable. The young pieces, the Subscriptions program client and the MPP draft, are the ones to re-verify before you trust their pins."
+      - id: m09l2-q2-where-next
+        prompt: "Your colleague wants to squeeze more transactions to land under load during a hot drop by tuning priority fees and Jito bundles. Which course did this one explicitly defer that depth to?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The Master Solana Frontend and Client-Side Development course, which owns transaction-landing strategy."
+            correct: true
+          - id: b
+            label: "The Digital Assets, Tokenization and Token Extensions course, which owns the Token-2022 extensions PYUSD showed off."
+            correct: false
+            feedback: "Digital Assets owns token internals, not tx-landing; priority fees and Jito were handed to the client-side course."
+          - id: c
+            label: "The Low-Level Solana course, which covers the scheduler, QoS, and the leader pipeline that decide whether a transaction reaches a block at all."
+            correct: false
+            feedback: "Low-Level Solana explains WHY the runtime behaves as it does; the practical what-to-do for landing was deferred to the client-side course, not the internals course."
+        explanation: "This course states its boundary out loud: it gives the one-box priority-fee recipe and hands landing science, Jito, compute-budget tuning, and indexing at scale to the client-side course. The internals-why belongs to Low-Level Solana; the token internals belong to Digital Assets."
+      - id: m09l2-q3-frame
+        prompt: "The course opened by decoding a dollar on mainnet and closes on the repo that changed sides. What is the single structural difference from card rails that shaped every ops decision you made, from verification to refunds?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Fees are far lower on Solana, so you can afford to retry transactions much more aggressively than on card rails."
+            correct: false
+            feedback: "Low fees are real but they did not shape verification, reconciliation, or refunds; the asymmetry that did was the absence of chargebacks."
+          - id: b
+            label: "There are no chargebacks by construction, so refunds are push payments you originate and disputes have no bank-mediated reversal."
+            correct: true
+          - id: c
+            label: "Settlement is fast enough to be effectively instant, so reconciliation and idempotency stop mattering to a merchant."
+            correct: false
+            feedback: "Settlement is fast but not free of the retry-and-duplicate problem; idempotency and reconciliation mattered throughout precisely because webhooks still lie and blockhashes still expire."
+        explanation: "The no-chargeback asymmetry is the through-line: it is why refunds became original-construction push payments, why verification is server-side and final, and why the dispute posture differs from every card integration your colleague has done. Fast settlement and low fees are features; the missing chargeback is the structural fact."

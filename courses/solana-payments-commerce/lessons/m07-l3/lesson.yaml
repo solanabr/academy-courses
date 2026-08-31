@@ -1,0 +1,78 @@
+id: lesson-spc-m07-l3
+slug: m07-l3
+title: "MPP, AP2, ACP: the standards war (and gating the API with pay)"
+skills:
+  - transactions
+  - solana-kit
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check-standards
+    type: quiz
+    questions:
+      - id: q9-mor
+        prompt: "A merchant asks which agentic-payment standard keeps them as merchant-of-record, the same role they hold with a card processor today. Which answer is accurate?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "MPP, because a Solana-native draft always leaves the merchant as merchant-of-record by design."
+            correct: false
+            feedback: "MPP is a payment-authentication draft; 'merchant-of-record' is not its framing, and being Solana-native says nothing about who bears that role. The standard that explicitly keeps the merchant as merchant-of-record is ACP."
+          - id: b
+            label: "AP2, because Google and the FIDO Alliance take on merchant-of-record for every AP2 payment."
+            correct: false
+            feedback: "AP2 is cards-first with verifiable credentials and mandates; it does not make Google the merchant-of-record. ACP is the one that explicitly leaves the merchant as merchant-of-record."
+          - id: c
+            label: "ACP (Stripe and OpenAI), which is explicitly designed so the merchant stays merchant-of-record."
+            correct: true
+        explanation: "ACP, the Stripe-and-OpenAI Agentic Commerce Protocol, is built around the merchant staying merchant-of-record with a Shared Payment Token. That framing, familiar from card rails, is a real differentiator when you place the four standards, and it is exactly the lens the course uses at every payment seam."
+      - id: q10-mpp-dated
+        prompt: "You want to document Wavelength's MPP support. What is the honest way to state the standard's status, given draft-solana-charge-00?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "As a dated Internet-Draft snapshot: draft-solana-charge-00, published 2026-08-18 and expiring 2027-02-19, subject to change."
+            correct: true
+          - id: b
+            label: "As a ratified Solana Foundation standard that apps can depend on long-term."
+            correct: false
+            feedback: "It is an Internet-Draft, not a ratified standard. Drafts expire (this one on 2027-02-19) and get superseded; presenting it as stable is exactly the trap the lesson warns against."
+          - id: c
+            label: "As a permanent header spec, since WWW-Authenticate: Payment is already an established HTTP mechanism."
+            correct: false
+            feedback: "The WWW-Authenticate mechanism is established, but MPP's specific use of it lives in a draft that expires. Document the draft as dated, and check for a -01 revision at write time."
+        explanation: "draft-solana-charge-00 is an IETF-style Internet-Draft: dated (published 2026-08-18, expires 2027-02-19) and destined to be superseded. The honest documentation approach is a dated snapshot with a note to re-check for the next revision, not a claim of stability."
+      - id: q11-pay-gate
+        prompt: "You ran `pay gate api paywall.yml` on the pressing-price API, then `pay curl` completed a paid call. What did gating with the CLI actually buy you versus hand-writing an x402 middleware and an MPP handler yourself?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Nothing structural; `pay gate` only emits the x402 402 challenge, so an MPP caller still needs the WWW-Authenticate: Payment handler you write yourself."
+            correct: false
+            feedback: "One gate makes the SAME API answer both, WWW-Authenticate: Payment challenge included. If it only served x402, gating would not be worth the CLI dependency."
+          - id: b
+            label: "One gate makes the same API answer both x402 and MPP, and `pay curl` negotiates whichever the caller speaks."
+            correct: true
+          - id: c
+            label: "It moves settlement on-chain so no facilitator is involved for either protocol."
+            correct: false
+            feedback: "Gating does not remove the facilitator/co-signer role; x402 still settles through a facilitator and MPP's pull mode still has the server co-sign. What gating buys is one API serving both protocols, not the elimination of that role."
+        explanation: "`pay gate api paywall.yml` lets one API answer both x402 and MPP, and `pay curl` auto-negotiates the 402 on whichever protocol the caller speaks. That is the hands-on payoff: instead of betting on a single standard in a fast-moving field, you gate once and let the CLI negotiate, accepting a churn-prone CLI dependency as the cost."
+      - id: q12-bet
+        prompt: "An integrator asks for your honest 2026 recommendation on which single agentic-payment standard to build on exclusively. What is the defensible answer this lesson lands on?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Commit fully to AP2 now; Google plus FIDO guarantees it becomes the one standard."
+            correct: false
+            feedback: "No standard is guaranteed to win, and AP2 is cards-first, a poor fit for Solana-native metered APIs. Picking one exclusively is the premature bet the lesson argues against."
+          - id: b
+            label: "Commit fully to MPP now; the Solana Foundation authored the draft, and pull-mode fee sponsorship already covers the Solana-native case end to end."
+            correct: false
+            feedback: "Fee sponsorship is not unique to MPP; x402's facilitator plays the same role. And MPP is a draft that expires 2027-02-19, so Foundation authorship is a signal, not a guarantee. Betting exclusively on an expiring draft is the exact risk named in the trade-off."
+          - id: c
+            label: "Do not bet exclusively yet; gate once (with the pay CLI, say) and negotiate, since the field is unsettled."
+            correct: true
+        explanation: "The lesson's honest 2026 position is that the standards war is unsettled: x402 has traffic but a facilitator trust boundary, MPP is an expiring Solana-native draft, and AP2/ACP are cards-first with different merchant-of-record models. Gating once and negotiating (the `pay gate` beat) beats an exclusive early bet, at the cost of a CLI dependency."

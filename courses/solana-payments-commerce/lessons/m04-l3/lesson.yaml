@@ -1,0 +1,77 @@
+id: lesson-spc-m04-l3
+slug: m04-l3
+title: "Reconciliation, refunds, and partial fills: the missing manual"
+skills:
+  - rpc-reads
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q9
+        prompt: "You want one reconciler for both Solana Pay checkouts and (later) x402 API payments. What makes that possible?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Both rails require a unique deposit address per order, so you match on the address."
+            correct: false
+            feedback: "The whole point is that you do NOT need unique deposit addresses; matching is by reference/memo, not by address."
+          - id: b
+            label: "They share a mint, so matching on the USDC mint uniquely identifies each order."
+            correct: false
+            feedback: "Many orders share one mint; the mint can't identify an individual invoice; the reference/memo does."
+          - id: c
+            label: "Solana Pay reference keys and x402 extra.memo invoice ids are the same idea: one order-id-in-a-field pattern reconciles both."
+            correct: true
+        explanation: "Reconciliation converges: a Solana Pay `reference` and an x402 `extra.memo` invoice id both carry the order id in a searchable field, with no unique deposit address needed. One reconciler serves both, and the x402 half is seeded here and cashed in at module 7."
+      - id: q10
+        prompt: "There is no refunds page anywhere in Solana's payments docs. What does that tell you about how to build one?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Refunds are original construction here: a reverse push-payment linked in the ledger to its origin signature."
+            correct: true
+          - id: b
+            label: "Refunds are impossible on these rails by design, so you must direct buyers to file a chargeback."
+            correct: false
+            feedback: "Chargebacks don't exist here; refunds are absolutely possible, and you build them yourself as push payments."
+          - id: c
+            label: "The omission means refunds ride the network's dispute system automatically, the way a card network resolves a claim with no merchant code involved."
+            correct: false
+            feedback: "There is no network dispute system and no claim to resolve; the absence means you own the flow, not that it's automated for you."
+        explanation: "Chargebacks were designed out, so there's no refunds doc, and the reversal is yours. You push stablecoins back to the originating wallet (Stripe's own model) and record the refund against the origin signature so it's auditable."
+      - id: q11
+        prompt: "Before pushing a refund for a returned record, what must you confirm, and why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "That the buyer's wallet is still online, so the refund doesn't bounce."
+            correct: false
+            feedback: "A push payment to a wallet address doesn't require the buyer online; that's not the risk here."
+          - id: b
+            label: "That the origin payment finalized; a push refund is irreversible."
+            correct: true
+          - id: c
+            label: "That at least ~150 blocks have passed so the origin blockhash expired, since a refund sent inside that window could be replayed against your treasury."
+            correct: false
+            feedback: "Blockhash expiry governs whether a transaction can still land, and a landed transfer cannot be replayed; finality, not expiry, is the guarantee that makes a refund safe."
+        explanation: "No chargeback protects you either. A refund lands irreversibly, so verify the origin payment reached finality before reversing it. Otherwise a payment a fork dropped becomes a genuine refund you funded for nothing."
+      - id: q12
+        prompt: "A buyer sends 0.4 of a record's price. Which is a defensible partial-fill policy, stated as a trade-off?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Silently fulfill the order anyway, since the buyer clearly intended to pay in full."
+            correct: false
+            feedback: "Silent fulfillment on underpayment invites abuse and disputes; intent is not a payment."
+          - id: b
+            label: "Auto-refund every overpayment and underpayment instantly with no guard, so the ledger always returns to a clean paid-or-refunded binary."
+            correct: false
+            feedback: "That clean binary is bought with a griefing loop: an attacker churns your refund path at will, so the policy needs a guard."
+          - id: c
+            label: "Hold the order as underpaid and route it to a stated policy: a top-up window or refund-minus-fee."
+            correct: true
+        explanation: "Overpay/underpay/partial-fill are policy trade-offs, not defaults. Holding an underpaid order and routing it to an explicit, stated resolution keeps fulfillment auditable and defensible; silent fulfillment and ungated auto-refunds each fail a different way."

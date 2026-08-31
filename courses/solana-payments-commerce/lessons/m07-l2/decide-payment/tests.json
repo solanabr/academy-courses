@@ -1,0 +1,38 @@
+[
+  {
+    "id": "t1-pays-within-cap",
+    "description": "A 0.5 USDC call under the $1 cap is paid; fee payer and memo pass through.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '500000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-001', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === true && result.feePayer === 'FeeP4Yer1111111111111111111111111111111111' && result.memo === 'inv-001'"
+  },
+  {
+    "id": "t2-over-cap-declined",
+    "description": "A 1.5 USDC call exceeds the $1 cap and is declined.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '1500000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-002', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /cap/i.test(result.reason)"
+  },
+  {
+    "id": "t3-asset-not-allowed",
+    "description": "An asset outside the pegged allowlist is declined.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', '100000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-003', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /asset/i.test(result.reason)"
+  },
+  {
+    "id": "t4-wrong-scheme",
+    "description": "A non-exact scheme is not auto-paid.",
+    "input": "'upto', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '100000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-004', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /scheme/i.test(result.reason)"
+  },
+  {
+    "id": "t5-memo-too-large",
+    "description": "An invoice-id memo over 256 bytes is rejected before payment.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '100000', 'FeeP4Yer1111111111111111111111111111111111', 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /memo/i.test(result.reason)"
+  },
+  {
+    "id": "t6-devnet-accepted",
+    "description": "The devnet CAIP-2 id is a known network and pays under cap.",
+    "input": "'exact', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '250000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-006', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === true && result.reason === 'ok'"
+  }
+]

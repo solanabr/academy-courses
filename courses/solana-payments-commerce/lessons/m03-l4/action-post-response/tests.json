@@ -1,0 +1,26 @@
+[
+  {
+    "id": "t1",
+    "description": "carries the base64 transaction and the confirmation message",
+    "input": "'AQABtx==', 'Thanks for buying Midnight Sessions'",
+    "expectedOutput": "result.type === 'transaction' && result.transaction === 'AQABtx==' && result.message === 'Thanks for buying Midnight Sessions'"
+  },
+  {
+    "id": "t2",
+    "description": "chains a same-origin POST callback via links.next when nextActionHref is given",
+    "input": "'B64', null, 'https://wavelength.example/blink/thanks'",
+    "expectedOutput": "result.links !== undefined && result.links.next.type === 'post' && result.links.next.href === 'https://wavelength.example/blink/thanks'"
+  },
+  {
+    "id": "t3",
+    "description": "minimal response omits message and links entirely",
+    "input": "'ONLYTX'",
+    "expectedOutput": "result.type === 'transaction' && result.transaction === 'ONLYTX' && result.message === undefined && result.links === undefined"
+  },
+  {
+    "id": "t4",
+    "description": "includes both message and a chained action when both are provided",
+    "input": "'TX', 'ok', 'https://wavelength.example/blink/next'",
+    "expectedOutput": "result.message === 'ok' && result.links !== undefined && result.links.next.href === 'https://wavelength.example/blink/next'"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "t1",
+    "description": "A real, correct USDC payment for the order verifies.",
+    "input": "'{\"signature\":\"Sig1RealPaymentAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":1000000,\"postAmount\":2500000}],\"memo\":\"ORD-4271\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[]'",
+    "expectedOutput": "result.ok === true && result.reason === 'verified'"
+  },
+  {
+    "id": "t2",
+    "description": "A signature already fulfilled (webhook retry / replay) is rejected as duplicate.",
+    "input": "'{\"signature\":\"Sig1RealPaymentAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":1000000,\"postAmount\":2500000}],\"memo\":\"ORD-4271\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[\"Sig1RealPaymentAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"]'",
+    "expectedOutput": "result.ok === false && result.reason === 'duplicate'"
+  },
+  {
+    "id": "t3",
+    "description": "Right mint and amount but moved by the wrong token program is rejected.",
+    "input": "'{\"signature\":\"Sig3WrongProgramBBBBBBBBBBBBBBBBBBBBBBBBBBBB\",\"tokenProgram\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":1000000,\"postAmount\":2500000}],\"memo\":\"ORD-4271\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[]'",
+    "expectedOutput": "result.reason === 'wrong-token-program'"
+  },
+  {
+    "id": "t4",
+    "description": "A different token (USDT) landing in the ATA is not USDC and is rejected.",
+    "input": "'{\"signature\":\"Sig4WrongMintCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":1000000,\"postAmount\":2500000}],\"memo\":\"ORD-4271\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[]'",
+    "expectedOutput": "result.reason === 'wrong-mint'"
+  },
+  {
+    "id": "t5",
+    "description": "The balance delta on our own account is short of the order amount.",
+    "input": "'{\"signature\":\"Sig5UnderpaidDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":500000,\"postAmount\":1000000}],\"memo\":\"ORD-4271\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[]'",
+    "expectedOutput": "result.reason === 'underpaid'"
+  },
+  {
+    "id": "t6",
+    "description": "Correct payment but the memo ties it to a different order.",
+    "input": "'{\"signature\":\"Sig6WrongRefEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":1000000,\"postAmount\":2500000}],\"memo\":\"ORD-9999\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[]'",
+    "expectedOutput": "result.reason === 'wrong-reference'"
+  },
+  {
+    "id": "t7",
+    "description": "A transaction whose transfers never touch the recipient ATA (attacker paid their own account) is rejected as no-payment.",
+    "input": "'{\"signature\":\"Sig7NoPaymentFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"AttackerOwnUsdcAta222222222222222222222222\",\"preAmount\":1000000,\"postAmount\":2500000}],\"memo\":\"ORD-4271\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4271', '[]'",
+    "expectedOutput": "result.ok === false && result.reason === 'no-payment'"
+  }
+]
