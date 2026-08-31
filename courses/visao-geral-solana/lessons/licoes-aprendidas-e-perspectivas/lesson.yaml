@@ -1,0 +1,69 @@
+id: lesson-vgs-licoes-aprendidas-e-perspectivas
+slug: licoes-aprendidas-e-perspectivas
+title: "Lições Aprendidas e Perspectivas"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=v5twkx98I_k
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "No modelo mental \"arquitetura como ecossistema\" apresentado na lição, para que serve mapear as escolhas de design da rede?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Para calcular o preço de mercado do token nativo da rede."
+      correct: false
+      feedback: "A lição não trata de precificação de token; o modelo é sobre operadores e aplicações."
+    - id: a
+      label: "Para relacionar essas escolhas à ecologia de operadores e aplicações que se forma em torno delas."
+      correct: true
+      feedback: "Correto! O modelo liga decisões técnicas ao ecossistema de operadores e aplicações que elas produzem."
+    - id: c
+      label: "Para substituir a análise de sinais mensuráveis por uma avaliação puramente narrativa."
+      correct: false
+      feedback: "Ao contrário: a lição usa o modelo justamente para confrontar narrativas com evidências mensuráveis."
+    explanation: "O modelo arquitetura-como-ecossistema serve para mapear escolhas de design à ecologia de operadores e aplicações que elas geram."
+  - id: q2
+    prompt: "Segundo a lição, quais sinais concretos devem ser observados ao avaliar a saúde e a trajetória de uma rede?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "O número total de transações processadas desde o lançamento, tomado isoladamente como indicador de saúde da rede."
+      correct: false
+      feedback: "Um contador acumulado não distingue concentração, cadência de correções nem diversidade de operadores."
+    - id: a
+      label: "Diversidade de validadores, cadência de patches emergenciais, concentração de aplicações e mensagens de governança."
+      correct: true
+      feedback: "Correto! São exatamente os quatro sinais observáveis que a lição propõe."
+    - id: c
+      label: "As declarações oficiais publicadas pela equipe fundadora, usadas como fonte única sobre a trajetória da rede."
+      correct: false
+      feedback: "A lição pede confrontar narrativas com sinais mensuráveis, e não aceitar comunicação oficial como fonte única."
+    explanation: "Os sinais propostos são diversidade de validadores, cadência de patches emergenciais, concentração de apps e mensagens de governança."
+  - id: q3
+    prompt: "Segundo a lição, qual desses sinais indica que a concentração de aplicações em uma rede está aumentando?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "O número de linguagens de programação suportadas pelos SDKs oficiais da rede cresce a cada release."
+      correct: false
+      feedback: "A variedade de SDKs diz respeito à superfície de ferramentas, não à concentração da atividade real."
+    - id: c
+      label: "O valor médio das taxas de transação pagas pelos usuários cai de forma sustentada ao longo do tempo."
+      correct: false
+      feedback: "Taxas menores indicam capacidade ociosa ou mudança de preço, não em quais aplicações a atividade se concentra."
+    - id: a
+      label: "Poucos programas e poucos provedores de RPC respondem pela maior parte das transações e das leituras da rede."
+      correct: true
+      feedback: "Correto! Concentração se mede pela participação de poucos atores na atividade total."
+    explanation: "A concentração aparece quando poucos programas ou provedores de infraestrutura respondem pela maior parte da atividade — por exemplo, poucas aplicações concentrando as transações e poucos provedores de RPC atendendo a maior parte das leituras."

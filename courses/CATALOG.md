@@ -12,6 +12,12 @@ to author *mechanically* (schemas, CI, ids); this tells you *what* to author and
   of this blueprint) — shelved together on `paths/first-steps.yaml`. This blueprint remains the
   authoring contract for the track-1 catalog — restoring a course means moving it back to
   `courses/<slug>/` unchanged.
+- **Catalog addendum (2026-08-28):** two further courses have merged into `courses/` since the
+  status addendum above and are not part of this blueprint: `course-visao-geral-solana`
+  (“Visão Geral da Blockchain Solana”, pt-BR) and `course-pilula-solana-superteam`
+  (“Pílula Solana & Superteam”, pt-BR) — both trackId 0 / trackLevel 0, like the two alpha
+  electives. Neither is referenced by a path or an achievement yet, so `paths/first-steps.yaml`
+  still shelves only `course-btc-to-sol-evolution` and `course-solana-speedrun`.
 - **Achievements addendum (2026-08-24):** owner ruling — no course-specific achievements except
   `achievement-speedrunner`. Don't add a "complete course X" badge when authoring a course.
 - **Strategic record** (the research it derives from, the platform work it depends on) lives in the app repo:

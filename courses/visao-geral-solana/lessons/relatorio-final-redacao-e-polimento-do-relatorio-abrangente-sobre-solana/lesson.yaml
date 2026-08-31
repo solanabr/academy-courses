@@ -1,0 +1,69 @@
+id: lesson-vgs-relatorio-final-redacao-e-polimento-do-relatorio-abrangente-sobre-solana
+slug: relatorio-final-redacao-e-polimento-do-relatorio-abrangente-sobre-solana
+title: "Relatório Final: Redação e Polimento do Relatório Abrangente sobre Solana"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=GRxo8V26Mqg
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Quais materiais devem ser combinados no documento final, segundo a lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "O esboço do capstone, o rascunho histórico e as notas arquitetônicas."
+      correct: true
+      feedback: "Correto! Os três artefatos produzidos nas lições anteriores convergem em um único documento."
+    - id: b
+      label: "Apenas o rascunho histórico, descartando as notas arquitetônicas."
+      correct: false
+      feedback: "As notas arquitetônicas fazem parte do documento final."
+    - id: c
+      label: "Somente a bibliografia e as capturas de tela do explorador."
+      correct: false
+      feedback: "O documento final é bem mais amplo que isso."
+    explanation: "O documento final combina o esboço do capstone, o rascunho histórico e as notas arquitetônicas."
+  - id: q2
+    prompt: "Quais são os critérios de aceitação do relatório final?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Um limite máximo de páginas e uma capa formatada segundo o modelo entregue no início do módulo."
+      correct: false
+      feedback: "Formatação não substitui citações, explicações arquiteturais e as ligações explícitas entre elas."
+    - id: a
+      label: "Linha do tempo com citações, explicações arquiteturais, ligações explícitas entre elas e bibliografia completa."
+      correct: true
+      feedback: "Correto! São os quatro critérios de aceitação declarados."
+    - id: c
+      label: "A presença de imagens e diagramas coloridos em cada seção, independentemente das fontes citadas."
+      correct: false
+      feedback: "Diagramas ajudam a leitura, mas os critérios de aceitação são sobre evidência e vínculo argumentativo."
+    explanation: "Os critérios são linha do tempo com citações, explicações arquiteturais, ligações explícitas e bibliografia completa."
+  - id: q3
+    prompt: "Quais são as passagens de construção previstas antes do pacote de revisão por pares?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Compilação, testes unitários e deploy."
+      correct: false
+      feedback: "Essas etapas pertencem a desenvolvimento de software, não à redação do relatório."
+    - id: c
+      label: "Tradução, diagramação e impressão."
+      correct: false
+      feedback: "Não são as passagens descritas na lição."
+    - id: a
+      label: "Estrutural, de conteúdo e de citação."
+      correct: true
+      feedback: "Correto! Depois delas vem a lista de verificação do checkpoint."
+    explanation: "As passagens são estrutural, de conteúdo e de citação, seguidas do checkpoint e do pacote de revisão por pares."

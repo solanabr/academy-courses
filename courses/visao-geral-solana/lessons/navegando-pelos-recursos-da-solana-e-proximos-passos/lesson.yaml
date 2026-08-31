@@ -1,0 +1,69 @@
+id: lesson-vgs-navegando-pelos-recursos-da-solana-e-proximos-passos
+slug: navegando-pelos-recursos-da-solana-e-proximos-passos
+title: "Navegando pelos Recursos da Solana e Próximos Passos"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=wYMqHYZxVII
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Qual é a regra de confirmação proposta pelo modelo de evidência em camadas da lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Exigir dois sinais entre docs, repositório, on-chain e comunidade antes de aceitar uma alegação."
+      correct: true
+      feedback: "Correto! A confirmação cruzada em duas camadas é o critério proposto."
+    - id: b
+      label: "Aceitar a alegação assim que ela aparecer na documentação oficial, tratando-a como fonte única de verdade."
+      correct: false
+      feedback: "A documentação oficial é uma das camadas, mas a regra exige um segundo sinal independente."
+    - id: c
+      label: "Descartar qualquer alegação que não tenha registro on-chain, mesmo quando docs e repositório concordam."
+      correct: false
+      feedback: "O registro on-chain é uma das quatro camadas, não um requisito obrigatório isolado."
+    explanation: "As camadas são docs, repositório, on-chain e comunidade, e a regra é exigir dois sinais."
+  - id: q2
+    prompt: "Que tipo de artefato a lição manda priorizar ao julgar se um projeto é mantido?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Artefatos criptográficos e de versão, como tags de release e CI."
+      correct: true
+      feedback: "Correto! Esses artefatos são mais difíceis de forjar do que sinais sociais."
+    - id: b
+      label: "A quantidade de mensagens no canal da comunidade."
+      correct: false
+      feedback: "Atividade de comunidade é apenas uma das camadas e não a prioritária aqui."
+    - id: c
+      label: "A data de criação do domínio do site do projeto."
+      correct: false
+      feedback: "Esse não é um dos artefatos priorizados pela lição."
+    explanation: "Tags de release e CI são os artefatos de versão priorizados para julgar manutenção."
+  - id: q3
+    prompt: "O que a lição pede que você registre sobre cada projeto revisado?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "A transcrição completa de todas as mensagens trocadas nos canais de comunidade do projeto."
+      correct: false
+      feedback: "Transcrições brutas não são comparáveis entre projetos nem sustentam análise de arquitetura."
+    - id: c
+      label: "Apenas o nome do projeto e o endereço do seu site oficial, para consulta futura."
+      correct: false
+      feedback: "Nome e site não registram os sinais verificados e não permitem comparação."
+    - id: a
+      label: "Linhas de comparação concisas com os sinais verificados, que apoiam análises de incentivos e arquitetura."
+      correct: true
+      feedback: "Correto! O registro precisa ser curto, comparável e ancorado em sinais verificados."
+    explanation: "O registro é uma linha de comparação concisa por projeto, com os sinais verificados, para sustentar análises posteriores de incentivos e arquitetura."

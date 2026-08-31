@@ -21,12 +21,6 @@ blocks:
       of History para a Solana?
     multiSelect: false
     options:
-    - id: a
-      label: Aumentar o tamanho dos blocos de dados para armazenar mais transações
-        em cada intervalo de tempo.
-      correct: false
-      feedback: Aumentar o tamanho dos blocos não resolve a necessidade de sincronização
-        contínua de relógios entre nós distribuídos.
     - id: b
       label: Codificar a passagem do tempo em um fluxo criptográfico sequencial (SHA-256),
         permitindo que os nós verifiquem o tempo de forma independente e assíncrona.
@@ -34,6 +28,12 @@ blocks:
       feedback: Correto! Ao transformar a passagem do tempo em uma função criptográfica
         verificável, os nós concordam com a ordem dos eventos sem necessidade de comunicação
         constante.
+    - id: a
+      label: Aumentar o tamanho dos blocos de dados para armazenar mais transações
+        em cada intervalo de tempo.
+      correct: false
+      feedback: Aumentar o tamanho dos blocos não resolve a necessidade de sincronização
+        contínua de relógios entre nós distribuídos.
     - id: c
       label: Eliminar a verificação criptográfica do tempo e confiar na medição de
         relógios locais de cada nó individual.
@@ -49,6 +49,12 @@ blocks:
       e telecomunicações influenciou a abordagem da Solana?
     multiSelect: false
     options:
+    - id: b
+      label: Direcionou o projeto para limitar deliberadamente o uso dos recursos
+        de hardware, evitando a execução em paralelo.
+      correct: false
+      feedback: 'Ao contrário: a equipe projetou a rede para aproveitar integralmente
+        os avanços de hardware moderno e execução concorrente.'
     - id: a
       label: Direcionou o projeto para maximizar o uso de hardware moderno e processamento
         paralelo, priorizando alta vazão e baixa latência.
@@ -56,12 +62,6 @@ blocks:
       feedback: Exato! A bagagem em sistemas embarcados e telecomunicações levou a
         equipe a tratar hardware moderno e largura de banda como recursos que a arquitetura
         deve aproveitar ao máximo.
-    - id: b
-      label: Direcionou o projeto para limitar deliberadamente o uso dos recursos
-        de hardware, evitando a execução em paralelo.
-      correct: false
-      feedback: 'Ao contrário: a equipe projetou a rede para aproveitar integralmente
-        os avanços de hardware moderno e execução concorrente.'
     - id: c
       label: Focou exclusivamente na execução sequencial estrita em uma única thread
         para simplificar a lógica dos nós.
@@ -76,6 +76,20 @@ blocks:
       da Solana e as do Bitcoin apresentada na lição?
     multiSelect: false
     options:
+    - id: b
+      label: O Bitcoin prioriza vazão contínua em tempo real e execução paralela,
+        enquanto a Solana prioriza blocos discretos com intervalos espaçados para
+        reduzir requisitos de hardware.
+      correct: false
+      feedback: 'Invertido: são as bases do Bitcoin que assumem blocos discretos e
+        hardware modesto; a vazão contínua é a prioridade da Solana.'
+    - id: c
+      label: 'Não há distinção de prioridade: ambas compartilham as mesmas metas de
+        vazão, latência e requisitos de hardware, diferindo apenas na função de hash
+        usada no consenso.'
+      correct: false
+      feedback: A lição contrasta prioridades de projeto opostas; a diferença não
+        se reduz à escolha de função de hash.
     - id: a
       label: O Bitcoin prioriza validação com requisitos mínimos de hardware e blocos
         discretos; a Solana prioriza alta vazão e baixa latência integrando tempo
@@ -84,18 +98,6 @@ blocks:
       feedback: Perfeito! O Bitcoin foi projetado para maximizar a auditabilidade
         com requisitos mínimos de nó, enquanto a Solana priorizou vazão máxima e latência
         mínima com tempo integrado.
-    - id: b
-      label: O Bitcoin prioriza vazão contínua em tempo real, enquanto a Solana prioriza
-        blocos discretos com intervalos espaçados.
-      correct: false
-      feedback: 'É o inverso: o Bitcoin utiliza blocos discretos espaçados, enquanto
-        a Solana integra a ordenação baseada em tempo contínuo.'
-    - id: c
-      label: 'Não há distinção de prioridade: ambas compartilham as mesmas metas de
-        vazão, latência e requisitos de hardware.'
-      correct: false
-      feedback: A lição estabelece que as duas redes adotaram trade-offs e prioridades
-        fundamentais distintos.
     explanation: A comparação na lição mostra que o Bitcoin priorizou descentralização
       com requisitos mínimos de hardware e blocos discretos, enquanto a Solana escolheu
       priorizar alta vazão e baixa latência com execução orientada ao tempo.
