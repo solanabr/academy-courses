@@ -336,7 +336,7 @@ Three lines: the binding confirmation, the no-leak confirmation, and a `pay.coin
 // Two bugs, both from the top of the lesson: it binds the wrong chain, and it
 // leaks the raw address into the client URL.
 
-export interface OnrampInit {
+interface OnrampInit {
   requestBody: {
     addresses: { address: string; blockchains: string[] }[];
     assets: string[];
@@ -344,7 +344,7 @@ export interface OnrampInit {
   onrampUrl: string;
 }
 
-export function initHeadlessOnramp(
+function initHeadlessOnramp(
   destinationAddress: string,
   sessionToken: string,
   fiatAmount: number
@@ -353,12 +353,17 @@ export function initHeadlessOnramp(
     addresses: [{ address: destinationAddress, blockchains: ['ethereum'] }],
     assets: ['USDC'],
   };
-  const query = new URLSearchParams({
-    address: destinationAddress,
-    defaultNetwork: 'ethereum',
-    presetFiatAmount: String(fiatAmount),
-  });
-  const onrampUrl = `https://pay.coinbase.com/buy/select-asset?${query.toString()}`;
+  // Query built by hand rather than URLSearchParams: the challenge grader
+  // runs in a bare JS realm without the web URL APIs.
+  const params: [string, string][] = [
+    ['address', destinationAddress],
+    ['defaultNetwork', 'ethereum'],
+    ['presetFiatAmount', String(fiatAmount)],
+  ];
+  const query = params
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+  const onrampUrl = `https://pay.coinbase.com/buy/select-asset?${query}`;
   return { requestBody, onrampUrl };
 }
 ```
