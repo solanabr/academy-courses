@@ -22,14 +22,14 @@
 // TODO: implement the checks. The starter below pays everything, which is
 // exactly the bug that drains an agent's wallet.
 
-export interface PaymentDecision {
+interface PaymentDecision {
   willPay: boolean;
   reason: string; // "ok" when paying, else why it was declined
   feePayer: string | null;
   memo: string | null;
 }
 
-export function decidePayment(
+function decidePayment(
   scheme: string, // "exact" | "upto" | "auth-capture" | "batch-settlement"
   network: string, // CAIP-2 id, e.g. "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
   asset: string, // SPL mint address

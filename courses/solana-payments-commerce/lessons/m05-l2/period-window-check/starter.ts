@@ -18,13 +18,13 @@
 // seconds-based period window. The starter below forgets the ×3600 conversion
 // AND never checks expiry: the exact double-charge bugs above.
 
-export interface PullDecision {
+interface PullDecision {
   shouldPull: boolean;
   reason: string; // "due" when pulling, else why it was held
   nextEligibleTs: number; // earliest Unix second a pull may fire (0 if N/A)
 }
 
-export function decidePull(
+function decidePull(
   active: boolean, // false once CancelSubscription has run
   expiresAtTs: number, // Unix seconds; 0 = never expires
   lastChargedTs: number, // Unix seconds of the previous successful pull

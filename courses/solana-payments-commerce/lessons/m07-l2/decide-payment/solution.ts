@@ -6,7 +6,7 @@
 // allowedAssetsJson is the pegged-asset allowlist serialized as a JSON string
 // mapping mint -> decimals (pegged 1:1 to USD).
 
-export interface PaymentDecision {
+interface PaymentDecision {
   willPay: boolean;
   reason: string; // "ok" when paying, else why it was declined
   feePayer: string | null;
@@ -21,7 +21,7 @@ const KNOWN_NETWORKS = new Set<string>([
 
 const MEMO_MAX_BYTES = 256;
 
-export function decidePayment(
+function decidePayment(
   scheme: string, // "exact" | "upto" | "auth-capture" | "batch-settlement"
   network: string, // CAIP-2 id, e.g. "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
   asset: string, // SPL mint address

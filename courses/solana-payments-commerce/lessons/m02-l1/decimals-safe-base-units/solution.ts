@@ -3,7 +3,7 @@
 // A mint with `decimals` places (USDC = 6) stores balances as integers: 1 USDC =
 // 1_000_000 base units. Parse the decimal string exactly with bigint arithmetic so
 // the result is correct for any amount, large or small.
-export function toBaseUnits(amount: string, decimals: number): bigint {
+function toBaseUnits(amount: string, decimals: number): bigint {
   const trimmed = amount.trim();
   if (!/^\d+(\.\d+)?$/.test(trimmed)) {
     throw new Error(`invalid amount: ${amount}`);

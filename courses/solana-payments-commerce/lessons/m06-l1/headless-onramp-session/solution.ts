@@ -5,7 +5,7 @@
 // cannot redirect the funded USDC to a different wallet, because the address
 // never travels in the query string.
 
-export interface OnrampInit {
+interface OnrampInit {
   requestBody: {
     addresses: { address: string; blockchains: string[] }[];
     assets: string[];
@@ -13,7 +13,7 @@ export interface OnrampInit {
   onrampUrl: string;
 }
 
-export function initHeadlessOnramp(
+function initHeadlessOnramp(
   destinationAddress: string,
   sessionToken: string,
   fiatAmount: number
