@@ -200,7 +200,7 @@ Keep-Alive: timeout=5
 {}
 ```
 
-Sit with that screenful, because it is the header rule made visible: a 402, two bytes of body that say nothing, and one long header that says everything. The base64 blob is elided above at the ellipsis; yours runs about 430 characters. Decode it and the terms appear:
+Sit with that screenful, because it is the header rule made visible: a 402, two bytes of body that say nothing, and one long header that says everything. The base64 blob is elided above at the ellipsis; yours runs about 660 characters. Decode it and the terms appear:
 
 ```bash
 curl -sD - -o /dev/null http://localhost:4021/price \
