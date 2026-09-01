@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- comparison: What the borrow model guards, and what is still yours
-     purpose: fix the precise boundary of the compile-time guarantee so it is neither under nor over-trusted
-     data: Read pattern                                   | Guarded by the borrow model? ctx.accounts.state.credit (typed field)        | YES: excluded while a handle is live ctx.accounts.escrow.amount (typed field)       | YES: excluded while a handle is live raw AccountInfo lamports (**account.lamports)  | NO: your responsibility, as in v1 manual byte reads from the data buffer         | NO: your responsibility, as in v1 reading typed data AFTER the handle drops      | Allowed, and reads the LIVE account (no reload)
-     prompt: Two-column table. Left: read pattern. Right: guarded yes/no. Use green for the two typed YES rows and the final "allowed, live" row; use a caution color for the two raw NO rows. Header: "typed access is guarded; raw access is yours".
+     purpose: fix the precise boundary of the compile-time guarantee so it is neither under nor over-trusted — it covers typed reads of the accounts handed to the CPI, and nothing wider
+     data: Read pattern                                   | Guarded by the borrow model? ctx.accounts.vault_ta.amount() (typed, handed to this CPI) | YES: excluded while THAT account's handle is live ctx.accounts.state.credit (typed, not in this CPI)   | N/A: no handle borrows it, and this CPI cannot write it raw AccountInfo lamports (**account.lamports)  | NO: your responsibility, as in v1 manual byte reads from the data buffer         | NO: your responsibility, as in v1 reading typed data AFTER the handle drops      | Allowed, and reads the LIVE account (no reload)
+     prompt: Two-column table. Left: read pattern. Right: guarded yes/no. Use green for the typed YES row, the not-in-the-CPI row and the final "allowed, live" row; use a caution color for the two raw NO rows. Header: "what the lock covers, and what is still yours".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -57,17 +57,17 @@
   .verdict b { color:var(--stbr-yellow); }
 </style>
   <div class="stbr-eyebrow">the exact edge of the guarantee</div>
-  <h2 class="viz-title">typed access is guarded; raw access is yours</h2>
+  <h2 class="viz-title">what the lock covers, and what is still yours</h2>
   <div class="tbl">
     <div class="r hd"><div>read pattern</div><div>guarded by the borrow model?</div></div>
     <div class="body">
       <div class="r">
-        <div class="pat"><span class="kind t">typed</span><code>ctx.accounts.state.credit</code></div>
-        <div class="ver yes"><span class="tag">YES</span>excluded while a handle is live</div>
+        <div class="pat"><span class="kind t">typed</span><code>ctx.accounts.vault_ta.amount()</code> — handed to this CPI</div>
+        <div class="ver yes"><span class="tag">YES</span><span>excluded while <b>that account's</b> handle is live</span></div>
       </div>
       <div class="r">
-        <div class="pat"><span class="kind t">typed</span><code>ctx.accounts.escrow.amount</code></div>
-        <div class="ver yes"><span class="tag">YES</span>excluded while a handle is live</div>
+        <div class="pat"><span class="kind t">typed</span><code>ctx.accounts.state.credit</code> — not in this CPI</div>
+        <div class="ver free"><span class="tag">N/A</span>no handle borrows it, and this CPI cannot write it</div>
       </div>
       <div class="r">
         <div class="pat"><span class="kind raw">raw</span><code>**account.lamports</code> (AccountInfo)</div>
@@ -83,7 +83,8 @@
       </div>
     </div>
   </div>
-  <div class="verdict">The compiler covers every typed field. Step outside the type system into
-    raw bytes or lamports and you are <b>back on v1 rules</b>.</div>
+  <div class="verdict">The compiler covers typed fields of the accounts a live handle borrows —
+    those accounts, and nothing wider. Step outside the type system into raw bytes or lamports
+    and you are <b>back on v1 rules</b>.</div>
 </div>
 </body></html>
