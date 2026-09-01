@@ -65,7 +65,7 @@ COPY . .
 CMD ["anchor", "test"]
 ```
 
-![Building on the host's anchor-cli 1.1.2 silently yields a v1 artifact; only the isolated, pinned 2.0.0-rc.1 toolchain emits the V2 errors and a real V2 build.](assets/v01-flowchart.png)
+![Building on the host's anchor-cli 1.1.2 silently yields a v1 artifact; only the isolated, pinned 2.0.0-rc.1 toolchain emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.png)
 
 That is the load-bearing setup. Get it wrong and every code edit below is theater. Get it right and the compiler starts doing your job for you.
 

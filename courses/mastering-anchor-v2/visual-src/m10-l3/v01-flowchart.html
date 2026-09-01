@@ -12,8 +12,8 @@
 <body>
 <!-- flowchart: Which toolchain builds what
      purpose: show why building the port on the ambient 1.1.2 silently produces a v1 artifact, and where the isolated RC has to sit
-     data: Source (edited vault) -> decision: which anchor-cli is on PATH? branch A: anchor-cli 1.1.2 (ambient/host) -> "builds, no V2 errors" -> v1 artifact (WRONG, behaves like v1) branch B: anchor-cli 2.0.0-rc.1 (isolated, pinned in verify/Dockerfile) -> emits V2 deprecations + borrow errors -> V2 artifact (correct) note: the host box has 1.1.2 installed; the RC must be an isolated, pinned toolchain
-     prompt: Vertical decision flowchart. One source node at top splits on "which anchor-cli is on PATH?" into two branches. Left branch (1.1.2, host) ends in a red "v1 artifact, silently wrong" terminal. Right branch (2.0.0-rc.1, isolated + pinned) ends in a green "V2 artifact" terminal, with a callout that this branch is the one that produces the deprecation warnings and borrow errors the rest of the lesson relies on. Label the branches clearly; the failure mode is the teaching point.
+     data: Source (edited vault) -> decision: which anchor-cli is on PATH? branch A: anchor-cli 1.1.2 (ambient/host) -> "builds, no V2 errors" -> v1 artifact (WRONG, behaves like v1) branch B: anchor-cli 2.0.0-rc.1 (isolated, pinned in verify/Dockerfile) -> emits the V2 deprecations + the E0599 missing-method error on .reload() -> V2 artifact (correct) note: the host box has 1.1.2 installed; the RC must be an isolated, pinned toolchain
+     prompt: Vertical decision flowchart. One source node at top splits on "which anchor-cli is on PATH?" into two branches. Left branch (1.1.2, host) ends in a red "v1 artifact, silently wrong" terminal. Right branch (2.0.0-rc.1, isolated + pinned) ends in a green "V2 artifact" terminal, with a callout that this branch is the one that produces the deprecation warnings and the missing-method error the rest of the lesson relies on. Label the branches clearly; the failure mode is the teaching point.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -104,7 +104,7 @@
       </div>
       <div class="fc-box">
         <div class="fc-h">builds clean — no V2 errors</div>
-        <div class="fc-p">no deprecations, no borrow errors, nothing to read</div>
+        <div class="fc-p">no deprecations, no missing-method error, nothing to read</div>
       </div>
       <div class="fc-term bad">
         <div class="fc-lab">terminal &middot; the failure mode</div>
@@ -120,7 +120,7 @@
         <div class="fc-p">pinned in <code>verify/Dockerfile</code>, never the host PATH</div>
       </div>
       <div class="fc-box">
-        <div class="fc-h">emits V2 deprecations + borrow errors</div>
+        <div class="fc-h">emits V2 deprecations + <code>E0599</code> on <code>.reload()</code></div>
         <div class="fc-p">the exact output the rest of this lesson reads as instructions</div>
       </div>
       <div class="fc-term good">

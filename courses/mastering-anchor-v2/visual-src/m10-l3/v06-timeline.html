@@ -12,7 +12,7 @@
 <body>
 <!-- timeline: The let-the-compiler-drive loop
      purpose: show the port as a repeatable edit/build/read-the-error loop rather than a one-shot rewrite
-     data: step 1: pin the RC toolchain (verify anchor --version = 2.0.0-rc.1, not 1.1.2) step 2: apply mechanical deltas at TODO markers (rows 1-5) step 3: build -> read type/method/signature errors -> fix -> repeat until they clear step 4: build -> read DEPRECATION warning (has_one) -> apply address = state.authority -> warnings to 0 step 5: build -> read BORROW error (stale .reload() access) -> restructure, drop reload -> compiles step 6: anchor test (LiteSVM) green + cargo build deprecation count = 0 -> done loop invariant: never guess; the next edit is whatever the compiler just printed
+     data: step 1: pin the RC toolchain (verify anchor --version = 2.0.0-rc.1, not 1.1.2) step 2: apply mechanical deltas at TODO markers (rows 1-5) step 3: build -> read type/method/signature errors -> fix -> repeat until they clear step 4: build -> read DEPRECATION warning (has_one) -> apply address = state.authority -> warnings to 0 step 5: build -> read the MISSING-METHOD error, E0599 no method named reload -> drop the reload, restructure the reads around the call -> compiles step 6: anchor test (LiteSVM) green + cargo build deprecation count = 0 -> done loop invariant: never guess; the next edit is whatever the compiler just printed
      prompt: Horizontal timeline of six steps left to right, with a looping arrow between the build steps (3, 4, 5) back to "build again" to convey iteration. Mark steps 4 and 5 with distinct accent badges ("warning-driven", "error-driven"). End node is a green "gate passed" marker. Include the loop invariant as a caption under the middle of the track. Keep it clean and process-focused.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -94,8 +94,8 @@
     <div class="st">
       <div class="dot">5</div>
       <span class="chip">error-driven</span>
-      <div class="h">build &rarr; read the BORROW error</div>
-      <div class="m">stale .reload() access &rarr;<br>restructure, drop reload,<br>it compiles</div>
+      <div class="h">build &rarr; read the MISSING-METHOD error</div>
+      <div class="m">E0599: no method<br>named .reload() &rarr;<br>drop the reload,<br>restructure the reads</div>
     </div>
     <div class="tconn"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="15" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="14,1 26,8 14,15" fill="#008b4c"/></svg></div>
 
