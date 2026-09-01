@@ -414,7 +414,7 @@ export async function sendStablecoin(opts: {
     (m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m),
     (m) =>
       appendTransactionMessageInstructions(
-        [createAtaIx, transferIx, memoIx],
+        [createAtaIx, memoIx, transferIx],
         m,
       ),
   );
