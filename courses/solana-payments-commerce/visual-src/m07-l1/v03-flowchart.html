@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: The exact-SVM round-trip, all four beats
-     purpose: make the full challenge-pay-settle-receipt loop traceable, with the two headers and the facilitator endpoints in their exact positions
-     data: 1. bot -> merchant API: GET /price (no payment header) 2. merchant API -> bot: 402 + PaymentRequirements JSON (scheme, network CAIP-2 id, asset, maxAmountRequired, extra.feePayer, extra.memo) 3. bot: builds versioned tx, transfers asset to merchant with memo, fee-payer slot = extra.feePayer, PARTIALLY signs (owner slot only) 4. bot -> merchant API: GET /price + PAYMENT-SIGNATURE header (base64 partially signed tx) 5. merchant API -> facilitator /verify: inspect only, would this satisfy the terms? no signing, no submission 6. merchant API -> facilitator /settle: facilitator ADDS fee-payer signature, submits to network 7. merchant API -> bot: 200 + response body + PAYMENT-RESPONSE header (settlement receipt)
-     prompt: Vertical sequence flowchart with three lanes: bot, merchant API, facilitator. Seven numbered arrows as listed in data. Highlight arrow 4's PAYMENT-SIGNATURE header and arrow 7's PAYMENT-RESPONSE header as labeled tags. Mark the /verify step read-only and the /settle step with a signature-added badge. Structure only; house brand styles apply.
+     purpose: make the full challenge-pay-settle-receipt loop traceable, with all three headers and the facilitator endpoints in their exact positions
+     data: 1. bot -> merchant API: GET /price (no payment header) 2. merchant API -> bot: 402, body {}, PAYMENT-REQUIRED header carries the challenge (x402Version, error, resource, accepts[]: scheme, network CAIP-2 id, amount, asset, payTo, maxTimeoutSeconds, extra.feePayer, extra.memo) 3. bot: builds versioned tx, transfers amount of asset to the payTo owner with memo, fee-payer slot = extra.feePayer, PARTIALLY signs (owner slot only) 4. bot -> merchant API: GET /price + PAYMENT-SIGNATURE header (base64 partially signed tx) 5. merchant API -> facilitator /verify: inspect only, would this satisfy the terms? no signing, no submission 6. merchant API -> facilitator /settle: facilitator ADDS fee-payer signature, submits to network 7. merchant API -> bot: 200 + response body + PAYMENT-RESPONSE header (settlement receipt) legend: every protocol field rides a header; only the 200 carries a real body
+     prompt: Vertical sequence flowchart with three lanes: bot, merchant API, facilitator. Seven numbered arrows as listed in data. Show arrow 2's PAYMENT-REQUIRED, arrow 4's PAYMENT-SIGNATURE and arrow 7's PAYMENT-RESPONSE headers as the same highlighted tag treatment, and mark arrow 2's body as empty. Mark the /verify step read-only and the /settle step with a signature-added badge. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -55,6 +55,13 @@
   .hdr { font-family:var(--font-mono); font-weight:700; font-size:13.5px;
          color:var(--stbr-dark); background:var(--stbr-yellow);
          border-radius:var(--radius-md); padding:3px 10px; }
+  .empty { font-family:var(--font-mono); font-size:12.5px; color:var(--text-muted);
+           border:1.5px dashed var(--border-subtle); border-radius:var(--radius-md);
+           padding:2px 8px; }
+  .empty b { font-weight:700; color:var(--text-secondary); }
+  .legend { font-family:var(--font-body); font-size:13.5px; color:var(--text-secondary);
+            margin:0 0 6px; }
+  .legend b { color:var(--text-primary); font-weight:700; }
   .bdg { font-family:var(--font-body); font-weight:700; font-size:11px;
          color:var(--stbr-green); background:rgba(0,139,76,0.10);
          border:1.5px solid rgba(0,139,76,0.4); border-radius:var(--radius-pill);
@@ -71,6 +78,8 @@
     <div class="fc-head">
       <div class="stbr-eyebrow">exact-svm &middot; challenge &rarr; pay &rarr; settle &rarr; receipt</div>
       <h2 class="viz-title">the exact-SVM round-trip, all four beats</h2>
+      <div class="legend">Every protocol field rides one of the three
+        <b>yellow header chips</b> &mdash; the 402&rsquo;s body is empty, and only the 200 carries a real one.</div>
     </div>
     <div class="seq">
       <div class="spine" style="left:209px; top:46px; height:560px;"></div>
@@ -86,38 +95,42 @@
         <div class="srow"><div class="l"></div><div class="hr"></div></div>
       </div>
 
-      <div class="step" style="left:210px; width:518px; top:122px;">
-        <div class="slab"><span class="n">2</span><span class="t">402 + PaymentRequirements JSON</span></div>
+      <div class="step" style="left:210px; width:518px; top:116px;">
+        <div class="slab"><span class="n">2</span><span class="t">402</span>
+          <span class="empty">body <b>{}</b></span> + <span class="hdr">PAYMENT-REQUIRED</span></div>
         <div class="srow"><div class="hl"></div><div class="l"></div></div>
-        <div class="sub">scheme &middot; network CAIP-2 id &middot; asset &middot; maxAmountRequired &middot; extra.feePayer &middot; extra.memo</div>
+        <div class="sub" style="margin-left:-72px; margin-right:-72px;">challenge:
+          x402Version &middot; error &middot; resource &middot; accepts[]<br>
+          terms: scheme &middot; network &middot; <b>amount</b> &middot; asset &middot; payTo &middot;
+          maxTimeoutSeconds &middot; extra.feePayer &middot; extra.memo</div>
       </div>
 
-      <div class="step" style="left:26px; width:560px; top:210px;">
+      <div class="step" style="left:26px; width:560px; top:226px;">
         <div class="selfnote">
           <div class="st"><span class="n">3</span><span class="tt">bot builds &amp; PARTIALLY signs</span></div>
-          <div class="bd">versioned tx: transfers the asset to the merchant with the memo; fee-payer slot = <b>extra.feePayer</b>; signs the <b>owner slot only</b> &mdash; tx stays inert</div>
+          <div class="bd">versioned tx: transfers <b>amount</b> of the <b>asset</b> to the <b>payTo</b> owner with the memo; fee-payer slot = <b>extra.feePayer</b>; signs the <b>owner slot only</b> &mdash; tx stays inert</div>
         </div>
       </div>
 
-      <div class="step" style="left:210px; width:518px; top:314px;">
+      <div class="step" style="left:210px; width:518px; top:322px;">
         <div class="slab"><span class="n">4</span><span class="t">GET /price</span> + <span class="hdr">PAYMENT-SIGNATURE</span></div>
         <div class="srow"><div class="l"></div><div class="hr"></div></div>
         <div class="sub">base64 partially signed transaction</div>
       </div>
 
-      <div class="step" style="left:728px; width:518px; top:396px;">
+      <div class="step" style="left:728px; width:518px; top:402px;">
         <div class="slab"><span class="n">5</span><span class="t">/verify</span><span class="bdg">read-only &middot; signs nothing</span></div>
         <div class="srow"><div class="l"></div><div class="hr"></div></div>
         <div class="sub">inspect only: would this satisfy the terms? no signing, no submission</div>
       </div>
 
-      <div class="step" style="left:728px; width:518px; top:472px;">
+      <div class="step" style="left:728px; width:518px; top:478px;">
         <div class="slab"><span class="n">6</span><span class="t">/settle</span><span class="bdg">+ fee-payer signature</span></div>
         <div class="srow"><div class="l"></div><div class="hr"></div></div>
         <div class="sub">facilitator ADDS the fee-payer signature, submits to the network</div>
       </div>
 
-      <div class="step" style="left:210px; width:518px; top:544px;">
+      <div class="step" style="left:210px; width:518px; top:550px;">
         <div class="slab"><span class="n">7</span><span class="t">200 + response body</span> + <span class="hdr">PAYMENT-RESPONSE</span></div>
         <div class="srow"><div class="hl"></div><div class="l"></div></div>
         <div class="sub">settlement receipt</div>
