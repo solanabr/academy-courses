@@ -1,0 +1,70 @@
+id: lesson-date-m02-l1-economics-extensions
+slug: m02-l1-economics-extensions
+title: "Economics extensions: fees, interest, scaled UI (and where the fees GO)"
+skills:
+  - account-model
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: fee-calculator
+    type: code
+    language: typescript
+    starter: fee-calculator/starter.ts
+    solution: fee-calculator/solution.ts
+    tests: fee-calculator/tests.json
+    hints:
+      - "Ceiling division on bigints: (numerator + 9999n) / 10000n"
+      - "Cap with a min against maximumFee"
+      - "Handle basisPoints === 0 and amount === 0n up front"
+  - key: check
+    type: quiz
+    questions:
+      - id: q1-where-fees-go
+        prompt: "You set a 1% transfer fee (100 bps) on SPROUT and someone sends 250 SPROUT to a buyer. The instant that transfer confirms, where does the withheld fee sit?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "In the treasury account you designated as the withdraw-withheld authority, credited automatically the moment the transfer settles."
+            correct: false
+            feedback: "Nothing auto-routes to a treasury. The fee authority can move fees, but only after a harvest step pulls them out of accounts."
+          - id: b
+            label: "Withheld on the buyer's (recipient's) token account, until you harvest it."
+            correct: true
+          - id: c
+            label: "Burned from supply and re-minted to the fee authority."
+            correct: false
+            feedback: "No burn or mint happens. The fee is held intact on the recipient account, not destroyed and recreated."
+        explanation: "Token-2022 accrues transfer fees as WITHHELD amounts on each recipient token account. Routing them anywhere is a two-step job you own: harvest_withheld_tokens_to_mint sweeps accounts into the mint, then withdraw_withheld_tokens_from_mint pulls them to a destination. That harvest mechanic is exactly what m09-l1's fee-routing rail consumes."
+      - id: q2-mutual-exclusion
+        prompt: "You want SPROUT's UI balance to grow with yield (InterestBearingConfig) AND rebase for a stock-split-style event (ScaledUiAmount). You try to enable both on one mint. What happens?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Both initialize; the UI multiplies the interest rate by the scale factor."
+            correct: false
+            feedback: "They don't compose. Both extensions rewrite the displayed amount, so the runtime can't let both own it."
+          - id: b
+            label: "It initializes, but only the extension you set last takes effect."
+            correct: false
+            feedback: "There's no last-wins fallback; the initialization is rejected outright, not silently resolved."
+          - id: c
+            label: "Initialization fails; they are mutually exclusive by the source rules."
+            correct: true
+        explanation: "Rule 4 of check_for_invalid_mint_extension_combinations makes ScaledUiAmount and InterestBearingConfig mutually exclusive: both reshape the displayed balance, so only one may. The combo validator you built in m01-l4 already rejects this pairing before you ever hit the chain."
+      - id: q3-measure-cu
+        prompt: "The lab measures each extension's CU/rent cost with simulateTransaction against surfpool instead of quoting a cost table. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Per-extension CU costs are published nowhere, so you measure them on your target cluster."
+            correct: true
+          - id: b
+            label: "simulateTransaction is the only way to send a Token-2022 transfer at all."
+            correct: false
+            feedback: "It doesn't send anything; it simulates. Real transfers go through normal signed transactions; simulation is just for measurement here."
+          - id: c
+            label: "CU costs are fixed by the runtime and identical for every extension."
+            correct: false
+            feedback: "Extensions have different processing costs; they are not uniform, which is exactly why a single table would be misleading."
+        explanation: "No per-extension CU/rent table exists in the docs or source. Rather than freeze an unpublished (and cluster-dependent) number, the testing thread measures it live with simulateTransaction, the same honest 'measure it, don't assert it' move you'll reuse for tree-cost and airdrop math later."

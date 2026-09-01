@@ -1,0 +1,60 @@
+id: lesson-date-m05-l2-designing-routable-token
+slug: m05-l2-designing-routable-token
+title: "Designing a routable, compliant token"
+skills:
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m05l2-q1-power-extension-cost
+        prompt: "You are finalizing SPROUT's launch-venue extension set and reach for DefaultAccountState(Frozen) 'for safety.' What does the compatibility thesis predict?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Fine: frozen-by-default is a display concern, so DEXes whitelist it like MetadataPointer."
+            correct: false
+            feedback: "DefaultAccountState is a control extension, not a display one; Raydium explicitly rejects DefaultAccountState(Frozen)."
+          - id: b
+            label: "Fine: as long as you also add TransferFeeConfig, the allowlisted extension covers the frozen one."
+            correct: false
+            feedback: "Allowlisting is not additive; one off-list extension taints the whole mint regardless of what else is present."
+          - id: c
+            label: "It breaks routability: power/control extensions get refused; only compliance/display extensions get whitelisted."
+            correct: true
+        explanation: "The thesis in one line: compliance/display extensions (fee, metadata, interest, scaled-UI) get whitelisted; power/control extensions (hook, permanent delegate, default-frozen, confidential) get refused. Adding a control extension 'just in case' costs you the venue."
+      - id: m05l2-q2-wallet-matrix-honesty
+        prompt: "A teammate wants the README to publish 'Phantom shows the transfer-fee warning, Backpack doesn't, Solflare greys it out.' You ran no such test. What is the honest move for the routability report?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Do not freeze the matrix: mark per-wallet display as unverified and point readers at the wallet they target."
+            correct: true
+          - id: b
+            label: "Publish it: the Token-2022 spec standardizes how each wallet must render every extension, so the table is safe to assert for any compliant wallet."
+            correct: false
+            feedback: "Per-wallet extension display is not standardized and was unverified this round; asserting it risks shipping wrong claims."
+          - id: c
+            label: "Publish it for Phantom only, since Phantom's behavior is documented in Raydium's allowlist."
+            correct: false
+            feedback: "Raydium's allowlist is a DEX pool-creation rule, not a wallet display spec; it says nothing about any wallet's UI."
+        explanation: "Phantom/Backpack/Solflare per-extension display behavior is unverified, so the report states it as 'verify in the wallet you target,' never a frozen matrix. The same honesty applies to Jupiter's Token-2022 routing policy, which its docs do not pin."
+      - id: m05l2-q3-per-venue-scope
+        prompt: "SPROUT ships with TransferFeeConfig + MetadataPointer + TokenMetadata and routes on Raydium CP-Swap. A colleague asks, 'so it'll route on Jupiter and in every wallet too, right?'"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Yes: Raydium's five-extension allowlist is the ecosystem standard, and Jupiter, Orca, and every major wallet mirror it in their own routing and display checks."
+            correct: false
+            feedback: "There is no shared standard; Orca uses a Token Badge review and Jupiter's Token-2022 policy is not pinned in its docs."
+          - id: b
+            label: "Not necessarily: each venue sets its own rule (Orca's Token Badge, Jupiter's unstated policy); the report lists what you must still verify."
+            correct: true
+          - id: c
+            label: "Only if you also mint it under classic SPL, since aggregators ignore Token-2022 entirely."
+            correct: false
+            feedback: "Aggregators do handle Token-2022; the point is each has its own per-extension policy, not that they ignore the program."
+        explanation: "Routability is per-venue. Raydium publishes a code allowlist, Orca gates some extensions behind a Token Badge, and Jupiter's routing policy is not found in its docs (a verify-at-write gap). The report captures the verified-routable set and names the venues still to verify, honestly."
