@@ -14,9 +14,8 @@ blocks:
     solution: action-post-response/solution.ts
     tests: action-post-response/tests.json
     hints:
-      - "Always set type: 'transaction' and transaction from the first positional argument, transactionBase64."
-      - "Add message only when the message argument is provided (not null or undefined)."
-      - "Add links.next ({ type: 'post', href }) only when nextActionHref is provided; otherwise leave links off the object entirely."
+      - "Setting a property to `undefined` still creates that key - a check like `'message' in result` reports true either way. To match the omitted-key tests, never assign the key at all when its input wasn't provided."
+      - "message and nextActionHref are independent: one can be null while the other is a real value (or the reverse), and each key's presence must reflect only its own argument, never the other's."
   - key: check
     type: quiz
     questions:
