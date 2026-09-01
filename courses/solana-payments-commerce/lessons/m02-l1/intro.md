@@ -102,7 +102,7 @@ source ~/.zshrc
 echo $HELIUS_API_KEY   # must print your key, not an empty line
 ```
 
-You will not use it today. The webhook lesson in module 4 creates a devnet webhook with it, and that is the only place in this course that needs one; every RPC call you write here runs against the public `https://api.devnet.solana.com`.
+You will not use it today. The webhook lesson in module 4 creates a devnet webhook with it, and that is the only place in this course that needs one — no RPC call you write uses it. Your RPC goes to public endpoints throughout: devnet for everything you send, and mainnet read-only in the couple of lessons that inspect live accounts.
 
 ### 2. The workspace, with pinned versions
 
