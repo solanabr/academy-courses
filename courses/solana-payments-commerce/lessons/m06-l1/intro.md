@@ -148,7 +148,7 @@ That box is also the lesson's trade-off stated honestly, so let me not bury it: 
 
 ## Lab: wire the fiat door
 
-Numbered build, in the `wavelength-checkout` workspace you created in module 3. `ramp-embed/` goes in beside `checkout/`, which is what lets it import the record's price directly; the ops and billing workspaces from modules 4 and 5 sit elsewhere in the repo and are not involved today. The session handler ships with two TODO holes, and the build runs to a named failure with them in place; the Challenge closes them. One new dependency, needed only by the server route (the smoke test runs clean without it):
+Numbered build, in the `wavelength-checkout` workspace you created in module 3. `ramp-embed/` is a folder inside `wavelength-checkout`, not a new workspace: it goes in beside the `checkout/` folder module 3 built there, which is what lets it import the record's price directly; the ops and billing workspaces from modules 4 and 5 sit elsewhere in the repo and are not involved today. The session handler ships with two TODO holes, and the build runs to a named failure with them in place; the Challenge closes them. One new dependency, needed only by the server route (the smoke test runs clean without it):
 
 ```bash
 npm install @coinbase/cdp-sdk
@@ -253,7 +253,7 @@ That is Coinbase's CDP SDK (1.x line as of August 2026; check npm before pinning
    });
    ```
 
-   Notice the one line doing the artifact-ladder work: `presetFiatAmount: RECORD.priceUsdc`. The onramp session is priced by the same record definition the checkout charges, 12.5 USDC being 12.5 dollars because a dollar peg charged 1:1 needs no conversion step. One unit check before moving on, because this course has drilled base units for five modules: `presetFiatAmount` is whole fiat units, and `RECORD.priceUsdc` in your checkout is the human-scale `12.5`, never base units; if your record file ever held `12_500_000`, convert before this line or the widget will politely offer a twelve-million-dollar pressing. `ramp-embed` consumes `checkout`; nothing is duplicated.
+   Notice the one line doing the artifact-ladder work: `presetFiatAmount: RECORD.priceUsdc`. The onramp session is priced by the same record definition the checkout charges, 12.5 USDC being 12.5 dollars because a dollar peg charged 1:1 needs no conversion step. One unit check before moving on, because this course has drilled base units for five modules: `presetFiatAmount` is whole fiat units, and `RECORD.priceUsdc` in your checkout is the human-scale `12.5`, never base units; if your record file ever held `12_500_000`, convert before this line or the widget will politely offer a twelve-million-dollar pressing. Inside the `wavelength-checkout` workspace, `ramp-embed/` consumes its sibling `checkout/`; nothing is duplicated.
 
 3. **The smoke test.** Create `ramp-embed/smoke.ts`, the module-standard offline verify. It exercises both pure functions and asserts the security property directly, no network and no keys required:
 

@@ -90,6 +90,10 @@ A schema honesty note before step one, in the same spirit as every version pin i
 
 **2. Stand up the bare pressing-price API.** Not the x402-wrapped server from last lesson: the naked quote route underneath it. The gate is about to own the payment layer, so the upstream must be payment-free.
 
+```bash
+mkdir -p ~/wavelength/pay-gate && cd ~/wavelength/pay-gate
+```
+
 ```ts
 // ~/wavelength/pay-gate/price-api.ts
 // The pressing-price quote, with zero payment code. The gate in front handles that.
