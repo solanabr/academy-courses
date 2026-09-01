@@ -11,7 +11,7 @@ blocks:
     type: quiz
     questions:
       - id: m09l1-q1-kit-pins
-        prompt: "Assembling the stack, your checkout workspace pins its kit-6 line (the @solana/pay peer) and your subscriptions workspace pins its kit-7 line (the @solana/subscriptions peer). A teammate proposes collapsing both into one workspace on a single kit version to simplify the monorepo. What is the right call?"
+        prompt: "Assembling the stack, your wavelength-checkout workspace pins its kit-6 line (the @solana/pay peer) and your subscriptions workspace pins its kit-7 line (the @solana/subscriptions peer). A teammate proposes collapsing both into one workspace on a single kit version to simplify the monorepo. What is the right call?"
         multiSelect: false
         options:
           - id: a
@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "Force everything onto the npm-latest kit, since the newest release is the safest choice for a fresh capstone build."
             correct: false
-            feedback: "@solana/pay peers the kit-6 line; jumping the checkout workspace to the newest kit re-breaks its peer pair, and you pin exact per workspace, never to latest."
+            feedback: "@solana/pay peers the kit-6 line; jumping the wavelength-checkout workspace to the newest kit re-breaks its peer pair, and you pin exact per workspace, never to latest."
           - id: c
             label: "Keep the two workspace pins; @solana/pay and @solana/subscriptions sit on different kit peer ranges, which is the seam m05-l2 taught."
             correct: true

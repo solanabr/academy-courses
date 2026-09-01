@@ -141,7 +141,7 @@ The trade-off, stated once and carried into everything you build today: a blink 
 
 The split for today: I walk the scaffold, the endpoints, and the hosting rules with you (worked). You assemble the `ActionPostResponse` builder yourself against three stated rules, with the coding challenge as your checker (completion). Then the local-client purchase and the registry-ready checklist are yours alone (solo). By the end, `npx tsx drop-blink/smoke.ts` passes and a local blinks client completes a devnet purchase of the featured pressing.
 
-**1. Scaffold the workspace.** The drop blink lives beside your checkout-txreq project so it can import the builder. Same kit line as the checkout workspace (`@solana/kit` 6.10.0, the last v6 release; this workspace stays on v6 because the builder it imports does):
+**1. Scaffold the workspace.** The drop blink lives beside your checkout-txreq project so it can import the builder. Same kit line as the checkout-txreq workspace (`@solana/kit` 6.10.0, the last v6 release; this workspace stays on v6 because the builder it imports does):
 
 ```bash
 mkdir -p drop-blink/src drop-blink/public

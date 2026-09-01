@@ -108,7 +108,7 @@ export async function paymentFeeInstructions(writableAccounts: string[]) {
 }
 ```
 
-Install note for the one new package: `npm i @solana-program/compute-budget@0.16.0` in the checkout workspace. The pin is doing real work. This workspace runs kit ^6.10, and 0.16.0 is the last compute-budget minor whose peer range accepts a v6 kit (verified against npm 2026-08-31: 0.16.0 peers kit ^6.4.0, 0.17.0 jumped to ^7 and the current 0.18.0 to ^8, so grabbing latest here breaks the install). Freshness rule as always: re-check the peer range the day you build.
+Install note for the one new package: `npm i @solana-program/compute-budget@0.16.0` in the checkout-txreq workspace, the one whose builder assembles every payment transaction these instructions ride on. The pin is doing real work. This workspace runs kit ^6.10, and 0.16.0 is the last compute-budget minor whose peer range accepts a v6 kit (verified against npm 2026-08-31: 0.16.0 peers kit ^6.4.0, 0.17.0 jumped to ^7 and the current 0.18.0 to ^8, so grabbing latest here breaks the install). Freshness rule as always: re-check the peer range the day you build.
 
 ![Annotated version of the fee recipe code labeling the CU limit, the floor, the cap, and the recent-fees market read, with the output being two compute-budget instructions per payment transaction.](assets/v05-annotated-code.png)
 
