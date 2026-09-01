@@ -17,6 +17,9 @@ Then open `programs/floor-registry/Cargo.toml` and pull each rung in as a depend
 # The rc.1 crates did land on crates.io (2026-08-12), but the documented channel for V2
 # is still a git dep on the anchor-next branch; pin whichever you built your CLI from.
 anchor-lang = { git = "https://github.com/otter-sec/anchor", branch = "anchor-next" }
+# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 cabinet-counter   = { path = "../cabinet-counter",   features = ["cpi"] }
 quarter-vault     = { path = "../quarter-vault",     features = ["cpi"] }
 prize-escrow      = { path = "../prize-escrow",       features = ["cpi"] }

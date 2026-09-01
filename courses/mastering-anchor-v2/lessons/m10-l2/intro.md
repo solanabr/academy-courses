@@ -115,6 +115,17 @@ Here is the honest ledger. On the win side, V2 removes bug classes at the type l
 
 That last clause is not hypothetical. The first war story of the RC era is issue #4937, filed 2026-08-16 and closed four days later on 2026-08-20. `anchor-lang` pinned `wincode` (V2's serializer) at `0.5` while depending on `solana-address` with no upper bound, and `solana-address` raised its own `wincode` requirement to `0.6`. The trait-bound skew between the two broke `#[account(borsh)]` with a bare `SchemaRead is not satisfied` error. Nobody wrote bad code. The dependency graph itself bit. That is the shape of the risk on an RC: correct code, incompatible pins. So the discipline is not optional. Pin exact versions, not caret ranges. Re-verify the `anchor-next` tag and the crate versions before every work session. Treat a green build today as evidence about today only. The reward for the rewrite is a program that fails at compile time instead of on mainnet. The rent you pay for it, until 2.0 stabilizes, is version vigilance.
 
+Vigilance, made concrete, because that exact skew is live again as you read this. #4937 closed when the pins were reconciled, but the published `2.0.0-rc.1` still pins `wincode 0.5` while leaving `solana-address` unbounded, and `solana-address 2.7.0` has since moved to `wincode 0.6` — so a fresh resolve rebuilds the very graph the issue described, and the lab below walks straight into it at the `#[account(borsh)] Config`. It wears two faces, one cause: `error[E0277]` on the account type, `SchemaWrite`/`SchemaRead` "is not satisfied" with a note about multiple versions of `wincode` in the dependency graph, and `error[E0433]: could not find wincode`, because the `#[program]` expansion names `::wincode::` absolutely and your crate does not depend on it directly. The workaround is the pair of pins every program `Cargo.toml` in this course has carried since m01-l2:
+
+```toml
+[dependencies]
+anchor-lang = "2.0.0-rc.1"
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+```
+
+The pins belong in the program crate whichever channel `anchor-lang` itself rides, git branch or crates.io. Put them in the port's `Cargo.toml` before step 1 of the lab, or meet both errors at step 6 and add them then; either way, re-verify them every session, because this is exactly the kind of workaround a later rc deletes out from under you.
+
 ## Lab: port a v1 program to V2, compiler-guided
 
 You are going to port a tiny but complete v1 program: a config account with an authority, initialized once, then updated by that authority. It exercises the account-model rename, the lifetime drop, the `has_one` deprecation, and the space calc, which is most of the delta surface in fifty lines. Work in a scratch crate, not a real project.

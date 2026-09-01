@@ -16,6 +16,9 @@ Then open `programs/quarter-prize/Cargo.toml` and add the vault you already buil
 [dependencies]
 # the documented V2 channel: the same anchor-next branch your CLI was built from
 anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 quarter-vault = { path = "../quarter-vault", features = ["cpi"] }
 ```
 

@@ -153,6 +153,9 @@ const-rent = ["anchor-lang/const-rent"]   # opt in to the compile-time rent fold
 # the OTHER v2 default. Re-enable alloc here explicitly: otherwise your
 # --no-default-features build moves TWO variables (and your allocator), not one.
 anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next", default-features = false, features = ["alloc"] }
+# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
 Now the single change. Compile the program with the default features off, which drops `guardrails`:

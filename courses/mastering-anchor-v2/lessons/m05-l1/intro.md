@@ -106,6 +106,10 @@ The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `an
 # token-2022 feature to opt into — Token-2022 support IS token_interface.
 anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
 anchor-spl  = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+# They are already in this file from m03-l1; keep them when you add the SPL rows above.
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
 Freshness note: `anchor-lang-v2` and `anchor-spl-v2` move together on the V2 line, so pin both to the same `anchor-next` commit your CLI was built from (`rev = "..."` rather than a bare `branch`). Do not mix a V2 `anchor-lang-v2` with a 1.x `anchor-spl`; the account handle types will not line up and you will get type errors right at the CPI.

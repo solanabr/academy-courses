@@ -245,6 +245,16 @@ solana-program-log = { version = "1.1", features = ["macro"] }
 
 That generated comment is a small time capsule worth reading: the template still says "once anchor-lang is published to crates.io," and it *has* been, on 2026-08-12. The tooling has not caught up with its own registry. Leave the git dependency alone anyway. It is the documented channel, it matches the CLI you built, and a program crate resolving `anchor-lang` from a different source than the CLI that compiles it is exactly the version-skew this whole lesson is about avoiding.
 
+Two lines the template does **not** write yet, and without which nothing in this course compiles. Add them to the same `[dependencies]` table before your first build:
+
+```toml
+# #[program] expands absolute ::wincode:: paths, so the serializer must be a direct dep
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+```
+
+This is #4937's bug class again, live on a fresh resolve as of this writing: `anchor-lang` pins `wincode 0.5` but leaves `solana-address` unbounded, and `solana-address 2.7.0` moved to `wincode 0.6`. Let the resolver float and you get two wincode majors in one graph and a wall of `SchemaRead`/`SchemaWrite` "is not satisfied" errors; skip the direct `wincode` dep and the `#[program]` expansion cannot even name its serializer (`error[E0433]: could not find wincode in the list of imported crates`). Carry both pins in every program crate you write in this course, and re-verify them the way you re-verify every RC pin: they stop being necessary the day the RC reconciles its own graph.
+
 **5. Build it.** From the workspace root:
 
 ```bash

@@ -100,6 +100,9 @@ Open the program's `Cargo.toml` and confirm the dependency rides the same V2 lin
 ```toml
 [dependencies]
 anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
 Expected after this step: `anchor build` succeeds on the untouched template and `target/deploy/quarter_vault.so` exists. If the build fails here, it is a toolchain problem, not a PDA problem, and fixing it now saves you from debugging the wrong layer in step 5.

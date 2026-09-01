@@ -245,6 +245,8 @@ pub struct Refund {
 }
 ```
 
+One pit stop before the broken handler, because the event you just pasted is where a fresh workspace meets m01-l2's dependency wall: `#[event]` derives wincode `SchemaWrite` for `Refunded`, and `authority` is an `Address`. If your program crate is missing the two pins every program `Cargo.toml` in this course carries — `wincode = { version = "0.5", features = ["derive"] }` and `solana-address = "=2.6.0"` — the build dies right here, with `error[E0277]: Address: SchemaWrite<...> is not satisfied` plus a note about multiple versions of `wincode` in the dependency graph, or `error[E0433]: could not find wincode`, long before the borrow error this Challenge is actually about. That is issue #4937's class again, the one m01-l2 narrated: rc.1 pins `wincode 0.5`, `solana-address 2.7.0` moved to `0.6`, and an unpinned resolve puts both majors in one graph. Confirm the pins, then go meet the real bug.
+
 And here is the broken handler:
 
 ```rust

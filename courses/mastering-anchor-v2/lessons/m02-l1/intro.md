@@ -146,11 +146,14 @@ cargo install --git https://github.com/otter-sec/anchor.git \
 
 Do not verify V2 content on the 1.1.2 toolchain; the account model is different and the code below will not behave the same.
 
-**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line and `bytemuck`. `anchor-lang 2.0.0-rc.1` does exist on crates.io (published 2026-08-12), but the documented channel for the RC is the git branch the CLI itself is built from, so program deps ride `anchor-next` too; the scaffold already pins them. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
+**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — this is a fresh scaffold, so the pins have to be re-added here or the first build dies in the `#[program]` expansion. `anchor-lang 2.0.0-rc.1` does exist on crates.io (published 2026-08-12), but the documented channel for the RC is the git branch the CLI itself is built from, so program deps ride `anchor-next` too; the scaffold already writes that row. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
 
 ```toml
 [dependencies]
 anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 bytemuck = "1.25"          # you added this in the opener
 
 [dev-dependencies]
