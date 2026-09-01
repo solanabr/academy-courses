@@ -1,7 +1,7 @@
 // The paying agent's pre-flight guard (reference solution).
 //
 // Called positionally by the grader:
-//   decidePayment(scheme, network, asset, maxAmountRequired, feePayer, memo,
+//   decidePayment(scheme, network, asset, amount, feePayer, memo,
 //                 maxUsd, allowedAssetsJson)
 // allowedAssetsJson is the pegged-asset allowlist serialized as a JSON string
 // mapping mint -> decimals (pegged 1:1 to USD).
@@ -25,7 +25,7 @@ function decidePayment(
   scheme: string, // "exact" | "upto" | "auth-capture" | "batch-settlement"
   network: string, // CAIP-2 id, e.g. "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
   asset: string, // SPL mint address
-  maxAmountRequired: string, // atomic units, decimal string
+  amount: string, // atomic units, decimal string
   feePayer: string, // the facilitator/sponsor fee payer
   memo: string | null, // invoice id, later reconciled
   maxUsd: number, // cap per payment
@@ -64,7 +64,7 @@ function decidePayment(
     return decline("missing fee payer");
   }
 
-  const usd = Number(maxAmountRequired) / 10 ** decimals;
+  const usd = Number(amount) / 10 ** decimals;
   if (usd > maxUsd) {
     return decline(`exceeds spend cap: $${usd} > $${maxUsd}`);
   }

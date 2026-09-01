@@ -10,7 +10,7 @@
 //   - the USD-converted amount must not exceed the per-payment cap
 //
 // The grader calls this function positionally, one argument per field:
-//   decidePayment(scheme, network, asset, maxAmountRequired, feePayer, memo,
+//   decidePayment(scheme, network, asset, amount, feePayer, memo,
 //                 maxUsd, allowedAssetsJson)
 // The first six are the payment terms from the 402 (scheme, CAIP-2 network id,
 // SPL mint, atomic-unit amount as a decimal string, the sponsor's fee payer,
@@ -33,7 +33,7 @@ function decidePayment(
   scheme: string, // "exact" | "upto" | "auth-capture" | "batch-settlement"
   network: string, // CAIP-2 id, e.g. "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
   asset: string, // SPL mint address
-  maxAmountRequired: string, // atomic units, decimal string
+  amount: string, // atomic units, decimal string
   feePayer: string, // the facilitator/sponsor fee payer
   memo: string | null, // invoice id, later reconciled
   maxUsd: number, // cap per payment

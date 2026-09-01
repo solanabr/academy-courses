@@ -18,7 +18,7 @@ blocks:
     hints:
       - "Check in a fixed order so the decline reason is deterministic: scheme, network, asset, memo size, fee payer, then the USD cap."
       - "Known Solana CAIP-2 ids: mainnet solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp, devnet solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1."
-      - "USD amount = Number(maxAmountRequired) / 10 ** decimals, where decimals comes from JSON.parse(allowedAssetsJson)[asset]."
+      - "USD amount = Number(amount) / 10 ** decimals, where decimals comes from JSON.parse(allowedAssetsJson)[asset]."
   - key: check-build
     type: quiz
     questions:

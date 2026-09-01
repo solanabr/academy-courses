@@ -8,7 +8,7 @@ Here is the scene. An API answers a request with HTTP 402 Payment Required, a st
 
 What you take away today, up front:
 
-- The x402 v2 surface at spec level: the PAYMENT-SIGNATURE and PAYMENT-RESPONSE headers, CAIP-2 network ids, four schemes, three transports.
+- The x402 v2 surface at spec level: the three headers that carry the entire exchange, PAYMENT-REQUIRED, PAYMENT-SIGNATURE, and PAYMENT-RESPONSE, plus CAIP-2 network ids, four schemes, three transports.
 - The exact-SVM flow end to end: who builds the transaction, who partially signs, and why a facilitator adds the last signature and submits.
 - The Solana facilitator landscape, including one correction to a guess you will hear repeated: Helius is not a facilitator.
 - Source discipline for x402 traffic numbers, because two published figures beg to be blended into one wrong stat.
@@ -28,7 +28,7 @@ Keep that terminal open. In about four minutes it will be speaking the same stat
 
 HTTP has carried a slot for payments since the nineties. Status code 402, Payment Required, was reserved in the earliest HTTP specs and then never given a defined behavior: a lot zoned commercial that nobody built on for twenty-five years. Every attempt to monetize an HTTP endpoint routed around it instead. Paywalls redirect you to a checkout page. API keys move the payment to a billing portal and a credit card on file. Both patterns share one assumption: somewhere in the flow, a human with a browser will show up to type things.
 
-Agentic commerce breaks that assumption. When the caller is a program, a checkout page is a dead end; there is no one to click it. What a machine caller needs is a payment challenge inside the HTTP round-trip itself: a machine-readable answer to "this costs money" that carries everything needed to pay, so the caller can settle and retry without ever leaving the protocol. That is precisely the hole 402 was zoned for, and x402 is the protocol that finally built on the lot. The honest one-line collapse: x402 is a paywall header with a receipt. The server says "payment required, here are the terms" in a structured body, the client resends the request with proof of payment in a header, and the server answers with the goods plus a settlement receipt in another header. Everything else in this lesson is the detail behind those three beats.
+Agentic commerce breaks that assumption. When the caller is a program, a checkout page is a dead end; there is no one to click it. What a machine caller needs is a payment challenge inside the HTTP round-trip itself: a machine-readable answer to "this costs money" that carries everything needed to pay, so the caller can settle and retry without ever leaving the protocol. That is precisely the hole 402 was zoned for, and x402 is the protocol that finally built on the lot. The honest one-line collapse: x402 is a paywall header with a receipt. The server says "payment required, here are the terms" in one header, the client resends the request with proof of payment in a second, and the server answers with the goods plus a settlement receipt in a third. Three headers, one round trip, and the payment side of the exchange never touches a response body at all. Everything else in this lesson is the detail behind those three beats.
 
 The governance behind the spec is worth thirty seconds, because it tells you this is infrastructure, not a startup's SDK. x402 originated inside Coinbase, incubated by its Development Platform team, and has since moved into an x402 Foundation that operates under the Linux Foundation. The Solana Foundation joined it. That trajectory, from one company's experiment to neutral-home stewardship, is the standard path for protocols that intend to outlive their creators.
 
@@ -38,7 +38,11 @@ One dating caution before the mechanics, since you will meet version numbers imm
 
 ### The v2 surface: headers, networks, schemes, transports
 
-Start with the names on the wire, because v2 renamed the two headers that v1 shipped and mixing them up produces silent failures. In v1, the client's proof of payment traveled in a header called X-PAYMENT, and the server's settlement receipt came back in X-PAYMENT-RESPONSE. The X- prefix convention has been formally discouraged in HTTP for over a decade, and v2 retired both names: the request header is now PAYMENT-SIGNATURE, and the response header is PAYMENT-RESPONSE. Same jobs, new names. The footgun writes itself: a client that sends X-PAYMENT to a v2 facilitator is speaking last year's dialect, and the server sees a request with no payment proof at all. It will answer 402 again, your agent will pay again, and you will spend an afternoon learning what this paragraph just told you.
+Start with the names on the wire, because v2 moved the entire conversation into headers and mixing them up produces silent failures. In v1, the client's proof of payment traveled in a header called X-PAYMENT, and the server's settlement receipt came back in X-PAYMENT-RESPONSE. The X- prefix convention has been formally discouraged in HTTP for over a decade, and v2 retired both names: the request header is now PAYMENT-SIGNATURE, and the response header is PAYMENT-RESPONSE. Same jobs, new names.
+
+The third header is not a rename, it is a relocation, and it is the one that catches people. In v1 the challenge itself, the terms of payment, arrived as the JSON body of the 402 response. In v2 it does not. The server serializes the challenge to JSON, base64-encodes it, and sets it as a response header named PAYMENT-REQUIRED; the body of a v2 402 is two bytes, `{}`, under a `Content-Length: 2`. The v2 HTTP transport document is blunt about why: response bodies are a server implementation concern, and all x402 protocol information is communicated through the three headers. So take this as a rule and apply it to every x402 response you ever inspect: **read the header, never the body.** That holds on the opening challenge, on a payment the facilitator rejected, and on a settlement that failed; the body is empty in all three cases, and everything you want to know, including why the request failed, is sitting in a header.
+
+The footgun now writes itself twice. A client that sends X-PAYMENT to a v2 server is speaking last year's dialect, and the server sees a request with no payment proof at all: it answers 402 again, your agent pays again, and you spend an afternoon learning what this paragraph just told you. And a client that parses the 402's body looking for terms finds an empty object, concludes the server is broken, and spends that same afternoon debugging a server that is behaving perfectly.
 
 Next, how a payment names its chain. x402 is deliberately multi-chain, so the `network` field in its payment terms uses CAIP-2 network ids, a chain-agnostic naming standard in which every network gets an id of the form `namespace:reference`. Solana networks live under the `solana:` namespace with a reference derived from the cluster's genesis hash. The practical takeaway for a payments engineer: never assume a 402 is asking for payment on the chain you expect. Read the `network` field, match it against the CAIP-2 id you intend to pay on, and refuse anything else. Cheap check, real protection.
 
@@ -57,9 +61,11 @@ Second, three transports, which answer "what protocol carries the challenge": pl
 
 Now follow one call all the way through, because the flow is where x402 stops being a spec and starts being a payment system. Picture next lesson's setup a rung early: Wavelength's pressing-price API quotes vinyl pressing costs, and a distributor's procurement bot wants a quote.
 
-**Beat one, the challenge.** The bot calls `GET /price`. The server answers 402 with a JSON body carrying a PaymentRequirements object: the terms of payment, machine-readable. Inside it, the fields the rest of this lesson keeps returning to: `scheme` ("exact"), `network` (a CAIP-2 id), `asset` (the mint of the token that settles the payment, USDC for us), `maxAmountRequired` (a base-unit amount string; you learned in module 2 why money travels as integer base units), and an `extra` object with two members that make the SVM flavor work. `extra.feePayer` names the account that will pay the transaction fee, and it is not the bot. `extra.memo`, optional and capped at 256 bytes, carries the invoice id the merchant will use for reconciliation; ours would say something like `WVL-PRESS-0042`, and when the settled transaction lands on chain, that memo is how your back office matches payment to order. You built exactly this reconciliation pattern with the verifier in module 4; x402 just standardizes where the id rides.
+**Beat one, the challenge.** The bot calls `GET /price`. The server answers 402 with an empty body and a PAYMENT-REQUIRED header; base64-decode that header and you have the challenge, machine-readable. Three fields sit at its top level. `x402Version` is the integer `2`, and it is how you tell which dialect you are reading before you touch anything else. `error` is a string saying why this 402 happened, which on the opening challenge is just a restatement that payment is required and on a rejected payment is the actual failure reason. `resource` is an object naming what the caller was trying to buy, its `url`, `description`, and `mimeType`.
 
-**Beat two, the payment.** The bot reads the terms and builds a versioned Solana transaction that transfers `maxAmountRequired` of `asset` to the merchant, with the memo attached, and with the fee-payer slot set to the account named in `extra.feePayer`. Then it does something that deserves its own definition, because it is the hinge of the whole design. A Solana transaction lists every account that must sign it, and it is inert until all of them have. **Partial signing** means signing your own required slots and leaving someone else's empty: the bot signs as the token owner authorizing the transfer, but it cannot sign as the fee payer, because the fee payer is somebody else's key. What the bot holds now is a transaction that is complete in every detail and valid in none, like a contract with one signature line still blank. It base64-encodes that partially signed transaction and retries the original request with it in the PAYMENT-SIGNATURE header.
+Under those sits `accepts`, an array of one or more PaymentRequirements objects, the terms of payment themselves, and this is where the rest of the lesson keeps returning: `scheme` ("exact"), `network` (a CAIP-2 id), `amount` (a base-unit amount string; you learned in module 2 why money travels as integer base units, and note the name, because v1 called this same field `maxAmountRequired` and you will meet both), `asset` (the mint of the token that settles the payment, USDC for us), `payTo` (the merchant's owner address, not a token account), `maxTimeoutSeconds` (how long the server will hold these terms open for payment to complete), and an `extra` object with two members that make the SVM flavor work. `extra.feePayer` names the account that will pay the transaction fee, and it is not the bot. `extra.memo`, capped at 256 bytes, carries the invoice id the merchant will use for reconciliation; ours would say something like `WVL-PRESS-0042`, and when the settled transaction lands on chain, that memo is how your back office matches payment to order. You built exactly this reconciliation pattern with the verifier in module 4; x402 just standardizes where the id rides.
+
+**Beat two, the payment.** The bot reads the terms and builds a versioned Solana transaction that transfers `amount` of `asset` to the `payTo` owner, with the memo attached, and with the fee-payer slot set to the account named in `extra.feePayer`. Then it does something that deserves its own definition, because it is the hinge of the whole design. A Solana transaction lists every account that must sign it, and it is inert until all of them have. **Partial signing** means signing your own required slots and leaving someone else's empty: the bot signs as the token owner authorizing the transfer, but it cannot sign as the fee payer, because the fee payer is somebody else's key. What the bot holds now is a transaction that is complete in every detail and valid in none, like a contract with one signature line still blank. It base64-encodes that partially signed transaction and retries the original request with it in the PAYMENT-SIGNATURE header.
 
 **Beat three, the settlement.** The server does not touch the chain itself. It forwards the payload to a **facilitator**, a service that exposes two endpoints. `/verify` inspects the partially signed transaction and answers a question: if this were completed and submitted, would it satisfy the payment terms? Right amount, right asset, right network, right recipient, memo intact. Verification only reads; nothing is signed and nothing is submitted. Then `/settle` does the irreversible part: the facilitator adds the missing fee-payer signature, the one matching `extra.feePayer` from beat one, and submits the now fully signed transaction to the network. The bot paid the price; the facilitator paid the fee. That is fee sponsorship, the same economic move you will meet again in module 8's gasless checkout, packaged here as protocol infrastructure.
 
@@ -113,39 +119,61 @@ Stripe deserves its own beat, because its position is the clearest signal in the
 
 The gate for this lesson is annotation, not construction: take a v2-shaped 402 response and label every header and every PaymentRequirements field with its role, then state who signs at /verify versus /settle. You will generate the response yourself from a mock server, so you also feel the round-trip from the server's chair. The scaffold is given; every annotation is yours.
 
-1. In the `~/wavelength/x402-lab` directory from the top of the lesson, create `x402-mock.mjs`. This is a teaching stub of the pressing-price API's payment layer: it speaks the six-field core of PaymentRequirements and the two v2 headers. It is deliberately not byte-perfect to the spec's full envelope, and it verifies nothing; the spec remains the source of truth for the wire format, and a real facilitator does the checking in production.
+1. In the `~/wavelength/x402-lab` directory from the top of the lesson, create `x402-mock.mjs`. This is a teaching stub of the pressing-price API's payment layer: it speaks the full v2 challenge envelope, the three top-level fields plus a seven-field PaymentRequirements, over the three v2 headers. It verifies nothing; a real facilitator does the checking in production, and the spec remains the source of truth for the wire format.
 
 ```js
 // x402-mock.mjs - a v2-shaped 402 teaching stub. Zero dependencies.
 import { createServer } from "node:http";
 
-const paymentRequirements = {
-  scheme: "exact",
-  network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp", // CAIP-2: solana namespace + mainnet genesis-hash reference
-  asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
-  maxAmountRequired: "10000", // base units: 0.01 USDC at 6 decimals
-  extra: {
-    feePayer: "FaciLitatorFeePayerPubkeyGoesRightHere11111", // stand-in: the sponsor who signs LAST
-    memo: "WVL-PRESS-0042", // invoice id for reconciliation; 256-byte ceiling
+// The challenge. In v2 this never travels in the body: it is JSON, base64'd,
+// and set as the PAYMENT-REQUIRED response header.
+const paymentRequired = {
+  x402Version: 2, // which dialect this challenge speaks
+  error: "Payment required", // WHY the 402 happened; the only place a reason ever appears
+  resource: {
+    // what the caller was trying to buy
+    url: "http://localhost:4021/price",
+    description: "Wavelength pressing-price quote",
+    mimeType: "application/json",
   },
+  accepts: [
+    {
+      scheme: "exact",
+      network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp", // CAIP-2: solana namespace + mainnet genesis-hash reference
+      amount: "10000", // base units: 0.01 USDC at 6 decimals
+      asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
+      payTo: "MerchantOwnerPubkeyGoesRightHere11111111111", // the merchant OWNER; the scheme derives the ATA
+      maxTimeoutSeconds: 300, // how long these terms stay payable
+      extra: {
+        feePayer: "FaciLitatorFeePayerPubkeyGoesRightHere11111", // stand-in: the sponsor who signs LAST
+        memo: "WVL-PRESS-0042", // invoice id for reconciliation; 256-byte ceiling
+      },
+    },
+  ],
 };
+
+const b64 = (value) => Buffer.from(JSON.stringify(value)).toString("base64");
 
 createServer((req, res) => {
   const proof = req.headers["payment-signature"]; // Node lowercases incoming header names
   if (!proof) {
-    res.writeHead(402, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ accepts: [paymentRequirements] }, null, 2));
+    res.writeHead(402, {
+      "Content-Type": "application/json",
+      "Content-Length": "2",
+      "PAYMENT-REQUIRED": b64(paymentRequired),
+    });
+    res.end("{}"); // the body is empty on purpose; everything is in the header
     return;
   }
   // A real server forwards `proof` to a facilitator: /verify inspects, /settle signs + submits.
   // This stub accepts anything, so the header choreography is visible end to end.
-  const receipt = Buffer.from(
-    JSON.stringify({ settled: true, memo: paymentRequirements.extra.memo })
-  ).toString("base64");
-  res.writeHead(200, {
-    "Content-Type": "application/json",
-    "PAYMENT-RESPONSE": receipt,
+  const receipt = b64({
+    success: true,
+    transaction: "5xSettledSignatureStandIn",
+    network: paymentRequired.accepts[0].network,
+    payer: "AgentPubkeyStandIn111111111111111111111111",
   });
+  res.writeHead(200, { "Content-Type": "application/json", "PAYMENT-RESPONSE": receipt });
   res.end(JSON.stringify({ quote: { sku: "12in-180g-black", unitPriceUsd: 7.4 } }));
 }).listen(4021, () => console.log("mock pressing-price API on :4021"));
 ```
@@ -160,7 +188,53 @@ node x402-mock.mjs
 curl -i http://localhost:4021/price
 ```
 
-You should see `HTTP/1.1 402 Payment Required` and the JSON terms. This is the exact moment a paying agent starts reading.
+```text
+HTTP/1.1 402 Payment Required
+Content-Type: application/json
+Content-Length: 2
+PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2Ui...
+Date: Tue, 01 Sep 2026 21:28:37 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{}
+```
+
+Sit with that screenful, because it is the header rule made visible: a 402, two bytes of body that say nothing, and one long header that says everything. The base64 blob is elided above at the ellipsis; yours runs about 430 characters. Decode it and the terms appear:
+
+```bash
+curl -sD - -o /dev/null http://localhost:4021/price \
+  | grep -i '^payment-required:' | sed 's/^[^:]*: *//' | tr -d '\r' \
+  | base64 -d | python3 -m json.tool
+```
+
+```json
+{
+    "x402Version": 2,
+    "error": "Payment required",
+    "resource": {
+        "url": "http://localhost:4021/price",
+        "description": "Wavelength pressing-price quote",
+        "mimeType": "application/json"
+    },
+    "accepts": [
+        {
+            "scheme": "exact",
+            "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "amount": "10000",
+            "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "payTo": "MerchantOwnerPubkeyGoesRightHere11111111111",
+            "maxTimeoutSeconds": 300,
+            "extra": {
+                "feePayer": "FaciLitatorFeePayerPubkeyGoesRightHere11111",
+                "memo": "WVL-PRESS-0042"
+            }
+        }
+    ]
+}
+```
+
+This is the exact moment a paying agent starts reading, and note where it reads.
 
 3. Play the retry beat. The header value here is a stand-in blob, not a real partially signed transaction; a facilitator's /verify would bounce it instantly, which is a fine thing to prove to yourself later on the devnet-only x402.org facilitator:
 
@@ -170,7 +244,7 @@ curl -i -H "PAYMENT-SIGNATURE: c3R1Yg==" http://localhost:4021/price
 
 You should see `HTTP/1.1 200 OK`, the quote body, and a `PAYMENT-RESPONSE` header carrying a base64 receipt.
 
-4. Now the actual gate. Create `annotations.md` and label, in your own words, one line each: the PAYMENT-SIGNATURE header, the PAYMENT-RESPONSE header, and the six fields `scheme`, `network`, `asset`, `maxAmountRequired`, `extra.feePayer`, `extra.memo`, each with its role in the flow. No copying phrases from this lesson; the point is that the labels survive in your words.
+4. Now the actual gate. Create `annotations.md` and label, in your own words, one line each, working outward from the wire: the three headers PAYMENT-REQUIRED, PAYMENT-SIGNATURE, and PAYMENT-RESPONSE; the three top-level challenge fields `x402Version`, `error`, and `resource`; and the seven requirement fields `scheme`, `network`, `amount`, `asset`, `payTo`, `maxTimeoutSeconds`, and `extra` (split that last one into `feePayer` and `memo`), each with its role in the flow. No copying phrases from this lesson; the point is that the labels survive in your words.
 
 5. Close the file with the two-line note the gate demands, answering precisely: whose signatures exist before the facilitator touches the transaction, what /verify does with them, and which single signature /settle adds before submitting.
 
@@ -180,12 +254,12 @@ You should see `HTTP/1.1 200 OK`, the quote body, and a `PAYMENT-RESPONSE` heade
 
 Wavelength will need a facilitator decision before next lesson's build, so draft it now, five lines, in the same format as the corridor decision record: one line naming the dominant constraint for a small merchant metering a pressing-price API on mainnet, one line for your primary pick with the reason, one line for the compliance alternative and when you would switch to it, one line for what you use in CI and why it can never be the production setting, and one line stating the trust you are accepting, in your own words, based on the trust-surface section. There is no single right answer; there is a defensible one, and next lesson you will build against whichever you chose.
 
-Stretch goal, if the two-dialect world bothered you as much as it should: add five lines to `x402-mock.mjs` that detect an incoming `X-PAYMENT` header and answer with a JSON error naming the v2 header the client should have sent. You will have built the friendliest v1-to-v2 tripwire in the ecosystem.
+Stretch goal, if the two-dialect world bothered you as much as it should: add five lines to `x402-mock.mjs` that detect an incoming `X-PAYMENT` header and answer the usual 402, empty body and all, with the challenge's `error` field rewritten to name the v2 header the client should have sent. Putting that message in the body is the natural instinct and the wrong one, because the v1-speaking client is the only kind that would ever read it there. Send the tripwire down the channel a v2 client is already reading and you will have built the friendliest v1-to-v2 handoff in the ecosystem.
 
 ## Checkpoint: what you can now do
 
 If the annotation fought you anywhere, the snag is usually one of two spots. Mixing up which party signs at /settle means rereading beat three; the merchant never signs, and /verify never signs, so there is exactly one candidate left. And if your `extra.feePayer` label says something like "the account the bot pays fees from," that is the v1-brain talking: the entire point is that the bot does not pay fees, the sponsor named in that field does.
 
-Here is what you walked in without and walk out holding. You can read a v2 402 response cold and name every moving part. You can trace a machine payment from challenge to receipt and say precisely where the trust sits and who signs what. You can name the real facilitator options on Solana, including the one that is not on the list no matter how often you hear it guessed. And you can quote x402 traffic without committing the blended-number sin, which puts you ahead of most people writing about this protocol for a living. Not bad for a lesson where the only thing you deployed was a forty-line mock.
+Here is what you walked in without and walk out holding. You can read a v2 402 response cold, and you start in the right place, because you know the body will never tell you anything and the PAYMENT-REQUIRED header tells you all of it, down to why the request failed. You can name every moving part of the challenge that header carries. You can trace a machine payment from challenge to receipt and say precisely where the trust sits and who signs what. You can name the real facilitator options on Solana, including the one that is not on the list no matter how often you hear it guessed. And you can quote x402 traffic without committing the blended-number sin, which puts you ahead of most people writing about this protocol for a living. Not bad for a lesson where the only thing you deployed was a fifty-line mock.
 
 Next lesson your customer is a bot. You put a price on Wavelength's pressing-price API and build the agent that pays it, call by call: the 402 you mocked today becomes a real challenge, the stub header becomes a real partially signed transaction, and the facilitator column of your decision record gets cashed in.

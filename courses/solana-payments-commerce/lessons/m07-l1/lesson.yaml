@@ -44,6 +44,23 @@ blocks:
             correct: false
             feedback: "About 4.6k CU is a bare SPL transfer. A settle also carries the mandated ComputeBudget instructions, which are not free, and it may create an ATA. The spec pins no absolute, so do not print one."
         explanation: "The x402 v2 spec mandates ComputeBudget SetLimit/SetPrice with a bounded CU PRICE, but it never states a CU count for a settlement. Any absolute you print needs an independent, dated source, or it should not be printed."
+      - id: q5-where-terms-live
+        prompt: "You curl an unpaid endpoint and get back HTTP/1.1 402 Payment Required, a `Content-Length: 2`, and a body of exactly `{}`. Your client then throws because `accepts` is undefined. What is actually wrong?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Nothing on the server: v2 carries the whole challenge in a base64 PAYMENT-REQUIRED response header, so decode that header and read `accepts` out of it."
+            correct: true
+            feedback: "The v2 HTTP transport makes response bodies a server implementation concern and carries every protocol field in the three headers, so `{}` is the specified body, not a truncated one. The boundary is the version: a v1 counterparty really does put its challenge in the 402's body, which is why `x402Version` is the first field worth reading."
+          - id: b
+            label: "The route's `price` never resolved to an asset, so the middleware emitted an empty requirements list; pin the asset explicitly instead of using the money form."
+            correct: false
+            feedback: "An unresolvable price fails while the route is being configured, not by shipping a well-formed 402 with an empty list. The 402 you got is the healthy one; its terms are simply not where you looked for them."
+          - id: c
+            label: "The resource server never ran `initialize()`, so it learned no supported kinds from the facilitator and had no fee payer to put in the terms."
+            correct: false
+            feedback: "A missing facilitator sync shows up as a challenge with no `extra.feePayer`, or as a throw at boot. Either way you would be reading the PAYMENT-REQUIRED header to notice, because that is where the terms are."
+        explanation: "In x402 v2 the challenge travels as base64 JSON in the PAYMENT-REQUIRED response header, and the 402's body is the two bytes `{}` on the opening challenge, on a rejected payment, and on a failed settlement alike. Decoding that header yields `x402Version`, `error` (the failure reason), `resource`, and the `accepts` array of PaymentRequirements. v1 was the version that carried its challenge in the body; read the body of a v2 402 and you find an empty object every time."
   - key: check-landscape
     type: quiz
     questions:
