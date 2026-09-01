@@ -55,7 +55,7 @@ Above the wire format sit two axes of variety. First, four payment schemes, whic
 
 Second, three transports, which answer "what protocol carries the challenge": plain **http**, which you have been picturing all along; **mcp**, the Model Context Protocol that agent frameworks use for tool calls; and **a2a**, agent-to-agent messaging. The scheme-times-transport grid is why the spec reads bigger than it feels. Your merchant seat cares about one cell today: the exact scheme over http, targeting the SVM. The spec calls that combination exact-SVM.
 
-![Reference card pairing the renamed v1 and v2 x402 headers with the CAIP-2 network format and a four-schemes-by-three-transports grid, exact over HTTP highlighted.](assets/v02-comparison.png)
+![Reference card giving each of the three v2 headers its direction, its job, and its v1 origin, under a rule strip reading the header never the body, beside the CAIP-2 network format and a four-schemes-by-three-transports grid with exact over HTTP highlighted.](assets/v02-comparison.png)
 
 ### One request, end to end: the exact-SVM flow
 
@@ -71,7 +71,7 @@ Under those sits `accepts`, an array of one or more PaymentRequirements objects,
 
 **Beat four, the receipt.** Settlement confirmed, the server finally does what the bot asked for in the first place: it answers 200 with the quote, plus a PAYMENT-RESPONSE header carrying the settlement details. The bot got its data, the merchant got paid, and the whole exchange fit inside one retried HTTP request. No account creation, no API key issuance, no card on file. From your log's point of view, a 402 followed milliseconds later by a 200.
 
-![Sequence diagram following one metered call from the 402 challenge through the agent's partial signature to the facilitator's verify and settle steps and the receipt header.](assets/v03-flowchart.png)
+![Sequence diagram following one metered call from an empty-bodied 402 carrying its challenge in the PAYMENT-REQUIRED header, through the agent's partial signature, to the facilitator's verify and settle steps and the receipt header.](assets/v03-flowchart.png)
 
 The signature choreography is the part people get wrong on first read, so pin it down. The client signs as owner and never as fee payer. `/verify` signs nothing. `/settle` adds exactly one signature, the fee payer's, and broadcasts. If you can recite that sentence, you can debug half of the confused x402 threads you will ever read.
 
