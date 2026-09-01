@@ -17,6 +17,7 @@ blocks:
       - "amount_in_with_fee = amount_in * (10_000 - fee_bps)"
       - "out = (reserve_out * amount_in_with_fee) / (reserve_in * 10_000 + amount_in_with_fee)"
       - "cast to u128 before the multiplies, cast back to u64 after the single division"
+      - "guard before you compute: an empty reserve, or a fee_bps above 10_000, has no valid quote — return 0 rather than dividing by zero or underflowing the fee"
   - key: check
     type: quiz
     questions:

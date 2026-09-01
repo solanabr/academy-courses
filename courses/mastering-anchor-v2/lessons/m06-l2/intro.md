@@ -85,7 +85,7 @@ The first two levers were feature flags, one edit on a build line. The loop does
 
 Here is where last lesson's other deliverable comes due. You wrote down the hottest own-code frame under the trade instruction, and on the Quarters swap that frame is `swap_out`, the quote. A flamegraph does not tell you what to do about a fat frame; it tells you where to point the loop. So point it there.
 
-The quote you shipped, `swap_out`, already promotes to `u128` before multiplying, because module 5 made that the acceptance bar. What it does not do is expose the fee, and there is a real design question hiding in how a general version gets written. Do you reach for `checked_mul` on `u64` and branch on overflow, which is safe but puts a branch on the hot path? Or do you promote to `u128` first, where the multiply cannot overflow by construction, so no check is needed at all? Those two are not equally cheap, and they are not equally safe, and the only way to know the actual trade for your reserves is to run both through the loop.
+The quote you shipped, `swap_out`, already promotes to `u128` before multiplying, because module 5 made that the acceptance bar. What it does not do is expose the fee, and there is a real design question hiding in how a general version gets written. Do you reach for `checked_mul` on `u64` and branch on overflow, which is safe but puts a branch on the hot path? Or do you promote to `u128` first, where the multiply cannot overflow by construction, so no check is needed at all? Those two are not equally cheap, and they are not equally safe, and the only way to know the actual trade for your reserves is to run both through the loop. Hold that "by construction" loosely, though. It is exactly true for two `u64` factors and the challenge at the end of this lesson shows you the third factor that breaks it.
 
 That is what the coding challenge at the end of this lesson is: a generalized quote, `get_amount_out`, with the fee lifted into a parameter, written from scratch and then measured. It is a separate function from the `swap_out` you shipped, not an edit to it, so you can hold both and compare. Write it, swap it into the handler behind a one-line call change, and re-measure the trade. If the delta is a win and the function still matches its reference outputs, keep it. If your `checked_mul`-plus-branch version came in cheaper on your reserves, that is what the loop is for, and the number decides, not your intuition about which reads faster.
 
@@ -292,8 +292,9 @@ Back in module 5 you built `swap_out`, the quote function with a hardcoded 0.3% 
 
 ```rust
 /// Quote a constant-product swap output. THIS STARTER IS BROKEN:
-/// it ignores fee_bps and multiplies in u64, so its quotes are wrong
-/// whenever fee_bps > 0, and it can overflow on large reserves.
+/// it ignores fee_bps, multiplies in u64, and checks nothing, so its
+/// quotes are wrong whenever fee_bps > 0, it can overflow on large
+/// reserves, and it quotes the whole pool on an empty reserve_in.
 pub fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
     let _ = fee_bps; // the fee is being ignored
     let numerator = reserve_out * amount_in;
@@ -304,7 +305,9 @@ pub fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps
 
 Two things are wrong with it, and they are the same two the module-5 challenge made you fix on `swap_out`. It never applies the fee, so every quote with `fee_bps > 0` over-pays the trader. And it multiplies two `u64` values, so a large `reserve_out * amount_in` can overflow: a panic in debug, a silent wrap in release, on the deepest pool you have, which is the trade you least want to fail on. You fixed both once already on a fee-less curve. This is the same repair on the general one, and this time you also have a nets-off build in your hand, which is exactly the build where a wrapped multiply has nothing standing behind it.
 
-Your job: rewrite `get_amount_out` so it applies the fee and runs every intermediate product through a single `u128` before one final division back down to `u64`. Keep the signature exactly as frozen above, because the reference cases below call it by that interface.
+A third thing is wrong with it that module 5 already taught you and this starter quietly drops: it does not check its inputs. Set `reserve_in` to zero and the denominator collapses to `amount_in`, the `amount_in` cancels, and the function quotes all of `reserve_out` — the entire pool — to whoever asks first. That is the same guard `swap_out` opens with, and the general version needs it too.
+
+Your job: rewrite `get_amount_out` so it applies the fee, refuses the inputs the curve is not defined on, and runs every intermediate product through a single `u128` before one final division back down to `u64`. Keep the signature exactly as frozen above, because the reference cases below call it by that interface.
 
 Three nudges, the same shape you have seen before, generalized to basis points:
 
@@ -319,13 +322,27 @@ get_amount_out(1_000_000, 1_000_000,  10_000, 30) == 9_871    // 0.3% fee, balan
 get_amount_out(5_000_000, 2_000_000, 100_000, 30) == 39_100   // 0.3% fee, uneven reserves
 get_amount_out(1_000_000, 1_000_000,   1_000,  0) == 999      // zero fee = plain constant product
 get_amount_out(1_000_000, 1_000_000, 500_000, 30) == 332_665  // large trade, missing fee is obvious
+
+// ...and the inputs the curve is not defined on, which must degrade
+// rather than panic or over-quote:
+get_amount_out(0, 1_000_000, 10_000, 30)             == 0  // empty reserve_in: unguarded, quotes 1_000_000
+get_amount_out(0, 0, 0, 30)                          == 0  // drained pool, zero quote: unguarded, 0 / 0
+get_amount_out(1_000_000, 1_000_000, 10_000, 10_001) == 0  // fee past the scale: 10_000 - fee_bps underflows
+get_amount_out(1_000_000, 1_000_000, 10_000, 10_000) == 0  // 100% fee: here 0 is the arithmetic answer
+get_amount_out(u64::MAX, u64::MAX, u64::MAX, 30)     == 0  // numerator exceeds u128, the check degrades it
+
+// and one that is not degenerate at all: it fits u128 with room to spare
+// but overflows a u64 multiply, so it is the case that forces the promotion
+get_amount_out(1_000_000_000_000_000_000, 1_000_000_000_000_000_000, 1_000_000_000_000, 30) == 996_999_005_991
 ```
 
-One bound the frozen signature cannot express, so you have to own it: `10_000 - fee_bps` underflows for any `fee_bps` above 10,000, and the return type is a bare `u64` with nowhere to put an error. On a `u128` intermediate that underflow wraps to an enormous number rather than panicking, and an enormous `amount_in_with_fee` quotes a payout that drains the pool. The caller owns that bound. In the handler, `fee_bps` is a compile-time constant you control; if you ever make it a parameter a user can set, it needs a `require!` before it reaches this function. Write that as a comment above the fn so the next reader knows it was a decision.
+That last pair is the one to sit with, because it sharpens the "impossible by construction" claim from the comparison above. Promote two `u64` factors to `u128` and their product really is overflow-proof: the largest `u64 * u64` lands just under the `u128` ceiling, every time. But this quote multiplies *three* factors, and the fee scale is the third. `amount_in * (10_000 - fee_bps) * reserve_out` reaches roughly 3.4e42 at `u64::MAX` reserves against a ceiling near 3.4e38. What promotion buys you here is enormous headroom, not immunity — the 1e18-reserve case clears it by six orders of magnitude — so the products stay checked, and the check degrades to 0 rather than panicking inside an instruction.
+
+Now the bound the frozen signature cannot express: `10_000 - fee_bps` underflows for any `fee_bps` above 10,000, and the return type is a bare `u64` with nowhere to put an error. Guard it anyway and return 0, the way you guard the empty reserve — a wrong-but-quiet 0 beats a panicking instruction, and on a `u128` intermediate compiled in release that underflow wraps to an enormous number instead, which quotes a payout that drains the pool. But be clear with yourself about what that 0 means. For `fee_bps == 10_000` it is arithmetic: a 100% fee eats the whole input. For everything else it is a sentinel standing in for an error the signature cannot return, and real AMMs do not degrade like this — Uniswap V2's `getAmountOut` reverts with INSUFFICIENT_LIQUIDITY on an empty reserve. So the caller still owns the bound. In the handler, `fee_bps` is a compile-time constant you control; the moment it becomes a parameter a user can set, it needs a `require!` before it reaches this function, and the handler refuses to settle a trade that quotes 0 either way. Write that reasoning as a comment above the fn so the next reader knows it was a decision and not an accident.
 
 Then measure it, because a quote you did not run through the loop is just a rewrite. Swap `get_amount_out(reserve_in, reserve_out, amount_in, 30)` into the handler in place of `swap_out`, rebuild, and re-run `cu_swap_regression`. Report the delta the same way you reported the other two: one number, one named change, one sentence.
 
-The acceptance bar: the fee is applied before quoting, every intermediate product is computed in a `u128` so large reserves cannot overflow, there is exactly one division on the hot path, all four reference outputs match, and you can state the measured CU delta against `swap_out`. The starter fails the first four; your solution passes them. Compute the first case by hand, get 9,871, then make the code agree with your arithmetic.
+The acceptance bar: the fee is applied before quoting, the inputs are guarded before anything is computed, every intermediate product is computed in a checked `u128` so large reserves cannot overflow, there is exactly one division on the hot path, every reference output matches — the degenerate ones included — and you can state the measured CU delta against `swap_out`. The starter fails all of those but the last; your solution passes them. Compute the first case by hand, get 9,871, then make the code agree with your arithmetic.
 
 ## Before you move on
 
