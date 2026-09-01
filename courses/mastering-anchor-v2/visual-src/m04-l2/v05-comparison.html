@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- comparison: A coarse lock that cannot leak versus a precise one that can
-     purpose: justify why the borrow excludes all typed access, not just the mutated account
-     data: Property                        | Precise per-field lock        | Coarse whole-accounts lock (V2's choice) what it blocks                  | only accounts the CPI mutates | all typed access while a handle is live correctness burden              | must track every alias/branch | none: one rule, no analysis worst-case failure              | a missed alias = a stale read slips through | over-blocks a harmless read (a reorder) cost to you                     | zero when it is right         | copy a value out, or move a read down which failure do you want?      | silent wrong data             | a loud, mechanical build fix
-     prompt: Two-column comparison table. Left column "precise per-field lock", right column "coarse whole-accounts lock (V2's choice)", five property rows. Shade the right column green as the deliberate choice; flag the precise column's "worst-case failure" cell in red as the leak risk. No icons.
+<!-- comparison: The lock lands only on the accounts inside the CpiContext
+     purpose: show the exclusion is exact — mutably-CPI'd accounts reject reads while disjoint and shared-handle accounts stay readable — and that the edge traces the staleness hazard
+     data: Property                   | in the CPI, mutably (vault_ta) | outside the CPI, or shared (state, mint) typed read while cpi is live | E0502, rejected at compile time | compiles, nothing conflicts could this CPI change it?   | yes, that is what the mut handle grants | no: state never reaches the callee, mint goes in read-only v1 on the same read          | compiled, could return a stale copy | compiled, was safe anyway what you do                 | move the read below the call that consumes cpi | nothing, read it whenever
+     prompt: Two-column comparison table. Left column "in the CPI, mutably — vault_ta" flagged as THE LOCK; right column "outside the CPI, or shared — state, mint". Four property rows. Flag the left column's compile-error cell in yellow as the enforcement moment; shade the right column green as untouched-by-design. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -57,43 +57,38 @@
     border-radius:var(--radius-lg); padding:22px 34px; font-size:21px; line-height:1.35; }
   .verdict b { color:var(--stbr-yellow); }
 </style>
-  <div class="stbr-eyebrow">why the borrow excludes everything</div>
-  <h2 class="viz-title">a coarse lock that cannot leak vs a precise one that can</h2>
+  <div class="stbr-eyebrow">where the borrow actually lands</div>
+  <h2 class="viz-title">the lock&rsquo;s edge traces the hazard&rsquo;s edge</h2>
   <div class="cmp">
     <div class="r hd">
       <div class="axis-lbl">property</div>
-      <div class="h alt">precise per-field lock</div>
-      <div class="h pick">coarse whole-accounts lock <span class="badge">V2&rsquo;S CHOICE</span></div>
+      <div class="h pick">in the CPI, mutably &mdash; <code>vault_ta</code> <span class="badge">THE LOCK</span></div>
+      <div class="h alt">outside the CPI, or shared &mdash; <code>state</code>, <code>mint</code></div>
     </div>
     <div class="body">
       <div class="r">
-        <div class="axis">what it blocks</div>
-        <div class="c alt">only accounts the CPI mutates</div>
-        <div class="c pick">all typed access while a handle is live</div>
+        <div class="axis"><span>typed read while <code>cpi</code> is live</span></div>
+        <div class="c leak"><b>E0502 — rejected at compile time</b></div>
+        <div class="c pick">compiles — nothing conflicts</div>
       </div>
       <div class="r">
-        <div class="axis">correctness burden</div>
-        <div class="c alt">must track every alias and branch</div>
-        <div class="c pick">none — one rule, no analysis</div>
+        <div class="axis">could this CPI change it?</div>
+        <div class="c alt">yes — that is what the mut handle grants</div>
+        <div class="c pick"><span>no — <code>state</code> never reaches the callee; <code>mint</code> goes in read-only</span></div>
       </div>
       <div class="r">
-        <div class="axis">worst-case failure</div>
-        <div class="c leak"><b>a missed alias = a stale read slips through</b></div>
-        <div class="c pick">over-blocks a harmless read (a reorder)</div>
-      </div>
-      <div class="r">
-        <div class="axis">cost to you</div>
-        <div class="c alt">zero, when it is right</div>
-        <div class="c pick">copy a value out, or move a read down</div>
+        <div class="axis">v1 on the same read</div>
+        <div class="c alt">compiled, could hand you a stale copy</div>
+        <div class="c pick">compiled, was safe anyway</div>
       </div>
       <div class="r last">
-        <div class="axis">which failure do you want?</div>
-        <div class="c alt">silent wrong data</div>
-        <div class="c pick">a loud, mechanical build fix</div>
+        <div class="axis">what you do</div>
+        <div class="c alt"><span>move the read below the call that consumes <code>cpi</code></span></div>
+        <div class="c pick">nothing — read it whenever</div>
       </div>
     </div>
   </div>
-  <div class="verdict">A precise lock is only as good as its alias analysis. The coarse lock trades
-    an occasional reorder for a failure mode that <b>cannot be silent</b>.</div>
+  <div class="verdict">Every read that could go stale is rejected; every read that cannot is untouched.
+    The precision is free: it is Rust&rsquo;s own per-field borrow rules, <b>not a bespoke analysis</b>.</div>
 </div>
 </body></html>

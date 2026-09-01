@@ -12,7 +12,7 @@
 <body>
 <!-- annotated-code: The failing line and the reorder that fixes it
      purpose: show the exact before/after and pin the fix to the borrow lifetime, not to a new API
-     data: BEFORE (will not compile): let cpi = CpiContext::new(&sys, Transfer { from: sol_vault.cpi_handle_mut().. }).with_signer(seeds); let before = ctx.accounts.state.credit;    // borrow conflict: cpi still holds the mut borrow transfer(cpi, amount)?; AFTER (compiles): let cpi = CpiContext::new(&sys, Transfer { from: sol_vault.cpi_handle_mut().. }).with_signer(seeds); transfer(cpi, amount)?;                    // cpi consumed here -> handle drops -> borrow released let after = ctx.accounts.state.credit;     // now legal, and reads the LIVE account The only change is the ORDER. No reload(), no clone, no new call. The read moved below the line that drops the handle.
+     data: BEFORE (will not compile): let cpi = CpiContext::new(token_program.address(), TransferChecked { from: vault_ta.cpi_handle_mut().. }); let before = ctx.accounts.vault_ta.amount();    // E0502: cpi still holds vault_ta's mut borrow transfer_checked(cpi, amount, decimals)?; AFTER (compiles): let cpi = CpiContext::new(token_program.address(), TransferChecked { from: vault_ta.cpi_handle_mut().. }); transfer_checked(cpi, amount, decimals)?;                    // cpi consumed here -> handle drops -> borrow released let after = ctx.accounts.vault_ta.amount();     // now legal, and reads the LIVE account The only change is the ORDER. No reload(), no clone, no new call. The read moved below the line that drops the handle.
      prompt: Two stacked code panels labeled BEFORE (red header, "will not compile") and AFTER (green header, "compiles"). Highlight the moved read line in both: struck-through/red in BEFORE at its bad position, green in AFTER below the transfer call. Add a margin note in AFTER: "handle drops when transfer consumes cpi; the read that follows is legal and fresh".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -66,21 +66,21 @@
   <div class="pnl before">
     <div class="hd">before <span class="chip">WILL NOT COMPILE</span></div>
     <div class="code">
-      <div class="ln"><span class="kw">let</span> cpi = <span class="ty">CpiContext</span>::new(&amp;sys, <span class="ty">Transfer</span> { from: sol_vault.cpi_handle_mut(), .. })</div>
-      <div class="ln">    .with_signer(seeds);</div>
-      <div class="ln bad"><span class="kw">let</span> before = ctx.accounts.state.credit;   <span class="cm hot">// borrow conflict: cpi still holds the mut borrow</span></div>
-      <div class="ln">transfer(cpi, amount)?;</div>
+      <div class="ln"><span class="kw">let</span> cpi = <span class="ty">CpiContext</span>::new(token_program.address(),</div>
+      <div class="ln"><span class="ty">    TransferChecked</span> { from: vault_ta.cpi_handle_mut(), .. });</div>
+      <div class="ln bad"><span class="kw">let</span> before = ctx.accounts.vault_ta.amount();   <span class="cm hot">// E0502: cpi still holds vault_ta's mut borrow</span></div>
+      <div class="ln">transfer_checked(cpi, amount, decimals)?;</div>
     </div>
   </div>
   <div class="pnl after">
     <div class="hd">after <span class="chip">COMPILES</span></div>
     <div class="code">
-      <div class="ln"><span class="kw">let</span> cpi = <span class="ty">CpiContext</span>::new(&amp;sys, <span class="ty">Transfer</span> { from: sol_vault.cpi_handle_mut(), .. })</div>
-      <div class="ln">    .with_signer(seeds);</div>
-      <div class="ln">transfer(cpi, amount)?;                  <span class="cm">// cpi consumed here -&gt; handle drops -&gt; borrow released</span></div>
-      <div class="ln good"><span class="kw">let</span> after = ctx.accounts.state.credit;    <span class="cm cool">// now legal, and reads the LIVE account</span></div>
+      <div class="ln"><span class="kw">let</span> cpi = <span class="ty">CpiContext</span>::new(token_program.address(),</div>
+      <div class="ln"><span class="ty">    TransferChecked</span> { from: vault_ta.cpi_handle_mut(), .. });</div>
+      <div class="ln">transfer_checked(cpi, amount, decimals)?; <span class="cm">// cpi consumed here -&gt; handle drops -&gt; borrow released</span></div>
+      <div class="ln good"><span class="kw">let</span> after = ctx.accounts.vault_ta.amount();    <span class="cm cool">// now legal, and reads the LIVE account</span></div>
     </div>
-    <div class="note">The handle drops when <b>transfer</b> consumes <b>cpi</b>; the read that follows is legal <i>and</i> fresh.</div>
+    <div class="note">The handle drops when <b>transfer_checked</b> consumes <b>cpi</b>; the read that follows is legal <i>and</i> fresh.</div>
   </div>
   <div class="foot">The only change is the <b>ORDER</b>. No <code>reload()</code>, no clone, no new call —
     the read simply moved below the line that drops the handle.</div>

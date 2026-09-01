@@ -11,11 +11,11 @@ blocks:
     type: quiz
     questions:
       - id: m04-l2-q1
-        prompt: "You try to read ctx.accounts.vault's typed balance while a cpi_handle_mut is still in scope. What happens in V2?"
+        prompt: "You try to read ctx.accounts.vault's typed balance while a cpi_handle_mut taken from that same vault account is still in scope. What happens in V2?"
         multiSelect: false
         options:
           - id: a
-            label: "It is a compile error: the live CpiHandle holds a borrow that excludes typed data access."
+            label: "It is a compile error: the live CpiHandle holds a mutable borrow of that account, which excludes typed reads of it."
             correct: true
           - id: b
             label: "It compiles and returns the pre-CPI value until you call ctx.accounts.vault.reload() to refresh the copy."
@@ -25,7 +25,7 @@ blocks:
             label: "It compiles and returns the post-CPI value, because V2's Account<T> is a zero-copy view over live bytes."
             correct: false
             feedback: "Account<T> being a zero-copy view is why a read is fresh once the handle drops, but it does not make the read legal while the handle is live: the borrow checker rejects it, so the line never compiles."
-        explanation: "The CpiHandle is a Rust borrow. While it is alive the borrow checker will not let you also borrow the account's typed data, so the classic read-stale-data-after-a-CPI line cannot be written. Safety here is a property of the type system, not a runtime check you might forget. Once the handle drops the read is legal and already fresh, because V2's Account<T> is a zero-copy view over the account's live buffer rather than a deserialized copy sitting on your stack."
+        explanation: "The CpiHandle is a Rust borrow of that one account. While it is alive the borrow checker will not let you also borrow the same account's typed data, so the classic read-during-a-live-CPI line cannot be written — and the lock is exact: accounts you did not hand the CPI stay readable the whole time. Safety here is a property of the type system, not a runtime check you might forget. Once the handle drops the read is legal and already fresh, because V2's Account<T> is a zero-copy view over the account's live buffer rather than a deserialized copy sitting on your stack."
       - id: m04-l2-q2
         prompt: "How is this different from the v1 footgun it replaces?"
         multiSelect: false
@@ -51,7 +51,7 @@ blocks:
             correct: false
             feedback: "Nothing is re-deserialized. Auto-refreshing accounts after every CPI was one of the designs V2 considered and rejected on cost; the handle only excludes typed access while it is live."
           - id: b
-            label: "Yes: the borrow rooted at ctx.accounts covers raw AccountInfo lamports and hand-rolled byte reads too."
+            label: "Yes: the borrow held by a live CpiHandle covers raw AccountInfo lamports and hand-rolled byte reads too."
             correct: false
             feedback: "The borrow model guards typed account access only. Raw AccountInfo lamports and manual reads out of the data buffer stay your responsibility, exactly as they were in v1."
           - id: c

@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- annotated-code: Two handles are legal; the CpiContext is what locks the struct
-     purpose: pre-empt the "shouldn't two mutable handles be an error?" reflex before the detailed paragraph
-     data: // legal: two DISJOINT fields of one struct, borrowed mutably let ix = Transfer { from: ctx.accounts.sol_vault.cpi_handle_mut(),   // borrows ctx.accounts.sol_vault to:   ctx.accounts.authority.cpi_handle_mut(),   // borrows ctx.accounts.authority }; // the exclusion starts HERE: both handles move into one value whose // lifetime is rooted at ctx.accounts itself let cpi = CpiContext::new(&sys, ix); // ctx.accounts.state.credit  <-- compile error while `cpi` is alive transfer(cpi, amount)?;       // cpi consumed -> aggregate borrow released
-     prompt: A single code panel with two annotation bands. Band one, over the Transfer literal, in a neutral tone: "two disjoint fields, Rust has always allowed this". Band two, from CpiContext::new down to the transfer call, in a warning tone: "one aggregate borrow rooted at ctx.accounts". Draw a bracket down the left margin spanning band two and label it "typed access excluded".
+<!-- annotated-code: Two handles are legal; the CpiContext carries exactly those borrows
+     purpose: pre-empt the "shouldn't two mutable handles be an error?" reflex, and show the lock is per-field, not struct-wide
+     data: // legal: two DISJOINT fields of one struct, borrowed mutably let ix = Transfer { from: ctx.accounts.sol_vault.cpi_handle_mut(),   // borrows ctx.accounts.sol_vault to:   ctx.accounts.authority.cpi_handle_mut(),   // borrows ctx.accounts.authority }; // the handles MOVE into cpi: the same two borrows, kept alive let cpi = CpiContext::new(&sys, ix); // ctx.accounts.sol_vault / .authority  <-- locked while `cpi` is alive // ctx.accounts.state.credit            <-- still readable: not in this CPI transfer(cpi, amount)?;       // cpi consumed -> both borrows released
+     prompt: A single code panel with two annotation bands. Band one, over the Transfer literal, in a neutral tone: "two disjoint fields, Rust has always allowed this". Band two, from CpiContext::new down to the transfer call, in a warning tone: "the same two borrows, held until the call consumes them" — showing the two CPI'd fields locked and the disjoint state field still readable. Draw a bracket down the left margin spanning band two and label it "CPI'd accounts excluded".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -55,9 +55,10 @@
   .kw { color:#7fd8a6; font-weight:700; }
   .ty { color:var(--stbr-yellow); }
   .er { color:#f0a3a3; }
+  .ok { color:#9fdcb4; }
 </style>
   <div class="stbr-eyebrow">two handles are legal</div>
-  <h2 class="viz-title">the CpiContext is what locks the struct</h2>
+  <h2 class="viz-title">the CpiContext carries those borrows — and no more</h2>
   <div class="ac">
     <div class="marg a"><div class="note">no bracket here —<br>ordinary Rust field borrows,<br>legal since 1.0</div></div>
     <div class="grp a">
@@ -68,15 +69,15 @@
     to:   ctx.accounts.authority.cpi_handle_mut(),   <span class="cm">// borrows ctx.accounts.authority</span>
 };</pre>
     </div>
-    <div class="marg b"><div class="brk"><div class="k">typed access<br>excluded</div>
-      <div class="s">for exactly this span — from <code>CpiContext::new</code> to the call that consumes it</div></div></div>
+    <div class="marg b"><div class="brk"><div class="k">CPI&rsquo;d accounts<br>excluded</div>
+      <div class="s">those two fields only — from <code>CpiContext::new</code> to the call that consumes it</div></div></div>
     <div class="grp b">
-      <span class="chip w">one aggregate borrow rooted at ctx.accounts</span>
-<pre><span class="cm">// the exclusion starts HERE: both handles move into one value whose</span>
-<span class="cm">// lifetime is rooted at ctx.accounts itself</span>
+      <span class="chip w">the same two borrows, held until the call consumes them</span>
+<pre><span class="cm">// the handles MOVE into cpi: their borrows stay alive, and stay per-field</span>
 <span class="kw">let</span> cpi = <span class="ty">CpiContext</span>::new(&amp;sys, ix);
-<span class="er">// ctx.accounts.state.credit  &lt;-- compile error while `cpi` is alive</span>
-transfer(cpi, amount)?;       <span class="cm">// cpi consumed -&gt; aggregate borrow released</span></pre>
+<span class="er">// ctx.accounts.sol_vault / .authority  &lt;-- locked while `cpi` is alive</span>
+<span class="ok">// ctx.accounts.state.credit            &lt;-- still readable: not in this CPI</span>
+transfer(cpi, amount)?;       <span class="cm">// cpi consumed -&gt; both borrows released</span></pre>
     </div>
   </div>
 </div>

@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- diagram: The CpiHandle owns the borrow for its whole scope
-     purpose: show that typed access is locked out for the exact span the handle is alive, and returns when it drops
-     data: Timeline of one instruction, top to bottom: [ handle NOT yet created ]  -> typed access ALLOWED (ctx.accounts.state.credit is readable) let cpi = CpiContext::new(&sys, Transfer { from: sol_vault.cpi_handle_mut().. }) [ handle LIVE, borrow held ] -> typed access EXCLUDED (any ctx.accounts read = compile error) transfer(cpi, amount)?   // cpi is consumed here -> handle drops [ handle dropped, borrow released ] -> typed access ALLOWED AGAIN (reads the LIVE account)
-     prompt: A vertical timeline bar for one instruction. Three bands: a top green band "typed access allowed", a middle red band "handle live: typed access excluded" spanning from CpiContext::new to the transfer call, and a bottom green band "handle dropped: access allowed, reads live data". Mark the CpiContext::new line as the borrow-start and the transfer call as the borrow-end.
+     purpose: show that typed access to the CPI'd account is locked out for the exact span its handle is alive, returns when it drops, and never touches accounts outside the CPI
+     data: Timeline of one instruction, top to bottom: [ handle NOT yet created ]  -> typed access ALLOWED (reading the account you are about to hand the CPI is legal) let cpi = CpiContext::new(&sys, Transfer { from: vault.cpi_handle_mut().. }) [ handle LIVE, borrow held ] -> typed access EXCLUDED for the CPI'd account (reading THAT account = compile error; accounts outside the CPI stay readable) transfer(cpi, amount)?   // cpi is consumed here -> handle drops [ handle dropped, borrow released ] -> typed access ALLOWED AGAIN (reads the LIVE account)
+     prompt: A vertical timeline bar for one instruction. Three bands: a top green band "typed access allowed", a middle yellow band "handle live: the CPI'd account's typed access excluded (everything else stays readable)" spanning from CpiContext::new to the transfer call, and a bottom green band "handle dropped: access allowed, reads live data". Mark the CpiContext::new line as the borrow-start and the transfer call as the borrow-end.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -65,18 +65,18 @@
       <div class="rail on"></div>
       <div class="state"><div class="k">handle NOT yet created</div><div class="s">no borrow outstanding</div></div>
       <div class="desc"><div class="v">typed access ALLOWED</div>
-        <div class="d"><code>ctx.accounts.state.credit</code> is readable, like any ordinary field.</div></div>
+        <div class="d">Reading the account you are about to hand the CPI is legal — no borrow exists yet.</div></div>
     </div>
     <div class="r bound">
       <div class="rail mark"></div>
       <div class="state"><div class="k">borrow starts</div><div class="s">the handle is created</div></div>
-      <div class="desc"><pre>let cpi = CpiContext::new(&amp;sys, Transfer { from: sol_vault.cpi_handle_mut(), .. });</pre></div>
+      <div class="desc"><pre>let cpi = CpiContext::new(&amp;sys, Transfer { from: vault.cpi_handle_mut(), .. });</pre></div>
     </div>
     <div class="r excl">
       <div class="rail off"></div>
       <div class="state"><div class="k">handle LIVE, borrow held</div><div class="s">the exclusion window</div></div>
-      <div class="desc"><div class="v">typed access EXCLUDED</div>
-        <div class="d">Any <code>ctx.accounts</code> read is a compile error for exactly this span.</div></div>
+      <div class="desc"><div class="v">typed access EXCLUDED — for the CPI&rsquo;d account</div>
+        <div class="d">Reading <code>vault</code> here is a compile error. Accounts you did not hand the CPI stay readable.</div></div>
     </div>
     <div class="r bound">
       <div class="rail mark"></div>
