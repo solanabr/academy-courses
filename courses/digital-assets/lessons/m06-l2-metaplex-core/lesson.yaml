@@ -1,0 +1,71 @@
+id: lesson-date-m06-l2-metaplex-core
+slug: m06-l2-metaplex-core
+title: "Ship the NFT: Metaplex Core collections, plugins, and editions"
+skills:
+  - account-model
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: royalties-plugin-config
+    type: code
+    language: typescript
+    starter: royalties-plugin-config/starter.ts
+    solution: royalties-plugin-config/solution.ts
+    tests: royalties-plugin-config/tests.json
+    hints:
+      - "The starter only checks the shares sum; add the basisPoints range, the ruleSet membership, the duplicate-address guard, and the per-share range."
+      - "basisPoints is 0..10000 (10000 = 100%), an integer; reject anything outside that first."
+      - "Track seen creator addresses in a Set to catch duplicates before you total the shares."
+  - key: check
+    type: quiz
+    questions:
+      - id: m06-l2-metaplex-core-q1
+        prompt: "You mint three Almanac assets, then try to create the collection and add them. The downstream membership reads come back empty. What went wrong?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Core assets can only join a collection during the program's scheduled re-index window, when the collection authority batch-approves pending members; mint again after the next window closes and the reads will populate."
+            correct: false
+            feedback: "There's no re-index window and no batch approval; membership is set at mint time relative to an existing verified collection, not stamped in later."
+          - id: b
+            label: "The assets need a Royalties plugin before they can be collection members."
+            correct: false
+            feedback: "Royalties and membership are independent plugins/relationships; a missing Royalties plugin doesn't explain empty membership."
+          - id: c
+            label: "The collection must exist and be verified BEFORE assets are minted into it; minting first and retrofitting membership doesn't establish verified membership."
+            correct: true
+        explanation: "Core's model is collection-first: you create and verify the Almanac collection, then mint assets INTO it so membership is set at mint. This ordering isn't optional here: Bubblegum v2 in the next module mints cNFTs into a Core collection too, so the verified-collection-first habit is load-bearing."
+      - id: m06-l2-metaplex-core-q2
+        prompt: "A stakeholder wants the ~0.0029 SOL Core mint cost printed as a hard guarantee in your docs. How do you frame it honestly?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "As Metaplex's vendor-published figure versus Token Metadata's, cited as vendor-published rather than as a number this course independently measured."
+            correct: true
+          - id: b
+            label: "As a fixed protocol constant baked into the Core program: every mint pays exactly 0.0029 SOL and 17,000 CU on every cluster, regardless of rent schedule or account size."
+            correct: false
+            feedback: "It's not a protocol constant; it's a vendor benchmark that varies with rent and instruction shape, so it can't be promised as an invariant."
+          - id: c
+            label: "As a measured result from this course's own benchmark harness."
+            correct: false
+            feedback: "The course did not measure it: the figure comes from Metaplex's docs. Presenting it as your own measurement launders a vendor claim."
+        explanation: "The cost story is real and load-bearing for choosing Core, but the numbers are vendor-published (metaplex.com/docs/core) with no independent third-party measurement found. Attribute them as such, the same discipline the course applies to every moving number."
+      - id: m06-l2-metaplex-core-q3
+        prompt: "You apply PermanentFreeze to the Founding-Farmer badge to make it soulbound, then later get a request to let a farmer transfer their badge to a new wallet. What's true?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "You can toggle PermanentFreeze off with the freeze delegate authority and re-enable it after the move."
+            correct: false
+            feedback: "That describes the ordinary Freeze delegate, which is reversible. PermanentFreeze is the permanent variant; that's the whole point of using it for soulbound."
+          - id: b
+            label: "PermanentFreeze is permanent by design: the badge cannot be moved, which is exactly why it's the soulbound choice; a transferable badge needed a different plugin from the start."
+            correct: true
+          - id: c
+            label: "The badge can move once because PermanentFreeze only blocks the second transfer onward."
+            correct: false
+            feedback: "There's no one-free-transfer rule; PermanentFreeze blocks transfers outright from the moment it's applied."
+        explanation: "PermanentFreeze makes an asset non-transferable irreversibly, the soulbound mechanism for the Founding-Farmer badge. Because it can't be undone, it's a design decision made at mint: use it only for assets that should never move, and pick a reversible Freeze delegate when you might need to transfer later."

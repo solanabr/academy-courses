@@ -1,0 +1,60 @@
+id: lesson-date-m03-l2-resolving-hooks-composability
+slug: m03-l2-resolving-hooks-composability
+title: "Resolving hooks, and why they break composability"
+skills:
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "A user's plain Token-2022 transfer of your hooked SPROUT reverts with 'insufficient account keys', yet the identical transfer works in your test harness. What is the client failing to do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Raise the compute budget so the hook has enough CU to run."
+            correct: false
+            feedback: "Compute budget is not the failure here; the transaction is missing accounts, not compute, and it reverts before the hook even runs out of CU."
+          - id: b
+            label: "Sign the transfer with the hook program's authority."
+            correct: false
+            feedback: "The hook has no authority over the transfer: its accounts are read-only and non-signer, so there is nothing for it to sign."
+          - id: c
+            label: "Fetch the ExtraAccountMetaList and append the hook's resolved extra accounts to the instruction."
+            correct: true
+        explanation: "A hooked transfer only works if the client resolves the ExtraAccountMetaList off-chain and forwards those extra accounts on the transferring instruction. The harness did this for you; a naive wallet transfer does not, so the runtime cannot supply the hook its declared accounts and reverts with 'insufficient account keys'. This forwarding burden is the resolution tax hooks push onto every integrator."
+      - id: q2
+        prompt: "A teammate worries your allowlist hook could be rewritten to drain the sender's tokens mid-transfer. From what the interface guarantees, why can't any hook do that?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Inside Execute the transfer's accounts arrive read-only and non-signer, so the hook can neither spend them nor reuse the sender's signature."
+            correct: true
+          - id: b
+            label: "The Token-2022 program snapshots every account balance before the hook runs, then automatically refunds any tokens the hook attempted to move once it returns."
+            correct: false
+            feedback: "There is no snapshot-and-refund mechanism; the guarantee is structural: the hook is never given writable, signed access to the transfer's accounts in the first place."
+          - id: c
+            label: "Hooks execute in a sandboxed VM with no access to the transfer's accounts at all."
+            correct: false
+            feedback: "The hook does receive the accounts, since it needs them to make its decision, but they are de-escalated to read-only; there is no separate sandbox VM."
+        explanation: "The interface builds the transfer's accounts as AccountMeta::new_readonly(pubkey, false), read-only AND non-signer, before invoking the hook. So the hook can inspect the transfer but cannot move its funds or ride the sender's signature. (A malicious hook can still move funds ITS OWN PDAs control; the guarantee is only about the transfer's accounts.) That de-escalation, plus arbitrary CU, is the code-level root of why DEXes refuse hooks."
+      - id: q3
+        prompt: "You want SPROUT tradeable on Raydium's CP-Swap, but it carries your TransferHook. What does Raydium's allowlist do, and why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It allows the hook but wraps it in a metered sub-invocation capped at 5,000 CU per transfer, so pool pricing stays bounded and quotes stay safe."
+            correct: false
+            feedback: "There is no per-hook CU cap in the allowlist; the extension is simply not among the five it accepts, so pool creation reverts outright."
+          - id: b
+            label: "It rejects pool creation; TransferHook is not among the five accepted extensions, because hooks run arbitrary code per transfer."
+            correct: true
+          - id: c
+            label: "It allows the hook only if the mint also carries a PermanentDelegate."
+            correct: false
+            feedback: "PermanentDelegate is itself rejected (Raydium refuses it because a delegate holder could sweep the pool vault), and pairing two rejected extensions does not unlock the pool."
+        explanation: "Raydium's CP-Swap whitelists exactly five extensions (TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount); any other reverts pool creation. TransferHook is rejected by name because arbitrary per-transfer code with unbounded CU makes a pool un-priceable and un-safe. This is the compatibility thesis the course keeps returning to: the extensions that keep you tradeable are the passive, display-and-compliance ones, not the ones that run code."

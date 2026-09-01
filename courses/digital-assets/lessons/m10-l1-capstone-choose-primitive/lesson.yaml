@@ -1,0 +1,60 @@
+id: lesson-date-m10-l1-capstone-choose-primitive
+slug: m10-l1-capstone-choose-primitive
+title: "Capstone: choose your primitive and wire the economy"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your brief is a regulated payment token that must stay tradeable on Raydium AND let compliance freeze a bad actor. Which primitive choice is defensible?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Token-2022 with display extensions (MetadataPointer + TokenMetadata) plus 0-bps TransferFeeConfig; pursue Raydium's MINT_WHITELIST if compliance needs PermanentDelegate"
+            correct: true
+          - id: b
+            label: "Token-2022 with PermanentDelegate + TransferHook so compliance can freeze bad actors and screen every transfer against a sanctions list, since Raydium's CP-Swap routes Token-2022 mints the same way it routes classic SPL"
+            correct: false
+            feedback: "Raydium's CP-Swap allowlist is exactly five extensions and explicitly rejects TransferHook and PermanentDelegate; a non-whitelisted mint carrying them reverts pool creation."
+          - id: c
+            label: "A Metaplex Core asset with a Freeze delegate, since it is the cheapest compliant option"
+            correct: false
+            feedback: "Core assets are NFTs, not fungible tokens; a divisible payment token needs a fungible mint, which Core does not provide."
+        explanation: "The compatibility thesis decides this brief: compliance and display extensions get whitelisted, power extensions get refused. PermanentDelegate is a power extension, so the only way to keep it AND stay routable on Raydium is the static MINT_WHITELIST path that regulated stablecoins use; otherwise you ship display-only extensions and enforce compliance off the DEX."
+      - id: q2
+        prompt: "The musician's-drop brief wants numbered edition prints with royalties that survive to 2026. Which primitive fits?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A classic SPL mint with seller_fee_basis_points set on it"
+            correct: false
+            feedback: "Classic SPL has no metadata or royalty fields at all; seller_fee_basis_points lives in Token Metadata and is purely indicative even there."
+          - id: b
+            label: "A Metaplex Core collection with the Royalties plugin and numbered prints via the Edition plugin"
+            correct: true
+          - id: c
+            label: "A pNFT minted through Token Metadata with a Token Auth Rules rule set, since programmable NFTs were purpose-built to enforce royalties at the transfer level"
+            correct: false
+            feedback: "Token Metadata is officially legacy and pNFT enforcement runs through Token Auth Rules, which Metaplex marks Deprecated and whose flagship rule set blocks zero programs. You would ship a deprecated stack for enforcement that is armed but idle."
+        explanation: "The 2026 ship-path for new NFT work is Metaplex Core; the Edition plugin gives numbered prints and the Royalties plugin carries the configuration. This is exactly the worked edition step from the Core lesson, which is why the brief points here."
+      - id: q3
+        prompt: "You shipped a cNFT loot drop, but your verification script's getAsset call returns empty. What is the most likely cause?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The cNFT was never minted, because a valid cNFT always resolves on any RPC"
+            correct: false
+            feedback: "cNFT data lives off-chain in RPC-managed data stores; a plain RPC returns nothing even for a validly minted cNFT."
+          - id: b
+            label: "The memo declared the wrong extension set for the asset"
+            correct: false
+            feedback: "Extension state applies to fungible Token-2022 mints, not to a compressed-NFT leaf; it has no bearing on whether getAsset resolves."
+          - id: c
+            label: "You are querying an RPC without DAS support, and cNFT reads require a DAS-supporting RPC"
+            correct: true
+        explanation: "A cNFT's on-chain footprint is a Merkle leaf hash; the full asset is reconstructed by DAS indexers from off-chain data stores. A verification script that points at a non-DAS RPC will always read empty, which is why the integration proof depends on a DAS endpoint."

@@ -1,0 +1,61 @@
+id: lesson-date-m08-l2-launchpad-landscape
+slug: m08-l2-launchpad-landscape
+title: "The launchpad landscape, anti-snipe & what graduation seeds"
+skills:
+  - solana-fundamentals
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m08l2-q1-platform-pda
+        prompt: "You notice LetsBonk transactions and LaunchLab transactions hit the same program id. What does that tell you?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "LetsBonk forked LaunchLab's open-source code and redeployed it under its own upgrade authority, keeping the instruction layout byte-compatible."
+            correct: false
+            feedback: "A fork would deploy at a different program id; sharing the id means they share the program, not the source."
+          - id: b
+            label: "It is a coincidence of similar-looking vanity addresses."
+            correct: false
+            feedback: "Program ids are exact 32-byte keys: a shared id is identity, not resemblance."
+          - id: c
+            label: "LaunchLab's Platform PDA lets third parties run branded launchpads on the same program with their own fee structure."
+            correct: true
+        explanation: "LaunchLab exposes a Platform PDA so anyone can run a branded front-end and fee split on the shared program. LetsBonk is one such skin. Recognizing this collapses several 'competing' launchpads into one curve with resellers, and it tells you their mechanics and graduation AMM are LaunchLab's."
+      - id: m08l2-q2-docs-vs-code
+        prompt: "Meteora DBC's docs say the curve supports up to 16 segments; the on-chain config struct says up to 20. You are building against DBC. Which do you trust?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The code's 20 ranges; note the doc/code delta and verify at write time."
+            correct: true
+          - id: b
+            label: "The docs' 16 segments, because published documentation is the interface contract integrators are entitled to rely on."
+            correct: false
+            feedback: "Docs lag code across this whole ecosystem; the struct is what the program actually enforces."
+          - id: c
+            label: "Neither; DBC uses a single constant-product curve like pump.fun."
+            correct: false
+            feedback: "DBC is explicitly piecewise over multiple (sqrt_price, liquidity) segments; that flexibility is its whole pitch."
+        explanation: "When docs and code disagree, prefer the code and teach the delta as a beat, the same rule that produced the extension conflict matrix earlier. DBC's segment count lives in the config struct; docs trail it. Always re-verify the exact number at write time."
+      - id: m08l2-q3-venue-rejects-extension
+        prompt: "SPROUT carries a TransferHook extension. You choose a graduation AMM whose allowlist rejects hooks. What happens, and what is the fix?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The token graduates fine; the AMM ignores extensions it does not recognize."
+            correct: false
+            feedback: "The allowlist reverts pool creation on any off-list extension; it does not silently ignore it."
+          - id: b
+            label: "Pool creation reverts on the off-allowlist extension; pick a venue whose AMM accepts your routable set, or drop the extension."
+            correct: true
+          - id: c
+            label: "The launchpad automatically strips the TransferHook extension from the mint during migration so the graduation pool can be created without it."
+            correct: false
+            feedback: "A launchpad cannot remove a mint-level extension: extensions are fixed at mint creation. The venue must accept it or you must not ship it."
+        explanation: "The routable extension set from R6 is not advisory: it decides which graduation AMMs are legal. A hook-bearing SPROUT reverts on Raydium's allowlist but graduates on Meteora DBC, which explicitly supports transfer-hook configs. Choose the venue to match the token, or change the token."

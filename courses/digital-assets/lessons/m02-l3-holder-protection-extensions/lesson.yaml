@@ -1,0 +1,60 @@
+id: lesson-date-m02-l3-holder-protection-extensions
+slug: m02-l3-holder-protection-extensions
+title: "Holder-protection extensions: what accounts can refuse"
+skills:
+  - account-model
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1-forced-pair
+        prompt: "You want soulbound SPROUT badges: non-transferable fungible tokens. You enable NonTransferable on the mint. What does Token-2022 then force onto every holder account?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "An ImmutableOwner extension on each holder account, and nothing else, since the mint alone already blocks transfers."
+            correct: false
+            feedback: "ImmutableOwner is only half of it; a non-transferable mint also forces the account to be marked non-transferable."
+          - id: b
+            label: "Both NonTransferableAccount and ImmutableOwner on each account."
+            correct: true
+          - id: c
+            label: "A MemoTransfer extension so every transfer is logged."
+            correct: false
+            feedback: "MemoTransfer is a separate, opt-in protection about incoming memos; it isn't forced by NonTransferable."
+        explanation: "A NonTransferable mint forces the [NonTransferableAccount, ImmutableOwner] pair onto holder accounts, the soulbound-fungible pattern. The account can't be transferred and its owner can't be reassigned, so the badge truly sticks to its holder."
+      - id: q2-memo-required
+        prompt: "A partner integrates your MemoTransfer-enabled account and reports that transfers to it keep failing. What's actually going on?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "MemoTransfer requires the sender to hold a special memo NFT first."
+            correct: false
+            feedback: "There's no memo NFT; the requirement is just a memo instruction alongside the transfer, not a token gate."
+          - id: b
+            label: "MemoTransfer globally pauses transfers the way Pausable does."
+            correct: false
+            feedback: "MemoTransfer is per-account and doesn't halt anything globally; it only rejects transfers lacking a memo."
+          - id: c
+            label: "Every transfer into a memo-required account must include a memo instruction, or it reverts."
+            correct: true
+        explanation: "MemoTransfer makes a destination refuse any incoming transfer that doesn't carry a memo instruction, the integration burden Meteora's checklist warns about ('ensure destinations accept memo-required'). The sender, not you, has to attach the memo."
+      - id: q3-immutable-owner
+        prompt: "Why do Associated Token Accounts ship ImmutableOwner by default?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "So the owner field can never be reassigned, closing a class of account-takeover tricks."
+            correct: true
+          - id: b
+            label: "So a single account can hold balances of multiple mints at once."
+            correct: false
+            feedback: "An ATA holds exactly one mint; ImmutableOwner has nothing to do with multi-mint storage."
+          - id: c
+            label: "So the account can be cheaply handed to a new owner later without recreating an ATA at a freshly derived address."
+            correct: false
+            feedback: "That's the opposite: ImmutableOwner exists specifically to prevent re-owning the account."
+        explanation: "ImmutableOwner locks the owner authority so it can never be changed. ATAs ship it by default because their address is derived deterministically, and without the lock a program could re-own a derived account out from under its holder."

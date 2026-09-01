@@ -1,0 +1,71 @@
+id: lesson-date-m07-l2-reading-assets-das
+slug: m07-l2-reading-assets-das
+title: "Read anything: one DAS script for fungibles, Core assets, and cNFTs"
+skills:
+  - account-model
+  - rpc-reads
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: classify-das-asset
+    type: code
+    language: typescript
+    starter: classify-das-asset/starter.ts
+    solution: classify-das-asset/solution.ts
+    tests: classify-das-asset/tests.json
+    hints:
+      - "The NFT interfaces include MplCoreAsset, MplBubblegumV2, V1_NFT, ProgrammableNFT; the fungible ones are FungibleAsset and FungibleToken."
+      - "compressed is asset.compression?.compressed === true, and a compressed NFT is the only case that requires a DAS RPC."
+      - "Price lives at asset.token_info?.price_info?.price_per_token; default it to null when absent."
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "read-any-asset.ts resolves SPROUT with getAccountInfo-equivalent ease, but the Harvest crate REQUIRED a DAS-supporting RPC. Why the asymmetry?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A cNFT has no on-chain account of its own: its data lives in the provider's index, so only a DAS RPC can reconstruct it; SPROUT's mint is a real account any RPC returns."
+            correct: true
+          - id: b
+            label: "DAS RPCs are required for any Token-2022 mint: the TLV extension records live in the provider's off-chain index rather than in the base 82-byte mint layout, so getAccountInfo cannot see them."
+            correct: false
+            feedback: "getAccountInfo returns a Token-2022 mint with its TLV extensions fine; the DAS requirement is specific to compressed assets, not extensions."
+          - id: c
+            label: "getAccountInfo is rate-limited for collectibles, so DAS is the only way to read any NFT."
+            correct: false
+            feedback: "It's not a rate-limit issue, and regular NFTs read fine without DAS; a cNFT simply has no standalone account to fetch."
+        explanation: "A compressed NFT is only a leaf hash in a tree; its readable data lives in a DAS provider's index. Regular mints and Core assets are real accounts, so any RPC returns them; only cNFTs force a DAS RPC."
+      - id: q2
+        prompt: "You point getAssetsByCreator at a pump.fun mint's creator and get an empty list, even though the token clearly exists and trades. What's happening, and the fix?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The mint is compressed, so creator queries never return it; switch to getAssetProof to fetch it."
+            correct: false
+            feedback: "It isn't about compression, and getAssetProof fetches a Merkle proof for a compressed asset, not owner/creator listings."
+          - id: b
+            label: "pump.fun mints don't populate the Metaplex creators array, so getAssetsByCreator is empty; index by the update authority (or a program subscription) instead."
+            correct: true
+          - id: c
+            label: "DAS caches creator indexes for 600 seconds; wait for the cache to refresh and retry."
+            correct: false
+            feedback: "The ~600s cache is the price_info TTL, not creator indexing; the creators array is genuinely empty for pump mints, so waiting changes nothing."
+        explanation: "pump.fun leaves the Metaplex creators array unpopulated, so creator-keyed queries come back empty. The practitioner fix is to index by authority or subscribe to the program, a gotcha you only hit once."
+      - id: q3
+        prompt: "Your dashboard needs SPROUT's live USD price next to holdings, and a teammate wants to bolt on a second price API. Given what read-any-asset.ts already does, the cheapest correct move is:"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Add a CoinGecko fetch keyed by mint address, since DAS is a digital-asset metadata API: it covers NFTs and collections but leaves fungible pricing to dedicated market-data providers."
+            correct: false
+            feedback: "DAS did become the fungible + price API: getAsset with showFungible returns token_info.price_info for top tokens, so no second API is needed."
+          - id: b
+            label: "Call getAssetProof with showFungible to attach a price proof to the balance."
+            correct: false
+            feedback: "getAssetProof returns a Merkle proof for compressed assets; price comes from getAsset's showFungible, not from a proof call."
+          - id: c
+            label: "Call getAsset with showFungible and read token_info.price_info.price_per_token; DAS already serves the price for top tokens."
+            correct: true
+        explanation: "DAS is the fungible + price API too: getAsset with showFungible returns token_info.price_info for top tokens, including Token-2022 mints. Your reader already speaks DAS, so the price is one flag away; no second provider is needed."

@@ -1,0 +1,62 @@
+id: lesson-date-m09-l3-production-case-studies
+slug: m09-l3-production-case-studies
+title: "Production case studies & the frontier: what actually shipped"
+skills:
+  - transactions
+  - rpc-reads
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: m09l3-q1-pyusd-dormant
+        prompt: "You read PYUSD's live mint on-chain. What does 'configured but dormant' mean for its extension set?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "PYUSD carries seven extensions and all seven actively enforce on every transfer."
+            correct: false
+            feedback: "Counting TLV entries, PYUSD carries eight extensions, and the behavior-bearing ones are inert: the hook programId is null and the transfer fee is 0 bps."
+          - id: b
+            label: "The extensions are present in the mint's TLV data, but Token-2022 keeps each one disabled until the issuer completes a third-party audit and unlocks it on-chain."
+            correct: false
+            feedback: "Token-2022 doesn't gate a mint's extensions behind an audit. PYUSD's issuer configured the extensions without arming them; that's an issuer choice, not a program lock."
+          - id: c
+            label: "The mint carries eight TLV extensions, but the behavior-bearing ones read inert: hook programId null, transfer fee 0 bps."
+            correct: true
+        explanation: "PYUSD arms a full compliance-shaped set (eight TLV extensions) but reads inert on-chain: hook programId null, fee 0 bps. 'Configured but dormant' is the teachable fact. You verify it by reading the mint, not by inferring behavior from the presence of an extension."
+      - id: m09l3-q2-jto-maps
+        prompt: "Which primitive you built maps most directly onto Jito's JTO airdrop?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The compost-airdrop's merkle-claim path with claim_locked vesting; JTO ran a merkle distributor with linear vesting."
+            correct: true
+          - id: b
+            label: "The confidential-transfer variant, in which JTO distributed each recipient's allocation as an encrypted amount so claim sizes stayed hidden until decryption."
+            correct: false
+            feedback: "JTO's distribution was a public merkle drop with vesting, not a confidential-transfer deployment."
+          - id: c
+            label: "The transfer-hook program, with JTO enforcing claims through a custom hook on every transfer."
+            correct: false
+            feedback: "JTO used a merkle distributor, not a transfer hook. The linearly-vesting portion is what maps onto your claim_locked step."
+        explanation: "The JTO drop is the canonical merkle-distributor-with-linear-vesting case study, the very mechanism you reused for the compost-points migration, including the claim_locked vesting step. That's the point of the case study: real deployments run the primitives you built."
+      - id: m09l3-q3-frontier-honesty
+        prompt: "Writing case-study notes, you cite an official Solana page that says confidential transfers are 'expected EOY 2024,' and you describe Metaplex Agent Registry as a shipping production standard. What's wrong?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Nothing: both are current, verified facts you can cite as-is."
+            correct: false
+            feedback: "Both are traps: the 'EOY 2024' line is dead text on a live page, and agent identity is a 2026 frontier beat, not a production standard."
+          - id: b
+            label: "The 'expected EOY 2024' line is stale text on a live page, and agent identity (Agent Registry, AgentIdentity, DAS is_agent) is a 2026 frontier beat, not yet a production standard."
+            correct: true
+          - id: c
+            label: "The confidential-transfer date is fine; only the agent-identity claim is premature."
+            correct: false
+            feedback: "The confidential-transfer page is also stale: a live official page carrying a dead 2024 claim. Cite it only for its audit-firm list, not its timeline."
+        explanation: "Two honesty traps: official pages carry dead dates (confidential transfers 'expected EOY 2024'), and the agent-identity stack (Metaplex Agent Registry, the Core AgentIdentity plugin, DAS is_agent as a nullable boolean field) is a real but unproven 2026 direction. Cite the stale page only for its audit-firm list, and frame agent identity as a frontier beat."

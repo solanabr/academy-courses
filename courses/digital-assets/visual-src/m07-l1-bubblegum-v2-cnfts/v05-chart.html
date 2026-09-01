@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style></head>
+<body>
+<!-- chart: Canopy depth buys shorter proofs with rent
+     purpose: show the tradeoff as two curves moving in opposite directions on real derived numbers
+     data: Tree: maxDepth 20 (1,048,576 leaves), maxBufferSize 256. Derived by overgrowth/tree-cost.ts. canopy 0  -> 174,840 bytes, 1.218 SOL, 20 proof nodes on the wire canopy 6  -> 178,872 bytes, 1.246 SOL, 14 proof nodes canopy 8  -> 191,160 bytes, 1.331 SOL, 12 proof nodes canopy 10 -> 240,312 bytes, 1.673 SOL, 10 proof nodes canopy 12 -> 436,920 bytes, 3.042 SOL,  8 proof nodes canopy 13 -> 699,064 bytes, 4.866 SOL,  7 proof nodes canopy 14 -> 1,223,352 bytes, 8.515 SOL, 6 proof nodes  (the ~8.5 SOL vendor figure)
+     prompt: Dual-axis line chart. X axis is canopy depth with the seven sampled values 0, 6, 8, 10, 12, 13, 14. Left Y axis is tree rent in SOL, rising steeply from 1.218 to 8.515. Right Y axis is proof nodes the client must ship, falling from 20 to 6. Two lines, clearly distinguished, each labeled at its endpoint. Annotate the canopy-14 point with "the ~8.5 SOL vendor figure" and annotate the canopy-0 point with "1.218 SOL, but 20 nodes per write". Keep both axes labeled with units.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:451px;height:433px;right:-253px;top:133px;border-radius:36% 60% 61% 52% / 51% 65% 35% 42%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:365px;height:472px;bottom:-251px;left:592px;border-radius:39% 56% 63% 44% / 64% 55% 37% 54%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<style>
+  .cn-card { background:var(--surface-card); border:3px solid var(--stbr-dark);
+             border-radius:var(--radius-2xl); padding:20px 28px 14px; margin-top:2px; }
+  .cn-cap { margin-top:8px; font-family:var(--font-body); font-size:14px;
+            color:var(--text-secondary); text-align:center; }
+</style>
+  <div class="stbr-eyebrow">the canopy tradeoff, on derived numbers</div>
+  <h2 class="viz-title">canopy depth buys shorter proofs with rent</h2>
+  <div class="cn-card">
+    <svg width="1360" height="470" viewBox="0 0 1360 470" xmlns="http://www.w3.org/2000/svg">
+      <!-- gridlines (left-axis SOL ticks) -->
+      <line x1="80" y1="337.2" x2="1270" y2="337.2" stroke="#e8e2d2" stroke-width="1.5"/>
+      <line x1="80" y1="249.4" x2="1270" y2="249.4" stroke="#e8e2d2" stroke-width="1.5"/>
+      <line x1="80" y1="161.7" x2="1270" y2="161.7" stroke="#e8e2d2" stroke-width="1.5"/>
+      <line x1="80" y1="73.9"  x2="1270" y2="73.9"  stroke="#e8e2d2" stroke-width="1.5"/>
+      <!-- axes -->
+      <line x1="80" y1="30" x2="80" y2="425" stroke="#1B231D" stroke-width="2.5"/>
+      <line x1="1270" y1="30" x2="1270" y2="425" stroke="#1B231D" stroke-width="2.5"/>
+      <line x1="80" y1="425" x2="1270" y2="425" stroke="#1B231D" stroke-width="2.5"/>
+      <!-- left axis ticks: rent in SOL -->
+      <text x="70" y="430" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="end">0</text>
+      <text x="70" y="342" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="end">2</text>
+      <text x="70" y="254" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="end">4</text>
+      <text x="70" y="167" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="end">6</text>
+      <text x="70" y="79"  font-family="Inter" font-size="14" fill="#4a5248" text-anchor="end">8</text>
+      <text x="80" y="18" font-family="Inter" font-size="15" font-weight="700" fill="#008B4C" text-anchor="start">rent (SOL)</text>
+      <!-- right axis ticks: proof nodes -->
+      <text x="1282" y="430" font-family="Inter" font-size="14" fill="#4a5248">0</text>
+      <text x="1282" y="331" font-family="Inter" font-size="14" fill="#4a5248">5</text>
+      <text x="1282" y="232" font-family="Inter" font-size="14" fill="#4a5248">10</text>
+      <text x="1282" y="134" font-family="Inter" font-size="14" fill="#4a5248">15</text>
+      <text x="1282" y="35"  font-family="Inter" font-size="14" fill="#4a5248">20</text>
+      <text x="1270" y="18" font-family="Inter" font-size="15" font-weight="700" fill="#1B231D" text-anchor="end">proof nodes on the wire</text>
+      <!-- x ticks: canopy depth -->
+      <text x="80"   y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">0</text>
+      <text x="590"  y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">6</text>
+      <text x="760"  y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">8</text>
+      <text x="930"  y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">10</text>
+      <text x="1100" y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">12</text>
+      <text x="1185" y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">13</text>
+      <text x="1270" y="447" font-family="Inter" font-size="14" fill="#4a5248" text-anchor="middle">14</text>
+      <text x="675"  y="466" font-family="Inter" font-size="15" font-weight="700" fill="#1B231D" text-anchor="middle">canopy depth</text>
+      <!-- proof-nodes line (falling) -->
+      <polyline points="80,30 590,148.5 760,188 930,227.5 1100,267 1185,286.8 1270,306.5"
+                fill="none" stroke="#1B231D" stroke-width="3" stroke-dasharray="9,7"/>
+      <circle cx="80" cy="30" r="5" fill="#1B231D"/><circle cx="590" cy="148.5" r="5" fill="#1B231D"/>
+      <circle cx="760" cy="188" r="5" fill="#1B231D"/><circle cx="930" cy="227.5" r="5" fill="#1B231D"/>
+      <circle cx="1100" cy="267" r="5" fill="#1B231D"/><circle cx="1185" cy="286.8" r="5" fill="#1B231D"/>
+      <circle cx="1270" cy="306.5" r="5" fill="#1B231D"/>
+      <text x="1240" y="336" font-family="Inter" font-size="15" font-weight="700" fill="#1B231D" text-anchor="end">proof nodes: 20 &#8594; 6</text>
+      <!-- rent line (rising) -->
+      <polyline points="80,371.5 590,370.3 760,366.6 930,351.6 1100,291.5 1185,211.4 1270,51.3"
+                fill="none" stroke="#008B4C" stroke-width="4"/>
+      <circle cx="80" cy="371.5" r="6" fill="#008B4C"/><circle cx="590" cy="370.3" r="6" fill="#008B4C"/>
+      <circle cx="760" cy="366.6" r="6" fill="#008B4C"/><circle cx="930" cy="351.6" r="6" fill="#008B4C"/>
+      <circle cx="1100" cy="291.5" r="6" fill="#008B4C"/><circle cx="1185" cy="211.4" r="6" fill="#008B4C"/>
+      <!-- canopy-14 highlight: the vendor figure -->
+      <circle cx="1270" cy="51.3" r="10" fill="#FFD23F" stroke="#1B231D" stroke-width="3"/>
+      <line x1="1246" y1="51.3" x2="1258" y2="51.3" stroke="#1B231D" stroke-width="2"/>
+      <rect x="930" y="34" width="316" height="36" rx="18" fill="#FFD23F" stroke="#1B231D" stroke-width="2"/>
+      <text x="1088" y="58" font-family="Inter" font-size="16" font-weight="700" fill="#1B231D" text-anchor="middle">8.515 SOL &#8212; the vendor figure</text>
+      <!-- canopy-0 annotation -->
+      <rect x="92" y="322" width="322" height="32" rx="16" fill="#FFFFFF" stroke="#1B231D" stroke-width="2"/>
+      <text x="253" y="343" font-family="Inter" font-size="15" font-weight="600" fill="#1B231D" text-anchor="middle">1.218 SOL, but 20 nodes per write</text>
+      <line x1="90" y1="354" x2="82" y2="366" stroke="#1B231D" stroke-width="2"/>
+    </svg>
+    <div class="cn-cap">depth 20 (1,048,576 leaves), buffer 256 &mdash; canopy 0/6/8/10/12/13/14 sampled; bytes rise 174,840 &rarr; 1,223,352 &mdash; derived by overgrowth/tree-cost.ts</div>
+  </div>
+</div>
+</body></html>
