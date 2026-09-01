@@ -174,13 +174,12 @@ V2 makes that mistake unrepresentable. You no longer hand a CPI an `AccountInfo`
 
 ```rust
 // V2 withdraw: the CpiHandle borrow is live for exactly this call
-let owner = ctx.accounts.authority.address();
+let owner = *ctx.accounts.authority.address();  // deref: an owned copy, not a borrow
 let signer_seeds: &[&[&[u8]]] =
     &[&[b"sol", owner.as_ref(), &[ctx.accounts.state.sol_bump]]];
-let system_program = ctx.accounts.system_program.address();
 
 let cpi = CpiContext::new(
-    system_program,   // .address() already hands back an &Address
+    ctx.accounts.system_program.address(),   // hands back an &Address directly
     Transfer {
         from: ctx.accounts.sol_vault.cpi_handle_mut(),
         to:   ctx.accounts.authority.cpi_handle_mut(),

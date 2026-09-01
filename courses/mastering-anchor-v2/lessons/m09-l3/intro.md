@@ -92,10 +92,21 @@ One version-line note so nobody trips: this course pins Solana CLI `3.1.10` as t
 ```rust
 use anchor_lang::prelude::*;
 
-// Pull each rung's generated CPI module and its Program marker type into scope.
+// Pull the rung's generated CPI module into scope. What #[program] does NOT
+// generate is a Program<T> marker — it emits `instruction`, `accounts`, and
+// `cpi` only — so the registry declares one marker per rung, exactly as the
+// escrow did for the vault in m04-l3.
 use cabinet_counter::cpi as counter_cpi;
-use cabinet_counter::program::CabinetCounter;
 use cabinet_counter::Cabinet;
+
+pub struct CabinetCounter;
+
+impl Id for CabinetCounter {
+    fn id() -> Address {
+        cabinet_counter::ID
+    }
+    const IDL_ADDRESS: &'static str = "<the id cabinet_counter's declare_id! carries>";
+}
 
 declare_id!("F1oorReg1stry111111111111111111111111111111");
 

@@ -560,11 +560,10 @@ Here is `redeem`, with the condition guard and the escrow signing already in pla
 
 ```rust
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{InterfaceAccount, Mint, TokenAccount, TokenInterface};
-use crate::state::Escrow;
+use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
+use crate::state::{Escrow, QuarterVault};
 use crate::error::EscrowError;
 use quarter_vault::cpi as vault_cpi;
-use quarter_vault::program::QuarterVault;
 
 pub fn handler(ctx: &mut Context<Redeem>, final_score: u64) -> Result<()> {
     // GUARD (unchanged from the lamport escrow): condition before payout.

@@ -156,11 +156,12 @@ pub struct InitVault {
     #[account(init, payer = funder, space = Vault::DISCRIMINATOR.len() + Vault::INIT_SPACE,
               seeds = [b"vault", authority.address().as_ref()], bump)]
     pub state: Account<Vault>,
-    #[account(init, payer = funder, space = 0,
+    #[account(init, payer = funder, space = 0, owner = System::id(),
               seeds = [b"sol", authority.address().as_ref()], bump)]
-    /// CHECK: created here, so it cannot be a SystemAccount yet — V2 does not implement
-    /// AccountInitialize for that type. Every later instruction reads it back as a
-    /// SystemAccount, which is where the System-ownership guarantee comes from.
+    /// CHECK: UncheckedAccount because SystemAccount has no init path in V2, and
+    /// only UncheckedAccount may `init` with a foreign owner. `owner = System::id()`
+    /// does that handoff — without it the account stays owned by THIS program and
+    /// every later SystemAccount read fails at load with IllegalOwner.
     pub sol_vault: UncheckedAccount,
     pub system_program: Program<System>,
 }
@@ -194,7 +195,21 @@ pub struct Escrow {
     pub bump: u8,            // canonical bump, stored so we never re-derive
     pub _pad: [u8; 7],   // explicit tail padding: V2 rejects implicit pad bytes
 }
+
+/// Marker for `Program<QuarterVault>`. `#[program]` emits exactly three sibling
+/// modules — `instruction`, `accounts`, `cpi` — and no marker type, so the
+/// CALLER declares one: a unit struct plus an `Id` impl is all `Program<T>` needs.
+pub struct QuarterVault;
+
+impl Id for QuarterVault {
+    fn id() -> Address {
+        quarter_vault::ID
+    }
+    const IDL_ADDRESS: &'static str = "<your quarter_vault program id>";
+}
 ```
+
+Two lines of that marker earn a sentence each. `fn id()` is what `Program<QuarterVault>` validates the passed account against at load, wired straight to the id R2 declared. And `IDL_ADDRESS` is easy to skip and wrong to skip: it is the base58 string the IDL emitter advertises for this program account, it defaults to *empty*, and an impl without it still compiles — the IDL just silently loses the callee's address. Paste the same id `quarter_vault`'s `declare_id!` carries.
 
 Checkpoint: `anchor build` compiles. If it complains about padding or a non-Pod field, you added something variable-length; keep the record scalar.
 
@@ -205,9 +220,8 @@ Checkpoint: `anchor build` compiles. If it complains about padding or a non-Pod 
 ```rust
 use anchor_lang::prelude::*;
 use quarter_vault::cpi as vault_cpi;
-use quarter_vault::program::QuarterVault;
 use quarter_vault::Vault;
-use crate::state::Escrow;
+use crate::state::{Escrow, QuarterVault};
 
 #[derive(Accounts)]
 pub struct Reserve {
@@ -240,11 +254,12 @@ pub struct Reserve {
 }
 
 pub fn reserve(ctx: &mut Context<Reserve>, amount: u64, winning_score: u64) -> Result<()> {
-    // Copy scalars out BEFORE any handle borrows ctx.accounts (the borrow model, again).
-    let maker = ctx.accounts.maker.address();
-    let player = ctx.accounts.player.address();
-    let vault_ledger = ctx.accounts.vault_state.address();
-    let vault_program = ctx.accounts.quarter_vault_program.address();
+    // Copy scalars out BEFORE any handle borrows ctx.accounts (the borrow model,
+    // again). The leading `*` is what makes each one a copy: .address() returns
+    // &Address, and a bare binding would hold a borrow into ctx.accounts instead.
+    let maker = *ctx.accounts.maker.address();
+    let player = *ctx.accounts.player.address();
+    let vault_ledger = *ctx.accounts.vault_state.address();
 
     // FIRST: bring the escrow's vault pair into existence. The escrow PDA owns it
     // (the seeds derive from the escrow), but the maker funds the rent, which is
@@ -257,7 +272,10 @@ pub fn reserve(ctx: &mut Context<Reserve>, amount: u64, winning_score: u64) -> R
         sol_vault: ctx.accounts.vault_sol.cpi_handle_mut(),
         system_program: ctx.accounts.system_program.cpi_handle(),
     };
-    vault_cpi::init_vault(CpiContext::new(&vault_program, init_accounts))?;
+    vault_cpi::init_vault(CpiContext::new(
+        ctx.accounts.quarter_vault_program.address(),
+        init_accounts,
+    ))?;
 
     // THEN: deposit the operator's lamports INTO that vault (the R3 -> R2 edge).
     let cpi_accounts = vault_cpi::accounts::Deposit {
@@ -267,7 +285,7 @@ pub fn reserve(ctx: &mut Context<Reserve>, amount: u64, winning_score: u64) -> R
         sol_vault: ctx.accounts.vault_sol.cpi_handle_mut(),
         system_program: ctx.accounts.system_program.cpi_handle(),
     };
-    let cpi_ctx = CpiContext::new(&vault_program, cpi_accounts);
+    let cpi_ctx = CpiContext::new(ctx.accounts.quarter_vault_program.address(), cpi_accounts);
     vault_cpi::deposit(cpi_ctx, amount)?;
 
     // Only after the money is custodied, and after the handles have dropped, do we write the record.
@@ -282,7 +300,7 @@ pub fn reserve(ctx: &mut Context<Reserve>, amount: u64, winning_score: u64) -> R
 }
 ```
 
-Three things to notice, because they are the V2 CPI grammar. The callee exposes `vault_cpi::accounts::Deposit`, a struct whose every field is a `CpiHandle`. You fill it with `.cpi_handle_mut()` for accounts the callee will write (the vault pair, the funder) and `.cpi_handle()` for the rest. `CpiContext::new` takes the callee as a `&Address`, which is why the program's `.address()` is copied into a local first and passed by reference, not an `AccountInfo`. And the generated wrapper `vault_cpi::deposit(cpi_ctx, amount)` packs the args and invokes. That is the same handle you wrestled last lesson: once `cpi_handle_mut()` borrows the vault, you cannot also touch it as a typed account until the call returns, which is precisely how the compiler keeps you honest.
+Three things to notice, because they are the V2 CPI grammar. The callee exposes `vault_cpi::accounts::Deposit`, a struct whose every field is a `CpiHandle`. You fill it with `.cpi_handle_mut()` for accounts the callee will write (the vault pair, the funder) and `.cpi_handle()` for the rest. `CpiContext::new` takes the callee as a `&Address`, which is exactly what the program account's `.address()` hands back — so it is passed straight in, not wrapped in an `AccountInfo`. And the generated wrapper `vault_cpi::deposit(cpi_ctx, amount)` packs the args and invokes. That is the same handle you wrestled last lesson: once `cpi_handle_mut()` borrows the vault, you cannot also touch it as a typed account until the call returns, which is precisely how the compiler keeps you honest.
 
 Checkpoint: `anchor build`. The compiler resolves `quarter_vault::cpi::*` only because you turned on `features = ["cpi"]` in the `Cargo.toml` at the top of this lesson. If it cannot find the module, that feature flag is missing.
 
@@ -293,9 +311,8 @@ Checkpoint: `anchor build`. The compiler resolves `quarter_vault::cpi::*` only b
 ```rust
 use anchor_lang::prelude::*;
 use quarter_vault::cpi as vault_cpi;
-use quarter_vault::program::QuarterVault;
 use quarter_vault::Vault;
-use crate::state::Escrow;
+use crate::state::{Escrow, QuarterVault};
 
 #[derive(Accounts)]
 pub struct Redeem {
@@ -331,7 +348,6 @@ pub fn redeem(ctx: &mut Context<Redeem>, final_score: u64) -> Result<()> {
     let maker_key = ctx.accounts.escrow.maker;
     let player_key = ctx.accounts.escrow.player;
     let bump = ctx.accounts.escrow.bump;
-    let vault_program = ctx.accounts.quarter_vault_program.address();
 
     // TODO(you): check the win condition BEFORE the payout CPI. One line.
 
@@ -345,7 +361,8 @@ pub fn redeem(ctx: &mut Context<Redeem>, final_score: u64) -> Result<()> {
         destination: ctx.accounts.player.cpi_handle_mut(),
         system_program: ctx.accounts.system_program.cpi_handle(),
     };
-    let cpi_ctx = CpiContext::new(&vault_program, cpi_accounts).with_signer(signer);
+    let cpi_ctx = CpiContext::new(ctx.accounts.quarter_vault_program.address(), cpi_accounts)
+        .with_signer(signer);
     vault_cpi::withdraw(cpi_ctx, amount)?;
     Ok(())
 }

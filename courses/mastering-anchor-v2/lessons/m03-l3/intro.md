@@ -12,7 +12,7 @@ rustc --version   # any stable rustc at or above Anchor V2's MSRV, Rust 1.89.0
 
 ```rust
 // scratch.rs - the check hook, distilled to plain Rust.
-// Deliberately NOT named AccountConstraint / MinBalance: the real trait has a
+// Deliberately NOT named AccountConstraint / MinBalanceConstraint: the real trait has a
 // different shape (static methods, an associated Value, a program error), and
 // this file exists only to get the comparison right before the wiring.
 pub trait BalanceGate {
@@ -64,7 +64,7 @@ You do not need to be fluent in Rust to read what follows, only to recognize thr
 
 A **trait** is a named set of methods a type promises to provide. If a type "implements `AccountConstraint`," it supplies bodies for that trait's methods, and any code written against the trait can now call them. That is the whole idea: code depends on the promise, not on the concrete type.
 
-A **marker type** is a struct with no fields, `pub struct MinBalance;`, that exists only to have a trait implemented on it. It carries no data. It is a name you can hang behavior off of. When you see `impl AccountConstraint<Vault> for MinBalance`, read it as: "here is what the `MinBalance` rule does when applied to a `Vault`."
+A **marker type** is a struct with no fields, `pub struct MinBalanceConstraint;`, that exists only to have a trait implemented on it. It carries no data. It is a name you can hang behavior off of. When you see `impl AccountConstraint<Account<Vault>> for MinBalanceConstraint`, read it as: "here is what the min-balance rule does when applied to a loaded `Vault`."
 
 An **associated item** is a type or constant that belongs to a trait implementation rather than being passed in. `AccountConstraint` has an associated type `Value`, the type of the value on the right of the `=`. For `quarters::min_balance = 100`, `Value` is `u64` and the `100` is that value. That is genuinely all the Rust machinery this lesson leans on. Trait, marker type, associated type. Everything else is the argument for why they are here.
 
@@ -101,14 +101,14 @@ Here is the trait, verified against the docs-v2 source at the 2.0.0-rc.1 release
 ```rust
 pub trait AccountConstraint<A> {
     type Value;
-    fn init(account: &mut A, value: &Self::Value) -> Result<()>;
-    fn check(account: &A, value: &Self::Value) -> Result<()>;
-    fn update(account: &mut A, value: &Self::Value) -> Result<()>;
-    fn exit(account: &mut A, value: &Self::Value) -> Result<()>;
+    fn init(_account: &mut A, _value: &Self::Value) -> Result<()> { Ok(()) }
+    fn check(_account: &A, _value: &Self::Value) -> Result<()> { Ok(()) }
+    fn update(_account: &mut A, _value: &Self::Value) -> Result<()> { Ok(()) }
+    fn exit(_account: &mut A, _value: &Self::Value) -> Result<()> { Ok(()) }
 }
 ```
 
-`A` is the account type the constraint applies to, `Vault` for us. `Value` is the type of the right-hand side, `u64` for a lamport floor. And the four methods are the four phases of a constraint's life. That last part is the piece you have to get right, so it earns its own section.
+`A` is the *loaded* account type the constraint applies to — the wrapper, `Account<Vault>` for us, not the bare `Vault`, because what codegen is holding when a hook fires is the loaded wrapper, and the wrapper derefs to your struct so the body reads the same either way. `Value` is the type of the right-hand side, `u64` for a lamport floor. Notice that every hook ships a default body of `Ok(())`: an impl overrides only the phases it cares about, and the ones you leave unwritten are no-ops by construction. And the four methods are the four phases of a constraint's life. That last part is the piece you have to get right, so it earns its own section.
 
 ### The four hooks, and which one a floor lives in
 
@@ -222,37 +222,25 @@ pub struct Vault {
 }
 ```
 
-Now the constraint, and first the one mechanical rule that makes the whole thing work, because nothing else in this lesson will tell you and you cannot write the solo problem without it. The macro resolves `ns::key = value` by path, not by registration. It takes the namespace `ns` verbatim as a module path that must be in scope, and it converts the snake_case `key` into a PascalCase type name inside it. So `quarters::min_balance = 100` compiles to a call on `quarters::MinBalance`, and `quarters::max_balance` would resolve to `quarters::MaxBalance`. Three consequences worth holding: the module has to be reachable from where the derive struct is written, the marker type's name is not a label you choose freely (it is `key` in PascalCase or nothing), and the `100` on the right must typecheck as that impl's `Self::Value`, which is why the associated type is `u64` and not something you get to infer.
+Now the constraint, and first the one mechanical rule that makes the whole thing work, because nothing else in this lesson will tell you and you cannot write the solo problem without it. The macro resolves `ns::key = value` by path, not by registration. It takes the namespace `ns` verbatim as a module path that must be in scope, and it converts the snake_case `key` into a PascalCase type name inside it, then appends a mandatory `Constraint` suffix. So `quarters::min_balance = 100` compiles to a call on `quarters::MinBalanceConstraint`, and `quarters::max_balance` would resolve to `quarters::MaxBalanceConstraint`. Three consequences worth holding: the module has to be reachable from where the derive struct is written, the marker type's name is not a label you choose freely (it is `key` in PascalCase plus the `Constraint` suffix, or nothing), and the `100` on the right must typecheck as that impl's `Self::Value`, which is why the associated type is `u64` and not something you get to infer.
 
-With that rule stated: the marker type `MinBalance` lives in a `quarters` module, and implementing `AccountConstraint<Vault>` for it is what gives `quarters::min_balance` a body to call. The `check` body is the logic you just proved, translated to the real trait: `check` takes `&Vault` and `&Self::Value`, and rejects with a program error instead of a `String`. The other three hooks are no-ops for a pure read-time floor, and writing them as `Ok(())` is a deliberate statement that this rule does nothing at init, update, or exit:
+With that rule stated: the marker type `MinBalanceConstraint` lives in a `quarters` module, and implementing `AccountConstraint<Account<Vault>>` for it is what gives `quarters::min_balance` a body to call. The impl targets the loaded wrapper, `Account<Vault>`, not the bare `Vault`, because the wrapper is what codegen has in hand when the hook fires — and since the wrapper derefs to your struct, `vault.credit` reads exactly as it would on the bare type. The `check` body is the logic you just proved, translated to the real trait: `check` takes `&Account<Vault>` and `&Self::Value`, and rejects with a program error instead of a `String`. The other three hooks stay unwritten for a pure read-time floor: the trait defaults every hook to `Ok(())`, so leaving `init`, `update`, and `exit` off *is* the statement that this rule does nothing at those phases:
 
 ```rust
 pub mod quarters {
     use super::*;
 
-    /// Marker type. Implementing AccountConstraint<Vault> for it makes
+    /// Marker type. Implementing AccountConstraint<Account<Vault>> for it makes
     /// `#[account(quarters::min_balance = N)]` a real, IDL-visible constraint.
-    pub struct MinBalance;
+    pub struct MinBalanceConstraint;
 
-    impl AccountConstraint<Vault> for MinBalance {
+    impl AccountConstraint<Account<Vault>> for MinBalanceConstraint {
         type Value = u64;
 
-        fn init(_vault: &mut Vault, _floor: &u64) -> Result<()> {
-            Ok(()) // a floor is not enforced at creation
-        }
-
-        fn check(vault: &Vault, floor: &u64) -> Result<()> {
+        fn check(vault: &Account<Vault>, floor: &u64) -> Result<()> {
             // The read-time gate: the loaded vault must already hold the floor.
             require_gte!(vault.credit, *floor, VaultError::BelowFloor);
             Ok(())
-        }
-
-        fn update(_vault: &mut Vault, _floor: &u64) -> Result<()> {
-            Ok(()) // nothing to do inside an update(...) clause
-        }
-
-        fn exit(_vault: &mut Vault, _floor: &u64) -> Result<()> {
-            Ok(()) // no post-handler assertion; the gate already ran in check
         }
     }
 }
@@ -454,8 +442,8 @@ The proof is in the empty handler. `require_funded` does nothing, so the `is_err
 
 Two rungs. The first hands you the trait and takes back the body; the second hands you nothing.
 
-**Completion.** Reopen the `check` hook in your `MinBalance` impl and blank out the body, leaving `fn check(vault: &Vault, floor: &u64) -> Result<()> { /* TODO */ }`. Refill it from memory so the floor is inclusive: a vault whose credit equals the floor passes, one below it returns `VaultError::BelowFloor`. The acceptance check is the pure-Rust one from step 2, plus the `anchor test` from step 6. If you reach for `init` or `exit` to do this, stop: a read-time gate lives in `check`, and putting it anywhere else either misses later instructions or fires at the wrong phase.
+**Completion.** Reopen the `check` hook in your `MinBalanceConstraint` impl and blank out the body, leaving `fn check(vault: &Account<Vault>, floor: &u64) -> Result<()> { /* TODO */ }`. Refill it from memory so the floor is inclusive: a vault whose credit equals the floor passes, one below it returns `VaultError::BelowFloor`. The acceptance check is the pure-Rust one from step 2, plus the `anchor test` from step 6. If you reach for `init` or `exit` to do this, stop: a read-time gate lives in `check`, and putting it anywhere else either misses later instructions or fires at the wrong phase.
 
-**Solo.** Add a *second* namespaced constraint and prove it composes with the first on one account. Pick one: `quarters::max_balance = N`, which rejects a vault whose credit is *above* a ceiling, or `quarters::owner_is = <expr>`, which rejects a vault whose stored owner is not a given address. Implement it as its own marker type with its own `AccountConstraint<Vault>` impl, choosing the correct hook (both of these are read-time gates, so both are `check`, and reasoning out why is half the exercise). Then apply *both* on a single field, `#[account(quarters::min_balance = 100, quarters::max_balance = 10_000)]`, and write a LiteSVM test proving a vault inside the band passes while one on either side is rejected. Acceptance: the second constraint fires from the derive macro with no change to the framework, both constraints compose on one account, and the pure-Rust coding challenge still passes. One thing worth watching: a vault that fails the first constraint should never reach the second, because `check` hooks short-circuit on the first error, same as any `?`-propagated result.
+**Solo.** Add a *second* namespaced constraint and prove it composes with the first on one account. Pick one: `quarters::max_balance = N`, which rejects a vault whose credit is *above* a ceiling, or `quarters::owner_is = <expr>`, which rejects a vault whose stored owner is not a given address. Implement it as its own marker type with its own `AccountConstraint<Account<Vault>>` impl, choosing the correct hook (both of these are read-time gates, so both are `check`, and reasoning out why is half the exercise). Then apply *both* on a single field, `#[account(quarters::min_balance = 100, quarters::max_balance = 10_000)]`, and write a LiteSVM test proving a vault inside the band passes while one on either side is rejected. Acceptance: the second constraint fires from the derive macro with no change to the framework, both constraints compose on one account, and the pure-Rust coding challenge still passes. One thing worth watching: a vault that fails the first constraint should never reach the second, because `check` hooks short-circuit on the first error, same as any `?`-propagated result.
 
 You now have the whole constraint story: you can derive PDAs, wield the full built-in catalog, and, as of today, extend that catalog with keywords the framework authors never wrote. The vault is validated as tightly as you can describe it. The vault can hold credit and guard credit. What it has never done is pay anyone back. Next, module 4 puts it to work: signing a real lamport withdrawal *as* the PDA, through V2's `CpiHandle` borrow model, where the compiler, not a `.reload()` call you remembered to make, is what keeps you safe. The books stop being books.

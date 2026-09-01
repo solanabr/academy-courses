@@ -180,17 +180,21 @@ pub struct InitVault {
     )]
     pub state: Account<Vault>,
     // The money side: zero data, System-owned, created here so it exists to be
-    // signed for later. `space = 0` is what keeps it a legal System transfer source.
+    // signed for later. `space = 0` plus the explicit `owner` are what keep it a
+    // legal System transfer source.
     #[account(
         init,
         payer = authority,
         space = 0,
+        owner = System::id(),
         seeds = [b"sol", authority.address().as_ref()],
         bump,
     )]
-    /// CHECK: created here, so it cannot be a SystemAccount yet — V2 does not implement
-    /// AccountInitialize for that type. Every later instruction reads it back as a
-    /// SystemAccount, which is where the System-ownership guarantee comes from.
+    /// CHECK: typed UncheckedAccount because SystemAccount has no init path in V2,
+    /// and UncheckedAccount is the one wrapper `init` may hand to a foreign owner.
+    /// The `owner = System::id()` line does that handoff; without it, `init`
+    /// defaults the owner to THIS program, and every later SystemAccount read of
+    /// this PDA fails at load with IllegalOwner.
     pub sol_vault: UncheckedAccount,
     pub system_program: Program<System>,
 }
@@ -269,13 +273,14 @@ pub mod quarter_vault {
         require!(remaining >= rent_exempt_min, VaultError::WouldCloseVault);
 
         // --- the PDA-signed CPI: sign the System transfer AS the SOL vault ---
-        // Copy these out of ctx.accounts BEFORE any CPI handle is built.
-        let owner = ctx.accounts.authority.address();
+        // Copy these out of ctx.accounts BEFORE any CPI handle is built. The `*`
+        // matters: .address() returns &Address, and the deref makes `owner` an
+        // owned copy instead of a live borrow of ctx.accounts.
+        let owner = *ctx.accounts.authority.address();
         let sol_bump = ctx.accounts.state.sol_bump;
         let signer_seeds: &[&[&[u8]]] = &[&[b"sol", owner.as_ref(), &[sol_bump]]];
-        let system_program = ctx.accounts.system_program.address();
         let cpi = CpiContext::new(
-            &system_program,
+            ctx.accounts.system_program.address(),
             Transfer {
                 from: ctx.accounts.sol_vault.cpi_handle_mut(),
                 to: ctx.accounts.authority.cpi_handle_mut(),
@@ -298,9 +303,8 @@ pub mod quarter_vault {
     /// Contrast handler: a deposit needs NO invoke_signed. The player owns the
     /// source, so the player signs the System transfer the ordinary way.
     pub fn deposit(ctx: &mut Context<Deposit>, amount: u64) -> Result<()> {
-        let system_program = ctx.accounts.system_program.address();
         let cpi = CpiContext::new(
-            &system_program,
+            ctx.accounts.system_program.address(),
             Transfer {
                 from: ctx.accounts.authority.cpi_handle_mut(),
                 to: ctx.accounts.sol_vault.cpi_handle_mut(),

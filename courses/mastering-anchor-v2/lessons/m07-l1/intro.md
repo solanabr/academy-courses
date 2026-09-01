@@ -213,14 +213,13 @@ Checkpoint: the count is at least 1. The error told you to write `unsafe(dup)`, 
 ```rust
 // STUB - read vault.quarter_balance while the CpiHandles are still live
 pub fn drain(ctx: &mut Context<Swap>) -> Result<()> {
-    let token_program = ctx.accounts.token_program.address();
     let accts = Transfer {
         from: ctx.accounts.vault.cpi_handle_mut(),
         to: ctx.accounts.prize.cpi_handle_mut(),
         authority: ctx.accounts.config.cpi_handle(),
     };
     // TODO: read ctx.accounts.vault.quarter_balance HERE, while `accts` still holds the handles
-    transfer(CpiContext::new(&token_program, accts), 1)?;
+    transfer(CpiContext::new(ctx.accounts.token_program.address(), accts), 1)?;
     Ok(())
 }
 ```

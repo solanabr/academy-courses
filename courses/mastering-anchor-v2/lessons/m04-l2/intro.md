@@ -90,7 +90,7 @@ If it helps, think of the handle as checking a file out of a library. While the 
 Now look back at last lesson with new eyes. Remember the very first thing the withdraw handler did? It copied values *out* of `ctx.accounts` before building any handle:
 
 ```rust
-let owner = ctx.accounts.authority.address();   // copied out FIRST
+let owner = *ctx.accounts.authority.address();  // copied out FIRST — the `*` makes it a copy
 let sol_bump = ctx.accounts.state.sol_bump;     // copied out FIRST
 ```
 
@@ -157,13 +157,12 @@ pub fn withdraw(ctx: &mut Context<Withdraw>, amount: u64) -> Result<()> {
     // touches them, and deleting them to shorten the snippet is how a teaching
     // edit becomes a custody bug. Elided below only for length.
 
-    let owner = ctx.accounts.authority.address();
+    let owner = *ctx.accounts.authority.address();
     let sol_bump = ctx.accounts.state.sol_bump;
-    let system_program = ctx.accounts.system_program.address();
     let signer_seeds: &[&[&[u8]]] = &[&[b"sol", owner.as_ref(), &[sol_bump]]];
 
     let cpi = CpiContext::new(
-        &system_program,
+        ctx.accounts.system_program.address(),
         Transfer {
             from: ctx.accounts.sol_vault.cpi_handle_mut(),
             to:   ctx.accounts.authority.cpi_handle_mut(),
@@ -251,13 +250,12 @@ And here is the broken handler:
 
 ```rust
 pub fn refund(ctx: &mut Context<Refund>, amount: u64) -> Result<()> {
-    let owner = ctx.accounts.authority.address();
+    let owner = *ctx.accounts.authority.address();
     let sol_bump = ctx.accounts.state.sol_bump;
-    let system_program = ctx.accounts.system_program.address();
     let signer_seeds: &[&[&[u8]]] = &[&[b"sol", owner.as_ref(), &[sol_bump]]];
 
     let cpi = CpiContext::new(
-        &system_program,
+        ctx.accounts.system_program.address(),
         Transfer {
             from: ctx.accounts.sol_vault.cpi_handle_mut(),
             to:   ctx.accounts.authority.cpi_handle_mut(),

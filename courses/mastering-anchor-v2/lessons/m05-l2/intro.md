@@ -137,7 +137,7 @@ Here is the full swap handler. The token-in direction is worked; the token-out d
 ```rust
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{
-    self, InterfaceAccount, Mint, TokenAccount, TokenInterface, TransferChecked,
+    self, Mint, TokenAccount, TokenInterface, TransferChecked,
 };
 
 // Placeholder. Keep the id `anchor new token-ticket-swap` generated for you.
@@ -157,8 +157,8 @@ pub mod token_ticket_swap {
         // 1. Read the reserves BEFORE opening any CPI handle. In V2 you cannot
         //    hold a typed reference to a token account while a CpiHandle from it
         //    is live, so the read happens here, up front, once.
-        let reserve_in = ctx.accounts.reserve_arcade.amount;
-        let reserve_out = ctx.accounts.reserve_ticket.amount;
+        let reserve_in = ctx.accounts.reserve_arcade.amount();
+        let reserve_out = ctx.accounts.reserve_ticket.amount();
 
         // 2. Quote the output from the pre-trade reserves.
         let out = swap_out(reserve_in, reserve_out, amount_in);
@@ -177,7 +177,7 @@ pub mod token_ticket_swap {
         token_interface::transfer_checked(
             CpiContext::new(ctx.accounts.token_program.address(), pull),
             amount_in,
-            ctx.accounts.mint_arcade.decimals,
+            ctx.accounts.mint_arcade.decimals(),
         )?;
 
         // 5. Push the tickets OUT. The pool PDA signs with its own seeds.
@@ -196,7 +196,7 @@ pub mod token_ticket_swap {
             CpiContext::new(ctx.accounts.token_program.address(), push)
                 .with_signer(signer_seeds),
             out,
-            ctx.accounts.mint_ticket.decimals,
+            ctx.accounts.mint_ticket.decimals(),
         )?;
 
         Ok(())
@@ -279,7 +279,7 @@ That borrow is the point of the next section, and it is the footgun that used to
 
 In the 0.x line, this was the classic bug. You would do a CPI that moved tokens, then read `token_account.amount` and act on it, forgetting that Anchor deserialized that account *once*, at the top of the instruction. The CPI changed the on-chain balance, but your in-memory copy still held the old number. You had to call `.reload()` to refresh it, and if you forgot, you made a decision on stale data. It was silent, it was easy, and it shipped.
 
-V2 kills the class. A `CpiHandle` holds a Rust borrow of the typed account wrapper. While that handle is live, the borrow checker will not let you touch the typed account, so `reserve_ticket.amount` during an in-flight handle from `reserve_ticket` is not a runtime surprise. It does not compile. The fix is not to `.reload()`. The fix is structural: read every reserve you need *before* you open a handle, which is exactly why step 1 in the handler reads both balances up top, before any `cpi_handle_mut()` exists. There is no mid-CPI read to get wrong, because the language removed the ability to write one.
+V2 kills the class. A `CpiHandle` holds a Rust borrow of the typed account wrapper. While that handle is live, the borrow checker will not let you touch the typed account, so `reserve_ticket.amount()` during an in-flight handle from `reserve_ticket` is not a runtime surprise. It does not compile. The fix is not to `.reload()`. The fix is structural: read every reserve you need *before* you open a handle, which is exactly why step 1 in the handler reads both balances up top, before any `cpi_handle_mut()` exists. There is no mid-CPI read to get wrong, because the language removed the ability to write one.
 
 So do not reach for `.reload()` here out of 0.x muscle memory. If you find yourself wanting it, you have structured the reads in the wrong order. Move them earlier.
 
@@ -325,7 +325,7 @@ Freshness note: the V2 line is a release candidate at the time of writing (2026-
 
 2. **Add the quote function.** Type `swap_out` yourself from the two formula lines above, signature frozen; scroll back to the worked version only after your own compiles. Write one unit test that calls it with `reserve_in = 1_000_000`, `reserve_out = 1_000_000`, `amount_in = 10_000` and asserts it returns `9_871`. If you get `10_000`, you forgot the fee. If it panics on a large-reserve case, you multiplied in `u64`. Checkpoint: the unit test is green and the hand-computed 9,871 matches.
 
-3. **Read the reserves up front.** In the swap handler, read `reserve_arcade.amount` and `reserve_ticket.amount` into locals before you build any CPI accounts. This is not optional style. It is the only place the compiler will let you read them, because once a `cpi_handle_mut()` from a reserve exists, the typed `.amount` access on that reserve will not compile. Checkpoint: prove that claim rather than trusting it. Move the two reads to sit *between* the `let pull = TransferChecked { .. };` binding and the `transfer_checked` call that consumes it, which is the only window where the handle is genuinely live, and run `anchor build`. You should get a borrow error naming `reserve_arcade`, not a runtime surprise. Put them anywhere after the `transfer_checked` call instead and the build goes green, because the handle has already dropped, which is worth seeing too: the rule is about the handle's lifetime, not about the line number. Move them back to the top and continue.
+3. **Read the reserves up front.** In the swap handler, read `reserve_arcade.amount()` and `reserve_ticket.amount()` into locals before you build any CPI accounts. This is not optional style. It is the only place the compiler will let you read them, because once a `cpi_handle_mut()` from a reserve exists, the typed `.amount()` access on that reserve will not compile. Checkpoint: prove that claim rather than trusting it. Move the two reads to sit *between* the `let pull = TransferChecked { .. };` binding and the `transfer_checked` call that consumes it, which is the only window where the handle is genuinely live, and run `anchor build`. You should get a borrow error naming `reserve_arcade`, not a runtime surprise. Put them anywhere after the `transfer_checked` call instead and the build goes green, because the handle has already dropped, which is worth seeing too: the rule is about the handle's lifetime, not about the line number. Move them back to the top and continue.
 
 4. **Wire the token-in CPI (worked).** Build the `TransferChecked` for `trader_arcade -> reserve_arcade` with the trader as authority, and invoke it with `token_interface::transfer_checked` over `CpiContext::new(token_program.address(), pull)`. No `with_signer` here: the trader is a real signer on the transaction. Checkpoint: after this CPI the pool's arcade reserve grew by `amount_in`.
 
@@ -343,7 +343,7 @@ let push = TransferChecked {
     // fill in the four accounts using cpi_handle_mut() / cpi_handle()
 };
 // invoke transfer_checked over CpiContext::new(...).with_signer(signer_seeds)
-// with `out` and mint_ticket.decimals
+// with `out` and mint_ticket.decimals()
 ```
 
 Fill it in against the worked version above. The one thing you must not miss is `.with_signer(signer_seeds)`. Without it the runtime has no signature for the pool PDA and the transfer fails with a missing-signer error. Checkpoint: a trade moves real ticket balances into `trader_ticket`.

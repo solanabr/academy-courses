@@ -234,7 +234,7 @@ Freshness note: this reflects the Anchor V2 release candidate as of 2026-08-22, 
 
 ### Class 5: arbitrary CPI (validate the target program id)
 
-Your escrow calls the vault. It declares the callee as `quarter_vault_program: Program<QuarterVault>`, and that typed `Program<T>` is doing quiet security work: it checks the account's key equals `QuarterVault::ID` and that it is executable. You cannot be tricked into calling something else, because the type pins the target.
+Your escrow calls the vault. It declares the callee as `quarter_vault_program: Program<QuarterVault>`, and that typed `Program<T>` is doing quiet security work: it checks the account's key equals `QuarterVault::id()` — the marker impl you declared back in m04-l3 — and, with the default `guardrails` feature on, that the account is executable. You cannot be tricked into calling something else, because the type pins the target.
 
 Now imagine you got lazy and typed it as an `AccountInfo` or `UncheckedAccount`, then invoked it:
 
