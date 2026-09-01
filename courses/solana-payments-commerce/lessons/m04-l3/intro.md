@@ -7,7 +7,9 @@ Last lesson the back office grew ears: it ingests Helius webhooks idempotently, 
 Before anything new, thirty seconds of housekeeping this module has been deferring, then prove the baseline still answers. The ops folders you created as bare siblings join the `wavelength` workspace now, so they can import each other by name (`verifier`, `transfer-kit`) instead of by relative path; `npm init -y` named each package after its folder, which is exactly the name the workspace resolver uses. From the `wavelength` root:
 
 ```bash
-npm pkg set workspaces='["transfer-kit","verifier","backoffice","backoffice-refunds"]'
+cd ~/wavelength
+npm pkg set --json workspaces='["transfer-kit","verifier","backoffice","backoffice-refunds"]'
+npm pkg set type="module"
 npm install
 npm run --workspace backoffice verify:backoffice
 ```

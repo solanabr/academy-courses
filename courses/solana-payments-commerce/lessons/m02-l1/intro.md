@@ -101,7 +101,7 @@ Create the project the whole course lives in:
 ```bash
 mkdir wavelength && cd wavelength
 npm init -y
-npm pkg set workspaces='["transfer-kit"]' type="module"
+npm pkg set type="module"
 mkdir -p transfer-kit/src
 npm init -y --workspace transfer-kit
 npm pkg set type="module" --workspace transfer-kit
