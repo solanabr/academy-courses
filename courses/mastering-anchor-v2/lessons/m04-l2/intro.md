@@ -138,11 +138,12 @@ One last widening, because the borrow model is a single instance of a pattern yo
 
 You are going to run two experiments. The first, on last lesson's vault, proves what the lock does *not* cover, because half of using a guarantee well is knowing where it is not. The second walks you into the real error, on the account shape that earned v1 its scars, and you fix it by reordering. The only new artifact is a scratch probe crate, which carries you through the Challenge and gets deleted after. First, make sure you are on the right toolchain, because none of this holds on the V1 line.
 
-**Step 1. Pin the V2 toolchain.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line that ships by default on many machines. As m01-l2 showed, `avm install` cannot fetch the RC: it downloads a prebuilt binary from the tag's GitHub Release, and no Release was cut for the v2 tag, so the download 404s. The documented channel is a cargo git install off the `anchor-next` branch:
+**Step 1. Pin the V2 toolchain.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line that ships by default on many machines. As m01-l2 showed, `avm install` cannot fetch the RC: it downloads a prebuilt binary from the tag's GitHub Release, and no Release was cut for the v2 tag, so the download 404s. The documented channel is a cargo git install, pinned to the `v2.0.0-rc.1` tag:
 
 ```bash
+# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 anchor --version   # must report the V2 line (2.0.0-rc.1 as of 2026-08-12), not 1.1.2
 ```
 
@@ -205,8 +206,8 @@ edition = "2021"
 crate-type = ["lib"]
 
 [dependencies]
-anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
-anchor-spl  = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+anchor-lang = "2.0.0-rc.1"     # crates.io, not the branch: see m01-l2
+anchor-spl  = "2.0.0-rc.1"     # anchor-lang and anchor-spl move together on the V2 line
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6

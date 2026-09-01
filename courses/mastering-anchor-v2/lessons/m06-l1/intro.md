@@ -4,20 +4,22 @@ Last lesson you sat in the framework's seat and watched what changes when a mint
 
 Ask the honest question: how many compute units does one trade burn? Every answer you can give today is a shrug dressed up as an estimate. This whole module is about trading that shrug for a number you measured yourself, using V2's own first-party tooling instead of a marketing multiplier from someone else's benchmark.
 
-So before any theory, do the thing. If you have not already put V2 on this machine, build the release candidate from its documented git channel, the same install you ran in m01. Remember from that lesson: `avm install` cannot fetch the RC, because it downloads prebuilt binaries from GitHub Releases and no Release was cut for the v2 tag. The sanctioned path is the `anchor-next` branch build from the repo's current home, otter-sec/anchor (the old coral-xyz and solana-foundation URLs redirect there):
+So before any theory, do the thing. If you have not already put V2 on this machine, build the release candidate from its documented git channel, the same install you ran in m01. Remember from that lesson: `avm install` cannot fetch the RC, because it downloads prebuilt binaries from GitHub Releases and no Release was cut for the v2 tag. The sanctioned path is a source build from the repo's current home, otter-sec/anchor (the old coral-xyz and solana-foundation URLs redirect there), pinned to the `v2.0.0-rc.1` tag:
 
 ```bash
-# The documented V2 RC install: build the anchor-next branch from source.
+# The documented V2 RC install: build from source at the v2.0.0-rc.1 tag.
 # Pin verified live on crates.io 2026-08-23: anchor-cli 2.0.0-rc.1 (published 2026-08-12).
-# RC pins move fast: re-verify the branch and version before you pin a Dockerfile.
+# RC pins move fast: re-verify the tag and version before you pin a Dockerfile.
 # The LTO prefix is needed on macOS when the link step dies, harmless on Linux
 # (m01-l2 has the why). It is also why the earlier install blocks in this course
 # print it: leave it on and one command works everywhere.
 # Why git and not `cargo install anchor-cli@2.0.0-rc.1`? The crates.io publish is
-# real but undocumented for CLI installs; the branch is the sanctioned channel.
+# real but undocumented for CLI installs; the git build is the sanctioned channel
+# for the BINARY. (The library is the opposite: your program crate takes
+# anchor-lang from crates.io, because a published version cannot move.)
 CARGO_PROFILE_RELEASE_LTO=off \
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 anchor --version
 ```
 
@@ -104,7 +106,7 @@ Worked example. We run all four instruments against R4, the swap, and land on on
 Do not pin a version from memory. That is the last footgun and it bites quietly, because a stale pin compiles fine and just measures the wrong thing.
 
 ```bash
-anchor --version          # expect anchor-cli 2.0.0-rc.1 (the anchor-next build; pin verified 2026-08-23)
+anchor --version          # expect anchor-cli 2.0.0-rc.1 (the tag build; pin verified 2026-08-23)
 solana --version          # expect 3.1.10, the course's local-CI pin from m01-l2.
                           # A different number is not an error, it is a note to yourself:
                           # your CU readings are against a different runtime than mine.

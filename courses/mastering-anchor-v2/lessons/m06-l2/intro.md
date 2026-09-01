@@ -146,13 +146,13 @@ default = ["anchor-lang/guardrails"]      # safety nets ship ON by default
 const-rent = ["anchor-lang/const-rent"]   # opt in to the compile-time rent fold
 
 [dependencies]
-# Program deps ride the same anchor-next branch as the CLI, exactly as m02-l1 pinned them.
-# (anchor-lang 2.0.0-rc.1 also exists on crates.io, published 2026-08-12 and re-verified
-# 2026-08-23, but the git branch is the documented channel and the one the scaffold uses.)
+# Program deps come from crates.io at 2.0.0-rc.1 (published 2026-08-12, re-verified
+# 2026-08-23), exactly as m02-l1 pinned them: a published version is immutable, and
+# it is the same release the tag-pinned CLI was built from.
 # default-features = false makes guardrails toggleable, but it also drops `alloc`,
 # the OTHER v2 default. Re-enable alloc here explicitly: otherwise your
 # --no-default-features build moves TWO variables (and your allocator), not one.
-anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next", default-features = false, features = ["alloc"] }
+anchor-lang = { version = "2.0.0-rc.1", default-features = false, features = ["alloc"] }
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6

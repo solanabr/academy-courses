@@ -55,7 +55,7 @@ Which brings up the pins, and one number I want to defuse before it misleads you
 |---|---|---|
 | `solana-verify` | 0.5.1 | Latest on crates.io as of 2026-08-22; `cargo search solana-verify` to see if that moved, `solana-verify --version` to confirm what you have |
 | Docker | 27.x or newer | The build fails fast if the daemon is not running |
-| Anchor | 2.0.0-rc.1, git `otter-sec/anchor` branch `anchor-next` | Not a cut release avm can fetch; pin the branch and the commit you built, and re-check at build |
+| Anchor | 2.0.0-rc.1, git `otter-sec/anchor` rev `e4878b6d` (= tag `v2.0.0-rc.1`) | Not a cut release avm can fetch; pin the commit, not the branch, and re-check at build |
 | Solana build toolchain (inside the image) | 3.1.10 | LOCAL-CI / DOCKER PIN. This is the deterministic anchor for the bytes, NOT a current-Solana claim |
 
 Read that last row twice. Solana 3.1.10 is the toolchain baked into this build so the hash is reproducible. The current stable Solana release is a different thing entirely: Agave v4.2.1 as of 2026-08-22 (re-verify, it moves). Anchor's V2 RC targets the Solana 3.x line, so a 3.1.10 build pin is exactly right for these bytes and says nothing about the newest node release. If you ever catch yourself reading a pins table and thinking "so current Solana is 3.1," stop. The pin is a build fact, the release is a network fact, and they drift apart on purpose.
@@ -155,13 +155,21 @@ docker info >/dev/null && echo "docker up" || echo "start docker first"
 
 # Anchor V2 RC, if you have not already installed it for this course. `avm install`
 # 404s on the RC (no GitHub Release cut for the v2 tag, so its binary is missing), so
-# the documented channel is the anchor-next git build you ran in m01-l2.
+# the documented channel is the git build you ran in m01-l2.
 cargo install --git https://github.com/otter-sec/anchor.git \
   --rev e4878b6d anchor-cli --locked --force
 anchor --version   # expect anchor-cli 2.0.0-rc.1 (freshness 2026-08-22; RC, re-check)
 ```
 
-Note the `--rev` where every earlier lesson wrote `--branch anchor-next`. That is deliberate and it is this lesson's own rule applied to itself: a branch tip moves, and a moving toolchain is exactly the free variable that breaks a hash. Everywhere else in this course, tracking the branch was the right call because you wanted the newest RC. Here you want the *same* one your verify Dockerfile pins, so pin the commit. If `anchor --version` reports something other than the RC after this, the commit has been rewritten and you re-pin from the tag.
+Note the `--rev` where every earlier lesson wrote `--tag v2.0.0-rc.1`. Those two resolve to the *same* source — `v2.0.0-rc.1` is an annotated tag whose commit is `e4878b6d`, which you can confirm for yourself:
+
+```bash
+git ls-remote https://github.com/otter-sec/anchor.git 'refs/tags/v2.0.0-rc.1*'
+# 2f77733f...  refs/tags/v2.0.0-rc.1       <- the tag object
+# e4878b6d...  refs/tags/v2.0.0-rc.1^{}    <- the commit it points at
+```
+
+So why spell it the harder way here? Because a tag is a *ref* and a commit is a *fact*. A tag can be moved or deleted and re-cut at a different commit; the hash `e4878b6d` names one immutable object and nothing else can ever answer to it. Everywhere else in this course the tag is precise enough, and it reads better. Here the whole deliverable is a hash that a stranger reproduces, so the toolchain is named at the tightest granularity that exists, and it matches the line in your verify Dockerfile character for character. If `anchor --version` reports something other than the RC after this, the commit has been rewritten and you re-pin from the tag.
 
 Also worth stating plainly, since the pins table hedges it: the Anchor CLI you run locally is not inside the deterministic envelope. `solana-verify build` compiles inside the pinned Docker image, using the toolchain in that image, so the hash is a function of the image and your source, not of your host `anchor`. Pinning your local CLI keeps *you* consistent between lessons. Pinning the image is what makes the proof work.
 

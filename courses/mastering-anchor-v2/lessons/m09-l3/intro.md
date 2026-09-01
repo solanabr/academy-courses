@@ -14,9 +14,9 @@ Then open `programs/floor-registry/Cargo.toml` and pull each rung in as a depend
 
 ```toml
 [dependencies]
-# The rc.1 crates did land on crates.io (2026-08-12), but the documented channel for V2
-# is still a git dep on the anchor-next branch; pin whichever you built your CLI from.
-anchor-lang = { git = "https://github.com/otter-sec/anchor", branch = "anchor-next" }
+# The rc.1 crates landed on crates.io (2026-08-12), and that is where the LIBRARY comes
+# from course-wide: a published version is immutable. The CLI is the git build (see m01-l2).
+anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
@@ -77,9 +77,10 @@ This is the capstone lab. The R1 edge is worked. The rest is yours. I will keep 
 **Step 0. Pin the toolchain.** One trap first, and m01-l2 already walked you into it on purpose: **`avm install` cannot fetch the V2 RC.** `avm install` downloads a prebuilt binary from the tag's GitHub Release assets, and no Release was cut for `v2.0.0-rc.1` — only the tag itself exists — so the download 404s. So you install the CLI from the documented git channel, not from `avm`:
 
 ```bash
-# No GitHub Release for the v2 tag -> no binary to download. Build from the branch.
+# No GitHub Release for the v2 tag -> no binary to download. Build from the tag.
+# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 anchor --version           # expect: anchor-cli 2.0.0-rc.1
 ```
 

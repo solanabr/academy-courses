@@ -161,11 +161,11 @@ You are on `exploit/compile-time-kills`. First, pin the toolchain, because none 
 # Install the Anchor V2 release candidate. Freshness note (2026-08-22):
 # 2.0.0-rc.1 is the pinned RC for this course, tagged on the `anchor-next` branch. It is an
 # UNAUDITED alpha. `avm` CANNOT install the V2 RC: it only tracks published GitHub releases,
-# and there is no release object for the v2 tag. Install the CLI straight from the branch:
-cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
+# and there is no release object for the v2 tag. Install the CLI straight from the tag:
+cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 anchor-cli --locked --force
 # macOS: prefix with CARGO_PROFILE_RELEASE_LTO=off if the release build fails to link.
-# The branch head moves, so record the exact commit you built and keep the verify Dockerfile in
-# step. Do NOT verify V2 content on the 1.1.x line.
+# The tag is a fixed point (commit e4878b6d) where the branch head is not, which is what keeps
+# this in step with m08-l2's verify Dockerfile. Do NOT verify V2 content on the 1.1.x line.
 anchor --version   # expect the 2.0.0-rc.1 line, NOT anchor-cli 1.1.x
 ```
 

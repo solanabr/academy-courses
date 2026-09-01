@@ -32,7 +32,7 @@ Remember that `1.1.2` from a minute ago? Here is the trap it sets. You clone the
 
 So the first move is not a code edit. It is standing up an isolated V2 toolchain and pinning it.
 
-The install fights you a little, and it is worth knowing why. V2 has no GitHub Release object. There is a git tag, `v2.0.0-rc.1` on the anchor-next branch, but no published release for that tag, which means `avm install` cannot download a prebuilt binary for it the way it does for stable versions — the asset URL just 404s. The rc.1 crates did land on crates.io on 2026-08-12, but the docs lag that publish and the documented path is a direct git install from the branch (docs use `--branch anchor-next`; we pin the tag for reproducibility):
+The install fights you a little, and it is worth knowing why. V2 has no GitHub Release object. There is a git tag, `v2.0.0-rc.1` on the anchor-next branch, but no published release for that tag, which means `avm install` cannot download a prebuilt binary for it the way it does for stable versions — the asset URL just 404s. The rc.1 crates did land on crates.io on 2026-08-12, but the docs lag that publish and the documented path is a direct git install (the docs point at the `anchor-next` branch tip; this course pins the tag that sits on that branch, for the reproducibility reason m01-l2 laid out):
 
 ```bash
 # Anchor V2 RC - installed straight from the anchor-next repo by tag.
@@ -326,27 +326,29 @@ The provided program ships three send helpers in `tests/helpers.rs`, one per ins
 
 ```rust
 // tests/helpers.rs (provided)
-use anchor_lang::{InstructionData, ToAccountMetas};
-use anchor_v2_testing::LiteSVM;
-use solana_sdk::{
-    instruction::Instruction, message::Message, pubkey::Pubkey,
-    signature::{Keypair, Signer as _}, system_program, transaction::Transaction,
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
+};
+use anchor_v2_testing::{
+    Keypair, LiteSVM, Message, Signer as _, VersionedMessage, VersionedTransaction,
 };
 
-pub fn send_initialize(svm: &mut LiteSVM, authority: &Keypair, state: Pubkey, vault: Pubkey) {
+pub fn send_initialize(svm: &mut LiteSVM, authority: &Keypair, state: Address, vault: Address) {
     let ix = Instruction {
         program_id: quarter_vault::ID,
         accounts: quarter_vault::accounts::Initialize {
             state,
             authority: authority.pubkey(),
             vault,
-            system_program: system_program::ID,
+            system_program: System::id(),
         }
         .to_account_metas(None),
         data: quarter_vault::instruction::Initialize {}.data(),
     };
-    let msg = Message::new(&[ix], Some(&authority.pubkey()));
-    let tx = Transaction::new(&[authority], msg, svm.latest_blockhash());
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[ix], Some(&authority.pubkey()), &blockhash);
+    let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[authority]).unwrap();
     svm.send_transaction(tx).unwrap();
 }
 ```
@@ -356,11 +358,8 @@ The test itself drives the full lifecycle, init then deposit then PDA-signed wit
 ```rust
 mod helpers;
 use helpers::{send_deposit, send_initialize, send_withdraw};
-use anchor_v2_testing::svm;
-use solana_sdk::{
-    signature::{Keypair, Signer as _},
-    pubkey::Pubkey,
-};
+use anchor_lang::prelude::Address;
+use anchor_v2_testing::{svm, Keypair, Signer as _};
 
 #[test]
 fn init_deposit_withdraw_roundtrip() {
@@ -372,9 +371,9 @@ fn init_deposit_withdraw_roundtrip() {
     svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();
 
     let (state, _) =
-        Pubkey::find_program_address(&[b"state", authority.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"state", authority.pubkey().as_ref()], &program_id);
     let (vault, _) =
-        Pubkey::find_program_address(&[b"vault", state.as_ref()], &program_id);
+        Address::find_program_address(&[b"vault", state.as_ref()], &program_id);
 
     // init -> deposit(1 SOL) -> withdraw(0.4 SOL), each through the helper above.
     send_initialize(&mut svm, &authority, state, vault);

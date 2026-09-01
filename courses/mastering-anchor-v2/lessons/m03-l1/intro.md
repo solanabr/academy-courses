@@ -13,12 +13,12 @@ anchor --version   # must report a 2.0.0 RC line, not 1.x
 # If it reports 1.x or nothing, re-pin. avm (the Anchor Version Manager) cannot
 # install the V2 RC: it downloads a prebuilt binary from a published GitHub
 # release, and no release was cut for the v2 tag, so the fetch 404s;
-# so the documented channel is a cargo git install off the anchor-next branch:
-cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
+# so the documented channel is a cargo git install, pinned to the RC's tag:
+cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 anchor-cli --locked --force
 # macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 ```
 
-A freshness note before you lean on that pin: Anchor V2 is at `2.0.0-rc.1` as I write this, published to crates.io on 2026-08-12. It is a *release candidate*, which means the API can still shift between RCs. Note what "pin" means for this particular dependency, because the `Cargo.toml` you write in step 1 tracks a git branch rather than a version, and a branch tip moves. That is deliberate: the branch is the documented channel, and the CLI you just installed came from the same place, so tracking it keeps the two in step. If you want the stricter thing, add `rev = "e4878b6d"` to that dependency and you have a real pin; the course's verify Dockerfile does exactly that. Either way, re-check the tag before you start a session. The MSRV is Rust 1.89.0, so make sure your `rustc` clears that too.
+A freshness note before you lean on that pin: Anchor V2 is at `2.0.0-rc.1` as I write this, published to crates.io on 2026-08-12. It is a *release candidate*, which means the API can still shift between RCs. Note what "pin" means here, because the two halves come from different places on purpose. The CLI is a git install pinned to `v2.0.0-rc.1`, a tag, which is a fixed point rather than a branch tip that moves; m01-l2 installed off the `anchor-next` branch itself because the channel was that lesson's subject, and everything after it pins the tag. The library in the `Cargo.toml` you write in step 1 is the crates.io version, `anchor-lang = "2.0.0-rc.1"`, which is stronger still, because the registry forbids republishing a version. If you want to name the toolchain even more precisely, the tag resolves to commit `e4878b6d`, and m08-l2's verify Dockerfile pins exactly that. Either way, re-check the tag before you start a session. The MSRV is Rust 1.89.0, so make sure your `rustc` clears that too.
 
 ## Summary
 
@@ -96,11 +96,11 @@ anchor init quarter-vault   # the default test template is LiteSVM (Rust tests)
 cd quarter-vault
 ```
 
-Open the program's `Cargo.toml` and confirm the dependency rides the same V2 line as the CLI. On the RC, program deps come off the `anchor-next` git branch rather than a crates.io version, the crate published to crates.io is `anchor-lang 2.0.0-rc.1`, but the documented install path is the branch, and the CLI you just built comes from there too. Keep them on the same source or you will debug a version skew instead of a PDA:
+Open the program's `Cargo.toml` and confirm the dependency rides the same V2 release as the CLI. The scaffold writes a git row tracking the `anchor-next` branch; replace it with the crates.io version, the same edit m01-l2 walked through. The CLI is a git install and the library is a registry version, and that is not skew — they are separate dependency graphs naming the same release, and the registry version is the one that cannot move under you:
 
 ```toml
 [dependencies]
-anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+anchor-lang = "2.0.0-rc.1"     # crates.io; the branch tip wants solana-address 2.7.0
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
@@ -193,37 +193,34 @@ Look hard at the difference between the two `bump` lines, because it is the poin
 
 ![The client derives the PDA and sends init_vault; the macro re-derives it, supplies the canonical bump, creates and funds the account, then the handler stores owner, bump and credit.](assets/v08-flowchart.png)
 
-**4. Write the LiteSVM test.** LiteSVM runs the program in-process, no validator, so the loop is fast. Add `litesvm` and the SDK to your test dependencies:
+**4. Write the LiteSVM test.** LiteSVM runs the program in-process, no validator, so the loop is fast. You reach it through `anchor-v2-testing`, the harness the V2 scaffold generates against, and **not** through a direct `litesvm` dependency:
 
 ```toml
-# Use these two numbers, not the newest ones on crates.io. anchor-v2-testing at
-# 2.0.0-rc.1 pins litesvm 0.11, and litesvm 0.11 builds against the solana-sdk 3.x
-# line; crates.io is ahead on both. Floating either one puts two SVM versions in
-# one dependency graph, which fails to build in a way that reads like your test is
-# wrong. If you ever DO need to move: bump litesvm first, read the version of
-# solana-sdk it resolves, and match it here.
+# One row, not three. anchor-v2-testing wraps LiteSVM and re-exports the pieces a
+# test file needs, so the SVM version is the harness's problem and not yours. At tag
+# v2.0.0-rc.1 it carries litesvm 0.11.0; crates.io is already at 0.15.2, and the
+# anchor-next branch tip has moved it to 0.13.1. Name litesvm yourself and you are
+# choosing one of those against a harness that expects another — two SVM versions in
+# one graph, failing in a way that reads like your test is wrong.
 [dev-dependencies]
-litesvm = "0.11"
-solana-sdk = "3"
+anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", tag = "v2.0.0-rc.1" }
 bytemuck = "1.25"     # to cast the account bytes back to the Pod state
 ```
 
-Then the test itself, in `tests/quarter_vault.rs`. It derives the PDA the same way the program does, sends `init_vault`, and reads the raw account back to assert the stored state:
+Then the test itself, in `tests/quarter_vault.rs`. It derives the PDA the same way the program does, sends `init_vault`, and reads the raw account back to assert the stored state. Note where each import comes from: the instruction plumbing rides `anchor_lang`, the signing and SVM plumbing rides `anchor_v2_testing`, and nothing reaches past either one:
 
 ```rust
-use anchor_lang::{InstructionData, ToAccountMetas};
-use bytemuck::from_bytes;
-use litesvm::LiteSVM;
-use solana_sdk::{
-    instruction::Instruction,
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-    transaction::Transaction,
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
 };
+use anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTransaction};
+use bytemuck::from_bytes;
 
 #[test]
 fn quarter_vault_pda_derives_and_reads_back() {
-    let mut svm = LiteSVM::new();
+    // `svm()` is LiteSVM::new() plus the profiling hook `anchor test --profile` turns on.
+    let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
     svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so")
         .unwrap();
@@ -234,7 +231,7 @@ fn quarter_vault_pda_derives_and_reads_back() {
 
     // Derive the PDA exactly as the program does: [b"vault", player].
     let (vault_pda, expected_bump) =
-        Pubkey::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
 
     // Build and send init_vault.
     let ix = Instruction {
@@ -242,17 +239,14 @@ fn quarter_vault_pda_derives_and_reads_back() {
         accounts: quarter_vault::accounts::InitVault {
             player: player.pubkey(),
             vault: vault_pda,
-            system_program: solana_sdk::system_program::ID,
+            system_program: System::id(),
         }
         .to_account_metas(None),
         data: quarter_vault::instruction::InitVault {}.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&player.pubkey()),
-        &[&player],
-        svm.latest_blockhash(),
-    );
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[ix], Some(&player.pubkey()), &blockhash);
+    let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[&player]).unwrap();
     svm.send_transaction(tx).unwrap();
 
     // Read the raw account and cast the Pod state - no deserialize step, same as

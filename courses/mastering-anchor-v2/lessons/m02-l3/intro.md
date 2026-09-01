@@ -115,15 +115,16 @@ Time for the module's first war story, because it makes an abstract discipline p
 
 Issue #4937 was filed on 2026-08-16 and closed four days later, on 2026-08-20. The bug: `anchor-lang` pinned `wincode` at 0.5 while `solana-address` had moved to 0.6. Those two versions disagreed at the trait-bound level, and the disagreement broke `#[account(borsh)]`. Not with a runtime failure, not with a subtle wire bug, but with a compile error, a trait bound that no longer lined up, until the pins were reconciled. Someone bumped a dependency, and the escape hatch you just learned stopped compiling.
 
-This is why you started `PINS.md` back in m01-l2, one table with a `verified` column, and why every pin in these lessons carries a "this will move, re-verify at write" tag. Add a `wincode` row to it now if you have not. V2 is a weeks-old RC, and the version you are on matters here: `wincode` sits at 0.5 on the published rc.1 crate and 0.6 on the `anchor-next` branch. Every install block in this course puts you on `anchor-next`, so you are on 0.6 and past this particular break. That is not luck, it is the pin doing its job, and it is exactly why the next dependency drift will find you the same way if the file goes stale. `solana-address` is on its own cadence. When you install the toolchain for this project, you pin all of it together and you do not float any single crate, because #4937 is what floating one crate looks like: a green build on Monday, a trait-bound error on Tuesday, and an afternoon spent bisecting a dependency graph instead of shipping.
+This is why you started `PINS.md` back in m01-l2, one table with a `verified` column, and why every pin in these lessons carries a "this will move, re-verify at write" tag. Add a `wincode` row to it now if you have not. V2 is a weeks-old RC, and the ref you are on decides the answer here: `wincode` sits at 0.5 on the published `2.0.0-rc.1` crate and on the `v2.0.0-rc.1` tag, and it has already moved to 0.6 on the `anchor-next` branch tip. Your program crate pins `wincode = "0.5"` by hand, so the tag is the ref that agrees with it — which is exactly why every install block from m02-l1 on pins `--tag v2.0.0-rc.1` rather than the branch. Track the branch instead and the tip's `anchor-lang` demands `solana-address 2.7.0`, your `=2.6.0` pin refuses, and cargo fails the resolve before a single line compiles. `solana-address` is on its own cadence. You pin all of it together and you do not float any single crate, because #4937 is what floating one crate looks like: a green build on Monday, a trait-bound error on Tuesday, and an afternoon spent bisecting a dependency graph instead of shipping.
 
 ```bash
-# The V2 RC is a git-pinned branch, not a cut avm release. Freshness
-# note: as of 2026-08-22 the RC is still 2.0.0-rc.1, published 2026-08-12
-# (otter-sec/anchor, anchor-next, tag commit e4878b6d). It WILL move;
-# re-verify before you rely on it.
+# The V2 RC is a git pin, not a cut avm release. Freshness note: as of
+# 2026-08-22 the RC is still 2.0.0-rc.1, published 2026-08-12
+# (otter-sec/anchor, tag v2.0.0-rc.1 = commit e4878b6d, on the anchor-next
+# branch). The tag holds; the branch tip does not. Re-verify before you rely on it.
+# macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 ```
 
 ![A seven-step timeline showing wincode 0.5 and solana-address 0.6 drifting apart until the account borsh attribute broke, then issue #4937 closing with the pins reconciled.](assets/v07-timeline.png)

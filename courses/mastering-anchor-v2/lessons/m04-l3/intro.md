@@ -14,8 +14,8 @@ Then open `programs/quarter-prize/Cargo.toml` and add the vault you already buil
 
 ```toml
 [dependencies]
-# the documented V2 channel: the same anchor-next branch your CLI was built from
-anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# crates.io, the same release your tag-pinned CLI was built from (see m01-l2)
+anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
@@ -24,7 +24,7 @@ quarter-vault = { path = "../quarter-vault", features = ["cpi"] }
 
 Then `anchor build`. Nothing to claim yet, and the build will start failing the moment you write real code against R2, because R2 is still self-custody and cannot take a second party. Fixing that is Step 1 of the Lab and it comes before everything else. What you have right now is the callee's `cpi` module in scope and a compiler that will tell you exactly which handles the vault expects. That feedback loop is the lesson.
 
-> Freshness note: this is written against the Anchor V2 release candidate on the 2.x line (the docs tree published under `v2`), 2026-08-22, newest tag `2.0.0-rc.1` (published to crates.io 2026-08-12). `avm install` cannot fetch it, as m01-l2 showed: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s. Build the CLI from the documented channel instead, `cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force`, and re-check for a newer rc or a stable tag before you build. The machine-default `anchor-cli 1.1.2` is the V1 line and will not compile the `unsafe(dup)`, `CpiHandle`, or Pod-`Account` features below.
+> Freshness note: this is written against the Anchor V2 release candidate on the 2.x line (the docs tree published under `v2`), 2026-08-22, newest tag `2.0.0-rc.1` (published to crates.io 2026-08-12). `avm install` cannot fetch it, as m01-l2 showed: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s. Build the CLI from the documented channel instead, pinned to the tag: `cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 anchor-cli --locked --force`, and re-check for a newer rc or a stable tag before you build. The machine-default `anchor-cli 1.1.2` is the V1 line and will not compile the `unsafe(dup)`, `CpiHandle`, or Pod-`Account` features below.
 
 ## Summary
 
@@ -394,32 +394,37 @@ Step back and look at the whole life of one prize. It exists in exactly two stat
 
 ### Step 5: prove it with a LiteSVM test
 
-The gate is a LiteSVM test, which is V2's default Rust test template. Add it with the same dev-dependency pins m04-l1 used (`litesvm = "0.11"`, the version `anchor-v2-testing` carries at 2.0.0-rc.1, and `solana-sdk = "3"`; crates.io is already at litesvm 0.15.2, so re-check what your scaffold pins) and stand up both programs in-process. The test loads R2 and R3, funds an operator and a player, reserves a 0.05 SOL prize behind a score of 5000, then tries three redeems: a wrong caller, a premature low score, and the real thing.
+The gate is a LiteSVM test, which is V2's default Rust test template. Add it with the same single dev-dependency m04-l1 used — `anchor-v2-testing` at `tag = "v2.0.0-rc.1"`, which carries litesvm 0.11.0 and re-exports everything the test file needs, so you never name litesvm yourself — and stand up both programs in-process. The test loads R2 and R3, funds an operator and a player, reserves a 0.05 SOL prize behind a score of 5000, then tries three redeems: a wrong caller, a premature low score, and the real thing.
 
 ```rust
-use anchor_lang::{InstructionData, ToAccountMetas};
-use litesvm::LiteSVM;
-use solana_sdk::{
-    instruction::Instruction,
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-    system_program,
-    transaction::Transaction,
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
+};
+use anchor_v2_testing::{
+    Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction,
 };
 
 const PRIZE: u64 = 50_000_000; // 0.05 SOL
 const WIN: u64 = 5_000;
 
-fn escrow_pda(maker: &Pubkey, player: &Pubkey) -> (Pubkey, u8) {
-    Pubkey::find_program_address(
+fn escrow_pda(maker: &Address, player: &Address) -> (Address, u8) {
+    Address::find_program_address(
         &[b"escrow", maker.as_ref(), player.as_ref()],
         &quarter_prize::ID,
     )
 }
 
+// One place that signs an instruction into a sendable transaction.
+fn tx(svm: &LiteSVM, payer: &Keypair, instruction: Instruction) -> VersionedTransaction {
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[instruction], Some(&payer.pubkey()), &blockhash);
+    VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[payer]).unwrap()
+}
+
 #[test]
 fn conditional_release() {
-    let mut svm = LiteSVM::new();
+    let mut svm = anchor_v2_testing::svm();
     svm.add_program_from_file(quarter_vault::ID, "target/deploy/quarter_vault.so").unwrap();
     svm.add_program_from_file(quarter_prize::ID, "target/deploy/quarter_prize.so").unwrap();
 
@@ -432,10 +437,10 @@ fn conditional_release() {
 
     let (escrow, _b) = escrow_pda(&maker.pubkey(), &player.pubkey());
     // R2 derives its vault pair from the owner, which here is the escrow PDA.
-    let (vault_state, _sb) = Pubkey::find_program_address(
+    let (vault_state, _sb) = Address::find_program_address(
         &[b"vault", escrow.as_ref()], &quarter_vault::ID,
     );
-    let (vault_sol, _lb) = Pubkey::find_program_address(
+    let (vault_sol, _lb) = Address::find_program_address(
         &[b"sol", escrow.as_ref()], &quarter_vault::ID,
     );
 
@@ -449,13 +454,12 @@ fn conditional_release() {
             vault_state,
             vault_sol,
             quarter_vault_program: quarter_vault::ID,
-            system_program: system_program::ID,
+            system_program: System::id(),
         }.to_account_metas(None),
         data: quarter_prize::instruction::Reserve { amount: PRIZE, winning_score: WIN }.data(),
     };
-    let tx = Transaction::new_signed_with_payer(
-        &[reserve_ix], Some(&maker.pubkey()), &[&maker], svm.latest_blockhash());
-    svm.send_transaction(tx).unwrap();
+    let reserve_tx = tx(&svm, &maker, reserve_ix);
+    svm.send_transaction(reserve_tx).unwrap();
     // the lamports live in the zero-data SOL vault, never in the escrow record
     assert!(svm.get_account(&vault_sol).unwrap().lamports >= PRIZE);
     assert!(svm.get_account(&escrow).unwrap().lamports < PRIZE);
@@ -470,30 +474,24 @@ fn conditional_release() {
                 player: caller.pubkey(),
                 maker: maker.pubkey(),
                 quarter_vault_program: quarter_vault::ID,
-                system_program: system_program::ID,
+                system_program: System::id(),
             }.to_account_metas(None),
             data: quarter_prize::instruction::Redeem { final_score: score }.data(),
         }
     };
 
     // wrong caller: the address = escrow.player constraint rejects it
-    let ix = redeem(&stranger, 9_999);
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&stranger.pubkey()), &[&stranger], svm.latest_blockhash());
-    assert!(svm.send_transaction(tx).is_err());
+    let bad = tx(&svm, &stranger, redeem(&stranger, 9_999));
+    assert!(svm.send_transaction(bad).is_err());
 
     // premature: right player, score below the bar -> ConditionNotMet
-    let ix = redeem(&player, 4_200);
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&player.pubkey()), &[&player], svm.latest_blockhash());
-    assert!(svm.send_transaction(tx).is_err());
+    let early = tx(&svm, &player, redeem(&player, 4_200));
+    assert!(svm.send_transaction(early).is_err());
 
     // the real thing: right player, score clears the bar
     let before = svm.get_account(&player.pubkey()).unwrap().lamports;
-    let ix = redeem(&player, 5_200);
-    let tx = Transaction::new_signed_with_payer(
-        &[ix], Some(&player.pubkey()), &[&player], svm.latest_blockhash());
-    svm.send_transaction(tx).unwrap();
+    let good = tx(&svm, &player, redeem(&player, 5_200));
+    svm.send_transaction(good).unwrap();
     let after = svm.get_account(&player.pubkey()).unwrap().lamports;
     assert!(after > before, "the prize should have landed with the player");
 }

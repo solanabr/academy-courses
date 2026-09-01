@@ -138,19 +138,24 @@ Time to build R1. Here is the fade, said out loud so you know what is yours: I h
 You already confirmed in the opener that PATH is serving the RC. If it was not, or if the RC is missing entirely, reinstall from the documented git channel now, because `avm install` fetches a prebuilt binary from the tag's GitHub Release and no Release was cut for the v2 tag, so the download 404s and the git build is the sanctioned route:
 
 ```bash
-# freshness note: as of 2026-08-22 the RC is 2.0.0-rc.1 on branch anchor-next
-# (otter-sec fork); it WILL move, re-verify.
+# freshness note: as of 2026-08-22 the RC is 2.0.0-rc.1, tag v2.0.0-rc.1 on the
+# anchor-next branch of the otter-sec fork (commit e4878b6d). m01-l2 installed from
+# the branch because the channel was its subject; from here on the course pins the
+# tag, because a branch tip moves and a tag does not. Re-verify before you rely on it.
+# macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 ```
 
 Do not verify V2 content on the 1.1.2 toolchain; the account model is different and the code below will not behave the same.
 
-**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — this is a fresh scaffold, so the pins have to be re-added here or the first build dies in the `#[program]` expansion. `anchor-lang 2.0.0-rc.1` does exist on crates.io (published 2026-08-12), but the documented channel for the RC is the git branch the CLI itself is built from, so program deps ride `anchor-next` too; the scaffold already writes that row. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
+**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — this is a fresh scaffold, so the pins have to be re-added here or the first build dies in the `#[program]` expansion. The scaffold writes `anchor-lang` as a git row tracking the `anchor-next` branch; edit it to the crates.io version, exactly as m01-l2 did, because that is the only source that resolves against the two pins under it. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
 
 ```toml
 [dependencies]
-anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# crates.io, not the git branch: a published version is immutable, and the branch
+# tip now wants solana-address 2.7.0, which will not resolve against the pin below.
+anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
@@ -158,9 +163,10 @@ bytemuck = "1.25"          # you added this in the opener
 
 [dev-dependencies]
 # The test harness. This wraps LiteSVM and re-exports what the test file needs,
-# so you never depend on `litesvm` by name. The scaffold writes this row; confirm
-# it is there, and add it if your scaffold predates it.
-anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+# so you never depend on `litesvm` by name. The scaffold writes it tracking the
+# `anchor-next` branch; repoint it at the tag so the litesvm it carries cannot
+# move under you. Add the row outright if your scaffold predates it.
+anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", tag = "v2.0.0-rc.1" }
 ```
 
 **Step 2. Write the state and the accounts.** This is the part I give you whole. Paste it into `src/lib.rs`, replacing the generated `Counter` struct and its `initialize` handler, and folding in the `Cabinet` you added in the opener; the scaffold has served its purpose. One line you do **not** paste: keep the `declare_id!` that `anchor init` already wrote. It matches the keypair sitting in `target/deploy/`, and overwriting it with a hand-typed string gives you an id the deploy cannot sign for. If you ever do lose the match, `anchor keys sync` rewrites `declare_id!` and `Anchor.toml` from the keypair. Expected result after this step: `anchor build` compiles, with the `increment` handler still a stub. `PodU64` comes from the V2 prelude; it is the alignment-1 byte-array wrapper we derived above, read through `.get()` and written by assigning a `PodU64::from(value)`.

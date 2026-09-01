@@ -315,9 +315,10 @@ The autonomy fade is explicit: step 1 is a spec you implement, step 2 you type f
 First, the toolchain. This course runs on the Anchor V2 release candidate, which is newer than the `anchor-cli 1.1.2` your machine may have from the 1.x line. You built it from git back in m01-l2, because `avm install` cannot fetch the RC: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s, and `avm list` stops at `1.1.2`. Re-pin it the same documented way:
 
 ```bash
-# The documented V2 channel: build anchor-cli from the anchor-next branch.
+# The documented V2 channel: build anchor-cli from git, pinned to the RC's tag.
+# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 
 anchor --version       # confirm you are on the V2 line, not 1.1.2
 ```

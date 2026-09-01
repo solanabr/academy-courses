@@ -148,8 +148,9 @@ You are extending R2, the `quarter_vault` program, with a custom constraint. Whe
 
 ```bash
 anchor --version         # must report a 2.0.0 RC line, not 1.x; rc.1 as of 2026-08-12
-# Only if it does not, re-pin (still no release binary for the v2 tag):
-cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
+# Only if it does not, re-pin (still no release binary for the v2 tag, so build from
+# the tag: it is a fixed point, unlike the anchor-next branch tip it sits on):
+cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 anchor-cli --locked --force
 # macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 ```
 
@@ -316,32 +317,30 @@ Expected after this step: `anchor build` is clean and the IDL for `require_funde
 **5. Write the LiteSVM test.** LiteSVM runs the program in-process with no validator, so the loop is fast. Add the dev-dependencies:
 
 ```toml
-# Same two numbers as last lesson, and for the same reason: anchor-v2-testing at
-# 2.0.0-rc.1 pins litesvm 0.11, and litesvm 0.11 builds against solana-sdk 3.x.
-# crates.io is ahead on both; floating either puts two SVM versions in one graph.
+# Same one row as last lesson, and for the same reason: the harness owns the SVM
+# version so you cannot drift off it. At tag v2.0.0-rc.1 anchor-v2-testing carries
+# litesvm 0.11.0. Naming litesvm yourself is how you end up with two of them.
 [dev-dependencies]
-litesvm = "0.11"
-solana-sdk = "3"
+anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", tag = "v2.0.0-rc.1" }
 ```
 
 The test, in `tests/min_balance.rs`, does four things: init the vault, set its credit below the floor and prove `require_funded` is rejected, then set it at the floor and prove `require_funded` passes. The reject and the pass are the whole artifact:
 
 ```rust
-use anchor_lang::{InstructionData, ToAccountMetas};
-use litesvm::LiteSVM;
-use solana_sdk::{
-    instruction::Instruction,
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-    transaction::Transaction,
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
+};
+use anchor_v2_testing::{
+    Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction,
 };
 
 fn require_funded_tx(
     svm: &LiteSVM,
     player: &Keypair,
-    program_id: Pubkey,
-    vault_pda: Pubkey,
-) -> Transaction {
+    program_id: Address,
+    vault_pda: Address,
+) -> VersionedTransaction {
     let ix = Instruction {
         program_id,
         accounts: quarter_vault::accounts::RequireFunded {
@@ -351,17 +350,14 @@ fn require_funded_tx(
         .to_account_metas(None),
         data: quarter_vault::instruction::RequireFunded {}.data(),
     };
-    Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&player.pubkey()),
-        &[player],
-        svm.latest_blockhash(),
-    )
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[ix], Some(&player.pubkey()), &blockhash);
+    VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[player]).unwrap()
 }
 
 #[test]
 fn min_balance_rejects_below_and_passes_at_floor() {
-    let mut svm = LiteSVM::new();
+    let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
     svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so")
         .unwrap();
@@ -369,7 +365,7 @@ fn min_balance_rejects_below_and_passes_at_floor() {
     let player = Keypair::new();
     svm.airdrop(&player.pubkey(), 1_000_000_000).unwrap();
     let (vault_pda, _bump) =
-        Pubkey::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
 
     // Init the vault (init_vault was built in the earlier lesson; credit starts at 0).
     let init_ix = Instruction {
@@ -377,17 +373,15 @@ fn min_balance_rejects_below_and_passes_at_floor() {
         accounts: quarter_vault::accounts::InitVault {
             player: player.pubkey(),
             vault: vault_pda,
-            system_program: solana_sdk::system_program::ID,
+            system_program: System::id(),
         }
         .to_account_metas(None),
         data: quarter_vault::instruction::InitVault {}.data(),
     };
-    let init_tx = Transaction::new_signed_with_payer(
-        &[init_ix],
-        Some(&player.pubkey()),
-        &[&player],
-        svm.latest_blockhash(),
-    );
+    let blockhash = svm.latest_blockhash();
+    let init_msg = Message::new_with_blockhash(&[init_ix], Some(&player.pubkey()), &blockhash);
+    let init_tx =
+        VersionedTransaction::try_new(VersionedMessage::Legacy(init_msg), &[&player]).unwrap();
     svm.send_transaction(init_tx).unwrap();
 
     // Helper to set stored credit.
@@ -401,12 +395,9 @@ fn min_balance_rejects_below_and_passes_at_floor() {
             .to_account_metas(None),
             data: quarter_vault::instruction::SetCredit { amount }.data(),
         };
-        Transaction::new_signed_with_payer(
-            &[ix],
-            Some(&player.pubkey()),
-            &[&player],
-            svm.latest_blockhash(),
-        )
+        let blockhash = svm.latest_blockhash();
+        let msg = Message::new_with_blockhash(&[ix], Some(&player.pubkey()), &blockhash);
+        VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[&player]).unwrap()
     };
 
     // Below the floor: the constraint layer must REJECT require_funded.

@@ -207,23 +207,28 @@ You will extend R1's `PostScore` handler so that every score is admitted to a bo
 First, the toolchain. You installed the RC back in m01-l2 and confirmed it again at the top of m02-l1; if it is missing, here is the same documented git build, because Anchor V2 is a release candidate installed from git, not from `avm`'s prebuilt-binary channel:
 
 ```bash
-# Anchor V2 2.0.0-rc.1 - git otter-sec/anchor, branch anchor-next (the tag
-# v2.0.0-rc.1 sits at commit e4878b6d). RC/alpha: this WILL move, and no release
-# binary is published for it. The Docker verify gate pins the commit; re-verify there.
+# Anchor V2 2.0.0-rc.1 - git otter-sec/anchor, tag v2.0.0-rc.1 (commit e4878b6d).
+# RC/alpha, and no release binary is published for it. The tag is a fixed point;
+# the anchor-next branch tip it sits on is not. The Docker verify gate in m08-l2
+# names the same commit outright. Re-verify the tag before you rely on it.
+# macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 ```
 
 The test harness is the same one you stood up in m02-l1: `anchor-v2-testing`, which wraps LiteSVM and re-exports the pieces the test file needs. You still do not depend on `litesvm` by name. The only new dev-dependency this lesson adds is `base64`, for the event decode below:
 
 ```toml
 # programs/cabinet-counter/Cargo.toml
-# anchor-v2-testing on anchor-next pins litesvm 0.13.1 internally (crates.io
-# latest is 0.15.2 as of 2026-08-22; do not float ahead of the harness by
-# pulling litesvm in yourself). base64 0.22 is pinned on purpose (0.23.1 is
-# current as of 2026-08-22): re-verify the Engine API before bumping it.
+# anchor-v2-testing at tag v2.0.0-rc.1 pins litesvm 0.11.0 internally (crates.io
+# latest is 0.15.2 as of 2026-08-22; do not float ahead of the harness by pulling
+# litesvm in yourself). This is why the tag and not the branch: the anchor-next tip
+# has already moved that pin to =0.13.1, and a harness that changes SVM majors
+# under a green test suite is the exact failure the pin exists to prevent.
+# base64 0.22 is pinned on purpose (0.23.1 is current as of 2026-08-22):
+# re-verify the Engine API before bumping it.
 [dev-dependencies]
-anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", tag = "v2.0.0-rc.1" }
 base64 = "0.22"
 ```
 

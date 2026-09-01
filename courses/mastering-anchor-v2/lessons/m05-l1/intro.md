@@ -81,12 +81,13 @@ Numbered steps. The interesting ones carry their why; the routine ones run terse
 
 ### 1. Pin the V2 RC toolchain
 
-Your machine ships anchor-cli on the 1.x line. This course is V2, a different compiler surface, and V2 is consumed from git, not from `avm`. You set this up back in m01-l2, so this is a re-pin, not a fresh install: `avm install` cannot fetch the V2 tag because no GitHub Release was cut for it and the prebuilt binary it downloads 404s, so the documented channel is the `anchor-next` branch built from source.
+Your machine ships anchor-cli on the 1.x line. This course is V2, a different compiler surface, and the V2 CLI is consumed from git, not from `avm`. You set this up back in m01-l2, so this is a re-pin, not a fresh install: `avm install` cannot fetch the V2 tag because no GitHub Release was cut for it and the prebuilt binary it downloads 404s, so the documented channel is a source build pinned to the `v2.0.0-rc.1` tag.
 
 ```bash
-# The documented V2 channel. `avm install` 404s on the RC (see m01-l2); build from git:
+# The documented V2 channel. `avm install` 404s on the RC (see m01-l2); build from git.
+# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 
 anchor --version   # confirm you are on the V2 line, not your old 1.1.2
 ```
@@ -97,24 +98,24 @@ Checkpoint: `anchor --version` prints the V2 RC string, not `1.1.2`. If it still
 
 ### 2. Add the token dependency
 
-The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `anchor-spl` next to `anchor-lang`, both from `anchor-next`. There is no feature to switch on here: `token`, `token_interface`, `associated_token`, and `token_2022` are all unconditional modules of the V2 crate.
+The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `anchor-spl` next to `anchor-lang`, both at the same V2 version. There is no feature to switch on here: `token`, `token_interface`, `associated_token`, and `token_2022` are all unconditional modules of the V2 crate.
 
 ```toml
 [dependencies]
 # The V2 crates are named plainly: the repo's lang-v2/ directory publishes `anchor-lang` and
 # spl-v2/ publishes `anchor-spl` (its V1 directories are the ones suffixed -v1). There is no
 # token-2022 feature to opt into — Token-2022 support IS token_interface.
-anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
-anchor-spl  = { git = "https://github.com/otter-sec/anchor.git", branch = "anchor-next" }
+anchor-lang = "2.0.0-rc.1"
+anchor-spl  = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 # They are already in this file from m03-l1; keep them when you add the SPL rows above.
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
-Freshness note: `anchor-lang` and `anchor-spl` move together on the V2 line, so pin both to the same `anchor-next` commit your CLI was built from (`rev = "..."` rather than a bare `branch`). The names are the same on both lines, which is exactly the trap: resolve either one from crates.io instead of the git branch and you get the 1.x crate under the same name, the account handle types will not line up, and you will get type errors right at the CPI.
+Freshness note: `anchor-lang` and `anchor-spl` move together on the V2 line, so pin both to the *same* version string and change them together. The trap here is the version, not the source: the crate names are identical on both lines, so `anchor-spl = "1"` — or a bare `anchor-spl = "*"` that resolves to the 1.x line — hands you the V1 crate under the V2 name, the account handle types will not line up, and you get type errors right at the CPI. The explicit `2.0.0-rc.1` is what keeps you on the V2 line, and because the registry forbids republishing a version it cannot drift the way the `anchor-next` branch tip does.
 
-Checkpoint: `cargo check` resolves both crates and the build fails only on your own code, not on the dependency graph. If it complains that `token_interface` does not exist, you resolved the 1.x `anchor-spl` from crates.io rather than the V2 crate from `anchor-next` — check the `git`/`branch` line, not a feature list.
+Checkpoint: `cargo check` resolves both crates and the build fails only on your own code, not on the dependency graph. If it complains that `token_interface` does not exist, you resolved the 1.x `anchor-spl` — check the version string, not a feature list.
 
 ### 3. Swap the accounts: the lamport PDA gains a token account
 
@@ -392,11 +393,11 @@ The R2 check has always made the same claim: value leaves the vault *only* under
 ```bash
 # The test surface. anchor-v2-testing is the V2 harness the scaffold generates
 # against; it wraps LiteSVM and pins its own LiteSVM version, so add it rather
-# than a bare litesvm that could resolve to a different one. If you added a raw
-# `litesvm` dev-dependency in module 3, replace it with this one: two SVM crates
-# in one graph is the version skew this pin exists to avoid.
+# than a bare litesvm that could resolve to a different one. Pin the TAG, not the
+# branch: the tag carries litesvm 0.11.0 and the anchor-next tip has already moved
+# to 0.13.1, and two SVM crates in one graph is the skew this pin exists to avoid.
 cargo add anchor-v2-testing --dev \
-  --git https://github.com/otter-sec/anchor.git --branch anchor-next
+  --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
 cargo add spl-token spl-associated-token-account --dev
 ```
 

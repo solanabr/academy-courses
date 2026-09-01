@@ -66,7 +66,11 @@ Note what is *not* happening here, because it is a story you will hear told wron
 
 ![avm install fetches a prebuilt binary from the v2 tag's release assets, hits a 404 because no Release was ever cut, and aborts, so the documented cargo git install takes over.](assets/v02-flowchart.png)
 
-For completeness: `avm install` does carry a `--from-source` flag, which skips the download and hands the job to `cargo install --git https://github.com/otter-sec/anchor --tag v2.0.0-rc.1`. That is a different command from the one this lesson runs, against a tag rather than the branch. The channel the V2 docs publish, and the one you install below, is the `anchor-next` branch build. Use that one, so that what you install matches what the rest of the course was verified against. Most later lessons reprint exactly that command with `--locked`; the few that need a frozen toolchain — m08-l2's verifiable build, and the module 10 ports — pin a fixed point on the same branch instead, by `--rev` or by `--tag v2.0.0-rc.1`.
+For completeness: `avm install` does carry a `--from-source` flag, which skips the download and hands the job to `cargo install --git https://github.com/otter-sec/anchor --tag v2.0.0-rc.1`. Note what it reaches for when it has to build: the **tag**, not the branch. Hold that thought, because it is the course's policy in miniature.
+
+This lesson installs from `--branch anchor-next` anyway, on purpose, because the channel *is* this lesson's subject: the branch is what the V2 docs publish, and you cannot reason about a moving channel you have never stood on. Every other lesson in this course reprints the same command with **`--tag v2.0.0-rc.1`** in place of `--branch anchor-next`, and m08-l2, whose whole job is a byte-reproducible build, goes one notch tighter to `--rev e4878b6d` — which is the commit that tag points at, so it is the same toolchain named a third way. Three spellings, two distinct things.
+
+Teach yourself the delta now, because it is the only reason the rest of the course does not just copy this line. A branch tip moves; a tag does not. As of 2026-08-22 the `anchor-next` tip sits ahead of `v2.0.0-rc.1`, and it has already moved the two crates you are about to pin by hand: the tip's `anchor-lang` asks for `wincode 0.6` and `solana-address 2.7.0`, while the tag — and the `2.0.0-rc.1` crate published from it — asks for `wincode 0.5` and the `solana-address 2.x` line below 2.7. That is not a hypothetical drift, it is issue #4937's exact fault line, and it is why the pins in the lab below carry a version *and* a date. Stand on the branch here to see the channel; stand on the tag everywhere after, so the pins you write keep meaning what they meant when you wrote them.
 
 There is a naming trap worth flagging before it bites you. If you go searching crates.io for `avm` itself, you will find one, and it is **not this tool**. The `avm` crate on crates.io is an unrelated package from 2016 (schultyy/avm). Anchor's version manager is not distributed under that crate name, it installs from the Anchor repo. Install the wrong `avm` and you will spend an hour confused about why none of the commands exist.
 
@@ -81,7 +85,9 @@ cargo install --git https://github.com/otter-sec/anchor.git \
 
 Read it left to right, because every flag is load-bearing. `--git` plus the fork URL says "build from source at this repository, not from crates.io." `--branch anchor-next` pins the source to the frontier branch specifically. `anchor-cli` is the crate inside that repo you actually want as a binary. `--locked` says "respect the committed Cargo.lock, do not silently resolve newer dependencies," which on an RC is the difference between a reproducible build and a mystery. `--force` overwrites any `anchor-cli` cargo already put in `~/.cargo/bin`.
 
-Now, a thing that will tempt you. The RC **was** published to crates.io on 2026-08-12 as `2.0.0-rc.1`. So you might reasonably think you can skip the git dance and just `cargo install anchor-cli --version 2.0.0-rc.1`. Do not trust that as your install path. The crates.io publish exists, but it is undocumented and untested for CLI installation. The sanctioned, reproducible channel is the git branch. When the docs and the registry disagree about what is safe to install, the docs lag reality constantly, but a published-yet-untested crate is a worse bet than the documented build. Trusting the registry over the documented process is footgun number three, picking up the count from last lesson.
+Now, a thing that will tempt you. The RC **was** published to crates.io on 2026-08-12 as `2.0.0-rc.1`. So you might reasonably think you can skip the git dance and just `cargo install anchor-cli --version 2.0.0-rc.1`. Do not trust that as your install path. The crates.io publish exists, but it is undocumented and untested for CLI installation. The sanctioned, reproducible channel for the **binary** is the git build. When the docs and the registry disagree about what is safe to install, the docs lag reality constantly, but a published-yet-untested crate is a worse bet than the documented build. Trusting the registry over the documented process is footgun number three, picking up the count from last lesson.
+
+Read that as narrowly as it is written, because the lab below does the *opposite* for the library. `anchor-cli` is a binary the project builds and tests through its git channel; `anchor-lang` is a library the project publishes to crates.io on purpose, and its own scaffold tells you to depend on the published version as soon as one exists. One artifact per channel, each on the channel its maintainers actually support.
 
 ### The rc-versus-alpha tension, taught out loud
 
@@ -155,13 +161,18 @@ A precise word about versions here, because it matters for the whole course. Thi
 
 | pin                    | value                        | channel                          | verified   |
 |------------------------|------------------------------|----------------------------------|------------|
-| anchor-cli             | 2.0.0-rc.1                   | git anchor-next (otter-sec fork) | 2026-08-22 |
+| anchor-cli (this lesson)| 2.0.0-rc.1                  | git anchor-next (otter-sec fork) | 2026-08-22 |
+| anchor-cli (rest of course)| 2.0.0-rc.1               | git tag v2.0.0-rc.1 = e4878b6d   | 2026-08-22 |
+| anchor-lang (library)  | 2.0.0-rc.1                   | crates.io (immutable)            | 2026-08-22 |
+| wincode                | 0.5 (features = ["derive"])  | crates.io                        | 2026-08-22 |
+| solana-address         | =2.6.0                       | crates.io                        | 2026-08-22 |
 | Rust (MSRV)            | 1.89.0                       | rustup                           | 2026-08-22 |
 | macOS build workaround | CARGO_PROFILE_RELEASE_LTO=off| env var (release profile)        | 2026-08-22 |
 | Solana CLI (CI pin)    | 3.1.10                       | agave-install (LOCAL-CI ONLY)    | 2026-08-22 |
 | R0 greeter program id  | <fill after deploy>          | devnet                           | <fill>     |
 
 Note: 3.1.10 is the local-CI pin, NOT "current Solana" (current stable Agave: v4.2.1, Aug 2026).
+Note: the two anchor-cli rows report the SAME version string. Only the ref distinguishes them.
 Label tension: crates.io says "rc", the benchmarks page says "alpha". Pinned + re-verified on purpose.
 ```
 
@@ -244,7 +255,7 @@ Note that this is not the empty "hello world" the 0.x templates wrote. V2 scaffo
 
 Four details in there will look wrong if you carry 0.x or 1.0 muscle memory, and every one is a real V2 change: the handler takes `&mut Context<T>` rather than a context by value; the accounts struct and its wrappers carry no `<'info>` lifetime; the address type is `Address`, not `Pubkey`, and you read it with `.address()`; and `init` names no `space`, because V2 sizes the account from its type. It is a black box on purpose today: next lesson you crack these macros open and read exactly what they generate.
 
-Now confirm how the program crate gets the RC. Open `programs/greeter/Cargo.toml`. The template does **not** pin a crates.io version, it points at the same branch you installed the CLI from (freshness 2026-08-22):
+Now fix how the program crate gets the RC. Open `programs/greeter/Cargo.toml`. The template does **not** pin a crates.io version; it points at the same branch you installed the CLI from, and leaves itself a note about it (freshness 2026-08-22):
 
 ```toml
 [dependencies]
@@ -253,7 +264,13 @@ anchor-lang = { git = "https://github.com/otter-sec/anchor.git", branch = "ancho
 solana-program-log = { version = "1.1", features = ["macro"] }
 ```
 
-That generated comment is a small time capsule worth reading: the template still says "once anchor-lang is published to crates.io," and it *has* been, on 2026-08-12. The tooling has not caught up with its own registry. Leave the git dependency alone anyway. It is the documented channel, it matches the CLI you built, and a program crate resolving `anchor-lang` from a different source than the CLI that compiles it is exactly the version-skew this whole lesson is about avoiding.
+That generated comment is a small time capsule worth reading, and it is also your instruction. The template says "once anchor-lang is published to crates.io," and it *has* been, on 2026-08-12. Do exactly what the comment says. Change that line to:
+
+```toml
+[dependencies]
+anchor-lang = "2.0.0-rc.1"     # crates.io; a published version is immutable
+solana-program-log = { version = "1.1", features = ["macro"] }
+```
 
 Two lines the template does **not** write yet, and without which nothing in this course compiles. Add them to the same `[dependencies]` table before your first build:
 
@@ -263,7 +280,21 @@ wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
-This is #4937's bug class again, live on a fresh resolve as of this writing: `anchor-lang` pins `wincode 0.5` but leaves `solana-address` unbounded, and `solana-address 2.7.0` moved to `wincode 0.6`. Let the resolver float and you get two wincode majors in one graph and a wall of `SchemaRead`/`SchemaWrite` "is not satisfied" errors; skip the direct `wincode` dep and the `#[program]` expansion cannot even name its serializer (`error[E0433]: could not find wincode in the list of imported crates`). Carry both pins in every program crate you write in this course, and re-verify them the way you re-verify every RC pin: they stop being necessary the day the RC reconciles its own graph.
+Those three rows are the pin set every program crate in this course carries, and they are the reason the `anchor-lang` row had to move off the branch. Try it the other way and cargo will not even get as far as compiling:
+
+```
+error: failed to select a version for `solana-address`.
+    ... required by package `anchor-lang v2.0.0-rc.1 (https://github.com/otter-sec/anchor.git?branch=anchor-next#a6510ad7)`
+versions that meet the requirements `^2.7.0` are: 2.7.0
+all possible versions conflict with previously selected packages.
+  previously selected package `solana-address v2.6.0`
+```
+
+That is #4937's bug class again, live on a fresh resolve as of this writing. The branch tip's `anchor-lang` now demands `solana-address 2.7.0`, which pulls `wincode 0.6`; the `2.0.0-rc.1` crate on the registry — built from the `v2.0.0-rc.1` tag — demands neither, so `wincode 0.5` and `solana-address 2.6.0` hold. Two wincode majors in one graph is a wall of `SchemaRead`/`SchemaWrite` "is not satisfied" errors when it resolves at all, and skipping the direct `wincode` dep means the `#[program]` expansion cannot even name its serializer (`error[E0433]: could not find wincode in the list of imported crates`).
+
+So the split is deliberate, and it is worth stating as a rule rather than a workaround. **The CLI comes from git; the library comes from crates.io.** They are separate dependency graphs — the `anchor` binary in `~/.cargo/bin` was linked once and never participates in your program's resolve — so pinning them to different refs of the same release is not skew, it is precision. And the registry pin is the stronger of the two: crates.io forbids republishing a version, so `2.0.0-rc.1` is bytes that cannot change, while a branch is a name that points wherever someone last pushed. Note that `anchor --version` prints `2.0.0-rc.1` from the branch tip *and* from the tag, so the version string will never tell you which one you are on. The ref is the pin. The version is just a label.
+
+Carry all three rows in every program crate you write in this course, and re-verify them the way you re-verify every RC pin: they stop being necessary the day the RC reconciles its own graph.
 
 **5. Build it.** From the workspace root:
 

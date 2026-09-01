@@ -120,11 +120,12 @@ You are extending R2, the `quarter_vault` program, with a `withdraw` instruction
 
 ![A withdraw flowchart where the guard rejects zero, over-withdraw, and below-rent-floor requests before the PDA-signed transfer CPI runs and the ledger is debited.](assets/v08-flowchart.png)
 
-**1. Pin the V2 toolchain.** The V2 release candidate does not come down through `avm install`: that command downloads a prebuilt binary from the tag's GitHub Release, no Release was cut for the v2 tag, and the fetch 404s, exactly as the toolchain lesson (m01-l2) showed. The documented channel is a cargo git install from the `anchor-next` branch. If you did this module's earlier lessons you already have it; if not, install and confirm. Do not build V2 content on a V1 `anchor` binary:
+**1. Pin the V2 toolchain.** The V2 release candidate does not come down through `avm install`: that command downloads a prebuilt binary from the tag's GitHub Release, no Release was cut for the v2 tag, and the fetch 404s, exactly as the toolchain lesson (m01-l2) showed. The documented channel is a cargo git install, pinned to the `v2.0.0-rc.1` tag rather than the `anchor-next` branch tip it sits on. If you did this module's earlier lessons you already have it; if not, install and confirm. Do not build V2 content on a V1 `anchor` binary:
 
 ```bash
+# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
 cargo install --git https://github.com/otter-sec/anchor.git \
-  --branch anchor-next anchor-cli --locked --force
+  --tag v2.0.0-rc.1 anchor-cli --locked --force
 anchor --version   # must report 2.0.0-rc.1 (the RC as of 2026-08-12; re-check for a newer rc/stable), not a 1.x line
 ```
 
@@ -380,32 +381,37 @@ Checkpoint for steps 2 through 6: run `anchor build`. It compiles clean, with no
 **7. Write the LiteSVM test.** LiteSVM runs the program in-process with no validator, so the loop is fast. Add the dev-dependencies:
 
 ```toml
-# The same two pins as module 3, for the same reason: anchor-v2-testing at
-# 2.0.0-rc.1 pins litesvm 0.11, and litesvm 0.11 builds against solana-sdk 3.x.
+# The same one row as module 3, for the same reason: anchor-v2-testing owns the SVM
+# version. At tag v2.0.0-rc.1 that is litesvm 0.11.0, and you never say so yourself.
 [dev-dependencies]
-litesvm = "0.11"
-solana-sdk = "3"
+anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", tag = "v2.0.0-rc.1" }
 ```
 
 The test funds the SOL vault through `deposit`, withdraws part of it and proves the lamports moved and the ledger dropped, then proves an over-withdraw is rejected cleanly rather than panicking. The move-and-the-reject are the whole artifact:
 
 ```rust
-use anchor_lang::{programs::System, Id, InstructionData, ToAccountMetas};
-use litesvm::LiteSVM;
-use solana_sdk::{
-    instruction::Instruction,
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-    transaction::Transaction,
+use anchor_lang::{
+    prelude::Address,
+    programs::System,
+    solana_program::instruction::{AccountMeta, Instruction},
+    Id, InstructionData, ToAccountMetas,
 };
+use anchor_v2_testing::{Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction};
 
-fn ix(program_id: Pubkey, accounts: Vec<solana_sdk::instruction::AccountMeta>, data: Vec<u8>) -> Instruction {
+fn ix(program_id: Address, accounts: Vec<AccountMeta>, data: Vec<u8>) -> Instruction {
     Instruction { program_id, accounts, data }
+}
+
+// One place that turns an instruction into a signed, sendable transaction.
+fn tx(svm: &LiteSVM, payer: &Keypair, instruction: Instruction) -> VersionedTransaction {
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[instruction], Some(&payer.pubkey()), &blockhash);
+    VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[payer]).unwrap()
 }
 
 #[test]
 fn withdraw_moves_lamports_and_rejects_overdraw() {
-    let mut svm = LiteSVM::new();
+    let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
     svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so")
         .unwrap();
@@ -413,13 +419,15 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
     let authority = Keypair::new();
     svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();
     let (state_pda, _) =
-        Pubkey::find_program_address(&[b"vault", authority.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"vault", authority.pubkey().as_ref()], &program_id);
     let (sol_pda, _) =
-        Pubkey::find_program_address(&[b"sol", authority.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"sol", authority.pubkey().as_ref()], &program_id);
 
     // init_vault (rewritten in step 2b) creates BOTH PDAs and stores both bumps.
-    let init = Transaction::new_signed_with_payer(
-        &[ix(
+    let init = tx(
+        &svm,
+        &authority,
+        ix(
             program_id,
             quarter_vault::accounts::InitVault {
                 authority: authority.pubkey(),
@@ -429,16 +437,15 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
             }
             .to_account_metas(None),
             quarter_vault::instruction::InitVault {}.data(),
-        )],
-        Some(&authority.pubkey()),
-        &[&authority],
-        svm.latest_blockhash(),
+        ),
     );
     svm.send_transaction(init).unwrap();
 
     // deposit 2 SOL into the SOL vault (player signs; no PDA signature needed).
-    let deposit = Transaction::new_signed_with_payer(
-        &[ix(
+    let deposit = tx(
+        &svm,
+        &authority,
+        ix(
             program_id,
             quarter_vault::accounts::Deposit {
                 authority: authority.pubkey(),
@@ -448,18 +455,17 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
             }
             .to_account_metas(None),
             quarter_vault::instruction::Deposit { amount: 2_000_000_000 }.data(),
-        )],
-        Some(&authority.pubkey()),
-        &[&authority],
-        svm.latest_blockhash(),
+        ),
     );
     svm.send_transaction(deposit).unwrap();
     let funded = svm.get_account(&sol_pda).unwrap().lamports;
 
     // withdraw 1 SOL: the PDA-signed CPI must move lamports OUT of the SOL vault.
     let withdraw = |svm: &LiteSVM, amount: u64| {
-        Transaction::new_signed_with_payer(
-            &[ix(
+        tx(
+            svm,
+            &authority,
+            ix(
                 program_id,
                 quarter_vault::accounts::Withdraw {
                     authority: authority.pubkey(),
@@ -469,10 +475,7 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
                 }
                 .to_account_metas(None),
                 quarter_vault::instruction::Withdraw { amount }.data(),
-            )],
-            Some(&authority.pubkey()),
-            &[&authority],
-            svm.latest_blockhash(),
+            ),
         )
     };
     svm.send_transaction(withdraw(&svm, 1_000_000_000)).unwrap();
