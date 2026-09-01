@@ -16,7 +16,7 @@ blocks:
     tests: decimals-safe-base-units/tests.json
     hints:
       - "Split the string on '.' and pad or read the fractional part to exactly `decimals` digits."
-      - "Assemble the result with bigint arithmetic: BigInt(whole) * 10n ** BigInt(decimals) + BigInt(fractionPadded)."
+      - "Scale the whole part into the same units as the padded fraction, then add them as two bigints - a single float step anywhere in that combination reintroduces the exact rounding bug this challenge kills."
   - key: parse-checkout-amount
     type: code
     language: typescript
@@ -24,9 +24,9 @@ blocks:
     solution: parse-checkout-amount/solution.ts
     tests: parse-checkout-amount/tests.json
     hints:
-      - "Trailing zeros past the mint's last place are not precision: an amount is only unrepresentable when a digit other than 0 falls beyond it."
+      - "The five reasons are not independent: an amount can be both too-precise and too-large at once, and the contract's listed order (empty, malformed, negative, too-precise, too-large) decides which one is reported."
       - "The u64 ceiling applies to the assembled integer, not to the string. A short string can still exceed 2**64 - 1 base units once the mint's decimals scale it."
-      - "The exact conversion is the rung you already cleared. The new work here is deciding which of the five reasons applies, before any conversion runs."
+      - "The exact conversion is the rung you already cleared. The new work here is deciding which of the five reasons applies."
   - key: check
     type: quiz
     questions:

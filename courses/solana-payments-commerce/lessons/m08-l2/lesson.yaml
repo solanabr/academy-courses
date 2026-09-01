@@ -16,8 +16,8 @@ blocks:
     tests: nonce-queue-drain/tests.json
     hints:
       - "Branch on item.kind before doing any age math."
-      - "A durable nonce ignores wall-clock age entirely, but nonceAdvanced === true routes to unsafe, not submit."
-      - "A blockhash tx submits only when nowSeconds - signedAtSeconds <= windowSeconds."
+      - "Whether a nonce tx belongs in the unsafe bucket depends only on nonceAdvanced, never on how old it is - that decision must never touch nowSeconds or windowSeconds."
+      - "At the boundary, an item exactly windowSeconds old is still submittable - only strictly older than that expires."
   - key: check
     type: quiz
     questions:

@@ -15,7 +15,7 @@ blocks:
     solution: period-window-check/solution.ts
     tests: period-window-check/tests.json
     hints:
-      - "periodHours is in HOURS; the timestamps are in SECONDS. Convert before you compare."
+      - "At the exact instant now equals expiresAtTs, the subscription is already lapsed - the last chargeable second is expiresAtTs - 1, not expiresAtTs itself."
       - "expiresAtTs of 0 means 'no expiry'; do not treat it as 'expired at epoch 0'."
       - "Order matters: canceled first, then expiry, then the period window."
   - key: check-overview
