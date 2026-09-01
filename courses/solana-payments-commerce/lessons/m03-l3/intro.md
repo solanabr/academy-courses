@@ -9,7 +9,8 @@ Yes, and you will not write a new frontend to do it. The Solana Pay repo ships a
 ```bash
 # the old solana-labs/solana-pay URL redirects here; cloned fresh 2026-08-22
 git clone https://github.com/solana-foundation/pay.git
-cd pay/typescript/packages/solana-pay/examples/point-of-sale
+cd pay && git checkout 94b3627   # the POS example this lesson was written against; main moved to kit v8 on 2026-08-31
+cd typescript/packages/solana-pay/examples/point-of-sale
 npm install   # use Node 20+
 ```
 
@@ -42,7 +43,7 @@ How the work is shared out today: the worked lab hands you every command to clon
 
 ### What you just cloned
 
-The point-of-sale example is not a toy snippet. It is a small production-shaped app: a Next.js frontend, an API layer, rate limiting, and a `.env.example` that defaults `CLUSTER_ENDPOINT` to devnet. Its `package.json` (checked 2026-08-22) runs on `@solana/kit ^6.9.0` and consumes `@solana/pay` from the repo's own core package, whose npm release is 1.0.26 (published 2026-07-31, still `latest` at check time, peering kit ^6.9). That keeps the stall inside the same kit v6 workspace this course has used since module 2. No new SDK line, no version cliff.
+The point-of-sale example is not a toy snippet. It is a small production-shaped app: a Next.js frontend, an API layer, rate limiting, and a `.env.example` that defaults `CLUSTER_ENDPOINT` to devnet. Its `package.json` at the pinned commit runs on `@solana/kit ^6.9.0` and consumes `@solana/pay` from the repo's own core package, whose npm release is 1.0.26 (published 2026-07-31, still `latest` at a 2026-08-22 check, peering kit ^6.9). That keeps the stall inside the same kit v6 workspace this course has used since module 2. On `main` it no longer would: a commit on 2026-08-31 moved the example to kit v8, which is exactly why the clone above checks out `94b3627` instead of riding `main`. At the pin, no new SDK line, no version cliff.
 
 Out of the box the whole app is configured by one URL, no config file involved:
 
@@ -50,7 +51,7 @@ Out of the box the whole app is configured by one URL, no config file involved:
 /new?recipient=<your merchant address>&label=<your stall name>
 ```
 
-Open that and a number pad appears; you key an amount and it renders a QR encoding a transfer request, the `solana:<recipient>` form from two lessons ago. The customer scans, their wallet builds the transfer, and the app polls `findReference` until the payment lands, then flips to a confirmed screen showing the signature. Useful, but it has the exact limitation that pushed you to transaction requests: the wallet builds the transaction, so a fixed recipient at a keyed amount is all it can express. No memo, no order id, no cart logic.
+Open that and a number pad appears; you key an amount and it renders a QR encoding a transfer request, the `solana:<recipient>` form from two lessons ago. The customer scans, their wallet builds the transfer, and the app polls `findReference` until the payment lands, then flips to a confirmed screen. Useful, but it has the exact limitation that pushed you to transaction requests: the wallet builds the transaction, so a fixed recipient at a keyed amount is all it can express. No memo, no order id, no cart logic.
 
 The unlock is nine lines into the app component. Open `src/client/components/pages/App.tsx` and find this:
 
@@ -181,9 +182,25 @@ Worked rung: every command below is given. You clone (done above), rewire, and r
    const link = useMemo(() => new URL('https://localhost:3443/txreq'), []);
    ```
 
+   Then a third edit, one the theory section did not cover because it is about the token, not the link: the stock app ships configured for native SOL. Remember the ordering from the confirmed-screen section, found, then validated. The POS will find your signature, then validate the landed transaction against its own config, and a SOL-configured `validateTransfer` checking the USDC `TransferChecked` your endpoint builds rejects it and paints **Invalid**. In the same file, add `USDCIcon` to the imports (the component already ships in the example, next to `SOLIcon`):
+
+   ```tsx
+   import { USDCIcon } from '../images/USDCIcon';
+   ```
+
+   and on the `<ConfigProvider>` further down, add `splToken` and swap the four SOL-flavored props to their USDC values (`address` is already imported at the top of the file):
+
+   ```tsx
+   splToken={address('4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU')}
+   symbol="USDC"
+   icon={<USDCIcon />}
+   decimals={6}
+   minDecimals={2}
+   ```
+
    Add the stall branch from the theory section (`priceFromStallLink`) to your checkout-txreq POST handler if you have not already. Checkpoint: reload the POS page, key an amount, generate, and the QR now encodes `solana:https://localhost:3443/txreq?amount=...&reference=...`. The pending screen appears and your endpoint's log shows the GET hit.
 
-4. **Ring a devnet sale.** With `connectWallet = true`, pay from a browser wallet on the same machine (funded with devnet SOL for fees and devnet USDC from Circle's faucet, as in module 2; the transaction your endpoint builds is the same USDC `TransferChecked` as the web cart's). Approve the transaction the POS hands you. Checkpoint: the POS flips pending to confirmed and shows the signature; your endpoint's log shows the POST `{account}` and the base64 transaction it returned. That signature settled a sale your server priced from the keypad. The web page just took money across a table.
+4. **Ring a devnet sale.** With `connectWallet = true`, pay from a browser wallet on the same machine (funded with devnet SOL for fees and devnet USDC from Circle's faucet, as in module 2; the transaction your endpoint builds is the same USDC `TransferChecked` as the web cart's). Approve the transaction the POS hands you. Checkpoint: the POS flips pending to confirmed and the progress ring completes; the signature itself lives behind "Recent Transactions", not on the confirmed screen. Your endpoint's log shows the POST `{account}` and the base64 transaction it returned. That signature settled a sale your server priced from the keypad. The web page just took money across a table. If the ring instead reads **Invalid**, `validateTransfer` rejected the transfer: check that `splToken` is set in App.tsx and that your memo precedes the transfer in `finalizeTransaction`.
 
 5. **Scaffold the artifact.** The course artifact for this lesson is `pos-stall`, a thin directory that pins your stall's configuration and proves it with a smoke test, sitting next to `checkout-txreq` in your Wavelength workspace:
 
