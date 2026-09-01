@@ -311,7 +311,7 @@ export async function sendStablecoin(
     (m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m),
     (m) =>
       appendTransactionMessageInstructions(
-        [createDestination, transferWithReference, memoInstruction],
+        [createDestination, memoInstruction, transferWithReference],
         m,
       ),
   );
@@ -335,7 +335,7 @@ export async function sendStablecoin(
 
 Long file, three decisions worth your attention; the rest is kit's standard build-sign-send pipeline and can run terse.
 
-Decision one, the instruction order. Create-if-missing, then the checked transfer, then the memo, all inside one transaction, which means one atomic unit: either Bob gets an account and the money and the label, or nothing happens at all. There is no state where you rent-funded an account for a payment that failed.
+Decision one, the instruction order: create-if-missing, then the memo, then the checked transfer. The transfer goes **last** and the memo immediately before it, and that is not aesthetics — `@solana/pay`'s `validateTransfer` pops the last instruction and requires it to be the token transfer, then pops the one before it and requires it to be the memo. Every validator downstream in this course, including module 3's acceptance gate and the POS in `m03-l3`, inherits that rule. All three still ride in one transaction, so it stays atomic: either Bob gets an account and the money and the label, or nothing happens. There is no state where you rent-funded an account for a payment that failed.
 
 Decision two, the reference placement. We generate a throwaway keypair purely to harvest a fresh unique address, then append it to the transfer instruction's account list as readonly non-signer. The program ignores it; the ledger indexes it. Ten characters of code, and every payment this kit ever sends has a tracking number.
 
@@ -449,7 +449,7 @@ reference : 7pK...a fresh address
 base units: 1250000
 ```
 
-That signature is a live devnet payment you can paste into any explorer, and you should, because you have been on the other side of this exact glass before. In module 1 you decoded someone else's USDC transfer; now decode your own. Set the explorer to devnet, open the transaction, and read the anatomy you just authored: three instructions in order, the create landing Bob's account, the checked transfer with one extra address hanging off it doing nothing (wave at your reference key), and the memo string sitting there in public exactly as warned. The script also drops a `receipt.json` beside the source, which is deliberately primitive: it stands in for the orders table your real backend will keep, and the verify step is about to consume it. Take the moment if you like; module 1 was all preparation for those three lines of output.
+That signature is a live devnet payment you can paste into any explorer, and you should, because you have been on the other side of this exact glass before. In module 1 you decoded someone else's USDC transfer; now decode your own. Set the explorer to devnet, open the transaction, and read the anatomy you just authored: three instructions in order, the create landing Bob's account, the memo string sitting there in public exactly as warned, and the checked transfer with one extra address hanging off it doing nothing (wave at your reference key). The script also drops a `receipt.json` beside the source, which is deliberately primitive: it stands in for the orders table your real backend will keep, and the verify step is about to consume it. Take the moment if you like; module 1 was all preparation for those three lines of output.
 
 ### 8. Prove it landed: `verify.ts`
 

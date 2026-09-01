@@ -59,13 +59,13 @@ One consequence of build-on-POST deserves its own paragraph: the POST is not ide
 
 Time to be concrete about the thing your POST handler returns. It is a version 0 transaction with the customer as fee payer and two instructions inside.
 
-The first instruction is the payment itself: a `TransferChecked` moving the cart total in devnet USDC (mint `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`, 6 decimals) from the customer's associated token account to yours. This is transfer-kit territory from module 2, and you reuse it directly: `resolveAta(owner, mint, tokenProgram)` finds both token accounts, passing the classic Token program for devnet USDC, `toBaseUnits` keeps the money math in exact bigints. The totals are computed from decimal strings, summed as base units, never floated. The one new trick is that the customer is the `authority` but has not signed anything yet; your server builds an unsigned transaction and the signature arrives later, in their wallet. Kit is comfortable with that: you assemble the message, compile it, and serialize it with the signature slot empty.
+The last instruction is the payment itself: a `TransferChecked` moving the cart total in devnet USDC (mint `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`, 6 decimals) from the customer's associated token account to yours. This is transfer-kit territory from module 2, and you reuse it directly: `resolveAta(owner, mint, tokenProgram)` finds both token accounts, passing the classic Token program for devnet USDC, `toBaseUnits` keeps the money math in exact bigints. The totals are computed from decimal strings, summed as base units, never floated. The one new trick is that the customer is the `authority` but has not signed anything yet; your server builds an unsigned transaction and the signature arrives later, in their wallet. Kit is comfortable with that: you assemble the message, compile it, and serialize it with the signature slot empty.
 
 ![Diagram of the returned transaction: a v0 envelope, the customer as unsigned fee payer, a TransferChecked instruction carrying a readonly reference account, and a memo with the order id.](assets/v03-diagram.png)
 
 Before moving on, the failure mode that will actually bite you at a demo: token accounts that do not exist. `TransferChecked` moves funds between associated token accounts, and an ATA only exists once someone paid its rent, 2,039,280 lamports or about 0.00204 SOL (the rent-exempt minimum for a 165-byte token account, read off devnet on 2026-08-22), the line item you costed in module 2. Your merchant destination ATA exists because transfer-kit created it when you first received USDC. The customer's source ATA is the risky one: a wallet that has never held devnet USDC has no USDC account, your built transaction references an address with nothing behind it, and the wallet's pre-sign simulation fails with an error the customer will read out loud to you. There is no server-side fix inside this transaction without taking on rent for strangers; the honest handling is a storefront check (their balance is visible on-chain before you ever render the QR) and a clear message. Production checkouts do exactly this, and yours will in the capstone.
 
-The second instruction is an SPL Memo carrying `wavelength:<orderId>:<description>`. In the QR lesson the memo rode along as a URL parameter and the wallet included it; now your server writes it directly, which means it can carry your real order id and a machine-parsable cart summary, and the customer cannot edit either. Your back-office module will lean on this hard.
+Immediately before the transfer sits an SPL Memo carrying `wavelength:<orderId>:<description>`. In the QR lesson the memo rode along as a URL parameter and the wallet included it; now your server writes it directly, which means it can carry your real order id and a machine-parsable cart summary, and the customer cannot edit either. Your back-office module will lean on this hard.
 
 And the reference? Same discipline you learned with `findReference`: a fresh single-use key per payment, generated before the payment exists, so you can locate the transaction later. What changes is where it lives. The wallet is no longer assembling anything, so your server injects the reference itself, as one extra account appended to the transfer instruction: readonly, not a signer, pure marker. Any account listed in a transaction is indexed by RPC nodes, which is the whole trick behind reference keys and always has been. Here are both constructions, exactly as they go into the completion TODOs later:
 
@@ -241,14 +241,14 @@ The layout you are about to fill in, and where it sits in the Wavelength workspa
    // The shared tail every surface reuses: inject the reference, stamp the memo,
    // set the lifetime, serialize. Later lessons call this directly.
    export async function finalizeTransaction(input: FinalizeInput): Promise<string> {
-     // TODO(completion) 1: rebuild the transfer instruction with ONE extra account
+     // TODO(completion) 1: the memo instruction: programAddress MEMO_PROGRAM,
+     // no accounts, data = new TextEncoder().encode(input.memo).
+     const memoIx: Instruction = { programAddress: MEMO_PROGRAM, data: new Uint8Array() }; // replace me
+
+     // TODO(completion) 2: rebuild the transfer instruction with ONE extra account
      // appended: { address: input.reference, role: AccountRole.READONLY }.
      // Spread the existing accounts; never mutate the instruction you were given.
      const transferWithReference: Instruction = input.transferIx; // replace me
-
-     // TODO(completion) 2: the memo instruction: programAddress MEMO_PROGRAM,
-     // no accounts, data = new TextEncoder().encode(input.memo).
-     const memoIx: Instruction = { programAddress: MEMO_PROGRAM, data: new Uint8Array() }; // replace me
 
      const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
 
@@ -256,7 +256,7 @@ The layout you are about to fill in, and where it sits in the Wavelength workspa
        createTransactionMessage({ version: 0 }),
        (m) => setTransactionMessageFeePayer(input.feePayer, m),
        (m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m),
-       (m) => appendTransactionMessageInstructions([transferWithReference, memoIx], m),
+       (m) => appendTransactionMessageInstructions([memoIx, transferWithReference], m),
      );
 
      return getBase64EncodedWireTransaction(compileTransaction(message));
@@ -415,6 +415,11 @@ The layout you are about to fill in, and where it sits in the Wavelength workspa
      );
      if (!transfer || (transfer.accountIndices ?? []).length !== 5) {
        fail('transfer instruction has no injected reference account (expected 5: source, mint, destination, authority, reference)');
+     }
+
+     const lastIx = message.instructions[message.instructions.length - 1];
+     if (message.staticAccounts[lastIx.programAddressIndex] === MEMO_PROGRAM) {
+       fail('memo is the last instruction: validateTransfer pops the last instruction and expects the transfer');
      }
 
      console.log(
