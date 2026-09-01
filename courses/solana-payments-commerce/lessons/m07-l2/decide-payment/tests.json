@@ -34,5 +34,41 @@
     "description": "The devnet CAIP-2 id is a known network and pays under cap.",
     "input": "'exact', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '250000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-006', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
     "expectedOutput": "result.willPay === true && result.reason === 'ok'"
+  },
+  {
+    "id": "t7-unknown-chain-declined",
+    "description": "A non-Solana CAIP-2 id (Ethereum mainnet) is not a network this agent pays on.",
+    "input": "'exact', 'eip155:1', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '100000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-007', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /network/i.test(result.reason)"
+  },
+  {
+    "id": "t8-solana-prefixed-lookalike-declined",
+    "description": "A solana:-prefixed id one character off mainnet's genesis hash is still an unknown network: the check is membership in the two known ids, not a prefix.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdq', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '100000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-008', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /network/i.test(result.reason)"
+  },
+  {
+    "id": "t9-missing-fee-payer-declined",
+    "description": "Terms that name no fee payer are unpayable: the agent holds no SOL and cannot sponsor itself.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '100000', '', 'inv-009', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /fee payer/i.test(result.reason)"
+  },
+  {
+    "id": "t10-memo-multibyte-over-limit",
+    "description": "A 200-character invoice id of two-byte accented characters is 400 UTF-8 BYTES: over the 256-byte ceiling even though its string length is 200.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '100000', 'FeeP4Yer1111111111111111111111111111111111', 'çççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççççç', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6}'",
+    "expectedOutput": "result.willPay === false && /memo/i.test(result.reason)"
+  },
+  {
+    "id": "t11-decimals-come-from-the-allowlist",
+    "description": "A pegged dollar whose mint carries 8 decimals: 50,000,000 atomic units is $0.50 and pays. Assuming 6 decimals would read it as $50 and decline.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'BridgedDo11ar8Dec111111111111111111111111111', '50000000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-011', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6,\"BridgedDo11ar8Dec111111111111111111111111111\":8}'",
+    "expectedOutput": "result.willPay === true && result.reason === 'ok' && result.memo === 'inv-011'"
+  },
+  {
+    "id": "t12-decimals-still-enforce-the-cap",
+    "description": "The same 8-decimal asset at 250,000,000 atomic units is $2.50 and breaks the $1 cap: the allowlist supplies the decimals, the cap is still enforced.",
+    "input": "'exact', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'BridgedDo11ar8Dec111111111111111111111111111', '250000000', 'FeeP4Yer1111111111111111111111111111111111', 'inv-012', 1, '{\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\":6,\"BridgedDo11ar8Dec111111111111111111111111111\":8}'",
+    "expectedOutput": "result.willPay === false && /cap/i.test(result.reason)"
   }
 ]

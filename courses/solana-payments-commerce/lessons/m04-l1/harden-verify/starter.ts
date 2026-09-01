@@ -24,11 +24,13 @@
  *   'verified'   → all checks pass
  *
  * Pure (no RPC, no imports), so it grades deterministically. In the real
- * verifier these fields come straight off a jsonParsed getTransaction response.
- * JSON has no bigint, so the transfer amounts parse as numbers; lift them with
- * BigInt() before comparing against `expectedAmount`, which IS a bigint.
+ * verifier these fields come straight off a jsonParsed getTransaction response,
+ * which is why `preAmount`/`postAmount` arrive as decimal STRINGS of base units
+ * (the RPC's own shape; `uiAmount` is a float and is never the source). Lift
+ * them with BigInt() before comparing against `expectedAmount`, which IS a
+ * bigint: Number() would round a real settlement above 2**53 base units.
  */
-type Transfer = { mint: string; destination: string; preAmount: number; postAmount: number };
+type Transfer = { mint: string; destination: string; preAmount: string; postAmount: string };
 type Tx = { signature: string; tokenProgram: string; transfers: Transfer[]; memo: string };
 type Result = { ok: boolean; reason: string };
 
