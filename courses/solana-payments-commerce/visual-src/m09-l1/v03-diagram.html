@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: The assembled monorepo and its one kit-7 island
      purpose: show the final workspace roster and that the version seam is a folder boundary, not a problem
-     data: root package.json workspaces: transfer-kit, checkout, checkout-txreq (+ gasless path), pos-stall (+ fair-queue), drop-blink, verifier, backoffice (+ refunds), crank, subscriptions, dunning, ramp-embed, workspaces/x402, stack kit-6 line workspaces: everything above except subscriptions (anchors: @solana/pay 1.0.26 peers kit ^6.9; @solana-program/token 0.14.0 is the last v6-compatible minor) kit-7 island: subscriptions only (@solana/subscriptions 0.5.0 peers kit ^7.0.0, pinned kit 7.1.1) new tonight: the stack workspace (server + boot + journey), kit-6 line
+     data: root package.json workspaces: transfer-kit, wavelength-checkout, checkout-txreq, pos-stall, drop-blink, verifier, backoffice, backoffice-refunds, club-crank, subscriptions, dunning, x402, gasless-checkout, fair-queue, stack kit-6 line workspaces: everything above except subscriptions (anchors: @solana/pay 1.0.26 peers kit ^6.9; @solana-program/token 0.14.0 is the last v6-compatible minor) kit-7 island: subscriptions only (@solana/subscriptions 0.5.0 peers kit ^7.0.0, pinned kit 7.1.1) new tonight: the stack workspace (server + boot + journey), kit-6 line
      prompt: One large container labeled with the root package.json, holding workspace boxes named from data. Group all kit-6 workspaces in one region, isolate subscriptions in a dashed region labeled "kit-7 island", and highlight the new stack workspace. Annotate the two peer-range anchors from data as small captions. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -55,22 +55,24 @@
   <div class="stbr-eyebrow">the version seam is a folder boundary, not a problem</div>
   <h2 class="viz-title">the assembled monorepo and its one kit-7 island</h2>
   <div class="repo">
-    <div class="repo-head"><span class="fn">root package.json</span><span class="ws">"workspaces": [ &hellip;13 folders&hellip; ]</span></div>
+    <div class="repo-head"><span class="fn">root package.json</span><span class="ws">"workspaces": [ &hellip;15 folders&hellip; ]</span></div>
     <div class="repo-body">
       <div class="region k6">
         <span class="reg-lab">kit-6 line &mdash; everything except subscriptions</span>
         <div class="chips">
           <span class="chip">transfer-kit</span>
-          <span class="chip">checkout</span>
-          <span class="chip">checkout-txreq <span>+ gasless path</span></span>
-          <span class="chip">pos-stall <span>+ fair-queue</span></span>
+          <span class="chip">wavelength-checkout</span>
+          <span class="chip">checkout-txreq</span>
+          <span class="chip">pos-stall</span>
           <span class="chip">drop-blink</span>
           <span class="chip">verifier</span>
-          <span class="chip">backoffice <span>+ refunds</span></span>
-          <span class="chip">crank</span>
+          <span class="chip">backoffice</span>
+          <span class="chip">backoffice-refunds</span>
+          <span class="chip">club-crank</span>
           <span class="chip">dunning</span>
-          <span class="chip">ramp-embed</span>
-          <span class="chip">workspaces/x402</span>
+          <span class="chip">x402</span>
+          <span class="chip">gasless-checkout</span>
+          <span class="chip">fair-queue</span>
           <span class="chip new">stack <span>new tonight &middot; server + boot + journey</span></span>
         </div>
         <div class="anchors">peer-range anchors: <code>@solana/pay 1.0.26</code> peers kit <code>^6.9</code> &nbsp;&middot;&nbsp;
