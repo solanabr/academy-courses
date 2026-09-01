@@ -94,6 +94,16 @@ solana airdrop 2
 
 `solana-keygen new` writes a keypair file to `~/.config/solana/id.json`; that file is your merchant identity for the rest of the course, and the kit will load it directly. One hygiene rule, stated once and early: this is a plaintext development key for devnet play money, so never send real mainnet funds to it, and when this course later touches mainnet the signing setup changes before anything else does. The airdrop gives you free devnet SOL for fees and rent. If it complains about rate limits, wait a minute and retry, or use the web faucet at faucet.solana.com. Confirm with `solana balance`; any nonzero number means you are ready.
 
+One more account before the code, because module 4 assumes you already have it. Go to dashboard.helius.dev, sign up (the free tier covers everything this course does), and copy the API key from the dashboard. Put it in your shell profile so it survives a new terminal:
+
+```bash
+echo 'export HELIUS_API_KEY=<paste-your-key>' >> ~/.zshrc   # or ~/.bashrc
+source ~/.zshrc
+echo $HELIUS_API_KEY   # must print your key, not an empty line
+```
+
+You will not use it today. The webhook lesson in module 4 creates a devnet webhook with it, and that is the only place in this course that needs one; every RPC call you write here runs against the public `https://api.devnet.solana.com`.
+
 ### 2. The workspace, with pinned versions
 
 Create the project the whole course lives in:
