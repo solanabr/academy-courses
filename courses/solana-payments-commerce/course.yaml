@@ -7,7 +7,10 @@ duration: 55
 xpPerLesson: 20
 xpReward: 480
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+creatorRewardXp: 30
 thumbnail: assets/banner.webp
+trackId: 0
+trackLevel: 0
 modules:
   - key: rails-mental-model
     title: "The rails you're switching to"
