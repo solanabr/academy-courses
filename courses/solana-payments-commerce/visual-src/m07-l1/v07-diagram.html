@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- diagram: Where x402 sits among the incumbents
-     purpose: place the protocol in its competitive context using the two grounded color beats, Stripe's three fronts and the challenger set
-     data: center: x402 (x402 Foundation, under the Linux Foundation; incubated by Coinbase's Development Platform team; Solana Foundation a member) partner ring (x402.org trusted-by): AWS, Cloudflare, Stripe, Vercel Stripe's three fronts: 1) x402.org trusted-by logo 2) ACP co-authored with OpenAI 3) USDC-on-Solana acquirer settling fiat adoption arrow: atxp.ai migrated to x402 + MPP on Solana competing arrow: OKX shipped rival protocol "APP"
-     prompt: Hub diagram with x402 and its governance lineage at center, a partner ring of the four named companies, a Stripe callout box enumerating its three fronts, and two labeled arrows at the edge: an inbound adoption arrow for atxp.ai and an opposing competitor arrow for OKX's APP. Structure only; house brand styles apply.
+     purpose: place the protocol in its competitive context using the two grounded color beats, Stripe's four fronts and the challenger set
+     data: center: x402 (x402 Foundation, under the Linux Foundation; incubated by Coinbase's Development Platform team; Solana Foundation a member) partner ring (x402.org trusted-by): AWS, Cloudflare, Stripe, Vercel Stripe's four fronts: 1) x402.org trusted-by logo 2) ACP co-authored with OpenAI 3) USDC-on-Solana acquirer settling fiat 4) co-author, with Tempo Labs, of draft-httpauth-payment-00 (the "Payment" HTTP auth scheme MPP is built on) adoption arrow: atxp.ai migrated to x402 + MPP on Solana competing arrow: OKX shipped rival protocol "APP"
+     prompt: Hub diagram with x402 and its governance lineage at center, a partner ring of the four named companies, a Stripe callout box enumerating its four fronts, and two labeled arrows at the edge: an inbound adoption arrow for atxp.ai and an opposing competitor arrow for OKX's APP. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -72,8 +72,8 @@
   .core .cl b { color:var(--stbr-cream); }
   .callout { margin-top:18px; border:2.5px solid var(--stbr-dark);
              background:rgba(255,210,63,0.20); border-radius:var(--radius-xl);
-             padding:14px 24px; display:flex; align-items:center; gap:24px; }
-  .callout .ct { flex:0 0 250px; font-family:var(--font-display); font-weight:900;
+             padding:14px 22px; display:flex; align-items:center; gap:16px; }
+  .callout .ct { flex:0 0 200px; font-family:var(--font-display); font-weight:900;
                  font-size:20px; color:var(--text-primary); line-height:1.15; }
   .callout .ct .up { display:block; font-family:var(--font-body); font-weight:700;
                      font-size:11.5px; color:var(--text-secondary); margin-top:4px; }
@@ -82,7 +82,7 @@
         background:var(--stbr-dark); color:var(--stbr-yellow);
         font-family:var(--font-display); font-weight:800; font-size:13px;
         display:flex; align-items:center; justify-content:center; margin-top:1px; }
-  .ft { font-family:var(--font-body); font-size:13.5px; line-height:1.35;
+  .ft { font-family:var(--font-body); font-size:12.5px; line-height:1.32;
         color:var(--text-primary); }
 </style>
   <div class="hub">
@@ -119,11 +119,12 @@
       </div>
     </div>
     <div class="callout">
-      <div class="ct">Stripe is playing three fronts
+      <div class="ct">Stripe is playing four fronts
         <span class="up">&uarr; the same Stripe seat highlighted in the ring</span></div>
       <div class="front"><span class="fn">1</span><span class="ft">a trusted-by logo on <b>x402.org</b></span></div>
       <div class="front"><span class="fn">2</span><span class="ft"><b>ACP</b>, co-authored with OpenAI</span></div>
       <div class="front"><span class="fn">3</span><span class="ft"><b>USDC-on-Solana acquirer</b>, settling fiat</span></div>
+      <div class="front"><span class="fn">4</span><span class="ft">the <b>&ldquo;Payment&rdquo; HTTP auth scheme</b> MPP is built on, with Tempo Labs</span></div>
     </div>
   </div>
 </div>

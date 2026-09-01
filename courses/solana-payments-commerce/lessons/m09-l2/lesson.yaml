@@ -23,9 +23,9 @@ blocks:
             correct: false
             feedback: "Frozen tooling is the opposite of fast-moving; the blinks lane is among the LEAST likely to shift pins in three months."
           - id: c
-            label: "The Subscriptions program client and MPP, since @solana/subscriptions was days old on mainnet and MPP is an Internet-Draft that expires 2027-02-19."
+            label: "The Subscriptions program client and MPP, since @solana/subscriptions was days old on mainnet and MPP's Solana method spec moves in a git repo with no standards-body clock on it."
             correct: true
-        explanation: "The course drew the frozen/moving line on purpose. Frozen surfaces (the Solana Pay v1 spec, the blinks tooling) are safe precisely because they are stable. The young pieces, the Subscriptions program client and the MPP draft, are the ones to re-verify before you trust their pins."
+        explanation: "The course drew the frozen/moving line on purpose. Frozen surfaces (the Solana Pay v1 spec, the blinks tooling) are safe precisely because they are stable. The young pieces, the Subscriptions program client and the MPP specs, are the ones to re-verify before you trust their pins."
       - id: m09l2-q2-where-next
         prompt: "Your colleague wants to squeeze more transactions to land under load during a hot drop by tuning priority fees and Jito bundles. Which course did this one explicitly defer that depth to?"
         multiSelect: false
