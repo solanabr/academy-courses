@@ -17,7 +17,9 @@ npm i -D tsx typescript
 Then hop up to the `wavelength` root and add the new folder to the workspace roster you extended in module 4, which is what lets the scripts below `import { resolveAta } from 'transfer-kit'` by name:
 
 ```bash
-npm pkg set workspaces='["transfer-kit","verifier","backoffice","backoffice-refunds","club-crank"]'
+cd ~/wavelength
+npm pkg set --json workspaces='["transfer-kit","verifier","backoffice","backoffice-refunds","club-crank"]'
+npm pkg set type="module"
 npm install
 ```
 
