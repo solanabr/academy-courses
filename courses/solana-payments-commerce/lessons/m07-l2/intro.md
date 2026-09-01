@@ -2,7 +2,7 @@
 
 ## Summary
 
-Last lesson handed you the x402 v2 flow on paper: the renamed PAYMENT-SIGNATURE and PAYMENT-RESPONSE headers, the exact-SVM scheme, and the exact answer to who signs at /verify versus /settle. Paper time is over. Today you build both ends and wire the memos into the ledger you already run.
+Last lesson handed you the x402 v2 flow on paper: the three headers that carry it, PAYMENT-REQUIRED out, PAYMENT-SIGNATURE back, PAYMENT-RESPONSE out again, the exact-SVM scheme, and the exact answer to who signs at /verify versus /settle. Paper time is over. Today you build both ends and wire the memos into the ledger you already run.
 
 Here is the situation that makes it worth building. Wavelength publishes a pressing-price API: give it a record and a run size, it quotes what the vinyl pressing costs. It is free, and a collector bot is hammering it ten thousand times a day for nothing, driving your RPC bill while paying you zero. The fix is not a ban. The fix is a price. One middleware in front of the endpoint, and the same bot that was freeloading yesterday either starts paying today, because the quotes are worth more to its operator than the pennies they now cost, or it leaves, and either way the freeloading stops.
 
@@ -57,7 +57,7 @@ And `extra.memo` is the field this lesson orbits: a string of at most 256 bytes 
 
 ![Field-by-field mapping from the merchant's route config to the PaymentRequirements the agent receives, with the asset in base units and the fee payer supplied by the facilitator.](assets/v01-comparison.png)
 
-One naming drift to absorb before it costs you an afternoon: the spec document you read last lesson calls the amount field `maxAmountRequired`, and the 2.23.0 TypeScript types call it `amount`. Same integer base-unit string, one name on the wire spec, one name in the SDK type. I checked the shipped type definitions while writing this rather than trusting either document, which is the correct amount of trust for a line moving this fast.
+One thing to absorb before it costs you an afternoon, and absorb it as a version boundary rather than a drift: the amount field is called `maxAmountRequired` in v1 and `amount` in v2. That is not the spec disagreeing with the SDK. Open `@x402/core` 2.23.0 and both schemas are sitting in the same build, `PaymentRequirementsV1Schema` with `maxAmountRequired` and `PaymentRequirementsV2Schema` with `amount`, because the package speaks both dialects on purpose. So the field name is itself a version signal: if you are looking at `maxAmountRequired`, you are looking at v1 terms, and everything else about that challenge, including the fact that it arrived in a response body rather than a header, follows from that.
 
 Where does the fee payer come from? Not from you. The resource server syncs with the facilitator at startup and learns, per scheme and network, the sponsor address the facilitator will sign with. That is why the boot sequence has an explicit `initialize()` step, and why your merchant server never holds a fee-payer key at all:
 
@@ -204,6 +204,7 @@ The loop itself is your completion rung, the TODO in the middle of the agent fil
 // x402/src/agent.ts - the collector bot, taught to pay
 import { x402Client } from '@x402/core/client';
 import {
+  decodePaymentRequiredHeader,
   decodePaymentResponseHeader,
   encodePaymentSignatureHeader,
 } from '@x402/core/http';
@@ -221,7 +222,9 @@ const client = new x402Client().register('solana:*', new ExactSvmScheme(signer))
 
 // Your turn (completion rung). The four rules:
 // 1. fetch(url); anything but HTTP 402 returns as-is, already paid or free.
-// 2. Parse the 402 body as PaymentRequired.
+// 2. Read the challenge out of the HEADER, never the body:
+//    decodePaymentRequiredHeader(res.headers.get('PAYMENT-REQUIRED'))
+//    returns the PaymentRequired object. The 402's body is the two bytes '{}'.
 // 3. const payload = await client.createPaymentPayload(paymentRequired);
 //    spendControls run INSIDE this call: an over-cap quote throws here,
 //    before anything is signed. Let the throw escape to the caller.
@@ -236,7 +239,18 @@ for (let call = 1; call <= 3; call++) {
   const invoiceId = `WVL-INV-${Date.now()}-${call}`;
   const res = await payAndRetry(`${API}/price?run=500&invoice=${invoiceId}`, client);
   if (!res.ok) {
-    console.error(`call ${call} failed: HTTP ${res.status}`);
+    // Failures are silent in the body and loud in the headers. A payment the
+    // facilitator rejected names its reason in PAYMENT-REQUIRED's `error`;
+    // a settlement that failed names its reason in PAYMENT-RESPONSE's
+    // `errorReason`. Never guess from the status code alone.
+    const challenge = res.headers.get('PAYMENT-REQUIRED');
+    const failedReceipt = res.headers.get('PAYMENT-RESPONSE');
+    const why = challenge
+      ? decodePaymentRequiredHeader(challenge).error
+      : failedReceipt
+        ? decodePaymentResponseHeader(failedReceipt).errorReason
+        : 'no x402 header on the response';
+    console.error(`call ${call} failed: HTTP ${res.status}: ${why}`);
     continue;
   }
   const receiptHeader = res.headers.get('PAYMENT-RESPONSE');
@@ -281,7 +295,7 @@ Name the trade before you ship it, because this one is structural. The facilitat
 
 The second honest limit is economic, and it is the machine-commerce version of a lesson every payments person eventually learns: settlement costs must fit inside the thing being sold. exact settles every call on-chain, so every call carries real chain cost, the transfer fee the sponsor eats plus the operational cost of verify and settle round-trips. At five cents a quote, that overhead is a rounding error and per-call metering is exactly right. At a thousand sub-cent telemetry pings a minute, per-call settlement costs more than the product, and no amount of engineering enthusiasm changes the arithmetic; that traffic wants the upto scheme's authorize-a-ceiling model or batch settlement, both of which exist precisely because exact does not stretch there. Match the scheme to the unit economics of the call, and be suspicious of any metering plan whose margin depends on the settlement rail being free. Here is the optimistic half, and it is the half that matters for Wavelength: the collector bot that was a pure cost center this morning is now a customer with unit economics that work, at a price point no card network could clear profitably. Machine customers are not a threat to the price sheet. They are the first customer segment in history that reads it perfectly and never abandons a cart.
 
-And the third limit you are living with all lesson: the `@x402/*` line is 2.23.0 today, published five days ago as I write this, and nothing about this ecosystem suggests it will sit still. The types I verified for this lesson were verified against that exact version. Re-verify at every touch, the way this lesson did, not the way a bookmark does.
+And the third limit you are living with all lesson: the `@x402/*` line is 2.23.0 today, published five days ago as I write this, and nothing about this ecosystem suggests it will sit still. Every wire fact in this lesson was read off that exact build rather than off a document: the challenge arriving base64'd in a PAYMENT-REQUIRED header with a two-byte `{}` under it, `amount` rather than `maxAmountRequired` in the v2 requirement, and the `maxTimeoutSeconds` the resource server fills in for you. The version straddling is what makes that discipline non-optional, because one package ships both dialects' schemas side by side, so "which shape am I holding" stays a live question at every bump instead of a settled one. Re-verify at every touch, the way this lesson did, not the way a bookmark does.
 
 ![Three-column card of the metering trade: the facilitator trust boundary, the per-call settlement economics, and the fast-moving package pin to re-verify.](assets/v08-comparison.png)
 
@@ -359,27 +373,54 @@ Expected: `pressing-price API on :4021, gate armed`. If it throws on `initialize
 curl -i "http://localhost:4021/price?run=500&invoice=WVL-INV-TEST"
 ```
 
-Expected: `HTTP/1.1 402 Payment Required` and a JSON body whose `accepts[0]` is the wire form of your price sheet. Trimmed to the fields that matter, it reads like this (addresses yours, blockhash hints elided):
+Expected, and this is the shape last lesson promised (Date, ETag, and keep-alive lines dropped, and the base64 elided at the ellipsis):
+
+```text
+HTTP/1.1 402 Payment Required
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2Ui...
+Cache-Control: no-store
+Content-Length: 2
+
+{}
+```
+
+The gate is live and the body is two bytes, exactly as advertised. The price sheet is in the header, so decode it:
+
+```bash
+curl -sD - -o /dev/null "http://localhost:4021/price?run=500&invoice=WVL-INV-TEST" \
+  | grep -i '^payment-required:' | sed 's/^[^:]*: *//' | tr -d '\r' \
+  | base64 -d | python3 -m json.tool
+```
 
 ```json
 {
-  "accepts": [
-    {
-      "scheme": "exact",
-      "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-      "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-      "amount": "50000",
-      "payTo": "YOUR_MERCHANT_ADDRESS",
-      "extra": {
-        "memo": "WVL-INV-TEST",
-        "feePayer": "FACILITATOR_SUPPLIED_ADDRESS"
-      }
-    }
-  ]
+    "x402Version": 2,
+    "error": "Payment required",
+    "resource": {
+        "url": "http://localhost:4021/price?run=500&invoice=WVL-INV-TEST",
+        "description": "Wavelength pressing-price quote",
+        "mimeType": ""
+    },
+    "accepts": [
+        {
+            "scheme": "exact",
+            "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+            "amount": "50000",
+            "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+            "payTo": "YOUR_MERCHANT_ADDRESS",
+            "maxTimeoutSeconds": 300,
+            "extra": {
+                "memo": "WVL-INV-TEST",
+                "feePayer": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5"
+            }
+        }
+    ]
 }
 ```
 
-Read it against the mapping card from the theory section: your `'$0.05'` became `"50000"` base units of the devnet USDC mint, your memo came through byte-for-byte, and there is an `extra.feePayer` you never configured, because the facilitator sync supplied it. You can see the same answer without running anything: `curl -s https://x402.org/facilitator/supported` lists the kinds that facilitator settles, and on 2026-08-22 its `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` entry advertised scheme `exact` with `extra.feePayer` set to `CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5` (sponsors rotate, so match the shape, not the string). Every network on that list is a testnet, which is the devnet-only warning restated by the facilitator itself. Finding that fee payer in the terms is your evidence the boot sequence worked; a missing `feePayer` means `initialize()` never ran or the facilitator does not support your scheme and network pair.
+Read it against the mapping card from the theory section: your `'$0.05'` became `"50000"` base units of the devnet USDC mint, your memo came through byte-for-byte, and `resource.description` is the `description` you wrote on the route. Two fields arrived that you never configured. `extra.feePayer` came from the facilitator sync. And `maxTimeoutSeconds` is `300` because your route config left it out and `@x402/core` fills in 300 seconds when it does; put `maxTimeoutSeconds: 90` beside `price` in that route's `accepts` and the challenge says `90` instead. The `mimeType` is empty for the same reason in reverse: nothing declared one, so nothing was invented. You can see the same answer without running anything: `curl -s https://x402.org/facilitator/supported` lists the kinds that facilitator settles, and on 2026-08-22 its `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1` entry advertised scheme `exact` with `extra.feePayer` set to `CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5` (sponsors rotate, so match the shape, not the string). Every network on that list is a testnet, which is the devnet-only warning restated by the facilitator itself. Finding that fee payer in the terms is your evidence the boot sequence worked; a missing `feePayer` means `initialize()` never ran or the facilitator does not support your scheme and network pair.
 
 5. **Complete `payAndRetry`** in `src/agent.ts` against the four rules from the theory section, then run the agent:
 
@@ -401,7 +442,7 @@ Each row: the memo as `orderId`, the settled signature, `"50000"` base units, th
 
 ## Challenge: the decidePayment pre-flight guard
 
-Solo rung, no walkthrough. The spendControls throw is the SDK's guard; a production agent wants its own pre-flight decision with reasons its logs can aggregate, made before the SDK is even asked. Implement `decidePayment` in the decide-payment coding-challenge widget, which hands you the starter and its tests. The widget calls it positionally, one argument per field: `decidePayment(scheme, network, asset, maxAmountRequired, feePayer, memo, maxUsd, allowedAssetsJson)`. The first six are the payment terms a 402 quoted, unbundled from the requirements object; the last two are the agent's own controls, and the allowlist arrives serialized as a JSON string mapping mint to decimals, so `JSON.parse(allowedAssetsJson)` before you check anything against it. Return a decision object that either passes the fee payer and memo through for payment or declines with a precise reason. The amount still arrives as `maxAmountRequired`, the spec's name for it, so the drift from the section above is sitting right there in your first line of code.
+Solo rung, no walkthrough. The spendControls throw is the SDK's guard; a production agent wants its own pre-flight decision with reasons its logs can aggregate, made before the SDK is even asked. Implement `decidePayment` in the decide-payment coding-challenge widget, which hands you the starter and its tests. The widget calls it positionally, one argument per field: `decidePayment(scheme, network, asset, amount, feePayer, memo, maxUsd, allowedAssetsJson)`. The first six are the payment terms a 402 quoted, unbundled from the requirements object you decoded out of the PAYMENT-REQUIRED header; the last two are the agent's own controls, and the allowlist arrives serialized as a JSON string mapping mint to decimals, so `JSON.parse(allowedAssetsJson)` before you check anything against it. Return a decision object that either passes the fee payer and memo through for payment or declines with a precise reason. The amount arrives as `amount` because these are v2 terms; a guard written against a v1 counterparty would be reading `maxAmountRequired` for the same number, which is the version boundary from the theory section showing up in your first line of code.
 
 Reject with a distinct reason each, and run the checks in this fixed order, so the same bad terms always produce the same reason, which is what makes declines aggregatable:
 
@@ -414,13 +455,15 @@ Reject with a distinct reason each, and run the checks in this fixed order, so t
 6. amount     USD-converted value above the cap              -> exceeds spend cap
 ```
 
+Six rows, and one field from the challenge is deliberately not among them. Every requirement you decoded carries `maxTimeoutSeconds`, `300` on the terms this lab quotes, and the guard never looks at it. That is on purpose. The six checks all answer one question, will I pay these terms, and each one is a policy the agent holds an opinion about. `maxTimeoutSeconds` is not a policy: it is the merchant's deadline for completing payment, set on the merchant's route and handed to you as a fact. There is nothing there for the agent to approve or decline, and an agent that pays immediately, as this one does, cannot miss a five-minute window anyway. The version of this guard that would check it belongs to an agent that queues 402s and pays them later: compare the window against your queue's worst-case latency and drop anything that cannot make it. Note what skipping that check costs a queueing agent, though, because it is not a decline. The terms simply stop being payable, your guard says nothing at all, and whatever you learn about it you learn from the `error` on the response rather than from your own logs.
+
 The acceptance bar, matching the lesson gate: an in-policy call returns `willPay: true` with fee payer and memo passed through; an over-cap call declines with a cap reason; a wrong-asset call, a non-exact scheme, and an oversized memo each decline with their own reason; and the devnet CAIP-2 id is accepted as known. The widget's tests run the lot; green means done.
 
 If you finish early, wire it in: call your guard at the top of `payAndRetry` and compare its verdicts with the SDK's throws across the lab's four calls. They should agree on every one, and now you have two independent opinions about every payment your agent makes, which is precisely how much paranoia a wallet-holding bot deserves.
 
 ## Checkpoint: three rows and one refusal
 
-Where this usually snags, in the order you would hit it. A 402 loop that never resolves, the agent signing and retrying forever while nothing settles and no USDC leaves its wallet: your memo is not deterministic across the challenge and the retry, reread the query-string section, the URL is the only shared ground. An agent that ends silently with an empty fulfillment queue: you let the spendControls throw escape without logging, which is the exact silent-decline footgun the theory section warned about, and catching it is not optional in anything you ship. A verify failure on a call your spendControls happily approved: check the agent's devnet USDC balance before suspecting your code, an unfunded ATA fails at the facilitator, not at the guard, because the guard checks policy and the facilitator checks reality. And rows landing under one order id: you reused an invoice id, which your ledger will happily record and your reconciliation will misread as one sale, the collapse is downstream of the write, not at it.
+Where this usually snags, in the order you would hit it. A 402 loop that never resolves, the agent signing and retrying forever while nothing settles and no USDC leaves its wallet: your memo is not deterministic across the challenge and the retry, reread the query-string section, the URL is the only shared ground. An agent that ends silently with an empty fulfillment queue: you let the spendControls throw escape without logging, which is the exact silent-decline footgun the theory section warned about, and catching it is not optional in anything you ship. A verify failure on a call your spendControls happily approved: do not guess at this one, and do not read the body, which is `{}` here as it is everywhere else. Decode the failing response's PAYMENT-REQUIRED header and read its `error` field, which carries the facilitator's own words for what went wrong. An unfunded ATA surfaces there as `transaction_simulation_failed`, because the exact-SVM verifier adds the fee-payer signature, simulates the result, and watches the transfer fail; that one string is the difference between checking your agent's devnet USDC balance in ten seconds and suspecting your own code for an hour. If the call got past verification and died at settlement instead, the reason rides `PAYMENT-RESPONSE` as `errorReason` and the body is still `{}`. The guard checks policy, the facilitator checks reality, and reality reports back through a header. And rows landing under one order id: you reused an invoice id, which your ledger will happily record and your reconciliation will misread as one sale, the collapse is downstream of the write, not at it.
 
 Now count what you hold. A production API pattern where the paywall is one middleware and the business logic never learned money exists. An agent that pays for HTTP the way browsers fetch it, with an allowance it enforces before signing. A reconciliation path where machine sales and human sales are one ledger, one row shape, one audit story, because you routed x402's memo through the same `record()` a webhook sale takes. And two verification instincts sharpened on real incidents: check properties of what was signed, never byte equality with what you built, and forget replay state only when the chain itself makes replay impossible.
 
