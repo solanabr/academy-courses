@@ -34,5 +34,29 @@
     "description": "At exactly lastChargedTs + period the window is open and the pull fires.",
     "input": "true, 0, 900000, 24, 986400",
     "expectedOutput": "result.shouldPull === true && result.reason === 'due'"
+  },
+  {
+    "id": "t7-future-expiry-still-due",
+    "description": "A sub whose expiresAtTs is still in the future is not expired: a non-zero expiry alone must never hold a charge.",
+    "input": "true, 2000000, 900000, 24, 1000000",
+    "expectedOutput": "result.shouldPull === true && result.reason === 'due' && result.nextEligibleTs === 986400"
+  },
+  {
+    "id": "t8-expiry-boundary-is-expired",
+    "description": "At exactly expiresAtTs the subscription has lapsed: the last chargeable second is expiresAtTs - 1.",
+    "input": "true, 1000000, 900000, 24, 1000000",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'expired'"
+  },
+  {
+    "id": "t9-canceled-outranks-expired",
+    "description": "A sub that was cancelled AND has since lapsed reports 'canceled': a canceled subscription's expiry is meaningless, so the cancellation check runs first.",
+    "input": "false, 950000, 900000, 24, 1000000",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'canceled' && result.nextEligibleTs === 0"
+  },
+  {
+    "id": "t10-backwards-clock-holds",
+    "description": "Chain time reading BEFORE the last successful pull (clock skew, or a crank replaying an old slot) is too early, never due: the window is a direction, not a distance.",
+    "input": "true, 0, 1000000, 24, 900000",
+    "expectedOutput": "result.shouldPull === false && result.reason === 'too-early' && result.nextEligibleTs === 1086400"
   }
 ]

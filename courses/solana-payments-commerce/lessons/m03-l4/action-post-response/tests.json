@@ -22,5 +22,17 @@
     "description": "includes both message and a chained action when both are provided",
     "input": "'TX', 'ok', 'https://wavelength.example/blink/next'",
     "expectedOutput": "result.message === 'ok' && result.links !== undefined && result.links.next.href === 'https://wavelength.example/blink/next'"
+  },
+  {
+    "id": "t5",
+    "description": "a minimal response carries no message and no links KEY at all: a wallet testing `'links' in response` must see absence, not an undefined value",
+    "input": "'ONLYTX'",
+    "expectedOutput": "result.type === 'transaction' && result.transaction === 'ONLYTX' && !('message' in result) && !('links' in result)"
+  },
+  {
+    "id": "t6",
+    "description": "an explicit null message means 'not provided': the key is omitted, while the chained action still ships",
+    "input": "'B64', null, 'https://wavelength.example/blink/thanks'",
+    "expectedOutput": "!('message' in result) && result.links.next.type === 'post' && result.links.next.href === 'https://wavelength.example/blink/thanks'"
   }
 ]

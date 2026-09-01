@@ -6,7 +6,7 @@
  * criteria as flat arguments. Pure (no RPC, no imports), so it grades
  * deterministically.
  */
-type Transfer = { mint: string; destination: string; preAmount: number; postAmount: number };
+type Transfer = { mint: string; destination: string; preAmount: string; postAmount: string };
 type Tx = { signature: string; tokenProgram: string; transfers: Transfer[]; memo: string };
 type Result = { ok: boolean; reason: string };
 
@@ -38,7 +38,8 @@ function verifyPayment(
   if (paid.mint !== expectedMint) return { ok: false, reason: "wrong-mint" };
 
   // Check 5 (amount): the balance delta on OUR account, not a client number.
-  // JSON carries the amounts as numbers; lift to bigint before the money math.
+  // The amounts arrive as decimal strings, the shape getTransaction reports;
+  // lift them to bigint so the subtraction is exact at any size.
   const delta = BigInt(paid.postAmount) - BigInt(paid.preAmount);
   if (delta < expectedAmount) return { ok: false, reason: "underpaid" };
 

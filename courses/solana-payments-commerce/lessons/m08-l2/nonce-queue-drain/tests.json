@@ -28,5 +28,11 @@
     "description": "Mixed queue, input order preserved across all three buckets.",
     "input": "200, 45, '[\"p\",190,\"blockhash\",0,\"q\",100,\"nonce\",1,\"r\",50,\"nonce\",0,\"s\",100,\"blockhash\",0]'",
     "expectedOutput": "result.submit.join(',') === 'p,r' && result.unsafe.join(',') === 'q' && result.expired.join(',') === 's'"
+  },
+  {
+    "id": "t6",
+    "description": "The window boundary: at exactly windowSeconds the blockhash is still inside its 150-block life and submits; one second past it expires.",
+    "input": "100, 45, '[\"y\",56,\"blockhash\",0,\"z\",55,\"blockhash\",0,\"w\",54,\"blockhash\",0]'",
+    "expectedOutput": "result.submit.join(',') === 'y,z' && result.expired.join(',') === 'w'"
   }
 ]
