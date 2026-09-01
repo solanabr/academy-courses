@@ -15,7 +15,7 @@ Read the number you get carefully, because it teaches the lesson's whole theme b
 
 One protocol is the problem. This week a Google-built agent, an OpenAI checkout flow, and a Solana-native client can all knock on that same door, each holding a different credential and a different assumption about who is actually selling the record. Here is what you will walk away with:
 
-- **MPP (Machine Payments Protocol)** is the Solana Foundation's own entry: an IETF-style Internet-Draft, `draft-solana-charge-00`, published 2026-08-18 and expiring 2027-02-19. As I write this, it is four days old. It moves payment into HTTP's native auth machinery: a `WWW-Authenticate: Payment` challenge, an `Authorization` credential, a `Payment-Receipt` proof.
+- **MPP (Machine Payments Protocol)** comes in two layers, and collapsing them into one is the single most common thing said wrong about it. The base is `draft-httpauth-payment-00`, "The 'Payment' HTTP Authentication Scheme", an IETF Internet-Draft out of Tempo Labs and Stripe; the Solana Foundation's contribution is `draft-solana-charge-00`, a payment-method spec registered under that base which defines the `solana/charge` method. Together they move payment into HTTP's native auth machinery: a `WWW-Authenticate: Payment` challenge, an `Authorization` credential, a `Payment-Receipt` proof.
 - **AP2** (Google's Agent Payments Protocol, v0.2, standardized through FIDO Alliance working groups) and **ACP** (the Stripe and OpenAI Agentic Commerce Protocol, Apache-2.0, ChatGPT as its first platform) are cards-first, and ACP is explicitly designed so the merchant stays merchant-of-record.
 - The hands-on beat no other course has: `pay gate api paywall.yml` puts one gate in front of the pressing-price API so the same API answers both x402 and MPP, and `pay curl` on the client side auto-negotiates whichever protocol the server offers.
 - The honest 2026 recommendation, argued rather than asserted: do not bet exclusively on any of them yet. Gate once and negotiate, and accept the two costs of that hedge: a fast-churning CLI dependency, and no per-call memo on the gate path, so gate-routed sales are ledger work still owed.
@@ -28,11 +28,17 @@ In 1948, Columbia Records introduced the 33⅓ rpm long-playing record. A year l
 
 Keep that turntable in your head for the next half hour. Agentic payments in 2026 is a war of the speeds: four-plus standards, each backed by someone enormous, each spinning at its own rpm. Your job as Wavelength's integrator is not to pick the winning speed. It is to ship the multi-speed turntable. The stake is concrete: guess wrong and you rewrite your payment integration when the market moves; refuse to choose and you serve every agent that shows up while your competitors are still reading spec drafts. So here is the route: first the Solana-native challenger up close, then the two cards-first incumbents, then the one row of the comparison that decides everything (who is merchant-of-record), then the bet.
 
-![Timeline of the agentic-payments field placing the pay CLI release and the MPP draft's publication and expiry among x402, AP2, ACP, and the challengers.](assets/v01-timeline.png)
+![Two-lane timeline separating MPP's IETF-registered base scheme, with its submission and expiry, from the git-tracked Solana method spec, above a band of x402, AP2, ACP, and challenger markers.](assets/v01-timeline.png)
 
 ### MPP: payment as an HTTP credential
 
-MPP is the Machine Payments Protocol, and the first thing to internalize is what kind of document it is. `draft-solana-charge-00`, titled "Solana Charge Intent for HTTP Payment Authentication", is an IETF-style Internet-Draft: published 2026-08-18, expiring 2027-02-19, and destined to be superseded by a `-01` or abandoned. That is not a weakness I am confessing on its behalf; it is the correct way to read every field in this section. Dated snapshot, subject to change, check for a newer revision before you document anything. I froze these facts on 2026-08-22 and I would re-check them the day you build.
+MPP is the Machine Payments Protocol, and the first thing to internalize is what kind of document you are reading, because there are two of them and they do not have the same standing.
+
+The base is `draft-httpauth-payment-00`, "The 'Payment' HTTP Authentication Scheme". That one is a genuine IETF Internet-Draft, on the datatracker, submitted 2026-06-19 and expiring 2026-12-21, and it comes out of Tempo Labs and Stripe rather than anywhere near Solana. It defines the challenge-credential-receipt dance in the abstract and is deliberately payment-method agnostic; in its own words, "specific payment methods are defined in separate payment method specifications."
+
+Solana's piece is one of those separate specifications. `draft-solana-charge-00`, titled "Solana Charge Intent for HTTP Payment Authentication" and authored by Ludo Galabru and Ilan Gitter of the Solana Foundation, defines the `solana/charge` method: what a charge intent carries, how it is signed, how it settles on Solana. The Foundation attribution is real and worth knowing. What the document is *not* is an IETF Internet-Draft. Search the datatracker for `draft-solana-` and it returns zero documents, and the spec repo tells you why in the most literal way available: `tempoxyz/mpp-specs` runs a workflow that auto-submits to the datatracker, and its path filter is `specs/core/draft-httpauth-payment-*.md`. Only the base is ever submitted. The method specs stay in `specs/methods/`, where `solana/charge` sits in the same listing as `tempo/charge`, `stripe/charge`, `evm/charge`, and `lightning/charge`.
+
+Which is where the habit for this section comes from, and it is a small one that will keep you from misquoting something in your own docs. The method specs render to handsome RFC-styled pages with a publication date and an expiry printed at the top. Those dates are produced by the site build; rebuild the site and they move, because nothing registered them anywhere. So do not quote them. Quote the git history instead: `solana/charge` landed in the spec repo on 2026-03-24, and its most recent substantive change was Token-2022 confidential-transfer support on 2026-08-07. Dated snapshot, subject to change, read the commit log before you document anything. I froze these facts on 2026-08-22 and I would re-check them the day you build.
 
 Mechanically, MPP does something x402 deliberately did not: it moves the payment into HTTP's native authentication machinery instead of custom headers. The flow reads like Basic Auth with money in it. Your server rejects an unpaid request with a `WWW-Authenticate: Payment` challenge describing what it wants. The client answers by retrying with an `Authorization` header carrying a signed Solana charge intent as its credential. When the payment lands, the server's response includes a `Payment-Receipt` header, the proof the client files away. Challenge, credential, receipt. Any HTTP library that understands auth flows already understands the shape of this dance, and that is the design bet: make machine payments boring to every proxy, cache, and middleware stack that has handled `WWW-Authenticate` for thirty years.
 
@@ -40,7 +46,7 @@ Mechanically, MPP does something x402 deliberately did not: it moves the payment
 
 Two modes, and the default matters. In **pull mode**, the client signs the charge intent and hands it over; the server may co-sign as fee payer and broadcast the transaction itself. In **push mode**, the client takes the transaction to the chain on its own and presents the result. Pull is the default, and notice what the co-sign clause smuggles in: fee sponsorship is built into the protocol's happy path. The server paying the network fee for its own customer is not an exotic add-on here, it is the default posture. Hold that thought for one more lesson; it is about to become the entire subject of module 8.
 
-The draft carries two more Solana-shaped features worth naming. Payment splits let one charge fan out to multiple recipients, capped at 8 additional transfers, which is a label paying an artist and a pressing plant in the same settlement without a second hop. And Token-2022 confidential transfers ride through a `type='bundle'` charge, so an agent can pay without broadcasting the amount to the world (the Digital Assets, Tokenization and Token Extensions course walks confidential transfers themselves; here you only need to know MPP left the door open for them).
+The Solana method spec carries two more Solana-shaped features worth naming. Payment splits let one charge fan out to multiple recipients, capped at 8 additional transfers, which is a label paying an artist and a pressing plant in the same settlement without a second hop. And Token-2022 confidential transfers ride through a `type='bundle'` charge, so an agent can pay without broadcasting the amount to the world (the Digital Assets, Tokenization and Token Extensions course walks confidential transfers themselves; here you only need to know MPP left the door open for them).
 
 Set MPP next to the protocol you already shipped. x402, which you built both ends of last lesson, carries its payment in custom `PAYMENT-SIGNATURE` and `PAYMENT-RESPONSE` headers and settles through a facilitator you must trust with visibility into every transaction. MPP folds the same 402 moment into standard auth semantics and, in pull mode, makes your own server the co-signer instead of a third party. Different trust shape, same commercial instinct: charge per call, over HTTP, in stablecoins, with no account signup.
 
@@ -52,7 +58,7 @@ ACP is the Agentic Commerce Protocol, co-authored by Stripe and OpenAI, released
 
 ![Two-lane diagram contrasting AP2's human-signed mandates, presented as verifiable credentials, with ACP's Shared Payment Token, which leaves the merchant charging as merchant-of-record.](assets/v03-diagram.png)
 
-Worth pausing on who is standing where. You mapped Stripe's three-front hedge two lessons ago: the x402 trusted-by wall, ACP co-authored with OpenAI, and the fiat-settling USDC acquirer from the corridor lesson. Nothing in that picture has moved; the point here is only what it implies for the bet. When the largest payments infrastructure company on the field refuses to pick a single winner, that tells you something about how settled this war is.
+Worth pausing on who is standing where, because one of those names is standing somewhere you may not have registered. You mapped Stripe's four-front hedge two lessons ago: the x402 trusted-by wall, ACP co-authored with OpenAI, the fiat-settling USDC acquirer from the corridor lesson, and the "Payment" HTTP authentication scheme. That fourth front is the base draft you just read. Stripe co-authored `draft-httpauth-payment-00`, which puts it on every rail in this lesson, including the one usually described as the Solana-native answer. When the largest payments infrastructure company on the field refuses to pick a single winner, that tells you something about how settled this war is.
 
 And it is a real war, not a slideware one. OKX shipped a competing standard it calls APP. Meanwhile atxp.ai, an agent-payments platform, migrated to x402 plus MPP on Solana, a move the Foundation highlighted in its April 2026 ecosystem roundup. Standards multiplying on one flank while integrators consolidate on another is exactly what a contested field looks like from the inside.
 
@@ -60,7 +66,7 @@ And it is a real war, not a slideware one. OKX shipped a competing standard it c
 
 Strip away the cryptography and each standard is an answer to one commercial question: when an agent buys a record, who sold it? You met merchant-of-record in this course's fiat lessons; it is the entity legally selling, the name on the dispute, the party holding refund and compliance obligations. Line the four up on that row and the war gets much easier to read.
 
-![Matrix comparing x402, MPP, AP2, and ACP on merchant-of-record, transport, and settlement, separating the crypto-native pair from the cards-first pair.](assets/v04-comparison.png)
+![Matrix comparing x402, MPP, AP2, and ACP on merchant-of-record, transport, and settlement, separating the crypto-native pair from the cards-first pair, with MPP's column badged as a method spec under the base draft rather than an IETF document of its own.](assets/v04-comparison.png)
 
 Read the columns and the camps sort themselves. Under x402 and MPP you are selling directly: the agent pays your address in stablecoins, and the interesting question is who you trust in the middle (a facilitator for x402; nobody but your own co-signing server in MPP's default pull mode). MPP's draft does not even bother reframing merchant-of-record, because payment-authentication-over-HTTP does not change who the seller is. Under AP2, your processor relationship persists and the protocol's contribution is authorization evidence; Google is not stepping in as the seller of your records. Under ACP, keeping you merchant-of-record is not an accident of the design, it is the headline: Stripe and OpenAI built the credential machinery specifically so platforms can host checkout without absorbing the merchant's legal role.
 
@@ -68,7 +74,7 @@ Read the columns and the camps sort themselves. Under x402 and MPP you are selli
 
 So which speed do you commit the store to? Walk each exclusive bet to its failure mode.
 
-Bet everything on MPP and you are betting that the Foundation carries an expiring draft forward. `draft-solana-charge-00` dies on paper on 2027-02-19; the succession plan is a `-01` that may change any field you built against. Foundation authorship is a real signal. It is not a guarantee, and drafts exist precisely to change.
+Bet everything on MPP and you are betting on two documents at once, which is a thinner bet than it first looks. The Foundation controls `solana/charge`, but it does not control the scheme underneath: `draft-httpauth-payment-00` belongs to Tempo Labs and Stripe, expires on the datatracker on 2026-12-21, and defines the challenge, the credential, and the receipt your integration is actually shaped by. A `-01` of either layer can move a field you built against, and the method spec is not even on the IETF's clock, so its succession is a repo decision rather than a process you can watch from outside. Foundation authorship is a real signal. It is a signal about one of the two layers.
 
 Bet everything on x402 and you get the traffic, the cross-chain reach, and the facilitator ecosystem you met last lesson, plus the trust boundary you also met last lesson: a settlement intermediary that sees every transaction and can filter what it settles. A fine seat, honestly. Just not a neutral one.
 
@@ -189,14 +195,18 @@ Both flags are deliberate. `--bind` moves the gate off its default `0.0.0.0:1402
 curl -i 'http://localhost:4021/price?record=WVL-014&runSize=500'
 ```
 
-The status is 402, and the interesting part is that the response speaks twice (exact wording is the CLI's to change; the shape is what you are checking). In the headers, an MPP challenge:
+The status is 402, and the interesting part is that the response speaks twice, both times in headers (exact wording is the CLI's to change; the shape is what you are checking):
 
 ```text
 HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment ...challenge fields: amount, asset, recipient...
+PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6Miwi...   <- base64 x402 v2 challenge
+Content-Length: 2
+
+{}
 ```
 
-And in the body, the x402 v2 accepts payload you already know how to read from last lesson. One rejection, two protocols, both advertising the same price. That double-speak is the entire product of this lesson.
+The `WWW-Authenticate` line is MPP's challenge, in the auth header this lesson just introduced. The `PAYMENT-REQUIRED` line is the x402 v2 challenge you already know how to decode from last lesson, and it rides in a header for the reason the v2 HTTP transport document states outright: response bodies are a server implementation concern, and all x402 protocol information is communicated through headers. So do not go looking for an `accepts` array in the body here either. The body is `{}`, exactly as it was against your own middleware. One rejection, two protocols, two headers, both advertising the same price. That double-speak is the entire product of this lesson.
 
 ![Topology showing x402 agents, MPP clients, and unpaid callers all hitting one pay gate on port 4021, which forwards only settled calls to the bare pressing-price API on port 3000.](assets/v06-diagram.png)
 

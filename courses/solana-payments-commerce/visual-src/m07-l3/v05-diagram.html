@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: Four bets and where each one breaks
      purpose: give the reader the decision map their challenge memo has to defend
-     data: option: bet MPP exclusively -> breaks if the draft (expires 2027-02-19) is superseded with breaking changes or stalls option: bet x402 exclusively -> works today, carries a permanent facilitator trust boundary (visibility, possible filtering) option: bet AP2/ACP exclusively -> cards-first; wrong shape for a wallet-holding script paying a metered API; right shape for platform checkout option: gate once and negotiate (pay gate + pay curl) -> serves all comers; cost = churn-prone CLI dependency (release tag pay-v0.27.0, npm-pinned build 0.26.0), mitigated by keeping the gate at the deployment layer verdict marker on option 4: the lesson's recommendation
+     data: option: bet MPP exclusively -> breaks if either layer is superseded with breaking changes or stalls; the Foundation owns only the solana/charge method spec, while the base draft-httpauth-payment-00 (Tempo Labs + Stripe) expires 2026-12-21 option: bet x402 exclusively -> works today, carries a permanent facilitator trust boundary (visibility, possible filtering) option: bet AP2/ACP exclusively -> cards-first; wrong shape for a wallet-holding script paying a metered API; right shape for platform checkout option: gate once and negotiate (pay gate + pay curl) -> serves all comers; cost = churn-prone CLI dependency (release tag pay-v0.27.0, npm-pinned build 0.26.0), mitigated by keeping the gate at the deployment layer verdict marker on option 4: the lesson's recommendation
      prompt: Decision map: four option nodes in a column, each with a short arrow to its failure-or-cost node on the right. Mark the fourth option (gate once and negotiate) with a recommendation badge and show its cost node in a softer emphasis than the three failure nodes. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -44,8 +44,8 @@
         <div style="position:absolute; right:8px; top:48px; width:0; height:0; border-left:10px solid var(--stbr-dark); border-top:7px solid transparent; border-bottom:7px solid transparent;"></div>
       </div>
       <div style="flex:1; background:var(--surface-card); border:1.5px solid var(--stbr-dark); border-left:6px solid var(--stbr-dark); border-radius:var(--radius-lg); padding:0 22px; display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-family:var(--font-body); font-weight:700; font-size:17px; color:var(--text-primary);">breaks if the draft is superseded with breaking changes &mdash; or simply stalls</div>
-        <div style="font-family:var(--font-body); font-size:14px; color:var(--text-secondary); margin-top:3px;"><span style="font-family:var(--font-mono); font-size:13px;">draft-solana-charge-00</span> expires 2027-02-19</div>
+        <div style="font-family:var(--font-body); font-weight:700; font-size:17px; color:var(--text-primary);">breaks if either layer is superseded with breaking changes &mdash; or simply stalls</div>
+        <div style="font-family:var(--font-body); font-size:14px; color:var(--text-secondary); margin-top:3px;">the Foundation owns only <span style="font-family:var(--font-mono); font-size:13px;">solana/charge</span> &mdash; the base draft expires 2026-12-21</div>
       </div>
     </div>
 
