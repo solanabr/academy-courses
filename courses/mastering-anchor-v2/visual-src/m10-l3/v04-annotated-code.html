@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- annotated-code: The borrow error is the migration step
-     purpose: show how the V2 borrow-check error text maps one-to-one onto the two edits it is demanding
-     data: Compiler output (V2): error[E0502]: cannot borrow `ctx.accounts` as immutable because it is also borrowed as mutable |  let cpi_ctx = CpiContext::new_with_signer(.., Transfer { |      from: ctx.accounts.vault.cpi_handle_mut().. }, signer);  // mutable borrow starts here |  let before = ctx.accounts.state.total_withdrawn;  // ^ immutable borrow in the window |  system_program::transfer(cpi_ctx, amount)?;       // mutable borrow used here error[E0599]: no method named `reload` found for `BorshAccount<VaultState>` Read it as two instructions: E0599 (no reload) -> delete the .reload()? line; the method is gone by design, nothing to restore E0502 (typed read inside the borrow window) -> hoist the scalars you need (state_key, vault_bump) into locals BEFORE you build the CpiContext; read state AFTER the call consumes it Result: no borrow is alive while the CpiHandle is; the stale read is now unrepresentable, not patched
-     prompt: Two-panel annotated code graphic. Left panel: the failing v1-style withdraw tail with two red error banners (E0502 typed read inside the borrow window, E0599 no reload) and leader lines to the offending lines. Right panel: the two corresponding fixes as green annotations (delete reload; hoist scalar reads before the CPI, re-borrow after). Monospace code. The graphic should read as "error text -> exact edit", reinforcing let-the-compiler-drive.
+<!-- annotated-code: The missing method is the migration step
+     purpose: show that the copied v1 tail produces exactly ONE error, and that the read above it is legal
+     data: Compiler output (V2), ONE error: error[E0599]: no method named `reload` found for `BorshAccount<VaultState>` |  let cpi_ctx = CpiContext::new_with_signer(.., Transfer { |      from: ctx.accounts.vault.cpi_handle_mut(), |      to: ctx.accounts.authority.cpi_handle_mut() }, signer); |  let before = ctx.accounts.state.total_withdrawn;  // COMPILES: state is not handed to this CPI |  system_program::transfer(cpi_ctx, amount)?; |  ctx.accounts.state.reload()?;  // ^^^^^^ method not found Read it as one instruction: E0599 -> delete the .reload()? line; nothing changes underneath a loaded typed account, so there is nothing to refresh Not an error: the typed read above it. This transfer's handles are on vault and authority; state is a disjoint account, so nothing excludes reading it. Hand state itself to a CPI with cpi_handle_mut() and THAT read becomes the compile error. Result: one line stops the build; the exclusion lands on the accounts the CPI actually takes
+     prompt: Two-panel annotated code graphic. Left panel: the copied v1-style withdraw tail with ONE red error banner (E0599 no reload) and a leader line to the .reload() line, plus a muted annotation marking the typed read above it as legal. Right panel: the fix as a green annotation (delete reload) and a second card explaining why the read above it stands. Monospace code. The graphic should read as "error text -> exact edit", reinforcing let-the-compiler-drive.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -71,50 +71,51 @@
                 line-height:1.2; color:var(--text-on-brand); }
 </style>
   <div class="stbr-eyebrow">the error text is the edit</div>
-  <h2 class="viz-title">the borrow error is the migration step</h2>
+  <h2 class="viz-title">the missing method is the migration step</h2>
 
   <div class="cols">
     <div class="term">
       <div class="top">$ cargo build &nbsp;&middot;&nbsp; anchor-cli 2.0.0-rc.1</div>
 
       <div class="err">
-        <span class="ecode">error[E0502]</span>
-        <div class="emsg">cannot borrow <span class="c">`ctx.accounts`</span> as immutable because it is also borrowed as mutable</div>
+        <span class="ecode">error[E0599]</span>
+        <div class="emsg">no method named <span class="c">`reload`</span> found for <span class="c">`BorshAccount&lt;VaultState&gt;`</span></div>
         <div class="code">
 <div class="ln"><span class="g">  |</span>  let cpi_ctx = CpiContext::new_with_signer(.., Transfer {</div>
-<div class="ln"><span class="g">  |</span>      from: ctx.accounts.vault.cpi_handle_mut().. }, signer);</div>
-<div class="ln"><span class="g">  |</span>            <span class="c">-------------------------------</span> <span class="d">mutable borrow starts here</span></div>
+<div class="ln"><span class="g">  |</span>      from: ctx.accounts.vault.cpi_handle_mut(),</div>
+<div class="ln"><span class="g">  |</span>      to:   ctx.accounts.authority.cpi_handle_mut() }, signer);</div>
 <div class="ln"><span class="g">  |</span>  let before = ctx.accounts.state.total_withdrawn;</div>
-<div class="ln"><span class="g">  |</span>               <span class="c">^^^^^^^^^^^^^^^^^^</span> <span class="d">immutable borrow in the window</span></div>
+<div class="ln"><span class="g">  |</span>               <span class="d">compiles &mdash; state is not handed to this CPI</span></div>
 <div class="ln"><span class="g">  |</span>  system_program::transfer(cpi_ctx, amount)?;</div>
-<div class="ln"><span class="g">  |</span>  <span class="c">------------------------------------------</span> <span class="d">mutable borrow used here</span></div>
+<div class="ln"><span class="g">  |</span>  ctx.accounts.state.reload()?;</div>
+<div class="ln"><span class="g">  |</span>                     <span class="c">^^^^^^</span> <span class="d">method not found in this scope</span></div>
         </div>
       </div>
 
       <div class="err">
-        <span class="ecode">error[E0599]</span>
-        <div class="emsg">no method named <span class="c">`reload`</span> found for <span class="c">`BorshAccount&lt;VaultState&gt;`</span></div>
+        <span class="ecode">1 error</span>
+        <div class="emsg">the borrow checker never fires on this tail</div>
       </div>
     </div>
 
     <div class="fixes">
       <div class="fix">
-        <div class="fh"><span class="fb">E0502</span><span class="fl">reads as</span></div>
-        <div class="ft">hoist the scalars, re-borrow after</div>
-        <div class="fp">Pull <code>state_key</code> and <code>vault_bump</code> into locals <b>before</b> you build the <code>CpiContext</code>. Read <code>state</code> only <b>after</b> the call consumes the handle.</div>
+        <div class="fh"><span class="fb">E0599</span><span class="fl">reads as</span></div>
+        <div class="ft">delete the <span style="font-family:var(--font-mono);font-size:18px">.reload()?</span> line</div>
+        <div class="fp">The method is gone by design. Nothing changes underneath a loaded typed account, so there is nothing to refresh &mdash; and nothing to call.</div>
       </div>
 
       <div class="fix">
-        <div class="fh"><span class="fb">E0599</span><span class="fl">reads as</span></div>
-        <div class="ft">delete the <span style="font-family:var(--font-mono);font-size:18px">.reload()?</span> line</div>
-        <div class="fp">The method is gone by design &mdash; there is nothing to restore, so there is nothing to call.</div>
+        <div class="fh"><span class="fb">no error</span><span class="fl">why the read stands</span></div>
+        <div class="ft">state is not this CPI&rsquo;s account</div>
+        <div class="fp">The handles here are on <code>vault</code> and <code>authority</code>. <code>state</code> is disjoint, so nothing excludes reading it. Hand <code>state</code> itself over with <code>cpi_handle_mut()</code> and <b>that</b> read is the compile error.</div>
       </div>
     </div>
   </div>
 
   <div class="result">
     <div class="rk">result</div>
-    <div class="rt">No borrow is alive while the CpiHandle is &mdash; the stale read is now unrepresentable, not patched.</div>
+    <div class="rt">One line stops the build &mdash; the exclusion lands on the accounts the CPI actually takes.</div>
   </div>
 </div>
 </body></html>

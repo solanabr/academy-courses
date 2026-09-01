@@ -18,7 +18,7 @@ You are handed a working Anchor 0.31/1.0 lamport vault: a state account, a PDA t
 
 The vault was picked to be boring on purpose. It echoes the quarter-vault you built back in m03 and m04, so almost none of your attention goes to "what does this program do." All of it goes to the migration itself. That is the whole design: low domain load, high migration focus.
 
-Most of the deltas are mechanical, and the provided program marks them for you with `// TODO(migrate):` comments. The two that matter most carry no marker at all, because by the end you will not need one. The compiler will tell you. A deprecation warning underlines the exact constraint to change. A borrow error points at the exact line where a v1 habit is now illegal. That is the emotional core of this capstone: you have learned enough that the toolchain's own output is a good enough guide. We call it *letting the compiler drive*, and it is a real V2 affordance, not a motivational slogan. You will see why.
+Most of the deltas are mechanical, and the provided program marks them for you with `// TODO(migrate):` comments. The two that matter most carry no marker at all, because by the end you will not need one. The compiler will tell you. A deprecation warning underlines the exact constraint to change. A missing method points at the exact line where a v1 habit no longer has anything to call. That is the emotional core of this capstone: you have learned enough that the toolchain's own output is a good enough guide. We call it *letting the compiler drive*, and it is a real V2 affordance, not a motivational slogan. You will see why.
 
 One honest caveat up front, because it shapes everything: this port compiles today against a moving target. The Anchor V2 line is `2.0.0-rc.1`, and the anchor-next branch it lives on is labelled alpha by its own maintainers: not audited, APIs may break between commits, and the docs lag the code (the rc.1 crates reached crates.io on 2026-08-12, yet the install docs still describe the pre-publish world). So we build this not as an eternal artifact but as a re-verifiable one. When a later RC renames a constraint under you, you re-run the checklist. That is migration reality, and the final lesson of this course asks whether you should sign up for it at all.
 
@@ -32,11 +32,11 @@ Remember that `1.1.2` from a minute ago? Here is the trap it sets. You clone the
 
 So the first move is not a code edit. It is standing up an isolated V2 toolchain and pinning it.
 
-The install fights you a little, and it is worth knowing why. V2 has no GitHub Release object. There is a git tag, `v2.0.0-rc.1` on the anchor-next branch, but no published release for that tag, which means `avm` cannot attest or fetch it the way it fetches stable versions. The rc.1 crates did land on crates.io on 2026-08-12, but the docs lag that publish and the documented path is a direct git install from the branch (docs use `--branch anchor-next`; we pin the tag for reproducibility):
+The install fights you a little, and it is worth knowing why. V2 has no GitHub Release object. There is a git tag, `v2.0.0-rc.1` on the anchor-next branch, but no published release for that tag, which means `avm install` cannot download a prebuilt binary for it the way it does for stable versions — the asset URL just 404s. The rc.1 crates did land on crates.io on 2026-08-12, but the docs lag that publish and the documented path is a direct git install from the branch (docs use `--branch anchor-next`; we pin the tag for reproducibility):
 
 ```bash
 # Anchor V2 RC - installed straight from the anchor-next repo by tag.
-# No GitHub Release object for the tag, so avm cannot install it.
+# No GitHub Release cut for the tag, so `avm install` finds no binary to fetch.
 # macOS needs LTO off or the release build blows up; harmless elsewhere.
 CARGO_PROFILE_RELEASE_LTO=off \
 cargo install --git https://github.com/otter-sec/anchor \
@@ -81,7 +81,7 @@ Here is every rewrite delta the vault touches, side by side. This is the checkli
 | 4 | `space = 8 + T::INIT_SPACE` | `space = T::DISCRIMINATOR.len() + T::INIT_SPACE` | still compiles, but the map says fix it |
 | 5 | `CpiContext::new(prog.key()..)` | `CpiContext::new(prog.address()..)`, CPI accounts become `.cpi_handle_mut()` | type error: expected `&Address` |
 | 6 | `has_one = authority` | `address = state.authority` on the authority account | **deprecation warning underlines it** |
-| 7 | `account.reload()?` after a CPI | remove it; do not hold a typed borrow across the CPI | **borrow error at the stale access** |
+| 7 | `account.reload()?` after a CPI | delete it; nothing changes underneath a loaded typed account | **E0599: no method named `reload`** |
 
 One note on row 5 before you use the table. The vault you are handed builds on 1.1.2, so its CPI already passes the program as a `Pubkey` with `.key()`; that hop was m10-l1's change two. If the codebase you bring to a real port is still on 0.31 it will read `.to_account_info()` there instead, and you make both hops at once.
 
@@ -91,7 +91,7 @@ Two rows are missing on purpose, and both are worth a sentence so your map is co
 
 `unsafe(dup)` is the more interesting one, and the challenge will make you use it, so understand it now. V2 disallows duplicate mutable accounts by default. The reason is a real footgun: if the same account arrives in two mutable slots, your handler ends up holding two `&mut` references to one account, and edits through one silently clobber edits through the other. v1 let you do this and hoped you knew what you were doing. V2 rejects it, at validation, before your handler runs. When you genuinely mean to be handed one account under two mutable names, you opt back in per field by spelling the constraint `unsafe(dup)`. The word `unsafe` is doing honest work: it is you telling the compiler you have checked the invariant it can no longer check for you, and taking on the obligation to write the handler so it never holds two conflicting mutable references. Note what does *not* need the opt-out: two mutable slots that always resolve to two different addresses, the way a swap's two reserves do, satisfy the check for free. Our lab vault has exactly one account of each type, so it never comes up. The challenge's consolidating sweep does.
 
-![A grouped before/after table of seven deltas: five the compiler flags as type errors, two it surfaces as a deprecation warning and a borrow error.](assets/v02-comparison.png)
+![A grouped before/after table of seven deltas: five the compiler flags as type errors, two it surfaces as a deprecation warning and a missing-method error.](assets/v02-comparison.png)
 
 ### Why `.reload()` is gone (and why that is good)
 
@@ -114,13 +114,13 @@ Why did `.reload()` exist at all? Because a CPI can mutate an account's on-chain
 
 Now the derivation, because this is the part that makes V2 click. Ask the question the framework designers asked: *what if that bug were not something you patch, but something you cannot express in the first place?* That is the move. V2 replaces `.reload()` with a borrow-tracked model, the CpiHandle. The handles go into a `CpiContext`, and from the moment that value exists until the call consumes it, the compiler holds those borrows — one per account handed to the CPI, and nothing wider — exactly as m04-l2 walked it. Typed access to an account whose handle is live in that span is a compile error. Now hold the snippet above against that rule, because the rule is narrower than it first sounds and this vault sits right on its edge. Port that tail line for line and exactly one line stops the build: `.reload()`, which no longer exists as a method to call. The `total_withdrawn` read a line above it survives, because this transfer's handles are on `vault` and `authority` while `state` is a disjoint account the callee could never have written — nothing to exclude there, and nothing that could have gone stale. That is the model doing its job, not failing to: the exclusion lands on the accounts the CPI can actually change. Hand a CPI a typed account, the way m04-l2's token probe did, and a mid-CPI read of *that* account is the compile error.
 
-Sit with that for a second, because it is a genuinely different philosophy. v1 gave you a tool to avoid a footgun. V2 removed the footgun. There is no `.reload()` to call because there is no stale read to fix, because the borrow checker made the stale read unrepresentable. The bug class is gone, not guarded.
+Sit with that for a second, because it is a genuinely different philosophy — and keep two mechanisms apart, because the borrow checker is only half of it. The first is the account model itself. V2's default `Account<T>` is a zero-copy *view* over the account's bytes, not a copy decoded once at the top of the instruction, so there is no second copy that could drift out of date. The borsh tier you are about to use here, `BorshAccount<T>`, does still decode into a copy — but it holds the account's data borrow for as long as it is loaded, and you have to hand that borrow over explicitly before a CPI can write those bytes. Either way, nothing changes underneath a loaded typed account without your say-so, so there is nothing for a re-deserialize call to re-read. That is why the method does not exist. The second mechanism is the borrow model, and it covers the remaining window: while a CPI holds a handle to an account, typed access to *that* account will not compile. v1 gave you a tool to avoid a footgun. V2 removed the places the footgun could sit. The bug class is gone, not guarded.
 
-![In v1 a typed borrow held across a CPI goes stale and .reload() patches it; in V2 the CpiHandle holds that borrow, so the same code cannot compile.](assets/v03-diagram.png)
+![In v1 a typed copy decoded once goes stale across a CPI and .reload() re-reads it; in V2 the loaded typed account holds the data borrow, so nothing changes underneath it and there is no reload method to call.](assets/v03-diagram.png)
 
 So the fix is not "find the V2 name for reload." There is none. The fix is structural: do not hold typed data of an account this CPI takes across the CPI. Read the scalars you need (the bump, the state key) into locals before the transfer, run the transfer, then take a fresh typed borrow after it completes to update your counters — and that post-CPI read is already live, which is why there is nothing left for a `.reload()` to do. The error is not an obstacle. It is the instruction. That is letting the compiler drive.
 
-![The V2 build throws two errors on the copied v1 withdraw, a missing reload method and a typed read taken while the CpiContext holds its borrow, and each maps to exactly one edit.](assets/v04-annotated-code.png)
+![The V2 build throws exactly one error on the copied v1 withdraw, no method named reload, while the typed read a line above it compiles because state is not an account this transfer touches.](assets/v04-annotated-code.png)
 
 ### Why `has_one` still compiles but you fix it anyway
 
@@ -265,11 +265,12 @@ A quick word on what you are probably seeing right now, because two failures are
 
 **6. Solo: resolve the deprecation warning (row 6).** There is no TODO for this. Build and read the warning. It underlines `has_one = authority` and names the replacement. Move the check to an `address` constraint on the authority account, exactly as shown earlier. Rebuild until the deprecation count is zero. Do not stop at "the test passes." Stop at "the warning is gone."
 
-**7. Solo: resolve the borrow error (row 7).** Also no TODO. The provided `withdraw` copies the v1 pattern: it builds the signed `CpiContext` into a local, reads `state` while that value is still sitting there, runs the transfer, calls `.reload()`, then reads again. On V2 this fails to compile twice over: `.reload()` does not exist, and the typed read lands inside the window where the `CpiContext` holds its borrow of `ctx.accounts`. Restructure so no typed access is alive between building the context and consuming it. Here is the shape you are aiming at; write it before you read it, because step 6 and step 7 are the two the compiler is supposed to drive:
+**7. Solo: resolve the missing method (row 7).** Also no TODO. The provided `withdraw` copies the v1 pattern: it builds the signed `CpiContext` into a local, reads `state` while that value is still sitting there, runs the transfer, calls `.reload()`, then reads again. On V2 exactly one of those lines stops the build: `.reload()` does not exist. The `state` read a line above it is fine here, because this transfer's handles are on `vault` and `authority` and `state` is a disjoint account the callee never touches. Delete the reload, and restructure so the counter update takes a fresh typed borrow after the call — and so that nothing the signer seeds borrow goes out of scope before the CPI uses them. Here is the shape you are aiming at; write it before you read it, because step 6 and step 7 are the two the compiler is supposed to drive:
 
 ```rust
 pub fn withdraw(ctx: &mut Context<Withdraw>, amount: u64) -> Result<()> {
-    // Read the scalars we need BEFORE the CPI, into locals. No borrow held across it.
+    // Copy the scalars into locals BEFORE the CPI: `seeds` borrows `state_key`,
+    // so the local has to outlive the call that uses `signer`.
     let state_key = *ctx.accounts.state.address();
     let vault_bump = ctx.accounts.state.vault_bump;
 
@@ -414,16 +415,16 @@ You will be given a **second** 0.31/1.0 program in `challenge/`: a two-vault `sw
 Three things make it harder than the lab, and each maps to something you now know:
 
 1. It uses `has_one` in two places. Resolve both from the deprecation warnings alone.
-2. Its handler reads a counter, does the transfer CPI, then reads the counter again with a `.reload()` in between. Kill the reload and restructure the borrows. The borrow error is your map.
+2. Its handler reads a counter, does the transfer CPI, then reads the counter again with a `.reload()` in between. Kill the reload and restructure the reads around the call. The missing-method error is your map.
 3. The self-sweep hands **one account into two mutable slots** (source and destination). V2 rejects duplicate mutable accounts by default, so that test fails validation with `ConstraintDuplicateMutableAccount` before your handler runs. Apply `unsafe(dup)` to the two vault fields, and, because the name says `unsafe`, write one sentence in a comment justifying the aliasing: the handler must compute the move once and apply a single checked update, so it never holds two conflicting mutable references to the one account. If you find yourself reaching for `unsafe(dup)` on the counter as well, stop: that is one account in one slot, and the opt-out would be hiding a different bug.
 
-![A three-row table pairing each challenge obstacle with the warning, borrow error, or validation failure that finds it, plus a caution against over-applying the duplicate-account opt-out.](assets/v07-table.png)
+![A three-row table pairing each challenge obstacle with the warning, missing-method error, or validation failure that finds it, plus a caution against over-applying the duplicate-account opt-out.](assets/v07-table.png)
 
 Accept when `anchor test` passes on the RC toolchain and `cargo build` emits zero deprecation warnings. No hints beyond your two maps and the compiler. That is the point.
 
 ## Before you move on
 
-Notice what just happened to the shape of this lesson. The early deltas came with TODO markers in the source and worked code you could read straight off the page. The last two lab steps had no markers in the source at all: the warning and the borrow error located them for you, and the printed answer was there to check yourself against after you wrote your own. The challenge drops even that. That fade was deliberate. It matches where you are: at the start of the migration track you needed the delta named and located for you; by now the toolchain names and locates them better than a comment could. If step 7 felt less like following instructions and more like reading the compiler's mind, that is the skill this whole track was building toward. That is worth more than any single constraint rename.
+Notice what just happened to the shape of this lesson. The early deltas came with TODO markers in the source and worked code you could read straight off the page. The last two lab steps had no markers in the source at all: the warning and the missing-method error located them for you, and the printed answer was there to check yourself against after you wrote your own. The challenge drops even that. That fade was deliberate. It matches where you are: at the start of the migration track you needed the delta named and located for you; by now the toolchain names and locates them better than a comment could. If step 7 felt less like following instructions and more like reading the compiler's mind, that is the skill this whole track was building toward. That is worth more than any single constraint rename.
 
 And be honest with yourself about what this port is and is not. A checklist-driven migration is fast and mechanical, and it converts a program one-to-one. Your V2 vault keeps its v1 shape. It is not re-architected for V2's strengths, it is not the leanest Pod layout it could be, it is the old design that now compiles on the new framework. That is a real trade-off, not a failure: 1:1 is exactly what you want when the goal is "get it building safely," and re-architecting is a separate project you take on later, deliberately, not smuggled into a migration. The other half of the trade-off is the ground moving under you. This compiles today against `2.0.0-rc.1` on an alpha branch whose own docs warn that APIs may break between commits. A later RC may rename `address` or change how `unsafe(dup)` is spelled. You do not fight that. You re-run the checklist.
 

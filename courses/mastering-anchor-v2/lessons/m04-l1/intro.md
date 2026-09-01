@@ -120,7 +120,7 @@ You are extending R2, the `quarter_vault` program, with a `withdraw` instruction
 
 ![A withdraw flowchart where the guard rejects zero, over-withdraw, and below-rent-floor requests before the PDA-signed transfer CPI runs and the ledger is debited.](assets/v08-flowchart.png)
 
-**1. Pin the V2 toolchain.** The V2 release candidate does not install through `avm`: there is no GitHub Release object for the v2 tag, so avm has nothing to attest and fails, exactly as the toolchain lesson (m01-l2) showed. The documented channel is a cargo git install from the `anchor-next` branch. If you did this module's earlier lessons you already have it; if not, install and confirm. Do not build V2 content on a V1 `anchor` binary:
+**1. Pin the V2 toolchain.** The V2 release candidate does not come down through `avm install`: that command downloads a prebuilt binary from the tag's GitHub Release, no Release was cut for the v2 tag, and the fetch 404s, exactly as the toolchain lesson (m01-l2) showed. The documented channel is a cargo git install from the `anchor-next` branch. If you did this module's earlier lessons you already have it; if not, install and confirm. Do not build V2 content on a V1 `anchor` binary:
 
 ```bash
 cargo install --git https://github.com/otter-sec/anchor.git \
@@ -390,7 +390,7 @@ solana-sdk = "3"
 The test funds the SOL vault through `deposit`, withdraws part of it and proves the lamports moved and the ledger dropped, then proves an over-withdraw is rejected cleanly rather than panicking. The move-and-the-reject are the whole artifact:
 
 ```rust
-use anchor_lang::{InstructionData, ToAccountMetas};
+use anchor_lang::{programs::System, Id, InstructionData, ToAccountMetas};
 use litesvm::LiteSVM;
 use solana_sdk::{
     instruction::Instruction,
@@ -411,26 +411,26 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
         .unwrap();
 
     let authority = Keypair::new();
-    svm.airdrop(&player.pubkey(), 5_000_000_000).unwrap();
+    svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();
     let (state_pda, _) =
-        Pubkey::find_program_address(&[b"vault", player.pubkey().as_ref()], &program_id);
+        Pubkey::find_program_address(&[b"vault", authority.pubkey().as_ref()], &program_id);
     let (sol_pda, _) =
-        Pubkey::find_program_address(&[b"sol", player.pubkey().as_ref()], &program_id);
+        Pubkey::find_program_address(&[b"sol", authority.pubkey().as_ref()], &program_id);
 
     // init_vault (rewritten in step 2b) creates BOTH PDAs and stores both bumps.
     let init = Transaction::new_signed_with_payer(
         &[ix(
             program_id,
             quarter_vault::accounts::InitVault {
-                authority: player.pubkey(),
+                authority: authority.pubkey(),
                 state: state_pda,
                 sol_vault: sol_pda,
-                system_program: solana_sdk::system_program::ID,
+                system_program: System::id(),
             }
             .to_account_metas(None),
             quarter_vault::instruction::InitVault {}.data(),
         )],
-        Some(&player.pubkey()),
+        Some(&authority.pubkey()),
         &[&authority],
         svm.latest_blockhash(),
     );
@@ -441,15 +441,15 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
         &[ix(
             program_id,
             quarter_vault::accounts::Deposit {
-                authority: player.pubkey(),
+                authority: authority.pubkey(),
                 state: state_pda,
                 sol_vault: sol_pda,
-                system_program: solana_sdk::system_program::ID,
+                system_program: System::id(),
             }
             .to_account_metas(None),
             quarter_vault::instruction::Deposit { amount: 2_000_000_000 }.data(),
         )],
-        Some(&player.pubkey()),
+        Some(&authority.pubkey()),
         &[&authority],
         svm.latest_blockhash(),
     );
@@ -462,15 +462,15 @@ fn withdraw_moves_lamports_and_rejects_overdraw() {
             &[ix(
                 program_id,
                 quarter_vault::accounts::Withdraw {
-                    authority: player.pubkey(),
+                    authority: authority.pubkey(),
                     state: state_pda,
                     sol_vault: sol_pda,
-                    system_program: solana_sdk::system_program::ID,
+                    system_program: System::id(),
                 }
                 .to_account_metas(None),
                 quarter_vault::instruction::Withdraw { amount }.data(),
             )],
-            Some(&player.pubkey()),
+            Some(&authority.pubkey()),
             &[&authority],
             svm.latest_blockhash(),
         )
@@ -512,7 +512,7 @@ One rung you refill from memory, one you build cold.
 
 ![A decision flowchart returning minus one for a zero request, minus two for an over-withdraw, minus three below the rent floor, and the requested amount otherwise.](assets/v09-flowchart.png)
 
-The starter, solution, and test vectors live in `lessons/challenges/m04-l1/resolve-withdrawal/`, alongside the other challenges in this course. The starter ignores every guard and hands back `requested` unconditionally, so it fails the zero, over-withdraw, and rent-floor cases. One deliberate wart to notice rather than copy: the signature returns `i64` sentinels because a pure function with no framework in scope has no `VaultError` to return, and the vectors stay small enough that the `as i64` cast is exact. In the handler it becomes a `Result` with the typed errors from step 4, and if you ever find yourself shipping sentinel codes out of real program code, that is the smell the typed-error section of module 1 was about. Acceptance: the check cases pass in order, the over-withdraw returns `-2` instead of underflowing, and, crucially, your subtraction is reached only after `requested <= balance` is proven, so it can never underflow even in a release build. Then swap the three `require!`s in `withdraw` for a call to your resolved amount and confirm `anchor test` is still green. One thing worth watching: `resolve_withdrawal` guards the *lamport* movement against the SOL vault's balance, while the `checked_sub` guards the *ledger*. They are two different balances doing two different jobs, and a real custody bug is letting them drift apart.
+The starter, solution, and test vectors live in `lessons/challenges/m04-l1/resolve-withdrawal/`, alongside the other challenges in this course. The starter ignores every guard and hands back `requested` unconditionally, so it fails the zero, over-withdraw, and rent-floor cases. One deliberate wart to notice rather than copy: the signature returns `i64` sentinels because a pure function with no framework in scope has no `VaultError` to return, and the vectors stay small enough that the `as i64` cast is exact. In the handler it becomes a `Result` with the typed errors from step 4, and if you ever find yourself shipping sentinel codes out of real program code, that is the smell the typed-error section of module 1 was about. Acceptance: the check cases pass in order, the over-withdraw returns `-2` instead of underflowing, and, crucially, your subtraction is `checked_sub` rather than a bare `-`, exactly as in the handler — even though the guard above it already proved `requested <= balance`, because that proof is one refactor away from being wrong and a bare `-` wraps silently in a release build. Then swap the three `require!`s in `withdraw` for a call to your resolved amount and confirm `anchor test` is still green. One thing worth watching: `resolve_withdrawal` guards the *lamport* movement against the SOL vault's balance, while the `checked_sub` guards the *ledger*. They are two different balances doing two different jobs, and a real custody bug is letting them drift apart.
 
 You have made the vault do the one thing it could not do before: pay someone back, under the program's own authority, with a signature no attacker can forge because there is no key to steal. You built the guard, you signed the CPI as the PDA with a stored bump, and you debited the ledger with math that refuses to underflow. That is the custody loop, closed.
 

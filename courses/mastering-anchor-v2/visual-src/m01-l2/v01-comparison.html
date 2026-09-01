@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: The two Anchor lines you are tracking at once
      purpose: show that v1 and v2 are parallel channels, not a version staircase, and that each has a different install path
-     data: Column A, Stable line: version: 1.1.2 channel: avm / crates.io (anchor-lang) install: avm install 1.1.2 (attested via GitHub Release) audience: most of the ecosystem, today on your machine: yes, already Column B, Frontier line (this course): version: 2.0.0-rc.1 channel: git branch anchor-next (otter-sec fork) + crates.io publish 2026-08-12 (undocumented for CLI) install: cargo install --git ... --branch anchor-next anchor-cli --locked --force audience: weeks-early V2 builders on your machine: not yet, you build it this lesson label tension: crates.io tags it "rc"; the project's own benchmarks page calls it "alpha"
+     data: Column A, Stable line: version: 1.1.2 channel: avm / crates.io (anchor-lang) install: avm install 1.1.2 (prebuilt binary from its GitHub Release) audience: most of the ecosystem, today on your machine: yes, already Column B, Frontier line (this course): version: 2.0.0-rc.1 channel: git branch anchor-next (otter-sec fork) + crates.io publish 2026-08-12 (undocumented for CLI) install: cargo install --git ... --branch anchor-next anchor-cli --locked --force audience: weeks-early V2 builders on your machine: not yet, you build it this lesson label tension: crates.io tags it "rc"; the project's own benchmarks page calls it "alpha"
      prompt: Two-column side-by-side comparison card. Left column "Stable 1.1.2", right column "Frontier 2.0.0-rc.1". Each column lists: channel, install command (shortened), audience, and "on your machine?" as labeled rows aligned across both columns so the reader reads each attribute as a pair. Put a thin vertical divider between the columns, not a merge. Add a small footnote strip under the right column for the rc-vs-alpha label tension. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -81,7 +81,7 @@
     <div class="c1-b"><div class="c1-main">git branch <code>anchor-next</code></div><div class="c1-sub">otter-sec fork · a crates.io publish exists (2026-08-12) but is undocumented for the CLI</div></div>
 
     <div class="c1-lab">install</div>
-    <div class="c1-a"><div class="c1-cmd">avm install 1.1.2</div><div class="c1-sub">attested via its GitHub Release</div></div>
+    <div class="c1-a"><div class="c1-cmd">avm install 1.1.2</div><div class="c1-sub">prebuilt binary from its Release</div></div>
     <div class="c1-b"><div class="c1-cmd">cargo install --git … --branch anchor-next<br>anchor-cli --locked --force</div></div>
 
     <div class="c1-lab">audience</div>

@@ -11,11 +11,11 @@ which anchor
 
 Whatever prints back is almost certainly Anchor **1.1.2**, the current stable line, installed by `avm` and living on your PATH. That binary is the wrong tool for this course, and it will not tell you so. It will happily build a V2 lab against V1 semantics and hand you errors that make no sense. So the very first thing you learn about Anchor V2 is not a macro. It is that the version you already have is a trap, and the version you want fights back when you try to install it.
 
-That is the lesson. Not a detour around the friction, the friction itself. Installing a release candidate off a branch, on a toolchain the official installer refuses to attest, is what living on the frontier actually feels like. I want you to feel it once, on purpose, with me narrating every wall so you know it is the tool and not you.
+That is the lesson. Not a detour around the friction, the friction itself. Installing a release candidate off a branch, when the official installer has no binary to hand you, is what living on the frontier actually feels like. I want you to feel it once, on purpose, with me narrating every wall so you know it is the tool and not you.
 
 ## Summary
 
-Anchor ships on two parallel lines right now: stable **1.1.2**, and **2.0.0-rc.1** riding an unmerged branch called `anchor-next`. This course lives on the second line. Today you install that RC into an isolated toolchain from its documented git channel, learn why `avm` cannot install it for you, record the whole thing in a central pins file with freshness dates, and then scaffold, build, and deploy the greeter (R0) to devnet as your first independent deploy. R0 is the scratch program: it sits below the first rung of the Quarters ladder, and you keep extending it for the rest of this module before the real rungs begin.
+Anchor ships on two parallel lines right now: stable **1.1.2**, and **2.0.0-rc.1** riding an unmerged branch called `anchor-next`. This course lives on the second line. Today you install that RC into an isolated toolchain from its documented git channel, learn why `avm install 2.0.0-rc.1` cannot fetch it for you, record the whole thing in a central pins file with freshness dates, and then scaffold, build, and deploy the greeter (R0) to devnet as your first independent deploy. R0 is the scratch program: it sits below the first rung of the Quarters ladder, and you keep extending it for the rest of this module before the real rungs begin.
 
 The autonomy fade here is deliberate and shallow. This is a toolchain lesson, so the install and the scaffold are **fully worked**: I show every command, you follow exactly, no solo yet. The one step that is yours alone is the final deploy. You run `anchor deploy` against devnet, you read back a program id, and you paste it into the pins file. That is the whole graduation.
 
@@ -33,7 +33,7 @@ Here is the why underneath the what, because it is worth deriving once. A releas
 
 The good news is that "isolated" here does not mean a container or a virtual machine. It is simpler and more physical than that. The `cargo install` you are about to run drops a single binary at `~/.cargo/bin/anchor`. `avm`, meanwhile, manages your 1.1.2 through its own shim. Both want to answer when you type `anchor`, and which one wins is decided by nothing more exotic than PATH ordering. That is the whole isolation model: two binaries on disk, one name, and your shell picking the first match. It is also why the single most common confusion in this whole install is a build that behaves like V1 when you were sure you installed V2. The RC is there. Your PATH just handed you the other one. You will confirm which binary answers in the lab, and it is worth internalizing now that on the frontier, `which anchor` is a debugging command, not a formality.
 
-### Why avm cannot do this for you
+### Why `avm install` cannot do this for you
 
 Your instinct, correctly, is to reach for `avm`. The **Anchor Version Manager** is the tool that installs and switches between Anchor CLI versions, the way `rustup` does for Rust. You almost certainly used it to get your 1.1.2. If you have not installed it, the documented path is a cargo install from the Anchor repository:
 
@@ -54,9 +54,19 @@ So you try the obvious thing:
 avm install 2.0.0-rc.1
 ```
 
-And it refuses. Not with a shrug, with a verification failure. Modern `avm` does not just download a binary and trust it. It verifies a **GitHub attestation** for the release, a cryptographic statement tying the artifact to the repo's release pipeline. That is a genuinely good security property. The problem is mechanical: attestation hangs off a **GitHub Release object**, and there is no Release object for the v2 tag. Go looking for `releases/tags/v2.0.0-rc.1` and you get a 404. No Release, no attestation, no install. `avm` is doing exactly what it should. The RC simply has not been cut as an attestable release yet.
+And it refuses. Read the failure carefully, because the reason is more boring and more useful than it looks:
 
-![avm looks for a GitHub Release for the v2 tag, hits a 404 with no attestation, and aborts, so the documented cargo git install takes over.](assets/v02-flowchart.png)
+```
+Failed to download the binary for version `2.0.0-rc.1` (status code: 404 Not Found)
+```
+
+That is not a policy rejection. `avm` parses `2.0.0-rc.1` perfectly well; it has a whole prerelease channel (`avm install latest-pre-release`, `avm list --pre-release`). The failure is mechanical. For any version at or above 0.31, `avm install` does not build anything: it fetches a **prebuilt binary** from the tag's GitHub Release assets, at `releases/download/v2.0.0-rc.1/anchor-2.0.0-rc.1-<your-target>`. Those assets only exist if someone cut a **Release object** for the tag, and nobody has. Go looking for `releases/tags/v2.0.0-rc.1` and you get a 404 too. No Release, no asset, no download.
+
+Note what is *not* happening here, because it is a story you will hear told wrong. `avm` does not verify a cryptographic attestation for the release, and it never has: there is no attestation code in it. The wall is a missing file, not a failed signature check. Worth knowing precisely, because a security check you cannot satisfy and a build artifact nobody uploaded call for completely different responses.
+
+![avm install fetches a prebuilt binary from the v2 tag's release assets, hits a 404 because no Release was ever cut, and aborts, so the documented cargo git install takes over.](assets/v02-flowchart.png)
+
+For completeness: `avm install` does carry a `--from-source` flag, which skips the download and hands the job to `cargo install --git https://github.com/otter-sec/anchor --tag v2.0.0-rc.1`. That is a different command from the one this course runs, against a tag rather than the branch. The channel the V2 docs publish, and the one every later lesson pins and reproduces with `--locked`, is the `anchor-next` branch build below. Use that one, so that what you install matches what the rest of the course was verified against.
 
 There is a naming trap worth flagging before it bites you. If you go searching crates.io for `avm` itself, you will find one, and it is **not this tool**. The `avm` crate on crates.io is an unrelated package from 2016 (schultyy/avm). Anchor's version manager is not distributed under that crate name, it installs from the Anchor repo. Install the wrong `avm` and you will spend an hour confused about why none of the commands exist.
 
@@ -310,7 +320,7 @@ One thing to sit with while it builds. You are now tracking two Anchor lines at 
 
 Make that schedule real, because a vague intention to "check sometimes" is how a pins file rots. A workable cadence on an RC: re-run `anchor --version` at the start of any session where a build suddenly behaves differently than it did yesterday, and re-build the RC from `anchor-next` when the project's release notes or a broken build tell you the branch moved. When you re-verify, you do not trust the date already in the file. You re-observe the value and stamp today's date, even if the value did not change, because a fresh date on an unchanged value is itself information: it says someone looked. Issue #4937, the `wincode` versus `solana-address` mismatch that broke `#[account(borsh)]` and closed on 2026-08-16, is the whole argument in one bug. A dependency two levels down moved, and the only defense was `--locked` plus a human who re-checked. On stable you can be lazy about this. On the frontier the re-check is the job.
 
-The deeper reason to pin exactly, rather than track a floating "latest," is a supply-chain one worth naming since `avm`'s attestation is what started this whole detour. Every time you install from a moving target you are trusting whatever that target happens to be at that instant. A pinned version with a recorded channel and a date is a claim you can audit later: this exact build, from this exact branch, verified on this day. That is the same instinct behind the attestation `avm` wanted and could not give you here. You cannot get the cryptographic version for the RC yet, so you keep the human version: write it down, date it, re-verify.
+The deeper reason to pin exactly, rather than track a floating "latest," is a supply-chain one worth naming since a missing release artifact is what started this whole detour. Every time you install from a moving target you are trusting whatever that target happens to be at that instant. A pinned version with a recorded channel and a date is a claim you can audit later: this exact build, from this exact branch, verified on this day. A cut release would at least give you an immutable artifact to point at; a branch gives you nothing but the commit you happened to fetch. So you keep the human version of the same guarantee: write it down, date it, re-verify.
 
 ## Where this lands
 

@@ -303,10 +303,10 @@ You do not re-derive anything to attack the swap. You carry the same seven quest
 
 You have seen every class. Now run the loop yourself against the escrow, end to end, until every exploit test fails and the suite is green.
 
-**Step 1. Pin the V2 toolchain and get on the vulnerable branch.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line many machines ship by default. `avm` cannot install the V2 RC: it only tracks published GitHub releases, and the v2 tag has no release object to attest. Install the CLI directly from the `anchor-next` branch:
+**Step 1. Pin the V2 toolchain and get on the vulnerable branch.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line many machines ship by default. `avm install` cannot fetch the V2 RC: it downloads a prebuilt binary from a published GitHub release, and no release was cut for the v2 tag, so the download 404s. Install the CLI directly from the `anchor-next` branch:
 
 ```bash
-# Anchor V2 RC CLI, installed from the branch (avm cannot attest the v2 tag).
+# Anchor V2 RC CLI, installed from the branch (no release binary for the v2 tag).
 cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
 # macOS: prefix with CARGO_PROFILE_RELEASE_LTO=off if the release build fails to link.
 anchor --version              # confirm the V2 line, not 1.1.2

@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: The seven deltas this vault actually hits
      purpose: give the reader a scannable before/after of every edit the port requires, grouped by how the compiler surfaces it
-     data: Mechanical (type/method/signature errors, TODO-marked): Pubkey -> Address .key() -> .address() <'info> lifetimes stripped; handler -> &mut Context<T> space: 8 + INIT_SPACE -> DISCRIMINATOR.len() + INIT_SPACE CpiContext::new(prog.key()) -> CpiContext::new(prog.address()) CPI account fields: .to_account_info() -> .cpi_handle_mut() Compiler-driven (no TODO marker): has_one = authority -> address = state.authority  [deprecation warning] account.reload()? after CPI -> remove; no typed borrow across CPI  [borrow error] Not triggered here (but on your map): zero_copy attribute -> gone (default layout) duplicate mutable accounts -> opt-out spelled unsafe(dup)
+     data: Mechanical (type/method/signature errors, TODO-marked): Pubkey -> Address .key() -> .address() <'info> lifetimes stripped; handler -> &mut Context<T> space: 8 + INIT_SPACE -> DISCRIMINATOR.len() + INIT_SPACE CpiContext::new(prog.key()) -> CpiContext::new(prog.address()) CPI account fields: .to_account_info() -> .cpi_handle_mut() Compiler-driven (no TODO marker): has_one = authority -> address = state.authority  [deprecation warning] account.reload()? after CPI -> delete; nothing changes underneath a loaded typed account  [E0599: no method named reload] Not triggered here (but on your map): zero_copy attribute -> gone (default layout) duplicate mutable accounts -> opt-out spelled unsafe(dup)
      prompt: Two-column before/after comparison table, grouped into three labeled bands: "Mechanical (TODO-marked)", "Compiler-driven (no marker)", and "Not triggered here". Left column v1 syntax, right column V2 syntax, monospace for code tokens. Visually distinguish the middle band (the two hard ones) with an accent so the eye lands there. Keep the third band muted.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -109,8 +109,8 @@
         <td class="c hot">address = state.authority</td>
       </tr>
       <tr>
-        <td class="c hot"><span class="n">borrow error</span>account.reload()? &nbsp;// after the CPI</td>
-        <td class="c hot">remove it &mdash; no typed borrow may cross a CPI</td>
+        <td class="c hot"><span class="n">E0599: no method `reload`</span>account.reload()? &nbsp;// after the CPI</td>
+        <td class="c hot">delete it &mdash; nothing changes underneath a loaded typed account</td>
       </tr>
 
       <tr>

@@ -15,17 +15,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "avm's attestation check needs a GitHub Release object; the v2 tag has none, so you build from anchor-next"
+            label: "avm install downloads a prebuilt binary from the tag's GitHub Release; no Release was cut for v2, so the download 404s and you build from anchor-next"
             correct: true
           - id: b
             label: "avm refuses prerelease version strings by policy; pass --force to avm install so it accepts the 2.0.0-rc.1 tag anyway"
             correct: false
-            feedback: "avm install has no --force escape hatch, and prerelease strings are not the blocker: the v2 tag simply has no GitHub Release object for avm to verify an attestation against."
+            feedback: "Both halves are wrong. avm parses prerelease strings fine — it even has an explicit latest-pre-release channel — and --force does exist, it just skips the already-installed check rather than conjuring a missing file. The blocker is that no GitHub Release was cut for the v2 tag, so the prebuilt binary avm downloads is not there and the fetch 404s."
           - id: c
             label: "the CLI is published on npm as @anchor-lang/core@2, so you npm install that package before avm can resolve the version"
             correct: false
             feedback: "Tempting because Anchor 1.0 really did rename the TS client to @anchor-lang/core — but that package is the JavaScript client, there is no v2 of it, and the CLI is a Rust binary cargo builds from the anchor-next branch."
-        explanation: "avm verifies GitHub attestations; the v2 tag has no Release object (only /releases/tags/v2.0.0-rc.1 404s), so the documented channel is the anchor-next git install. Concretely: cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force, where --branch pins the frontier source, --locked honors the committed Cargo.lock (reproducibility that matters on an RC), and --force overwrites any anchor-cli already in ~/.cargo/bin."
+        explanation: "For any version at or above 0.31, avm install fetches a prebuilt binary from the tag's GitHub Release assets rather than building anything. No Release was ever cut for the v2 tag (/releases/tags/v2.0.0-rc.1 404s, and so does the asset URL under it), so the fetch fails with 'Failed to download the binary for version 2.0.0-rc.1 (status code: 404 Not Found)'. Nothing cryptographic is involved — avm does no attestation verification at all — and the documented channel is the anchor-next git install. Concretely: cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force, where --branch pins the frontier source, --locked honors the committed Cargo.lock (reproducibility that matters on an RC), and --force overwrites any anchor-cli already in ~/.cargo/bin."
       - id: m01-l2-q2
         prompt: "On macOS the RC build dies during LTO. Which line belongs in your pins/setup notes as the fix?"
         multiSelect: false

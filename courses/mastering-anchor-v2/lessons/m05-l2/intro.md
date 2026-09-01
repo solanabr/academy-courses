@@ -181,9 +181,12 @@ pub mod token_ticket_swap {
         )?;
 
         // 5. Push the tickets OUT. The pool PDA signs with its own seeds.
-        //    Read the bump into a local FIRST, exactly as the vault did: the
-        //    array has to outlive the handles below it, and `ctx.accounts.pool`
-        //    is off limits the moment `push` exists.
+        //    Copy the bump into an owned local FIRST, exactly as the vault did:
+        //    `signer_seeds` borrows this array, so it has to outlive the CPI
+        //    below. That is a lifetime requirement, not a borrow conflict --
+        //    `pool` goes into `push` as a shared `cpi_handle()`, which leaves
+        //    reads of `pool` legal. The exclusion applies to the accounts handed
+        //    over with `cpi_handle_mut()`.
         let bump = [ctx.accounts.pool.bump];
         let signer_seeds: &[&[&[u8]]] = &[&[POOL_SEED, &bump]];
         let push = TransferChecked {
@@ -309,7 +312,7 @@ R4 is a new program. Say plainly what it does and does not reuse, because the te
 
 The autonomy fade is explicit: step 1 is a spec you implement, step 2 you type from the formula, steps 3 and 4 are worked, step 5's second CPI is a completion you type against a stub, and steps 6 and 7 are solo.
 
-First, the toolchain. This course runs on the Anchor V2 release candidate, which is newer than the `anchor-cli 1.1.2` your machine may have from the 1.x line. You built it from git back in m01-l2, because `avm` cannot install the RC: there is no GitHub Release object for the v2 tag to attest, and `avm list` stops at `1.1.2`. Re-pin it the same documented way:
+First, the toolchain. This course runs on the Anchor V2 release candidate, which is newer than the `anchor-cli 1.1.2` your machine may have from the 1.x line. You built it from git back in m01-l2, because `avm install` cannot fetch the RC: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s, and `avm list` stops at `1.1.2`. Re-pin it the same documented way:
 
 ```bash
 # The documented V2 channel: build anchor-cli from the anchor-next branch.

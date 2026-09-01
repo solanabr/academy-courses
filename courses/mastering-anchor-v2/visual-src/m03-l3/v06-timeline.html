@@ -12,7 +12,7 @@
 <body>
 <!-- timeline: How the constraint list became a trait
      purpose: place today's open trait in the lineage of the V2 rewrite and the pressure behind it
-     data: - v1 era: constraints are a CLOSED keyword list baked into the derive macro; custom rules fall to handler ifs - community pressure: ChewingGlass in discussion #3742 ("Boilerplate kills new devs because they don't know the sacred incantations", and "But borsh is kind of terrible" in its Codama sub-thread); design issue #4390 makes the same case in its own words ("the default serialization should probably behave more like zero-copy but with better UX") - V2 rewrite: no_std, pinocchio-based; the framework is torn down to the studs - V2 result: constraints dispatch through public traits (AnchorAccount, Id, Discriminator, AccountConstraint) - today: token::* / mint::* stay the ONE built-in exception the core derive handles itself; every other namespace, anchor-spl-v2's future ones and your quarters::min_balance alike, goes through the open trait
+     data: - v1 era: constraints are a CLOSED keyword list baked into the derive macro; custom rules fall to handler ifs - community pressure: ChewingGlass in discussion #3742 ("Boilerplate kills new devs because they don't know the sacred incantations", and "But borsh is kind of terrible" in its Codama sub-thread); design issue #4390 makes the same case in its own words ("the default serialization should probably behave more like zero-copy but with better UX") - V2 rewrite: no_std, pinocchio-based; the framework is torn down to the studs - V2 result: constraints dispatch through public traits (AnchorAccount, Id, Discriminator, AccountConstraint) - today: token::* / mint::* stay the ONE built-in exception the core derive handles itself; every other namespace, anchor-spl's future ones and your quarters::min_balance alike, goes through the open trait
      prompt: A horizontal timeline, five stops left to right as in data. Style the first stop (closed list) as a constraint, the middle stop (community pressure) as a quote callout, and the last two stops (open traits, the built-in token exception) as the payoff. Draw a thin through-line connecting "Boilerplate kills new devs" to the final stop.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -130,7 +130,7 @@
           <div class="dotrow"><span class="dot"></span></div>
           <div class="card pay2">
             <div class="kick">the payoff, in practice</div>
-            <div class="ct"><span class="mono">token::*</span> / <span class="mono">mint::*</span> stay the <b>ONE built-in exception</b> the core derive handles itself.<br><br>Every other namespace &mdash; anchor-spl-v2's future ones and your <span class="mono">quarters::min_balance</span> alike &mdash; goes through the <b>open trait</b>.</div>
+            <div class="ct"><span class="mono">token::*</span> / <span class="mono">mint::*</span> stay the <b>ONE built-in exception</b> the core derive handles itself.<br><br>Every other namespace &mdash; anchor-spl's future ones and your <span class="mono">quarters::min_balance</span> alike &mdash; goes through the <b>open trait</b>.</div>
           </div>
         </div>
 

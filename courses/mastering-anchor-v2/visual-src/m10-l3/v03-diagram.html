@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- diagram: v1 reload-after-CPI vs V2 borrow-tracked CpiHandle
-     purpose: show that V2 turns a runtime footgun (stale typed read) into a compile-time impossibility
-     data: v1 timeline: [read typed field into a local] -> [CPI runs, mutates account data] -> [that copy now STALE] -> [.reload()? re-reads] -> [read fresh] v1 risk: forget .reload() -> silent stale read (runtime bug) V2 timeline: [build CpiContext from handles: ctx.accounts is borrowed until the call consumes it] -> [any typed read in that window = COMPILE ERROR] -> [read AFTER the CPI completes] -> [read is always fresh] V2 property: the stale-read state is unrepresentable; there is nothing to reload
-     prompt: Two parallel horizontal timelines stacked vertically, labeled "v1" and "V2". The v1 track shows a borrow read into a local before the CPI box, with a red "STALE" flag on that local after the CPI and a .reload() patch restoring it. The V2 track shows the CPI box marked "accounts borrowed (CpiHandle)", a red X on any arrow that tries to carry a typed borrow through it labeled "compile error", and a clean green fresh borrow taken only after the box. Emphasize: v1 patches at runtime, V2 forbids at compile time.
+     purpose: show that V2 deletes the stale copy outright (zero-copy view) and forbids the remaining window
+     data: v1 timeline: [read typed field into a local] -> [CPI runs, mutates account data] -> [that copy now STALE] -> [.reload()? re-reads] -> [read fresh] v1 risk: forget .reload() -> silent stale read (runtime bug) V2 timeline: [a loaded typed account holds the account's DATA BORROW: the default Account<T> is a zero-copy view; BorshAccount<T> decodes but keeps the guard] -> [hand an account to the CPI with cpi_handle_mut(): THAT account's typed reads are excluded until the call consumes it] -> [read after the CPI completes] -> [nothing changed underneath it] V2 property: nothing can go stale behind a loaded account, and the one dangerous window will not compile
+     prompt: Two parallel horizontal timelines stacked vertically, labeled "v1" and "V2". The v1 track shows a borrow read into a local before the CPI box, with a red "STALE" flag on that local after the CPI and a .reload() patch restoring it. The V2 track shows the CPI box marked "the accounts handed over are borrowed (CpiHandleMut)", a red X on an arrow that tries to carry a typed borrow of one of THOSE accounts through it labeled "compile error", and a clean green borrow taken after the box. Emphasize: v1 patches at runtime, V2 forbids at compile time.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -69,7 +69,7 @@
          font-weight:900; font-size:16px; color:var(--text-secondary);
          letter-spacing:.02em; }
 </style>
-  <div class="stbr-eyebrow">runtime patch &rarr; compile-time impossibility</div>
+  <div class="stbr-eyebrow">runtime patch &rarr; nothing left to patch</div>
   <h2 class="viz-title">reload-after-CPI, and what replaced it</h2>
 
   <div class="track">
@@ -115,34 +115,34 @@
     <div class="steps">
       <div class="step">
         <div class="k">step 1</div>
-        <div class="h">build the CpiContext from handles</div>
-        <div class="m">ctx.accounts is borrowed until the call consumes it</div>
+        <div class="h">a loaded typed account holds the data borrow</div>
+        <div class="m">nothing can rewrite those bytes behind it</div>
       </div>
       <div class="conn"><svg width="30" height="16" viewBox="0 0 30 16"><line x1="0" y1="8" x2="18" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="17,1 30,8 17,15" fill="#008b4c"/></svg></div>
       <div class="step dark">
-        <div class="k">step 2 &middot; inside that window</div>
-        <div class="h">any typed read = compile error</div>
+        <div class="k">step 2 &middot; hand it to the CPI</div>
+        <div class="h">a typed read of THAT account = compile error</div>
         <div class="xmark">
           <svg width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="#f5e8ca" stroke-width="2.8"/><line x1="16" y1="4" x2="4" y2="16" stroke="#f5e8ca" stroke-width="2.8"/></svg>
-          <span class="m" style="margin-top:0">the borrow cannot cross the call</span>
+          <span class="m" style="margin-top:0">its cpi_handle_mut() borrow cannot cross the call</span>
         </div>
       </div>
       <div class="conn"><svg width="30" height="16" viewBox="0 0 30 16"><line x1="0" y1="8" x2="18" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="17,1 30,8 17,15" fill="#008b4c"/></svg></div>
       <div class="step fix">
         <div class="k">step 3</div>
-        <div class="h">read AFTER the CPI completes</div>
+        <div class="h">read after the CPI completes</div>
         <div class="m">the handle is consumed; the borrow is over</div>
       </div>
       <div class="conn"><svg width="30" height="16" viewBox="0 0 30 16"><line x1="0" y1="8" x2="18" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="17,1 30,8 17,15" fill="#008b4c"/></svg></div>
       <div class="step">
         <div class="k">step 4</div>
-        <div class="h">the read is always fresh</div>
+        <div class="h">nothing changed underneath it</div>
         <div class="m">no step you can forget</div>
       </div>
     </div>
   </div>
-  <div class="strip prop"><b>the property:</b> the stale-read state is unrepresentable &mdash; there is nothing to reload.</div>
+  <div class="strip prop"><b>the property:</b> nothing goes stale behind a loaded account, and the one dangerous window will not compile.</div>
 
-  <div class="cap">v1 patches at runtime &middot; V2 forbids at compile time</div>
+  <div class="cap">v1 patches a stale copy &middot; V2 never lets one form</div>
 </div>
 </body></html>

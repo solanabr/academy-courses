@@ -135,7 +135,7 @@ Why the hedge. PR #4914, merged 2026-08-13, revised the headline numbers *down*:
 
 Time to build R1. Here is the fade, said out loud so you know what is yours: I hand you the Pod struct and the `init` handler in full, and I show the byte cast once in the test. You fill the `increment` handler and the LiteSVM assertion that reads `data[8..]` back. The challenge after this is entirely yours, no scaffold.
 
-You already confirmed in the opener that PATH is serving the RC. If it was not, or if the RC is missing entirely, reinstall from the documented git channel now, because `avm` cannot attest the RC (there is no GitHub Release object for the v2 tag), so the git build is the sanctioned route:
+You already confirmed in the opener that PATH is serving the RC. If it was not, or if the RC is missing entirely, reinstall from the documented git channel now, because `avm install` fetches a prebuilt binary from the tag's GitHub Release and no Release was cut for the v2 tag, so the download 404s and the git build is the sanctioned route:
 
 ```bash
 # freshness note: as of 2026-08-22 the RC is 2.0.0-rc.1 on branch anchor-next

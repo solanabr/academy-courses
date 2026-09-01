@@ -11,7 +11,8 @@ That is the entire reason program-derived addresses exist. Before the why, confi
 ```bash
 anchor --version   # must report a 2.0.0 RC line, not 1.x
 # If it reports 1.x or nothing, re-pin. avm (the Anchor Version Manager) cannot
-# install the V2 RC: it tracks published GitHub releases and the v2 tag has none,
+# install the V2 RC: it downloads a prebuilt binary from a published GitHub
+# release, and no release was cut for the v2 tag, so the fetch 404s;
 # so the documented channel is a cargo git install off the anchor-next branch:
 cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
 # macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off

@@ -144,7 +144,7 @@ Its V2 story is still evolving and, as of this writing, unverified on the RC. I 
 
 Fade check before you start: steps 1 through 4 are worked, you run them and watch each checkpoint go green. Step 5 is the completion problem, the kit pipe with the three load-bearing lines blanked for you to fill. Then the Challenge is solo.
 
-Tooling install at first use. You built the Anchor V2 RC from its git channel back in R0, so this is a confirm, not a fresh install. Remember why there is no `avm use` line here: the v2 tag has no GitHub Release object, so avm has nothing to attest and refuses it.
+Tooling install at first use. You built the Anchor V2 RC from its git channel back in R0, so this is a confirm, not a fresh install. Remember why there is no `avm use` line here: no GitHub Release was cut for the v2 tag, so the prebuilt binary `avm install` downloads is not there and the fetch 404s.
 
 ```bash
 # If the RC is not on this machine, rebuild it from the documented channel:

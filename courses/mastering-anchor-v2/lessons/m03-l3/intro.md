@@ -94,7 +94,7 @@ So the real question narrows to this: how do you let a program add a *named, reu
 
 ### The mechanism: dispatch through a trait
 
-V2's answer is to stop treating the constraint list as a closed keyword table and start treating it as an open trait. Any namespaced constraint, anything of the shape `ns::key = value` where `ns` is not a built-in like `token`, dispatches through `AccountConstraint<A>`. A downstream crate, meaning your program or any library you depend on, implements that trait for a marker type, and the derive macro routes the new keyword to it. Nothing in the core macro changes. This is not a special hatch bolted on for one case, either. It is the same philosophy that makes `AnchorAccount`, `Id`, and `Discriminator` public traits in V2: the framework is deliberately open at the seams, so downstream crates can ship new account wrappers, new well-known program IDs, and new discriminator schemes without a fork (lang-v2 and docs-v2 extensibility surface, verified at 2.0.0-rc.1). One boundary to keep straight: the `token::*` namespace is the built-in exception, the one namespace the core derive handles itself for `anchor-spl-v2`'s sake. Every *other* namespace, yours included, dispatches through the trait, and that open dispatch is the door you are about to walk through.
+V2's answer is to stop treating the constraint list as a closed keyword table and start treating it as an open trait. Any namespaced constraint, anything of the shape `ns::key = value` where `ns` is not a built-in like `token`, dispatches through `AccountConstraint<A>`. A downstream crate, meaning your program or any library you depend on, implements that trait for a marker type, and the derive macro routes the new keyword to it. Nothing in the core macro changes. This is not a special hatch bolted on for one case, either. It is the same philosophy that makes `AnchorAccount`, `Id`, and `Discriminator` public traits in V2: the framework is deliberately open at the seams, so downstream crates can ship new account wrappers, new well-known program IDs, and new discriminator schemes without a fork (lang-v2 and docs-v2 extensibility surface, verified at 2.0.0-rc.1). One boundary to keep straight: the `token::*` namespace is the built-in exception, the one namespace the core derive handles itself for `anchor-spl`'s sake. Every *other* namespace, yours included, dispatches through the trait, and that open dispatch is the door you are about to walk through.
 
 Here is the trait, verified against the docs-v2 source at the 2.0.0-rc.1 release candidate (crates.io, published 2026-08-12). Treat the exact shape as a moving target: this is a release candidate, the extensibility surface is high-confidence but still settling, so re-read it against the crate when you build:
 
@@ -148,7 +148,7 @@ You are extending R2, the `quarter_vault` program, with a custom constraint. Whe
 
 ```bash
 anchor --version         # must report a 2.0.0 RC line, not 1.x; rc.1 as of 2026-08-12
-# Only if it does not, re-pin (avm still cannot attest the v2 tag):
+# Only if it does not, re-pin (still no release binary for the v2 tag):
 cargo install --git https://github.com/otter-sec/anchor.git --branch anchor-next anchor-cli --locked --force
 # macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 ```

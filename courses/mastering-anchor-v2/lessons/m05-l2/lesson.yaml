@@ -78,9 +78,9 @@ blocks:
           - id: b
             label: "transfer_checked consumes the InterfaceAccount wrapper, so the typed account is gone once the CPI returns."
             correct: false
-            feedback: "Nothing is consumed or destroyed: the CpiHandle only borrows the wrapper for the duration of the call, and reserve_ticket.amount reads fine again once the handle drops. Move the read after the transfer_checked call and the build goes green."
+            feedback: "Nothing is consumed or destroyed: the CpiHandle only borrows the wrapper for the duration of the call, and reserve_ticket.amount() reads fine again once the handle drops. Move the read after the transfer_checked call and the build goes green."
           - id: c
             label: "V2 requires a .reload() call before any typed .amount read, and the compiler enforces that ordering."
             correct: false
             feedback: "This inverts the change. .reload() was the 0.x remedy for stale deserialized data; V2 has no reload requirement and the compiler is enforcing a borrow, not a call ordering. The structural fix is to read both reserves up front, before any cpi_handle_mut() exists."
-        explanation: "In v1, forgetting .reload() after a CPI meant acting on stale deserialized data. V2's CpiHandle holds a borrow, so the compiler rejects typed access during a live handle — the footgun becomes a compile error rather than a silent runtime bug that ships. You read reserves before you open the handle or after it closes, never during. That is why step 1 of the swap handler reads reserve_arcade.amount and reserve_ticket.amount into locals before any TransferChecked struct is built: the whole stale-read class is removed by the language, not by a call you must remember."
+        explanation: "In v1, forgetting .reload() after a CPI meant acting on stale deserialized data. V2's CpiHandle holds a borrow, so the compiler rejects typed access during a live handle — the footgun becomes a compile error rather than a silent runtime bug that ships. You read reserves before you open the handle or after it closes, never during. That is why step 1 of the swap handler reads reserve_arcade.amount() and reserve_ticket.amount() into locals before any TransferChecked struct is built: the whole stale-read class is removed by the language, not by a call you must remember."

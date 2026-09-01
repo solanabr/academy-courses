@@ -55,7 +55,7 @@ Which brings up the pins, and one number I want to defuse before it misleads you
 |---|---|---|
 | `solana-verify` | 0.5.1 | Latest on crates.io as of 2026-08-22; `cargo search solana-verify` to see if that moved, `solana-verify --version` to confirm what you have |
 | Docker | 27.x or newer | The build fails fast if the daemon is not running |
-| Anchor | 2.0.0-rc.1, git `otter-sec/anchor` branch `anchor-next` | Not an avm-attested release; pin the branch and the commit you built, and re-check at build |
+| Anchor | 2.0.0-rc.1, git `otter-sec/anchor` branch `anchor-next` | Not a cut release avm can fetch; pin the branch and the commit you built, and re-check at build |
 | Solana build toolchain (inside the image) | 3.1.10 | LOCAL-CI / DOCKER PIN. This is the deterministic anchor for the bytes, NOT a current-Solana claim |
 
 Read that last row twice. Solana 3.1.10 is the toolchain baked into this build so the hash is reproducible. The current stable Solana release is a different thing entirely: Agave v4.2.1 as of 2026-08-22 (re-verify, it moves). Anchor's V2 RC targets the Solana 3.x line, so a 3.1.10 build pin is exactly right for these bytes and says nothing about the newest node release. If you ever catch yourself reading a pins table and thinking "so current Solana is 3.1," stop. The pin is a build fact, the release is a network fact, and they drift apart on purpose.
@@ -153,9 +153,9 @@ solana-verify --version
 # Install Docker Desktop or the engine from the official docs at docker.com/get-started.
 docker info >/dev/null && echo "docker up" || echo "start docker first"
 
-# Anchor V2 RC, if you have not already installed it for this course. avm cannot
-# install the RC (no GitHub Release object for the v2 tag to attest), so the
-# documented channel is the anchor-next git build you ran in m01-l2.
+# Anchor V2 RC, if you have not already installed it for this course. `avm install`
+# 404s on the RC (no GitHub Release cut for the v2 tag, so its binary is missing), so
+# the documented channel is the anchor-next git build you ran in m01-l2.
 cargo install --git https://github.com/otter-sec/anchor.git \
   --rev e4878b6d anchor-cli --locked --force
 anchor --version   # expect anchor-cli 2.0.0-rc.1 (freshness 2026-08-22; RC, re-check)

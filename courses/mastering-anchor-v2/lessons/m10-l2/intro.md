@@ -132,10 +132,10 @@ You are going to port a tiny but complete v1 program: a config account with an a
 
 This lab fades the hand-holding. I give you the v1 source and the delta table above. You drive the port and let the compiler tell you what is left.
 
-1. **Install and pin the V2 toolchain.** One trap before you type anything: the RC does not go through `avm`. The v2 tag has no GitHub Release object, so avm has nothing to attest or fetch. The rc.1 crates did land on crates.io on 2026-08-12, but the documented install is still a git install from the `anchor-next` branch, pinned here to the tag:
+1. **Install and pin the V2 toolchain.** One trap before you type anything: the RC does not go through `avm`. No GitHub Release was cut for the v2 tag, so the prebuilt binary `avm install` downloads is not there and the fetch 404s. The rc.1 crates did land on crates.io on 2026-08-12, but the documented install is still a git install from the `anchor-next` branch, pinned here to the tag:
 
 ```bash
-# no GitHub Release for the v2 tag -> avm cannot install it; use the git install
+# no GitHub Release cut for the v2 tag -> no binary to download; use the git install
 CARGO_PROFILE_RELEASE_LTO=off \
 cargo install --git https://github.com/otter-sec/anchor \
   --tag v2.0.0-rc.1 anchor-cli --locked --force
@@ -239,17 +239,20 @@ pub authority: Signer,
 
 This is the one bug that survives a careful-looking port, isolated so you can kill it cleanly. A half-finished migration deleted the hardcoded `8` from a v1 `space = 8 + ...` calc, correctly, because V2 has no magic number. But it forgot that `INIT_SPACE` excludes the discriminator, so it never added the 8 back. The result under-counts every account by 8 bytes.
 
-Your job is to fix `account_len` so it returns the full on-chain data length: the 8-byte discriminator (sha256 default, unchanged in V2) plus the summed Pod field sizes, where an `Address` is 32 bytes, a `u64` is 8, and a `bool` is 1. Note the name: the function is not called `init_space`, because `INIT_SPACE` is exactly the half that excludes the discriminator, and naming it that is how the bug got written in the first place.
+Your job is to fix `account_len` so it returns the full on-chain data length: the 8-byte discriminator (sha256 default, unchanged in V2) plus the summed field sizes, where an `Address` is 32 bytes, a `u64` is 8, and a `bool` is 1. Name the tier, because that sum only holds for one of them: these are the `#[account(borsh)]` sizes, fields written back to back with no alignment padding and no length prefixes, which is the tier step 4 routed `Config` to. Under the Pod default the same three fields never reach a length at all — the `u64` forces 8-byte alignment, the struct needs tail padding, and the build stops at `error[E0080]: account struct has padding bytes`. Note the name too: the function is not called `init_space`, because `INIT_SPACE` is exactly the half that excludes the discriminator, and naming it that is how the bug got written in the first place.
 
 The signature is frozen, because the tests call it by exactly this interface:
 
 ```rust
-/// Returns the FULL on-chain data length for an account:
+/// Returns the FULL on-chain data length for a `#[account(borsh)]` account:
 /// T::DISCRIMINATOR.len() (8) + T::INIT_SPACE (the field bytes only).
 pub fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
     // starter under-counts by 8: it sums the fields but never adds the discriminator
-    let init_space = address_fields * 32 + u64_fields * 8 + bool_fields;
-    init_space
+    address_fields
+        .checked_mul(32)
+        .and_then(|bytes| bytes.checked_add(u64_fields.checked_mul(8)?))
+        .and_then(|bytes| bytes.checked_add(bool_fields))
+        .unwrap_or(0)
 }
 ```
 

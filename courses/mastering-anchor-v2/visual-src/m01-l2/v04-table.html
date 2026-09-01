@@ -12,7 +12,7 @@
 <body>
 <!-- table: The four frontier walls and the one-line fix for each
      purpose: give the reader a scannable failure-to-fix map for the whole install so they can self-diagnose in the lab
-     data: columns: Wall | What it looks like | The fix row 1: Wrong anchor answers | build behaves like V1; anchor --version says 1.1.2 | put ~/.cargo/bin early on PATH; check with which anchor row 2: avm won't install the RC | avm install 2.0.0-rc.1 fails on a verification error | no Release object to attest; use the git channel instead row 3: Trusting the registry | cargo install anchor-cli --version 2.0.0-rc.1 (undocumented) | the crates.io publish is untested for CLI; use the documented git build row 4: 3.1.10 read as "current" | assuming Solana is on 3.x from the CI pin | 3.1.10 is a local-CI pin only; current stable Agave is v4.2.1 (Aug 2026) bonus: avm naming trap | the avm crate on crates.io has no anchor commands | that is an unrelated 2016 package (schultyy/avm); install avm from the Anchor repo
+     data: columns: Wall | What it looks like | The fix row 1: Wrong anchor answers | build behaves like V1; anchor --version says 1.1.2 | put ~/.cargo/bin early on PATH; check with which anchor row 2: avm won't install the RC | avm install 2.0.0-rc.1 fails on a 404 Not Found | no Release cut, so no binary to download; use the git channel instead row 3: Trusting the registry | cargo install anchor-cli --version 2.0.0-rc.1 (undocumented) | the crates.io publish is untested for CLI; use the documented git build row 4: 3.1.10 read as "current" | assuming Solana is on 3.x from the CI pin | 3.1.10 is a local-CI pin only; current stable Agave is v4.2.1 (Aug 2026) bonus: avm naming trap | the avm crate on crates.io has no anchor commands | that is an unrelated 2016 package (schultyy/avm); install avm from the Anchor repo
      prompt: Designed three-column table. Columns "Wall", "What it looks like", "The fix". Five rows (four walls plus the bonus avm-naming-trap row visually set apart, e.g. a lighter divider above it). Left column bold as the row label; right column (the fix) accented as the payoff. Keep it dense and scannable, like a runbook the reader would screenshot.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -70,8 +70,8 @@
     <div class="t4-f">put <b>~/.cargo/bin</b> early on <code>PATH</code>; check with <code>which anchor</code></div>
 
     <div class="t4-w">avm won’t install the RC</div>
-    <div class="t4-s"><code>avm install 2.0.0-rc.1</code> fails on a verification error</div>
-    <div class="t4-f">no Release object to attest — use the <b>git channel</b> instead</div>
+    <div class="t4-s"><code>avm install 2.0.0-rc.1</code> fails on a 404 Not Found</div>
+    <div class="t4-f">no Release cut, so no binary to download — use the <b>git channel</b> instead</div>
 
     <div class="t4-w">Trusting the registry</div>
     <div class="t4-s"><code>cargo install anchor-cli --version 2.0.0-rc.1</code> — undocumented</div>

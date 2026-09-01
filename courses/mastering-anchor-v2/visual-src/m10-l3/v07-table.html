@@ -12,7 +12,7 @@
 <body>
 <!-- table: The challenge's three obstacles, and what locates each one
      purpose: show that every obstacle has a tool that finds it, so the reader stops hunting by eye
-     data: columns: Obstacle | What locates it for you | What you do about it row: `has_one` in two places | the deprecation warnings from `cargo build` | resolve both to the V2 replacement the warning names row: a `.reload()` between two counter reads around a CPI | the borrow error from the compiler | delete the reload and restructure the borrows around the CpiHandle row: one account handed into two mutable slots | validation fails with ConstraintDuplicateMutableAccount, before your handler runs | apply `unsafe(dup)` to the two vault fields and justify the aliasing in a comment guard rail: do NOT reach for unsafe(dup) on the counter, because one account in one slot means the opt-out is hiding a different bug
+     data: columns: Obstacle | What locates it for you | What you do about it row: `has_one` in two places | the deprecation warnings from `cargo build` | resolve both to the V2 replacement the warning names row: a `.reload()` between two counter reads around a CPI | the missing-method error from the compiler | delete the reload and take the counter's typed borrow after the call row: one account handed into two mutable slots | validation fails with ConstraintDuplicateMutableAccount, before your handler runs | apply `unsafe(dup)` to the two vault fields and justify the aliasing in a comment guard rail: do NOT reach for unsafe(dup) on the counter, because one account in one slot means the opt-out is hiding a different bug
      prompt: A three-row table with the middle column styled as tool output (monospace, terminal tint), and a full-width caution strip at the bottom carrying the guard rail. Number the rows 1-3 to match the list above.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -95,10 +95,10 @@
           <div class="om">the classic v1 stale-read patch</div>
         </td>
         <td class="tool">
-          <div class="tk">the compiler &mdash; borrow error</div>
-          <div class="tm"><span class="hl">error[E0502]</span>: cannot borrow<br>&nbsp;&nbsp;`ctx.accounts` as immutable&hellip;<br><span class="hl">error[E0599]</span>: no method named<br>&nbsp;&nbsp;`reload` found</div>
+          <div class="tk">the compiler &mdash; missing method</div>
+          <div class="tm"><span class="hl">error[E0599]</span>: no method named<br>&nbsp;&nbsp;`reload` found &mdash; the type<br>&nbsp;&nbsp;has no such method in V2</div>
         </td>
-        <td class="act">Delete the reload and restructure the borrows around the <code>CpiHandle</code> &mdash; hoist the scalars first, read state after the call.</td>
+        <td class="act">Delete the reload and take the counter&rsquo;s typed borrow <b>after</b> the call &mdash; the handle is a live view, so there is nothing to refresh.</td>
       </tr>
       <tr>
         <td class="n">3</td>

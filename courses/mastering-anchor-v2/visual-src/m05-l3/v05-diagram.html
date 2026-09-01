@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: Anchor's two layers for Token-2022
      purpose: show that the type layer is free but the read layer is work you must do
-     data: layer 1 (free, at the type level): InterfaceAccount<Mint> / InterfaceAccount<TokenAccount> accepts either Token program; deserializes the base fields transfer_checked spans both programs layer 2 (work, at the account level): anchor_spl_v2::extensions parses the TLV tail you read: actual length, and the TransferHook programId boundary: the token program hands you the seat; it does not hand you the standard
+     data: layer 1 (free, at the type level): InterfaceAccount<Mint> / InterfaceAccount<TokenAccount> accepts either Token program; deserializes the base fields transfer_checked spans both programs layer 2 (work, at the account level): anchor_spl::extensions parses the TLV tail you read: actual length, and the TransferHook programId boundary: the token program hands you the seat; it does not hand you the standard
      prompt: Two stacked layers as horizontal bands. Top band "Type layer (free)" holds the InterfaceAccount / transfer_checked items with a check-mark motif. Bottom band "Read layer (your work)" holds the extensions-reader items with a magnifier motif. A thin labeled seam between them reads "the seat, not the standard." Keep it calm; the contrast free-vs-work is the whole message.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -121,7 +121,7 @@
             <line x1="20" y1="20" x2="28" y2="28" stroke="#008b4c" stroke-width="3.5" stroke-linecap="round"/>
           </svg>
           <div class="tx">
-            <div class="n">anchor_spl_v2::extensions</div>
+            <div class="n">anchor_spl::extensions</div>
             <div class="s">Parses the TLV tail. Nothing above this line does that for you.</div>
           </div>
         </div>

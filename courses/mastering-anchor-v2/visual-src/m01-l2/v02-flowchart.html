@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: Why avm refuses the RC, and where you go instead
-     purpose: trace the attestation check that blocks avm and show the git install as the sanctioned fallback
-     data: start: avm install 2.0.0-rc.1 step 1: avm looks up the GitHub Release object for tag v2.0.0-rc.1 decision: Release object exists? no-branch: releases/tags/v2.0.0-rc.1 -> 404 -> no attestation to verify -> avm aborts fallback: documented git install -> cargo install --git otter-sec/anchor --branch anchor-next anchor-cli --locked --force end: isolated anchor 2.0.0-rc.1 binary, avm untouched, 1.1.2 still on PATH
-     prompt: Vertical flowchart. Top node "avm install 2.0.0-rc.1". Arrow to a decision diamond "GitHub Release object exists?". The "no" edge goes to a red-annotated node "404 -> no attestation -> avm aborts". From there a separate arrow labeled "documented fallback" leads to a green node with the cargo git install command. Final node at the bottom: "isolated RC binary; 1.1.2 untouched". Keep the failing path and the fallback path visually distinct.
+     purpose: trace the missing release asset that blocks avm and show the git install as the sanctioned fallback
+     data: start: avm install 2.0.0-rc.1 step 1: avm fetches the prebuilt binary from the tag's Release assets decision: was a Release cut for v2.0.0-rc.1? no-branch: releases/download/v2.0.0-rc.1/anchor-... -> 404 Not Found -> avm aborts fallback: documented git install -> cargo install --git otter-sec/anchor --branch anchor-next anchor-cli --locked --force end: isolated anchor 2.0.0-rc.1 binary, avm untouched, 1.1.2 still on PATH
+     prompt: Vertical flowchart. Top node "avm install 2.0.0-rc.1". Arrow to a decision diamond "was a Release cut for the tag?". The "no" edge goes to a red-annotated node "404 Not Found -> avm aborts". From there a separate arrow labeled "documented fallback" leads to a green node with the cargo git install command. Final node at the bottom: "isolated RC binary; 1.1.2 untouched". Keep the failing path and the fallback path visually distinct.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -63,7 +63,7 @@
   .f2-chip.fb { background:rgba(0,139,76,0.14); color:var(--stbr-emerald-800);
                 border:1.5px solid var(--stbr-emerald); }
 </style>
-  <div class="stbr-eyebrow">the attestation check that blocks avm</div>
+  <div class="stbr-eyebrow">the missing release asset that blocks avm</div>
   <h2 class="viz-title">Why avm refuses the RC, and where you go instead</h2>
 
   <div class="f2-col">
@@ -71,13 +71,13 @@
 
     <div class="f2-arrow"><svg width="20" height="26"><line x1="10" y1="0" x2="10" y2="17" stroke="#1b231d" stroke-width="2.5"/><polygon points="10,26 3,16 17,16" fill="#1b231d"/></svg></div>
 
-    <div class="f2-node f2-step"><div class="t">avm looks up the GitHub Release object for tag <code>v2.0.0-rc.1</code></div></div>
+    <div class="f2-node f2-step"><div class="t">avm fetches the prebuilt binary from the Release assets for tag <code>v2.0.0-rc.1</code></div></div>
 
     <div class="f2-arrow"><svg width="20" height="26"><line x1="10" y1="0" x2="10" y2="17" stroke="#1b231d" stroke-width="2.5"/><polygon points="10,26 3,16 17,16" fill="#1b231d"/></svg></div>
 
     <div class="f2-dia">
       <svg width="640" height="92"><polygon points="320,3 636,46 320,89 4,46" fill="#ffffff" stroke="#1b231d" stroke-width="2.5"/></svg>
-      <div class="t">Release object exists?</div>
+      <div class="t">was a Release cut for the tag?</div>
     </div>
 
     <div class="f2-arrowlab">
@@ -86,8 +86,8 @@
     </div>
 
     <div class="f2-node f2-fail">
-      <div class="h">404 — no attestation to verify, avm aborts</div>
-      <div class="s">releases/tags/v2.0.0-rc.1 → 404</div>
+      <div class="h">404 Not Found — no binary to download, avm aborts</div>
+      <div class="s">releases/download/v2.0.0-rc.1/anchor-… → 404</div>
     </div>
 
     <div class="f2-arrowlab">

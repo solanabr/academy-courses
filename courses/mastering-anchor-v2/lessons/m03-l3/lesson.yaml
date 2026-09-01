@@ -50,7 +50,7 @@ blocks:
           - id: c
             label: "The token::* namespace requires it, and every other namespace only reaches the trait as an accidental side effect"
             correct: false
-            feedback: "This has the exception backwards. token::* is the ONE namespace the core derive still handles itself, for anchor-spl-v2's sake; every other namespace routes through AccountConstraint deliberately, not incidentally."
+            feedback: "This has the exception backwards. token::* is the ONE namespace the core derive still handles itself, for anchor-spl's sake; every other namespace routes through AccountConstraint deliberately, not incidentally."
         explanation: "No framework author can enumerate every program's invariants ahead of time. By routing ns::key = val through a trait you implement for a marker type, V2 lets you (and any downstream crate) ship new, IDL-visible constraints without forking the framework — the same open-at-the-seams philosophy behind the public AnchorAccount/Id/Discriminator traits. The alternatives all fail on a specific axis: a handler `if` is invisible in the IDL and not inherited by the next call site, a fork is yours to re-merge every release, and an inline `constraint = <expr>` is an anonymous boolean you cannot name, reuse, or read off an interface."
       - id: q3
         prompt: "Your min_balance check hook does a modest comparison, but a teammate proposes a version that re-reads and re-hashes a large slab on every call. What's the cost you just signed up for?"

@@ -118,7 +118,7 @@ Issue #4937 was filed on 2026-08-16 and closed four days later, on 2026-08-20. T
 This is why you started `PINS.md` back in m01-l2, one table with a `verified` column, and why every pin in these lessons carries a "this will move, re-verify at write" tag. Add a `wincode` row to it now if you have not. V2 is a weeks-old RC, and the version you are on matters here: `wincode` sits at 0.5 on the published rc.1 crate and 0.6 on the `anchor-next` branch. Every install block in this course puts you on `anchor-next`, so you are on 0.6 and past this particular break. That is not luck, it is the pin doing its job, and it is exactly why the next dependency drift will find you the same way if the file goes stale. `solana-address` is on its own cadence. When you install the toolchain for this project, you pin all of it together and you do not float any single crate, because #4937 is what floating one crate looks like: a green build on Monday, a trait-bound error on Tuesday, and an afternoon spent bisecting a dependency graph instead of shipping.
 
 ```bash
-# The V2 RC is a git-pinned branch, not an avm-attested release. Freshness
+# The V2 RC is a git-pinned branch, not a cut avm release. Freshness
 # note: as of 2026-08-22 the RC is still 2.0.0-rc.1, published 2026-08-12
 # (otter-sec/anchor, anchor-next, tag commit e4878b6d). It WILL move;
 # re-verify before you rely on it.

@@ -41,7 +41,7 @@ The program account is `Interface<'static, TokenInterface>`. Compare that to `Pr
 
 The mints and token accounts are `InterfaceAccount<Mint>` and `InterfaceAccount<TokenAccount>`. And here is the thing that trips up everyone who learned Anchor a year ago: `InterfaceAccount<T>` in V2 is literally an alias of `Account<T>`. Not a cousin, not a wrapper. The same type.
 
-Which means the wrapper is not where the behavior lives, and this is the sentence to hold: the difference between an account that accepts both token programs and one that does not is *which module `T` came from*. `anchor_spl_v2::token::TokenAccount` carries the classic Token program's id as its expected owner. `anchor_spl_v2::token_interface::TokenAccount` accepts either. Write `Account<TokenAccount>` with a `token_interface` import and you get the interface behavior; write `InterfaceAccount<TokenAccount>` with a `token` import and you get the classic-only behavior, alias or no alias. The convention below is to pair `InterfaceAccount` with `token_interface` imports because reading the wrapper is faster than tracing an import, but it is a convention, not the mechanism.
+Which means the wrapper is not where the behavior lives, and this is the sentence to hold: the difference between an account that accepts both token programs and one that does not is *which module `T` came from*. `anchor_spl::token::TokenAccount` carries the classic Token program's id as its expected owner. `anchor_spl::token_interface::TokenAccount` accepts either. Write `Account<TokenAccount>` with a `token_interface` import and you get the interface behavior; write `InterfaceAccount<TokenAccount>` with a `token` import and you get the classic-only behavior, alias or no alias. The convention below is to pair `InterfaceAccount` with `token_interface` imports because reading the wrapper is faster than tracing an import, but it is a convention, not the mechanism.
 
 Why an *alias*, and not the separate heavier type it used to be? This one is worth a beat, because the answer explains the whole direction of V2.
 
@@ -49,7 +49,7 @@ Why an *alias*, and not the separate heavier type it used to be? This one is wor
 
 So when you write `InterfaceAccount<TokenAccount>` in V2, you get today's zero-copy `Account<TokenAccount>` plus the property that it will validate a mint or token account owned by *either* token program. You pay nothing extra for the interface capability. That is the design paying off: the fast path and the compatible path are now the same path. It is the same lever behind the 8.8x average compute-unit improvement Anchor reports in its own bench harness, the figure PR #4914 revised down from 9.9x on 2026-08-13. Dated and attributed, not measured here; module 6 is where you measure your own.
 
-Which raises the obvious migrator's question: if `InterfaceAccount<T>` is just `Account<T>`, why not keep writing `Account<TokenAccount>`? Because on the reflex path, `Account<TokenAccount>` comes with a `use anchor_spl_v2::token::TokenAccount`, and that `T` hardcodes the classic Token program as the owner. The moment a Token-2022 mint shows up, that account fails to load. Pairing the `InterfaceAccount` wrapper with the `token_interface` module is what stays owner-agnostic across both programs. The combinations are not interchangeable, and the ones you will actually meet are worth seeing side by side.
+Which raises the obvious migrator's question: if `InterfaceAccount<T>` is just `Account<T>`, why not keep writing `Account<TokenAccount>`? Because on the reflex path, `Account<TokenAccount>` comes with a `use anchor_spl::token::TokenAccount`, and that `T` hardcodes the classic Token program as the owner. The moment a Token-2022 mint shows up, that account fails to load. Pairing the `InterfaceAccount` wrapper with the `token_interface` module is what stays owner-agnostic across both programs. The combinations are not interchangeable, and the ones you will actually meet are worth seeing side by side.
 
 ![Two account typings, one classic-only and one that accepts both token programs, plus the matching program-account choice between Program<Token> and Interface<'static, TokenInterface>.](assets/v03-comparison.png)
 
@@ -81,10 +81,10 @@ Numbered steps. The interesting ones carry their why; the routine ones run terse
 
 ### 1. Pin the V2 RC toolchain
 
-Your machine ships anchor-cli on the 1.x line. This course is V2, a different compiler surface, and V2 is consumed from git, not from `avm`. You set this up back in m01-l2, so this is a re-pin, not a fresh install: `avm` refuses the V2 tag because there is no GitHub Release object to attest, so the documented channel is the `anchor-next` branch built from source.
+Your machine ships anchor-cli on the 1.x line. This course is V2, a different compiler surface, and V2 is consumed from git, not from `avm`. You set this up back in m01-l2, so this is a re-pin, not a fresh install: `avm install` cannot fetch the V2 tag because no GitHub Release was cut for it and the prebuilt binary it downloads 404s, so the documented channel is the `anchor-next` branch built from source.
 
 ```bash
-# The documented V2 channel. avm cannot install the RC (see m01-l2); build from git:
+# The documented V2 channel. `avm install` 404s on the RC (see m01-l2); build from git:
 cargo install --git https://github.com/otter-sec/anchor.git \
   --branch anchor-next anchor-cli --locked --force
 
@@ -97,7 +97,7 @@ Checkpoint: `anchor --version` prints the V2 RC string, not `1.1.2`. If it still
 
 ### 2. Add the token dependency
 
-The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `anchor-spl-v2` next to `anchor-lang-v2`, both from `anchor-next`, and turn on associated-token and token-2022 support so the interface path compiles.
+The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `anchor-spl` next to `anchor-lang`, both from `anchor-next`. There is no feature to switch on here: `token`, `token_interface`, `associated_token`, and `token_2022` are all unconditional modules of the V2 crate.
 
 ```toml
 [dependencies]
@@ -112,9 +112,9 @@ wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
-Freshness note: `anchor-lang-v2` and `anchor-spl-v2` move together on the V2 line, so pin both to the same `anchor-next` commit your CLI was built from (`rev = "..."` rather than a bare `branch`). Do not mix a V2 `anchor-lang-v2` with a 1.x `anchor-spl`; the account handle types will not line up and you will get type errors right at the CPI.
+Freshness note: `anchor-lang` and `anchor-spl` move together on the V2 line, so pin both to the same `anchor-next` commit your CLI was built from (`rev = "..."` rather than a bare `branch`). The names are the same on both lines, which is exactly the trap: resolve either one from crates.io instead of the git branch and you get the 1.x crate under the same name, the account handle types will not line up, and you will get type errors right at the CPI.
 
-Checkpoint: `cargo check` resolves both crates and the build fails only on your own code, not on the dependency graph. If it complains that `token_interface` does not exist, the `token-2022` feature did not get turned on.
+Checkpoint: `cargo check` resolves both crates and the build fails only on your own code, not on the dependency graph. If it complains that `token_interface` does not exist, you resolved the 1.x `anchor-spl` from crates.io rather than the V2 crate from `anchor-next` — check the `git`/`branch` line, not a feature list.
 
 ### 3. Swap the accounts: the lamport PDA gains a token account
 

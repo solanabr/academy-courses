@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The pin re-verification loop on a moving RC
      purpose: turn the abstract "re-verify on a schedule" advice into a concrete loop the reader can run
-     data: trigger A: a build behaves differently than yesterday -> re-run anchor --version trigger B: anchor-next release notes or a broken build say the branch moved -> rebuild the RC observe: read the actual value, do not trust the date already in PINS.md stamp: write today's date in the verified column even if the value did not change meaning: a fresh date on an unchanged value still records that a human looked fallback: no cryptographic attestation on the RC, so the dated human check is the defense
+     data: trigger A: a build behaves differently than yesterday -> re-run anchor --version trigger B: anchor-next release notes or a broken build say the branch moved -> rebuild the RC observe: read the actual value, do not trust the date already in PINS.md stamp: write today's date in the verified column even if the value did not change meaning: a fresh date on an unchanged value still records that a human looked fallback: no cryptographic cut release behind the RC, just a branch, so the dated human check is the defense
      prompt: A cycle diagram. Two trigger nodes ("build acts different" and "anchor-next moved") feed into an "observe the real value" node, which flows to "stamp today's date in PINS.md", which loops back to the triggers. A side note off "stamp" reads "fresh date = someone looked". Keep it a closed loop to signal this repeats for the life of the RC.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -136,6 +136,6 @@
     <div class="f8-chip">repeats for the life of the RC</div>
   </div>
 
-  <div class="f8-foot">There is <b>no cryptographic attestation</b> on the RC — the dated human check is the defense.</div>
+  <div class="f8-foot">There is <b>no cut release</b> behind the RC, just a branch — the dated human check is the defense.</div>
 </div>
 </body></html>

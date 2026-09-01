@@ -204,12 +204,12 @@ That is the toolkit. A Pod entry type, a Slab to hold a bounded run of them, a f
 
 You will extend R1's `PostScore` handler so that every score is admitted to a bounded, ordered board, and a `#[event(bytemuck)]` fires when the board changes. The Slab layout and the event struct above are given. The admit and evict logic, and the test assertion that the board stays ordered and bounded, are yours to write. That split is deliberate: the shape is shown, the discipline is practiced.
 
-First, the toolchain. You installed the RC back in m01-l2 and confirmed it again at the top of m02-l1; if it is missing, here is the same documented git build, because Anchor V2 is a release candidate installed from git, not from `avm`'s attested channel:
+First, the toolchain. You installed the RC back in m01-l2 and confirmed it again at the top of m02-l1; if it is missing, here is the same documented git build, because Anchor V2 is a release candidate installed from git, not from `avm`'s prebuilt-binary channel:
 
 ```bash
 # Anchor V2 2.0.0-rc.1 - git otter-sec/anchor, branch anchor-next (the tag
-# v2.0.0-rc.1 sits at commit e4878b6d). RC/alpha: this WILL move and avm cannot
-# attest it. The course's Docker verify gate pins the commit; re-verify it there.
+# v2.0.0-rc.1 sits at commit e4878b6d). RC/alpha: this WILL move, and no release
+# binary is published for it. The Docker verify gate pins the commit; re-verify there.
 cargo install --git https://github.com/otter-sec/anchor.git \
   --branch anchor-next anchor-cli --locked --force
 ```

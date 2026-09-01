@@ -74,10 +74,10 @@ This is the capstone lab. The R1 edge is worked. The rest is yours. I will keep 
 
 > Freshness note: this is written against the Anchor V2 release candidate on the 2.x line (the docs tree published under `v2`), `2.0.0-rc.1` as of 2026-08-22. Install the toolchain from the documented git channel (Step 0, `avm` cannot fetch the RC). The machine-default `anchor-cli 1.1.2` is the V1 line and will not compile the `CpiHandle` or `&Address` grammar below. Version pins in this lab carry the date they were checked; re-verify before you build.
 
-**Step 0. Pin the toolchain.** One trap first, and m01-l2 already walked you into it on purpose: **`avm` cannot install the V2 RC.** Modern `avm` verifies a GitHub attestation, attestation hangs off a GitHub Release object, and there is no Release for the `v2.0.0-rc.1` tag, only the tag itself on the `anchor-next` branch. So you install the CLI from the documented git channel, not from `avm`:
+**Step 0. Pin the toolchain.** One trap first, and m01-l2 already walked you into it on purpose: **`avm install` cannot fetch the V2 RC.** `avm install` downloads a prebuilt binary from the tag's GitHub Release assets, and no Release was cut for `v2.0.0-rc.1` — only the tag itself exists — so the download 404s. So you install the CLI from the documented git channel, not from `avm`:
 
 ```bash
-# No GitHub Release for the v2 tag -> avm has nothing to attest. Build from the branch.
+# No GitHub Release for the v2 tag -> no binary to download. Build from the branch.
 cargo install --git https://github.com/otter-sec/anchor.git \
   --branch anchor-next anchor-cli --locked --force
 anchor --version           # expect: anchor-cli 2.0.0-rc.1

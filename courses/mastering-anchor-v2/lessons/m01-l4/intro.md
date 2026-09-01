@@ -153,7 +153,7 @@ Which closes the loop back to where the whole chapter started, the dispatcher. T
 
 You are still working on R0, the greeter. This lab extends it with a second and third instruction and a small account struct, purely so you can observe the generated load, constraints, dispatch, the discriminator namespaces, and the error layout on code you wrote. Real, tested state arrives next module. For now, the point is to see the surface.
 
-First, the toolchain. You already built the V2 RC in m01-l2, and you learned there why `avm` cannot install it for you: there is no GitHub Release object for the v2 tag, so there is nothing for `avm` to attest. The RC lives in the git channel (`cargo install --git ... --branch anchor-next anchor-cli --locked --force`), and the binary is already on your machine. Confirm it is the one answering before you touch code:
+First, the toolchain. You already built the V2 RC in m01-l2, and you learned there why `avm install` cannot fetch it for you: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s. The RC lives in the git channel (`cargo install --git ... --branch anchor-next anchor-cli --locked --force`), and the binary is already on your machine. Confirm it is the one answering before you touch code:
 
 ```bash
 anchor --version   # expect: anchor-cli 2.0.0-rc.1
