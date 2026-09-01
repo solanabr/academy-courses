@@ -156,6 +156,8 @@ docker info >/dev/null && echo "docker up" || echo "start docker first"
 # Anchor V2 RC, if you have not already installed it for this course. `avm install`
 # 404s on the RC (no GitHub Release cut for the v2 tag, so its binary is missing), so
 # the documented channel is the git build you ran in m01-l2.
+# macOS needs LTO off or the release build blows up at link; harmless elsewhere.
+CARGO_PROFILE_RELEASE_LTO=off \
 cargo install --git https://github.com/otter-sec/anchor.git \
   --rev e4878b6d anchor-cli --locked --force
 anchor --version   # expect anchor-cli 2.0.0-rc.1 (freshness 2026-08-22; RC, re-check)

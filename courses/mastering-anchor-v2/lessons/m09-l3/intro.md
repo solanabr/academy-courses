@@ -168,16 +168,27 @@ Two of these have a wrinkle worth flagging before you hit it. `quote_swap` reads
 
 If a call refuses to build with a borrow error, it is almost always a typed read sitting above the line that drops a handle. Move the read up, before the handle opens, and try again. That error is the compiler doing your reload discipline for you.
 
-**Step 4. The unit suite: LiteSVM plus Mollusk.** Each rung already has tests. The registry needs its own, exercising each edge in isolation against an in-process runtime. LiteSVM runs your full compiled program in a lightweight in-memory validator; Mollusk drives a single instruction and reports the CU it burned. Add them as dev-dependencies:
+**Step 4. The unit suite: LiteSVM plus Mollusk.** Each rung already has tests. The registry needs its own, exercising each edge in isolation against an in-process runtime. LiteSVM runs your full compiled program in a lightweight in-memory validator; Mollusk drives a single instruction and reports the CU it burned. Add them as dev-dependencies, and note that the two arrive by different routes:
 
 ```bash
-cargo add --dev litesvm
-cargo add --dev mollusk-svm
+# LiteSVM comes through the V2 harness, never by name. anchor-v2-testing owns the
+# litesvm version (0.11.0 at tag v2.0.0-rc.1; the anchor-next head has already moved
+# it to 0.13.1), so pinning the tag pins the SVM. A bare `cargo add --dev litesvm`
+# resolves the crates.io latest against your rc.1 program: two SVM majors, one graph.
+cargo add anchor-v2-testing --dev \
+  --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
+
+# Mollusk is a separate stack and carries its own solana pin, exactly as in m06-l1:
+# 0.15 builds on the agave 4.x SVM crates, so the measurement tests need solana-sdk 4
+# for their Pubkey/Account/Instruction types. That row is Mollusk's, not LiteSVM's.
+cargo add mollusk-svm@0.15.0 --dev
+cargo add solana-sdk@4 --dev
+
 cargo build-sbf                      # Mollusk loads the .so; build before you measure
 cargo test -p floor-registry         # runs BOTH suites
 ```
 
-Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`. You need at least one for `settle_prize`, because that printed integer is the "before" number Step 7 asks you to record.
+Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved; their imports ride `anchor_lang` and `anchor_v2_testing` and reach past neither, the same shape every LiteSVM test in this course has used. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`, importing `Account`, `Instruction`, and `Pubkey` from `solana_sdk`. Keep the two suites in separate test files: they speak two different SVM stacks, and a file that mixes their types will not compile. You need at least one Mollusk test for `settle_prize`, because that printed integer is the "before" number Step 7 asks you to record.
 
 Green here means each edge works alone. That is necessary and not sufficient, which is the whole reason Step 8 exists.
 

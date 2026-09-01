@@ -406,31 +406,45 @@ The setup is more than a comment, so here it is in full. Put it at `programs/qua
 ```rust
 // tests/spl_setup.rs - the fixture. Creates a 6-decimal mint, initializes the
 // vault and its ATA, mints into the authority's ATA, and deposits 1.0 token.
-use anchor_lang::{InstructionData, ToAccountMetas};
+// Imports ride anchor_lang and anchor_v2_testing and reach past neither: the
+// instruction plumbing is anchor_lang's, the signing and SVM plumbing is the
+// harness's, and nothing here names a solana crate the Cargo.toml never declared.
+use anchor_lang::{
+    prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
+    InstructionData, ToAccountMetas,
+};
 use anchor_v2_testing::{Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction};
-use anchor_lang::solana_program::pubkey::Pubkey;
+
+// Cargo compiles every tests/*.rs as its own crate root, so a sibling `mod spl_helpers`
+// in the test file is not in scope here. Pull the helpers in by path instead; the test
+// file then declares only `mod spl_setup;`.
+#[path = "spl_helpers.rs"]
+mod spl_helpers;
 
 pub const DECIMALS: u8 = 6;
 pub const ONE_TOKEN: u64 = 1_000_000;
 
 pub struct Ctx {
     pub authority: Keypair,
-    pub mint: Pubkey,
-    pub vault: Pubkey,
-    pub vault_ata: Pubkey,
-    pub authority_ata: Pubkey,
+    pub mint: Address,
+    pub vault: Address,
+    pub vault_ata: Address,
+    pub authority_ata: Address,
 }
 
-pub fn send(svm: &mut LiteSVM, payer: &Keypair, signers: &[&Keypair], ixs: &[solana_sdk::instruction::Instruction])
-    -> Result<(), anchor_v2_testing::FailedTransactionMetadata>
+// LiteSVM's own failure type is not among anchor_v2_testing's re-exports, and adding
+// litesvm by name is exactly the skew this lesson's pin avoids, so the error is
+// flattened to a String at the boundary. Callers only ever ask "did it fail, and why".
+pub fn send(svm: &mut LiteSVM, payer: &Keypair, signers: &[&Keypair], ixs: &[Instruction])
+    -> Result<(), String>
 {
     let bh = svm.latest_blockhash();
     let msg = Message::new_with_blockhash(ixs, Some(&payer.pubkey()), &bh);
     let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), signers).unwrap();
-    svm.send_transaction(tx).map(|_| ())
+    svm.send_transaction(tx).map(|_| ()).map_err(|e| format!("{:?}", e.err))
 }
 
-pub fn token_balance(svm: &LiteSVM, ata: &Pubkey) -> u64 {
+pub fn token_balance(svm: &LiteSVM, ata: &Address) -> u64 {
     let acct = svm.get_account(ata).expect("token account exists");
     // SPL token account layout: amount is a little-endian u64 at offset 64.
     u64::from_le_bytes(acct.data[64..72].try_into().unwrap())
@@ -449,10 +463,10 @@ pub fn setup(svm: &mut LiteSVM) -> Ctx {
     spl_helpers::mint_to(svm, &authority, &mint, &authority_ata, ONE_TOKEN);
 
     // 2. the vault PDA and its ATA, created by the program's own initialize
-    let (vault, _b) = Pubkey::find_program_address(
+    let (vault, _b) = Address::find_program_address(
         &[b"vault", authority.pubkey().as_ref()], &program_id);
     let vault_ata = spl_helpers::ata_address(&mint, &vault);
-    let init = solana_sdk::instruction::Instruction {
+    let init = Instruction {
         program_id,
         accounts: quarter_vault::accounts::Initialize {
             authority: authority.pubkey(),
@@ -462,14 +476,14 @@ pub fn setup(svm: &mut LiteSVM) -> Ctx {
             vault_token_account: vault_ata,
             token_program: spl_token::ID,
             associated_token_program: spl_associated_token_account::ID,
-            system_program: solana_sdk::system_program::ID,
+            system_program: System::id(),
         }.to_account_metas(None),
         data: quarter_vault::instruction::Initialize {}.data(),
     };
     send(svm, &authority, &[&authority], &[init]).unwrap();
 
     // 3. deposit 1.0 token into the vault ATA
-    let dep = solana_sdk::instruction::Instruction {
+    let dep = Instruction {
         program_id,
         accounts: quarter_vault::accounts::Deposit {
             depositor: authority.pubkey(),
@@ -486,10 +500,8 @@ pub fn setup(svm: &mut LiteSVM) -> Ctx {
     Ctx { authority, mint, vault, vault_ata, authority_ata }
 }
 
-pub fn send_withdraw(svm: &mut LiteSVM, ctx: &Ctx, amount: u64)
-    -> Result<(), anchor_v2_testing::FailedTransactionMetadata>
-{
-    let ix = solana_sdk::instruction::Instruction {
+pub fn send_withdraw(svm: &mut LiteSVM, ctx: &Ctx, amount: u64) -> Result<(), String> {
+    let ix = Instruction {
         program_id: quarter_vault::ID,
         accounts: quarter_vault::accounts::Withdraw {
             authority: ctx.authority.pubkey(),
@@ -501,8 +513,7 @@ pub fn send_withdraw(svm: &mut LiteSVM, ctx: &Ctx, amount: u64)
         }.to_account_metas(None),
         data: quarter_vault::instruction::Withdraw { amount }.data(),
     };
-    let authority = Keypair::from_bytes(&ctx.authority.to_bytes()).unwrap();
-    send(svm, &authority, &[&authority], &[ix])
+    send(svm, &ctx.authority, &[&ctx.authority], &[ix])
 }
 ```
 
@@ -511,8 +522,7 @@ pub fn send_withdraw(svm: &mut LiteSVM, ctx: &Ctx, amount: u64)
 Now the check itself, at `programs/quarter-vault/tests/vault_spl_withdraw.rs`:
 
 ```rust
-mod spl_helpers;
-mod spl_setup;
+mod spl_setup;   // it pulls spl_helpers in itself, by #[path]
 
 use anchor_v2_testing::svm;
 
