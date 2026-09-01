@@ -114,17 +114,19 @@ This is the last lab of the course, so let me say the quiet part loudly: the sca
   "type": "module",
   "workspaces": [
     "transfer-kit",
-    "checkout",
+    "wavelength-checkout",
     "checkout-txreq",
     "pos-stall",
     "drop-blink",
     "verifier",
     "backoffice",
-    "crank",
+    "backoffice-refunds",
+    "club-crank",
     "subscriptions",
     "dunning",
-    "ramp-embed",
-    "workspaces/x402",
+    "x402",
+    "gasless-checkout",
+    "fair-queue",
     "stack"
   ],
   "scripts": {
@@ -184,7 +186,7 @@ Checkpoint: `npx tsx src/server.ts` inside each surface workspace still starts t
 import express from 'express';
 import { txreqApp } from '../../checkout-txreq/src/server';
 import { blinkApp } from '../../drop-blink/src/server';
-import { x402App } from '../../workspaces/x402/src/server';
+import { x402App } from '../../x402/src/server';
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
@@ -277,7 +279,7 @@ process.on('SIGTERM', shutdown);
 
 Checkpoint: `npm run --workspace stack boot` shows three prefixed startup lines, and Ctrl-C takes all three down. If the crank logs a kit type error here, you have the cross-contamination footgun: something outside the subscriptions folder is importing from inside it. The fix is never a version change; it is deleting the import.
 
-**5. Drain the queue before doors open.** The fair queue from the offline lesson holds at least one signed sale from your last stall session. Run your drain (mine is `npm run --workspace pos-stall drain`) and wait for the queue-empty line before you ever start the journey. The drained sale flows through the webhook path like any other purchase, which is why the journey's webhook leg will account for it, and why asserting before the drain finishes is footgun three. Checkpoint: the drain prints a landed signature per queued sale and then its queue-empty line, and it has stopped printing before you touch terminal two. If signatures are still arriving, the journey has not earned the right to run yet.
+**5. Drain the queue before doors open.** The fair queue from the offline lesson holds at least one signed sale from your last stall session. Run your drain (`cd fair-queue && npx tsx drain.ts`) and wait for the queue-empty line before you ever start the journey. The drained sale flows through the webhook path like any other purchase, which is why the journey's webhook leg will account for it, and why asserting before the drain finishes is footgun three. Checkpoint: the drain prints a landed signature per queued sale and then its queue-empty line, and it has stopped printing before you touch terminal two. If signatures are still arriving, the journey has not earned the right to run yet.
 
 **6. The journey harness, and the one worked leg.** The driver below is the entire scaffold you get: the shared verifier, a retry wrapper that knows a timeout from a rejection, the bounded poll for the two asynchronous legs, the PASS/FAIL printer, and leg 1 worked in full as the pattern. Legs 2 through 7 are named, commented out, and yours.
 
@@ -372,7 +374,7 @@ export async function assertLeg(
 // headless test buyer, so this leg asserts the session-token contract:
 // the URL exists, it binds the network, and it leaks no wallet address.
 async function legRampStub(): Promise<string> {
-  const rampDir = fileURLToPath(new URL('../../ramp-embed', import.meta.url));
+  const rampDir = fileURLToPath(new URL('../../wavelength-checkout/ramp-embed', import.meta.url));
   const { stdout } = await run('npx', ['tsx', 'smoke.ts'], { cwd: rampDir });
 
   if (!stdout.includes('pay.coinbase.com')) {

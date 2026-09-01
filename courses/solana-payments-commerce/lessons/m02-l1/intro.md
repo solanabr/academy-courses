@@ -109,7 +109,7 @@ You will not use it today. The webhook lesson in module 4 creates a devnet webho
 Create the project the whole course lives in:
 
 ```bash
-mkdir wavelength && cd wavelength
+cd ~ && mkdir wavelength && cd wavelength
 npm init -y
 npm pkg set type="module"
 mkdir -p transfer-kit/src

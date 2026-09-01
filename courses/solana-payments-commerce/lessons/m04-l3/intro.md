@@ -106,15 +106,17 @@ The tl;dr is: none of these answers is correct, and that is the point. What is c
 
 Six steps. The reconciler and refund builder are scaffolded with TODOs; the policy module is yours. Everything runs against devnet with the same workspace pins the course froze in module 2: `@solana/kit` ^6.10.0 with `@solana-program/token` 0.14.0 (pinned 2026-08; the kit ecosystem's peer standard has since moved to the v7 line, and these workspaces stay on v6 because `@solana/pay` peers kit ^6.9; the subscriptions module walks that seam properly). No new dependencies today, which is its own small lesson: a refund system is a composition, not a package.
 
-**Step 1: scaffold.** Pull the lesson scaffold into the repo and install:
+**Step 1: scaffold.** Create the workspace and install its tooling:
 
 ```bash
-npm install
-npm run --workspace backoffice-refunds build
-ls backoffice-refunds/src
+mkdir -p backoffice-refunds/src
+cd backoffice-refunds && npm init -y && npm pkg set type=module
+npm pkg set scripts.build="tsc --noEmit"
+npm install -D tsx typescript @types/node
+cd .. && npm install
 ```
 
-You should see `reconcile.ts`, `refund.ts`, `policy.ts`, `origin.ts`, `sweep.ts`, and `ledger.ts`, the last one a thin extension of the backoffice ledger, plus the verify harness. The build succeeds with the scaffolds in place because every TODO throws rather than type-errors; the harness is what will tell you they are unfinished.
+Create these six files as you work through the steps below: `reconcile.ts`, `refund.ts`, `policy.ts`, `origin.ts`, `sweep.ts`, and `ledger.ts`, the last one a thin extension of the backoffice ledger, plus the verify harness. The build succeeds with the scaffolds in place because every TODO throws rather than type-errors; the harness is what will tell you they are unfinished.
 
 **Step 2: the reconciler.** Open `backoffice-refunds/src/reconcile.ts`. The walk is the one from the theory section: the signature search and the failed-transaction filter are given, and the TODO is the classification, the step where the verifier's observed delta becomes one of the four states:
 
