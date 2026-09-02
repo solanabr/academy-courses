@@ -73,7 +73,7 @@ blocks:
             correct: false
             feedback: "You generate the reference yourself, before the customer has scanned anything; it is random bytes carrying no wallet identity, so it cannot serve as a refund handle."
           - id: b
-            label: "The reference encrypts the amount in the URL so the customer cannot tamper with the price before paying."
+            label: "The reference encrypts the amount and the recipient in the URL, so the wallet decrypts them at scan time and the customer cannot edit the price before paying."
             correct: false
             feedback: "References do not encrypt anything; the amount is plainly in the URL. Tamper-resistance is exactly why the next lesson moves pricing server-side."
           - id: c

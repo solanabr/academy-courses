@@ -59,7 +59,7 @@ blocks:
             correct: true
             feedback: "Emitting both challenges moves the protocol choice to the caller, which is the optionality you buy. The price is a churn-prone CLI in the request path, so pin it deliberately."
           - id: c
-            label: "It moves settlement on-chain so no facilitator is involved for either protocol."
+            label: "It moves settlement fully on-chain, so neither the x402 facilitator nor MPP's co-signing server sits in the payment path any more."
             correct: false
             feedback: "Gating does not remove the facilitator/co-signer role; x402 still settles through a facilitator and MPP's pull mode still has the server co-sign. What gating buys is one API serving both protocols, not the elimination of that role."
         explanation: "`pay gate api paywall.yml` lets one API answer both x402 and MPP, and `pay curl` auto-negotiates the 402 on whichever protocol the caller speaks. That is the hands-on payoff: instead of betting on a single standard in a fast-moving field, you gate once and let the CLI negotiate, accepting a churn-prone CLI dependency as the cost."
@@ -68,7 +68,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Commit fully to AP2 now; Google plus FIDO guarantees it becomes the one standard."
+            label: "Commit fully to AP2 now; Google plus FIDO backing, and a mandate model that already covers agent authorization, makes it the safe single bet."
             correct: false
             feedback: "No standard is guaranteed to win, and AP2 is cards-first, a poor fit for Solana-native metered APIs. Picking one exclusively is the premature bet the lesson argues against."
           - id: b

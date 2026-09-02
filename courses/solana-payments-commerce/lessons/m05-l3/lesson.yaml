@@ -24,7 +24,7 @@ blocks:
             correct: false
             feedback: "There is nothing to auto-retry against a wallet you don't control, and the documented policy is explicitly NOT to retry against the wallet."
           - id: c
-            label: "The subscription is cancelled immediately and its delegation PDA is closed on the spot."
+            label: "The subscription is cancelled immediately and its delegation PDA is closed on the spot, refunding the rent to the subscriber who paid it."
             correct: false
             feedback: "A failure moves to an open-invoice/grace state, not immediate cancel-and-close; cancellation is a separate, explicit transition."
         explanation: "Retry-never: with no custody there is nothing to dun. The failed pull becomes an open invoice the subscriber settles when they top up, the exact opposite of card-rail auto-retry."
@@ -54,7 +54,7 @@ blocks:
             correct: false
             feedback: "Sphere does payments, ramps, OTC, and PIX settlement, but it ships NO recurring product."
           - id: b
-            label: "Stripe cannot bill stablecoin subscriptions; it only settles one-off crypto payments."
+            label: "Stripe cannot bill stablecoin subscriptions; its crypto support stops at one-off checkout payments, so recurring stablecoin billing has to run on MoonPay Commerce."
             correct: false
             feedback: "Stripe Billing does support stablecoin subscriptions; that is exactly its recurring product."
           - id: c

@@ -24,7 +24,7 @@ blocks:
             correct: true
             feedback: "At-least-once delivery means the key must come from the payment, not the delivery: a per-delivery id changes on every retry and lets all three through. A signature is deterministic."
           - id: c
-            label: "It's a bug in helius-sdk 3.1.0; pin an older SDK and the duplicates stop."
+            label: "It's a bug in helius-sdk 3.1.0's delivery retry loop; pin an older SDK version and the duplicate deliveries stop."
             correct: false
             feedback: "Redelivery on non-2xx is documented behavior, not a bug; the fix is idempotency, not a downgrade."
         explanation: "Retries on unsuccessful (roughly non-2xx) responses mean duplicate events are normal. The transaction signature is deterministic and unique per payment, so keying idempotency on it makes fulfillment exactly-once. That the signature is the right key is our sound inference, not a Helius quote."
@@ -58,7 +58,7 @@ blocks:
             correct: false
             feedback: "RPC polling is exactly what the official guidance calls insufficient at scale; a tight loop worsens the load that disabled you rather than fixing it."
           - id: c
-            label: "Switch from Enhanced to Raw webhooks, since Raw events never trigger auto-disable."
+            label: "Switch from Enhanced to Raw webhooks: Raw payloads are smaller, so your endpoint answers in time and never trips the auto-disable policy."
             correct: false
             feedback: "Raw lowers latency but leaves the auto-disable-on-failure policy untouched; the failure is your endpoint, not the event type."
         explanation: "Auto-disable at sustained failure is a guardrail, not a bug. Webhooks fit merchant-ops volume; at indexing scale you move to Yellowstone gRPC, and this course hands that depth to Client-Side Mastery rather than teaching it here."

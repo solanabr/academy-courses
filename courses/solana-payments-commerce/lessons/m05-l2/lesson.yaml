@@ -26,7 +26,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "It stores each allowance off-chain and signs every pull with the merchant's own key."
+            label: "It stores each allowance in the merchant's own database and signs every pull with the merchant's key, so the single on-chain delegate slot never has to be shared."
             correct: false
             feedback: "Pulls are on-chain delegate transfers, and the enforced limits live in program accounts rather than off-chain; that is what keeps it non-custodial."
           - id: b
@@ -47,7 +47,7 @@ blocks:
             correct: true
             feedback: "With no key to hold there is no merchant secret to leak. The trust moves rather than vanishes: the upgrade authority now holds it."
           - id: b
-            label: "The PDA is owned by the subscriber's wallet, which must co-sign every individual pull."
+            label: "The PDA is derived from and owned by the subscriber's wallet, so the subscriber's key must co-sign every individual pull before the crank can move funds."
             correct: false
             feedback: "A PDA is not owned by the user's wallet, and the subscriber does not co-sign each pull; cadenced pulls without per-charge signatures are the point of delegation."
           - id: c
@@ -84,7 +84,7 @@ blocks:
             correct: false
             feedback: "Ending a term does not delete the account, and an active flag alone does not encode a time-based lapse."
           - id: b
-            label: "A balance check; the account is closed automatically once the allowance reaches zero."
+            label: "A balance check: the Token program zeroes the approval once the allowance is exhausted, and the delegation account it belongs to is reaped in that very same instruction."
             correct: false
             feedback: "A zero allowance does not close the account, and it would not represent elapsed time either."
           - id: c

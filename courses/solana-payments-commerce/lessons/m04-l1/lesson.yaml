@@ -88,7 +88,7 @@ blocks:
             correct: false
             feedback: "The stored set is a dedup guard, not an RPC cache; verification still fetches the transaction to check it."
           - id: c
-            label: "To satisfy Alpenglow's finality requirement before a payment can be trusted."
+            label: "To satisfy Alpenglow's finality requirement: a payment counts as trusted only once its signature has been retained across the finality window."
             correct: false
             feedback: "Alpenglow is a labeled roadmap flag here, not a live gate; today's dedup is about webhook retries, not finality mechanics."
         explanation: "Signatures are deterministic, so a redelivered webhook produces the same signature, and storing processed ones makes fulfillment exactly-once. The cost is unbounded state, so you evict past a horizon (for example, beyond the blockhash lifetime plus a margin)."

@@ -16,7 +16,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "PYUSD uses a different decimals count than USDC, so your base-unit math overflows before it can send."
+            label: "PYUSD uses a different decimals count than USDC, so the base-unit amount your kit computes overflows the u64 the transfer instruction expects and the build throws before it sends."
             correct: false
             feedback: "PYUSD is also 6 decimals, and overflow is not the issue; the transfer fails because it is aimed at the wrong owner program."
           - id: b
@@ -58,7 +58,7 @@ blocks:
             correct: true
             feedback: "Only the live mint is authoritative, since a fee authority can raise the rate. Reading it once at boot is the same bug slowed down."
           - id: c
-            label: "Ignore it as a sender; any Token-2022 transfer fee is always absorbed by the recipient, never the payer."
+            label: "Ignore it as a sender: any Token-2022 transfer fee is charged to the recipient as a separate deduction after settlement, so the amount you send and the amount invoiced always match."
             correct: false
             feedback: "A transfer fee is withheld from the transferred amount and is very much the sender's concern; you cannot ignore it."
         explanation: "The presence of transferFeeConfig does not tell you the rate. Read the basis points live from the mint, because the fee can be nonzero and can be changed by its authority. PYUSD's is 0 today, but reading it is the only integration-safe habit, which is exactly why the lab reads rather than asserts it."
