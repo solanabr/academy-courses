@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: Two ways to make the quote overflow-proof, and what each costs
      purpose: frame the coding challenge's real decision as a measurable trade rather than a style preference
-     data: columns: Approach | How overflow is handled | Cost on the hot path | What the loop has to tell you row: checked_mul on u64, branch on overflow | detected at runtime, returns an error | one branch on every quote | whether the branch is cheaper than the wider arithmetic on YOUR reserves row: promote to u128, then multiply | impossible by construction, no check needed | wider arithmetic, no branch | whether the promotion costs more than the branch it removed takeaway: both are safe; only a measurement on your reserves says which is cheaper, and the number decides
+     data: columns: Approach | How overflow is handled | Cost on the hot path | What the loop has to tell you row: checked_mul on u64, branch on overflow | detected at runtime, returns an error | one branch on every quote | whether the branch is cheaper than the wider arithmetic on YOUR reserves row: promote to u128, then multiply | no check needed, for two u64 factors | wider arithmetic, no branch | whether the promotion costs more than the branch it removed takeaway: both are safe; only a measurement on your reserves says which is cheaper, and the number decides
      prompt: Two-column comparison, side by side, with the four property rows down the left. Put a scale/balance icon between the columns and a full-width footer band carrying the takeaway. Neither column should be styled as the winner; the point is that the measurement, not the layout, picks.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -106,7 +106,7 @@
         <span class="ap">promote to <code>u128</code>, then multiply</span>
         <span class="apx">route B</span>
       </div>
-      <div class="r"><span class="rv"><b>impossible by construction</b> &#8212; no check needed</span></div>
+      <div class="r"><span class="rv"><b>no check needed</b> &#8212; for two u64 factors</span></div>
       <div class="r"><span class="rv"><b>wider arithmetic</b>, no branch</span></div>
       <div class="r"><span class="rv">whether the promotion costs more than <b>the branch it removed</b></span></div>
     </div>

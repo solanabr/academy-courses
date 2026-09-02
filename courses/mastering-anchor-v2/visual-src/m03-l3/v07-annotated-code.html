@@ -12,8 +12,8 @@
 <body>
 <!-- annotated-code: The check hook, walked line by line
      purpose: explain what each part of the AccountConstraint::check impl does
-     data: fn check(vault: &Vault, floor: &u64) -> Result<()> { require_gte!(vault.credit, *floor, VaultError::BelowFloor); Ok(()) } notes: - "vault: &Vault  -> the LOADED account, read-only; check never mutates" - "floor: &u64    -> the value from `= 100`; this is Self::Value by reference" - "*floor         -> deref to compare the u64 by value; the floor is inclusive (>=)" - "require_gte!   -> returns VaultError::BelowFloor if vault.credit < *floor" - "reached before the handler runs, on EVERY instruction that declares this constraint" - "the NAME is load-bearing: `quarters::min_balance` resolves to `quarters::MinBalance`, snake_case key -> PascalCase marker type, inside a module path that must be in scope"
-     prompt: Show the three-line check function as code on the left with callout lines on the right pointing to each token: the &Vault parameter (loaded, read-only), the &u64 floor (Self::Value), the deref, the require_gte! macro (the inclusive gate), and a banner noting it runs before the handler on every matching instruction. Keep it a code-annotation layout, not a flowchart.
+     data: fn check(vault: &Account<Vault>, floor: &u64) -> Result<()> { require_gte!(vault.credit, *floor, VaultError::BelowFloor); Ok(()) } notes: - "vault: &Account<Vault>  -> the LOADED account, read-only; check never mutates" - "floor: &u64    -> the value from `= 100`; this is Self::Value by reference" - "*floor         -> deref to compare the u64 by value; the floor is inclusive (>=)" - "require_gte!   -> returns VaultError::BelowFloor if vault.credit < *floor" - "reached before the handler runs, on EVERY instruction that declares this constraint" - "the NAME is load-bearing: `quarters::min_balance` resolves to `quarters::MinBalanceConstraint`, snake_case key -> PascalCase marker type, plus a mandatory Constraint suffix, inside a module path that must be in scope"
+     prompt: Show the three-line check function as code on the left with callout lines on the right pointing to each token: the &Account<Vault> parameter (loaded, read-only), the &u64 floor (Self::Value), the deref, the require_gte! macro (the inclusive gate), and a banner noting it runs before the handler on every matching instruction. Keep it a code-annotation layout, not a flowchart.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -65,7 +65,7 @@
 
   <div class="main">
     <div class="code">
-      <div class="cl"><span class="kw">fn</span> check(vault: &amp;Vault<span class="mk">1</span>, floor: &amp;u64<span class="mk">2</span>) -&gt; Result&lt;()&gt; {</div>
+      <div class="cl"><span class="kw">fn</span> check(vault: &amp;Account&lt;Vault&gt;<span class="mk">1</span>, floor: &amp;u64<span class="mk">2</span>) -&gt; Result&lt;()&gt; {</div>
       <div class="cl"><span class="ind">&nbsp;&nbsp;&nbsp;&nbsp;</span>require_gte!<span class="mk">4</span>(vault.credit, *floor<span class="mk">3</span>,</div>
       <div class="cl"><span class="ind">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>VaultError::BelowFloor);</div>
       <div class="cl"><span class="ind">&nbsp;&nbsp;&nbsp;&nbsp;</span>Ok(())</div>
@@ -75,7 +75,7 @@
     <div class="notes">
       <div class="n">
         <span class="nm">1</span>
-        <span class="nb"><span class="tok">vault: &amp;Vault</span> &mdash; the <b>LOADED</b> account, read-only; <b>check never mutates</b>.</span>
+        <span class="nb"><span class="tok">vault: &amp;Account&lt;Vault&gt;</span> &mdash; the <b>LOADED</b> account, read-only; <b>check never mutates</b>.</span>
       </div>
       <div class="n">
         <span class="nm">2</span>
@@ -99,7 +99,7 @@
 
   <div class="name">
     <div class="nk">the name is load-bearing</div>
-    <span class="tok">quarters::min_balance</span> resolves to <span class="tok">quarters::MinBalance</span> &mdash; snake_case key &rarr; PascalCase marker type, inside a module path that must be <b>in scope</b>.
+    <span class="tok">quarters::min_balance</span> resolves to <span class="tok">quarters::MinBalanceConstraint</span> &mdash; snake_case key &rarr; PascalCase marker type, plus a mandatory <b>Constraint</b> suffix, inside a module path that must be <b>in scope</b>.
   </div>
 </div>
 </body></html>

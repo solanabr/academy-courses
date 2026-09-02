@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The swap handler, step by step
      purpose: show the fixed order of reads, quote, guard, and the two CPIs
-     data: 1. read reserve_in = reserve_arcade.amount, reserve_out = reserve_ticket.amount (before any handle) 2. out = swap_out(reserve_in, reserve_out, amount_in); require out > 0 3. GUARD: require out >= min_out, else revert SlippageExceeded 4. CPI pull: trader_arcade -> reserve_arcade, amount_in, trader signs 5. CPI push: reserve_ticket -> trader_ticket, out, pool PDA signs (with_signer) 6. Ok(()) Ordering rules: reads must precede any cpi_handle_mut; guard must precede both CPIs.
+     data: 1. read reserve_in = reserve_arcade.amount(), reserve_out = reserve_ticket.amount() (before any handle) 2. out = swap_out(reserve_in, reserve_out, amount_in); require out > 0 3. GUARD: require out >= min_out, else revert SlippageExceeded 4. CPI pull: trader_arcade -> reserve_arcade, amount_in, trader signs 5. CPI push: reserve_ticket -> trader_ticket, out, pool PDA signs (with_signer) 6. Ok(()) Ordering rules: reads must precede any cpi_handle_mut; guard must precede both CPIs.
      prompt: Vertical flowchart, six boxes top to bottom in the order above. Mark box 1 with a side note "typed reads only legal here". Mark box 3 as a decision diamond ("out >= min_out?") with a "no -> revert" branch off the side. Mark boxes 4 and 5 as CPI steps, tagging the signer on each ("trader" / "pool PDA"). Keep it a clean single column with the one revert branch.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -105,7 +105,7 @@
       <div class="f5-c">
         <div class="f5-box">
           <span class="num">1</span>
-          <span><span class="n">read both reserves</span><span class="m">reserve_in = reserve_arcade.amount &middot; reserve_out = reserve_ticket.amount</span></span>
+          <span><span class="n">read both reserves</span><span class="m">reserve_in = reserve_arcade.amount() &middot; reserve_out = reserve_ticket.amount()</span></span>
         </div>
         <div class="f5-a"><svg width="14" height="18" viewBox="0 0 14 18"><line x1="7" y1="0" x2="7" y2="10" stroke="#1b231d" stroke-width="2.5"/><polygon points="0,9 14,9 7,18" fill="#1b231d"/></svg></div>
         <div class="f5-box">

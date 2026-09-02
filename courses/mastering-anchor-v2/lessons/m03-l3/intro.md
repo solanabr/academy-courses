@@ -68,7 +68,7 @@ A **marker type** is a struct with no fields, `pub struct MinBalanceConstraint;`
 
 An **associated item** is a type or constant that belongs to a trait implementation rather than being passed in. `AccountConstraint` has an associated type `Value`, the type of the value on the right of the `=`. For `quarters::min_balance = 100`, `Value` is `u64` and the `100` is that value. That is genuinely all the Rust machinery this lesson leans on. Trait, marker type, associated type. Everything else is the argument for why they are here.
 
-![A three-card reference mapping the trait AccountConstraint, the fieldless marker type MinBalance, and the associated type Value to the single impl line that binds all three together.](assets/v01-diagram.png)
+![A three-card reference mapping the trait AccountConstraint, the fieldless marker type MinBalanceConstraint, and the associated type Value to the single impl line that binds all three together.](assets/v01-diagram.png)
 
 ### The status quo, and the exact place it breaks
 

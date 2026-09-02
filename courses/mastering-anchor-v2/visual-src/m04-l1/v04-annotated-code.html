@@ -12,8 +12,8 @@
 <body>
 <!-- annotated-code: The PDA-signed System transfer, part by part
      purpose: name each token in the V2 CpiContext::new + with_signer + transfer call
-     data: let owner = ctx.accounts.authority.address(); let signer_seeds: &[&[&[u8]]] = &[&[b"sol", owner.as_ref(), &[ctx.accounts.state.sol_bump]]]; let system_program = ctx.accounts.system_program.address(); let cpi = CpiContext::new( &system_program, Transfer { from: ctx.accounts.sol_vault.cpi_handle_mut(), to:   ctx.accounts.authority.cpi_handle_mut(), }, ).with_signer(signer_seeds); transfer(cpi, amount)?; notes: - "owner.address()        -> V2 replaces .key() with .address(); returns the player's Address by value" - "signer_seeds           -> the SOL vault's OWN seeds + its STORED canonical bump (state.sol_bump)" - "&system_program        -> CpiContext::new takes the TARGET program as a &Address (the System Program)" - "from/to: .cpi_handle_mut() -> CpiHandle borrow-tracked handles; both accounts are written, so _mut" - ".with_signer(seeds)    -> attaches the PDA signer; this is invoke_signed under the hood" - "transfer(cpi, amount)  -> the System Program helper; moves `amount` lamports SOL vault -> player" freshness: shapes verified against the 2.0.0-rc.1 extensibility surface (crates.io); this is a release candidate, re-read the crate when you build
-     prompt: Show the code block on the left, monospace, and lead a callout line from each highlighted token to its note on the right: .address(), signer_seeds, &system_program, cpi_handle_mut (both from and to), with_signer, transfer. Add a small "release candidate: re-verify" ribbon near the top. Keep it a code-annotation layout, not a flow diagram.
+     data: let owner = *ctx.accounts.authority.address(); let signer_seeds: &[&[&[u8]]] = &[&[b"sol", owner.as_ref(), &[ctx.accounts.state.sol_bump]]]; let cpi = CpiContext::new( ctx.accounts.system_program.address(), Transfer { from: ctx.accounts.sol_vault.cpi_handle_mut(), to:   ctx.accounts.authority.cpi_handle_mut(), }, ).with_signer(signer_seeds); transfer(cpi, amount)?; notes: - "*owner.address()       -> .address() returns &Address; the deref copies it into an owned value BEFORE any cpi_handle is built" - "signer_seeds           -> the SOL vault's OWN seeds + its STORED canonical bump (state.sol_bump)" - "system_program.address() -> CpiContext::new takes the TARGET program directly as the &Address .address() returns, no local binding needed" - "from/to: .cpi_handle_mut() -> CpiHandle borrow-tracked handles; both accounts are written, so _mut" - ".with_signer(seeds)    -> attaches the PDA signer; this is invoke_signed under the hood" - "transfer(cpi, amount)  -> the System Program helper; moves `amount` lamports SOL vault -> player" freshness: shapes verified against the 2.0.0-rc.1 extensibility surface (crates.io); this is a release candidate, re-read the crate when you build
+     prompt: Show the code block on the left, monospace, and lead a callout line from each highlighted token to its note on the right: *owner.address(), signer_seeds, system_program.address(), cpi_handle_mut (both from and to), with_signer, transfer. Add a small "release candidate: re-verify" ribbon near the top. Keep it a code-annotation layout, not a flow diagram.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -67,12 +67,11 @@
 
   <div class="ac-wrap">
     <div class="ac-code">
-      <div class="ac-ln"><code><span class="k">let</span> owner = ctx.accounts.authority.<span class="y">address()</span>;</code><span class="mk">1</span></div>
+      <div class="ac-ln"><code><span class="k">let</span> owner = <span class="y">*</span>ctx.accounts.authority.<span class="y">address()</span>;</code><span class="mk">1</span></div>
       <div class="ac-ln"><code><span class="k">let</span> <span class="y">signer_seeds</span>: &amp;[&amp;[&amp;[u8]]] =</code><span class="mk">2</span></div>
       <div class="ac-ln"><code>    &amp;[&amp;[b"sol", owner.as_ref(), &amp;[ctx.accounts.state.<span class="y">sol_bump</span>]]];</code></div>
-      <div class="ac-ln"><code><span class="k">let</span> system_program = ctx.accounts.system_program.address();</code></div>
       <div class="ac-ln"><code><span class="k">let</span> cpi = CpiContext::new(</code></div>
-      <div class="ac-ln"><code>    <span class="y">&amp;system_program</span>,</code><span class="mk">3</span></div>
+      <div class="ac-ln"><code>    <span class="y">ctx.accounts.system_program.address()</span>,</code><span class="mk">3</span></div>
       <div class="ac-ln"><code>    Transfer {</code></div>
       <div class="ac-ln"><code>        from: ctx.accounts.sol_vault.<span class="y">cpi_handle_mut()</span>,</code><span class="mk">4</span></div>
       <div class="ac-ln"><code>        to:   ctx.accounts.authority.<span class="y">cpi_handle_mut()</span>,</code><span class="mk">4</span></div>
@@ -83,14 +82,14 @@
 
     <div class="ac-notes">
       <div class="ac-note"><span class="mk">1</span><div class="tx">
-        <div class="tk">owner.address()</div>
-        <div class="ds">V2 replaces <code>.key()</code> with <code>.address()</code>; returns the player&rsquo;s Address by value.</div></div></div>
+        <div class="tk">*ctx.accounts.authority.address()</div>
+        <div class="ds"><code>.address()</code> returns <code>&amp;Address</code>; the deref (<code>*</code>) copies it into an owned value BEFORE any <code>cpi_handle</code> is built.</div></div></div>
       <div class="ac-note"><span class="mk">2</span><div class="tx">
         <div class="tk">signer_seeds</div>
         <div class="ds">The SOL vault&rsquo;s OWN seeds + its STORED canonical bump (<code>state.sol_bump</code>).</div></div></div>
       <div class="ac-note"><span class="mk">3</span><div class="tx">
-        <div class="tk">&amp;system_program</div>
-        <div class="ds"><code>CpiContext::new</code> takes the TARGET program as a <code>&amp;Address</code> &mdash; here, the System Program.</div></div></div>
+        <div class="tk">system_program.address()</div>
+        <div class="ds"><code>CpiContext::new</code> takes the TARGET program directly as the <code>&amp;Address</code> that <code>.address()</code> returns &mdash; no local binding needed.</div></div></div>
       <div class="ac-note"><span class="mk">4</span><div class="tx">
         <div class="tk">from / to: .cpi_handle_mut()</div>
         <div class="ds">CpiHandle borrow-tracked handles; both accounts are written, so <code>_mut</code>.</div></div></div>

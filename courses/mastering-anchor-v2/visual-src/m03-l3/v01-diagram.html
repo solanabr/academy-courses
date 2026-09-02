@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: The three Rust shapes this lesson leans on
      purpose: fix the trait / marker type / associated type vocabulary before the argument uses it
-     data: three shapes, mapped to the concrete constraint: - TRAIT: AccountConstraint<A>  -> the promise: a set of hooks (init/check/update/exit) a type agrees to provide - MARKER TYPE: pub struct MinBalance;  -> a fieldless name to hang one rule's behavior on - ASSOCIATED TYPE: type Value = u64;  -> the type of the value on the right of `=` (the 100 in min_balance = 100) binding: impl AccountConstraint<Vault> for MinBalance { type Value = u64; ... } reads as: "here is what the MinBalance rule does when applied to a Vault, and its value is a u64"
-     prompt: Three stacked cards, one per shape (trait, marker type, associated type), each with its one-line role and its concrete example from the data. Below the cards, show the single impl line that binds all three together, with thin connectors from each card to the matching token in that impl line (AccountConstraint<Vault> -> trait card, MinBalance -> marker card, type Value = u64 -> associated card).
+     data: three shapes, mapped to the concrete constraint: - TRAIT: AccountConstraint<A>  -> the promise: a set of hooks (init/check/update/exit) a type agrees to provide - MARKER TYPE: pub struct MinBalanceConstraint;  -> a fieldless name to hang one rule's behavior on - ASSOCIATED TYPE: type Value = u64;  -> the type of the value on the right of `=` (the 100 in min_balance = 100) binding: impl AccountConstraint<Account<Vault>> for MinBalanceConstraint { type Value = u64; ... } reads as: "here is what the MinBalanceConstraint rule does when applied to a loaded Vault, and its value is a u64"
+     prompt: Three stacked cards, one per shape (trait, marker type, associated type), each with its one-line role and its concrete example from the data. Below the cards, show the single impl line that binds all three together, with thin connectors from each card to the matching token in that impl line (AccountConstraint<Account<Vault>> -> trait card, MinBalanceConstraint -> marker card, type Value = u64 -> associated card).
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -66,7 +66,7 @@
     </div>
     <div class="shape">
       <div class="sk">marker type</div>
-      <div class="stok">pub struct MinBalance;</div>
+      <div class="stok">pub struct MinBalanceConstraint;</div>
       <div class="srole">a <b>fieldless name</b> to hang one rule's behaviour on</div>
     </div>
     <div class="shape">
@@ -83,8 +83,8 @@
   </div>
 
   <div class="bind">
-    <div class="bcell">impl <em>AccountConstraint&lt;Vault&gt;</em></div>
-    <div class="bcell">for <em>MinBalance</em></div>
+    <div class="bcell">impl <em>AccountConstraint&lt;Account&lt;Vault&gt;&gt;</em></div>
+    <div class="bcell">for <em>MinBalanceConstraint</em></div>
     <div class="bcell">{ <em>type Value = u64;</em> &hellip; }</div>
   </div>
   <div class="bindkey">
@@ -95,7 +95,7 @@
 
   <div class="reads">
     <span>reads as</span>
-    here is what the <b>MinBalance</b> rule does when applied to a <b>Vault</b>, and its value is a <b>u64</b>
+    here is what the <b>MinBalanceConstraint</b> rule does when applied to a loaded <b>Vault</b>, and its value is a <b>u64</b>
   </div>
 </div>
 </body></html>
