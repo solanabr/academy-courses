@@ -84,7 +84,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Inside the FX perimeter: art. 76-A III reaches self-custody transfers with a PSAV leg, border or none, so check the provider's licence."
+            label: "Inside the FX perimeter: art. 76-A III reaches self-custody transfers with a PSAV leg and no border, so check the provider's licence."
             correct: true
             feedback: "The perimeter test is 76-A, whose third bucket pulls purely domestic self-custody flows in whenever a PSAV is a leg. In force since 2026-02-02, and dated: re-pull the text first."
           - id: b
@@ -95,4 +95,4 @@ blocks:
             label: "Outside it until PL 4.308 passes, since only that bill's reclassification of stablecoins as foreign currency triggers the FX rules."
             correct: false
             feedback: "PL 4.308 is still a bill, and neither version reclassifies stablecoins: both keep them virtual assets and touch issuance and distribution. Res. 277's perimeter already applies."
-        explanation: "The perimeter test is art. 76-A of Resolução BCB 277, inserted by Res. 521 and in force for that article since 2026-02-02, and its third bucket reaches transfers to or from self-custodied wallets whenever a PSAV is a leg, border or none. 76-B only defines the international bucket, and is itself broader than resident-to-non-resident; PL 4.308 is a bill about issuance, not classification. The next check is the provider's authorization, which is question 2 of the method."
+        explanation: "The perimeter test is art. 76-A of Resolução BCB 277, inserted by Res. 521 and in force for that article since 2026-02-02, and its third bucket is expressly the non-international one: transfers to or from a self-custodied wallet that involve no international payment. This flow crosses no border anywhere and sits inside anyway; put a border in it and it moves to the first bucket rather than out of the perimeter. 76-B only defines the international bucket, and is itself broader than resident-to-non-resident; PL 4.308 is a bill about issuance, not classification. The next check is the provider's authorization, which is question 2 of the method."

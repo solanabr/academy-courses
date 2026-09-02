@@ -19,6 +19,8 @@ cd packages/solana-pay/examples/point-of-sale
 npm install   # use Node 20+
 ```
 
+That block assumes `pnpm` is on your path; if it is not, `corepack enable pnpm` turns on the shim Node already ships.
+
 On the Node version, because it will bite you before the install finishes otherwise: the example's own `package.json` pins `engines.node >=18`, but it consumes the repo's core package by path (`"@solana/pay": "file:../../core"`), and that package pins `engines.node >= 20` for Ed25519 in `crypto.subtle`. The floor that actually applies is 20. Settle it now rather than at the first failing import:
 
 ```bash
