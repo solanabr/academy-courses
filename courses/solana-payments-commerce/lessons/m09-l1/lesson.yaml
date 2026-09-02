@@ -29,7 +29,7 @@ blocks:
           - id: c
             label: "Keep the two workspace pins; @solana/pay and @solana/subscriptions sit on different kit peer ranges, which is the seam m05-l2 taught."
             correct: true
-            feedback: "Peer ranges are constraints the packages publish, so resolution happens where each is installed. Two trees do cost you: values crossing between them are not the same types."
+            feedback: "Peer ranges are constraints the packages publish, and resolution happens where each one is installed. Two trees do cost you, since values crossing between them are not the same types."
         explanation: "The kit v6/v7 fragmentation is real and load-bearing: @solana/pay peers the kit-6 line while @solana/subscriptions 0.5.0 peers kit ^7. The course monorepo keeps per-workspace pins precisely so each package gets a compatible kit. Collapsing the workspaces re-introduces the peer conflict you already resolved."
       - id: m09l1-q2-verify-leg
         prompt: "Your journey script runs the Kora-sponsored purchase leg for a SOL-less buyer. The buyer's wallet returns a success toast. How should the demo assert that this leg PASSED?"
@@ -38,7 +38,7 @@ blocks:
           - id: a
             label: "Re-fetch the transaction server-side with getTransaction and check the mint, the token program, and the store ATA's balance delta."
             correct: true
-            feedback: "Only a ledger read your own server performs is unforgeable. Sponsorship changes nothing about proof: every leg asserts the same way."
+            feedback: "Only a ledger read your own server performs is unforgeable; sponsorship changes nothing about proof, and every leg asserts the same way."
           - id: b
             label: "Trust the wallet's success callback, since the Kora fee-payer already co-signed and submitted the transaction on the buyer's behalf and the RPC accepted it before the toast ever rendered."
             correct: false
@@ -59,7 +59,7 @@ blocks:
           - id: b
             label: "Record the failed renewal as an open invoice in the backoffice ledger without retrying it against the wallet, matching the dunning policy from m05-l3."
             correct: true
-            feedback: "With no way to force a pull, a ledger entry is the only durable outcome that failure produces. Give the state an exit too, or an invoice with no expiry accumulates forever."
+            feedback: "With no way to force a pull, a ledger entry is the only durable outcome that failure produces; a state with no exit, though, is how open invoices accumulate forever."
           - id: c
             label: "Revoke the subscription authority PDA and reclaim its rent the moment the renewal fails, closing the account cleanly."
             correct: false

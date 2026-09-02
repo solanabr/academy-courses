@@ -28,7 +28,7 @@ blocks:
           - id: a
             label: "Gate the $6 record on `confirmed` and the $6,000 invoice on `finalized`."
             correct: true
-            feedback: "Commitment trades latency for fork risk, and expected loss scales with the ticket. Value is the input, not the product category."
+            feedback: "Commitment trades latency for fork risk, and expected loss scales with the ticket."
           - id: b
             label: "Keep both on `processed`, since it returns fastest and the wallet already showed the buyer a success screen."
             correct: false
@@ -49,7 +49,7 @@ blocks:
           - id: b
             label: "Fulfillment mistakes are final, so server-side verification is your only backstop."
             correct: true
-            feedback: "With no reversal path, the only control point sits before you ship. It backstops fake payments, not a buyer who wants a refund."
+            feedback: "With no reversal path, the only control point sits before you ship."
           - id: c
             label: "Refunds become automatic since disputes can't happen, so no refund code is needed."
             correct: false
@@ -73,7 +73,7 @@ blocks:
           - id: c
             label: "It never checked the token program, so a Token-2022 look-alike mint passed as classic-Token USDC."
             correct: true
-            feedback: "An asset's identity is the owning program and the mint together, and a decoded amount names neither. Even both are not the last check: the delta on your own account is authoritative."
+            feedback: "An asset's identity is the owning program and the mint together, and a decoded amount names neither; even both are not the last check, since the delta on your own account decides."
         explanation: "Validating the mint is not enough; you must validate the token PROGRAM too (Token vs Token-2022). The verifier checks program, then mint, then the on-chain balance delta on your own account, never a client-supplied number."
       - id: q4
         prompt: "Why does the verifier store every processed signature, and where does that bite?"
@@ -82,7 +82,7 @@ blocks:
           - id: a
             label: "To prevent double-fulfillment on webhook redelivery; the set grows unbounded, so it needs an eviction horizon."
             correct: true
-            feedback: "A redelivered event carries the same deterministic signature, which makes fulfillment exactly-once. Set the horizon past blockhash lifetime plus retries, or eviction reopens it."
+            feedback: "A redelivered event carries the same deterministic signature, which is what makes fulfillment exactly-once; a horizon shorter than blockhash lifetime plus retries reopens the hole."
           - id: b
             label: "To speed up getTransaction: a cached signature skips the RPC round-trip, so a redelivered event costs one local lookup instead of a fetch."
             correct: false

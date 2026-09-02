@@ -22,7 +22,7 @@ blocks:
           - id: b
             label: "No; there is no NFC or tap-to-pay primitive on Solana, and QR remains the standard checkout surface."
             correct: true
-            feedback: "Nothing in the spec or the mobile stack exposes an NFC path. You can offer the ergonomics, not the gesture: scanning is one motion."
+            feedback: "Nothing in the spec or the mobile stack exposes an NFC path."
           - id: c
             label: "Only for Token-2022 mints, whose transfer-hook can carry the tap-to-pay handshake between the phone and the reader."
             correct: false
@@ -43,7 +43,7 @@ blocks:
           - id: c
             label: "Decaf pivoted to global payment links and remittances, so you build QR checkout on the pay repo's own examples/point-of-sale instead of buying a terminal."
             correct: true
-            feedback: "With no terminal vendor in the market, a first-party example is the only maintained base. An example is not a product: upkeep is yours."
+            feedback: "With no terminal vendor in the market, a first-party example is the only maintained base; an example is not a product, and the upkeep is yours."
         explanation: "Decaf's site now sells payment links, invoicing, and remittances across 180+ countries, with the Solana POS past gone. The honest read is that in-store crypto POS demand was thinner than payout and remittance demand. With no vendor catalog to lean on, you build the stall on the pay repo's first-party POS example."
       - id: q3
         prompt: "You need the stall's checkout screen working fast. What is the sanctioned base to build on, and what does it point at?"
@@ -52,7 +52,7 @@ blocks:
           - id: a
             label: "The pay repo's first-party examples/point-of-sale, configured to point at the transaction-request endpoint you built in m03-l2."
             correct: true
-            feedback: "Aiming it at the endpoint you already have keeps pricing on the server, so the terminal is a display shell. A shell cannot confirm a sale; the stall still needs the module 4 check."
+            feedback: "A display shell cannot confirm a sale; the stall still needs the module 4 check."
           - id: b
             label: "The Commerce Kit PaymentButton component, which ships a hosted merchant dashboard and is the production-supported POS surface for stalls."
             correct: false
@@ -73,7 +73,7 @@ blocks:
           - id: b
             label: "Treat them as homepage claims with an ambiguous referent and present no unit numbers as verified fact."
             correct: true
-            feedback: "A vendor homepage is marketing, not an audited disclosure, and 'users' there has no defined unit. Unverified is not false: attribute the figure rather than dropping the context."
+            feedback: "A vendor homepage is marketing, not an audited disclosure, and 'users' there has no defined unit; unverified is not false, though, and the figure travels with its attribution."
           - id: c
             label: "Ignore mobile entirely, since Seeker has no bearing on a QR checkout at a stall."
             correct: false

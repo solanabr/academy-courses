@@ -111,7 +111,7 @@ Now the discipline, stated as a rule you can enforce in a doc review. Quote each
 
 Who is standing behind this traffic matters as much as its size. The x402.org partner roster includes AWS, Cloudflare, Stripe, and Vercel, which is the infrastructure establishment, not a crypto-native cheering section. Migration stories have started: atxp.ai moved its stack to x402 plus MPP on Solana. And competition has arrived in the most flattering form, with OKX shipping a rival machine-payments protocol it calls APP. Standards that nobody uses do not get competitors.
 
-Stripe deserves its own beat, because its position is the clearest signal in the whole landscape of where incumbents think this goes. Count its fronts. It is on the x402.org trusted-by roster. It co-authored ACP, the agentic checkout spec, with OpenAI. As you saw in module 6's corridor work, it operates a USDC-on-Solana acquirer that settles merchants in fiat. And with Tempo Labs it co-authored `draft-httpauth-payment-00`, the "Payment" HTTP authentication scheme that MPP is built on, which you meet in two lessons. One incumbent, four seats at four different tables of machine-native commerce. Stripe is not betting on a winner; it is buying the whole race card. For Wavelength the reading is simpler and more useful: the rails you are learning this module are the same rails the largest payments incumbent on earth is positioning around, and your pressing-price API will speak the open-protocol version of them next lesson.
+Stripe deserves its own beat, because its position is the clearest signal anywhere of where incumbents think this goes. Count its fronts. It is on the x402.org trusted-by roster. It co-authored ACP, the agentic checkout spec, with OpenAI. As you saw in module 6's corridor work, it operates a USDC-on-Solana acquirer that settles merchants in fiat. And with Tempo Labs it co-authored `draft-httpauth-payment-00`, the "Payment" HTTP authentication scheme that MPP is built on, which you meet in two lessons. One incumbent, four seats at four different tables of machine-native commerce. Stripe is not betting on a winner; it is buying the whole race card. For Wavelength the reading is simpler and more useful: the rails you are learning this module are the same rails the largest payments incumbent on earth is positioning around, and your pressing-price API will speak the open-protocol version of them next lesson.
 
 ![Hub diagram placing x402 among its Linux Foundation partners, with a callout for Stripe's four fronts, the fourth being the base HTTP Payment auth scheme behind MPP, and edge arrows for the challengers.](assets/v07-diagram.png)
 
@@ -193,44 +193,44 @@ HTTP/1.1 402 Payment Required
 Content-Type: application/json
 Content-Length: 2
 PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2Ui...
-Date: Tue, 01 Sep 2026 21:28:37 GMT
+Date: Fri, 21 Aug 2026 16:41:09 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 {}
 ```
 
-Sit with that screenful, because it is the header rule made visible: a 402, two bytes of body that say nothing, and one long header that says everything. The base64 blob is elided above at the ellipsis; yours runs about 660 characters. Decode it and the terms appear:
+Sit with that screenful: a 402, two bytes of body, and one header carrying several hundred characters of base64, elided above at the ellipsis. Decode it and the terms appear:
 
 ```bash
 curl -sD - -o /dev/null http://localhost:4021/price \
   | grep -i '^payment-required:' | sed 's/^[^:]*: *//' | tr -d '\r' \
-  | base64 -d | python3 -m json.tool
+  | base64 -d | node -p "JSON.stringify(JSON.parse(require('fs').readFileSync(0,'utf8')),null,2)"
 ```
 
 ```json
 {
-    "x402Version": 2,
-    "error": "Payment required",
-    "resource": {
-        "url": "http://localhost:4021/price",
-        "description": "Wavelength pressing-price quote",
-        "mimeType": "application/json"
-    },
-    "accepts": [
-        {
-            "scheme": "exact",
-            "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-            "amount": "10000",
-            "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-            "payTo": "MerchantownerPubkeyGoesRightHere11111111111",
-            "maxTimeoutSeconds": 300,
-            "extra": {
-                "feePayer": "FaciLitatorFeePayerPubkeyGoesRightHere11111",
-                "memo": "WVL-PRESS-0042"
-            }
-        }
-    ]
+  "x402Version": 2,
+  "error": "Payment required",
+  "resource": {
+    "url": "http://localhost:4021/price",
+    "description": "Wavelength pressing-price quote",
+    "mimeType": "application/json"
+  },
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+      "amount": "10000",
+      "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "payTo": "MerchantownerPubkeyGoesRightHere11111111111",
+      "maxTimeoutSeconds": 300,
+      "extra": {
+        "feePayer": "FaciLitatorFeePayerPubkeyGoesRightHere11111",
+        "memo": "WVL-PRESS-0042"
+      }
+    }
+  ]
 }
 ```
 
@@ -254,7 +254,7 @@ You should see `HTTP/1.1 200 OK`, the quote body, and a `PAYMENT-RESPONSE` heade
 
 Wavelength will need a facilitator decision before next lesson's build, so draft it now, five lines, in the same format as the corridor decision record: one line naming the dominant constraint for a small merchant metering a pressing-price API on mainnet, one line for your primary pick with the reason, one line for the compliance alternative and when you would switch to it, one line for what you use in CI and why it can never be the production setting, and one line stating the trust you are accepting, in your own words, based on the trust-surface section. There is no single right answer; there is a defensible one, and next lesson you will build against whichever you chose.
 
-Stretch goal, if the two-dialect world bothered you as much as it should: add five lines to `x402-mock.mjs` that detect an incoming `X-PAYMENT` header and answer the usual 402, empty body and all, with the challenge's `error` field rewritten to name the v2 header the client should have sent. Putting that message in the body is the natural instinct and the wrong one, because the v1-speaking client is the only kind that would ever read it there. Send the tripwire down the channel a v2 client is already reading and you will have built the friendliest v1-to-v2 handoff in the ecosystem.
+Stretch goal, if the two-dialect world bothered you as much as it should: add five lines to `x402-mock.mjs` that detect an incoming `X-PAYMENT` header and answer the usual 402, empty body and all, with the challenge's `error` field rewritten to name the v2 header the client should have sent. Send that tripwire down the channel a v2 client is already reading and you will have built the friendliest v1-to-v2 handoff in the ecosystem.
 
 ## Checkpoint: what you can now do
 

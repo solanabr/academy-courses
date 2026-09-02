@@ -34,7 +34,7 @@ blocks:
           - id: c
             label: "The address and asset are bound to a server-minted token, so the client URL cannot redirect the funds."
             correct: true
-            feedback: "Whatever the client can edit, an attacker can edit. The token is a bearer credential, so keep it one-time and short-lived."
+            feedback: "Whatever the client can edit, an attacker can edit; the token is a bearer credential, which is why it is minted one-time and short-lived."
         explanation: "The headless flow mints a one-time session token on the server, binding the destination address and receivable assets. The client then opens a URL carrying only that token. A tampered client URL cannot redirect the funded USDC, because the address never travels in the query string. That is the exact property your coding challenge enforces: bind server-side, never leak."
       - id: q2
         prompt: "A SOL-less buyer uses the embedded Stripe onramp to fund a purchase. Days later a dispute is filed on the card. Who eats the fraud and handles the chargeback?"
@@ -43,7 +43,7 @@ blocks:
           - id: a
             label: "Stripe, which is the merchant-of-record for its onramp and absorbs fraud, disputes, and KYC."
             correct: true
-            feedback: "Liability follows the merchant-of-record on the card leg, and that leg ends when the buyer receives crypto. Only that leg is covered: your own sale has no dispute backstop."
+            feedback: "Liability follows the merchant-of-record on the card leg, and that leg ends when the buyer receives crypto. Your own sale, downstream of it, has no dispute backstop at all."
           - id: b
             label: "Wavelength, because the funds landed in the buyer's wallet under your checkout, so the liability follows the goods."
             correct: false
@@ -64,7 +64,7 @@ blocks:
           - id: b
             label: "Offramp is hosted-only, so you redirect rather than embed, and the payout runs over ACH or PayPal."
             correct: true
-            feedback: "With no headless endpoint published, the exit must leave your UI, and the payout runs at bank speed rather than chain speed. What you buy is the payout KYC staying off your plate."
+            feedback: "With no headless endpoint published, the exit has to leave your UI, and the payout runs at bank speed; what you buy for that is the payout KYC staying off your plate."
           - id: c
             label: "Offramp requires you to become the merchant-of-record, taking on the payout KYC yourself."
             correct: false
@@ -85,5 +85,5 @@ blocks:
           - id: c
             label: "They involve different actors, so the KYC surface and the merchant-of-record sit in different places for each."
             correct: true
-            feedback: "Compliance attaches to whoever is legally transacting, not to the direction of the money. Track the actor at every seam yourself."
+            feedback: "Compliance follows whoever is legally transacting, not the direction the money moves, so the actor at each seam is yours to keep track of."
         explanation: "Merchant fiat settlement is the processor acting for you, the merchant; a user off-ramp is the buyer or artist acting for themselves. Different actor, different KYC surface, different merchant-of-record. The dev's compliance job is not to run either flow but to know which is which at every seam, which is exactly what the assessment asks you to state in one line."

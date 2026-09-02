@@ -27,7 +27,7 @@ blocks:
           - id: c
             label: "PYUSD is owned by the Token-2022 program, so the transfer must be built against the mint's owner program, not a hardcoded classic Token program."
             correct: true
-            feedback: "A mint is owned by exactly one token program, and the instruction must name that program id. Do not branch on a hardcoded symbol list either; read the owner off the mint at runtime."
+            feedback: "The owner is a field you read at runtime, not a symbol you look up: a hardcoded allowlist stays right until the next mint arrives."
         explanation: "A mint is owned by exactly one token program, and PYUSD is a Token-2022 mint. An instruction built for the classic Token program targets the wrong program id, so it cannot succeed. The fix is detectTokenProgram: read the mint's owner and route the transfer to it."
       - id: m02l2-q2
         prompt: "You read PYUSD's mint live and see a permanentDelegate configured. What does that mean for you as the merchant integrating it?"
@@ -36,7 +36,7 @@ blocks:
           - id: a
             label: "The issuer holds a standing delegate that can move PYUSD out of any holder's account, a seizure power set by issuer policy that your transfer does not change."
             correct: true
-            feedback: "The authority sits on the mint, so it reaches every account of that mint and no per-account setting opts out. Treat it as a risk you price in, not a defect you integrate around."
+            feedback: "Because the authority lives on the mint itself, every account of that mint is in reach and no per-account setting opts out; that is a risk to price in, not a defect to integrate around."
           - id: b
             label: "Every PYUSD transfer you send is automatically co-signed by the delegate, adding a second required signature to each payment."
             correct: false
@@ -57,7 +57,7 @@ blocks:
           - id: b
             label: "Read the current basis points from the mint account at runtime, because a configured fee can be nonzero and can change; PYUSD's is currently 0."
             correct: true
-            feedback: "Only the live mint is authoritative, since a fee authority can raise the rate. Reading it once at boot is the same bug slowed down."
+            feedback: "Reading it once at boot is the same bug slowed down; the rate can move between your read and the transfer that pays it."
           - id: c
             label: "Ignore it as a sender: any Token-2022 transfer fee is charged to the recipient as a separate deduction after settlement, so the amount you send and the amount invoiced always match."
             correct: false
@@ -78,5 +78,5 @@ blocks:
           - id: c
             label: "It is burned on the source domain and natively minted on Solana (domain 5), with a Fast Transfer landing in about 8 seconds."
             correct: true
-            feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Those 8 seconds are the fast path only; the standard route still takes 15 to 19 minutes."
+            feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Those 8 seconds are the fast path only, and the standard route still runs 15 to 19 minutes."
         explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5, and a Fast Transfer to Solana settles in roughly 8 seconds, versus the ~15 to 19 minute standard cross-chain path."

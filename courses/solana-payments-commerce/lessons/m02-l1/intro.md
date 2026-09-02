@@ -102,7 +102,7 @@ source ~/.zshrc
 echo $HELIUS_API_KEY   # must print your key, not an empty line
 ```
 
-You will not use it today. The webhook lesson in module 4 creates a devnet webhook with it, and that is the only place in this course that needs one — no RPC call you write uses it. Your RPC goes to public endpoints throughout: devnet for everything you send, and mainnet read-only in the couple of lessons that inspect live accounts.
+You will not use it today. The webhook lesson in module 4 creates a devnet webhook with it, and that is the only place in this course that needs one; no RPC call you write uses it. Your RPC goes to public endpoints throughout: devnet for everything you send, and mainnet read-only in the couple of lessons that inspect live accounts.
 
 ### 2. The workspace, with pinned versions
 
@@ -345,7 +345,7 @@ export async function sendStablecoin(
 
 Long file, three decisions worth your attention; the rest is kit's standard build-sign-send pipeline and can run terse.
 
-Decision one, the instruction order: create-if-missing, then the memo, then the checked transfer. The transfer goes **last** and the memo immediately before it, and that is not aesthetics — `@solana/pay`'s `validateTransfer` pops the last instruction and requires it to be the token transfer, then pops the one before it and requires it to be the memo. Every validator downstream in this course, including module 3's acceptance gate and the POS in `m03-l3`, inherits that rule. All three still ride in one transaction, so it stays atomic: either Bob gets an account and the money and the label, or nothing happens. There is no state where you rent-funded an account for a payment that failed.
+Decision one, the instruction order: create-if-missing, then the memo, then the checked transfer. The transfer goes **last** and the memo immediately before it, and that is not aesthetics: `@solana/pay`'s `validateTransfer` pops the last instruction and requires it to be the token transfer, then pops the one before it and requires it to be the memo. Every validator downstream in this course, including module 3's acceptance gate and the POS in `m03-l3`, inherits that rule. All three still ride in one transaction, so it stays atomic: either Bob gets an account and the money and the label, or nothing happens. There is no state where you rent-funded an account for a payment that failed.
 
 Decision two, the reference placement. We generate a throwaway keypair purely to harvest a fresh unique address, then append it to the transfer instruction's account list as readonly non-signer. The program ignores it; the ledger indexes it. Ten characters of code, and every payment this kit ever sends has a tracking number.
 

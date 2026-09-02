@@ -65,7 +65,7 @@ Helius webhooks come in two main flavors, chosen at creation time via `webhookTy
 
 For merchant ops, Enhanced is the right default. The latency difference matters when you are racing blocks; a record shop fulfilling within the minute does not care, and the parsed shape means your filter code reads like English. The trade: you are consuming Helius's interpretation of the transaction, one more reason the payload stays a hint rather than a source of truth.
 
-Creating one is a single authenticated POST, authenticated with the `HELIUS_API_KEY` you exported during the module 2 setup. (Your RPC calls do not use it — this course runs its RPC against public endpoints, and the key exists only for webhooks.) If `echo $HELIUS_API_KEY` prints nothing, go back to that step before continuing:
+Creating one is a single authenticated POST, authenticated with the `HELIUS_API_KEY` you exported during the module 2 setup. (Your RPC calls do not use it; this course runs its RPC against public endpoints, and the key exists only for webhooks.) If `echo $HELIUS_API_KEY` prints nothing, go back to that step before continuing:
 
 ```bash
 curl -s -X POST "https://mainnet.helius-rpc.com/v0/webhooks?api-key=$HELIUS_API_KEY" \

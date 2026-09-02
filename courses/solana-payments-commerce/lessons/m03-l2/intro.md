@@ -241,14 +241,14 @@ The layout you are about to fill in, and where it sits in the Wavelength workspa
    // The shared tail every surface reuses: inject the reference, stamp the memo,
    // set the lifetime, serialize. Later lessons call this directly.
    export async function finalizeTransaction(input: FinalizeInput): Promise<string> {
-     // TODO(completion) 1: the memo instruction: programAddress MEMO_PROGRAM,
-     // no accounts, data = new TextEncoder().encode(input.memo).
-     const memoIx: Instruction = { programAddress: MEMO_PROGRAM, data: new Uint8Array() }; // replace me
-
-     // TODO(completion) 2: rebuild the transfer instruction with ONE extra account
+     // TODO(completion) 1: rebuild the transfer instruction with ONE extra account
      // appended: { address: input.reference, role: AccountRole.READONLY }.
      // Spread the existing accounts; never mutate the instruction you were given.
      const transferWithReference: Instruction = input.transferIx; // replace me
+
+     // TODO(completion) 2: the memo instruction: programAddress MEMO_PROGRAM,
+     // no accounts, data = new TextEncoder().encode(input.memo).
+     const memoIx: Instruction = { programAddress: MEMO_PROGRAM, data: new Uint8Array() }; // replace me
 
      const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
 

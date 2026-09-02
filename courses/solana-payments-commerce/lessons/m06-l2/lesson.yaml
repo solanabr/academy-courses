@@ -18,7 +18,7 @@ blocks:
           - id: a
             label: "A fiat balance: Stripe settles pay-with-crypto to your Stripe balance, and refunds go back as stablecoins to the originating wallet."
             correct: true
-            feedback: "The legs are not symmetric: you receive currency you never converted, while the return leg must be a stablecoin push because the chain issues no reversal. Reconcile in two units."
+            feedback: "The legs are not symmetric; you receive a currency you never converted, while the return leg has to be a stablecoin push because the chain issues no reversal. Two units, one order."
           - id: b
             label: "USDC in a Stripe-custodied wallet you withdraw on-chain, with refunds issued as on-chain reversals of the original transfer."
             correct: false
@@ -39,7 +39,7 @@ blocks:
           - id: b
             label: "Sphere, whose rails include PIX alongside SEPA and ACH, with settlement quoted under 30 minutes."
             correct: true
-            feedback: "A corridor turns on which local rail a provider touches, not on size. Winning Brazil says nothing about your US card buyer."
+            feedback: "A corridor turns on which local rail a provider touches, not on size."
           - id: c
             label: "MoonPay Commerce, the only processor in the roster offering a PIX payout."
             correct: false
@@ -60,7 +60,7 @@ blocks:
           - id: c
             label: "USD-priced records are charged in exact USDC 1:1; oracle pricing for volatile assets is handed to the DeFi and RWA course."
             correct: true
-            feedback: "A USD-pegged unit needs no conversion, so there is no rate to fetch and no spread to carry. The peg is an assumption, not a guarantee, and a transfer fee can still change what lands."
+            feedback: "A USD-pegged unit needs no conversion, leaving no rate to fetch and no spread to carry. The peg is an assumption, though, and a transfer fee still changes what lands."
         explanation: "Because USDC is a USD peg, a USD-priced record is charged as the same number of USDC, 1:1, with no oracle needed. Display pricing only gets interesting for volatile assets, and that oracle-based pricing depth is named here and handed to the DeFi and RWA Engineering course, which covers it end to end. Building a price feed for a pegged stablecoin is wasted work."
       - id: q8
         prompt: "Writing Wavelength's corridor decision record, you cite MoonPay Commerce. What is the accurate framing of what it is and how you cite its volume?"
@@ -69,7 +69,7 @@ blocks:
           - id: a
             label: "It is ex-Helio (hel.io redirects into MoonPay), and volume figures carry a source and date because the number moves."
             correct: true
-            feedback: "A redirect is the evidence of who owns the product now. A marketed figure is live, so dating it makes it citable, not verified."
+            feedback: "A redirect is the evidence of who owns the product now; a marketed figure is live."
           - id: b
             label: "It is a Stripe competitor built from scratch in 2026, and its $40M single-payment volume is an audited constant you can quote flat in the record."
             correct: false

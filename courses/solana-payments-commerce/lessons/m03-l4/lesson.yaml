@@ -15,7 +15,7 @@ blocks:
     solution: action-post-response/solution.ts
     tests: action-post-response/tests.json
     hints:
-      - "Setting a property to `undefined` still creates that key - a check like `'message' in result` reports true either way. To match the omitted-key tests, never assign the key at all when its input wasn't provided."
+      - "Setting a property to `undefined` still creates that key: a check like `'message' in result` reports true either way. To match the omitted-key tests, never assign the key at all when its input wasn't provided."
       - "message and nextActionHref are independent: one can be null while the other is a real value (or the reverse), and each key's presence must reflect only its own argument, never the other's."
   - key: check
     type: quiz
@@ -35,7 +35,7 @@ blocks:
           - id: c
             label: "X rendering is Chrome-extension-mediated, not native, and the 2026 surface list is uncertain, so you verify at write time and never promise 'renders everywhere.'"
             correct: true
-            feedback: "Rendering lives in a client you do not control, so an extension-mediated unfurl reaches only viewers who installed it. Design for the degradation: the link must still open a page."
+            feedback: "Rendering lives in a client you do not control, and an extension-mediated unfurl reaches only the viewers who installed it. Everyone else needs the link to still open a page."
         explanation: "The research confirms X rendering is Chrome-extension-mediated, and the 2026 native-wallet render list is unverified. The safe design is spec conformance plus a local blinks client for the lab, with any surface claim living in a verified-at-write box. Promising a feed render you cannot guarantee is the trap."
       - id: q2
         prompt: "Your blink's action endpoint works when you hit it directly, but wallets will not load it from your domain. Which two hosting rules did you most likely miss?"
@@ -44,7 +44,7 @@ blocks:
           - id: a
             label: "actions.json must sit at the domain root mapping the path, and actions must send CORS Access-Control-Allow-Origin: * including on actions.json itself."
             correct: true
-            feedback: "Wallets fetch from a browser context, so a missing header makes the browser discard a reply your server sent correctly. curl enforces none of it, so the terminal says it works."
+            feedback: "Wallets fetch from a browser context, and a missing header makes the browser discard a reply your server sent fine; curl enforces none of that, which is why the terminal says it works."
           - id: b
             label: "The endpoint must be served over HTTP/2 with a preflight-exempt POST route, and it has to hand back the transaction as raw bytes rather than base64 for the wallet to parse it."
             correct: false
@@ -65,7 +65,7 @@ blocks:
           - id: b
             label: "The tooling is frozen since 2025, so you pin @dialectlabs/blinks 0.22.5 and @solana/actions 1.6.6 and add a staleness note."
             correct: true
-            feedback: "Newest and last-published are the same release here, so an explicit pin makes the staleness visible. Frozen is not broken, just yours."
+            feedback: "Frozen is not broken, just yours to carry; an explicit pin is what makes that inheritance visible to whoever reads the manifest next."
           - id: c
             label: "The package was renamed to @solana-commerce/blinks, so you migrate to that supported successor before building."
             correct: false
@@ -86,5 +86,5 @@ blocks:
           - id: c
             label: "You reuse the m03-l2 transaction-request builder (accretion), and registry admission is a manual Dialect review requiring API-key auth, so you cannot gate your lesson on it."
             correct: true
-            feedback: "An Action returns an ordinary transaction, which is why one builder serves both surfaces. Anything gated on human review has no schedule; never quote an unsourced enforcement date."
+            feedback: "An Action returns an ordinary transaction, which is why one builder serves both surfaces. Anything gated on human review has no schedule, and an unsourced enforcement date is a guess."
         explanation: "The blink's transaction is the same code path as the checkout: you reuse the m03-l2 builder, which is the accretion the ladder is showing. Registry admission is a manual Dialect review with API-key auth; only the API-key requirement is confirmed, the enforcement date is unsourced, so your lab gates on spec conformance plus a local client, not on registry status."

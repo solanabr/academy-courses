@@ -26,7 +26,7 @@ blocks:
           - id: c
             label: "A Solana Pay amount is in decimal token units, not base units: write amount=12.5 and the wallet applies the mint's decimals."
             correct: true
-            feedback: "The wallet scales by the mint's decimals, so the URL carries a human quantity. One layer down, the instruction still wants base units."
+            feedback: "The URL carries a human quantity because the wallet scales by the mint's decimals; one layer down, the instruction still wants base units."
         explanation: "The Solana Pay spec defines amount as a UI (decimal) quantity of the token, and the wallet multiplies by the mint's decimals to get base units. Writing base units in the URL charges the customer that many whole tokens. This is the single most common Solana Pay checkout bug."
       - id: q2
         prompt: "You npm i @solana/pay, then open the canonical Solana Pay GitHub repo to read the source, but the README is a CLI for agentic payments (x402/MPP). Where is the classic checkout library you just installed?"
@@ -35,7 +35,7 @@ blocks:
           - id: a
             label: "It still lives in that repo at typescript/packages/solana-pay/; only the headline product moved to the agentic CLI."
             correct: true
-            feedback: "A monorepo README advertises the headline product, not the whole tree; your package publishes from a subdirectory of it. Still shipped is not still invested in, so read its releases."
+            feedback: "A monorepo README advertises the headline product, not the whole tree; your package publishes from a subdirectory of it, and still-shipped is not still-invested-in."
           - id: b
             label: "It was deprecated in favor of @solana-commerce/kit, the supported successor you should migrate the checkout to instead."
             correct: false
@@ -59,7 +59,7 @@ blocks:
           - id: b
             label: "It subscribes with watchReference (a WebSocket subscription) on the reference key you embedded, then confirms the transfer with validateTransfer."
             correct: true
-            feedback: "Detection and validation are two steps for a reason: a subscription only proves something carrying your key landed, so amount, mint, and payee still get checked against the order."
+            feedback: "A subscription only proves that something carrying your key landed; amount, mint, and payee are still yours to check against the order."
           - id: c
             label: "It periodically re-reads the QR image and decodes the resulting signature once the wallet stamps it back onto the code."
             correct: false
@@ -80,5 +80,5 @@ blocks:
           - id: c
             label: "You cannot know the signature in advance, but you did choose the reference, so it is the join key that ties one on-chain transfer to one order."
             correct: true
-            feedback: "Only a value you picked before the payment existed can be pre-registered. It joins but does not authenticate; the key is public."
+            feedback: "It joins, but it never authenticates: the reference is public."
         explanation: "The signature only exists after the payment lands, so you cannot pre-register it against an order. The reference is a value you pick up front and embed, letting findReference/watchReference locate the exact transfer for a given order without unique deposit addresses. It is the join key between your ledger and the chain."
