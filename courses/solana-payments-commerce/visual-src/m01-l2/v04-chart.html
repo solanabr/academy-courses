@@ -12,7 +12,7 @@
 <body>
 <!-- chart: What D+1 really costs: the Brazilian card float, priced in the open
      purpose: turn the antecipacao spread into a picture: the same sale costs sharply more the sooner the merchant wants their own money, and both spreads resolve to the same implicit monthly rate
-     data: InfinitePay published table, top volume tier (merchants above R$80,000/mo), fetched 2026-09-01, page undated. Credit a vista: 1.62% waiting for the settlement schedule vs 2.69% at D+1. Credit in 12x: 2.25% per installment waiting for each due date vs 8.99% for the whole sale at D+1. Both spreads resolve to about 1.05% a month, the implicit interest rate on the merchant's own revenue. Contrast: Solana base fee is a flat 5000 lamports per signature, sub-cent, settled in seconds, no float to buy back.
+     data: InfinitePay published table, top volume tier (merchants above R$80,000/mo), fetched 2026-09-01, page undated. Credit a vista: 1.62% waiting for the settlement schedule vs 2.69% at D+1. Credit in 12x: 2.25% per installment waiting for each due date, i.e. 2.25% of the sale across the twelve, vs 8.99% for the whole sale at D+1; D+1 advances installments that would land 6.5 months out on average. Both spreads resolve to about 1.05% a month, the implicit interest rate on the merchant's own revenue. Contrast: Solana base fee is a flat 5000 lamports per signature, sub-cent, settled in seconds, no float to buy back.
      prompt: Grouped bar chart, two groups ("credito a vista" and "credito em 12x"), each with a pair of bars: waiting for the schedule (emerald) vs money at D+1 (yellow). Print the percentage above every bar, with a per-installment note on the 12x waiting bar. Legend above the chart names the two series. Close with a takeaway band stating that both spreads price the same loan at about 1.05% a month, and a caption carrying the source, its fetch date, and the flat Solana base fee contrast.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -69,7 +69,7 @@
       </div>
       <div class="grp">
         <div class="bcol">
-          <div class="val">2.25%<small>per installment</small></div>
+          <div class="val">2.25%<small>of the sale, charged per installment</small></div>
           <div class="bar" style="height:75px; background:var(--stbr-emerald);"></div>
         </div>
         <div class="bcol">
@@ -80,7 +80,7 @@
     </div>
     <div class="glabels">
       <div class="lb"><b>cr&eacute;dito &agrave; vista</b><span>standard schedule pays the merchant at D+30</span></div>
-      <div class="lb"><b>cr&eacute;dito em 12x</b><span>standard schedule pays across twelve monthly installments</span></div>
+      <div class="lb"><b>cr&eacute;dito em 12x</b><span>standard schedule pays across twelve monthly installments &mdash; D+1 advances them 6.5 months on average</span></div>
     </div>
     <div class="cap">rates: InfinitePay published table, top tier (above R$80,000/mo), fetched 2026-09-01, page undated &middot; on Solana rails the same sale settles in seconds for a flat 5000-lamport base fee &mdash; there is no float to buy back</div>
   </div>
