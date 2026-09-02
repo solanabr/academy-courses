@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "#[account(borsh)] + BorshAccount<T> — the escape hatch for unbounded data."
             correct: true
-            feedback: "The attribute is what releases a type from the flat-layout bound and buys variable length at deserialize-on-read cost. A capped vector is the better trade only when a fixed maximum genuinely satisfies the spec."
+            feedback: "That attribute is what releases a type from the flat-layout bound: variable length, paid for on every read. A capped vector wins only where a fixed maximum genuinely satisfies the spec."
           - id: c
             label: "Pod with a raw String field — Account<T> serializes the String behind the cast."
             correct: false
@@ -42,7 +42,7 @@ blocks:
           - id: c
             label: "wincode and borsh resolve HashMap/HashSet iteration order differently."
             correct: true
-            feedback: "Nothing about the type is unsupported and nothing is compressed; the two encoders simply picked different answers to an order the language leaves undefined. That undefined order is the whole source of the drift."
+            feedback: "Nothing is unsupported and nothing is compressed — two encoders just answered a question the language leaves open. You'll only notice on a second run, which is what makes it a nasty one to catch."
         explanation: "wincode's BORSH_CONFIG is byte-identical to borsh EXCEPT for exactly two things: HashMap/HashSet ordering and f32/f64 NaN acceptance. Depend on map iteration order and you get non-deterministic wire — one of the two holes to know before you rely on borsh compatibility. The root cause is that a Rust HashMap has no defined iteration order at all: std deliberately randomizes it to defend against hash-flooding, so each encoder has to resolve that non-determinism itself, and the two resolved it differently."
       - id: m02-l3-q3
         prompt: "After bumping a dependency, your #[account(borsh)] code stops compiling with a trait-bound error. Which real RC-era incident does this echo?"
@@ -51,7 +51,7 @@ blocks:
           - id: a
             label: "Issue #4937 — anchor's wincode 0.5 pin versus solana-address 0.6."
             correct: true
-            feedback: "Two majors of one crate landing in a single graph is what broke the trait bound, and reconciling pins is what closed it. The shape to remember is a build that was green the day before you touched nothing."
+            feedback: "Two majors of one crate in a single graph, and the trait bound stops resolving. Pins reconciled, issue closed, four days end to end. What you remember is the shape: green on Monday, broken on Tuesday, nothing of yours changed."
           - id: b
             label: "The @coral-xyz/anchor → @anchor-lang/core rename."
             correct: false
@@ -72,7 +72,7 @@ blocks:
           - id: b
             label: "Pod core for the key and bounded board; borsh only for the description."
             correct: true
-            feedback: "Splitting keeps the hot path off the deserializer: bumping the board touches only the cast-in-place core. It also caps rent, because the unbounded field must be sized for its worst case and that case now lives elsewhere."
+            feedback: "Splitting keeps the hot path off the deserializer: bump the board and you touch only the cast-in-place core. Rent falls out of it too, because the worst-case sizing now applies to one field instead of the whole record."
           - id: c
             label: "Make all three Pod, with the description as a raw String in the same struct."
             correct: false

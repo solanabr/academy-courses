@@ -11,12 +11,10 @@
 /// an empty input reserve collapses the denominator to `amount_in_with_fee`,
 /// and the quote hands back the whole of `reserve_out` — the entire pool — to
 /// the first caller who asks. Without the `fee_bps` guard, `10_000 - fee_bps`
-/// underflows for any fee above 10_000. And `u128` stops being overflow-proof
-/// by construction the moment a third factor joins: two `u64` factors always
-/// fit, but `amount_in * (10_000 - fee_bps) * reserve_out` runs to ~3.4e42 at
-/// `u64::MAX` reserves, past the ~3.4e38 `u128` ceiling, so the products stay
-/// checked. Past the guards the output is bounded by `reserve_out`, a `u64`,
-/// so the final cast cannot truncate.
+/// underflows for any fee above 10_000. And the multiplies stay `checked` for
+/// the m05-l2 reason: three factors, not two, so `u128` is headroom rather than
+/// a proof. Past the guards the output is bounded by `reserve_out`, a `u64`, so
+/// the final cast cannot truncate.
 ///
 /// DEGRADATION POLICY. The signature returns a bare `u64`, so there is nowhere
 /// to put an error and every rejected input leaves as a `0`. Exactly one of

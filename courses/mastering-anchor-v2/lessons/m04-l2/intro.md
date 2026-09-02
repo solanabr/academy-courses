@@ -104,13 +104,13 @@ That claim rests on module 2, so join the two facts rather than taking it on fai
 
 A sharp reader raises an objection here, and it is a good one, so let us answer it instead of dodging it. If the whole point is safety, why does the lock fall on *only* the accounts handed to the CPI? When the SOL vault's handle is live you can still read the `state` account — the green build at the top of this lesson proved it. Should the framework not lock all of `ctx.accounts`, just to be safe? A whole-struct lock sounds like the paranoid choice, and paranoid usually wins on a custody path.
 
-No — and working out why sharpens the whole model. Ask what the wider lock would actually buy. A CPI can only touch accounts you handed it: the runtime delivers the instruction's account list to the callee and nothing else, so an account outside the `CpiContext` cannot be changed by that call, which means a mid-CPI read of it cannot go stale *through that call*. Locking `state` while the vault's handle is live would not prevent a single bug; it would only force you to contort correct code. The exclusion V2 actually enforces lands on precisely the accounts whose typed copy would have gone stale in v1 — the ones the CPI can write — and on nothing else. It even splits finer than that: an account the CPI only *reads* goes in through a shared `cpi_handle()`, and shared borrows tolerate your reads, so the mint you pass to a token transfer stays readable while the vault next to it is locked. The lock's edge traces the hazard's edge, borrow for borrow.
+No — and working out why sharpens the whole model. Ask what the wider lock would actually buy. A CPI can only touch accounts you handed it: the runtime delivers the instruction's account list to the callee and nothing else, so an account outside the `CpiContext` cannot be changed by that call, which means a mid-CPI read of it cannot go stale *through that call*. Locking `state` while the vault's handle is live would not prevent a single bug; it would only force you to contort correct code. The exclusion V2 actually enforces lands on precisely the accounts whose typed copy would have gone stale in v1 — the ones the CPI can write — and on nothing else. It even splits finer than that: an account the CPI only *reads* goes in through a shared `cpi_handle()`, and shared borrows tolerate your reads, so the mint you pass to a token transfer stays readable while the vault next to it is locked. The exclusion lands on exactly the accounts the CPI can write, and on nothing else.
 
 And notice what V2 did *not* have to build to get that precision. A framework that invented its own "which accounts can this CPI reach" analysis would have to follow every account through every alias, every helper, every branch — and a missed alias would be a leak, a stale read waved through with a green checkmark. V2 sidesteps the entire problem by not inventing an analysis at all. `Context` declares `accounts` as a plain field; your accounts struct is a plain struct; a `CpiHandle` is a plain borrow of one field. The "analysis" is Rust's own per-place borrow checking, the same rules that govern every struct in every Rust program, hardened by a decade of the entire ecosystem leaning on them. The framework gets exactness *and* leak-freedom in one move, by arranging its types so the language does the enforcement.
 
 ![The borrow lock lands only on the accounts inside the CpiContext: the vault under a mutable handle rejects reads, while the disjoint state account and the shared-handle mint stay readable.](assets/v05-comparison.png)
 
-This is a recurring V2 instinct, so it is worth naming as a rule you can carry: do not hand-build a guarantee the type system will give you for free. A bespoke lock — coarse or clever — is framework code somebody has to get right and keep right forever. A borrow is a language rule the compiler already gets right on every build. When you design your own APIs the same move is available: shape your types so the invariant falls out of ordinary borrow rules, and the compiler becomes your auditor instead of your adversary.
+This is a recurring V2 instinct, so it is worth naming as a rule you can carry: do not hand-build a guarantee the type system will give you for free. A bespoke lock — coarse or clever — is framework code somebody has to get right and keep right forever. A borrow is a language rule the compiler already gets right on every build. When you design your own APIs the same move is available: shape your types so the invariant falls out of ordinary borrow rules, and the compiler does the enforcement.
 
 ### The exact edge of the guarantee
 
@@ -293,9 +293,9 @@ One thing to internalize before the Challenge: the compiler did not stop you bec
 
 ## Challenge: fix it and name the bug class
 
-No scaffolding this time. Here is a different broken handler for the probe program you built in the Lab. `refund` pays tokens back out of the vault and wants to emit the balance the refund *leaves behind*, but it reads that number in the wrong place. It will not compile — and unlike the Lab, you are on your own for the fix.
+No scaffolding this time, and two rungs. The first is a different broken handler for the probe program you built in the Lab: `refund` pays tokens back out of the vault and wants to emit the balance the refund *leaves behind*, but it reads that number in the wrong place, so it will not compile. Unlike the Lab, you are on your own for the fix. The second rung is graded, sits below this section, and asks for one thing the fix does not.
 
-It needs three declarations you do not have yet, so take them as given and add them to the probe program. The event is the plain `#[event]` shape from m01-l4, and the accounts struct is the Lab's `Payout` with the recipient seat renamed:
+The handler needs three declarations you do not have yet, so take them as given and add them to the probe program. The event is the plain `#[event]` shape from m01-l4, and the accounts struct is the Lab's `Payout` with the recipient seat renamed:
 
 ```rust
 #[event]
@@ -322,7 +322,7 @@ pub enum ProbeError {
 }
 ```
 
-One pit stop before the broken handler, because the event you just pasted is where a fresh workspace meets m01-l2's dependency wall: `#[event]` derives wincode `SchemaWrite` for `Refunded`, and `authority` is an `Address`. Your probe crate already carries the two pins if you copied Step 3's `Cargo.toml` faithfully; a crate missing them — `wincode = { version = "0.5", features = ["derive"] }` and `solana-address = "=2.6.0"` — dies right here, with `error[E0277]: Address: SchemaWrite<...> is not satisfied` plus a note about multiple versions of `wincode` in the dependency graph, or `error[E0433]: could not find wincode`, long before the borrow error this Challenge is actually about. That is issue #4937's class again, the one m01-l2 narrated: rc.1 pins `wincode 0.5`, `solana-address 2.7.0` moved to `0.6`, and an unpinned resolve puts both majors in one graph. Confirm the pins, then go meet the real bug.
+(If your probe crate is missing Step 3's `wincode` and `solana-address` rows, `#[event]` fails right here with `Address: SchemaWrite<...> is not satisfied`, long before you ever see the borrow error.)
 
 And here is the broken handler:
 
@@ -373,9 +373,7 @@ Acceptance criteria the review checks directly:
 
 ![If a CpiHandle for the account is still in scope you cannot read it yet, so drop it by consuming the CpiContext, then read the field directly since .reload() is gone.](assets/v09-flowchart.png)
 
-If you can state the class in a sentence and your reorder builds, you own the concept, not just the fix.
-
-**Then the graded rung, which asks for one thing this fix does not.** The exercise below is a `settle` handler cut down to plain Rust: hand-rolled stand-ins for the account, the handle and the `CpiContext`, small enough to compile with no framework in the picture and borrowing exactly the way the real ones do. It owes a receipt — the vault's balance *before* the transfer and its balance *after*, both read off the account rather than worked out from the arguments. The starter parks both reads in the forbidden span, so it does not build. Getting it to build is the first bar and not the last one: the vectors check the two numbers as well, so a green compile carrying the wrong receipt is still a fail. Compiling and being right are separate questions here, which is the distinction a grader can draw and the prose above cannot.
+If you can state the class in a sentence and your reorder builds, you own the concept, not just the fix. Which leaves the second rung, the graded one. It is a `settle` handler cut down to plain Rust: hand-rolled stand-ins for the account, the handle and the `CpiContext`, small enough to compile with no framework in the picture and borrowing exactly the way the real ones do. It owes a receipt — the vault's balance *before* the transfer and its balance *after*, both read off the account rather than worked out from the arguments. The starter parks both reads in the forbidden span, so it does not build. Getting it to build is the first bar and not the last one: the vectors check the two numbers as well, so a green compile carrying the wrong receipt is still a fail. Compiling and being right are separate questions here, which is the distinction a grader can draw and the prose above cannot.
 
 ## Where this leaves you
 

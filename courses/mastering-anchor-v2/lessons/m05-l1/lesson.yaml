@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "You called a bare transfer; V2's token seat expects transfer_checked, which needs the mint and its decimals."
             correct: true
-            feedback: "Everything about identity survives the upgrade, from the seeds to the stored bump to the authority constraint. What changes is the vehicle for moving value, and the checked variant demands the mint and its decimal count."
+            feedback: "Identity survives the upgrade intact: seeds, stored bump, authority constraint, all of it. Only the vehicle changes, and the checked variant wants two arguments the bare one never did."
           - id: c
             label: "You kept the [b\"vault\", authority] seeds; a token account's authority PDA must be re-derived under the token program's id."
             correct: false
@@ -51,7 +51,7 @@ blocks:
           - id: a
             label: "Owner and discriminator checks run inside load, ahead of any constraint hook you attach."
             correct: true
-            feedback: "Those checks are part of loading rather than hooks, so the framework has already refused the account before your annotation is ever consulted. Take it untyped and assert ownership yourself if the message matters."
+            feedback: "Loading is not a hook — it happens first, and the account is refused before your annotation gets a look in. The way out is an untyped account and an ownership assertion you write."
           - id: b
             label: "address = only compares keys and has no @ error slot, so V2 substitutes a built-in error."
             correct: false

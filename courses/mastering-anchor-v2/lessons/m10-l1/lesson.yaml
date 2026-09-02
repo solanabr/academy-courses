@@ -17,7 +17,7 @@ blocks:
           - id: a
             label: "`#[interface]` and interface-instructions were removed in 1.0; a transfer hook's `execute` is now declared with `#[instruction(discriminator = ...SPL_DISCRIMINATOR_SLICE)]`."
             correct: true
-            feedback: "A bespoke macro collapsed into the dispatch machinery every other instruction already used. The tag bytes now come from the standard itself, so nothing in the framework has to carry them on your behalf."
+            feedback: "One bespoke macro fewer, and the tag bytes now come out of the SPL standard itself. Nothing in the framework has to carry a copy of them for you."
           - id: b
             label: "`#[interface]` was renamed to `#[program_interface]` in 1.0; the hook body and its `Context<Execute>` are unchanged once you update the attribute name."
             correct: false
@@ -38,7 +38,7 @@ blocks:
           - id: b
             label: "Because most code you will READ still imports `@coral-xyz/anchor` -- it still out-downloads the new name by roughly forty to one, so you grep both scopes."
             correct: true
-            feedback: "What is canonical and what is common have come apart, and only one of the two is what you will actually paste. Assuming a single import scope makes a migration fail against real snippets rather than loudly."
+            feedback: "Canonical and common have come apart, and only one of the two is what you'll actually paste. Assume a single import scope and the migration fails quietly, against real snippets, long after you thought it was done."
           - id: c
             label: "Because `@coral-xyz/anchor` was unpublished from npm when 1.0.0 shipped, so any lockfile still pinning the old scope now hard-fails on `npm install`."
             correct: false
@@ -59,7 +59,7 @@ blocks:
           - id: c
             label: "Close the legacy on-chain IDL account using the 0.32.1 CLI, then redeploy the program on the 1.x line."
             correct: true
-            feedback: "The old IDL instructions were dropped in favour of the metadata program, and an account created under the old scheme is what the deploy trips over. That downgrade is a one-time step, once per program."
+            feedback: "Legacy IDL instructions went out in favour of the metadata program, and an account created under the old scheme is what the deploy trips on. You drop back once per program, then never again."
           - id: a2
             label: "Pin `avm` back to 0.32.1 permanently, since the 1.x line has no way to write an IDL on-chain at all."
             correct: false
@@ -72,7 +72,7 @@ blocks:
           - id: a
             label: "1.0's `CpiContext::new` takes the program as a `Pubkey` (#2762), not an `AccountInfo` -- swap `.to_account_info()` for `.key()` at the call site."
             correct: true
-            feedback: "The narrower type is the point: a full account handle let you pass something that was not a program at all and discover it at runtime. The plain transfer's deprecation rides along, so add the mint and decimals."
+            feedback: "The narrower type is the point — a full account handle let you pass something that was not a program at all, then find out at runtime. The plain transfer's deprecation rides along with it, mint and decimals included."
           - id: b
             label: "1.0 removed `CpiContext::new` entirely; CPIs are now built through the module `declare_program!` generates from the callee's on-chain IDL entry."
             correct: false

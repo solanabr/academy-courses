@@ -1,31 +1,34 @@
 // Anchor V2 lets you ship your OWN constraint namespace by implementing the
 // `AccountConstraint` trait's hooks (init / check / update / exit). Downstream
 // crates then write `#[account(quarters::min_balance = N)]` with no framework
-// change. This exercise distills the `check` hook to plain Rust so you can prove
-// the pattern without the full macro.
+// change. This is the scratch file from the top of the lesson: the same two
+// names, distilled to plain Rust so you can prove the rule without the macro.
 //
-// The hook's CONDITION lives in `MinBalance::satisfies`, a `const fn`, for one
-// reason: the compiler can evaluate a `const fn` while it builds, so the
-// verification harness at the bottom of this file proves your logic at COMPILE
-// time as well as against the test vectors. A trait method cannot be `const` on
-// stable Rust, which is why the condition sits beside the trait impl instead of
-// inside it. `check` still owns the hook's shape; `satisfies` owns its rule.
+// Nothing here is Anchor's API. `BalanceGate` and `MinBalanceRule` stand in for
+// the real trait and marker type, which have a different shape (static methods,
+// an associated Value, a program error). `meets_floor` is not a hook at all --
+// it is a local `const fn` this file owns, and it exists because the compiler
+// can evaluate a `const fn` while it builds, so the assertions at the bottom
+// prove your rule at COMPILE time as well as against the test vectors. A trait
+// method cannot be `const` on stable Rust, which is the whole reason the
+// condition sits beside the impl rather than inside it. `check` owns the hook's
+// shape; `meets_floor` owns its rule.
 //
-// TODO: implement `MinBalance::satisfies` so it is false when `balance` is below
-// `self.min` and true otherwise. `check` and `run_constraint` are already wired.
+// TODO: implement `MinBalanceRule::meets_floor` so it is false when `balance` is
+// below `self.min` and true otherwise. `check` and `run_constraint` are wired.
 
-pub trait AccountConstraint {
-    /// The check hook Anchor V2 runs after the account is loaded.
+pub trait BalanceGate {
+    /// Mirrors the check hook Anchor V2 runs after the account is loaded.
     fn check(&self, balance: u64) -> Result<(), String>;
 }
 
-pub struct MinBalance {
+pub struct MinBalanceRule {
     pub min: u64,
 }
 
-impl MinBalance {
+impl MinBalanceRule {
     /// The floor itself, and the whole exercise. The floor is inclusive.
-    const fn satisfies(&self, balance: u64) -> bool {
+    const fn meets_floor(&self, balance: u64) -> bool {
         // TODO: compare `balance` against `self.min`. Right now the constraint
         // never rejects anything, so every vault sails through.
         let _ = balance;
@@ -33,11 +36,11 @@ impl MinBalance {
     }
 }
 
-impl AccountConstraint for MinBalance {
+impl BalanceGate for MinBalanceRule {
     /// Given: the hook forwards to the condition above and turns a `false` into
     /// the error codegen would surface from the constraint.
     fn check(&self, balance: u64) -> Result<(), String> {
-        if self.satisfies(balance) {
+        if self.meets_floor(balance) {
             Ok(())
         } else {
             Err(format!(
@@ -49,12 +52,12 @@ impl AccountConstraint for MinBalance {
 }
 
 fn run_constraint(balance: u64, min: u64) -> bool {
-    MinBalance { min }.check(balance).is_ok()
+    MinBalanceRule { min }.check(balance).is_ok()
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
-// Compile-time assertions. Because `satisfies` is a `const fn`, the compiler
+// Compile-time assertions. Because `meets_floor` is a `const fn`, the compiler
 // evaluates these while building: an unfixed hook does not compile at all, and
 // the message names the case it got wrong. They pin the two things the test
 // vectors alone cannot force — that the rule reads `self.min` rather than a
@@ -63,22 +66,22 @@ fn run_constraint(balance: u64, min: u64) -> bool {
 #[doc(hidden)]
 #[allow(dead_code)]
 mod verify {
-    use super::MinBalance;
+    use super::MinBalanceRule;
 
     const _: () = assert!(
-        MinBalance { min: 100 }.satisfies(500),
+        MinBalanceRule { min: 100 }.meets_floor(500),
         "a balance above the floor must pass"
     );
     const _: () = assert!(
-        MinBalance { min: 100 }.satisfies(100),
+        MinBalanceRule { min: 100 }.meets_floor(100),
         "the floor is inclusive: a balance exactly at the floor must pass"
     );
     const _: () = assert!(
-        !MinBalance { min: 100 }.satisfies(99),
+        !MinBalanceRule { min: 100 }.meets_floor(99),
         "one lamport below the floor must be rejected"
     );
     const _: () = assert!(
-        MinBalance { min: 0 }.satisfies(0),
+        MinBalanceRule { min: 0 }.meets_floor(0),
         "a zero floor admits an empty account"
     );
 }

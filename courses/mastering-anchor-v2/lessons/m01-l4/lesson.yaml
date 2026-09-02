@@ -26,7 +26,7 @@ blocks:
           - id: a
             label: "Rejected at runtime by the dispatcher's duplicate walk, before try_accounts loads any field"
             correct: true
-            feedback: "The mask is static and the collision is not: which slots are writable is fixed when the struct compiles, but addresses only become comparable once a call arrives. Rejection lands before any field is deserialized."
+            feedback: "The two halves run on different clocks: writability is fixed when the struct compiles, addresses only become comparable when a call arrives. Nothing is deserialized before the walk says no."
           - id: b
             label: "It compiles and runs, and the second serialize-on-exit silently clobbers the first write"
             correct: false
@@ -47,7 +47,7 @@ blocks:
           - id: b
             label: "6002 — the custom band starts at 6000 and is zero-indexed by variant"
             correct: true
-            feedback: "Counting starts at the base itself, so the first variant is 6000 and nothing shifts unless you set an explicit offset. The band an order of magnitude lower is reserved for the framework's own constraint failures."
+            feedback: "Counting starts at the base: variant one is 6000 flat, and nothing shifts unless you set an explicit offset. Four thousand below sits the framework's own constraint band."
           - id: c
             label: "6003 — the custom band starts at 6000 and numbers variants from 1"
             correct: false
@@ -81,7 +81,7 @@ blocks:
           - id: b
             label: "It is all-or-nothing per program: you save instruction bytes and CU, but drop default v1 wire-compatibility"
             correct: true
-            feedback: "Small integer tags can alias one another by prefix, which is why the whole program's tag set has to be validated together. Fixed-width hashes never had that hazard, so nothing checks for it until you opt in."
+            feedback: "Small integer tags can alias by prefix, so the whole program's tag set has to be validated at once — a hazard fixed-width hashes never had, which is why nothing checks for it until you opt in."
           - id: c
             label: "It keeps the 8-byte width but swaps sha256 for a cheaper hash, so client-built tags stop matching"
             correct: false

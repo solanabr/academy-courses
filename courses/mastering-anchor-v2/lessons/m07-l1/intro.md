@@ -53,7 +53,7 @@ V2 sharpens the requirement into something the compiler can enforce. On the V2 d
 So when you write the cosplay, the type mismatch has nowhere to hide. Here is the attack, and here is the compiler refusing it. Your swap has two account types, both Pod:
 
 ```rust
-// programs/token_ticket_swap/src/state.rs  (R4, clean)
+// programs/token-ticket-swap/src/state.rs  (R4, clean)
 use anchor_lang::prelude::*;
 
 #[account]
@@ -87,7 +87,7 @@ pub fn cosplay(vault: &Account<QuarterVault>) -> Address {
 
 ```text
 error[E0308]: mismatched types
-  --> programs/token_ticket_swap/src/exploits.rs
+  --> programs/token-ticket-swap/src/exploits.rs
    |
    |     let stolen: &Config = vault.as_ref();
    |                 -------   ^^^^^^^^^^^^^^^ expected `&Config`, found `&QuarterVault`
@@ -171,7 +171,7 @@ anchor --version   # expect the 2.0.0-rc.1 line, NOT anchor-cli 1.1.x
 
 The autonomy fade begins here. Attack 1 is done for you, so you can see the shape of a captured error. Attacks 2 and 3 arrive as stubs you finish. Attack 4 you already understand from the derivation, so you just run it and read the (non-)result.
 
-**Step 1: land the type-cosplay attack and capture the error.** Create `programs/token_ticket_swap/src/exploits.rs`, paste Attack 1 from the derivation above, wire it into `lib.rs` with `mod exploits;`, and build:
+**Step 1: land the type-cosplay attack and capture the error.** Create `programs/token-ticket-swap/src/exploits.rs`, paste Attack 1 from the derivation above, wire it into `lib.rs` with `mod exploits;`, and build:
 
 ```bash
 anchor build 2>&1 | tee /tmp/attack1.log
@@ -249,8 +249,8 @@ Checkpoint: the build is green, and the two bumps in the log are equal. There wa
 **Step 5: restore R4 to clean and prove it.** Take the exploits back out and confirm the swap still passes:
 
 ```bash
-git checkout main -- programs/token_ticket_swap/src   # restore clean R4 source
-rm -f programs/token_ticket_swap/src/exploits.rs
+git checkout main -- programs/token-ticket-swap/src   # restore clean R4 source
+rm -f programs/token-ticket-swap/src/exploits.rs
 anchor test
 ```
 

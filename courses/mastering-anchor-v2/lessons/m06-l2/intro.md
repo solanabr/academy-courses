@@ -11,7 +11,7 @@ So before any theory, do the one thing this whole lesson rests on: re-read your 
 # so a build with different flags is a different measurement wearing the same name.
 cargo build-sbf
 export SBF_OUT_DIR=$PWD/target/deploy   # a fresh shell needs it again; see m06-l1
-cargo test -p token_ticket_swap trade_cu_baseline -- --nocapture
+cargo test -p token-ticket-swap trade_cu_baseline -- --nocapture
 ```
 
 Write down the integer it prints. That is the only number in this lesson you are allowed to trust without re-measuring, and even it you just re-measured. Everything from here is: change exactly one thing, run this again, and let the difference between the two numbers be the entire argument.
@@ -86,7 +86,7 @@ The first two levers were feature flags, one edit on a build line. The loop does
 
 Here is where last lesson's other deliverable comes due. You wrote down the hottest own-code frame under the trade instruction, and on the Quarters swap that frame is `swap_out`, the quote. A flamegraph does not tell you what to do about a fat frame; it tells you where to point the loop. So point it there.
 
-The quote you shipped, `swap_out`, already promotes to `u128` before multiplying, because module 5 made that the acceptance bar. What it does not do is expose the fee, and there is a real design question hiding in how a general version gets written. Do you reach for `checked_mul` on `u64` and branch on overflow, which is safe but puts a branch on the hot path? Or do you promote to `u128` first, where the multiply cannot overflow by construction, so no check is needed at all? Those two are not equally cheap, and they are not equally safe, and the only way to know the actual trade for your reserves is to run both through the loop. Hold that "by construction" loosely, though. It is exactly true for two `u64` factors and the challenge at the end of this lesson shows you the third factor that breaks it.
+The quote you shipped, `swap_out`, already promotes to `u128` before multiplying, because module 5 made that the acceptance bar. What it does not do is expose the fee, and there is a real design question hiding in how a general version gets written. Do you reach for `checked_mul` on `u64` and branch on overflow, which is safe but puts a branch on the hot path? Or do you promote to `u128` first, where the multiply cannot overflow by construction, so no check is needed at all? Those two are not equally cheap, and they are not equally safe, and the only way to know the actual trade for your reserves is to run both through the loop. ("By construction" carries a qualifier you derived in m05-l2 — two `u64` factors. The challenge at the end of this lesson adds a third.)
 
 That is what the coding challenge at the end of this lesson is: a generalized quote, `get_amount_out`, with the fee lifted into a parameter, written from scratch and then measured. It is a separate function from the `swap_out` you shipped, not an edit to it, so you can hold both and compare. Write it, swap it into the handler behind a one-line call change, and re-measure the trade. If the delta is a win and the function still matches its reference outputs, keep it. If your `checked_mul`-plus-branch version came in cheaper on your reserves, that is what the loop is for, and the number decides, not your intuition about which reads faster.
 
@@ -128,7 +128,7 @@ Do not trust the number in your notes. Re-read it, because a stale baseline pois
 # The "before". Build the defaults configuration, then measure THAT build.
 cargo build-sbf
 ls -l target/deploy/token_ticket_swap.so     # write the byte size down too
-cargo test -p token_ticket_swap trade_cu_baseline -- --nocapture
+cargo test -p token-ticket-swap trade_cu_baseline -- --nocapture
 ```
 
 Write the integer down as `BEFORE`, and the `.so` byte size beside it. Both are with `guardrails` on, because that is the default. The build line matters more than it looks: `cargo test` does not rebuild the on-chain artifact, it only runs the harness against whatever `.so` is already on disk, so every measurement in this lesson is preceded by the build whose cost it is reporting. Skip a build and you will measure the previous configuration and attribute the delta to the wrong change.
@@ -138,7 +138,7 @@ Write the integer down as `BEFORE`, and the `.so` byte size beside it. Both are 
 The clean way to flip a framework feature is to forward it through your own program crate's `Cargo.toml`, so the toggle is one flag on the build command and nothing in your source moves. Wire the feature passthrough once:
 
 ```toml
-# programs/token_ticket_swap/Cargo.toml
+# programs/token-ticket-swap/Cargo.toml
 # RC tags move fast: check the crate's Cargo.toml for the exact feature names on the
 # branch you pin, then re-verify. anchor-lang's DEFAULT features are `alloc` +
 # `guardrails`; const-rent is opt-in.
@@ -185,7 +185,7 @@ That is it. You changed one thing. Resist adding `--features const-rent` on the 
 
 ```bash
 # The "after" number. Identical command, identical fixture.
-cargo test -p token_ticket_swap trade_cu_baseline -- --nocapture
+cargo test -p token-ticket-swap trade_cu_baseline -- --nocapture
 ```
 
 That command just did two things, and only one of them is the measurement. It printed the new number, and then it **failed**, because `trade_cu_baseline` asserts `Check::compute_units(BEFORE)`, an exact equality, and the trade no longer costs `BEFORE`. That red is the tripwire from last lesson working exactly as designed: you moved the number, and the test that was pinning the old number said so.
@@ -211,7 +211,7 @@ A delta you measured once is a story. A delta encoded in a test is a tripwire. T
 It also replaces `trade_cu_baseline`, which is still red from step 3 and should not be repaired. An exact-equality pin was the right tool for establishing a baseline once; as a standing test it goes red on every improvement as well as every regression, which trains people to ignore it. Delete `tests/cu_baseline.rs` once the new test is green, and keep the fixture module it used, because this one needs it too.
 
 ```rust
-// programs/token_ticket_swap/tests/cu_swap_regression.rs
+// programs/token-ticket-swap/tests/cu_swap_regression.rs
 use mollusk_svm::{result::Check, Mollusk};
 use solana_sdk::{account::Account, instruction::Instruction, pubkey::Pubkey};
 
@@ -279,7 +279,7 @@ The cycle is identical in shape:
 
    ```bash
    cargo build-sbf                                                 # build first, always
-   cargo test -p token_ticket_swap init_cu_baseline -- --nocapture
+   cargo test -p token-ticket-swap init_cu_baseline -- --nocapture
    ```
 2. **Change exactly one thing** relative to your step-1 build: turn `const-rent` on and move nothing else. Which line that is depends on where you left the lab.
 
@@ -293,7 +293,7 @@ cargo build-sbf --features const-rent
 
 Either way, the only variable that moves between step 1 and step 3 is `const-rent`. Re-running the lab's `--no-default-features` line on top of a defaults-on baseline would flip guardrails too, and your delta would be a sum again.
 
-3. **Re-measure** the same init instruction, same fixture, same command. The build line above already rebuilt with the new flag; run `cargo test -p token_ticket_swap init_cu_baseline, --nocapture` again and read the second number.
+3. **Re-measure** the same init instruction, same fixture, same command. The build line above already rebuilt with the new flag; run `cargo test -p token-ticket-swap init_cu_baseline, --nocapture` again and read the second number.
 4. **Report** the before CU, the after CU, and the one-line attribution: "turning const-rent on saved N CU on the pool-init account creation."
 
 Your delta should land in the neighborhood of the 85-to-90-CU-per-account-creation-CPI figure, scaled by how many accounts the init creates. If it comes back near zero, check that you measured the init instruction and not the trade. That is the most common way this completion goes wrong, and it is the same footgun as chasing a cold path: you measured the instruction the lever does not touch.
@@ -350,7 +350,7 @@ get_amount_out(u64::MAX, u64::MAX, u64::MAX, 30)     == 0  // numerator exceeds 
 get_amount_out(1_000_000_000_000_000_000, 1_000_000_000_000_000_000, 1_000_000_000_000, 30) == 996_999_005_991
 ```
 
-That last pair is the one to sit with, because it is where the comparison above earns its qualifier: "no check needed — **for two `u64` factors**." Promote two `u64` factors to `u128` and their product really is overflow-proof: the largest `u64 * u64` lands just under the `u128` ceiling, every time. But this quote multiplies *three* factors, and the fee scale is the third. `amount_in * (10_000 - fee_bps) * reserve_out` reaches roughly 3.4e42 at `u64::MAX` reserves against a ceiling near 3.4e38. What promotion buys you here is enormous headroom, not immunity — the 1e18-reserve case peaks near 1.0e34 and clears the ceiling by about four and a half orders of magnitude — so the products stay checked, and the check degrades to 0 rather than panicking inside an instruction.
+That last pair is the one to sit with, because it is where the comparison above pays for its qualifier. You already did this arithmetic in m05-l2, on the `× 997` fee scale: two `u64` factors fit `u128` with under a bit to spare, and a third factor spends the sliver. Same shape here with `10_000 - fee_bps` as the third — `u64::MAX` reserves put the numerator around 3.4e42 against a ceiling near 3.4e38. The 1e18 row is the counterweight, peaking near 1.0e34 and clearing that ceiling by four and a half orders of magnitude. Enormous room, then, and still not a guarantee, which is why the products stay checked and the check degrades to 0 instead of panicking mid-instruction.
 
 Now the bound the frozen signature cannot express: `10_000 - fee_bps` underflows for any `fee_bps` above 10,000, and the return type is a bare `u64` with nowhere to put an error. Guard it anyway and return 0, the way you guard the empty reserve — a wrong-but-quiet 0 beats a panicking instruction, and on a `u128` intermediate compiled in release that underflow wraps to an enormous number instead, which quotes a payout that drains the pool. But be clear with yourself about what that 0 means. For `fee_bps == 10_000` it is arithmetic: a 100% fee eats the whole input. For everything else it is a sentinel standing in for an error the signature cannot return, and real AMMs do not degrade like this — Uniswap V2's `getAmountOut` reverts with INSUFFICIENT_LIQUIDITY on an empty reserve. So the caller still owns the bound. In the handler, `fee_bps` is a compile-time constant you control; the moment it becomes a parameter a user can set, it needs a `require!` before it reaches this function, and the handler refuses to settle a trade that quotes 0 either way. Write that reasoning as a comment above the fn so the next reader knows it was a decision and not an accident.
 

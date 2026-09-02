@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "bool isn't Pod because not every bit pattern is a valid bool, so bytemuck rejects it — use PodBool."
             correct: true
-            feedback: "The trait's contract is that any byte pattern must name a legal value, and only two of 256 qualify for the primitive. Wrapping it in a byte whose whole range is defined restores that contract without banning the concept."
+            feedback: "Two of 256 byte values are a legal bool, and Pod wants all 256 to mean something. Wrap it in a byte whose whole range is defined and the contract holds again. Booleans were never the problem."
           - id: c
             label: "The 8-byte sha256 discriminator has to be re-derived by hand whenever a struct's field layout changes."
             correct: false
@@ -51,7 +51,7 @@ blocks:
           - id: a
             label: "As an approximate benchmark-family average, already revised down once and expected to keep moving."
             correct: true
-            feedback: "It describes a family of programs, and that family's own authors have already trimmed it once. Pinning it to any one program is the failure mode, because the least copy-heavy handlers see the smallest gain of all."
+            feedback: "A number whose own authors have already trimmed it once should travel with that history attached. Pin it to one program and you'll be wrong in the least forgiving direction: the leanest handlers gain least."
           - id: b
             label: "As a guaranteed per-instruction speedup that every V2 program inherits just by compiling on the RC."
             correct: false

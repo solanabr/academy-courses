@@ -25,7 +25,7 @@ blocks:
           - id: c
             label: "Because the capstone gates on you producing the composition yourself — accretion is demonstrated, never handed over finished."
             correct: true
-            feedback: "The wiring is the artifact under assessment, so receiving it finished would leave nothing to assess. One rung is worked end to end as a template precisely so that the remaining three can be yours."
+            feedback: "The wiring is the artifact. Hand it over finished and there is nothing left to assess; one rung gets worked end to end as a template, and the other three are yours."
         explanation: "The no-undemonstrated-accretion rule: the capstone gates on your producing the composition, so the CPI edges (including the counter increment) are worked steps you write, not a finished registry you receive. A pre-built wiring would prove nothing about your ability to compose the rungs — the wiring itself is the artifact under test, which is why R1 is worked in full as a template and R2, R3, and R4 are yours."
       - id: m09-l3-q2
         prompt: "Before the devnet deploy, the capstone runs the three-program floor together on a Surfpool localnet via anchor test. What does that step catch that per-program unit tests do not?"
@@ -34,7 +34,7 @@ blocks:
           - id: a
             label: "Cross-program integration failures that only surface when all five programs run against the same accounts together."
             correct: true
-            feedback: "Expect seam bugs: two programs each derive an address correctly by their own convention and disagree with one another. Nothing in a single-program suite surfaces that, because only one convention is present."
+            feedback: "Seam bugs, mostly — two programs each deriving an address correctly by their own convention and disagreeing with each other. A single-program suite can't surface that; only one convention is in the room."
           - id: b
             label: "Compile errors in a single instruction handler, such as a `CpiHandle` type mismatch inside the registry's `settle_prize`."
             correct: false
@@ -55,7 +55,7 @@ blocks:
           - id: b
             label: "Because solana-verify rebuilds the program from your source and matches the hash against the deployed devnet bytecode."
             correct: true
-            feedback: "Reproducibility is indifferent to which cluster you point it at, and the remote submission and multisig handoff are distribution and governance instead. A faithfully reproduced program can still be a broken one."
+            feedback: "Reproducibility doesn't care which cluster you point it at. The remote submission and the multisig handoff are distribution and governance, which are different jobs entirely."
           - id: c
             label: "Because a program keeps the same address across clusters, so a devnet verify carries over to the mainnet deployment."
             correct: false

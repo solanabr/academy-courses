@@ -28,7 +28,7 @@ blocks:
           - id: a
             label: "Real default-on runtime safety nets came out of the binary; the CU and roughly 300 bytes are what those checks cost to run."
             correct: true
-            feedback: "Name what left before you argue past it: ownership matching, tag matching, and arithmetic that raises instead of truncating. Removing the checks does not remove the malformed call they were watching for."
+            feedback: "Ownership matching, tag matching, arithmetic that raises instead of truncating — that is the list, and it is worth saying out loud before you argue past it. Deleting the checks doesn't delete the malformed call."
           - id: b
             label: "Only debug assertions were stripped — `guardrails` is a debug-build lint, so a release build was already running without those checks."
             correct: false
@@ -49,7 +49,7 @@ blocks:
           - id: b
             label: "It folds the rent-exempt minimum in at compile time, and that frozen constant drifts if the rent formula ever changes."
             correct: true
-            feedback: "The value is baked at build time, so a later change to the formula leaves your binary carrying a stale number. It also only touches account creation, which is why measuring an unrelated handler shows nothing at all."
+            feedback: "That constant was baked in at build time — if the formula moves later, your binary keeps quoting the old number. And it only touches account creation, so profiling an unrelated handler was never going to show it."
           - id: c
             label: "It marks created accounts rent-exempt without funding them, so the payer keeps the lamports that would have gone into the deposit."
             correct: false
@@ -70,7 +70,7 @@ blocks:
           - id: c
             label: "The delta is a sum over three variables, so no single change owns it and a regression can hide inside the win."
             correct: true
-            feedback: "A single net figure cannot be attributed, so a regression cancelled out by two wins ships invisibly and then stays. The remedy is procedural rather than tooling: rebuild once per variable and read each delta alone."
+            feedback: "One net figure attributes to nothing. A regression covered by two wins ships invisibly and then lives there; no tool fixes that, because it's an experiment-design problem and the cure is one rebuild per variable."
         explanation: "The whole point of the measured loop is causal clarity: change exactly one thing between measurements so the delta is attributable. Three changes at once could hide a regression cancelled by two wins — you would ship all three blind. Concretely: change 1 saves 400 CU, change 2 costs 200, change 3 does nothing, the sum still goes down, and you carry the 200-CU regression forever. The fix is not a better profiler; it is going back and isolating the flags one build at a time."
       - id: range-not-digit
         prompt: "const-rent's saving is quoted as ~85-90 CU, not a single number. Why does the course refuse to freeze one digit here?"
@@ -79,7 +79,7 @@ blocks:
           - id: a
             label: "Anchor's own sources quote it two ways, and the figure can drift if the rent formula moves."
             correct: true
-            feedback: "Two maintainer-written places quote it differently, and the underlying formula may move besides. Printing one digit across that disagreement would be precision the sources themselves do not support."
+            feedback: "Two maintainer-written places quote it differently, and the formula underneath may move besides — a single digit printed across that would be precision the sources don't have."
           - id: b
             label: "Mollusk's CU reading varies run to run with the fixture's account ordering, so no single value would hold."
             correct: false

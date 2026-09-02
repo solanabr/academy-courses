@@ -74,7 +74,7 @@ lessons carry; treat a stale date as an unverified pin.
   both crates moved to `wincode 0.6` in versions that still satisfy `solana-message 4.4.0`, so
   an unpinned Mollusk graph resolves and then fails to *build*. Unlike `solana-address` these are
   dev-dependencies, so they shape the workspace lock without every sibling having to declare
-  them — only `token_ticket_swap` and `floor-registry` carry them. Drop all three rows on the day
+  them — only `token-ticket-swap` and `floor-registry` carry them. Drop all three rows on the day
   Anchor V2 moves to `wincode 0.6`, never one at a time.
 - **The tag, not the branch, from m02-l1 onward.** The `anchor-next` tip has already moved to
   `wincode 0.6` and demands `solana-address 2.7.0`. Track the branch and the `< 2.7` ceiling —

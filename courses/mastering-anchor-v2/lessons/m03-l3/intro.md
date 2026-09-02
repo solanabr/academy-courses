@@ -23,10 +23,26 @@ pub struct MinBalanceRule {
     pub min: u64,
 }
 
-impl BalanceGate for MinBalanceRule {
-    fn check(&self, _balance: u64) -> Result<(), String> {
+impl MinBalanceRule {
+    // The condition, split out as a plain `const fn` this file owns. Not a hook:
+    // the trait has one method, `check`. It sits here so the compiler can
+    // evaluate it at build time, which the graded version leans on.
+    const fn meets_floor(&self, _balance: u64) -> bool {
         // This is the starter: it never rejects anything. That is the bug.
-        Ok(())
+        true
+    }
+}
+
+impl BalanceGate for MinBalanceRule {
+    fn check(&self, balance: u64) -> Result<(), String> {
+        if self.meets_floor(balance) {
+            Ok(())
+        } else {
+            Err(format!(
+                "quarters::min_balance violated: {} < {}",
+                balance, self.min
+            ))
+        }
     }
 }
 
@@ -45,7 +61,7 @@ fn main() {
 rustc scratch.rs -o scratch && ./scratch
 ```
 
-You will see `50 vs 100 -> true`. A vault holding half the floor sails through, because the hook you were handed does nothing. Hold that failing line in your head. By the end of the Lab this exact `check` is a real, IDL-visible constraint on R2, firing before your handler ever runs. The completion problem hands you back this hook body to fill; the solo problem asks for a second constraint with no scaffold at all. In the Lab itself I walk every line.
+You will see `50 vs 100 -> true`. A vault holding half the floor sails through, because the condition the hook forwards to does nothing. Hold that failing line in your head. By the end of the Lab this exact `check` is a real, IDL-visible constraint on R2, firing before your handler ever runs. The completion problem hands you back this hook body to fill; the solo problem asks for a second constraint with no scaffold at all. In the Lab itself I walk every line.
 
 ## Summary
 
@@ -154,10 +170,10 @@ cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 an
 # macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 ```
 
-**2. Prove the logic in isolation first.** Before touching the macro, get the `check` logic correct as plain Rust, exactly the scratch file from the top of the lesson. This is the same distillation the coding challenge grades, and it is worth passing before you wire it into the framework, because a failing constraint you cannot isolate is miserable to debug. Fill the hook so it rejects below the floor and accepts at or above it. The floor is inclusive: a balance equal to the minimum passes. (In the graded version the comparison is factored one level down, into a `const fn` called `satisfies` that `check` forwards to, so a compile-time harness can prove it as well as the vectors can. The rule you are writing is the same single comparison either way.)
+**2. Prove the logic in isolation first.** Before touching the macro, get the `check` logic correct as plain Rust, exactly the scratch file from the top of the lesson. This is the same distillation the coding challenge grades, and it is worth passing before you wire it into the framework, because a failing constraint you cannot isolate is miserable to debug. Fill `meets_floor` so it rejects below the floor and accepts at or above it. The floor is inclusive: a balance equal to the minimum passes. The graded rung ships this same file with the same split and adds a block of `const` assertions under it — since `meets_floor` is a `const fn`, those run in the compiler, so a wrong rule fails the build with a message naming the case it got wrong.
 
 ```rust
-// scratch.rs - now with the hook filled in
+// scratch.rs - now with the condition filled in
 pub trait BalanceGate {
     fn check(&self, balance: u64) -> Result<(), String>;
 }
@@ -166,15 +182,22 @@ pub struct MinBalanceRule {
     pub min: u64,
 }
 
+impl MinBalanceRule {
+    const fn meets_floor(&self, balance: u64) -> bool {
+        balance >= self.min
+    }
+}
+
 impl BalanceGate for MinBalanceRule {
     fn check(&self, balance: u64) -> Result<(), String> {
-        if balance < self.min {
-            return Err(format!(
+        if self.meets_floor(balance) {
+            Ok(())
+        } else {
+            Err(format!(
                 "quarters::min_balance violated: {} < {}",
                 balance, self.min
-            ));
+            ))
         }
-        Ok(())
     }
 }
 
@@ -433,7 +456,7 @@ The proof is in the empty handler. `require_funded` does nothing, so the `is_err
 
 Two rungs. The first hands you the trait and takes back the body; the second hands you nothing.
 
-**Completion.** Reopen the `check` hook in your `MinBalanceConstraint` impl and blank out the body, leaving `fn check(vault: &Account<Vault>, floor: &u64) -> Result<()> { /* TODO */ }`. Refill it from memory so the floor is inclusive: a vault whose credit equals the floor passes, one below it returns `VaultError::BelowFloor`. The acceptance check is the pure-Rust one from step 2, plus the `anchor test` from step 6. If you reach for `init` or `exit` to do this, stop: a read-time gate lives in `check`, and putting it anywhere else either misses later instructions or fires at the wrong phase.
+**Completion.** Reopen the `check` hook in your `MinBalanceConstraint` impl and blank out the body, leaving `fn check(vault: &Account<Vault>, floor: &u64) -> Result<()> { /* TODO */ }`. Refill it from memory so the floor is inclusive: a vault whose credit equals the floor passes, one below it returns `VaultError::BelowFloor`. Two runs accept it: the graded rung, which is step 2's scratch file with the compile-time assertions attached under it, and the `anchor test` from step 6. If you reach for `init` or `exit` to do this, stop: a read-time gate lives in `check`, and putting it anywhere else either misses later instructions or fires at the wrong phase.
 
 **Solo.** Add a *second* namespaced constraint and prove it composes with the first on one account. Pick one: `quarters::max_balance = N`, which rejects a vault whose credit is *above* a ceiling, or `quarters::owner_is = <expr>`, which rejects a vault whose stored owner is not a given address. Implement it as its own marker type with its own `AccountConstraint<Account<Vault>>` impl, choosing the correct hook (both of these are read-time gates, so both are `check`, and reasoning out why is half the exercise). Then apply *both* on a single field, `#[account(quarters::min_balance = 100, quarters::max_balance = 10_000)]`, and write a LiteSVM test proving a vault inside the band passes while one on either side is rejected. Acceptance: the second constraint fires from the derive macro with no change to the framework, both constraints compose on one account, and the pure-Rust coding challenge still passes. One thing worth watching: a vault that fails the first constraint should never reach the second, because `check` hooks short-circuit on the first error, same as any `?`-propagated result.
 

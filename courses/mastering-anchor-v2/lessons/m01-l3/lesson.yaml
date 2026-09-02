@@ -17,7 +17,7 @@ blocks:
           - id: a
             label: "V2 handlers take &mut Context<T> and the account wrappers carry no <'info> lifetime"
             correct: true
-            feedback: "Borrowing rather than moving means one context threads through validation, the handler body, and the write-back at the end. The lifetimes were deleted from the surface you type, not relocated onto something else."
+            feedback: "One borrowed context now threads validation, your handler and the write-back at the end. The per-instruction move is simply gone."
           - id: b
             label: "V2 kept Context<T> by value and only dropped <'info> from Signer and Account<T>"
             correct: false
@@ -38,7 +38,7 @@ blocks:
           - id: b
             label: "ctx.accounts.vault.address()"
             correct: true
-            feedback: "The rename travels with a type change: an Address type replaced Pubkey, out of the address crate the runtime layer already depends on. Because the accessor yields a reference, an owned copy needs a leading star."
+            feedback: "It isn't only a rename — Pubkey became Address, out of a crate the runtime layer already pulled in, so the type on the left of your let changes too."
           - id: c
             label: "ctx.accounts.vault.to_address()"
             correct: false
@@ -55,9 +55,9 @@ blocks:
           - id: b
             label: "A Mollusk Rust test running in an in-process VM"
             correct: false
-            feedback: "Mollusk is the other in-process Rust template on the list, so it needs no validator either. But Litesvm is the one carrying #[default], so that is what the scaffold writes."
+            feedback: "Also in-process, also validator-free — but only one of the five carries #[default], and it isn't this one."
           - id: c
             label: "A LiteSVM Rust test running in an in-process VM"
             correct: true
-            feedback: "Five templates ship with the scaffold and exactly one carries the default attribute, which decides the file you get. No validator starts anywhere: the built artifact is loaded straight into an in-process VM."
+            feedback: "Whichever template carries #[default] is the file you get, and no validator starts for any of them. The built .so goes straight into an in-process VM."
         explanation: "anchor init offers Mocha, Jest, Rust, Mollusk, and Litesvm; Litesvm is the #[default], which closes the deploy-and-invoke loop in Rust without writing any TypeScript. The scaffolded test loads target/deploy/greeter.so with svm.add_program and sends a transaction in-process, so anchor test never starts a validator."

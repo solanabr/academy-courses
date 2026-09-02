@@ -32,13 +32,13 @@
   {
     "id": "t6",
     "description": "Near-miss in the LAST byte: 31 of 32 bytes match. A gate that compares only the first byte (or any prefix) lets this address drain the vault",
-    "input": "100, 30, { let mut a = [7u8; 32]; a[31] = 8; a }, [7u8; 32]",
+    "input": "100, 30, [7u8,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8], [7u8; 32]",
     "expectedOutput": "-1"
   },
   {
     "id": "t7",
     "description": "Near-miss in the FIRST byte, so the mirror of t6: a gate that compares only the last byte fails here. Only a full 32-byte equality passes both",
-    "input": "100, 30, { let mut a = [7u8; 32]; a[0] = 8; a }, [7u8; 32]",
+    "input": "100, 30, [8u8,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7], [7u8; 32]",
     "expectedOutput": "-1"
   }
 ]

@@ -26,7 +26,7 @@ blocks:
           - id: c
             label: "Store the canonical bump in the vault's Pod state at init and reuse the stored value"
             correct: true
-            feedback: "The value is deterministic for a given seed set, so computing it once and persisting it costs nothing afterwards. Reusing your own stored byte also keeps derivation out of reach of whatever the caller passes in."
+            feedback: "Derivation is deterministic for a fixed seed set, so one computation stored is every future computation skipped — and a byte you persisted yourself is a byte the caller can't influence."
         explanation: "The canonical bump is stable for a given seed set, so you compute it once (V2 gives it to you as a macro-time const via ctx.bumps.name), persist it in the account, and reuse it. That is both the CU-cheap path and the safe one — no runtime search, no trusting client input."
       - id: q2
         prompt: "You seed the vault with [b\"vault\", player.address()] and it works. A teammate proposes seeding it with only [b\"vault\"] to 'keep it simple'. What breaks?"
@@ -35,7 +35,7 @@ blocks:
           - id: a
             label: "Every player collides on ONE shared vault address, so there is no per-player custody"
             correct: true
-            feedback: "The seed scheme is the namespace, so dropping the player key makes the derivation stop depending on identity. Nothing fails at the derivation layer, which is exactly why this bug is silent rather than loud."
+            feedback: "Drop identity out of the seeds and the address stops depending on identity — that is the whole bug, and nothing anywhere raises so much as a warning about it."
           - id: b
             label: "A bare `bump` cannot resolve a canonical value when no seed varies per caller"
             correct: false
@@ -56,7 +56,7 @@ blocks:
           - id: b
             label: "`ctx.bumps.vault` — a field on the typed bumps struct the derive macro generates"
             correct: true
-            feedback: "Macro expansion fixes the struct's shape and resolves each name to a slot, replacing a fallible string lookup. The address itself is still derived during validation, because the caller is unknowable when the crate compiles."
+            feedback: "A field lookup that cannot miss replaces a string lookup that could: the compiler now guarantees the name exists. Worth being precise about what did not move — the derivation still runs per call."
           - id: c
             label: "`find_program_address(seeds, id).1` recomputed inside the handler"
             correct: false

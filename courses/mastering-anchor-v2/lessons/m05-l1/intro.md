@@ -98,7 +98,7 @@ Checkpoint: `anchor --version` prints the V2 RC string, not `1.1.2`. If it still
 
 ### 2. Add the token dependency
 
-The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `anchor-spl` next to `anchor-lang`, both at the same V2 version. There is no feature to switch on here: `token`, `token_interface`, `associated_token`, and `token_2022` are all unconditional modules of the V2 crate.
+The vault needs the SPL surface. In `programs/quarter-vault/Cargo.toml`, add `anchor-spl` next to `anchor-lang`, both at the same V2 version. Nothing to configure beyond that: `token`, `token_interface`, `associated_token`, and `token_2022` are all unconditional modules of the V2 crate.
 
 ```toml
 [dependencies]

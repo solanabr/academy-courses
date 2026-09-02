@@ -32,7 +32,7 @@ blocks:
           - id: b
             label: "Rewrite it as `#[account(address = <parent>.authority)]` on the sibling field; the parser deliberately stores the `has_one` keyword span so codegen can underline that exact token."
             correct: true
-            feedback: "The check changes address: it comes off the parent and lands on the sibling account it constrains. It replaces the equality test only, so the signer requirement still has to be declared on its own."
+            feedback: "It moves house: off the parent, onto the sibling account it actually constrains. And it replaces the equality test only, so a signer requirement still has to be declared on its own."
           - id: c
             label: "Leave it -- `has_one` is fully supported on the V2 line and the warning is a known `anchor-next` false positive; silence it with `#[allow(deprecated)]` until a later RC clears it."
             correct: false
@@ -53,7 +53,7 @@ blocks:
           - id: c
             label: "Write `#[account(mut, unsafe(dup))]`; plain `dup` is a compile error in V2 whose message names the `unsafe` spelling."
             correct: true
-            feedback: "The keyword forces you to acknowledge, at the site of the deviation, that no conflicting mutable reference may form in the handler. A risk you have to type out is one you are far less likely to forget."
+            feedback: "You spell the risk out at the exact site of the deviation — no conflicting mutable reference may form in the handler, and you typed that promise yourself. A hazard you had to write down is much harder to forget you took."
           - id: a2
             label: "Keep `dup` as written and wrap the handler body in a Rust `unsafe { }` block; the constraint spelling itself is unchanged in V2."
             correct: false
@@ -66,7 +66,7 @@ blocks:
           - id: a
             label: "It is unnecessary because typed access while a `CpiHandle` is live is a compile error, so the stale-data window `.reload()` patched cannot be written."
             correct: true
-            feedback: "Because the borrow is taken on the typed wrapper itself, a live invocation and an out-of-date copy can never overlap in time. Nothing is able to drift, so the method has no remaining job to do."
+            feedback: "The borrow sits on the typed wrapper itself, so a live invocation and an out-of-date copy can't overlap in time — and a method with nothing left to refresh is a method you delete."
           - id: b
             label: "It is impossible because `.reload()` was renamed to `.refresh()` on the `CpiHandle`; call that after each CPI to re-read the account bytes into your typed copy."
             correct: false
@@ -91,5 +91,5 @@ blocks:
           - id: c
             label: "Because `AccountLoader` survives in V2 but is repurposed as a sequential account cursor, so deleting it or reusing it unchanged misbehaves silently."
             correct: true
-            feedback: "Compare it with the type that genuinely vanished, which fails to resolve loudly when carried across. A name that survived with a new meaning is the more dangerous case, because it compiles and then misbehaves."
+            feedback: "The type that genuinely vanished fails loudly the moment you carry it across. A name that survives with a new meaning compiles, runs, and then behaves like something you didn't ask for — much the worse of the two."
         explanation: "V2 keeps the name `AccountLoader` but repurposes it as a sequential account cursor, not the v1 zero-copy wrapper -- the docs warn it 'means something else' in V2. Teaching it as 'gone' is the trap: the v1 zero-copy role moves to `Account<T>` (default zero-copy), while the surviving `AccountLoader` name now does something unrelated and will compile-and-misbehave if you assume the old meaning. Contrast that with `LazyAccount`, which is v1-only and has no V2 equivalent at all: carrying it across fails to resolve loudly rather than misbehaving quietly."

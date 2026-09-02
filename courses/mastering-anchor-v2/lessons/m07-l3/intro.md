@@ -2,11 +2,11 @@
 
 Last lesson you drained the escrow with your own exploit tests, then patched it: an `address` pin on the caller, an `address` pin on the substitutable `UncheckedAccount`, and `checked_sub` on the vault debit, until every attack you could think of failed. You did not attack the swap. You mapped the same seven classes onto its fields and left it there. That last clause is the trap. "Every attack you could think of" is a fence built to the exact height of your own imagination, and an attacker's imagination is not yours.
 
-So before you read another paragraph, do this. Open `programs/token_ticket_swap/src/lib.rs`, find `swap_arcade_for_tickets`, and answer one question about its accounts struct: is there a line, an actual line you can point to, that proves `reserve_ticket` is the pool's own reserve and not a token account the caller chose? Not "Anchor probably handles it." A line number, or the word `FAIL`. Write it in a scratch file. That is the first row of your audit checklist, and you just started the lab.
+So before you read another paragraph, do this. Open `programs/token-ticket-swap/src/lib.rs`, find `swap_arcade_for_tickets`, and answer one question about its accounts struct: is there a line, an actual line you can point to, that proves `reserve_ticket` is the pool's own reserve and not a token account the caller chose? Not "Anchor probably handles it." A line number, or the word `FAIL`. Write it in a scratch file. That is the first row of your audit checklist, and you just started the lab.
 
 ```bash
 # Find the swap handler you are about to audit, and start the checklist file.
-grep -n "fn swap_arcade_for_tickets" programs/token_ticket_swap/src/lib.rs
+grep -n "fn swap_arcade_for_tickets" programs/token-ticket-swap/src/lib.rs
 : > audit-checklist.txt   # one row per check: write a line number, or the word FAIL
 ```
 
@@ -138,7 +138,7 @@ Do not fuzz a clean program first. Seed a bug you understand, confirm the fuzzer
 Here is the swap's constant-product math. This is `swap_out`, the same function you have carried since you built R4, moved into its own `src/math.rs` for this lesson so the seeded edit is a one-line diff in a file nothing else touches. The invariant is `k = reserve_in * reserve_out`, and a trade must never let `k` shrink. Because the swap charges 0.3%, the fee stays in the pool, so in practice `k` grows a little on every trade; `k_now >= k_before` is the assertion that is true either way.
 
 ```rust
-// programs/token_ticket_swap/src/math.rs  (correct: the swap_out you built, with its fee)
+// programs/token-ticket-swap/src/math.rs  (correct: the swap_out you built, with its fee)
 pub fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> Result<u64> {
     // 997/1000 is the 0.3% fee: the withheld 3/1000 stays in the pool, which is
     // exactly why k grows rather than staying equal.
@@ -168,7 +168,7 @@ pub fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> Result<u64
 Now seed the bug. Replace the checked `numerator` line with a raw `u64` multiply:
 
 ```rust
-// programs/token_ticket_swap/src/math.rs  (seeded bug - DO NOT SHIP)
+// programs/token-ticket-swap/src/math.rs  (seeded bug - DO NOT SHIP)
 let numerator = (amount_in * 997) * reserve_out; // u64 math: wraps instead of promoting
 ```
 

@@ -32,7 +32,7 @@ blocks:
           - id: b
             label: "Cast both reserves to u128 before multiplying and use checked_mul, then divide down."
             correct: true
-            feedback: "Widening the intermediate is the fix, not widening the stored fields, and the checked form still catches the impossible case. Narrowing afterwards is safe because the result is bounded by a value that already fits."
+            feedback: "Widen the intermediate, not the stored fields, and keep it checked, because three factors is one more than u128 can absorb. Narrowing back down is safe: the output can't exceed a value that already fit."
           - id: c
             label: "Switch reserve_in and reserve_out to i64 so an overflow wraps to a negative value you can test for."
             correct: false
@@ -53,7 +53,7 @@ blocks:
           - id: c
             label: "The slippage guard: revert when the computed output is below the trader's min_out."
             correct: true
-            feedback: "The bound has to be evaluated between the quote and the first transfer, so a fill can never land below what the trader was shown. It reuses the escrow's conditional-release shape, and it is the only protection offered here."
+            feedback: "Between the quote and the first transfer is the only window where the bound means anything — check it after either CPI and you are describing a fill that already happened. It is also the only trader protection this swap offers."
         explanation: "Without a min_out the trader accepts any fill, including one degraded by ordering (a sandwich). The slippage guard reverts when computed output < min_out — its shape reuses the escrow's conditional-release logic. It's the one piece of trader protection this teaching swap offers. The guard has to run after the quote and before either CPI, so nothing settles at a price the trader never agreed to."
       - id: m05-l2-q3
         prompt: "You route both swap directions through the same InterfaceAccount and the program rejects the instruction as a duplicate mutable account. What's the clean fix?"
@@ -62,7 +62,7 @@ blocks:
           - id: a
             label: "Give each side of the pool its own distinct reserve token account so no real duplication exists."
             correct: true
-            feedback: "A constant-product curve needs one account per side, holding different mints under the pool's authority, and the default is then met with no opt-out at all. These are not vault instances, because the authority differs."
+            feedback: "One account per side, different mints, both under the pool's authority: the default is satisfied by the layout itself, with no opt-out anywhere. Not vault instances, though, because the authority differs."
           - id: b
             label: "Add unsafe(dup) to the shared reserve field so V2 accepts one account serving both directions."
             correct: false
@@ -79,11 +79,11 @@ blocks:
           - id: a
             label: "A live CpiHandle holds a Rust borrow of the typed account, so a typed read during it cannot compile."
             correct: true
-            feedback: "The structural answer is to snapshot both balances into locals before any mutable handle exists. That removes the entire stale-read class through the language rather than through a call you have to remember."
+            feedback: "Snapshot both balances into locals before any mutable handle exists, and the whole class stops being expressible: no remembered call, no discipline to keep."
           - id: b
             label: "transfer_checked consumes the InterfaceAccount wrapper, so the typed account is gone once the CPI returns."
             correct: false
-            feedback: "Nothing is consumed or destroyed: the CpiHandle only borrows the wrapper for the duration of the call, and reserve_ticket.amount() reads fine again once the handle drops. Move the read after the transfer_checked call and the build goes green."
+            feedback: "Nothing is consumed or destroyed. The handle borrows the wrapper for the length of the call and then gives it back; that same reserve_ticket.amount() compiles unchanged on the far side of transfer_checked."
           - id: c
             label: "V2 requires a .reload() call before any typed .amount read, and the compiler enforces that ordering."
             correct: false

@@ -25,7 +25,7 @@ blocks:
           - id: c
             label: "You broke it — the fuzzer found a concrete input for which your invariants do not hold."
             correct: true
-            feedback: "Sequence matters: keep the artifact, replay it, and only then patch and re-run. Patching first discards the one piece of evidence that the input was real and deterministic rather than a fluke."
+            feedback: "Order matters as much as the finding: keep the artifact, replay it, and patch after. Go the other way and you have thrown out the one thing proving the input was real and repeatable."
         explanation: "In this course, a green fuzz case = you broke it: anchor fuzz (Crucible, LibAFL/LiteSVM with sBPF edge coverage) surfaced an input that violates an invariant. Replay the crash artifact, fix the bug, and re-fuzz — a crash is a success of the process. The order is load-bearing: crash, replay, patch, re-fuzz. Patch first and you throw away the artifact that proved the bug was real and deterministic."
       - id: q2
         prompt: "Which tool does `anchor fuzz` actually run under the hood in V2?"
@@ -34,7 +34,7 @@ blocks:
           - id: a
             label: "Crucible (`crucible-fuzz-cli`), a LibAFL engine driving a LiteSVM runtime."
             correct: true
-            feedback: "Verified 2026-08-22: the subcommand lives on master, which pins that crate at 0.2.1 and dispatches into it, while the RC branch's CLI ships coverage and carries no fuzz command whatsoever."
+            feedback: "Verified 2026-08-22 — that subcommand lives on master, which pins the crate at 0.2.1; the RC branch's CLI has no fuzz command at all."
           - id: b
             label: "Trident (Ackee), wired in as the default `fuzz` backend."
             correct: false
@@ -55,7 +55,7 @@ blocks:
           - id: b
             label: "No — a clean run means 'not found yet': confidence, never proof that bugs are absent."
             correct: true
-            feedback: "A clean campaign is an average-case statement over whatever the search reached in the time you gave it. Only the model checkers in that toolchain claim anything proof-shaped, and only over narrow properties."
+            feedback: "The claim a clean campaign supports is average-case, over whatever the search reached in the time you gave it — nothing more. Only the model checkers in that toolchain make proof-shaped claims, and only over narrow properties."
           - id: c
             label: "Only if you also run Trident, whose Ackee harness gives proof-grade coverage guarantees."
             correct: false
@@ -76,5 +76,5 @@ blocks:
           - id: c
             label: "`anchor fuzz run` with `--stateful`, so mutated actions extend live states instead of restarting."
             correct: true
-            feedback: "That mode keeps a pool of live states keyed by coverage and applies one mutated action to a state drawn from it, so chains deepen instead of resetting. The coverage export is a readout, never a mode."
+            feedback: "It keeps a coverage-keyed pool of live states and applies one mutated action to a state drawn out of it, so chains deepen instead of resetting. Coverage is a readout; it was never a mode."
         explanation: "anchor fuzz run ... --stateful chains instructions so the fuzzer can reach states that only exist after a sequence of calls — the ones a single-shot run never sees. Coverage (LCOV) is a separate readout, not the mode. Mechanically: stateful keeps a coverage-indexed pool of live program states (`--pool-size`, default 256,000) and applies one mutated action per iteration to a state drawn from that pool, growing chains to `--max-depth` (default 15), while the stateless default clones the post-setup snapshot, runs a mutated sequence up to `--max-actions` (default 8), and discards it."

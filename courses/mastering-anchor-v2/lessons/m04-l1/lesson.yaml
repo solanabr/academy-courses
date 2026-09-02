@@ -26,7 +26,7 @@ blocks:
           - id: a
             label: "The SOL vault's own seeds plus its stored canonical bump: [b\"sol\", owner.as_ref(), &[state.sol_bump]]."
             correct: true
-            feedback: "The lamports live in the zero-data PDA, so its own seed set is what must be presented rather than the state account's. Derivation is scoped to the invoking program id, which is why nobody else can sign for it."
+            feedback: "Lamports leave the zero-data PDA, so it is that account's seed set you present, not the state account's. That is the easy slip here. Derivation is scoped to the invoking program id, so nobody else can present them."
           - id: b
             label: "The authority's secret key bytes, read off the Signer account, since the authority owns the vault."
             correct: false
@@ -47,7 +47,7 @@ blocks:
           - id: b
             label: "A &Address for the program, with accounts as CpiHandle borrow-tracked handles."
             correct: true
-            feedback: "Handles come from a read accessor or a mutable one, and that distinction is what next lesson's compile-time safety rests on. Signer seeds ride in separately, through the wrapper over the raw syscall."
+            feedback: "Read accessor or mutable one: that single distinction is the hinge everything in the next lesson turns on. Signer seeds don't ride in the constructor at all. They arrive through a separate wrapper."
           - id: c
             label: "A Pubkey by value for the program, with accounts as plain &mut references."
             correct: false
@@ -68,5 +68,5 @@ blocks:
           - id: c
             label: "state.balance = state.balance.checked_sub(amount).ok_or(VaultError::Underflow)?;"
             correct: true
-            feedback: "Atomicity rewinds failures, not silent wraps: an error unwinds the transfer that already ran, while a wrapped subtraction raises nothing and leaves a nonsense ledger. Making the None an error is what surfaces it."
+            feedback: "Atomicity only rewinds what raises, and a wrap raises nothing: the transfer commits and the ledger quietly disagrees with it. Turning the None into an error is what gives atomicity something to catch."
         explanation: "checked_sub returns None on underflow instead of panicking, and the ? turns that into a clean program error the caller can handle. On a custody path this is the difference between a rejected transaction and an aborted instruction with a confusing panic log. It also matters because atomicity only rewinds errors, not silent bugs: if the debit raises, the whole instruction aborts and the transfer that already ran unwinds with it, but a wrap never raises, so nothing rolls back and the vault is left believing it holds eighteen quintillion lamports. Make the bug an error."

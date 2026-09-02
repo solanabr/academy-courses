@@ -17,7 +17,7 @@ blocks:
           - id: a
             label: "v1's Account<T> deserializes the account bytes into an owned struct on every access; V2 casts them in place"
             correct: true
-            feedback: "Reading a field becomes a pointer offset instead of a decode, which is why both twins still run identical validation. The saving tracks how much copying a program was doing, and a two-field counter has almost none to reclaim."
+            feedback: "Fewer copies, identical checks — and because the saving tracks copy volume, two twins this small leave almost nothing on the table for you to measure."
           - id: b
             label: "V2 shrinks the 8-byte sha256 discriminator to a single-byte tag, so each account load compares fewer bytes"
             correct: false
@@ -38,7 +38,7 @@ blocks:
           - id: b
             label: "8.8x average — revised down from 9.9x in benchmark PR #4914; never freeze a multiplier"
             correct: true
-            feedback: "A maintainer team revising its own boast downward is a credibility signal, not a weakness. Carry the figure with its date attached, because the alpha caveat says the next revision can move it again."
+            feedback: "Nobody trims a marketing number downward by accident — that's the tell it was measured rather than chosen. Where it bites is your own prose six months on, still quoting the figure you wrote down today."
           - id: c
             label: "50.4x — that is the average CU reduction across every program in the benchmark suite"
             correct: false
@@ -59,5 +59,5 @@ blocks:
           - id: c
             label: "As of 2026-08, a search turned up no dedicated V2 course or long-form guide"
             correct: true
-            feedback: "Phrase it the way the survey did: bounded by search budget, not a claim of absence. The moat is rot rather than emptiness, since the official on-ramp is frozen years back and the best third-party intro pins 0.29.0."
+            feedback: "A negative like this can't be proven, only bounded. The defensible sentence is 'a real search found nothing,' never 'none exists.'"
         explanation: "The survey found none (search-budget-bounded, phrased as a finding not an absolute); the corpus's universal version rot is exactly the moat. That gap is why this course exists: it is not competing with the official on-ramp, it is replacing one that stopped breathing."

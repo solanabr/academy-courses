@@ -27,7 +27,7 @@ blocks:
           - id: a
             label: "It is a compile error: the live CpiHandle holds a mutable borrow of that account, which excludes typed reads of it."
             correct: true
-            feedback: "The scope is exactly one account wide, so anything you did not hand the call stays readable throughout. Once the handle falls out of scope the read is both legal and current, because no stack copy exists to go stale."
+            feedback: "One account wide, no wider — hand the CPI a vault and the config beside it stays readable the whole time. When the handle goes, the read is legal again and already current, because there was never a copy to refresh."
           - id: b
             label: "It compiles and returns the pre-CPI value until you call ctx.accounts.vault.reload() to refresh the copy."
             correct: false
@@ -48,7 +48,7 @@ blocks:
           - id: b
             label: "In v1 the stale read compiled and returned the pre-CPI copy; V2 makes it a compile error."
             correct: true
-            feedback: "The v1 remedy was a line you had to remember, and forgetting it produced no diagnostic of any kind. Converting a silent wrong answer at runtime into a loud build failure is the whole trade the borrow model makes."
+            feedback: "The v1 remedy was one line you had to remember, and forgetting it produced no diagnostic whatsoever — not an error, not a warning, nothing. Trading a silent wrong answer for a loud build failure is the whole of the deal."
           - id: c
             label: "v1 panicked at runtime whenever a post-CPI read hit an invalidated copy."
             correct: false
@@ -69,7 +69,7 @@ blocks:
           - id: c
             label: "No: it guards typed account access only, not raw AccountInfo lamports or manual byte reads."
             correct: true
-            feedback: "Refreshing held accounts automatically was weighed and dropped, because that deserialize cost is precisely what the rewrite set out to remove. Lamport arithmetic and hand-rolled byte reads therefore stay your job."
+            feedback: "Auto-refreshing every held account was weighed and dropped: that deserialize cost is the exact thing the rewrite exists to remove. So lamport arithmetic and hand-rolled byte reads stay yours."
         explanation: "The guarantee is precise and worth stating precisely. The compiler stops you from reading typed account data while a handle is live, which kills the common footgun, but it does not refresh values and it does not cover raw lamport or byte-level reads. Knowing the edge of a safety guarantee is part of using it well. Silently re-deserializing every held account after every CPI was ruled out deliberately: eager Account<T> deserialization was the number-one performance complaint that motivated V2, so doing it more often would have reinstated the exact tax the redesign set out to abolish — and it would still miss raw byte reads."
       - id: m04-l2-q4
         prompt: "To read the vault's typed balance after the CPI, what do you do in V2?"
@@ -78,7 +78,7 @@ blocks:
           - id: a
             label: "Let the cpi_handle_mut drop by ending its scope, then read the typed account."
             correct: true
-            feedback: "The discipline moved from remembering a call to shaping a scope, and the compiler now audits that shape for you. Snapshotting into a local is the opposite tool: it preserves the old value and can never reveal the new one."
+            feedback: "Remembering a call became shaping a scope, and the compiler checks the shape. Snapshotting into a local is the opposite tool: it freezes the old value, so it can never show you the new one."
           - id: b
             label: "Call ctx.accounts.vault.reload() after the CPI to refresh the deserialized copy."
             correct: false

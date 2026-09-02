@@ -118,12 +118,8 @@ fn settle(vault_start: u64, recipient_start: u64, amount: u64) -> (u64, u64) {
     // TODO: v1 muscle memory put both reads here, and here neither one is
     // legal. Place each so `opening` is the vault's balance before the
     // transfer and `closing` is its balance after — without touching the
-    // `CpiContext` above or the `transfer_checked` call below.
-    //
-    // Both bindings stay reads: `ctx.accounts.vault_ta.amount()` on the
-    // right-hand side of each, moved to where it is legal. Replacing either
-    // one with arithmetic over `vault_start`, `recipient_start` or `amount`
-    // sidesteps the exercise instead of doing it.
+    // `CpiContext` above or the `transfer_checked` call below. Both lines keep
+    // the right-hand side they already have; only their positions change.
     let opening = ctx.accounts.vault_ta.amount();
     let closing = ctx.accounts.vault_ta.amount();
 

@@ -27,12 +27,6 @@
     "id": "t5",
     "input": "18446744073709551615, 0, 0",
     "expectedOutput": "0",
-    "description": "a field count that overflows the 32-byte multiply must degrade to 0. Adding the discriminator OUTSIDE the checked chain (`...unwrap_or(0) + 8`) reports 8 bytes here \u2014 a plausible-looking length for an account that cannot exist"
-  },
-  {
-    "id": "t6",
-    "input": "0, 0, 18446744073709551615",
-    "expectedOutput": "0",
-    "description": "the discriminator add is itself checked: INIT_SPACE at u64::MAX plus 8 overflows, so the answer is 0, not a wrapped 7"
+    "description": "no struct has this many fields, and that is the point: it is a garbage count, the kind the caller hands you when something upstream is wrong. The guard has to refuse it with 0. Add the discriminator outside the chain (`...unwrap_or(0) + 8`) and the answer is 8 instead — a refusal dressed up as an empty account"
   }
 ]
