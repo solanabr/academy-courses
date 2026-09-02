@@ -26,6 +26,7 @@ blocks:
           - id: c
             label: "Solana Pay reference keys and x402 extra.memo invoice ids are the same idea: one order-id-in-a-field pattern reconciles both."
             correct: true
+            feedback: "Both rails let you choose the order id up front and put it somewhere searchable, which is all a reconciler needs. The lookup differs: an account key is not queried like a memo."
         explanation: "Reconciliation converges: a Solana Pay `reference` and an x402 `extra.memo` invoice id both carry the order id in a searchable field, with no unique deposit address needed. One reconciler serves both, and the x402 half is seeded here and cashed in at module 7."
       - id: q10
         prompt: "There is no refunds page anywhere in Solana's payments docs. What does that tell you about how to build one?"
@@ -34,6 +35,7 @@ blocks:
           - id: a
             label: "Refunds are original construction here: a reverse push-payment linked in the ledger to its origin signature."
             correct: true
+            feedback: "A reversal the protocol does not provide is just another payment. Being ordinary, it needs idempotency: a retried refund pays twice."
           - id: b
             label: "Refunds are impossible on these rails by design, so you must direct buyers to file a chargeback."
             correct: false
@@ -54,6 +56,7 @@ blocks:
           - id: b
             label: "That the origin payment finalized; a push refund is irreversible."
             correct: true
+            feedback: "Reversing a payment a fork can still drop funds a gift you cannot claw back. Finality is necessary but not sufficient: check that no earlier reversal went out against that signature."
           - id: c
             label: "That at least ~150 blocks have passed so the origin blockhash expired, since a refund sent inside that window could be replayed against your treasury."
             correct: false
@@ -74,4 +77,5 @@ blocks:
           - id: c
             label: "Hold the order as underpaid and route it to a stated policy: a top-up window or refund-minus-fee."
             correct: true
+            feedback: "An explicit underpaid state keeps the ledger auditable and the resolution reviewable. Publish the policy before the sale; deciding case by case is how underpayment becomes a dispute."
         explanation: "Overpay/underpay/partial-fill are policy trade-offs, not defaults. Holding an underpaid order and routing it to an explicit, stated resolution keeps fulfillment auditable and defensible; silent fulfillment and ungated auto-refunds each fail a different way."

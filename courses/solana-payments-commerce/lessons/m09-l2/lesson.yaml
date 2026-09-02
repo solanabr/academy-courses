@@ -25,6 +25,7 @@ blocks:
           - id: c
             label: "The Subscriptions program client and MPP, since @solana/subscriptions was days old on mainnet and MPP's Solana method spec moves in a git repo with no standards-body clock on it."
             correct: true
+            feedback: "Churn tracks age and governance, not how dated a page looks. Frozen is not the same as safe either: an unmaintained dependency accrues unfixed bugs, it stops surprising you."
         explanation: "The course drew the frozen/moving line on purpose. Frozen surfaces (the Solana Pay v1 spec, the blinks tooling) are safe precisely because they are stable. The young pieces, the Subscriptions program client and the MPP specs, are the ones to re-verify before you trust their pins."
       - id: m09l2-q2-where-next
         prompt: "Your colleague wants to squeeze more transactions to land under load during a hot drop by tuning priority fees and Jito bundles. Which course did this one explicitly defer that depth to?"
@@ -33,6 +34,7 @@ blocks:
           - id: a
             label: "The Master Solana Frontend and Client-Side Development course, which owns transaction-landing strategy."
             correct: true
+            feedback: "The split is practice versus internals: what to do under load sits with the client, why the runtime does it sits lower down."
           - id: b
             label: "The Digital Assets, Tokenization and Token Extensions course, which owns the Token-2022 extensions PYUSD showed off."
             correct: false
@@ -53,6 +55,7 @@ blocks:
           - id: b
             label: "There are no chargebacks by construction, so refunds are push payments you originate and disputes have no bank-mediated reversal."
             correct: true
+            feedback: "Remove the reversal primitive and every control moves earlier. It relocates risk: the loss an issuer absorbed now lands on you."
           - id: c
             label: "Settlement is fast enough to be effectively instant, so reconciliation and idempotency stop mattering to a merchant."
             correct: false

@@ -17,6 +17,7 @@ blocks:
           - id: a
             label: "Wait for `finalized`: the settled-funds equivalent, since a finalized block cannot be dropped by a fork."
             correct: true
+            feedback: "Finality removes fork risk, and fork risk is the only thing a commitment level controls. It buys nothing against a fraudulent buyer, and its seconds are wasted on a $12 sale."
           - id: b
             label: "Release on `processed`, treating it as the authorization hold: the RPC hands back a signature in well under a second, which is enough to print the packing slip."
             correct: false
@@ -37,6 +38,7 @@ blocks:
           - id: b
             label: "A flat 5000-lamport base fee, so a typical payment costs well under a tenth of a cent whatever the size."
             correct: true
+            feedback: "Fees price signatures, not value, so ticket size drops out of the math. Priority fees and one-time ATA rent are the lines that bite."
           - id: c
             label: "Nothing at all. Transfers on Solana are free, so there is no fee line to budget for."
             correct: false
@@ -57,6 +59,7 @@ blocks:
           - id: c
             label: "Reversibility is now yours: refunds are push payments you build, and a mis-send has no institutional undo."
             correct: true
+            feedback: "Settlement finality moves the reversal function out of the network and into your application code. Note the asymmetry: a refund you can rebuild, a send to a wrong address you cannot."
         explanation: "No chargebacks is a genuine merchant win, but it is an asymmetry, not a free lunch. Because settled transfers are irreversible, refunds become push payments you construct yourself (there is no refunds page in the official docs; you build that logic in module 4), and an erroneous payment has no bank to call. Naming both halves is the entire point of a payments mental model."
       - id: m01-l2-q4
         prompt: "Given everything in this lesson, which sale is the WEAKEST fit for stablecoin rails today?"
@@ -65,6 +68,7 @@ blocks:
           - id: a
             label: "A high-fraud consumer buy where the shopper expects bank-backed dispute rights and reversal on demand."
             correct: true
+            feedback: "The poor fit is the shopper's expectation of an institutional undo, which finality removes by design. High value alone is not the problem; a contract can carry the dispute."
           - id: b
             label: "A cross-border micro-payment where the receiving bank sits on the funds for three days and percentage-based card interchange would eat most of the ticket."
             correct: false

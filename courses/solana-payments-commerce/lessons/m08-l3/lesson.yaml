@@ -18,6 +18,7 @@ blocks:
           - id: a
             label: "`confirmed` for the everyday record sale; `finalized` for the high-value or compliance-sensitive wholesale order."
             correct: true
+            feedback: "The guidance is qualitative: no doc names the figure where the gate flips. That line is yours to set and to write down."
           - id: b
             label: "`finalized` for both, since money is money and only finality is ever safe."
             correct: false
@@ -38,6 +39,7 @@ blocks:
           - id: b
             label: "State a one-box practical recipe for payment txs and hand transaction-landing depth to the Client-Side Mastery course."
             correct: true
+            feedback: "A payment needs a fee floor that lands, not an optimiser, so depth here is scope you cannot maintain. Naming a handoff is not skipping it: the box still holds a default that works."
           - id: c
             label: "Skip priority fees; payments are low-value, so the base 5000-lamport fee always lands them."
             correct: false
@@ -58,6 +60,7 @@ blocks:
           - id: c
             label: "The webhook-failure-monitoring row: Helius auto-disables a webhook after sustained failure, so alert on failure rate."
             correct: true
+            feedback: "The failure mode is silence: nothing on your side errors, so only a monitor watching the sender catches it before orders stop."
         explanation: "Silent webhook failure stops fulfillment without an obvious error, and a Helius webhook can auto-disable itself after sustained failure. The monitoring row exists precisely to alert on the failure rate before orders quietly stop."
       - id: m08-l3-q4
         prompt: "You go looking for a Solana-native merchant accounting/reporting SaaS to close the books and find nothing purpose-built. What's the honest gate posture?"
@@ -66,6 +69,7 @@ blocks:
           - id: a
             label: "State it as an observed market gap as of your build date and ship your own reconciliation export as the interim answer."
             correct: true
+            feedback: "Dating an observation makes it falsifiable rather than a claim about the world forever, and the export keeps you unblocked. Keep it replaceable: emit a format accountants read."
           - id: b
             label: "Block go-live until a vendor exists, since you can't operate a store without accounting software."
             correct: false
