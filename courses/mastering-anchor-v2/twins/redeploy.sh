@@ -15,7 +15,7 @@ WORK="$(mktemp -d /tmp/anchor-v2-twins.XXXXXX)"
 echo "workdir: $WORK (keys + builds live here, not in the repo)"
 cp -R "$SRC/counter-v1-twin" "$SRC/counter-v2-twin" "$WORK/"
 
-# 1. Deployer wallet (fresh; fund it, then re-run with SKIP_FUND=1 to continue).
+# 1. Deployer wallet (fresh). Fund it from another shell while this loop waits.
 DEPLOYER="$WORK/deployer.json"
 solana-keygen new --no-bip39-passphrase -s -o "$DEPLOYER" >/dev/null
 DEP_PK=$(solana-keygen pubkey "$DEPLOYER")
@@ -32,10 +32,17 @@ blockhash() {
     | python3 -c "import json,sys;print(json.load(sys.stdin)['result']['value']['blockhash'])"
 }
 
-send_b64() { # $1 = base64 tx; prints signature
+send_b64() { # $1 = base64 tx; prints the signature, or hard-exits on an RPC error
   curl -s -X POST "$RPC" -H "Content-Type: application/json" \
     -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"sendTransaction\",\"params\":[\"$1\",{\"encoding\":\"base64\",\"preflightCommitment\":\"confirmed\"}]}" \
-    | python3 -c "import json,sys;r=json.load(sys.stdin);print(r.get('result') or r)"
+    | python3 -c '
+import json, sys
+r = json.load(sys.stdin)
+sig = r.get("result")
+if not sig:
+    print("sendTransaction failed:", r, file=sys.stderr)
+    sys.exit(1)
+print(sig)'
 }
 
 deploy_twin() { # $1 = crate dir name, $2 = lib name

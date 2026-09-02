@@ -139,10 +139,11 @@ The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a
    solana confirm -v "$V1_TWIN_SIG" --url devnet | grep -i "compute units"
    ```
 
-   Mine printed exactly this, and the reference signature replays the same reading for you:
+   Mine printed two lines — the case-insensitive grep catches the CLI's own summary as well as the runtime's log line — and the reference signature replays the same reading for you:
 
    ```text
-   Program 8bhX52w9mGGaAFJwsoWLpv3nrZsXzc3ZfE2P622uGt3z consumed 1714 of 200000 compute units
+   Compute Units Consumed: 1714
+     Program 8bhX52w9mGGaAFJwsoWLpv3nrZsXzc3ZfE2P622uGt3z consumed 1714 of 200000 compute units
    ```
 
    Whenever this pair gets re-landed — by the maintainers after a devnet reset, or by you later in the course under your own wallet — the exact number will differ; the shape will not. Write down the `consumed X` for the v1 twin — it is the same reading the opener had you take.
@@ -157,10 +158,11 @@ The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a
    solana confirm -v "$V2_TWIN_SIG" --url devnet | grep -i "compute units"
    ```
 
-   For the record, the reference reading:
+   For the record, the reference reading, in the same two-line shape:
 
    ```text
-   Program 2fLbW1PG2CeyAgR5krLF9okkqCXRmqy1o3srBh4E26WT consumed 200 of 200000 compute units
+   Compute Units Consumed: 200
+     Program 2fLbW1PG2CeyAgR5krLF9okkqCXRmqy1o3srBh4E26WT consumed 200 of 200000 compute units
    ```
 
    Write down the `consumed X` for the v2 twin.

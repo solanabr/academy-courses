@@ -70,7 +70,7 @@ The shift is more than cosmetic. `has_one` was locked to a field whose name matc
 
 ### The duplicate-mutable default: distinct is fine, aliased is not
 
-Here is a default that trips people the first time and then never again. V2 rejects *duplicate mutable accounts*. Pass the same account under two mutable names in one instruction and validation fails before your handler runs, with `ConstraintDuplicateMutableAccount`.
+Here is a default that trips people the first time and then never again. V2 rejects *duplicate mutable accounts*. Hand the same account in under two names in one instruction, with even one of those slots marked `mut`, and validation fails before your handler runs, with `ConstraintDuplicateMutableAccount`.
 
 Read that carefully, because the common misread is expensive. It does *not* mean "two mutable accounts are banned." Your `redeem` takes the escrow (mutable, it gets closed) and the vault (mutable, its lamports move), both mutable, and V2 is perfectly happy, because they are two different accounts. What V2 refuses is *aliasing*: the same account handed in twice under two names, where one mutable write silently clobbers the other. That is a real bug class, and it is now a compile-and-load-time error instead of a 2am incident.
 
@@ -83,7 +83,7 @@ When you genuinely mean to pass one account twice as mutable (a batch instructio
 | Your `redeem` takes... | V2 verdict | What you write |
 |---|---|---|
 | escrow (mut) + vault (mut), different accounts | accepted | nothing extra, this is normal composition |
-| the same vault twice, both mut | rejected | `ConstraintDuplicateMutableAccount` at load |
+| the same vault twice, either slot mut | rejected | `ConstraintDuplicateMutableAccount` at load |
 | the same vault twice, you meant it | accepted | `#[account(mut, unsafe(dup))]` on both, and own the aliasing |
 | plain `dup` without `unsafe` | compile error | the compiler tells you to write `unsafe(dup)` |
 
@@ -173,11 +173,11 @@ Creating a vault for an address is harmless: it costs the funder rent and gives 
 
 Then point the two `Transfer` CPIs at the new accounts: `deposit`'s `from` becomes `funder`, and `withdraw`'s `to` becomes `destination`. Nothing else changes, and that is the point. Three extra accounts across three structs, no new custody logic, and R3 gets to build on the same code instead of copying it.
 
-![Self-custody collapses authority, funder, and destination into the player, while the escrow-owned vault splits them across escrow PDA, operator, and player with R2's custody logic unchanged.](assets/v06-comparison.png)
+![Self-custody keeps every role in the player's hands through distinct accounts, since the duplicate-mutable default rejects one key aliased across slots, while the escrow-owned vault splits the roles across escrow PDA, operator, and player with R2's custody logic unchanged.](assets/v06-comparison.png)
 
 Note the one demotion: `Deposit`'s `authority` stops being a `Signer`. Topping up someone's vault never needed their permission, only their address to derive the seeds, and the escrow PDA cannot sign a deposit it is merely the owner of. `Withdraw`'s `authority` stays a `Signer`, which is exactly the account the escrow PDA will satisfy through `invoke_signed` in Step 4.
 
-Checkpoint: `anchor build` in the vault workspace compiles, and m04-l1's withdraw test still passes once you pass the player's key into `authority`, `funder`, and `destination`. Passing one key into three slots is exactly the aliasing the duplicate-mutable default rejects, so it is worth knowing why this is legal: only `funder` and `destination` are `mut`, and on `Withdraw` only `destination` is, while `authority` is a read-only signer. The guard counts `mut` slots, not accounts, so self-custody stays the collapsed case rather than a violation. If the build fails instead, you moved a seed or a bump; put it back.
+Checkpoint: `anchor build` in the vault workspace compiles — if it fails instead, you moved a seed or a bump; put it back. Then re-run m04-l1's withdraw test, and run it the tempting way first: pass the player's key into `authority`, `funder`, and `destination`, the way the old self-custody test collapsed everything into one wallet. It fails on the very first instruction with `Custom(2040)` — `ConstraintDuplicateMutableAccount`. One key in two slots is aliasing, and the guard rejects an aliased account the moment *any* of its slots is `mut`; a read-only `authority` does not excuse it, because on `InitVault` the mut `funder` aliases it and on `Withdraw` the mut `destination` does. That 2040 is the duplicate-mutable default from the overview doing its job on your own program, one lesson early. The fix is the same role split you just performed on the structs, applied to the test: give `funder` and `destination` their own keypairs, the way the escrow will hold distinct parties on the floor. Distinct keys, green run.
 
 ### Step 2: the escrow record
 

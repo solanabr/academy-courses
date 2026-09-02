@@ -136,8 +136,12 @@ Here is the full swap handler. The token-in direction is worked; the token-out d
 
 ```rust
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{
-    self, Mint, TokenAccount, TokenInterface, TransferChecked,
+use anchor_spl::{
+    // `token` rides along as a MODULE, not for a type: the `token::mint = ...`
+    // constraints below expand to code that names the module by path, so it has
+    // to be in scope or the derive fails to resolve — m05-l1's import rule.
+    token,
+    token_interface::{self, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
 
 // Placeholder. Keep the id `anchor new token-ticket-swap` generated for you.

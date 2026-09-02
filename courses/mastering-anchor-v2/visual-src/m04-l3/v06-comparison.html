@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: "One vault, two callers: self-custody versus escrow-custody"
      purpose: show that splitting owner from payer and payee is the only change composition needs in R2
-     data: columns: role | m04-l1 self-custody vault | m04-l3 escrow-owned vault rows: - who the seeds derive from (authority) | the player | the escrow PDA - who sources lamports on deposit (funder) | the player, same account as authority | the operator (maker), a different account - who receives lamports on withdraw (destination) | the player, same account as authority | the player, a different account from authority - who must sign as authority | the player's wallet | the escrow PDA, via invoke_signed with the escrow seeds - what changed in R2's custody logic | (baseline) | nothing: same seeds, same stored bumps, same checked debit takeaway: the self-custody case is the collapsed case where all three roles are the same account, so the split is backward compatible
+     data: columns: role | m04-l1 self-custody vault | m04-l3 escrow-owned vault rows: - who the seeds derive from (authority) | the player | the escrow PDA - who sources lamports on deposit (funder) | the player, through a separate funding account (one key in two slots trips the duplicate-mutable default) | the operator (maker), a different account - who receives lamports on withdraw (destination) | the player, through a separate receiving account | the player, a different account from authority - who must sign as authority | the player's wallet | the escrow PDA, via invoke_signed with the escrow seeds - what changed in R2's custody logic | (baseline) | nothing: same seeds, same stored bumps, same checked debit takeaway: self-custody still means the player fills every role - but each role through a distinct account, because the duplicate-mutable default rejects one key aliased across a mut slot
      prompt: A two-column comparison table with the five role rows from the data. Left column labeled "self-custody (m04-l1)", right column "escrow-owned (m04-l3)". Shade the final row, "what changed in R2's custody logic", and print its right cell as an emphatic "nothing". Put the takeaway as a full-width band under both columns.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -82,12 +82,12 @@
     </div>
     <div class="r row">
       <div class="c1"><div class="role">who sources lamports on deposit <em>funder</em></div></div>
-      <div class="c2"><div class="v same">the player — same account as authority</div></div>
+      <div class="c2"><div class="v same">the player — via a separate funding account</div></div>
       <div class="c3"><div class="v"><b>the operator (maker)</b> — a different account</div></div>
     </div>
     <div class="r row">
       <div class="c1"><div class="role">who receives lamports on withdraw <em>destination</em></div></div>
-      <div class="c2"><div class="v same">the player — same account as authority</div></div>
+      <div class="c2"><div class="v same">the player — via a separate receiving account</div></div>
       <div class="c3"><div class="v"><b>the player</b> — a different account from authority</div></div>
     </div>
     <div class="r row">
@@ -108,7 +108,7 @@
 
   <div class="band">
     <div class="w">takeaway</div>
-    <div class="t">self-custody is the collapsed case where authority, funder and destination are the same account — so splitting the three roles is backward compatible.</div>
+    <div class="t">self-custody still puts every role in the player's hands — but each through a distinct account, because the duplicate-mutable default rejects one key aliased across a mut slot.</div>
   </div>
 </div>
 </body></html>

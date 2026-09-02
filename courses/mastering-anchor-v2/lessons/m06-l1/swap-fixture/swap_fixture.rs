@@ -11,7 +11,11 @@
 // same `spl_token` state types the on-chain program reads, plus the pool at its
 // real PDA. Mollusk runs one instruction against exactly the accounts you hand
 // it — there is no validator to create them for you — so a fixture's whole job
-// is to lay out that account set the way the pool's init would have.
+// is to lay out that account set the way the pool's init would have. The one
+// thing an account row cannot do is make a program EXECUTABLE: the swap CPIs
+// into the token program, so the test registers it in Mollusk's program cache
+// with `mollusk_svm_programs_token::token::add_program(&mut mollusk)` right
+// after `Mollusk::new`, and this fixture supplies the matching account row.
 //
 // If your R4's context diverged from the worked example, adapt the field names
 // here; the shape of the construction does not change.
@@ -33,6 +37,10 @@ const FUNDED: u64 = 1_000_000_000;
 const RESERVE_DEPTH: u64 = 1_000_000;
 /// What the trader walks up with.
 const TRADER_ARCADE: u64 = 1_000_000;
+/// Each mint's recorded supply is exactly the sum of the balances the fixture
+/// deals out, so the books balance the way a real mint's would.
+const ARCADE_SUPPLY: u64 = RESERVE_DEPTH + TRADER_ARCADE;
+const TICKET_SUPPLY: u64 = RESERVE_DEPTH;
 const DECIMALS: u8 = 6;
 
 pub struct Keys {
@@ -71,13 +79,17 @@ pub fn build_swap_accounts(k: &Keys) -> Vec<(Pubkey, Account)> {
     vec![
         (k.trader, system_account(FUNDED)),
         (k.pool, pool_account(k)),
-        (k.mint_arcade, mint_account()),
-        (k.mint_ticket, mint_account()),
+        (k.mint_arcade, mint_account(ARCADE_SUPPLY)),
+        (k.mint_ticket, mint_account(TICKET_SUPPLY)),
         (k.reserve_arcade, token_account(&k.mint_arcade, &k.pool, RESERVE_DEPTH)),
         (k.reserve_ticket, token_account(&k.mint_ticket, &k.pool, RESERVE_DEPTH)),
         (k.trader_arcade, token_account(&k.mint_arcade, &k.trader, TRADER_ARCADE)),
         (k.trader_ticket, token_account(&k.mint_ticket, &k.trader, 0)),
-        (spl_token::ID, Account::default()),
+        // The token program's account row, shaped the way the cache entry
+        // expects it (executable, loader-owned). The pair travels together:
+        // add_program puts the program in the cache, this row puts it in the
+        // instruction's account list.
+        mollusk_svm_programs_token::token::keyed_account(),
     ]
 }
 
@@ -119,11 +131,11 @@ pub fn build_init_accounts(k: &Keys) -> Vec<(Pubkey, Account)> {
     vec![
         (k.trader, system_account(FUNDED)),
         (k.pool, Account::default()),
-        (k.mint_arcade, mint_account()),
-        (k.mint_ticket, mint_account()),
+        (k.mint_arcade, mint_account(ARCADE_SUPPLY)),
+        (k.mint_ticket, mint_account(TICKET_SUPPLY)),
         (k.reserve_arcade, Account::default()),
         (k.reserve_ticket, Account::default()),
-        (spl_token::ID, Account::default()),
+        mollusk_svm_programs_token::token::keyed_account(),
         (system_program_id(), Account::default()),
     ]
 }
@@ -175,11 +187,11 @@ fn system_program_id() -> Pubkey {
 /// A live SPL mint: the real 82-byte layout, packed by the same `spl_token`
 /// state type the token program itself uses. No mint authority — the fixture
 /// never mints after setup, it just declares the balances directly.
-fn mint_account() -> Account {
+fn mint_account(supply: u64) -> Account {
     let mut data = vec![0u8; spl_token::state::Mint::LEN];
     spl_token::state::Mint {
         mint_authority: COption::None,
-        supply: RESERVE_DEPTH * 4,
+        supply,
         decimals: DECIMALS,
         is_initialized: true,
         freeze_authority: COption::None,

@@ -204,6 +204,11 @@ solana-address = ">=2.6.1, <2.7"
 # crates, so your solana dev-deps must be the 4.x line: a 2.x solana-sdk will not
 # type-check against Mollusk's Pubkey/Account/Instruction types.
 mollusk-svm = "0.15.1"
+# Mollusk's minified SVM loads no program you don't register, and the trade CPIs
+# into SPL Token — this companion crate (same 0.15 line, same publish batch)
+# ships the real token-program ELF plus the two helpers the fixture and test
+# use: token::add_program() and token::keyed_account().
+mollusk-svm-programs-token = "0.15.1"
 solana-sdk = "4"
 # The two rows below hold Mollusk's own graph on the wincode 0.5 line. Without them the
 # resolve succeeds and the BUILD dies, in solana-message and then in solana-transaction.
@@ -236,7 +241,11 @@ use token_ticket_swap::instruction::SwapArcadeForTickets as SwapArgs;
 fn swap_fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
     let program_id = token_ticket_swap::ID;
     // Mollusk loads the compiled .so by name, from wherever SBF_OUT_DIR points.
-    let mollusk = Mollusk::new(&program_id, "token_ticket_swap");
+    let mut mollusk = Mollusk::new(&program_id, "token_ticket_swap");
+    // A minified SVM runs only the programs you register, and the trade CPIs
+    // into SPL Token. Put the real token program in the cache; the fixture
+    // supplies the matching account row.
+    mollusk_svm_programs_token::token::add_program(&mut mollusk);
 
     // `build_swap_accounts` builds the trader, the pool PDA, both mints, and the four
     // token accounts (two reserves, two trader-side), funds them, and returns them as

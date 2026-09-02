@@ -162,9 +162,10 @@ wincode = { version = "0.5", features = ["derive"] }
 solana-address = ">=2.6.1, <2.7"
 
 [dev-dependencies]
-# Unchanged from m06-l1, and listed here so the whole crate is on one page: Mollusk plus
-# the two rows that hold its graph on wincode 0.5.
+# Unchanged from m06-l1, and listed here so the whole crate is on one page: Mollusk,
+# its token-program companion, plus the two rows that hold its graph on wincode 0.5.
 mollusk-svm = "0.15.1"
+mollusk-svm-programs-token = "0.15.1"
 solana-sdk = "4"
 solana-short-vec = ">=3.2.2, <3.3"
 solana-signature = ">=3.4.1, <3.5"
@@ -220,7 +221,9 @@ mod swap_fixture;   // the same module cu_baseline.rs used last lesson
 // The same swap fixture: program, accounts, one swap ix.
 fn fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
     let program_id = token_ticket_swap::ID;
-    let mollusk = Mollusk::new(&program_id, "token_ticket_swap");
+    let mut mollusk = Mollusk::new(&program_id, "token_ticket_swap");
+    // The trade's CPI target, registered exactly as in m06-l1.
+    mollusk_svm_programs_token::token::add_program(&mut mollusk);
     let keys = swap_fixture::keys(&program_id);
     let accounts = swap_fixture::build_swap_accounts(&keys);
     let ix = swap_fixture::build_swap_ix(&program_id, &keys);
