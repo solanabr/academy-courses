@@ -10,7 +10,12 @@ Yes, and you will not write a new frontend to do it. The Solana Pay repo ships a
 # the old solana-labs/solana-pay URL redirects here; cloned fresh 2026-08-22
 git clone https://github.com/solana-foundation/pay.git
 cd pay && git checkout 94b3627   # the POS example this lesson was written against; main moved to kit v8 on 2026-08-31
-cd typescript/packages/solana-pay/examples/point-of-sale
+
+# the example consumes the repo's core package by path, and that package ships unbuilt.
+# build it from the repo's own pnpm workspace first, or the app 500s on a missing import.
+cd typescript && pnpm install && pnpm --filter @solana/pay build
+
+cd packages/solana-pay/examples/point-of-sale
 npm install   # use Node 20+
 ```
 
@@ -21,6 +26,21 @@ node --version
 ```
 
 Checkpoint: `v20.x` or newer. On 18 the install may well succeed and then the first signature check throws inside `crypto.subtle`, which is a confusing failure to debug from the error message alone.
+
+One more pre-flight fix, and it is upstream's, not yours. `@solana/connector`, the wallet layer the POS uses, lists `@solana/web3.js` as an *optional* peer and reaches for it with `await import('@solana/web3.js')` inside a legacy-transaction branch this app never takes. Optional peers do not get installed, and the example sits outside the repo's pnpm workspace, so npm resolves it lock-free and that import has nothing to point at. Webpack does not care that the branch is dead: it resolves `import()` at build time and fails the build. You get a 500 on the first page load reading `Module not found: Can't resolve '@solana/web3.js'`. Still open on `main` as of 2026-09-01, so the pin did not cause it.
+
+The fix is one line of bundler config, and it is the honest one: you are telling webpack the truth, that an optional dependency is absent. Add a `webpack` hook to the config object in `next.config.js`, alongside `reactStrictMode`:
+
+```js
+webpack(config) {
+    // @solana/connector's optional peer, reached only by a legacy code path this app
+    // never takes. It is not installed; resolve it to nothing instead of failing the build.
+    config.resolve.fallback = { ...config.resolve.fallback, '@solana/web3.js': false };
+    return config;
+},
+```
+
+Do not "fix" this by installing `@solana/web3.js`. Nothing in this stall runs on it, and pulling the deprecated SDK into a kit v6 tree to satisfy a dead import is the wrong habit to learn. Checkpoint once both fixes are in: `npm run dev`, then in another terminal `curl -o /dev/null -w '%{http_code}\n' 'http://localhost:3000/new?recipient=<any address>&label=Test'` prints `200`.
 
 While that installs, one promise about the rest of this lesson: half of it is the build, and the other half is an honest sweep of what in-person Solana hardware actually exists in 2026. The second half matters as much as the first, because the fastest way to lose a merchant's trust is to promise them tap-to-pay on a chain that does not have it.
 

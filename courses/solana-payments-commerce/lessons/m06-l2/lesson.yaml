@@ -79,3 +79,20 @@ blocks:
             correct: false
             feedback: "It is a MoonPay product, not a Foundation processor, and the figure is a marketed dated number, not an on-chain read."
         explanation: "MoonPay Commerce is the former Helio: hel.io redirects into MoonPay's commerce arm. Its marketed volume, over $40M in single-payment volume since the October 2025 launch with 88% on Solana, is a moving figure, so the decision record cites it with source and date. Treating any marketed volume number as a fixed constant is the footgun the whole numbers-discipline rule guards against."
+      - id: q9
+        prompt: "Wavelength's BR corridor is live: a buyer in São Paulo pays from a self-custody wallet in USDC through the corridor's provider, a PSAV, and Wavelength is Brazilian too. Run the boundary section's five questions: where does this flow sit as of mid-2026, and what do you check next?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Inside the FX perimeter: art. 76-A III reaches self-custody transfers with a PSAV leg, border or none, so check the provider's licence."
+            correct: true
+            feedback: "The perimeter test is 76-A, whose third bucket pulls purely domestic self-custody flows in whenever a PSAV is a leg. In force since 2026-02-02, and dated: re-pull the text first."
+          - id: b
+            label: "Outside it: art. 76-B defines an international payment as resident to non-resident, and two Brazilian residents never satisfy that test."
+            correct: false
+            feedback: "76-B only defines the international bucket, one of four, and is itself broader than that; a domestic flow still enters the perimeter through the self-custody reach of 76-A III."
+          - id: c
+            label: "Outside it until PL 4.308 passes, since only that bill's reclassification of stablecoins as foreign currency triggers the FX rules."
+            correct: false
+            feedback: "PL 4.308 is still a bill, and neither version reclassifies stablecoins: both keep them virtual assets and touch issuance and distribution. Res. 277's perimeter already applies."
+        explanation: "The perimeter test is art. 76-A of Resolução BCB 277, inserted by Res. 521 and in force for that article since 2026-02-02, and its third bucket reaches transfers to or from self-custodied wallets whenever a PSAV is a leg, border or none. 76-B only defines the international bucket, and is itself broader than resident-to-non-resident; PL 4.308 is a bill about issuance, not classification. The next check is the provider's authorization, which is question 2 of the method."
