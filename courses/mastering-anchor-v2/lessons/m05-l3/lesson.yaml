@@ -25,6 +25,7 @@ blocks:
           - id: c
             label: "Extensions append a TLV tail after the base layout, so the real length is data you must read, not a constant."
             correct: true
+            feedback: "The classic base is preserved and padded, followed by a type tag and then optional entries, which is why a real mainnet mint reads far longer than the constant. Ask the account for its size instead of assuming it."
         explanation: "A Token-2022 mint or token account carries optional TLV extensions after the base layout, so its length is not the classic constant. From the program's seat the fix is simple: read the actual account length rather than assuming a fixed size. That variable sizing is one of the two things this lesson makes you account for. Concretely, a Token-2022 mint keeps the classic 82-byte base, pads out to 165 bytes, carries a one-byte account-type tag at byte 165, and only then runs the TLV tail — which is why the live PYUSD mint reads 866 bytes. Nothing in the base is encrypted or re-ordered; it decodes with the same little-endian fields a classic mint uses."
       - id: m05-l3-q2
         prompt: "Your transfer_checked worked on a plain SPL mint but fails on a specific Token-2022 mint. What is the most likely program-seat cause?"
@@ -33,6 +34,7 @@ blocks:
           - id: a
             label: "The mint declares a TransferHook extension and your instruction didn't forward the hook's extra accounts."
             correct: true
+            feedback: "Presence of the extension is not what matters; the program id recorded inside it is. When that id is all zeroes the hook is inert, and the ordinary account list is still enough for that particular mint."
           - id: b
             label: "Token-2022 needs its own transfer instruction; transfer_checked exists only on the classic Token program."
             correct: false
@@ -53,6 +55,7 @@ blocks:
           - id: b
             label: "Decline — hook authoring is standards depth the Digital Assets course owns; this lesson stays at program-seat mechanics."
             correct: true
+            feedback: "Sizing an account, spotting the extension, and deciding whether extra accounts must travel with the call are program-seat work. Authoring a hook and its resolution interface is standards work that lives in one place."
           - id: c
             label: "Split the difference: write a minimal hook program here and defer only the account-resolution interface to Digital Assets."
             correct: false
@@ -73,4 +76,5 @@ blocks:
           - id: c
             label: "Read the live mint and reason from what you observe, because a remembered figure can already be stale."
             correct: true
+            feedback: "The figure moves per mint as much as per release, because each mint carries its own extension set. An authority can add one after issuance too, so even a single mint's measurement has a shelf life."
         explanation: "PR #4914 revised Anchor's own headline benchmarks down (95% to 94%, 9.9x to 8.8x) with an explicit 'exact values can move' caveat. Extension-aware sizing is exactly that kind of moving cost, so the discipline is to read the live Token-2022 mint and reason from the observation rather than freeze a remembered number. The cost also moves per-mint, not just per-release: a different Token-2022 mint carries a different extension set and lands at a different length, and an authority can add an extension after issuance, so even one mint's number is not stable over time."

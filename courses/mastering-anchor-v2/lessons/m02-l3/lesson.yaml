@@ -21,6 +21,7 @@ blocks:
           - id: b
             label: "#[account(borsh)] + BorshAccount<T> — the escape hatch for unbounded data."
             correct: true
+            feedback: "The attribute is what releases a type from the flat-layout bound and buys variable length at deserialize-on-read cost. A capped vector is the better trade only when a fixed maximum genuinely satisfies the spec."
           - id: c
             label: "Pod with a raw String field — Account<T> serializes the String behind the cast."
             correct: false
@@ -41,6 +42,7 @@ blocks:
           - id: c
             label: "wincode and borsh resolve HashMap/HashSet iteration order differently."
             correct: true
+            feedback: "Nothing about the type is unsupported and nothing is compressed; the two encoders simply picked different answers to an order the language leaves undefined. That undefined order is the whole source of the drift."
         explanation: "wincode's BORSH_CONFIG is byte-identical to borsh EXCEPT for exactly two things: HashMap/HashSet ordering and f32/f64 NaN acceptance. Depend on map iteration order and you get non-deterministic wire — one of the two holes to know before you rely on borsh compatibility. The root cause is that a Rust HashMap has no defined iteration order at all: std deliberately randomizes it to defend against hash-flooding, so each encoder has to resolve that non-determinism itself, and the two resolved it differently."
       - id: m02-l3-q3
         prompt: "After bumping a dependency, your #[account(borsh)] code stops compiling with a trait-bound error. Which real RC-era incident does this echo?"
@@ -49,12 +51,13 @@ blocks:
           - id: a
             label: "Issue #4937 — anchor's wincode 0.5 pin versus solana-address 0.6."
             correct: true
+            feedback: "Two majors of one crate landing in a single graph is what broke the trait bound, and reconciling pins is what closed it. The shape to remember is a build that was green the day before you touched nothing."
           - id: b
-            label: "The @coral-xyz/anchor → @anchor-lang/core rename stranding old TS imports."
+            label: "The @coral-xyz/anchor → @anchor-lang/core rename."
             correct: false
             feedback: "That rename is an npm client-package story about download counts and import paths. It cannot produce a Rust trait-bound error, because the TS client isn't in the crate graph that compiles #[account(borsh)]."
           - id: c
-            label: "The Cashio exploit — an unvalidated collateral account drained the protocol."
+            label: "The Cashio exploit — an unvalidated collateral account."
             correct: false
             feedback: "Cashio is a runtime security incident about a missing account check, taught end-to-end in the DeFi & RWA course. A missing constraint fails on-chain at execution; it never breaks a build."
         explanation: "Issue #4937 (filed 2026-08-16, closed 2026-08-20) is the RC's first war story: a wincode 0.5 vs solana-address 0.6 mismatch produced a trait-bound error that broke #[account(borsh)] until the pins were reconciled. It's exactly why the course centralizes pins with freshness notes. Note the failure mode — not a runtime bug and not a subtle wire mismatch, but a green build on Monday and a compile error on Tuesday in a feature you never touched, which is what floating a single crate looks like."
@@ -69,6 +72,7 @@ blocks:
           - id: b
             label: "Pod core for the key and bounded board; borsh only for the description."
             correct: true
+            feedback: "Splitting keeps the hot path off the deserializer: bumping the board touches only the cast-in-place core. It also caps rent, because the unbounded field must be sized for its worst case and that case now lives elsewhere."
           - id: c
             label: "Make all three Pod, with the description as a raw String in the same struct."
             correct: false

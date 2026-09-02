@@ -31,6 +31,7 @@ blocks:
           - id: b
             label: "`load` runs the owner and discriminator checks before any constraint hook, so `ProgramError::IllegalOwner` is returned first."
             correct: true
+            feedback: "The annotation is intact; it just never enters a race it cannot start, because a typed wrapper is not handed to you unverified. An unchecked account has no such gate, which is why your error survives there."
           - id: c
             label: "`Account<T>` ignores an explicit `owner` constraint, since the declaring-program owner is already implied by the typed wrapper."
             correct: false
@@ -51,6 +52,7 @@ blocks:
           - id: c
             label: "An explicit `address`, `owner`, or `constraint` check that pins which account is allowed here."
             correct: true
+            feedback: "Pinning an exact key is stronger than pinning a program, which would admit every account that program happens to own. Reach for the broader form only when any of them would genuinely be acceptable in that slot."
         explanation: "UncheckedAccount opts out of all framework validation, so you must pair it with an explicit `address = ...`, `owner = ...`, or `constraint = ...`. Without one, an attacker substitutes their own account — the account-substitution class no compiler in any framework can catch for you. Pinning with `address = escrow.maker` is strictly stronger than `owner = ...`: owner admits any account from that program, address admits exactly the one the escrow recorded. Reach for owner only when any account from that program is genuinely acceptable."
       - id: q3
         prompt: "A teammate assumes V2's `init_if_needed` is still feature-gated and inherently unsafe. What is actually true?"
@@ -59,12 +61,13 @@ blocks:
           - id: a
             label: "V2 ships it ungated with reuse-validation, but a re-init over live state is still your bug to guard."
             correct: true
+            feedback: "The structural side is well covered and has been folded into the duplicate check for several releases now. What remains is semantic: read a stored flag or a nonzero field and refuse the create branch on a live account."
           - id: b
-            label: "It is gated behind an `init-if-needed` feature flag exactly as in v1, so enabling that flag is the whole risk."
+            label: "It is gated behind an `init-if-needed` feature flag exactly as in v1."
             correct: false
             feedback: "V2 ships six feature flags — `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent`, `testing` — and `init-if-needed` is not among them. It is ungated, and the residual risk is a re-initialization logic bug, not flipping a flag."
           - id: c
-            label: "Reuse-validation covers space, owner, and discriminator, so a re-initialization attack is impossible in V2."
+            label: "Reuse-validation covers space, owner, and discriminator, so reinit is impossible."
             correct: false
             feedback: "Those three checks are structural and they do close the crudest reinit tricks, but they cannot judge business intent — overwriting a funded escrow back to zeros passes space, owner, and discriminator alike."
         explanation: "V2 makes init_if_needed ungated and adds reuse-validation over space, owner, and discriminator. That closes the crudest reinit tricks, but the framework cannot judge whether re-initializing THIS account is semantically valid — a reinit-over-live-state bug survives, so guard it. Concretely: the release's six feature flags do not include `init-if-needed`, and such accounts have been folded into the duplicate-mutable check since #4239, yet you still must check a stored flag or a nonzero field before letting the `init` branch run and reject when the account is already live."
@@ -79,6 +82,7 @@ blocks:
           - id: b
             label: "Use `checked_sub` and turn the `None` case into an error so the over-withdraw is rejected."
             correct: true
+            feedback: "A rejection is the only acceptable outcome, and a panic merely looks safer than a wrap. The scaffold's release profile panics today, but that is one Cargo line away from wrapping, so it is not the guard."
           - id: c
             label: "Widen the `balance` field to `u128` in the Pod account so the subtraction has enough headroom."
             correct: false

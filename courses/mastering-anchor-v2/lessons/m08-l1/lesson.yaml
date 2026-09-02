@@ -31,6 +31,7 @@ blocks:
           - id: b
             label: "^7 — match the major your @solana-program deps peer on"
             correct: true
+            feedback: "The rule is per workspace rather than per repository: read the peer ranges your own dependencies declare and match that major. What the registry calls latest has no bearing on whether the graph resolves."
           - id: c
             label: "'latest' so npm always resolves the newest kit for you"
             correct: false
@@ -51,6 +52,7 @@ blocks:
           - id: c
             label: "There's no official V2 TS package; @anchor-lang/core is still on the web3.js v1 line"
             correct: true
+            feedback: "The supported route runs the IDL through Codama's convert and generate steps to emit a typed kit client. Picking the package whose name looks official quietly drags you back onto the SDK line the rewrite exists to leave."
         explanation: "The honest TS state: no official V2 package exists. @anchor-lang/core (npm latest 1.1.2) is the v1-era client. The first-party path is anchor codama convert + generate -l js, which renders a typed @solana/kit client. Reaching for the package that looks official quietly pins you back to web3.js v1 — the exact SDK line V2 exists to move off of."
       - id: m08-l1-q3
         prompt: "You want any client — not just yours — to be able to read your program's interface on-chain. Which step does that?"
@@ -59,12 +61,13 @@ blocks:
           - id: a
             label: "Run anchor idl init, which writes the IDL through the Program Metadata Program"
             correct: true
+            feedback: "The metadata account sits at a PDA any caller derives from the program id alone, readable by anyone and writable only by the upgrade authority. It costs rent, and it is only as fresh as your last upgrade."
           - id: b
-            label: "Commit target/idl/token_ticket_swap.json and have callers fetch the raw GitHub URL"
+            label: "Commit target/idl/token_ticket_swap.json and serve it from GitHub"
             correct: false
             feedback: "A repo file only serves people who already have your repo — a wallet or explorer holding nothing but a program id can't resolve it. The Program Metadata Program stores the IDL at a canonical PDA any client derives from the program id alone."
           - id: c
-            label: "Embed the IDL as a #[constant] in the program so callers read it from the binary"
+            label: "Embed the IDL as a #[constant] so callers read it from the binary"
             correct: false
             feedback: "Nothing in v2 ships the IDL inside the executable — #[constant] only surfaces a value in the generated IDL JSON, it doesn't make the binary self-describing. The on-chain copy lives in a separate Program Metadata account."
         explanation: "anchor idl init (and anchor idl upgrade for later edits) writes the IDL to the Program Metadata Program at the canonical [program, seed] PDA — permissionless to read, writable only by the program's upgrade authority — so any client can resolve your interface from the chain. Anchor removed its own built-in IDL instructions in 1.0 and V2 inherits that removal. The trade-off: the IDL account costs rent, and the on-chain copy is only as current as your last idl upgrade."

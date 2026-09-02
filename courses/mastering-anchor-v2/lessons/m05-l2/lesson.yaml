@@ -32,6 +32,7 @@ blocks:
           - id: b
             label: "Cast both reserves to u128 before multiplying and use checked_mul, then divide down."
             correct: true
+            feedback: "Widening the intermediate is the fix, not widening the stored fields, and the checked form still catches the impossible case. Narrowing afterwards is safe because the result is bounded by a value that already fits."
           - id: c
             label: "Switch reserve_in and reserve_out to i64 so an overflow wraps to a negative value you can test for."
             correct: false
@@ -42,16 +43,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A .reload() on both reserves after the input transfer, so the quote reads post-transfer balances."
+            label: "A .reload() on both reserves after the input transfer."
             correct: false
             feedback: "This is 0.x muscle memory, and it fixes nothing here: the reserves moved before the transaction landed, so a fresh read still returns the degraded 880. V2 also holds a borrow through the live CpiHandle, so that typed read would not compile mid-CPI."
           - id: b
-            label: "Marking both reserve accounts unsafe(dup) so V2's duplicate-mutable default won't reject the fill."
+            label: "Marking both reserve accounts unsafe(dup) so the fill is not rejected."
             correct: false
             feedback: "unsafe(dup) is the escape hatch for genuinely duplicated mutable accounts. reserve_arcade and reserve_ticket are distinct accounts holding different mints, so the default is already satisfied — and account aliasing has nothing to do with the price a trader receives."
           - id: c
             label: "The slippage guard: revert when the computed output is below the trader's min_out."
             correct: true
+            feedback: "The bound has to be evaluated between the quote and the first transfer, so a fill can never land below what the trader was shown. It reuses the escrow's conditional-release shape, and it is the only protection offered here."
         explanation: "Without a min_out the trader accepts any fill, including one degraded by ordering (a sandwich). The slippage guard reverts when computed output < min_out — its shape reuses the escrow's conditional-release logic. It's the one piece of trader protection this teaching swap offers. The guard has to run after the quote and before either CPI, so nothing settles at a price the trader never agreed to."
       - id: m05-l2-q3
         prompt: "You route both swap directions through the same InterfaceAccount and the program rejects the instruction as a duplicate mutable account. What's the clean fix?"
@@ -60,6 +62,7 @@ blocks:
           - id: a
             label: "Give each side of the pool its own distinct reserve token account so no real duplication exists."
             correct: true
+            feedback: "A constant-product curve needs one account per side, holding different mints under the pool's authority, and the default is then met with no opt-out at all. These are not vault instances, because the authority differs."
           - id: b
             label: "Add unsafe(dup) to the shared reserve field so V2 accepts one account serving both directions."
             correct: false
@@ -76,6 +79,7 @@ blocks:
           - id: a
             label: "A live CpiHandle holds a Rust borrow of the typed account, so a typed read during it cannot compile."
             correct: true
+            feedback: "The structural answer is to snapshot both balances into locals before any mutable handle exists. That removes the entire stale-read class through the language rather than through a call you have to remember."
           - id: b
             label: "transfer_checked consumes the InterfaceAccount wrapper, so the typed account is gone once the CPI returns."
             correct: false

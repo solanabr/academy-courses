@@ -185,7 +185,7 @@ Earlier lessons handed you each command with its output. Here you get the moves 
 
 ## Challenge
 
-Close the loop the way the module's gate will ask you to, from memory. Here are three snippets pulled from a 0.32 program. For each one, without looking back up the page, name the 1.0 breaking change it hits, the reason the change exists, and the exact edit that fixes it. Three change-to-reason-to-fix triples.
+Close the loop from memory. Here are three snippets pulled from a 0.32 program. For each one, without looking back up the page, name the 1.0 breaking change it hits, the reason the change exists, and the exact edit that fixes it. Three change-to-reason-to-fix triples.
 
 **Snippet A:**
 ```

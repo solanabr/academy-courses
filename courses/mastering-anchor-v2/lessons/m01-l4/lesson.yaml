@@ -26,6 +26,7 @@ blocks:
           - id: a
             label: "Rejected at runtime by the dispatcher's duplicate walk, before try_accounts loads any field"
             correct: true
+            feedback: "The mask is static and the collision is not: which slots are writable is fixed when the struct compiles, but addresses only become comparable once a call arrives. Rejection lands before any field is deserialized."
           - id: b
             label: "It compiles and runs, and the second serialize-on-exit silently clobbers the first write"
             correct: false
@@ -46,6 +47,7 @@ blocks:
           - id: b
             label: "6002 — the custom band starts at 6000 and is zero-indexed by variant"
             correct: true
+            feedback: "Counting starts at the base itself, so the first variant is 6000 and nothing shifts unless you set an explicit offset. The band an order of magnitude lower is reserved for the framework's own constraint failures."
           - id: c
             label: "6003 — the custom band starts at 6000 and numbers variants from 1"
             correct: false
@@ -66,6 +68,7 @@ blocks:
           - id: c
             label: "\"global:\" — e.g. sha256(\"global:increment\")[..8]"
             correct: true
+            feedback: "Three preimage namespaces exist and each is keyed to a different kind of declaration. The handler one surprises people because that word never appears anywhere in the source you actually wrote."
         explanation: "Accounts hash from account:, events from event:, and instruction handlers from global: — the global namespace is the one that surprises people."
       - id: m01-l4-q4
         prompt: "You consider enabling #[discrim = N] compact discriminators to shrink accounts. What is the honest trade-off?"
@@ -78,6 +81,7 @@ blocks:
           - id: b
             label: "It is all-or-nothing per program: you save instruction bytes and CU, but drop default v1 wire-compatibility"
             correct: true
+            feedback: "Small integer tags can alias one another by prefix, which is why the whole program's tag set has to be validated together. Fixed-width hashes never had that hazard, so nothing checks for it until you opt in."
           - id: c
             label: "It keeps the 8-byte width but swaps sha256 for a cheaper hash, so client-built tags stop matching"
             correct: false

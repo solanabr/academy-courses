@@ -1,12 +1,16 @@
 id: course-mastering-anchor-v2
 slug: mastering-anchor-v2
 title: "Master Anchor V2"
-description: "By the end you can design, build, test, secure, and ship a production-grade Anchor V2 program to devnet, and, on the gated migrator track, migrate a 0.31/1.0 codebase to V2 with a map of what changed and why."
+description: "Design, build, test, secure, and ship an Anchor V2 program to devnet against the 2.0.0-rc.1 release candidate, then migrate a 0.31/1.0 codebase to V2 with a map of what changed and why. V2 is an unaudited RC, so the course ends by teaching you to decide honestly when it is the right call and when the maintained 1.1.2 line still is. It does not teach Rust and it does not teach Anchor: it assumes you already ship Anchor programs and want the V2 delta."
 difficulty: advanced
 duration: 48
 xpPerLesson: 20
-xpReward: 500
+xpReward: 600
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+creatorRewardXp: 30
+# Course subject is pinned to a moving release candidate; see README.md for the
+# full pins table and the re-verify cadence.
+subjectVersion: anchor-lang@2.0.0-rc.1
 trackId: 0
 trackLevel: 0
 thumbnail: assets/banner.webp
@@ -65,7 +69,7 @@ modules:
       - lesson-mav2-m09-l2
       - lesson-mav2-m09-l3
   - key: migrate-and-conclude
-    title: "Migrate & conclude (the migration MODULE; migration lessons gated)"
+    title: "Migrate & conclude"
     lessons:
       - lesson-mav2-m10-l1
       - lesson-mav2-m10-l2

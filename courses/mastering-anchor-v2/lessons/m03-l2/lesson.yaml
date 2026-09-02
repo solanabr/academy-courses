@@ -26,6 +26,7 @@ blocks:
           - id: c
             label: "`load` checks owner and discriminator before any constraint hook runs, so the built-in IllegalOwner fires first"
             correct: true
+            feedback: "To carry your own error you have to take the account untyped and assert ownership in the hook phase instead. On a typed wrapper the owner is already pinned to your program, so naming a different one there is unreachable."
         explanation: "On Account<T>, owner/discriminator validation happens during load — earlier than the constraint-hook phase where your @ error would be raised. To surface a custom owner error, drop to UncheckedAccount and assert ownership with an explicit constraint that runs in the hook phase. Read it one step further: on Account<T> the typed wrapper has already pinned the owner to your own program, so `owner = <some other program>` there is not merely error-shadowed, it is unreachable — an account owned by anyone else can never load as that type in the first place."
       - id: q2
         prompt: "You add `init_if_needed` so a player can 'top up or create' a vault in one instruction. What is the specific danger you must now guard, and what does V2's reuse-validation actually cover?"
@@ -34,6 +35,7 @@ blocks:
           - id: a
             label: "A reinitialization path that clobbers an existing vault's live `credit`; reuse-validation covers shape, not state"
             correct: true
+            feedback: "The structural re-checks know nothing about which fields hold value, so a funded balance looks just like a fresh one. Test for freshness before writing, and add to the balance rather than assigning over it."
           - id: b
             label: "Nothing — V2's reuse-validation re-checks the existing account on the reuse branch, so init_if_needed is safe on its own"
             correct: false
@@ -48,14 +50,15 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "`realloc::payer` stays; only has_one changed, to `owner = authority`"
+            label: "`realloc::payer` stays; has_one becomes `owner = authority`"
             correct: false
             feedback: "realloc::payer is not the V2 spelling, and has_one's replacement is address=, not owner."
           - id: b
             label: "`realloc_payer = payer` and `address = <the authority expression>`"
             correct: true
+            feedback: "The realloc keywords lost their colon form, and field equality moved onto a keyword that accepts any expression. The old spelling still builds so ports are not blocked, but it now arrives with a deprecation attached."
           - id: c
-            label: "`realloc_payer = payer` and keep `has_one = authority` since it still parses"
+            label: "`realloc_payer = payer` and keep `has_one = authority`"
             correct: false
             feedback: "has_one still parses but is deprecated and warns; new V2 code should use address = parent.field."
         explanation: "V2 flattened the realloc sub-keywords to underscore forms (realloc_payer, realloc_zero) and deprecated has_one in favor of address = parent.field, which accepts any expression. has_one still compiles with a warning so migrations aren't blocked, but new code uses address=."
@@ -74,4 +77,5 @@ blocks:
           - id: c
             label: "The rent-exempt lamports return to the player and the account is invalidated in one atomic step"
             correct: true
+            feedback: "Balance sweep, data zeroing, and tag invalidation happen together, so no intermediate state can be mistaken for a live account. Going through the constraint also makes the behaviour visible to anyone reading the IDL."
         explanation: "close = destination returns the account's rent-exempt reserve to the named destination and invalidates the account so it can't be silently revived, all inside the derive macro. Using the constraint (rather than hand-rolling the lamport move) keeps the close atomic and visible in the IDL. Three things happen together on success: the full lamport balance moves to the destination, the data is zeroed, and the discriminator is wiped — so there is no window in which a half-closed account could be mistaken for a live vault. The handler body can be empty, because the constraint carries the whole operation."

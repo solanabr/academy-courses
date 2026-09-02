@@ -34,6 +34,7 @@ blocks:
           - id: c
             label: "It replaced the framework's account-type check; without it another program-owned account of the same length can be read as a vault config."
             correct: true
+            feedback: "Ownership passes because your program really did create that other account, and length passes because it happens to match. The type tag is the only thing left standing between those bytes and a bad read."
         explanation: "The discriminator is the account's type tag. Anchor generates the check that the tag matches the expected type before it hands you typed data; strip the framework and you must write that check yourself, or you have re-opened the type-cosplay class of bug. Concretely: if some other instruction in your program creates a 34-byte program-owned account for an unrelated purpose — a scoreboard row, say — the owner check (gate 2) passes because your program genuinely owns it, and the length check (gate 3) passes because it is 34 bytes. Only `cfg[0] != VAULT_DISCRIMINATOR` stops those bytes from being read as an authority and a stored bump."
       - id: m09-l1-q2
         prompt: "Your native withdraw moves lamports out of the vault PDA. Anchor V2 precomputes canonical bumps at macro time; in pinocchio you pass seeds to invoke_signed yourself. Which seed set signs correctly?"
@@ -42,6 +43,7 @@ blocks:
           - id: a
             label: "The exact seeds used to derive the PDA, plus the stored canonical bump as the final seed."
             correct: true
+            feedback: "The runtime rebuilds the address from whatever you present, so the literal prefix and the trailing bump byte are equally load-bearing. A wrong order or a missing element yields a different address and a refusal."
           - id: b
             label: "Re-run find_program_address inside the instruction to get a fresh bump each call, then sign with that."
             correct: false
@@ -62,6 +64,7 @@ blocks:
           - id: b
             label: "That Anchor V2 is itself a no_std rewrite built on pinocchio — you hand-wrote the layer V2 now generates."
             correct: true
+            feedback: "The framework's own crate depends on that low-level layer directly. What you assembled by hand is that same foundation a couple of minor versions back, before the account and address types were renamed."
           - id: c
             label: "That native pinocchio programs need a real validator and cannot clear the same LiteSVM gate the framework vault cleared."
             correct: false

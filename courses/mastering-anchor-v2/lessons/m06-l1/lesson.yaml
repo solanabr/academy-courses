@@ -15,16 +15,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Only as text tables in stdout; flamegraph SVGs are v1-era and V2 dropped them."
+            label: "Only as text tables in stdout; V2 dropped the v1-era flamegraph SVGs."
             correct: false
             feedback: "Backwards: the flamegraph SVG is V2's addition, and `--profile` is the flag that writes it. There is no v1 SVG being retired here."
           - id: b
-            label: "Next to the deployed .so under target/deploy/, one SVG per program, release build."
+            label: "Under target/deploy/, one SVG per program, from a release build."
             correct: false
             feedback: "target/deploy/ holds the compiled .so only. The profiler writes to its own directory, emits one SVG per test rather than per program, and builds in debug so DWARF survives."
           - id: c
             label: "Under target/anchor-v2-profile/, one SVG per test, from a debug build."
             correct: true
+            feedback: "Debug is chosen so symbol information survives; strip it and every frame would read as a hex address instead of a function name. Treat the numbers as relative shape rather than as the cost you will ship."
         explanation: "`anchor test --profile` compiles a debug build (for DWARF symbols) and emits one flamegraph SVG per test under target/anchor-v2-profile/. Because it is a debug build, treat the CU it shows as relative shape, not your release cost. DWARF is the debug-info format that maps compiled instructions back to your function names; without it the profiler would label every frame with a raw hex address instead of `swap_out`."
       - id: step-instruction
         prompt: "One swap instruction fails and you want to walk it sBPF instruction by instruction, inspecting registers as you go. Which tool does that?"
@@ -33,6 +34,7 @@ blocks:
           - id: a
             label: "anchor debugger — a ratatui TUI that steps sBPF instructions and shows registers."
             correct: true
+            feedback: "It does not run a suite: it rebuilds one named test, replays that transaction, and stops at the first instruction of your program. A flag also exposes a gdb stub if you would rather break on symbol names."
           - id: b
             label: "anchor coverage — it replays the failing test and halts on the uncovered line for inspection."
             correct: false
@@ -47,14 +49,15 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Surfpool localnet — the CU-precise unit harness the thread starts on, no validator needed."
+            label: "Surfpool localnet — the CU-precise unit harness, no validator needed."
             correct: false
             feedback: "Surfpool is itself a localnet validator, forking real cluster state — exactly the stand-up this question rules out. It arrives later, at the capstone, for full-floor integration rather than per-instruction CU."
           - id: b
             label: "Mollusk (anza-xyz/mollusk) — an in-process minified SVM with CU-precise checks."
             correct: true
+            feedback: "It is an unaffiliated third-party crate, pinned in this lab, running a single instruction with no validator and no async. The thread climbs to it from the earlier harness; the localnet tool arrives later."
           - id: c
-            label: "anchor coverage — its LCOV report carries CU per line, which is the number to assert."
+            label: "anchor coverage — its LCOV report carries CU per line to assert on."
             correct: false
             feedback: "LCOV records `DA:` line hits and `BRDA:` branch hits — counts of how often code ran, never what it cost. Coverage also reports rather than gates, so there is nothing there to assert against."
         explanation: "Mollusk gives CU-precise, in-process unit assertions on a single instruction. The module's testing thread escalates from the LiteSVM harness (m02) up to Mollusk here; Surfpool comes later for full-floor integration. Mollusk is a third-party crate with no Anchor affiliation, pinned at 0.15.0 in this lab, and it runs one instruction with no validator, no localnet, and no async — you build the instruction, hand it accounts, and assert `Check::success()` plus `Check::compute_units(N)`."
@@ -73,4 +76,5 @@ blocks:
           - id: c
             label: "An LCOV report of line and branch coverage, from SBF register traces."
             correct: true
+            feedback: "The artifact is a machine-readable hit-count file with no source text inside, so you render it before you can read it. It records which lines ran, never what they cost, and it never fails anything on its own."
         explanation: "anchor coverage reconstructs line/branch coverage as LCOV from SBF register traces, so you can see which swap branches your tests never exercised. It reports; it does not decide or gate. The raw file at target/anchor-v2-coverage/lcov.info is a machine format of `DA:` and `BRDA:` records with no source in it — render it with `genhtml` (or point an editor extension at it) to read the red branches against your own lib.rs."

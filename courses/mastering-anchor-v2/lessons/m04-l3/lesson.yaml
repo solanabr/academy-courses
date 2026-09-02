@@ -21,6 +21,7 @@ blocks:
           - id: b
             label: "Yes: distinct mutable accounts are fine; only the SAME account passed twice needs unsafe(dup)."
             correct: true
+            feedback: "Two mechanisms cooperate here: a mask baked at compile time records which fields are writable, and a runtime walk compares the addresses that actually arrive. Only an overlap between the two raises anything."
           - id: c
             label: "Yes, but only if both carry unsafe(dup), since the check counts mut fields, not addresses."
             correct: false
@@ -41,6 +42,7 @@ blocks:
           - id: c
             label: "address = escrow.maker, the direct replacement for has_one."
             correct: true
+            feedback: "The replacement takes an arbitrary expression, so it states its own meaning: this key must equal that stored field. The deprecation is underlined for you, which turns the port into a guided edit rather than a search."
         explanation: "In V2 has_one is deprecated in favor of address = parent.field, which accepts any expression and reads as what it does: this account's key must equal that stored field. The compiler underlines the has_one deprecation for you, which makes this a mechanical, guided migration."
       - id: m04-l3-q3
         prompt: "Where does the escrow check the win condition relative to the payout CPI?"
@@ -49,6 +51,7 @@ blocks:
           - id: a
             label: "Before the CPI: the require! gate must pass before the withdraw runs."
             correct: true
+            feedback: "Position is part of the audit trail: a reader should see the condition standing in front of the payout, not have to reason about what some later failure would undo. Guards first, value movement last."
           - id: b
             label: "After the CPI: withdraw first, then refund if the score fell short."
             correct: false

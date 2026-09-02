@@ -28,6 +28,7 @@ blocks:
           - id: a
             label: "check — a read-time gate on the loaded account, re-verified before every matching handler runs"
             correct: true
+            feedback: "The creation-time and serialization-time hooks each miss what matters here: one fires once, the other only for accounts written back out. The fourth is scoped to an explicit clause and mutates rather than validates."
           - id: b
             label: "init — the floor is a creation-time invariant, so it is enforced once after the account is allocated"
             correct: false
@@ -48,6 +49,7 @@ blocks:
           - id: b
             label: "No framework author can enumerate every program's invariants, so the surface is left open to downstream crates"
             correct: true
+            feedback: "A handler branch never reaches the IDL, a fork becomes yours to re-merge forever, and an inline boolean cannot be named or reused. Leaving the seam open lets a downstream crate ship a rule without a fork."
           - id: c
             label: "The token::* namespace requires it, and every other namespace only reaches the trait as an accidental side effect"
             correct: false
@@ -68,4 +70,5 @@ blocks:
           - id: c
             label: "The expensive check runs on every matching instruction, so you pay that CU on a hot path forever"
             correct: true
+            feedback: "The hook draws on the handler's own compute budget and re-runs wherever the constraint is declared, so cost recurs rather than amortizes. A cheap comparison is a wash; an expensive or wrong one compounds."
         explanation: "A check hook executes each time the constraint matches, inside the instruction's compute budget. An expensive hook is CU you pay on every call to a hot path — and because the account then reads as 'valid', a heavy or wrong check can also hide logic bugs behind a passing constraint. Keep hooks cheap and correct. Note the asymmetry the lesson draws: against a handler `if` you wrote once, a cheap comparison in a hook is a wash, and the reuse plus IDL visibility are pure gain. It is the expensive hook and the subtly wrong hook that compound, because both now ride along on every instruction that declares the constraint."

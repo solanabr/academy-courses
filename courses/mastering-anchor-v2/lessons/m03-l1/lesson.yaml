@@ -26,6 +26,7 @@ blocks:
           - id: c
             label: "Store the canonical bump in the vault's Pod state at init and reuse the stored value"
             correct: true
+            feedback: "The value is deterministic for a given seed set, so computing it once and persisting it costs nothing afterwards. Reusing your own stored byte also keeps derivation out of reach of whatever the caller passes in."
         explanation: "The canonical bump is stable for a given seed set, so you compute it once (V2 gives it to you as a macro-time const via ctx.bumps.name), persist it in the account, and reuse it. That is both the CU-cheap path and the safe one — no runtime search, no trusting client input."
       - id: q2
         prompt: "You seed the vault with [b\"vault\", player.address()] and it works. A teammate proposes seeding it with only [b\"vault\"] to 'keep it simple'. What breaks?"
@@ -34,6 +35,7 @@ blocks:
           - id: a
             label: "Every player collides on ONE shared vault address, so there is no per-player custody"
             correct: true
+            feedback: "The seed scheme is the namespace, so dropping the player key makes the derivation stop depending on identity. Nothing fails at the derivation layer, which is exactly why this bug is silent rather than loud."
           - id: b
             label: "A bare `bump` cannot resolve a canonical value when no seed varies per caller"
             correct: false
@@ -48,14 +50,15 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Keep ctx.bumps.get(\"vault\").unwrap(); V2 kept the string map behind a compat shim"
+            label: "Keep ctx.bumps.get(\"vault\").unwrap(); V2 kept the string map behind a shim"
             correct: false
             feedback: "Tempting because most of the v1-to-V2 port is mechanical renaming, but there is no compat shim for this one: the string-keyed map is gone outright and ctx.bumps is now a generated struct with one field per PDA account."
           - id: b
             label: "`ctx.bumps.vault` — a field on the typed bumps struct the derive macro generates"
             correct: true
+            feedback: "Macro expansion fixes the struct's shape and resolves each name to a slot, replacing a fallible string lookup. The address itself is still derived during validation, because the caller is unknowable when the crate compiles."
           - id: c
-            label: "`find_program_address(seeds, id).1` inside the handler for an authoritative value"
+            label: "`find_program_address(seeds, id).1` recomputed inside the handler"
             correct: false
             feedback: "That is a runtime search, the opposite of what the macro-time const provides; it is neither idiomatic nor cheap."
         explanation: "V2 generates a typed bumps struct, so you read ctx.bumps.vault as a field. The change moves bump resolution to macro-expansion time (a const), removing a runtime string lookup and a fallible unwrap — the compiler now guarantees the field exists. Be precise about what actually moved: the derivation itself still runs at runtime during account validation, because the seeds include the caller's address and no compiler knows who will call. What folded into macro-expansion time is the shape of the bumps struct and the name-to-slot resolution that used to be a hash lookup on a string. The CU story lives elsewhere — bare `bump` runs the search, `bump = vault.bump` validates against a value you already stored."

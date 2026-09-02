@@ -25,6 +25,7 @@ blocks:
           - id: c
             label: "You broke it — the fuzzer found a concrete input for which your invariants do not hold."
             correct: true
+            feedback: "Sequence matters: keep the artifact, replay it, and only then patch and re-run. Patching first discards the one piece of evidence that the input was real and deterministic rather than a fluke."
         explanation: "In this course, a green fuzz case = you broke it: anchor fuzz (Crucible, LibAFL/LiteSVM with sBPF edge coverage) surfaced an input that violates an invariant. Replay the crash artifact, fix the bug, and re-fuzz — a crash is a success of the process. The order is load-bearing: crash, replay, patch, re-fuzz. Patch first and you throw away the artifact that proved the bug was real and deterministic."
       - id: q2
         prompt: "Which tool does `anchor fuzz` actually run under the hood in V2?"
@@ -33,12 +34,13 @@ blocks:
           - id: a
             label: "Crucible (`crucible-fuzz-cli`), a LibAFL engine driving a LiteSVM runtime."
             correct: true
+            feedback: "Verified 2026-08-22: the subcommand lives on master, which pins that crate at 0.2.1 and dispatches into it, while the RC branch's CLI ships coverage and carries no fuzz command whatsoever."
           - id: b
-            label: "Trident (Ackee), wired in as the default backend behind the `fuzz` subcommand."
+            label: "Trident (Ackee), wired in as the default `fuzz` backend."
             correct: false
             feedback: "Trident is a real, maintained alternative, but it is not the built-in path: its cadence stalled (0.12.0 from 2025-11-27) and Anchor wired Crucible into the CLI instead."
           - id: c
-            label: "cargo-fuzz with libFuzzer, run over a native (non-sBPF) build of the program."
+            label: "cargo-fuzz with libFuzzer, over a native (non-sBPF) build."
             correct: false
             feedback: "anchor fuzz executes the compiled `.so` inside LiteSVM and traces sBPF edges; cargo-fuzz/libFuzzer would instrument a native host build, which is not the bytecode that runs on-chain."
         explanation: "anchor fuzz is Crucible (crucible-fuzz-cli), embedded in the CLI, using a LibAFL/LiteSVM backend with sBPF edge coverage. Trident (Ackee) is a one-paragraph alternative whose release cadence stalled; it is not the default. Checked 2026-08-22: it is `master`'s CLI that pins `crucible-fuzz-cli = \"0.2.1\"` and dispatches `Command::Fuzz` into it, while the anchor-next RC CLI ships `anchor coverage` and has no `fuzz` subcommand at all."
@@ -53,6 +55,7 @@ blocks:
           - id: b
             label: "No — a clean run means 'not found yet': confidence, never proof that bugs are absent."
             correct: true
+            feedback: "A clean campaign is an average-case statement over whatever the search reached in the time you gave it. Only the model checkers in that toolchain claim anything proof-shaped, and only over narrow properties."
           - id: c
             label: "Only if you also run Trident, whose Ackee harness gives proof-grade coverage guarantees."
             correct: false
@@ -73,4 +76,5 @@ blocks:
           - id: c
             label: "`anchor fuzz run` with `--stateful`, so mutated actions extend live states instead of restarting."
             correct: true
+            feedback: "That mode keeps a pool of live states keyed by coverage and applies one mutated action to a state drawn from it, so chains deepen instead of resetting. The coverage export is a readout, never a mode."
         explanation: "anchor fuzz run ... --stateful chains instructions so the fuzzer can reach states that only exist after a sequence of calls — the ones a single-shot run never sees. Coverage (LCOV) is a separate readout, not the mode. Mechanically: stateful keeps a coverage-indexed pool of live program states (`--pool-size`, default 256,000) and applies one mutated action per iteration to a state drawn from that pool, growing chains to `--max-depth` (default 15), while the stateless default clones the post-setup snapshot, runs a mutated sequence up to `--max-actions` (default 8), and discards it."

@@ -17,6 +17,7 @@ blocks:
           - id: a
             label: "avm install downloads a prebuilt binary from the tag's GitHub Release; no Release was cut for v2, so the download 404s and you build from anchor-next"
             correct: true
+            feedback: "From 0.31 onward the installer fetches an asset instead of compiling, so the failure is a plain HTTP 404 on a file nobody ever published. Nothing in that path signs or verifies anything."
           - id: b
             label: "avm refuses prerelease version strings by policy; pass --force to avm install so it accepts the 2.0.0-rc.1 tag anyway"
             correct: false
@@ -37,6 +38,7 @@ blocks:
           - id: b
             label: "CARGO_PROFILE_RELEASE_LTO=off"
             correct: true
+            feedback: "The knob belongs to cargo's release profile, which is why no Anchor-branded switch for it exists. Keeping the prefix on Linux costs nothing, so a single install line can serve both platforms."
           - id: c
             label: "export ANCHOR_BUILD_LTO=false"
             correct: false
@@ -57,4 +59,5 @@ blocks:
           - id: c
             label: "Teach the conflict verbatim, and pin the exact installed version with a re-verify date"
             correct: true
+            feedback: "Two maintainer-written labels disagreeing is itself the maturity reading, and resolving it for the reader would delete that signal. What replaces the resolution is a dated pin you re-check rather than trust."
         explanation: "C6: the project labels it both 'rc' and 'alpha'; the course surfaces the conflict and pins-and-reverifies rather than laundering it. An 'rc' claims near-shippable and an 'alpha' claims expect-breakage, so when one build carries both words the honest read is 'somewhere in between' — which is why PINS.md carries a verified date column and why issue #4937 (wincode 0.5 vs solana-address 0.6 breaking #[account(borsh)]) was caught by --locked plus a human re-check rather than by a label."

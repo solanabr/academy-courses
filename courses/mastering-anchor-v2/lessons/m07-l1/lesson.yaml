@@ -17,6 +17,7 @@ blocks:
           - id: a
             label: "The program fails to compile — plain `dup` is rejected and the error tells you to write `unsafe(dup)`."
             correct: true
+            feedback: "Both the compile-time mask and the runtime walk are still present; the build simply never gets far enough to use them. The diagnostic names the required spelling, which is the point of demanding it explicitly."
           - id: b
             label: "It compiles, and the duplicate-mutable check simply fires at runtime in the dispatcher, exactly as it did in v1."
             correct: false
@@ -37,6 +38,7 @@ blocks:
           - id: b
             label: "`Account<T>` requires `T: Pod`, so the declared type fixes the layout at compile time and the types never interconvert."
             correct: true
+            feedback: "At load the runtime tag check still rejects the swap, exactly as it always did. What the rewrite adds is closing the loose-slice route, leaving only a deliberate cast that sits one grep away from any reviewer."
           - id: c
             label: "`Account<T>` now writes the type's name into the account header and compares that string against `T` on every load."
             correct: false
@@ -57,6 +59,7 @@ blocks:
           - id: c
             label: "Compile error — the CpiHandle holds a Rust borrow that excludes typed data access until the handle is dropped."
             correct: true
+            feedback: "The guard is an ordinary compile-time borrow rather than a runtime cell, so nothing executes and no invocation is ever issued. A class that used to need a remembered call is now simply unwritable."
         explanation: "A CpiHandle is a borrow-tracked handle; while it is alive it holds a Rust borrow that prevents typed access to the same data. The stale-after-CPI class that `.reload()` used to paper over is now a compile error."
       - id: q4
         prompt: "A teammate concludes 'V2 is secure by default, so we can skip the audit.' Grounded in this lesson, what is the best response?"
@@ -65,6 +68,7 @@ blocks:
           - id: a
             label: "Three of the four classes became compile errors and the fourth is inert — but V2 is an unaudited alpha, so the audit stands."
             correct: true
+            feedback: "Four of eleven taxonomy classes were re-run, and everything outside that set still compiles and runs untouched. The compounding risk is cultural: trust in the compiler thins review exactly where it is blind."
           - id: b
             label: "Correct — type cosplay, dup-mut, CPI aliasing, and bump recalc are all impossible on the V2 defaults, so review adds little."
             correct: false

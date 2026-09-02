@@ -22,6 +22,7 @@ blocks:
           - id: b
             label: "That the deployed devnet bytes were built from exactly this source at the pinned toolchain"
             correct: true
+            feedback: "The claim is about provenance under a fixed toolchain and nothing else, so a faithfully reproduced program can still be a dangerous one. Who may replace those bytes tomorrow is a separate question entirely."
           - id: c
             label: "That the upgrade authority is locked, since a verified program's bytes can no longer be replaced"
             correct: false
@@ -32,16 +33,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The program was never deployed, so there are no on-chain bytes for the job to hash"
+            label: "The program was never deployed, so there are no on-chain bytes to hash"
             correct: false
             feedback: "A missing deploy would break the local verify-from-repo too. Here the program is deployed and the job still returns nothing, because the constraint is cluster scope, not a missing program account."
           - id: b
-            label: "The Docker daemon isn't running, so the pinned image can't start the rebuild"
+            label: "The Docker daemon isn't running, so the pinned image can't start"
             correct: false
             feedback: "Docker is required for your local solana-verify build, and it fails fast with a daemon error. The remote job rebuilds on OtterSec's workers instead, so your daemon is not what stops it — cluster scope is."
           - id: c
             label: "The remote OtterSec registry path is mainnet-only and does not cover devnet"
             correct: true
+            feedback: "The registry buys discoverability rather than a stronger guarantee; it is what puts a badge in front of explorers. The trustless half is the rebuild you run yourself and the two hashes you compare afterwards."
         explanation: "The remote OtterSec submit-job path is mainnet-only. This course proves the build on devnet with the local verify-from-repo command; the remote flow is demonstrated and labelled beyond the course's cluster. What the registry adds is discoverability, not a stronger proof: OtterSec runs the build on their infrastructure and writes an on-chain record that explorers and wallets read for the verified badge. The trustless proof is the local one — you rebuild in the pinned image and compare the two hashes yourself."
       - id: m08-l2-q3
         prompt: "You're about to move upgrade authority to a Squads v4 multisig on mainnet. What's the honest trust caveat to tell your team?"
@@ -50,6 +52,7 @@ blocks:
           - id: a
             label: "One steward sits under the whole verify chain, and Squads v4 is immutable, so the handoff cannot be undone"
             correct: true
+            feedback: "The single-steward point is checkable: one organisation builds the framework, signs the tag, publishes the crates, and runs the registry. Immutability is simultaneously the reassurance and the trap here."
           - id: b
             label: "Squads v4 is upgradeable, so a bad authority move can be rolled back later by patching the multisig program itself"
             correct: false
@@ -70,6 +73,7 @@ blocks:
           - id: b
             label: "No — it's the local-CI/Docker toolchain pin, not a claim about the current release"
             correct: true
+            feedback: "The compile happens inside the image, so the resulting hash is a function of that image and your source and not of your machine. That is precisely why the number stays frozen while the network moves on."
           - id: c
             label: "It's cosmetic — the Docker image ignores it and compiles against whatever toolchain your host has"
             correct: false

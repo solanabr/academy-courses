@@ -21,6 +21,7 @@ blocks:
           - id: b
             label: "bool isn't Pod because not every bit pattern is a valid bool, so bytemuck rejects it — use PodBool."
             correct: true
+            feedback: "The trait's contract is that any byte pattern must name a legal value, and only two of 256 qualify for the primitive. Wrapping it in a byte whose whole range is defined restores that contract without banning the concept."
           - id: c
             label: "The 8-byte sha256 discriminator has to be re-derived by hand whenever a struct's field layout changes."
             correct: false
@@ -31,16 +32,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "bytemuck::from_bytes dropped the struct's first PodU64 field, so every later field slid down one slot."
+            label: "bytemuck::from_bytes dropped the struct's first PodU64 field."
             correct: false
             feedback: "from_bytes reinterprets a byte range in place; it never drops or reorders fields. Nothing was lost — you're just reading from the wrong offset."
           - id: b
-            label: "LiteSVM writes PodU64 fields big-endian, while the on-chain runtime writes them little-endian."
+            label: "LiteSVM writes PodU64 fields big-endian; the runtime writes them little-endian."
             correct: false
             feedback: "LiteSVM is the same SVM, byte for byte, and PodU64 stores little-endian in both. An endianness flip would scramble each value, not slide every field down by eight bytes."
           - id: c
             label: "The 8-byte discriminator still precedes the Pod body — you must cast from data[8..]."
             correct: true
+            feedback: "The header survived the rewrite untouched, and the flat body begins immediately behind it. Skip those eight bytes on the test side and every offset realigns; nothing was dropped or reordered."
         explanation: "V2 keeps the sha256 discriminator unchanged and Account<T> = Slab<T, HeaderOnly> lays the Pod body immediately after that 8-byte header. Cast from data[8..] with bytemuck::from_bytes and the fields line up."
       - id: m02-l1-q3
         prompt: "A teammate says V2 made their tiny counter 8.8x cheaper. How do you frame that number honestly in your own docs?"
@@ -49,6 +51,7 @@ blocks:
           - id: a
             label: "As an approximate benchmark-family average, already revised down once and expected to keep moving."
             correct: true
+            feedback: "It describes a family of programs, and that family's own authors have already trimmed it once. Pinning it to any one program is the failure mode, because the least copy-heavy handlers see the smallest gain of all."
           - id: b
             label: "As a guaranteed per-instruction speedup that every V2 program inherits just by compiling on the RC."
             correct: false

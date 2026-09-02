@@ -27,6 +27,7 @@ blocks:
           - id: a
             label: "It is a compile error: the live CpiHandle holds a mutable borrow of that account, which excludes typed reads of it."
             correct: true
+            feedback: "The scope is exactly one account wide, so anything you did not hand the call stays readable throughout. Once the handle falls out of scope the read is both legal and current, because no stack copy exists to go stale."
           - id: b
             label: "It compiles and returns the pre-CPI value until you call ctx.accounts.vault.reload() to refresh the copy."
             correct: false
@@ -41,14 +42,15 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "v1 also rejected the read at compile time; V2 only renamed .reload() into a scope-based idiom."
+            label: "v1 also rejected the read at compile time; V2 only renamed .reload() into an idiom."
             correct: false
             feedback: "v1 compiled the stale read just fine, which is why it shipped as a bug so often. And .reload() was a real runtime re-read of the account bytes, not an idiom V2 renamed — V2 deletes it because there is no copy left to refresh."
           - id: b
             label: "In v1 the stale read compiled and returned the pre-CPI copy; V2 makes it a compile error."
             correct: true
+            feedback: "The v1 remedy was a line you had to remember, and forgetting it produced no diagnostic of any kind. Converting a silent wrong answer at runtime into a loud build failure is the whole trade the borrow model makes."
           - id: c
-            label: "v1 panicked at runtime whenever a post-CPI read hit a copy the CPI had already invalidated."
+            label: "v1 panicked at runtime whenever a post-CPI read hit an invalidated copy."
             correct: false
             feedback: "It did not panic. The deserialized copy was a perfectly valid struct holding an out-of-date number, so v1 quietly handed you old data — silent-and-wrong, which is worse than a panic because nothing points at it."
         explanation: "The v1 hazard was invisible: your program compiled, ran, and acted on data from before the CPI, and only a careful test or an incident revealed it. V2 moves the failure from runtime-and-silent to compile-time-and-loud, which is the entire point of the borrow model. v1's only defence was remembering to call .reload() after every mutating CPI — one cheap line whose omission produced no error, no warning, and no panic."
@@ -67,6 +69,7 @@ blocks:
           - id: c
             label: "No: it guards typed account access only, not raw AccountInfo lamports or manual byte reads."
             correct: true
+            feedback: "Refreshing held accounts automatically was weighed and dropped, because that deserialize cost is precisely what the rewrite set out to remove. Lamport arithmetic and hand-rolled byte reads therefore stay your job."
         explanation: "The guarantee is precise and worth stating precisely. The compiler stops you from reading typed account data while a handle is live, which kills the common footgun, but it does not refresh values and it does not cover raw lamport or byte-level reads. Knowing the edge of a safety guarantee is part of using it well. Silently re-deserializing every held account after every CPI was ruled out deliberately: eager Account<T> deserialization was the number-one performance complaint that motivated V2, so doing it more often would have reinstated the exact tax the redesign set out to abolish — and it would still miss raw byte reads."
       - id: m04-l2-q4
         prompt: "To read the vault's typed balance after the CPI, what do you do in V2?"
@@ -75,6 +78,7 @@ blocks:
           - id: a
             label: "Let the cpi_handle_mut drop by ending its scope, then read the typed account."
             correct: true
+            feedback: "The discipline moved from remembering a call to shaping a scope, and the compiler now audits that shape for you. Snapshotting into a local is the opposite tool: it preserves the old value and can never reveal the new one."
           - id: b
             label: "Call ctx.accounts.vault.reload() after the CPI to refresh the deserialized copy."
             correct: false
