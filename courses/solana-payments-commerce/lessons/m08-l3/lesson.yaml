@@ -19,7 +19,7 @@ blocks:
           - id: a
             label: "`confirmed` for the everyday record sale; `finalized` for the high-value or compliance-sensitive wholesale order."
             correct: true
-            feedback: "The guidance is qualitative: no doc names the figure where the gate flips."
+            feedback: "The guidance is qualitative: no doc names the figure where the gate flips, which leaves that line yours to set and to write down."
           - id: b
             label: "`finalized` for both, since money is money and only finality is ever safe."
             correct: false

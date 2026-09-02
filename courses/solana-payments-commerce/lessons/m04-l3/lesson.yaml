@@ -35,7 +35,7 @@ blocks:
           - id: a
             label: "Refunds are original construction here: a reverse push-payment linked in the ledger to its origin signature."
             correct: true
-            feedback: "A reversal the protocol does not provide is just another payment, idempotency and all."
+            feedback: "A reversal the protocol does not provide is just another payment, which means it needs the same idempotency: a retried refund pays twice."
           - id: b
             label: "Refunds are impossible on these rails by design, so you must direct buyers to file a chargeback."
             correct: false

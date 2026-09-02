@@ -74,7 +74,7 @@ blocks:
           - id: b
             label: "A small-ticket sale where percentage-based card interchange would eat most of the ticket and the acquirer's settlement schedule would sit on the money for a month."
             correct: false
-            feedback: "This is a strong fit, not a weak one; flat sub-cent fees are exactly where these rails beat percentage-based interchange, and settling in seconds deletes the D+30 wait as well."
+            feedback: "This is a strong fit, not a weak one; flat sub-cent fees are exactly where these rails beat percentage-based interchange, and settling in seconds deletes both the D+30 wait and the fee for escaping it."
           - id: c
             label: "A merchant who wants instant, low-fee settlement with no multi-day holding periods on funds."
             correct: false

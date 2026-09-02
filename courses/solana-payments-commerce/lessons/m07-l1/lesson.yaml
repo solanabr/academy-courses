@@ -81,7 +81,7 @@ blocks:
           - id: c
             label: "Helius is not an x402 facilitator; pick from Corbits, Dexter, PayAI, Solvador, or CDP, and note the x402.org facilitator is devnet-only."
             correct: true
-            feedback: "Facilitator is a protocol role, and a vendor relationship never confers it."
+            feedback: "Facilitator is a protocol role that a vendor relationship never confers, and the roster of who holds it moves, so this list is a snapshot to re-check at integration time."
         explanation: "The research corrected the charter's guess: Helius is not a facilitator. The real Solana options are Corbits, Dexter (free), PayAI, Solvador, Coinbase's hosted CDP (with KYT/OFAC), and Faremeter as an OSS framework; the x402.org facilitator is devnet/testnet only."
       - id: q4-traffic-windows
         prompt: "Your landing page needs a credibility stat for x402. You have '75.41M transactions / $24.24M in 30 days' (x402.org) and '37M+ transactions, 70% of monthly volume on Solana' (solana.com/x402). How do you present them?"

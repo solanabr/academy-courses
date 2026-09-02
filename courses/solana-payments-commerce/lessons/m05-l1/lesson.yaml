@@ -24,7 +24,7 @@ blocks:
           - id: b
             label: "The second ApproveChecked revokes your delegate entirely; your crank can no longer pull from that account."
             correct: true
-            feedback: "The account has one delegate field, and a new approval overwrites it."
+            feedback: "The account has one delegate field, and a new approval overwrites it, which is why the crank re-reads the delegate every cycle instead of trusting the one it saw last."
           - id: c
             label: "Your delegate keeps its 60 USDC but is paused until the second delegate is revoked."
             correct: false
