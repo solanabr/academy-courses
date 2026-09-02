@@ -369,7 +369,7 @@ Both green. If `invariant_holds` fails with `k_after < k_before`, your rounding 
 
 ## Challenge: quote a constant-product swap
 
-The lab wired the swap inside a program, where a wrong quote surfaces as a failing balance assertion three layers away. The challenge lifts `swap_out` out of the framework entirely so the arithmetic is the only thing that can be wrong. The starter, at `lessons/challenges/m05-l2/cp-swap-out/`, is the naive linear quote: it ignores both the fee and the reserve shift, over-quotes, and would let a trader drain the pool.
+The lab wired the swap inside a program, where a wrong quote surfaces as a failing balance assertion three layers away. The challenge lifts `swap_out` out of the framework entirely so the arithmetic is the only thing that can be wrong. The starter, at `lessons/m05-l2/cp-swap-out/`, is the naive linear quote: it ignores both the fee and the reserve shift, over-quotes, and would let a trader drain the pool.
 
 Implement `swap_out(reserve_in, reserve_out, amount_in) -> u64` so that it:
 

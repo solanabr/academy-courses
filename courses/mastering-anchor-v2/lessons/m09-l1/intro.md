@@ -461,7 +461,7 @@ Now you go solo. No answer on the page.
 
 In the Lab, the guard rode along inside `process()`. The Challenge makes you write it cold, as a standalone pure function with explicit return codes, the way a fuzzer or a unit test would poke it. This is the exact logic that stands between your vault and an underflow, extracted so you can see it clearly.
 
-The starter, at `lessons/challenges/m09-l1/native-vault-withdraw/starter.rs`:
+The starter, at `lessons/m09-l1/native-vault-withdraw/starter.rs`:
 
 ```rust
 /// Compute the vault's remaining balance after a withdraw, or an error code.

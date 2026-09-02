@@ -402,7 +402,7 @@ Three hints, in the order you will want them:
 2. When the board is full, compare against the current minimum: strictly greater gets in.
 3. Sort highest-first, truncate to `cap`, and return the last, smallest retained score. The truncate is the step the over-capacity cases exist to catch — return the minimum of the *retained* board, not of the board you were handed.
 
-The starter and tests are in `lessons/challenges/m02-l2/high-score-cutoff/`. Run them until all seven pass. The function is small. The point is not the code volume, it is internalizing that on-chain you cannot heap-grow your way out of this. The bound is the whole game, so the insert has to respect it every single time.
+The starter and tests are in `lessons/m02-l2/high-score-cutoff/`. Run them until all seven pass. The function is small. The point is not the code volume, it is internalizing that on-chain you cannot heap-grow your way out of this. The bound is the whole game, so the insert has to respect it every single time.
 
 ## Before the next rung
 
