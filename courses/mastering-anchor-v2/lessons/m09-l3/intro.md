@@ -19,7 +19,10 @@ Then open `programs/floor-registry/Cargo.toml` and pull each rung in as a depend
 anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
-solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+# One row wider than the rungs, for the reason m06-l1 gave: Step 4 puts Mollusk in this
+# crate, and Mollusk's SVM stack reaches solana-address ^2.6.1. The ceiling is what the
+# pin was always for — 2.6.1 is still wincode 0.5, and 2.7.0 is the version that moved.
+solana-address = ">=2.6.1, <2.7"
 cabinet-counter   = { path = "../cabinet-counter",   features = ["cpi"] }
 quarter-vault     = { path = "../quarter-vault",     features = ["cpi"] }
 prize-escrow      = { path = "../prize-escrow",       features = ["cpi"] }
@@ -178,19 +181,24 @@ If a call refuses to build with a borrow error, it is almost always a typed read
 cargo add anchor-v2-testing --dev \
   --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
 
-# Mollusk is a separate stack with its own solana pin (0.15 builds on the agave 4.x
-# SVM crates, hence solana-sdk 4). Commented out on purpose: it does not build against
-# the rc.1 pin set today. Read the note below before you uncomment either row.
-# cargo add mollusk-svm@0.15.0 --dev
-# cargo add solana-sdk@4 --dev
+# Mollusk is a separate stack and carries its own solana pins, exactly as in m06-l1:
+# 0.15 builds on the agave 4.x SVM crates, so the measurement tests need solana-sdk 4
+# for their Pubkey/Account/Instruction types. Those rows are Mollusk's, not LiteSVM's.
+cargo add mollusk-svm@0.15.1 --dev
+cargo add solana-sdk@4 --dev
+# And the two rows that keep Mollusk's graph on wincode 0.5, straight out of m06-l1.
+# Quote them: the shell would read < and > as redirects.
+cargo add 'solana-short-vec@>=3.2.2, <3.3' --dev
+cargo add 'solana-signature@>=3.4.1, <3.5' --dev
 
-cargo build-sbf                      # LiteSVM loads the .so from target/deploy
-cargo test -p floor-registry         # runs the LiteSVM suite
+cargo build-sbf                      # both harnesses load the .so; build before you measure
+export SBF_OUT_DIR=$PWD/target/deploy   # Mollusk reads this, not target/deploy (m06-l1)
+cargo test -p floor-registry         # runs BOTH suites
 ```
 
-> Pin note, and this one is a wall rather than a caution. Those two rows are commented out because Mollusk 0.15 does not build here, and it fails in two different places depending on where you put it. Add it to this crate and cargo never gets as far as compiling: Mollusk's agave 4.2 stack requires `solana-account-info ^3.1.1`, which is above what the rc.1 pin set holds, and the resolver reports `all possible versions conflict with previously selected packages`. Move it to a crate of its own with no `anchor-lang` anywhere and resolution succeeds, but the build still dies: Mollusk 0.15 drags two majors of `wincode` in through its own graph, 0.5 by way of `solana-address 2.6.1` and 0.6 by way of `solana-short-vec 3.3.0`, and `solana-message 4.4.0` will not compile against whichever one cargo unifies on. So there is no arrangement of crates that rescues it, and the fix is not yours to make: it is a Mollusk release that resolves against the rc.1 stack. Until then the measurement suite is reference-only — read module 6's Mollusk tests for the shape, and read Step 7 with that in mind.
+> Pin note, and it is the reason the `solana-address` row at the top of this lesson reads `">=2.6.1, <2.7"` rather than the `=2.6.0` every rung carries. Leave it at `=2.6.0` and the four rows above do not even resolve: Mollusk's SVM stack reaches `solana-address ^2.6.1`, and an exact pin refuses it before anything compiles. The two range rows are the same hazard one level further down — `solana-short-vec 3.3.0` and `solana-signature 3.5.0` moved to `wincode 0.6` while still satisfying `solana-message`, so without them the resolve succeeds and the *build* dies. All three rows say one thing: hold this graph on `wincode 0.5`, the line rc.1 wants. They retire together, on the day V2 moves to 0.6.
 
-Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved; their imports ride `anchor_lang` and `anchor_v2_testing` and reach past neither, the same shape every LiteSVM test in this course has used. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`, importing `Account`, `Instruction`, and `Pubkey` from `solana_sdk`. Keep the two suites in separate test files: they speak two different SVM stacks, and a file that mixes their types will not compile. Write the four LiteSVM tests now, because those are the ones that run. The Mollusk `settle_prize` test is the one the pin note defers, and its printed integer is the "before" number Step 7 asks for.
+Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved; their imports ride `anchor_lang` and `anchor_v2_testing` and reach past neither, the same shape every LiteSVM test in this course has used. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`, importing `Account`, `Instruction`, and `Pubkey` from `solana_sdk`. Keep the two suites in separate test files: they speak two different SVM stacks, and a file that mixes their types will not compile — separate files is the whole requirement, and the two suites then sit in one crate happily. You need at least one Mollusk test for `settle_prize`, because that printed integer is the "before" number Step 7 asks you to record.
 
 Green here means each edge works alone. That is necessary and not sufficient, which is the whole reason Step 8 exists.
 
@@ -205,7 +213,7 @@ You are not chasing full coverage in a capstone. You are proving the harness run
 
 **Step 6. The security checklist.** Walk the per-instruction checklist this course has been building: every account validated for owner, signer, and PDA; checked arithmetic everywhere; no `unwrap()` in program code; CPI targets pinned to the right `Program<T>`; and the composition-specific one, the account-substitution class that survives every framework. Module 7 showed you which vulnerability classes V2 kills at compile time; account substitution across a CPI is the class that does not die on its own, so confirm each rung account is the one you meant, by type and by seed.
 
-**Step 7. CU profile plus one optimization.** Profile the heaviest edge, `settle_prize`, because three hops burn the most. Read the compute units off the Mollusk test you wrote in Step 4, record your number, rebuild, then make one measured change and record it again. Step 4's pin note lands here: Mollusk does not build against the rc.1 stack today, so there is no CU number to read yet. Run this step when that pin moves, and leave the ledger entry empty until you have one you measured. A concrete change that pays: if your handler reads an account both before and after a CPI, and the second read only needs a lamport or byte value rather than the typed view, drop the redundant typed read. Do not fabricate the gain; measure it. The rule is the same one this course has held since module 1: report the number you saw, not the number you hoped for.
+**Step 7. CU profile plus one optimization.** Profile the heaviest edge, `settle_prize`, because three hops burn the most. Read the compute units off the Mollusk test you wrote in Step 4, record your number, rebuild, then make one measured change and record it again. A concrete change that pays: if your handler reads an account both before and after a CPI, and the second read only needs a lamport or byte value rather than the typed view, drop the redundant typed read. Do not fabricate the gain; measure it. The rule is the same one this course has held since module 1: report the number you saw, not the number you hoped for.
 
 ![An eight-stage pipeline running from anchor build through the unit suite, fuzz, harden, CU profile, Surfpool localnet, devnet deploy, and local verify-from-repo.](assets/v05-flowchart.png)
 

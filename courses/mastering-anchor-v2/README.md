@@ -40,7 +40,10 @@ lessons carry; treat a stale date as an unverified pin.
 | Solana CLI | `3.1.10` | agave-install — **LOCAL-CI / DOCKER PIN ONLY** | 2026-08-22 | m01-l2, m08-l2 |
 | `solana-verify` | `0.5.1` | crates.io | 2026-08-22 | m08-l2 |
 | Docker | `27.x` or newer | daemon must be running or the build fails fast | 2026-08-22 | m08-l2 |
-| `mollusk-svm` | `0.15.0` (published 2026-08-10) | crates.io | 2026-08-23 | m06-l1 |
+| `mollusk-svm` | `0.15.1` (published 2026-08-29) | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
+| `solana-sdk` (Mollusk's dev-dep) | `4` | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3, m09-l1 |
+| `solana-short-vec` / `solana-signature` | `>=3.2.2, <3.3` / `>=3.4.1, <3.5` | crates.io — **only in the Mollusk crates** | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
+| `solana-address` (Mollusk crates only) | `>=2.6.1, <2.7` | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
 | `crucible-fuzz-cli` / `crucible-fuzzer` | `0.2.1` | pinned by Anchor **`master`**'s CLI, not by the RC | 2026-08-22 | m07-l3 |
 | `surfpool` | `>= 1.1.2` | `run.surfpool.run` install script | 2026-08-22 | m09-l3 |
 | `pinocchio` / `pinocchio-system` / `pinocchio-pubkey` | `0.9` / `0.4` / `0.3` | crates.io — **move as a set** | 2026-08-22 | m09-l1 |
@@ -54,6 +57,14 @@ lessons carry; treat a stale date as an unverified pin.
   two `wincode` majors in the graph, which is issue #4937 — a trait-bound error in
   `#[account(borsh)]` in a feature nobody touched. This is the single most likely way a learner's
   build breaks.
+- **The three Mollusk rows retire together, and only in the three Mollusk crates.**
+  `solana-short-vec >=3.2.2, <3.3` and `solana-signature >=3.4.1, <3.5` exist for one reason:
+  both crates moved to `wincode 0.6` in versions that still satisfy `solana-message 4.4.0`, so
+  an unpinned Mollusk graph resolves and then fails to *build*. They come with the widened
+  `solana-address >=2.6.1, <2.7`, which Mollusk's SVM stack requires and the exact `=2.6.0` pin
+  refuses. Drop all three on the day Anchor V2 moves to `wincode 0.6`, never one at a time. And
+  widen `solana-address` **only** in the crates that carry Mollusk (m06's `token_ticket_swap`,
+  m09-l3's `floor-registry`); everywhere else the exact pin is correctly tighter.
 - **The tag, not the branch, from m02-l1 onward.** The `anchor-next` tip has already moved to
   `wincode 0.6` and demands `solana-address 2.7.0`. Track the branch and the `=2.6.0` pin refuses
   the resolve before anything compiles. m01-l2 installs off the branch **on purpose**, because the

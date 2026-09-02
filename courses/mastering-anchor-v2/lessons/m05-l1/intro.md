@@ -398,7 +398,9 @@ The R2 check has always made the same claim: value leaves the vault *only* under
 # to 0.13.1, and two SVM crates in one graph is the skew this pin exists to avoid.
 cargo add anchor-v2-testing --dev \
   --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
-cargo add spl-token spl-associated-token-account --dev
+# The fixture's two SPL crates, pinned like everything else here: these are the
+# versions that resolve against the rc.1 pin set (verified 2026-09-01).
+cargo add spl-token@9 spl-associated-token-account@8 --dev
 ```
 
 The setup is more than a comment, so here it is in full. Put it at `programs/quarter-vault/tests/spl_setup.rs`, beside the program crate, which is what makes the built `.so` reachable:

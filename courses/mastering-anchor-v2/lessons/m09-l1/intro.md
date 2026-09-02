@@ -15,7 +15,10 @@ cd native-quarter-vault
 # pinocchio-pubkey 0.3 requires ^0.9 too. Checked 2026-08-22; see the pins note
 # at the end of the lesson before you bump any of them.
 cargo add pinocchio@0.9 pinocchio-system@0.4 pinocchio-pubkey@0.3
-cargo add --dev litesvm solana-sdk
+# This crate has no anchor-lang in it, so it is the one place in the course where you
+# pin litesvm by name: there is no anchor-v2-testing here to own the version for you.
+# Checked 2026-09-01: litesvm 0.16 and solana-sdk 4 build clean on the pinocchio 0.9 line.
+cargo add --dev litesvm@0.16 solana-sdk@4
 ```
 
 One edit to `Cargo.toml` before anything compiles to something deployable. `cargo new --lib` gives you an rlib, and `cargo build-sbf` will not emit a `.so` from that. Add the crate type:
@@ -348,7 +351,7 @@ The bumps arrive in the instruction data, computed client-side by `find_program_
 
 ### Step 5: the acceptance gate
 
-Now the same acceptance *bar* R2 cleared, through a new harness. Not the same file: R2's test built Anchor-generated instruction data and account structs, and neither exists here, so the assertions carry over and the harness is written from scratch. LiteSVM is the same in-process Solana VM you have used since module 2: no validator, no ledger, just your program loaded into a bank you drive from Rust. You added it with `cargo add --dev litesvm solana-sdk` at the start. Create `tests/withdraw.rs`:
+Now the same acceptance *bar* R2 cleared, through a new harness. Not the same file: R2's test built Anchor-generated instruction data and account structs, and neither exists here, so the assertions carry over and the harness is written from scratch. LiteSVM is the same in-process Solana VM you have used since module 2: no validator, no ledger, just your program loaded into a bank you drive from Rust. You added it with `cargo add --dev litesvm@0.16 solana-sdk@4` at the start. Create `tests/withdraw.rs`:
 
 ```rust
 use litesvm::LiteSVM;

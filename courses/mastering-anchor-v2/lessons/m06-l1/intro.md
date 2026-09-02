@@ -178,21 +178,38 @@ This is the one that sticks, and it starts with a build, not a test. Mollusk loa
 
 ```bash
 cargo build-sbf              # release, defaults on: the configuration you actually ship
+# Mollusk searches tests/fixtures, $SBF_OUT_DIR, and the current directory for the .so —
+# NOT target/deploy. `anchor test` sets this var for you; a bare `cargo test` does not,
+# and the miss reads `[MOLLUSK]: Program file not found`. Export it once per shell.
+export SBF_OUT_DIR=$PWD/target/deploy
 ```
 
-Then add Mollusk to your program crate as a dev-dependency:
+Then add Mollusk to your program crate as a dev-dependency. It costs four dev rows and one edit to a pin you already carry:
 
 ```toml
 # programs/token_ticket_swap/Cargo.toml
+[dependencies]
+# WIDEN the pin this crate has carried since m01-l2, from `=2.6.0` to the ceiling it
+# always meant. Mollusk's SVM stack reaches solana-address ^2.6.1, and `=2.6.0` refuses
+# that resolve before anything compiles. 2.6.1 is still on wincode 0.5, so the real
+# constraint — below 2.7 — still holds. Widen it in THIS crate, the one Mollusk is in.
+solana-address = ">=2.6.1, <2.7"
+
 [dev-dependencies]
-# Pin verified live on crates.io 2026-08-23: mollusk-svm 0.15.0 (published 2026-08-10).
-# A newer 0.15.0-agave-4.3.0-beta.0 exists (2026-08-18); stay on stable 0.15.0 unless you
-# are tracking the agave 4.3 beta SVM. Mollusk 0.15 builds on the agave 4.2 SVM crates,
-# so your solana dev-deps must be the 4.x line: a 2.x solana-sdk will not type-check
-# against Mollusk's Pubkey/Account/Instruction types.
-mollusk-svm = "0.15.0"
+# Pins verified live on crates.io 2026-09-01: mollusk-svm 0.15.1 (published 2026-08-29).
+# A 0.15.0-agave-4.3.0-beta.0 also exists (2026-08-18); stay on the stable line unless
+# you are tracking the agave 4.3 beta SVM. Mollusk 0.15 builds on the agave 4.2 SVM
+# crates, so your solana dev-deps must be the 4.x line: a 2.x solana-sdk will not
+# type-check against Mollusk's Pubkey/Account/Instruction types.
+mollusk-svm = "0.15.1"
 solana-sdk = "4"
+# The two rows below hold Mollusk's own graph on the wincode 0.5 line. Without them the
+# resolve succeeds and the BUILD dies, in solana-message and then in solana-transaction.
+solana-short-vec = ">=3.2.2, <3.3"
+solana-signature = ">=3.4.1, <3.5"
 ```
+
+Those last two rows are issue #4937's bug class again, one layer further down, and they are worth understanding rather than pasting. `solana-short-vec 3.3.0` and `solana-signature 3.5.0` both moved to `wincode 0.6` while still satisfying what `solana-message 4.4.0` asks for, so a fresh resolve puts two `wincode` majors in the graph and `solana-message` stops compiling against whichever one cargo picks. Pinning both back below those majors holds the whole solana 4.x line on `wincode 0.5`, which is the line `anchor-lang 2.0.0-rc.1` already wants. All three rows retire together, on the day Anchor V2 moves to `wincode 0.6` — not one at a time.
 
 Now the CU-precise test. It builds the `swap_arcade_for_tickets` instruction using the types Anchor generated for your program, hands Mollusk the account fixture, and asserts on both success and compute units. In the worked example the harness and account setup are handed to you. Here is the whole thing, with the two lines you fill in during the challenge marked:
 
@@ -214,7 +231,7 @@ use token_ticket_swap::instruction::SwapArcadeForTickets as SwapArgs;
 /// to R4's actual `SwapArcadeForTickets` context.)
 fn swap_fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
     let program_id = token_ticket_swap::ID;
-    // Mollusk loads the compiled .so by name from target/deploy/.
+    // Mollusk loads the compiled .so by name, from wherever SBF_OUT_DIR points.
     let mollusk = Mollusk::new(&program_id, "token_ticket_swap");
 
     // `build_swap_accounts` builds the trader, the pool PDA, both mints, and the four

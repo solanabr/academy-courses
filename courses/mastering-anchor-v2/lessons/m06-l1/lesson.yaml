@@ -60,7 +60,7 @@ blocks:
             label: "anchor coverage — its LCOV report carries CU per line to assert on."
             correct: false
             feedback: "LCOV records `DA:` line hits and `BRDA:` branch hits — counts of how often code ran, never what it cost. Coverage also reports rather than gates, so there is nothing there to assert against."
-        explanation: "Mollusk gives CU-precise, in-process unit assertions on a single instruction. The module's testing thread escalates from the LiteSVM harness (m02) up to Mollusk here; Surfpool comes later for full-floor integration. Mollusk is a third-party crate with no Anchor affiliation, pinned at 0.15.0 in this lab, and it runs one instruction with no validator, no localnet, and no async — you build the instruction, hand it accounts, and assert `Check::success()` plus `Check::compute_units(N)`."
+        explanation: "Mollusk gives CU-precise, in-process unit assertions on a single instruction. The module's testing thread escalates from the LiteSVM harness (m02) up to Mollusk here; Surfpool comes later for full-floor integration. Mollusk is a third-party crate with no Anchor affiliation, pinned at 0.15.1 in this lab, and it runs one instruction with no validator, no localnet, and no async — you build the instruction, hand it accounts, and assert `Check::success()` plus `Check::compute_units(N)`."
       - id: coverage-output
         prompt: "You ran `anchor coverage` on the swap to find untested branches. What does it produce, and from what?"
         multiSelect: false

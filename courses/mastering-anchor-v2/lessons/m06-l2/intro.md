@@ -7,9 +7,10 @@ Here is the temptation, and I want to name it before you feel it. You have a num
 So before any theory, do the one thing this whole lesson rests on: re-read your baseline. Not from memory, not from the note you wrote last lesson. Read it fresh off the machine, right now, because it is the "before" of every measurement that follows.
 
 ```bash
-# Build FIRST, then read. Mollusk measures whatever .so is sitting in target/deploy/,
+# Build FIRST, then read. Mollusk measures whatever .so SBF_OUT_DIR points it at,
 # so a build with different flags is a different measurement wearing the same name.
 cargo build-sbf
+export SBF_OUT_DIR=$PWD/target/deploy   # a fresh shell needs it again; see m06-l1
 cargo test -p token_ticket_swap trade_cu_baseline -- --nocapture
 ```
 
@@ -155,7 +156,17 @@ const-rent = ["anchor-lang/const-rent"]   # opt in to the compile-time rent fold
 anchor-lang = { version = "2.0.0-rc.1", default-features = false, features = ["alloc"] }
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
-solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+# Widened in m06-l1 when Mollusk arrived, and it stays widened: this is that same crate.
+# The ceiling below 2.7 is the constraint that matters; 2.6.1 is still on wincode 0.5.
+solana-address = ">=2.6.1, <2.7"
+
+[dev-dependencies]
+# Unchanged from m06-l1, and listed here so the whole crate is on one page: Mollusk plus
+# the two rows that hold its graph on wincode 0.5.
+mollusk-svm = "0.15.1"
+solana-sdk = "4"
+solana-short-vec = ">=3.2.2, <3.3"
+solana-signature = ">=3.4.1, <3.5"
 ```
 
 Now the single change. Compile the program with the default features off, which drops `guardrails`:
@@ -336,7 +347,7 @@ get_amount_out(u64::MAX, u64::MAX, u64::MAX, 30)     == 0  // numerator exceeds 
 get_amount_out(1_000_000_000_000_000_000, 1_000_000_000_000_000_000, 1_000_000_000_000, 30) == 996_999_005_991
 ```
 
-That last pair is the one to sit with, because it sharpens the "impossible by construction" claim from the comparison above. Promote two `u64` factors to `u128` and their product really is overflow-proof: the largest `u64 * u64` lands just under the `u128` ceiling, every time. But this quote multiplies *three* factors, and the fee scale is the third. `amount_in * (10_000 - fee_bps) * reserve_out` reaches roughly 3.4e42 at `u64::MAX` reserves against a ceiling near 3.4e38. What promotion buys you here is enormous headroom, not immunity — the 1e18-reserve case clears it by six orders of magnitude — so the products stay checked, and the check degrades to 0 rather than panicking inside an instruction.
+That last pair is the one to sit with, because it is where the comparison above earns its qualifier: "no check needed — **for two `u64` factors**." Promote two `u64` factors to `u128` and their product really is overflow-proof: the largest `u64 * u64` lands just under the `u128` ceiling, every time. But this quote multiplies *three* factors, and the fee scale is the third. `amount_in * (10_000 - fee_bps) * reserve_out` reaches roughly 3.4e42 at `u64::MAX` reserves against a ceiling near 3.4e38. What promotion buys you here is enormous headroom, not immunity — the 1e18-reserve case clears it by six orders of magnitude — so the products stay checked, and the check degrades to 0 rather than panicking inside an instruction.
 
 Now the bound the frozen signature cannot express: `10_000 - fee_bps` underflows for any `fee_bps` above 10,000, and the return type is a bare `u64` with nowhere to put an error. Guard it anyway and return 0, the way you guard the empty reserve — a wrong-but-quiet 0 beats a panicking instruction, and on a `u128` intermediate compiled in release that underflow wraps to an enormous number instead, which quotes a payout that drains the pool. But be clear with yourself about what that 0 means. For `fee_bps == 10_000` it is arithmetic: a 100% fee eats the whole input. For everything else it is a sentinel standing in for an error the signature cannot return, and real AMMs do not degrade like this — Uniswap V2's `getAmountOut` reverts with INSUFFICIENT_LIQUIDITY on an empty reserve. So the caller still owns the bound. In the handler, `fee_bps` is a compile-time constant you control; the moment it becomes a parameter a user can set, it needs a `require!` before it reaches this function, and the handler refuses to settle a trade that quotes 0 either way. Write that reasoning as a comment above the fn so the next reader knows it was a decision and not an accident.
 
