@@ -61,5 +61,6 @@
 - slug: brazil-compliance
   label: Brazil Payments Compliance
   # Single-use by design (CATALOG.md §5 policy 4 names it): only the corridors
-  # lesson teaches BCB Resolution 561 and the PIX rail.
+  # lesson covers the Brazil/PIX corridor (the Brazil compliance-boundary
+  # section is planned for m06-l2).
   reviewExempt: true
