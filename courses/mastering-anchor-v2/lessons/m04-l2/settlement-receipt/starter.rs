@@ -11,7 +11,14 @@
 // `settle` moves `amount` out of the vault and returns `(opening, closing)`:
 //   * `opening` — the vault's balance as it stands BEFORE the transfer
 //   * `closing` — the vault's balance as it stands AFTER the transfer
-// Both must be read off `vault_ta`, not computed from `amount`.
+//
+// Both numbers are READS of `vault_ta`. Neither may be derived from this
+// function's parameters: no `vault_start`, no `recipient_start`, no `amount`
+// on the right-hand side of either binding. `opening` is read before the CPI
+// consumes the `CpiContext` and `closing` after it, and a receipt computed
+// from the arguments rather than read off the account is not a solution to
+// this exercise whatever the vectors say — the point is where a read is legal,
+// which arithmetic never has to find out.
 //
 // The starter does not compile: both reads sit in the span where the CPI holds
 // a mutable handle on the vault. Their placement is the whole exercise, so
@@ -112,6 +119,11 @@ fn settle(vault_start: u64, recipient_start: u64, amount: u64) -> (u64, u64) {
     // legal. Place each so `opening` is the vault's balance before the
     // transfer and `closing` is its balance after — without touching the
     // `CpiContext` above or the `transfer_checked` call below.
+    //
+    // Both bindings stay reads: `ctx.accounts.vault_ta.amount()` on the
+    // right-hand side of each, moved to where it is legal. Replacing either
+    // one with arithmetic over `vault_start`, `recipient_start` or `amount`
+    // sidesteps the exercise instead of doing it.
     let opening = ctx.accounts.vault_ta.amount();
     let closing = ctx.accounts.vault_ta.amount();
 
