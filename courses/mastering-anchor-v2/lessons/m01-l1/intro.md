@@ -4,7 +4,7 @@ This is lesson one, so nothing is built yet. You arrive with the Solana mental m
 
 Before I define a single thing, do this. Open a terminal with the `solana` CLI you already have and confirm a transaction I already landed on devnet for you. One piece of housekeeping first, because it governs this whole page:
 
-> **Course-materials note — `TWINS.md` has not landed yet.** The two twin programs live on devnet, and their IDs and reference signatures ship in `TWINS.md`. That file is mine to hand you, and I have not shipped it. Until it and the two twins reach you, the run below and the six Lab steps that follow are a walkthrough: every command is exactly what you will type, but the two numbers they print are the part that waits. The Challenge waits with them, except for its third item, which needs nothing but the overview. Next lesson you start `PINS.md`, a pins file of your own, and every pin in it carries a "verified on <date>" freshness note.
+> **Course-materials note — `TWINS.md` has not landed yet.** The two twin programs live on devnet; their IDs and reference signatures ship in `TWINS.md`, and that file is mine to hand you. I have not shipped it. Until it reaches you, the run below and the six Lab steps that follow are a walkthrough: every command is exactly what you will type, but the two numbers they print are the part that waits. The Challenge waits with them, except for its third item, which needs nothing but the overview. Next lesson you start `PINS.md`, a pins file of your own, and every pin in it carries a "verified on <date>" freshness note.
 
 ```bash
 export V1_TWIN_SIG="<v1-twin-signature from TWINS.md>"

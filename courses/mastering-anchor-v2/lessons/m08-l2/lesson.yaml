@@ -52,7 +52,7 @@ blocks:
           - id: a
             label: "One steward sits under the whole verify chain, and Squads v4 is immutable, so the handoff cannot be undone"
             correct: true
-            feedback: "It's checkable, not a rumour — one organisation builds the framework, signs the tag, publishes the crates and runs the registry. And immutability is the reassurance and the trap at once."
+            feedback: "It is checkable, not a rumour — one organisation builds the framework, signs the tag, publishes the crates and runs the registry. And immutability is the reassurance and the trap at once."
           - id: b
             label: "Squads v4 is upgradeable, so a bad authority move can be rolled back later by patching the multisig program itself"
             correct: false

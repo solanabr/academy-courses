@@ -38,7 +38,7 @@ blocks:
           - id: b
             label: "Because most code you will READ still imports `@coral-xyz/anchor` -- it still out-downloads the new name by roughly forty to one, so you grep both scopes."
             correct: true
-            feedback: "Canonical and common have come apart, and only one of the two is what you'll actually paste. Assume a single import scope and the migration fails quietly, against real snippets, long after you thought it was done."
+            feedback: "Canonical and common have come apart, and only one of the two is what you will actually paste. Assume a single import scope and the migration fails quietly, against real snippets, long after you thought it was done."
           - id: c
             label: "Because `@coral-xyz/anchor` was unpublished from npm when 1.0.0 shipped, so any lockfile still pinning the old scope now hard-fails on `npm install`."
             correct: false

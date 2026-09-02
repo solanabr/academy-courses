@@ -9,9 +9,10 @@
 /// caller, so every step was a `checked_*` and a bad count degraded to 0 rather
 /// than wrapping into a plausible-looking length. Its last link used to be
 /// `.checked_add(8)` for the discriminator. Then a migration swept the file for
-/// hardcoded eights, deleted every one it found, and took that link with the
-/// rest -- which is how a correct-looking chain ends up under-counting every
-/// account by exactly 8 bytes.
+/// the additive `8` of the v1 `space = 8 + ...` idiom and took that link with
+/// it. The `* 8` sizing a u64 field below survived the same sweep, correctly --
+/// it is a field width, not a magic number -- which is how a chain that still
+/// looks careful ends up under-counting every account by exactly 8 bytes.
 ///
 /// Name the tier, because the arithmetic below only holds for one of them: these
 /// are the `#[account(borsh)]` sizes, fields written back to back with no

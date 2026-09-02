@@ -47,7 +47,7 @@ blocks:
           - id: b
             label: "A &Address for the program, with accounts as CpiHandle borrow-tracked handles."
             correct: true
-            feedback: "Read accessor or mutable one: that single distinction is the hinge everything in the next lesson turns on. Signer seeds don't ride in the constructor at all. They arrive through a separate wrapper."
+            feedback: "Read accessor or mutable one: that single distinction is the hinge everything in the next lesson turns on. Signer seeds do not ride in the constructor at all. They arrive through a separate wrapper."
           - id: c
             label: "A Pubkey by value for the program, with accounts as plain &mut references."
             correct: false

@@ -34,7 +34,7 @@ blocks:
           - id: a
             label: "The mint declares a TransferHook extension and your instruction didn't forward the hook's extra accounts."
             correct: true
-            feedback: "Presence of the extension isn't the question; the program id recorded inside it is. All zeroes and the hook is inert, so that mint transfers fine on the ordinary account list."
+            feedback: "Presence of the extension is not the question; the program id recorded inside it is. All zeroes and the hook is inert, so that mint transfers fine on the ordinary account list."
           - id: b
             label: "Token-2022 needs its own transfer instruction; transfer_checked exists only on the classic Token program."
             correct: false

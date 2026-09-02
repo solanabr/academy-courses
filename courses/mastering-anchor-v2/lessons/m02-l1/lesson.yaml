@@ -51,7 +51,7 @@ blocks:
           - id: a
             label: "As an approximate benchmark-family average, already revised down once and expected to keep moving."
             correct: true
-            feedback: "A number whose own authors have already trimmed it once should travel with that history attached. Pin it to one program and you'll be wrong in the least forgiving direction: the leanest handlers gain least."
+            feedback: "A number whose own authors have already trimmed it once should travel with that history attached. Pin it to one program and you will be wrong in the least forgiving direction: the leanest handlers gain least."
           - id: b
             label: "As a guaranteed per-instruction speedup that every V2 program inherits just by compiling on the RC."
             correct: false

@@ -55,7 +55,7 @@ blocks:
           - id: b
             label: "Because solana-verify rebuilds the program from your source and matches the hash against the deployed devnet bytecode."
             correct: true
-            feedback: "Reproducibility doesn't care which cluster you point it at. The remote submission and the multisig handoff are distribution and governance, which are different jobs entirely."
+            feedback: "Reproducibility does not care which cluster you point it at. The remote submission and the multisig handoff are distribution and governance, which are different jobs entirely."
           - id: c
             label: "Because a program keeps the same address across clusters, so a devnet verify carries over to the mainnet deployment."
             correct: false

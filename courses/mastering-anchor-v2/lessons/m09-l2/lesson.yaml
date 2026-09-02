@@ -34,7 +34,7 @@ blocks:
           - id: a
             label: "Reading stale account data after a CPI because you forgot to call .reload()."
             correct: true
-            feedback: "Forgetting it raised nothing — no error, no warning, no panic — which is why it shipped as often as it did. A build failure doesn't restate the discipline; it retires the need for any."
+            feedback: "Forgetting it raised nothing — no error, no warning, no panic — which is why it shipped as often as it did. A build failure does not restate the discipline; it retires the need for any."
           - id: b
             label: "Signing a CPI with a re-derived bump instead of the stored canonical one."
             correct: false

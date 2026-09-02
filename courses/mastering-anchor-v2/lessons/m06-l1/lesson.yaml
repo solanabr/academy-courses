@@ -25,7 +25,7 @@ blocks:
           - id: c
             label: "Under target/anchor-v2-profile/, one SVG per test, from a debug build."
             correct: true
-            feedback: "Debug is chosen so symbols survive. Strip them and every frame reads as a hex address. The cost is that the CU numbers on it are relative shape, never the release figure you'd ship."
+            feedback: "Debug is chosen so symbols survive. Strip them and every frame reads as a hex address. The cost is that the CU numbers on it are relative shape, never the release figure you would ship."
         explanation: "`anchor test --profile` compiles a debug build (for DWARF symbols) and emits one flamegraph SVG per test under target/anchor-v2-profile/. Because it is a debug build, treat the CU it shows as relative shape, not your release cost. DWARF is the debug-info format that maps compiled instructions back to your function names; without it the profiler would label every frame with a raw hex address instead of `swap_out`."
       - id: step-instruction
         prompt: "One swap instruction fails and you want to walk it sBPF instruction by instruction, inspecting registers as you go. Which tool does that?"
@@ -34,7 +34,7 @@ blocks:
           - id: a
             label: "anchor debugger — a ratatui TUI that steps sBPF instructions and shows registers."
             correct: true
-            feedback: "It doesn't run a suite — one named test is rebuilt, its transaction replayed, and you land on your program's first instruction. There's a gdb stub behind a flag too, if you'd rather break on symbol names."
+            feedback: "It doesn't run a suite — one named test is rebuilt, its transaction replayed, and you land on your program's first instruction. There is a gdb stub behind a flag too, if you would rather break on symbol names."
           - id: b
             label: "anchor coverage — it replays the failing test and halts on the uncovered line for inspection."
             correct: false

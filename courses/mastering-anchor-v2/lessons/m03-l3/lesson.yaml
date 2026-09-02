@@ -49,7 +49,7 @@ blocks:
           - id: b
             label: "No framework author can enumerate every program's invariants, so the surface is left open to downstream crates"
             correct: true
-            feedback: "A handler branch never reaches the IDL, a fork is something you re-merge forever, and an inline boolean can't be named or reused. Three different ways to lose, which is roughly the argument."
+            feedback: "A handler branch never reaches the IDL, a fork is something you re-merge forever, and an inline boolean cannot be named or reused. Three different ways to lose, which is roughly the argument."
           - id: c
             label: "The token::* namespace requires it, and every other namespace only reaches the trait as an accidental side effect"
             correct: false

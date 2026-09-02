@@ -168,8 +168,8 @@ A precise word about versions here, because it matters for the whole course. Thi
 | solana-address              | =2.6.0                       | crates.io                        | 2026-08-22 |
 | Rust (MSRV)                 | 1.89.0                       | rustup                           | 2026-08-22 |
 | macOS build workaround      | CARGO_PROFILE_RELEASE_LTO=off| env var (release profile)        | 2026-08-22 |
-| Solana CLI (CI pin)    | 3.1.10                       | agave-install (LOCAL-CI ONLY)    | 2026-08-22 |
-| R0 greeter program id  | <fill after deploy>          | devnet                           | <fill>     |
+| Solana CLI (CI pin)         | 3.1.10                       | agave-install (LOCAL-CI ONLY)    | 2026-08-22 |
+| R0 greeter program id       | <fill after deploy>          | devnet                           | <fill>     |
 
 Note: 3.1.10 is the local-CI pin, NOT "current Solana" (current stable Agave: v4.2.1, Aug 2026).
 Note: the two anchor-cli rows report the SAME version string. Only the ref distinguishes them.

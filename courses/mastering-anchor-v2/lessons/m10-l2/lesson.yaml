@@ -66,7 +66,7 @@ blocks:
           - id: a
             label: "It is unnecessary because typed access while a `CpiHandle` is live is a compile error, so the stale-data window `.reload()` patched cannot be written."
             correct: true
-            feedback: "The borrow sits on the typed wrapper itself, so a live invocation and an out-of-date copy can't overlap in time — and a method with nothing left to refresh is a method you delete."
+            feedback: "The borrow sits on the typed wrapper itself, so a live invocation and an out-of-date copy cannot overlap in time — and a method with nothing left to refresh is a method you delete."
           - id: b
             label: "It is impossible because `.reload()` was renamed to `.refresh()` on the `CpiHandle`; call that after each CPI to re-read the account bytes into your typed copy."
             correct: false
@@ -91,5 +91,5 @@ blocks:
           - id: c
             label: "Because `AccountLoader` survives in V2 but is repurposed as a sequential account cursor, so deleting it or reusing it unchanged misbehaves silently."
             correct: true
-            feedback: "The type that genuinely vanished fails loudly the moment you carry it across. A name that survives with a new meaning compiles, runs, and then behaves like something you didn't ask for — much the worse of the two."
+            feedback: "The type that genuinely vanished fails loudly the moment you carry it across. A name that survives with a new meaning compiles, runs, and then behaves like something you did not ask for — much the worse of the two."
         explanation: "V2 keeps the name `AccountLoader` but repurposes it as a sequential account cursor, not the v1 zero-copy wrapper -- the docs warn it 'means something else' in V2. Teaching it as 'gone' is the trap: the v1 zero-copy role moves to `Account<T>` (default zero-copy), while the surviving `AccountLoader` name now does something unrelated and will compile-and-misbehave if you assume the old meaning. Contrast that with `LazyAccount`, which is v1-only and has no V2 equivalent at all: carrying it across fails to resolve loudly rather than misbehaving quietly."

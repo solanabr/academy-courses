@@ -28,7 +28,7 @@ blocks:
           - id: a
             label: "Real default-on runtime safety nets came out of the binary; the CU and roughly 300 bytes are what those checks cost to run."
             correct: true
-            feedback: "Ownership matching, tag matching, arithmetic that raises instead of truncating — that is the list, and it is worth saying out loud before you argue past it. Deleting the checks doesn't delete the malformed call."
+            feedback: "Ownership matching, tag matching, arithmetic that raises instead of truncating — that is the list, and it is worth saying out loud before you argue past it. Deleting the checks does not delete the malformed call."
           - id: b
             label: "Only debug assertions were stripped — `guardrails` is a debug-build lint, so a release build was already running without those checks."
             correct: false
@@ -79,7 +79,7 @@ blocks:
           - id: a
             label: "Anchor's own sources quote it two ways, and the figure can drift if the rent formula moves."
             correct: true
-            feedback: "Two maintainer-written places quote it differently, and the formula underneath may move besides — a single digit printed across that would be precision the sources don't have."
+            feedback: "Two maintainer-written places quote it differently, and the formula underneath may move besides — a single digit printed across that would be precision the sources do not have."
           - id: b
             label: "Mollusk's CU reading varies run to run with the fixture's account ordering, so no single value would hold."
             correct: false

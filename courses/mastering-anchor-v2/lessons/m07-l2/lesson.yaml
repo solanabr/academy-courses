@@ -31,7 +31,7 @@ blocks:
           - id: b
             label: "`load` runs the owner and discriminator checks before any constraint hook, so `ProgramError::IllegalOwner` is returned first."
             correct: true
-            feedback: "Your annotation is intact. It just never enters a race it couldn't start, because a typed wrapper is never handed over unverified, and stripping the type leaves no gate in front at all."
+            feedback: "Your annotation is intact. It just never enters a race it could not start, because a typed wrapper is never handed over unverified, and stripping the type leaves no gate in front at all."
           - id: c
             label: "`Account<T>` ignores an explicit `owner` constraint, since the declaring-program owner is already implied by the typed wrapper."
             correct: false
@@ -61,7 +61,7 @@ blocks:
           - id: a
             label: "V2 ships it ungated with reuse-validation, but a re-init over live state is still your bug to guard."
             correct: true
-            feedback: "The structural side is solid and has been folded into the duplicate check for several releases now. Semantics are what's left over, and no framework can supply them — only your program knows that credit is somebody's money."
+            feedback: "The structural side is solid and has been folded into the duplicate check for several releases now. Semantics are what is left over, and no framework can supply them — only your program knows that credit is somebody's money."
           - id: b
             label: "It is gated behind an `init-if-needed` feature flag exactly as in v1."
             correct: false

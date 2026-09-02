@@ -38,7 +38,7 @@ blocks:
           - id: b
             label: "8.8x average — revised down from 9.9x in benchmark PR #4914; never freeze a multiplier"
             correct: true
-            feedback: "Nobody trims a marketing number downward by accident — that's the tell it was measured rather than chosen. Where it bites is your own prose six months on, still quoting the figure you wrote down today."
+            feedback: "Nobody trims a marketing number downward by accident — that is the tell it was measured rather than chosen. Where it bites is your own prose six months on, still quoting the figure you wrote down today."
           - id: c
             label: "50.4x — that is the average CU reduction across every program in the benchmark suite"
             correct: false

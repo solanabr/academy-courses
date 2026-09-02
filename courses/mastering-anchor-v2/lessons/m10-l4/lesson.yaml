@@ -21,7 +21,7 @@ blocks:
           - id: c
             label: "Stay on the maintained 1.1.2 line and watch for a committed stable date and a published audit before moving value onto V2."
             correct: true
-            feedback: "Waiting isn't stagnating — the maintained line goes on absorbing fixes and runtime churn on your behalf, so the wait costs you close to nothing. What you're watching for is two specific signals, not a vibe."
+            feedback: "Waiting isn't stagnating — the maintained line goes on absorbing fixes and runtime churn on your behalf, so the wait costs you close to nothing. What you are watching for is two specific signals, not a vibe."
           - id: b
             label: "Rewrite on V2 in a branch and ship it to mainnet behind a feature flag, so the 1.1.2 path stays live and V2 traffic can be rolled back instantly."
             correct: false

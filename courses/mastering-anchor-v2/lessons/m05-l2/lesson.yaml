@@ -32,7 +32,7 @@ blocks:
           - id: b
             label: "Cast both reserves to u128 before multiplying and use checked_mul, then divide down."
             correct: true
-            feedback: "Widen the intermediate, not the stored fields, and keep it checked, because three factors is one more than u128 can absorb. Narrowing back down is safe: the output can't exceed a value that already fit."
+            feedback: "Widen the intermediate, not the stored fields, and keep it checked, because three factors is one more than u128 can absorb. Narrowing back down is safe: the output cannot exceed a value that already fit."
           - id: c
             label: "Switch reserve_in and reserve_out to i64 so an overflow wraps to a negative value you can test for."
             correct: false

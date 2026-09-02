@@ -52,7 +52,7 @@ blocks:
           - id: c
             label: "There's no official V2 TS package; @anchor-lang/core is still on the web3.js v1 line"
             correct: true
-            feedback: "Two steps through Codama — convert, then generate — and you have a typed kit client off your own IDL. Pick the package whose name looks official instead and you're quietly back on the SDK line the rewrite exists to leave."
+            feedback: "Two steps through Codama — convert, then generate — and you have a typed kit client off your own IDL. Pick the package whose name looks official instead and you are quietly back on the SDK line the rewrite exists to leave."
         explanation: "The honest TS state: no official V2 package exists. @anchor-lang/core (npm latest 1.1.2) is the v1-era client. The first-party path is anchor codama convert + generate -l js, which renders a typed @solana/kit client. Reaching for the package that looks official quietly pins you back to web3.js v1 — the exact SDK line V2 exists to move off of."
       - id: m08-l1-q3
         prompt: "You want any client — not just yours — to be able to read your program's interface on-chain. Which step does that?"

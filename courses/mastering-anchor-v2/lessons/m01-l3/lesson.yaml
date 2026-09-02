@@ -38,7 +38,7 @@ blocks:
           - id: b
             label: "ctx.accounts.vault.address()"
             correct: true
-            feedback: "It isn't only a rename — Pubkey became Address, out of a crate the runtime layer already pulled in, so the type on the left of your let changes too."
+            feedback: "It is not only a rename — Pubkey became Address, out of a crate the runtime layer already pulled in, so the type on the left of your let changes too."
           - id: c
             label: "ctx.accounts.vault.to_address()"
             correct: false
@@ -55,7 +55,7 @@ blocks:
           - id: b
             label: "A Mollusk Rust test running in an in-process VM"
             correct: false
-            feedback: "Also in-process, also validator-free — but only one of the five carries #[default], and it isn't this one."
+            feedback: "Also in-process, also validator-free — but only one of the five carries #[default], and it is not this one."
           - id: c
             label: "A LiteSVM Rust test running in an in-process VM"
             correct: true
