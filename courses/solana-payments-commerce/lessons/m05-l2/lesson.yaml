@@ -7,6 +7,8 @@ skills:
   - pdas
   - token-2022
   - program-security
+  - checked-arithmetic
+  - version-pinning
 blocks:
   - key: intro
     type: prose

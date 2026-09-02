@@ -6,6 +6,7 @@ skills:
   - x402-protocol
   - subscriptions-program
   - solana-kit
+  - version-pinning
 blocks:
   - key: intro
     type: prose
