@@ -188,13 +188,14 @@ pub fn withdraw(ctx: &mut Context<Withdraw>, amount: u64) -> Result<()> {
 
 Run `anchor build`. Green. Sit with that, because it is the finding: the CPI takes `sol_vault` and `authority`, `state` is neither, and the compiler waves the read through on purpose. Then look at *why this program cannot show you the reload-class error at all*: the two accounts this CPI does take are a `SystemAccount` and a `Signer`, and neither carries typed data to read. R2's CPI has nothing you could read stale, so the borrow model has no stale read to forbid. That is not a gap in the lesson; it is the lock tracing the hazard exactly. Delete the probe line and leave R2 as you found it.
 
-**Step 3. Build the probe where the lock bites.** To meet the error you need an account that has typed data *and* goes into a CPI mutably — which is precisely the shape v1's `.reload()` was invented for: a token vault whose `amount` you check around a transfer. Tokens formally arrive in module 5; you are not building token infrastructure today, just borrowing one account type for a ten-minute probe, so that when the vault graduates to SPL in m05-l1 you will already have met its sharpest edge. Make a scratch crate:
+**Step 3. Build the probe where the lock bites.** To meet the error you need an account that has typed data *and* goes into a CPI mutably — which is precisely the shape v1's `.reload()` was invented for: a token vault whose `amount` you check around a transfer. Tokens formally arrive in module 5; you are not building token infrastructure today, just borrowing one account type for a ten-minute probe, so that when the vault graduates to SPL in m05-l1 you will already have met its sharpest edge. Make a scratch crate, and make it **outside** your arcade workspace — `cargo new` run at a workspace root registers the new package as a member, and a ten-minute probe has no business in the lock your rungs share:
 
 ```bash
+cd ..   # out of the arcade workspace first
 cargo new borrow_probe --lib && cd borrow_probe
 ```
 
-Point its `Cargo.toml` at the V2 line, with the pins every program crate in this course carries:
+Point its `Cargo.toml` at the V2 line, with the pins every program crate in this course carries. Standing alone, it takes the exact `solana-address` pin rather than the workspace ceiling the rungs use:
 
 ```toml
 [package]

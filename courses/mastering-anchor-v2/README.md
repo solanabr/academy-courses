@@ -34,7 +34,7 @@ lessons carry; treat a stale date as an unverified pin.
 | `anchor-cli` (fuzz CLI) | not version-pinned — tracks `master` HEAD, V1 line past `1.1.2` | git `otter-sec/anchor`, `--branch master`, `--root ~/.anchor-master` | 2026-08-22 | m07-l3 |
 | `anchor-lang` (library) | `2.0.0-rc.1` | crates.io, published 2026-08-12 (immutable) | 2026-08-22 | m02-l1 onward |
 | `wincode` | `0.5`, `features = ["derive"]` | crates.io | 2026-08-22 | m02-l1 onward |
-| `solana-address` | `=2.6.0` | crates.io | 2026-08-22 | m02-l1 onward |
+| `solana-address` (standalone crates) | `=2.6.0` | crates.io | 2026-08-22 | m01-l2's greeter, m04-l2's `borrow_probe`, m10-l2's port crate |
 | Rust (MSRV) | `1.89.0` | rustup; the scaffold writes `rust-toolchain.toml` | 2026-08-22 | m01-l2 |
 | macOS build workaround | `CARGO_PROFILE_RELEASE_LTO=off` | cargo release-profile env var | 2026-08-22 | m01-l2 |
 | Solana CLI | `3.1.10` | agave-install — **LOCAL-CI / DOCKER PIN ONLY** | 2026-08-22 | m01-l2, m08-l2 |
@@ -42,8 +42,8 @@ lessons carry; treat a stale date as an unverified pin.
 | Docker | `27.x` or newer | daemon must be running or the build fails fast | 2026-08-22 | m08-l2 |
 | `mollusk-svm` | `0.15.1` (published 2026-08-29) | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
 | `solana-sdk` (Mollusk's dev-dep) | `4` | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3, m09-l1 |
-| `solana-short-vec` / `solana-signature` | `>=3.2.2, <3.3` / `>=3.4.1, <3.5` | crates.io — **only in the Mollusk crates** | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
-| `solana-address` (Mollusk crates only) | `>=2.6.1, <2.7` | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
+| `solana-short-vec` / `solana-signature` | `>=3.2.2, <3.3` / `>=3.4.1, <3.5` | crates.io — dev-deps, **only in the Mollusk crates** | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
+| `solana-address` (**every arcade-workspace member**) | `>=2.6.1, <2.7` | crates.io | 2026-09-01 | m02-l1, m03-l1, m04-l3, m05-l1, m06-l1, m06-l2, m09-l3 |
 | `crucible-fuzz-cli` / `crucible-fuzzer` | `0.2.1` | pinned by Anchor **`master`**'s CLI, not by the RC | 2026-08-22 | m07-l3 |
 | `surfpool` | `>= 1.1.2` | `run.surfpool.run` install script | 2026-08-22 | m09-l3 |
 | `pinocchio` / `pinocchio-system` / `pinocchio-pubkey` | `0.9` / `0.4` / `0.3` | crates.io — **move as a set** | 2026-08-22 | m09-l1 |
@@ -52,22 +52,33 @@ lessons carry; treat a stale date as an unverified pin.
 
 ### Pins that are load-bearing in a non-obvious way
 
-- **`wincode 0.5` + `solana-address =2.6.0` travel together.** `anchor-lang@2.0.0-rc.1` pins
-  `wincode 0.5`; `solana-address 2.7.0` moved to `wincode 0.6`. Float either one and cargo puts
-  two `wincode` majors in the graph, which is issue #4937 — a trait-bound error in
+- **`wincode 0.5` and the `solana-address` ceiling travel together.** `anchor-lang@2.0.0-rc.1`
+  pins `wincode 0.5`; `solana-address 2.7.0` moved to `wincode 0.6`. Float either one and cargo
+  puts two `wincode` majors in the graph, which is issue #4937 — a trait-bound error in
   `#[account(borsh)]` in a feature nobody touched. This is the single most likely way a learner's
-  build breaks.
-- **The three Mollusk rows retire together, and only in the three Mollusk crates.**
+  build breaks. What the pin has to express is the `< 2.7` ceiling; whether it is written as an
+  equality or a range is the next bullet's problem.
+- **`solana-address` is a WORKSPACE-scoped pin, not a per-crate one.** Cargo resolves one
+  `solana-address` for every member of a workspace at once. The arcade workspace ends up holding
+  all five programs — `cabinet-counter`, `quarter-vault`, `quarter-prize`/`prize-escrow`,
+  `token-ticket-swap`, `floor-registry` — and m06-l1 puts Mollusk in one of them, whose SVM stack
+  requires `^2.6.1`. So **every member** carries `solana-address = ">=2.6.1, <2.7"`, from m02-l1
+  onward. Leave any single member on `=2.6.0` and the whole workspace fails to resolve with
+  `error: failed to select a version for solana-address … all possible versions conflict` —
+  reproduced against the real five-member membership, 2026-09-01. The three crates that never
+  join that workspace (m01-l2's `greeter`, m04-l2's `borrow_probe`, m10-l2's port copy) keep the
+  exact `=2.6.0`: nothing in their graphs needs 2.6.1, and the tighter pin is the course's
+  default discipline.
+- **The two Mollusk dev rows retire together with the ceiling, and only in the Mollusk crates.**
   `solana-short-vec >=3.2.2, <3.3` and `solana-signature >=3.4.1, <3.5` exist for one reason:
   both crates moved to `wincode 0.6` in versions that still satisfy `solana-message 4.4.0`, so
-  an unpinned Mollusk graph resolves and then fails to *build*. They come with the widened
-  `solana-address >=2.6.1, <2.7`, which Mollusk's SVM stack requires and the exact `=2.6.0` pin
-  refuses. Drop all three on the day Anchor V2 moves to `wincode 0.6`, never one at a time. And
-  widen `solana-address` **only** in the crates that carry Mollusk (m06's `token_ticket_swap`,
-  m09-l3's `floor-registry`); everywhere else the exact pin is correctly tighter.
+  an unpinned Mollusk graph resolves and then fails to *build*. Unlike `solana-address` these are
+  dev-dependencies, so they shape the workspace lock without every sibling having to declare
+  them — only `token_ticket_swap` and `floor-registry` carry them. Drop all three rows on the day
+  Anchor V2 moves to `wincode 0.6`, never one at a time.
 - **The tag, not the branch, from m02-l1 onward.** The `anchor-next` tip has already moved to
-  `wincode 0.6` and demands `solana-address 2.7.0`. Track the branch and the `=2.6.0` pin refuses
-  the resolve before anything compiles. m01-l2 installs off the branch **on purpose**, because the
+  `wincode 0.6` and demands `solana-address 2.7.0`. Track the branch and the `< 2.7` ceiling —
+  in either the exact or the range form — refuses the resolve before anything compiles. m01-l2 installs off the branch **on purpose**, because the
   install channel is that lesson's subject; every later lesson pins the tag.
 - **Solana `3.1.10` is a build pin, never a currency claim.** Current stable Agave was `v4.2.1` at
   authoring. Two lessons defuse this explicitly; do not "fix" the number to look newer.

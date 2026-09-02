@@ -156,8 +156,9 @@ const-rent = ["anchor-lang/const-rent"]   # opt in to the compile-time rent fold
 anchor-lang = { version = "2.0.0-rc.1", default-features = false, features = ["alloc"] }
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
-# Widened in m06-l1 when Mollusk arrived, and it stays widened: this is that same crate.
-# The ceiling below 2.7 is the constraint that matters; 2.6.1 is still on wincode 0.5.
+# The arcade-workspace row, unchanged since m02-l1 and confirmed in m06-l1 when Mollusk
+# arrived: this is that same crate. The ceiling below 2.7 is the constraint that matters;
+# 2.6.1 is still on wincode 0.5. Every member of the workspace carries this same row.
 solana-address = ">=2.6.1, <2.7"
 
 [dev-dependencies]

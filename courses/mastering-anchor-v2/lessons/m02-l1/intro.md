@@ -149,7 +149,7 @@ cargo install --git https://github.com/otter-sec/anchor.git \
 
 Do not verify V2 content on the 1.1.2 toolchain; the account model is different and the code below will not behave the same.
 
-**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — this is a fresh scaffold, so the pins have to be re-added here or the first build dies in the `#[program]` expansion. The scaffold writes `anchor-lang` as a git row tracking the `anchor-next` branch; edit it to the crates.io version, exactly as m01-l2 did, because that is the only source that resolves against the two pins under it. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
+**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — this is a fresh scaffold, so the pins have to be re-added here or the first build dies in the `#[program]` expansion. The scaffold writes `anchor-lang` as a git row tracking the `anchor-next` branch; edit it to the crates.io version, exactly as m01-l2 did, because that is the only source that resolves against the two pins under it. One of those two pins changes shape here, and the reason is worth a sentence now rather than a surprise in module 6: the greeter was a throwaway workspace of one, but this crate is the first rung of the arcade, and every later rung joins it in the same workspace. A workspace resolves **one** `solana-address` for all of its members, so the row has to be a ceiling every member can agree on rather than an equality only one of them can. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
 
 ```toml
 [dependencies]
@@ -158,7 +158,11 @@ Do not verify V2 content on the 1.1.2 toolchain; the account model is different 
 anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
-solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+# A ceiling, not an equality. 2.7.0 is the version that moved to wincode 0.6; 2.6.1 is
+# still on 0.5. Every crate in the arcade workspace carries this exact row, because the
+# workspace resolves one solana-address for all of them and module 6 adds a Mollusk
+# dev-dependency whose SVM stack reaches ^2.6.1. `=2.6.0` in any member refuses it.
+solana-address = ">=2.6.1, <2.7"
 bytemuck = "1.25"          # you added this in the opener
 
 [dev-dependencies]

@@ -18,7 +18,9 @@ Then open `programs/quarter-prize/Cargo.toml` and add the vault you already buil
 anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
-solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+# The arcade-workspace row from m02-l1, verbatim. R3 lands in R2's workspace, and the
+# two share one lock: the members have to agree on solana-address or nothing resolves.
+solana-address = ">=2.6.1, <2.7"
 quarter-vault = { path = "../quarter-vault", features = ["cpi"] }
 ```
 

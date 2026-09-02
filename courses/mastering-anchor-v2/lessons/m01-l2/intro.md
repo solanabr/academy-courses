@@ -173,6 +173,8 @@ A precise word about versions here, because it matters for the whole course. Thi
 
 Note: 3.1.10 is the local-CI pin, NOT "current Solana" (current stable Agave: v4.2.1, Aug 2026).
 Note: the two anchor-cli rows report the SAME version string. Only the ref distinguishes them.
+Note: solana-address is =2.6.0 for this greeter, a workspace of one. From m02-l1 the arcade
+programs share a workspace, and every member of it reads ">=2.6.1, <2.7" instead. Same ceiling.
 Label tension: crates.io says "rc", the benchmarks page says "alpha". Pinned + re-verified on purpose.
 ```
 
@@ -280,7 +282,7 @@ wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```
 
-Those three rows are the pin set every program crate in this course carries, and they are the reason the `anchor-lang` row had to move off the branch. Try it the other way and cargo will not even get as far as compiling:
+Those three rows are the pin set every program crate in this course carries, and they are the reason the `anchor-lang` row had to move off the branch. The greeter is a workspace of one, so the exact `=2.6.0` states the constraint fine here; from m02-l1 on, where the programs share a workspace and cargo has to resolve one `solana-address` for all of them, that row is written as the range `">=2.6.1, <2.7"` instead. Same ceiling, stated so more than one crate can agree with it — m02-l1 makes the argument. Try it the other way and cargo will not even get as far as compiling:
 
 ```
 error: failed to select a version for `solana-address`.

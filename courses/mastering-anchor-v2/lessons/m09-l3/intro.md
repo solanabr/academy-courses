@@ -19,9 +19,11 @@ Then open `programs/floor-registry/Cargo.toml` and pull each rung in as a depend
 anchor-lang = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
-# One row wider than the rungs, for the reason m06-l1 gave: Step 4 puts Mollusk in this
-# crate, and Mollusk's SVM stack reaches solana-address ^2.6.1. The ceiling is what the
-# pin was always for — 2.6.1 is still wincode 0.5, and 2.7.0 is the version that moved.
+# The arcade-workspace row, identical to the one every rung has carried since m02-l1.
+# Step 4 puts Mollusk in this crate, and Mollusk's SVM stack reaches solana-address
+# ^2.6.1; the ceiling is what the pin was always for — 2.6.1 is still wincode 0.5, and
+# 2.7.0 is the version that moved. The registry and the four rungs it pulls in are one
+# workspace and one lock, so all five members must read this row, not just this one.
 solana-address = ">=2.6.1, <2.7"
 cabinet-counter   = { path = "../cabinet-counter",   features = ["cpi"] }
 quarter-vault     = { path = "../quarter-vault",     features = ["cpi"] }
@@ -196,7 +198,7 @@ export SBF_OUT_DIR=$PWD/target/deploy   # Mollusk reads this, not target/deploy 
 cargo test -p floor-registry         # runs BOTH suites
 ```
 
-> Pin note, and it is the reason the `solana-address` row at the top of this lesson reads `">=2.6.1, <2.7"` rather than the `=2.6.0` every rung carries. Leave it at `=2.6.0` and the four rows above do not even resolve: Mollusk's SVM stack reaches `solana-address ^2.6.1`, and an exact pin refuses it before anything compiles. The two range rows are the same hazard one level further down — `solana-short-vec 3.3.0` and `solana-signature 3.5.0` moved to `wincode 0.6` while still satisfying `solana-message`, so without them the resolve succeeds and the *build* dies. All three rows say one thing: hold this graph on `wincode 0.5`, the line rc.1 wants. They retire together, on the day V2 moves to 0.6.
+> Pin note, and it is the reason the `solana-address` row at the top of this lesson — and in all four rungs it pulls in — reads `">=2.6.1, <2.7"` rather than an exact `=2.6.0`. The scope is the workspace, not this crate. `cargo` resolves one `solana-address` for every member at once, so a single rung still holding `=2.6.0` fails the whole resolve with `all possible versions conflict`, and the registry never gets as far as compiling. Mollusk's SVM stack reaches `solana-address ^2.6.1`; an exact pin anywhere in the workspace refuses it. The two range rows below are the same hazard one level further down, and they behave differently: they are dev-dependencies of this crate, so they shape the lock without every sibling having to declare them — `solana-short-vec 3.3.0` and `solana-signature 3.5.0` moved to `wincode 0.6` while still satisfying `solana-message`, so without them the resolve succeeds and the *build* dies. All three rows say one thing: hold this graph on `wincode 0.5`, the line rc.1 wants. They retire together, on the day V2 moves to 0.6.
 
 Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved; their imports ride `anchor_lang` and `anchor_v2_testing` and reach past neither, the same shape every LiteSVM test in this course has used. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`, importing `Account`, `Instruction`, and `Pubkey` from `solana_sdk`. Keep the two suites in separate test files: they speak two different SVM stacks, and a file that mixes their types will not compile — separate files is the whole requirement, and the two suites then sit in one crate happily. You need at least one Mollusk test for `settle_prize`, because that printed integer is the "before" number Step 7 asks you to record.
 

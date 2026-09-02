@@ -110,7 +110,7 @@ anchor-spl  = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 # They are already in this file from m03-l1; keep them when you add the SPL rows above.
 wincode = { version = "0.5", features = ["derive"] }
-solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
+solana-address = ">=2.6.1, <2.7"   # the arcade-workspace row from m02-l1, unchanged
 ```
 
 Freshness note: `anchor-lang` and `anchor-spl` move together on the V2 line, so pin both to the *same* version string and change them together. The trap here is the version, not the source: the crate names are identical on both lines, so `anchor-spl = "1"` — or a bare `anchor-spl = "*"` that resolves to the 1.x line — hands you the V1 crate under the V2 name, the account handle types will not line up, and you get type errors right at the CPI. The explicit `2.0.0-rc.1` is what keeps you on the V2 line, and because the registry forbids republishing a version it cannot drift the way the `anchor-next` branch tip does.
