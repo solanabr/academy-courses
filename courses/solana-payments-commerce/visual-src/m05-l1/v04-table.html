@@ -12,7 +12,7 @@
 <body>
 <!-- table: The guard: three questions before every pull
      purpose: give the reader the exact decision table they are about to implement as the completion exercise
-     data: Question 1: is a delegate set on the account at all? no  -> refuse, reason delegate-revoked (owner ran Revoke) Question 2: is the delegate OUR crank address? no  -> refuse, reason delegate-revoked (a competing approval evicted us) Question 3: does delegatedAmount cover this cycle's pull? no  -> refuse, reason insufficient-allowance (tank is dry, ask for re-approval) All yes -> pull, and expect on-chain allowance to equal delegatedAmount minus pull
+     data: Question 1: is a delegate set on the account at all? no  -> refuse, reason delegate-revoked (owner ran Revoke, or an earlier pull emptied the allowance and the Token program cleared the slot) Question 2: is the delegate OUR crank address? no  -> refuse, reason delegate-revoked (a competing approval evicted us) Question 3: does delegatedAmount cover this cycle's pull? no  -> refuse, reason insufficient-allowance (something is left, just not enough: ask for re-approval) All yes -> pull, and expect on-chain allowance to equal delegatedAmount minus pull
      prompt: A three-row decision table. Each row: a question in plain language, a monospace field check (delegate is null; delegate != crank; delegatedAmount < pull), and the refusal reason string it produces (delegate-revoked, delegate-revoked, insufficient-allowance). A final full-width success row: all checks pass, pull proceeds, allowance decrements. Reason strings styled as code.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -72,7 +72,7 @@
     </div>
     <div class="trow">
       <div class="c c1"><span class="qnum">1</span><span class="q">is a delegate set on the account at all?</span>
-        <small>no &mdash; the owner ran Revoke</small></div>
+        <small>no &mdash; the owner ran Revoke, or a pull emptied the allowance and cleared the slot</small></div>
       <div class="c c2"><span class="chk">delegate is null</span></div>
       <div class="c c3"><span class="refuse">refuse</span><span class="why">delegate-revoked</span></div>
     </div>
@@ -84,7 +84,7 @@
     </div>
     <div class="trow">
       <div class="c c1"><span class="qnum">3</span><span class="q">does delegatedAmount cover this cycle's pull?</span>
-        <small>no &mdash; tank is dry, ask for re-approval</small></div>
+        <small>no &mdash; something is left, just not enough: ask for re-approval</small></div>
       <div class="c c2"><span class="chk">delegatedAmount &lt; pull</span></div>
       <div class="c c3"><span class="refuse">refuse</span><span class="why">insufficient-allowance</span></div>
     </div>

@@ -12,8 +12,8 @@
 <body>
 <!-- chart: A 60-USDC approval across five 15-USDC pull attempts
      purpose: fix the decrement-not-reset mental model with the lesson's one worked number
-     data: Pull 1: allowance before 60, after 45, result OK Pull 2: allowance before 45, after 30, result OK Pull 3: allowance before 30, after 15, result OK Pull 4: allowance before 15, after 0, result OK Pull 5: allowance before 0, needs 15, result FAILS, insufficient delegated amount Refill: only a fresh ApproveChecked signed by the owner
-     prompt: A descending step chart of the remaining allowance across five pull attempts: 60, 45, 30, 15, 0. The first four steps marked with a check as successful 15-USDC pulls; the fifth attempt marked failed at zero with the label "insufficient delegated amount". A dashed arrow from the failure back up to 60 labeled "new ApproveChecked, owner signs again". Axis labeled in USDC.
+     data: Pull 1: allowance before 60, after 45, result OK Pull 2: allowance before 45, after 30, result OK Pull 3: allowance before 30, after 15, result OK Pull 4: allowance before 15, after 0, result OK and the Token program clears the delegate at zero Pull 5: allowance 0 and no delegate on the account, needs 15, result FAILS, delegate already revoked Refill: only a fresh ApproveChecked signed by the owner
+     prompt: A descending step chart of the remaining allowance across five pull attempts: 60, 45, 30, 15, 0. The first four steps marked with a check as successful 15-USDC pulls, the fourth also noting that zeroing the allowance clears the delegate; the fifth attempt marked failed at zero with the label "delegate already revoked". A dashed arrow from the failure back up to 60 labeled "new ApproveChecked, owner signs again". Axis labeled in USDC.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -72,7 +72,7 @@
         <div class="cell"><div class="bar" style="height:234px;">45</div></div>
         <div class="cell"><div class="bar" style="height:156px;">30</div></div>
         <div class="cell"><div class="bar" style="height:78px;">15</div></div>
-        <div class="cell"><div class="bar-need"><span>0 left</span><b>needs 15</b></div></div>
+        <div class="cell"><div class="bar-need"><span>0 left</span><b>no delegate</b></div></div>
       </div>
       <svg width="1200" height="330" viewBox="0 0 1200 330"
            style="position:absolute; top:0; left:0;">
@@ -86,10 +86,10 @@
       <div class="lab"><div class="p">pull 1 &middot; &minus;15</div><div class="r ok">OK &rarr; 45</div></div>
       <div class="lab"><div class="p">pull 2 &middot; &minus;15</div><div class="r ok">OK &rarr; 30</div></div>
       <div class="lab"><div class="p">pull 3 &middot; &minus;15</div><div class="r ok">OK &rarr; 15</div></div>
-      <div class="lab"><div class="p">pull 4 &middot; &minus;15</div><div class="r ok">OK &rarr; 0</div></div>
-      <div class="lab"><div class="p">pull 5 &middot; needs 15</div><div class="fail">&#10007; insufficient delegated amount</div></div>
+      <div class="lab"><div class="p">pull 4 &middot; &minus;15</div><div class="r ok">OK &rarr; 0, delegate cleared</div></div>
+      <div class="lab"><div class="p">pull 5 &middot; needs 15</div><div class="fail">&#10007; delegate already revoked</div></div>
     </div>
-    <div class="cap">every successful pull decrements the allowance &mdash; the only refill is a fresh <code>ApproveChecked</code> signed by the owner</div>
+    <div class="cap">every successful pull decrements the allowance, and the pull that lands on zero clears the delegate with it &mdash; the only refill is a fresh <code>ApproveChecked</code> signed by the owner</div>
   </div>
 
 </div>
