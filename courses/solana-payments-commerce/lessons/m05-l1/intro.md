@@ -31,7 +31,7 @@ While npm works, here is the one-sentence map: this lesson is the raw SPL Token 
 
 - `ApproveChecked` sets a delegate on a token account: an address allowed to move up to an approved amount of a specific mint, with the decimals stated so a wrong assumption fails loudly. The owner keeps ownership and can `Revoke` at any time, unilaterally, with one instruction.
 - Each token account has exactly ONE active delegate slot. Approving a new delegate automatically revokes the previous one. No per-delegate ledger, no pause state, no queue. This single rule is the design constraint the whole module orbits.
-- The approved amount is a running balance, not a cap that resets. Every delegate-signed transfer decrements it: a 60-USDC approval covers four 15-USDC pulls, and the fifth fails on insufficient delegated amount.
+- The approved amount is a running balance, not a cap that resets. Every delegate-signed transfer decrements it, and the transfer that lands it on exactly zero also clears the delegate slot: a 60-USDC approval covers four 15-USDC pulls, and the fifth finds no delegate on the account at all.
 - A backend "crank" holding the delegate keypair signs `TransferChecked` to pull funds on schedule. The subscriber signs nothing after the initial approval. The crank pays the 5000-lamport base fee per pull; the subscriber's per-cycle cost is zero signatures and zero fees.
 - The delegate can move only up-to-the-approved-amount of the approved mint from that one account. That bound is enforced by the Token program on-chain, not by the crank's goodwill. This is the honest answer to "can you drain my wallet?": no, and not because we promise.
 - Before every pull, re-read the account. The delegate may no longer be you, the allowance may be lower than your database thinks, and the on-chain state is the only ledger that matters.
@@ -85,9 +85,9 @@ The second thing Stripe-trained intuition gets wrong: the approved amount is not
 
 The record club charges 15 USDC per cycle. The subscriber approved 60. So:
 
-![A 60-USDC allowance steps down through 45, 30 and 15 across four successful pulls; the fifth pull fails, and only a fresh owner-signed approval refills it.](assets/v03-chart.png)
+![A 60-USDC allowance steps down through 45, 30 and 15 across four successful pulls; the fourth empties it and the Token program clears the delegate in the same instruction, so the fifth pull finds an empty slot, and only a fresh owner-signed approval restores both.](assets/v03-chart.png)
 
-Four pulls and the tank is dry. The fifth transaction fails at the Token program with `InsufficientFunds`, custom program error `0x1`, which here means the delegated amount ran out, not the balance; the account still holds plenty of USDC, the permission to move it is what is spent. There is nothing the crank can do about it except ask the subscriber to sign again. This is a feature wearing the costume of an inconvenience: the subscriber pre-consented to a bounded total, and the bound is doing its job. A 60-USDC approval is four months of the club, a natural re-consent cadence. You could ask for 600 up front and pull for years; some products will, and their churned users will discover a live allowance they forgot. Where you set the ceiling is a product decision the chain will not make for you. The chain only enforces whatever number the owner signed.
+Four pulls and the tank is dry, and the tank takes the tap with it. The Token program decrements `delegatedAmount` inside the delegate-signed transfer, and when that subtraction lands on exactly zero it sets the account's `delegate` back to none in the same instruction, which is the `null` your guard reads next cycle: exhausting an approval also clears it. So the fifth transaction does not fail on an empty allowance; it fails because the account has no delegate any more, which makes the crank's signature just some stranger's signature, and the Token program says so with `OwnerMismatch`, custom program error `0x4`. `InsufficientFunds`, custom program error `0x1`, is the neighboring case: an allowance too small for this pull but not yet zero, say 10 remaining against a 15-USDC charge, where the slot is still yours. Either way the account still holds plenty of USDC; the permission to move it is what is spent. There is nothing the crank can do about it except ask the subscriber to sign again. This is a feature wearing the costume of an inconvenience: the subscriber pre-consented to a bounded total, and the bound is doing its job. A 60-USDC approval is four months of the club, a natural re-consent cadence. You could ask for 600 up front and pull for years; some products will, and their churned users will discover a live allowance they forgot. Where you set the ceiling is a product decision the chain will not make for you. The chain only enforces whatever number the owner signed.
 
 One consequence worth pricing out: after the initial approval, the subscriber's cost per cycle is zero. No signature, no fee, nothing to remember. The crank pays the 5000-lamport base fee per pull, which at any plausible SOL price is a rounding error against a 15-USDC subscription. Compare that with the 2 to 3 percent a card network takes from every renewal, and you see why this shape is worth the trouble.
 
@@ -114,7 +114,7 @@ Because it is the same instruction shape, everything module 3 and 4 taught keeps
 
 The crank's real job, then, is not the transfer. It is the paragraph before the transfer: deciding whether pulling is still legitimate. I will confess the mistake so you can skip it: the first crank I wired cached the approval state at signup, because why would it change? A test wallet re-approved a different delegate mid-cycle, my crank submitted anyway, and I spent an evening staring at a custom program error 0x4 in a transaction log before the obvious sank in. The account state is the ledger. Your database is a cache with opinions. So the crank re-reads the token account every single cycle, before every pull, and answers three questions:
 
-![Three pre-pull checks map to outcomes: a missing or foreign delegate refuses as delegate-revoked, too small an allowance refuses as insufficient-allowance, and only an all-clear proceeds.](assets/v04-table.png)
+![Three pre-pull checks map to outcomes: a delegate that is missing, whether the owner revoked it or an earlier pull emptied the allowance and cleared the slot, refuses as delegate-revoked, and so does a foreign one; an allowance with something left but less than this cycle's pull refuses as insufficient-allowance; only an all-clear proceeds.](assets/v04-table.png)
 
 Could the crank skip the guard and just submit, letting the chain reject bad pulls? Mechanically yes, and the funds would be exactly as safe: the Token program enforces everything the guard checks. The guard exists because "transaction failed: custom program error 0x4" and "this subscriber revoked us, mark the subscription lapsed" are different facts to a billing system, and only one of them tells your back office what to do next. The chain gives you a no. The guard gives you the reason, before you spend a fee learning it. Those reason strings, `delegate-revoked` and `insufficient-allowance`, are the raw primitive's vocabulary, and the next two lessons keep the two names meaningful one layer down: the official program's guard adds its own reasons on top, and the continuity note in the next lesson's challenge walks the mapping explicitly.
 
@@ -207,11 +207,13 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
    }
    expectCase('allowance exhausted after four pulls', allowance === 0n);
 
-   // 2. The fifth pull is refused BEFORE submission.
-   const fifth = checkPull({ delegate: CRANK, delegatedAmount: allowance, crank: CRANK, pullBase: PULL });
-   expectCase('fifth pull rejected', !fifth.ok && fifth.reason === 'insufficient-allowance');
+   // 2. The fourth pull zeroed the allowance, so the Token program cleared the delegate
+   //    in the same instruction: cycle five reads an empty slot, refused BEFORE submission.
+   const fifth = checkPull({ delegate: null, delegatedAmount: allowance, crank: CRANK, pullBase: PULL });
+   expectCase('fifth pull rejected', !fifth.ok && fifth.reason === 'delegate-revoked');
 
-   // 3. A partial allowance never over-pulls: 10 remaining cannot cover 15.
+   // 3. A partial allowance never over-pulls: 10 remaining cannot cover 15. Non-zero
+   //    means the delegate is still set, so this is the other refusal reason.
    const partial = checkPull({ delegate: CRANK, delegatedAmount: 10_000_000n, crank: CRANK, pullBase: PULL });
    expectCase('over-pull on partial allowance rejected', !partial.ok && partial.reason === 'insufficient-allowance');
 
@@ -431,7 +433,7 @@ Two pulls, two signatures, and the printed remaining allowance stepping down 45 
 
 **Solo.** Detect the eviction. Run a second `ApproveChecked` from the subscriber approving a DIFFERENT address as delegate (generate a throwaway keypair to play the coffee shop). Your crank's next `pull.ts` run must not error blindly and must not just say "revoked": extend the pull path so that a delegate that is set-but-foreign (eviction) and a delegate that is absent (plain revoke) are recorded distinctly: keep the guard's two-reason type untouched, and in a small JSON state file next to the scripts write `{ "state": "delegate-revoked", "cause": "evicted" }` versus `"cause": "revoked"`, then skip the account on future cycles until a fresh approval to the crank appears. Acceptance: two consecutive pulls succeed and decrement; a third over-cap pull is rejected before submission; re-approving a different delegate flips the crank's stored state to `delegate-revoked`; and a fresh `ApproveChecked` back to the crank makes pulls resume. That receipt trail, two decrementing signatures, one reasoned refusal, one detected eviction, is this lesson's mastery gate. The ledger proves it; no quiz can.
 
-If a pull fails with a custom program error `0x4` from the Token program, that is the on-chain spelling of "owner does not match," which for a delegate-signed transfer means the delegate check failed at the program: your guard read one account and your transfer targeted another, almost always a `SUBSCRIBER_ADDRESS` env var pointing at the wrong keypair.
+If a pull fails with a custom program error `0x4` from the Token program, that is the on-chain spelling of "owner does not match," which for a delegate-signed transfer means the account's delegate slot does not hold your crank: either it was revoked, evicted, or emptied to zero by an earlier pull, or your guard read one account and your transfer targeted another, almost always a `SUBSCRIBER_ADDRESS` env var pointing at the wrong keypair.
 
 One note for the feedback loop: this is the module where the course starts trusting you with scaffolds instead of finished files, and the guard TODOs are calibrated to the decision table above. If they took you more than twenty minutes, or the eviction detection felt under-specified, say so in the course feedback; how much scaffolding the next revision hands you is tuned by exactly these reports. The parts that fought you are the parts the next revision sharpens.
 
