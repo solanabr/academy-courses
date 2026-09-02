@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: Where stablecoin rails fit, and where they do not
      purpose: compress the lesson's trade-off into a fit matrix the reader can defend in a design review
-     data: Strong fit: cross-border payments (no correspondent-bank days, near-zero fees); micro and small-ticket sales (flat sub-cent base fee vs percentage interchange); instant-settlement needs (settled means spendable in seconds, no multi-day holds) Weak fit: high-fraud consumer verticals where buyers expect reversal on demand (finality deletes the dispute path); businesses whose product is effectively reversibility (bank-backed undo is the value proposition); flows where compliance requires an institutional reversal path
+     data: Strong fit: micro and small-ticket sales (flat sub-cent base fee vs percentage interchange); escaping settlement float (settled means spendable in seconds, no D+30 schedule and no fee to anticipate it); cross-border payments, listed last (no correspondent-bank days, near-zero fees) Weak fit: high-fraud consumer verticals where buyers expect reversal on demand (finality deletes the dispute path); businesses whose product is effectively reversibility (bank-backed undo is the value proposition); flows where compliance requires an institutional reversal path
      prompt: Two-column fit matrix, "Strong fit" and "Weak fit" as column headers, three labeled rows per column, each row a short scenario name with a one-line reason underneath. Style the two columns as equal weight: this is a judgment aid, not an advertisement, so give the weak-fit column the same visual dignity as the strong-fit column.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -46,9 +46,9 @@
   <div class="cols">
     <div class="fitcol">
       <div class="fh strong">strong fit</div>
-      <div class="frow"><div class="nm">cross-border payments</div><div class="rs">no correspondent-bank days, near-zero fees</div></div>
       <div class="frow"><div class="nm">micro &amp; small-ticket sales</div><div class="rs">flat sub-cent base fee vs percentage interchange</div></div>
-      <div class="frow"><div class="nm">instant-settlement needs</div><div class="rs">settled means spendable in seconds &mdash; no multi-day holds</div></div>
+      <div class="frow"><div class="nm">escaping settlement float</div><div class="rs">settled means spendable in seconds &mdash; no D+30, no fee to anticipate it</div></div>
+      <div class="frow"><div class="nm">cross-border payments</div><div class="rs">no correspondent-bank days, near-zero fees</div></div>
     </div>
     <div class="fitcol">
       <div class="fh weak">weak fit</div>

@@ -43,7 +43,7 @@ blocks:
             label: "Nothing at all. Transfers on Solana are free, so there is no fee line to budget for."
             correct: false
             feedback: "Not free: every transaction pays a base fee of 5000 lamports plus any priority fee. It is tiny, but budgeting it as literally zero will bite you at scale and on account creation."
-        explanation: "The base fee is a flat 5000 lamports per signature, so a typical payment costs under $0.001, orders of magnitude below card interchange and, crucially, flat rather than percentage-based. That flips the economics for small-ticket and cross-border sales. Account creation has its own one-time rent cost, which you meet next module where token accounts appear."
+        explanation: "The base fee is a flat 5000 lamports per signature, so a typical payment costs under $0.001, orders of magnitude below card interchange and, crucially, flat rather than percentage-based. That flips the economics for small-ticket sales, and it deletes the float: nothing is held back on a schedule, so there is nothing to anticipate. Account creation has its own one-time rent cost, which you meet next module where token accounts appear."
       - id: m01-l2-q3
         prompt: "Your finance lead loves that 'chargebacks don't exist' on these rails. What is the honest other half of that trade you should tell them?"
         multiSelect: false
@@ -70,11 +70,11 @@ blocks:
             correct: true
             feedback: "The poor fit is the shopper's expectation of an institutional undo, which finality removes by design. High value alone is not the problem; a contract can carry the dispute."
           - id: b
-            label: "A cross-border micro-payment where the receiving bank sits on the funds for three days and percentage-based card interchange would eat most of the ticket."
+            label: "A small-ticket sale where percentage-based card interchange would eat most of the ticket and the acquirer's settlement schedule would sit on the money for a month."
             correct: false
-            feedback: "This is a strong fit, not a weak one. Flat sub-cent fees are exactly where these rails beat percentage-based interchange, and instant settlement is what removes the multi-day hold."
+            feedback: "This is a strong fit, not a weak one. Flat sub-cent fees are exactly where these rails beat percentage-based interchange, and settled-in-seconds is what deletes the D+30 wait and the fee for escaping it."
           - id: c
             label: "A merchant who wants instant, low-fee settlement with no multi-day holding periods on funds."
             correct: false
             feedback: "Also a strong fit: instant settlement with no holding times is a headline advantage of these rails, not a reason to avoid them."
-        explanation: "The rails shine for low-fee, cross-border, instant-settlement flows, which is why 2025 saw over $1 trillion in stablecoin volume on Solana. They fit worst where the buyer's core expectation is bank-backed reversibility and dispute rights, because no-chargeback finality removes exactly that. 'When not to use it' is a feature of an honest mental model, not a hedge."
+        explanation: "The rails shine for low-fee, instant-settlement flows, which is why 2025 saw over $1 trillion in stablecoin volume on Solana. They fit worst where the buyer's core expectation is bank-backed reversibility and dispute rights, because no-chargeback finality removes exactly that. 'When not to use it' is a feature of an honest mental model, not a hedge."
