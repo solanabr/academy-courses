@@ -58,7 +58,7 @@ blocks:
             correct: false
             feedback: "Delegate authority is bounded on-chain by the approved amount and mint; it is not full control of the account."
           - id: c
-            label: "No, but only because the crank chooses to self-limit; technically it could take everything if it wanted."
+            label: "No, but only because the crank chooses to self-limit its withdrawals to the plan amount; the approval itself would let it take the whole balance."
             correct: false
             feedback: "The limit is enforced by the Token program via the approved amount, not by the crank's goodwill."
         explanation: "The bound is on-chain: approved amount, specific mint, single account, revocable. That is the whole non-custodial promise: no custody of keys or funds, just a capped, revocable pull permission."

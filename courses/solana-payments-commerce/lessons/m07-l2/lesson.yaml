@@ -27,7 +27,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The agent is malicious; reject every transaction that does not match your rebuild exactly."
+            label: "The agent is malicious: it appended its own instructions to the quote you issued, so treat any deviation from your server-side rebuild as tampering and reject the payment."
             correct: false
             feedback: "The mismatch is caused by the wallet, not the agent. Rejecting all of them blocks legitimate Phantom/Solflare users, which is why the verifier allowlists the guard program instead of banning it."
           - id: b

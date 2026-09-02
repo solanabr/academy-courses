@@ -41,7 +41,7 @@ blocks:
             correct: true
             feedback: "A payment needs a fee floor that lands, not an optimiser, so depth here is scope you cannot maintain. Naming a handoff is not skipping it: the box still holds a default that works."
           - id: c
-            label: "Skip priority fees; payments are low-value, so the base 5000-lamport fee always lands them."
+            label: "Skip priority fees: payments are small and low-value, so the base 5000-lamport fee is enough to land them even in a congested slot."
             correct: false
             feedback: "Under congestion a bare base-fee tx can be dropped; a practical priority-fee floor still matters."
         explanation: "This is a boundary the course keeps honest: a one-box priority-fee recipe lands payment transactions reliably, and the deep landing strategy belongs to Client-Side Mastery. The gate names the handoff rather than faking depth."

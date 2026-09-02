@@ -52,7 +52,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Nothing extra: his wallet address receives the tokens directly the moment you send."
+            label: "Nothing extra: the token program credits his wallet address directly, so the balance simply appears there the moment your transfer lands, the same way a SOL transfer does."
             correct: false
             feedback: "A wallet cannot hold an SPL token directly; tokens live in a per-mint token account, which must exist first."
           - id: b

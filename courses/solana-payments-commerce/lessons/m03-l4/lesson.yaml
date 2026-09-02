@@ -49,7 +49,7 @@ blocks:
             correct: false
             feedback: "There is no HTTP/2, preflight-exemption, or raw-bytes requirement; the transaction is base64, and the loading failure is about discovery and CORS."
           - id: c
-            label: "You must register the domain with your RPC provider and attach an API key header to every GET the wallet makes."
+            label: "You must register the domain with your RPC provider and have the wallet attach your API key header to every GET it makes, or the provider refuses the fetch."
             correct: false
             feedback: "Wallets do not send your RPC API key; discovery is via actions.json plus CORS, not RPC registration."
         explanation: "Blinks are discovered through actions.json at the domain root and loaded cross-origin, so both the actions endpoints and actions.json must send Access-Control-Allow-Origin: *. Missing either one is the classic 'works in curl, dead in a wallet' failure."

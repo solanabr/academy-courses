@@ -40,7 +40,7 @@ blocks:
             correct: true
             feedback: "Inverting who assembles the transaction moves pricing and memos out of the customer's reach. It costs the offline property: a live HTTPS endpoint is now a checkout dependency."
           - id: c
-            label: "The customer's wallet builds a smart-contract call instead of a plain transfer, and your server only co-signs it after the fact."
+            label: "The customer's wallet builds a smart-contract call instead of a plain transfer, and your server's HTTPS endpoint only co-signs the result after the wallet has assembled and signed it."
             correct: false
             feedback: "The wallet does not author the transaction here; your server does. There is no separate client-built contract call for the server to co-sign."
         explanation: "A transfer request (solana:<recipient>?...) has the wallet assemble a transfer from URL parameters. A transaction request (solana:<https-link>) inverts that: the wallet GETs display metadata, POSTs the paying account, and your server returns a complete base64 transaction. Moving construction server-side is what unlocks cart logic, memos, and references you control."
