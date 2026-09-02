@@ -2,7 +2,9 @@ id: lesson-spc-m01-l2
 slug: m01-l2
 title: "Finality vs the card stack: the payments mental model"
 skills:
-  - solana-fundamentals
+  - confirmation
+  - transaction-fees
+  - payment-model-selection
 blocks:
   - key: intro
     type: prose

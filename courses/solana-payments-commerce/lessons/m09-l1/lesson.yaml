@@ -2,6 +2,9 @@ id: lesson-spc-m09-l1
 slug: m09-l1
 title: "Assembly: one store, every rail"
 skills:
+  - solana-pay
+  - x402-protocol
+  - subscriptions-program
   - solana-kit
 blocks:
   - key: intro

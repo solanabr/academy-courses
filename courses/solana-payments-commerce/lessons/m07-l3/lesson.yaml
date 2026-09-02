@@ -2,9 +2,9 @@ id: lesson-spc-m07-l3
 slug: m07-l3
 title: "MPP, AP2, ACP: the standards war (and gating the API with pay)"
 skills:
-  - transactions
-  - solana-kit
-  - solana-fundamentals
+  - x402-protocol
+  - api-monetization
+  - payment-model-selection
 blocks:
   - key: intro
     type: prose

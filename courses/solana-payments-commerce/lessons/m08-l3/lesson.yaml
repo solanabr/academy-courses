@@ -2,8 +2,9 @@ id: lesson-spc-m08-l3
 slug: m08-l3
 title: "The production gate: a go-live checklist that means it"
 skills:
-  - transactions
-  - solana-kit
+  - confirmation
+  - compute-budget
+  - transaction-fees
 blocks:
   - key: intro
     type: prose

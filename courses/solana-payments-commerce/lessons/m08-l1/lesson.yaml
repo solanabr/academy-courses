@@ -2,8 +2,8 @@ id: lesson-spc-m08-l1
 slug: m08-l1
 title: "Gasless with Kora: nobody brings SOL to a record fair"
 skills:
-  - transactions
-  - solana-kit
+  - signers
+  - transaction-fees
 blocks:
   - key: intro
     type: prose

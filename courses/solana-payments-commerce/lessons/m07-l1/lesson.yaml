@@ -2,9 +2,9 @@ id: lesson-spc-m07-l1
 slug: m07-l1
 title: "HTTP 402, revived: the x402 protocol"
 skills:
-  - transactions
-  - solana-kit
-  - solana-fundamentals
+  - x402-protocol
+  - signers
+  - compute-budget
 blocks:
   - key: intro
     type: prose

@@ -3,7 +3,7 @@ slug: m08-l2
 title: "Deferred payments: durable nonces at the fair (and the outage that scarred them)"
 skills:
   - transactions
-  - solana-kit
+  - signers
 blocks:
   - key: intro
     type: prose

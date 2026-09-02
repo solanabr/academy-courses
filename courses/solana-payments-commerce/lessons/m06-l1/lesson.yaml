@@ -2,7 +2,7 @@ id: lesson-spc-m06-l1
 slug: m06-l1
 title: "Onramps, and the way back out"
 skills:
-  - solana-fundamentals
+  - payment-model-selection
 blocks:
   - key: intro
     type: prose

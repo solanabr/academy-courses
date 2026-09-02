@@ -2,7 +2,8 @@ id: lesson-spc-m03-l3
 slug: m03-l3
 title: "The record fair: POS, and the mobile-hardware reality"
 skills:
-  - transactions
+  - solana-pay
+  - confirmation
 blocks:
   - key: intro
     type: prose

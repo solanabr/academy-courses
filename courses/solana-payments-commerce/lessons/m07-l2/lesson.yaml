@@ -2,9 +2,8 @@ id: lesson-spc-m07-l2
 slug: m07-l2
 title: "Paywall the pressing-price API, then build the bot that pays it"
 skills:
-  - transactions
-  - solana-kit
-  - solana-fundamentals
+  - x402-protocol
+  - api-monetization
 blocks:
   - key: intro
     type: prose

@@ -2,8 +2,9 @@ id: lesson-spc-m02-l2
 slug: m02-l2
 title: "The 2026 stablecoin roster: PYUSD, Token-2022, and how USDC travels"
 skills:
-  - keypairs-wallets
-  - account-model
+  - token-2022
+  - spl-tokens
+  - checked-arithmetic
 blocks:
   - key: intro
     type: prose

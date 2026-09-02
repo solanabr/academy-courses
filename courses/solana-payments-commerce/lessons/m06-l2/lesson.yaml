@@ -2,7 +2,8 @@ id: lesson-spc-m06-l2
 slug: m06-l2
 title: "Acceptance and corridors: Stripe, MoonPay Commerce, and PIX"
 skills:
-  - solana-fundamentals
+  - payment-model-selection
+  - brazil-compliance
 blocks:
   - key: intro
     type: prose

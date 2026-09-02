@@ -2,8 +2,11 @@ id: lesson-spc-m05-l2
 slug: m05-l2
 title: "The official Subscriptions program: plans, PDAs, and the kit-7 seam"
 skills:
-  - account-model
-  - solana-programs
+  - subscriptions-program
+  - recurring-delegation
+  - pdas
+  - token-2022
+  - program-security
 blocks:
   - key: intro
     type: prose

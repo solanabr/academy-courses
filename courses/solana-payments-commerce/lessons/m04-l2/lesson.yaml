@@ -2,8 +2,8 @@ id: lesson-spc-m04-l2
 slug: m04-l2
 title: "Webhooks that lie: ingestion and idempotency"
 skills:
-  - rpc-reads
-  - transactions
+  - confirmation
+  - error-handling
 blocks:
   - key: intro
     type: prose

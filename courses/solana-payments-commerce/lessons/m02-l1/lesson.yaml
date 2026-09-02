@@ -2,8 +2,11 @@ id: lesson-spc-m02-l1
 slug: m02-l1
 title: "Anatomy of a USDC payment: mints, ATAs, and the transfer-kit"
 skills:
-  - keypairs-wallets
+  - spl-tokens
   - account-model
+  - pdas
+  - checked-arithmetic
+  - version-pinning
 blocks:
   - key: intro
     type: prose
