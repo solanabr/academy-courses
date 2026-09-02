@@ -5,9 +5,11 @@ This is lesson one, so nothing is built yet. You arrive with the Solana mental m
 Before I define a single thing, do this. Open a terminal with the `solana` CLI you already have and confirm a transaction I already landed on devnet for you:
 
 ```bash
-# The two twin programs live on devnet already. Their IDs and reference
+# The two twin programs live on devnet. Their IDs and reference
 # signatures ship with the course materials, in TWINS.md. That file is mine,
-# handed to you. Next lesson you start PINS.md, a pins file of your own, and
+# handed to you — and it has not landed yet: TWINS.md and the two devnet twins
+# it points at are still pending delivery, so this one run waits on them.
+# Next lesson you start PINS.md, a pins file of your own, and
 # every pin in it carries a "verified on <date>" freshness note.
 export V1_TWIN_SIG="<v1-twin-signature from TWINS.md>"
 

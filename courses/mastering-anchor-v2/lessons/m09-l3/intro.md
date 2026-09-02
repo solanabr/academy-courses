@@ -4,7 +4,15 @@ You just diffed your native vault against the V2 macro expansion, line by line, 
 
 Here is the pain, stated plain. Every rung you built stands alone. The cabinet-counter counts. The quarter-vault holds. The prize-escrow settles. The token-ticket swap quotes. Four programs, four green test suites, four devnet deploys, and not one of them knows the others exist. An arcade is not four machines in four rooms. It is a floor: a play bumps a counter, the counter feeds a credit into a vault, a win releases a prize from an escrow, and a pile of tickets swaps for something at the counter. Nobody wired the floor yet. That is the capstone, and it is almost entirely yours.
 
-So let us make it exist before the theory. Scaffold the last program and point it at the four you already shipped. No new install for this part:
+One piece of housekeeping first, because the dependency rows below assume it. R1 has been living on its own since m02-l1: `anchor init cabinet-counter` made it a workspace of one, while R2, R3, and R4 all grew inside the `quarter-vault` workspace you started in m03-l1. The registry needs all four as path dependencies of a single crate, so move R1 in before you scaffold anything. From the root of that arcade workspace:
+
+```bash
+cp -R ../cabinet-counter/programs/cabinet-counter programs/cabinet-counter
+```
+
+Then register it the way `anchor new` would have: add it to the workspace `Cargo.toml`'s `members` if that list names programs one by one rather than globbing `programs/*`, and add its row under `[programs.localnet]` in `Anchor.toml`. Keep the `declare_id!` the crate arrives with — that id matches the keypair you deployed R1 with in m02-l1, and hand-editing it orphans the deploy; carry `target/deploy/cabinet-counter-keypair.json` across with it and `anchor keys sync` will confirm the pair still matches. One last check while you are in there: its `solana-address` row has to read the range from m02-l1, because R1 is a member of this workspace now and a single member holding an equality fails the whole resolve.
+
+Now let us make the floor exist before the theory. Scaffold the last program and point it at the four you already shipped. No new install for this part:
 
 ```bash
 anchor new floor-registry   # adds programs/floor-registry to the workspace
@@ -25,10 +33,12 @@ wincode = { version = "0.5", features = ["derive"] }
 # 2.7.0 is the version that moved. The registry and the four rungs it pulls in are one
 # workspace and one lock, so all five members must read this row, not just this one.
 solana-address = ">=2.6.1, <2.7"
+# R3 is the crate `quarter-prize` (m04-l3's scaffold). "prize-escrow" is the role it
+# plays on the floor, not the name cargo knows it by; the path row needs the name.
 cabinet-counter   = { path = "../cabinet-counter",   features = ["cpi"] }
 quarter-vault     = { path = "../quarter-vault",     features = ["cpi"] }
-prize-escrow      = { path = "../prize-escrow",       features = ["cpi"] }
-token-ticket-swap = { path = "../token-ticket-swap",  features = ["cpi"] }
+quarter-prize     = { path = "../quarter-prize",     features = ["cpi"] }
+token-ticket-swap = { path = "../token-ticket-swap", features = ["cpi"] }
 ```
 
 Run `anchor build`. It will compile a registry that does nothing yet, but the four `cpi` modules are now in scope, and the compiler will start telling you exactly which handles each rung expects. That feedback loop is the whole lab.
@@ -167,7 +177,7 @@ Expected result: `anchor build` compiles the registry with one instruction and n
 
 - `route_credit` calls `quarter_vault::cpi::deposit(cpi_ctx, amount)`. That is R2 as it stands after module 5: the SPL-upgraded vault, whose `deposit` moves tokens with `transfer_checked`, not the lamport version from module 4. So the accounts you fill are the vault state, the depositor, the mint, and the two token accounts. The player is the depositor and signs, so this is a plain `CpiContext::new`, no signer seeds. Same shape as the escrow's `reserve`, one rung out.
 - `quote_swap` calls `token_ticket_swap::cpi::swap_arcade_for_tickets(cpi_ctx, amount_in, min_out)`. Read the reserves you need before you open any handle, then pass the swap's accounts. The slippage guard lives inside R4 already; the registry just routes.
-- `settle_prize` calls `prize_escrow::cpi::redeem(cpi_ctx, final_score)`. This is the two-hop call, so mind the depth: the escrow will itself CPI the vault to release. The registry does not sign for the escrow's PDA. The escrow signs for itself, as it always has.
+- `settle_prize` calls `quarter_prize::cpi::redeem(cpi_ctx, final_score)` — R3, the prize-escrow, whose crate cargo knows as `quarter-prize`. This is the deepest call on the floor, so mind the depth: the escrow will itself CPI the vault to release. The registry does not sign for the escrow's PDA. The escrow signs for itself, as it always has.
 
 Two of these have a wrinkle worth flagging before you hit it. `quote_swap` reads the pool's reserves to size the trade, and that read has to happen before you open any handle from those same reserve accounts, or the borrow checker stops you cold. This is the swap's own read-before-handle discipline, now one layer out: the registry reads, then routes. And `settle_prize` is the deepest path on the floor, so keep the depth diagram in mind. Count it precisely, because the number is the point: your top-level instruction is height 1, the registry's call into the escrow is 2, the escrow's call into the vault is 3, and the vault's `transfer_checked` into the token program is 4. Four of the five the runtime allows. One nested call of headroom left. Add a rung between the registry and the escrow and you have spent it.
 

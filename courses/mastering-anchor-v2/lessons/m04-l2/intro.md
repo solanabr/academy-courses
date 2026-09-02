@@ -356,7 +356,7 @@ pub fn refund(ctx: &mut Context<Refund>, amount: u64) -> Result<()> {
 }
 ```
 
-Notice, before you touch it, that this handler already reads `vault_ta.amount()` once, legally: the over-refund guard at the top runs before any handle exists. The same read four lines later is the one the compiler rejects — and even if it compiled, it would be the *pre*-refund balance, the wrong number for an event that promises the balance left behind. The borrow error and the logic error are the same line, and one move fixes both.
+Notice, before you touch it, that this handler already reads `vault_ta.amount()` once, legally: the over-refund guard at the top runs before any handle exists. The same read further down the handler, after the `CpiContext` is built, is the one the compiler rejects — and even if it compiled, it would be the *pre*-refund balance, the wrong number for an event that promises the balance left behind. The borrow error and the logic error are the same line, and one move fixes both.
 
 Two things are required to pass.
 
