@@ -100,6 +100,7 @@ lessons carry; treat a stale date as an unverified pin.
 | `@solana-program/*` peers move off kit `^7` | m08-l1 | Re-pin per workspace, per the rule the lesson teaches. Never repo-wide. |
 | Anchor `master` merges `fuzz` into the RC line | m07-l3 | The branch-split fact the lesson turns on stops being true. |
 | A published V2 audit or a committed stable date | m10-l4 | The conclusion routes on exactly those two signals. Both are currently absent; if either lands, the decision tree changes. |
+| Devnet reset, or the twin signatures prune | m01-l1 | The lesson pins two live devnet programs + reference signatures inline (verified 2026-09-02). Run [`twins/redeploy.sh`](./twins/README.md) and re-pin the four values it prints. |
 
 Minimum check, and it is fast:
 

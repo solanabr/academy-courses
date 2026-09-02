@@ -12,8 +12,8 @@
 <body>
 <!-- flowchart: How you read a CU number out of a transaction log
      purpose: make the measurement mechanical so the reader knows exactly what to grep for
-     data: export the signature (from TWINS.md) -> solana confirm -v <sig> --url devnet -> logs stream out -> find line "Program <id> consumed X of Y compute units" -> X is the CU spent by that program on that call do this twice: once for the v1 twin, once for the v2 twin
-     prompt: A four-step horizontal flowchart: "export sig" -> "solana confirm -v" -> "read logs" -> "grep 'consumed ... compute units'". Under the last node, show a sample log line 'Program <id> consumed 3204 of 200000 compute units' with the number '3204' circled and labeled "the meter reading (X)". Add a loop-back annotation "run once per twin".
+     data: export the signature (pinned in Lab step 1) -> solana confirm -v <sig> --url devnet -> logs stream out -> find line "Program <id> consumed X of Y compute units" -> X is the CU spent by that program on that call do this twice: once for the v1 twin, once for the v2 twin
+     prompt: A four-step horizontal flowchart: "export sig" -> "solana confirm -v" -> "read logs" -> "grep 'consumed ... compute units'". Under the last node, show a sample log line 'Program <id> consumed 1714 of 200000 compute units' with the number '1714' circled and labeled "the meter reading (X)". Add a loop-back annotation "run once per twin".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -73,7 +73,7 @@
     <div class="st">
       <div class="num">1</div>
       <div class="sn">export the signature</div>
-      <div class="ss">the sig for the twin call,<br>copied out of TWINS.md</div>
+      <div class="ss">the sig for the twin call,<br>pinned in Lab step 1</div>
     </div>
     <div class="sarrow">
       <svg width="70" height="20" viewBox="0 0 70 20">
@@ -123,7 +123,7 @@
     <div class="lk">the line you are grepping for</div>
     <div class="logline">
       <span class="lt">Program &lt;id&gt; consumed</span>
-      <span class="pill">3204</span>
+      <span class="pill">1714</span>
       <span class="lt">of 200000 compute units</span>
     </div>
     <div class="logunder">

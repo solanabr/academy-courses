@@ -2,12 +2,11 @@
 
 This is lesson one, so nothing is built yet. You arrive with the Solana mental model already in your head: accounts, PDAs, transactions, fees. Maybe some Anchor 0.x or 1.0 muscle memory too. Good. We are going to poke at exactly the piece of that muscle memory that Anchor V2 tears out and rebuilds.
 
-Before I define a single thing, do this. Open a terminal with the `solana` CLI you already have and confirm a transaction I already landed on devnet for you. One piece of housekeeping first, because it governs this whole page:
-
-> **Course-materials note — `TWINS.md` has not landed yet.** The two twin programs live on devnet; their IDs and reference signatures ship in `TWINS.md`, and that file is mine to hand you. I have not shipped it. Until it reaches you, the run below and the six Lab steps that follow are a walkthrough: every command is exactly what you will type, but the two numbers they print are the part that waits. The Challenge waits with them, except for its third item, which needs nothing but the overview. Next lesson you start `PINS.md`, a pins file of your own, and every pin in it carries a "verified on <date>" freshness note.
+Before I define a single thing, do this. Open a terminal with the `solana` CLI you already have and confirm a transaction I already landed on devnet for you:
 
 ```bash
-export V1_TWIN_SIG="<v1-twin-signature from TWINS.md>"
+# Landed and verified on devnet 2026-09-02; the Lab pins all four values below.
+export V1_TWIN_SIG="2BYB5oU12EfJjPTuQjaZCcxwMjWxSBUQ7WjeucW6V35Ge1PRFUda39nV4dU8NnDvt8ZfbN8H4fpAEoYpsEYysR43"
 
 solana confirm -v "$V1_TWIN_SIG" --url devnet | grep -i "compute units"
 ```
@@ -119,19 +118,19 @@ Before the Lab, look at the road. You are not going to build twins. You are goin
 
 ## Lab: measure the gap yourself
 
-Hands on the keyboard now — or eyes on it, until `TWINS.md` lands. This is the part you do not skip. No install: everything here runs on the `solana` CLI you already have, pointed at devnet. The two twin program IDs and their reference transaction signatures come from the course materials file, `TWINS.md`; once that file reaches you, paste yours in place of the placeholders and the six steps run exactly as written. Until then, walk them and do step 3 and step 6 anyway — the prediction and the diagnosis are the two that never needed a terminal.
+Hands on the keyboard now. This is the part you do not skip. No install: everything here runs on the `solana` CLI you already have, pointed at devnet. The two twin program IDs and their reference transaction signatures are pinned right here in step 1 — landed on devnet and verified 2026-09-02, in this course's own freshness discipline — and the six steps run exactly as written.
 
 The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a transaction's full log messages. Buried in those logs is a line the runtime writes for every program it runs: `Program <id> consumed X of Y compute units`. That `X` is the meter reading. That is the whole measurement.
 
 ![A four-step flow from exporting a signature to running solana confirm to reading logs to grepping the consumed-compute-units line, with the spent-CU number circled as the measurement.](assets/v06-flowchart.png)
 
-1. **Point at devnet and set the pins.** Pull the two program IDs and the two reference signatures out of `TWINS.md` and export all four. If you want to sanity-check the programs are really deployed, `solana account "$V1_TWIN_ID" --url devnet` shows each as an executable account.
+1. **Point at devnet and set the pins.** Export all four values. These are the twins I landed for you, verified 2026-09-02. If you want to sanity-check the programs are really deployed, `solana account "$V1_TWIN_ID" --url devnet` shows each as an executable account.
 
    ```bash
-   export V1_TWIN_ID="<v1-twin-program-id from TWINS.md>"
-   export V2_TWIN_ID="<v2-twin-program-id from TWINS.md>"
-   export V1_TWIN_SIG="<v1-twin-signature from TWINS.md>"
-   export V2_TWIN_SIG="<v2-twin-signature from TWINS.md>"
+   export V1_TWIN_ID="8bhX52w9mGGaAFJwsoWLpv3nrZsXzc3ZfE2P622uGt3z"
+   export V2_TWIN_ID="2fLbW1PG2CeyAgR5krLF9okkqCXRmqy1o3srBh4E26WT"
+   export V1_TWIN_SIG="2BYB5oU12EfJjPTuQjaZCcxwMjWxSBUQ7WjeucW6V35Ge1PRFUda39nV4dU8NnDvt8ZfbN8H4fpAEoYpsEYysR43"
+   export V2_TWIN_SIG="43beWNMwXpC24VqRf2uVspVDgBgKEMG75brR7LMeLeH3EcuLa9NVibJb9JAGqbe8pUDckPhtTqKRFhuzDtoZpCRs"
    ```
 
 2. **Read the v1 twin's meter.** Confirm its reference transaction and pull the compute-units line:
@@ -140,9 +139,15 @@ The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a
    solana confirm -v "$V1_TWIN_SIG" --url devnet | grep -i "compute units"
    ```
 
-   You should see one or more lines shaped like `Program <id> consumed 3204 of 200000 compute units`. The exact number will differ; the shape will not. Write down the `consumed X` for the v1 twin — it is the same reading the opener had you take.
+   Mine printed exactly this, and the reference signature replays the same reading for you:
 
-   If `grep` comes back empty once you do have real signatures, fix it before moving on. Three usual causes, in the order you should check them. You are pointed at the wrong cluster, so re-check `--url devnet`. Or the exported value is still the literal `<v1-twin-signature from TWINS.md>` placeholder instead of a real signature. Or, if `solana confirm` reports the signature as not found rather than printing empty logs, the reference transaction has aged out of devnet's transaction history, which is pruned and does not keep old signatures forever. That third one is the freshness discipline of this course biting the course itself, so the recovery ships in the same envelope: alongside the signatures, `TWINS.md` carries the expected log output for both twins, and the instructions to re-land the pair under your own wallet if you want a fresher one. A blank result here is a setup problem, not a you problem.
+   ```text
+   Program 8bhX52w9mGGaAFJwsoWLpv3nrZsXzc3ZfE2P622uGt3z consumed 1714 of 200000 compute units
+   ```
+
+   Whenever this pair gets re-landed — by the maintainers after a devnet reset, or by you later in the course under your own wallet — the exact number will differ; the shape will not. Write down the `consumed X` for the v1 twin — it is the same reading the opener had you take.
+
+   If `grep` comes back empty, fix it before moving on. Three usual causes, in the order you should check them. You are pointed at the wrong cluster, so re-check `--url devnet`. Or the export got mangled in the paste, so the shell is holding a truncated signature. Or, if `solana confirm` reports the signature as not found rather than printing empty logs, the reference transaction has aged out of devnet's transaction history, which is pruned and does not keep old signatures forever. That third one is the freshness discipline of this course biting the course itself, and the recovery ships on this same page: the expected log output for both twins is printed in steps 2 and 4, so the measurement still lands — and a pruned signature is exactly the kind of stale pin this course trains you to flag, so report it and the maintainers re-land the pair and re-pin these four values. A blank result here is a setup problem, not a you problem.
 
 3. **Stop and predict.** Before you run the v2 twin, commit to an answer out loud or on paper: which twin do you expect to consume fewer CU, and by roughly how much? You have the thesis and you have the honest-8.8x-average context. Make the call now. Predicting before you look is how you find out whether you actually understood the overview or just nodded at it.
 
@@ -150,6 +155,12 @@ The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a
 
    ```bash
    solana confirm -v "$V2_TWIN_SIG" --url devnet | grep -i "compute units"
+   ```
+
+   For the record, the reference reading:
+
+   ```text
+   Program 2fLbW1PG2CeyAgR5krLF9okkqCXRmqy1o3srBh4E26WT consumed 200 of 200000 compute units
    ```
 
    Write down the `consumed X` for the v2 twin.
@@ -166,7 +177,7 @@ Here is the answer, so you can check yours. The v2 twin spends fewer CU because 
 
 ## Challenge
 
-The gate for this lesson is small and it is entirely in your own words. In three short pieces — the first two hold their answers until `TWINS.md` lands, the third is due now:
+The gate for this lesson is small and it is entirely in your own words. In three short pieces:
 
 1. **Report the two CU figures** you read from the logs, one for the v1 twin and one for the v2 twin, and say which is lower.
 2. **State the delta**, as a difference or a ratio, whichever you find clearer.
@@ -176,6 +187,6 @@ If your one sentence lands on "V2 casts the account bytes in place instead of co
 
 ## What you actually did here
 
-You did not read a claim about compute units. You took a reading, twice, on programs someone else already shipped, and you attributed the gap to a specific design decision instead of a vibe. Two of those three moves wait on `TWINS.md`; the attribution never did. That is the muscle the whole course trains: measure, then explain, then never freeze a moving number.
+You did not read a claim about compute units. You took a reading, twice, on programs someone else already shipped, and you attributed the gap to a specific design decision instead of a vibe. That is the muscle the whole course trains: measure, then explain, then never freeze a moving number.
 
 You felt the gap by running someone else's twins. Next lesson you stop borrowing and start shipping. You install the V2 toolchain, the one that genuinely fights you, an RC with sharp edges and a workaround or two, and you push your own first deploy to devnet: the R0 greeter. The R-numbers are how this course names the rungs of the Quarters ladder, R1 through R6, and R0 is the one below the bottom: the scratch program that proves your toolchain, which you then keep extending for the rest of module one. The first real rung, the cabinet-counter, comes the module after. The hand-holding thins out starting there. Bring the terminal.

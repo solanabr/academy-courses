@@ -276,7 +276,7 @@ use {
         bytemuck, programs::System, solana_program::instruction::Instruction, Id,
         InstructionData, ToAccountMetas,
     },
-    anchor_lang::solana_program::pubkey::Pubkey,
+    anchor_lang::prelude::Address,
     anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTransaction},
     cabinet_counter::{accounts, instruction, Cabinet},
 };
@@ -306,7 +306,7 @@ fn cabinet_round_trips() {
     svm.airdrop(&player.pubkey(), 1_000_000_000).unwrap();
 
     let (cabinet, _bump) =
-        Pubkey::find_program_address(&[b"cabinet", player.pubkey().as_ref()], &program_id);
+        Address::find_program_address(&[b"cabinet", player.pubkey().as_ref()], &program_id);
 
     // init: play_count = 0, high_score = 0
     let init_ix = Instruction::new_with_bytes(
@@ -359,7 +359,7 @@ Your acceptance bar, all three must hold:
 - A new test increments a couple of times to a real high score, calls `reset`, then reads `data[8..]` back and asserts `play_count == 0` **and** `high_score` still equals the score you set.
 - The existing `cabinet_round_trips` test still passes.
 
-The interesting part is the assertion, not the handler. A `reset` that accidentally zeroes both fields will pass a lazy test that only checks `play_count`. Write the test that would catch that bug: assert the high score survived. That is the whole point of the exercise. Both the handler and the test go in your own R1 checkout, next to what you just built; a reference solution sits in `lessons/m02-l1/reset-play-count/` for after you have a green run of your own.
+The interesting part is the assertion, not the handler. A `reset` that accidentally zeroes both fields will pass a lazy test that only checks `play_count`. Write the test that would catch that bug: assert the high score survived. That is the whole point of the exercise. Both the handler and the test go in your own R1 checkout, next to what you just built; a reference solution sits beside this lesson — [reset-play-count/reset.rs](reset-play-count/reset.rs) for the handler and accounts struct, [reset-play-count/cabinet_reset.rs](reset-play-count/cabinet_reset.rs) for the test — for after you have a green run of your own.
 
 **Feedback beat.** Before you move on, answer this in one sentence, out loud or in a comment at the top of your test file: what two things does the `T: Pod` bound forbid in your struct? If your sentence names non-Pod fields (the bare `bool`) and implicit padding (the silent gap from a bad field order), you have the model. If it named only one, re-read the trade-off section, because the second one is the one that bites silently.
 

@@ -216,8 +216,6 @@ use mollusk_svm::{result::Check, Mollusk};
 use solana_sdk::{account::Account, instruction::Instruction, pubkey::Pubkey};
 
 mod swap_fixture;   // the same module cu_baseline.rs used last lesson
-// Same flag as m06-l1: that file is mine to hand you, and it has not landed yet —
-// every build, pin, and number on this page is verified, but this test waits on it.
 
 // The same swap fixture: program, accounts, one swap ix.
 fn fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
@@ -275,7 +273,7 @@ The cycle is identical in shape:
 
 1. **Measure** the pool-init instruction's CU. That is the instruction you wrote in module 5's swap lab, the one that `init`s the `Pool` account and creates the two reserve token accounts under the pool PDA; each of those `init`s is a System Program create-account CPI, which is precisely the call `const-rent` folds the constant for.
 
-   There is no provided harness for it, and writing it is the point of this rung: you have the pattern twice over now. Copy `cu_swap_regression.rs` to `tests/init_cu_baseline.rs` and change three things. Build the init instruction instead of the swap instruction (`swap_fixture::build_init_ix`, which belongs to the same fixture module — the one that has not landed yet, so this rung waits on it too). Pass the init's account list, which the fixture exposes as `swap_fixture::build_init_accounts(&keys)`, and which differs from the swap's because the pool and both reserves must arrive *uninitialized*. And drop the budget assertion entirely; keep only `Check::success()` and the `println!`, because for this rung you want the number printed twice, not pinned.
+   There is no provided harness for it, and writing it is the point of this rung: you have the pattern twice over now. Copy `cu_swap_regression.rs` to `tests/init_cu_baseline.rs` and change three things. Build the init instruction instead of the swap instruction (`swap_fixture::build_init_ix`, which belongs to the same fixture module you dropped in last lesson). Pass the init's account list, which the fixture exposes as `swap_fixture::build_init_accounts(&keys)`, and which differs from the swap's because the pool and both reserves must arrive *uninitialized*. And drop the budget assertion entirely; keep only `Check::success()` and the `println!`, because for this rung you want the number printed twice, not pinned.
 
    ```bash
    cargo build-sbf                                                 # build first, always

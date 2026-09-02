@@ -459,6 +459,13 @@ pub fn setup(svm: &mut LiteSVM) -> Ctx {
     let authority = Keypair::new();
     svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();
 
+    // The rent gets its own payer. Initialize takes authority AND funder — the
+    // m04-l3 role split — and funder is the mut one, so handing one keypair to
+    // both slots is exactly the aliasing the duplicate-mutable default rejects
+    // at runtime (ConstraintDuplicateMutableAccount). Distinct keys, no friction.
+    let funder = Keypair::new();
+    svm.airdrop(&funder.pubkey(), 5_000_000_000).unwrap();
+
     // 1. the mint, created and minted with the spl-token helpers
     let mint = spl_helpers::create_mint(svm, &authority, DECIMALS);
     let authority_ata = spl_helpers::create_ata(svm, &authority, &mint, &authority.pubkey());
@@ -472,7 +479,7 @@ pub fn setup(svm: &mut LiteSVM) -> Ctx {
         program_id,
         accounts: quarter_vault::accounts::Initialize {
             authority: authority.pubkey(),
-            funder: authority.pubkey(),
+            funder: funder.pubkey(),
             vault,
             mint,
             vault_token_account: vault_ata,
@@ -482,7 +489,7 @@ pub fn setup(svm: &mut LiteSVM) -> Ctx {
         }.to_account_metas(None),
         data: quarter_vault::instruction::Initialize {}.data(),
     };
-    send(svm, &authority, &[&authority], &[init]).unwrap();
+    send(svm, &funder, &[&funder], &[init]).unwrap();
 
     // 3. deposit 1.0 token into the vault ATA
     let dep = Instruction {
@@ -519,7 +526,7 @@ pub fn send_withdraw(svm: &mut LiteSVM, ctx: &Ctx, amount: u64) -> Result<(), St
 }
 ```
 
-`spl_helpers` there is the thin wrapper over `spl_token` and `spl_associated_token_account` that builds the four setup instructions (`create_mint`, `create_ata`, `mint_to`, `ata_address`). It is ordinary SPL client code with nothing V2-specific in it, so it ships alongside this lesson at `lessons/m05-l1/spl-helpers/`; drop it in as `tests/spl_helpers.rs`.
+`spl_helpers` there is the thin wrapper over `spl_token` and `spl_associated_token_account` that builds the four setup instructions (`create_mint`, `create_ata`, `mint_to`, `ata_address`). It is ordinary SPL client code with nothing V2-specific in it, so it ships alongside this lesson as [spl-helpers/spl_helpers.rs](spl-helpers/spl_helpers.rs); drop it in as `tests/spl_helpers.rs`.
 
 Now the check itself, at `programs/quarter-vault/tests/vault_spl_withdraw.rs`:
 

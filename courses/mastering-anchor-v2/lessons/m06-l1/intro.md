@@ -246,8 +246,6 @@ fn swap_fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
     // and `mod swap_fixture;` at the top of this file. Its full surface, which the
     // next lesson also leans on: keys(), build_swap_accounts(), build_swap_ix(),
     // build_init_accounts(), build_init_ix().
-    // That file is mine to hand you, like TWINS.md in m01-l1, and it has not landed
-    // yet — every build and pin on this page is verified, but this one test waits on it.
     let keys = swap_fixture::keys(&program_id);
     let accounts: Vec<(Pubkey, Account)> = swap_fixture::build_swap_accounts(&keys);
 
@@ -291,6 +289,8 @@ fn trade_cu_baseline() {
     );
 }
 ```
+
+The fixture module itself ships beside this lesson as [swap-fixture/swap_fixture.rs](swap-fixture/swap_fixture.rs) — real SPL mint and token-account layouts, the pool at its PDA, nothing you have not met.
 
 Run it now, before you have any number to pin. The `println!` fires before the assertion does, so the placeholder `0` bound fails the test and you still walk away with your measurement:
 

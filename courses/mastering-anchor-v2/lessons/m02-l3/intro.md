@@ -194,7 +194,7 @@ Label each field **Pod** or **BorshAccount**, give exactly **one reason** per ch
 
 Two of these four are the point. `machines` is the field the flowchart makes you interrogate rather than answer: run Q2 honestly, because "no ceiling written into the spec" is not the same claim as "genuinely unbounded," and which one it turns out to be decides the tier. And this ledger is touched on every payout, which means it is a hot account, so whichever fields land in tier 2 you should also say whether they belong in *this* account at all or in a separate one, the way the lab split the description out.
 
-Write the artifact down; the prompt and a worked reference labeling live in `lessons/m02-l3/operator-ledger/`. Read the reference only after your own four labels are on paper, and where you disagree with it, the interesting question is not who is right but which of Q1 and Q2 in the flowchart you two answered differently. That disagreement is the whole skill.
+Write the artifact down; the prompt lives at [operator-ledger/prompt.md](operator-ledger/prompt.md) and my worked reference labeling at [operator-ledger/reference.md](operator-ledger/reference.md). Read the reference only after your own four labels are on paper, and where you disagree with it, the interesting question is not who is right but which of Q1 and Q2 in the flowchart you two answered differently. That disagreement is the whole skill.
 
 ## Where this leaves you
 
