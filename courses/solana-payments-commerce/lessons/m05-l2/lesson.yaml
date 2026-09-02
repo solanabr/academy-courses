@@ -36,6 +36,7 @@ blocks:
           - id: c
             label: "A Subscription Authority PDA per (user, mint) takes the single slot with a u64::MAX approval; delegation PDAs carry the real limits."
             correct: true
+            feedback: "Indirection turns one scarce slot into many arrangements: the holder is unlimited, the enforced limits live in program state. The bound moves off the Token program onto that logic."
         explanation: "The SA PDA occupies the one slot with an unlimited approval; the actual, bounded limits live in delegation PDAs (fixed / recurring / plan). That is how one token account backs many subscriptions non-custodially."
       - id: m05-l2-q2
         prompt: "That delegate slot is held by a PDA rather than a keypair the merchant controls. Cashing in the ATA seed from module 2, why does a PDA holding the slot keep the arrangement non-custodial?"
@@ -44,6 +45,7 @@ blocks:
           - id: a
             label: "A PDA is deterministic and program-owned with no private key, so only program logic, never a merchant key, can authorize a pull."
             correct: true
+            feedback: "With no key to hold there is no merchant secret to leak. The trust moves rather than vanishes: the upgrade authority now holds it."
           - id: b
             label: "The PDA is owned by the subscriber's wallet, which must co-sign every individual pull."
             correct: false
@@ -67,6 +69,7 @@ blocks:
           - id: b
             label: "You used the plan's periodHours value directly as seconds instead of multiplying by 3600, so the window is ~3600x too short."
             correct: true
+            feedback: "Chain time is Unix seconds while the plan field counts hours, so the comparison silently shrinks the window. Do not blanket-multiply: the delegation's own period is already seconds."
           - id: c
             label: "You forgot to store processed signatures, so a webhook retry re-triggered the pull."
             correct: false
@@ -87,4 +90,5 @@ blocks:
           - id: c
             label: "The expiresAtTs-vs-chain-time check: these accounts persist until revoked, so expiry is the only thing that time-bounds a pull."
             correct: true
+            feedback: "Nothing on-chain reaps an account on a schedule, so existence proves nothing about validity. Mind the sentinel: 0 means never expires, and a naive now-greater-than test rejects it."
         explanation: "These accounts stay on-chain until a revoke instruction closes them. Nothing auto-expires them, so your crank must compare expiresAtTs against chain time on every pull (with 0 meaning 'never expires')."

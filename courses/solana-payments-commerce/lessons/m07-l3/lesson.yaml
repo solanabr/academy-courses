@@ -27,6 +27,7 @@ blocks:
           - id: c
             label: "ACP (Stripe and OpenAI), which is explicitly designed so the merchant stays merchant-of-record."
             correct: true
+            feedback: "Its shared-token design keeps the charge on the merchant's own processor. That role is a liability: disputes and tax come with it."
         explanation: "ACP, the Stripe-and-OpenAI Agentic Commerce Protocol, is built around the merchant staying merchant-of-record with a Shared Payment Token. That framing, familiar from card rails, is a real differentiator when you place the four standards, and it is exactly the lens the course uses at every payment seam."
       - id: q10-mpp-dated
         prompt: "You want to document Wavelength's MPP support. What is the honest way to state the standard's status, given draft-solana-charge-00?"
@@ -56,6 +57,7 @@ blocks:
           - id: b
             label: "One gate makes the same API answer both x402 and MPP, and `pay curl` negotiates whichever the caller speaks."
             correct: true
+            feedback: "Emitting both challenges moves the protocol choice to the caller, which is the optionality you buy. The price is a churn-prone CLI in the request path, so pin it deliberately."
           - id: c
             label: "It moves settlement on-chain so no facilitator is involved for either protocol."
             correct: false
@@ -76,4 +78,5 @@ blocks:
           - id: c
             label: "Do not bet exclusively yet; gate once (with the pay CLI, say) and negotiate, since the field is unsettled."
             correct: true
+            feedback: "When adoption is undecided, the cheap move is the reversible one. Deferring costs you two protocols' semantics, so set a review date."
         explanation: "The lesson's honest 2026 position is that the standards war is unsettled: x402 has traffic but a facilitator trust boundary, MPP is a Solana method spec riding a base draft that expires, and AP2/ACP are cards-first with different merchant-of-record models. Gating once and negotiating (the `pay gate` beat) beats an exclusive early bet, at the cost of a CLI dependency."

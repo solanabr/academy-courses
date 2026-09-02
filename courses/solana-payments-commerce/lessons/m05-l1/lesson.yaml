@@ -22,6 +22,7 @@ blocks:
           - id: b
             label: "The second ApproveChecked revokes your delegate entirely; your crank can no longer pull from that account."
             correct: true
+            feedback: "The account has one delegate field, so a new approval overwrites it. Read the delegate before each cycle rather than assuming it held."
           - id: c
             label: "Your delegate keeps its 60 USDC but is paused until the second delegate is revoked."
             correct: false
@@ -42,6 +43,7 @@ blocks:
           - id: c
             label: "15 USDC remains; a fourth 15-USDC pull exhausts the approval and a fifth fails on insufficient delegated amount."
             correct: true
+            feedback: "The delegated amount is a running balance decremented per transfer, not a standing ceiling. Exhausting it does not free the slot either; only the owner's fresh signature refills it."
         explanation: "The approved amount decrements per transfer: 60 → 45 → 30 → 15. The fourth pull empties it; the fifth reverts unless the owner signs a new ApproveChecked."
       - id: m05-l1-q3
         prompt: "A subscriber asks: 'If I approve your backend as a delegate, can you drain my whole wallet?' What is the honest, technically correct answer about the non-custodial guarantee?"
@@ -50,6 +52,7 @@ blocks:
           - id: a
             label: "No. The delegate can move at most the approved amount of the approved mint from that one account, and you can revoke at any time."
             correct: true
+            feedback: "The Token program enforces the cap, not the merchant's restraint. Bounded is not harmless: inside it, no further consent is asked."
           - id: b
             label: "Yes. A delegate holds signer authority over the token account, so every balance sitting in it, plus anything that lands there later, is reachable until you revoke."
             correct: false
@@ -70,6 +73,7 @@ blocks:
           - id: b
             label: "Because a subscriber who joins two merchants can grant only one live delegate, so the second merchant's approval silently evicts the first."
             correct: true
+            feedback: "One slot per token account means merchants compete for the same field rather than coexisting. It is per (owner, mint), so another mint has its own slot: a workaround, not a model."
           - id: c
             label: "Because delegate-signed transfers cannot carry a memo, so reconciliation into the orders ledger breaks."
             correct: false

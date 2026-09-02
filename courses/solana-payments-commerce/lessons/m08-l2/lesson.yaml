@@ -36,6 +36,7 @@ blocks:
           - id: c
             label: "About 45 seconds (150 blocks at 300ms); a durable nonce removes the wall-clock deadline."
             correct: true
+            feedback: "The window is counted in blocks, so its wall-clock length derives from the current slot time. Derive it rather than memorising: every staged cut shortens the same 150 blocks again."
         explanation: "A blockhash is valid for 150 blocks; at the current 300ms target slot time that is roughly 45 seconds, and each staged cut shrinks it further, so derive the window, never memorize it. No amount of retrying extends it. A durable nonce swaps the blockhash for a stored value that only moves when you advance it, so the transaction has no wall-clock deadline."
       - id: m08-l2-q2
         prompt: "You're assembling a durable-nonce transaction for an offline sale. Which condition is required for it to be valid?"
@@ -44,6 +45,7 @@ blocks:
           - id: a
             label: "AdvanceNonceAccount must be the first instruction (instruction 0) in the transaction."
             correct: true
+            feedback: "The runtime reads position zero to decide whether a nonce is the lifetime, so ordering is the signal. Necessary, not sufficient: the account must be System-owned and rent-exempt."
           - id: b
             label: "The nonce account must be program-owned and non-rent-exempt to keep it cheap."
             correct: false
@@ -64,6 +66,7 @@ blocks:
           - id: b
             label: "The docs' may-be-deprecated warning is live, and nonce double-processing caused a ~4.5-hour mainnet halt in 2022; both are risks you design around."
             correct: true
+            feedback: "Two different risks: one roadmap, one operational. Neither argues for avoiding the primitive, since offline signing has no substitute."
           - id: c
             label: "The outage proved the primitive is unsafe under load, so the queue should hold each sale unsigned and build a fresh-blockhash transaction once connectivity returns."
             correct: false
@@ -84,4 +87,5 @@ blocks:
           - id: c
             label: "Exclude it from submission: the nonce is spent, and rebroadcasting risks double-processing."
             correct: true
+            feedback: "Once the stored value has rolled, the lifetime is gone and duplicate-rejection no longer protects you. Dropping it is not resolving it: that sale still needs a ledger state."
         explanation: "A spent nonce is the danger zone. 'Never expires' is not 'always resubmittable': once advanced, the transaction must be dropped from the drain, which is exactly what your classifier's `unsafe` bucket enforces."

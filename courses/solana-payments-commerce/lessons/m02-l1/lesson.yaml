@@ -41,6 +41,7 @@ blocks:
           - id: b
             label: "It silently rounds past 2**53, so large transfers send the wrong number of cents and nothing throws."
             correct: true
+            feedback: "Doubles are exact only to 2**53, so the product is rounded rather than rejected. Rounding helpers do not fix it: parse the decimal string into a bigint and keep floats off money."
           - id: c
             label: "It throws a TypeError the moment the product crosses Number.MAX_SAFE_INTEGER, because `10 ** 6` demands a BigInt exponent once the base no longer fits a float, so the failure surfaces loudly in staging."
             correct: false
@@ -61,6 +62,7 @@ blocks:
           - id: c
             label: "His associated token account for the USDC mint must be created and rent-funded, about 0.00204 SOL, by whoever includes the create instruction."
             correct: true
+            feedback: "Balances live in a per-(owner, mint) account, so a first-time holder has nowhere to receive. Whoever includes the create instruction funds it, and that is usually you, once per mint."
         explanation: "An ATA is the deterministic per-(owner, mint) account that holds a token balance. A first-time holder has none, so the payment transaction (or a prior one) must create and rent-fund it at 2,039,280 lamports, roughly 0.00204 SOL. That is a real cost and an extra failure mode on every new customer."
       - id: m02l1-q3
         prompt: "Your kit sends with TransferChecked and attaches a reference key. What do those two choices buy you?"
@@ -69,6 +71,7 @@ blocks:
           - id: a
             label: "TransferChecked verifies the mint and decimals inside the instruction, and the reference key is a non-signer address you attach so reconciliation can find the payment later."
             correct: true
+            feedback: "Account keys are indexed, which is why the marker is findable; it is not secret. Anyone can attach the same one, so verify the fields."
           - id: b
             label: "TransferChecked encrypts the transfer amount on-chain, and the reference key is the payer's signature over the transfer."
             correct: false
@@ -89,6 +92,7 @@ blocks:
           - id: b
             label: "Resubmit the exact same signed transaction; identical bytes produce the same signature, so it can land at most once within the ~150-block window."
             correct: true
+            feedback: "Duplicate signatures are rejected by the network, which is what makes resending idempotent. That guarantee dies with the blockhash: only once it expires is rebuilding the safe move."
           - id: c
             label: "Wait for the ~150-block window to fully expire and then send a brand-new transaction to be safe."
             correct: false

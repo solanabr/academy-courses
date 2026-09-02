@@ -1,0 +1,1332 @@
+[
+ [
+  "m01-l1",
+  "m01-l1-q1",
+  "b",
+  false,
+  "Reading is not writing. The RPC returned an already-settled record, and no endpoint on it can move or reverse anyone's funds; only the holder's signature can spend from an account."
+ ],
+ [
+  "m01-l1",
+  "m01-l1-q1",
+  "c",
+  false,
+  "Decoding inspects a past transaction; it never re-submits or re-authorizes anything. That payment settled exactly once, when its sender signed it."
+ ],
+ [
+  "m01-l1",
+  "m01-l1-q2",
+  "a",
+  false,
+  "Classic Solana Pay is not gone. It lives on at typescript/packages/solana-pay in the very same repo, and you will build a checkout on it in module 3."
+ ],
+ [
+  "m01-l1",
+  "m01-l1-q2",
+  "c",
+  false,
+  "The binary is intentional: the package.json declares a `pay` bin entry. It is a documented feature of the official package, not a compromise."
+ ],
+ [
+  "m01-l1",
+  "m01-l1-q3",
+  "a",
+  false,
+  "Speed is a property, not proof of adoption. It does not tell your teammate that a mainstream processor is actually in the market."
+ ],
+ [
+  "m01-l1",
+  "m01-l1-q3",
+  "b",
+  false,
+  "That is a neat capability, but it is a Foundation tool, not evidence that an incumbent payments company adopted these rails."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q1",
+  "b",
+  false,
+  "The fast signature is real, but `processed` is UI-only and can be dropped during a fork; releasing $2,000 of goods on it is like shipping on an unconfirmed auth. Ecosystem guidance reserves it for optimistic display."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q1",
+  "c",
+  false,
+  "`confirmed` is the sensible default for MOST payments, but for a high-value, compliance-sensitive order the guidance is to wait for `finalized`. And there is no later clawback here; that is the card metaphor leaking."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q2",
+  "a",
+  false,
+  "Network fees here are not a percentage of value, and validators take no cut of the amount transferred. The base fee is flat per signature and independent of the sum moved."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q2",
+  "c",
+  false,
+  "Not free: every transaction pays a base fee of 5000 lamports plus any priority fee. It is tiny, but budgeting it as literally zero will bite you at scale and on account creation."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q3",
+  "a",
+  false,
+  "There is a downside: the same finality that removes chargeback fraud also removes the institutional safety net customers may expect, and shifts all refund logic onto you."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q3",
+  "b",
+  false,
+  "The network never reverses a settled transfer. There is no automatic clawback; anyone promising card-style protection 'for free' is misreading the rails."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q4",
+  "b",
+  false,
+  "This is a strong fit, not a weak one. Flat sub-cent fees are exactly where these rails beat percentage-based interchange, and instant settlement is what removes the multi-day hold."
+ ],
+ [
+  "m01-l2",
+  "m01-l2-q4",
+  "c",
+  false,
+  "Also a strong fit: instant settlement with no holding times is a headline advantage of these rails, not a reason to avoid them."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q1",
+  "a",
+  false,
+  "64-bit doubles are only exact for integers up to 2**53; base-unit values above that (about 9 billion USDC) start rounding."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q1",
+  "c",
+  false,
+  "`10 ** 6` evaluates fine with ordinary numbers and nothing throws at MAX_SAFE_INTEGER; the bug is silent precision loss, not a raised error."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q2",
+  "a",
+  false,
+  "A wallet cannot hold an SPL token directly; tokens live in a per-mint token account, which must exist first."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q2",
+  "b",
+  false,
+  "Approve delegates a balance the signer already holds; a first-time receiver has nothing to delegate, and receiving needs no authorization from Bob at all."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q3",
+  "b",
+  false,
+  "TransferChecked does not encrypt anything (that is a confidential-transfer extension), and a reference key is an unrelated non-signer marker, not a signature."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q3",
+  "c",
+  false,
+  "TransferChecked works for classic Token mints too, and the fee payer is whichever signer the transaction names as fee payer, never a reference key."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q4",
+  "a",
+  false,
+  "A fresh blockhash produces a NEW signature, so if the first one also lands you have paid twice; this is the double-pay trap."
+ ],
+ [
+  "m02-l1",
+  "m02l1-q4",
+  "c",
+  false,
+  "Waiting out the window and rebuilding still creates a new signature; it also adds latency for no safety benefit over resending the same bytes."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q1",
+  "a",
+  false,
+  "PYUSD is also 6 decimals, and overflow is not the issue; the transfer fails because it is aimed at the wrong owner program."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q1",
+  "b",
+  false,
+  "TransferChecked takes no fee account or withheld-amount argument, and PYUSD's configured fee is currently 0; the build fails because the mint is owned by a different program."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q2",
+  "b",
+  false,
+  "The permanent delegate is a standing authority the issuer can use, not an automatic co-signer on ordinary transfers."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q2",
+  "c",
+  false,
+  "That describes a frozen default-account state, not a permanent delegate; ordinary PYUSD balances are spendable and need no per-spend issuer approval."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q3",
+  "a",
+  false,
+  "The basis points are not immutable: a Token-2022 fee can be updated by its fee authority, so a constant copied from docs can be wrong tomorrow."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q3",
+  "c",
+  false,
+  "A transfer fee is withheld from the transferred amount and is very much the sender's concern; you cannot ignore it."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q4",
+  "a",
+  false,
+  "That is the lock-and-wrap bridge model; CCTP does not use pools or wrapped IOUs, it burns and natively mints."
+ ],
+ [
+  "m02-l2",
+  "m02l2-q4",
+  "b",
+  false,
+  "That mixes CCTP's standard cross-chain range with the wrong mechanism; the Solana fast transfer is about 8 seconds, not 15 to 19 minutes."
+ ],
+ [
+  "m03-l1",
+  "q1",
+  "a",
+  false,
+  "Query-parameter order is irrelevant to how the amount is interpreted; the mint is set by spl-token wherever it appears, and there is no silent SOL fallback."
+ ],
+ [
+  "m03-l1",
+  "q1",
+  "b",
+  false,
+  "validateTransfer runs later, server-side, against the settled transfer; it is not why the URL charged the wrong amount."
+ ],
+ [
+  "m03-l1",
+  "q2",
+  "b",
+  false,
+  "Commerce Kit is beta ('APIs may change') and is not a replacement for the Solana Pay library; the classic library is still shipped and current."
+ ],
+ [
+  "m03-l1",
+  "q2",
+  "c",
+  false,
+  "Both solana-labs/solana-pay and anza-xyz/solana-pay redirect to solana-foundation/pay; nothing is archived, and the classic library is a subpackage there rather than a separate repo."
+ ],
+ [
+  "m03-l1",
+  "q3",
+  "a",
+  false,
+  "Frontend confirmations are spoofable; trusting the browser is the exact anti-pattern the back-office module (m04) exists to fix."
+ ],
+ [
+  "m03-l1",
+  "q3",
+  "c",
+  false,
+  "The QR is a static payment request; the signature is never written back to the image. Detection happens on-chain by reference, not by re-reading the QR."
+ ],
+ [
+  "m03-l1",
+  "q4",
+  "a",
+  false,
+  "You generate the reference yourself, before the customer has scanned anything; it is random bytes carrying no wallet identity, so it cannot serve as a refund handle."
+ ],
+ [
+  "m03-l1",
+  "q4",
+  "b",
+  false,
+  "References do not encrypt anything; the amount is plainly in the URL. Tamper-resistance is exactly why the next lesson moves pricing server-side."
+ ],
+ [
+  "m03-l2",
+  "q1",
+  "b",
+  false,
+  "Opening a link is not consent to sign for arbitrary accounts; a low fee does not make an unexpected signer safe. The wallet must reject it."
+ ],
+ [
+  "m03-l2",
+  "q1",
+  "c",
+  false,
+  "Signing first and warning later has already exposed the account; the spec rule is to refuse before signing, not to audit after."
+ ],
+ [
+  "m03-l2",
+  "q2",
+  "a",
+  false,
+  "Who builds the transaction is precisely what changes; QR density is a rendering detail with no bearing on it."
+ ],
+ [
+  "m03-l2",
+  "q2",
+  "c",
+  false,
+  "The wallet does not author the transaction here; your server does. There is no separate client-built contract call for the server to co-sign."
+ ],
+ [
+  "m03-l2",
+  "q3",
+  "a",
+  false,
+  "There is no coupon parameter; discount logic is code you run, not a URL field. This misses why server construction matters."
+ ],
+ [
+  "m03-l2",
+  "q3",
+  "b",
+  false,
+  "There are no coupon or subtotal fields in the spec, and client-computed pricing is exactly the tamper risk you are escaping; the wallet never runs your discount logic."
+ ],
+ [
+  "m03-l2",
+  "q4",
+  "b",
+  false,
+  "The built transaction is the POST response; you cannot build it on GET because you do not yet know the paying account."
+ ],
+ [
+  "m03-l2",
+  "q4",
+  "c",
+  false,
+  "The endpoint returns merchant display metadata, not the customer's balance; the wallet already knows its own balances."
+ ],
+ [
+  "m03-l3",
+  "q1",
+  "a",
+  false,
+  "There is no Seed Vault NFC payments feature; Seed Vault is hardware key custody, and no tap-to-pay primitive exists."
+ ],
+ [
+  "m03-l3",
+  "q1",
+  "c",
+  false,
+  "Transfer hooks have nothing to do with NFC; there is no tap-to-pay path on any mint type."
+ ],
+ [
+  "m03-l3",
+  "q2",
+  "a",
+  false,
+  "Decaf sells no Solana POS hardware; assuming a terminal vendor exists is exactly the premise the pivot kills."
+ ],
+ [
+  "m03-l3",
+  "q2",
+  "b",
+  false,
+  "No such acquisition; Decaf pivoted its own product, and Seeker does not ship a POS terminal."
+ ],
+ [
+  "m03-l3",
+  "q3",
+  "b",
+  false,
+  "Commerce Kit is beta ('APIs may change') and ships no hosted dashboard; it is a mention, not the base for a stall you depend on."
+ ],
+ [
+  "m03-l3",
+  "q3",
+  "c",
+  false,
+  "Blinks are a social/link surface, not a POS terminal; that is the next lesson, and it does not replace the stall."
+ ],
+ [
+  "m03-l3",
+  "q4",
+  "a",
+  false,
+  "Appearing on a homepage is not verification; the referent of '150,000+ users' is ambiguous and unit numbers are undisclosed."
+ ],
+ [
+  "m03-l3",
+  "q4",
+  "c",
+  false,
+  "The mobile reality beat does matter for context; the fix is honest framing, not omission."
+ ],
+ [
+  "m03-l4",
+  "q1",
+  "a",
+  false,
+  "Native X rendering is not established; the 'unfurl in the feed' claim is frozen at 2024 launch language and is not how it works now."
+ ],
+ [
+  "m03-l4",
+  "q1",
+  "b",
+  false,
+  "That is an overly specific, unverified claim; the actual render-surface list for 2026 is uncertain and must be checked at write time."
+ ],
+ [
+  "m03-l4",
+  "q2",
+  "b",
+  false,
+  "There is no HTTP/2, preflight-exemption, or raw-bytes requirement; the transaction is base64, and the loading failure is about discovery and CORS."
+ ],
+ [
+  "m03-l4",
+  "q2",
+  "c",
+  false,
+  "Wallets do not send your RPC API key; discovery is via actions.json plus CORS, not RPC registration."
+ ],
+ [
+  "m03-l4",
+  "q3",
+  "a",
+  false,
+  "There is no fresh cadence; the blinks tooling has been effectively frozen since 2025, so 'stay on latest' is a false comfort."
+ ],
+ [
+  "m03-l4",
+  "q3",
+  "c",
+  false,
+  "There is no such rename; @dialectlabs/blinks 0.22.5 and @solana/actions 1.6.6 remain the pins, frozen as they are."
+ ],
+ [
+  "m03-l4",
+  "q4",
+  "a",
+  false,
+  "Actions need no special instruction shape, so reuse the m03-l2 builder rather than rewriting it; registry admission is a manual review, not an automatic POST."
+ ],
+ [
+  "m03-l4",
+  "q4",
+  "b",
+  false,
+  "Reuse is right, but the enforcement date is unsourced and must never be cited; admission is not instant on setting a key."
+ ],
+ [
+  "m04-l1",
+  "q1",
+  "b",
+  false,
+  "`processed` is UI-only and can be dropped in a fork; it is never a fulfillment source of truth for either amount."
+ ],
+ [
+  "m04-l1",
+  "q1",
+  "c",
+  false,
+  "A uniform rule is not free. Finalizing a $6 record adds about 10s of ecosystem-estimated latency for risk that rounds to zero, and commitment is a per-value decision, not a constant."
+ ],
+ [
+  "m04-l1",
+  "q2",
+  "a",
+  false,
+  "There is no dispute window and no reversal path; the network will not claw anything back for you the way an issuer does."
+ ],
+ [
+  "m04-l1",
+  "q2",
+  "c",
+  false,
+  "Disputes-as-chargebacks vanish, but refunds are a separate thing you must build by hand; they are absent from every official doc."
+ ],
+ [
+  "m04-l1",
+  "q3",
+  "a",
+  false,
+  "An expired blockhash means the transaction never lands at all, and getTransaction reports the balances the runtime actually recorded; a landed transfer with a real delta is not stale."
+ ],
+ [
+  "m04-l1",
+  "q3",
+  "b",
+  false,
+  "The frontend flag is the thing you must NOT trust; it is spoofable, and it is the whole reason server-side verification exists."
+ ],
+ [
+  "m04-l1",
+  "q4",
+  "b",
+  false,
+  "The stored set is a dedup guard, not an RPC cache; verification still fetches the transaction to check it."
+ ],
+ [
+  "m04-l1",
+  "q4",
+  "c",
+  false,
+  "Alpenglow is a labeled roadmap flag here, not a live gate; today's dedup is about webhook retries, not finality mechanics."
+ ],
+ [
+  "m04-l2",
+  "q5",
+  "a",
+  false,
+  "One payment produces one signature no matter how many times the webhook is delivered; deliveries are not transfers, and treating them as payments over-fulfills."
+ ],
+ [
+  "m04-l2",
+  "q5",
+  "c",
+  false,
+  "Redelivery on non-2xx is documented behavior, not a bug; the fix is idempotency, not a downgrade."
+ ],
+ [
+  "m04-l2",
+  "q6",
+  "a",
+  false,
+  "The payload can be spoofed or simply wrong; the m04-l1 verifier exists precisely so you never fulfill from a webhook's numbers."
+ ],
+ [
+  "m04-l2",
+  "q6",
+  "b",
+  false,
+  "Fulfilling before verification is the spoof's whole attack; verification gates fulfillment, not the other way round."
+ ],
+ [
+  "m04-l2",
+  "q7",
+  "b",
+  false,
+  "RPC polling is exactly what the official guidance calls insufficient at scale; a tight loop worsens the load that disabled you rather than fixing it."
+ ],
+ [
+  "m04-l2",
+  "q7",
+  "c",
+  false,
+  "Raw lowers latency but leaves the auto-disable-on-failure policy untouched; the failure is your endpoint, not the event type."
+ ],
+ [
+  "m04-l2",
+  "q8",
+  "a",
+  false,
+  "It is largely the same discipline; pretending it's novel hides the reuse of hard-won PSP hygiene."
+ ],
+ [
+  "m04-l2",
+  "q8",
+  "c",
+  false,
+  "End-of-day matching is a later lesson's reconciliation work; the direct map here is Stripe's webhook idempotency, not its settlement report."
+ ],
+ [
+  "m04-l3",
+  "q9",
+  "a",
+  false,
+  "The whole point is that you do NOT need unique deposit addresses; matching is by reference/memo, not by address."
+ ],
+ [
+  "m04-l3",
+  "q9",
+  "b",
+  false,
+  "Many orders share one mint; the mint can't identify an individual invoice; the reference/memo does."
+ ],
+ [
+  "m04-l3",
+  "q10",
+  "b",
+  false,
+  "Chargebacks don't exist here; refunds are absolutely possible, and you build them yourself as push payments."
+ ],
+ [
+  "m04-l3",
+  "q10",
+  "c",
+  false,
+  "There is no network dispute system and no claim to resolve; the absence means you own the flow, not that it's automated for you."
+ ],
+ [
+  "m04-l3",
+  "q11",
+  "a",
+  false,
+  "A push payment to a wallet address doesn't require the buyer online; that's not the risk here."
+ ],
+ [
+  "m04-l3",
+  "q11",
+  "c",
+  false,
+  "Blockhash expiry governs whether a transaction can still land, and a landed transfer cannot be replayed; finality, not expiry, is the guarantee that makes a refund safe."
+ ],
+ [
+  "m04-l3",
+  "q12",
+  "a",
+  false,
+  "Silent fulfillment on underpayment invites abuse and disputes; intent is not a payment."
+ ],
+ [
+  "m04-l3",
+  "q12",
+  "b",
+  false,
+  "That clean binary is bought with a griefing loop: an attacker churns your refund path at will, so the policy needs a guard."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q1",
+  "a",
+  false,
+  "A token account has exactly one delegate slot, and there is no per-delegate ledger for a second approval to occupy."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q1",
+  "c",
+  false,
+  "There is no pause state; the previous approval is overwritten, not suspended."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q2",
+  "a",
+  false,
+  "The approved amount is decremented on every delegate transfer, so it is a running balance rather than a standing ceiling."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q2",
+  "b",
+  false,
+  "Nothing re-approves automatically; a new approval is always a fresh signed action by the token-account owner."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q3",
+  "b",
+  false,
+  "Delegate authority is bounded on-chain by the approved amount and mint; it is not full control of the account."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q3",
+  "c",
+  false,
+  "The limit is enforced by the Token program via the approved amount, not by the crank's goodwill."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q4",
+  "a",
+  false,
+  "The approval persists and covers multiple pulls until the allowance is exhausted; expiry-per-transfer is not how it works."
+ ],
+ [
+  "m05-l1",
+  "m05-l1-q4",
+  "c",
+  false,
+  "A delegate TransferChecked can be paired with a memo/reference; the memo is not what the single slot limits."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q1",
+  "a",
+  false,
+  "Pulls are on-chain delegate transfers, and the enforced limits live in program accounts rather than off-chain; that is what keeps it non-custodial."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q1",
+  "b",
+  false,
+  "It does not multiply the user's token accounts; the ATA and its single slot stay put, and the program works within that one slot."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q2",
+  "b",
+  false,
+  "A PDA is not owned by the user's wallet, and the subscriber does not co-sign each pull; cadenced pulls without per-charge signatures are the point of delegation."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q2",
+  "c",
+  false,
+  "PDAs have no private key to hold, and custody-by-promise is exactly what this design removes."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q3",
+  "a",
+  false,
+  "An expiry-vs-height mix-up would misfire on expiry, not collapse a 24-hour window down to minutes."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q3",
+  "c",
+  false,
+  "A delegate pull is initiated by your crank, not by a webhook retry; signature dedup guards fulfillment, not pull cadence."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q4",
+  "a",
+  false,
+  "Ending a term does not delete the account, and an active flag alone does not encode a time-based lapse."
+ ],
+ [
+  "m05-l2",
+  "m05-l2-q4",
+  "b",
+  false,
+  "A zero allowance does not close the account, and it would not represent elapsed time either."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q1",
+  "b",
+  false,
+  "There is nothing to auto-retry against a wallet you don't control, and the documented policy is explicitly NOT to retry against the wallet."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q1",
+  "c",
+  false,
+  "A failure moves to an open-invoice/grace state, not immediate cancel-and-close; cancellation is a separate, explicit transition."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q2",
+  "a",
+  false,
+  "The program exposes an explicit revoke-and-reclaim path; the rent is not burned."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q2",
+  "c",
+  false,
+  "Closing the user's ATA is a different account entirely and does not reclaim the program's subscription or delegation PDAs."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q3",
+  "a",
+  false,
+  "Sphere does payments, ramps, OTC, and PIX settlement, but it ships NO recurring product."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q3",
+  "b",
+  false,
+  "Stripe Billing does support stablecoin subscriptions; that is exactly its recurring product."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q4",
+  "b",
+  false,
+  "There is no card on file. The primitive is a token-account delegate pull, not card billing."
+ ],
+ [
+  "m05-l3",
+  "m05-l3-q4",
+  "c",
+  false,
+  "Nothing escrows the subscriber's funds; an empty ATA simply cannot be pulled, no matter how many times you retry."
+ ],
+ [
+  "m06-l1",
+  "q1",
+  "a",
+  false,
+  "App IDs are not rotated hourly; that is not the reason the token flow exists."
+ ],
+ [
+  "m06-l1",
+  "q1",
+  "b",
+  false,
+  "A base58 address encodes into a query param without trouble; the token exists so the destination cannot be tampered with in transit, not because Solana addresses are unrepresentable."
+ ],
+ [
+  "m06-l1",
+  "q2",
+  "b",
+  false,
+  "The onramp settles crypto to the buyer, not to you; as merchant-of-record for the onramp, Stripe carries the card-side liability, not the store."
+ ],
+ [
+  "m06-l1",
+  "q2",
+  "c",
+  false,
+  "Onramp buys are not cash advances, and the merchant-of-record is Stripe, not the issuer."
+ ],
+ [
+  "m06-l1",
+  "q3",
+  "a",
+  false,
+  "There is no headless offramp endpoint and no direction flag to flip; Offramp is hosted-only, so the way out is a redirect."
+ ],
+ [
+  "m06-l1",
+  "q3",
+  "c",
+  false,
+  "The hosted flow keeps KYC with Coinbase; the point of a hosted offramp is that you do not take on the payout compliance."
+ ],
+ [
+  "m06-l1",
+  "q4",
+  "a",
+  false,
+  "Same chain in both cases; the difference is the actor and the direction, not the chain."
+ ],
+ [
+  "m06-l1",
+  "q4",
+  "b",
+  false,
+  "One registration does not cover both: different actors, different KYC surfaces, and collapsing them hides who is liable where."
+ ],
+ [
+  "m06-l2",
+  "q5",
+  "b",
+  false,
+  "Settlement is to a fiat balance, and on-chain transfers are not reversible; refunds are push payments as stablecoins."
+ ],
+ [
+  "m06-l2",
+  "q5",
+  "c",
+  false,
+  "Settlement is to your fiat balance, and refunds are merchant-initiated push payments, not a buyer re-initiation."
+ ],
+ [
+  "m06-l2",
+  "q6",
+  "a",
+  false,
+  "Stripe's crypto acceptance is stablecoin-network-based; PIX is Sphere's rail, not Stripe's."
+ ],
+ [
+  "m06-l2",
+  "q6",
+  "c",
+  false,
+  "Sphere is the PIX anchor in the research; MoonPay Commerce is not the PIX choice here."
+ ],
+ [
+  "m06-l2",
+  "q7",
+  "a",
+  false,
+  "USDC is a USD peg charged 1:1, so there is no spread to eat, and deep oracle pricing is not taught in this course."
+ ],
+ [
+  "m06-l2",
+  "q7",
+  "b",
+  false,
+  "For a USD-pegged stablecoin the display price is 1:1; oracle depth is handed off, not a core skill here."
+ ],
+ [
+  "m06-l2",
+  "q8",
+  "b",
+  false,
+  "It is ex-Helio rather than a from-scratch build, and marketed volume is a moving figure, not an audited constant."
+ ],
+ [
+  "m06-l2",
+  "q8",
+  "c",
+  false,
+  "It is a MoonPay product, not a Foundation processor, and the figure is a marketed dated number, not an on-chain read."
+ ],
+ [
+  "m07-l1",
+  "q1-who-signs",
+  "b",
+  false,
+  "The merchant runs the API and 402s the request, but it does not co-sign the payment transaction. Signing and submitting is the facilitator's job, and it happens at /settle, not /verify."
+ ],
+ [
+  "m07-l1",
+  "q1-who-signs",
+  "c",
+  false,
+  "The agent PARTIALLY signs on purpose so the facilitator can sponsor fees. If the agent fully signed and submitted, there would be no facilitator-as-fee-payer role at all."
+ ],
+ [
+  "m07-l1",
+  "q2-cu-figure",
+  "a",
+  false,
+  "The spec states no CU figure at all. The '20k CU' number was refuted in research; it roughly equals a transfer plus an ATA creation, not a mandated cost."
+ ],
+ [
+  "m07-l1",
+  "q2-cu-figure",
+  "c",
+  false,
+  "About 4.6k CU is a bare SPL transfer. A settle also carries the mandated ComputeBudget instructions, which are not free, and it may create an ATA. The spec pins no absolute, so do not print one."
+ ],
+ [
+  "m07-l1",
+  "q5-where-terms-live",
+  "a",
+  true,
+  "The v2 HTTP transport makes response bodies a server implementation concern and carries every protocol field in the three headers, so `{}` is the specified body, not a truncated one. The boundary is the version: a v1 counterparty really does put its challenge in the 402's body, which is why `x402Version` is the first field worth reading."
+ ],
+ [
+  "m07-l1",
+  "q5-where-terms-live",
+  "b",
+  false,
+  "An unresolvable price fails while the route is being configured, not by shipping a well-formed 402 with an empty list. The 402 you got is the healthy one; its terms are simply not where you looked for them."
+ ],
+ [
+  "m07-l1",
+  "q5-where-terms-live",
+  "c",
+  false,
+  "A missing facilitator sync shows up as a challenge with no `extra.feePayer`, or as a throw at boot. Either way you would be reading the PAYMENT-REQUIRED header to notice, because that is where the terms are."
+ ],
+ [
+  "m07-l1",
+  "q3-facilitator",
+  "a",
+  false,
+  "Helius is not on any facilitator list. Its roles in this course are webhooks/RPC and dogfooding the Subscriptions program, not x402 settlement."
+ ],
+ [
+  "m07-l1",
+  "q3-facilitator",
+  "b",
+  false,
+  "Helius is not a facilitator on any network. The devnet-only caveat belongs to the x402.org facilitator, not to Helius."
+ ],
+ [
+  "m07-l1",
+  "q4-traffic-windows",
+  "b",
+  false,
+  "Both pages count x402 transactions, but over different windows and on different scopes. Adding a 30-day rolling total to a cumulative-on-Solana snapshot invents a number no source supports."
+ ],
+ [
+  "m07-l1",
+  "q4-traffic-windows",
+  "c",
+  false,
+  "They measure different things: a 30-day rolling total versus a cumulative-on-Solana snapshot with a share claim. Dropping one is not the fix; keeping both attributed is."
+ ],
+ [
+  "m07-l2",
+  "q5-lighthouse",
+  "a",
+  false,
+  "The mismatch is caused by the wallet, not the agent. Rejecting all of them blocks legitimate Phantom/Solflare users, which is why the verifier allowlists the guard program instead of banning it."
+ ],
+ [
+  "m07-l2",
+  "q5-lighthouse",
+  "c",
+  false,
+  "Blockhash expiry makes a transaction fail to land; it does not add instructions to an otherwise-valid payment. The settlement cache is a replay guard, not a verification path. The cause here is wallet-injected guard instructions."
+ ],
+ [
+  "m07-l2",
+  "q6-memo-reconcile",
+  "a",
+  false,
+  "Wallet address is not an invoice id; two calls from the same agent share it. The memo IS the reconciliation key, exactly as Solana Pay reference keys are; it just has to be unique per call."
+ ],
+ [
+  "m07-l2",
+  "q6-memo-reconcile",
+  "c",
+  false,
+  "The settlement-cache is a replay guard against duplicate SETTLEMENT of one payment, not a reconciliation key. Collapsing three distinct sales into one is the bug, not the fix."
+ ],
+ [
+  "m07-l2",
+  "q7-spendcontrols",
+  "b",
+  false,
+  "The cap lives on the CLIENT (the agent's spendControls), not the facilitator. The facilitator would happily settle a $1.50 call; the agent declines it before signing."
+ ],
+ [
+  "m07-l2",
+  "q7-spendcontrols",
+  "c",
+  false,
+  "USDC is a recognized pegged asset; that is not the blocker. The blocker is the $1 per-payment cap the default spendControls enforce."
+ ],
+ [
+  "m07-l2",
+  "q8-facilitator-env",
+  "a",
+  false,
+  "The x402.org facilitator is explicitly devnet/testnet only. Pointing production at it will not settle real payments."
+ ],
+ [
+  "m07-l2",
+  "q8-facilitator-env",
+  "b",
+  false,
+  "Swapping the network id is real work, but the allowlist already ships inside the SVM verifier. Neither change matters here, because the x402.org facilitator does not serve mainnet at all."
+ ],
+ [
+  "m07-l3",
+  "q9-mor",
+  "a",
+  false,
+  "MPP is a payment-authentication draft; 'merchant-of-record' is not its framing, and being Solana-native says nothing about who bears that role. The standard that explicitly keeps the merchant as merchant-of-record is ACP."
+ ],
+ [
+  "m07-l3",
+  "q9-mor",
+  "b",
+  false,
+  "AP2 is cards-first with verifiable credentials and mandates; it does not make Google the merchant-of-record. ACP is the one that explicitly leaves the merchant as merchant-of-record."
+ ],
+ [
+  "m07-l3",
+  "q10-mpp-dated",
+  "a",
+  true,
+  "The IETF registration and the real expiry belong to the base scheme; the method spec only defines solana/charge underneath it, which is why the spec repo's submit workflow is path-filtered to specs/core. Documenting one layer's status as the other's is how a team ends up promising stability that neither document offers."
+ ],
+ [
+  "m07-l3",
+  "q10-mpp-dated",
+  "b",
+  false,
+  "Those dates are generated by the spec site's build rather than registered anywhere, so they move on every rebuild. Search the IETF datatracker for draft-solana- and it returns zero documents; the dates worth quoting are commits in tempoxyz/mpp-specs."
+ ],
+ [
+  "m07-l3",
+  "q10-mpp-dated",
+  "c",
+  false,
+  "Nothing here is ratified: the base scheme is an Internet-Draft with an expiry and the Solana method spec has no standards-body status at all. Foundation authorship is real, and it is a signal about who maintains one method, not a stability promise."
+ ],
+ [
+  "m07-l3",
+  "q11-pay-gate",
+  "a",
+  false,
+  "One gate makes the SAME API answer both, WWW-Authenticate: Payment challenge included. If it only served x402, gating would not be worth the CLI dependency."
+ ],
+ [
+  "m07-l3",
+  "q11-pay-gate",
+  "c",
+  false,
+  "Gating does not remove the facilitator/co-signer role; x402 still settles through a facilitator and MPP's pull mode still has the server co-sign. What gating buys is one API serving both protocols, not the elimination of that role."
+ ],
+ [
+  "m07-l3",
+  "q12-bet",
+  "a",
+  false,
+  "No standard is guaranteed to win, and AP2 is cards-first, a poor fit for Solana-native metered APIs. Picking one exclusively is the premature bet the lesson argues against."
+ ],
+ [
+  "m07-l3",
+  "q12-bet",
+  "b",
+  false,
+  "Fee sponsorship is not unique to MPP; x402's facilitator plays the same role. And the Foundation authored only the Solana method spec: the base scheme it plugs into is an IETF draft from Tempo Labs and Stripe, expiring 2026-12-21. Foundation authorship is a signal about one layer, not a guarantee about the stack you would be betting on."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q1",
+  "a",
+  false,
+  "Priority fees are optional and small; they cannot explain a rent-sized shortfall."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q1",
+  "c",
+  false,
+  "The 5000-lamport base fee is fixed; congestion changes optional priority fees, not the base fee."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q2",
+  "a",
+  false,
+  "Reversed: Octane is archived, and Kora is the audited successor."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q2",
+  "b",
+  false,
+  "Octane is archived, not maintained, and Kora covers SPL-token fee payment itself."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q3",
+  "b",
+  false,
+  "The scoped @x402/* line is the current SDK; the guide's bare names are the lagging ones."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q3",
+  "c",
+  false,
+  "Kora is a package-agnostic paymaster; the drift is naming, not a Kora requirement."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q4",
+  "a",
+  false,
+  "An unvalidated transaction can drain the sponsor via rent and abusive instructions; fees are not the only exposure."
+ ],
+ [
+  "m08-l1",
+  "m08-l1-q4",
+  "c",
+  false,
+  "Exposing the sponsor key client-side is strictly worse; validation, not key exposure, is the control."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q1",
+  "a",
+  false,
+  "At 300ms slots the 150-block window is far under 5 minutes; the rejection is expected, not an RPC bug."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q1",
+  "b",
+  false,
+  "Retries do not extend a blockhash's validity; the hash is simply too old to accept."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q2",
+  "b",
+  false,
+  "A nonce account is System-owned and MUST be rent-exempt; both parts of this are wrong."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q2",
+  "c",
+  false,
+  "The advance has to be instruction 0; putting the transfer first makes the durable-nonce transaction invalid."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q3",
+  "a",
+  false,
+  "The may-be-deprecated warning is still live and the double-processing risk is inherent; neither is obsolete."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q3",
+  "c",
+  false,
+  "That defers the buyer's signature until after they have walked away; offline signing is the whole point, and careful nonce handling is the fix rather than abandoning the primitive."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q4",
+  "a",
+  false,
+  "Once the nonce advanced, resubmitting risks double-processing (the exact 2022 failure class)."
+ ],
+ [
+  "m08-l2",
+  "m08-l2-q4",
+  "b",
+  false,
+  "The nonce already advanced, so a re-signed transaction is a fresh authorization, not a dedupe."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q1",
+  "b",
+  false,
+  "Finalizing everything adds latency the small sale doesn't need; the guidance scales commitment to value."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q1",
+  "c",
+  false,
+  "processed is UI-only and can be dropped in forks, so it is never a settlement gate for real money."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q2",
+  "a",
+  false,
+  "That's landing science this course hands off; the gate wants a practical recipe, not a tuning engine."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q2",
+  "c",
+  false,
+  "Under congestion a bare base-fee tx can be dropped; a practical priority-fee floor still matters."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q3",
+  "a",
+  false,
+  "The transactions confirmed fine; the failure is in ingestion, not commitment."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q3",
+  "b",
+  false,
+  "Idempotency guards against double-fulfillment, not silent non-delivery."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q4",
+  "b",
+  false,
+  "You already have reference/memo reconciliation; the missing SaaS is a note, not a blocker."
+ ],
+ [
+  "m08-l3",
+  "m08-l3-q4",
+  "c",
+  false,
+  "Stripe's dashboard covers its own rails, not your on-chain Solana Pay and x402 ledger."
+ ],
+ [
+  "m09-l1",
+  "m09l1-q1-kit-pins",
+  "a",
+  false,
+  "@solana/subscriptions 0.5.0 peers kit ^7, so the kit-6 line breaks its peer range, and an override only silences the warning while the client runs on a kit it was never built against. That is the seam m05-l2 already solved."
+ ],
+ [
+  "m09-l1",
+  "m09l1-q1-kit-pins",
+  "b",
+  false,
+  "@solana/pay peers the kit-6 line; jumping the wavelength-checkout workspace to the newest kit re-breaks its peer pair, and you pin exact per workspace, never to latest."
+ ],
+ [
+  "m09-l1",
+  "m09l1-q2-verify-leg",
+  "b",
+  false,
+  "Kora co-signing does not make a frontend confirmation trustworthy, and an accepted submission is not a verified transfer; the verifier still re-checks server-side. A success toast proves nothing about what actually landed on chain."
+ ],
+ [
+  "m09-l1",
+  "m09l1-q2-verify-leg",
+  "c",
+  false,
+  "Client-side balance polling is spoofable and unreliable; the course-wide gate is the m04 server-side verifier, not any client-read shortcut."
+ ],
+ [
+  "m09-l1",
+  "m09l1-q3-dunning-leg",
+  "a",
+  false,
+  "That is card-rail dunning, not the taught policy. The Helius model does NOT retry the failed renewal against the wallet."
+ ],
+ [
+  "m09-l1",
+  "m09l1-q3-dunning-leg",
+  "c",
+  false,
+  "Rent recovery via RevokeAbandoned is the cancel path, not the failure path; a single failed renewal becomes an open invoice, it does not tear down the subscription."
+ ],
+ [
+  "m09-l2",
+  "m09l2-q1-frozen-moving",
+  "a",
+  false,
+  "The v1 spec is frozen, and frozen means stable, not stale-and-changing; the URL format is one of the LEAST likely things to move."
+ ],
+ [
+  "m09-l2",
+  "m09l2-q1-frozen-moving",
+  "b",
+  false,
+  "Frozen tooling is the opposite of fast-moving; the blinks lane is among the LEAST likely to shift pins in three months."
+ ],
+ [
+  "m09-l2",
+  "m09l2-q2-where-next",
+  "b",
+  false,
+  "Digital Assets owns token internals, not tx-landing; priority fees and Jito were handed to the client-side course."
+ ],
+ [
+  "m09-l2",
+  "m09l2-q2-where-next",
+  "c",
+  false,
+  "Low-Level Solana explains WHY the runtime behaves as it does; the practical what-to-do for landing was deferred to the client-side course, not the internals course."
+ ],
+ [
+  "m09-l2",
+  "m09l2-q3-frame",
+  "a",
+  false,
+  "Low fees are real but they did not shape verification, reconciliation, or refunds; the asymmetry that did was the absence of chargebacks."
+ ],
+ [
+  "m09-l2",
+  "m09l2-q3-frame",
+  "c",
+  false,
+  "Settlement is fast but not free of the retry-and-duplicate problem; idempotency and reconciliation mattered throughout precisely because webhooks still lie and blockhashes still expire."
+ ]
+]

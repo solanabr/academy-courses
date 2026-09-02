@@ -19,6 +19,7 @@ blocks:
           - id: a
             label: "The fee payer's signature is missing; the facilitator adds it at /settle and submits the transaction."
             correct: true
+            feedback: "Leaving one slot unsigned is what makes sponsorship possible: the payer authorizes the transfer without funding it. Until the sponsor broadcasts, that intent is not yet a payment."
           - id: b
             label: "The merchant's signature is missing; the merchant adds it at /verify before the agent pays."
             correct: false
@@ -39,6 +40,7 @@ blocks:
           - id: b
             label: "Drop the number; the spec states no CU figure, and an unsourced one is unsupported."
             correct: true
+            feedback: "It bounds the CU price and never the count, so there is no absolute in it to quote. Unstated is not unmeasurable: publish your own figure, dated and labelled as a measurement."
           - id: c
             label: "Change it to 4,600 CU, since a settle is just an SPL transfer and the ComputeBudget instructions the spec mandates cost nothing."
             correct: false
@@ -79,6 +81,7 @@ blocks:
           - id: c
             label: "Helius is not an x402 facilitator; pick from Corbits, Dexter, PayAI, Solvador, or CDP, and note the x402.org facilitator is devnet-only."
             correct: true
+            feedback: "Facilitator is a protocol role, and a vendor relationship never confers it. The roster moves, so re-check it at integration time."
         explanation: "The research corrected the charter's guess: Helius is not a facilitator. The real Solana options are Corbits, Dexter (free), PayAI, Solvador, Coinbase's hosted CDP (with KYT/OFAC), and Faremeter as an OSS framework; the x402.org facilitator is devnet/testnet only."
       - id: q4-traffic-windows
         prompt: "Your landing page needs a credibility stat for x402. You have '75.41M transactions / $24.24M in 30 days' (x402.org) and '37M+ transactions, 70% of monthly volume on Solana' (solana.com/x402). How do you present them?"
@@ -87,6 +90,7 @@ blocks:
           - id: a
             label: "Quote each figure separately with its own source and date; never add or blend them into one number."
             correct: true
+            feedback: "Different windows and scopes share no denominator, so arithmetic across them manufactures a statistic nobody published. They may also overlap, so neither is a safe floor."
           - id: b
             label: "Add them: 75.41M plus 37M gives a 112M+ transaction headline, and both pages are counting x402 transactions anyway."
             correct: false

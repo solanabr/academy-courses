@@ -17,6 +17,7 @@ blocks:
           - id: a
             label: "You read a stranger's already-settled payment straight from the shared ledger, because settlement records here are public by default."
             correct: true
+            feedback: "Any RPC serves the same replicated ledger, so reading needs no key. The symmetry cuts both ways: your own sales are just as public."
           - id: b
             label: "You issued a refund against someone else's charge, since the same public RPC that hands back a transfer also accepts reversal calls against the signature it returned."
             correct: false
@@ -37,6 +38,7 @@ blocks:
           - id: b
             label: "The Foundation's payments focus shifted toward agent and HTTP payments, while classic Solana Pay lives on as a subpackage."
             correct: true
+            feedback: "A redirect moves attention, not code: the package you installed still publishes from that monorepo. Read it as shifted investment, though; maintenance follows the headline."
           - id: c
             label: "Your npm package was hijacked; a surprise `pay` binary is a supply-chain compromise you should remove."
             correct: false
@@ -57,4 +59,5 @@ blocks:
           - id: c
             label: "Stripe's 'Pay with crypto' accepts USDC on Solana at checkout and settles the merchant in fiat."
             correct: true
+            feedback: "An incumbent settling merchants in fiat is the evidence a skeptic accepts. It proves the rail is real, not that buyers will choose it."
         explanation: "The strongest 'this is real' datum is an incumbent shipping it in production: Stripe accepts USDC-on-Solana at checkout and settles you in fiat. That is a mainstream PSP treating these rails as a first-class payment method, which is precisely the credibility signal the opener is built around."
