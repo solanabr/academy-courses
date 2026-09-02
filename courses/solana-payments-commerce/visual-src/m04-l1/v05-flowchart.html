@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: verify(signature, expectedOrder), the ordered pipeline
      purpose: fix the check order and the exactly-one-reason contract before the reader implements it
-     data: entry -> store.has(signature)? yes -> reason: duplicate -> getTransaction(jsonParsed) null? -> not-found (transient: retry later, not a verdict) -> find largest credit to merchant owner in pre/post token balances (none found = zero credit) -> credit.programId != classic Token -> reason: wrong-token-program -> credit.mint != expected mint -> reason: wrong-mint -> credit delta < expected base units -> reason: underpaid -> no spl-memo containing orderId -> reason: wrong-reference -> store.add(signature) -> reason: verified -> fulfill contract: exactly one reason per call, the FIRST failing check in this order
+     data: entry -> store.has(signature)? yes -> reason: duplicate -> getTransaction(jsonParsed) null? -> not-found (transient: retry later, not a verdict) -> find largest credit to merchant owner in pre/post token balances (none found = zero credit) -> credit.programId != classic Token -> reason: wrong-token-program -> credit.mint != expected mint -> reason: wrong-mint -> credit delta < expected base units -> reason: underpaid -> no spl-memo field equal to orderId (whole field, never substring) -> reason: wrong-reference -> store.add(signature) -> reason: verified -> fulfill contract: exactly one reason per call, the FIRST failing check in this order
      prompt: Vertical flowchart of the pipeline from data, one decision node per check in order, each failing edge exiting right to a labeled reason chip (duplicate, not-found, wrong-token-program, wrong-mint, underpaid, wrong-reference). Mark not-found's chip as "transient: retry" in a distinct treatment from the verdict chips. The success path runs straight down to store.add then a verified/fulfill terminal. Footer banner carries the exactly-one-reason contract line. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -71,7 +71,7 @@
     <div class="frow"><div class="darr"><span></span></div></div>
     <div class="frow"><div class="fnode">credit delta &lt; expected base units?</div><div class="fx"></div><span class="chip">underpaid</span></div>
     <div class="frow"><div class="darr"><span></span></div></div>
-    <div class="frow"><div class="fnode">no spl-memo containing orderId?</div><div class="fx"></div><span class="chip">wrong-reference</span></div>
+    <div class="frow"><div class="fnode">no spl-memo field equal to orderId? <small>(whole field, never substring)</small></div><div class="fx"></div><span class="chip">wrong-reference</span></div>
     <div class="frow"><div class="darr"><span></span></div></div>
     <div class="frow"><div class="fnode fnode-term">store.add(signature)</div><div class="fx"></div><span class="chip chip-win">verified &rarr; fulfill</span></div>
   </div>

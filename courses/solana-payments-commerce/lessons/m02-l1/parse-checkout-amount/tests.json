@@ -112,5 +112,11 @@
     "description": "A lone decimal point has no digits on either side: malformed, never zero.",
     "input": "'.', 6",
     "expectedOutput": "result.ok === false && result.reason === 'malformed'"
+  },
+  {
+    "id": "t20-negative-precedence",
+    "description": "A leading minus followed by non-digit garbage is malformed, not negative: an implementation that decides negative from a startsWith('-') check before confirming the rest is a well-formed decimal misreads it.",
+    "input": "'-abc', 6",
+    "expectedOutput": "result.ok === false && result.reason === 'malformed'"
   }
 ]
