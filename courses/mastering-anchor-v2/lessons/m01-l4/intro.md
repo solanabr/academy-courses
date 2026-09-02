@@ -363,13 +363,13 @@ The acceptance criteria are exact:
 - `discriminator_preimage("account", "HighScore")` returns `account:HighScore` — same name as the case above it, different namespace, because the prefix is a function of the *kind*
 - `discriminator_preimage("instruction", "initialize")` returns `global:initialize`
 
-Run it against the bundled tests until the starter's failing case turns green. The five cases above are exactly what the challenge harness asserts. The last two are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
+Run it against the bundled tests until the starter's failing cases turn green. The five cases above are exactly what the challenge harness asserts. The last two are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
 
 ```bash
 cargo test
 ```
 
-The starter fails the instruction case; your solution passes all three.
+The starter fails both instruction cases; your solution passes all five.
 
 **Solo, no scaffolding, two parts.** First, add a third variant to your program's `BarcadeError` enum, and before you run anything, write down the exact on-wire number you expect a client to see when it fires. The error-layout section has everything you need to derive it. Then trigger it and check yourself against the wire. Second, reason it out in one or two sentences of your own: why is writing plain `dup` a compile error, while passing the same mutable account twice is a runtime rejection? Two different events at two different times, and naming what each one knows is the whole exercise. No answer here; if your sentence holds up when you re-read the `MUT_MASK` section, it holds up.
 
