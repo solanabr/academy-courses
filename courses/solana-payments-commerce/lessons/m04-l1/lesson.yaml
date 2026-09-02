@@ -28,7 +28,7 @@ blocks:
           - id: a
             label: "Gate the $6 record on `confirmed` and the $6,000 invoice on `finalized`."
             correct: true
-            feedback: "Commitment trades latency for fork risk, and expected loss scales with the ticket."
+            feedback: "Commitment trades latency for fork risk, and expected loss scales with the ticket; value is the input, not the product category."
           - id: b
             label: "Keep both on `processed`, since it returns fastest and the wallet already showed the buyer a success screen."
             correct: false
@@ -49,7 +49,7 @@ blocks:
           - id: b
             label: "Fulfillment mistakes are final, so server-side verification is your only backstop."
             correct: true
-            feedback: "With no reversal path, the only control point sits before you ship."
+            feedback: "With no reversal path, the only control point sits before you ship. What it backstops is a fake payment, not a buyer who's changed their mind."
           - id: c
             label: "Refunds become automatic since disputes can't happen, so no refund code is needed."
             correct: false

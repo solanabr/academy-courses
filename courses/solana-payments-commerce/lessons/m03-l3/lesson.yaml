@@ -22,7 +22,7 @@ blocks:
           - id: b
             label: "No; there is no NFC or tap-to-pay primitive on Solana, and QR remains the standard checkout surface."
             correct: true
-            feedback: "Nothing in the spec or the mobile stack exposes an NFC path."
+            feedback: "Nothing in the spec or the mobile stack exposes an NFC path; what you can offer the vendor is the ergonomics rather than the gesture, since scanning is also one motion."
           - id: c
             label: "Only for Token-2022 mints, whose transfer-hook can carry the tap-to-pay handshake between the phone and the reader."
             correct: false
