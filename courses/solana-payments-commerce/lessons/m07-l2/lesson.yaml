@@ -32,7 +32,7 @@ blocks:
           - id: b
             label: "Phantom and Solflare inject Lighthouse guard instructions, so x402's SVM verifier allowlists that program and verifies what was actually signed."
             correct: true
-            feedback: "Wallets legitimately add instructions, so byte-equality against your rebuild is the wrong invariant; check what was actually signed. An allowlist stays narrow: anything off it fails."
+            feedback: "Wallets legitimately add instructions, and byte-equality against your rebuild is the wrong invariant; what was actually signed is the thing to check, and an allowlist stays narrow by design."
           - id: c
             label: "The blockhash expired mid-flight, so the wallet rebuilt the transaction on a fresh one; widen the settlement-cache eviction window past the package's quoted 60-to-90-second lifetime range."
             correct: false
@@ -49,7 +49,7 @@ blocks:
           - id: b
             label: "Give each call a unique extra.memo invoice id (at most 256 bytes) so each payment reconciles to its own order in the same ledger."
             correct: true
-            feedback: "A reconciliation key must be one-to-one with orders; reuse collapses rows. Unique is not private, so keep customer data out of it."
+            feedback: "A reconciliation key must be one-to-one with orders, since reuse collapses rows; unique is not private, though, and the memo is world-readable."
           - id: c
             label: "Widen the settlement-cache window so all three settlements are treated as one and dedup to a single order."
             correct: false
@@ -65,7 +65,7 @@ blocks:
           - id: a
             label: "The default spendControls cap is $1 per payment, so the agent declines a $1.50 call; raise the cap or price the call lower."
             correct: true
-            feedback: "A client-side pre-flight guard refuses before signing, so nothing reaches the network and your server sees no error. Lifting the cap removes the protection, so log declines instead."
+            feedback: "A client-side pre-flight guard refuses before signing; nothing reaches the network and your server sees no error, and lifting the cap removes the protection an unlogged decline hid."
           - id: b
             label: "The x402.org devnet facilitator refuses to settle any payment above $1, so it rejects the call and the agent never receives a settlement receipt."
             correct: false
@@ -90,5 +90,5 @@ blocks:
           - id: c
             label: "No; that facilitator is devnet/testnet only, so mainnet needs a production one such as Corbits, PayAI, or CDP."
             correct: true
-            feedback: "A reference deployment is scoped to the networks it serves, so the URL is part of the network binding. Swapping it is the easy half: trust, KYT, and fee terms come with it."
+            feedback: "A reference deployment is scoped to the networks it serves, which makes the URL part of the network binding. Swapping it is the easy half, with trust, KYT, and fee terms riding along."
         explanation: "The x402.org facilitator is devnet/testnet only, a deliberate reference deployment. A mainnet launch must swap the facilitator URL to a production one (Corbits, Dexter, PayAI, Solvador, or Coinbase CDP), which is a config change plus the trust and KYT considerations that come with picking a facilitator."

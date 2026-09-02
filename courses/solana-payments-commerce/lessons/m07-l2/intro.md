@@ -239,18 +239,9 @@ for (let call = 1; call <= 3; call++) {
   const invoiceId = `WVL-INV-${Date.now()}-${call}`;
   const res = await payAndRetry(`${API}/price?run=500&invoice=${invoiceId}`, client);
   if (!res.ok) {
-    // Failures are silent in the body and loud in the headers. A payment the
-    // facilitator rejected names its reason in PAYMENT-REQUIRED's `error`;
-    // a settlement that failed names its reason in PAYMENT-RESPONSE's
-    // `errorReason`. Never guess from the status code alone.
-    const challenge = res.headers.get('PAYMENT-REQUIRED');
-    const failedReceipt = res.headers.get('PAYMENT-RESPONSE');
-    const why = challenge
-      ? decodePaymentRequiredHeader(challenge).error
-      : failedReceipt
-        ? decodePaymentResponseHeader(failedReceipt).errorReason
-        : 'no x402 header on the response';
-    console.error(`call ${call} failed: HTTP ${res.status}: ${why}`);
+    // Failures are silent in the body and loud in the headers; the checkpoint
+    // section at the end of this lesson reads them field by field.
+    console.error(`call ${call} failed: HTTP ${res.status}`);
     continue;
   }
   const receiptHeader = res.headers.get('PAYMENT-RESPONSE');
@@ -295,7 +286,7 @@ Name the trade before you ship it, because this one is structural. The facilitat
 
 The second honest limit is economic, and it is the machine-commerce version of a lesson every payments person eventually learns: settlement costs must fit inside the thing being sold. exact settles every call on-chain, so every call carries real chain cost, the transfer fee the sponsor eats plus the operational cost of verify and settle round-trips. At five cents a quote, that overhead is a rounding error and per-call metering is exactly right. At a thousand sub-cent telemetry pings a minute, per-call settlement costs more than the product, and no amount of engineering enthusiasm changes the arithmetic; that traffic wants the upto scheme's authorize-a-ceiling model or batch settlement, both of which exist precisely because exact does not stretch there. Match the scheme to the unit economics of the call, and be suspicious of any metering plan whose margin depends on the settlement rail being free. Here is the optimistic half, and it is the half that matters for Wavelength: the collector bot that was a pure cost center this morning is now a customer with unit economics that work, at a price point no card network could clear profitably. Machine customers are not a threat to the price sheet. They are the first customer segment in history that reads it perfectly and never abandons a cart.
 
-And the third limit you are living with all lesson: the `@x402/*` line is 2.23.0 today, published five days ago as I write this, and nothing about this ecosystem suggests it will sit still. Every wire fact in this lesson was read off that exact build rather than off a document: the challenge arriving base64'd in a PAYMENT-REQUIRED header with a two-byte `{}` under it, `amount` rather than `maxAmountRequired` in the v2 requirement, and the `maxTimeoutSeconds` the resource server fills in for you. The version straddling is what makes that discipline non-optional, because one package ships both dialects' schemas side by side, so "which shape am I holding" stays a live question at every bump instead of a settled one. Re-verify at every touch, the way this lesson did, not the way a bookmark does.
+And the third limit you are living with all lesson: the `@x402/*` line is 2.23.0 today, published five days ago as I write this, and nothing about this ecosystem suggests it will sit still. Every wire fact in this lesson was read off that exact build rather than off a document: the header transport, `amount` rather than `maxAmountRequired` in the v2 requirement, and the `maxTimeoutSeconds` the resource server fills in for you. The version straddling is what makes that discipline non-optional, because one package ships both dialects' schemas side by side, so "which shape am I holding" stays a live question at every bump instead of a settled one. Re-verify at every touch, the way this lesson did, not the way a bookmark does.
 
 ![Three-column card of the metering trade: the facilitator trust boundary, the per-call settlement economics, and the fast-moving package pin to re-verify.](assets/v08-comparison.png)
 
@@ -386,37 +377,37 @@ Content-Length: 2
 {}
 ```
 
-The gate is live and the body is two bytes, exactly as advertised. The price sheet is in the header, so decode it:
+The gate is live, exactly as advertised. Decode the header:
 
 ```bash
 curl -sD - -o /dev/null "http://localhost:4021/price?run=500&invoice=WVL-INV-TEST" \
   | grep -i '^payment-required:' | sed 's/^[^:]*: *//' | tr -d '\r' \
-  | base64 -d | python3 -m json.tool
+  | base64 -d | node -p "JSON.stringify(JSON.parse(require('fs').readFileSync(0,'utf8')),null,2)"
 ```
 
 ```json
 {
-    "x402Version": 2,
-    "error": "Payment required",
-    "resource": {
-        "url": "http://localhost:4021/price?run=500&invoice=WVL-INV-TEST",
-        "description": "Wavelength pressing-price quote",
-        "mimeType": ""
-    },
-    "accepts": [
-        {
-            "scheme": "exact",
-            "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-            "amount": "50000",
-            "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-            "payTo": "YOUR_MERCHANT_ADDRESS",
-            "maxTimeoutSeconds": 300,
-            "extra": {
-                "memo": "WVL-INV-TEST",
-                "feePayer": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5"
-            }
-        }
-    ]
+  "x402Version": 2,
+  "error": "Payment required",
+  "resource": {
+    "url": "http://localhost:4021/price?run=500&invoice=WVL-INV-TEST",
+    "description": "Wavelength pressing-price quote",
+    "mimeType": ""
+  },
+  "accepts": [
+    {
+      "scheme": "exact",
+      "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      "amount": "50000",
+      "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+      "payTo": "YOUR_MERCHANT_ADDRESS",
+      "maxTimeoutSeconds": 300,
+      "extra": {
+        "memo": "WVL-INV-TEST",
+        "feePayer": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5"
+      }
+    }
+  ]
 }
 ```
 

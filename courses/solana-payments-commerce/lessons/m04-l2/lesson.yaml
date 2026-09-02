@@ -22,7 +22,7 @@ blocks:
           - id: b
             label: "Helius retries any event your server didn't answer with a 2xx, so de-dupe on the transaction signature."
             correct: true
-            feedback: "At-least-once delivery means the key must come from the payment, not the delivery: a per-delivery id changes on every retry and lets all three through. A signature is deterministic."
+            feedback: "At-least-once delivery means the key has to come from the payment rather than the delivery; a per-delivery id changes on every retry and lets all three through."
           - id: c
             label: "It's a bug in helius-sdk 3.1.0's delivery retry loop; pin an older SDK version and the duplicate deliveries stop."
             correct: false
@@ -43,7 +43,7 @@ blocks:
           - id: c
             label: "Verify the signature on-chain with the server-side verifier (program, mint, delta, memo) before the ledger records any fulfillment."
             correct: true
-            feedback: "The only field a webhook can be trusted for is the pointer; the rest is decoration until chain state confirms it. Same rule for any push source, including your own frontend."
+            feedback: "The only field a webhook can be trusted for is the pointer. The rest is decoration until chain state confirms it, and that goes for any push source, your own frontend included."
         explanation: "A webhook is a notification, not proof. Every event runs through the m04-l1 verifier against on-chain state before fulfillment; a spoofed payload fails verification and never reaches the ledger."
       - id: q7
         prompt: "Your endpoint starts timing out under load and Helius auto-disables the webhook. What is the real lesson for scaling ingestion?"
@@ -52,7 +52,7 @@ blocks:
           - id: a
             label: "Webhooks disable at sustained failure by design; ingestion at volume belongs on Yellowstone gRPC indexing."
             correct: true
-            feedback: "Auto-disable is backpressure protecting the sender, so the fix is capacity, not a setting. A stream lifts the delivery ceiling but not the dedup requirement: reconnects replay."
+            feedback: "Auto-disable is backpressure protecting the sender, and the fix is capacity, not a setting. A stream lifts the delivery ceiling but not the dedup requirement, since reconnects replay."
           - id: b
             label: "Raise the retry count and poll `getSignaturesForAddress` in a tight loop as the backup path, so no event is lost while the endpoint recovers under load."
             correct: false
@@ -73,7 +73,7 @@ blocks:
           - id: b
             label: "It's Stripe webhook hygiene with different keys: the transaction signature plays the idempotency key's role."
             correct: true
-            feedback: "The delivery semantics are identical, so the hygiene ports over intact. Stripe signs its payloads, though; here you re-read the chain."
+            feedback: "The delivery semantics are identical, and the hygiene ports over intact; Stripe signs its payloads, though, and here you re-read the chain instead."
           - id: c
             label: "It maps to Stripe's settlement report rather than its webhooks, since the shared discipline is end-of-day matching of payouts against orders, not event delivery."
             correct: false

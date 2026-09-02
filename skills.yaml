@@ -60,7 +60,6 @@
   label: Recurring Delegation
 - slug: brazil-compliance
   label: Brazil Payments Compliance
-  # Single-use by design (CATALOG.md §5 policy 4 names it): only the corridors
-  # lesson covers the Brazil/PIX corridor (the Brazil compliance-boundary
-  # section is planned for m06-l2).
+  # Single-use by design (CATALOG.md §5 policy 4 names it): the Brazil/PIX
+  # corridor is covered in one place, m06-l2's distribution section.
   reviewExempt: true

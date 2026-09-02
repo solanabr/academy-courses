@@ -19,7 +19,7 @@ blocks:
           - id: a
             label: "The fee payer's signature is missing; the facilitator adds it at /settle and submits the transaction."
             correct: true
-            feedback: "Leaving one slot unsigned is what makes sponsorship possible: the payer authorizes the transfer without funding it. Until the sponsor broadcasts, that intent is not yet a payment."
+            feedback: "Leaving one slot unsigned is what makes sponsorship possible, the payer authorizing the transfer without funding it. Until the sponsor broadcasts, that intent is not yet a payment."
           - id: b
             label: "The merchant's signature is missing; the merchant adds it at /verify before the agent pays."
             correct: false
@@ -40,7 +40,7 @@ blocks:
           - id: b
             label: "Drop the number; the spec states no CU figure, and an unsourced one is unsupported."
             correct: true
-            feedback: "It bounds the CU price and never the count, so there is no absolute in it to quote. Unstated is not unmeasurable: publish your own figure, dated and labelled as a measurement."
+            feedback: "It bounds the CU price and never the count, so there is no absolute in it to quote; unstated is not unmeasurable, though, and your own dated measurement is a citable number."
           - id: c
             label: "Change it to 4,600 CU, since a settle is just an SPL transfer and the ComputeBudget instructions the spec mandates cost nothing."
             correct: false
@@ -53,15 +53,15 @@ blocks:
           - id: a
             label: "Nothing on the server: v2 carries the whole challenge in a base64 PAYMENT-REQUIRED response header, so decode that header and read `accepts` out of it."
             correct: true
-            feedback: "The v2 HTTP transport makes response bodies a server implementation concern and carries every protocol field in the three headers, so `{}` is the specified body, not a truncated one. The boundary is the version: a v1 counterparty really does put its challenge in the 402's body, which is why `x402Version` is the first field worth reading."
+            feedback: "The `{}` is the specified body, not a truncated one; the boundary is the version, since a v1 counterparty really does put its challenge in the body, which is why `x402Version` is the first field worth reading."
           - id: b
             label: "The route's `price` never resolved to an asset, so the middleware emitted an empty requirements list; pin the asset explicitly instead of using the money form."
             correct: false
-            feedback: "An unresolvable price fails while the route is being configured, not by shipping a well-formed 402 with an empty list. The 402 you got is the healthy one; its terms are simply not where you looked for them."
+            feedback: "An unresolvable price fails while the route is being configured, not by shipping a well-formed 402 with an empty list; the 402 you got is the healthy one, and its terms are not where you looked."
           - id: c
             label: "The resource server never ran `initialize()`, so it learned no supported kinds from the facilitator and had no fee payer to put in the terms."
             correct: false
-            feedback: "A missing facilitator sync shows up as a challenge with no `extra.feePayer`, or as a throw at boot. Either way you would be reading the PAYMENT-REQUIRED header to notice, because that is where the terms are."
+            feedback: "A missing facilitator sync shows up as a challenge with no `extra.feePayer`, or as a throw at boot; either way it is the PAYMENT-REQUIRED header that would tell you."
         explanation: "In x402 v2 the challenge travels as base64 JSON in the PAYMENT-REQUIRED response header, and the 402's body is the two bytes `{}` on the opening challenge, on a rejected payment, and on a failed settlement alike. Decoding that header yields `x402Version`, `error` (the failure reason), `resource`, and the `accepts` array of PaymentRequirements. v1 was the version that carried its challenge in the body; read the body of a v2 402 and you find an empty object every time."
   - key: check-landscape
     type: quiz
@@ -81,7 +81,7 @@ blocks:
           - id: c
             label: "Helius is not an x402 facilitator; pick from Corbits, Dexter, PayAI, Solvador, or CDP, and note the x402.org facilitator is devnet-only."
             correct: true
-            feedback: "Facilitator is a protocol role, and a vendor relationship never confers it. The roster moves, so re-check it at integration time."
+            feedback: "Facilitator is a protocol role, and a vendor relationship never confers it."
         explanation: "The research corrected the charter's guess: Helius is not a facilitator. The real Solana options are Corbits, Dexter (free), PayAI, Solvador, Coinbase's hosted CDP (with KYT/OFAC), and Faremeter as an OSS framework; the x402.org facilitator is devnet/testnet only."
       - id: q4-traffic-windows
         prompt: "Your landing page needs a credibility stat for x402. You have '75.41M transactions / $24.24M in 30 days' (x402.org) and '37M+ transactions, 70% of monthly volume on Solana' (solana.com/x402). How do you present them?"
@@ -90,7 +90,7 @@ blocks:
           - id: a
             label: "Quote each figure separately with its own source and date; never add or blend them into one number."
             correct: true
-            feedback: "Different windows and scopes share no denominator, so arithmetic across them manufactures a statistic nobody published. They may also overlap, so neither is a safe floor."
+            feedback: "Different windows and scopes share no denominator, and arithmetic across them manufactures a statistic nobody published; they may overlap, too, which leaves neither one a safe floor."
           - id: b
             label: "Add them: 75.41M plus 37M gives a 112M+ transaction headline, and both pages are counting x402 transactions anyway."
             correct: false

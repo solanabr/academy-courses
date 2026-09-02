@@ -22,7 +22,7 @@ blocks:
           - id: b
             label: "You paid ~0.00204 SOL of ATA-creation rent for buyers who later closed those accounts and kept the reclaim."
             correct: true
-            feedback: "A rent deposit returns to whoever closes the account, not whoever funded it. Budget it as acquisition cost, never a recoverable loan."
+            feedback: "A rent deposit returns to whoever closes the account, not whoever funded it; that makes sponsorship an acquisition cost rather than a recoverable loan."
           - id: c
             label: "The base fee rose above 5000 lamports during the sale because the network was congested."
             correct: false
@@ -43,7 +43,7 @@ blocks:
           - id: c
             label: "Octane was archived 2026-04-20 and points to Kora, which carries a Runtime Verification audit."
             correct: true
-            feedback: "An archived repo pointing at a successor is the maintainers' own handoff, better than guessing from commit dates. An audit covers one commit, so check which version yours is."
+            feedback: "An archived repo pointing at a successor is the maintainers' own handoff, which beats guessing from commit dates. An audit covers one commit, though, and yours may not be that one."
         explanation: "Octane's archival (2026-04-20, README pointing at Kora) is the signal that the paymaster torch passed. Kora's Runtime Verification audit is what makes it safe to place in the fee-payer seat."
       - id: m08-l1-q3
         prompt: "You copy the official facilitator-on-Kora guide and its imports read `x402` / `x402-express`, but your project uses `@x402/svm`. What's happening and what do you do?"
@@ -52,7 +52,7 @@ blocks:
           - id: a
             label: "The guide lags on v1 package names; the live SDK is the scoped @x402/* v2 line, so build v2."
             correct: true
-            feedback: "Docs and registries ship on separate clocks, so npm is the fresher truth. Assume the drift runs deeper than names; read its own docs."
+            feedback: "Docs and registries ship on separate clocks; npm is the fresher truth, and the drift usually runs deeper than package names, so the package's own docs outrank the guide's."
           - id: b
             label: "The guide is canonical and the scoped @x402/* packages are an unofficial fork, so switch your imports back to x402 and x402-express."
             correct: false
@@ -73,7 +73,7 @@ blocks:
           - id: b
             label: "Configure Kora's validation rules and allowlists so it only sponsors the instructions and programs your checkout actually uses."
             correct: true
-            feedback: "A fee payer signs, and a signature is authorization, so an allowlist is the only thing bounding what you fund. Program-level scoping is coarse: one program carries many instructions."
+            feedback: "A fee payer signs and a signature is authorization, which leaves an allowlist as the only thing bounding what you fund; program-level scoping stays coarse, since one program carries many instructions."
           - id: c
             label: "Move the sponsor key into the browser so the buyer co-signs and you no longer trust the paymaster."
             correct: false

@@ -114,7 +114,7 @@ Because it is the same instruction shape, everything module 3 and 4 taught keeps
 
 The crank's real job, then, is not the transfer. It is the paragraph before the transfer: deciding whether pulling is still legitimate. I will confess the mistake so you can skip it: the first crank I wired cached the approval state at signup, because why would it change? A test wallet re-approved a different delegate mid-cycle, my crank submitted anyway, and I spent an evening staring at a custom program error 0x4 in a transaction log before the obvious sank in. The account state is the ledger. Your database is a cache with opinions. So the crank re-reads the token account every single cycle, before every pull, and answers three questions:
 
-![Three pre-pull checks map to outcomes: a delegate that is missing, whether the owner revoked it or an earlier pull emptied the allowance and cleared the slot, refuses as delegate-revoked, and so does a foreign one; an allowance with something left but less than this cycle's pull refuses as insufficient-allowance; only an all-clear proceeds.](assets/v04-table.png)
+![Three pre-pull checks map to outcomes: a missing delegate refuses as delegate-revoked, whether the owner revoked it or an exhausting pull cleared the slot; a foreign delegate refuses the same way; too small an allowance refuses as insufficient-allowance; and only an all-clear proceeds.](assets/v04-table.png)
 
 Could the crank skip the guard and just submit, letting the chain reject bad pulls? Mechanically yes, and the funds would be exactly as safe: the Token program enforces everything the guard checks. The guard exists because "transaction failed: custom program error 0x4" and "this subscriber revoked us, mark the subscription lapsed" are different facts to a billing system, and only one of them tells your back office what to do next. The chain gives you a no. The guard gives you the reason, before you spend a fee learning it. Those reason strings, `delegate-revoked` and `insufficient-allowance`, are the raw primitive's vocabulary, and the next two lessons keep the two names meaningful one layer down: the official program's guard adds its own reasons on top, and the continuity note in the next lesson's challenge walks the mapping explicitly.
 
@@ -207,23 +207,31 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
    }
    expectCase('allowance exhausted after four pulls', allowance === 0n);
 
-   // 2. The fourth pull zeroed the allowance, so the Token program cleared the delegate
-   //    in the same instruction: cycle five reads an empty slot, refused BEFORE submission.
-   const fifth = checkPull({ delegate: null, delegatedAmount: allowance, crank: CRANK, pullBase: PULL });
-   expectCase('fifth pull rejected', !fifth.ok && fifth.reason === 'delegate-revoked');
+   // 2. Two histories, one account state. The fourth pull zeroed the allowance and the
+   //    Token program cleared the delegate in the same instruction; an owner running
+   //    Revoke empties the same slot by hand. Cycle five reads null either way and is
+   //    refused BEFORE submission. The account cannot tell you which happened, so
+   //    "cancelled" versus "tank empty, ask for a renewal" is your ledger's call, not
+   //    the chain's.
+   const emptySlot = checkPull({ delegate: null, delegatedAmount: allowance, crank: CRANK, pullBase: PULL });
+   expectCase('empty delegate slot rejected', !emptySlot.ok && emptySlot.reason === 'delegate-revoked');
 
    // 3. A partial allowance never over-pulls: 10 remaining cannot cover 15. Non-zero
    //    means the delegate is still set, so this is the other refusal reason.
    const partial = checkPull({ delegate: CRANK, delegatedAmount: 10_000_000n, crank: CRANK, pullBase: PULL });
    expectCase('over-pull on partial allowance rejected', !partial.ok && partial.reason === 'insufficient-allowance');
 
-   // 4. Owner ran Revoke: no delegate on the account.
-   const revoked = checkPull({ delegate: null, delegatedAmount: 0n, crank: CRANK, pullBase: PULL });
-   expectCase('revoked delegate rejected', !revoked.ok && revoked.reason === 'delegate-revoked');
-
-   // 5. Owner approved a competing delegate: the slot now holds someone else.
+   // 4. Owner approved a competing delegate: the slot holds someone else, and their
+   //    60 USDC is not yours to spend.
    const evicted = checkPull({ delegate: OTHER, delegatedAmount: 60_000_000n, crank: CRANK, pullBase: PULL });
    expectCase('evicted crank rejected', !evicted.ok && evicted.reason === 'delegate-revoked');
+
+   // 5. Both refusals are true at once: evicted, and what the new delegate holds would
+   //    not have covered this cycle anyway. Identity is checked before amount, so the
+   //    reason must be delegate-revoked. Your back office routes on these strings, so
+   //    the order the guard tests them in is part of the contract.
+   const superseded = checkPull({ delegate: OTHER, delegatedAmount: 5_000_000n, crank: CRANK, pullBase: PULL });
+   expectCase('eviction outranks a short allowance', !superseded.ok && superseded.reason === 'delegate-revoked');
 
    if (failures > 0) {
      console.error(`guard: ${failures} case(s) failed`);

@@ -19,7 +19,7 @@ blocks:
           - id: a
             label: "The renewal is not retried against the wallet; it becomes an ordinary open invoice the subscriber can settle later."
             correct: true
-            feedback: "An empty account cannot be pulled harder, so retrying burns fees against a balance you do not control. It is not no-dunning: reminders and grace move into your own backoffice."
+            feedback: "An empty account cannot be pulled harder, and retrying just burns fees against a balance you do not control; it isn't no-dunning either, since reminders and grace move into your backoffice."
           - id: b
             label: "The crank retries the pull against the wallet on a backoff ladder, minutes apart and then daily, until it clears or the retry limit drops the plan."
             correct: false
@@ -40,7 +40,7 @@ blocks:
           - id: b
             label: "A RevokeAbandoned instruction closes the abandoned subscription/delegation accounts and returns the rent lamports."
             correct: true
-            feedback: "Rent is a deposit that returns only on an explicit close. Cancelling does not call it, so dead arrangements keep costing you rent."
+            feedback: "Rent is a deposit that comes back only on an explicit close, and cancelling does not call one."
           - id: c
             label: "The subscriber must closeAccount on their ATA, which also frees the subscription PDAs."
             correct: false
@@ -61,7 +61,7 @@ blocks:
           - id: c
             label: "MoonPay Commerce pay links and Stripe Billing both support subscriptions, including stablecoin ones, while Sphere has none at all."
             correct: true
-            feedback: "Recurring is a separate product line from payments, so a strong payments vendor can simply not ship it. Support is not coverage either: check the corridor and asset before promising."
+            feedback: "Recurring is a separate product line from payments, and a strong payments vendor can simply not ship it; support is not coverage either, and the corridor is where that gap shows."
         explanation: "The useful intelligence is the negatives: MoonPay Commerce and Stripe Billing both do recurring, Sphere does not. Assuming every payments provider bills recurring is how you pick the wrong vendor."
       - id: m05-l3-q4
         prompt: "You model dunning as a state machine in the backoffice rather than as retries against the chain. Why is that the right shape for non-custodial recurring revenue?"
@@ -70,7 +70,7 @@ blocks:
           - id: a
             label: "Because a pull succeeds only when allowance and balance both cover it, so unrecoverable failures belong in your ledger, not in a retry loop you can't force."
             correct: true
-            feedback: "Both preconditions sit in the subscriber's control, so repeating the call changes nothing. Separate the transient ones: an RPC timeout is worth retrying, an empty balance is not."
+            feedback: "Both preconditions sit in the subscriber's control, and repeating the call changes nothing. An RPC timeout is a different animal, worth the retry an empty balance never earns."
           - id: b
             label: "Because the Subscriptions program falls back to billing the customer's card on file after three ledger failures."
             correct: false
