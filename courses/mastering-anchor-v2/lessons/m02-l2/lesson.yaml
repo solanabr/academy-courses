@@ -15,8 +15,8 @@ blocks:
     tests: high-score-cutoff/tests.json
     hints:
       - "While board.len() < cap, every score is admitted — no comparison needed."
-      - "When the board is full, compare against the current minimum; ties must NOT evict (strictly greater)."
-      - "Sort highest-first, truncate to cap, and return the last (smallest) retained score."
+      - "When the board is full, compare against the current minimum: strictly greater gets in."
+      - "Sort highest-first, truncate to cap, and return the last (smallest) retained score — the truncate matters even for a board that arrives over capacity."
   - key: check
     type: quiz
     questions:

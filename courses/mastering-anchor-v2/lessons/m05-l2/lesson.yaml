@@ -17,6 +17,7 @@ blocks:
       - "amount_in_with_fee = amount_in * 997"
       - "out = (amount_in_with_fee * reserve_out) / (reserve_in * 1000 + amount_in_with_fee)"
       - "promote to u128 before multiplying so u64 reserves can't overflow"
+      - "u128 is headroom, not immunity: the numerator has three u64-sized factors, so keep the multiplies checked and degrade to 0"
   - key: check
     type: quiz
     questions:

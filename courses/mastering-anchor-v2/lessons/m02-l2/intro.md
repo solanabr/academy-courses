@@ -377,31 +377,32 @@ Implement `admit`:
 ///
 /// Rules:
 ///   * while the board has fewer than `cap` entries, always admit the score;
-///   * once the board is full, admit the score ONLY if it strictly beats the
-///     current cutoff (ties do not evict);
-///   * keep the board bounded and highest-first.
+///   * once the board is full, the board retains the `cap` highest scores, so a
+///     score that only ties the current cutoff cannot raise it;
+///   * keep the board bounded and highest-first, including when the board you
+///     were handed already exceeds `cap`.
 ///
 /// Return the cutoff (the minimum retained score), or 0 for an empty board.
-pub fn admit(board: Vec<u64>, score: u64, cap: usize) -> u64 {
+fn admit(board: Vec<u64>, score: u64, cap: usize) -> u64 {
     todo!()
 }
 ```
 
-The acceptance bar, all five cases:
+The acceptance bar, all seven cases:
 
 - A score admitted under capacity appears on the board and the cutoff reflects it.
 - On a full board, only a score strictly greater than the cutoff evicts the minimum.
-- A tie with the cutoff on a full board is rejected.
-- The board never exceeds `cap`.
+- A score that only ties the cutoff leaves the cutoff exactly where it was.
+- The board never exceeds `cap` — and two cases hand you a board that *starts* over capacity, so the trim has to happen whether or not the new score is admitted.
 - The returned value is the minimum retained score, and `0` when the board is empty.
 
 Three hints, in the order you will want them:
 
 1. While `board.len() < cap`, every score is admitted with no comparison at all.
-2. When the board is full, compare against the current minimum, and remember that a tie must *not* evict. Strictly greater.
-3. Sort highest-first, truncate to `cap`, and return the last, smallest retained score.
+2. When the board is full, compare against the current minimum: strictly greater gets in.
+3. Sort highest-first, truncate to `cap`, and return the last, smallest retained score. The truncate is the step the over-capacity cases exist to catch — return the minimum of the *retained* board, not of the board you were handed.
 
-The starter and tests are in `lessons/challenges/m02-l2/high-score-cutoff/`. Run them until all five pass. The function is small. The point is not the code volume, it is internalizing that on-chain you cannot heap-grow your way out of this. The bound is the whole game, so the insert has to respect it every single time.
+The starter and tests are in `lessons/challenges/m02-l2/high-score-cutoff/`. Run them until all seven pass. The function is small. The point is not the code volume, it is internalizing that on-chain you cannot heap-grow your way out of this. The bound is the whole game, so the insert has to respect it every single time.
 
 ## Before the next rung
 

@@ -377,14 +377,18 @@ Implement `swap_out(reserve_in, reserve_out, amount_in) -> u64` so that it:
 - uses a `u128` intermediate so two `u64` reserves cannot overflow the multiply;
 - returns `0` for a zero input or an empty reserve.
 
-The four cases the harness asserts:
+The eight cases the harness asserts:
 
 | reserve_in | reserve_out | amount_in | expected |
 |---|---|---|---|
+| 1_000 | 1_000 | 100 | 90 |
+| 1_000_000 | 1_000_000 | 1_000 | 996 |
+| 5_000 | 10_000 | 500 | 906 |
+| 1_000 | 1_000 | 0 | 0 |
 | 1_000_000 | 1_000_000 | 10_000 | 9_871 |
-| 1_000_000 | 1_000_000 | 0 | 0 |
 | 0 | 1_000_000 | 10_000 | 0 |
-| u64::MAX | u64::MAX | u64::MAX | no panic, no overflow |
+| u64::MAX | u64::MAX | u64::MAX | 0 — no panic, no overflow |
+| 1e18 | 1e18 | 1e12 | 996_999_005_991 |
 
 Three nudges if you get stuck:
 
@@ -392,7 +396,7 @@ Three nudges if you get stuck:
 - `out = (amount_in_with_fee * reserve_out) / (reserve_in * 1000 + amount_in_with_fee)`
 - promote to `u128` before multiplying so `u64` reserves cannot overflow
 
-The last row is the one that separates a working quote from a correct one, and it is why the starter is worth running before you fix it: on `u64` arithmetic it panics in debug and wraps in release, and a wrapped quote is a free withdrawal. Compute the first row by hand before you code it. When your arithmetic and the program agree, you understand the curve, not just the code.
+The last two rows are the ones that separate a working quote from a correct one, and they are why the starter is worth running before you fix it. The 1e18 row overflows a `u64` multiply outright: it panics in debug and wraps in release, and a wrapped quote is a free withdrawal. The `u64::MAX` row then overflows `u128` as well, because the numerator has *three* `u64`-sized factors in it, so promoting is not enough on its own — the multiply has to stay `checked` and degrade to `0`. A bare `u128 *` passes every other row and dies on that one. Compute the first row by hand before you code it. When your arithmetic and the program agree, you understand the curve, not just the code.
 
 ## Where this leaves you
 

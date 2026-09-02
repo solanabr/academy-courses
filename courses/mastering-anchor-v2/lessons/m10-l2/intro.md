@@ -246,7 +246,7 @@ The signature is frozen, because the tests call it by exactly this interface:
 ```rust
 /// Returns the FULL on-chain data length for a `#[account(borsh)]` account:
 /// T::DISCRIMINATOR.len() (8) + T::INIT_SPACE (the field bytes only).
-pub fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
+fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
     // starter under-counts by 8: it sums the fields but never adds the discriminator
     address_fields
         .checked_mul(32)
@@ -256,12 +256,12 @@ pub fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u6
 }
 ```
 
-Acceptance: `account_len` returns `8 + 32*address_fields + 8*u64_fields + 1*bool_fields`; an empty struct `(0, 0, 0)` returns `8`, not `0`; the starter fails all four tests and your fix passes all four. The tests to satisfy: `(1,1,1)` gives `49`, `(2,3,0)` gives `96`, `(0,0,0)` gives `8`, `(1,0,2)` gives `42`.
+Acceptance: `account_len` returns `8 + 32*address_fields + 8*u64_fields + 1*bool_fields`; an empty struct `(0, 0, 0)` returns `8`, not `0`; and the arithmetic stays checked end to end, so a count that overflows returns `0` rather than wrapping. The six tests to satisfy: `(1,1,1)` gives `49`, `(2,3,0)` gives `96`, `(0,0,0)` gives `8`, `(1,0,2)` gives `42`, `(u64::MAX,0,0)` gives `0`, and `(0,0,u64::MAX)` gives `0`. Those last two are why the discriminator has to be added *inside* the checked chain: bolt it on afterwards as `...unwrap_or(0) + 8` and the overflow case reports `8` — a plausible-looking length for an account that cannot exist — while the second one panics outright.
 
-Three hints, in order of how much they give away. The V2 idiom is `T::DISCRIMINATOR.len() + T::INIT_SPACE`, and `DISCRIMINATOR.len()` is `8`. `INIT_SPACE` is field bytes only, so you add the 8 back exactly once, never per field. And the empty-struct case is the tell: if `(0,0,0)` returns `0` you added nothing; if it returns `16` you added the discriminator twice.
+Three hints, in order of how much they give away. The V2 idiom is `T::DISCRIMINATOR.len() + T::INIT_SPACE`, and `DISCRIMINATOR.len()` is `8`. `INIT_SPACE` is field bytes only, so you add the 8 back exactly once, never per field. And the empty-struct case is the tell: if `(0,0,0)` returns `0` you added nothing; if it returns `16` you added the discriminator twice. Add the 8 with a `checked_add` in the same chain as the field sums, not with a `+ 8` bolted on after `unwrap_or`.
 
 ## Before you move on
 
-The gate for this lesson has two halves. First, make the challenge pass: starter red, your fix green, all four tests. Second, and this is the one worth doing away from the keyboard, explain from memory why V2 removed `.reload()` rather than merely deprecating it. If your answer points at the `CpiHandle` borrow model, that typed access during a live handle is a compile error, so the stale-data window is unrepresentable and there is nothing left to reload, you own the derivation, not just the fact. That is the m04-l2 idea applied to migration, and it is the single clearest example of the course's thesis: the safest fix for a footgun is to make the footgun impossible to hold.
+The gate for this lesson has two halves. First, make the challenge pass: starter red, your fix green, all six tests. Second, and this is the one worth doing away from the keyboard, explain from memory why V2 removed `.reload()` rather than merely deprecating it. If your answer points at the `CpiHandle` borrow model, that typed access during a live handle is a compile error, so the stale-data window is unrepresentable and there is nothing left to reload, you own the derivation, not just the fact. That is the m04-l2 idea applied to migration, and it is the single clearest example of the course's thesis: the safest fix for a footgun is to make the footgun impossible to hold.
 
 You have both maps now, 0.3x to 1.0 and 1.x to 2.0. A map is not a migration, though. Next you take a real 0.31 or 1.0 program and drive it all the way to a compiling, LiteSVM-passing V2 build, using these deltas as your checklist and the compiler's warnings as your guide. Bring the grep. Happy porting.

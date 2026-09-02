@@ -16,6 +16,7 @@ blocks:
     hints:
       - "Access control comes first: if the caller is not the authority, return -1 before touching the balance."
       - "Unsigned subtraction underflows; `u64::checked_sub` returns None exactly when amount > balance."
+      - "An address is 32 bytes with no meaningful ordering: compare all of it with ==, never a prefix, a single byte, or < / >."
   - key: check
     type: quiz
     questions:

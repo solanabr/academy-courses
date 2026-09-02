@@ -17,6 +17,7 @@ blocks:
       - "The V2 idiom is `Account::DISCRIMINATOR.len() + T::INIT_SPACE`; DISCRIMINATOR.len() is 8."
       - "INIT_SPACE is field bytes ONLY -- it never includes the discriminator, so add the 8 back exactly once."
       - "An empty struct still costs 8 bytes on-chain (test t3)."
+      - "Add the 8 with a checked_add inside the same chain as the field sums: a `+ 8` bolted on after unwrap_or turns an overflow into a plausible-looking 8."
   - key: check
     type: quiz
     questions:

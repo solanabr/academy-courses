@@ -7,7 +7,7 @@
 //
 //   amount_in_with_fee = amount_in * 997
 //   out = (amount_in_with_fee * reserve_out) / (reserve_in * 1000 + amount_in_with_fee)
-pub fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
+fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
     if amount_in == 0 || reserve_in == 0 || reserve_out == 0 {
         return 0;
     }

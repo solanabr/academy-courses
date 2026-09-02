@@ -16,7 +16,7 @@
 /// account at compile time with `error[E0080]: account struct has padding
 /// bytes`. That rejection is exactly why a shape like this is declared
 /// `#[account(borsh)]` in the first place.
-pub fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
+fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
     const DISCRIMINATOR_LEN: u64 = 8;
     // Checked throughout: field counts arrive from a caller, and a wrapped
     // length would look plausible while sizing the account far too small.

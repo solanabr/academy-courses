@@ -12,7 +12,7 @@
 //
 // The starter below skips BOTH guards and subtracts naively. It happens to return the
 // right number for a normal withdraw, but it is wrong (and unsafe) for the reject cases.
-pub fn vault_withdraw(balance: u64, amount: u64) -> i128 {
+fn vault_withdraw(balance: u64, amount: u64) -> i128 {
     // TODO: reject a zero-amount withdraw with -2
     // TODO: reject an over-withdraw with -1 using balance.checked_sub(amount)
     (balance as i128) - (amount as i128)

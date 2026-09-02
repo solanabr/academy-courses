@@ -4,7 +4,7 @@
 // the subtraction still goes through `checked_sub` even though the guard above
 // already proved it cannot underflow: the proof is one refactor away from being
 // wrong, and a bare `-` wraps silently in a release build.
-pub fn resolve_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) -> i64 {
+fn resolve_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) -> i64 {
     if requested == 0 {
         return -1; // nothing to withdraw
     }

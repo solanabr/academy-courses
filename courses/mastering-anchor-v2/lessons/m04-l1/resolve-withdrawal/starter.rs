@@ -11,6 +11,6 @@
 //
 // The starter below ignores every guard and just hands back what was asked,
 // so it fails the zero, over-withdraw, and rent-floor cases.
-pub fn resolve_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) -> i64 {
+fn resolve_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) -> i64 {
     requested as i64
 }

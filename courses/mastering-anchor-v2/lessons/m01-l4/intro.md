@@ -347,7 +347,7 @@ This is a completion problem, and it is the module's coding challenge. You are g
 //
 // The starter below just pastes the item kind in front of the name, so it emits
 // "instruction:increment" instead of "global:increment" and fails that case.
-pub fn discriminator_preimage(item_kind: &str, name: &str) -> String {
+fn discriminator_preimage(item_kind: &str, name: &str) -> String {
     // TODO: map each item_kind to its real Anchor namespace prefix before the name.
     format!("{item_kind}:{name}")
 }
@@ -360,8 +360,10 @@ The acceptance criteria are exact:
 - `discriminator_preimage("account", "CabinetCounter")` returns `account:CabinetCounter`
 - `discriminator_preimage("instruction", "increment")` returns `global:increment`
 - `discriminator_preimage("event", "HighScore")` returns `event:HighScore`
+- `discriminator_preimage("account", "HighScore")` returns `account:HighScore` — same name as the case above it, different namespace, because the prefix is a function of the *kind*
+- `discriminator_preimage("instruction", "initialize")` returns `global:initialize`
 
-Run it against the bundled tests until the starter's failing case turns green. The three cases above are exactly what the challenge harness asserts. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
+Run it against the bundled tests until the starter's failing case turns green. The five cases above are exactly what the challenge harness asserts. The last two are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
 
 ```bash
 cargo test

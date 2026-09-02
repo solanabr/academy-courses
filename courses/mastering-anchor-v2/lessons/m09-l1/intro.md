@@ -473,7 +473,7 @@ The starter, at `lessons/challenges/m09-l1/native-vault-withdraw/starter.rs`:
 ///
 /// The starter skips BOTH guards and subtracts naively. It happens to return the
 /// right number for a normal withdraw, and is wrong (and unsafe) for both rejects.
-pub fn vault_withdraw(balance: u64, amount: u64) -> i128 {
+fn vault_withdraw(balance: u64, amount: u64) -> i128 {
     // TODO: reject a zero-amount withdraw with -2
     // TODO: reject an over-withdraw with -1 using balance.checked_sub(amount)
     (balance as i128) - (amount as i128)
@@ -483,8 +483,9 @@ pub fn vault_withdraw(balance: u64, amount: u64) -> i128 {
 Acceptance criteria:
 
 - a zero-amount withdraw returns `-2`, and it is rejected before the balance check
-- an over-withdraw returns `-1`, computed via `checked_sub`, never a naive subtraction
-- a valid withdraw returns the remaining balance
+- an over-withdraw returns `-1`, computed via `checked_sub`, never a naive subtraction — including `(100, 102)`, where a naive `balance as i128 - amount as i128` produces `-2`, which is the *zero-amount* code. The sentinels are decisions, not arithmetic; if your subtraction can produce one, you do not have a guard
+- withdrawing from an *empty* vault is an over-withdraw, `-1`, not a zero-amount rejection: the zero guard is on the amount, never on the balance
+- a valid withdraw returns the remaining balance, across the whole `u64` range — `(u64::MAX, 1)` returns `u64::MAX - 1`, which is why the return is `i128` and why doing the subtraction in `i64` fails
 - draining to exactly zero is allowed (this teaching vault's SOL PDA carries no data and the challenge is deliberately rent-agnostic; a production withdraw would also floor at the rent-exempt minimum, which is what R2's own guard did)
 
 Two hints, and then it is yours. First: a zero-amount withdraw is invalid input, so reject it before you touch the balance. Second: `balance.checked_sub(amount)` returns `None` exactly when the withdraw exceeds the balance, which is your over-withdraw signal. Run the challenge's `tests.json` harness until every case is green.

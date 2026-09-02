@@ -30,7 +30,7 @@ impl BalanceGate for MinBalanceRule {
     }
 }
 
-pub fn run_constraint(balance: u64, min: u64) -> bool {
+fn run_constraint(balance: u64, min: u64) -> bool {
     MinBalanceRule { min }.check(balance).is_ok()
 }
 
@@ -154,7 +154,7 @@ cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 an
 # macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
 ```
 
-**2. Prove the logic in isolation first.** Before touching the macro, get the `check` logic correct as plain Rust, exactly the scratch file from the top of the lesson. This is the same distillation the coding challenge grades, and it is worth passing before you wire it into the framework, because a failing constraint you cannot isolate is miserable to debug. Fill the hook so it rejects below the floor and accepts at or above it. The floor is inclusive: a balance equal to the minimum passes.
+**2. Prove the logic in isolation first.** Before touching the macro, get the `check` logic correct as plain Rust, exactly the scratch file from the top of the lesson. This is the same distillation the coding challenge grades, and it is worth passing before you wire it into the framework, because a failing constraint you cannot isolate is miserable to debug. Fill the hook so it rejects below the floor and accepts at or above it. The floor is inclusive: a balance equal to the minimum passes. (In the graded version the comparison is factored one level down, into a `const fn` called `satisfies` that `check` forwards to, so a compile-time harness can prove it as well as the vectors can. The rule you are writing is the same single comparison either way.)
 
 ```rust
 // scratch.rs - now with the hook filled in
@@ -178,7 +178,7 @@ impl BalanceGate for MinBalanceRule {
     }
 }
 
-pub fn run_constraint(balance: u64, min: u64) -> bool {
+fn run_constraint(balance: u64, min: u64) -> bool {
     MinBalanceRule { min }.check(balance).is_ok()
 }
 

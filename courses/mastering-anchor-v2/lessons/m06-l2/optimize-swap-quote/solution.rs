@@ -30,7 +30,7 @@
 /// grading, which cannot fail. On-chain each of these guards is a `require!` in
 /// the handler before the quote is ever reached, and the handler still refuses
 /// to settle a trade that quotes 0.
-pub fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
+fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
     if amount_in == 0 || reserve_in == 0 || reserve_out == 0 || fee_bps > 10_000 {
         return 0;
     }

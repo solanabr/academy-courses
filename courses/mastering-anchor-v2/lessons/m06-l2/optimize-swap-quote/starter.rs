@@ -18,7 +18,7 @@
 ///   amount_in_with_fee = amount_in * (10_000 - fee_bps)
 ///   out = (reserve_out * amount_in_with_fee)
 ///         / (reserve_in * 10_000 + amount_in_with_fee)
-pub fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
+fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
     let _ = fee_bps; // TODO: the fee is being ignored
     let numerator = reserve_out * amount_in;
     let denominator = reserve_in + amount_in;

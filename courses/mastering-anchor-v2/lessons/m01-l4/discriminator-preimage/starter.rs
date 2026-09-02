@@ -9,7 +9,7 @@
 //
 // The starter below just pastes the item kind in front of the name, so it emits
 // "instruction:increment" instead of "global:increment" and fails that case.
-pub fn discriminator_preimage(item_kind: &str, name: &str) -> String {
+fn discriminator_preimage(item_kind: &str, name: &str) -> String {
     // TODO: map each item_kind to its real Anchor namespace prefix before the name.
     format!("{item_kind}:{name}")
 }

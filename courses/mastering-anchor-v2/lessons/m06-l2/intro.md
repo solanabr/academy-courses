@@ -295,7 +295,7 @@ Back in module 5 you built `swap_out`, the quote function with a hardcoded 0.3% 
 /// it ignores fee_bps, multiplies in u64, and checks nothing, so its
 /// quotes are wrong whenever fee_bps > 0, it can overflow on large
 /// reserves, and it quotes the whole pool on an empty reserve_in.
-pub fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
+fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
     let _ = fee_bps; // the fee is being ignored
     let numerator = reserve_out * amount_in;
     let denominator = reserve_in + amount_in;

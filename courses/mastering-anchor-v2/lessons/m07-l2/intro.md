@@ -399,11 +399,15 @@ Now cut loose. The escrow and vault payout logic, distilled to a pure function s
 The starter, in a plain `cargo` project (no Anchor, no toolchain, it compiles anywhere `rustc` does):
 
 ```rust
+// `Address` is 32 bytes, the shape `pinocchio::address::Address` really has.
+//
 // Return convention (so the grader can value-compare):
 //   >= 0  -> the new balance after a successful withdraw
 //     -1  -> rejected: caller is not the authority
 //     -2  -> rejected: amount would underflow the balance
-pub fn settle_withdraw(balance: u64, amount: u64, caller: u8, authority: u8) -> i64 {
+type Address = [u8; 32];
+
+fn settle_withdraw(balance: u64, amount: u64, caller: Address, authority: Address) -> i64 {
     // TODO: reject callers who are not the authority (return -1).
     // TODO: use checked arithmetic so an over-withdraw returns -2 instead of underflowing.
     (balance - amount) as i64
@@ -412,11 +416,14 @@ pub fn settle_withdraw(balance: u64, amount: u64, caller: u8, authority: u8) -> 
 
 Two guards, in order. Access control comes first: if `caller != authority`, return `-1` before you touch the balance, because you should reject an unauthorized caller without doing any arithmetic on their behalf. Then the arithmetic: `u64::checked_sub` returns `None` exactly when `amount > balance`, so match on it, return `-2` on `None`, and the new balance on `Some`.
 
+The addresses are full-width on purpose. An address is 32 bytes and carries no meaningful ordering, so the only legal comparison is `==` over all 32 of them. Two of the grader's cases exist to prove you did that and nothing cheaper: one where the caller sorts *below* the authority, which an ordering comparison waves through, and two near-misses that match the authority in 31 of 32 bytes — one differing in the first byte, one in the last — which any prefix or single-byte comparison waves through. A near-miss address is not a rounding error. It is an attacker who ground out a vanity key.
+
 Acceptance criteria the grader checks directly:
 
-- a non-authority caller is rejected with `-1`
+- a non-authority caller is rejected with `-1`, whether their address sorts above or below the authority's
+- an address matching the authority in 31 of 32 bytes is still rejected with `-1`, whichever byte differs
 - an over-withdraw that would underflow is rejected with `-2`
-- an authority withdraw within balance returns the new balance (100, 30, 1, 1 returns 70; an exact-balance 50, 50, 1, 1 returns 0)
+- an authority withdraw within balance returns the new balance (`100, 30, [7u8; 32], [7u8; 32]` returns 70; an exact-balance `50, 50, [7u8; 32], [7u8; 32]` returns 0)
 - the starter fails at least one case; your solution passes every case
 
 When the pure function is green, port it: the `caller != authority` check is the `address = escrow.player` constraint you already added, and the `checked_sub` is the vault debit you already patched. The distillation and the instruction enforce the same two guards. That is the point of the exercise, that the guard is the guard whether it lives in a constraint, a `require!`, or a pure function.

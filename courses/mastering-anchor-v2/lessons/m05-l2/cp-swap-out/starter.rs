@@ -8,7 +8,7 @@
 // TODO: replace the naive body below. This version just scales by the *current*
 // price ratio: it ignores the 0.3% fee AND the fact that adding `amount_in` shifts
 // the reserves, so it over-quotes and lets a trader drain the pool.
-pub fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
+fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
     if reserve_in == 0 {
         return 0;
     }

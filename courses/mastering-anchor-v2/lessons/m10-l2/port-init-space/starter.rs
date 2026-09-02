@@ -24,7 +24,7 @@
 /// Fix `account_len` so it returns the FULL on-chain data length. It is deliberately
 /// NOT named init_space: INIT_SPACE is the half that excludes the discriminator.
 /// Leave the arithmetic checked -- an overflowed count must return 0, not wrap.
-pub fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
+fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
     // BUG: INIT_SPACE excludes the 8-byte discriminator -- it must be added back.
     address_fields
         .checked_mul(32)

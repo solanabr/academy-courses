@@ -22,5 +22,23 @@
     "input": "1000000, 950000, 100000",
     "expectedOutput": "-3",
     "description": "A withdrawal that would drop the remainder below the rent-exempt minimum is refused with -3."
+  },
+  {
+    "id": "t5",
+    "input": "1000000, 890880, 109120",
+    "expectedOutput": "109120",
+    "description": "The boundary is inclusive: a withdrawal leaving EXACTLY the rent-exempt minimum is allowed. A guard written `remaining <= rent_exempt_min` refuses this and passes every other case."
+  },
+  {
+    "id": "t6",
+    "input": "1000000, 890880, 109121",
+    "expectedOutput": "-3",
+    "description": "One lamport past the boundary: leaving rent_exempt_min - 1 is refused with -3."
+  },
+  {
+    "id": "t7",
+    "input": "500000, 600000, 900000",
+    "expectedOutput": "-2",
+    "description": "An over-withdraw that would ALSO breach the rent floor is still -2: the balance check is reached first."
   }
 ]

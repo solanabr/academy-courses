@@ -16,7 +16,8 @@ blocks:
     tests: custom-min-balance-constraint/tests.json
     hints:
       - "The floor is inclusive: a balance equal to min passes."
-      - "Return Err(..) below the floor so run_constraint reports false; Ok(()) otherwise."
+      - "The rule is one comparison in MinBalance::satisfies; check and run_constraint are already wired for you."
+      - "The verification harness is compile-time. If the build fails, read the assertion message: it names the case your comparison got wrong."
   - key: check
     type: quiz
     questions:
