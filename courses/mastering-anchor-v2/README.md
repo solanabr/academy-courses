@@ -31,6 +31,7 @@ lessons carry; treat a stale date as an unverified pin.
 | `anchor-cli` (install-channel lesson) | `2.0.0-rc.1` | git `otter-sec/anchor`, `--branch anchor-next` | 2026-08-22 | m01-l2 |
 | `anchor-cli` (every lesson after) | `2.0.0-rc.1` | git `--tag v2.0.0-rc.1` (= commit `e4878b6d`) | 2026-08-22 | m02-l1 onward |
 | `anchor-cli` (verify Dockerfile) | `2.0.0-rc.1` | git `--rev e4878b6d` | 2026-08-22 | m08-l2 |
+| `anchor-cli` (fuzz CLI) | not version-pinned — tracks `master` HEAD, V1 line past `1.1.2` | git `otter-sec/anchor`, `--branch master`, `--root ~/.anchor-master` | 2026-08-22 | m07-l3 |
 | `anchor-lang` (library) | `2.0.0-rc.1` | crates.io, published 2026-08-12 (immutable) | 2026-08-22 | m02-l1 onward |
 | `wincode` | `0.5`, `features = ["derive"]` | crates.io | 2026-08-22 | m02-l1 onward |
 | `solana-address` | `=2.6.0` | crates.io | 2026-08-22 | m02-l1 onward |
@@ -62,7 +63,7 @@ lessons carry; treat a stale date as an unverified pin.
 - **`anchor fuzz` lives on `master`, not on the RC.** The `anchor-next` CLI ships
   `anchor test --profile`, `anchor debugger`, and `anchor coverage`, and has no `fuzz` subcommand.
   m07-l3 depends on that split being true; re-check it whenever either branch moves.
-- **The pinocchio trio in m09-l1 is deliberately one line behind.** `pinocchio 0.11` renamed
+- **The pinocchio trio in m09-l1 is deliberately two minor lines behind.** `pinocchio 0.11` renamed
   `AccountInfo` to `AccountView` and `Pubkey` to `Address`. The lab pins `0.9` because it is the
   last line where `pinocchio-pubkey` still resolves and the pre-rename names map cleanly onto v1
   instincts. Do not "upgrade" it without rewriting the lesson.
@@ -82,10 +83,15 @@ Minimum check, and it is fast:
 
 ```bash
 anchor --version                                   # expect 2.0.0-rc.1
-cargo search anchor-lang wincode solana-address    # expect the pinned values still resolve
-cargo search solana-verify mollusk-svm
+cargo search anchor-lang                           # expect the pinned values still resolve
+cargo search wincode                               # cargo search takes one crate per call —
+cargo search solana-address                        # multiple args join into one query string
+cargo search solana-verify                         # and return nothing useful
+cargo search mollusk-svm
 npm view @solana-program/token@0.15.0 peerDependencies
-git ls-remote --tags https://github.com/otter-sec/anchor.git v2.0.0-rc.1   # expect e4878b6d
+git ls-remote https://github.com/otter-sec/anchor.git 'refs/tags/v2.0.0-rc.1*'
+# read the `^{}` (peeled) line, not the bare tag line — an annotated tag's bare
+# line returns the tag-object SHA (2f77733f...), not the commit; expect e4878b6d
 curl -sI https://github.com/otter-sec/anchor/releases/tag/v2.0.0-rc.1      # expect 404
 ```
 
