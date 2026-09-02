@@ -129,7 +129,7 @@ import { createServer } from "node:http";
 // and set as the PAYMENT-REQUIRED response header.
 const paymentRequired = {
   x402Version: 2, // which dialect this challenge speaks
-  error: "Payment required", // WHY the 402 happened; the only place a reason ever appears
+  error: "Payment required", // WHY the 402 happened; the only place a reason appears in the challenge
   resource: {
     // what the caller was trying to buy
     url: "http://localhost:4021/price",
@@ -142,7 +142,7 @@ const paymentRequired = {
       network: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp", // CAIP-2: solana namespace + mainnet genesis-hash reference
       amount: "10000", // base units: 0.01 USDC at 6 decimals
       asset: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
-      payTo: "MerchantOwnerPubkeyGoesRightHere11111111111", // the merchant OWNER; the scheme derives the ATA
+      payTo: "MerchantownerPubkeyGoesRightHere11111111111", // the merchant OWNER; the scheme derives the ATA
       maxTimeoutSeconds: 300, // how long these terms stay payable
       extra: {
         feePayer: "FaciLitatorFeePayerPubkeyGoesRightHere11111", // stand-in: the sponsor who signs LAST
@@ -169,9 +169,9 @@ createServer((req, res) => {
   // This stub accepts anything, so the header choreography is visible end to end.
   const receipt = b64({
     success: true,
-    transaction: "5xSettledSignatureStandIn",
+    transaction: "5xSettLedSignatureStandin",
     network: paymentRequired.accepts[0].network,
-    payer: "AgentPubkeyStandIn111111111111111111111111",
+    payer: "AgentPubkeyStandin111111111111111111111111",
   });
   res.writeHead(200, { "Content-Type": "application/json", "PAYMENT-RESPONSE": receipt });
   res.end(JSON.stringify({ quote: { sku: "12in-180g-black", unitPriceUsd: 7.4 } }));
@@ -223,7 +223,7 @@ curl -sD - -o /dev/null http://localhost:4021/price \
             "network": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "amount": "10000",
             "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-            "payTo": "MerchantOwnerPubkeyGoesRightHere11111111111",
+            "payTo": "MerchantownerPubkeyGoesRightHere11111111111",
             "maxTimeoutSeconds": 300,
             "extra": {
                 "feePayer": "FaciLitatorFeePayerPubkeyGoesRightHere11111",

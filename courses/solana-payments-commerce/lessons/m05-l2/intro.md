@@ -620,7 +620,7 @@ export function decidePull(
 Fix it so that all of the following hold:
 
 - An inactive subscription returns `shouldPull: false` with reason `canceled` and `nextEligibleTs: 0`, before any other check runs.
-- A subscription past a non-zero `expiresAtTs` returns reason `expired` with `nextEligibleTs: 0`, even when its period window says a pull is due.
+- A subscription at or past a non-zero `expiresAtTs` returns reason `expired` with `nextEligibleTs: 0`, even when its period window says a pull is due.
 - The window is measured in seconds (`periodHours * 3600`), so a 24-hour plan does not re-charge within the day. `nextEligibleTs` reports that seconds-based boundary on every decision that has one, so a held pull tells your ops dashboard exactly when it will fire.
 - `expiresAtTs === 0` never reads as "expired at the epoch"; zero means no expiry, full stop.
 - At exactly `lastChargedTs + period`, the pull is `due`. Boundary inclusive; off-by-one here delays every charge by one crank tick forever.
