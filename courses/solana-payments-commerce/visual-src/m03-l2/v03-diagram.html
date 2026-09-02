@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: Anatomy of the transaction your server returns
      purpose: map every component of the built transaction to the code that produces it, before the reader writes that code
-     data: envelope: version 0 transaction, base64-encoded wire bytes, signature slot empty (customer signs in-wallet) fee payer: the POSTed account (the customer) lifetime: latest devnet blockhash -> valid 150 blocks (~45s at the 300ms target slot time) instruction 1: TransferChecked -> accounts: source ATA, USDC mint, destination ATA, authority (customer), PLUS the injected reference key (readonly, non-signer) instruction 2: SPL Memo -> no accounts, data = utf8 "wavelength:<orderId>:<cart description>" produced by: buildOrderTransaction (pricing + instruction) and finalizeTransaction (injection + lifetime + serialize)
-     prompt: An exploded-view diagram of one transaction: an outer envelope box labeled with the version-0 and empty-signature-slot facts, containing fee payer, lifetime, and the two instruction boxes stacked inside. Inside instruction 1, list its accounts as rows and highlight the injected reference row. Along the bottom, two brackets mapping the envelope pieces to buildOrderTransaction and finalizeTransaction as in the data.
+     data: envelope: version 0 transaction, base64-encoded wire bytes, signature slot empty (customer signs in-wallet) fee payer: the POSTed account (the customer) lifetime: latest devnet blockhash -> valid 150 blocks (~45s at the 300ms target slot time) instruction 1: SPL Memo -> no accounts, data = utf8 "wavelength:<orderId>:<cart description>" instruction 2: TransferChecked -> accounts: source ATA, USDC mint, destination ATA, authority (customer), PLUS the injected reference key (readonly, non-signer) produced by: buildOrderTransaction (pricing + instruction) and finalizeTransaction (injection + lifetime + serialize)
+     prompt: An exploded-view diagram of one transaction: an outer envelope box labeled with the version-0 and empty-signature-slot facts, containing fee payer, lifetime, and the two instruction boxes stacked inside in build order (memo, then transfer). Inside instruction 2, list its accounts as rows and highlight the injected reference row. Along the bottom, two brackets mapping the envelope pieces to buildOrderTransaction and finalizeTransaction as in the data.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -76,20 +76,20 @@
         </div>
         <div class="tx-ixrow">
           <div class="tx-ix">
-            <div class="tx-ixhead">instruction 1: TransferChecked</div>
-            <div class="tx-acct"><span>source ATA</span><span class="role">writable</span></div>
-            <div class="tx-acct"><span>USDC mint</span><span class="role">readonly</span></div>
-            <div class="tx-acct"><span>destination ATA</span><span class="role">writable</span></div>
-            <div class="tx-acct"><span>authority: the customer</span><span class="role">signer</span></div>
-            <div class="tx-acct" style="background:#FFF3C4; font-weight:700;"><span>+ injected reference key</span><span class="role" style="color:var(--stbr-dark);">readonly · non-signer</span></div>
-          </div>
-          <div class="tx-ix">
-            <div class="tx-ixhead">instruction 2: SPL Memo</div>
+            <div class="tx-ixhead">instruction 1: SPL Memo</div>
             <div class="tx-acct"><span>no accounts</span><span class="role">-</span></div>
             <div class="tx-acct" style="display:block;">
               <span style="color:var(--text-muted); font-size:12px;">data (utf-8)</span><br>
               <span style="font-family:var(--font-mono); font-size:13px;">"wavelength:&lt;orderId&gt;:&lt;cart description&gt;"</span>
             </div>
+          </div>
+          <div class="tx-ix">
+            <div class="tx-ixhead">instruction 2: TransferChecked</div>
+            <div class="tx-acct"><span>source ATA</span><span class="role">writable</span></div>
+            <div class="tx-acct"><span>USDC mint</span><span class="role">readonly</span></div>
+            <div class="tx-acct"><span>destination ATA</span><span class="role">writable</span></div>
+            <div class="tx-acct"><span>authority: the customer</span><span class="role">signer</span></div>
+            <div class="tx-acct" style="background:#FFF3C4; font-weight:700;"><span>+ injected reference key</span><span class="role" style="color:var(--stbr-dark);">readonly · non-signer</span></div>
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@
     <div class="tx-brackets">
       <div class="tx-bracket">
         <div class="tx-brk"></div>
-        <div class="tx-brklabel"><code>buildOrderTransaction</code>: pricing + the transfer &amp; memo instructions</div>
+        <div class="tx-brklabel"><code>buildOrderTransaction</code>: pricing + the memo &amp; transfer instructions</div>
       </div>
       <div class="tx-bracket">
         <div class="tx-brk"></div>

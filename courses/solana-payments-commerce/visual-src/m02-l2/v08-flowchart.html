@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The program-aware send path inside transfer-kit
      purpose: show where detection, the mint report, and the refusal branches sit in the send flow the student is about to build
-     data: sendStablecoin(mint, amount, recipient) -> detectTokenProgram: read mint owner branch: owner = classic Token program -> classic client TransferChecked branch: owner = Token-2022 -> readMint report -> transferHookProgram null? -> yes: token-2022 client TransferChecked; no: throw (hook accounts not resolved, Digital Assets course owns the interface) branch: owner = anything else -> throw (not a mint this kit will sign against) shared tail for both success branches: derive source and destination ATA with the detected program as a seed -> idempotent ATA create -> TransferChecked + reference key + memo -> sign, send, confirm
+     data: sendStablecoin(mint, amount, recipient) -> detectTokenProgram: read mint owner branch: owner = classic Token program -> classic client TransferChecked branch: owner = Token-2022 -> readMint report -> transferHookProgram null? -> yes: token-2022 client TransferChecked; no: throw (hook accounts not resolved, Digital Assets course owns the interface) branch: owner = anything else -> throw (not a mint this kit will sign against) shared tail for both success branches: derive source and destination ATA with the detected program as a seed -> idempotent ATA create -> memo + TransferChecked + reference key -> sign, send, confirm
      prompt: Top-to-bottom flowchart starting from a sendStablecoin call node into a detection diamond with three branches: classic program, Token-2022, unknown owner. The Token-2022 branch passes through a mint-report node and a hook-check diamond whose failure edge terminates in a labeled refusal. Both success branches merge into a shared four-node tail ending at confirmation. Mark the two refusal terminals distinctly.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -92,7 +92,7 @@
     <div class="harr"><svg width="20" height="14"><line x1="0" y1="7" x2="12" y2="7" stroke="#1b231d" stroke-width="2.5"/><polygon points="20,7 10,2 10,12" fill="#1b231d"/></svg></div>
     <div class="tn"><div class="bx mid"><span class="t">idempotent ATA create</span></div></div>
     <div class="harr"><svg width="20" height="14"><line x1="0" y1="7" x2="12" y2="7" stroke="#1b231d" stroke-width="2.5"/><polygon points="20,7 10,2 10,12" fill="#1b231d"/></svg></div>
-    <div class="tn"><div class="bx mid"><span class="t">TransferChecked + reference key + memo</span></div></div>
+    <div class="tn"><div class="bx mid"><span class="t">memo + TransferChecked + reference key</span></div></div>
     <div class="harr"><svg width="20" height="14"><line x1="0" y1="7" x2="12" y2="7" stroke="#008b4c" stroke-width="2.5"/><polygon points="20,7 10,2 10,12" fill="#008b4c"/></svg></div>
     <div class="tn"><div class="bx endn"><span class="t">sign &middot; send &middot; confirm</span></div></div>
   </div>

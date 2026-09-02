@@ -76,5 +76,11 @@
     "description": "A look-alike mint sharing USDC's first forty characters is still the wrong mint: addresses compare whole, never by prefix.",
     "input": "'{\"signature\":\"Sig13LookAlikeMintLLLLLLLLLLLLLLLLLLLLLLLLLL\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTFAKE\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":\"1000000\",\"postAmount\":\"2500000\"}],\"memo\":\"ORD-4275\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 1500000n, 'ORD-4275', '[]'",
     "expectedOutput": "result.ok === false && result.reason === 'wrong-mint'"
+  },
+  {
+    "id": "t14",
+    "description": "A settlement exactly at expectedAmount, both above 2**53: converting to Number() first rounds the delta down and a mixed number/bigint compare wrongly reads it as underpaid, even though BigInt subtraction shows it is exact.",
+    "input": "'{\"signature\":\"Sig14ExactAboveFloatMMMMMMMMMMMMMMMMMMMMMMMM\",\"tokenProgram\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"transfers\":[{\"mint\":\"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\"destination\":\"WavRecordsUsdcAta1111111111111111111111111\",\"preAmount\":\"0\",\"postAmount\":\"9007199254740993\"}],\"memo\":\"ORD-4276\"}', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'WavRecordsUsdcAta1111111111111111111111111', 9007199254740993n, 'ORD-4276', '[]'",
+    "expectedOutput": "result.ok === true && result.reason === 'verified'"
   }
 ]
