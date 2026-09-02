@@ -2,6 +2,7 @@ id: lesson-spc-m09-l2
 slug: m09-l2
 title: "Where the rails go from here"
 skills:
+  - version-pinning
   - solana-kit
 blocks:
   - key: intro

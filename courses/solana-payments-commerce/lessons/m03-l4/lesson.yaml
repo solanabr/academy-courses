@@ -2,6 +2,7 @@ id: lesson-spc-m03-l4
 slug: m03-l4
 title: "A blink for the drop: actions that execute anywhere (that renders them)"
 skills:
+  - solana-pay
   - transactions
 blocks:
   - key: intro

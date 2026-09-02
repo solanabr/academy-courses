@@ -2,7 +2,8 @@ id: lesson-spc-m03-l1
 slug: m03-l1
 title: "Checkout with a QR: the Solana Pay spec, live"
 skills:
-  - transactions
+  - solana-pay
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

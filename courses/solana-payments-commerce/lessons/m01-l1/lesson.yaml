@@ -3,6 +3,7 @@ slug: m01-l1
 title: "Watch a dollar settle: your first five minutes on Solana rails"
 skills:
   - solana-fundamentals
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

@@ -2,8 +2,9 @@ id: lesson-spc-m05-l3
 slug: m05-l3
 title: "Dunning, lifecycle, and who else does this"
 skills:
-  - account-model
-  - solana-programs
+  - subscriptions-program
+  - recurring-delegation
+  - error-handling
 blocks:
   - key: intro
     type: prose

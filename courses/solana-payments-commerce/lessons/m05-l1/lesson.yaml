@@ -2,8 +2,10 @@ id: lesson-spc-m05-l1
 slug: m05-l1
 title: "The delegate primitive: approve once, pull on schedule"
 skills:
+  - spl-tokens
   - account-model
-  - solana-programs
+  - signers
+  - program-security
 blocks:
   - key: intro
     type: prose

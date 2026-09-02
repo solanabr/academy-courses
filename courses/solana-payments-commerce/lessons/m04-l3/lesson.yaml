@@ -2,8 +2,8 @@ id: lesson-spc-m04-l3
 slug: m04-l3
 title: "Reconciliation, refunds, and partial fills: the missing manual"
 skills:
+  - error-handling
   - rpc-reads
-  - transactions
 blocks:
   - key: intro
     type: prose

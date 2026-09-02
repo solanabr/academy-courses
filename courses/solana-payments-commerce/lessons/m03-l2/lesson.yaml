@@ -2,7 +2,9 @@ id: lesson-spc-m03-l2
 slug: m03-l2
 title: "Transaction requests: the server builds the transaction"
 skills:
+  - solana-pay
   - transactions
+  - signers
 blocks:
   - key: intro
     type: prose
