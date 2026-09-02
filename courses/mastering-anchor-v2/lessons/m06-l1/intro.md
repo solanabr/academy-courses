@@ -221,7 +221,7 @@ fn swap_fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
     // token accounts (two reserves, two trader-side), funds them, and returns them as
     // Mollusk's (Pubkey, Account) pairs. It is ordinary SPL fixture construction with
     // nothing V2-specific in it, so it ships beside this lesson at
-    // `lessons/challenges/m06-l1/swap-fixture/`. Drop it in as `tests/swap_fixture.rs`
+    // `lessons/m06-l1/swap-fixture/`. Drop it in as `tests/swap_fixture.rs`
     // and `mod swap_fixture;` at the top of this file. Its full surface, which the
     // next lesson also leans on: keys(), build_swap_accounts(), build_swap_ix(),
     // build_init_accounts(), build_init_ix().

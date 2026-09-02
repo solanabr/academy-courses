@@ -517,7 +517,7 @@ pub fn send_withdraw(svm: &mut LiteSVM, ctx: &Ctx, amount: u64) -> Result<(), St
 }
 ```
 
-`spl_helpers` there is the thin wrapper over `spl_token` and `spl_associated_token_account` that builds the four setup instructions (`create_mint`, `create_ata`, `mint_to`, `ata_address`). It is ordinary SPL client code with nothing V2-specific in it, so it ships alongside this lesson at `lessons/challenges/m05-l1/spl-helpers/`; drop it in as `tests/spl_helpers.rs`.
+`spl_helpers` there is the thin wrapper over `spl_token` and `spl_associated_token_account` that builds the four setup instructions (`create_mint`, `create_ata`, `mint_to`, `ata_address`). It is ordinary SPL client code with nothing V2-specific in it, so it ships alongside this lesson at `lessons/m05-l1/spl-helpers/`; drop it in as `tests/spl_helpers.rs`.
 
 Now the check itself, at `programs/quarter-vault/tests/vault_spl_withdraw.rs`:
 
