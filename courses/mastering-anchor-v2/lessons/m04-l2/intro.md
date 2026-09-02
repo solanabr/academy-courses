@@ -20,7 +20,7 @@ We are going to reconstruct why the framework's authors chose to enforce this wi
 
 The gate you are working toward is small and sharp. Given a snippet that reads an account's typed data while that account's own `CpiHandle` is live and therefore refuses to compile, you reorder the read to after the handle drops so the program builds, and you name the bug class V2 eliminated in one sentence. That is it.
 
-The autonomy fades the usual way. In the Lab I show you the failing shape and the fix in full, because I want the borrow-checker error in your eyes and the reorder in your fingers. In the Challenge you get a different broken snippet with no scaffolding, and you fix it and name the class yourself. Read, break, fix, name.
+The autonomy fades the usual way. In the Lab I show you the failing shape and the fix in full, because I want the borrow-checker error in your eyes and the reorder in your fingers. In the Challenge you get a different broken snippet with no scaffolding, and you fix it and name the class yourself. The graded rung after it runs the same discipline with the framework stripped away and a grader watching: a receipt that has to be right, not merely compile. Read, break, fix, name.
 
 ## Why the compiler now has your back
 
@@ -373,6 +373,8 @@ Acceptance criteria the review checks directly:
 ![If a CpiHandle for the account is still in scope you cannot read it yet, so drop it by consuming the CpiContext, then read the field directly since .reload() is gone.](assets/v09-flowchart.png)
 
 If you can state the class in a sentence and your reorder builds, you own the concept, not just the fix.
+
+**Then the graded rung, which asks for one thing this fix does not.** The exercise below is a `settle` handler cut down to plain Rust: hand-rolled stand-ins for the account, the handle and the `CpiContext`, small enough to compile with no framework in the picture and borrowing exactly the way the real ones do. It owes a receipt — the vault's balance *before* the transfer and its balance *after*, both read off the account. The starter parks both reads in the forbidden span, so it does not build, and what happens next is the interesting part: lifting both of them above the `CpiContext` makes the borrow error disappear and the receipt wrong, because the pre-transfer number gets reported twice. Compiling and being right are two different bars, and the vectors check both — every case where `amount` is non-zero can tell those two receipts apart. That is the discrimination the prose Challenge cannot make and a grader can.
 
 ## Where this leaves you
 

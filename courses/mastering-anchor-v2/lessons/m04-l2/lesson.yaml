@@ -7,6 +7,16 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: settlement-receipt
+    type: code
+    language: rust
+    starter: settlement-receipt/starter.rs
+    solution: settlement-receipt/solution.rs
+    tests: settlement-receipt/tests.json
+    hints:
+      - "The handles do not die when the TransferChecked literal closes, and not when the let cpi statement ends. They die when transfer_checked takes the CpiContext by value, and that call is the boundary every read has to fall on one side of."
+      - "Only the accounts the CPI was handed are locked, and only as hard as their handle: mint went in through a shared cpi_handle(), which is why reading mint.decimals() inside that same span is not the error and moving it will not help."
+      - "Compiling is half the bar. Whenever amount is non-zero the two numbers in the receipt have to differ, so a fix that only silences E0502 can still report the same balance twice and be graded wrong."
   - key: check
     type: quiz
     questions:
