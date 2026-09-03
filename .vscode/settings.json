@@ -1,6 +1,7 @@
 {
   "yaml.schemas": {
     "./schema/course.schema.json": ["courses/*/course.yaml"],
+    "./schema/l10n-strings.schema.json": ["courses/*/l10n/*/strings.yaml"],
     "./schema/lesson.schema.json": ["courses/*/lessons/*/lesson.yaml"],
     "./schema/quiz.schema.json": ["courses/*/lessons/*/*.quiz.yaml"],
     "./schema/achievement.schema.json": ["achievements/*.yaml"],
