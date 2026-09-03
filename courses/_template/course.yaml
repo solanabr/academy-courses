@@ -1,5 +1,6 @@
 id: course-template
 slug: template
+sourceLocale: en
 title: Template Course
 difficulty: beginner
 duration: 2

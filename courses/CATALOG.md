@@ -545,6 +545,12 @@ Each of these changes lesson bodies, not just copy. Verified against the code, 2
 
 **Blocking rule:** a lesson is not translated until its version stamp is confirmed current. `@solana/kit` shipped ~6 majors in 18 months and `@solana/subscriptions` is 0.4.0 pre-1.0 — translating an unstamped code lesson guarantees three wrong versions of it.
 
+**Mechanism (2026-09-02).** The table above was written before there was anywhere to put a translation. There is now: each course declares `sourceLocale` and gains languages through an optional `courses/<slug>/l10n/<locale>/` overlay — see [Translations](./README.md#translations). Three corrections to the framing above follow from it:
+
+- **"EN first" is a sequencing preference, not a structural requirement.** A course is authored in whatever language its author writes, declares that as `sourceLocale`, and translations overlay onto it. Three live courses are PT-BR originals with no English version, and that is a supported shape rather than a compromise.
+- **A translation is never a second course.** Duplicating a course to publish it in another language forks its PDA, enrolment, slot bitmap and XP ledger — irreversibly, since `course_id` is a PDA seed.
+- **Partial translations ship.** Coverage is per string and per file, so a course can be listed in a second language before its artwork is re-rendered. The blocking rule above still holds for *code* lessons specifically, and for the same reason.
+
 ### How this lands as content PRs
 
 The content repo is separate (`solanabr/courses-academy`), pushes need the `gh` token (the ambient git credential is read-only 403), CI checks out monorepo `main` and runs `content-lint` (schema-first, so no version skew), and content **stages** until a monorepo `content.lock` bump activates it.
@@ -556,7 +562,7 @@ The content repo is separate (`solanabr/courses-academy`), pushes need the `gh` 
 3. **PR N+1 — the `content.lock` bump** in the monorepo, activating one or more staged courses. This is the only PR that changes what learners see, and it is the natural gate for owner sign-off.
 4. **On-chain creation** happens after the lock bump, with the **real instructor wallet** and the frozen `trackId 1 / trackLevel 1–5` (PB-7). The C3 close+recreate to move trackLevel 2→3 is batched here, on devnet, once.
 5. **Cross-course PRs are allowed and expected** for seam fixes — C2's PR must also fix C3's `from-code-to-chain` opener; C3's PR must confirm the IDL is persisted as an artifact C4 can consume.
-6. **Translation PRs are separate**, per course per locale, and never merge ahead of the EN version stamp.
+6. **Translation PRs are separate**, per course per locale, and never merge ahead of the source-language version stamp. A translation PR adds `courses/<slug>/l10n/<locale>/` and touches nothing else — it never edits the source tree, never renames an id, and never copies the course.
 
 ---
 
@@ -566,7 +572,7 @@ The content repo is separate (`solanabr/courses-academy`), pushes need the `gh` 
 2. **PB-3b: is `cargo test --lib` a launch blocker for C2, or does C2 ship with compile-only grading and softened copy?** Under compile-only, a learner whose `withdraw` calls `checked_add` passes the capstone. The spec ships the verification-harness mitigation, but the honest artifact claim changes either way.
 3. **Do the three missing capabilities ship (signed-transaction / source-file / published-artifact), or do C1, C2 and C4 collect artifacts via `openEnded` and soften their milestone copy?** Recommendation: ship `published-artifact` only (it covers C1 L7 and C4 L4/L10), accept `openEnded` for the rest. Milestones that cannot be verified are not milestones — but the copy can be honest cheaply.
 4. **Is C5 pulled to Wave 1 and published standalone before C4?** It is the only course with zero platform blockers, the only global first-mover position we hold, and its material has a live decay clock. Cost: it publishes with a reference-app fallback rather than the learner's own C4 app, which weakens the through-line for early cohorts.
-5. **Is Spanish promoted to a launch language for C2/C4/C5, or does PT-BR stay first everywhere?** The evidence says ES is the empty lane and PT-BR is table stakes against Blueshift. The brand says Brazil-first. This is a positioning call, not a research question.
+5. **Is Spanish promoted to a launch language for C2/C4/C5, or does PT-BR stay first everywhere?** The evidence says ES is the empty lane and PT-BR is table stakes against Blueshift. The brand says Brazil-first. This is a positioning call, not a research question. *(2026-09-02: now purely a scheduling call. With the `l10n/` overlay in place, adding a language is an additive PR against an existing course rather than a structural commitment, and either order is reversible.)*
 6. **Segment 3 (beginners learning to code): confirmed out of scope for this wave?** The spec states it in writing. If that is wrong, it is a sixth course, not an adjustment to C1.
 
 ---

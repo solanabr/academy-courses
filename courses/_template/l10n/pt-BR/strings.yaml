@@ -1,0 +1,114 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Translation overlay: pt-BR for `courses/_template` (sourceLocale: en).
+#
+# This file is a SHAPE EXAMPLE. The strings are illustrative, not a real
+# translation — the template's own content is placeholder text.
+#
+# How it works
+#   • Every key is optional. Anything absent falls back to the source locale,
+#     per string. This file covers 2 of the template's 5 lessons on purpose:
+#     `fund`, `deploy` and `interact` simply render in English.
+#   • Keys are the stable identifiers — module key, lesson slug, block key,
+#     question id, option id, test case id — so reordering options or questions
+#     in the source can never mis-bind a translation. The two exceptions are
+#     `hints` and `tutorNotes`, which the source stores as bare lists with no
+#     ids; those are keyed by array index.
+#   • Prose is NOT in this file. A translated `intro.md` lives beside it at
+#     `l10n/pt-BR/lessons/<slug>/intro.md`; its presence is the index.
+#
+# What must NEVER appear here
+#   ids · slugs · skills · block `key` or order · quiz `correct` flags ·
+#   xpPerLesson/xpReward/creator/track fields · code `starter`/`solution` ·
+#   parsons `lines`/`correctOrder` · test `input`/`expectedOutput`. Those reach
+#   the on-chain surface or the grader, and a translation must be structurally
+#   incapable of touching them.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# The one authored-but-derivable field, and it earns it: macOS filesystems are
+# case-insensitive, so `l10n/pt-br/` and `l10n/pt-BR/` are the same directory
+# locally but different in git. Declaring it lets a check catch the mismatch.
+# The SOURCE language is deliberately NOT repeated here — it lives in
+# course.yaml, and a second copy could only ever drift out of agreement.
+locale: pt-BR
+
+course:
+  title: Curso Modelo
+  # description: …        # this template's course.yaml has none; same shape as title
+  modules:
+    intro:
+      title: Introdução
+    chain:
+      title: Cadeia on-chain
+
+lessons:
+  # ── lesson `basics` — prose, video, quiz, openEnded ────────────────────────
+  basics:
+    title: Fundamentos
+    blocks:
+      # `intro` (prose) is absent by design — see l10n/pt-BR/lessons/basics/intro.md
+      watch:
+        # Optional dubbed/subtitled variant. Omit and the source video plays.
+        url: "https://youtu.be/dQw4w9WgXcQ"
+      check:
+        questions:
+          q1:
+            prompt: Quais contas armazenam estado?
+            explanation: >-
+              Na Solana tudo é uma conta, e tanto contas de dados quanto contas
+              de programa guardam estado — uma conta de programa armazena seus
+              próprios bytes executáveis. Instruções são as entradas que uma
+              transação carrega, não contas armazenadas.
+            options:
+              # Keyed by option id. `correct` is never overlaid — it is read
+              # from the source lesson only.
+              a:
+                label: Contas de dados
+              b:
+                label: Contas de programa
+              c:
+                label: Instruções
+                feedback: "Entradas, não contas."
+          q2:
+            prompt: Escolha a unidade base do SOL.
+            explanation: >-
+              Um SOL equivale a 1.000.000.000 lamports, e o lamport é a unidade
+              indivisível em que todo valor on-chain é contado. SOL é apenas a
+              unidade de exibição; Gwei pertence ao Ethereum.
+            options:
+              a:
+                label: Lamport
+              b:
+                label: Gwei
+                feedback: "Essa é a subunidade do Ethereum, não da Solana."
+              c:
+                label: SOL
+                feedback: >-
+                  SOL é a unidade de exibição; on-chain os valores são contados
+                  na sua unidade base.
+      reflect:
+        prompt: "O que você aprendeu?"
+
+  # ── lesson `exercise` — code hints and tests.json strings ──────────────────
+  exercise:
+    title: Exercício
+    blocks:
+      ts:
+        # `hints` (and `tutorNotes`) are bare lists in the source, so the overlay
+        # keys them by ARRAY INDEX. Sparse is fine — translate hint 0 and 2 and
+        # hint 1 still renders in the source language. This block has one hint.
+        hints:
+          0: Some os dois números.
+        # Keyed by test case id from ts/tests.json. Only `description` and
+        # `failureMessage` are translatable — `input` and `expectedOutput` are
+        # compared byte-for-byte and must never be overlaid.
+        tests:
+          t1:
+            description: Soma dois números positivos
+            failureMessage: >-
+              Verifique se a função está somando os argumentos e retornando o
+              resultado.
+          t2:
+            description: Soma um número positivo e um negativo
+      # The `rs` block is absent entirely — it has nothing translated, so it
+      # simply renders from the source. Never write an empty stanza to say
+      # "nothing here"; omission IS the statement.
