@@ -11,8 +11,10 @@ difficulty: beginner
 # different namespace (path- vs achievement-), no id collision.
 # When the track-1 catalog is restored from `_draft/`, `zero-to-deployed` comes
 # back as the main track; this path stays as the pre-track on-ramp shelf.
-# NOTE: solana-speedrun is PT-BR; btc-to-sol-evolution is EN. The mixed-locale
-# shelf is a known alpha compromise until the content-i18n mechanism (#580) ships.
+# NOTE: this shelf is deliberately mixed-locale — solana-speedrun is authored in
+# PT-BR, btc-to-sol-evolution in EN. Each course now declares its own language via
+# `sourceLocale`, and either can gain the other language by adding an `l10n/<locale>/`
+# overlay without being duplicated or leaving this path.
 courses:
   - course-btc-to-sol-evolution
   - course-solana-speedrun

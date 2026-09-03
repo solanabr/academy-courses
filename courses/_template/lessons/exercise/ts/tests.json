@@ -1,4 +1,15 @@
 [
-  { "id": "t1", "input": "2, 3", "expectedOutput": "result === 5" },
-  { "id": "t2", "input": "10, -4", "expectedOutput": "result === 6" }
+  {
+    "id": "t1",
+    "description": "Adds two positive numbers",
+    "input": "2, 3",
+    "expectedOutput": "result === 5",
+    "failureMessage": "Check that add() returns the sum of its two arguments rather than logging or mutating them."
+  },
+  {
+    "id": "t2",
+    "description": "Adds a positive and a negative number",
+    "input": "10, -4",
+    "expectedOutput": "result === 6"
+  }
 ]

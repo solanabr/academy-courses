@@ -23,6 +23,9 @@ write **`Salvage: none — all-new content`** if this PR reuses nothing.
       any all-rights-reserved corpus.
 - [ ] `validate-content` is green — 0 errors (see [CONTRIBUTING.md](../CONTRIBUTING.md) to run it locally).
 - [ ] Schema-valid: ids unchanged, `slots.lock.json` not hand-edited, `xpPerLesson × lessonCount ≤ 10000`.
+- [ ] **Translations only:** everything lives under `courses/<slug>/l10n/<locale>/`; no `course.yaml`,
+      `lesson.yaml` or `slots.lock.json` anywhere inside it; no ids, `correct` flags, XP or test
+      `input`/`expectedOutput` in `strings.yaml`. The course was **not** duplicated to translate it.
 - [ ] Code-bearing lessons carry a `versionStamp` with the versions they actually teach and today's `checkedAt`.
 - [ ] No `content.lock` bump here — that lives in the app repo. **Merging this stages the content; it
       does not ship it.**

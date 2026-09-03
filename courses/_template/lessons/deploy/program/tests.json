@@ -1,1 +1,8 @@
-[{ "id": "t1", "input": "", "expectedOutput": "ok" }]
+[
+  {
+    "id": "t1",
+    "description": "The program compiles and deploys on the build server",
+    "input": "",
+    "expectedOutput": "ok"
+  }
+]

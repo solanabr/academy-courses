@@ -1,1 +1,8 @@
-[{ "id": "t1", "input": "2, 3", "expectedOutput": "5" }]
+[
+  {
+    "id": "t1",
+    "description": "Adds two positive numbers",
+    "input": "2, 3",
+    "expectedOutput": "5"
+  }
+]
