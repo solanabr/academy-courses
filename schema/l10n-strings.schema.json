@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "l10n-strings.schema.json",
+  "title": "Course translation overlay — courses/<slug>/l10n/<locale>/strings.yaml",
+  "description": "Display strings for one course in one language. Every key is optional: anything absent falls back to the course's sourceLocale, per item. `additionalProperties: false` is load-bearing throughout — it is what makes an overlay structurally incapable of carrying an id, a `correct` flag, an XP value, a starter/solution, a parsons answer key, or a test's input/expectedOutput.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["locale"],
+  "properties": {
+    "locale": {
+      "description": "Must match the folder name exactly. Declared rather than derived because macOS filesystems are case-insensitive: l10n/pt-br/ and l10n/pt-BR/ are one folder locally and two in git. The SOURCE language is not repeated here — it lives in course.yaml.",
+      "type": "string",
+      "enum": ["en", "pt-BR", "es"]
+    },
+    "course": { "$ref": "#/$defs/course" },
+    "lessons": {
+      "description": "Keyed by lesson slug — the lesson's folder name.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/key" },
+      "additionalProperties": { "$ref": "#/$defs/lesson" }
+    }
+  },
+  "$defs": {
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "indexedList": {
+      "description": "The source stores this as a bare list with no ids, so the overlay keys it by array index. Sparse is fine — translate 0 and 2, and 1 renders in the source language.",
+      "type": "object",
+      "propertyNames": { "pattern": "^(0|[1-9][0-9]*)$" },
+      "additionalProperties": { "$ref": "#/$defs/text" }
+    },
+    "course": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "$ref": "#/$defs/text" },
+        "description": { "$ref": "#/$defs/text" },
+        "modules": {
+          "description": "Keyed by module key from course.yaml.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/key" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": { "$ref": "#/$defs/text" },
+              "description": { "$ref": "#/$defs/text" }
+            }
+          }
+        }
+      }
+    },
+    "lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "$ref": "#/$defs/text" },
+        "blocks": {
+          "description": "Keyed by block key from lesson.yaml. Prose blocks do not appear here — a translated .md at the mirrored path is the index.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/key" },
+          "additionalProperties": { "$ref": "#/$defs/block" }
+        }
+      }
+    },
+    "block": {
+      "description": "One stanza per translated block. Which properties apply depends on the source block's type; nothing here is required.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prompt": {
+          "description": "openEnded prompt, or a parsons block's prompt.",
+          "$ref": "#/$defs/text"
+        },
+        "explanation": {
+          "description": "A parsons block's explanation.",
+          "$ref": "#/$defs/text"
+        },
+        "url": {
+          "description": "video — an optional dubbed or subtitled variant. Omit and the source video plays.",
+          "type": "string",
+          "minLength": 1
+        },
+        "hints": {
+          "description": "code — index-keyed.",
+          "$ref": "#/$defs/indexedList"
+        },
+        "tutorNotes": {
+          "description": "code — index-keyed. What the AI Partner reads.",
+          "$ref": "#/$defs/indexedList"
+        },
+        "questions": {
+          "description": "quiz — keyed by question id. `correct` is never overlaid; it is read from the source lesson only.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/id" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "prompt": { "$ref": "#/$defs/text" },
+              "explanation": { "$ref": "#/$defs/text" },
+              "options": {
+                "type": "object",
+                "propertyNames": { "$ref": "#/$defs/id" },
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "$ref": "#/$defs/text" },
+                    "feedback": { "$ref": "#/$defs/text" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tests": {
+          "description": "code — keyed by test case id from tests.json. `input` and `expectedOutput` are compared byte-for-byte and are never overlaid.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/id" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": { "$ref": "#/$defs/text" },
+              "failureMessage": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

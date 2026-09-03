@@ -1,5 +1,6 @@
 id: course-btc-to-sol-evolution
 slug: btc-to-sol-evolution
+sourceLocale: en
 title: "From Bitcoin to Solana: The Evolution of Blockchain Technology"
 description: "Run, script, and explain every generation of blockchain from Bitcoin to Solana, then ship a personal ops bot that manages wallets and agents on both."
 difficulty: beginner
