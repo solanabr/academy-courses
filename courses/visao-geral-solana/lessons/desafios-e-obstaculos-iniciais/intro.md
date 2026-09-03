@@ -115,9 +115,9 @@ Engenheiros frequentemente combinam opções: aplicar uma limitação rápida pa
 
 Por que este exemplo é útil pedagogicamente: conecta sintomas (o que você vê) a causas mecanicistas (o que está acontecendo em threads, memória e I/O) e a trade-offs de engenharia concretos (mitigação de curto prazo versus correções de longo prazo). Quando revisar o código ou o postmortem depois, pergunte: quais sinais foram mais informativos, quais controles temporários foram aceitáveis e como essa escolha reordenou prioridades de engenharia adiante?
 
-![Sintomas de Incidentes e Ações-Chave de Mitigação](assets/v01-incident-symptoms.png)
+![Sintomas de Incidentes e Ações-Chave de Mitigação](assets/v01-incident-symptoms.webp)
 
-![Mitigação Imediata vs Patch Estrutural Permanente](assets/v02-mitigation-vs-patch.png)
+![Mitigação Imediata vs Patch Estrutural Permanente](assets/v02-mitigation-vs-patch.webp)
 
 ---
 
@@ -141,7 +141,7 @@ Passo 7 — Priorização e alocação de recursos: por fim, coloque o incidente
 
 Este fluxo de trabalho enfatiza verificações mensuráveis em cada etapa: limites de alerta, completude do pacote de triagem, reprodução de teste e critérios de aceitação. Essas verificações convertem um incidente anedótico em itens de trabalho de engenharia, que por sua vez mudam prioridades de longo prazo de crescimento de recursos para resiliência da plataforma quando incidentes são frequentes ou severos.
 
-![Fluxo de Trabalho: Da Detecção à Validação do Patch](assets/v03-incident-workflow.png)
+![Fluxo de Trabalho: Da Detecção à Validação do Patch](assets/v03-incident-workflow.webp)
 
 ---
 

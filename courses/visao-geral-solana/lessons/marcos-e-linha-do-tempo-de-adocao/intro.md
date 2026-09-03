@@ -44,7 +44,7 @@ Concretamente, esse modelo mental ajuda você a raciocinar sobre trade-offs. Um 
 
 A metáfora da ponte também facilita a comunicação: quando você explicar adoção inicial a colegas, use rótulos de fase em vez de adjetivos vagos. Diga “estamos na fase pública-aberta porque o mainnet beta permitiu tráfego externo limitado” em vez de “a rede já está madura”. A nomenclatura em fases ajuda você a escolher perguntas apropriadas: trabalho de fase de fundação pergunta “os suportes estão corretos?” Público-aberto pergunta “o tráfego externo pode usar a ponte com segurança?” e expansão-do-ecossistema pergunta “terceiros acham que vale a pena construir faixas?” Essa clareza é a recompensa prática do modelo mental.
 
-![Fases do Ciclo de Vida de Releases na Solana](assets/v01-release-stages.png)
+![Fases do Ciclo de Vida de Releases na Solana](assets/v01-release-stages.webp)
 
 ---
 
@@ -71,7 +71,7 @@ Abaixo há uma tabela compacta que você pode usar ao anotar uma linha do tempo 
 
 Quando você analisar um marco histórico real, alinhe o marco com esta tabela e anote o que mudou em métricas e o que alterou prioridades. Com o tempo a tabela virará uma checklist viva que você aplica a novos releases ou notícias do ecossistema, permitindo separar mudanças técnicas de efeitos de adoção. Esse hábito analítico é a habilidade prática que você está desenvolvendo: converte releases de imprensa em sinais testáveis que você pode observar on-chain ou em repositórios de desenvolvedores.
 
-![Linha do Tempo de Marcos e Adoção](assets/v02-timeline-milestones.png)
+![Linha do Tempo de Marcos e Adoção](assets/v02-timeline-milestones.webp)
 
 ---
 
@@ -87,7 +87,7 @@ Ambos os tipos de marcos importam, mas implicam intervenções diferentes. Se um
 
 Use essa comparação como um heurístico de triagem rápida: classifique um marco e então escolha o pequeno conjunto de métricas mais provável de revelar se o marco alcançou seu efeito pretendido. Essa abordagem direcionada economiza tempo e torna suas avaliações mais rápidas e confiáveis.
 
-![Releases Técnicos vs Eventos do Ecossistema](assets/v03-technical-vs-ecosystem.png)
+![Releases Técnicos vs Eventos do Ecossistema](assets/v03-technical-vs-ecosystem.webp)
 
 ---
 

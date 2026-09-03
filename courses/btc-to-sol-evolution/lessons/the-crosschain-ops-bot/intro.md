@@ -43,7 +43,7 @@ python opsbot.py up                   # bring it straight back, foreground this 
 
 Read the last two lines twice. Same Bitcoin address. Same Solana public key. No second airdrop, no duplicate anything, and the operation it had already confirmed got skipped instead of replayed. You just watched a process come back from a `kill -9` knowing exactly what it had and hadn't done. Nothing about that is automatic. You paid for every line of it, and the rest of this lesson is the bill, itemized.
 
-![A timeline of one bot run, cold start funds both chains, kill -9 destroys the process mid-operation, and the second up resumes with identical addresses and no re-execution.](assets/v01-timeline.png)
+![A timeline of one bot run, cold start funds both chains, kill -9 destroys the process mid-operation, and the second up resumes with identical addresses and no re-execution.](assets/v01-timeline.webp)
 
 ## Name the machine
 
@@ -63,7 +63,7 @@ A safe restart comes down to exactly three artifacts on disk. Miss one and the c
 
 One rule binds all three: every operation submitted after the cursor must be idempotent or guarded by an on-chain check. **Idempotent** means safe to run more than once, because the second run changes nothing. That rule is the load-bearing beam of the whole machine. Everything else is scaffolding bolted around it.
 
-![The state directory holds keypair byte files, an append-only cursor, and an agent manifest, each labeled with the specific failure it prevents.](assets/v02-diagram.png)
+![The state directory holds keypair byte files, an append-only cursor, and an agent manifest, each labeled with the specific failure it prevents.](assets/v02-diagram.webp)
 
 ## Write the key before you spend a cent
 
@@ -87,7 +87,7 @@ The Solana side keeps a different secret under the same ordering law. The Solana
 
 I learned that one by shipping the wrong order. An early version of this bot called the airdrop inside the agent's startup path with no cursor check. It worked twice. On the third restart devnet returned 429, the funding step that should never have re-run threw, and the agent crash-looped over money it already had. The fix was not a retry loop. It was moving the airdrop behind the cursor so the second boot skips it entirely. Provision once, persist, resume.
 
-![Annotated code showing the keypair persisted to disk before the first on-chain funding call on both chains, with the 101-block and airdrop-once footguns marked.](assets/v03-annotated-code.png)
+![Annotated code showing the keypair persisted to disk before the first on-chain funding call on both chains, with the 101-block and airdrop-once footguns marked.](assets/v03-annotated-code.webp)
 
 ## The cursor is the only thing between you and a double-send
 
@@ -99,7 +99,7 @@ Concretely, the cursor is a small store you own, and the brief hands you two hon
 
 That decision is the completion TODO in the code you are about to finish, and it is not a single `if`. A cursor alone trusts its own bookkeeping, and bookkeeping drifts. The stronger version pairs the stored op-id with an on-chain check: before applying op N, ask the chain whether it already landed. If the swap's output already sits in the wallet, or the funding transaction already confirmed, record it and skip, even when the cursor never got the memo because the process died between "send" and "write." Idempotent-or-guarded is belt and suspenders, and a cross-chain bot needs both belts fastened.
 
-![A flowchart of the resume path, compare the next operation against the cursor, then an on-chain check, skipping confirmed work and applying only genuinely new operations.](assets/v04-flowchart.png)
+![A flowchart of the resume path, compare the next operation against the cursor, then an on-chain check, skipping confirmed work and applying only genuinely new operations.](assets/v04-flowchart.webp)
 
 ## The manifest: so the supervisor respawns the right thing
 
@@ -111,7 +111,7 @@ Now make the failure concrete, because a PID that looks fine is exactly the one 
 
 That reconciliation is why the manifest, not the cursor and not the key files, is the artifact that disambiguates cold start from resume. `up` on an empty `state/` finds no manifest and can only mean cold start. `up` on a populated one reads the manifest, checks each recorded PID against what is actually running under that agent's identity, respawns only the agents that are genuinely gone, and rewrites the registry with the new PIDs. That check is the difference between resuming a roster and blindly re-spawning it. It is also the file that turns `kill -9 $(cat state/opsbot.pid)` from a guess about which process to end into a teardown you can test: the supervisor's own PID lives in `opsbot.pid`, every child's lives in the manifest, and killing the parent is defined to take its reconciled roster down with it. That is what let the run at the top of this lesson end the bot by its PID file and trust that exactly the right processes came down with it.
 
-![The manifest.json PID registry mapping each agent's pid to its chain and persisted address, with the reconcile-on-resume rule and the two stale-PID failures (an orphaned agent, or killing the wrong process) flagged.](assets/v05-annotated-code.png)
+![The manifest.json PID registry mapping each agent's pid to its chain and persisted address, with the reconcile-on-resume rule and the two stale-PID failures (an orphaned agent, or killing the wrong process) flagged.](assets/v05-annotated-code.webp)
 
 ## Name the cost
 
@@ -133,7 +133,7 @@ There is a tempting way to think about bridges that you should reject on sight: 
 
 Here is why "trust an honest majority of validators" is not the whole sentence. In 2022 the Wormhole bridge was drained through a signature-verification flaw in its Solana contract. The 19 guardians were honest the entire time. The code let an attacker forge a message they never signed. External-validator-set trust means trusting the contract too, not only the validators: the tier reads "honest majority AND correct code," and the second clause is where the money actually left.
 
-![A comparison of custodial, external-validator-set, and trust-minimized bridges by who holds the assets, what you trust, and how each one fails.](assets/v06-comparison.png)
+![A comparison of custodial, external-validator-set, and trust-minimized bridges by who holds the assets, what you trust, and how each one fails.](assets/v06-comparison.webp)
 
 Now walk the legs of your own design and place each in the frame. Measure each one against a baseline that adds no trust at all, and the legs that genuinely add trust stop hiding.
 
@@ -141,7 +141,7 @@ Your Bitcoin funding leg mines on your own regtest node. There is no counterpart
 
 Which leaves exactly one leg that adds a trust assumption surviving every reboot: an actual BTC-to-Solana bridge. This is the stretch leg, and you will document it, never wire it. Start from a fact that eliminates the obvious pick: Wormhole, as of 2025, does not natively bridge native BTC. Its guardian set secures message passing across EVM, Solana, and 30-plus chains, but Bitcoin is not a supported chain in its core protocol. So a documented BTC leg to Solana uses one of two other paths. tBTC, from the Threshold Network, holds BTC under a threshold ECDSA multisig and is audited: a signer set plus audited code, which lands it in the external-validator-set tier. Or a wrapped representation like WBTC or renBTC, both custodial. Native BTC does not reach Solana without choosing one of those, and each choice is a trust assumption you carry forever after.
 
-![A table tagging each leg, local BTC mining, the SOL faucet, the same-chain Jupiter swap, and the stretch BTC-to-Solana bridge, with its trust tier, flagging the bridge as the only true cross-chain trust.](assets/v07-table.png)
+![A table tagging each leg, local BTC mining, the SOL faucet, the same-chain Jupiter swap, and the stretch BTC-to-Solana bridge, with its trust tier, flagging the bridge as the only true cross-chain trust.](assets/v07-table.webp)
 
 ## Build: wire one rung in, then prove the resume
 
@@ -149,7 +149,7 @@ You have watched the supervisor recover, but so far you have taken the wiring on
 
 Here is the pattern, worked once so you can copy its shape. Take the watcher, `watcher.py`, the face you built last lesson. Wiring it in is three moves. First, register it in the manifest as an agent row, so the supervisor knows to spawn it and reconcile its PID, roughly `{ "name": "face", "cmd": ["python", "watcher.py"], "chain": null, "key": null }`. Second, spawn it from the supervisor's start path the same way every other agent is launched, `subprocess.Popen(row["cmd"])`, and record the returned PID back into that manifest row so the reconcile check can find it on resume. Third, give it its input: point the watcher at the same `state/` directory the other agents write to, so it paints from the shared cursor and manifest instead of its own private memory. That is the whole wiring. The rung stops being a standalone script and becomes a child the supervisor creates, watches, and brings back after a `kill -9`.
 
-![Annotated code of the three moves that wire watcher.py into the supervisor, a manifest agent row, a supervised subprocess spawn recording the pid, and pointing the rung at the shared state directory.](assets/v08-annotated-code.png)
+![Annotated code of the three moves that wire watcher.py into the supervisor, a manifest agent row, a supervised subprocess spawn recording the pid, and pointing the rung at the shared state directory.](assets/v08-annotated-code.webp)
 
 Now do it once yourself with a different rung: wire the Anchor vault-and-bot from the Solana module in the same three moves, a manifest row, a supervised spawn that records its PID, and a pointer at the shared `state/`. When it respawns cleanly on resume alongside the agents that were already there, you have shown the claim instead of trusting it.
 
@@ -159,7 +159,7 @@ Beyond this course, two optional stretch legs are waiting if you want them. Neit
 
 **(a) Optional, beyond this course: add the Jupiter v6 devnet swap as a new idempotent agent operation.** A minimal swap is four steps. Fetch a quote with `inputMint`, `outputMint`, `amount`, and `slippageBps` (**slippageBps** is the maximum price movement you will tolerate, in basis points, where 1 bp is 0.01%). POST that quote plus your `userPublicKey` to `/swap`. Deserialize the returned base64 transaction and sign it with the operator keypair. Send it with `connection.sendRawTransaction`. The whole point of this track is the last requirement: make it survive a restart mid-swap, which means guarding it with the same idempotency check as every other operation. Send is not the same as confirmed, and a bot that appends to the cursor before confirmation will cheerfully skip a swap that never landed.
 
-![Annotated code of the Jupiter swap wrapped as an idempotent operation, an up-front applied-check guard, the quote-swap-sign-send steps, and a cursor append only after confirmation.](assets/v09-annotated-code.png)
+![Annotated code of the Jupiter swap wrapped as an idempotent operation, an up-front applied-check guard, the quote-swap-sign-send steps, and a cursor append only after confirmation.](assets/v09-annotated-code.webp)
 
 **(b) Optional, beyond this course: write a one-page BTC-to-Solana bridge-leg design doc.** Name the specific bridge (tBTC or a wrapped representation), state its audit status, and tag its trust tier. No live code. This is the security-writing muscle the whole module has been building toward, and the deliverable is a page a reviewer could argue with, not a diagram. Never route value through unaudited bridge code in a course, and never in production without reading the audits yourself.
 

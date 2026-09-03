@@ -53,7 +53,7 @@ Quando você converter a tabela em prosa, siga a ordem cronológica e use o rót
 
 Por fim, priorize a concisão: uma seção histórica do capstone não é uma história abrangente. Escolha os marcos que são mais explicativos para sua narrativa arquitetural e omita eventos periféricos, a menos que iluminem um tema técnico específico. Se você mantiver mais de oito eventos candidatos, crie uma lista curta de "também notáveis" em suas notas, mas não force cada item no resumo de 500–800 palavras.
 
-![Linha do Tempo: Afirmações e Evidências](assets/v01-linha-do-tempo-afirmacoes-e-evidencias.png)
+![Linha do Tempo: Afirmações e Evidências](assets/v01-linha-do-tempo-afirmacoes-e-evidencias.webp)
 
 ## Como Isso Se Manifesta na Prática: Uma Síntese Trabalhada
 
@@ -75,7 +75,7 @@ Para tornar isso concreto, aqui está um parágrafo ilustrativo que você pode a
 
 Use esse modelo: afirmação do evento, citação, explicação do mecanismo e implicação arquitetural. Após completar o rascunho, anote quaisquer declarações que dependam de evidências mais fracas para que os revisores saibam onde solicitar mais suporte. Esse rascunho anotado é o artefato que você submeterá para a seção histórica do capstone e o ponto de partida para a revisão por pares contra os critérios de sucesso.
 
-![Fluxo: Transformando Entregáveis em Síntese](assets/v02-fluxo-transformando-entregaveis-em-sintese.png)
+![Fluxo: Transformando Entregáveis em Síntese](assets/v02-fluxo-transformando-entregaveis-em-sintese.webp)
 
 ## Um Modelo Mental para Síntese: O Arcabouço da Linha Narrativa
 
@@ -91,7 +91,7 @@ Use o Arcabouço da Linha Narrativa para lidar com incerteza. Quando a evidênci
 
 Por fim, lembre-se de que um arcabouço é projetado para ser temporário: o rascunho final deve ler fluentemente sem a estrutura do arcabouço visível ao leitor. O arcabouço é uma ferramenta de produção que mantém você focado nas três tarefas distintas necessárias para produzir um resumo histórico baseado em evidências e ligado à arquitetura.
 
-![Arcabouço da Linha Narrativa](assets/v03-arcabouco-da-linha-narrativa.png)
+![Arcabouço da Linha Narrativa](assets/v03-arcabouco-da-linha-narrativa.webp)
 
 ## Conclusão & Principais Lições
 

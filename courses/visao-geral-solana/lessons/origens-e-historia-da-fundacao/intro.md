@@ -47,7 +47,7 @@ Traduza a metáfora em três componentes concretos que você deve ter em mente. 
 
 Use essa estrutura ao ler sobre inovações da Solana, como uma função de atraso ou timestamp verificável e execução otimista. O modelo não é perfeito — ele abstrai a variação em nível de rede e modelos de atacante — mas esclarece a intenção por trás das escolhas de design. Você aplicará essa forma de pensar em lições posteriores para prever quais classes de aplicações se ajustam à arquitetura da Solana e quais irão conflitar com suas suposições. Continue perguntando: como uma melhoria reivindicada altera o mecanismo do relógio? Ela adiciona garantias extras ou depende de suposições de sincronia ainda não comprovadas? Essa pergunta guiará sua leitura técnica e avaliação prática nas lições subsequentes.
 
-![Modelo Mental: O Livro-Razão Relógio](assets/v01-clockwork-ledger.png)
+![Modelo Mental: O Livro-Razão Relógio](assets/v01-clockwork-ledger.webp)
 
 ---
 
@@ -68,7 +68,7 @@ Agora examine os marcos públicos. O projeto lançou relatórios técnicos e uma
 | Benchmarks públicos e atualizações | Vazão, latência e estabilidade medidas | Forneceram sinais de confiança a integradores |
 Use este exemplo para ancorar leituras posteriores: quando encontrar um artigo de protocolo ou um post de blog sobre melhorias de desempenho, mapeie-o de volta a esta linha do tempo. Pergunte qual marco está sendo atualizado, qual papel dentro da equipe original dirigiu a mudança e qual mecanismo de financiamento apoiou o esforço. Esse mapeamento ajuda a separar a linguagem de marketing do progresso técnico substantivo e torna a lição subsequente sobre leitura de whitepapers mais prática e passível de verificação.
 
-![Linha do Tempo Inicial: Da Ideia aos Primeiros Testes Públicos](assets/v02-early-timeline.png)
+![Linha do Tempo Inicial: Da Ideia aos Primeiros Testes Públicos](assets/v02-early-timeline.webp)
 
 ---
 
@@ -84,7 +84,7 @@ Finalmente, compare governança e formação do ecossistema. O crescimento inici
 
 Mantenha essa comparação em sua caixa de ferramentas: ela permite traduzir descrições de design em expectativas tangíveis sobre desempenho, risco e aplicações apropriadas. Perguntar "qual problema o protocolo estava originalmente tentando resolver?" dá uma lente prática para interpretar artigos técnicos, notas de release e itens de roadmap conforme você avança no curso.
 
-![Comparação de Prioridades de Design: Solana vs Redes Anteriores](assets/v03-solana-vs-bitcoin.png)
+![Comparação de Prioridades de Design: Solana vs Redes Anteriores](assets/v03-solana-vs-bitcoin.webp)
 
 ---
 

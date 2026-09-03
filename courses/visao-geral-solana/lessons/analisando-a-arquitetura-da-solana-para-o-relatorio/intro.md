@@ -57,7 +57,7 @@ Ao redigir a visão técnica, sempre emparelhe a descrição de cada componente 
 
 Finalmente, evite tratar os componentes como isolados; enfatize a composição: PoH permite que Tower BFT referencie o tempo sem mensagens adicionais, enquanto Turbine e Gulf Stream juntos otimizam propagação de blocos e distribuição de transações. Esses comportamentos conjuntos são frequentemente onde aparecem trade-offs, e eles formam subseções úteis na visão técnica.
 
-![Princípios e Componentes Chave](assets/v01-principios-e-componentes-chave.png)
+![Princípios e Componentes Chave](assets/v01-principios-e-componentes-chave.webp)
 
 ## Como Isso Aparece no Mundo Real: Mapeando a Arquitetura para Decisões Históricas
 
@@ -77,7 +77,7 @@ Como exemplo concreto: considere a introdução do PoH. Sua frase de mecanismo p
 
 Use esse fluxo de trabalho para gerar três mapeamentos; quando montados, esses mapeamentos tornam-se a espinha dorsal da seção de visão técnica do seu relatório. Cada mapeamento é curto, factual e vinculado a evidências para que o leitor veja não apenas o que a arquitetura faz, mas quando e por que essa escolha foi feita historicamente.
 
-![Eventos Históricos → Decisões Arquitetônicas](assets/v02-eventos-historicos-decisoes-arquitetonicas.png)
+![Eventos Históricos → Decisões Arquitetônicas](assets/v02-eventos-historicos-decisoes-arquitetonicas.webp)
 
 ## Análise de Código: Usando RPC para Coletar Evidências de uma Afirmação Arquitetural
 
@@ -112,7 +112,7 @@ Explicação linha a linha e como usar a saída:
 
 Nota: este trecho é projetado apenas para coleta de evidências. Não inclua chaves de carteira, assinaturas ou envio de transações nessas sondagens; o objetivo é validação somente leitura dos parâmetros atuais do cluster.
 
-![Sonda RPC: Coletando Evidências](assets/v03-sonda-rpc-coletando-evidencias.png)
+![Sonda RPC: Coletando Evidências](assets/v03-sonda-rpc-coletando-evidencias.webp)
 
 ## Conclusão & Principais Lições
 
