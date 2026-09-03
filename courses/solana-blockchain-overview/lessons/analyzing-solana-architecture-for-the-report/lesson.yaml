@@ -10,7 +10,7 @@ blocks:
   src: header.md
 - key: video
   type: video
-  url: https://www.youtube.com/watch?v=QKAwlHlf_PY
+  url: https://www.youtube.com/watch?v=rvTA1bLYqhc
 - key: content
   type: prose
   src: intro.md
