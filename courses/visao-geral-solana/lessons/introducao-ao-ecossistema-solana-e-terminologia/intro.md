@@ -52,7 +52,7 @@ Nós RPC e SDKs clientes: nós RPC expõem endpoints JSON-RPC que permitem subme
 
 Entender esses componentes em termos de camadas esclarece quem faz o quê e onde residem as responsabilidades. Por exemplo, quando você observa uma resposta lenta de um RPC, pode determinar se o gargalo é o nó, a rede ou o pipeline do indexador. Ao projetar um dApp, você escolhe quais camadas controlar (programas, front end) e em quais confiar (indexadores, provedores de carteira). Esse mapeamento de responsabilidade para ponto de contato é a base prática que você usará nas lições subsequentes.
 
-![Visão Geral do Ecossistema Solana](assets/v01-mapa-componentes-centrais-solana.png)
+![Visão Geral do Ecossistema Solana](assets/v01-mapa-componentes-centrais-solana.webp)
 
 ## Modelos Mentais: Contas, Programas e o Fluxo de Transações
 
@@ -66,9 +66,9 @@ Esse modelo revela três regras práticas de design que você reutilizará: prim
 
 Finalmente, a metáfora dos cofre-e-chaveiro também ajuda ao depurar ou ler rastros de transações. Quando uma transação falha por incompatibilidade de conta ou assinante faltante, trate a falha como uma lista de cofres mal especificada ou uma chave ausente. Quando a execução consumir unidades de computação inesperadas, inspecione quais instruções modificaram quais contas e se houve grandes cópias de contas ou operações criptográficas pesadas envolvidas. Usar a metáfora acelera mapear erros em tempo de execução para correções de projeto.
 
-![Programas vs Contas — Impacto no Design](assets/v02-programas-vs-contas-impacto-no-design.png)
+![Programas vs Contas — Impacto no Design](assets/v02-programas-vs-contas-impacto-no-design.webp)
 
-![Fluxo de Transação — Modelo Mental](assets/v03-fluxo-de-transacao-modelo-mental.png)
+![Fluxo de Transação — Modelo Mental](assets/v03-fluxo-de-transacao-modelo-mental.webp)
 
 ## Exemplo: Mapeando um dApp Simples no Ecossistema Solana
 
@@ -82,7 +82,7 @@ Considerações operacionais: armazenamento para contas de listagem consome rent
 
 Por que esse mapeamento importa: ao conectar explicitamente as funcionalidades do marketplace às peças do ecossistema, você pode tomar decisões concretas. Por exemplo, escolha um provedor de indexador com atualizações rápidas e conscientes de finalidade se sua UI precisa de listagens quase em tempo real. Escolha uma integração de carteira que suporte a experiência de assinatura desejada (aprovação por pop-up, deep link mobile). Decida se hospedar seu próprio RPC para confiabilidade ou confiar em um provedor gerenciado com base na carga esperada e nos padrões de acesso. Este exemplo mostra como terminologia e papéis de componente moldam decisões práticas de arquitetura que você enfrentará ao construir na Solana.
 
-![Marketplace: On-Chain vs Off-Chain](assets/v04-marketplace-on-chain-vs-off-chain.png)
+![Marketplace: On-Chain vs Off-Chain](assets/v04-marketplace-on-chain-vs-off-chain.webp)
 
 ## Conclusão & Principais Lições
 

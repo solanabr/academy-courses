@@ -2,7 +2,7 @@
 
 O Superteam Brasil já facilitou mais de US$ 40 milhões levantados, amplificados e negociados entre os nossos membros. Não por sorteio, nem por indicação: por trabalho. Código, design, conteúdo. Se você entregou, você recebeu. Esta lição é o mapa de onde esse dinheiro está e como você pega o seu.
 
-![Quatro portas lado a lado, de mesma altura, representam os caminhos da Superteam: bounties no Earn, vagas no ecossistema, hackathons da Colosseum e a aceleração com cheque de US$ 250 mil.](assets/v01-diagram.png)
+![Quatro portas lado a lado, de mesma altura, representam os caminhos da Superteam: bounties no Earn, vagas no ecossistema, hackathons da Colosseum e a aceleração com cheque de US$ 250 mil.](assets/v01-diagram.webp)
 
 São quatro portas, lado a lado. A primeira é o Superteam Earn: bounties abertos, com no mínimo 3 bounties técnicos open source garantidos por mês, mais os pontuais de eventos, conteúdo e design. A segunda são as vagas e trabalhos no ecossistema, de freela a fulltime. A terceira são os hackathons da Colosseum, onde os times vencedores já levantaram US$ 700 milhões. E a quarta é a aceleração, com cheque de US$ 250 mil pré-seed.
 
@@ -10,7 +10,7 @@ Bounty é tarefa aberta com prêmio. Pensa como a evolução do freelancing: em 
 
 Quer a prova de que essas portas levam a empresa de verdade? Olha três brasileiros. Os três entraram pelo mesmo funil Superteam. O que muda é o prêmio que cada um levou.
 
-![Um funil único da Superteam se divide em três resultados: BlindPay no batch da Y Combinator, Cloak acelerada pela Colosseum e Triad Markets patrocinando a Breakpoint.](assets/v02-comparison.png)
+![Um funil único da Superteam se divide em três resultados: BlindPay no batch da Y Combinator, Cloak acelerada pela Colosseum e Triad Markets patrocinando a Breakpoint.](assets/v02-comparison.webp)
 
 A BlindPay, API de pagamentos em stablecoin, venceu a trilha brasileira do hackathon e entrou no batch da Y Combinator.
 
@@ -22,6 +22,6 @@ E a Triad Markets levantou capital anjo e virou patrocinadora da própria Breakp
 
 Zoom out. Um slide da Frictionless Capital colocou o número na mesa: 9 das 22 empresas de tecnologia mais rápidas a chegar em US$ 100 milhões de receita nasceram na Solana. A mais rápida delas, a Axiom, fez isso em 117 dias, recorde da Y Combinator.
 
-![Slide da Frictionless Capital: 9 das 22 empresas de tecnologia mais rápidas a US$ 100 milhões de receita nasceram na Solana](assets/frictionless-9-de-22.png)
+![Slide da Frictionless Capital: 9 das 22 empresas de tecnologia mais rápidas a US$ 100 milhões de receita nasceram na Solana](assets/frictionless-9-de-22.webp)
 
 É pra isso que a gente está aqui: apoiar sua empresa, dar poder às suas finanças pessoais e corporativas, e levar seu sonho até as massas. O brinde que você vai reivindicar daqui a pouco? É, literalmente, seu primeiro earn. Bora.

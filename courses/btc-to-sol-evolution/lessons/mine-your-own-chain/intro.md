@@ -20,7 +20,7 @@ bitcoin-cli -regtest getbalance
 
 `50.00000000`. Fifty BTC, mined in seconds, worthless on every exchange on Earth and priceless as a lab. You mined 101 blocks, yet the balance reads one reward, not a hundred and one. Hold that gap; it is the whole back half of this lesson.
 
-![The mining command returns 101 block hashes, getblockcount reads 101, and getbalance reads 50.00000000 despite 101 blocks being mined.](assets/v01-annotated-code.png)
+![The mining command returns 101 block hashes, getblockcount reads 101, and getbalance reads 50.00000000 despite 101 blocks being mined.](assets/v01-annotated-code.webp)
 
 ## What you actually just did
 
@@ -32,7 +32,7 @@ Take the command apart, because every flag is load-bearing.
 
 A block is a batch of transactions plus a small header, and the header carries one field that changes everything: the digest of the block before it. That field is called `previousblockhash`, and it holds the SHA-256 fingerprint of the previous block. Read that twice, because you have seen it before. A block committing to the block before it is the exact hash chain you built by hand in lesson 1, where editing any record broke every seal downstream. Bitcoin is that chain one level up, with whole blocks sitting where single records sat. The genesis block, block 0, is the anchor at the bottom, hardcoded into every copy of the software so that no two honest nodes can disagree about where the chain starts. On regtest, its hash is the same on your machine as on mine: `0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206`.
 
-![Blocks linked by previousblockhash back to the genesis block, with an edit on an old block cascading to break every later link, the same hash chain from lesson 1.](assets/v02-diagram.png)
+![Blocks linked by previousblockhash back to the genesis block, with an edit on an old block cascading to break every later link, the same hash chain from lesson 1.](assets/v02-diagram.webp)
 
 ## Read your own block
 
@@ -46,7 +46,7 @@ The inner call turns a height into a block hash, and `getblock` returns the bloc
 
 The rest of the fields fill in the block's identity, and none of them are decoration. `height` is 1, its position counted up from genesis. `nonce` holds whatever number satisfied the target, which on regtest was almost certainly the first one the node tried. `time` is the Unix timestamp the block claims to have been mined at, and `version` plus `nTx` record the block format and the transaction count, one, matching that single-entry `tx` list. A real node on the real network checks every one of these before it will accept the block from a peer, and any that fails to add up gets the block rejected on sight.
 
-![getblock output for block 1 showing previousblockhash pointing at the genesis hash, a single coinbase transaction, the merkleroot equal to that transaction, and the regtest difficulty bits.](assets/v03-annotated-code.png)
+![getblock output for block 1 showing previousblockhash pointing at the genesis hash, a single coinbase transaction, the merkleroot equal to that transaction, and the regtest difficulty bits.](assets/v03-annotated-code.webp)
 
 That `confirmations: 101` is worth a beat, because the number carries the answer to your opening puzzle. It counts block 1 plus every block resting on top of it: one for itself, one hundred more piled above. Confirmations are the depth of a block, not a stamp of approval. Keep that reading; the balance mystery turns on it.
 
@@ -64,19 +64,19 @@ Now the field that regtest quietly switched off. On the real network, you cannot
 
 It helps to make the target concrete, because "below a target" is doing quiet work. Read a block's 64-character hash not as text but as a single enormous number, 256 bits wide, sitting somewhere between zero and roughly 1.16 times ten to the seventy-seventh. The target is just another number in that same range, and the rule is blunt: your block's hash, read as a number, must come out less than or equal to it. Set the target near the top of the range and almost every hash qualifies. Push the target down toward zero and the band of winning hashes narrows to a sliver, so the fraction of random guesses that fall inside it shrinks in exact proportion. Difficulty is nothing more elaborate than how far down that target has been dragged.
 
-![A 256-bit number line from zero to about 1.16 times ten to the seventy-seventh, showing that a high target leaves a wide winning band of hashes while a low target leaves only a thin sliver near zero, so difficulty is how far down the target is dragged.](assets/v04-diagram.png)
+![A 256-bit number line from zero to about 1.16 times ten to the seventy-seventh, showing that a high target leaves a wide winning band of hashes while a low target leaves only a thin sliver near zero, so difficulty is how far down the target is dragged.](assets/v04-diagram.webp)
 
 The nonce is the one field in the header you are free to spin. Change it and you have changed the header's bytes, which means the whole thing rehashes into a completely unrelated 64 characters, the avalanche effect from lesson 1 doing exactly what it did to your file: one flipped bit, a totally scrambled digest. There is no way to nudge a hash gently toward a smaller number. Each new nonce is a fresh, blind dice roll across that 256-bit range, and the only strategy anyone has ever found is to roll again. That is why finding a valid block is a matter of raw volume, billions of rolls, while checking one is a single throw: hash the header once, read it as a number, compare it to the target, done. Anyone on Earth can verify a winning block in the time it takes to hash 80 bytes, even though the winner had to try astronomically many times to produce it.
 
 On mainnet that instant command of yours is a planet-spanning race. Purpose-built machines, hundreds of exahashes per second across the network, burn real gigawatts guessing for the roughly ten minutes it takes the honest crowd to land one valid block. The network mints new coins to whoever wins, so the machines keep guessing, so the wall of work keeps rising. That wall is what makes Bitcoin's history hard to rewrite: to erase an old block you would have to redo its proof-of-work and every block since, faster than the entire honest network builds forward. Nobody has that much electricity lying around.
 
-![A flowchart contrasting the miner's loop of picking a nonce, hashing the header, and comparing to the target billions of times until one wins, against the verifier's single hash-and-compare, with the accumulated work forming a wall that makes rewriting history require redoing all of it.](assets/v05-flowchart.png)
+![A flowchart contrasting the miner's loop of picking a nonce, hashing the header, and comparing to the target billions of times until one wins, against the verifier's single hash-and-compare, with the accumulated work forming a wall that makes rewriting history require redoing all of it.](assets/v05-flowchart.webp)
 
 The ten-minute cadence is not a happy accident; it is enforced. Every 2016 blocks, roughly every two weeks, each node independently checks how long that stretch actually took against the fortnight it was supposed to take, and rescales the target to compensate. If hashing power flooded in and the 2016 blocks arrived early, the target drops and the next stretch gets harder. If miners left and blocks came slowly, the target rises and mining gets easier. The rule runs on every node from the same block data, so there is no committee and no vote; the difficulty simply tracks the total work the world is throwing at the chain, holding block time near ten minutes whether the network is ten laptops or ten million machines. Your regtest node runs the same adjustment code. It just never has enough blocks or enough elapsed time to move off the floor.
 
 Regtest deletes the wall. The `207fffff` target is the loosest the protocol allows, a `bits` value that decodes to a target sitting almost at the very top of that 256-bit range, so the first nonce your node tries already clears it and a block appears in milliseconds. That is why `generatetoaddress 101` returned before you could blink: there was no race to win, only a formality to stamp 101 times.
 
-![Mainnet Bitcoin and regtest compared across difficulty, work, hardware, time, and cost, with regtest's zero rewrite-cost flagged as the reason it is a lab.](assets/v06-comparison.png)
+![Mainnet Bitcoin and regtest compared across difficulty, work, hardware, time, and cost, with regtest's zero rewrite-cost flagged as the reason it is a lab.](assets/v06-comparison.webp)
 
 ## Why your 101 blocks bought only 50 BTC
 
@@ -90,7 +90,7 @@ Forcing a 100-block wait means that by the time you spend a reward, the network 
 
 Run the arithmetic against your chain. Block 1 minted 50 BTC. To make it spendable, 100 blocks must sit on top of it, which puts the tip at height 101. That is why you mined 101 blocks before spending, and it is why exactly one reward matured: block 1 has its 100 blocks on top, but block 2 has only 99, block 3 only 98, and so on down to the tip, all still locked. One mature reward, 50 BTC, and a hundred more waiting their turn.
 
-![A timeline showing block 1's 50 BTC coinbase locked until 100 blocks stack on top at height 101, when getbalance finally reads 50.](assets/v07-timeline.png)
+![A timeline showing block 1's 50 BTC coinbase locked until 100 blocks stack on top at height 101, when getbalance finally reads 50.](assets/v07-timeline.webp)
 
 There is a coinbase out there that never matures, no matter how long you wait. The genesis block's 50 BTC coinbase is unspendable, a quirk of the original client that Satoshi never fixed: block 0's reward was simply never written into the database of spendable outputs the way every later reward is. Fifty perfectly real bitcoin, permanently frozen at the bottom of the chain, on mainnet and on your regtest chain alike. It is a fitting monument. The very first coins the system ever created are the one batch it will never let move.
 
@@ -130,7 +130,7 @@ The reason a wipe-and-rebuild is safe to lean on, and worth scripting at all, is
 
 The routine moves are already written for you. The two `TODO` lines are the point: uncomment the wipe, then reproduce the exact three commands you ran at the top of this lesson. Run the finished script and the final line should print `101` again, a clean chain rebuilt in seconds. That last check is your acceptance test, and it is deliberately unforgiving. Either the height is 101 or your reset did not work; there is no partial credit on a block count.
 
-![Flowchart of the reset script: stop node, wipe datadir, restart, recreate wallet and re-mine 101 blocks, then verify height is 101.](assets/v08-flowchart.png)
+![Flowchart of the reset script: stop node, wipe datadir, restart, recreate wallet and re-mine 101 blocks, then verify height is 101.](assets/v08-flowchart.webp)
 
 ## The trade-off
 
@@ -148,7 +148,7 @@ Drop `-regtest` and every command aims at your real mainnet configuration instea
 
 The second footgun I walked into myself. Early on I mined a single block, tried to send its 50 BTC, and watched `getbalance` sit stubbornly at `0.00000000`. I spent a solid twenty minutes convinced my wallet was broken and re-reading the send syntax before I counted the blocks on top and remembered the number. One. A coinbase needs a hundred. The wallet was right the whole time; I was trying to spend money the network had not committed to yet.
 
-![A table of the two footguns, dropping -regtest touches mainnet, and spending a coinbase before 100 confirmations shows a zero balance, each with its guard.](assets/v09-table.png)
+![A table of the two footguns, dropping -regtest touches mainnet, and spending a coinbase before 100 confirmations shows a zero balance, each with its guard.](assets/v09-table.webp)
 
 ## Do it yourself
 
