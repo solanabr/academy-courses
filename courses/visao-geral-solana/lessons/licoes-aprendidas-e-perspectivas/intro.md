@@ -45,9 +45,9 @@ Aplicar o modelo a uma mudança inicial concreta da Solana clarifica por que os 
 
 Finalmente, use o modelo para avaliar ações corretivas. Se o ecossistema mostrar sinais de fragilidade, intervenções podem ser lançadas como ajustes ambientais: adicione redundância (introduza espécies mais lentas, porém mais numerosas), simplifique o habitat (reduza a complexidade para operadores) ou melhore a distribuição de nutrientes (melhor descentralização dos RPCs). O modelo mantém o foco nos mecanismos — o que altera o ambiente, como as espécies respondem e quais métricas capturam o resultado — para que você evite explicações puramente retóricas sobre "comunidade" ou "visão". Esse é o tipo de pensamento disciplinado que você aplicará ao comparar o arco da Solana com outros protocolos.
 
-![Arquitetura como Ecossistema](assets/v01-modelo-mental-ecossistema-map.png)
+![Arquitetura como Ecossistema](assets/v01-modelo-mental-ecossistema-map.webp)
 
-![Rotina Diagnóstica](assets/v02-rotina-diagnostica-ecossistema.png)
+![Rotina Diagnóstica](assets/v02-rotina-diagnostica-ecossistema.webp)
 
 ## Conceitos Centrais e Sinais Práticos
 
@@ -72,7 +72,7 @@ Use a tabela abaixo como referência rápida para esses conceitos centrais e sin
 
 Por que isso importa na prática: você usará esses sinais para priorizar monitoramento e formar comparações baseadas em evidências. Por exemplo, ao avaliar se uma queda observada reflete um bug isolado ou uma fragilidade sistêmica, verifique a cadência de patches emergenciais e o churn de validadores: um único bug com um patch rápido e isolado aponta para qualidade de implementação, enquanto quedas repetidas com causas raiz similares e centralização crescente apontam para estresse arquitetural. Essa distinção muda como você investiga mais a fundo e quais correções considera plausíveis.
 
-![Conceitos Centrais e Sinais](assets/v03-quatro-conceitos-e-sinais.png)
+![Conceitos Centrais e Sinais](assets/v03-quatro-conceitos-e-sinais.webp)
 
 ## Comparação: O que as Lições Iniciais da Solana Sugerem Sobre Outras Redes
 
@@ -88,7 +88,7 @@ Para avaliar narrativas históricas criticamente, adote este checklist curto ao 
 
 Aplicar esse enquadramento comparativo prepara você para o próximo módulo sobre o Bitcoin. A história do Bitcoin enfatiza mudança conservadora e incentivos econômicos robustos; compará-la com a abordagem inicial da Solana ilustrará como prioridades diferentes produzem ecologias de operadores, padrões de upgrades e paisagens de aplicações distintas. Esse contraste é útil porque ancora sua intuição sobre como prioridades de design mapeiam para comportamento de rede no longo prazo.
 
-![Comparação com Outras Redes](assets/v04-comparacao-outras-redes.png)
+![Comparação com Outras Redes](assets/v04-comparacao-outras-redes.webp)
 
 ## Conclusão & Principais Lições
 

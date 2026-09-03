@@ -49,7 +49,7 @@ Signature Verification Failure
 
 One byte. That command also exits nonzero, so a script can branch on it without reading the text. The signature was proof about a specific string of bytes, and the instant the bytes stopped matching, the proof evaporated. This is the avalanche behavior from last lesson wearing a badge: the signature commits to the message's fingerprint, so there is no "close enough," no partial credit, no way to nudge a `100` into a `900` and keep the proof intact.
 
-![A terminal session generating an ed25519 key, signing send-100-to-bob, verifying it with only the public key, then failing verification after one byte is changed to send-900-to-bob.](assets/v01-annotated-code.png)
+![A terminal session generating an ed25519 key, signing send-100-to-bob, verifying it with only the public key, then failing verification after one byte is changed to send-900-to-bob.](assets/v01-annotated-code.webp)
 
 ## What a keypair actually is
 
@@ -59,7 +59,7 @@ That split looks like needless machinery until you try to live without it. Consi
 
 You might reach for a second naive fix: appoint a trusted notary who checks everyone's identity and stamps their messages. It works, and it is exactly what last lesson spent its whole length indicting. A notary is a central referee with a pen, the single party whose corruption or seizure or one bad Friday takes the system down, and the entire point of what you are building is to need no such party. Rule it out for the same reason `ledger.py` failed: whoever holds the stamp owns the truth. The fix has to live in math the signer holds alone, not in an authority everyone else has to trust.
 
-![A comparison of three ways to prove authorship, shared secret and trusted notary each with a fatal flaw, and the split-key public-private approach with none.](assets/v02-comparison.png)
+![A comparison of three ways to prove authorship, shared secret and trusted notary each with a fatal flaw, and the split-key public-private approach with none.](assets/v02-comparison.webp)
 
 That is the wall, and public-key cryptography is the way through it. It splits the one shared secret into two unequal halves. The private key makes proofs. The public key checks them and can do nothing else. You can broadcast the public key to every stranger on Earth, publish it on a billboard, and none of them gains an ounce of forging power, because checking a signature and producing one are now genuinely different operations backed by different keys.
 
@@ -67,15 +67,15 @@ A **digital signature**, then, is the 64 bytes you kept generating: a value that
 
 So how does a key that everybody has check a proof it could never have produced? That is the one trick of the public half, and it is worth seeing as a loop rather than a slogan.
 
-![A flowchart with a sign side that combines the message and private key into a signature, an arrow carrying only the message, signature, and public key across to a verify side that outputs verified or failure.](assets/v03-flowchart.png)
+![A flowchart with a sign side that combines the message and private key into a signature, an arrow carrying only the message, signature, and public key across to a verify side that outputs verified or failure.](assets/v03-flowchart.webp)
 
 One thing should nag you here. The two keys are "mathematically linked," and you hand out the public one, so a stranger ought to be able to run the link backward and recover the private key. They cannot, because the link runs one way by design. Generating the public key from the private key is easy: a single fixed computation. Running it backward, recovering the private key from the public key, is the elliptic-curve discrete-log problem, and the best known attack on it (Pollard's rho) still leaves a security level around 2^128: not shortcut-free, but far beyond what any machine that could ever be built would finish. That makes recovery computationally infeasible, and it is a different kind of hardness than reversing a hash, so do not picture it as the same brute-force search. The link is a trapdoor: trivial one way, infeasible the other. That is why publishing the public key leaks nothing, and why both keys can be the same tiny 32 bytes each and still keep their secret.
 
-![A diagram showing the private key easily producing the public key with a green downward arrow, and a crossed-out dashed upward arrow marking recovery of the private key from the public key as infeasible.](assets/v04-diagram.png)
+![A diagram showing the private key easily producing the public key with a green downward arrow, and a crossed-out dashed upward arrow marking recovery of the private key from the public key as infeasible.](assets/v04-diagram.webp)
 
 The asymmetry is the whole product. One key mints proofs, the other only audits them, and the auditing key is safe to give to the exact people you are trying to prove things to. Draw the two capabilities against each other and the shape gets sharp.
 
-![A table contrasting the private and public key across five capabilities, showing the private key signs and must stay secret while the public key verifies and is safe to publish.](assets/v05-table.png)
+![A table contrasting the private and public key across five capabilities, showing the private key signs and must stay secret while the public key verifies and is safe to publish.](assets/v05-table.webp)
 
 ## Cross-check it: OpenSSL signs, Python verifies
 
@@ -114,7 +114,7 @@ This machinery is older than most people assume, and its history has a strange f
 
 Except it was the second time the idea was invented. Inside GCHQ, the British signals-intelligence agency, Ellis, Cocks, and Williamson had worked out equivalent techniques earlier, in secret, and the work stayed classified until 1997. So the public timeline and the real timeline disagree by decades, and the primitive under every signature you will make in this course spent years as a state secret before a pair of academics rediscovered it in the open and gave it away.
 
-![A timeline showing GCHQ's secret invention, the 1976 Diffie-Hellman public paper, the 1997 declassification, and the primitive's use today.](assets/v06-timeline.png)
+![A timeline showing GCHQ's secret invention, the 1976 Diffie-Hellman public paper, the 1997 declassification, and the primitive's use today.](assets/v06-timeline.webp)
 
 ## The aha: this keypair is a wallet
 
@@ -126,7 +126,7 @@ That reframes the whole "no create-account button" problem from the intro. There
 
 Peek at the raw numbers if you want the point in the flesh. The private seed `openssl` generated is 32 bytes. The public key is another 32. Your entire identity, the thing that will be worth more than any password you have ever chosen, is 64 bytes total, half of it secret and half of it safe to shout across a room. No account was ever smaller, and none was ever more yours.
 
-![A diagram contrasting the mistaken picture of a wallet as an account on a server with the reality of a private key deriving a public key that encodes an address, with no stored account anywhere.](assets/v07-diagram.png)
+![A diagram contrasting the mistaken picture of a wallet as an account on a server with the reality of a private key deriving a public key that encodes an address, with no stored account anywhere.](assets/v07-diagram.webp)
 
 Which is exactly why the trade-off lands where it does.
 
@@ -140,7 +140,7 @@ Self-custody's freedom and its blast radius are the same property. The reason no
 
 Set it against the realistic alternative. A bank account has a reset button precisely because a bank can overrule you, which is the same authority that lets it freeze, seize, or reverse a payment without asking. You are not choosing between risk and safety. You are choosing which failure you would rather own: a stranger's power over your money, or your own responsibility for a key. Neither option is free, and anyone who tells you otherwise is selling one side of the trade. This course will keep making you pay one bill or the other, out loud, every time a design demands it.
 
-![A two-column comparison pairing each freedom of self-custody with the matching danger, both traced to the single fact that the private key is the identity.](assets/v08-comparison.png)
+![A two-column comparison pairing each freedom of self-custody with the matching danger, both traced to the single fact that the private key is the identity.](assets/v08-comparison.webp)
 
 There is a second, humbler cost that bites long before you lose a real key, and I will confess how I met it. Early on I wrote a signing script, tested it against a keypair I generated in a tutorial, watched everything verify, and left that keypair wired into the code because it worked. The demo key was fine as a demo. It stopped being fine the moment the same key touched anything I cared about, because a keypair that has appeared in a tutorial, a git repo, or a screenshot is a public key masquerading as a private one. Treat any key you did not generate privately, and keep privately, as already compromised. A demo key is for demos. Generate a fresh one the instant you mean it.
 
@@ -196,7 +196,7 @@ openssl pkey -in key2.pem -pubout -out pub2.pem
 
 Now sign a message with key 1, and run four verifications: the right public key against the true message, the right public key against a one-byte-tampered message, the *wrong* public key (`pub2.pem`) against the true message, and the wrong public key against the tampered message. Before you run each one, predict pass or fail and say why in one clause. Then run it and see if the machine agrees with you.
 
-![A four-row table of verifications combining correct and wrong public keys with true and tampered messages, where only the correct key against the untouched message passes.](assets/v09-table.png)
+![A four-row table of verifications combining correct and wrong public keys with true and tampered messages, where only the correct key against the untouched message passes.](assets/v09-table.webp)
 
 The wrong-key rows are the ones that teach. A signature is not just proof that *a* key signed the bytes; it is proof that *this specific* key did, and `pub2.pem` has no relationship to a signature `key.pem` produced, so it rejects it outright. Swap the keys around, sign with key 2 and verify with pub 1, and the failure flips to the other side. The only combination that ever passes is the right public key checking untouched bytes signed by its own private partner. Everything else is a `Failure`, and now you can say exactly why for each one.
 

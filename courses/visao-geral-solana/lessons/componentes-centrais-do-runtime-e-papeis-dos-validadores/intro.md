@@ -43,7 +43,7 @@ Por que essa metáfora ajuda a raciocinar sobre limites e modos de falha: se um 
 
 Use esse modelo mental enquanto você elabora notas anotadas: para cada componente pergunte, 'Isto é um guardião da partitura, um intérprete, um mensageiro ou um gerente de palco?' Essa classificação reduz rapidamente quais interfaces o componente precisa e quais modos de falha observar. Ao se preparar para rastrear uma transação na próxima lição, mantenha essa metáfora em mente: você verá o maestro ordenar, os músicos interpretarem, o mensageiro encaminhar e o gerente de palco criar snapshots do estado.
 
-![Mapa da Metáfora para Componentes](assets/v01-mapa-metafora-componentes.png)
+![Mapa da Metáfora para Componentes](assets/v01-mapa-metafora-componentes.webp)
 
 ## Componentes Centrais do Runtime e Responsabilidades
 
@@ -67,7 +67,7 @@ O runtime de execução BPF é determinístico e sandboxed. Suas entradas são a
 
 Por que isto importa na prática: conhecer esses limites ajuda a prever onde surgem gargalos de desempenho e onde instrumentar ao depurar. Por exemplo, gravações lentas em disco no banco de dados de contas aparecem como comprometimento atrasado; chatter excessivo no gossip aumenta CPU e pressão de rede sem melhorar a finalização. Ao mapear cada componente nas suas notas, também anote seu recurso dominante: CPU, memória, disco ou rede. Esse mapeamento será diretamente útil em operações, ajuste de performance e para entender por que validadores se comportam de forma diferente sob carga.
 
-![Quatro Componentes-Chave do Runtime](assets/v02-quatro-componentes-chave-runtime.png)
+![Quatro Componentes-Chave do Runtime](assets/v02-quatro-componentes-chave-runtime.webp)
 
 ## Fluxo de Trabalho: Ciclo de Vida do Validador, Roteamento de Mensagens e Snapshots de Estado
 
@@ -85,7 +85,7 @@ Padrões de roteamento de mensagens resumidos: gossip carrega metadados pequenos
 
 Por que essa visão de workflow importa: quando você depois rastrear uma única transação pelo sistema, você se referirá a essas fases para decidir onde procurar atrasos ou discrepâncias. Anote suas notas com as interações esperadas dos componentes por fase e com mensagens de exemplo (por exemplo, 'cliente -> RPC -> pool do líder -> execução -> gravação no accounts DB -> propagação de shreds'). Essa sequência é o esqueleto que você vai embelezar nos diagramas de fluxo de transação da próxima lição.
 
-![Ciclo de Vida do Validador](assets/v03-ciclo-de-vida-do-validador.png)
+![Ciclo de Vida do Validador](assets/v03-ciclo-de-vida-do-validador.webp)
 
 ## Conclusão & Principais Lições
 

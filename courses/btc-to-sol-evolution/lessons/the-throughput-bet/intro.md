@@ -41,7 +41,7 @@ Read the output. `A` and `B` ran together. `C` waited. Nothing about `C` was slo
 
 The scheduler has a name, Sealevel (Solana's parallel transaction-processing engine), and the account lists it reads have one too. Each entry is an AccountMeta: an address plus two flags, `is_writable` and `is_signer`. Sealevel never inspects your program's logic. It reads the AccountMetas, sorts transactions into non-colliding batches, and runs each batch across every core it has.
 
-![Transactions A and B write disjoint accounts and share one parallel batch, while C writes an account A already claimed and is pushed to the next batch.](assets/v01-diagram.png)
+![Transactions A and B write disjoint accounts and share one parallel batch, while C writes an account A already claimed and is pushed to the next batch.](assets/v01-diagram.webp)
 
 ## One decision, four shadows
 
@@ -55,13 +55,13 @@ You proved shift one last lesson, so take it as known: programs are stateless, h
 
 Every account on Solana, program or data, wallet or mint, is the same five-field struct. Learn it once and you have learned all of them.
 
-![A five-field account struct, lamports, data, owner, executable, rent_epoch, with owner and executable highlighted as the fields that distinguish a program account from a data account.](assets/v02-annotated-code.png)
+![A five-field account struct, lamports, data, owner, executable, rent_epoch, with owner and executable highlighted as the fields that distinguish a program account from a data account.](assets/v02-annotated-code.webp)
 
 Two of those fields carry the whole distinction. `executable` is true for a program account and false for a data account. `owner` names the program allowed to change the account's `data`, which is how the runtime guarantees that only your program can mutate your program's state, without your program holding that state inside itself.
 
 Watch that check fire, because it is the guarantee the whole model rests on. When a transaction hands a data account to your program and the program tries to write bytes into that account's `data`, the runtime first compares the account's `owner` field against the id of the program attempting the write. If they match, the write lands. If they do not, the entire transaction fails before a single byte changes, because a program is only ever allowed to mutate accounts it owns. That one comparison runs on every write, which is why an account's `owner` is not a label recording who created it; it is the live gate deciding who may change it. Strip that field out and any program could scribble over any other program's state at will. The `owner` check is what lets state live outside the program and still stay protected, and it is enforced by the runtime, not by anything you write.
 
-![A decision flowchart where a write attempt triggers the runtime to compare the account's owner against the writing program's id, a match lets the write land, a mismatch fails the entire transaction before any byte changes.](assets/v03-flowchart.png)
+![A decision flowchart where a write attempt triggers the runtime to compare the account's owner against the writing program's id, a match lets the write land, a mismatch fails the entire transaction before any byte changes.](assets/v03-flowchart.webp)
 
 In the EVM those guarantees are implicit in the co-located design; the address is the boundary. On Solana they are explicit fields the runtime checks on every access. Explicitness is the tax. Schedulability is what it buys, and the next shift is where you collect.
 
@@ -71,7 +71,7 @@ Now the payoff of the split, derived. Because the EVM lets a contract choose its
 
 Try to fix that inside the EVM model and watch it fail in tiers. Adding more cores does nothing, because the machine still cannot tell which transactions are safe to run together. Guessing the accessed slots ahead and running optimistically only trades the problem for collision detection and re-runs; under contention you slide right back to sequential with extra bookkeeping. The clean fix is not more hardware or cleverer guessing. It is to make the transaction tell you what it will touch, in advance, as data. Which is exactly what an AccountMeta list is.
 
-![A table of three attempted EVM parallelism fixes, more cores and optimistic slot-guessing both fail, while making the transaction declare its accounts up front is the only fix.](assets/v04-table.png)
+![A table of three attempted EVM parallelism fixes, more cores and optimistic slot-guessing both fail, while making the transaction declare its accounts up front is the only fix.](assets/v04-table.webp)
 
 Given those lists, the scheduling rule is blunt. Two transactions that read the same account but write nothing to it run in parallel; two that write the same account are serialized, forced into single file. Read-only sharing is free. Write sharing is the collision.
 
@@ -79,7 +79,7 @@ Walk one concrete pass, the way Sealevel does. Alice sends a transfer that write
 
 Now flip the shared account from a write to a read, because that is the case where the rule earns its keep. Say two more traders, Dave and Erin, each submit a transaction that reads the same `dex_pool` to quote a price against it but writes only to its own separate wallet. Both account lists name `dex_pool`, so on a careless reading they look like they collide the way Alice and Carol did. They do not. The `dex_pool` entry in each of their lists carries `is_writable` set to false, and Sealevel intersects writable sets, not the full account lists. Neither transaction can change what the other one reads, so there is nothing for them to disagree about, and both drop into the same batch and run side by side across two cores. That is what "read-only sharing is free" means as a mechanism instead of a slogan: any number of transactions may read the same account in the same instant, and that account only turns into a chokepoint the moment one of them needs to write it. Notice the toy scheduler you ran models exactly this and no more; the sets it intersects are the write sets, which is why it never had to track reads at all. The flag on the AccountMeta, not the address it points at, is what decides whether sharing is free or fatal.
 
-![A comparison showing two transactions that both write dex_pool are serialized, while two that both read dex_pool with is_writable false run in parallel, because Sealevel intersects only writable sets and the is_writable flag decides.](assets/v05-comparison.png)
+![A comparison showing two transactions that both write dex_pool are serialized, while two that both read dex_pool with is_writable false run in parallel, because Sealevel intersects only writable sets and the is_writable flag decides.](assets/v05-comparison.webp)
 
 ## Shift three: the mempool disappears
 
@@ -89,11 +89,11 @@ Solana deletes the waiting room. There is no global mempool. Instead, Gulf Strea
 
 Follow why that fixed schedule is what dissolves the auction, not merely the waiting room, because the two are easy to conflate. On Bitcoin and Ethereum the order transactions execute in is decided at the last possible instant, by whoever wins the right to build the next block, and that builder is free to sort the pending set however pays best. The auction exists precisely because ordering stays up for grabs right until block time; the fee is what you pay to move up a queue that nobody has committed to yet. Solana settles ordering before anyone can bid on it. PoH is the verifiable clock doing that work: it stamps a cryptographic sequence onto time itself, so every validator already agrees what came before what without stopping to poll the others for a vote. Stake-weighted assignment then pins which validator owns each slot for the whole epoch, so both the identity of the orderer and the ordered flow of time are settled well in advance of your transaction existing. There is no last-second builder left to outbid, because the leader for your slot was fixed when the epoch began, and the position your transaction takes is governed by that clock rather than by a live sort of the highest offers. The auction was not banned; it was dismantled by leaving it nothing to auction. Ordering stopped being a scarce, sellable moment and became a property the network computes.
 
-![Bitcoin and the EVM push transactions into a global mempool sorted by an unknown block producer, while Solana's Gulf Stream forwards each transaction directly to the leader named in advance by the epoch schedule.](assets/v06-flowchart.png)
+![Bitcoin and the EVM push transactions into a global mempool sorted by an unknown block producer, while Solana's Gulf Stream forwards each transaction directly to the leader named in advance by the epoch schedule.](assets/v06-flowchart.webp)
 
 Sit with the inversion, because it is the exact opposite of Bitcoin. On Bitcoin, any miner might pull your transaction from the mempool, and you find out who mined it after the fact. On Solana, the schedule is public roughly two days out, so you know which validator will process your transaction before you broadcast it. You are not throwing a bottle into the sea. You are addressing an envelope.
 
-![At each epoch start PoH assigns all leader slots for the next ~2 days, so when you broadcast you already know the recipient validator, unlike Bitcoin where the producer is known only after mining.](assets/v07-timeline.png)
+![At each epoch start PoH assigns all leader slots for the next ~2 days, so when you broadcast you already know the recipient validator, unlike Bitcoin where the producer is known only after mining.](assets/v07-timeline.webp)
 
 Which kills a reflex EVM developers carry in their hands, and it is worth naming as a footgun. There is no auction to win, so paying more does not out-bid anyone for inclusion the way gas does. Your priority fee only orders you inside one leader's local queue. Nobody is bidding against you for a slot in a global room, because there is no room. A "higher fee wins the block" instinct fires at nothing here.
 
@@ -136,7 +136,7 @@ An empty account still costs 890,880 lamports to keep alive, because of that 128
 
 I learned that the slow way. Early on I funded a devnet account and then sat refreshing its balance, waiting for the "rent" to start ticking down, certain I had misconfigured something because nothing was being deducted. Nothing ever was. The account just sat there, funded and permanent. There was no bill. I had invented one out of pure EVM habit, and burned an afternoon watching for a charge that does not exist.
 
-![A table of the base fee (5,000 lamports per signature, half burned), the set priority-fee formula, the 1,400,000 CU per-transaction cap, and the refundable rent-exempt minimum deposit.](assets/v08-table.png)
+![A table of the base fee (5,000 lamports per signature, half burned), the set priority-fee formula, the 1,400,000 CU per-transaction cap, and the refundable rent-exempt minimum deposit.](assets/v08-table.webp)
 
 ## Recap, then the bill
 
@@ -150,7 +150,7 @@ First, you cannot discover accounts mid-execution. An EVM contract dereferences 
 
 Second, there is a hard ceiling on how many accounts one transaction can even name. A Solana transaction is capped at 1,232 bytes total. And that number is not crypto-economics; it is plumbing. 1,232 is the IPv6 MTU of 1,280 bytes minus 48 bytes of headers: the largest packet the network guarantees it can carry without fragmenting. Every account address you declare is 32 bytes eating into that budget, so a networking constant, decided by people who never heard of Solana, bounds how many accounts a transaction can touch. That ceiling is the entire reason Address Lookup Tables exist, a mechanism that lets a transaction reference many accounts by short index instead of full 32-byte address. You will hit this wall for real next lesson.
 
-![A byte-budget bar showing the 1,280 IPv6 MTU minus 48 header bytes equals a 1,232-byte transaction, with 32-byte account addresses consuming it until Address Lookup Tables are needed.](assets/v09-diagram.png)
+![A byte-budget bar showing the 1,280 IPv6 MTU minus 48 header bytes equals a 1,232-byte transaction, with 32-byte account addresses consuming it until Address Lookup Tables are needed.](assets/v09-diagram.webp)
 
 Third, and this is the one that humbles a fresh hardware budget: any popular writable account is a serialization bottleneck. Go back to the toy scheduler. `C` waited on `A` because they shared one writable account. Now picture a wildly popular program whose every transaction writes the same global counter, or the same liquidity pool. It does not matter whether the validator has 8 cores or 128. Every transaction that writes that account queues single-file, because two writes to one account can never run in parallel without disagreeing on the result. More cores buy nothing for hot shared state. This is the trap that turns a launch-day success into a stall: the account everyone wants to write is the account nobody can write at the same time. The steelman for the EVM is worth granting here. Its sequential model is simpler to reason about, and it never makes you predeclare anything or restructure logic around a byte budget. Solana trades that simplicity, and cheap flexibility, for concurrency you have to design for.
 
@@ -179,7 +179,7 @@ git add concept-map.md && git commit -m "module 4: BTC/EVM -> Solana concept map
 
 A filled version looks like this, and if your rows do not each end at the same root cause, you have written a feature list, not a derivation.
 
-![The four-row concept map, state location, execution, mempool, and fees, each mapping an old-world concept to its Solana counterpart and a one-sentence why, all tracing to one root cause: access is declared before execution.](assets/v10-comparison.png)
+![The four-row concept map, state location, execution, mempool, and fees, each mapping an old-world concept to its Solana counterpart and a one-sentence why, all tracing to one root cause: access is declared before execution.](assets/v10-comparison.webp)
 
 ## Checkpoint
 

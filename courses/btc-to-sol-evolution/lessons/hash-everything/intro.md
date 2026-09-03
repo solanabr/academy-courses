@@ -20,7 +20,7 @@ printf 'Solana' | shasum -a 256
 
 One byte of input changed. Compare the outputs character by character: they might as well be strangers. Not "a few characters shifted." A total, unrecognizable scramble, from a single capital letter.
 
-![Two inputs differing by one letter produce two digests with no recognizable relationship.](assets/v01-comparison.png)
+![Two inputs differing by one letter produce two digests with no recognizable relationship.](assets/v01-comparison.webp)
 
 Third experiment. Same computation from Python, so you can see there's no shell trickery:
 
@@ -49,7 +49,7 @@ You've now personally observed the three properties that make a **cryptographic 
 
 **One-way.** Given `615666da...`, there's no procedure to recover `solana` except guessing inputs and checking. Put numbers on "guessing": 256 bits means 2^256 possible digests, roughly 10^77, within a few orders of magnitude of the estimated count of atoms in the observable universe. Run a trillion guesses per second, every second since the Big Bang, and you'll have tried about 10^29 inputs, which against 10^77 rounds cleanly to having not started. Forward takes a microsecond. Backward takes never. This asymmetry, trivial to compute and infeasible to invert, is the trapdoor all of applied cryptography walks through, and the rest of the course keeps spending it.
 
-![The lifetime-of-the-universe guessing effort (10^29) is a vanishing sliver against the 10^77 possible digests, which itself sits near the atom count of the universe.](assets/v02-chart.png)
+![The lifetime-of-the-universe guessing effort (10^29) is a vanishing sliver against the 10^77 possible digests, which itself sits near the atom count of the universe.](assets/v02-chart.webp)
 
 ## Why one byte avalanches
 
@@ -59,7 +59,7 @@ SHA-256 doesn't stare at your whole input at once. It chews it in fixed-size chu
 
 Here's where the scramble comes from. Change one input byte and you've changed exactly one chunk. That chunk runs through all 64 rounds of mixing, and each round smears its disturbance across more of the 256-bit state. That already-scrambled state then feeds the next chunk, which smears it further, on to the end. One flipped bit doesn't stay local. It compounds through every round after it, so by the final chunk there's effectively no output bit it hasn't touched. The scramble you saw between `solana` and `Solana` isn't a special case; it's the machine doing exactly what its wiring forces it to do.
 
-![Pseudocode of the hash loop showing a fixed state repeatedly compressed with each input chunk and fed forward, so one changed byte compounds through every later round.](assets/v03-annotated-code.png)
+![Pseudocode of the hash loop showing a fixed state repeatedly compressed with each input chunk and fed forward, so one changed byte compounds through every later round.](assets/v03-annotated-code.webp)
 
 Notice the shape, because it recurs: a fixed-size state, fed forward, each step committing to everything before it. A blockchain is that same shape one level up, with blocks sitting where the compression function sat. Hold the pattern.
 
@@ -81,7 +81,7 @@ shasum -a 256 prediction.txt
 
 Anyone re-runs that second line against your revealed file and compares with what you posted weeks earlier. Match: you knew. Mismatch: you're improvising. Nobody trusted you at any point, and nobody needed to.
 
-![You hash a secret, publish only the digest, reveal the secret later, and anyone re-hashes it to confirm you committed to it earlier.](assets/v04-flowchart.png)
+![You hash a secret, publish only the digest, reveal the secret later, and anyone re-hashes it to confirm you committed to it earlier.](assets/v04-flowchart.webp)
 
 This move has a name, a **commitment** (you lock in a value now, reveal it later, and the digest keeps you honest in between), and it comes with one sharp edge worth naming immediately. If your secret is one of a few obvious strings, a skeptic just hashes every candidate and reads your answer straight off the digest. Watch it break:
 
@@ -148,7 +148,7 @@ Every line starts with 40 hex characters, and every `git log` you've ever read i
 
 **Collision resistance** is the strongest guarantee and the first to fall: you cannot find any two distinct inputs that share a digest, and crucially the attacker gets to choose both. That freedom is what SHAttered exploited: craft two PDFs together, one benign and one malicious, sharing a digest, get the benign one signed, then present the twin. The attacker's extra freedom is exactly why collisions are cheaper to hunt than preimages. A counting argument (the birthday bound) says you only need to search about 2^128 inputs on a 256-bit hash, not 2^256, because you're hunting for any matching pair, not a match to one fixed target. Halve the output size and you halve that exponent, which is why SHA-1's 160-bit digest (collision bound near 2^80, pushed lower by cryptanalysis) cracked while SHA-256's hasn't.
 
-![A table distinguishing preimage, second-preimage, and collision resistance by the attacker's task, what breaks, and the rough work factor, with collision at 2^128 flagged as weakest.](assets/v05-table.png)
+![A table distinguishing preimage, second-preimage, and collision resistance by the attacker's task, what breaks, and the rough work factor, with collision at 2^128 flagged as weakest.](assets/v05-table.webp)
 
 Keep the ranking in your head: if collision resistance holds, the other two almost always do, which is why "is it collision-resistant" is the question the industry actually tracks.
 
@@ -160,7 +160,7 @@ Say Alice wants to rewrite history. She paid Bob in block 1, regrets it, and edi
 
 Run the implication the other direction and it gets better. Anyone holding just the *latest* digest, 64 characters, small enough to read aloud on a phone call, can detect whether anything, anywhere in gigabytes of history, was touched. Re-hash the chain, compare one string, done. The tiny fixed size from the file demo is exactly what makes this cheap.
 
-![Each block commits to the previous block's digest, so one edit anywhere breaks every seal after it, and the tip digest alone reveals tampering.](assets/v06-diagram.png)
+![Each block commits to the previous block's digest, so one edit anywhere breaks every seal after it, and the tip digest alone reveals tampering.](assets/v06-diagram.webp)
 
 Be precise about what you now have, because the gaps matter as much as the win. Tamper-*evidence* is not tamper-*prevention*: nothing in the math stops Alice from re-running the sealing herself, recomputing every digest from her edit to the tip and presenting a chain that's internally perfect. The hashes prove "unchanged since sealing," never "this seal is the legitimate one." And nothing here says whose chain wins when two internally consistent histories disagree, or even what order events happened in. Those two gaps, who gets to seal and who wins, are the entire job of the Bitcoin module, and the fix turns out to be economic rather than cryptographic. For now, hold the bedrock: the reason thousands of strangers can even *argue* about a shared history is that the history carries its own seals.
 
@@ -208,7 +208,7 @@ d6d7e957bbd9140bc2d9cba9ca1fbb6496bcbbb68a4cfcd0c302e010f3c58b68
 
 One touched leaf, and the root at the top is a total stranger. The avalanche you saw on a string now propagates up the tree: the changed leaf changes its parent, which changes its parent, which changes the root. Same behavior as the chain, one dimension up.
 
-![Four leaf digests fold pairwise into two parents and then one root, and a red edit on one leaf cascades up through its parent to change the root.](assets/v07-diagram.png)
+![Four leaf digests fold pairwise into two parents and then one root, and a red edit on one leaf cascades up through its parent to change the root.](assets/v07-diagram.webp)
 
 Here's the payoff the plain chain couldn't give you, and it's the reason light clients exist. To convince someone a single record sits in a batch of a thousand, you don't ship the thousand. You ship the record plus the handful of sibling digests along its path to the root, about ten of them for a thousand-leaf tree, and they re-hash just that path and check it lands on the root they already trust. Verify one record against a batch of a million by touching roughly twenty digests instead of a million. That's what lets a **light client** (a node that verifies transactions without storing the full chain) run on a phone: it holds roots, not history, and asks for short proofs on demand.
 
