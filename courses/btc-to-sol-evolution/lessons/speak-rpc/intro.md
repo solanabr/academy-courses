@@ -49,7 +49,7 @@ regtest
 
 Three separate programs just made the same call. `bitcoin-cli` is a C++ binary, `curl` is a shell utility, and this last one is Python's `requests`, none of them shares a single line of code with the others. They agree because they are speaking the same wire protocol, not because they were built together. That agreement is the whole point of everything that follows.
 
-![bitcoin-cli, curl, and Python requests compared, each sends the same JSON-RPC body to port 18443 and gets the same result, differing only in how much of the envelope is pre-filled.](assets/v01-comparison.png)
+![bitcoin-cli, curl, and Python requests compared, each sends the same JSON-RPC body to port 18443 and gets the same result, differing only in how much of the envelope is pre-filled.](assets/v01-comparison.webp)
 
 ## The envelope has a name
 
@@ -59,7 +59,7 @@ Here is a detail most tutorials skip, and it reframes the whole ecosystem: JSON-
 
 Look at the request and both kinds of response side by side, because you need to read all three fluently before you build a client that produces them.
 
-![The JSON-RPC request carries jsonrpc, id, method, and a positional params array; a success response fills result and leaves error null; an error response fills error and leaves result null, with id echoed throughout.](assets/v02-annotated-code.png)
+![The JSON-RPC request carries jsonrpc, id, method, and a positional params array; a success response fills result and leaves error null; an error response fills error and leaves result null, with id echoed throughout.](assets/v02-annotated-code.webp)
 
 Two fields on that card will bite you later, so mark them now. `params` is a positional array: the node reads arguments by position, not by name, so order is the contract. And `error` being `null` is how you know a call worked. A response can arrive perfectly, HTTP 200 and all, while `error` holds a complaint and `result` is `null`. That distinction between "the request reached the node and the node said no" versus "the request never arrived" is the seam your solo exercise pries open at the end.
 
@@ -99,7 +99,7 @@ The username is always `__cookie__`; the password is regenerated on every restar
 
 There is a second way to authenticate, and naming its trade-off matters because you will reach for it the moment you deploy anything. You can set a fixed `rpcuser` and `rpcpassword` in `bitcoin.conf` instead of relying on the rotating cookie. Convenient: the credentials survive restarts, so a long-running bot doesn't have to re-read the cookie every time the node bounces. The cost is real: a static password in a config file is a static password in a config file, and it lives forever until you change it, which means a leaked config is a leaked node. The cookie's whole virtue is that it rotates out from under an attacker on the next restart. Pick fixed credentials for a service you control tightly; keep the cookie for local development. Either way, the node checks a password before it does anything, and that check is the only thing standing between the open internet and your coins.
 
-![bitcoind writes a rotating password to a cookie file; bitcoin-cli, curl, and a Python client all authenticate by reading that same file, while an unauthenticated request is rejected with HTTP 401.](assets/v03-diagram.png)
+![bitcoind writes a rotating password to a cookie file; bitcoin-cli, curl, and a Python client all authenticate by reading that same file, while an unauthenticated request is rejected with HTTP 401.](assets/v03-diagram.webp)
 
 ## Every tool you have ever used is an RPC client
 
@@ -111,7 +111,7 @@ Peel that page off and your `curl` command is sitting underneath it, run in a lo
 
 There is no metaphor hiding in that. The node is a database with a JSON-RPC API in front of it, and everything else is a client that dresses those calls up for a human to look at. That single fact tells you where every capability and every failure in this space actually lives. When a wallet shows the wrong balance, the node was queried wrong or the node is behind. When an explorer is down, its node connection is down. The node is the floor. Everything stands on it.
 
-![A node bar at the bottom labeled the single source of truth, with four clients above it, wallet, explorer, bot, exchange watcher, each connecting down through a JSON-RPC arrow.](assets/v04-flowchart.png)
+![A node bar at the bottom labeled the single source of truth, with four clients above it, wallet, explorer, bot, exchange watcher, each connecting down through a JSON-RPC arrow.](assets/v04-flowchart.webp)
 
 ## Build: `btc_rpc.py`
 
@@ -176,7 +176,7 @@ The section title promised a *typed* client, and the annotations are where that 
 
 Finally the `__main__` block, which is what turns a library into a command-line tool. `sys.argv[1:]` is everything you typed after the filename, and `method, *rest = ...` peels the first token off as the method name while keeping the remainder as a list of raw string arguments. Each of those runs through `_arg` before reaching `call`, which is precisely why `python3 btc_rpc.py getblockhash 0` arrives at the node as `params=[0]` and not `params=["0"]`. That one line of dispatch is the reason you can drive *any* method the node supports straight from the shell, even methods you never bothered to write a convenience wrapper for, and it is exactly the path the acceptance test's fifth method rides through.
 
-![An annotation of btc_rpc.py mapping each section to its job, init reads the cookie, call builds the envelope and raises on RPC errors, convenience methods delegate to call, and main dispatches any method from the command line.](assets/v05-annotated-code.png)
+![An annotation of btc_rpc.py mapping each section to its job, init reads the cookie, call builds the envelope and raises on RPC errors, convenience methods delegate to call, and main dispatches any method from the command line.](assets/v05-annotated-code.webp)
 
 ## Run it and prove it
 
@@ -194,7 +194,7 @@ If you see `regtest`, your wrapper read the cookie, built a valid envelope, hit 
 
 The bar for this tool is the same brutal, fair bar as every tool in this course: `btc_rpc.py` must return byte-identical data to `bitcoin-cli` for five methods. Not "close," not "looks right." Identical, because a client that disagrees with the node is a client you cannot build a bot on. Here is the matrix. Two of these methods are already written; two are your `TODO`s; the fifth rides the generic dispatcher with no convenience method at all.
 
-![A table of five methods with their wrapper invocation, bitcoin-cli equivalent, and expected result shape, including the deterministic regtest genesis hash for getblockhash 0.](assets/v06-table.png)
+![A table of five methods with their wrapper invocation, bitcoin-cli equivalent, and expected result shape, including the deterministic regtest genesis hash for getblockhash 0.](assets/v06-table.webp)
 
 The `getblockhash 0` row is your anchor, because block 0 is the genesis block and every regtest node in the world shares the same genesis hash, `0f9188f1...`. If your wrapper prints that and so does `bitcoin-cli`, positional params are working. And `getmempoolinfo` returning `"size": 0` is a small gift from next lesson to this one: it proves the mempool is empty right now, which is the exact thing you are about to teach the wrapper to watch.
 
@@ -206,7 +206,7 @@ Why pay a company to run a node you could run yourself? Because the node you jus
 
 Name the cost plainly, because it is the theme of the whole infrastructure module. Using someone else's RPC node trades sovereignty for convenience. They can rate-limit you, so your bot stalls at the worst moment under load. They can log you, so every address you ever query becomes a row in their analytics. And in the limit they can lie to you: an RPC provider that serves you a wrong balance or hides a transaction is a provider you have no cryptographic way to catch in the moment, because a JSON-RPC response carries no proof, only an answer. Your own node validated every rule before it spoke. A rented node asks you to trust that it did. Light trust, real cost, and the entire infra industry lives in exactly that gap.
 
-![A comparison of running your own node versus renting RPC, your own node needs no trust but carries operational cost, while a rented node costs almost nothing but requires trusting rate limits, logging, and honest answers, decided by one URL in the wrapper.](assets/v07-comparison.png)
+![A comparison of running your own node versus renting RPC, your own node needs no trust but carries operational cost, while a rented node costs almost nothing but requires trusting rate limits, logging, and honest answers, decided by one URL in the wrapper.](assets/v07-comparison.webp)
 
 ## Two footguns that look like a dead node
 
@@ -216,7 +216,7 @@ The first time I wrote a client like this, I was certain my node had crashed. Ev
 
 The second footgun hides inside `params`. The node reads arguments positionally, from an array, in order. If you hand a method an object with a guessed key name where it expected a positional array, you don't get a crash and you don't get silence: you get a well-formed response with `error` populated and `result` set to `null`. Your wrapper already handles this correctly by always sending `params` as a list and raising when `error` is not `null`. The lesson is to notice which failure you're looking at, because the two footguns produce opposite symptoms from the same-looking mistake.
 
-![A table separating transport errors (wrong port or stopped node, connection refused, request never arrives) from RPC-level errors (bad params, HTTP 200 with error populated, the node ran and refused).](assets/v08-table.png)
+![A table separating transport errors (wrong port or stopped node, connection refused, request never arrives) from RPC-level errors (bad params, HTTP 200 with error populated, the node ran and refused).](assets/v08-table.webp)
 
 ## Do it yourself
 

@@ -59,7 +59,7 @@ python3 -c "from btc_rpc import BitcoinRPC; print(BitcoinRPC().call('getrawmempo
 
 Empty again. The transaction did not vanish; it graduated. It left the queue and moved into a block, where it now lives for good. That move, from queue to block, is what people mean by a **confirmation**: a transaction gets its first confirmation when a block includes it, and one more each time a block is stacked on top. You just drove the whole arc by hand: broadcast, wait, confirm, drain.
 
-![A four-stage timeline (broadcast, mempool, mined, confirmed) with the span between mempool and mined highlighted as the gap the watcher observes.](assets/v01-timeline.png)
+![A four-stage timeline (broadcast, mempool, mined, confirmed) with the span between mempool and mined highlighted as the gap the watcher observes.](assets/v01-timeline.webp)
 
 ## Turn the arc into a loop
 
@@ -110,7 +110,7 @@ The first is that baseline. When the watcher starts, it reads the mempool once a
 
 The diff itself is the tool's beating heart, and it is one line of set arithmetic. New arrivals are the transactions present now that were absent before: `current() - seen`. Report them, then fold them into `seen` so the next tick only surfaces the next arrivals. No database, no bookkeeping, no clever data structure. A set and a subtraction.
 
-![Pseudocode of the poll loop showing arrivals computed as the set difference between the current mempool and the previously seen set, then the seen set updated.](assets/v02-annotated-code.png)
+![Pseudocode of the poll loop showing arrivals computed as the set difference between the current mempool and the previously seen set, then the seen set updated.](assets/v02-annotated-code.webp)
 
 The second choice is the one that separates a demo from a bot: the node will go away sometimes, and your watcher must not die when it does. Restart bitcoind, and every `rpc.call()` in flight raises an error. The naive loop crashes on the first exception and you find it dead in the morning. The resilient loop catches that one failure, waits a beat, and tries again, so a node that bounces for a config change or an upgrade is a hiccup, not a funeral. Keep the handler narrow: one `except` around the RPC call, a short sleep, then continue. That is the second TODO, and it is the difference between "ran once on my laptop" and "still running on Tuesday."
 
@@ -120,7 +120,7 @@ A bare txid tells you something arrived, but not what it is worth paying attenti
 
 Walk one through with real numbers, because the formula only becomes useful once it produces a value you can act on. Say `getmempoolentry` hands back a transaction whose `fees.base` reads `0.00001` BTC and whose `vsize` is `141` vB. First convert the fee out of BTC into satoshis: `0.00001 * 1e8 = 1000` sat, since a whole BTC is a hundred million of them. Then divide by the size to get the rate: `1000 / 141 ≈ 7` sat/vB. That single number, roughly seven satoshis per vbyte, is the transaction's bid for block space, and its whole virtue is that it is comparable across transactions of wildly different shapes. A lean one-input payment and a fat batch paying many recipients both collapse to the same unit, price per byte, so a miner filling the next block can rank them against each other directly. This is also why the raw fee misleads: a large transaction paying a big absolute fee can still be a worse deal per byte than a tiny one, and it is the per-byte figure that decides who gets mined first and who gets evicted when a full pool has to shed its cheapest tenants. When the Solo exercise below asks you to flag anything above a threshold you pick, that threshold is measured in exactly these units, so the 7 you just computed would slip under a 50 sat/vB bar untouched, while the `fee_rate=100` transaction the lab hands you clears it loudly.
 
-![A table of getmempoolentry fields (fees.base, vsize, time) with a formula deriving fee rate in satoshis per vbyte.](assets/v03-table.png)
+![A table of getmempoolentry fields (fees.base, vsize, time) with a formula deriving fee rate in satoshis per vbyte.](assets/v03-table.webp)
 
 ## Whose waiting room was that?
 
@@ -132,7 +132,7 @@ The lesson's one hard fact, the thing to carry out of this room: each node maint
 
 The waiting room you were watching, then, belonged to your node, and only your node. The `getrawmempool` you polled read one machine's memory. A peer across the network might have shown you an extra transaction you will never see, or none at all.
 
-![Three nodes each holding a different set of pending transactions, showing there is no single shared global mempool.](assets/v04-diagram.png)
+![Three nodes each holding a different set of pending transactions, showing there is no single shared global mempool.](assets/v04-diagram.webp)
 
 This is not a pedantic distinction. It is the reason two of your future bugs will exist. A watcher pointed at node A will never fire on a transaction that only reached node B, and if you build anything that assumes "the network saw it because my node saw it," you have quietly hard-coded a lie. Confirmation is the only global truth here, because a mined block propagates to everyone and the winning chain is shared. The queue in front of it is a thousand slightly different local guesses about what the next block might contain.
 
@@ -146,7 +146,7 @@ It is called **SPV**, Simplified Payment Verification, and it comes straight fro
 
 Now name precisely what SPV buys and what it borrows. It proves inclusion under work: the transaction sits in a block buried beneath the most cumulative proof-of-work the client has seen. What it takes on faith is validity. The light client never re-checks the transaction itself; it did not confirm there was no double-spend, did not run the scripts. It trusts that the majority of hashpower validated the block before building on it. It also trusts the full nodes it queries not to lie by omission, hiding a transaction or feeding it a minority chain. Average case, that is fine. The worst case is an eclipse attack, where a client's every peer is the attacker, and the honest chain is simply never shown to it.
 
-![A comparison of full node, SPV light client, and the watcher across storage, validation, trust, and mempool visibility, showing only full-node-backed views see the mempool.](assets/v05-comparison.png)
+![A comparison of full node, SPV light client, and the watcher across storage, validation, trust, and mempool visibility, showing only full-node-backed views see the mempool.](assets/v05-comparison.webp)
 
 Notice the punchline, because it closes the loop with your own tool. The mempool is not in any block. No Merkle proof covers it, because it is not committed to anything yet. An SPV client can prove a payment was confirmed, and it cannot see that payment while it waits. The waiting room is a full-node-only view. Your watcher's eyes are exactly the thing a light client gives up. That is the honest cost of running light: you trade storage and bandwidth for confirmed history, and you go blind to everything still pending.
 
@@ -156,7 +156,7 @@ On your regtest node this gap is a quiet queue you drive yourself. On a public c
 
 On EVM chains, the ones where the ledger can run programs, this pooling got a name: **MEV**, Maximal Extractable Value, the profit a block producer or a searcher can extract by choosing which transactions to include and in what order. Make the searcher concrete rather than abstract. Suppose a trader broadcasts one large swap: sell a big pile of token X for token Y on an automated market maker, a trade so large that filling it will visibly move the price. A searcher's bot, polling the mempool with the very same diff loop you just wrote, spots that pending swap before any block includes it. It builds two transactions of its own and pays just enough fee to have them ordered on either side of the victim's: one that buys token Y an instant before the big swap lands, and one that sells that same Y back an instant after. The large swap drags the price up between them; the searcher bought at the old price and sells into the new one, and the spread is pure profit. The original trader gets a worse fill than they would have received alone and never agreed to carry those two passengers. The maneuver has a name, a sandwich, and it depends on exactly one capability: reading a trade in the queue before it settles. That is precisely the power your watcher just handed you, minus the money and minus the adversaries.
 
-![A diagram of a sandwich attack showing a searcher buy ordered before the victim's large swap and a searcher sell ordered after, capturing the price spread as profit.](assets/v06-diagram.png)
+![A diagram of a sandwich attack showing a searcher buy ordered before the victim's large swap and a searcher sell ordered after, capturing the price spread as profit.](assets/v06-diagram.webp)
 
 Your regtest watcher, polling a private queue on your laptop, is looking at the embryo of that whole economy. Same gap, same visibility, none of the stakes yet. When the ledger learns to run code a couple of modules from now, that quiet queue turns into the arena where this plays out, and the plumbing you are writing tonight is the first instrument anyone points at it.
 
@@ -166,7 +166,7 @@ Every tool in this course gets its cost named, and this one's is a design fork y
 
 The alternative is push: let the node tell you the instant a transaction lands. Bitcoin Core exposes this through **ZMQ** (ZeroMQ, a messaging library the node uses to stream raw events like new mempool transactions and blocks over a socket). Hosted services expose it through **websockets** (a connection that stays open both directions so the server can push events without being asked). Push is near-instant and wastes no calls. Its price is connection state: you now hold a live socket, must reconnect cleanly when it drops, and you miss whatever streamed past during any gap in your connection.
 
-![Polling versus push compared on mechanism, upside, and cost, with a verdict that polling suits low-stakes watching and push suits latency-sensitive high volume.](assets/v07-comparison.png)
+![Polling versus push compared on mechanism, upside, and cost, with a verdict that polling suits low-stakes watching and push suits latency-sensitive high volume.](assets/v07-comparison.webp)
 
 The capstone bot inherits this exact fork. When it watches two chains at once and reacts to real balances, "late and chatty" stops being free and you will pay to move to push. For now polling is correct, because you are learning the shape of the thing, and the shape is clearer when it is a loop you can read top to bottom.
 
@@ -186,7 +186,7 @@ mv watcher.py toolkit/
 
 Say the lineage out loud, because it is the point of the whole half-course. The toolkit now holds three things. Something that gives you an identity, the keys and the wallet you built back in module 0: who you are and what you can prove. Something that speaks to the chain, `btc_rpc.py`: a script that asks a node questions. And now something that watches the chain and reacts, `watcher.py`: eyes. Identity, chain, eyes. Stack those three and you have the skeleton of every bot this course will ever build.
 
-![A three-rung ladder (identity, chain, eyes) feeding into the capstone bot, with the watcher on rung three marked as the current lesson.](assets/v08-flowchart.png)
+![A three-rung ladder (identity, chain, eyes) feeding into the capstone bot, with the watcher on rung three marked as the current lesson.](assets/v08-flowchart.webp)
 
 ## Do it yourself
 
