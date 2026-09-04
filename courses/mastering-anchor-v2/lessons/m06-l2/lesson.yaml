@@ -1,0 +1,91 @@
+id: lesson-mav2-m06-l2
+slug: m06-l2
+title: "The measured loop: buy back CU one change at a time"
+skills:
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: optimize-swap-quote
+    type: code
+    language: rust
+    starter: optimize-swap-quote/starter.rs
+    solution: optimize-swap-quote/solution.rs
+    tests: optimize-swap-quote/tests.json
+    hints:
+      - "amount_in_with_fee = amount_in * (10_000 - fee_bps)"
+      - "out = (reserve_out * amount_in_with_fee) / (reserve_in * 10_000 + amount_in_with_fee)"
+      - "cast to u128 before the multiplies, cast back to u64 after the single division"
+      - "guard before you compute: an empty reserve, or a fee_bps above 10_000, has no valid quote — return 0 rather than dividing by zero or underflowing the fee"
+  - key: check
+    type: quiz
+    questions:
+      - id: guardrails-off
+        prompt: "On a crate whose graph holds only `anchor-lang` — no `anchor-spl` edge to hold the defaults on — you compiled with `guardrails` OFF and re-measured lower CU plus a smaller binary. What did you actually trade away?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Real default-on runtime safety nets came out of the binary; the CU and roughly 300 bytes are what those checks cost to run."
+            correct: true
+            feedback: "Ownership matching, tag matching, arithmetic that raises instead of truncating — that is the list, and it is worth saying out loud before you argue past it. Deleting the checks does not delete the malformed call."
+          - id: b
+            label: "Only debug assertions were stripped — `guardrails` is a debug-build lint, so a release build was already running without those checks."
+            correct: false
+            feedback: "Tempting because Rust's overflow checks really are debug-only, but `guardrails` is an Anchor V2 crate feature compiled into every profile. Your release build was running those checks until you turned the feature off — which is exactly why the binary shrank."
+          - id: c
+            label: "Only the Mollusk harness changed — `guardrails` gates the test-time account checks, so the deployed program still runs every one."
+            correct: false
+            feedback: "Mollusk has no `guardrails` knob; the feature belongs to `anchor-lang` and is forwarded through your program crate's `Cargo.toml`. It changes the compiled `.so` you deploy, not the harness that measures it."
+        explanation: "guardrails is a default-on set of runtime safety nets. Where the flip lands, compiling it off buys back CU and ~300 bytes, but you have removed real checks — so it is only honest to ship once you can defend the invariants without them. Name the nets before you argue past them: that an account is owned by the program you think owns it, that a discriminator matches the type you deserialized as, that a wrapping arithmetic path is caught rather than silently truncating. Turning the feature off does not make a malformed call impossible; it makes the framework stop checking for one. And note the question's precondition, because on R4 itself the lab measured a zero: anchor-spl declares anchor-lang with its defaults on, and cargo's feature unification holds guardrails on for the whole graph no matter what your own row says — the flip only lands on a crate whose graph does not re-add it. When it lands, this trade is what you signed, and if you cannot write the invariant paragraph for your own handler, revert."
+      - id: const-rent
+        prompt: "You enabled `const-rent` and account-creation got cheaper. What did it save, and what is the fine print you must carry?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It caches the `Rent` sysvar in a runtime static after the first `Rent::get()`, so every later account-creation CPI skips the sysvar read."
+            correct: false
+            feedback: "A runtime cache is the wrong mental model: `const-rent` folds the rent-exempt minimum in at compile time, so nothing is memoized while the program runs. And it does carry a staleness risk — the frozen constant, not a cached read, is what can drift."
+          - id: b
+            label: "It folds the rent-exempt minimum in at compile time, and that frozen constant drifts if the rent formula ever changes."
+            correct: true
+            feedback: "That constant was baked in at build time — if the formula moves later, your binary keeps quoting the old number. And it only touches account creation, so profiling an unrelated handler was never going to show it."
+          - id: c
+            label: "It marks created accounts rent-exempt without funding them, so the payer keeps the lamports that would have gone into the deposit."
+            correct: false
+            feedback: "`const-rent` changes neither what rent is owed nor who funds it — the new account still needs its full rent-exempt deposit or it cannot survive. All it removes is the runtime work of deriving that minimum from the account's byte size."
+        explanation: "const-rent folds the rent constant at compile time, saving ~85-90 CU per account-creation CPI. The catch, stated in Anchor's own Cargo.toml comment: the folded constant drifts if the rent formula changes, which is why it cites SIMD-0194 and why you carry a re-verify note. Note also which instruction the lever touches — account-creation CPIs like `init`, not the trade handler — so measuring the swap after flipping it shows a delta of zero and teaches you the wrong thing."
+      - id: one-change
+        prompt: "You changed three things at once and total CU dropped nicely. Why is that still a failed optimization, in the loop's terms?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Nothing failed — with all three changes shipping together, the net CU delta is the only number that reaches users anyway."
+            correct: false
+            feedback: "Users do feel only the net, but you now carry an unattributed change set: a regression cancelled out by two wins ships invisibly and stays forever, because you never isolated it."
+          - id: b
+            label: "Mollusk's reading is only trustworthy when one change is compiled in, because the harness attributes CU per enabled feature flag."
+            correct: false
+            feedback: "Mollusk just totals the compute units the instruction consumed; it has no notion of feature flags and attributes nothing to them. The measurement was fine — the experiment design is what broke."
+          - id: c
+            label: "The delta is a sum over three variables, so no single change owns it and a regression can hide inside the win."
+            correct: true
+            feedback: "One net figure attributes to nothing. A regression covered by two wins ships invisibly and then lives there; no tool fixes that, because it's an experiment-design problem and the cure is one rebuild per variable."
+        explanation: "The whole point of the measured loop is causal clarity: change exactly one thing between measurements so the delta is attributable. Three changes at once could hide a regression cancelled by two wins — you would ship all three blind. Concretely: change 1 saves 400 CU, change 2 costs 200, change 3 does nothing, the sum still goes down, and you carry the 200-CU regression forever. The fix is not a better profiler; it is going back and isolating the flags one build at a time."
+      - id: range-not-digit
+        prompt: "const-rent's saving is quoted as ~85-90 CU, not a single number. Why does the course refuse to freeze one digit here?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Anchor's own sources quote it two ways, and the figure can drift if the rent formula moves."
+            correct: true
+            feedback: "Two maintainer-written places quote it differently, and the formula underneath may move besides — a single digit printed across that would be precision the sources do not have."
+          - id: b
+            label: "Mollusk's CU reading varies run to run with the fixture's account ordering, so no single value would hold."
+            correct: false
+            feedback: "CU is deterministic for a given program, input, and toolchain — rerunning the same fixture gives you the same integer, which is what makes the whole measured loop work. The spread here is source disagreement plus drift risk, not run-to-run noise."
+          - id: c
+            label: "The saving scales with the created account's byte size, so it is a range across the sizes a program can allocate."
+            correct: false
+            feedback: "The rent-exempt minimum does depend on byte size, but the computation `const-rent` removes costs about the same whatever that size is — the figure is quoted per account-creation CPI. The ~85 to ~90 spread comes from two Anchor sources disagreeing, plus drift risk."
+        explanation: "Anchor's own sources give ~85 in one place and ~90 in another for the same const-rent saving, and the number can drift if the rent formula changes (SIMD-0194). Freezing one digit would be false precision, so the course prints the range with a re-verify note — the same reason it never froze the 8.8x benchmark multiplier. Read both citations before quoting either; they sit a few lines apart in a repo you already have checked out, one in `anchor-lang`'s Cargo.toml feature comment and one in the V2 changelog entry that introduced the flag."

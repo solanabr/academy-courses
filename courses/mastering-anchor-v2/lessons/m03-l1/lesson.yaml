@@ -1,0 +1,64 @@
+id: lesson-mav2-m03-l1
+slug: m03-l1
+title: "PDAs & canonical bumps in V2"
+skills:
+  - solana-programs
+  - anchor
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your `init_vault` handler needs to sign a withdrawal CPI later as the vault PDA. To keep that cheap and correct, what do you do with the bump you got at init time?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Call find_program_address again inside the withdraw handler so the bump is always fresh"
+            correct: false
+            feedback: "That reintroduces the runtime search V2's macro-time const was designed to avoid, and costs CU every call."
+          - id: b
+            label: "Recompute the bump from the seeds on the client and pass it in each instruction"
+            correct: false
+            feedback: "A client-supplied bump is untrusted input; the program must derive/verify canonically, not trust a passed value."
+          - id: c
+            label: "Store the canonical bump in the vault's Pod state at init and reuse the stored value"
+            correct: true
+            feedback: "Derivation is deterministic for a fixed seed set, so one computation stored is every future computation skipped — and a byte you persisted yourself is a byte the caller can't influence."
+        explanation: "The canonical bump is stable for a given seed set, so you compute it once (V2 gives it to you as a macro-time const via ctx.bumps.name), persist it in the account, and reuse it. That is both the CU-cheap path and the safe one — no runtime search, no trusting client input."
+      - id: q2
+        prompt: "You seed the vault with [b\"vault\", player.address()] and it works. A teammate proposes seeding it with only [b\"vault\"] to 'keep it simple'. What breaks?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Every player collides on ONE shared vault address, so there is no per-player custody"
+            correct: true
+            feedback: "Drop identity out of the seeds and the address stops depending on identity — that is the whole bug, and nothing anywhere raises so much as a warning about it."
+          - id: b
+            label: "A bare `bump` cannot resolve a canonical value when no seed varies per caller"
+            correct: false
+            feedback: "Tempting because the bump feels tied to the player key, but a constant-only seed array derives a canonical bump fine — a global config PDA seeded with just [b\"config\"] does exactly that. The account derives; it is simply the same one for everybody."
+          - id: c
+            label: "Derivation aborts because find_program_address needs two seeds plus the program ID"
+            correct: false
+            feedback: "There is no two-seed minimum — up to 16 seeds of at most 32 bytes each are allowed, and zero or one is legal. The derivation succeeds; the failure is semantic, not a limit."
+        explanation: "The seed scheme IS the namespace. Dropping the player key makes the derivation identity-independent, so all players resolve to a single PDA. Per-entity data needs a per-entity seed — the seed design is a security boundary, not a formality."
+      - id: q3
+        prompt: "Migrating a v1 snippet, you see `let bump = ctx.bumps.get(\"vault\").unwrap();`. What is the idiomatic V2 rewrite, and why did it change?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Keep ctx.bumps.get(\"vault\").unwrap(); V2 kept the string map behind a shim"
+            correct: false
+            feedback: "Tempting because most of the v1-to-V2 port is mechanical renaming, but there is no compat shim for this one: the string-keyed map is gone outright and ctx.bumps is now a generated struct with one field per PDA account."
+          - id: b
+            label: "`ctx.bumps.vault` — a field on the typed bumps struct the derive macro generates"
+            correct: true
+            feedback: "A field lookup that cannot miss replaces a string lookup that could: the compiler now guarantees the name exists. Worth being precise about what did not move — the derivation still runs per call."
+          - id: c
+            label: "`find_program_address(seeds, id).1` recomputed inside the handler"
+            correct: false
+            feedback: "That is a runtime search, the opposite of what the macro-time const provides; it is neither idiomatic nor cheap."
+        explanation: "V2 generates a typed bumps struct, so you read ctx.bumps.vault as a field. The change moves bump resolution to macro-expansion time (a const), removing a runtime string lookup and a fallible unwrap — the compiler now guarantees the field exists. Be precise about what actually moved: the derivation itself still runs at runtime during account validation, because the seeds include the caller's address and no compiler knows who will call. What folded into macro-expansion time is the shape of the bumps struct and the name-to-slot resolution that used to be a hash lookup on a string. The CU story lives elsewhere — bare `bump` runs the search, `bump = vault.bump` validates against a value you already stored."
