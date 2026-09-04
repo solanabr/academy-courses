@@ -10,7 +10,7 @@
 
 **Conceitos:** história da Solana; linha do tempo de desenvolvimento e marcos; fundação e primeiros desenvolvimentos; avaliação de evidências para alegações históricas; técnicas de síntese narrativa; ligação de eventos históricos a temas arquiteturais
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 14 min
 
 ---
 

@@ -10,7 +10,7 @@
 
 **Conceitos:** responsabilidades dos componentes do runtime; deveres e ciclo de vida do validador; roteamento de mensagens entre nós; armazenamento de estado e snapshots; interfaces e limites dos componentes
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 15 min
 
 ---
 

@@ -10,7 +10,7 @@
 
 **Conceitos:** História da Solana; Arquitetura da Solana; coleta de evidências e fontes; estruturar uma narrativa histórica; organização e seções do relatório; alinhamento de objetivos e critérios de avaliação
 
-**Tempo de leitura:** 20 min
+**Tempo de leitura:** 16 min
 
 ---
 
