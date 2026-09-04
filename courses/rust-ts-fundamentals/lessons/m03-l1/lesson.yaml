@@ -1,7 +1,8 @@
 id: lesson-rtf-m03-l1
 slug: m03-l1
 title: "package.json is a contract: workspaces, engines, peers"
-skills: []
+skills:
+  - solana-kit
 blocks:
   - key: intro
     type: prose

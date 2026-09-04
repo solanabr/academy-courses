@@ -1,7 +1,9 @@
 id: lesson-rtf-m02-l2
 slug: m02-l2
 title: "Parse, don't validate: zod at the boundary"
-skills: []
+skills:
+  - solana-kit
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

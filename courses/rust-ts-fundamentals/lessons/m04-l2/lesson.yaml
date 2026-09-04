@@ -1,7 +1,8 @@
 id: lesson-rtf-m04-l2
 slug: m04-l2
 title: "Errors are values: Result?, and the two-crate canon"
-skills: []
+skills:
+  - solana-programs
 blocks:
   - key: intro
     type: prose

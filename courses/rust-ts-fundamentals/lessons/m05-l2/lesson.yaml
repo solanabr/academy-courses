@@ -1,7 +1,8 @@
 id: lesson-rtf-m05-l2
 slug: m05-l2
 title: "cargo mastery: editions, workspaces, features, MSRV"
-skills: []
+skills:
+  - solana-programs
 blocks:
   - key: intro
     type: prose

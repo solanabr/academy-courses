@@ -1,7 +1,8 @@
 id: lesson-rtf-m03-l3
 slug: m03-l3
 title: "Vercel: the URL"
-skills: []
+skills:
+  - solana-kit
 blocks:
   - key: intro
     type: prose

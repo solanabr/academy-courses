@@ -1,7 +1,8 @@
 id: lesson-rtf-m09-l2
 slug: m09-l2
 title: "Observe the observer: logs, errors, alarms"
-skills: []
+skills:
+  - solana-fundamentals
 blocks:
   - key: intro
     type: prose

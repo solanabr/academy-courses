@@ -1,7 +1,9 @@
 id: lesson-rtf-m02-l4
 slug: m02-l4
 title: "Tests are probes for your code: vitest"
-skills: []
+skills:
+  - solana-kit
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

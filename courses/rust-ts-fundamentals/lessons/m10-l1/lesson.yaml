@@ -1,7 +1,8 @@
 id: lesson-rtf-m10-l1
 slug: m10-l1
 title: "Assembly: the station, whole"
-skills: []
+skills:
+  - solana-kit
 blocks:
   - key: intro
     type: prose
