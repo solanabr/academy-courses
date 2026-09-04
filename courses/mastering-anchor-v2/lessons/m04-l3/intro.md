@@ -10,7 +10,14 @@ So before we theorize, wire the seam. R3 is a second program in the vault's work
 anchor new quarter-prize        # adds programs/quarter-prize and registers it in Anchor.toml
 ```
 
-Then open `programs/quarter-prize/Cargo.toml` and add the vault you already built as a dependency, with its CPI surface turned on:
+Then wire R3 to consume R2 the way V2 programs consume each other: through the vault's **interface**, not its source. `declare_program!` reads a program's IDL — the JSON description of its instructions and accounts that the toolchain derives from the source — and generates the entire CPI surface from it at compile time. Two moves. First, harvest the vault's IDL into an `idls/` directory at the workspace root (the macro walks up from the consuming crate and uses the first `idls/` directory it finds):
+
+```bash
+mkdir -p idls
+( cd programs/quarter-vault && anchor idl build -o ../../idls/quarter_vault.json )
+```
+
+Second, open `programs/quarter-prize/Cargo.toml` — and notice what is *not* in it. No row for the vault at all: the interface arrives as JSON, not as a crate.
 
 ```toml
 [dependencies]
@@ -21,10 +28,19 @@ wincode = { version = "0.5", features = ["derive"] }
 # The arcade-workspace row from m02-l1, verbatim. R3 lands in R2's workspace, and the
 # two share one lock: the members have to agree on solana-address or nothing resolves.
 solana-address = ">=2.6.1, <2.7"
-quarter-vault = { path = "../quarter-vault", features = ["cpi"] }
+# NO `quarter-vault = { path = "../quarter-vault", features = ["cpi"] }` row. The
+# scaffold's feature table ships a `cpi = ["no-entrypoint"]` hook for source-level
+# consumption, and this course deliberately never uses it — the IDL path below has
+# none of its rc.1 sharp edges, and it is V2's own cross-program mechanism.
 ```
 
-Then `anchor build`. Nothing to claim yet, and the build will start failing the moment you write real code against R2, because R2 is still self-custody and cannot take a second party. Fixing that is Step 1 of the Lab and it comes before everything else. What you have right now is the callee's `cpi` module in scope and a compiler that will tell you exactly which handles the vault expects. That feedback loop is the lesson.
+Then, at the top of `programs/quarter-prize/src/lib.rs`, one line brings the vault's generated module into existence:
+
+```rust
+declare_program!(quarter_vault);
+```
+
+Then `anchor build`. Nothing to claim yet, and the build will start failing the moment you write real code against R2, because R2 is still self-custody and cannot take a second party. Fixing that is Step 1 of the Lab and it comes before everything else. What you have right now is the callee's `cpi` module in scope — generated from the IDL, and `include_bytes!`-tracked, so a stale interface is a compile error instead of a silent runtime mismatch — and a compiler that will tell you exactly which handles the vault expects. That feedback loop is the lesson.
 
 > Freshness note: this is written against the Anchor V2 release candidate on the 2.x line (the docs tree published under `v2`), 2026-08-22, newest tag `2.0.0-rc.1` (published to crates.io 2026-08-12). `avm install` cannot fetch it, as m01-l2 showed: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s. Build the CLI from the documented channel instead, pinned to the tag: `cargo install --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1 anchor-cli --locked --force`, and re-check for a newer rc or a stable tag before you build. The machine-default `anchor-cli 1.1.2` is the V1 line and will not compile the `unsafe(dup)`, `CpiHandle`, or Pod-`Account` features below.
 
@@ -177,7 +193,7 @@ Then point the two `Transfer` CPIs at the new accounts: `deposit`'s `from` becom
 
 Note the one demotion: `Deposit`'s `authority` stops being a `Signer`. Topping up someone's vault never needed their permission, only their address to derive the seeds, and the escrow PDA cannot sign a deposit it is merely the owner of. `Withdraw`'s `authority` stays a `Signer`, which is exactly the account the escrow PDA will satisfy through `invoke_signed` in Step 4.
 
-Checkpoint: `anchor build` in the vault workspace compiles — if it fails instead, you moved a seed or a bump; put it back. Then re-run m04-l1's withdraw test, and run it the tempting way first: pass the player's key into `authority`, `funder`, and `destination`, the way the old self-custody test collapsed everything into one wallet. It fails on the very first instruction with `Custom(2040)` — `ConstraintDuplicateMutableAccount`. One key in two slots is aliasing, and the guard rejects an aliased account the moment *any* of its slots is `mut`; a read-only `authority` does not excuse it, because on `InitVault` the mut `funder` aliases it and on `Withdraw` the mut `destination` does. That 2040 is the duplicate-mutable default from the overview doing its job on your own program, one lesson early. The fix is the same role split you just performed on the structs, applied to the test: give `funder` and `destination` their own keypairs, the way the escrow will hold distinct parties on the floor. Distinct keys, green run.
+Checkpoint: `anchor build` in the vault workspace compiles — if it fails instead, you moved a seed or a bump; put it back. Then re-run m04-l1's withdraw test, and run it the tempting way first: pass the player's key into `authority`, `funder`, and `destination`, the way the old self-custody test collapsed everything into one wallet. It fails on the very first instruction with `Custom(2040)` — `ConstraintDuplicateMutableAccount`. One key in two slots is aliasing, and the guard rejects an aliased account the moment *any* of its slots is `mut`; a read-only `authority` does not excuse it, because on `InitVault` the mut `funder` aliases it and on `Withdraw` the mut `destination` does. That 2040 is the duplicate-mutable default from the overview doing its job on your own program, one lesson early. The fix is the same role split you just performed on the structs, applied to the test: give `funder` and `destination` their own keypairs, the way the escrow will hold distinct parties on the floor. Distinct keys, green run. One last move before you leave this step: re-run the IDL harvest from the opening. You just changed R2's interface, and `declare_program!` compiles against the JSON, not the source — the stale file is exactly the compile error the checkpoint below names.
 
 ### Step 2: the escrow record
 
@@ -197,21 +213,9 @@ pub struct Escrow {
     pub bump: u8,            // canonical bump, stored so we never re-derive
     pub _pad: [u8; 7],   // explicit tail padding: V2 rejects implicit pad bytes
 }
-
-/// Marker for `Program<QuarterVault>`. `#[program]` emits exactly three sibling
-/// modules — `instruction`, `accounts`, `cpi` — and no marker type, so the
-/// CALLER declares one: a unit struct plus an `Id` impl is all `Program<T>` needs.
-pub struct QuarterVault;
-
-impl Id for QuarterVault {
-    fn id() -> Address {
-        quarter_vault::ID
-    }
-    const IDL_ADDRESS: &'static str = "<your quarter_vault program id>";
-}
 ```
 
-Two lines of that marker earn a sentence each. `fn id()` is what `Program<QuarterVault>` validates the passed account against at load, wired straight to the id R2 declared. And `IDL_ADDRESS` is easy to skip and wrong to skip: it is the base58 string the IDL emitter advertises for this program account, it defaults to *empty*, and an impl without it still compiles — the IDL just silently loses the callee's address. Paste the same id `quarter_vault`'s `declare_id!` carries.
+One thing you do *not* write here, and the deletion is worth a beat. `Program<T>` needs a marker type with an `Id` impl, and `#[program]` emits no marker — it generates exactly three sibling modules, `instruction`, `accounts`, and `cpi` — so a source-level consumer would have to hand-write one, `IDL_ADDRESS` and all, and an impl that skips `IDL_ADDRESS` still compiles while the IDL silently loses the callee's address. `declare_program!` generates the marker instead, at `quarter_vault::program::QuarterVault`, with `IDL_ADDRESS` already filled from the JSON. One less thing to hand-maintain, one less thing to get silently wrong.
 
 Checkpoint: `anchor build` compiles. If it complains about padding or a non-Pod field, you added something variable-length; keep the record scalar.
 
@@ -222,8 +226,9 @@ Checkpoint: `anchor build` compiles. If it complains about padding or a non-Pod 
 ```rust
 use anchor_lang::prelude::*;
 use quarter_vault::cpi as vault_cpi;
-use quarter_vault::Vault;
-use crate::state::{Escrow, QuarterVault};
+use quarter_vault::program::QuarterVault; // generated by declare_program!
+use quarter_vault::Vault;                 // the vault's account type, also generated
+use crate::state::Escrow;
 
 #[derive(Accounts)]
 pub struct Reserve {
@@ -304,7 +309,7 @@ pub fn reserve(ctx: &mut Context<Reserve>, amount: u64, winning_score: u64) -> R
 
 Three things to notice, because they are the V2 CPI grammar. The callee exposes `vault_cpi::accounts::Deposit`, a struct whose every field is a `CpiHandle`. You fill it with `.cpi_handle_mut()` for accounts the callee will write (the vault pair, the funder) and `.cpi_handle()` for the rest. `CpiContext::new` takes the callee as a `&Address`, which is exactly what the program account's `.address()` hands back — so it is passed straight in, not wrapped in an `AccountInfo`. And the generated wrapper `vault_cpi::deposit(cpi_ctx, amount)` packs the args and invokes. That is the same handle you wrestled last lesson: once `cpi_handle_mut()` borrows the vault, you cannot also touch it as a typed account until the call returns, which is precisely how the compiler keeps you honest.
 
-Checkpoint: `anchor build`. The compiler resolves `quarter_vault::cpi::*` only because you turned on `features = ["cpi"]` in the `Cargo.toml` at the top of this lesson. If it cannot find the module, that feature flag is missing.
+Checkpoint: `anchor build`. The compiler resolves `quarter_vault::cpi::*` because `declare_program!` generated the entire module from `idls/quarter_vault.json`. If it dies with `` `idls` directory not found ``, the harvest step from the opening never ran; if it cannot find a *field* like `funder`, your JSON predates the role split — re-run the harvest, because the interface changed and the file must change with it.
 
 ### Step 4: redeem, and the two lines that are yours
 
@@ -313,8 +318,9 @@ Checkpoint: `anchor build`. The compiler resolves `quarter_vault::cpi::*` only b
 ```rust
 use anchor_lang::prelude::*;
 use quarter_vault::cpi as vault_cpi;
-use quarter_vault::Vault;
-use crate::state::{Escrow, QuarterVault};
+use quarter_vault::program::QuarterVault; // generated by declare_program!
+use quarter_vault::Vault;                 // the vault's account type, also generated
+use crate::state::Escrow;
 
 #[derive(Accounts)]
 pub struct Redeem {
@@ -406,6 +412,9 @@ use anchor_lang::{
 use anchor_v2_testing::{
     Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction,
 };
+// The vault's generated module rides inside the escrow crate now, so the test
+// borrows its ID from there instead of naming a quarter-vault dependency.
+use quarter_prize::quarter_vault;
 
 const PRIZE: u64 = 50_000_000; // 0.05 SOL
 const WIN: u64 = 5_000;

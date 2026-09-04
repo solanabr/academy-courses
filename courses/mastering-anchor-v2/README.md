@@ -86,6 +86,16 @@ lessons carry; treat a stale date as an unverified pin.
 - **`anchor fuzz` lives on `master`, not on the RC.** The `anchor-next` CLI ships
   `anchor test --profile`, `anchor debugger`, and `anchor coverage`, and has no `fuzz` subcommand.
   m07-l3 depends on that split being true; re-check it whenever either branch moves.
+- **The course consumes programs by IDL — `declare_program!` + a workspace-root `idls/`
+  directory — never by `features = ["cpi"]` path deps.** Two rc.1 defects force this, both
+  reproduced by execution: a program that references the `cpi` modules of **two**
+  `no-entrypoint` rungs dies at SBF link on `duplicate symbol: __anchor_dispatch` (the
+  four-rung capstone cannot exist on that road), and a workspace-root `cargo build-sbf`
+  feature-unifies `no-entrypoint` onto a consumed rung and silently emits an
+  entrypoint-less `.so` that the loader rejects. Zero `cpi` dep rows exist in the course;
+  if one ever returns, both hazards return with it. The `idls/*.json` files are compile
+  inputs (`include_bytes!`-tracked), so they must be re-harvested after any interface
+  change — m04-l3, m05-l1, and m09-l3 each say so in place.
 - **The pinocchio trio in m09-l1 is deliberately two minor lines behind.** `pinocchio 0.11` renamed
   `AccountInfo` to `AccountView` and `Pubkey` to `Address`. The lab pins `0.9` because it is the
   last line where `pinocchio-pubkey` still resolves and the pre-rename names map cleanly onto v1

@@ -4,7 +4,7 @@ You just diffed your native vault against the V2 macro expansion, line by line, 
 
 Here is the pain, stated plain. Every rung you built stands alone. The cabinet-counter counts. The quarter-vault holds. The prize-escrow settles. The token-ticket swap quotes. Four programs, four green test suites, four devnet deploys, and not one of them knows the others exist. An arcade is not four machines in four rooms. It is a floor: a play bumps a counter, the counter feeds a credit into a vault, a win releases a prize from an escrow, and a pile of tickets swaps for something at the counter. Nobody wired the floor yet. That is the capstone, and it is almost entirely yours.
 
-One piece of housekeeping first, because the dependency rows below assume it. R1 has been living on its own since m02-l1: `anchor init cabinet-counter` made it a workspace of one, while R2, R3, and R4 all grew inside the `quarter-vault` workspace you started in m03-l1. The registry needs all four as path dependencies of a single crate, so copy R1 in before you scaffold anything. The original workspace stays where it is — this is a copy, not a move, and you can delete the old tree once the registry builds. From the root of that arcade workspace:
+One piece of housekeeping first, because everything below assumes it. R1 has been living on its own since m02-l1: `anchor init cabinet-counter` made it a workspace of one, while R2, R3, and R4 all grew inside the `quarter-vault` workspace you started in m03-l1. The floor builds, tests, and deploys as one workspace — one `Anchor.toml`, one `target/deploy` every harness loads from, one `idls/` directory — so copy R1 in before you scaffold anything. The original workspace stays where it is — this is a copy, not a move, and you can delete the old tree once the registry builds. From the root of that arcade workspace:
 
 ```bash
 cp -R ../cabinet-counter/programs/cabinet-counter programs/cabinet-counter
@@ -19,7 +19,18 @@ Now let us make the floor exist before the theory. Scaffold the last program and
 anchor new floor-registry   # adds programs/floor-registry to the workspace
 ```
 
-Then open `programs/floor-registry/Cargo.toml` and pull each rung in as a dependency with its `cpi` feature turned on. This is the same move you made when the escrow reached into the vault, now done four times:
+Then wire the registry to the four rungs the same way the escrow reached the vault in m04-l3 — through their interfaces, four times over. First, harvest every rung's IDL into the workspace-root `idls/` directory. The rungs must be named *before* the registry ever compiles, because `declare_program!` reads the JSON at macro-expansion time:
+
+```bash
+mkdir -p idls
+for rung in cabinet-counter quarter-vault quarter-prize token-ticket-swap; do
+  ( cd programs/$rung && anchor idl build -o ../../idls/$(echo $rung | tr '-' '_').json )
+done
+```
+
+(Your `idls/quarter_vault.json` already exists from module 5's last re-harvest; the loop simply refreshes all four to whatever the rungs say today, which is the only IDL state worth building against.)
+
+The registry's `Cargo.toml` then carries **no rung rows at all** — this is the diff against every multi-crate workspace you have seen before, and it is a deletion:
 
 ```toml
 [dependencies]
@@ -31,18 +42,26 @@ wincode = { version = "0.5", features = ["derive"] }
 # The arcade-workspace row, identical to the one every rung has carried since m02-l1.
 # Step 4 puts Mollusk in this crate, and Mollusk's SVM stack reaches solana-address
 # ^2.6.1; the ceiling is what the pin was always for — 2.6.1 is still wincode 0.5, and
-# 2.7.0 is the version that moved. The registry and the four rungs it pulls in are one
+# 2.7.0 is the version that moved. The registry and the four rungs share one
 # workspace and one lock, so all five members must read this row, not just this one.
 solana-address = ">=2.6.1, <2.7"
-# R3 is the crate `quarter-prize` (m04-l3's scaffold). "prize-escrow" is the role it
-# plays on the floor, not the name cargo knows it by; the path row needs the name.
-cabinet-counter   = { path = "../cabinet-counter",   features = ["cpi"] }
-quarter-vault     = { path = "../quarter-vault",     features = ["cpi"] }
-quarter-prize     = { path = "../quarter-prize",     features = ["cpi"] }
-token-ticket-swap = { path = "../token-ticket-swap", features = ["cpi"] }
+# No `{ path = "../<rung>", features = ["cpi"] }` rows — the rungs arrive as IDLs.
 ```
 
-Run `anchor build`. It will compile a registry that does nothing yet, but the four `cpi` modules are now in scope, and the compiler will start telling you exactly which handles each rung expects. That feedback loop is the whole lab.
+and the top of `programs/floor-registry/src/lib.rs` names the four rungs (R3 is the crate `quarter-prize`, m04-l3's scaffold — "prize-escrow" is the role it plays on the floor, not the name cargo knows it by):
+
+```rust
+use anchor_lang::prelude::*;
+
+declare_program!(cabinet_counter);
+declare_program!(quarter_vault);
+declare_program!(quarter_prize);
+declare_program!(token_ticket_swap);
+```
+
+Why not four path-dep rows with the scaffold's `features = ["cpi"]` hook, the way half the Anchor tutorials you have read do it? Because on rc.1 that road physically ends at one rung. `cpi` turns on `no-entrypoint`, and under `no-entrypoint` each consumed program exports its dispatch function as an unmangled symbol — so the moment a program references the `cpi` modules of *two* such rungs, the SBF link dies on `duplicate symbol: __anchor_dispatch`, and a registry that composes four rungs never links at all. The same hook has a second, quieter failure: a workspace-root `cargo build-sbf` feature-unifies `no-entrypoint` onto the consumed rung itself and emits a `.so` with *no entrypoint symbol* — it builds clean, sits in `target/deploy/` looking deployable, and the loader rejects it. `declare_program!` is not a workaround grudgingly adopted; it is V2's own cross-program mechanism, it generates the CPI surface in interface mode where no dispatch symbol exists to collide, and the course retired the `cpi` feature rows the day the four-rung floor became the goal.
+
+Run `anchor build`. It will compile a registry that does nothing yet, but the four generated modules are now in scope, and the compiler will start telling you exactly which handles each rung expects. That feedback loop is the whole lab.
 
 **Summary.** The floor-registry is one Anchor V2 program that composes the four rungs by CPI: it increments a cabinet's counter (R1), routes credits through the quarter-vault (R2), settles prizes through the prize-escrow (R3), and quotes through the swap (R4). You will wire the R1 edge as a worked step, then build the rest solo, then carry the whole thing through the full production lifecycle this course has been teaching: a LiteSVM plus Mollusk suite, one green fuzz case, a security-checklist pass, a CU profile with one measured optimization, a Surfpool localnet run of the five-program floor together, a devnet deploy, and a local verify-from-repo that proves your build reproduces the bytecode on chain. When `anchor test` prints `floor-registry ... passing` against the localnet floor and your verify matches, you are done.
 
@@ -102,28 +121,26 @@ anchor --version           # expect: anchor-cli 2.0.0-rc.1
 
 One version-line note so nobody trips: this course pins Solana CLI `3.1.10` as the local build and CI toolchain, which is what the verifiable build container uses. That pin is a reproducibility choice, not a claim about the current network. The current stable Agave release is a separate, faster-moving thing (v4.2.1 as of 2026-08-22; check `agave-install info` or `solana --version` at build time). Never read the `3.1.10` pin as "the current version of Solana."
 
-**Step 1. The four dependencies are already in.** You added them in the opening. Confirm `anchor build` still compiles the empty registry with all four `cpi` modules resolved. If a module is missing, the `features = ["cpi"]` flag on that rung is off. That flag is the whole reason `cabinet_counter::cpi::*` exists.
+**Step 1. The four interfaces are already in.** You harvested the IDLs and wrote the four `declare_program!` lines in the opening. Confirm `anchor build` still compiles the empty registry with all four generated modules resolved. `` error: `idls` directory not found `` means the harvest never ran — the rungs must be named before the registry compiles. A missing *item* inside a module (a function or field the compiler cannot find) means a stale JSON: re-run the harvest loop, because `declare_program!` compiles against the file, not the source.
 
 **Step 2. Wire R1, the counter increment (worked for you).** A play on a cabinet is one CPI: the registry calls the counter's `increment`. Here it is in full. Read every line, because this is the template you will copy three times.
 
 ```rust
 use anchor_lang::prelude::*;
 
-// Pull the rung's generated CPI module into scope. What #[program] does NOT
-// generate is a Program<T> marker — it emits `instruction`, `accounts`, and
-// `cpi` only — so the registry declares one marker per rung, exactly as the
-// escrow did for the vault in m04-l3.
+declare_program!(cabinet_counter);
+declare_program!(quarter_vault);
+declare_program!(quarter_prize);
+declare_program!(token_ticket_swap);
+
+// Everything a caller needs comes out of the generated module: the `cpi`
+// builders, the rung's account types (`Cabinet`, straight from the IDL), and —
+// unlike source-level consumption, where the caller hand-writes it — the
+// Program<T> marker, at cabinet_counter::program::CabinetCounter, with its
+// IDL_ADDRESS already filled from the JSON.
 use cabinet_counter::cpi as counter_cpi;
+use cabinet_counter::program::CabinetCounter;
 use cabinet_counter::Cabinet;
-
-pub struct CabinetCounter;
-
-impl Id for CabinetCounter {
-    fn id() -> Address {
-        cabinet_counter::ID
-    }
-    const IDL_ADDRESS: &'static str = "<the id cabinet_counter's declare_id! carries>";
-}
 
 declare_id!("F1oorReg1stry111111111111111111111111111111");
 
@@ -170,7 +187,7 @@ pub struct RecordPlay {
 
 The player signs the outer transaction, and that signer privilege extends down through the CPI, so the counter sees a signed `player` without the registry signing anything itself. Nothing here is new. It is the escrow's `reserve` deposit with different names.
 
-Expected result: `anchor build` compiles the registry with one instruction and no warnings about unresolved `counter_cpi` paths. A "no method named `cpi_handle_mut`" error means you are on the machine-default V1 CLI, not the RC from Step 0; an unresolved `cabinet_counter::cpi` means the `features = ["cpi"]` flag on that dependency is off.
+Expected result: `anchor build` compiles the registry with one instruction and no warnings about unresolved `counter_cpi` paths. A "no method named `cpi_handle_mut`" error means you are on the machine-default V1 CLI, not the RC from Step 0; an unresolved `cabinet_counter::cpi` means the `declare_program!` line or its `idls/cabinet_counter.json` is missing. One naming rule to keep in your pocket for the solo edges: the generated CPI accounts structs are named after the **instruction** (`accounts::Increment` for `increment`), not after whatever the callee called its own context type — the IDL carries instruction names, and on the rungs the two happen to coincide.
 
 ![An annotated code card isolating the three reusable parts of a V2 CPI, with the rule to read typed state before opening a handle.](assets/v04-annotated-code.png)
 
@@ -213,7 +230,7 @@ cargo test -p floor-registry         # runs BOTH suites
 
 > Pin note, and it is the reason the `solana-address` row at the top of this lesson — and in all four rungs it pulls in — reads `">=2.6.1, <2.7"` rather than an exact `=2.6.0`. The scope is the workspace, not this crate. `cargo` resolves one `solana-address` for every member at once, so a single rung still holding `=2.6.0` fails the whole resolve with `all possible versions conflict`, and the registry never gets as far as compiling. Mollusk's SVM stack reaches `solana-address ^2.6.1`; an exact pin anywhere in the workspace refuses it. The two range rows below are the same hazard one level further down, and they behave differently: they are dev-dependencies of this crate, so they shape the lock without every sibling having to declare them — `solana-short-vec 3.3.0` and `solana-signature 3.5.0` moved to `wincode 0.6` while still satisfying `solana-message`, so without them the resolve succeeds and the *build* dies. All three rows say one thing: hold this graph on `wincode 0.5`, the line rc.1 wants. None of them survives V2 crossing to 0.6, and none goes before that.
 
-Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved; their imports ride `anchor_lang` and `anchor_v2_testing` and reach past neither, the same shape every LiteSVM test in this course has used. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`, importing `Account`, `Instruction`, and `Pubkey` from `solana_sdk`. One capstone-specific wrinkle the module-6 shape did not have: a minified SVM runs only the programs you register, and `settle_prize` invokes a whole chain of them. Register each local rung on the harness — `mollusk.add_program(&quarter_prize::ID, "quarter_prize")`, and the same for the vault — which loads each `.so` by name from the `SBF_OUT_DIR` you exported above; register SPL Token via its companion crate, `mollusk_svm_programs_token::token::add_program(&mut mollusk)`. Then give every CPI'd program its account row too: `mollusk_svm::program::create_program_account_loader_v3(&quarter_prize::ID)` builds the loader-owned executable account the runtime demands, and the token program's row is `token::keyed_account()`. The two halves fail in two different shapes, both worth recognizing on sight: a missing *cache entry* lets your outer instruction run and then kills the CPI with `Unsupported program id`, while a missing *account row* never reaches your program at all — the harness itself panics with `[MOLLUSK]: An account required by the instruction was not provided`. Keep the two suites in separate test files: they speak two different SVM stacks, and a file that mixes their types will not compile — separate files is the whole requirement, and the two suites then sit in one crate happily. You need at least one Mollusk test for `settle_prize`, because that printed integer is the "before" number Step 7 asks you to record.
+Write two kinds of test in that crate, because the two tools answer different questions and Step 7 needs the second one. The LiteSVM tests are the behavioural suite: one per edge, `record_play`, `route_credit`, `settle_prize`, `quote_swap`, each asserting the CPI landed and the callee's state moved; their imports ride `anchor_lang` and `anchor_v2_testing` and reach past neither, the same shape every LiteSVM test in this course has used. The Mollusk tests are the measurement suite, the same shape you built in module 6: one instruction, one fixture, `process_instruction`, and a `println!` of `compute_units_consumed`, importing `Account`, `Instruction`, and `Pubkey` from `solana_sdk`. One capstone-specific wrinkle the module-6 shape did not have: a minified SVM runs only the programs you register, and `settle_prize` invokes a whole chain of them. Register each local rung on the harness — `mollusk.add_program(&quarter_prize::ID, "quarter_prize")`, and the same for the vault — which loads each `.so` by name from the `SBF_OUT_DIR` you exported above; the ids come off the registry's own generated modules (`use floor_registry::quarter_prize;` in the test — there is no `quarter_prize` extern crate to import from). Register SPL Token via its companion crate, `mollusk_svm_programs_token::token::add_program(&mut mollusk)`. Then give every CPI'd program its account row too: `mollusk_svm::program::create_program_account_loader_v3(&quarter_prize::ID)` builds the loader-owned executable account the runtime demands, and the token program's row is `token::keyed_account()`. The two halves fail in two different shapes, both worth recognizing on sight: a missing *cache entry* lets your outer instruction run and then kills the CPI with `Unsupported program id`, while a missing *account row* never reaches your program at all — the harness itself panics with `[MOLLUSK]: An account required by the instruction was not provided`. Keep the two suites in separate test files: they speak two different SVM stacks, and a file that mixes their types will not compile — separate files is the whole requirement, and the two suites then sit in one crate happily. You need at least one Mollusk test for `settle_prize`, because that printed integer is the "before" number Step 7 asks you to record.
 
 Green here means each edge works alone. That is necessary and not sufficient, which is the whole reason Step 8 exists.
 
@@ -228,7 +245,7 @@ You are not chasing full coverage in a capstone. You are proving the harness run
 
 **Step 6. The security checklist.** Walk the per-instruction checklist this course has been building: every account validated for owner, signer, and PDA; checked arithmetic everywhere; no `unwrap()` in program code; CPI targets pinned to the right `Program<T>`; and the composition-specific one, the account-substitution class that survives every framework. Module 7 showed you which vulnerability classes V2 kills at compile time; account substitution across a CPI is the class that does not die on its own, so confirm each rung account is the one you meant, by type and by seed.
 
-**Step 7. CU profile plus one optimization.** Profile the heaviest edge, `settle_prize`, because three hops burn the most. Read the compute units off the Mollusk test you wrote in Step 4 and record your number — for scale, a single registered registry-to-escrow hop measures in the low thousands of CU, and every deeper hop in your chain stacks on top of that; the number is yours, the thousands-not-tens shape is the sanity check. Then rebuild, make one measured change, and record it again. A concrete change that pays: if your handler reads an account both before and after a CPI, and the second read only needs a lamport or byte value rather than the typed view, drop the redundant typed read. Do not fabricate the gain; measure it. The rule is the same one this course has held since module 1: report the number you saw, not the number you hoped for.
+**Step 7. CU profile plus one optimization.** Profile the heaviest edge, `settle_prize`, because three hops burn the most. Read the compute units off the Mollusk test you wrote in Step 4 and record your number — for scale, the course's own verification rig measures its stub-handler registry-to-escrow-to-vault chain in the mid-thousands of CU, and your real handlers land higher; the number is yours, the thousands-not-tens shape is the sanity check. Then rebuild, make one measured change, and record it again. A concrete change that pays: if your handler reads an account both before and after a CPI, and the second read only needs a lamport or byte value rather than the typed view, drop the redundant typed read. Do not fabricate the gain; measure it. The rule is the same one this course has held since module 1: report the number you saw, not the number you hoped for.
 
 ![An eight-stage pipeline running from anchor build through the unit suite, fuzz, harden, CU profile, Surfpool localnet, devnet deploy, and local verify-from-repo.](assets/v05-flowchart.png)
 
