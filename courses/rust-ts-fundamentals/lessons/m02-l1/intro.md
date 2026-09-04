@@ -11,7 +11,7 @@ const forged: ProbeRecord = { status: 'okay' };
 console.log(forged.status !== 'timeout' ? 'healthy' : 'down');
 ```
 
-It prints `healthy`. Read the forged record again. Its status is the string `'okay'`, not `'ok'`. No probe ever ran. There is no latency. And yet: healthy. No exception, no red text, nothing for the cron to fail on. If this record were sitting in status.json right now, your workflow would commit it green, and the dashboard you'll build in Module 3 would render a target as up that was never actually probed.
+It prints `healthy`, then v0's usage guard complains about the missing URL and exits 1. Ignore the guard's line; it is doing its old job. The line that matters is the first one. Read the forged record again. Its status is the string `'okay'`, not `'ok'`. No probe ever ran. There is no latency. And yet: healthy. No exception, no red text, nothing for the cron to fail on. If this record were sitting in status.json right now, your workflow would commit it green, and the dashboard you'll build in Module 3 would render a target as up that was never actually probed.
 
 Nothing crashed. That is the problem. Sit with that sentence for a second, because it's the whole lesson: in v0, a wrong state is representable, so it flows. Every downstream consumer either re-checks it or trusts it, and the one that trusts it lies to whoever is watching.
 
@@ -175,22 +175,23 @@ Every lesson in this course names the cost, so here it is. Union modeling is cer
 
 ## Lab: delete the category
 
-Here's how the training wheels sit this module: I'll work steps 1 through 7 with you, every file shown and explained. Step 8 you complete with only the compiler's errors as your guide, no prose walkthrough. The challenge after that is fully yours. That fade is deliberate, and it gets steeper next module.
+Here's how the training wheels sit this module: I'll work steps 1 through 8 with you, every file shown and explained. Step 9 you complete with only the compiler's errors as your guide, no prose walkthrough. The challenge after that is fully yours. That fade is deliberate, and it gets steeper next module.
 
 All of this happens in your pulse repo from Module 1, in `probe.ts`, the same probe file you've been growing since m01-l2. One housekeeping note before you start: that file already declares v0's `ProbeResult` record (the `{ url, status, latencyMs }` shape, with a timestamp riding along in the fleet's copy). The union in step 2 takes over the name, so delete the old declaration when you add the new one, two types with one name is a compile error, and this time the error would be right.
 
-A second housekeeping note, about the file you are NOT editing. `fleet.ts`, the cron writer from m01-l3, declares its own separate v0-shaped result type (that's where `url` and `checkedAt` live) and doesn't import anything from `probe.ts`, so nothing you do today touches it: it keeps compiling, the m01-l3 CI typecheck gate stays green, and `status.json` keeps its frozen `{ url, status, latencyMs, checkedAt }` contract for module 3's dashboard. Yes, that means the fleet writer still speaks v0's lying dialect after today. Deliberate: this lesson deletes the category inside `probe.ts`; the fleet side gets rebuilt on schemas across the next two lessons.
+A second housekeeping note, about the file you are NOT editing. `fleet.ts`, the cron writer from m01-l3, declares its own separate v0-shaped result type (that's where `url` and `checkedAt` live) and doesn't import anything from `probe.ts`, so nothing you do today touches it: it keeps compiling, the m01-l3 CI typecheck gate stays green, and `status.json` keeps its frozen `{ url, status, latencyMs, checkedAt }` contract until m03-l2 rewires the writer, right before the dashboard schemas the file. Yes, that means the fleet writer still speaks v0's lying dialect after today. Deliberate: this lesson deletes the category inside `probe.ts`; the fleet side gets rebuilt on schemas across the next two lessons.
 
 1. **Reproduce the lie first.** If you skipped the opener's forged record, do it now: add `const forged: ProbeRecord = { status: 'okay' };` and the `!== 'timeout'` check, then run both of these:
 
 ```bash
 npx tsx probe.ts     # prints: healthy
+                     # then: usage: npx tsx probe.ts <url> [more urls...], exit 1
 npx tsc --noEmit     # exits clean. green.
 ```
 
-   Watch `healthy` print, and confirm the compiler is green too. It has no objection, because the type you gave it genuinely permits this. That green check is your before photo.
+   The usage error and the exit 1 are v0's no-args guard doing its normal job; the forged line prints before the guard fires, and that first `healthy` is the lie we care about. Watch it print, and confirm the compiler is green too. It has no objection, because the type you gave it genuinely permits this. That green check is your before photo.
 
-2. **Model the union.** At the top of the file, delete v0's old `ProbeResult` record and add the fleet's new type layer in its place. (tsc goes red the moment you do, because v0's probe still returns the old shape; steps 5 and 6 walk every one of those errors back to green, which is exactly the workflow this lesson is selling.)
+2. **Model the union.** At the top of the file, delete v0's old `ProbeResult` record and add the fleet's new type layer in its place. Delete the step-1 forged lines too, all three of them (the `ProbeRecord` type, the `forged` const, and its `console.log`); they were the before photo, and left in place they would print a stray `healthy` before every probe run forever. (tsc goes red the moment you make these edits, because v0's probe still returns the old shape; steps 5 through 7 walk every one of those errors back to green, which is exactly the workflow this lesson is selling.)
 
 ```ts
 type ProbeResult =
@@ -284,7 +285,25 @@ async function probe(url: string, budgetMs = 5000): Promise<ProbeResult> {
 
    Try, just as an experiment, to return the forged state from this function: `return { kind: 'ok' }` with no latency. The compiler refuses before you can save the file. That's the before and after of this whole lesson compressed into one red squiggle: the lie you watched print `healthy` in step 1 now cannot leave the function that would have told it.
 
-7. **Verify, then extract the negative proof.** First the positive check: `npx tsc --noEmit` should exit clean. Green. But green-when-correct is only half of what you bought, so now prove the guarantee is real by breaking it on purpose. Comment out the entire `case 'http-error':` arm in `classifyProbe` and run `npx tsc --noEmit` again:
+7. **Rewrite the driver, the last v0 holdout.** Run `npx tsc --noEmit` now and the errors that remain, five of them, all point at the bottom of the file: the m01-l2 driver loop still collects `results`, sorts on `latencyMs`, and prints `result.url`/`result.status`/`result.latencyMs.toFixed(1)`, none of which exist on every arm of the union (and `url` on none of them). That is the compiler telling you the CLI's output format was designed for the old shape, so the driver gets redesigned, not patched. First, if you haven't already, add the theory section's `describe` function to the file, verbatim from the narrowing section; it is about to become the CLI's detail formatter. Then keep the `targets`/usage-guard lines and replace everything below them with:
+
+```ts
+for (const target of targets) {
+  const result = await probe(target);
+  console.log(`${target} ${classifyProbe(result)} (${describe(result)})`);
+}
+```
+
+   The `results` array, the sort, and the old log line all go. The new output is the verdict-first line the fleet actually wants, with the evidence in parentheses:
+
+```bash
+npx tsx probe.ts https://www.rust-lang.org
+# https://www.rust-lang.org up (88.7ms)
+```
+
+   Your latency will differ; the shape won't. Notice what the redesign dropped: sorting by latency made sense when every record had a `latencyMs`, and under the honest union it doesn't, because a timeout has no latency to sort on. The type didn't just find the bug, it retired the feature the bug lived in.
+
+8. **Verify, then extract the negative proof.** First the positive check: `npx tsc --noEmit` should exit clean. Green. But green-when-correct is only half of what you bought, so now prove the guarantee is real by breaking it on purpose. Comment out the entire `case 'http-error':` arm in `classifyProbe` and run `npx tsc --noEmit` again:
 
 ```
 probe.ts: error TS2345: Argument of type '{ kind: "http-error"; status: number; }'
@@ -293,7 +312,7 @@ probe.ts: error TS2345: Argument of type '{ kind: "http-error"; status: number; 
 
    Look at what it did. It didn't say "something's wrong somewhere." It named the missing variant, at the `assertNever` line, in the function that stopped handling it. The compiler is doing the review. Restore the arm, confirm clean, and that's your checkpoint: you should now be able to produce both states on demand, green when exhaustive, a named error when not.
 
-8. **The dns-error drill. Your turn, compiler as guide.** Right now, a DNS failure, probing `https://definitely-not-a-real-host.example`, lands in the `catch` and gets recorded as a timeout, which is a small lie of its own: the host didn't time out, it doesn't exist. Add a fourth variant, `{ kind: 'dns-error'; host: string }`, to `ProbeResult`, then run `npx tsc --noEmit` and fix nothing but what the compiler names, one error at a time, until it's green. No walkthrough for this one, and no need: expect the errors to march you to at least one site, the classifier's `assertNever`, and to a second one, the `describe` function's fall-through, if you typed the theory section's `describe` into your file (it relied on `'timeout'` being the only leftover; if you never added it, one error site is the correct count, not a miss). When tsc is green again, every switch in your fleet has consciously decided what a DNS failure means. That worksheet you just followed was written by the compiler, and it's the exact experience of maintaining typed code in a real team.
+9. **The dns-error drill. Your turn, compiler as guide.** Right now, a DNS failure, probing `https://definitely-not-a-real-host.example`, lands in the `catch` and gets recorded as a timeout, which is a small lie of its own: the host didn't time out, it doesn't exist. Add a fourth variant, `{ kind: 'dns-error'; host: string }`, to `ProbeResult`, then run `npx tsc --noEmit` and fix nothing but what the compiler names, one error at a time, until it's green. No walkthrough for this one, and no need: expect the errors to march you to exactly two sites, the classifier's `assertNever` and the `describe` function's fall-through (it relied on `'timeout'` being the only leftover, and step 7 made `describe` part of the CLI). When tsc is green again, every switch in your fleet has consciously decided what a DNS failure means. That worksheet you just followed was written by the compiler, and it's the exact experience of maintaining typed code in a real team.
 
 ![Adding one variant radiates named compiler errors to every unhandled site until each is fixed and the build turns green.](assets/v09-diagram.webp)
 
@@ -303,8 +322,8 @@ Now the unguided rep. The classify-probe-result challenge lives in the interacti
 
 ## Checkpoint
 
-Before you close the tab, the 30-second retrieval, out loud or in a note, no peeking: what does `assertNever` prove, and when does it fire? You're reaching for something like: if every variant is handled, the default arm's value narrows to `never`, so the call compiles; a new variant makes it not-never and the compile fails right there. If that sentence came out clean, you own the mechanism. If it didn't, re-read step 7, run the negative proof once more, and it will.
+Before you close the tab, the 30-second retrieval, out loud or in a note, no peeking: what does `assertNever` prove, and when does it fire? You're reaching for something like: if every variant is handled, the default arm's value narrows to `never`, so the call compiles; a new variant makes it not-never and the compile fails right there. If that sentence came out clean, you own the mechanism. If it didn't, re-read step 8, run the negative proof once more, and it will.
 
-And tell me how the drill went, honestly: did the compiler's errors actually walk you to every site in step 8, or did you find a gap where the worksheet missed something? That feedback shapes how hard the next modules lean on this move. Where you get stuck, say so in the community thread for this lesson; a stuck-point named early saves five learners behind you.
+And tell me how the drill went, honestly: did the compiler's errors actually walk you to every site in step 9, or did you find a gap where the worksheet missed something? That feedback shapes how hard the next modules lean on this move. Where you get stuck, say so in the community thread for this lesson; a stuck-point named early saves five learners behind you.
 
 Your results are typed now. But the fleet is about to grow a config file, JSON on disk arriving as untrusted, untyped data, and so does every RPC response you'll ever fetch, and you now know exactly why a union can't help there: types are erased, and a costume is not a proof. A union can't prove anything about bytes you haven't parsed. Next lesson: zod at the boundary, where the schema is the runtime check and the type's single source at once, and `parseProbe` grows into something that can guard the whole border. The border guard is about to get a schema.

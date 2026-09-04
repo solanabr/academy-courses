@@ -281,7 +281,7 @@ The fade this module has been running continues: the pool and the burst were ful
    }
    ```
 
-   (`ProbeReport` is `{ url: string; result: ProbeResult; retries: number }`: the union from l1 carrying its target and its cost. `sleep` is the two-liner `new Promise((resolve) => setTimeout(resolve, ms))`.)
+   (`ProbeReport` is `{ url: string; result: ProbeResult; retries: number }`: the union from l1 carrying its target and its cost. `sleep` is the two-liner `new Promise((resolve) => setTimeout(resolve, ms))`. One wiring note before the compiler asks: declare the four-variant `ProbeResult` union and this `ProbeReport` type at the top of `src/fleet.ts` yourself. There is nothing to import yet, deliberately: the l1 union lives in root `probe.ts`, which is a CLI script, not a module, so the fleet gets its own local copy today. m02-l4 moves the canonical copy into `src/classify.ts` and M3 extracts it into a package; this local one is the duplication that motivates both.)
 
 4. **Wire the abort (completion).** Take the `probeOnce` skeleton from the theory section and complete the three timeout moves yourself before comparing: the controller creation, the `signal` on the fetch options, and the `clearTimeout` in `finally`. Then map the exits: `signal.aborted` in the catch becomes the `timeout` variant, everything else in the catch becomes `dns-error`.
 

@@ -439,7 +439,7 @@ Watch the cascade: `check-config.ts` redlines where it prints `t.intervalSecs`, 
 
 ## Challenge
 
-The fleet publishes `status.json` on every cron run; you built that file in module one and you have been trusting your own output ever since. Stop. Write `src/check-status.ts`: a zod schema for `status.json` as your fleet actually writes it, a `StatusReport` type derived with `z.infer`, and a parse of the file through the same `parseOrExit` helper, printing one summary line per target on success. Constraints: the schema must be strict, at least one field needs a rule tighter than its primitive type (a timestamp format, a nonempty array, a latency that cannot be negative), and no new helper; `parseOrExit` was written generic precisely so this third boundary costs you zero new plumbing.
+The fleet publishes `status.json` on every cron run; you built that file in module one and you have been trusting your own output ever since. Stop. Write `src/check-status.ts`: a zod schema for `status.json` as your fleet actually writes it, a `StatusReport` type derived with `z.infer`, and a parse of the file through the same `parseOrExit` helper, printing one summary line per target on success. Constraints: the schema must be strict, at least one field needs a rule tighter than its primitive type (a timestamp format via `z.iso.datetime()`, the one validator here the lesson did not teach, so that option costs you a docs lookup; a nonempty array; a latency that cannot be negative), and no new helper; `parseOrExit` was written generic precisely so this third boundary costs you zero new plumbing.
 
 ```bash
 npx tsx src/check-status.ts status.json

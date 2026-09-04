@@ -10,7 +10,7 @@ fetch("https://www.rust-lang.org", { cache: "no-store" })
   .then(r => console.log(`rust-lang.org: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
 ```
 
-Hit Enter. Within a second or so you get a line like `rust-lang.org: 238.5 ms (status 200)`. That is what mine printed while writing this, from a home connection in the middle of the day. Yours will differ, because it is a real measurement of a real server over your real network. No install, no account, no framework. You just probed live infrastructure and read its latency, and that single reflex, point a probe at something real and read the number, is the whole course in miniature.
+Hit Enter. Within a second or so you get a line like `rust-lang.org: 238.5 ms (status 200)`. That is what mine printed while writing this, from a home connection in the middle of the day. (The 200 is honest but has a small asterisk: `fetch` follows redirects silently, and this site 301s to its canonical address first. A tool that does not follow redirects, bare `curl` for instance, shows that `301` instead of the `200`; same site, same health, one hop earlier.) Yours will differ, because it is a real measurement of a real server over your real network. No install, no account, no framework. You just probed live infrastructure and read its latency, and that single reflex, point a probe at something real and read the number, is the whole course in miniature.
 
 Now the second demo, because this course has two languages and each gets an opening argument. Go to https://www.typescriptlang.org/play/ (the trailing slash matters, that is the final URL), clear the editor, and type these three lines:
 

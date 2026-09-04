@@ -60,7 +60,7 @@ Now the toolchain:
 npm i -D typescript@7.0.2 tsx@4.23.13 @types/node@24
 ```
 
-Versions checked against the npm registry on 2026-09-02; `latest` for typescript resolves to exactly 7.0.2 today. And that digit deserves a warning box of its own, because it's a genuine trap: **there is no stable typescript 7.0.0 on the registry.** GA landed with patch fixes already rolled in, so stable 7.x starts, and currently ends, at 7.0.2. A setup script that says `typescript@7.0.0` fails every single time it runs. Prose can say "TypeScript 7.0"; install lines must say 7.0.2.
+Versions checked against the npm registry on 2026-09-02; `latest` for typescript resolves to exactly 7.0.2 today. One cosmetic note before the trap: npm 11 may print a few `npm warn install-scripts esbuild...` lines during this install. That is npm's install-script gating being chatty about a dependency it chose not to run, not a failure; if the command exits without an `npm error` line, the toolchain landed fine. And that digit deserves a warning box of its own, because it's a genuine trap: **there is no stable typescript 7.0.0 on the registry.** GA landed with patch fixes already rolled in, so stable 7.x starts, and currently ends, at 7.0.2. A setup script that says `typescript@7.0.0` fails every single time it runs. Prose can say "TypeScript 7.0"; install lines must say 7.0.2.
 
 Three packages, three jobs:
 

@@ -2,7 +2,7 @@
 
 ## Summary
 
-m04-l3 completed the Rust engine: the ProbeState machine, typed errors end to end, and the cargo test, clippy, and fmt gate running green next to vitest on the one pipeline. But the engine's config is hardcoded and its latencies are fixtures. Today the config problem dies. You will hand-write a config parser, feel exactly what it costs, and then delete it with one derive line, because serde generates the parser from your types the way zod inferred your types from a schema back in M2. Same file on disk, both languages parsing it, one discipline wearing two flags. Along the way you meet tagged enums, the attribute mini-language, and your first iterator pipeline. Housekeeping on how this module works: M4's completion-loop grain is over, deliberately. M5 returns to the default shell, so the overview is worked with me, the lab's scaffolds thin as you go, the pipeline step is yours, and the challenge is fully unguided.
+m04-l3 completed the Rust engine: the ProbeState machine, typed errors end to end, the cargo test, clippy, and fmt gate green next to vitest on the one pipeline. But the engine's config is hardcoded and its latencies are fixtures. Today the config problem dies. You hand-write a config parser, feel exactly what it costs, then delete it with one derive line, because serde generates the parser from your types the way zod inferred your types from a schema in M2. Same file on disk, both languages parsing it, one discipline wearing two flags. Along the way: tagged enums, the attribute mini-language, your first iterator pipeline. Housekeeping: M4's completion-loop grain is over, deliberately. M5 returns to the default shell: overview worked with me, lab scaffolds thinning as you go, the pipeline step yours, the challenge fully unguided.
 
 ## Feel the pain first
 
@@ -88,7 +88,7 @@ pub fn parse_config(raw: &str) -> Result<Config, ProbeError> {
 }
 ```
 
-`serde_json::from_str` gives you `Result<Config, serde_json::Error>`, and the failure is a value carrying what went wrong and where, down to line and column. No exception, no panic, nothing you have not held before. `map_err(ProbeError::BadConfig)` is the m04-l2 muscle doing its exact job, bridging the foreign error into your engine's taxonomy, and yes, that is the variant name used bare as a function, the trick clippy taught you when it flagged the redundant closure. `ProbeError` grows one variant to receive it:
+`serde_json::from_str` gives you `Result<Config, serde_json::Error>`, and the failure is a value carrying what went wrong and where, down to line and column. No exception, no panic, nothing you have not held before. `map_err(ProbeError::BadConfig)` is the m04-l2 muscle doing its exact job, bridging the foreign error into your engine's taxonomy, and yes, that is the variant name used bare as a function, the trick clippy taught you when it flagged the redundant closure. Which means a loan just came due: m04-l2 parked `#[allow(clippy::redundant_closure)]` on `parse_fixture_line` with a written expiry reading "collapse the closure in M5, delete this allow." It is M5. Open `engine.rs`, change that line to `.map_err(ProbeError::BadFixture)?`, delete the attribute and its comment, and let `cargo clippy` confirm the debt is cleared. `ProbeError` grows one variant to receive the config failure:
 
 ```rust
 #[error("config rejected: {0}")]
@@ -101,7 +101,7 @@ One resist-the-reflex note before we go on. The whole point of m04-l2 was that a
 
 ### Same file, both parsers, one screen
 
-Here is the part I have been waiting to show you since M2. Open the fleet's `pulse.config.json`. Not a copy, not a Rust port. The file:
+Here is the part I have been waiting to show you since M2, with one piece of station history told straight first. In m02-l2 you designed a fleet-level config, `fleetName` plus an array of named targets, and a zod schema to guard it. Then m02-l3's burst drill overwrote both: the fleet's live `packages/pulse-fleet/pulse.config.json` has been the burst shape ever since (`targets` as a flat URL list, `timeoutMs`, `concurrency`, `retry`), and its `configSchema` is burst-shaped and load-bearing for `fleet.ts` and the test suite. The fleet-level shape did not survive on disk. Today it comes back on purpose, at a new address: the station repo root, as the config the Rust arc parses from here on, while the burst config stays exactly where it is. Two files, two jobs, honestly split: the burst config says which URLs to hammer this instant; the root config says which targets the station watches forever. This is the file the lab has you create:
 
 ```json
 {
@@ -123,22 +123,22 @@ Here is the part I have been waiting to show you since M2. Open the fleet's `pul
 }
 ```
 
-In m02-l2 you wrote this, and it still guards the TypeScript fleet's startup today:
+And in m02-l2 you wrote the schema for it. The lab rebuilds that schema in a new module, `src/root-config.ts`, beside the burst schema rather than over it, so the fleet can sign this file too:
 
 ```ts
-export const targetSchema = z.strictObject({
+export const rootTargetSchema = z.strictObject({
   name: z.string().min(1),
   url: z.url(),
   intervalSecs: z.number().int().positive(),
   timeoutMs: z.number().int().positive(),
 });
 
-export const configSchema = z.strictObject({
+export const rootConfigSchema = z.strictObject({
   fleetName: z.string().min(1),
-  targets: z.array(targetSchema).min(1),
+  targets: z.array(rootTargetSchema).min(1),
 });
 
-export type FleetConfig = z.infer<typeof configSchema>;
+export type RootConfig = z.infer<typeof rootConfigSchema>;
 ```
 
 Put that beside the `Target` struct above and read the two slowly. zod: you wrote a schema, a runtime value that walks the input, and `z.infer` derived the static type FROM the schema. serde: you wrote a type, and the derive generated the parser FROM the type. Same file. Same refusal at the door. Same "after this line, the data is the shape I reasoned about." The direction is opposite and the discipline is identical: parse, don't validate, cross the boundary once into a type that cannot represent the garbage, and let the rest of the program trust it.
@@ -225,7 +225,7 @@ Untagged means serde tries each variant in order and takes the first that fits. 
 
 ![A comparison showing tagged enums fail with a named variant error while untagged enums guess by first match and produce vague errors.](assets/v05-comparison.webp)
 
-The honest cost of all this, because there is one. The attribute language, `tag`, `rename_all`, `default`, `flatten`, is a mini-DSL, and the compile-time guarantee covers your TYPES, not your attribute spelling. Misspell a tag value or point `rename_all` the wrong way and the code compiles clean, then fails at runtime on real input. Try it: delete the `rename_all` line from `Config` and run against the fleet's file. The build is green, and then the parse dies with ``missing field `fleet_name` ``, an error naming a field that is sitting RIGHT THERE in the file, one naming convention over. Derive is magic you must be able to read, and reading it means knowing that the attributes are configuration, not code the compiler checks against your data. And a derived parser is a contract with the config's exact shape, which means schema evolution is now a parse failure you design for on purpose, where your hand-rolled parser would have shrugged and limped on. The design rules are short: additive fields get `#[serde(default)]` so deployed files keep parsing, closed sets get tagged enums so a new variant is a loud named error instead of a quiet guess, and renames are breaking changes you schedule, not refactors you sneak. You will feel all of this in the lab the moment the old file meets the new schema. One more honesty note while we are here: serde's default posture on unknown fields is to ignore them for self-describing formats like JSON, which is looser than your zod `strictObject`. There is a `deny_unknown_fields` attribute, but serde's docs are explicit that it does not combine with `flatten`, on the outer struct or the flattened field. Trade-offs all the way down; know which posture each of your boundaries has.
+The honest cost of all this, because there is one. The attribute language, `tag`, `rename_all`, `default`, `flatten`, is a mini-DSL, and the compile-time guarantee covers your TYPES, not your attribute spelling. Misspell a tag value or point `rename_all` the wrong way and the code compiles clean, then fails at runtime. Try it: delete the `rename_all` line from `Config` and run against the fleet's file. Green build, then the parse dies with ``missing field `fleet_name` ``, naming a field sitting RIGHT THERE in the file, one naming convention over. The attributes are configuration, not code the compiler checks against your data, and a derived parser is a contract with the config's exact shape: schema evolution becomes a parse failure you design for on purpose. The design rules are short: additive fields get `#[serde(default)]` so deployed files keep parsing, closed sets get tagged enums so a new variant is a loud named error, and renames are breaking changes you schedule. You will feel all of this the moment the old file meets the new schema. One more honesty note: serde ignores unknown fields by default for self-describing formats like JSON, looser than your zod `strictObject`; `deny_unknown_fields` exists but, per serde's own docs, does not combine with `flatten`. Trade-offs all the way down; know which posture each boundary has.
 
 ### Your first iterator pipeline
 
@@ -272,7 +272,7 @@ Two footguns before the lab. `collect` needs a destination type, because it can 
 
 Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 3 hands you signatures, step 4 is a drill you run alone.
 
-1. **Parse the fleet's file (worked).** In `pulse-rs`, create `src/config.rs` with the first `Config` and `Target` structs from the overview, the v1 shapes with `url` directly on `Target`, plus `parse_config` and the `BadConfig` variant added to `ProbeError` in `src/engine.rs`. Copy nothing into `pulse-rs`: point the code at the fleet's own `pulse.config.json`, which lives at the station repo root one level up, since the m04-l3 gate moved `pulse-rs/` inside the station repo. From `pulse-rs/`, a symlink keeps the cwd-relative read below working: `ln -s ../pulse.config.json pulse.config.json` (or just read `"../pulse.config.json"` directly; the point is one file, not two copies). Temporary main, and note it inlines the same serde call `parse_config` wraps; that is deliberate, step 4's boundary drill is where `parse_config` takes over, so the function you just wrote sits briefly unused rather than misplaced:
+1. **Create the root config, then parse it (worked).** Two moves. First the file itself: at the station repo root, one level above `pulse-rs/` (the m04-l3 gate moved `pulse-rs/` inside the station repo), create `pulse.config.json` with exactly the two-target content printed in the overview, `fleetName: "pulse-prod"`, `docs`, and `api`. This is a new file at a new address, the fleet-level config the theory section resurrected; nothing in `packages/pulse-fleet` moves or changes. Then the Rust side: in `pulse-rs`, create `src/config.rs` with the first `Config` and `Target` structs from the overview, the v1 shapes with `url` directly on `Target`, plus `parse_config` and the `BadConfig` variant added to `ProbeError` in `src/engine.rs`. Copy nothing into `pulse-rs`: from `pulse-rs/`, a symlink keeps the cwd-relative read below working: `ln -s ../pulse.config.json pulse.config.json` (or just read `"../pulse.config.json"` directly; the point is one file, not two copies). Temporary main, and note it inlines the same serde call `parse_config` wraps; that is deliberate, step 4's boundary drill is where `parse_config` takes over, so the function you just wrote sits briefly unused rather than misplaced:
 
    ```rust
    mod config;
@@ -297,7 +297,7 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
    }
    ```
 
-   `cargo run` should print:
+   One expectation set before you run it: this temporary main orphans the entire m04 engine surface, so the build arrives wearing a wall of dead-code warnings, a couple dozen of them, every lesson-long. Expected, and temporary: next lesson's workspace split puts the engine back in a consumed crate. Just do not push until then, because the station's CI runs `cargo clippy, -D warnings` and would count every one of them as an error. `cargo run` should print:
 
    ```text
    fleet "pulse-prod": 2 target(s)
@@ -305,7 +305,20 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
      api -> https://example.org/health every 30s, timeout 2000ms
    ```
 
-   Run the fleet's own checker beside it, `npx tsx src/check-config.ts pulse.config.json` from the TS repo, and let the moment land: two languages, two type systems, one file, both boundaries refusing garbage. Checkpoint: both commands green on the same bytes.
+   Now give the TS side its pen. The burst `configSchema` cannot sign this file (wrong shape, and it is load-bearing for `fleet.ts` and the tests, so it stays untouched); the root config gets its own module. Create `packages/pulse-fleet/src/root-config.ts` with the `rootTargetSchema`, `rootConfigSchema`, and `RootConfig` from the overview (plus `import { z } from "zod";` at the top), and a four-line checker beside it, `src/check-root-config.ts`, the m02-l2 move replayed:
+
+   ```ts
+   import { readFileSync } from "node:fs";
+   import { parseOrExit } from "./config.js";
+   import { rootConfigSchema, type RootConfig } from "./root-config.js";
+
+   const path = process.argv[2] ?? "../../pulse.config.json";
+   const raw: unknown = JSON.parse(readFileSync(path, "utf8"));
+   const config: RootConfig = parseOrExit(rootConfigSchema, raw);
+   console.log(`fleet "${config.fleetName}": ${config.targets.length} target(s)`);
+   ```
+
+   Run it from `packages/pulse-fleet` with `npx tsx src/check-root-config.ts ../../pulse.config.json`, and let the moment land: two languages, two type systems, one file, both boundaries refusing garbage. Checkpoint: both commands green on the same bytes.
 
 2. **Evolve the contract (guided).** Swap in the tagged `ProbeKind` enum and the evolved `Target` from the overview, with `flatten` and the `enabled` default. The compiler objects before serde gets a turn: the temporary `main` still prints `t.url`, and `url` now lives inside the `Http` variant. Change that println to show `t.kind` with `{:?}` instead of the url, and rebuild. Now `cargo run` again, against the UNCHANGED file, and read your first schema-evolution failure:
 
@@ -335,7 +348,7 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
    Error: config rejected: unknown variant `grpc`, expected `http` or `tcp` at line 26 column 5
    ```
 
-   A named refusal listing the legal variants. Compare that with the untagged error in the overview and you have the whole tagged-versus-untagged argument in two lines of terminal output. Fix the kind back. One parser still objects, though: the TS fleet's `strictObject` now refuses the file, `Unrecognized key: "kind"`, and it is RIGHT to, that is the strictness you asked for in M2 doing its job on an evolved contract. Both signatories re-sign or nobody ships. Update `targetSchema` to a discriminated union, the shape you already know from `ProbeResult`:
+   A named refusal listing the legal variants. Compare that with the untagged error in the overview and you have the whole tagged-versus-untagged argument in two lines of terminal output. Fix the kind back. One parser still objects, though: `check-root-config.ts` now refuses the file, `Unrecognized key: "kind"`, and it is RIGHT to, that is the `strictObject` strictness you asked for doing its job on an evolved contract. Both signatories re-sign or nobody ships. In `src/root-config.ts`, update `rootTargetSchema` to a discriminated union, the shape you already know from `ProbeResult`:
 
    ```ts
    const baseFields = {
@@ -345,7 +358,7 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
      enabled: z.boolean().default(true),
    };
 
-   export const targetSchema = z.discriminatedUnion("kind", [
+   export const rootTargetSchema = z.discriminatedUnion("kind", [
      z.strictObject({ kind: z.literal("http"), url: z.url(), ...baseFields }),
      z.strictObject({
        kind: z.literal("tcp"),
@@ -356,11 +369,11 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
    ]);
    ```
 
-   (Re-attach the m02-l2 timeout refinement after the union; it composes.) `z.discriminatedUnion("kind"...)` and `#[serde(tag = "kind")]` are the same machine on opposite sides of the file. Checkpoint: `cargo run` prints three targets' worth of config, and the TS checker accepts the same file again.
+   `z.discriminatedUnion("kind"...)` and `#[serde(tag = "kind")]` are the same machine on opposite sides of the file. Checkpoint: `cargo run` prints three targets' worth of config, and `check-root-config.ts` accepts the same file again.
 
 ![Evolving the shared config breaks the Rust parser, then the zod parser, until both schemas re-sign the new contract and turn green.](assets/v07-flowchart.webp)
 
-3. **The pipeline (yours).** Wire `ProbeTarget` and the filter-map-collect chain from the overview into `main`, then feed the result to the engine you built in m04-l3: for each probe, drive the state machine over fixture latencies with the target's own `timeout_ms` as the budget. The closure signatures are your scaffold, the bodies and the wiring are not: `filter` takes `|t: &&Target| -> bool` (double reference, `iter` lends and `filter` lends again; `t.enabled` just works through both), `map` takes `|t: &Target| -> ProbeTarget`. Write `to_probe_target(&self)` as a `match` on the kind: `Http` yields the url as the endpoint, `Tcp` formats `host:port`. My `main` ends up like this; write yours before comparing:
+3. **The pipeline (yours).** Wire `ProbeTarget` and the filter-map-collect chain from the overview into `main`, then feed the result to the engine you built in m04-l3. One retirement first: `engine.rs` still exports the skeletal `ProbeTarget { name, url }` from m04-l1, and the config module's `ProbeTarget { name, endpoint, budget_ms }` is its grown-up replacement. Two pub types with one name in one crate is drift waiting to happen, so delete the m04 one from `engine.rs` now; nothing calls it since step 1's temporary main, and `cargo check` will vouch. The new type and `Target::to_probe_target` belong in `src/config.rs`, next to the structs they are derived from, which is exactly where next lesson's re-export list expects them. Then the pipeline: for each probe, drive the state machine over fixture latencies with the target's own `timeout_ms` as the budget. The closure signatures are your scaffold, the bodies and the wiring are not: `filter` takes `|t: &&Target| -> bool` (double reference, `iter` lends and `filter` lends again; `t.enabled` just works through both), `map` takes `|t: &Target| -> ProbeTarget`. Write `to_probe_target(&self)` as a `match` on the kind: `Http` yields the url as the endpoint, `Tcp` formats `host:port`. My `main` ends up like this; write yours before comparing:
 
    ```rust
    let probes: Vec<ProbeTarget> = config
@@ -419,7 +432,7 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
 
 ## Challenge
 
-Now go finish what the opener started: `kv-config-parser`, fully unguided, back in the coding-challenge panel. The starter's parser is a liar, it splits on every `=`, swallows unknown keys, and invents defaults where it should refuse. Make it honest: first-`=` splitting via `split_once`, an allowlist of keys, url scheme and timeout validation, missing keys reported in the fixed order name, url, timeout_ms, every failure an `Err` value, no unwrap anywhere on the parse path. Eight tests grade it, including the query-string URL that punishes lazy splitting and the trailing semicolon that punishes lazy iteration. The hints in the starter escalate from `split_once` up to the missing-key check, whose `ok_or_else` endgame you already saw in the overview; spend them in order. This challenge is deliberately the last hand-rolled parser you will write in this course, and that is exactly why it is worth writing well: after it, you know to the line what every future derive is doing for you.
+Now go finish what the opener started: `kv-config-parser`, fully unguided, in the coding-challenge panel. The starter's parser is a liar: it splits on every `=`, swallows unknown keys, invents defaults where it should refuse. Make it honest: first-`=` splitting via `split_once`, an allowlist of keys, url scheme and timeout validation, missing keys reported in the fixed order name, url, timeout_ms, every failure an `Err`, no unwrap on the parse path. Eight tests grade it, including the query-string URL that punishes lazy splitting and the trailing semicolon that punishes lazy iteration. Hints escalate from `split_once` to the missing-key `ok_or_else` endgame; spend them in order. This is deliberately the last hand-rolled parser you write in this course, which is exactly why it is worth writing well: after it, you know to the line what every future derive does for you.
 
 ## Checkpoint
 

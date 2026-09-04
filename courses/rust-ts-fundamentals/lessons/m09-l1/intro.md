@@ -134,7 +134,7 @@ pnpm install --frozen-lockfile
 cargo build --locked
 ```
 
-Those are the honoring spellings, and two of them are already in your station: the M1 Actions workflow ran `npm ci` from the day you wrote it until m03-l1 rewired it to `pnpm install --frozen-lockfile` when the workspace went pnpm, and the M6 Dockerfile installs with `--frozen-lockfile` too. A bare `npm install` on a fresh clone with no lockfile present resolves forward and would have eaten arrayref. Play the worked example through once, with npm numbers this time: your manifest says `^1.4.0`, your lockfile recorded 1.4.2, and a malicious 1.4.3 published this morning. Tonight's CI build under `npm ci` installs 1.4.2 and is fine. The dangerous moment is not the publish. It is the next `pnpm update`, the next lockfile regeneration, the next "let me just refresh deps while I am in here," performed while the malicious version is live. The window opens on your side of the registry.
+Those are the honoring spellings, and two of them are already in your station: the M1 Actions workflow ran `npm ci` from the day you wrote it until m03-l1 rewired it to `pnpm install --frozen-lockfile` when the workspace went pnpm, and the M6 Dockerfile installs with `--frozen-lockfile` too. One asymmetry to note before you audit any CI job against this list: cargo honors a committed `Cargo.lock` by default, so a plain `cargo build` or `cargo test` on a clone already installs the recorded versions, and `--locked` adds strictness (fail loudly instead of quietly updating when manifest and lockfile disagree) rather than switching lockfile-reading on. npm is the opposite; bare `npm install` will happily rewrite the lockfile, which is why `npm ci` exists. So an unflagged `cargo test` in a workflow is not forward-resolution exposure the way a bare `npm install` is; classify it accordingly when you write the CI line in step 5. A bare `npm install` on a fresh clone with no lockfile present resolves forward and would have eaten arrayref. Play the worked example through once, with npm numbers this time: your manifest says `^1.4.0`, your lockfile recorded 1.4.2, and a malicious 1.4.3 published this morning. Tonight's CI build under `npm ci` installs 1.4.2 and is fine. The dangerous moment is not the publish. It is the next `pnpm update`, the next lockfile regeneration, the next "let me just refresh deps while I am in here," performed while the malicious version is live. The window opens on your side of the registry.
 
 ![A layered diagram shows lockfile-honoring installs reproducing the recorded version while update commands bypass the lockfile and resolve forward into risk.](assets/v06-diagram.webp)
 
@@ -146,7 +146,7 @@ One honest scope note, no hand-off attached: everything above is dev-lifecycle s
 
 ## Lab
 
-The audit layer goes over the whole estate: the TS workspace (fleet, core, dashboard), the Rust workspace (engine, CLI, and the pollerd daemon), and the two edge projects riding along outside both, `pulse-edge-ts` (its own npm project since m07-l1, and the only place `@solana/kit` is installed) and `pulse-edge-rs`. Four lockfiles, four passes. About 45 minutes. The worked part is step 3; from step 4 on, the checklist is yours and I am gone.
+The audit layer goes over the whole estate: the TS workspace (fleet, core, dashboard), the Rust workspace (engine, CLI, and the pollerd daemon), and the two edge projects riding along outside both, `pulse-edge-ts` (its own npm project since m07-l1, with its own `@solana/kit` install that the root lockfile knows nothing about) and `pulse-edge-rs`. Four lockfiles, four passes. About 45 minutes. The worked part is step 3; from step 4 on, the checklist is yours and I am gone.
 
 1. **Run the TS audit at the station repo root.** The root is where `pnpm-lock.yaml` lives, and the audit reads the lockfile, so location matters:
 
@@ -156,7 +156,7 @@ The audit layer goes over the whole estate: the TS workspace (fleet, core, dashb
 
    Read the summary line before anything else: how many advisories, at what severities, across how many packages. In an npm-locked repo the same command is `npm audit`; our workspace went pnpm in m03-l1, and the audit follows the lockfile.
 
-   Then do it again in `pulse-edge-ts`. That worker is its own npm project, created outside the workspace in m07-l1, so the root lockfile you just audited says nothing about it, and it happens to be the one place `@solana/kit` is installed. `cd` there and run `npm audit`. Two commands, two lockfiles, and the sentence "I audited the station" is now true.
+   Then do it again in `pulse-edge-ts`. That worker is its own npm project, created outside the workspace in m07-l1, so the root lockfile you just audited says nothing about it, including its own `@solana/kit` install. (Kit lives in the workspace too, since M8: the root install from m08-l1 and pulse-board's from m08-l2; `pnpm why @solana/kit` draws that half of the map in seconds. Same package, two lockfiles' jurisdictions, which is exactly the who-covers-what reading this pass exists to teach.) `cd` there and run `npm audit`. Two commands, two lockfiles, and the sentence "I audited the station" is now true.
 
 2. **Run the Rust audit at the pulse-rs workspace root.** Install first if you skipped the theory's install line:
 
@@ -193,7 +193,7 @@ The audit layer goes over the whole estate: the TS workspace (fleet, core, dashb
      run: pnpm audit || true
    ```
 
-   (`npm audit || true` in an npm-locked repo.) Non-gating is deliberate for now: you have not yet decided, as policy, which findings should block a merge, and a gate you have not reasoned about is a gate you will bypass the first time it annoys you. The runbook lesson revisits the question with your verdicts in hand.
+   (`npm audit || true` in an npm-locked repo.) Non-gating is deliberate for now: you have not yet decided, as policy, which findings should block a merge, and a gate you have not reasoned about is a gate you will bypass the first time it annoys you. The runbook lesson revisits the question with your verdicts in hand. This edit lands after step 6's commit, so give it its own: `git add .github && git commit -m "ci: report-only dependency audit"` and push.
 
 Acceptance bar, plainly: both audit commands ran at the correct roots with output you can show; `AUDIT.md` exists and is committed, with at least two verdicts in the four-part shape and the pin-classification table covering every direct dependency of both manifests; and the one-line CI answer is written down.
 

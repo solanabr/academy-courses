@@ -47,11 +47,12 @@ Open the printed localhost URL. That wall of JSON in your browser is not sample 
 
 The findings up front:
 
-- A dashboard is a pure function of a JSON file; React is just the render loop. Component = function from props to UI, state is the one input that triggers a repaint, and everything you learned about pure functions in M2 applies directly. This lesson teaches React at consumer level only, on purpose: it exists to land the floor that the client-side mastery course assumes, and depth stays there.
-- Your public repo is already a data API. `raw.githubusercontent.com` sends `access-control-allow-origin: *` unconditionally (probed 2026-09-02, bare and Origin-tagged requests returned identical headers), so the browser fetch just works. It also caches for 5 minutes (`cache-control: max-age=300`, Fastly) and serves `.json` as `text/plain`. All three facts shape the code you write today.
-- The fetched bytes crossed a network boundary, so they go through a zod schema like every boundary since m02-l2. A corrupt file produces a visible error state, never a blank page.
-- The board imports `classifyProbe` from `pulse-core` across the workspace boundary. Fleet and dashboard now provably run the same classification code: the m03-l1 extraction demonstrated, not asserted.
-- Autonomy fades on schedule: I drive the scaffold and the polling effect with devtools open, you build `StatusRow` and the classifier colors from a signature-level spec, and the staleness indicator in the challenge is yours alone.
+- A dashboard is a pure function of a JSON file; React is just the render loop. Component = function from props to UI, state the one input that triggers a repaint. This lesson teaches React at consumer level only, on purpose: it lands the floor the client-side mastery course assumes, and depth stays there.
+- Your public repo is already a data API. `raw.githubusercontent.com` sends `access-control-allow-origin: *` unconditionally (probed 2026-09-02), caches for 5 minutes (`cache-control: max-age=300`, Fastly), and serves `.json` as `text/plain`. All three facts shape today's code.
+- The lab's first move cashes m02-l4's IOU: the fleet writer is rewired to emit `ProbeResult` union rows, so `status.json` finally speaks the typed dialect the rest of the station has spoken since M2.
+- The fetched bytes crossed a network boundary, so they go through a zod schema like every boundary since m02-l2: a corrupt file produces a visible error state, never a blank page.
+- The board imports `classifyProbe` from `pulse-core`, so fleet and dashboard provably run the same classification code: the m03-l1 extraction demonstrated, not asserted.
+- Autonomy fades on schedule: I drive the scaffold and the polling effect, you build `StatusRow` from a signature-level spec, and the challenge's staleness indicator is yours alone.
 
 ## The render loop and the data path
 
@@ -75,9 +76,9 @@ So if components are pure functions, what makes the page ever change? One thing:
 
 Which yields the aha this lesson is named for: a dashboard is a pure function of a JSON file. `status.json` is the state of the world; the board is `render(state)`. Everything else, fetching, polling, caching, is plumbing to keep that one input fresh. Hold onto that model and most React tutorials collapse into details about the plumbing.
 
-There is one more primitive we need, because "fetch a file every minute" is not a pure computation, it is a side effect. `useEffect` is React's designated container for exactly that: code that runs after render, touching the world outside the function. It takes a closure and a dependency array; with an empty array `[]` it runs once when the component mounts. Crucially, the closure can return a cleanup function, and React calls that cleanup when the component unmounts or hot-reloads. Skip the cleanup on an interval and every save in dev stacks another poller on top of the last one, a bug you will meet on purpose in the lab. That is the entire hooks API this course teaches: `useState`, `useEffect`, done. Context, reducers, refs, server components, suspense: all real, all deferred by name to the client-side mastery course.
+One more primitive, because "fetch a file every minute" is a side effect, not a pure computation. `useEffect` is React's container for exactly that: code that runs after render, touching the world. It takes a closure and a dependency array; empty array `[]` means run once on mount. Crucially, the closure can return a cleanup function, called on unmount or hot-reload; skip it on an interval and every dev save stacks another poller, a bug the lab makes you meet on purpose. That is the entire hooks API this course teaches: `useState`, `useEffect`, done. Context, reducers, refs, server components, suspense: all real, all deferred by name to the client-side mastery course.
 
-One preemptive footgun, because the ecosystem will offer you help you do not need yet. The moment you type "react fetch data" into a search box, you will be told that hand-rolled effects are amateur hour and a data-fetching library is table stakes. Those libraries are excellent, and they solve problems this lesson does not have: request deduplication across dozens of components, cache invalidation, optimistic writes. Your requirement is one URL, one interval, one schema. `useState` plus `useEffect` plus zod is the whole job, and knowing that it is the whole job is the skill. When you graduate to a real dApp client with mutations and shared server state, the client-side mastery course makes the library case properly.
+One preemptive footgun. Type "react fetch data" into a search box and you will be told hand-rolled effects are amateur hour and a data-fetching library is table stakes. Those libraries are excellent, and they solve problems this lesson does not have: deduplication across dozens of components, cache invalidation, optimistic writes. Your requirement is one URL, one interval, one schema; `useState` plus `useEffect` plus zod is the whole job, and knowing that is the skill. The client-side mastery course makes the library case properly when mutations and shared server state arrive.
 
 ### The data path: your public repo is already an API
 
@@ -87,7 +88,7 @@ Now the plumbing, and this is where module 1's your-repo-is-public decision pays
 
 Three findings matter. First, CORS. Browsers block cross-origin fetches unless the server opts in, and raw.githubusercontent opts all the way in: `access-control-allow-origin: *`, unconditionally. The probe checked the sneaky case, sending a bare request and then an Origin-tagged one, and the headers came back identical, so the permissiveness is not reflected per-origin, it is just open. This is why your fifteen-minute `<pre>` dump worked on the first try instead of dying with a CORS error in the console.
 
-Second, the cache, and this one changes your mental model of "live". The endpoint returns `cache-control: max-age=300` with a strong `etag`, served through Fastly; the probe watched a MISS turn into a HIT one second later. Five minutes of CDN cache, stacked on a cron that only runs every 30 minutes. Do the honest math: a probe fires, the commit lands, and a browser that cached the old file 4 minutes ago keeps showing stale rows for up to 5 more minutes. Two delays, stacked. Your board can trail reality by the cron interval plus the cache window, and no amount of React code changes that, because the stale bytes arrive stale. When your dashboard "isn't updating", the first place to look is the response headers in devtools, not the component.
+Second, the cache, which changes your mental model of "live". The endpoint returns `cache-control: max-age=300` with a strong `etag`, served through Fastly; the probe watched a MISS turn into a HIT one second later. Five minutes of CDN cache, stacked on a 30-minute cron: your board can trail reality by the cron interval plus the cache window, and no React code changes that, because the stale bytes arrive stale. When your dashboard "isn't updating", look at the response headers in devtools first, not the component.
 
 ![A timeline shows a thirty minute cron interval with a five minute cache window overlapping a fresh commit, so a viewer can read old rows after new data exists.](assets/v03-timeline.webp)
 
@@ -97,9 +98,9 @@ One honesty line to complete the picture. GitHub documents no rate limit for thi
 
 So the bytes arrive: open CORS, possibly stale, mislabeled MIME. Do you trust them? You already know the answer, because it is the same answer as m02-l2: they crossed a network boundary, so they get parsed, not asserted. A zod schema mirroring `pulse-core`'s `ProbeResult` union sits at the fetch boundary, and a hand-corrupted file dies there as a visible error state instead of deep in a render as a blank page. Parse, don't validate, now guarding pixels.
 
-Name the trade of this whole architecture while it is fresh, because it is a genuinely great deal with a printed expiry date. Polling a raw file costs nothing: no backend, no keys, no bill, and it inherits your repo's uptime. The price is everything the CDN math just showed you, up to cron-plus-five-minutes behind reality, plus no push, no auth, and public-only data. The moment you need real-time updates, private rows, or a write path, this pattern is over and you need an actual API; the M7 edge worker starts that story. Until one of those three needs appears, though, reaching for a backend here would be pure ceremony.
+Name the trade while it is fresh: a genuinely great deal with a printed expiry date. Polling a raw file costs nothing (no backend, no keys, no bill, your repo's uptime) at the price the CDN math just showed you: up to cron-plus-five-minutes behind reality, no push, no auth, public-only. The moment you need real-time updates, private rows, or a write path, you need an actual API; the M7 edge worker starts that story. Until then, a backend here would be pure ceremony.
 
-There is a React-shaped trade hiding in here too, and it deserves the same honesty. A framework render loop buys you declarative UI: you describe what the board should look like for a given state, and the diffing is somebody else's problem. The price is a build step and a dependency that will outlive your interest in it. For one static table, I would not take that deal; a hundred lines of vanilla DOM code would do. For a board that grows panels through M8 to M10, a Solana status lane, a latency chart, a worker health strip, you take it, because every new panel is just another pure function of the same state. Pick frameworks by where the artifact is going, not by what the current commit needs.
+There is a React-shaped trade hiding here too. A framework render loop buys declarative UI: describe what the board looks like for a given state, and the diffing is somebody else's problem. The price is a build step and a dependency that outlives your interest in it. For one static table, vanilla DOM would do; for a board that grows panels through M8 to M10 (a Solana lane, a latency chart, a worker health strip), you take the deal, because every new panel is another pure function of the same state. Pick frameworks by where the artifact is going, not by what the current commit needs.
 
 ### The second consumer: the import that proves the boundary
 
@@ -113,17 +114,17 @@ Same import line the fleet uses, resolved through the same `workspace:*` symlink
 
 ![The pulse core package sits at the center while the fleet, the new dashboard, and two future ghost consumers all import the same classifier.](assets/v04-diagram.webp)
 
-One small consumer-level TypeScript move earns its keep here. `pulse-core`'s public surface exports `classifyProbe` but not its `Verdict` return type, and the board wants that type for its color map. You could go edit the package, or you could do what you'd do with any third-party dependency you don't control: `type Verdict = ReturnType<typeof classifyProbe>`. `ReturnType` is a built-in utility type (a generic you consume, exactly the m02-l2 skill) that extracts a function's return type. The color map stays typed, the boundary stays untouched.
+One small consumer-level TypeScript move earns its keep here. The board wants a type for its color map keys: the verdict `classifyProbe` returns. Your own `index.ts` happens to re-export `Verdict`, so a direct import works, but do the move you'd need against a third-party package whose surface you don't control: `type Verdict = ReturnType<typeof classifyProbe>`. `ReturnType` is a built-in utility type (a generic you consume, exactly the m02-l2 skill) that extracts a function's return type, and here it also catches something the exported alias doesn't advertise, as the next paragraph shows. The color map stays typed either way.
 
-One honest detail falls out of consuming the package this way. `classifyProbe` is the boundary form m02-l4 froze: it takes the untrusted `(kind, value)` pair and answers `'invalid'` for a kind it does not recognize. So the type you just extracted has four members, not three, and a `Record` over it needs an `invalid` entry or the compiler will name the missing key.
+One honest detail falls out of extracting the type this way. `classifyProbe` is the boundary form m02-l4 froze: it takes the untrusted `(kind, value)` pair and answers `'invalid'` for a kind it does not recognize. So the type you just extracted has four members, not the three the exported `Verdict` union carries, and a `Record` over it needs an `invalid` entry or the compiler will name the missing key.
 
-Two dated beats close the theory, both about the ground your app stands on. Your `pulse-board` runs on Vite 8, and Vite 8.0.0 (shipped 2026-03-12) is Rolldown-powered: the bundler crunching your TypeScript is written in Rust, pinned as a plain dependency (`rolldown ~1.2.4`) in Vite's own manifest. The two-language thesis of this course is not a marketing line, it is sitting in your `node_modules` right now, and that is the entire bundler tour you get. And when this board grows its Solana panel in m08-l2, its `@solana/kit` dependency will be pinned by reading peer ranges, not by memory, because kit shipped two majors in just over nine weeks this year. The m03-l1 rule, already compounding.
+Two dated beats close the theory. Your `pulse-board` runs on Vite 8, and Vite 8.0.0 (shipped 2026-03-12) is Rolldown-powered: the bundler crunching your TypeScript is written in Rust, pinned as `rolldown ~1.2.4` in Vite's own manifest. The two-language thesis is sitting in your `node_modules` right now, and that is the entire bundler tour you get. And when this board grows its Solana panel in m08-l2, its `@solana/kit` will be pinned by reading peer ranges, not by memory: the m03-l1 rule, already compounding.
 
 **Go deeper (the 20%).** this lesson taught the components-props-state-effect slice that a data consumer needs, and stops. Hooks depth, context, routing, forms, everything framework-shaped, is deliberately bookmarked. The canonical on-ramp is React's own [Quick Start](https://react.dev/learn) (URL probed 2026-09-02): interactive, free, maintained by the React team. Read it after the lab if React clicked and you want the full vocabulary; nothing below depends on it, and the serious client-side depth lives in the client-side mastery course anyway.
 
 ## Lab: pulse-board
 
-Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board that polls on an interval and fails loudly on garbage. I drive steps 1 through 3 with devtools open; step 4 hands you a spec instead of a diff; the challenge after the lab is unguided.
+Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board that polls on an interval and fails loudly on garbage. I drive steps 1 through 4 with devtools open; step 5 hands you a spec instead of a diff; the challenge after the lab is unguided.
 
 1. **Wire the scaffold into the workspace.** The opener's `pnpm create vite` already created `packages/pulse-board`, and because `pnpm-workspace.yaml` globs `packages/*`, it is already a workspace member. Clean out the demo (`src/App.css`, `src/assets`, the logo imports) and add the two dependencies the board actually needs, from `packages/pulse-board`:
 
@@ -134,7 +135,37 @@ Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board 
 
    (Freshness: `pnpm add zod` resolved to 4.5.4 on 2026-09-02; the `--workspace` flag forces the `workspace:*` protocol so `pulse-core` links from your repo, never the registry.) Checkpoint: `packages/pulse-board/package.json` now lists `"pulse-core": "workspace:*"`, and `npm run dev` still serves.
 
-2. **Schema the boundary.** Create `src/status.ts`, the board's border checkpoint. The schema mirrors the fleet's report: `generatedAt`, plus one entry per target carrying the `ProbeResult` union your fleet has emitted since M2 killed the v0 flat rows:
+2. **Cash the m02-l4 IOU: rewire the fleet writer to the union.** m02-l4's footnote froze `status.json`'s flat v0 rows and promised the writer would be rewired in M3 once there was a dashboard to keep green. The dashboard is twenty minutes away, so the rewire happens now, first, or the schema you write in the next step will refuse your own file. Open `packages/pulse-fleet/fleet.ts`, the cron writer. Its `TARGETS` list, report envelope, and `../../status.json` write path all stay; what changes is the row type, from the lying `{ url, status, latencyMs: number | string, checkedAt }` to a wrapper carrying the real union:
+
+   ```ts
+   import { writeFile } from "node:fs/promises";
+   import type { ProbeResult } from "pulse-core";
+
+   type TargetStatus = {
+     url: string;
+     checkedAt: string;
+     result: ProbeResult;
+   };
+
+   async function probeOne(url: string): Promise<TargetStatus> {
+     const checkedAt = new Date().toISOString();
+     const start = performance.now();
+     try {
+       const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+       const latencyMs = Math.round((performance.now() - start) * 10) / 10;
+       if (!res.ok) {
+         return { url, checkedAt, result: { kind: "http-error", status: res.status } };
+       }
+       return { url, checkedAt, result: { kind: "ok", latencyMs } };
+     } catch {
+       return { url, checkedAt, result: { kind: "timeout", budgetMs: 10_000 } };
+     }
+   }
+   ```
+
+   Delete the local v0 `ProbeResult` declaration while you are in there; the type now arrives from `pulse-core`, type-only, costing the runtime nothing. Rename the writer's result array element type to `TargetStatus` and the rest compiles untouched. Run it once from `packages/pulse-fleet`, `npx tsx fleet.ts`, and open the fresh `status.json` at the repo root: every row now reads `{ "url", "checkedAt", "result": { "kind": ... } }`. The v0 dialect m02-l1 made unrepresentable in `probe.ts` has finally been evicted from the one file still allowed to lie in it. Commit and push before building the board, so the cron's next run publishes union rows for your live URL too.
+
+3. **Schema the boundary.** Create `src/status.ts`, the board's border checkpoint. The schema mirrors the report the writer you just rewired emits: `generatedAt`, plus one entry per target wrapping the `ProbeResult` union:
 
    ```ts
    import { z } from "zod";
@@ -163,7 +194,7 @@ Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board 
 
    Note what `z.infer` buys at this boundary: the parsed `result` is structurally identical to `pulse-core`'s `ProbeResult`, so narrowing on it in the next step is real narrowing against the real union, no casts anywhere. If your fleet's field names differ from mine, the schema is the one place you reconcile them; that is what a border checkpoint is for.
 
-3. **The polling effect, with devtools open.** Replace `src/App.tsx`. Before you paste, open the browser devtools Network tab and keep it visible; the point of this step is watching the theory happen.
+4. **The polling effect, with devtools open.** Replace `src/App.tsx`. Before you paste, open the browser devtools Network tab and keep it visible; the point of this step is watching the theory happen.
 
    ```tsx
    import { useEffect, useState } from "react";
@@ -218,13 +249,13 @@ Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board 
    }
    ```
 
-   Familiar bones, deliberately: `BoardState` is a discriminated union (m02-l1's move, now shaping UI), and the render at the bottom is just narrowing. `StatusBoard` doesn't exist yet, so the dev server shows an import error; that is fine for one step. Two reads before moving on. In the Network tab, click the `status.json` request and read the response headers yourself: `cache-control: max-age=300`, the `etag`, the varnish `via` line. The theory section quoted my probe; this is yours. Second read: why 60 seconds? The data can only change every 30 minutes and the CDN reuses one copy for 5, so polling faster buys nothing but cached re-reads; 60s just keeps the tab honest within about a minute of the cache going fresh. The interval and the cron are different clocks, and confusing them is the footgun.
+   Familiar bones, deliberately: `BoardState` is a discriminated union (m02-l1's move, now shaping UI), and the render at the bottom is just narrowing. `StatusBoard` doesn't exist yet, so the dev server shows an import error; fine for one step. Two reads before moving on. In the Network tab, click the `status.json` request and read the response headers yourself: `cache-control: max-age=300`, the `etag`, the varnish `via` line. (No browser handy? `curl -s -D - -o /dev/null https://raw.githubusercontent.com/YOUR_USER/pulse-station/main/status.json` dumps the identical headers, `access-control-allow-origin: *` included.) Second read: why 60 seconds? The data changes every 30 minutes and the CDN reuses one copy for 5, so polling faster buys only cached re-reads; 60s keeps the tab honest within a minute of the cache going fresh. The interval and the cron are different clocks, and confusing them is the footgun.
 
-   Now the bug you must meet once. Comment out the two cleanup lines (`cancelled = true; clearInterval(id);`), save, and edit any file three or four times to trigger hot reloads. Watch the Network tab fill: every reload stacked another poller, and none of the old ones died. I have been guilty of shipping exactly this, big time, and the tab-eats-a-CPU-core bug report that follows is no fun. Restore the cleanup, watch the requests drop back to one per minute, and never write an interval effect without its return again.
+   Now the bug you must meet once. Comment out the two cleanup lines (`cancelled = true; clearInterval(id);`), save, and edit any file a few times to trigger hot reloads. Watch the Network tab fill: every reload stacked another poller, none of the old ones died. I have shipped exactly this, and the tab-eats-a-CPU-core bug report that follows is no fun. Restore the cleanup, watch requests drop back to one per minute, and never write an interval effect without its return again. (This drill needs a real browser, because hot reload is the trigger; working headless, read the flowchart below as the drill's transcript and drop a `console.count("poll tick")` inside `poll` so the stacking shows as a counter racing ahead next time you do have devtools.)
 
 ![With cleanup each hot reload replaces the polling interval, while without cleanup every reload adds another live poller until requests pile up.](assets/v05-flowchart.webp)
 
-4. **StatusRow and the classifier colors, from a spec.** Your turn, signature-level only. Build `src/StatusRow.tsx` exporting `StatusRow({ target }: { target: TargetStatus })`, a table row that: derives its verdict from the imported `classifyProbe`, which takes the frozen `(kind, value)` pair, so you narrow on `target.result.kind` and hand it that variant's reading; colors the verdict cell from a `Record<Verdict, string>` map (get `Verdict` via `ReturnType<typeof classifyProbe>`, and remember it carries `'invalid'`); renders a human detail string per variant by narrowing on that same `target.result.kind` (latency for `ok`, budget for `timeout`, code for `http-error`, host for `dns-error`); and shows `checkedAt` as a local time. One variant needs a decision from you: a `dns-error` carries a hostname, not a numeric reading, so it has nothing to hand the classifier. Mine, for after you've tried:
+5. **StatusRow and the classifier colors, from a spec.** Your turn, signature-level only. Build `src/StatusRow.tsx` exporting `StatusRow({ target }: { target: TargetStatus })`, a table row that: derives its verdict from the imported `classifyProbe`, which takes the frozen `(kind, value)` pair, so you narrow on `target.result.kind` and hand it that variant's reading; colors the verdict cell from a `Record<Verdict, string>` map (get `Verdict` via `ReturnType<typeof classifyProbe>`, and remember it carries `'invalid'`); renders a human detail string per variant by narrowing on that same `target.result.kind` (latency for `ok`, budget for `timeout`, code for `http-error`, host for `dns-error`); and shows `checkedAt` as a local time. One variant needs a decision from you: a `dns-error` carries a hostname, not a numeric reading, so it has nothing to hand the classifier. Mine, for after you've tried:
 
    ```tsx
    import { classifyProbe } from "pulse-core";
@@ -300,9 +331,9 @@ Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board 
 
    Checkpoint, and it is the lesson's whole point: the dev server now shows rows of your real targets, latencies your cron measured, colored by the exact function that gates the fleet's publishes. A green `solana.com` on your screen and a green `solana.com` in the cron's logs can never disagree, because they are one function.
 
-5. **The corrupt-file drill.** Prove the boundary before trusting it. Copy a real response into `public/corrupt.json`, then break it by hand: change one row's `"kind": "ok"` to `"kind": "okay"` (the m02-l1 forgery, back for revenge). Point `RAW_URL` at `/corrupt.json` temporarily and reload. Expected: no blank page, no console-only whining, but your error state, on screen, naming the path and the discriminator that failed. That message is zod refusing at the border, exactly as designed. Point `RAW_URL` back at your raw URL and confirm rows return.
+6. **The corrupt-file drill.** Prove the boundary before trusting it. Copy a real response into `public/corrupt.json`, then break it by hand: change one row's `"kind": "ok"` to `"kind": "okay"` (the m02-l1 forgery, back for revenge). Point `RAW_URL` at `/corrupt.json` temporarily and reload. Expected: no blank page, no console-only whining, but your error state, on screen, naming the path and the discriminator that failed. That message is zod refusing at the border, exactly as designed. Point `RAW_URL` back at your raw URL and confirm rows return.
 
-6. **Build clean.** From `packages/pulse-board`:
+7. **Build clean.** From `packages/pulse-board`:
 
    ```bash
    npm run build
@@ -312,7 +343,7 @@ Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board 
 
 ## Challenge
 
-Unguided, and it closes the loop on the staleness math. Add a "last updated" indicator to the board that: (a) shows `generatedAt` as local time; (b) computes the age of the newest data from the fetched values, not from when you fetched them; and (c) visually flips to a stale state (color, badge, your call) when that age exceeds two cron intervals, 60 minutes, because one missed run is a hiccup and two is an incident. While you are in there, add a cache-busting query string to the fetch (`` `${RAW_URL}?t=${Date.now()}` `` makes each poll a distinct cache key, trading CDN kindness for freshness). The silver bullet for stale-looking boards? There isn't one; there are two honest strategies, and now your board does both.
+Unguided, closing the loop on the staleness math. Add a "last updated" indicator that: (a) shows `generatedAt` as local time; (b) computes the age of the newest data from the fetched values, not from when you fetched them; (c) visually flips stale (color, badge, your call) past two cron intervals, 60 minutes, because one missed run is a hiccup and two is an incident. While you are in there, add a cache-busting query string to the fetch (`` `${RAW_URL}?t=${Date.now()}` `` makes each poll a distinct cache key, trading CDN kindness for freshness). The silver bullet for stale-looking boards? There isn't one; there are two honest strategies, and now your board does both.
 
 ![A two column card compares cache busting against an honest staleness indicator on freshness, cost, and failure modes, ending with both adopted.](assets/v06-comparison.webp)
 
@@ -320,8 +351,8 @@ Acceptance, all four: the board renders real fleet rows colored by the imported 
 
 ## Checkpoint, and the first stranger-visible URL
 
-Take stock of what got proven today, because it is more than a table. The extraction survived contact with a second real consumer: one import line, and the fleet and the board can never drift on what "degraded" means. The public-repo bet from module 1 paid its dividend: a browser app with zero backend, reading real data across origins because the endpoint's actual probed headers permit it. And the boundary discipline held its ground in a new territory: garbage bytes die at the schema with a message, not in the render with a blank page. The retrieval question you should be able to answer cold, thirty seconds, no notes: name the two delays stacked between a probe running and a pixel changing. If you said the cron's schedule and the CDN's 5-minute cache, the mental model is installed.
+Take stock of what got proven. The extraction survived a second real consumer: one import line, and fleet and board can never drift on what "degraded" means. The public-repo bet paid its dividend: a browser app with zero backend, reading real data across origins because the probed headers permit it. And boundary discipline held in new territory: garbage bytes die at the schema with a message, not in the render with a blank page. The retrieval question, cold, no notes: name the two delays stacked between a probe running and a pixel changing. If you said the cron's schedule and the CDN's 5-minute cache, the mental model is installed.
 
 If the board renders but the rows look wrong, trust the debugging order the lesson taught: response headers first (is it the cache?), schema error state second (is it the shape?), component last. The component is almost never the liar; it is a pure function of whatever it was handed.
 
-The board runs beautifully, on localhost, where exactly one person on Earth can see it. That `dist/` folder from step 6 is sitting there, fully static, needing nothing but a host. Next lesson: `vercel login`, `vercel`, and a URL you can text to a stranger. The first URL of the course, at lesson ten. Bring a phone.
+The board runs beautifully, on localhost, where exactly one person on Earth can see it. That `dist/` folder from step 7 is sitting there, fully static, needing nothing but a host. Next lesson: `vercel login`, `vercel`, and a URL you can text to a stranger. The first URL of the course, at lesson ten. Bring a phone.

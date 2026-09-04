@@ -164,21 +164,24 @@ The plan, so you can see the whole board before the first command: a new binary 
 
 ![Two binary crates depend on one pure engine library, with the new poller daemon highlighted and a future consumer hinted.](assets/v06-diagram.webp)
 
-2. **Promote your config pipeline.** Both binaries now need config-to-targets. Cut the filter-map pipeline you wrote in m05-l1 out of `pulse-cli`'s main and paste it into the engine as a method, so the two binaries share one definition:
+2. **Promote your config pipeline.** The daemon needs config-to-targets, and the filter-map pipeline you wrote in m05-l1 currently has no home: m05-l3's clap rewrite replaced `pulse-cli`'s main wholesale, and the pipeline went with it. Rebuild it where it should have lived all along, in the engine, as a method on `Config`, so every present and future binary shares one definition. It goes in `crates/pulse-engine/src/config.rs`, next to the structs it transforms (not `lib.rs`, which is the five-line re-export shim and holds no logic):
 
    ```rust
-   // crates/pulse-engine/src/lib.rs
+   // crates/pulse-engine/src/config.rs
    impl Config {
        pub fn into_targets(self) -> Vec<ProbeTarget> {
-           // your m05-l1 filter-map-collect pipeline, moved here unchanged
-           todo!("paste the pipeline from pulse-cli's main")
+           self.targets
+               .iter()
+               .filter(|t| t.enabled)
+               .map(|t| t.to_probe_target())
+               .collect()
        }
    }
    ```
 
-   Point `pulse-cli` at the method, run `cargo test --workspace`, green. One cut, one paste, one call-site edit. This is what a workspace refactor should feel like.
+   That is the m05-l1 chain, verbatim, one method deep. Run `cargo test --workspace`, green. This is what a workspace refactor should feel like.
 
-3. **One derive line.** The `/status` response serializes `ProbeState` to JSON, and serde is already an engine dependency, so add `Serialize` to the state enum's derive list in the engine, which should now read `#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]`. One line, no new deps, and one audit while you are there: the `Clone` and `Copy` your m04-l3 enum has carried since birth are load-bearing today, because step 4's skeleton copies states out of the shared map (`map.get(&name).map(|s| s.state)`) and derives `Clone` on a struct holding one. If your derive list ever drifted from that canon, restore those two now, or step 4 greets you with E0507s the "one line" framing did not promise.
+3. **One derive line.** The `/status` response serializes `ProbeState` to JSON, and serde is already an engine dependency, so add the derive to the state enum in the engine, which should now read `#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]`. The `serde::` path is doing quiet work: `engine.rs` has no `use serde::Serialize;` line (the config module imports it, this module never needed to), so the bare `Serialize` token would be a cannot-find-derive-macro error; the fully qualified form needs no import. One line, no new deps, and one audit while you are there: the `Clone` and `Copy` your m04-l3 enum has carried since birth are load-bearing today, because step 4's skeleton copies states out of the shared map (`map.get(&name).map(|s| s.state)`) and derives `Clone` on a struct holding one. If your derive list ever drifted from that canon, restore those two now, or step 4 greets you with E0507s the "one line" framing did not promise.
 
 4. **The poll loop: your one authored hard thing.** Named in the summary, delivered here as a completion skeleton. Two holes. Everything else in this file is given, because the hard idea is the loop's shape, not its plumbing. Replace `pulse-pollerd/src/main.rs` with:
 
@@ -239,7 +242,10 @@ The plan, so you can see the whole board before the first command: a new binary 
                    .expect("system clock is set before 1970")
                    .as_secs();
                let mut map = statuses.lock().expect("status lock poisoned");
-               let prev = map.get(&name).map(|s| s.state).unwrap_or(ProbeState::Pending);
+               let prev = map
+                   .get(&name)
+                   .map(|s| s.state)
+                   .unwrap_or(ProbeState::Pending);
                // TODO(2): insert the fresh TargetStatus for `name` into `map`,
                // running `prev`, `ok`, and `count` through the engine's next_state.
            }
@@ -320,13 +326,12 @@ The plan, so you can see the whole board before the first command: a new binary 
 
    ```json
    {
-     "api": { "state": "Up", "latency_ms": 143, "last_poll": 1788350402 },
-     "rpc": { "state": "Up", "latency_ms": 611, "last_poll": 1788350402 },
-     "docs": { "state": "Down", "latency_ms": 5004, "last_poll": 1788350402 }
+     "docs": { "state": "Up", "latency_ms": 143, "last_poll": 1788350402 },
+     "api": { "state": "Down", "latency_ms": 611, "last_poll": 1788350402 }
    }
    ```
 
-   Every target from your config is present, each with a state your m04-l3 machine assigned from a real network result, a measured latency, and a `last_poll` timestamp in unix seconds. The exact state a failing target lands in depends on where your transition table routes a failure from its previous state, which is your machine's business, not the poller's; the poller only reports the verdict. The second response shows the same targets with `last_poll` advanced by roughly 30 seconds, and that word roughly is honest, because timers tick when the scheduler gets to them, so expect a second or so of skew rather than metronome precision. That advancing timestamp is your proof of life: the loop polled while nobody was watching, which is the entire job description. This pair of outputs, taken one interval apart and showing the timestamp advance with per-target states populated for every target in the config, is the lesson's gate. Keep both.
+   Every ENABLED target from your config is present, each with a state your m04-l3 machine assigned from a real network result, a measured latency, and a `last_poll` timestamp in unix seconds. Count the keys against the config before you move on: the station's config carries three targets, and the disabled tcp `rpc` entry is legitimately absent, because `into_targets` filters on `enabled` before the loop ever sees it. Two of three in the JSON is the pipeline working, not a bug. The exact state a failing target lands in depends on where your transition table routes a failure from its previous state, which is your machine's business, not the poller's; the poller only reports the verdict. The second response shows the same targets with `last_poll` advanced by roughly 30 seconds, and that word roughly is honest, because timers tick when the scheduler gets to them, so expect a second or so of skew rather than metronome precision. That advancing timestamp is your proof of life: the loop polled while nobody was watching, which is the entire job description. This pair of outputs, taken one interval apart and showing the timestamp advance with per-target states populated for every target in the config, is the lesson's gate. Keep both.
 
    One more expectation set on purpose: kill the daemon and restart it, and every target is back to square one, `Pending` until the first tick lands. State lives in a HashMap in process memory. Persistence is nobody's promise yet, and nothing in the station has claimed otherwise; when the poller deserves a memory that survives restarts, that will be its own decision with its own trade-offs.
 
