@@ -2,7 +2,7 @@
 
 ## Summary
 
-Last lesson shipped the first URL: pulse-board live on Vercel, deployed from the workspace with Root Directory doing the aiming, poked from a stranger's phone. The station has a public face. What it does not have yet is a public engine: `pulse-core`, the classifier every part of the station agrees on, still lives only inside your workspace, importable by your packages and nobody else's. Today is the module's victory lap. You build `pulse-core` with a real build tool, read the tarball you are about to hand the world, publish it to npm as a scoped public package, and prove it installs for a stranger. Then the lesson turns around and teaches the skill hiding inside the tool choice: how to read whether a dependency is alive before you ever adopt it, using the build tool we just picked as the worked example, because the tool it replaced is teaching that lesson about itself in its own README.
+Last lesson shipped the first URL: pulse-board live on Vercel, poked from a stranger's phone. The station has a public face, but not yet a public engine: `pulse-core`, the classifier every part of the station agrees on, still lives only inside your workspace, importable by your packages and nobody else's. Today is the module's victory lap. You build `pulse-core` with a real build tool, read the tarball you are about to hand the world, publish it to npm as a scoped public package, and prove it installs for a stranger. Then the lesson teaches the skill hiding inside the tool choice: reading whether a dependency is alive before you adopt it, using the build tool we just picked as the worked example, because the tool it replaced is teaching that lesson about itself in its own README.
 
 Most developers publish their first package without ever looking inside it. You will not be one of them. Do this right now, from the workspace root:
 
@@ -15,7 +15,7 @@ npm pack --dry-run
 
 That pin is current as of 2026-09-02; tsdown has a 0.23 release candidate already tagged, so expect a higher digit by the time you type this, and take whatever `pnpm add -D tsdown` gives you if the pin has aged. The `typescript` line is there because pnpm's strict layout means a package must declare what its build uses, even when the workspace root already has it.
 
-The last command printed a file listing. Read it slowly, every line, like a stranger would, because in about twenty minutes a stranger CAN. Mine showed `dist/index.mjs`, `dist/index.d.mts`, `package.json`, and then every file of `src/` riding along uninvited (four in a repo that followed the labs: `index.ts`, the probe module, the classifier, the backoff helpers). Yours will look similar. That listing is the exact contents of what `npm publish` would upload today, and today it is a mess. The whole first half of this lesson is turning that listing into a contract.
+The last command printed a file listing. Read it slowly, every line, like a stranger would, because in about twenty minutes a stranger CAN. Mine showed `dist/index.mjs`, `package.json`, and then every file of `src/` riding along uninvited (three in a repo that followed the labs: `index.ts`, the classifier, the backoff helpers). Yours will look similar. Notice what is NOT there too: no type declarations at all, which for a package whose whole value is its union types would be a silent catastrophe; the build section below explains why the zero-config run couldn't emit them and fixes it. That listing is the exact contents of what `npm publish` would upload today, and today it is a mess. The whole first half of this lesson is turning that listing into a contract.
 
 The autonomy fade, stated out loud: the build configuration and the exports wiring we do together, walked line by line. The publish and the scratch-project proof you run yourself from a checklist. The closing drill, reading the vital signs of three real packages, is fully unguided, and it is the last rung of the TypeScript tier's ladder. Next module restarts the ladder from the bottom for a new language.
 
@@ -25,13 +25,27 @@ The autonomy fade, stated out loud: the build configuration and the exports wiri
 
 Until now `pulse-core` shipped raw TypeScript source and got away with it, because every consumer lived in the same workspace and spoke TypeScript through the same tooling. m03-l1 said the publish lesson would change that, and this is the publish lesson. A stranger's project cannot be assumed to compile your `.ts` files; some runtimes experiment with running TypeScript directly, but a published library that requires it has shrunk its audience for no reason. So a package headed for the registry ships two artifacts: compiled JavaScript for every runtime, and `.d.ts` type declarations so TypeScript consumers keep every guarantee the union types earned in M2. One source, two outputs, and a tool whose whole job is emitting both correctly.
 
-That tool, for us, is tsdown. It is the successor to tsup, the long-reigning default for exactly this job, and the reason we reach past the incumbent is the second half of this lesson, so hold the question for a few sections. Mechanically: tsdown bundles your entry point with Rolldown, the Rust bundler that also powers Vite 8, and emits declarations beside the JavaScript. You already ran it once with zero config. Two observations from that run are worth pinning before we configure it.
+That tool, for us, is tsdown. It is the successor to tsup, the long-reigning default for exactly this job, and the reason we reach past the incumbent is the second half of this lesson, so hold the question for a few sections. Mechanically: tsdown bundles your entry point with Rolldown, the Rust bundler that also powers Vite 8, and can emit declarations beside the JavaScript. You already ran it once with zero config. Two observations from that run are worth pinning before we configure it.
 
-First, it wrote `index.mjs` and `index.d.mts`, not `index.js` and `index.d.ts`. tsdown defaults to extensions that scream "ESM" no matter what the surrounding `package.json` says, which is defensive engineering for packages that dual-ship formats. Our package declared `"type": "module"` back in m03-l1, plain `.js` is already ESM here, and matching the extension the rest of our workspace expects keeps the exports map boring. So we turn that default off.
+First, it wrote `index.mjs`, not `index.js`. tsdown defaults to extensions that scream "ESM" no matter what the surrounding `package.json` says, which is defensive engineering for packages that dual-ship formats. Our package declared `"type": "module"` back in m03-l1, plain `.js` is already ESM here, and matching the extension the rest of our workspace expects keeps the exports map boring. So we turn that default off.
 
-Second, if your terminal showed a warning about TypeScript 7.0's API being experimental: as of this writing (2026-09-02, tsdown 0.22.14 against typescript 7.0.2, the current stable) that warning is cosmetic, declarations emit fine. Version-note it and move on.
+Second, the missing declarations. Declaration emit is TypeScript's job, tsdown just orchestrates it, and the TypeScript machinery refuses to run without a `tsconfig.json` in the package. `pulse-core` has never had one: the m03-l1 extraction moved the repo's only tsconfig into `pulse-fleet` along with everything else, and nothing since has needed one here, because vitest and the workspace consumers all resolved raw source. The build step is where that free ride ends. Ask for declarations without a tsconfig and the build dies with `ERROR Error: tsgo generator requires a tsconfig file to be specified.` So the package gets its own contract-with-the-compiler first, `packages/pulse-core/tsconfig.json`, minimal and strict, matching the settings the fleet has used all course:
 
-Here is the configuration, `packages/pulse-core/tsdown.config.ts`:
+```json
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
+```
+
+Now the tsdown configuration, `packages/pulse-core/tsdown.config.ts`:
 
 ```ts
 import { defineConfig } from "tsdown";
@@ -44,7 +58,7 @@ export default defineConfig({
 });
 ```
 
-Four lines, each earning its place: the entry is the same curated `src/index.ts` that has been the public surface since the extraction, `format` is ESM because this course ships one module system, `dts` asks for declarations, and `fixedExtension: false` is the opt-out that gets us `.js` and `.d.ts`. Add the script to `packages/pulse-core/package.json`:
+Four lines, each earning its place: the entry is the same curated `src/index.ts` that has been the public surface since the extraction, `format` is ESM because this course ships one module system, `dts` asks for declarations (which is why the tsconfig above had to exist), and `fixedExtension: false` is the opt-out that gets us `.js` and `.d.ts`. One cosmetic note for this run and every one after it: expect a `WARN TypeScript 7.0 does not yet have a stable API and is experimental` line. As of this writing (2026-09-02, tsdown 0.22.14 against typescript 7.0.2, the current stable) it is exactly what it says, a warning; declarations emit fine. Version-note it and move on. Add the script to `packages/pulse-core/package.json`:
 
 ```json
 {
@@ -54,7 +68,7 @@ Four lines, each earning its place: the entry is the same curated `src/index.ts`
 }
 ```
 
-Run `pnpm build` from the package directory and `dist/` now holds `index.js` and `index.d.ts`. Total output for our little engine: about one kilobyte. Small is correct; this package is three modules of pure logic, and the tarball size is about to become something you read, not something you guess at.
+Run `pnpm build` from the package directory and `dist/` now holds `index.js` and `index.d.ts`. Total output for our little engine: two or three kilobytes. Small is correct; this package is three modules of pure logic, and the tarball size is about to become something you read, not something you guess at.
 
 ![Source flows through tsdown into dist, gets packed into a tarball, and ships to the registry, with a dry run inspection before upload.](assets/v01-flowchart.webp)
 
@@ -147,8 +161,8 @@ And one thing should be said in tsup's defense, because the lesson is about read
 So systematize it. Before adopting a dependency, five signals, in ranked order:
 
 1. **README notices.** The maintainer's own words outrank every metric on this list. Deprecation warnings, "looking for maintainers", successor pointers. Thirty seconds on the repo page.
-2. **Last-publish date, read against the project's natural cadence.** `npm view <pkg> time.modified` gives the date; the judgment is contextual. A utility that has been feature-complete for years can go quiet and be fine. A bundler tracking a moving ecosystem that goes silent for a year is a different story. The date is data, the cadence is the lens.
-3. **Download trend versus absolute count.** `curl -s https://api.npmjs.org/downloads/point/last-week/<pkg>` for the snapshot, the npm page graph for the shape. Big-and-declining tells a different story than small-and-growing; tsdown's 5.7 million as a young successor is a stronger vitality signal than tsup's larger, older number.
+2. **Last-publish date, read against the project's natural cadence.** `npm view <pkg> time.modified` gives the date; the judgment is contextual. A feature-complete utility can go quiet and be fine; a bundler tracking a moving ecosystem that goes silent for a year is a different story. The date is data, the cadence is the lens.
+3. **Download trend versus absolute count.** `curl -s https://api.npmjs.org/downloads/point/last-week/<pkg>` for the snapshot, the npm page graph for the shape. tsdown's 5.7 million as a young successor is a stronger vitality signal than tsup's larger, older, declining number.
 4. **Successor pointers.** When the README, the issues, or the ecosystem's chatter all point somewhere specific, the succession has already happened socially even if the numbers have not caught up.
 5. **Revealed preferences of repos you trust.** What do the codebases you already read depend on? When the repos you respect start migrating, that is the ecosystem voting with its lockfiles, ahead of the download graph.
 
@@ -170,10 +184,10 @@ This five-signal read returns late in the course, systematized into a written au
 
 The TypeScript tier ends at this lesson, so the course owes you the map it promised in m01-l1: what we deliberately did not teach, and the named home of each piece. This is owed territory, not apology. The 80% you now hold is real: unions and narrowing, boundaries and zod, async discipline, a tested cron, a workspace, a dashboard, a URL, and as of today a published package. The 20% was never missing. It was filed:
 
-- **Type-level programming and generics authoring.** You consume generics fluently (`z.infer`, `ReturnType`, the m02-l2 toolkit); you do not yet write conditional and mapped types. The drill yard is type-challenges, named back in m02-l1 as the after-M2 gym, paired with the Handbook's Generics chapter. Go when a library's type signature makes you curious instead of tired.
-- **The full tsconfig surface.** You own the strict canon from m01-l2's table; the remaining several dozen flags live in the Handbook and get looked up per-flag, on demand, forever. Nobody memorizes them. Now you know that nobody memorizes them.
-- **node:test.** The zero-dependency test runner got its honest sidebar in m02-l4; vitest is this course's chosen lane. If a dependency-free context wants tests, the sidebar is the on-ramp.
-- **Bun and Deno.** Both alive and shipping steadily (Bun 1.4, Deno 2.9, both with releases in the last two weeks of August 2026). This course runs Node because the surveyed Solana TypeScript ecosystem does: every repo we studied declares Node engines and a pnpm packageManager pin, none declare Bun or Deno. That is positioning, not disdain; revisit signal five of the checklist in a year and see if the lockfiles moved.
+- **Type-level programming and generics authoring.** You consume generics fluently (`z.infer`, `ReturnType`, the m02-l2 toolkit); you do not yet write conditional and mapped types. The drill yard is type-challenges (m02-l1's after-M2 gym) plus the Handbook's Generics chapter. Go when a library's type signature makes you curious instead of tired.
+- **The full tsconfig surface.** You own the strict canon from m01-l2's table; the remaining several dozen flags get looked up per-flag, on demand, forever. Nobody memorizes them. Now you know that.
+- **node:test.** The zero-dependency runner got its honest sidebar in m02-l4; vitest is this course's lane. If a dependency-free context wants tests, the sidebar is the on-ramp.
+- **Bun and Deno.** Both alive and shipping (Bun 1.4, Deno 2.9, both with late-August 2026 releases). This course runs Node because the surveyed Solana ecosystem does: every studied repo declares Node engines and a pnpm packageManager pin, none declare Bun or Deno. Positioning, not disdain; revisit signal five in a year and see if the lockfiles moved.
 - **React beyond the data-consumer slice, and everything client.** Routing, forms, state libraries, wallet UX, transaction landing: that is the client-side mastery course's territory, and its stated floor, TS-strong, is a bar you now clear.
 - **jest.** Named, not taught: it is vitest's older sibling and you will meet it in anza's repositories. The API surface is close enough that your vitest fluency mostly transfers.
 

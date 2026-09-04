@@ -19,7 +19,7 @@ The first teaches your existing toolchain to emit WebAssembly instead of native 
 cargo generate cloudflare/workers-rs
 ```
 
-Pick the `hello-world` template when it asks, name the project `pulse-edge-rs`, and run it at the root of your station repo so it lands next to `pulse-rs/` and the TS worker. Do not deploy it yet. First, ten minutes of understanding what you just targeted, because `wasm32-unknown-unknown` is the most honest target name in the entire toolchain.
+Pick the `hello-world` template when it asks, name the project `pulse-edge-rs`, and run it at the root of your station repo so it lands next to `pulse-rs/` and the TS worker. The template also asks one question this paragraph would otherwise leave you guessing on, "Enable panic=unwind and abort recovery?": take the default, false. Do not deploy it yet. First, ten minutes of understanding what you just targeted, because `wasm32-unknown-unknown` is the most honest target name in the entire toolchain.
 
 ### An OS called unknown
 
@@ -49,7 +49,7 @@ error: This wasm target is unsupported by mio. If using Tokio, disable the net f
 
 I ran this exact sabotage while writing the lesson; every error block on this page is pasted from my terminal, not typed from memory. And look at what the error is actually saying: mio's job is wrapping epoll and kqueue, the OS facilities for waiting on sockets. On a target whose OS is named unknown there is nothing to wrap, so the crate refuses at compile time. reqwest fails more sneakily, and the sneak is worth knowing: the crate itself compiles on wasm32 because it carries a browser backend, but the `blocking` module your CLI uses since m05-l3 is conditionally compiled away, so the moment your code touches it you get `error[E0433]: could not find 'blocking' in 'reqwest'`. Same law, different messenger: the async arsenal is not banned from WASM by policy. It is anchored to native by the OS calls underneath it, and the compiler enforces the anchor. Now `git checkout` the Cargo.toml AND the Cargo.lock, because `cargo add` rewrote both and the failed build pulled tokio's pins into the lockfile, and let the engine go back to being portable.
 
-This is the pure-core and IO-shell seam completing its arc. m07-l1 proved it in TypeScript, where the enforcement was workerd refusing node builtins at runtime. Rust proves it at compile time, before anything ships. Two languages, one law: logic that never touched the OS goes anywhere; I/O belongs to the shell, and every host gets its own shell.
+This is the pure-core and IO-shell seam completing its arc. m07-l1 proved it in TypeScript, where the enforcement was workerd's runtime refusing to start on a filesystem read: the module shimmed, the operating system absent. Rust proves it at compile time, before anything ships. Two languages, one law: logic that never touched the OS goes anywhere; I/O belongs to the shell, and every host gets its own shell.
 
 ![A timeline from the first purity decisions in modules three and four to today's WebAssembly port, showing the deploy was planned rather than lucky.](assets/v02-timeline.webp)
 
@@ -202,11 +202,14 @@ This is the station's second edge ship, the Rust twin of m07-l1's worker. The fe
 
    ```rust
    Command::Classify => {
+       use pulse_engine::{FixtureSample, classify_fixtures};
        let raw = std::io::read_to_string(std::io::stdin())?;
        let samples: Vec<FixtureSample> = serde_json::from_str(&raw)?;
        println!("{}", serde_json::to_string(&classify_fixtures(&samples))?);
    }
    ```
+
+   One line of wiring before that arm compiles, because the CLI has never needed JSON output until now: give `pulse-cli` the workspace's serde_json subscription in its `Cargo.toml` dependencies, `serde_json = { workspace = true }`. The `use` inside the arm brings the two engine names into scope; nothing else changes.
 
    Write a shared fixture at the station repo root as `fixture.json`:
 

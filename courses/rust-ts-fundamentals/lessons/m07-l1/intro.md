@@ -12,7 +12,7 @@ Here is the pain, and it is one your own station has quietly had since module on
 npm create cloudflare@latest -- pulse-edge-ts
 ```
 
-The scaffolder (Cloudflare calls it C3, and it comes down through npm, no install beyond this line) asks a short series of questions. Answer: start with the `Hello World example`, template `Worker only`, language `TypeScript`, git `Yes`, and when it offers to deploy, say `No`, because we want to read what we ship first. You get a folder containing `src/index.ts`, a `wrangler.jsonc` config, and `wrangler` itself pinned as a dev dependency (v4 line, 4.128.0 when I checked on 2026-09-02), which is why every wrangler command in this lesson runs through `npx`. Now:
+The scaffolder (Cloudflare calls it C3, and it comes down through npm, no install beyond this line) asks a short series of questions. Answer: start with the `Hello World example`, template `Worker only`, language `TypeScript`, git `Yes`, and when it offers to deploy, say `No`, because we want to read what we ship first. Two 2026-09-04 prompt notes: C3 now also offers an AGENTS.md file, answer no; and inside the station repo the git `Yes` quietly no-ops (C3 detects the parent repository). Both are fine. You get a folder containing `src/index.ts`, a `wrangler.jsonc` config, and `wrangler` itself pinned as a dev dependency (v4 line, 4.128.0 when I checked on 2026-09-02), which is why every wrangler command in this lesson runs through `npx`. Now:
 
 ```bash
 cd pulse-edge-ts
@@ -33,7 +33,7 @@ Your poller is a node process: it boots, it owns memory, it runs until something
 
 ![One long-lived node process on a single machine contrasts with many short-lived isolates spread across cities, both importing the same classifier.](assets/v01-diagram.webp)
 
-The honest one-liner, and it collapses most of the mystique: the edge is not a faster server, it is your code where the user already is. Everything strange about Workers falls out of that. No node builtins, because there is no node. No long-lived memory, because there is no "the machine" for it to live on. A 10 ms CPU budget per invocation on the free tier, because a thousand cities can afford to run you only if you are small. And the parts of your codebase that survive this environment unchanged are exactly the parts m03-l1 forced you to make pure. We will cash that claim in a minute.
+The honest one-liner, and it collapses most of the mystique: the edge is not a faster server, it is your code where the user already is. Everything strange about Workers falls out of that. Node builtins exist only as shims, because there is no node and no OS underneath: a filesystem call has no disk to reach. No long-lived memory, because there is no "the machine" for it to live on. A 10 ms CPU budget per invocation on the free tier, because a thousand cities can afford to run you only if you are small. And the parts of your codebase that survive this environment unchanged are exactly the parts m03-l1 forced you to make pure. We will cash that claim in a minute.
 
 One paragraph on Pages, because the internet will try to route you there. Cloudflare historically shipped a second product, Pages, for static sites, and 2023-era tutorials for "deploy your status page" will point at it. When I probed the Pages docs for this lesson on 2026-09-01, Cloudflare's own banner read: "Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare's primary platform for building applications. Start new projects with Workers." That is a vendor sunsetting a product by recommendation, in plain sight, and it settles the question for us: this course builds Workers, full stop, and static assets ride along on Workers when we need them. The durable lesson outranks the platform trivia. Read the vendor's current docs, not blog posts from the year the tutorial was written; you watched Docker's docs pull the same quiet migration on our own link checker two lessons ago.
 
@@ -47,7 +47,7 @@ npm i @YOUR_NPM_USERNAME/pulse-core
 
 Everything in that package imports into workerd unchanged. Classifiers, types, `backoffDelay`: pure functions over plain data, no opinions about where they run. That is the whole reason the extraction discipline existed, and this is the third consumer proving it (the Vercel dashboard was the second).
 
-What does not port is everything around the core, and workerd fails loudly at exactly the seam. Try pasting the fleet's config-loading line into the worker, the one built on `readFileSync` from `node:fs`, and the build errors immediately: there is no filesystem to read and no `node:fs` to import. Same for `process.env`, same for any node builtin. This is not a bug to route around; it is the platform drawing the pure-core/IO-shell boundary for you, in red. Each side of the seam has a platform-native replacement: file I/O becomes fetch (the network is the disk here), env access becomes typed bindings on the `env` object your handlers receive, and persistent state becomes KV. The port is not "make the fleet run at the edge." It is "import the core, rewrite the shell."
+What does not port is everything around the core, and workerd fails loudly at exactly the seam, though the failure moved since the early Workers era. Current workerd ships a Node compatibility layer, on by default at recent compatibility dates, so `import { readFileSync } from "node:fs"` no longer fails the build; the import resolves and `readFileSync` is a real function. What is missing is the machine underneath it. The only filesystem a worker sees is its own read-only bundle, mounted at `/bundle`, so the moment that function reaches for the fleet's config file the runtime refuses to even start, naming the path it could not find. Some APIs do not get that far: `child_process.spawn` exists as a name and throws `ERR_METHOD_NOT_IMPLEMENTED` the instant you call it. This is not a bug to route around; it is the platform drawing the pure-core/IO-shell boundary for you, in red: the modules are shimmed, the operating system is absent. Each side of the seam has a platform-native replacement: file I/O becomes fetch (the network is the disk here), env access becomes typed bindings on the `env` object your handlers receive, and persistent state becomes KV. The port is not "make the fleet run at the edge." It is "import the core, rewrite the shell."
 
 ![Pure pulse-core modules flow straight into the worker while each node-specific shell piece is crossed out and mapped to a platform replacement.](assets/v02-flowchart.webp)
 
@@ -96,13 +96,21 @@ curl -s https://api.mainnet.solana.com -X POST -H "content-type: application/jso
   -d '{"jsonrpc":"2.0","id":1,"method":"getHealth"}'
 ```
 
-A healthy node answers `{"jsonrpc":"2.0","result":"ok","id":1}`. That hostname is the form Solana's own cluster docs print today, and it is the one this course uses everywhere; M8 opens by telling you what the older spelling you will meet in tutorials is and why it still resolves. To the worker, this is one more target: POST instead of GET, measure the latency, feed the result to the same `classifyProbe` every other part of the station uses. No `@solana/kit` yet, deliberately; M8 introduces it when we start caring what is inside the responses. Today the transport answering promptly is the health signal.
+A healthy node answers `{"jsonrpc":"2.0","result":"ok","id":1}`. That hostname is the form Solana's own cluster docs print today, and it is the one this course uses everywhere; M8 opens by telling you what the older spelling you will meet in tutorials is and why it still resolves.
+
+One production honesty note before your worker ever probes it: that curl succeeding does not promise the same POST succeeds from inside workerd. Public RPC endpoints run anti-abuse policy on more than request rate; they discriminate on client fingerprint and egress, and as of a 2026-09-04 re-verification, the identical getHealth POST that returns `ok` from curl comes back like this from a `wrangler dev` isolate on the same machine and IP:
+
+```text
+{"jsonrpc":"2.0","error":{"code":403,"message":"Your IP or provider is blocked from this endpoint"},"id":1}
+```
+
+Providers block some clients wholesale, through no fault of your code. That is the first real ops lesson of a monitor: one upstream is a single point of refusal, so a station carries a documented fallback. Ours is `https://solana-rpc.publicnode.com`, keyless, same JSON-RPC (verified answering `ok` from inside workerd, 2026-09-04). `api.mainnet.solana.com` stays canonical; step 7 tells you when to reach for the fallback. To the worker, this is one more target: POST instead of GET, measure the latency, feed the result to the same `classifyProbe` every other part of the station uses. No `@solana/kit` yet, deliberately; M8 introduces it when we start caring what is inside the responses. Today the transport answering promptly is the health signal.
 
 Be precise about what that signal is, because monitoring tools that overstate their own measurements are how outage pages end up lying. `getHealth` is the node you asked reporting on itself: it says "ok" when that node believes it is caught up with the cluster, and an unhealthy or lagging node answers with a JSON-RPC error body instead. It is one machine's self-assessment behind a load balancer, not a verdict on Solana. Your probe therefore measures exactly two honest things: whether the public RPC answered you, and how fast, from whichever city your isolate ran in. That is precisely what a status station should record, and precisely how the entry should be read. When M8 starts decoding response bodies with kit, the station graduates from "the RPC endpoint answers" to "and here is what the chain says," and the difference between those two sentences is a distinction you now own.
 
 One discipline carries over uncut. The public RPC allows 100 requests per 10 seconds per IP, and a 429 from it means the same thing a 429 meant in m02-l3: you are being told a budget, and hammering it digs the hole deeper. The backoff you built there, `backoffDelay` plus equal jitter, comes through the pulse-core import and wraps the RPC probe in the lab. The whole argument of M8 is in this paragraph in miniature: the chain is just another endpoint, with real latencies and real limits, and the engineering manners you built for flaky HTTP are the manners chain probing needs.
 
-This section ran long, so let me name the trade-off and close the theory. The edge gives you proximity and scale you do not operate, and the price is a deliberately narrow runtime: no node builtins, no long-lived memory, no threads, 10 ms of metered CPU, and shared state only through an eventually consistent store with a 1,000-write daily allowance. The edge is where probes belong, not where everything belongs. Say the division of labor out loud, because you now operate both halves: the worker measures and remembers the latest answer; the poller, with a real filesystem, unmetered CPU, and whatever process memory it wants, is where history accumulates and statistics get computed when the station grows those ambitions. The M6 container tier still exists for a reason, and when Cloudflare shipped Containers to GA on 2026-04-13 (paid plans only), the platform itself conceded the point: some workloads just want a Linux box. Yours keeps its box on GHCR; today's probes get the cities.
+This section ran long, so let me name the trade-off and close the theory. The edge gives you proximity and scale you do not operate, and the price is a deliberately narrow runtime: node builtins as shims with no OS behind them, no long-lived memory, no threads, 10 ms of metered CPU, and shared state only through an eventually consistent store with a 1,000-write daily allowance. The edge is where probes belong, not where everything belongs. Say the division of labor out loud, because you now operate both halves: the worker measures and remembers the latest answer; the poller, with a real filesystem, unmetered CPU, and whatever process memory it wants, is where history accumulates and statistics get computed when the station grows those ambitions. The M6 container tier still exists for a reason, and when Cloudflare shipped Containers to GA on 2026-04-13 (paid plans only), the platform itself conceded the point: some workloads just want a Linux box. Yours keeps its box on GHCR; today's probes get the cities.
 
 ![A table places probes and snapshot serving on the edge worker and heavy computation and node-specific work in the Docker poller.](assets/v06-comparison.webp)
 
@@ -114,13 +122,29 @@ The fade, stated: steps 1 and 2 you already did in the opener. The skeleton and 
 
 1. **Confirm the scaffold state.** You have `pulse-edge-ts/` deployed with hello-world from the opener. If not, run the two commands from the top of the lesson now. Everything below edits this project.
 
-2. **Install the engine and prove the seam.** Two commands, one error on purpose:
+2. **Install the engine and prove the seam.** Two commands, one failure on purpose:
 
    ```bash
    npm i @YOUR_NPM_USERNAME/pulse-core
    ```
 
-   Then, at the top of `src/index.ts`, add `import { readFileSync } from "node:fs";` and run `npx wrangler dev`. Read the failure: the build refuses the node builtin, naming the module. That error is the seam from the theory section, live on your screen. Delete the line. The core import in the next step will resolve clean, and now you know why the difference exists.
+   (Skipped the m03-l4 npm publish? No account needed: `npm pack` inside `packages/pulse-core`, then `npm i ../packages/pulse-core/<scope>-pulse-core-0.1.0.tgz`, the same move m03-l4's own lab drilled.) Then, at the top of `src/index.ts`, paste the fleet's config-loading move:
+
+   ```ts
+   import { readFileSync } from "node:fs";
+   const config = JSON.parse(readFileSync("./pulse.config.json", "utf8"));
+   ```
+
+   and run `npx wrangler dev`. The import itself resolves, because current workerd ships a Node compatibility shim, and then the runtime refuses to start:
+
+   ```text
+   ✘ [ERROR] The Workers runtime failed to start.
+   ...
+   Uncaught Error: no such file or directory, readAll '/bundle/pulse.config.json'
+     ... in readFileSync
+   ```
+
+   Read that path. `/bundle` is the only filesystem a worker has, its own uploaded code, read-only. That refusal is the seam from the theory section, live on your screen: the module ported, the machine did not. Delete both lines. The core import in the next step resolves clean, and now you know why the difference exists.
 
 3. **Replace the config.** Open `wrangler.jsonc` and make it this (your namespace id arrives in step 4; leave the placeholder until then):
 
@@ -306,6 +330,8 @@ The fade, stated: steps 1 and 2 you already did in the opener. The skeleton and 
 
    The `console.log` line is not decoration; it is what `wrangler tail` shows you in step 7. Note what the classifier line proves: `classifyProbe`, unmodified, published from your workspace weeks ago, is now producing verdicts in an isolate. The `verdictOf` wrapper around it is four lines of adapter, not a second classifier: it only unpacks each variant into the `(kind, value)` pair the published boundary takes, and rules on the one variant that has no numeric reading to give it. Every band, every threshold, every judgment is still the package's. Same code as the dashboard, same code as the CLI.
 
+   Scaffold hygiene: the C3 template shipped `test/index.spec.ts`, vitest specs asserting the fetch handler returns `Hello World!`. It stopped doing that the moment you pasted the skeleton, so those specs are red from here on. Delete the file, or rewrite its assertions against the `{ updatedAt, targets }` shape; knowingly failing tests teach everyone to ignore the test command.
+
 ![A cron fire probes three targets through the shared classifier into KV while the fetch handler reads the same store and serves a JSON snapshot.](assets/v08-flowchart.webp)
 
 6. **Wire the secret, both halves.** Locally, create `.dev.vars` in the project root (the scaffold's gitignore already covers it; verify with `git check-ignore .dev.vars`):
@@ -335,13 +361,19 @@ The fade, stated: steps 1 and 2 you already did in the opener. The skeleton and 
    npx wrangler tail
    ```
 
-   Leave `tail` running until the quarter-hour ticks over and the cron fires in production; the same three log lines arrive from Cloudflare's infrastructure with no machine of yours involved. That command deserves a sentence of respect, because it is your first taste of observability on a platform where you cannot ssh anywhere: `tail` streams live logs and exceptions from every city your worker runs in, into your terminal, and it is the difference between "the cron probably fired" and watching it fire. The Cloudflare dashboard shows the same story in its worker view if you prefer clicking to streaming; either one is acceptable evidence. Checkpoint: `curl -s https://pulse-edge-ts.<your-subdomain>.workers.dev/` returns JSON with one entry per target, and the `solana-rpc` entry carries a verdict from the latest `getHealth` probe. Open it on your phone, off wifi, for the full effect.
+   Leave `tail` running until the quarter-hour ticks over and the cron fires in production; the same three log lines arrive from Cloudflare's infrastructure with no machine of yours involved. That command deserves a sentence of respect, because it is your first taste of observability on a platform where you cannot ssh anywhere: `tail` streams live logs and exceptions from every city your worker runs in, into your terminal, and it is the difference between "the cron probably fired" and watching it fire. The Cloudflare dashboard shows the same story in its worker view if you prefer clicking to streaming; either one is acceptable evidence. Checkpoint: `curl -s https://pulse-edge-ts.<your-subdomain>.workers.dev/` returns JSON with one entry per target, and the `solana-rpc` entry carries a verdict from the latest `getHealth` probe. If that entry instead reads `down` with `{"kind":"http-error","status":403}`, that is the theory section's blocklist refusing your isolate, not a bug: your worker just handled a real refusal correctly. Swap the target to the documented fallback and re-fire the cron:
 
-8. **Force a failure and watch it surface.** Change the `example` target's URL to `https://definitely-not-a-real-host.example`, redeploy, and after the next cron fire re-curl the snapshot. The entry now shows the `dns-error` variant and a `down` verdict, timestamped. That loop (break a target, see the store say so on the next beat) is the station's entire reason to exist, now running from hundreds of cities. Restore the URL and redeploy.
+   ```ts
+   { name: "solana-rpc", url: "https://solana-rpc.publicnode.com", kind: "solana-getHealth" }
+   ```
+
+   The entry goes `up`; keep whichever endpoint answers you, and note the swap. (Deployed workers egress from Cloudflare datacenter IPs, which public-RPC anti-abuse also polices, so the fallback matters in production too.) Open it on your phone, off wifi, for the full effect.
+
+8. **Force a failure and watch it surface.** Change the `example` target's URL to `https://definitely-not-a-real-host.example`, redeploy, and after the next cron fire re-curl the snapshot. The entry now shows the `dns-error` variant and a `down` verdict, timestamped. (Some runs file a `timeout` instead, when the failing DNS lookup outlives the 3-second abort; either is honest, the verdict is `down` both ways, and a re-fire usually shows the `dns-error` spelling.) That loop (break a target, see the store say so on the next beat) is the station's entire reason to exist, now running from hundreds of cities. Restore the URL and redeploy.
 
 ## Challenge
 
-Add a second probe-target kind, end to end, without touching the given plumbing: an expected-status-code check. A target like `{ name: "redirect-check", url: "https://example.com/missing", kind: "expect-status", expectStatus: 404 }` should classify `up` when the response status equals `expectStatus` (a 404 can be the correct answer; a health check for a page that must not exist is a real monitoring pattern), and fall through to the normal classification otherwise. You will need to extend the `Target` type, teach `probeOnce` the new kind, and decide what `ProbeResult` variant an expectation match maps to; there is a clean answer using the union as it stands. Acceptance: `npx wrangler deploy` succeeds; your workers.dev JSON shows the new target correctly classified; the forced-failure loop from step 8 still works; and the secret exists in prod via `npx wrangler secret list`, while `git grep -i probe_token` in the repo finds only the binding name, never a value, and your committed config contains no secret anywhere.
+Add a second probe-target kind, end to end, without touching the given plumbing: an expected-status-code check. A target like `{ name: "redirect-check", url: "https://example.com/missing", kind: "expect-status", expectStatus: 404 }` should classify `up` when the response status equals `expectStatus` (a 404 can be the correct answer; a health check for a page that must not exist is a real monitoring pattern), and fall through to the normal classification otherwise. You will need to extend the `Target` type, teach `probeOnce` the new kind, and decide what `ProbeResult` variant an expectation match maps to; there is a clean answer using the union as it stands. Acceptance: `npx wrangler deploy` succeeds; your workers.dev JSON shows the new target correctly classified; the forced-failure loop from step 8 still works; and the secret exists in prod via `npx wrangler secret list`. Then commit the worker project (`git add pulse-edge-ts && git commit`) before the final check: `git grep -i probe_token` finds only the binding name, never a value, and your committed config contains no secret. The commit comes first because `git grep` searches tracked files only; on an uncommitted project it finds nothing and proves nothing.
 
 ## Checkpoint
 

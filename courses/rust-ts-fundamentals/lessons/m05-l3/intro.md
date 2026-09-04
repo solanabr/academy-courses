@@ -137,19 +137,29 @@ fn probe(url: &str, timeout: u64) -> Result<(), ProbeError> {
     let client = reqwest::blocking::Client::builder()
         .timeout(std::time::Duration::from_secs(timeout))
         .build()
-        .map_err(|e| ProbeError::Unreachable { reason: e.to_string() })?;
+        .map_err(|e| ProbeError::Unreachable {
+            reason: e.to_string(),
+        })?;
 
     let started = Instant::now();
     let response = client
         .get(url)
         .send()
-        .map_err(|e| ProbeError::Unreachable { reason: e.to_string() })?;
+        .map_err(|e| ProbeError::Unreachable {
+            reason: e.to_string(),
+        })?;
     let elapsed = started.elapsed();
 
-    println!("{url} -> {} in {} ms", response.status(), elapsed.as_millis());
+    println!(
+        "{url} -> {} in {} ms",
+        response.status(),
+        elapsed.as_millis()
+    );
     Ok(())
 }
 ```
+
+(The line breaks inside the `map_err` closures and the `println!` are rustfmt's, not taste: this is the shape `cargo fmt` settles on, printed pre-settled so the CI gate's `fmt --check` has nothing to complain about. Type it tighter and the gate will ask for exactly this.)
 
 Twenty-odd lines, and half of them are the error path. Here is the whole journey in one picture before we dissect that half.
 
@@ -248,7 +258,7 @@ Work from the `pulse-rs` workspace root. Estimated 60 to 75 minutes.
 
    That prints a real status and a real latency. Then probe a URL that cannot resolve and confirm you get your own `Unreachable` message, not a panic.
 
-4. **The second subcommand (yours).** Implement `report` so the Rust CLI mirrors the TS `pulse` CLI's shape: it should run the engine's latency-stats pass (the checked_add walk from m04-l2; if yours carries a different name, keep it) over a generated fixture set and print mean, max, and sample count. Mine generates five million samples with a seeded multiply-and-add scrambler so runs are comparable, and prints one line: `mean=479 ms, max=929 ms over 5000000 samples; 20 passes took 983 ms`. Twenty passes exist purely to make the next step measurable. No scaffold for this one, and to be honest about what "everything it needs" means: the stats pass is already in your engine, and the fixture generator is your call, because nothing in the course taught PRNGs and nothing here requires one. Any deterministic source passes: a seeded scrambler if you enjoy the flex, or simply a small slice of latencies cycled out to five million (`[212u64, 487, 930, 479].iter().cycle().take(5_000_000)` is plenty). Your printed mean and max will reflect your generator, not mine; the deliverable step 5 grades is the dev-versus-release ratio, which any of these produce.
+4. **The second subcommand (yours).** Implement `report` so the Rust CLI mirrors the TS `pulse` CLI's shape: it should run the engine's latency-stats pass (the checked_add walk from m04-l2; if yours carries a different name, keep it) over a generated fixture set and print mean, max, and sample count. The names you need, `total_latency` and `LatencyMs`, come straight off `pulse_engine::`, both on the re-export list m05-l2 curated for exactly this consumer. Mine generates five million samples with a seeded multiply-and-add scrambler so runs are comparable, and prints one line: `mean=479 ms, max=929 ms over 5000000 samples; 20 passes took 983 ms`. Twenty passes exist purely to make the next step measurable. No scaffold for this one, and to be honest about what "everything it needs" means: the stats pass is already in your engine, and the fixture generator is your call, because nothing in the course taught PRNGs and nothing here requires one. Any deterministic source passes: a seeded scrambler if you enjoy the flex, or simply a small slice of latencies cycled out to five million (`[212u64, 487, 930, 479].iter().cycle().take(5_000_000)` is plenty). Your printed mean and max will reflect your generator, not mine; the deliverable step 5 grades is the dev-versus-release ratio, which any of these produce.
 
 5. **Measure both personalities (yours).** Build both profiles and run the same report:
 
@@ -280,7 +290,7 @@ Work from the `pulse-rs` workspace root. Estimated 60 to 75 minutes.
 
    `cargo run --bin overflow_demo` panics with `attempt to add with overflow`. `cargo run --release --bin overflow_demo` prints `4`, silently, exit code zero. Same source, 250 plus 10 wrapped around a `u8`. Delete the demo after it has properly disturbed you, and note your report subcommand is immune: its sums go through `checked_add`.
 
-7. **Green before shipping.** Push the branch and confirm m04-l3's rust job passes on the new code: test, clippy, fmt, all green. The release job you are about to write will sit downstream of this gate, which is the point of having built the gate first.
+7. **Green before shipping.** Run `cargo fmt` first, then the local triple (`cargo test && cargo clippy, -D warnings && cargo fmt --check`); a hand-typed lesson's worth of code almost always carries a wrap or two that rustfmt wants back, and finding out locally costs seconds where finding out in CI costs a push. Then push the branch and confirm m04-l3's rust job passes on the new code: test, clippy, fmt, all green. The release job you are about to write will sit downstream of this gate, which is the point of having built the gate first.
 
 ## Challenge
 

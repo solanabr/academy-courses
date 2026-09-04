@@ -12,7 +12,7 @@ blocks:
     type: quiz
     questions:
       - id: m07-l1-q1
-        prompt: "You import pulse-core into the fresh worker project and the build fails on a module that reads the config file from disk. Which parts of pulse-core port to workerd unchanged?"
+        prompt: "You import pulse-core into the fresh worker project; the build succeeds, but `wrangler dev` refuses to start on the module that reads the config file from disk. Which parts of pulse-core port to workerd unchanged?"
         multiSelect: false
         options:
           - id: a
@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "Everything, workerd runs JavaScript, so any JS module loads fine"
             correct: false
-            feedback: "workerd runs JS but is not node: fs, process, and node: builtins don't exist there. The build failure you just hit is exactly that seam."
+            feedback: "workerd runs JS but is not node: the node builtins are only shims with no OS behind them, and the read-only /bundle mount is the only filesystem, so the config read dies at startup. The refusal you just hit is exactly that seam."
           - id: c
             label: "Only code already bundled for browsers, since workers are browser runtimes"
             correct: false

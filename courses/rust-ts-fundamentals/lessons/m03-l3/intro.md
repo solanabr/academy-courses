@@ -85,7 +85,7 @@ export const statusUrl: string | null = repo
   : null;
 ```
 
-And teach TypeScript about the variable in `packages/pulse-board/src/vite-env.d.ts` (Vite scaffolded this file; you are extending it):
+And teach TypeScript about the variable in `packages/pulse-board/src/vite-env.d.ts`. Older create-vite templates scaffolded this file; the current 9.x react-ts template does not, so create it yourself, and the name still matters, because `vite-env.d.ts` is the conventional home Vite's docs and every teammate will look for:
 
 ```ts
 /// <reference types="vite/client" />

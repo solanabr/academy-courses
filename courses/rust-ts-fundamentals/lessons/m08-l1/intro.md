@@ -18,7 +18,7 @@ curl -sS https://api.mainnet.solana.com -X POST \
 {"jsonrpc":"2.0","result":"ok","id":1}
 ```
 
-That is a blockchain answering a JSON question over plain HTTP. No wallet, no key, no fee, no account anywhere. The same POST-a-JSON-body shape you have been sending since the M2 HTTP lessons, pointed at a network that has processed over half a trillion transactions (its own getTransactionCount told me so while I wrote this), and it answers anyone who asks. Now do it from TypeScript, in the station repo. The station has been a pnpm workspace since m03-l1, so installs go through pnpm (the `-w` flag says "yes, I mean the workspace root", where our bench scripts live; a stray `npm i` here would scribble a competing package-lock.json into a pnpm repo):
+That is a blockchain answering a JSON question over plain HTTP. No wallet, no key, no fee, no account anywhere. The same POST-a-JSON-body shape you have been sending since the M2 HTTP lessons, pointed at a network that has processed over half a trillion transactions (its own getTransactionCount told me so while I wrote this), and it answers anyone who asks. Now do it from TypeScript, in the station repo. The station has been a pnpm workspace since m03-l1, so installs go through pnpm (the `-w` flag says "yes, I mean the workspace root", so every package in the workspace can resolve the install; a stray `npm i` here would scribble a competing package-lock.json into a pnpm repo):
 
 ```bash
 pnpm add -w @solana/kit@^8
@@ -26,8 +26,10 @@ pnpm add -w @solana/kit@^8
 
 Freshness note: that resolves to 8.2.0 as of 2026-09-02, and the digit matters more than usual here. Kit shipped two majors inside just over nine weeks this summer (7.0.0 at the end of June, mere weeks after the 6.10.0 minor, then 8.0.0 by late August), which is exactly why this course's rule is to pin what your dependencies peer against and to re-check install lines the day you run them, not the day a tutorial was written.
 
+The script itself goes where the station's bench scripts live: `packages/pulse-fleet/`, next to `probe.ts` and `fleet.ts`. That placement is load-bearing, not tidiness: pulse-fleet carries the `"type": "module"` field and the `tsx` runner these scripts need, and the workspace root has neither, so `npx tsx` run there dies on the top-level await ("Top-level await is currently not supported with the cjs output format"). Create `packages/pulse-fleet/first-read.ts`:
+
 ```typescript
-// first-read.ts
+// packages/pulse-fleet/first-read.ts
 import { createSolanaRpc } from "@solana/kit";
 
 const rpc = createSolanaRpc("https://api.mainnet.solana.com");
@@ -37,6 +39,7 @@ console.log(await rpc.getSlot().send());
 ```
 
 ```bash
+cd packages/pulse-fleet
 npx tsx first-read.ts
 ```
 
@@ -137,13 +140,13 @@ The docs then say the quiet part in plain words: these endpoints are "not intend
 
 ## Lab: solana-probes-v0, the chain gauge
 
-The artifact this tier starts building is `solana-probes-v0`, and its first piece is `chain-probe.ts`: a standalone bench script in the station repo that prints the chain's vitals, its measured heartbeat, and the epoch countdown. Deliberately v0, deliberately a bench prototype. Next lesson productionizes these reads into the deployed dashboard and the edge worker; today's job is getting the measurement right on your own machine first, the same bench-then-deploy rhythm the station has followed since M3.
+The artifact this tier starts building is `solana-probes-v0`, and its first piece is `chain-probe.ts`: a standalone bench script in `packages/pulse-fleet` that prints the chain's vitals, its measured heartbeat, and the epoch countdown. Deliberately v0, deliberately a bench prototype. Next lesson productionizes these reads into the deployed dashboard and the edge worker; today's job is getting the measurement right on your own machine first, the same bench-then-deploy rhythm the station has followed since M3.
 
 The fade, stated plainly: steps 1 through 3 are worked, I show the code. Steps 4 and 5 hand you a contract and you write the code. If you want the honest version of this lesson, do not scroll ahead to check yourself until your version runs.
 
 ![Three deployed surfaces sit above a lone bench script, with an arrow promising the reads move up next lesson.](assets/v06-diagram.webp)
 
-**1. Scaffold the file.** In the station repo, create `chain-probe.ts` next to your other bench scripts. You already installed `@solana/kit@^8` in the opener; the only other tool is `tsx`, which has been in the station's dev dependencies since the M1 setup (if you are somehow in a fresh folder: `pnpm add -Dw tsx`, or plain `npm i -D tsx` outside the workspace). Start with the vitals you already know how to read:
+**1. Scaffold the file.** In the station repo, create `packages/pulse-fleet/chain-probe.ts` next to `first-read.ts` and the other bench scripts, and run everything in this lab from that directory, for the module-and-tsx reason the opener named. You already installed `@solana/kit@^8` at the root in the opener; the only other tool is `tsx`, which has been in pulse-fleet's dev dependencies since the bench scripts moved into the workspace (if you are somehow in a fresh folder outside the station: `npm i -D tsx`, and give its package.json `"type": "module"`). Start with the vitals you already know how to read:
 
 ```typescript
 import { createSolanaRpc } from "@solana/kit";
@@ -163,7 +166,7 @@ The two constants at the top are the lesson's two anchors: the fixed epoch lengt
 **2. Take one naive sample.** Before reaching for the proper instrument, measure the heartbeat the way you would measure anything: two readings and a clock. This is the worked sample loop, and it is also a rate-cap-respecting one, two calls ten seconds apart, not a hot loop:
 
 ```typescript
-// naive.ts - a throwaway, not part of the gauge
+// packages/pulse-fleet/naive.ts - a throwaway, not part of the gauge
 import { createSolanaRpc } from "@solana/kit";
 
 const rpc = createSolanaRpc("https://api.mainnet.solana.com");

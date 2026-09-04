@@ -60,7 +60,7 @@ blocks:
           - id: c
             label: "JSON-RPC reports failures inside a 200 response, you must check the envelope's error member"
             correct: true
-        explanation: "The transport layer succeeded, HTTP did its job delivering a well-formed reply that happens to say 'error' in JSON-RPC's own envelope. That's why the ProbeRpcError taxonomy gives the in-envelope error its own variant, distinct from transport and status failures: three different failure planes, three different remediations, one greppable name each when m09-l2's logging lands."
+        explanation: "The transport layer succeeded, HTTP did its job delivering a well-formed reply that happens to say 'error' in JSON-RPC's own envelope. That's why the ProbeRpcError taxonomy gives the in-envelope error its own variant, distinct from transport and status failures: four different failure planes, four different remediations, one greppable name each when m09-l2's logging lands."
       - id: m08-l3-q4
         prompt: "You merged the chain-probe module and pushed. What turns that commit into the re-shipped station, and what did YOU have to do beyond the push?"
         multiSelect: false

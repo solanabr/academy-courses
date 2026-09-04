@@ -53,8 +53,12 @@ pub mod config;
 pub mod engine;
 
 pub use config::{Config, ProbeKind, ProbeTarget, Target, parse_config};
-pub use engine::{FixtureSource, ProbeError, ProbeState, drive};
+pub use engine::{
+    FixtureSource, LatencyMs, ProbeError, ProbeState, drive, next_state, total_latency,
+};
 ```
+
+Curate that list against its consumers, not against today's `main.rs` alone: `next_state`, `LatencyMs`, and `total_latency` are on it because m05-l3's report arm and the m06 poller call all three by these bare `pulse_engine::` names. A re-export list that only covers the current caller forces every future consumer to spelunk `pulse_engine::engine::` module paths, which defeats the point of naming a public surface at all.
 
 The CLI depends on the engine by path and keeps only what a thin binary needs:
 
@@ -253,16 +257,16 @@ The split already happened in the opener, so the lab starts from a green `cargo 
    serde = { version = "1.0.229", default-features = false, features = ["derive"] }
    ```
 
-   `cargo check --workspace` again and read what you get. Not a friendly note about features. This:
+   `cargo check --workspace` again and read what you get. Not a friendly note about features. This (on cargo 1.98.1; older toolchains name different helper items from the same module, `Content` instead of `TaggedContentVisitor`, and the shape is identical):
 
    ```text
-   error[E0433]: failed to resolve: could not find `Content` in `de`
+   error[E0433]: failed to resolve: cannot find `TaggedContentVisitor` in `de`
      --> crates/pulse-engine/src/config.rs
    note: found an item that was configured out
      --> .../serde-1.0.229/src/private/de.rs
    ```
 
-   The error points into serde's own source, at your derive line, about an item that was "configured out." Nothing anywhere says you turned off `std`. This is the footgun from the theory section live on your screen, and the debugger is:
+   The error points into serde's own source, at your derive line, about an item that was "configured out," and repeats itself for a handful of sibling names (`ContentDeserializer`, `Content`, `ContentVisitor`). Nothing anywhere says you turned off `std`. This is the footgun from the theory section live on your screen, and the debugger is:
 
    ```bash
    cargo tree -e features -p pulse-engine
