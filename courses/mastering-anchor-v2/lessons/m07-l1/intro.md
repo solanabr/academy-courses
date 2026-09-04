@@ -1,6 +1,6 @@
 # What V2 kills at compile time
 
-Last lesson you ran the measure-change-remeasure loop on the swap. You turned the guardrails off, switched const-rent on, and proved the CU win with a number before and a number after. You trusted the compiler to keep the program correct while you made it faster.
+Last lesson you ran the measure-change-remeasure loop on the swap. The guardrails flip measured a delta of exactly zero — anchor-spl's dependency edge held the nets on, and you attributed the zero instead of shipping the flag — while `const-rent` and the rewritten quote produced deltas you could keep, each proved with a number before and a number after. You trusted the compiler to keep the program correct while you made it faster.
 
 Now weaponize that trust. `quarters` is the workspace you have been building in since module 2, and R4 is the token-to-ticket swap inside it, the fourth rung of the Quarters ladder. Open a terminal there, cut an exploit branch off your clean R4, and write the first classic Anchor attack against your own swap.
 

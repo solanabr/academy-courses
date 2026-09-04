@@ -228,7 +228,7 @@ The invariant discipline the nets-off trade demands is not wasted, though — sh
 
 ![A decision table gating a guardrails-off build on a real delta, a full written invariant argument for the handler, and the argument actually committed, otherwise revert.](assets/v08-comparison.png)
 
-### 5. Encode the win as a regression test
+### 5. Encode the measured number as a regression test
 
 The lab's cycle ended in a revert, and it still leaves an artifact — this one. A number you measured once is a story; a number encoded in a test is a tripwire, and the trade's real, nets-on cost deserves one. The verify step for this lesson is a test named `cu_swap_regression`, and its job is to fail the build the day something pushes the trade back over its budget.
 
