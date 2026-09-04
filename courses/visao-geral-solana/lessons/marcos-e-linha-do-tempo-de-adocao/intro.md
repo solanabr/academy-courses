@@ -10,7 +10,7 @@
 
 **Conceitos:** Principais lançamentos públicos; Progressão de testnet para mainnet; Colaborações e integrações notáveis; Indicadores de adoção inicial e atividade de rede; Como marcos influenciaram prioridades subsequentes
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 13 min
 
 ---
 

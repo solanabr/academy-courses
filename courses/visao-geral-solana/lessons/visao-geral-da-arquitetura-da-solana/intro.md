@@ -10,7 +10,7 @@
 
 **Conceitos:** objetivos da arquitetura da Solana e justificativa do design; topologia de rede e papéis dos nós; estrutura do ledger e organização do estado; ciclo de vida da transação em alto nível; interação entre componentes; compromissos de design na arquitetura
 
-**Tempo de leitura:** 25 min
+**Tempo de leitura:** 15 min
 
 ---
 
