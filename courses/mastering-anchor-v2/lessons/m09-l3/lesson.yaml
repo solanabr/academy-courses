@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "Because turning on a rung's `cpi` feature changes its bytecode, so the counter must be redeployed to a fresh program id first."
             correct: false
-            feedback: "The registry never flips any feature on a rung at all — it consumes the counter through its IDL via `declare_program!`, and no consumption mechanism, feature-flag or IDL, touches the deployed counter's bytecode. The counter keeps the program id from its own `declare_id!`, and the registry CPIs that already-deployed address."
+            feedback: "The registry never flips any feature on a rung at all — it consumes the counter through its IDL via `declare_program!` — and nothing a caller does can alter bytecode already deployed at an address. The counter keeps the program id from its own `declare_id!`, and the registry CPIs that already-deployed address."
           - id: c
             label: "Because the capstone gates on you producing the composition yourself — accretion is demonstrated, never handed over finished."
             correct: true

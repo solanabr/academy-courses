@@ -585,7 +585,10 @@ use crate::state::Escrow;
 use crate::error::EscrowError;
 // The vault's module is the one declare_program! generated back in m04-l3 —
 // marker included. Re-harvest idls/quarter_vault.json after this lesson's SPL
-// upgrade lands, because R2's interface just changed shape.
+// upgrade lands, because R2's interface just changed shape. And if this handler
+// lives in an instructions submodule rather than lib.rs, spell the path from the
+// crate root — `use crate::quarter_vault::…` — the macro generates the module at
+// the root, and a submodule's bare `use quarter_vault::…` cannot see it.
 use quarter_vault::cpi as vault_cpi;
 use quarter_vault::program::QuarterVault;
 
