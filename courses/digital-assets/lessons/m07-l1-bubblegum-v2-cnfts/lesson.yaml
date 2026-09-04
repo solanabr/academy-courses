@@ -1,0 +1,61 @@
+id: lesson-date-m07-l1-bubblegum-v2-cnfts
+slug: m07-l1-bubblegum-v2-cnfts
+title: "Bubblegum v2: mint a million NFTs for the price of a coffee"
+skills:
+  - account-model
+  - rpc-reads
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your Harvest-crate cNFTs mint into the tree and their asset ids resolve. A teammate asks where a single crate's metadata actually lives on-chain. What's the accurate answer?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The crate's data is hashed into a leaf of the Merkle tree; the full metadata is reconstructable only from an RPC provider's off-chain index, not from any account on-chain."
+            correct: true
+          - id: b
+            label: "Each cNFT owns a 165-byte account holding its metadata, the same layout as a Token-2022 mint account."
+            correct: false
+            feedback: "That's an SPL token account layout. Compression's whole point is that no per-asset account exists; only a leaf hash sits in the tree."
+          - id: c
+            label: "The metadata is stored inside the Core collection account that the tree belongs to."
+            correct: false
+            feedback: "The Core collection verifies membership and holds collection-level plugins, but it does not store each cNFT's metadata; the leaf hash does."
+        explanation: "State compression stores only a hash of each asset as a leaf in an on-chain concurrent Merkle tree. The readable metadata lives in a DAS provider's index, which is exactly why the next lesson needs a DAS RPC to read a crate back."
+      - id: q2
+        prompt: "You need roughly one million Harvest crates. A colleague budgets 8.5 SOL per crate. What should you tell them?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "8.5 SOL per crate is right, because each compressed mint provisions its own full account."
+            correct: false
+            feedback: "8.5 SOL is the total for ~1M cNFTs, not per-asset; each works out to roughly 0.00001 SOL."
+          - id: b
+            label: "About 8.5 SOL for the whole tree of ~1M leaves, roughly 0.00001 SOL per cNFT."
+            correct: true
+          - id: c
+            label: "About 0.34 SOL flat, the fixed cost of any Bubblegum v2 tree regardless of depth."
+            correct: false
+            feedback: "0.34 SOL is the cost of a 16,384-leaf tree specifically; tree cost scales with depth, buffer, and canopy. It is not a flat fee."
+        explanation: "Vendor figures put ~1M cNFTs at ~8.5 SOL total (~0.00001 SOL each) and a 16,384-leaf tree at ~0.34 SOL. Cost is a property of the tree's depth/buffer/canopy, derived once for the whole supply, not paid per asset."
+      - id: q3
+        prompt: "You want the Founding-Farmer achievement crate to be non-transferable. Someone insists cNFTs can never be soulbound. What's the correct move in Bubblegum v2?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "They're right: mint a Token-2022 NonTransferable mint instead, because cNFTs are always freely transferable."
+            correct: false
+            feedback: "That was true in the V1 era, but Bubblegum v2 added set_non_transferable_v2; a cNFT can be soulbound now."
+          - id: b
+            label: "Move the crate into a V1 tree, which enforces immutability at the leaf level."
+            correct: false
+            feedback: "V2 trees are not backward-compatible with V1 leaves, and immutability isn't a V1 feature; use set_non_transferable_v2 plus a collection PermanentFreezeDelegate."
+          - id: c
+            label: "Use set_non_transferable_v2 (with a collection-level PermanentFreezeDelegate) to make the cNFT soulbound."
+            correct: true
+        explanation: "Bubblegum v2's set_non_transferable_v2, combined with a PermanentFreezeDelegate on the Core collection, produces genuinely soulbound cNFTs, the reversal of 2024-era folklore that compression couldn't do freeze or soulbound."

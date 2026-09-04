@@ -1,0 +1,61 @@
+id: lesson-date-m07-l3-zk-compression-frontier
+slug: m07-l3-zk-compression-frontier
+title: "ZK compression and the Light Token frontier: when NOT to compress"
+skills:
+  - account-model
+  - rpc-reads
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You're tempted to move Overgrowth's high-frequency in-game currency ledger onto compressed token accounts to save on rent. When is compression the WRONG call?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "When the same accounts are written many times or updated repeatedly in the same block (like an AMM pool); the per-write proof and hashing cost dominates, so keep those as regular accounts."
+            correct: true
+          - id: b
+            label: "When you have more than ~16,384 holders, since a compression tree can't exceed that leaf count."
+            correct: false
+            feedback: "Trees scale far past 16,384 (that's just one example size). The real constraint is write frequency and access size, not holder count."
+          - id: c
+            label: "Whenever the tokens must stay tradeable, because compressed tokens can't be decompressed to swap."
+            correct: false
+            feedback: "Decompression is first-class; you decompress to swap on Jupiter. The binding constraint is write frequency, not tradeability."
+        explanation: "Compression cuts account-creation cost ~400x but a compressed transfer runs ~292,000 CU. Write-heavy or same-block-updated state (AMM pools, hot ledgers) and >1 KB accesses lose on that inversion; one-shot distribution wins."
+      - id: q2
+        prompt: "Contrast the proofs behind your Harvest-crate cNFTs with Light's ZK-compression proofs. What actually differs?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Both rails verify every write with the same constant-size Groth16 validity proof; the only difference is scope, since Bubblegum restricts its leaves to NFT metadata while Light generalizes them to token accounts and PDAs."
+            correct: false
+            feedback: "Bubblegum uses plain Merkle proofs that GROW with tree depth; only ZK compression uses constant 128-byte validity proofs."
+          - id: b
+            label: "Bubblegum uses plain Merkle proofs that grow with tree depth; ZK compression uses constant 128-byte Groth16 validity proofs over generalized accounts."
+            correct: true
+          - id: c
+            label: "Bubblegum stores full accounts on-chain while ZK compression stores only hashes; the proof formats are otherwise identical."
+            correct: false
+            feedback: "Neither stores full per-asset accounts on-chain; both store hashes. The proof mechanism (growing Merkle vs constant validity) is the difference, not the storage model."
+        explanation: "Bubblegum is NFT-specific plain Merkle proofs whose length grows with depth (canopy trades rent for shorter client proofs). ZK compression generalizes to accounts/tokens/PDAs with constant 128-byte Groth16 validity proofs and a different hash function (not built on SPL account-compression)."
+      - id: q3
+        prompt: "A teammate says 'let's ship Overgrowth's currency on the Light Token Program today; it's the new compressed-token default.' What's the accurate correction?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Correct: Light Token has replaced compressed tokens as the mainnet default, so migrate now."
+            correct: false
+            feedback: "No doc positions Light Token as the default, and it isn't on mainnet; this is exactly the claim that was refuted on review."
+          - id: b
+            label: "Light Token is mainnet-live but scoped to distribution flows only (the Claim and WithdrawFundingPool primitives), so it's the right rail for the compost drop and nothing else."
+            correct: false
+            feedback: "It's devnet-only right now, and the airdrop-only framing was part of the refuted 'flip' narrative."
+          - id: c
+            label: "Light Token is an emerging, devnet-only rail; the supported compressed-token path is still the current one. Treat it as a direction, not a default."
+            correct: true
+        explanation: "The adversarial round refuted the 'default flipped' framing: Light Token runs on devnet only, publishes no hot-path CU figure, and no doc names it the default. The supported compressed-token rail remains current; Light Token is a promising direction, not today's production choice."
