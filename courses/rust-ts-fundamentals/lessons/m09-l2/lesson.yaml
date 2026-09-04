@@ -1,0 +1,111 @@
+id: lesson-rtf-m09-l2
+slug: m09-l2
+title: "Observe the observer: logs, errors, alarms"
+skills:
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: logs-that-answer
+    type: quiz
+    questions:
+      - id: m09-l2-q1
+        prompt: "At 3 a.m. you need to answer: 'when did the api target last flip from up to degraded?' Which logging style answers that with a single grep?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "One JSON line per state change with named fields, event, target, from, to, and a timestamp, emitted at the boundary where the flip happens"
+            correct: true
+          - id: b
+            label: "A human-readable message like 'probe had a problem, retrying soon' printed wherever an error is caught, so the story reads naturally top to bottom"
+            correct: false
+            feedback: "Readable prose is for humans reading in order; incidents are answered by machines filtering at 3 a.m. Without named fields there is nothing for grep to anchor on, 'a problem' matches everything and answers nothing."
+          - id: c
+            label: "A line for every loop iteration with full state dumps, so any question is answerable because nothing was left out"
+            correct: false
+            feedback: "Volume is not answerability, per-iteration dumps bury the one flip you need under thousands of identical lines, and on the worker side they torch the daily event budget. Log events, not iterations."
+        explanation: "Structured logging means the QUESTION shapes the schema: a state change is an event with a target, a from, a to, and a timestamp, so `grep '\"event\":\"state_change\"'` plus the target name IS the incident query. Printf noise optimizes for reading; boundary events optimize for asking."
+      - id: m09-l2-q2
+        prompt: "Users report the dashboard's functions erroring on Saturday morning. You open Vercel's runtime logs on Monday. What do you find, and what is the taught response?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The whole weekend of logs, runtime logs are kept for the lifetime of the deployment, so Saturday's errors are all still there"
+            correct: false
+            feedback: "Hobby runtime logs retain roughly an hour, not a deployment lifetime. By Monday, Saturday's evidence is long gone, which is a design constraint to build around, not a bug to be surprised by."
+          - id: b
+            label: "Roughly nothing, Hobby runtime logs retain about an hour; persist the signal and treat platform logs as live-tail forensics"
+            correct: true
+          - id: c
+            label: "Only the failed invocations, error logs are retained indefinitely while successful request logs rotate out after an hour"
+            correct: false
+            feedback: "There is no error-only retention carve-out on the free tier, the roughly hour-long window applies to runtime logs as a class. If the errors matter beyond the hour, something must persist them."
+        explanation: "Ephemerality is taught as a constraint: free-tier platform logs are for tailing an incident as it happens, not for archaeology. Anything the station must remember, statuses, flips, history, already persists in status.json and KV by design. Persist the signal, tail the noise."
+      - id: m09-l2-q3
+        prompt: "Your edge worker's cron logs about a dozen lines per run, plus a debug line for every target in every loop pass. Traffic is nowhere near the request cap, yet log events start getting dropped mid-day. What limit did you hit?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "None, Workers Logs is part of the paid observability product, so free-tier workers do not have their logs collected at all"
+            correct: false
+            feedback: "Workers Logs exists on the free plan, with a daily event allowance. Your logs were being collected fine; they were being collected 200,000 times."
+          - id: b
+            label: "The request cap indirectly, log lines count as requests, so verbose logging consumes the same 100,000/day allowance"
+            correct: false
+            feedback: "Requests and log events are separate meters. The request allowance was fine, it is the per-day log-event budget that per-loop debug lines exhaust."
+          - id: c
+            label: "The Workers Logs free allowance of 200,000 events/day, per-loop debug lines spend the day's budget on noise"
+            correct: true
+        explanation: "200,000 events/day sounds enormous until a loop logs per target per pass: a 5-minute cron over a dozen targets with chatty inner loops crosses it easily. The budget is the platform enforcing the lesson's own rule, boundary events (result, flip, error) carry all the forensic value at a fraction of the volume."
+  - key: alarm-of-last-resort
+    type: quiz
+    questions:
+      - id: m09-l2-q4
+        prompt: "You have configured nothing beyond the defaults, and your station's cron workflow fails at 3 a.m. What does GitHub do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Probably nothing you will see, the Actions notification channel defaults to 'Don't notify' until you enable it in settings"
+            correct: true
+          - id: b
+            label: "It emails the repository owner on every failed run, failure email is the out-of-the-box behavior for any workflow in your own repo"
+            correct: false
+            feedback: "There is a distinct Actions notification channel in your settings, and its default delivery is 'Don't notify'. Until you turn it on, a red run is just a red X waiting for you to happen to look."
+          - id: c
+            label: "It retries the run automatically and notifies you only after three consecutive failures, to avoid alerting on transient errors"
+            correct: false
+            feedback: "Actions has no automatic retry-then-escalate policy for scheduled runs, one failure is one failed run, and whether anyone hears about it depends entirely on the notification channel you configured (or didn't)."
+        explanation: "The lesson's sharpest ops beat: an unconfigured alarm is not an alarm. The channel lives at Notification settings → System → Actions, with On GitHub/Email delivery and an 'Only notify for failed workflows' checkbox, turning it on is a required lab step, and the drill then proves it fires by breaking a run on purpose."
+      - id: m09-l2-q5
+        prompt: "One morning you notice the cron produced no runs overnight, and no failure notification either. Which explanation is consistent with GitHub's documented behavior?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Neither can happen, scheduled runs are guaranteed to execute once queued, so a missing run means someone deleted or renamed the workflow file"
+            correct: false
+            feedback: "GitHub's own docs say the opposite: scheduled events are best-effort, can be delayed, and under sufficient load queued jobs may be dropped. Silence is a documented outcome, not proof of sabotage."
+          - id: b
+            label: "Best-effort scheduling can drop queued jobs under load, and 60 days of repo inactivity auto-disables the schedule, neither produces a failed run to notify about"
+            correct: true
+          - id: c
+            label: "The runs happened and failed, but notifications for scheduled workflows route to the organization's administrators rather than to the author"
+            correct: false
+            feedback: "Scheduled-workflow notifications go to the workflow's CREATOR, not to org admins, and this doesn't explain the missing runs. The real gap is that a run which never happens has no failure to notify about."
+        explanation: "This is the alarm of last resort's named hole: failure notifications require a run that runs and fails. A dropped job and a 60-day auto-disable both produce pure silence, which is why the station also persists heartbeat timestamps in status.json, where an ABSENCE is visible to anything that looks."
+      - id: m09-l2-q6
+        prompt: "The secrets sweep: for each platform, where does a secret live so it never lands in git? Pick the mapping that matches the taught table."
+        multiSelect: false
+        options:
+          - id: a
+            label: "Actions: an env block committed in the workflow YAML; Vercel: values in vercel.json; Cloudflare: wrangler.toml [vars]; Docker: an ENV line baked into the Dockerfile"
+            correct: false
+            feedback: "Every location in this list is a committed file, that is four different ways to publish a secret. Each platform provides an out-of-repo store precisely so config files can stay public."
+          - id: b
+            label: "One encrypted .env committed to the repo and decrypted at deploy time on every platform with a shared key kept in the team password manager"
+            correct: false
+            feedback: "Committed-but-encrypted schemes exist in industry, but they add a key-distribution problem this course never takes on, and one leaked key retroactively exposes the whole git history. The taught path is each platform's own secret store."
+          - id: c
+            label: "Actions repository secrets; Vercel env vars synced via vercel env pull; Cloudflare wrangler secret put with gitignored .dev.vars; Docker --env-file, never in images"
+            correct: true
+        explanation: "The four-platform table in one breath: every platform separates committed configuration from injected secrets, repo secrets for Actions, dashboard env vars (pulled with `vercel env pull`) for Vercel, `wrangler secret put` plus `.dev.vars` for Cloudflare, and `--env-file`/`env_file` for Docker so images stay secret-free. The companion rule from the logging beat: never log the environment, or the sweep's work ends up in a retained log line."

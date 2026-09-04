@@ -1,0 +1,89 @@
+id: lesson-rtf-m08-l2
+slug: m08-l2
+title: "Reads in production: the Solana panel"
+skills:
+  - solana-fundamentals
+  - solana-kit
+  - rpc-reads
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: lamports-to-sol
+    type: code
+    language: typescript
+    starter: lamports-to-sol/starter.ts
+    solution: lamports-to-sol/solution.ts
+    tests: lamports-to-sol/tests.json
+    hints:
+      - "The remainder's DIGITS aren't the fraction, 2,500,000 lamports is .0025, not .25: pad to nine places first."
+      - "padStart(9, '0'), then trim trailing zeros with a replace."
+      - "Never convert the bigint to Number, t5's balance is above 2^53 on purpose."
+  - key: production-reads-check
+    type: quiz
+    questions:
+      - id: m08-l2-q1
+        prompt: "getBalance hands your panel `{ value: lamports }` where lamports is a bigint. Why does kit refuse to give you a plain number?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Numbers can't represent lamports because balances are always negative-safe integers"
+            correct: false
+            feedback: "Sign isn't the issue, JS numbers hold negative integers fine. The problem is magnitude: past 2^53 - 1, number arithmetic silently rounds, which is fatal for money."
+          - id: b
+            label: "bigint parses faster than number in the JSON-RPC response layer"
+            correct: false
+            feedback: "It's a correctness choice, not a performance one, bigint parsing is if anything slower. The point is that no balance can be silently corrupted on the way in."
+          - id: c
+            label: "Lamport balances can exceed Number.MAX_SAFE_INTEGER, where number math lies"
+            correct: true
+        explanation: "2^53 - 1 lamports is about 9 million SOL, real accounts exceed it. Above that line, JS numbers round without warning; bigint doesn't. That's why the canonical read is `const { value: lamports } = await rpc.getBalance(address).send()` with lamports as bigint, and why your formatter does BigInt division and string padding instead of dividing by 1e9."
+      - id: m08-l2-q2
+        prompt: "A teammate pins kit to the exact version a three-month-old tutorial used, then `npm i @solana-program/system` fails with a peer-dependency error. What's the taught fix?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Read the peer ranges of your workspace's @solana-program/* packages and pin to those"
+            correct: true
+          - id: b
+            label: "Always pin the newest kit major, since the client libraries track it within days"
+            correct: false
+            feedback: "Newest-major is just a different frozen digit, and m03-l1's helius-sdk artifact showed a live package peering two majors behind latest. The peer range in YOUR tree is the contract, whichever direction it points."
+          - id: c
+            label: "Install with --legacy-peer-deps, since peer warnings are advisory in modern npm"
+            correct: false
+            feedback: "Forcing past a peer error ships a version mismatch that fails at runtime instead of install time, strictly worse. The error is the package manager reading the contract for you."
+        explanation: "Kit shipped two majors in just over nine weeks; any digit written into a tutorial (or this course) pre-rots. The durable rule from m03-l1, now paying off: read the peerDependencies of the packages you actually depend on, per workspace, and pin to what they demand. Digits belong only in install lines verified at the time you run them."
+      - id: m08-l2-q3
+        prompt: "Why does the worker serve chain data from a KV snapshot refreshed on cron, instead of calling the RPC inside every incoming request?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Because kit cannot execute inside workerd, so cached values are the only option"
+            correct: false
+            feedback: "kit publishes a workerd export condition and the runtime provides its crypto, and even if the write-time smoke test forces the plain-fetch fallback, the caching argument stands on its own: it's about budgets, not capability."
+          - id: b
+            label: "Per-request RPC calls spend the public caps on page views, cache and refresh on cron"
+            correct: true
+          - id: c
+            label: "Chain state only changes at epoch boundaries, so more frequent reads return identical data"
+            correct: false
+            feedback: "State changes every slot, roughly every 300ms, so fresher reads DO see new data. The snapshot trades a little freshness for surviving the rate budget; it doesn't claim the data is static."
+        explanation: "The public RPC is a shared, capped resource explicitly not meant for production traffic. Routing every visitor's page view to it converts your traffic into rate-limit bans. The station's pattern, cron-refreshed KV snapshot, backoff on refresh, honest timestamp, is the same budget discipline m02-l3 taught, applied to a chain."
+      - id: m08-l2-q4
+        prompt: "solanakit.com's upgrade guide leads with the new createClient().use(...) plugin API. Should the panel be rewritten onto it today?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Yes, the docs lead with it, which means the pipe-style flow is already deprecated"
+            correct: false
+            feedback: "Leading the upgrade guide signals direction, not deprecation, the pipe flow remains the documented, stable path and the one kit's own examples use. Docs-page ordering is marketing; package versions are evidence."
+          - id: b
+            label: "No, createClient() is a third-party wrapper, not part of kit itself"
+            correct: false
+            feedback: "It IS kit's own API, live on solanakit.com, the hesitation isn't provenance. It's maturity: the plugin packages backing it are 0.x, and pre-1.0 minors carry breaking-change rights (the m07-l2 pin lesson)."
+          - id: c
+            label: "Not yet, the plugin packages are 0.x-young; the pipe flow stays the taught canon"
+            correct: true
+        explanation: "The 'where kit is heading' box exists precisely for this: name the new API, date its maturity (plugins at 0.x), and keep the lab on the stable path, which also lands the seam exactly where solana-client-side-mastery's canon begins. Re-check plugin maturity when you next touch this code; if plugins hit 1.0, the calculus changes."
