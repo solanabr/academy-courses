@@ -1,7 +1,8 @@
 id: lesson-rtf-m03-l2
 slug: m03-l2
 title: "React as a consumer: the dashboard"
-skills: []
+skills:
+  - solana-kit
 blocks:
   - key: intro
     type: prose

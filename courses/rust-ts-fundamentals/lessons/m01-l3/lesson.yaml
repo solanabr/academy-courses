@@ -1,7 +1,8 @@
 id: lesson-rtf-m01-l3
 slug: m01-l3
 title: "Green means it ran without you: git, GitHub flow, Actions"
-skills: []
+skills:
+  - solana-fundamentals
 blocks:
   - key: intro
     type: prose

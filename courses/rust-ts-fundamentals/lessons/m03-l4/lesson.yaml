@@ -1,7 +1,8 @@
 id: lesson-rtf-m03-l4
 slug: m03-l4
 title: "Publish something real: tsdown and the signs of a dying dep"
-skills: []
+skills:
+  - solana-kit
 blocks:
   - key: intro
     type: prose

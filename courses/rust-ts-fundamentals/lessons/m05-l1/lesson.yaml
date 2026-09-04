@@ -1,7 +1,8 @@
 id: lesson-rtf-m05-l1
 slug: m05-l1
 title: "serde: the boundary parser"
-skills: []
+skills:
+  - solana-programs
 blocks:
   - key: intro
     type: prose

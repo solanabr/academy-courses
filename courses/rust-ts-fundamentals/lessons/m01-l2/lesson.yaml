@@ -1,7 +1,8 @@
 id: lesson-rtf-m01-l2
 slug: m01-l2
 title: "Node 24, TypeScript 7, and your first probe"
-skills: []
+skills:
+  - solana-fundamentals
 blocks:
   - key: intro
     type: prose

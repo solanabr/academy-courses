@@ -1,7 +1,9 @@
 id: lesson-rtf-m02-l1
 slug: m02-l1
 title: "Make impossible states unrepresentable"
-skills: []
+skills:
+  - solana-kit
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

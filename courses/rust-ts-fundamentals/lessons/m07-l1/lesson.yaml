@@ -1,7 +1,9 @@
 id: lesson-rtf-m07-l1
 slug: m07-l1
 title: "A worker in every city: TS at the edge + KV"
-skills: []
+skills:
+  - solana-kit
+  - solana-programs
 blocks:
   - key: intro
     type: prose

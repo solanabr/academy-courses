@@ -1,7 +1,9 @@
 id: lesson-rtf-m06-l1
 slug: m06-l1
 title: "A daemon, not a script: tokio + a /status endpoint"
-skills: []
+skills:
+  - solana-fundamentals
+  - solana-programs
 blocks:
   - key: intro
     type: prose

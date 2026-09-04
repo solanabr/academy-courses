@@ -1,7 +1,9 @@
 id: lesson-rtf-m02-l3
 slug: m02-l3
 title: "Async that survives contact: limits, backoff, cancellation"
-skills: []
+skills:
+  - solana-kit
+  - rpc-reads
 blocks:
   - key: intro
     type: prose
