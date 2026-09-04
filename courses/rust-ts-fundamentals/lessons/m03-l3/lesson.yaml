@@ -1,6 +1,7 @@
 id: lesson-rtf-m03-l3
 slug: m03-l3
 title: "Vercel: the URL"
+skills: []
 blocks:
   - key: intro
     type: prose

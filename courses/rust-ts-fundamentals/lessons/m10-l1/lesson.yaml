@@ -1,6 +1,7 @@
 id: lesson-rtf-m10-l1
 slug: m10-l1
 title: "Assembly: the station, whole"
+skills: []
 blocks:
   - key: intro
     type: prose

@@ -1,6 +1,7 @@
 id: lesson-rtf-m02-l1
 slug: m02-l1
 title: "Make impossible states unrepresentable"
+skills: []
 blocks:
   - key: intro
     type: prose
