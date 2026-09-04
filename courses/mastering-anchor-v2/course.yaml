@@ -1,5 +1,6 @@
 id: course-mastering-anchor-v2
 slug: mastering-anchor-v2
+sourceLocale: en
 title: "Master Anchor V2"
 description: "Design, build, test, secure, and ship an Anchor V2 program to devnet against the 2.0.0-rc.1 release candidate, then migrate a 0.31/1.0 codebase to V2 with a map of what changed and why. V2 is an unaudited RC, so the course ends by teaching you to decide honestly when it is the right call and when the maintained 1.1.2 line still is. It does not teach Rust and it does not teach Anchor: it assumes you already ship Anchor programs and want the V2 delta."
 difficulty: advanced
