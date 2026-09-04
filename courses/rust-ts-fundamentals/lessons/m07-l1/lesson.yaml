@@ -1,6 +1,7 @@
 id: lesson-rtf-m07-l1
 slug: m07-l1
 title: "A worker in every city: TS at the edge + KV"
+skills: []
 blocks:
   - key: intro
     type: prose

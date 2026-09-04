@@ -1,6 +1,7 @@
 id: lesson-rtf-m04-l3
 slug: m04-l3
 title: "Enums are state machines"
+skills: []
 blocks:
   - key: intro
     type: prose

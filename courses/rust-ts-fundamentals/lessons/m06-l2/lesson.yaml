@@ -1,6 +1,7 @@
 id: lesson-rtf-m06-l2
 slug: m06-l2
 title: "Containers 101: put the poller in a box"
+skills: []
 blocks:
   - key: intro
     type: prose

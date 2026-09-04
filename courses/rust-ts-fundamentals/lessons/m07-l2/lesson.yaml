@@ -1,6 +1,7 @@
 id: lesson-rtf-m07-l2
 slug: m07-l2
 title: "The payoff: Rust on the same edge"
+skills: []
 blocks:
   - key: intro
     type: prose

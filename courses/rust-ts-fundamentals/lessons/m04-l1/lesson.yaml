@@ -1,6 +1,7 @@
 id: lesson-rtf-m04-l1
 slug: m04-l1
 title: "Ownership is the point"
+skills: []
 blocks:
   - key: intro
     type: prose

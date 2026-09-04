@@ -1,6 +1,7 @@
 id: lesson-rtf-m06-l4
 slug: m06-l4
 title: "compose for local, GHCR from CI"
+skills: []
 blocks:
   - key: intro
     type: prose

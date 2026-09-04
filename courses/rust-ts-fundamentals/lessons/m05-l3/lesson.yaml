@@ -1,6 +1,7 @@
 id: lesson-rtf-m05-l3
 slug: m05-l3
 title: "clap, a real probe arm, and a binary anyone can download"
+skills: []
 blocks:
   - key: intro
     type: prose

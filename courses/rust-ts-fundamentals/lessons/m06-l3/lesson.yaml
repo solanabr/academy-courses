@@ -1,6 +1,7 @@
 id: lesson-rtf-m06-l3
 slug: m06-l3
 title: "Two Dockerfiles, one idea: multi-stage honesty"
+skills: []
 blocks:
   - key: intro
     type: prose

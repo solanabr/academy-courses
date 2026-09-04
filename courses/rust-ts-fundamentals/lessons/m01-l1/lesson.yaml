@@ -1,6 +1,7 @@
 id: lesson-rtf-m01-l1
 slug: m01-l1
 title: "The map: what we teach, what we bookmark, and why both languages"
+skills: []
 blocks:
   - key: intro
     type: prose
