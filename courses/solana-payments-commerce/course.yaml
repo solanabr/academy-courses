@@ -1,5 +1,6 @@
 id: course-solana-payments-commerce
 slug: solana-payments-commerce
+sourceLocale: en
 title: "Solana Payments & Commerce"
 description: "By the end you can take real money on Solana end to end, a stablecoin Solana Pay checkout and POS, a webhook-driven back office with reconciliation and refunds, non-custodial subscriptions with dunning, on/off ramps, and x402/MPP machine payments, assembled into one running commerce stack on devnet — where the course touches regulation, it is an engineering framing of the seams, not legal advice."
 difficulty: intermediate
