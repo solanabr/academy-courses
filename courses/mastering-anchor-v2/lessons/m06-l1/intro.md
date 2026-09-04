@@ -184,7 +184,7 @@ cargo build-sbf              # release, defaults on: the configuration you actua
 export SBF_OUT_DIR=$PWD/target/deploy
 ```
 
-Then add Mollusk to your program crate as a dev-dependency. It costs four dev rows, plus a check on a pin the whole workspace already carries:
+Then add Mollusk to your program crate as a dev-dependency. It costs six dev rows, plus a check on a pin the whole workspace already carries:
 
 ```toml
 # programs/token-ticket-swap/Cargo.toml
@@ -214,9 +214,12 @@ solana-sdk = "4"
 # resolve succeeds and the BUILD dies, in solana-message and then in solana-transaction.
 solana-short-vec = ">=3.2.2, <3.3"
 solana-signature = ">=3.4.1, <3.5"
+# The fixture builds real SPL mint and token-account state, and the test names
+# spl_token::ID — the same pin m05-l1 installed.
+spl-token = "9"
 ```
 
-Those last two rows are issue #4937's bug class again, one layer further down, and they are worth understanding rather than pasting. `solana-short-vec 3.3.0` and `solana-signature 3.5.0` both moved to `wincode 0.6` while still satisfying what `solana-message 4.4.0` asks for, so a fresh resolve puts two `wincode` majors in the graph and `solana-message` stops compiling against whichever one cargo picks. Pinning both back below those majors holds the whole solana 4.x line on `wincode 0.5`, which is the line `anchor-lang 2.0.0-rc.1` already wants. Treat these three pins as one decision: when V2 crosses to `wincode 0.6`, they all go at once.
+The two `solana-*` range rows are issue #4937's bug class again, one layer further down, and they are worth understanding rather than pasting. `solana-short-vec 3.3.0` and `solana-signature 3.5.0` both moved to `wincode 0.6` while still satisfying what `solana-message 4.4.0` asks for, so a fresh resolve puts two `wincode` majors in the graph and `solana-message` stops compiling against whichever one cargo picks. Pinning both back below those majors holds the whole solana 4.x line on `wincode 0.5`, which is the line `anchor-lang 2.0.0-rc.1` already wants. Treat these three pins as one decision: when V2 crosses to `wincode 0.6`, they all go at once.
 
 Note the difference in blast radius between the dev rows and the `[dependencies]` row above them, because it is the practical lesson here. The two range rows are dev-dependencies of this crate — they shape the workspace lock, and no sibling ever has to declare them. `solana-address` is the opposite, for the reason its own comment gives, and that is not a Mollusk quirk; it is what a workspace *is*. A pin you own stays a per-crate decision right up until a sibling disagrees with it.
 

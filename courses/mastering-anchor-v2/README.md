@@ -41,7 +41,7 @@ lessons carry; treat a stale date as an unverified pin.
 | `solana-verify` | `0.5.1` | crates.io | 2026-08-22 | m08-l2 |
 | Docker | `27.x` or newer | daemon must be running or the build fails fast | 2026-08-22 | m08-l2 |
 | `mollusk-svm` | `0.15.1` (published 2026-08-29) | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
-| `mollusk-svm-programs-token` | `0.15.1` | crates.io | 2026-09-02 | m06-l1, m06-l2 |
+| `mollusk-svm-programs-token` | `0.15.1` | crates.io | 2026-09-04 | m06-l1, m06-l2, m09-l3 |
 | `solana-sdk` (Mollusk's dev-dep) | `4` | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3, m09-l1 |
 | `solana-short-vec` / `solana-signature` | `>=3.2.2, <3.3` / `>=3.4.1, <3.5` | crates.io — dev-deps, **only in the Mollusk crates** | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
 | `solana-address` (**every arcade-workspace member**) | `>=2.6.1, <2.7` | crates.io | 2026-09-01 | m02-l1, m03-l1, m04-l3, m05-l1, m06-l1, m06-l2, m09-l3 |

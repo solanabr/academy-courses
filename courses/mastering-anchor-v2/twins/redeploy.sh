@@ -98,9 +98,9 @@ echo "V2_TWIN_ID=$V2_ID"
 echo "V1_TWIN_SIG=$V1_SIG"
 echo "V2_TWIN_SIG=$V2_SIG"
 echo
-echo "==== the two log lines (expected output in Lab steps 2 and 4) ===="
-solana confirm -v "$V1_SIG" --url devnet | grep -i "compute units" | tail -1
-solana confirm -v "$V2_SIG" --url devnet | grep -i "compute units" | tail -1
+echo "==== the expected output blocks (Lab steps 2 and 4 print BOTH lines) ===="
+solana confirm -v "$V1_SIG" --url devnet | grep -i "compute units"
+solana confirm -v "$V2_SIG" --url devnet | grep -i "compute units"
 echo
 echo "Update sites: the opener export, Lab step 1's four exports, the expected"
 echo "log lines in steps 2 and 4, the 'verified' dates on all three, and the"

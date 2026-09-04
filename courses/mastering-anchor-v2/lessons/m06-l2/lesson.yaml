@@ -22,7 +22,7 @@ blocks:
     type: quiz
     questions:
       - id: guardrails-off
-        prompt: "You measured the swap, compiled with `guardrails` OFF, and re-measured lower CU plus a smaller binary. What did you actually trade away?"
+        prompt: "On a crate whose graph holds only `anchor-lang` — no `anchor-spl` edge to hold the defaults on — you compiled with `guardrails` OFF and re-measured lower CU plus a smaller binary. What did you actually trade away?"
         multiSelect: false
         options:
           - id: a
@@ -37,7 +37,7 @@ blocks:
             label: "Only the Mollusk harness changed — `guardrails` gates the test-time account checks, so the deployed program still runs every one."
             correct: false
             feedback: "Mollusk has no `guardrails` knob; the feature belongs to `anchor-lang` and is forwarded through your program crate's `Cargo.toml`. It changes the compiled `.so` you deploy, not the harness that measures it."
-        explanation: "guardrails is a default-on set of runtime safety nets. Compiling it off buys back CU and ~300 bytes, but you have removed real checks — so it is only honest to ship once you can defend the invariants without them. Name the nets before you argue past them: that an account is owned by the program you think owns it, that a discriminator matches the type you deserialized as, that a wrapping arithmetic path is caught rather than silently truncating. Turning the feature off does not make a malformed call impossible; it makes the framework stop checking for one. For `swap_arcade_for_tickets` the argument is writable — distinct reserve accounts, a fixed fee scale, an output bounded by `reserve_out`, a quote that returns 0 on an empty pool — and if you cannot write that paragraph for your own handler, revert."
+        explanation: "guardrails is a default-on set of runtime safety nets. Where the flip lands, compiling it off buys back CU and ~300 bytes, but you have removed real checks — so it is only honest to ship once you can defend the invariants without them. Name the nets before you argue past them: that an account is owned by the program you think owns it, that a discriminator matches the type you deserialized as, that a wrapping arithmetic path is caught rather than silently truncating. Turning the feature off does not make a malformed call impossible; it makes the framework stop checking for one. And note the question's precondition, because on R4 itself the lab measured a zero: anchor-spl declares anchor-lang with its defaults on, and cargo's feature unification holds guardrails on for the whole graph no matter what your own row says — the flip only lands on a crate whose graph does not re-add it. When it lands, this trade is what you signed, and if you cannot write the invariant paragraph for your own handler, revert."
       - id: const-rent
         prompt: "You enabled `const-rent` and account-creation got cheaper. What did it save, and what is the fine print you must carry?"
         multiSelect: false

@@ -18,16 +18,16 @@ Write down the integer it prints. That is the only number in this lesson you are
 
 ## Summary
 
-You are not writing new program logic this lesson. The swap keeps its behavior. Only its cost changes, and you prove the change with the same measurement from last lesson run twice, once before and once after a single edit.
+You are not writing new program logic this lesson. The swap keeps its behavior. What you attack is its cost, with the same measurement from last lesson run twice, once before and once after a single edit — and the first lever you pull will refuse to move the number at all, which turns out to teach more than a win would have.
 
 Here is the shape of it:
 
 - **The method is a loop, not a bag of tricks.** Baseline (you have it) then change exactly one thing then re-measure the same instruction then keep or revert based on the delta. The discipline is the lesson. The three levers below, two feature flags and one refactor, are just things to run through it.
-- **Lever one: `guardrails` off.** `guardrails` is a default-on set of runtime safety nets in Anchor V2. Compiling with it off hands back CU and about 300 bytes of binary. It also removes real checks, so it is only defensible once you can argue your invariants without them.
+- **Lever one: `guardrails` off — and the zero that teaches.** `guardrails` is a default-on set of runtime safety nets in Anchor V2, and flipping it off *should* hand back CU and about 300 bytes of binary. On R4 it hands back exactly nothing, and the lab's job is to catch that zero and read the reason straight out of the dependency graph: cargo's feature unification, with `anchor-spl` as the edge that flips the flag back. A change that never reached the binary is the loop's other failure mode, and it is just as measurable as a win.
 - **Lever two: `const-rent` on.** `const-rent` folds the rent constant at compile time, saving roughly 85 to 90 CU per account-creation CPI. Its fine print, written into Anchor's own Cargo.toml, is that the folded constant goes stale if the rent formula changes. That comment cites SIMD-0194, which is exactly a proposal to change the rent formula.
-- **The artifact is a regression test.** You take the swap through one full cycle in the lab, flip a lever, re-measure, and encode the post-optimization budget into a test named `cu_swap_regression` so the day someone reverses your win, the build fails.
+- **The artifact is a regression test.** You take the swap through one full cycle in the lab, catch the zero, attribute it, and encode the measured budget into a test named `cu_swap_regression` so the day something pushes the trade over it, the build fails.
 
-The fade this lesson: I run one complete cycle end to end in the lab, guardrails off, measure, keep-or-revert with the invariant argument spoken out loud. You then run the loop for a second lever, `const-rent`, with the harness handed to you, and report the attributed delta. The coding challenge is the solo rung: you write the optimized quote function from scratch and make it pass.
+The fade this lesson: I run one complete cycle end to end in the lab, guardrails off, measure, and attribute a delta of zero to the exact dependency edge that swallowed the flag. You then run the loop for a second lever, `const-rent`, with the harness handed to you, and report the attributed delta — a real one this time. The coding challenge is the solo rung: you write the optimized quote function from scratch and make it pass.
 
 ## The measured loop
 
@@ -54,9 +54,9 @@ With the method in hand, here are three concrete levers to run through it. The f
 
 `guardrails` is a default-on feature. That "default-on" matters: it means your baseline from last lesson was already measured with the safety nets in place. They are runtime checks the framework inserts on your behalf, and they cost CU on every run because they execute on every run.
 
-Compile with `guardrails` off and two things happen. Your binary shrinks by roughly 300 bytes, and the swap instruction gets cheaper because those checks are no longer running inside it. That is a real, measurable win, and you will see it in the lab as a genuine delta on the hot path.
+Compile with `guardrails` off, on a crate where the flip actually lands, and two things happen. The binary shrinks — Anchor's own figure is roughly 300 bytes, measured on its benchmark program — and the instruction gets cheaper, because those checks are no longer running inside it. Hold that expectation carefully, because the lab is about to violate it: on R4 the flip lands on nothing, the meter does not blink, and the reason is a dependency edge you will read with your own eyes.
 
-Here is the part I will not let you skip, because the wrong readings of it are the tempting ones. `guardrails` is not a lint. It is not a compile-only nicety. It is not a Mollusk setting. It changes the compiled program, which is precisely why the binary shrinks and the CU drops. What you traded away is the checks themselves. You removed real runtime safety nets. The CU came back because the work came out.
+Here is the part I will not let you skip, because the wrong readings of it are the tempting ones. `guardrails` is not a lint. It is not a compile-only nicety. It is not a Mollusk setting. It changes the compiled program — *when it actually turns off*. What you would be trading away is the checks themselves, real runtime safety nets, with the CU coming back because the work came out. And the precondition the lab exists to burn in: a cargo feature is only off when *nothing anywhere in your graph* turns it back on.
 
 So what are the nets, concretely? This matters, because you cannot argue an invariant you cannot name. The guardrails family is the class of defensive checks the framework inserts around your handler so that a malformed call fails cleanly instead of doing something worse. Think of the guarantees you have been leaning on without writing: that an account handed to you is actually owned by the program you think owns it, that a discriminator matches the account type you deserialized it as, that an arithmetic path that could wrap gets caught rather than silently truncating, that a bound you assumed holds actually held. On every single call, those checks run, and every one of them debits a little CU. That is the shape of the win when you turn them off, and it is also the exact shape of the risk. You did not make the malformed call impossible. You made the framework stop checking for it.
 
@@ -98,15 +98,15 @@ The point that generalizes past this one function: a lever is anything you can f
 
 Every CU you buy has a price, and the levers price it differently.
 
-Guardrails-off returns CU and about 300 bytes, but it strips the runtime safety nets. Never ship it without an invariant argument you can defend. The risk you took on is correctness: you are now the check.
+Guardrails-off, where it lands, returns CU and about 300 bytes at the price of the runtime safety nets — never ship it without an invariant argument you can defend, because the risk you take on is correctness: you are now the check. On R4 it does not land at all, and the risk inverts into something quieter: a build line that *says* nets-off while the binary still carries them documents an optimization that never happened, and it sits there waiting for the day the graph changes underneath it.
 
 Const-rent trades a runtime computation for a compile-time constant that can drift if the rent formula changes. The risk you took on is staleness. It needs a re-verify note tied to SIMD-0194, not a fire-and-forget commit.
 
-And there is a third trade-off that is not about either flag. It is about where you point the loop. Optimizing a cold instruction is wasted effort. A measured 50 CU shaved off a path nobody hits is noise, not a win, and worse, it is noise that cost you real time and often bought a real risk. This is directly relevant to the levers, because they help different instructions. Guardrails-off helps the hot trade path, the one that runs on every swap, thousands of times. Const-rent helps account-creation CPIs, which on this program means pool setup, an instruction that runs once when you stand the pool up and never again during trading.
+And there is a third trade-off that is not about either flag. It is about where you point the loop. Optimizing a cold instruction is wasted effort. A measured 50 CU shaved off a path nobody hits is noise, not a win, and worse, it is noise that cost you real time and often bought a real risk. This is directly relevant to the levers, because they aim at different instructions. Guardrails-off aims at the hot trade path, the one that runs on every swap, thousands of times — where it lands at all. Const-rent helps account-creation CPIs, which on this program means pool setup, an instruction that runs once when you stand the pool up and never again during trading.
 
-Both are legitimate, but the weighting is not the same. A CU saved on the trade path is saved on every trade forever, so it compounds with volume. A CU saved on the one-time init is saved exactly once. That does not make the init optimization worthless, standing an account up cheaper is still cheaper, but it does mean you should not spend an afternoon shaving the cold path while the hot one still has a fat frame you have not touched. Rank the levers by frequency times delta, not by delta alone. The instrument that tells you the frequency is not the flamegraph, it is your own knowledge of how the program is actually called.
+Both aims are legitimate, but the weighting is not the same. A CU saved on the trade path is saved on every trade forever, so it compounds with volume. A CU saved on the one-time init is saved exactly once. That does not make the init optimization worthless, standing an account up cheaper is still cheaper, but it does mean you should not spend an afternoon shaving the cold path while the hot one still has a fat frame you have not touched. Rank the levers by frequency times delta, not by delta alone. The instrument that tells you the frequency is not the flamegraph, it is your own knowledge of how the program is actually called.
 
-Which is worth stating plainly against what this lesson then asks you to do, because it looks like a contradiction. The completion below runs the loop on `const-rent`, a cold-path lever, while the hot frame is still untouched until the challenge. That ordering is pedagogical, not a recommendation: `const-rent` is the cleanest second trip around the loop because its trade-off is drift rather than correctness, so you get to practice the method without also having to defend an invariant argument. In your own program you would do the hot path first. Here you are learning the loop, and the loop is cheaper to learn on the lever that cannot hurt you.
+Which is worth stating plainly against what this lesson then asks you to do, because it looks like a contradiction. The completion below runs the loop on `const-rent`, a cold-path lever, while the hot frame is still untouched until the challenge. That ordering is pedagogical, not a recommendation: `const-rent` is the cleanest second trip around the loop because its trade-off is drift rather than correctness, so you get to practice the method without also having to defend an invariant argument — and, after the lab's zero, it is the first trip where the number actually moves. In your own program you would do the hot path first. Here you are learning the loop, and the loop is cheaper to learn on the lever that cannot hurt you.
 
 ![A two-column comparison weighting the hot trade path against the cold pool-init path, showing that the same CU delta should be ranked by frequency times delta.](assets/v06-comparison.png)
 
@@ -116,7 +116,7 @@ The other half of pointing the loop correctly is isolation, and it is where the 
 
 ## Lab: run one full cycle on the swap
 
-Worked example, wheels on. I run one complete pass of the loop against the `swap_arcade_for_tickets` instruction using `guardrails` as the lever, and we land on a post-optimization budget encoded in a regression test. Run each command on your own checkout as you read it; the numbers you get will not be mine, and that is the point.
+Worked example, wheels on. I run one complete pass of the loop against the `swap_arcade_for_tickets` instruction using `guardrails` as the lever, and we land on a measured budget encoded in a regression test. Fair warning of the shape of the ending: the loop's answer here is a zero, and the zero — caught, attributed, and named — is the finding. Run each command on your own checkout as you read it; the numbers you get will not be mine, and that is the point.
 
 The autonomy fade is explicit. I run the guardrails cycle end to end here, delta and decision spoken out loud. You then run the loop again for `const-rent` on the pool-init instruction, harness provided, in the completion section below. And the coding challenge after it, the optimized quote written from scratch, is yours alone.
 
@@ -154,6 +154,9 @@ const-rent = ["anchor-lang/const-rent"]   # opt in to the compile-time rent fold
 # the OTHER v2 default. Re-enable alloc here explicitly: otherwise your
 # --no-default-features build moves TWO variables (and your allocator), not one.
 anchor-lang = { version = "2.0.0-rc.1", default-features = false, features = ["alloc"] }
+# The SPL surface R4 has carried since module 5 — and, as this lab is about to
+# measure, the row that quietly decides the whole guardrails story.
+anchor-spl  = "2.0.0-rc.1"
 # The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
 wincode = { version = "0.5", features = ["derive"] }
 # The arcade-workspace row, unchanged since m02-l1 and confirmed in m06-l1 when Mollusk
@@ -169,6 +172,7 @@ mollusk-svm-programs-token = "0.15.1"
 solana-sdk = "4"
 solana-short-vec = ">=3.2.2, <3.3"
 solana-signature = ">=3.4.1, <3.5"
+spl-token = "9"   # the fixture's state types and spl_token::ID (m05-l1's pin)
 ```
 
 Now the single change. Compile the program with the default features off, which drops `guardrails`:
@@ -178,7 +182,7 @@ Now the single change. Compile the program with the default features off, which 
 cargo build-sbf --no-default-features
 ```
 
-Expected result: a clean build, and a `target/deploy/token_ticket_swap.so` slightly smaller than the byte size you wrote down in step 1. Run `ls -l` on it again and compare the two numbers. Anchor's own ~300-byte figure is measured on its benchmark program, not yours, so treat your shrink as confirmation that the flag actually reached the binary, never as a target to hit. A byte size that did not move at all means the feature passthrough is not wired and you are about to measure nothing.
+Expected result: a clean build — and a byte size that has **not moved**. Run `ls -l` again and compare against step 1: identical, byte for byte. On most crates an unmoved size would mean the feature passthrough is not wired and you are about to measure nothing. Your passthrough is wired exactly right, and the unmoved size is still telling you the flag never reached the binary — that contradiction is the actual finding of this lab, and step 3 runs the measurement anyway before explaining it, because the loop's rule is measure first, explain after.
 
 That is it. You changed one thing. Resist adding `--features const-rent` on the same line, because then you would have moved two variables and the delta would be a sum.
 
@@ -189,27 +193,46 @@ That is it. You changed one thing. Resist adding `--features const-rent` on the 
 cargo test -p token-ticket-swap trade_cu_baseline -- --nocapture
 ```
 
-That command just did two things, and only one of them is the measurement. It printed the new number, and then it **failed**, because `trade_cu_baseline` asserts `Check::compute_units(BEFORE)`, an exact equality, and the trade no longer costs `BEFORE`. That red is the tripwire from last lesson working exactly as designed: you moved the number, and the test that was pinning the old number said so.
+That command printed the number — and the test stayed **green**. Read the line: `trade consumed <N> CU`, the same integer as `BEFORE`, and `Check::compute_units(BEFORE)`, an exact equality, still passes. The tripwire from last lesson is working exactly as designed: it pins the number, the number did not move, so nothing fires. Write `AFTER` down anyway, because the loop demands it, and compute the delta: `AFTER - BEFORE = 0`. You changed one thing and the meter did not blink.
 
-So read the `trade consumed <N> CU` line above the failure, not the failure itself. Write that integer down as `AFTER`. And leave the test red for now; step 5 retires it and replaces it with a bound that does not have to be re-edited every time you get faster.
+A zero delta has exactly two honest readings, and the loop forces you to pick the right one. Either the change genuinely costs nothing — or the change never reached the binary. The unmoved byte size from step 2 already voted for the second. Now read the culprit directly, with the instrument built for exactly this question:
 
-Your delta is `AFTER - BEFORE`, and because you changed exactly one thing, that delta belongs entirely to `guardrails`. You can say the sentence out loud and it is true: "turning guardrails off saved N compute units on the trade instruction." That sentence is the whole point of the loop. It is attributable.
+```bash
+cargo tree -e features -i anchor-lang --no-default-features
+```
+
+```text
+anchor-lang v2.0.0-rc.1
+├── anchor-lang feature "alloc"
+│   └── token-ticket-swap v0.1.0 (…/programs/token-ticket-swap)
+│   └── anchor-lang feature "default"
+│       └── anchor-spl v2.0.0-rc.1
+│           ├── anchor-spl feature "default"
+│           │   └── token-ticket-swap v0.1.0 (…/programs/token-ticket-swap)
+│           └── anchor-spl feature "guardrails"
+│               └── anchor-spl feature "default" (*)
+├── anchor-lang feature "default" (*)
+└── anchor-lang feature "guardrails"
+    └── anchor-lang feature "default" (*)
+```
+
+Read the last stanza bottom-up: `anchor-lang feature "guardrails"` is switched on by `anchor-lang feature "default"`, and the arrow under *that* points straight at `anchor-spl v2.0.0-rc.1`. Your `default-features = false` row did its job — your own edge stopped asking for the defaults — but `anchor-spl` declares a plain `anchor-lang = "=2.0.0-rc.1"`, defaults and all, and cargo **unifies features across every edge in the graph**: one crate is compiled for everyone, so any single edge that asks for a feature turns it on for all of them. Features are additive by design; your `false` cannot subtract what a sibling edge adds. You flipped the flag, and the graph flipped it back before the compiler ever saw it.
+
+So the attribution sentence for this cycle, said out loud and true: "turning guardrails off changed nothing, because anchor-spl's dependency edge holds the feature on." That sentence is the whole point of the loop — a zero you can explain beats a win you cannot.
 
 ### 4. Keep or revert, with the argument spoken
 
-Here is the decision, and I am going to make the argument in the open, because the one rule this lever has is that you never ship it silently.
+Here is the decision, and the zero makes it for you: **revert**. Take `--no-default-features` back off the build line. Not because the nets must stay — because the flag does nothing here, and a build line that claims nets-off while the binary still carries them is worse than either honest state. It documents an optimization that never happened, and it sits armed: the day anchor-spl's edge changes, your "no-op" flag silently becomes a real nets-off build that nobody ever argued for.
 
-The delta is real and positive. So do I keep it? Only if I can defend the trade with the nets down. For the `swap_arcade_for_tickets` handler, I can: the two reserves are distinct token accounts by construction, so there is no aliasing to catch; the quote returns 0 on an empty or zero-input pool and the handler reverts on a 0 output; the fee scale is a fixed constant; and the output is bounded by `reserve_out`, a `u64`, so the final cast cannot truncate. Those are the invariants `guardrails` was defending. I just defended them myself, in writing. So for this specific instruction, keep is defensible.
-
-If you cannot write that paragraph for your own handler, revert. `cargo build-sbf` with the default features back on, and the nets return. There is no shame in it. The shame is shipping the nets-off build with the paragraph unwritten.
+The invariant discipline the nets-off trade demands is not wasted, though — shelve it where the zero left it. On a crate that does not sit under `anchor-spl` — a pure-logic program with only `anchor-lang` in its graph — this exact flip lands, the binary shrinks, and the rule applies in full: never ship nets-off without a written argument that defends every invariant the checks were covering. For this swap the paragraph would even be writable: the two reserves are distinct token accounts by construction, so there is no aliasing to catch; the quote returns 0 on an empty or zero-input pool and the handler reverts on a 0 output; the fee scale is a fixed constant; and the output is bounded by `reserve_out`, a `u64`, so the final cast cannot truncate. Write it the day the flip can land. Today the graph vetoed the trade before you could make it.
 
 ![A decision table gating a guardrails-off build on a real delta, a full written invariant argument for the handler, and the argument actually committed, otherwise revert.](assets/v08-comparison.png)
 
 ### 5. Encode the win as a regression test
 
-A delta you measured once is a story. A delta encoded in a test is a tripwire. The verify step for this lesson is a test named `cu_swap_regression`, and its job is to fail the build the day someone reverses your optimization.
+The lab's cycle ended in a revert, and it still leaves an artifact — this one. A number you measured once is a story; a number encoded in a test is a tripwire, and the trade's real, nets-on cost deserves one. The verify step for this lesson is a test named `cu_swap_regression`, and its job is to fail the build the day something pushes the trade back over its budget.
 
-It also replaces `trade_cu_baseline`, which is still red from step 3 and should not be repaired. An exact-equality pin was the right tool for establishing a baseline once; as a standing test it goes red on every improvement as well as every regression, which trains people to ignore it. Delete `tests/cu_baseline.rs` once the new test is green, and keep the fixture module it used, because this one needs it too.
+It also replaces `trade_cu_baseline`, deliberately, and not because anything is red — nothing is. An exact-equality pin was the right tool for establishing a baseline once; as a standing test it goes red on every improvement as well as every regression, which trains people to ignore it. Delete `tests/cu_baseline.rs` once the new test is green, and keep the fixture module it used, because this one needs it too.
 
 ```rust
 // programs/token-ticket-swap/tests/cu_swap_regression.rs
@@ -230,9 +253,10 @@ fn fixture() -> (Mollusk, Instruction, Vec<(Pubkey, Account)>) {
     (mollusk, ix, accounts)
 }
 
-// The budget you EARNED in this lab: your measured AFTER, with a little headroom.
-// This is not a wish. It is the number you measured with guardrails off, rounded up
-// so a future toolchain bump that shifts the number a little does not flap the build.
+// The budget from this lab's measurement: your BEFORE (which is also your AFTER —
+// that zero was the finding), plus a little headroom. This is not a wish. It is the
+// number you measured, rounded up so a future toolchain bump that shifts the number
+// a little does not flap the build.
 // Set this before you run the test; the println below tells you what to set it to.
 const TRADE_CU_BUDGET: u64 = 0; // <- set to your measured AFTER + a small headroom
 
@@ -282,17 +306,13 @@ The cycle is identical in shape:
    cargo build-sbf                                                 # build first, always
    cargo test -p token-ticket-swap init_cu_baseline -- --nocapture
    ```
-2. **Change exactly one thing** relative to your step-1 build: turn `const-rent` on and move nothing else. Which line that is depends on where you left the lab.
+2. **Change exactly one thing** relative to your step-1 build: turn `const-rent` on and move nothing else. The lab ended with the defaults back on — the guardrails flag was a no-op and you took it off the line — so this is one flag on an otherwise-default build:
 
 ```bash
-# If you KEPT guardrails off after the lab, keep it off and add ONE flag:
-cargo build-sbf --no-default-features --features const-rent
-
-# If you REVERTED to the defaults after the lab, leave them on and add ONE flag:
 cargo build-sbf --features const-rent
 ```
 
-Either way, the only variable that moves between step 1 and step 3 is `const-rent`. Re-running the lab's `--no-default-features` line on top of a defaults-on baseline would flip guardrails too, and your delta would be a sum again.
+One asymmetry worth noticing as you type it: unification vetoed the guardrails *removal*, but it cannot veto this *addition*. Features are additive, so turning one ON needs only your own edge to ask for it — which is exactly why this lever can land where the last one could not. The only variable that moves between step 1 and step 3 is `const-rent`.
 
 3. **Re-measure** the same init instruction, same fixture, same command. The build line above already rebuilt with the new flag; run `cargo test -p token-ticket-swap init_cu_baseline, --nocapture` again and read the second number.
 4. **Report** the before CU, the after CU, and the one-line attribution: "turning const-rent on saved N CU on the pool-init account creation."
@@ -318,7 +338,7 @@ fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u6
 }
 ```
 
-Two things are wrong with it, and they are the same two the module-5 challenge made you fix on `swap_out`. It never applies the fee, so every quote with `fee_bps > 0` over-pays the trader. And it multiplies two `u64` values, so a large `reserve_out * amount_in` can overflow: a panic in debug, a silent wrap in release, on the deepest pool you have, which is the trade you least want to fail on. You fixed both once already on a fee-less curve. This is the same repair on the general one, and this time you also have a nets-off build in your hand, which is exactly the build where a wrapped multiply has nothing standing behind it.
+Two things are wrong with it, and they are the same two the module-5 challenge made you fix on `swap_out`. It never applies the fee, so every quote with `fee_bps > 0` over-pays the trader. And it multiplies two `u64` values, so a large `reserve_out * amount_in` can overflow: a panic in debug, a silent wrap in release, on the deepest pool you have, which is the trade you least want to fail on. You fixed both once already on a fee-less curve. This is the same repair on the general one — and the day you are on a crate where a nets-off build genuinely lands, a wrapped multiply has nothing standing behind it, so the checked version is the one you want in your fingers now.
 
 A third thing is wrong with it that module 5 already taught you and this starter quietly drops: it does not check its inputs. Set `reserve_in` to zero and the denominator collapses to `amount_in`, the `amount_in` cancels, and the function quotes all of `reserve_out` — the entire pool — to whoever asks first. That is the same guard `swap_out` opens with, and the general version needs it too.
 
@@ -365,12 +385,12 @@ Four ways this lesson goes wrong in practice. Check yourself against each.
 
 Did you change exactly one thing between each pair of measurements? If you flipped two flags on one build line, your delta is a sum you cannot attribute, and the honest answer is to go back and isolate them.
 
-Did you write the invariant argument before keeping the guardrails-off build? Turning off the safety nets buys real CU, but the checks were doing real work. A nets-off build is only as safe as the paragraph you wrote beside it. No paragraph, revert.
+Did you attribute the zero instead of shrugging at it? A zero delta has two readings, and only one of them is "this change is free": yours was "the change never reached the binary," and `cargo tree -e features` named the anchor-spl edge that swallowed it. Carry the corollary too: the day you are on a crate where the flip lands, the invariant argument comes due in full — a nets-off build is only as safe as the paragraph you wrote beside it, and no paragraph means revert.
 
 Did you quote const-rent's saving as a range with a re-verify note, and not a single frozen digit? The saving is roughly 85 to 90 CU, it spans two source citations, and it can drift if the rent formula changes. SIMD-0194 is the reason the number carries an expiry date you do not control.
 
-And did you measure each lever on the instruction it actually touches? Guardrails-off on the hot trade path, const-rent on the account-creation init. A 50-CU win on a path nobody hits is noise. Weight the win by how often the instruction runs.
+And did you measure each lever on the instruction it actually touches? Guardrails-off was aimed at the hot trade path — and the graph vetoed it before it arrived; const-rent lands on the account-creation init. A 50-CU win on a path nobody hits is noise. Weight the win by how often the instruction runs.
 
-You have made the swap cheaper and you can prove it, with a delta attributed to one named change and a regression test that will hold the line for you. Next module asks a harder question than "is it fast?" It asks "is it safe?" You will write the classic Anchor exploits against your own program, the account substitutions and the missing signer checks, and watch which ones V2 simply refuses to compile and which ones survive every framework and are still yours to defend. The measured loop taught you to buy CU one change at a time. The security module teaches you what you must never trade for it.
+You have run the loop for real and you can prove every outcome it produced: a zero attributed to one named dependency edge, an init saving attributed to one flag, a rewritten quote measured on its own merits, and a regression test holding the trade's line for you. Next module asks a harder question than "is it fast?" It asks "is it safe?" You will write the classic Anchor exploits against your own program, the account substitutions and the missing signer checks, and watch which ones V2 simply refuses to compile and which ones survive every framework and are still yours to defend. The measured loop taught you to buy CU one change at a time. The security module teaches you what you must never trade for it.
 
 See you in the security module.
