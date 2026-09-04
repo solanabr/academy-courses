@@ -1,0 +1,109 @@
+id: lesson-rtf-m06-l3
+slug: m06-l3
+title: "Two Dockerfiles, one idea: multi-stage honesty"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check-stages
+    type: quiz
+    questions:
+      - id: m06-l3-q1
+        prompt: "Your multi-stage build still produces a huge image. Reading the Dockerfile, which property actually determines what ships in the final image?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The compression Docker applies when it exports the final image's layers"
+            correct: false
+            feedback: "Layer compression is marginal and automatic. If the toolchain is in your final stage, compression will dutifully ship a compressed toolchain."
+          - id: b
+            label: "Only what the final stage's base contains plus what you COPY --from into it, earlier stages are left behind entirely"
+            correct: true
+          - id: c
+            label: "Whether the release build stripped debug symbols before the image was assembled"
+            correct: false
+            feedback: "Stripping shaves megabytes off the binary; the gigabytes are the build environment. Symbol stripping cannot rescue a Dockerfile that copies the wrong things forward."
+        explanation: "The whole multi-stage idea in one rule: the final image = final base + explicit COPYs. If it still weighs too much, either your runtime base is fat or you copied build artifacts forward, read the COPY lines, not the compressor."
+      - id: m06-l3-q2
+        prompt: "cargo-chef adds prepare and cook stages to your Dockerfile. What problem is that machinery actually solving?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It cross-compiles the poller for musl so the runtime stage can use a smaller base"
+            correct: false
+            feedback: "cargo-chef is target-agnostic and its own README canon runs on debian-slim, not musl. It is about build caching, not cross-compilation."
+          - id: b
+            label: "It shrinks the final image further than a plain two-stage build could"
+            correct: false
+            feedback: "Final image size is identical, the runtime stage copies the same one binary either way. cargo-chef changes how long REBUILDS take, not what ships."
+          - id: c
+            label: "It caches dependency compilation as its own layer, so code-only changes stop recompiling every crate on every build"
+            correct: true
+        explanation: "The prepare step extracts a recipe (your dependency graph); cook builds just the dependencies into a cacheable layer. Edit your source and only your crate recompiles, the README claims up to 5x faster builds, and this lesson attributes that claim rather than asserting it."
+      - id: m06-l3-q3
+        prompt: "You switch the poller's runtime base to alpine for the size win, and multi-threaded probing gets dramatically slower. What is the most likely cause?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "musl's default allocator degrades multi-threaded Rust, an order of magnitude in Grove's 2020 benchmark"
+            correct: true
+          - id: b
+            label: "alpine containers are CPU-throttled by default until you raise their cgroup limits"
+            correct: false
+            feedback: "No runtime throttles alpine specifically, cgroup limits are yours to set and identical across bases. The regression is inside the process: its allocator."
+          - id: c
+            label: "The glibc-built binary is running under a compatibility emulation layer on musl"
+            correct: false
+            feedback: "There is no emulation layer, a glibc-linked binary on alpine simply fails to run. If it runs at all it was built for musl, and musl's allocator is the measured culprit."
+        explanation: "Grove measured ~30x on his workload (later measurements span 2x to 20x); ripgrep's fix is shipping jemalloc on musl, and Grove's own fix was moving to debian-slim, this course's default base. Smallest image is not fastest binary: base images are a measured trade-off."
+  - key: check-node-side
+    type: quiz
+    questions:
+      - id: m06-l3-q4
+        prompt: "In the node image you install pnpm with `npm i -g pnpm@<pinned>` instead of `corepack enable`. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "corepack resolves package managers over the network on first use, which is too slow for image builds"
+            correct: false
+            feedback: "Speed is not the issue, and a cached corepack fetch is fast. The problem is existence: you cannot enable a tool your base image no longer ships."
+          - id: b
+            label: "corepack is no longer distributed with Node 25+, so images built on current bases cannot rely on it being there"
+            correct: true
+          - id: c
+            label: "pnpm refuses to run when activated through corepack, so direct installation is mandatory"
+            correct: false
+            feedback: "pnpm ran fine under corepack for years, that was corepack's main job. The change is on Node's side: the runtime stopped bundling it."
+        explanation: "Node's TSC voted corepack out (gone from Node 25+ distributions; still present in Node 24 LTS). Image builds want deterministic, self-contained steps, so the course canon is an explicit, pinned global install, with the pin digit verified at write time, since pnpm's next major is already publishing."
+      - id: m06-l3-q5
+        prompt: "The containerized fleet-runner does one probe sweep and exits, and compose keeps restarting it forever. What is the honest fix?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Set restart: always and let the restart policy provide the loop, that is what policies are for"
+            correct: false
+            feedback: "Restart policies are for recovering from FAILURE, not for scheduling. A restart-driven loop pays process startup on every sweep and turns your logs into a crash chronicle."
+          - id: b
+            label: "Run cron inside the container to re-invoke the script on a schedule"
+            correct: false
+            feedback: "A second supervisor inside the box fights the container model, one container, one foreground process. Now you debug cron AND your app, in a slim image that likely lacks cron anyway."
+          - id: c
+            label: "Give the runner a real interval-loop service mode, a container wants one long-lived foreground process"
+            correct: true
+        explanation: "This beat is built, not assumed: the TS fleet was written as a run-once script, so this lesson adds an --interval flag that turns it into a service. The mode change belongs in the program, not in restart policies or an in-container cron."
+      - id: m06-l3-q6
+        prompt: "Your OpenSSL-linked build segfaults on alpine at TLS handshake time but runs fine on debian-slim. What is the course-canon fix?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Build with rustls and skip the C TLS dependency entirely"
+            correct: true
+          - id: b
+            label: "Install glibc into the alpine image so the OpenSSL linkage resolves"
+            correct: false
+            feedback: "Bolting glibc onto alpine abandons the base's whole premise and creates a franken-image. The clash here is two musls (your static one vs alpine's dynamic one), not a missing glibc."
+          - id: c
+            label: "Downgrade the openssl crate until the segfault version-mismatch disappears"
+            correct: false
+            feedback: "No openssl crate version fixes a static-vs-dynamic musl linkage clash. The documented crate-side alternative is the vendored feature, building OpenSSL in, not a downgrade."
+        explanation: "The documented footgun: a statically-built musl binary meeting alpine's dynamically-linked OpenSSL segfaults. Documented fixes include the openssl crate's vendored feature, but the house canon, consistent with every Rust rules file in this repo, is rustls: pure Rust, no C dependency, no clash to have."

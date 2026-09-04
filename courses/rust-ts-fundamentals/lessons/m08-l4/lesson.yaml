@@ -1,0 +1,114 @@
+id: lesson-rtf-m08-l4
+slug: m08-l4
+title: "The write path health check: one transfer"
+skills:
+  - solana-fundamentals
+  - solana-kit
+  - rpc-reads
+  - transactions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: write-path-check
+    type: quiz
+    questions:
+      - id: m08-l4-q1
+        prompt: "Monday the airdrop failed with a 429; Tuesday it failed with an internal error; Wednesday it worked. What does the lesson want you to build from that experience?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A handler for the 429 specifically, since rate-limiting is the documented failure"
+            correct: false
+            feedback: "Same-day research probes hit BOTH a 429 and an internal error, neither is 'the' failure. Code that matches one specific error breaks on the other; the faucet's failure surface is heterogeneous by observation."
+          - id: b
+            label: "A general fails-many-ways branch with backoff, plus the rehearsed local-validator fallback"
+            correct: true
+          - id: c
+            label: "A loop that retries immediately until success, since Wednesday proves it eventually works"
+            correct: false
+            feedback: "The unauthenticated budget is 2 requests per 8 hours, a hot retry loop burns the whole allowance in seconds and guarantees the dry-faucet state it was trying to escape."
+        explanation: "The airdrop beat is a small production system in miniature: a best-effort external dependency with heterogeneous failures and a hard budget. The taught shape is generic failure handling plus backoff plus a fallback you've rehearsed, which is why the lesson makes everyone run the local validator once, before they need it in anger."
+      - id: m08-l4-q2
+        prompt: "Why does tx-check sign with a throwaway file keypair instead of connecting the browser wallet you already own?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Browser wallets refuse devnet transactions, so a file keypair is the only signer that works"
+            correct: false
+            feedback: "Wallets handle devnet fine, most have a network switch. The exclusion isn't technical capability; it's a deliberate boundary in what this course teaches."
+          - id: b
+            label: "File keypairs produce stronger signatures than wallet-managed keys on devnet"
+            correct: false
+            feedback: "The signature math is identical Ed25519 either way, where the key lives changes custody and UX, not cryptographic strength."
+          - id: c
+            label: "Wallet UX is the client-side course's seam; a throwaway key keeps this about the pipe flow"
+            correct: true
+        explanation: "The boundary is on purpose and stated by name: wallet-standard, connection UX, and signing prompts belong to solana-client-side-mastery. A gitignored 32-byte throwaway holding worthless devnet SOL is the minimal signer that lets this lesson teach message-building, signing, and confirmation, and the moment you want a real wallet is the moment you open the sibling course."
+      - id: m08-l4-q3
+        prompt: "Your script builds the transaction message at startup, does other work for two minutes, then sends, and confirmation fails every time. What did the pipe flow's lifetime step already tell you?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The blockhash lifetime is an expiry window, a stale blockhash means dead on arrival"
+            correct: true
+          - id: b
+            label: "Messages must be signed within one slot of creation, and two minutes is hundreds of slots"
+            correct: false
+            feedback: "There's no sign-within-a-slot rule, signing is local and unhurried. The clock that matters is the blockhash's validity window at SEND time, which is what expired here."
+          - id: c
+            label: "The fee payer's balance was spent by the airdrop retries during the two-minute gap"
+            correct: false
+            feedback: "Airdrops add funds rather than spend them, and a balance problem would fail differently (insufficient funds, not silent non-landing). The reproducible every-time failure after a fixed delay is the lifetime signature."
+        explanation: "The lifetime step stamps the message with a recent blockhash, and the network only accepts it while that blockhash is still recent: 150 blocks, about 45 seconds at the chain's 300ms slot time. That's a feature: expired transactions die cleanly instead of landing hours later when you've given up. The practical rule the footgun states: fetch the blockhash inside the send path, not at script start."
+  - key: health-check-close
+    type: quiz
+    questions:
+      - id: m08-l4-q4
+        prompt: "The station already had green reads on every surface. What does the confirmed tx-check signature prove that no read ever could?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "That the RPC endpoint is reachable and answering requests from your network"
+            correct: false
+            feedback: "Reads have proven reachability three lessons running, that's exactly the ceiling of what asking questions can show. The signature proves something happened to STATE."
+          - id: b
+            label: "That the full write path works: keys, message building, signing, and confirmation"
+            correct: true
+          - id: c
+            label: "That your account will stay funded, since confirmation locks the balance in place"
+            correct: false
+            feedback: "Confirmation finalizes one transaction; it guarantees nothing about future balances or future writes. It's a point-in-time proof of the pathway, not a standing warranty."
+        explanation: "The frame this lesson opened with: a transaction is the probe that mutates. Every layer that reads share, connectivity, RPC health, plus every layer they don't: key validity, correct message construction, signature acceptance, network inclusion, confirmation. That's why tx-check is the station's deepest health check and why m10-l1's demo script calls it."
+      - id: m08-l4-q5
+        prompt: "The lesson makes EVERY learner run solana-test-validator once, even those whose devnet airdrop worked first try. Why?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Because devnet is being phased out, so local validation is the forward-compatible path"
+            correct: false
+            feedback: "Devnet is alive and remains the lesson's primary target, the transfer that counts as SHIP #5 lands there when the faucet allows. The local chain is the rehearsed fallback, not the successor."
+          - id: b
+            label: "Because local runs are the real test, mainnet-bound code should always be validated locally first"
+            correct: false
+            feedback: "The lesson says nearly the opposite: local green proves your CODE, while the devnet run is the one that exercises the actual network path. Neither replaces the other; they answer different questions."
+          - id: c
+            label: "So the fallback is rehearsed before it's needed, a dry faucet can never hard-block the write path"
+            correct: true
+        explanation: "A fallback you've never exercised is a rumor, not a fallback, the same logic m09-l2 will apply to alarms. The faucet's 2-per-8h budget makes dry spells a WHEN, not an if, so the CLI install and one local-validator run are a numbered lab step for everyone. Side effect: every graduate owns a full local chain for everything they build next."
+      - id: m08-l4-q6
+        prompt: "After the transfer confirms, the sender's balance dropped by slightly MORE than the amount sent. Where did the difference go?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It's the transaction fee, writes pay to mutate state, and the fee payer shows it"
+            correct: true
+          - id: b
+            label: "It's a rounding loss from your formatter converting lamports into SOL for the display"
+            correct: false
+            feedback: "Your own m08-l2 formatter is exact BigInt math, no display rounding exists to lose anything. The delta is on-chain and real, visible in raw lamports before any formatting."
+          - id: c
+            label: "It's rent charged to the sender to cover the recipient account's on-chain storage"
+            correct: false
+            feedback: "Close to a real mechanism, wrong charge: account storage economics exist on Solana, but the sender's per-transaction cost here is the fee. The deeper account-model story belongs to btc-to-sol-evolution."
+        explanation: "Reads were free because they mutate nothing; this is the other side of that asymmetry, the fee payer (your throwaway key) pays for the write. The unguided challenge makes this exact observation mechanical: read both balances before and after and assert the delta is amount plus fee. Fee mechanics, priority fees, and why fees move belong to the client-side course."

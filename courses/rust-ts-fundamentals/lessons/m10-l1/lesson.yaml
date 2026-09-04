@@ -1,0 +1,74 @@
+id: lesson-rtf-m10-l1
+slug: m10-l1
+title: "Assembly: the station, whole"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: station-check
+    type: quiz
+    questions:
+      - id: m10-l1-q1
+        prompt: "During the opening checkpoint, a learner draws an arrow from the Dockerized poller to the Vercel dashboard. Against the hub topology you actually built, what is wrong with that edge?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It does not exist: the poller is local-only, poked from your machine; no public surface reaches it"
+            correct: true
+          - id: b
+            label: "The direction is flipped: the dashboard polls the poller's /status endpoint over the public internet"
+            correct: false
+            feedback: "The dashboard never reaches the poller in either direction. The poller runs on your machine with no public surface; exposing it would mean tunneling or paid hosting, both deliberately out of scope. The dashboard's sources are status.json, kit reads, and the worker endpoint."
+          - id: c
+            label: "It is almost right: pushing the image to GHCR is what gives the running container its public URL"
+            correct: false
+            feedback: "GHCR hosts the IMAGE, not a running container, pulling and running it happens on your machine, which has no public URL. A registry is storage, not hosting; that distinction is exactly what m06-l4 taught."
+        explanation: "The hub has no poller-to-dashboard edge and no public path to the poller at all. The dashboard's three data sources are the cron-produced status.json, live kit reads, and the TS worker's public JSON endpoint. Knowing which edges do NOT exist is as much a part of understanding the system as knowing which do, that is why the checkpoint is drawn from memory before the docs come back out."
+      - id: m10-l1-q2
+        prompt: "The worker-status panel is the capstone's only NEW wiring, yet the lesson insists it requires zero new skills. What makes that claim true?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Vercel and Cloudflare share an integration that auto-wires deployed projects to each other"
+            correct: false
+            feedback: "No such auto-wiring is used or taught. The panel is plain application code in the dashboard: a fetch on an interval against a public URL. Reaching for a platform integration you never learned would break the capstone's taught-skills-only rule."
+          - id: b
+            label: "It composes two taught skills: the m03-l2 polling pattern aimed at the m07-l1 JSON endpoint"
+            correct: true
+          - id: c
+            label: "The dashboard already binds to the worker's KV namespace, so the panel just reads shared state"
+            correct: false
+            feedback: "KV bindings exist only inside Cloudflare Workers, a Vercel-hosted SPA cannot bind to a KV namespace. The worker's fetch handler exists precisely to serve its KV snapshot as public JSON so anything can poll it over HTTP."
+        explanation: "The capstone's one new edge is taught-skill composition, stated out loud: the dashboard polls a public JSON URL exactly the way it has polled status.json since m03-l2, and the worker has served its KV snapshot as public JSON since m07-l1. The capstone's one new edge proves the course's thesis, by the end, new capability comes from composing what you own, not from learning another tool."
+      - id: m10-l1-q3
+        prompt: "While verifying the pipeline edge you notice the cron's status.json commit never retriggers the workflow. In the station's design, what is that behavior?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A misconfiguration: the workflow's push trigger needs a path filter added so it fires on that commit"
+            correct: false
+            feedback: "Backwards, if that commit DID fire the push workflow, the cron would trigger itself forever. No path filter is missing; the platform is refusing the recursion for you, and you want it refused."
+          - id: b
+            label: "A quirk of cron: scheduled workflows only ever run on the schedule, so no commit triggers anything in this repo"
+            correct: false
+            feedback: "Commits still trigger push-based workflows normally in this repo, your test gate runs on push. The exception is narrower: events created using GITHUB_TOKEN do not spawn new runs; a human push does."
+          - id: c
+            label: "The GITHUB_TOKEN recursion guard working as designed: workflow-authored events don't create new runs"
+            correct: true
+        explanation: "Events triggered by the GITHUB_TOKEN do not create new workflow runs (workflow_dispatch and repository_dispatch excepted), GitHub's guard against accidental recursive workflows. For the station this guard is a feature: the heartbeat can commit its own status.json without triggering itself. The documented escape hatch (a PAT or GitHub App token) exists for when you WANT downstream runs, this design does not."
+      - id: m10-l1-q4
+        prompt: "For the solo extension, a learner shortlists three ideas: a new expected-status-code probe type wired end to end, a Telegram alert via a bot SDK, and deploying the poller to a Kubernetes cluster. Which one satisfies the extension's rules?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "The new probe-target type: fleet types, worker check, dashboard row, composed from taught skills"
+            correct: true
+          - id: b
+            label: "The Telegram alert: alerts are one of the three named extension categories, so any alert qualifies"
+            correct: false
+            feedback: "The category is allowed; the implementation is not. A bot SDK is an untaught dependency, so it breaks the taught-skills-only rule. An in-bounds alert composes what you own, like a worker-written degraded flag the Actions run checks and fails loudly on."
+          - id: c
+            label: "The Kubernetes deploy: it extends the ops layer, which is the newest skill and freshest in memory"
+            correct: false
+            feedback: "K8s was explicitly signposted out of scope at the M6 tier-gate and never taught. The extension proves you can grow the system with the stack you actually own, orchestration is a different course's problem."
+        explanation: "The extension's one rule is taught skills only, and it is the assignment itself: prove you can extend a real system without a tutorial. A new probe-target type is pure composition, a union variant in the fleet, a check in the worker, a row on the dashboard. The other two each smuggle in an untaught tool, which is exactly the reflex this course spent ten modules replacing with selection."

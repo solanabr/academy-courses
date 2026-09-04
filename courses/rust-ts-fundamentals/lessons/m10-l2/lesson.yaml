@@ -1,0 +1,58 @@
+id: lesson-rtf-m10-l2
+slug: m10-l2
+title: "Conclusion: the map you now own"
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: map-check
+    type: quiz
+    questions:
+      - id: m10-l2-q1
+        prompt: "Your goal after graduating is writing on-chain programs, and your Rust feels solid after M4, M6. What is the honest reading of the Anchor course's prerequisite bar?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "You clear it now: its bar is Rust reading level, and your Rust exit here exceeds reading level"
+            correct: false
+            feedback: "Half right, and the half matters: the Rust reading half IS met here. But that course's bar also asks for accounts, PDAs, and transactions understood conceptually, a half this course deliberately left to the concept sibling. Route through it if you lack those."
+          - id: b
+            label: "Two halves: the Rust half is met here; the concepts half comes from the Bitcoin-to-Solana course"
+            correct: true
+          - id: c
+            label: "You should take the client-side mastery course first, since Anchor programs always need a TS client"
+            correct: false
+            feedback: "Programs do get TS clients, but the client-side course is the wallet-UX and tx-landing route, not an Anchor prerequisite. The missing half of the Anchor bar is conceptual (accounts, PDAs, transactions as ideas), and that lives in the concept sibling."
+        explanation: "The exit map's integrity moment: the Anchor course asks for an honest Rust reading level AND a conceptual grasp of accounts, PDAs, and transactions. This course supplies the first half with evidence (you write structs, enums, traits, Result, and serde daily); the second half is the Bitcoin-to-Solana evolution course's job, and pretending otherwise would send you into program labs missing the mental model they assume."
+      - id: m10-l2-q2
+        prompt: "Six months from now you scaffold a fresh Solana TS project, copy this course's install line, and npm fails with a peer-dependency error. What does the course's re-verify habit say to do?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "Add --legacy-peer-deps and continue: the course's printed install line is the verified canonical setup"
+            correct: false
+            feedback: "That flag silences the signal instead of reading it. The course's digits were verified at write time and were expected to rot, kit moved two majors in just over nine weeks during research alone. A frozen install line is a snapshot, never canon."
+          - id: b
+            label: "Downgrade your other packages until they match the kit major the course printed in its labs"
+            correct: false
+            feedback: "Backwards, that treats the course's digit as the fixed point and your ecosystem as the error. The rule pins what your dependencies peer against TODAY, per workspace; the printed major was only ever what deps peered against then."
+          - id: c
+            label: "Re-probe what your deps peer against today and pin that per workspace; the rule outlives the digit"
+            correct: true
+        explanation: "The habit is the deliverable: 'pin what your deps peer against, per workspace' survives every major bump, while any specific digit rots, this course's own research watched kit ship two majors in just over nine weeks and its house rules file go stale twice. One npm view of your deps' peerDependencies tells you today's pin; your pin table makes updating it a one-line edit."
+      - id: m10-l2-q3
+        prompt: "Deep in a program-authoring lab a few months from now, the borrow checker demands a lifetime annotation beyond anything this course covered. Per the map you now own, what is that moment?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "A bookmark coming due: lifetimes were signposted as the 20%, pulled at exactly this need-time"
+            correct: true
+          - id: b
+            label: "A gap this course should have closed: go back and re-do the Rust modules before continuing the lab"
+            correct: false
+            feedback: "Re-doing M4, M6 would not help, lifetimes-beyond-reading were never in them, by explicit design. The 80/20 contract cut the topic and bookmarked the canonical treatment; the fix is opening the bookmark now, not re-treading the taught 80%."
+          - id: c
+            label: "A signal you have out-grown your stack: prefer crates and patterns that never surface explicit lifetimes"
+            correct: false
+            feedback: "Avoidance inverts the lesson. Hitting a lifetime wall at need-time is the 80/20 system WORKING, the deep-dive is bookmarked for precisely this moment, and the on-ramp course you'd be in promises just-in-time help with it too."
+        explanation: "This is the map functioning as designed: the 20% was never missing, you know exactly where it lives (the canonical Rust deep-dives this course bookmarked) and now you know WHEN you need it. The taught-vs-bookmarked table re-sorted by urgency exists so this moment feels like collecting a reserved item, not discovering a hole in your education."
