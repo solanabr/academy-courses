@@ -1,0 +1,82 @@
+id: lesson-sbo-navigating-solana-resources-and-next-steps
+slug: navigating-solana-resources-and-next-steps
+title: Navigating Solana Resources and Next Steps
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=dToLtI4sDww
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: What is the layered-evidence rule the lesson introduces?
+    multiSelect: false
+    options:
+    - id: b
+      label: Trust the project's own documentation as the single source of truth.
+      correct: false
+      feedback: The lesson requires corroboration across layers.
+    - id: c
+      label: Accept any claim repeated by three community members.
+      correct: false
+      feedback: Community is one layer, not a substitute for the others.
+    - id: a
+      label: Use docs, repo, on-chain data, and community — and require two signals
+        to confirm a claim.
+      correct: true
+      feedback: Correct! One source alone is not confirmation.
+    explanation: Use layered evidence across docs, repo, on-chain data and community,
+      requiring two signals to confirm a claim.
+  - id: q2
+    prompt: Which artefacts should be prioritised when judging whether a project is
+      maintained?
+    multiSelect: false
+    options:
+    - id: b
+      label: Cryptographic and version artefacts such as release tags and CI.
+      correct: true
+      feedback: Correct! These are harder to fake than prose.
+    - id: a
+      label: The visual polish of the marketing site, which shows how much the team
+        invests in its public presence.
+      correct: false
+      feedback: Presentation says nothing about whether the code is still being maintained.
+    - id: c
+      label: The number of stars on the repository, which accumulates as more developers
+        discover the project.
+      correct: false
+      feedback: Stars accumulate historically and can stay high long after maintenance
+        stops.
+    explanation: Prioritise cryptographic and version artefacts — release tags, CI
+      — when judging maintenance.
+  - id: q3
+    prompt: What should you record for each project you review?
+    multiSelect: false
+    options:
+    - id: a
+      label: A full transcript of every community chat message about the project,
+        kept as raw supporting evidence.
+      correct: false
+      feedback: Raw transcripts are not comparable across projects and do not support
+        architecture analysis.
+    - id: b
+      label: Only the project's name and its official website, so the list stays short
+        and easy to scan later.
+      correct: false
+      feedback: Name and site record none of the signals you verified, so nothing
+        can be compared.
+    - id: c
+      label: Concise comparison rows that support later incentive and architecture
+        analysis.
+      correct: true
+      feedback: Correct! The rows feed the analysis that comes next.
+    explanation: Record concise comparison rows per project to support incentive and
+      architecture analysis later.

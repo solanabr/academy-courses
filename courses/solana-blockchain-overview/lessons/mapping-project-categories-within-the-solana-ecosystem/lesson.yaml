@@ -1,0 +1,87 @@
+id: lesson-sbo-mapping-project-categories-within-the-solana-ecosystem
+slug: mapping-project-categories-within-the-solana-ecosystem
+title: Mapping Project Categories within the Solana Ecosystem
+skills:
+- solana-fundamentals
+- rpc-reads
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=ApuugcBvETw
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Which terminology-to-role mapping does the lesson give?
+    multiSelect: false
+    options:
+    - id: b
+      label: '`program` = data/state; `account` = on-chain logic; RPC/indexer = the
+        consensus layer that orders both.'
+      correct: false
+      feedback: Programs and accounts are swapped, and RPC/indexers sit outside consensus
+        entirely.
+    - id: a
+      label: '`program` = on-chain logic; `account` = data/state; RPC/indexer = data
+        access.'
+      correct: true
+      feedback: Correct! Mapping terms to roles is what makes classification possible.
+    - id: c
+      label: RPC/indexer = consensus participation; `program` = wallet key storage;
+        `account` = transaction routing.
+      correct: false
+      feedback: 'None of these hold: RPC nodes serve reads and accounts store state.'
+    explanation: '`program` is on-chain logic, `account` is data/state, and RPC/indexers
+      provide data access.'
+  - id: q2
+    prompt: How does the lesson tell you to classify a project from its documentation?
+    multiSelect: false
+    options:
+    - id: b
+      label: Program IDs → protocol; RPC metrics → infrastructure; signing flows →
+        wallets/clients.
+      correct: true
+      feedback: Correct! What the docs emphasise reveals the category.
+    - id: a
+      label: By the age of the domain name and the size of the team on the About page,
+        which indicate category maturity.
+      correct: false
+      feedback: Those signal organisational maturity, not which technical role the
+        project plays.
+    - id: c
+      label: By the volume of commits in the public repository, which separates protocols
+        from infrastructure and wallets.
+      correct: false
+      feedback: Repository activity is a maintenance signal and does not distinguish
+        the categories.
+    explanation: 'Classify by documentation emphasis: program IDs indicate a protocol,
+      RPC metrics indicate infrastructure, and signing flows indicate wallets or clients.'
+  - id: q3
+    prompt: Which health signals does the lesson pair with each category?
+    multiSelect: false
+    options:
+    - id: a
+      label: Social media engagement for every category, since community reach is
+        what keeps each project type alive.
+      correct: false
+      feedback: Engagement measures neither infrastructure availability nor on-chain
+        activity.
+    - id: b
+      label: Token price for every category, since the market prices each project's
+        contribution to the ecosystem.
+      correct: false
+      feedback: Price is a market signal and does not differentiate the categories
+        from one another.
+    - id: c
+      label: On-chain activity for programs, uptime/latency for infrastructure, SDK
+        and release notes for wallets.
+      correct: true
+      feedback: Correct! The health signal must match the category.
+    explanation: 'Check health with category-specific signals: on-chain activity for
+      programs, uptime and latency for infrastructure, SDK and release notes for wallets.'

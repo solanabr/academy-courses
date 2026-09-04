@@ -1,0 +1,85 @@
+id: lesson-sbo-synthesizing-solana-history
+slug: synthesizing-solana-history
+title: Synthesizing Solana History
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=ZCx35L0wP4k
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: How many explanatory milestones should the synthesis select?
+    multiSelect: false
+    options:
+    - id: b
+      label: Exactly twenty, listed in chronological order and with no evidence requirement
+        attached to each one.
+      correct: false
+      feedback: Twenty unsupported entries produce a list rather than an explanatory
+        synthesis.
+    - id: c
+      label: One, chosen for maximum media impact, used to summarise the whole trajectory
+        in a single claim.
+      correct: false
+      feedback: A single milestone cannot carry a narrative that links events to architectural
+        choices.
+    - id: a
+      label: Five to eight, each justified with primary or strong secondary evidence.
+      correct: true
+      feedback: Correct! Each milestone must carry its evidence.
+    explanation: Select five to eight explanatory milestones, each justified with
+      primary or strong secondary evidence.
+  - id: q2
+    prompt: What are the three parts of the Storyline Scaffold?
+    multiSelect: false
+    options:
+    - id: a
+      label: Hypothesis, experiment, and result, borrowed from the experimental method
+        of the natural sciences.
+      correct: false
+      feedback: 'The scaffold is not experimental: it organises milestones, mechanisms,
+        and citations.'
+    - id: c
+      label: Introduction, body, and conclusion, borrowed from the classical structure
+        of an academic essay.
+      correct: false
+      feedback: That is a generic prose structure; the scaffold in this lesson is
+        specific to historical evidence.
+    - id: b
+      label: Backbone (milestones), connectors (mechanisms), evidence panels (citations).
+      correct: true
+      feedback: Correct! Mechanisms are what connect one milestone to the next.
+    explanation: The Storyline Scaffold is backbone (milestones), connectors (mechanisms),
+      and evidence panels (citations).
+  - id: q3
+    prompt: What are the requirements for the draft produced in this lesson?
+    multiSelect: false
+    options:
+    - id: c
+      label: 500–800 words, linking at least two events explicitly to architectural
+        choices, with weaker claims annotated for peer review.
+      correct: true
+      feedback: Correct! Length, linkage, and annotation are all required.
+    - id: a
+      label: Any length, with no requirement to link events to architecture and no
+        annotation for weaker claims.
+      correct: false
+      feedback: The word range and the explicit event-to-architecture links are both
+        part of the requirement.
+    - id: b
+      label: A bullet list with no prose, so that each milestone stands alone without
+        connecting sentences.
+      correct: false
+      feedback: Bullets alone cannot carry the connectors that make the synthesis
+        an argument.
+    explanation: Produce a 500–800 word draft that explicitly links at least two events
+      to architectural choices and annotates weaker claims for peer review.

@@ -1,0 +1,42 @@
+id: course-solana-overview-en
+slug: solana-blockchain-overview
+title: "Solana Blockchain Overview"
+description: "Introduce learners to the Solana blockchain, covering its foundational history and core architecture. Use analogies and visual aids to make complex concepts accessible to newcomers."
+difficulty: beginner
+duration: 7.0
+xpPerLesson: 20
+xpReward: 320
+creator: Em8D6XyuXvNUK1YgLKBaji7HbbrZZq7fCdq3sGMXqxVZ
+creatorRewardXp: 30
+thumbnail: assets/banner.jpg
+trackId: 0
+trackLevel: 0
+modules:
+  - key: solanas-history
+    title: "Introduction to Solana's History"
+    lessons:
+      - lesson-sbo-origins-and-founding-story
+      - lesson-sbo-early-challenges-and-hurdles
+      - lesson-sbo-milestones-and-adoption-timeline
+      - lesson-sbo-lessons-learned-and-looking-ahead
+  - key: core-architecture
+    title: "Understanding Solana's Core Architecture"
+    lessons:
+      - lesson-sbo-overview-of-solanas-architecture
+      - lesson-sbo-core-runtime-components-and-validator-roles
+      - lesson-sbo-transaction-flow-and-processing-model
+      - lesson-sbo-design-tradeoffs-and-distinctive-features
+  - key: ecosystem-and-terminology
+    title: "Exploration of the Solana Ecosystem and Terminology"
+    lessons:
+      - lesson-sbo-introducing-the-solana-ecosystem-and-terminology
+      - lesson-sbo-key-solana-terminology-in-context
+      - lesson-sbo-mapping-project-categories-within-the-solana-ecosystem
+      - lesson-sbo-navigating-solana-resources-and-next-steps
+  - key: capstone
+    title: "Capstone: Documenting Solana's Journey and Architecture"
+    lessons:
+      - lesson-sbo-framing-the-capstone-scope-and-method-for-solanas-story
+      - lesson-sbo-synthesizing-solana-history
+      - lesson-sbo-analyzing-solana-architecture-for-the-report
+      - lesson-sbo-final-report-drafting-and-polishing-the-comprehensive-solana-report

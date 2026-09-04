@@ -1,0 +1,83 @@
+id: lesson-sbo-core-runtime-components-and-validator-roles
+slug: core-runtime-components-and-validator-roles
+title: Core Runtime Components and Validator Roles
+skills:
+- solana-fundamentals
+- account-model
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=Ju_OrtFPOqw
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Which mapping of component to responsibility matches the lesson?
+    multiSelect: false
+    options:
+    - id: a
+      label: Gossip = membership, propagation = payload distribution, accounts DB
+        = state store, BPF runtime = deterministic execution, snapshotter = fast bootstrapping.
+      correct: true
+      feedback: Correct! That is exactly the component map.
+    - id: b
+      label: Gossip = payload distribution, propagation = membership, accounts DB
+        = deterministic execution, BPF runtime = state store, snapshotter = voting.
+      correct: false
+      feedback: 'Every pairing is swapped: gossip carries membership metadata and
+        the BPF runtime executes, it does not store.'
+    - id: c
+      label: Accounts DB = deterministic execution, BPF runtime = state storage, gossip
+        = fast bootstrapping, snapshotter = payload distribution.
+      correct: false
+      feedback: Storage and execution are reversed, and bootstrapping is the snapshotter's
+        job, not gossip's.
+    explanation: Gossip handles membership, propagation distributes payloads, the
+      accounts DB stores state, the BPF runtime executes deterministically, and the
+      snapshotter enables fast bootstrapping.
+  - id: q2
+    prompt: What are the validator phases in order?
+    multiSelect: false
+    options:
+    - id: a
+      label: Follower → resync → join/bootstrap → leader.
+      correct: false
+      feedback: Join/bootstrap is the entry phase.
+    - id: c
+      label: Leader → join/bootstrap → follower → resync.
+      correct: false
+      feedback: A validator bootstraps before it can lead.
+    - id: b
+      label: Join/bootstrap → follower → leader → resync.
+      correct: true
+      feedback: Correct! Each phase emphasises different components.
+    explanation: Validators move through join/bootstrap → follower → leader → resync.
+  - id: q3
+    prompt: Which message routing pattern does the lesson prescribe for large-volume
+      payloads?
+    multiSelect: false
+    options:
+    - id: c
+      label: Propagation, while gossip carries metadata and RPC serves targeted fetches.
+      correct: true
+      feedback: Correct! Each channel matches a different traffic profile.
+    - id: a
+      label: Gossip, because it reaches every peer fastest and therefore keeps large
+        payloads consistent across the cluster.
+      correct: false
+      feedback: Gossip is designed for small metadata; flooding large payloads through
+        it wastes bandwidth.
+    - id: b
+      label: RPC, because it is the most reliable channel and lets each node request
+        exactly the payload it is missing.
+      correct: false
+      feedback: RPC serves targeted fetches; it is not the bulk distribution path
+        between validators.
+    explanation: Gossip carries metadata, propagation moves large-volume payloads,
+      and RPC serves targeted fetches.

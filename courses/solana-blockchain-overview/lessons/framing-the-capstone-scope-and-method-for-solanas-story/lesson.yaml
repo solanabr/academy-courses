@@ -1,0 +1,81 @@
+id: lesson-sbo-framing-the-capstone-scope-and-method-for-solanas-story
+slug: framing-the-capstone-scope-and-method-for-solanas-story
+title: 'Framing the Capstone: Scope and Method for Solana''s Story'
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=RdVpBLK_2Pg
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Which mental model does the lesson prescribe for the capstone?
+    multiSelect: false
+    options:
+    - id: b
+      label: A pure chronology of public events, with no architectural component linking
+        dates to system changes.
+      correct: false
+      feedback: A chronology alone cannot connect an event to the concrete change
+        it produced in the system.
+    - id: c
+      label: A financial model of token emissions, used to prioritise which periods
+        of the history to write about.
+      correct: false
+      feedback: Emissions modelling is not the framing device; the lesson pairs a
+        timeline with an architecture map.
+    - id: a
+      label: The timeline plus architecture map, used to link events to system changes.
+      correct: true
+      feedback: Correct! The model connects history to the system it changed.
+    explanation: The timeline + architecture map model links historical events to
+      system changes.
+  - id: q2
+    prompt: What is the workflow the lesson defines?
+    multiSelect: false
+    options:
+    - id: a
+      label: Validate → Research → Publish, confirming the conclusions before collecting
+        the sources that support them.
+      correct: false
+      feedback: 'Validating before researching inverts the flow: there is nothing
+        to validate without recorded sources.'
+    - id: b
+      label: Research → Source → Structure → Validate, meeting exit criteria before
+        moving on.
+      correct: true
+      feedback: Correct! Each stage has exit criteria you must satisfy.
+    - id: c
+      label: Draft → Publish → Revise, with no sourcing stage and no exit criteria
+        between the phases.
+      correct: false
+      feedback: Without a sourcing stage the narrative is fixed before the evidence
+        exists.
+    explanation: Follow Research → Source → Structure → Validate and meet each stage's
+      exit criteria.
+  - id: q3
+    prompt: How should diagrams be annotated?
+    multiSelect: false
+    options:
+    - id: c
+      label: With primary artefacts and confidence levels, so claims are auditable.
+      correct: true
+      feedback: Correct! Auditability is the goal of the annotation.
+    - id: a
+      label: With decorative icons to improve readability.
+      correct: false
+      feedback: The annotation requirement is evidentiary, not aesthetic.
+    - id: b
+      label: With the author's personal opinion of each event.
+      correct: false
+      feedback: Annotations should carry artefacts and confidence, not opinion.
+    explanation: Annotate diagrams with primary artefacts and confidence levels so
+      claims can be audited.

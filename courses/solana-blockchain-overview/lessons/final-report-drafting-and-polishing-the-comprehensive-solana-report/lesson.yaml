@@ -1,0 +1,86 @@
+id: lesson-sbo-final-report-drafting-and-polishing-the-comprehensive-solana-report
+slug: final-report-drafting-and-polishing-the-comprehensive-solana-report
+title: 'Final Report: Drafting and Polishing the Comprehensive Solana Report'
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=1GhnZSZrltA
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: What does the final report combine?
+    multiSelect: false
+    options:
+    - id: a
+      label: The capstone outline, the historical draft, and the architectural notes,
+        into one document.
+      correct: true
+      feedback: Correct! The three prior artefacts converge here.
+    - id: b
+      label: Only the historical draft, published on its own once the architectural
+        notes have been set aside.
+      correct: false
+      feedback: Dropping the architectural notes removes the linkage the report is
+        assessed on.
+    - id: c
+      label: A new piece of research written from scratch, replacing the artefacts
+        produced earlier in the module.
+      correct: false
+      feedback: The final report consolidates the earlier artefacts rather than discarding
+        them.
+    explanation: Combine the capstone outline, the historical draft, and the architectural
+      notes into a single document.
+  - id: q2
+    prompt: Which acceptance criteria must the report meet?
+    multiSelect: false
+    options:
+    - id: a
+      label: Approval from a validator operator, obtained before the report can be
+        submitted for peer review.
+      correct: false
+      feedback: No external sign-off is required; the criteria are about evidence
+        and argument.
+    - id: b
+      label: A timeline with citations, architecture explanations, explicit linkages,
+        and a complete bibliography.
+      correct: true
+      feedback: Correct! All four are required for acceptance.
+    - id: c
+      label: A minimum word count and a formatted cover page, with no requirement
+        about citations or linkage.
+      correct: false
+      feedback: Formatting does not substitute for citations, architecture explanations,
+        and explicit links.
+    explanation: The report needs a cited timeline, architecture explanations, explicit
+      linkages, and a complete bibliography.
+  - id: q3
+    prompt: What are the three build passes before the peer-review packet?
+    multiSelect: false
+    options:
+    - id: c
+      label: Structural, content, and citation passes, followed by the checkpoint
+        checklist.
+      correct: true
+      feedback: Correct! Each pass targets a different class of defect.
+    - id: a
+      label: Draft, print, and archive, treating the report as finished once a physical
+        copy has been produced.
+      correct: false
+      feedback: Those are distribution steps, not the quality passes the lesson defines.
+    - id: b
+      label: Spelling, formatting, and publishing, applied in sequence once the content
+        is considered complete.
+      correct: false
+      feedback: Surface passes miss the structural and citation work the peer-review
+        packet depends on.
+    explanation: Complete the structural, content, and citation passes, run the checkpoint
+      checklist, then prepare the peer-review packet.

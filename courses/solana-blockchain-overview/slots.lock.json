@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-sbo-origins-and-founding-story": 0,
+    "lesson-sbo-early-challenges-and-hurdles": 1,
+    "lesson-sbo-milestones-and-adoption-timeline": 2,
+    "lesson-sbo-lessons-learned-and-looking-ahead": 3,
+    "lesson-sbo-overview-of-solanas-architecture": 4,
+    "lesson-sbo-core-runtime-components-and-validator-roles": 5,
+    "lesson-sbo-transaction-flow-and-processing-model": 6,
+    "lesson-sbo-design-tradeoffs-and-distinctive-features": 7,
+    "lesson-sbo-introducing-the-solana-ecosystem-and-terminology": 8,
+    "lesson-sbo-key-solana-terminology-in-context": 9,
+    "lesson-sbo-mapping-project-categories-within-the-solana-ecosystem": 10,
+    "lesson-sbo-navigating-solana-resources-and-next-steps": 11,
+    "lesson-sbo-framing-the-capstone-scope-and-method-for-solanas-story": 12,
+    "lesson-sbo-synthesizing-solana-history": 13,
+    "lesson-sbo-analyzing-solana-architecture-for-the-report": 14,
+    "lesson-sbo-final-report-drafting-and-polishing-the-comprehensive-solana-report": 15
+  },
+  "retired": [],
+  "next": 16
+}
