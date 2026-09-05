@@ -1,6 +1,6 @@
 # What is this token, really?
 
-This is lesson one, so nothing is built yet. You arrive with Solana fundamentals in your head: accounts, PDAs, transactions, fees, ATAs. You also arrive, most likely, with a belief I held for way too long: that "a token" means the classic SPL mint you already use. We are going to break that belief in the next five minutes, using a token PayPal ships to millions of people.
+This is lesson one, so nothing is built yet. You arrive with Solana fundamentals in your head: accounts, PDAs, transactions, fees, ATAs. You also arrive, most likely, with a belief I held for way too long: that "a token" means the classic SPL mint you already use. We are going to break that belief in the next five minutes, using a token PayPal ships to millions of people. If you arrived here from the Solana Payments and Commerce course, you have already met this mint from the paying side; now you will read every byte of it.
 
 No toolchain install. You need Node 20 or newer (`node --version` to check; I am on 23.9) and nothing else. Save this file as `read-pyusd.ts`:
 
