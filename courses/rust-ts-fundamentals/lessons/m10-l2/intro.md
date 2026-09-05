@@ -2,12 +2,12 @@
 
 Last lesson you assembled the whole station and proved it: the demo script passed end to end, the solo extension shipped with no scaffold anywhere near it, and the README and runbook mean another dev could operate what you built without you in the room. There is nothing left to build. So this lesson opens the way the course opened: by making you measure something. This time, the something is you.
 
-Open a new tab, go to https://www.rust-lang.org, press F12, click the Console tab, and paste the exact snippet from lesson one:
+Open a new tab, go to https://rust-lang.org (apex, no www, same as lesson one), press F12, click the Console tab, and paste the exact snippet from lesson one:
 
 ```js
 const t0 = performance.now();
-fetch("https://www.rust-lang.org", { cache: "no-store" })
-  .then(r => console.log(`rust-lang.org: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
+fetch(location.origin, { cache: "no-store" })
+  .then(r => console.log(`${location.host}: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
 ```
 
 Then go to https://www.typescriptlang.org/play/ (trailing slash, same as always) and paste the second one:

@@ -2,15 +2,15 @@
 
 Lesson one. Nothing is built yet. You arrive able to program in some language, new to Rust, new to TypeScript, new to web3, and I am not going to open with a definition. I am going to make you measure the internet with the browser you already have open.
 
-Open a new tab, go to https://www.rust-lang.org, press F12 (or right-click, Inspect), click the Console tab, and paste this:
+Open a new tab, go to https://rust-lang.org (the apex address, no www), press F12 (or right-click, Inspect), click the Console tab, and paste this:
 
 ```js
 const t0 = performance.now();
-fetch("https://www.rust-lang.org", { cache: "no-store" })
-  .then(r => console.log(`rust-lang.org: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
+fetch(location.origin, { cache: "no-store" })
+  .then(r => console.log(`${location.host}: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
 ```
 
-Hit Enter. Within a second or so you get a line like `rust-lang.org: 238.5 ms (status 200)`. That is what mine printed while writing this, from a home connection in the middle of the day. (The 200 is honest but has a small asterisk: `fetch` follows redirects silently, and this site 301s to its canonical address first. A tool that does not follow redirects, bare `curl` for instance, shows that `301` instead of the `200`; same site, same health, one hop earlier.) Yours will differ, because it is a real measurement of a real server over your real network. No install, no account, no framework. You just probed live infrastructure and read its latency, and that single reflex, point a probe at something real and read the number, is the whole course in miniature.
+Hit Enter. Within a second or so you get a line like `rust-lang.org: 238.5 ms (status 200)`. That is what mine printed while writing this, from a home connection in the middle of the day. (Two things in that snippet are deliberate. `location.origin` is the address of the tab you are standing in, so you are probing the site you are on rather than a URL I hardcoded, and a page is always allowed to read responses from its own origin; reading a response from a *different* origin only works when that server opts in with a CORS header, a browser safety rule you sidestep entirely by asking the tab about itself. And the no-www instruction matters: this site's www spelling quietly 301-redirects to the apex, `fetch` follows redirects silently, and a probe that crosses origins mid-flight can be blocked by that same rule even when the site is perfectly healthy.) Yours will differ, because it is a real measurement of a real server over your real network. No install, no account, no framework. You just probed live infrastructure and read its latency, and that single reflex, point a probe at something real and read the number, is the whole course in miniature.
 
 Now the second demo, because this course has two languages and each gets an opening argument. Go to https://www.typescriptlang.org/play/ (the trailing slash matters, that is the final URL), clear the editor, and type these three lines:
 
@@ -130,15 +130,15 @@ Second, the doors. This is the catalog's feeder course, which means graduating f
 
 Numbered and short, because the point of today is the decision, not the tooling. Everything here is zero-install by design; no step requires Node, an account, or a download.
 
-1. **Run the latency probe.** Open https://www.rust-lang.org in a tab, open devtools (F12, Console tab), paste the `fetch` one-liner from the top of this lesson, press Enter. Here it is again so you do not have to scroll:
+1. **Run the latency probe.** Open https://rust-lang.org in a tab (apex address, no www, same as the opener), open devtools (F12, Console tab), paste the `fetch` one-liner from the top of this lesson, press Enter. Here it is again so you do not have to scroll:
 
 ```js
 const t0 = performance.now();
-fetch("https://www.rust-lang.org", { cache: "no-store" })
-  .then(r => console.log(`rust-lang.org: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
+fetch(location.origin, { cache: "no-store" })
+  .then(r => console.log(`${location.host}: ${(performance.now() - t0).toFixed(1)} ms (status ${r.status})`));
 ```
 
-   Copy the printed line, something shaped like `rust-lang.org: 238.5 ms (status 200)`, into a scratch note. That line is your first artifact. If you want to run it from some other site's console instead, add `mode: "no-cors"` alongside `cache` and know two things: some sites' security policies will block cross-origin fetches entirely, and even when the no-cors fetch succeeds the browser hands back an opaque response, so the snippet prints `status 0`. A 0 there means "opaque on purpose", not a dead site. Probing the site from its own tab is the version that always works and always shows a real status, and it is why step one starts there.
+   Copy the printed line, something shaped like `rust-lang.org: 238.5 ms (status 200)`, into a scratch note. That line is your first artifact. Because the snippet probes `location.origin`, the site the tab is on, you can paste it into any other site's console and it simply probes that site instead, and it keeps working there for the same reason it worked here: a page may always read its own origin's responses. Probing a third-party URL from someone else's tab is a different game. The browser only hands you a readable cross-origin response when the target server opts in with a CORS header, and most do not; adding `mode: "no-cors"` alongside `cache` stops the outright failure, but the browser then hands back an opaque response and the snippet prints `status 0`. A 0 there means "opaque on purpose", not a dead site. Same-origin probing is the version that always works and always shows a real status, and it is why step one starts there.
 
 2. **Run it four more times.** Same paste, four more Enters. Watch the number move. Cold connections, DNS caching, route weather; latency is a distribution, not a value, and you just discovered that with a for-loop's worth of patience. Note your fastest and slowest. Next lesson's CLI turns exactly this repetition into code.
 
