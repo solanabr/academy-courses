@@ -105,10 +105,10 @@ And if you are wondering why your favorite tutorial never mentioned two of today
 
 The artifact is `sprout-mint-economics`: a Token-2022 mint with TransferFeeConfig plus InterestBearingConfig (or ScaledUiAmount), a transfer run that scatters withheld fees, and a harvest that sweeps them to a treasury and proves the arithmetic. It consumes both of your existing tools: check-combo gates the set before any lamport moves, and decode-mint inspects the result after.
 
-1. Install the toolchain into the `labs/m02-l1` folder you scaffolded. The pins need one minute of honesty. npm's latest kit is 8.0.0 (published 2026-08-21) and the current `@solana-program/token-2022` wave peers kit ^7, but this course's house standard is the kit v6 line, so we pin the last v6-compatible pair, verified against the actual npm peer ranges on 2026-08-22: `@solana-program/token-2022@0.12.0` is the final minor that peers kit ^6.4.0 (0.13.0 jumped to ^7), and `@solana-program/system@0.12.2` is its counterpart (0.13.0 also jumped). That token-2022 minor also peers `@solana/sysvars` at ^5.0 and `@solana/zk-sdk` at ^0.4.2, which npm resolves for you alongside the kit v6 pin, so nothing else needs a hand-pin. Re-verify with `npm view <pkg> peerDependencies` the day you scaffold; this matrix moves.
+1. Install the toolchain into the `labs/m02-l1` folder you scaffolded. The pins need one minute of honesty. npm's latest kit is 8.2.0 (published 2026-08-29), but "latest" is not the rule that decides a pin: you pin the kit major your workspace's `@solana-program/*` clients peer against, and this workspace's clients peer kit ^7, verified against the actual npm peer ranges on 2026-09-05. `@solana-program/token-2022@0.15.0` is the current minor peering kit ^7.0.0 (0.16.0 jumped to ^8), and `@solana-program/system@0.13.0` is its counterpart (0.14.0 also jumped). That token-2022 minor also peers `@solana/sysvars` at ^7.0.0 and `@solana/zk-sdk` at ^0.5.1, which npm resolves for you alongside the kit pin, so nothing else needs a hand-pin. Re-verify with `npm view <pkg> peerDependencies` the day you scaffold; this matrix moves.
 
 ```bash
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0 @solana-program/system@0.12.2
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
 npm install -D tsx@4.20.5 typescript@5.9.3
 ```
 

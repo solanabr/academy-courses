@@ -109,14 +109,14 @@ The artifact this lesson adds to the Overgrowth toolkit is `sprout-mint-protecti
 
 ![Pipeline of the lab's eight steps from funding through soulbound mint creation, the forced-pair assertion, three expected reverts, the memo deposit, and CpiGuard, ending in a green gate.](assets/v07-flowchart.png)
 
-1. **Workspace and pins.** Work at the workspace root, the layout m02-l2 established (shared deps in the root `package.json`, lesson code under `labs/`), with the simnet from the opener still running. The pins are the m02-l1 set plus one newcomer, memo, and the same rule from that lesson's pin paragraph decides every version here: last minor that peers kit ^6, re-verify when you read this.
+1. **Workspace and pins.** Work at the workspace root, the layout m02-l2 established (shared deps in the root `package.json`, lesson code under `labs/`), with the simnet from the opener still running. The pins are the m02-l1 set plus one newcomer, memo, and the same rule from that lesson's pin paragraph decides every version here: current minor that peers kit ^7, re-verify when you read this.
 
    ```bash
-   npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0 \
-               @solana-program/memo@0.11.2 @solana-program/system@0.12.2
+   npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 \
+               @solana-program/memo@0.12.0 @solana-program/system@0.13.0
    npm install -D tsx@4.23.12 typescript@5.9.3   # already there if you did the m02-l2 root install
-   # memo 0.11.2 and system 0.12.2: last kit-^6-peer versions of each,
-   # verified against npm 2026-08-22. Newer minors peer kit ^7 or ^8.
+   # memo 0.12.0 and system 0.13.0: the kit-^7-peer versions of each,
+   # verified against npm 2026-09-05. Newer minors peer kit ^8.
    ```
 
 2. **Scaffold the gate.** Create `labs/m02-l3/verify-protections.ts`. Imports and three helpers: a transaction sender (the same kit pipe you have built since m01-l3, now factored out because we will send nine transactions), an `expectRevert` that FAILS if the operation succeeds, and an ATA creator. Read `expectRevert` twice; it is the lesson's engineering stance in eight lines. The disallowed op going through is the error condition.

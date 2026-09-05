@@ -113,7 +113,7 @@ Four probes, all guided, nothing to fill in. You are not building today; you are
 
 ![Annotated hex dump of the 9-byte feature account: a 1-byte Some tag followed by the little-endian u64 activation slot 419,472,000, the first slot of epoch 971.](assets/v07-annotated-code.png)
 
-3. **Decode it programmatically, kit-style.** Same read, but through the stack you built `decode-mint` on, so the skill compounds. Work inside `labs/m01-l2`, the workspace you scaffolded last lesson: kit 6.10.0 and tsx 4.20.5 are already pinned there, exact versions per the house rule, and its `package.json` carries the `type=module` this script's top-level await needs. In that folder, create `read-gate.ts`:
+3. **Decode it programmatically, kit-style.** Same read, but through the stack you built `decode-mint` on, so the skill compounds. Work inside `labs/m01-l2`, the workspace you scaffolded last lesson: kit 7.1.1 and tsx 4.20.5 are already pinned there, exact versions per that lesson's peer-range rule, and its `package.json` carries the `type=module` this script's top-level await needs. In that folder, create `read-gate.ts`:
 
    ```typescript
    import { createSolanaRpc, address } from '@solana/kit';
