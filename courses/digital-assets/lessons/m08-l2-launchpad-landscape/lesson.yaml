@@ -32,17 +32,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The code's 20 ranges; note the doc/code delta and verify at write time."
+            label: "Both, because they govern different surfaces: MAX_CURVE_POINT = 16 caps the curve an instruction will validate, while the 20-slot array is account-layout headroom your deserializer must size for; re-verify both at write time."
             correct: true
           - id: b
             label: "The docs' 16 segments, because published documentation is the interface contract integrators are entitled to rely on."
             correct: false
-            feedback: "Docs lag code across this whole ecosystem; the struct is what the program actually enforces."
+            feedback: "The 16 happens to match the validated cap, but 'trust the docs' is the wrong habit and misses the second constant: the account still reserves 20 slots, and a deserializer sized to 16 mis-reads the layout."
           - id: c
             label: "Neither; DBC uses a single constant-product curve like pump.fun."
             correct: false
             feedback: "DBC is explicitly piecewise over multiple (sqrt_price, liquidity) segments; that flexibility is its whole pitch."
-        explanation: "When docs and code disagree, prefer the code and teach the delta as a beat, the same rule that produced the extension conflict matrix earlier. DBC's segment count lives in the config struct; docs trail it. Always re-verify the exact number at write time."
+        explanation: "Read the source, and read enough of it to know which constant governs which surface: constants.rs declares MAX_CURVE_POINT = 16 with a const_assert pinning it under MAX_CURVE_POINT_CONFIG = 20. Trust only the docs and you mis-size a deserializer against the 20-slot array; trust only the struct width and you pass 20 points into an instruction that validates 16. Same habit that produced the extension conflict matrix — and the exact numbers get re-verified at write time."
       - id: m08l2-q3-venue-rejects-extension
         prompt: "SPROUT carries a TransferHook extension. You choose a graduation AMM whose allowlist rejects hooks. What happens, and what is the fix?"
         multiSelect: false
