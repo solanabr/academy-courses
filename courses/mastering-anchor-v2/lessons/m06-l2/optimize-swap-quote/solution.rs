@@ -14,7 +14,8 @@
 /// underflows for any fee above 10_000. And the multiplies stay `checked` for
 /// the m05-l2 reason: three factors, not two, so `u128` is headroom rather than
 /// a proof. Past the guards the output is bounded by `reserve_out`, a `u64`, so
-/// the final cast cannot truncate.
+/// the final cast cannot truncate. A `const fn`, so the harness below proves
+/// all of it at build time.
 ///
 /// DEGRADATION POLICY. The signature returns a bare `u64`, so there is nowhere
 /// to put an error and every rejected input leaves as a `0`. Exactly one of
@@ -28,7 +29,7 @@
 /// grading, which cannot fail. On-chain each of these guards is a `require!` in
 /// the handler before the quote is ever reached, and the handler still refuses
 /// to settle a trade that quotes 0.
-fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
+const fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
     if amount_in == 0 || reserve_in == 0 || reserve_out == 0 || fee_bps > 10_000 {
         return 0;
     }
@@ -40,12 +41,51 @@ fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u6
         Some(v) => v,
         None => return 0,
     };
-    let denominator = match (reserve_in as u128)
-        .checked_mul(10_000)
-        .and_then(|v| v.checked_add(amount_in_with_fee))
-    {
-        Some(v) => v,
+    let denominator = match (reserve_in as u128).checked_mul(10_000) {
+        Some(v) => match v.checked_add(amount_in_with_fee) {
+            Some(v) => v,
+            None => return 0,
+        },
         None => return 0,
     };
     (numerator / denominator) as u64
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
+// Compile-time assertions. Because `get_amount_out` is a `const fn`, the
+// compiler evaluates these while building: an unguarded or fee-blind quote does
+// not compile at all. The test vectors document the same contract; grading is
+// compile-only, so this block is what enforces it.
+// ─────────────────────────────────────────────────────────────────────────────
+#[doc(hidden)]
+#[allow(dead_code)]
+mod verify {
+    use super::get_amount_out;
+
+    const _: () = assert!(
+        get_amount_out(1_000_000, 1_000_000, 10_000, 30) == 9871,
+        "30 bps on a balanced 1M/1M pool quotes 9871: the fee-blind version says 9900"
+    );
+    const _: () = assert!(
+        get_amount_out(0, 1_000_000, 10_000, 30) == 0,
+        "empty reserve_in must quote 0, never hand the whole pool to the first caller"
+    );
+    const _: () = assert!(
+        get_amount_out(1_000_000, 1_000_000, 10_000, 10_001) == 0,
+        "a fee above the 10_000 bps scale has no valid quote: guard it before it underflows"
+    );
+    const _: () = assert!(
+        get_amount_out(1_000_000, 1_000_000, 10_000, 10_000) == 0,
+        "fee_bps == 10_000 is the boundary, not an error: a 100% fee eats the whole input"
+    );
+    const _: () = assert!(
+        get_amount_out(
+            1_000_000_000_000_000_000,
+            1_000_000_000_000_000_000,
+            1_000_000_000_000,
+            30
+        ) == 996_999_005_991,
+        "1e18 reserves overflow a u64 multiply: this vector forces the u128 promotion"
+    );
 }

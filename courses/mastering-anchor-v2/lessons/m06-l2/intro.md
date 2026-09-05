@@ -330,13 +330,15 @@ Back in module 5 you built `swap_out`, the quote function with a hardcoded 0.3% 
 /// it ignores fee_bps, multiplies in u64, and checks nothing, so its
 /// quotes are wrong whenever fee_bps > 0, it can overflow on large
 /// reserves, and it quotes the whole pool on an empty reserve_in.
-fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
+const fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
     let _ = fee_bps; // the fee is being ignored
     let numerator = reserve_out * amount_in;
     let denominator = reserve_in + amount_in;
     numerator / denominator
 }
 ```
+
+One word in that signature is new since module 5's `swap_out` shipped, and it is doing real work: `const fn`. The graded file carries compile-time assertions under the function — the m03-l3 device, and what compile-only grading actually enforces — so the broken starter does not build: the fee-blind rows fail assertions whose messages name the case, and the deep-pool row fails in const evaluation itself with `attempt to multiply with overflow`, rustc pointing at the exact `u64` multiply you are here to fix.
 
 Two things are wrong with it, and they are the same two the module-5 challenge made you fix on `swap_out`. It never applies the fee, so every quote with `fee_bps > 0` over-pays the trader. And it multiplies two `u64` values, so a large `reserve_out * amount_in` can overflow. On the scaffold you are actually standing on that is a panic either way — Anchor's generated workspace ships `overflow-checks = true` on the release profile, and `cargo build-sbf` builds release, a fact m07-l2 leans on — so the failure mode here is an abort on the deepest pool you have, which is the trade you least want to fail on. Strip that profile line, or inherit a crate that never had it, and the same multiply wraps silently instead, which is worse. You fixed both once already on a fee-less curve. This is the same repair on the general one — and the day you are on a crate where a nets-off build genuinely lands, a wrapped multiply has nothing standing behind it, so the checked version is the one you want in your fingers now.
 

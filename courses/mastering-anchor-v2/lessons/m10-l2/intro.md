@@ -237,28 +237,38 @@ pub authority: Signer,
 
 ## Challenge: port the space calc without losing the discriminator
 
-This is the one bug that survives a careful-looking port, isolated so you can kill it cleanly. A migration swept a v1 file for the standalone `8` of the `space = 8 + ...` idiom — right instinct, because V2 has no magic number — and took every additive eight it found. The `* 8` that sizes a `u64` field was left alone, correctly: that one is a field width, not a magic number. But the sweep could not tell those apart from the `.checked_add(8)` on the end of a sizing helper's arithmetic, which was the link that put the discriminator back, and `INIT_SPACE` does not put it back for you. Everything the helper sizes now comes out 8 bytes short.
+This is the one bug that survives a careful-looking port, isolated so you can kill it cleanly. A migration swept a v1 file for the standalone `8` of the `space = 8 + ...` idiom — right instinct, because V2 has no magic number — and took every additive eight it found. The `* 8` that sizes a `u64` field was left alone, correctly: that one is a field width, not a magic number. But the sweep could not tell those apart from the `checked_add(8)` inside `with_discriminator`, the sizing chain's last link, which was the step that put the discriminator back, and `INIT_SPACE` does not put it back for you. The link survives as a named function that now hands its input straight through, and everything the helper sizes comes out 8 bytes short.
 
 Your job is to restore that link so `account_len` returns the full on-chain data length: the 8-byte discriminator (sha256 default, unchanged in V2) plus the summed field sizes, where an `Address` is 32 bytes, a `u64` is 8, and a `bool` is 1. Name the tier, because that sum only holds for one of them: these are the `#[account(borsh)]` sizes, fields written back to back with no alignment padding and no length prefixes, which is the tier step 4 routed `Config` to. Under the Pod default the same three fields never reach a length at all — the `u64` forces 8-byte alignment, the struct needs tail padding, and the build stops at `error[E0080]: account struct has padding bytes`. Note the name too: the function is not called `init_space`, because `INIT_SPACE` is exactly the half that excludes the discriminator, and naming it that is how the bug got written in the first place.
 
 The signature is frozen, because the tests call it by exactly this interface:
 
 ```rust
+/// The chain's last link: from the INIT_SPACE half (field bytes only) to the
+/// full on-chain data length. A `const fn`, so the compiler can prove it while
+/// it builds (the m03-l3 device — what compile-only grading actually enforces).
+const fn with_discriminator(init_space: u64) -> Option<u64> {
+    // TODO: the 8 goes here -- checked, so an overflowing count stays a
+    // refusal. Right now this link passes its input through unchanged.
+    Some(init_space)
+}
+
 /// Returns the FULL on-chain data length for a `#[account(borsh)]` account:
 /// T::DISCRIMINATOR.len() (8) + T::INIT_SPACE (the field bytes only).
 fn account_len(address_fields: u64, u64_fields: u64, bool_fields: u64) -> u64 {
-    // one link short: the field sums are all here, the discriminator is not
+    // the field sums are all here; the last link is the gutted one above
     address_fields
         .checked_mul(32)
         .and_then(|bytes| bytes.checked_add(u64_fields.checked_mul(8)?))
         .and_then(|bytes| bytes.checked_add(bool_fields))
+        .and_then(with_discriminator)
         .unwrap_or(0)
 }
 ```
 
 Leave the rest of the chain checked. Those counts arrive from a caller, and the helper's contract is that a count it cannot make sense of comes back as `0` — a length no allocator will accept — rather than as a wrapped number that looks fine. Acceptance: `account_len` returns `8 + 32*address_fields + 8*u64_fields + 1*bool_fields`; an empty struct `(0, 0, 0)` returns `8`, not `0`; and the guard survives your edit. Five tests: `(1,1,1)` gives `49`, `(2,3,0)` gives `96`, `(0,0,0)` gives `8`, `(1,0,2)` gives `42`, and `(u64::MAX,0,0)` gives `0`. That last vector is not an account — no struct has eighteen quintillion fields — it is the garbage count standing in for whatever went wrong upstream, and it is there to pin *where* your 8 goes. Bolt it on after the guard as `...unwrap_or(0) + 8` and the refusal comes back as `8`, which reads exactly like a legitimate empty account.
 
-Three hints, in order of how much they give away. The V2 idiom is `T::DISCRIMINATOR.len() + T::INIT_SPACE`, and `DISCRIMINATOR.len()` is `8`. `INIT_SPACE` is field bytes only, so you add the 8 back exactly once, never per field. And the empty-struct case is the tell: if `(0,0,0)` returns `0` you added nothing; if it returns `16` you added the discriminator twice. Restore the 8 as a `checked_add` in the same chain as the field sums, not as a `+ 8` bolted on after `unwrap_or`.
+Three hints, in order of how much they give away. The V2 idiom is `T::DISCRIMINATOR.len() + T::INIT_SPACE`, and `DISCRIMINATOR.len()` is `8`. `INIT_SPACE` is field bytes only, so you add the 8 back exactly once, never per field. And the empty-struct case is the tell: if `(0,0,0)` returns `0` you added nothing; if it returns `16` you added the discriminator twice. Restore the 8 as a `checked_add` inside `with_discriminator`, in the same chain as the field sums, not as a `+ 8` bolted on after `unwrap_or` — and because the link is a `const fn` with assertions under it, a gutted or unchecked link does not even build.
 
 ## Before you move on
 

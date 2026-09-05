@@ -333,27 +333,29 @@ If you want to prove the opt-out to yourself, add `unsafe(dup)` to both `TallyTw
 
 ## Challenge: build the discriminator preimage
 
-This is a completion problem, and it is the module's coding challenge. You are given a function that is supposed to return the exact namespaced preimage string Anchor hashes for each item kind. The starter cheats: it pastes the item kind straight in front of the name, so it emits `instruction:increment` where Anchor actually wants `global:increment`, and it fails that case.
+This is a completion problem, and it is the module's coding challenge. You are given a function that is supposed to return the exact namespaced preimage string Anchor hashes for each item kind. The starter cheats: its `namespace` mapping just echoes the item kind, so the preimage comes out `instruction:increment` where Anchor actually wants `global:increment`, and the build fails on that exact case.
 
 ```rust
 // Anchor derives every 8-byte discriminator by hashing a NAMESPACED preimage:
 // sha256("<namespace>:<Name>")[..8]. The bytes come later. The preimage STRING is
 // the part you have to get right, and one of the three namespaces is a classic trap.
 //
-// Return the exact preimage string Anchor hashes for each item kind:
-//   - an account struct       -> "account:<Name>"
-//   - an instruction handler  -> "global:<Name>"     <-- NOT "instruction:"
-//   - an event struct         -> "event:<Name>"
-//
-// The starter below just pastes the item kind in front of the name, so it emits
-// "instruction:increment" instead of "global:increment" and fails that case.
+// `namespace` maps an item kind to the namespace Anchor actually hashes from:
+//   - an account struct       -> "account"
+//   - an instruction handler  -> "global"     <-- NOT "instruction"
+//   - an event struct         -> "event"
+const fn namespace<'a>(item_kind: &'a str) -> &'a str {
+    // TODO: map each item_kind to its real Anchor namespace. Only one of the
+    // three differs from its item kind -- that one is the whole exercise.
+    item_kind
+}
+
 fn discriminator_preimage(item_kind: &str, name: &str) -> String {
-    // TODO: map each item_kind to its real Anchor namespace prefix before the name.
-    format!("{item_kind}:{name}")
+    format!("{}:{name}", namespace(item_kind))
 }
 ```
 
-Your job is to map the three item kinds to their real prefixes and concatenate the name. Two of the three map to themselves. One does not, and the acceptance criteria below tell you which.
+Your job is to map the three item kinds to their real namespaces inside `namespace`. Two of the three map to themselves. One does not, and the acceptance criteria below tell you which. The mapping is a `const fn` on purpose — a compile-time device you will meet again in the m03-l3 constraint challenge — so the verification block shipped under the starter runs in the compiler itself: an unfixed mapping does not build, and the error message names the namespace it got wrong. (One consequence of `const fn`: `match` cannot compare `&str` directly there, because string equality is a trait call and trait calls are not `const` on stable Rust — match on `item_kind.as_bytes()` with byte-string patterns like `b"instruction"` instead.)
 
 The acceptance criteria are exact:
 
@@ -363,13 +365,13 @@ The acceptance criteria are exact:
 - `discriminator_preimage("account", "HighScore")` returns `account:HighScore` — same name as the case above it, different namespace, because the prefix is a function of the *kind*
 - `discriminator_preimage("instruction", "initialize")` returns `global:initialize`
 
-Run it against the bundled tests until the starter's failing cases turn green. The five cases above are the vectors bundled with the challenge — production grading for Rust checks that your code compiles, so running them yourself is the gate that actually measures you. The last two are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
+The five cases above are the vectors bundled with the challenge, and they document the contract — but production grading for Rust checks that your code *compiles*, and the compile-time assertions under the starter are what enforce it: the build itself fails until the `instruction -> global` mapping is right. The last two vectors are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three — a shortcut the `namespace` split also closes structurally, since the mapping never sees the name at all. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
 
 ```bash
 cargo test
 ```
 
-The starter fails both instruction cases; your solution passes all five.
+The starter's unfixed mapping fails the build on the instruction case; your solution builds clean and passes all five vectors.
 
 **Solo, no scaffolding, two parts.** First, add a third variant to your program's `BarcadeError` enum, and before you run anything, write down the exact on-wire number you expect a client to see when it fires. The error-layout section has everything you need to derive it. Then trigger it and check yourself against the wire. Second, reason it out in one or two sentences of your own: why is writing plain `dup` a compile error, while passing the same mutable account twice is a runtime rejection? Two different events at two different times, and naming what each one knows is the whole exercise. No answer here; if your sentence holds up when you re-read the `MUT_MASK` section, it holds up.
 

@@ -14,9 +14,9 @@ blocks:
     solution: patch-withdraw-guard/solution.rs
     tests: patch-withdraw-guard/tests.json
     hints:
-      - "Access control comes first: if the caller is not the authority, return -1 before touching the balance."
-      - "Unsigned subtraction underflows; `u64::checked_sub` returns None exactly when amount > balance."
-      - "An address is 32 bytes with no meaningful ordering: compare all of it with ==, never a prefix, a single byte, or < / >."
+      - "Access control comes first: `settle_withdraw` already returns -1 when `is_authority` says no — make `is_authority` actually say no."
+      - "Unsigned subtraction underflows; in `checked_remaining`, `u64::checked_sub` returns None exactly when amount > balance."
+      - "An address is 32 bytes with no meaningful ordering: equality over ALL 32 bytes, never a prefix, a single byte, or < / >. In a `const fn`, `==` on arrays is a trait call the compiler refuses — walk the bytes with a `while` loop."
   - key: check
     type: quiz
     questions:

@@ -15,10 +15,12 @@
 // Both numbers are READS of `vault_ta`. Neither may be derived from this
 // function's parameters: no `vault_start`, no `recipient_start`, no `amount`
 // on the right-hand side of either binding. `opening` is read before the CPI
-// consumes the `CpiContext` and `closing` after it, and a receipt computed
-// from the arguments rather than read off the account is not a solution to
-// this exercise whatever the vectors say — the point is where a read is legal,
-// which arithmetic never has to find out.
+// consumes the `CpiContext` and `closing` after it. A receipt computed from
+// the arguments rather than read off the account is not a solution to this
+// exercise — the point is where a read is legal, which arithmetic never has to
+// find out — so the scaffold shadows the arguments away right after the
+// accounts are built: the obvious arithmetic spellings fail to compile, same
+// as the misplaced reads.
 //
 // The starter does not compile: both reads sit in the span where the CPI holds
 // a mutable handle on the vault. Their placement is the whole exercise, so
@@ -109,6 +111,15 @@ fn settle(vault_start: u64, recipient_start: u64, amount: u64) -> (u64, u64) {
         },
     };
 
+    // GIVEN, do not move: the receipt must be read, not derived. The transfer
+    // keeps the one copy of `amount` it needs, and then the arguments stop
+    // existing — from here down `vault_start`, `recipient_start` and `amount`
+    // are unit values, so a receipt written from arithmetic on them is a type
+    // error, the same fate as a misplaced read.
+    let transfer_amount = amount;
+    #[allow(unused_variables)]
+    let (vault_start, recipient_start, amount) = ((), (), ());
+
     let cpi = CpiContext::new(TransferChecked {
         from: ctx.accounts.vault_ta.cpi_handle_mut(),
         mint: ctx.accounts.mint.cpi_handle(),
@@ -123,7 +134,7 @@ fn settle(vault_start: u64, recipient_start: u64, amount: u64) -> (u64, u64) {
     let opening = ctx.accounts.vault_ta.amount();
     let closing = ctx.accounts.vault_ta.amount();
 
-    token_interface::transfer_checked(cpi, amount, ctx.accounts.mint.decimals());
+    token_interface::transfer_checked(cpi, transfer_amount, ctx.accounts.mint.decimals());
 
     (opening, closing)
 }

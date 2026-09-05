@@ -399,10 +399,10 @@ The acceptance bar, all seven cases:
 Three hints, in the order you will want them:
 
 1. While `board.len() < cap`, every score is admitted with no comparison at all.
-2. When the board is full, compare against the current minimum: strictly greater gets in.
+2. When the board is full, the admission decision is `beats_cutoff`, the small `const fn` above `admit`: strictly greater than the current minimum gets in, a tie does not. Implement it there and route the full-board branch through it.
 3. Sort highest-first, truncate to `cap`, and return the last, smallest retained score. The truncate is the step the over-capacity cases exist to catch — return the minimum of the *retained* board, not of the board you were handed.
 
-The starter and tests are in `lessons/m02-l2/high-score-cutoff/`. Run them until all seven pass. The function is small. The point is not the code volume, it is internalizing that on-chain you cannot heap-grow your way out of this. The bound is the whole game, so the insert has to respect it every single time.
+The starter and tests are in `lessons/m02-l2/high-score-cutoff/`. The admission rule is factored into `beats_cutoff` so the compiler can prove it while it builds — a compile-time-assertion device you will meet again in the m03-l3 constraint challenge, and what production compile-only grading actually enforces: an unfixed rule does not build at all. Run the seven vectors too, until all seven pass. The function is small. The point is not the code volume, it is internalizing that on-chain you cannot heap-grow your way out of this. The bound is the whole game, so the insert has to respect it every single time.
 
 ## Before the next rung
 

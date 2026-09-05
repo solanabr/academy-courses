@@ -15,7 +15,7 @@ blocks:
     tests: discriminator-preimage/tests.json
     hints:
       - "An instruction handler is NOT hashed from \"instruction:\" — Anchor uses the \"global:\" namespace."
-      - "Map the three item kinds to their prefixes, then concatenate the name."
+      - "Fill in `namespace`: it is a `const fn`, and `match` cannot compare `&str` there (string equality is a trait call), so match on `item_kind.as_bytes()` with byte-string patterns like `b\"instruction\"`. `discriminator_preimage` already does the concatenation."
   - key: check
     type: quiz
     questions:

@@ -59,9 +59,12 @@ fn run_constraint(balance: u64, min: u64) -> bool {
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
 // Compile-time assertions. Because `meets_floor` is a `const fn`, the compiler
 // evaluates these while building: an unfixed hook does not compile at all, and
-// the message names the case it got wrong. They pin the two things the test
-// vectors alone cannot force — that the rule reads `self.min` rather than a
-// hardcoded constant, and that the floor is inclusive rather than off by one.
+// the message names the case it got wrong. The test vectors document the same
+// contract but never execute — grading is compile-only — so this block is the
+// gate, and it pins what the vectors alone could not force anyway: that the
+// rule reads `self.min` rather than a hardcoded constant, and that the floor
+// is inclusive rather than off by one. (Deleting the block compiles, but the
+// answer key is public; the assertions exist to measure you, not to hide it.)
 // ─────────────────────────────────────────────────────────────────────────────
 #[doc(hidden)]
 #[allow(dead_code)]
@@ -83,5 +86,9 @@ mod verify {
     const _: () = assert!(
         MinBalanceRule { min: 0 }.meets_floor(0),
         "a zero floor admits an empty account"
+    );
+    const _: () = assert!(
+        !MinBalanceRule { min: 200 }.meets_floor(100),
+        "the same balance that passed a 100 floor is rejected by a 200 floor: the threshold comes from self.min"
     );
 }

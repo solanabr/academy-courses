@@ -478,12 +478,14 @@ The starter, at `lessons/m09-l1/native-vault-withdraw/starter.rs`:
 ///
 /// The starter skips BOTH guards and subtracts naively. It happens to return the
 /// right number for a normal withdraw, and is wrong (and unsafe) for both rejects.
-fn vault_withdraw(balance: u64, amount: u64) -> i128 {
+const fn vault_withdraw(balance: u64, amount: u64) -> i128 {
     // TODO: reject a zero-amount withdraw with -2
     // TODO: reject an over-withdraw with -1 using balance.checked_sub(amount)
     (balance as i128) - (amount as i128)
 }
 ```
+
+The `const fn` is doing framework-free work: the graded file carries compile-time assertions under the function — the m03-l3 device, and what compile-only grading actually enforces — so the unguarded starter does not build, and each failing assertion names the reject case it stands for. Fitting, for the lesson where you write every check by hand: here even the harness is nothing but the compiler.
 
 Acceptance criteria:
 
@@ -493,9 +495,9 @@ Acceptance criteria:
 - a valid withdraw returns the remaining balance, across the whole `u64` range — `(u64::MAX, 1)` returns `u64::MAX - 1`, which is why the return is `i128` and why doing the subtraction in `i64` fails
 - draining to exactly zero is allowed (this teaching vault's SOL PDA carries no data and the challenge is deliberately rent-agnostic; a production withdraw would also floor at the rent-exempt minimum, which is what R2's own guard did)
 
-Two hints, and then it is yours. First: a zero-amount withdraw is invalid input, so reject it before you touch the balance. Second: `balance.checked_sub(amount)` returns `None` exactly when the withdraw exceeds the balance, which is your over-withdraw signal. Run the challenge's `tests.json` harness until every case is green.
+Two hints, and then it is yours. First: a zero-amount withdraw is invalid input, so reject it before you touch the balance. Second: `balance.checked_sub(amount)` returns `None` exactly when the withdraw exceeds the balance, which is your over-withdraw signal. Build until the assertions stop firing, then run the `tests.json` vectors until every case is green.
 
-If you get the ordering wrong, watch which case fails. A zero-amount that returns `0` instead of `-2` means you subtracted before you rejected. That ordering bug is the same one that ships in real programs, so learning to see it here is the point.
+If you get the ordering wrong, watch which assertion fails. A zero-amount that returns `0` instead of `-2` means you subtracted before you rejected. That ordering bug is the same one that ships in real programs, so learning to see it here is the point.
 
 ## Where you landed, and what is next
 

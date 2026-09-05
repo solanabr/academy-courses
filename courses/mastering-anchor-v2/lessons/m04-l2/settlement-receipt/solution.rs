@@ -97,6 +97,15 @@ fn settle(vault_start: u64, recipient_start: u64, amount: u64) -> (u64, u64) {
         },
     };
 
+    // GIVEN, do not move: the receipt must be read, not derived. The transfer
+    // keeps the one copy of `amount` it needs, and then the arguments stop
+    // existing — from here down `vault_start`, `recipient_start` and `amount`
+    // are unit values, so a receipt written from arithmetic on them is a type
+    // error, the same fate as a misplaced read.
+    let transfer_amount = amount;
+    #[allow(unused_variables)]
+    let (vault_start, recipient_start, amount) = ((), (), ());
+
     // No handle exists yet, so this read is free — and the `u64` it copies out
     // borrows nothing once the statement ends.
     let opening = ctx.accounts.vault_ta.amount();
@@ -107,7 +116,7 @@ fn settle(vault_start: u64, recipient_start: u64, amount: u64) -> (u64, u64) {
         to: ctx.accounts.recipient_ta.cpi_handle_mut(),
     });
 
-    token_interface::transfer_checked(cpi, amount, ctx.accounts.mint.decimals());
+    token_interface::transfer_checked(cpi, transfer_amount, ctx.accounts.mint.decimals());
 
     // The handles died with the `CpiContext` on the line above, so the vault is
     // readable again — and what it reads is the post-transfer balance.

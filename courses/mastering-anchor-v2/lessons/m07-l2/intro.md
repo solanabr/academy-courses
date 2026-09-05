@@ -405,7 +405,7 @@ Read that inverted result carefully, because a failing exploit test is success h
 
 Now cut loose. The escrow and vault payout logic, distilled to a pure function so it grades deterministically, ships vulnerable: no authority check and raw subtraction. Two classes from this lesson live in it, the signer/owner check and the arithmetic underflow. Your job is to add both guards, then port the same two guards back into the escrow instruction so the distillation and the real program agree.
 
-The starter, in a plain `cargo` project (no Anchor, no toolchain, it compiles anywhere `rustc` does):
+The starter, in a plain `cargo` project (no Anchor, no toolchain, it compiles anywhere `rustc` does). Each guard is its own `const fn` — the m03-l3 compile-time-assertion device, and what compile-only grading actually enforces — with `settle_withdraw` already wired through both, so the two vulnerable bodies are the whole exercise:
 
 ```rust
 // `Address` is 32 bytes, the shape `pinocchio::address::Address` really has.
@@ -416,16 +416,31 @@ The starter, in a plain `cargo` project (no Anchor, no toolchain, it compiles an
 //     -2  -> rejected: amount would underflow the balance
 type Address = [u8; 32];
 
-fn settle_withdraw(balance: u64, amount: u64, caller: Address, authority: Address) -> i64 {
-    // TODO: reject callers who are not the authority (return -1).
-    // TODO: use checked arithmetic so an over-withdraw returns -2 instead of underflowing.
+/// Gate the withdraw: is `caller` the vault authority?
+const fn is_authority(caller: &Address, authority: &Address) -> bool {
+    // TODO: true only when ALL 32 bytes match. Right now every caller passes.
+    let _ = (caller, authority);
+    true
+}
+
+/// Settle the arithmetic: the balance left after the withdraw, or -2.
+const fn checked_remaining(balance: u64, amount: u64) -> i64 {
+    // TODO: checked arithmetic, so an over-withdraw returns -2. This raw `-`
+    // is the drain.
     (balance - amount) as i64
+}
+
+fn settle_withdraw(balance: u64, amount: u64, caller: Address, authority: Address) -> i64 {
+    if !is_authority(&caller, &authority) {
+        return -1;
+    }
+    checked_remaining(balance, amount)
 }
 ```
 
-Two guards, in order. Access control comes first: if `caller != authority`, return `-1` before you touch the balance, because you should reject an unauthorized caller without doing any arithmetic on their behalf. Then the arithmetic: `u64::checked_sub` returns `None` exactly when `amount > balance`, so match on it, return `-2` on `None`, and the new balance on `Some`.
+Two guards, in order. Access control comes first: `settle_withdraw` already returns `-1` the moment `is_authority` says no, before any arithmetic runs on the caller's behalf — your job is to make `is_authority` actually say no. Then the arithmetic: `u64::checked_sub` returns `None` exactly when `amount > balance`, so match on it in `checked_remaining`, return `-2` on `None`, and the new balance on `Some`.
 
-The addresses are full-width on purpose. An address is 32 bytes and carries no meaningful ordering, so the only legal comparison is `==` over all 32 of them. Three of the grader's cases exist to prove you did that and nothing cheaper: one where the caller sorts *below* the authority, which an ordering comparison waves through, and two near-misses that match the authority in 31 of 32 bytes — one differing in the first byte, one in the last — which any prefix or single-byte comparison waves through. The reason to care is not that someone will grind 31 matching bytes — that is 2²⁴⁸ of work, and nobody is doing it. It is that a gate comparing a prefix is a gate whose prefix is grindable, and short prefixes are cheap: vanity search sells them by the character.
+The addresses are full-width on purpose. An address is 32 bytes and carries no meaningful ordering, so the only legal comparison is equality over all 32 of them — in a real handler that is one `caller != authority`. Here the gate is a `const fn` so the compiler can prove it while it builds, and `==` on arrays is a trait call a `const fn` cannot make on stable Rust, so you write the equality the way the machine runs it anyway: walk the bytes, all 32, and reject on the first mismatch. Three of the grader's cases exist to prove you compared everything and nothing cheaper: one where the caller sorts *below* the authority, which an ordering comparison waves through, and two near-misses that match the authority in 31 of 32 bytes — one differing in the first byte, one in the last — which any prefix or single-byte comparison waves through. The reason to care is not that someone will grind 31 matching bytes — that is 2²⁴⁸ of work, and nobody is doing it. It is that a gate comparing a prefix is a gate whose prefix is grindable, and short prefixes are cheap: vanity search sells them by the character.
 
 Acceptance criteria the grader checks directly:
 
@@ -433,9 +448,9 @@ Acceptance criteria the grader checks directly:
 - an address matching the authority in 31 of 32 bytes is still rejected with `-1`, whichever byte differs
 - an over-withdraw that would underflow is rejected with `-2`
 - an authority withdraw within balance returns the new balance (`100, 30, [7u8; 32], [7u8; 32]` returns 70; an exact-balance `50, 50, [7u8; 32], [7u8; 32]` returns 0)
-- the starter fails at least one case; your solution passes every case
+- the starter does not even build — the open gate fails compile-time assertions whose messages name the caller it let through, and the raw `-` overflows in const evaluation on the over-withdraw case; your solution builds clean and passes every case
 
-When the pure function is green, port it: the `caller != authority` check is the `address = escrow.player` constraint you already added, and the `checked_sub` is the vault debit you already patched. The distillation and the instruction enforce the same two guards. That is the point of the exercise, that the guard is the guard whether it lives in a constraint, a `require!`, or a pure function.
+When the pure function is green, port it: the byte-walk in `is_authority` is one `caller != authority` in real handler code — the `address = escrow.player` constraint you already added — and the `checked_sub` is the vault debit you already patched. The distillation and the instruction enforce the same two guards. That is the point of the exercise, that the guard is the guard whether it lives in a constraint, a `require!`, or a pure function.
 
 ## Did it work?
 
