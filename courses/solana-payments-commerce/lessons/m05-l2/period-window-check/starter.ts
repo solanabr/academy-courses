@@ -6,7 +6,8 @@
 //
 //   1. Plans publish their cadence as `periodHours`, but a billing window is
 //      measured in SECONDS of chain time. Comparing hours against a Unix
-//      timestamp charges everyone ~3600x too often. Convert before you compare.
+//      timestamp calls everyone due ~3600x too often -- pulls the program
+//      refuses, at a base fee per refusal. Convert before you compare.
 //   2. Delegation/subscription accounts PERSIST until revoked. `expiresAtTs`
 //      is the only thing that stops a pull after the plan lapses (0 means "no
 //      expiry"). Ignore it and you keep charging a canceled-by-time customer.
@@ -16,7 +17,7 @@
 //
 // TODO: implement decidePull so it honors active state, expiry, and the
 // seconds-based period window. The starter below forgets the ×3600 conversion
-// AND never checks expiry: the exact double-charge bugs above.
+// AND never checks expiry: the exact unit-and-clock bugs above.
 
 interface PullDecision {
   shouldPull: boolean;

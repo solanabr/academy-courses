@@ -14,7 +14,7 @@ You should see `{ '@solana/kit': '^7.0.0' }`. Now run `npm view @solana/pay peer
 
 - The program lives at `De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44` and its trick is one move: a Subscription Authority PDA per (user, mint) takes the single delegate slot ONCE with a u64::MAX approval, then per-plan delegation PDAs carry the real, enforced billing limits. One slot, as many subscriptions as the user wants.
 - You ship **club-billing**: create Wavelength's record-of-the-month plan, subscribe a test user, pull one billing period, and land that pull as an invoice row in the exact backoffice orders ledger you built in the webhook lesson. One honesty note carried through the lab: the official pull carries no reference key and no memo, so billing truth is crank-written, keyed on the pull's signature, not reference-reconciled the way a checkout is; the dunning lesson attaches a reference to the invoice when settlement needs one.
-- Two documented bugs cause double-charging in the wild, and both are unit-and-clock bugs, not exploits: plans measure their period in `periodHours` while everything you compare against is Unix seconds, and subscription accounts never expire on their own, so `expiresAtTs` is the only time-bound a pull has.
+- Two documented unit-and-clock bugs mis-bill in the wild, and neither is an exploit: plans measure their period in `periodHours` while everything you compare against is Unix seconds, and subscription accounts never expire on their own, so `expiresAtTs` is the only time-bound a pull has.
 - The client is `@solana/subscriptions` 0.5.0, and it peers `@solana/kit` ^7.0.0 while your checkout workspaces sit on kit ^6. That seam is real, it is the ecosystem's current state, and we handle it with a separate workspace pin, not a rewrite.
 
 One more thing worth saying plainly. Version 0.5.0 of this program was deployed to mainnet on 2026-08-10, twelve days ago as I write this. That date is the v0.5.0 deploy, not the program's mainnet debut (earlier versions were live before it), but it still makes this the newest load-bearing thing in the course. You are learning it before most integration guides exist. That is not a risk disclosure, it is the job: payments engineers get paid for being early and correct at the same time.
@@ -73,11 +73,11 @@ The plan's mint can be a Token-2022 mint, and two behaviors matter for billing. 
 
 That is everything we need to KNOW here. How the transfer-hook interface itself works, end to end, is the Digital Assets, Tokenization and Token Extensions course's territory; it walks the interface as its one authored program. We are hook consumers, and consumers get to stay blissfully thin.
 
-### The two clocks that double-charge people
+### The two clocks that mis-bill people
 
-Now the footguns, because this program's two documented integration bugs are both time bugs, both cause double-charging, and both will be sitting in your challenge starter on purpose.
+Now the footguns, because this program's two documented integration bugs are both time bugs, both wreck a billing run in their own way, and both will be sitting in your challenge starter on purpose.
 
-**Bug one: hours are not seconds.** A `Plan` stores its cadence as `periodHours` (720 for Wavelength's monthly plan). A `RecurringDelegation` stores its cadence as `periodLengthS`, in seconds. Every timestamp you will ever compare against, `currentPeriodStartTs`, `expiresAtTs`, chain time, is Unix seconds. Compare `periodHours` directly against a seconds delta and your window shrinks by a factor of 3,600: a 24-hour plan re-bills after 24 seconds. The rule is boring and absolute: convert to seconds at the boundary, compare only seconds. 24 hours is 86,400 seconds, not 24.
+**Bug one: hours are not seconds.** A `Plan` stores its cadence as `periodHours` (720 for Wavelength's monthly plan). A `RecurringDelegation` stores its cadence as `periodLengthS`, in seconds. Every timestamp you will ever compare against, `currentPeriodStartTs`, `expiresAtTs`, chain time, is Unix seconds. Compare `periodHours` directly against a seconds delta and your window shrinks by a factor of 3,600: your crank calls a 24-hour plan due again after 24 seconds. Note who saves the subscriber here — the program does, exactly as the enforcement section said: the early pull is refused with the period-not-elapsed error before a token moves. What the program cannot save is your wallet and your logs: every refused pull costs the crank a base fee and a log line, on every tick, forever, until you notice. The rule is boring and absolute: convert to seconds at the boundary, compare only seconds. 24 hours is 86,400 seconds, not 24.
 
 **Bug two: nothing expires by itself.** Subscription and delegation accounts persist on-chain until an explicit revoke instruction closes them. A plan whose term ended last week still has a live delegation account sitting there, and if your crank only checks "does the delegation exist," it will happily charge a lapsed subscriber. `expiresAtTs` is the ONLY time-bound on a pull, and it must be checked against chain time on every single tick. And its zero case bites in the other direction: `expiresAtTs` of 0 means "never expires," so a guard that naively compares `now >= expiresAtTs` treats every no-expiry subscription as expired at the epoch and refuses to bill anyone. Handle zero first, then compare.
 
@@ -89,7 +89,7 @@ Time to resolve the probe you ran in the first minute. This is not a defect in t
 
 The facts, re-verified against npm on 2026-08-22: kit's `latest` dist-tag points at 8.0.0 (published 2026-08-21); the v7 line ended at 7.1.1; the v6 line ended at 6.10.0. Version 7 is the ecosystem's peer standard right now: the July 2026 `@solana-program/*` client wave peers `^7.0.0` (that is `@solana-program/token` 0.15.0), and `@solana/subscriptions` 0.5.0 does too. Watch how fast the front of the pack moves, though: `@solana-program/token` 0.16.0 shipped on 2026-08-21, the same day as kit 8, and already peers `^8.0.0`. The laggards are equally real and load-bearing for us: `@solana/pay` 1.0.26 peers kit `^6.9.0` and helius-sdk 3.1.0 peers `^6.9.0`, which is exactly why your checkout and ops workspaces were pinned to kit ^6.10 in the first place. Three kit majors, all shipping, all correct for someone. Install subscriptions into those workspaces and npm's peer resolver will refuse, correctly. Never pin to `latest` anywhere; these tags moved twice while this course was being written.
 
-The unlock? npm workspaces, which you have been using since module 2 without thinking about them. Each rung of the club already lives in its own workspace with its own dependency tree. So the subscriptions workspace ALONE pins kit ^7 plus `@solana/subscriptions` 0.5.0, and everything else stays exactly where it is. The two worlds never share a `node_modules` resolution, so the peer ranges never meet. And if v7 friction shows up that you cannot clear, the documented fallback is a two-line pin edit in that one workspace: `@solana/subscriptions` 0.4.0 with kit ^6.4. No structural change, no rewrite, one folder's `package.json`.
+The unlock? A folder that deliberately stays OUT of the workspace roster. Registered npm workspaces are not isolation — they are the opposite: npm hoists every registered package into one shared root resolution, which is exactly the tree where kit 6 and kit 7 would meet and fight. So step 1 below creates `subscriptions/` as a standalone package and never adds it to the root `workspaces` array — a deliberate break from the register-everything habit module 4 taught you. It alone pins kit ^7 plus `@solana/subscriptions` 0.5.0, runs its own `npm install`, resolves from its own `node_modules`, and the peer ranges never meet. (Register it at the root and npm's resolver will try to reconcile both kit majors in one tree and refuse; the capstone walks into that exact ERESOLVE on purpose and shows you the escape hatch.) And if v7 friction shows up that you cannot clear, the documented fallback is a two-line pin edit in that one folder: `@solana/subscriptions` 0.4.0 with kit ^6.4. No structural change, no rewrite, one folder's `package.json`.
 
 ![Checkout and ops workspaces stay pinned to kit 6 packages while one isolated subscriptions workspace pins kit 7, with the documented fallback to subscriptions 0.4.0 on kit 6.4.](assets/v06-diagram.png)
 
@@ -390,11 +390,14 @@ async function main() {
   // decidePull takes its five scalars positionally:
   // active, expiresAtTs, lastChargedTs, periodHours, now.
   const decision = decidePull(
-    // No cancellation flag survives on-chain to read: a canceled
-    // subscription's delegation account closes, so fetchSubscriptionDelegation
-    // above would already have thrown. The live pull path therefore passes
-    // active = true; the guard's 'canceled' arm serves callers that track
-    // cancellation off-chain, and the dunning lesson feeds it from events.
+    // Cancellation is not invisible on-chain: a canceled subscription's
+    // delegation account persists, readable, until the subscriber revokes
+    // it, and the program refuses pulls against it with its
+    // subscription-cancelled error. This demo pulls the subscription you
+    // created two steps ago, which cannot have been canceled yet, so it
+    // passes active = true; the dunning lesson wires this argument to the
+    // cancellation state it reads, so the guard's 'canceled' arm refuses
+    // before a fee is spent instead of after a refusal.
     true,
     Number(sub.data.expiresAtTs),
     Number(sub.data.currentPeriodStartTs),
@@ -525,7 +528,7 @@ setInterval(() => {
 }, TICK_MS);
 ```
 
-`subscribers.json` is a plain JSON array of subscriber addresses; for the lab it holds your one test listener. In production the list comes from indexing the program's delegation accounts, and indexing at scale is handed to the Client-Side Mastery course, the same handoff the webhook lesson made. Notice what the loop no longer does: it does not read the token account's delegate field and compare it against its own address, because there is no crank keypair with pull rights to compare. The consent check moved on-chain, the schedule check moved into `decidePull`, and the loop got dumber, which is the correct direction of travel for the component that runs unattended at 3 a.m. The pull economics carry over from last lesson unchanged: the caller pays the base fee per pull, and the subscriber signs nothing and pays nothing per cycle. Checkpoint: `npx tsx 05-crank.ts` prints one `refused: too-early` line per tick for the subscriber you just billed, once a minute, and never submits a transaction. Watch two ticks, then stop it with ctrl-C, and do not leave it running: the buggy starter you saved in step 6 reads `periodHours` as seconds, so its 720-"second" window would call another pull due twelve minutes after the last one, the exact double-charge you are about to fix in the Challenge.
+`subscribers.json` is a plain JSON array of subscriber addresses; for the lab it holds your one test listener. In production the list comes from indexing the program's delegation accounts, and indexing at scale is handed to the Client-Side Mastery course, the same handoff the webhook lesson made. Notice what the loop no longer does: it does not read the token account's delegate field and compare it against its own address, because there is no crank keypair with pull rights to compare. The consent check moved on-chain, the schedule check moved into `decidePull`, and the loop got dumber, which is the correct direction of travel for the component that runs unattended at 3 a.m. The pull economics carry over from last lesson unchanged: the caller pays the base fee per pull, and the subscriber signs nothing and pays nothing per cycle. Checkpoint: `npx tsx 05-crank.ts` prints one `refused: too-early` line per tick for the subscriber you just billed, once a minute, and never submits a transaction. Watch two ticks, then stop it with ctrl-C, and do not leave it running: the buggy starter you saved in step 6 reads `periodHours` as seconds, so its 720-"second" window would call another pull due twelve minutes after the last one — a pull the program refuses with its period-not-elapsed error, a base fee spent on a guaranteed rejection, every twelve minutes, until you notice. That fee-burning loop is exactly what you fix in the Challenge.
 
 **9. Verify.** The lesson's gate is `subscriptions/pull.test.ts`. It exercises the guard math offline, then reads the backoffice ledger and proves your pull landed there exactly once. Write it now; it needs nothing but Node's `fs` and the guard:
 
@@ -544,7 +547,7 @@ function assert(condition: boolean, message: string): void {
   }
 }
 
-// 1. The two documented double-charge bugs, as assertions.
+// 1. The two documented unit-and-clock bugs, as assertions.
 // Args, in order: active, expiresAtTs, lastChargedTs, periodHours, now.
 assert(decidePull(true, 0, 900_000, 24, 900_000 + 24 * HOUR).reason === "due", "boundary is inclusive");
 assert(decidePull(true, 0, 900_000, 24, 900_000 + 23 * HOUR).reason === "too-early", "window is seconds");
@@ -567,10 +570,10 @@ assert(
 console.log("period-window: due -> pull landed in backoffice ledger (invoice reconciled)");
 ```
 
-Run it:
+Run it from the `subscriptions/` folder — the working directory every command in this lab has assumed since step 1's `cd subscriptions`, and the one the gate's relative ledger path (`../backoffice/orders.jsonl`) is written against:
 
 ```bash
-npx tsx subscriptions/pull.test.ts
+npx tsx pull.test.ts
 ```
 
 Expected output, verbatim:
@@ -585,7 +588,7 @@ If you run `04-pull.ts` a second time immediately, you should see `refused: too-
 
 ## Challenge
 
-The period-window guard you imported in the lab is the solo piece, and the starter I ship you contains, on purpose, exactly the two documented double-charge bugs from the theory. The function takes its five inputs as plain positional scalars, in the order the fields matter, `active, expiresAtTs, lastChargedTs, periodHours, now`, which is also exactly how the grader (and the lab) will call it. Save it as `subscriptions/decide-pull.ts`, the module `04-pull.ts` and the gate both import:
+The period-window guard you imported in the lab is the solo piece, and the starter I ship you contains, on purpose, exactly the two documented unit-and-clock bugs from the theory. The function takes its five inputs as plain positional scalars, in the order the fields matter, `active, expiresAtTs, lastChargedTs, periodHours, now`, which is also exactly how the grader (and the lab) will call it. Save it as `subscriptions/decide-pull.ts`, the module `04-pull.ts` and the gate both import:
 
 ```typescript
 export interface PullDecision {
