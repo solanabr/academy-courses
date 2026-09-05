@@ -182,7 +182,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3 @types/node@24
 
 Pins checked against npm on 2026-09-05. The kit `latest` tag is 8.2.0, published 2026-08-29, but latest is not the rule: a workspace pins the kit major its own `@solana-program/*` deps peer against. Here that client is `@solana-program/token-2022@0.15.0`, whose peer range accepts kit `^7.0.0` — everything from 0.16.0 onward peers `^8` — and that decides the rest: kit 7.1.1, the newest release inside the range. These clients ship monthly. Run `npm view @solana-program/token-2022 peerDependencies` before you trust the pair.
 
-Then the environment. Six values, no secrets in the repo:
+Then the environment. Seven values, no secrets in the repo — the last one is a path, and the file it points at is the `treasury.json` you minted in last lesson's step 1b, because the window's `mintTo` must be signed by SPROUT's mint authority and that setup put the authority on exactly this key (if your SPROUT predates that step, re-mint per it first; there is no signing your way around a dead throwaway authority):
 
 ```bash
 export DAS_RPC_URL="https://<your-das-provider-endpoint>"
@@ -192,6 +192,7 @@ export SPROUT_MINT="<your Token-2022 mint from module 2>"
 export ALMANAC_COLLECTION="<the Core collection your crates belong to>"
 export HOLDER_WALLET="<a wallet holding a Founding-Farmer crate>"
 export STRANGER_WALLET="<any wallet that does not>"
+export KEYPAIR="<path to labs/m09-l1/treasury.json from m09-l1 step 1b>"
 ```
 
 If you would rather run the mint half locally, surfpool works here too (1.2.1 on this machine, 2026-08-22; on macOS `brew install txtx/taps/surfpool`, otherwise grab a release binary), started with `surfpool start --no-tui --no-studio` and pointed at `http://127.0.0.1:8899` and `ws://127.0.0.1:8900`. The door half still needs a real DAS endpoint, because a local surfnet has no indexer watching it.
