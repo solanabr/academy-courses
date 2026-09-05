@@ -154,7 +154,7 @@ The artifact is `routability-report.ts`, the finished form of R6. To pin the nam
 npm install -D tsx@4.23.12 typescript@5.9.3
 ```
 
-2. Before you tag anything, pull the ground truth for what your actual tradeable mint carries. You have the `spl-token` CLI from the Agave tools bundle installed back in m02-l1 (the one-liner, if you skipped it: `sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"`). Point it at wherever you actually minted SPROUT, which for the default path is your local surfnet; forks are ephemeral, so if yours restarted since you minted, re-mint first with the two commands from the m05-l1 opener (and swap in `--url devnet` if you took m02-l4's devnet fallback):
+2. Before you tag anything, pull the ground truth for what your actual tradeable mint carries. You have the `spl-token` CLI from the m01-l4 docs-vs-code probe (m01-l3's Agave bundle may have included it; if yours did not, `cargo install spl-token-cli` fills the gap). Point it at wherever you actually minted SPROUT, which for the default path is your local surfnet; forks are ephemeral, so if yours restarted since you minted, re-mint first with the two commands from the m05-l1 opener (and swap in `--url devnet` if you took m02-l4's devnet fallback):
 
 ```bash
 spl-token display <YOUR_SPROUT_MINT> --url http://127.0.0.1:8899

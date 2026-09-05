@@ -345,7 +345,7 @@ If both lines say DENY, check the collection value before you check anything els
 
 **4. The tree.**
 
-Now the window. This file is given to you complete, because it has to be byte-compatible with what an on-chain verifier computes and there is no partial credit for a root that is almost right. And an acknowledgment you are owed, because you built this exact tree last lesson in `compost-airdrop` under different names: `leafHash` there is `hashLeaf` here, `tree.proofFor` becomes `getProof` over explicit levels, and the bytes hashed are identical, leaf prefix, intermediate prefix, sorted pairs and all. This copy is deliberately self-contained so `overgrowth/` carries no cross-folder import to break; if you doubt the two agree, hash the same entry through both and diff the hex, which takes a minute and settles it for good.
+Now the window. This file is given to you complete, because it has to be byte-compatible with what an on-chain verifier computes and there is no partial credit for a root that is almost right. And an acknowledgment you are owed, because you built this exact tree two lessons ago in `compost-airdrop` under different names: `leafHash` there is `hashLeaf` here, `tree.proofFor` becomes `getProof` over explicit levels, and the bytes hashed are identical, leaf prefix, intermediate prefix, sorted pairs and all. This copy is deliberately self-contained so `overgrowth/` carries no cross-folder import to break; if you doubt the two agree, hash the same entry through both and diff the hex, which takes a minute and settles it for good.
 
 ```typescript
 // overgrowth/merkle.ts - the distributor's tree, byte for byte.

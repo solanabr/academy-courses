@@ -31,17 +31,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The Master Solana Frontend and Client-Side Development course, since KYC checks and compliance screens ultimately run in the client and indexing layer the user touches"
+            label: "The Client-Side Mastery course, since KYC checks and compliance screens ultimately run in the client and indexing layer the user touches"
             correct: false
             feedback: "That course owns indexing infrastructure and transaction-landing, not RWA issuance or compliance framing."
           - id: b
-            label: "The DeFi and RWA Engineering course, whose tokenization module owns RWA issuance and compliance"
+            label: "The DeFi and RWA Engineering course, where RWA issuance and the compliance rails around it live"
             correct: true
           - id: c
             label: "The Master Anchor V2 course"
             correct: false
             feedback: "That course owns the Anchor framework layer (macros, constraints, CPI, testing), not RWA compliance rails."
-        explanation: "This course teaches the compliance-shaped primitives (freeze, permanent delegate, default-frozen, hooks) but deliberately refuses the legal and issuer framing. That RWA-specific issuance and compliance work lives in the DeFi and RWA Engineering course, for which this course is the named prerequisite."
+        explanation: "This course teaches the compliance-shaped primitives (freeze, permanent delegate, default-frozen, hooks) but deliberately refuses the legal and issuer framing. That RWA-specific issuance and compliance work is the DeFi and RWA Engineering course's territory, and it builds directly on the primitives taught here."
       - id: q3
         prompt: "A checkpoint brief asks for a soulbound achievement badge minted to a million holders cheaply. Which taught primitive fits, and what makes the answer a 2026 answer?"
         multiSelect: false
