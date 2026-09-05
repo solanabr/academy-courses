@@ -234,8 +234,8 @@ A lesson may also carry an optional top-level `versionStamp`:
 
 ```yaml
 versionStamp:
-  checked: "2026-09-05"          # the date the pins were verified, YYYY-MM-DD
-  pins:                          # package/tool name → version string
+  checkedAt: "2026-09-05"        # the date the pins were verified, YYYY-MM-DD
+  packages:                      # package/tool name → version string
     "@solana/kit": "7.1.1"
     "@solana/subscriptions": "0.5.0"
 ```
