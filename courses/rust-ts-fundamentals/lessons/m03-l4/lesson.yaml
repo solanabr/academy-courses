@@ -70,7 +70,7 @@ blocks:
             label: "That's the bookmarked 20%, type-challenges plus the Handbook's generics material; this course taught the daily layer and where the rest lives"
             correct: true
           - id: c
-            label: "Hold off until you've finished the client-side mastery course, its prerequisite bar includes type-level fluency, so it teaches that layer before the client work"
+            label: "Hold off until you've finished the client-side mastery course, serious client work demands type-level fluency, so that layer has to be taught there first"
             correct: false
-            feedback: "That course's stated floor is 'TS-strong, React assumed', which you now meet. It assumes solid working TS, not type-level wizardry, and it doesn't teach the wizardry either."
+            feedback: "Nothing in the map routes type-level programming through the client-side course; its territory is wallet UX and transaction landing, and the wizardry is bookmarked self-serve: type-challenges plus the Handbook's generics material."
         explanation: "The tier-gate is the 80/20 contract kept honestly: unions, narrowing, zod, async discipline, packages, taught. Type-level programming, full tsconfig breadth, Bun/Deno, deep React, bookmarked, each with a named home. The map you got in m01-l1 just gained its first 'you are here' pin: TS-strong, with the 20% locations memorized."

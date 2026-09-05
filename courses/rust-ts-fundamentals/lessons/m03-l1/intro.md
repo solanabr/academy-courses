@@ -81,7 +81,7 @@ Second, the consumer declares its dependency using the workspace protocol:
 import { classifyProbe, type ProbeResult } from "pulse-core";
 ```
 
-Honestly, this link is a godsend. Edit a file in `pulse-core`, and the fleet sees the change instantly, no publish, no version bump, no reinstall. You get the package boundary's discipline with none of the registry's round trips. At publish time (that is m03-l4, the module's victory lap) pnpm rewrites `workspace:*` into a real version range, so the ergonomics are local and the published artifact stays honest.
+Honestly, this link is a godsend. Edit a file in `pulse-core`, and the fleet sees the change instantly, no publish, no version bump, no reinstall. You get the package boundary's discipline with none of the registry's round trips. At publish time, `pnpm publish` rewrites `workspace:*` into a real version range, so the ergonomics stay local and the published artifact stays honest. One caveat that becomes load-bearing in m03-l4, the module's victory lap: plain `npm publish` performs no such rewrite, and that lesson publishes with npm; it gets away with it only because pulse-core ships zero runtime dependencies, so no `workspace:*` line exists to leak into the registry. Publish a package that depends on a workspace sibling, and the pnpm spelling stops being optional.
 
 Fair question before we commit: npm has workspaces too, so why pnpm? Two honest reasons. The ecosystem chose: every serious Solana TypeScript repo you will read is a pnpm workspace, and reading the wild fluently is a stated goal here. And pnpm's stricter layout (packages only see what they declare, not whatever got hoisted within reach) means a missing dependency line fails on your machine today instead of on a consumer's machine after publish; for a package headed to npm in three lessons, that strictness is a feature pointed at ourselves.
 
@@ -147,7 +147,7 @@ Every dependency line in `package.json` is a range, and a range is a policy abou
 
 Notice which of these you actually author. Almost none: `npm i some-dep` and `pnpm add some-dep` write a caret range for you, so most dependency lines in most repos are a policy their author never consciously chose. The default is defensible (fixes flow, majors blocked), but teams that want exact pins flip it deliberately with `npm config set save-exact true` and lean on the lockfile plus an update tool. Either stance is coherent; drifting into one because a tool wrote it for you is the only wrong option.
 
-And the trap inside the caret, worth its own paragraph because reading `^` as "roughly this version" will eventually hurt you: under major zero, the minor becomes the breaking slot. `^0.3.9` admits `0.3.10` and refuses `0.4.0`, because pre-1.0 packages reserve minor bumps for breaking changes and the caret respects that. `^0.3.9` and `^1.3.9` look like siblings and admit completely different futures. The `@solana-program/*` packages you will meet in M8 live in 0.x land, so this rule is not trivia.
+And the trap inside the caret, worth its own paragraph because reading `^` as "roughly this version" will eventually hurt you: under major zero, the minor becomes the breaking slot. `^0.3.9` admits `0.3.10` and refuses `0.4.0`, because pre-1.0 packages reserve minor bumps for breaking changes and the caret respects that. `^0.3.9` and `^1.3.9` look like siblings and admit completely different futures. The rule has one more floor below that: with major AND minor both zero, npm treats the patch as the breaking slot, so `^0.0.3` admits `0.0.3` and nothing else. The `@solana-program/*` packages you will meet in M8 live in 0.x land, so this rule is not trivia.
 
 ![A matrix shows exact, tilde, caret, and floor ranges admitting progressively more versions from a 6.9.0 base, with a footnote on the caret-zero rule.](assets/v04-comparison.webp)
 
@@ -210,7 +210,16 @@ The autonomy fade, out loud: step 1 through 4 are fully worked, diffs on screen,
    git mv src tests package.json tsconfig.json pulse.config.json probe.ts fleet.ts smoke.ts packages/pulse-fleet/
    ```
 
-   Note `tests` in that list: the m02-l4 suite imports `../src/config.js` and reads `./fixtures/`, so it must stay a sibling of `src/` or the checkpoint below runs zero tests. The three loose `.ts` files are the fleet's root-level scripts; everything fleet-shaped moves, `status.json` and `.github/` stay at the root on purpose, and if a listed file does not exist in your repo, drop it from the command rather than letting `git mv` refuse the whole batch. Then open the moved `packages/pulse-fleet/package.json` and make two edits. First, set `"name"` to `"pulse-fleet"`: the root manifest below is about to reuse the old name for the private glue, and pnpm keys everything on the name field, not the directory: `pnpm -r` prefixes, `--filter` selectors (step 7 needs one), and m03-l3's Vercel build-skip all want a unique name per package. Second, replace the npm-init stub in `scripts` with `"test": "vitest run"`. m02-l4 ran the suite as `npx vitest run` and never needed the script; `pnpm -r` below runs each package's `test` script, and without this line it would run the stub, which prints `Error: no test specified` and exits 1.
+   Three notes on the move:
+
+   - `tests` is in the list on purpose: the m02-l4 suite imports `../src/config.js` and reads `./fixtures/`, so it must stay a sibling of `src/` or the checkpoint below runs zero tests.
+   - The three loose `.ts` files are the fleet's root-level scripts. Everything fleet-shaped moves; `status.json` and `.github/` stay at the root on purpose.
+   - If a listed file does not exist in your repo, drop it from the command rather than letting `git mv` refuse the whole batch.
+
+   Then open the moved `packages/pulse-fleet/package.json` and make two edits:
+
+   1. Set `"name"` to `"pulse-fleet"`. The root manifest below is about to reuse the old name for the private glue, and pnpm keys everything on the name field, not the directory: `pnpm -r` prefixes, `--filter` selectors (step 7 needs one), and m03-l3's Vercel build-skip all want a unique name per package.
+   2. Replace the npm-init stub in `scripts` with `"test": "vitest run"`. m02-l4 ran the suite as `npx vitest run` and never needed the script; `pnpm -r` below runs each package's `test` script, and without this line it would run the stub, which prints `Error: no test specified` and exits 1.
 
    Create `pnpm-workspace.yaml` at the root:
 
@@ -329,7 +338,7 @@ The autonomy fade, out loud: step 1 through 4 are fully worked, diffs on screen,
 
 ## Challenge
 
-The semver logic you just used by eye becomes code: implement `satisfiesRange(version, range)` for the four range forms this lesson taught, exact, `>=`, tilde, and caret, including the caret-zero rule where major 0 makes the minor the breaking slot. `parseSemver` and `compare` are provided in the starter, in the coding-challenge panel on this lesson's page; the exact-match arm is done for you. Eleven tests grade it, one of them this lesson's lab in miniature: does `7.0.2` satisfy `^6.9.0`? Your implementation should agree with npm's resolver: it does not. Hints escalate from operator-ordering to the caret-zero branch; spend them in order.
+The semver logic you just used by eye becomes code: implement `satisfiesRange(version, range)` for the four range forms this lesson taught, exact, `>=`, tilde, and caret, including the caret-zero rule where major 0 makes the minor the breaking slot. `parseSemver` and `compare` are provided in the starter, in the coding-challenge panel on this lesson's page; the exact-match arm is done for you. Eleven tests grade it, one of them this lesson's lab in miniature: does `7.0.2` satisfy `^6.9.0`? Your implementation should agree with npm's resolver on that call: it does not. One honest boundary: the drill's caret rule stops at the major-zero floor; the `^0.0.z` sub-rule, where the patch becomes the breaking slot, is not modeled and not tested here, so do not treat the drill as a full reimplementation of npm's matcher. Hints escalate from operator-ordering to the caret-zero branch; spend them in order.
 
 One design note before you start, the first hint in disguise: the ORDER you test operators in is load-bearing. Check for `>=` before anything single-character, or you will slice the wrong prefix and every floor test fails at once, a string bug wearing a logic bug's face. After this challenge, a caret in any manifest is something you compute, not squint at: the difference between reading a peer conflict and being read to by one.
 
