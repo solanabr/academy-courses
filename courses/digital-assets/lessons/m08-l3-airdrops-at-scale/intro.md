@@ -26,7 +26,7 @@ You will build the compost-airdrop: a cost table that computes per-recipient lam
 
 Before any theory, get a compressed token into your own hands. This is a devnet errand, not a build, and it exists so that every number later in the lesson attaches to something you have run.
 
-The Light SDK is a web3.js v1 stack. Its published peer range is `@solana/web3.js >=1.73.5`, so this lab is a v1 workspace, deliberately, while the rest of the course stays on kit. (Kit's npm `latest` was 8.0.0, published 2026-08-21, when this lesson was written. Do not print `latest` in a package.json, and re-check every pin below before you rely on it.)
+The Light SDK is a web3.js v1 stack. Its published peer range is `@solana/web3.js >=1.73.5`, and Light publishes no kit surface, so the v1 ride is unavoidable rather than chosen: this lab is a quarantined v1 workspace, deliberately, you write v1 idioms only where the vendor SDK forces them, and the rest of the course stays on kit. (Kit's npm `latest` was 8.0.0, published 2026-08-21, when this lesson was written. Do not print `latest` in a package.json, and re-check every pin below before you rely on it.)
 
 ```bash
 mkdir -p labs/m08-l3 && cd labs/m08-l3
