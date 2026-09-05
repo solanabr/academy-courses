@@ -12,7 +12,7 @@
 <body>
 <!-- table: Course primitive, shipped deployment
      purpose: let the reader see that each rung they built maps to a named production system
-     data: columns: primitive you built | where you built it | shipped deployment | what differs in production row: Token-2022 mint with extensions | SPROUT mint | PYUSD (2b1k...GXo, 8 TLV extensions, May 2024) | eight slots armed, four dormant; one authority holds all of them row: transfer-hook program (CPI'd on every transfer) | the Overgrowth hook | PYUSD's transferHook slot | the slot is present with programId null; nothing is plugged in row: transfer fee routing | SPROUT fee route and buyback | PYUSD's transferFeeConfig | armed at 0 bps, max 0, changeable only two epochs ahead row: merkle distributor with claim_locked vesting | compost airdrop | JTO drop via mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv | linear vesting to 2024-12-07; far larger tree row: DAS asset reads | asset-reader and the alpha gate | DAS is_agent (nullable boolean, 2026) | frontier field, no production standard behind it yet
+     data: columns: primitive you built | where you built it | shipped deployment | what differs in production row: Token-2022 mint with extensions | SPROUT mint | PYUSD (2b1k...GXo, 8 TLV extensions, May 2024) | eight slots: four active, four dormant; one authority holds all of them row: transfer-hook program (CPI'd on every transfer) | the Overgrowth hook | PYUSD's transferHook slot | the slot is present with programId null; nothing is plugged in row: transfer fee routing | SPROUT fee route and buyback | PYUSD's transferFeeConfig | armed at 0 bps, max 0, changeable only two epochs ahead row: merkle distributor with claim_locked vesting | compost airdrop | JTO drop via mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv | linear vesting to 2024-12-07; far larger tree row: DAS asset reads | asset-reader and the alpha gate | DAS is_agent (nullable boolean, 2026) | frontier field, no production standard behind it yet
      prompt: Four-column designed comparison table with the five rows exactly as given, in this order. Emphasize column three (shipped deployment) as the anchor column. Keep addresses monospaced. No icons, no rating marks.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -51,7 +51,7 @@
       <td class="prim">Token-2022 mint with extensions</td>
       <td class="where">SPROUT mint</td>
       <td class="ship">PYUSD &mdash; 8 TLV extensions, May 2024<code>2b1k&hellip;GXo</code></td>
-      <td class="diff">eight slots armed, four dormant; one authority holds all of them</td>
+      <td class="diff">eight slots: four active, four dormant; one authority holds all of them</td>
     </tr>
     <tr>
       <td class="prim">transfer-hook program (CPI&rsquo;d on every transfer)</td>
