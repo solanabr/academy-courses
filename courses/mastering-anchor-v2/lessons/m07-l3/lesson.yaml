@@ -60,7 +60,7 @@ blocks:
             label: "Only if you also run Trident, whose Ackee harness gives proof-grade coverage guarantees."
             correct: false
             feedback: "No fuzzer is proof-grade — Trident is coverage-guided testing exactly like Crucible, it is not even the built-in path, and running a second fuzzer would not turn testing into proof."
-        explanation: "Fuzzing found 4 correctness bugs in Anchor's OWN framework, which also carries Miri witnesses and Kani configs — and the docs still call the defaults 'not a substitute for review.' Testing and audit raise confidence; they never prove the absence of bugs. Of that toolchain only Miri (undefined behavior in unsafe code) and Kani (bounded model checking) make proof-shaped claims at all, and only about the narrow properties they model."
+        explanation: "Fuzzing found 4 correctness bugs in Anchor's OWN framework, which also carries Miri witnesses and Kani configs — and that record, not any hedging line in the project's docs (there is none; the README claims 'secure by default'), is why this course insists the defaults are no substitute for review. Testing and audit raise confidence; they never prove the absence of bugs. Of that toolchain only Miri (undefined behavior in unsafe code) and Kani (bounded model checking) make proof-shaped claims at all, and only about the narrow properties they model."
       - id: q4
         prompt: "You want the fuzzer to explore state that only appears after several instructions run in sequence. Which run mode fits?"
         multiSelect: false

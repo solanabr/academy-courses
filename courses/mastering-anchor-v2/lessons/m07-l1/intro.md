@@ -83,19 +83,21 @@ pub fn cosplay(vault: &Account<QuarterVault>) -> Address {
 }
 ```
 
-`vault.as_ref()` produces a `&QuarterVault`. You asked to bind it to `&Config`. The compiler stops cold:
+`Account<QuarterVault>` is a `Slab`, and a `Slab` implements `AsRef` for exactly two targets — the raw `AccountView` and the `Address` — never for some *other* Pod type. You asked it for a `&Config`, an impl that does not exist. The compiler stops cold:
 
 ```text
-error[E0308]: mismatched types
+error[E0277]: the trait bound `Slab<QuarterVault>: AsRef<Config>` is not satisfied
   --> programs/token-ticket-swap/src/exploits.rs
    |
    |     let stolen: &Config = vault.as_ref();
-   |                 -------   ^^^^^^^^^^^^^^^ expected `&Config`, found `&QuarterVault`
-   |                 |
-   |                 expected due to this
+   |                                 ^^^^^^ the trait `AsRef<Config>` is not implemented
+   |
+   = help: the following other types implement trait `AsRef<T>`:
+             `Slab<T, H>` implements `AsRef<AccountView>`
+             `Slab<T, H>` implements `AsRef<Address>`
 ```
 
-That is type cosplay converted into `E0308`. The vault's bytes never get read through the wrong struct, because the wrong struct is a different Pod type and the two do not interconvert. Notice what did the work: not a new runtime check, but the ordinary Rust type system, given a deterministic layout to hold onto.
+That is type cosplay converted into `E0277`: the trait surface simply refuses to offer a lens that is not the account's own type. The vault's bytes never get read through the wrong struct, because the wrong struct is a different Pod type and the two do not interconvert. Notice what did the work: not a new runtime check, but the ordinary Rust type system, given a deterministic layout to hold onto.
 
 Now be honest about what that snippet did and did not prove, because on its own it proves less than it looks. Nobody ever shipped that line. `let x: &Config = y.as_ref()` on a `&QuarterVault` fails to compile on v1, on 0.29, on any Rust ever written; it is a type error, not an exploit. The line is there because it is the *laundering* attempt, the thing an attacker tries first once the typed wrapper is in the way, and it shows the typed wrapper holding. The real v1 attack never wrote that line. It went around the typed wrapper entirely:
 
@@ -109,7 +111,7 @@ pub fn cosplay_v1(any_account: &AccountInfo) -> Result<Pubkey> {
 }
 ```
 
-Hand it a `QuarterVault` and it happily returns `quarter_balance`'s neighbourhood of bytes as an `authority`, because `try_from_slice` decodes whatever it is given. That is the class. Two things have to hold for V2 to answer it, and they answer it on two different clocks. At *load*, a `QuarterVault` account passed into a slot declared `Account<Config>` is rejected by the discriminator check, at runtime, exactly as v1's `Account<T>` rejected it: the tag says `account:QuarterVault` and the wrapper wanted `account:Config`. That half is not new. What *is* new is that the byte-level escape hatch closed: with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the bytemuck cast you would reach for instead, `from_bytes::<Config>(&data[8..])`, is a cast you have to write deliberately, on bytes you have not proven are a `Config`, in code a reviewer can grep for in one pass. The discriminator was always the runtime guard. V2's contribution is that the ordinary path no longer offers you a way around it, which is why the `E0308` above is the interesting failure rather than an obvious one.
+Hand it a `QuarterVault` and it happily returns `quarter_balance`'s neighbourhood of bytes as an `authority`, because `try_from_slice` decodes whatever it is given. That is the class. Two things have to hold for V2 to answer it, and they answer it on two different clocks. At *load*, a `QuarterVault` account passed into a slot declared `Account<Config>` is rejected by the discriminator check, at runtime, exactly as v1's `Account<T>` rejected it: the tag says `account:QuarterVault` and the wrapper wanted `account:Config`. That half is not new. What *is* new is that the byte-level escape hatch closed: with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the bytemuck cast you would reach for instead, `from_bytes::<Config>(&data[8..])`, is a cast you have to write deliberately, on bytes you have not proven are a `Config`, in code a reviewer can grep for in one pass. The discriminator was always the runtime guard. V2's contribution is that the ordinary path no longer offers you a way around it, which is why the `E0277` above is the interesting failure rather than an obvious one.
 
 ### Duplicate-mutable
 
@@ -135,15 +137,15 @@ V2's answer is a borrow, not a reminder. A **`CpiHandle`** is a borrow-tracked h
 
 ### Bump recalculation, the one that compiles
 
-The fourth class is the interesting one, because it does not produce an error. In v1, a program that recomputed a PDA bump on every call, instead of storing the canonical one, could be steered into signing with a non-canonical bump, and the recompute-the-wrong-bump family lived in that seam. On the V2 defaults, canonical bumps are precomputed at macro time as consts. There is no runtime recompute in the framework's signing path to attack.
+The fourth class is the interesting one, because it does not produce an error. In v1, a program that recomputed a PDA bump on every call, instead of storing the canonical one, could be steered into signing with a non-canonical bump, and the recompute-the-wrong-bump family lived in that seam. On the V2 defaults the seam is tighter, but be precise about the mechanism, because it is easy to overclaim: the macro precomputes a bump as a compile-time const *only when every seed is a byte literal*. Your vault's seeds carry the authority's runtime key, so for the exact PDA you are about to attack the framework still derives at runtime — the codegen falls back to `find_and_verify_program_address` during validation. What it never does, on any seed shape, is accept a bump you hand it: validation re-derives the canonical result and compares.
 
-So when you hand-recompute a bump in your exploit, it compiles. `Address::find_program_address` is ordinary code. But the framework signs with the const bump, so your recomputed value is either identical, in which case you changed nothing, or different, in which case PDA validation rejects it at runtime. The attack builds and goes nowhere. Keep that result close, because it is the bridge to the next lesson: compiling is not exploiting, and there is a whole set of classes where code compiles *and* drains an escrow.
+So when you hand-recompute a bump in your exploit, it compiles. `Address::find_program_address` is ordinary code. But the framework validates and signs against its own canonical derivation, so your recomputed value is either identical, in which case you changed nothing, or different, in which case PDA validation rejects it at runtime. The attack builds and goes nowhere. Keep that result close, because it is the bridge to the next lesson: compiling is not exploiting, and there is a whole set of classes where code compiles *and* drains an escrow.
 
 ![A funnel showing four attacks entering anchor build, three leaving as rejected compile errors, and only the bump attack emerging as a binary.](assets/v05-flowchart.png)
 
 That set is where the honesty lives, so let me name the trap now rather than at the end.
 
-Converting four classes to compile errors narrows the attack surface. It does not retire the audit. V2 is an unaudited release candidate, and its own docs call the defaults "not a substitute for review." The comfortable misread, "secure by default" heard as "secure," is exactly how a team talks itself out of the review that catches everything in the next lesson. A compile-time guarantee is only as trustworthy as the compiler making it, and this compiler is an alpha. Treat the four kills as design claims you verify against the pinned RC, not as proofs. V2 is not the silver bullet for program security; it is a very good compiler with a very honest changelog.
+Converting four classes to compile errors narrows the attack surface. It does not retire the audit. V2 is an unaudited release candidate, and the "defaults are no substitute for review" posture is one this course asserts on its own authority — the project will not say it for you. Go looking and you find the pinned tag's README striking the opposite tone ("v2 is secure by default for users"), with no caveat page behind it. That is exactly the marketing surface a team quotes to itself while skipping the review, so the skepticism has to be yours. The comfortable misread, "secure by default" heard as "secure," is exactly how a team talks itself out of the review that catches everything in the next lesson. A compile-time guarantee is only as trustworthy as the compiler making it, and this compiler is an alpha. Treat the four kills as design claims you verify against the pinned RC, not as proofs. V2 is not the silver bullet for program security; it is a very good compiler with a very honest changelog.
 
 There is a second-order risk here that is worse than any single bug. A team that internalizes "the compiler catches our security bugs" reviews less, and reviews less precisely in the region where the compiler is silent, which is the region where the money actually leaves. So the discipline is inverted from what it feels like: the classes the compiler kills are the ones you can spend the least attention on in review, and the classes it cannot touch are where the whole audit budget should go. Compile-time wins are a reallocation of where you look, not a reason to look less. The split is worth keeping somewhere you can see it.
 
@@ -175,16 +177,16 @@ The autonomy fade begins here. Attack 1 is done for you, so you can see the shap
 
 ```bash
 anchor build 2>&1 | tee /tmp/attack1.log
-grep -A4 'E0308' /tmp/attack1.log
+grep -A6 'E0277' /tmp/attack1.log
 ```
 
-You should see the `mismatched types` block naming `&Config` and `&QuarterVault`. Commit the failing state so the branch records the attempt:
+You should see the `trait bound` block naming `Slab<QuarterVault>: AsRef<Config>` as unsatisfied, with the help note listing `AccountView` and `Address` as the only `AsRef` targets a `Slab` offers. Commit the failing state so the branch records the attempt:
 
 ```bash
 git add -A && git commit -m "attack 1: type cosplay (does not compile)"
 ```
 
-Checkpoint: `git log --oneline` shows one commit, and `/tmp/attack1.log` contains `E0308`. If the build *succeeded*, you accidentally made the two structs the same type, so re-check that `Config` and `QuarterVault` are distinct.
+Checkpoint: `git log --oneline` shows one commit, and `/tmp/attack1.log` contains `E0277`. If the build *succeeded*, you accidentally made the two structs the same type, so re-check that `Config` and `QuarterVault` are distinct.
 
 **Step 2: finish the duplicate-mutable stub.** Open the stub and complete the second slot so both are mutable and both carry the plain `dup` opt-out:
 

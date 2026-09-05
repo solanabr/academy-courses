@@ -29,7 +29,7 @@ pub struct Escrow {
 }
 ```
 
-Now write `drain_as_stranger` (it is printed in full below, in class 1) into `programs/quarter-prize/tests/exploits.rs` and run it:
+Now write `drain_as_stranger` (printed in full below, in class 1 — all but its `reserve_prize` setup helper, which the code marks as yours to write in the same file) into `programs/quarter-prize/tests/exploits.rs` and run it:
 
 ```bash
 anchor build && cargo test --test exploits drain_as_stranger
@@ -134,6 +134,11 @@ fn drain_as_stranger() {
     let (vault, _vb) =
         Address::find_program_address(&[b"vault", escrow.as_ref()], &quarter_vault::ID);
 
+    // Setup seam, and it is YOURS to write in this same file: a Rust integration
+    // test is its own crate, so a helper defined in another tests/ file cannot be
+    // imported here. Adapt the reserve flow from your m04-l3 test into a local
+    // fn reserve_prize: the maker reserves a 50_000_000-lamport prize behind a
+    // 5_000 winning score, creating the escrow and funding its vault.
     reserve_prize(&mut svm, &maker, &player, escrow, vault, 50_000_000, 5_000);
 
     // The stranger, NOT escrow.player, redeems with a passing score.
@@ -142,7 +147,7 @@ fn drain_as_stranger() {
         program_id: quarter_prize::ID,
         accounts: quarter_prize::accounts::Redeem {
             escrow,
-            vault,
+            vault_state: vault,
             player: stranger.pubkey(),     // substitute the caller
             maker: maker.pubkey(),
             quarter_vault_program: quarter_vault::ID,
@@ -190,11 +195,12 @@ The patch on the escrow restores the pin the frozen version always had:
 pub maker: UncheckedAccount,
 ```
 
-Now the rent can only return to the recorded maker. Do the same to `vault`, which on the vuln branch is any `Account<Vault>`, so an attacker substitutes a *different* vault they control and redirects the withdraw. The patch pins it to the escrow's recorded vault and gives a real error while it is at it:
+Now the rent can only return to the recorded maker. Do the same to `vault_state`, which on the vuln branch carries only `mut` — any account at all — so an attacker substitutes a *different* vault they control and redirects the withdraw. One thing the patch must *not* do is promote the field to a typed `Account<Vault>`: the vault belongs to `quarter_vault`, a different program, so it could never load as a typed account inside `quarter_prize` — class 3 below derives exactly why, and it is the reason R3 declared the slot `UncheckedAccount` in the first place. The pin is the same address constraint, with a real error while it is at it:
 
 ```rust
+/// CHECK: pinned to the exact vault this escrow recorded
 #[account(mut, address = escrow.vault @ EscrowError::WrongVault)]
-pub vault: Account<Vault>,
+pub vault_state: UncheckedAccount,
 ```
 
 **Completion problem.** I gave you the two patches above. Now you write the exploit that proves the `maker` hole was real. Fork `drain_as_stranger` into a `steal_rent_on_close` test: the legitimate player redeems correctly, but passes `maker: attacker.pubkey()` instead of the true maker, and you assert the attacker's balance grew by roughly the escrow's rent. Land it red on the peeled-back field, apply the `address = escrow.maker` pin, watch it go green. The accept bar is exactly the loop: the test passes against the vuln field and fails against the patch.
@@ -294,7 +300,7 @@ vault.balance = vault
 
 ![An annotated code card comparing raw subtraction and checked_sub on a withdraw of 100 against a balance of 30, one wrapping and one rejecting.](assets/v09-annotated-code.png)
 
-One housekeeping fact for your patches. Anchor's own error codes live in the 2000s (constraint failures like `ConstraintAddress` and `ConstraintOwner` are there). Your custom `#[error_code]` variants start at 6000 and count up. So an error in the 6000s is one of yours, and *which* one depends on the program: `quarter_prize` and `quarter_vault` each have their own `#[error_code]` enum, each numbered from 6000 by declaration order, so 6001 means one thing in a redeem rejection and another in a withdraw rejection. Read the program the error came from before you read the number. Knowing which band an error lives in tells you at a glance whether the framework rejected the transaction or your own guard did.
+One housekeeping fact for your patches. Anchor's own constraint rejections mostly live in the 2000s — `ConstraintAddress`, the one your pins raise, is Custom(2012) — but not all of them: a handful map straight onto the runtime's builtin errors instead, and `ConstraintOwner` is the sharp case, surfacing as `ProgramError::IllegalOwner` rather than any 2000s number, exactly as class 3 showed you. Your custom `#[error_code]` variants start at 6000 and count up. So an error in the 6000s is one of yours, and *which* one depends on the program: `quarter_prize` and `quarter_vault` each have their own `#[error_code]` enum, each numbered from 6000 by declaration order, so 6001 means one thing in a redeem rejection and another in a withdraw rejection. Read the program the error came from before you read the number. Knowing which band an error lives in tells you at a glance whether the framework rejected the transaction or your own guard did.
 
 ### The same loop on the swap
 
@@ -326,7 +332,7 @@ git checkout vuln/prize-escrow
 
 Freshness note: as of 2026-08-22 the V2 line ships only as release candidates (2.0.0-rc.1, tagged on `anchor-next`), so there is no stable version to hardcode. The branch head advances, so record the exact commit you built in `Anchor.toml` and CI so a teammate builds the same bytecode. When V2 tags stable, pin that instead.
 
-**Step 2. Land the three exploits.** Your `vuln` branch has `Redeem` with the guards peeled back: `player` with no `address`, `maker` with no `address`, `vault_state` with no `address`. Add the fourth peel now, in the vault: replace the `checked_sub` in `withdraw` with a raw `vault.balance - amount`. Then put all three exploit tests in `programs/quarter-prize/tests/exploits.rs`: `drain_as_stranger` from class 1, `steal_rent_on_close` from the class-2 completion problem, and `over_withdraw`, which reserves a small prize and then redeems for more than the vault holds. Run all three and watch them pass, which is the wrong result and the whole point:
+**Step 2. Land the three exploits.** Your `vuln` branch has `Redeem` with the guards peeled back: `player` with no `address`, `maker` with no `address`, `vault_state` with no `address`. Add the fourth peel now, in the vault, and this one takes two edits — which is itself the lesson: replace the `checked_sub` in `withdraw` with a raw `vault.balance - amount`, *and* comment out the `overflow-checks = true` line under the release profile in the workspace `Cargo.toml`. Class 4 told you why the second edit is mandatory: on an untouched Anchor scaffold, release builds keep overflow checks on, so the raw subtraction would panic-abort the transaction — a crash, not a drain — and `over_withdraw` would fail for the wrong reason. The wrap is one Cargo edit away, said class 4; for this exercise, you are the someone who makes it. Then put all three exploit tests in `programs/quarter-prize/tests/exploits.rs`: `drain_as_stranger` from class 1, `steal_rent_on_close` from the class-2 completion problem, and `over_withdraw`, which reserves a small prize and then redeems for more than the vault holds. Run all three and watch them pass, which is the wrong result and the whole point:
 
 ```bash
 anchor build && cargo test --test exploits
@@ -340,7 +346,7 @@ test over_withdraw       ... ok
 test result: ok. 3 passed; 0 failed
 ```
 
-Three green exploits is three real holes. `drain_as_stranger` is the signer/owner class from the walkthrough. `steal_rent_on_close` is the account-substitution completion problem you wrote in class 2. `over_withdraw` requests more than the vault holds and the raw subtraction lets it through. Checkpoint: all three report `ok`. If `steal_rent_on_close` fails instead, your test is asserting the wrong thing, not proving the hole is closed, so re-read the accept bar in class 2 before you move on.
+Three green exploits is three real holes. `drain_as_stranger` is the signer/owner class from the walkthrough. `steal_rent_on_close` is the account-substitution completion problem you wrote in class 2. `over_withdraw` requests more than the vault holds and — with the profile edit disarming the overflow checks — the raw subtraction wraps and lets it through. Checkpoint: all three report `ok`. If `steal_rent_on_close` fails instead, your test is asserting the wrong thing, not proving the hole is closed, so re-read the accept bar in class 2 before you move on.
 
 **Step 3. Patch, one class at a time.** Apply the four constraints and the one checked op, exactly as derived above:
 
@@ -371,7 +377,9 @@ And keep the win-condition guard ahead of the payout CPI, where it gates the rel
 require!(final_score >= ctx.accounts.escrow.winning_score, EscrowError::ConditionNotMet);
 ```
 
-Checkpoint: `anchor build` is green. Four constraints and one checked op is the entire patch set, so if the build fails it is a spelling problem, not a design problem, and the compiler names the field.
+And restore the `overflow-checks = true` release line you commented out in step 2. The `checked_sub` no longer needs the profile to save it — that is the point of the patch — but the profile is the workspace's backstop for every *other* subtraction, and it goes back on.
+
+Checkpoint: `anchor build` is green. Four constraints, one checked op, and the restored profile line is the entire patch set, so if the build fails it is a spelling problem, not a design problem, and the compiler names the field.
 
 **Step 4. Prove the exploits are dead and the feature lives.** Run the exploits and the legitimate path together:
 
