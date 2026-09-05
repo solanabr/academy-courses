@@ -56,7 +56,7 @@ blocks:
           - id: b
             label: "`realloc_payer = payer` and `address = <the authority expression>`"
             correct: true
-            feedback: "Colons out, underscores in, and field equality moved onto a keyword that takes any expression at all. Old spellings still build, so nobody's port is blocked. They just arrive underlined now."
+            feedback: "Colons out, underscores in, and field equality moved onto a keyword that takes any expression at all. The two old spellings exit differently: `realloc::payer` is a hard reject — the colon form does not compile in V2, which is exactly what the error you hit says — while `has_one` still builds and just arrives underlined. Either way the port is mechanical."
           - id: c
             label: "`realloc_payer = payer` and keep `has_one = authority`"
             correct: false

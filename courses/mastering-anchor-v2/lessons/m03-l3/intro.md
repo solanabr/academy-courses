@@ -430,6 +430,11 @@ fn min_balance_rejects_below_and_passes_at_floor() {
 
     // At the floor: the constraint layer must PASS require_funded.
     svm.send_transaction(set_credit(&svm, 100)).unwrap();
+    // LiteSVM never advances its blockhash on its own, so a second require_funded
+    // transaction built right now would be byte-identical to the rejected one above --
+    // same signature -- and the SVM would refuse it as a duplicate (AlreadyProcessed)
+    // instead of re-running it. Expire the blockhash so the retry is genuinely new.
+    svm.expire_blockhash();
     let at_floor = svm.send_transaction(require_funded_tx(&svm, &player, program_id, vault_pda));
     assert!(at_floor.is_ok(), "at-or-above-floor vault must pass the constraint");
 }

@@ -47,20 +47,20 @@ Glossary, because it pays off in thirty seconds: the **constraint hook** is the 
 
 ### address = parent.field: the authority gate, and why has_one lost its job
 
-Your naive `admin_set_credit` needs exactly one thing: proof that the signer is the arcade operator, not some passerby. In v1 you would have reached for `has_one`. You would have stored the operator's key on a `Config` account and written `has_one = authority` on that config, meaning "the account named `authority` in this struct must equal `config.authority`." It worked, but it was rigid. `has_one` could only compare against a *stored key field* with a *matching field name*. If the thing you wanted to check against was an expression, a derived value, a field on a different account, `has_one` had nothing for you.
+Your naive `admin_set_credit` needs exactly one thing: proof that the signer is the arcade operator, not some passerby. Anchor has long offered two spellings for that. The one every v1 tutorial reaches for is `has_one`: store the operator's key on a `Config` account and write `has_one = authority` on that config, meaning "the account named `authority` in this struct must equal `config.authority`." It worked, but it was rigid — `has_one` can only compare against a *stored key field* with a *matching field name*. The general one is `address = <expression>`: you put it on the account you want to constrain and give it any expression that evaluates to an `Address`, and the macro checks that the account's key equals that expression, in the constraint-hook phase, with an optional `@ CustomError`. Be precise about the lineage, because it is easy to get wrong: `address = <expr>` is *not* a V2 invention — the v1 line already ships it, expression and custom error included (0.30 extended it to field expressions; 0.31 fixed the regression that briefly broke non-const ones).
 
-V2's answer is `address = <expression>`. You put it on the account you want to constrain, and you give it any expression that evaluates to an `Address`. The macro checks that the account's key equals that expression, in the constraint-hook phase, with an optional `@ CustomError`. So the operator gate becomes one line on the signer:
+What V2 actually changes is the verdict between the two: it retires `has_one`. The narrow keyword that only ever did stored-key-equals-same-named-account is deprecated in favor of the general expression check that does that and everything else, so the special case becomes dead weight. The operator gate, in the form V2 standardizes on, is one line on the signer:
 
 ```rust
 #[account(address = config.authority @ VaultError::Unauthorized)]
 pub authority: Signer,
 ```
 
-That is the whole fix. If the signer's address is not `config.authority`, the macro raises `VaultError::Unauthorized` before `admin_set_credit` runs. No handler branch, no `require!`, nothing to forget. And here is the trajectory thread from last lesson showing up again: the same rewrite that turned the bump from a runtime string lookup into a compile-time field is the one that retired `has_one` in favor of a more general expression check. Each move deletes a special case. `has_one` was a narrow keyword that only did stored-key-equals-same-named-account. `address = expr` does that *and everything else*, so the narrow one becomes dead weight.
+That is the whole fix. If the signer's address is not `config.authority`, the macro raises `VaultError::Unauthorized` before `admin_set_credit` runs. No handler branch, no `require!`, nothing to forget. And here is the trajectory thread from last lesson showing up again, in spirit: V2 keeps deleting special cases. Last lesson it was the literal-seed bump folding into a macro-time const; here it is the narrow keyword giving way to the general check that subsumes it. `has_one` only did stored-key-equals-same-named-account. `address = expr` does that *and everything else*, so the narrow one becomes dead weight.
 
 It is not gone, though, and the way it lingers is a nice piece of framework archaeology. `has_one` still parses in V2. It just emits a deprecation warning. The parser stores the keyword's source span specifically so codegen can underline it for you (lang-v2 `derive/src/parse.rs`, as of 2026-08). Somebody deliberately kept the location around just to draw a squiggly line under it. So migrations do not break, old code compiles, and the compiler nags you toward `address =` one warning at a time.
 
-![has_one compares a stored key field against a same-named account and is deprecated, while address = expr compares the account key against any expression and is the V2 form.](assets/v02-comparison.png)
+![has_one compares a stored key field against a same-named account and is deprecated, while address = expr compares the account key against any expression and is the form V2 standardizes on.](assets/v02-comparison.png)
 
 ### owner: the footgun that hides in plain sight
 
@@ -229,7 +229,7 @@ The handler body does not change from the naive one. That is the message worth p
 
 ![The AdminSetCredit struct gates the authority signer with address = config.authority, re-derives the read-only config from its stored bump, and re-derives the mutable target vault the same way.](assets/v06-annotated-code.png)
 
-Expected after this step: `anchor build` compiles, and the generated IDL for `admin_set_credit` now lists a `config` account it did not list a minute ago. That new account in the interface *is* the gate, visible to anyone reading the IDL without reading your Rust.
+Expected after this step: the build does *not* compile yet, and the error is worth reading rather than fearing. The constraint names `VaultError::Unauthorized`, an enum that does not exist until step 4, so `anchor build` stops with an E0433 `failed to resolve` on `VaultError`. Leave it red through step 3; step 4 pays it off. Once the enum lands, the generated IDL for `admin_set_credit` will list a `config` account it did not list a minute ago. That new account in the interface *is* the gate, visible to anyone reading the IDL without reading your Rust.
 
 **3. Add close_vault.** The handler is empty. The constraint carries the work:
 
