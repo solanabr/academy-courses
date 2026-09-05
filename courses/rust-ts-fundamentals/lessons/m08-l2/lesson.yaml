@@ -86,4 +86,4 @@ blocks:
           - id: c
             label: "Not yet, the plugin packages are 0.x-young; the pipe flow stays the taught canon"
             correct: true
-        explanation: "The 'where kit is heading' box exists precisely for this: name the new API, date its maturity (plugins at 0.x), and keep the lab on the stable path, which also lands the seam exactly where solana-client-side-mastery's canon begins. Re-check plugin maturity when you next touch this code; if plugins hit 1.0, the calculus changes."
+        explanation: "The 'where kit is heading' box exists precisely for this: name the new API, date its maturity (plugins at 0.x), and keep the lab on the stable path, the dialect kit's own examples and generated clients speak today. Re-check plugin maturity when you next touch this code; if plugins hit 1.0, the calculus changes."
