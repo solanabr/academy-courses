@@ -71,7 +71,7 @@ blocks:
             feedback: "Three preimage namespaces exist and each is keyed to a different kind of declaration. The handler one surprises people because that word never appears anywhere in the source you actually wrote."
         explanation: "Accounts hash from account:, events from event:, and instruction handlers from global: — the global namespace is the one that surprises people."
       - id: m01-l4-q4
-        prompt: "You consider enabling #[discrim = N] compact discriminators to shrink accounts. What is the honest trade-off?"
+        prompt: "You consider enabling #[discrim = N] compact discriminators to shrink your instruction tags. What is the honest trade-off?"
         multiSelect: false
         options:
           - id: a
@@ -86,4 +86,4 @@ blocks:
             label: "It keeps the 8-byte width but swaps sha256 for a cheaper hash, so client-built tags stop matching"
             correct: false
             feedback: "The compaction is not about the hash function: #[discrim = N] replaces the 8-byte sha256 prefix with a small literal integer tag — no hashing at all — so it is the width that changes, not the algorithm."
-        explanation: "Discriminators are v1-compatible by default; #[discrim = N] is an all-or-nothing-per-program compaction with prefix-ambiguity validation, trading v1 wire-compat for smaller accounts. That extra validation exists because variable-width integer tags could otherwise alias each other by prefix, which fixed 8-byte sha256 tags never can."
+        explanation: "Discriminators are v1-compatible by default; #[discrim = N] is an all-or-nothing-per-program compaction with prefix-ambiguity validation, trading v1 wire-compat for smaller instruction tags. That extra validation exists because variable-width integer tags could otherwise alias each other by prefix, which fixed 8-byte sha256 tags never can."

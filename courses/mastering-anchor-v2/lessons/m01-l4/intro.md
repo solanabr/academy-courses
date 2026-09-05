@@ -97,7 +97,7 @@ pub struct TouchTwice {
 }
 ```
 
-The opt-out is spelled `unsafe(dup)`. The `unsafe` is deliberate: aliasing mutable account data is a footgun, and V2 makes you name it. Now the distinction. Writing plain `dup` without `unsafe` is a *compile error*, and the compiler tells you to write `unsafe(dup)` instead. That is a compile-time event about the *attribute you typed*. It has nothing to do with whether two accounts actually collide. The collision itself, the same pubkey arriving in both slots, is caught at *runtime*, in the dispatcher, against that walked bitvec. Two different events, two different times. Do not let the shared word "dup" blur them.
+The opt-out is spelled `unsafe(dup)`. The `unsafe` is deliberate: aliasing mutable account data is a footgun, and V2 makes you name it. Now the distinction. Writing plain `dup` — the v1 spelling of this attribute — without `unsafe` is a *compile error*, and the compiler tells you to write `unsafe(dup)` instead. That is a compile-time event about the *attribute you typed*. It has nothing to do with whether two accounts actually collide. The collision itself, the same pubkey arriving in both slots, is caught at *runtime*, in the dispatcher, against that walked bitvec. Two different events, two different times. Do not let the shared word "dup" blur them.
 
 One note on scope, because it saves you a confused afternoon. The guard keys off the `mut` attribute, not off the wrapper type. Any field marked `mut` sets its bit, `Account<T>` and `Signer` alike; a field without `mut` sets none, so passing the same read-only account into two slots is always fine. Two carve-outs shrink the mask: a field with `unsafe(dup)` is excluded by design, and an `Option<_>` field is excluded from the compile-time mask (a `None` slot is encoded as the program id, which would otherwise read as a collision) and gets a narrower per-field check instead. This is why our `TallyTwo` marks both fields `mut`: without that attribute there would be nothing to collide.
 
@@ -363,7 +363,7 @@ The acceptance criteria are exact:
 - `discriminator_preimage("account", "HighScore")` returns `account:HighScore` — same name as the case above it, different namespace, because the prefix is a function of the *kind*
 - `discriminator_preimage("instruction", "initialize")` returns `global:initialize`
 
-Run it against the bundled tests until the starter's failing cases turn green. The five cases above are exactly what the challenge harness asserts. The last two are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
+Run it against the bundled tests until the starter's failing cases turn green. The five cases above are the vectors bundled with the challenge — production grading for Rust checks that your code compiles, so running them yourself is the gate that actually measures you. The last two are there on purpose: they make a lookup keyed on the *name* fail, which is the shortcut that otherwise passes the first three. It is a plain function with no framework in the way, so if you would rather work locally, drop it into any scratch crate and drive it from a `#[test]`:
 
 ```bash
 cargo test
