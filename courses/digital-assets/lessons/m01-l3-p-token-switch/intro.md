@@ -2,7 +2,7 @@
 
 Last lesson you decoded a mint you never made and owned the read. Back in m01-l1 you watched a classic transfer cost 76 compute units. Here is the unsettling part, and it is the whole lesson: that same transfer used to cost 4,645 CU. The 82-byte layout you decoded did not change. Your client code did not change. Nobody's client code changed. And yet the program running at `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` was quietly swapped out under everyone's feet.
 
-Before we explain anything, go look at the switch itself: a real mainnet account, readable right now. This is the first lesson that needs the `solana` CLI, so here is its install; one line ships the whole Agave toolchain (I am on solana-cli 3.1.10, Agave line, checked 2026-08-22):
+Before we explain anything, go look at the switch itself: a real mainnet account, readable right now. This is the first lesson that reaches for the `solana` CLI — and let me be precise about the word "needs": every probe below is a plain RPC read, and the lab's probe 3 makes the exact same gate read with the kit code you already have, so nothing in this lesson is gated on a local install. The CLI's formatted views are the convenient way to run the other probes, though, and later labs in this course lean on the local toolchain for real, so if you want it now, one line ships the whole Agave toolchain (I am on solana-cli 3.1.10, Agave line, checked 2026-08-22):
 
 ```bash
 sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
@@ -93,7 +93,7 @@ Every gift in this design has a shadow, so name both honestly. A frozen interfac
 
 ## Lab: read the swap out of the chain
 
-Four probes, all guided, nothing to fill in. You are not building today; you are verifying that everything above is chain-readable rather than lore. Total time: about fifteen minutes once the Agave toolchain from the opener is installed; the install is a one-time cost that can outlast the probes.
+Four probes, all guided, nothing to fill in. You are not building today; you are verifying that everything above is chain-readable rather than lore. Total time: about fifteen minutes once the Agave toolchain from the opener is installed; the install is a one-time cost that can outlast the probes. Skipped the install? Probes 1, 2 and 4 are CLI renderings of plain account reads — run probe 3, which makes the same gate read in kit, and take the CLI checkpoints printed here on trust.
 
 1. **Probe the gate with the CLI.** If you ran the feature-status command at the top, you have already done this step; if not, run it now:
 
