@@ -40,7 +40,7 @@ called `Result::unwrap()` on an `Err` value: ParseIntError { kind: InvalidDigit 
 
 (The compile also greets you with three dead-code warnings, `describe`, `classify_probe`, and `ProbeResult` just lost their only callers when you swapped the loop. Expected, harmless, and temporary: the lab's step 5 puts all three back on the payroll.)
 
-Two probes classified, then death. `"fast"` is not a number, `parse` said so, and `unwrap()` translated "said so" into "kill the process." The 1204 and the 930 never got looked at. Remember module 2's untyped v0 dashboard, the one that lied politely and rendered `undefined`? This is its Rust cousin, except louder: instead of wrong output you get no output. Neither is what an operator staring at a fleet report needs at 3am. Leave the panic in place. We are about to take it apart, and then we are going to delete it so thoroughly that a grep for `unwrap` in your production code returns nothing.
+Two probes classified, then death. `"fast"` is not a number, `parse` said so, and `unwrap()` translated "said so" into "kill the process." The 1204 and the 930 never got looked at. Remember module 1's untyped v0 fleet, the one that lied politely and recorded timeouts as prose strings? This is its Rust cousin, except louder: instead of wrong output you get no output. Neither is what an operator staring at a fleet report needs at 3am. Leave the panic in place. We are about to take it apart, and then we are going to delete it so thoroughly that a grep for `unwrap` in your production code returns nothing.
 
 ## Errors as return values, derived
 
@@ -246,7 +246,8 @@ Target state, so you know when you are done: `pulse-rs` split into an engine mod
            }
        }
 
-       // The structured path keeps a heartbeat until M5 feeds it real HTTP outcomes.
+       // The structured path keeps a heartbeat on fixtures until the M6 daemon
+       // feeds real network outcomes into the state machine.
        let structured = [
            ProbeResult::Ok {
                latency: LatencyMs(212),
@@ -425,7 +426,7 @@ Acceptance for the reps: all three compile, `cargo test` green, and for each unw
 
 ## Challenge
 
-The unguided rep is a sweep, and you build the crime scene yourself so the conversion is honest. `cargo new no-unwrap-report && cd no-unwrap-report && cargo add thiserror anyhow`, then reconstruct a small fixture-report binary in the state your `pulse-rs` was in this morning: the opener's `unwrap`-riddled parse and raw-fixture loop (put four or five unwraps on the production path while you are at it, an env var, a file read, a `lines().next()`), a bare `+` in its lamports total, and a dirty `fixture.txt` that kills it three lines in. Then convert it end to end: a thiserror enum in its engine module, anyhow with context in its `main`, every unwrap replaced by the treatment it deserves, checked math on the total. The grader is the same gate you just ran by hand: the run must complete over the dirty fixture printing both `Ok` and `Err` lines, `grep -c 'unwrap()'` over `src/` outside tests must return 0, and the overflow test must pass. Mind the exact pattern: it is `'unwrap()'` with the parentheses, not bare `unwrap`, because `unwrap_or_default` and its siblings are treatments, not confessions, and rep 2's env-var fix would trip a bare-`unwrap` grep while being exactly right. Everything you need is above; if you stall, escalate along the lab's own order, find which line dies first, then the `map_err` closure, then the `ok_or` bridge.
+The unguided rep is a sweep, and you build the crime scene yourself so the conversion is honest. `cargo new no-unwrap-report && cd no-unwrap-report && cargo add thiserror anyhow`, then reconstruct a small fixture-report binary in the state your `pulse-rs` was in this morning: the opener's `unwrap`-riddled parse and raw-fixture loop (put four or five unwraps on the production path while you are at it, an env var, a file read, a `lines().next()`), a bare `+` in its lamports total, and a dirty `fixture.txt` that kills it three lines in. Then convert it end to end: a thiserror enum in its engine module, anyhow with context in its `main`, every unwrap replaced by the treatment it deserves, checked math on the total. The grader is the same gate you just ran by hand: the run must complete over the dirty fixture printing both `Ok` and `Err` lines, `grep -rn 'unwrap()' src/` must print nothing outside test modules (note the `-r`; a bare `grep -c` over a directory refuses to run), and the overflow test must pass. Mind the exact pattern: it is `'unwrap()'` with the parentheses, not bare `unwrap`, because `unwrap_or_default` and its siblings are treatments, not confessions, and rep 2's env-var fix would trip a bare-`unwrap` grep while being exactly right. Everything you need is above; if you stall, escalate along the lab's own order, find which line dies first, then the `map_err` closure, then the `ok_or` bridge.
 
 ## Checkpoint
 
