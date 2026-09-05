@@ -103,8 +103,9 @@ Nothing here is a compile error. `player` is a real `Signer`, so *someone* signe
 ```bash
 # Reach LiteSVM through the harness, never by name. anchor-v2-testing owns the litesvm
 # version (0.11.0 at tag v2.0.0-rc.1; the anchor-next head has already moved it to 0.13.1),
-# so pinning the tag pins the SVM too. Add litesvm yourself and a mismatch shows up as a
-# runtime type error rather than a build error.
+# so pinning the tag pins the SVM too. Add litesvm yourself at another version and the
+# mismatch surfaces as a baffling compile error — two versions of one crate, identical-looking
+# types refusing to unify — instead of never happening at all.
 cargo add anchor-v2-testing --dev \
   --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
 ```
@@ -205,7 +206,7 @@ pub vault_state: UncheckedAccount,
 
 **Completion problem.** I gave you the two patches above. Now you write the exploit that proves the `maker` hole was real. Fork `drain_as_stranger` into a `steal_rent_on_close` test: the legitimate player redeems correctly, but passes `maker: attacker.pubkey()` instead of the true maker, and you assert the attacker's balance grew by roughly the escrow's rent. Land it red on the peeled-back field, apply the `address = escrow.maker` pin, watch it go green. The accept bar is exactly the loop: the test passes against the vuln field and fails against the patch.
 
-One pointer, because you should know where the flagship version of this class lives: the Cashio drain, where a missing `.mint` check let an attacker mint collateral from nothing, is written and patched end to end in the DeFi and RWA Engineering course. This course does not develop it; go there for the war story. Here, own the class.
+One pointer, because you should know where the flagship version of this class lives: the Cashio drain, where a missing `.mint` check let an attacker mint collateral from nothing, is the DeFi and RWA Engineering course's territory. This course does not develop it; go there for the war story. Here, own the class.
 
 ### Class 3: the owner-error footgun (why the check you expected does not fire)
 
@@ -284,7 +285,7 @@ vault.balance = vault.balance - amount;
 
 If `amount > balance`, this does not error. In debug builds it panics; in a build with overflow checks off it *wraps*, so a balance of 30 minus a withdraw of 100 becomes a gigantic positive number and your vault believes it holds far more than it does. Neither outcome is "the withdraw was rejected," which is the only correct one.
 
-Know where your build sits on that, because it decides which of the two you get. Anchor's generated workspace `Cargo.toml` sets `overflow-checks = true` on the release profile, and `cargo build-sbf` uses release, so on an untouched scaffold this panics rather than wraps. Two things make the wrap real anyway. Someone removes that line, which happens the first time a team chases CU. Or someone turns `guardrails` off — the flip you ran yourself last lesson, which landed on nothing only because anchor-spl's edge held the feature on; on a crate without that edge, or after one change to the graph, it lands. Either way the wrap is one Cargo edit away, and a guard that only holds because of a profile setting is not a guard.
+Know where your build sits on that, because it decides which of the two you get. Anchor's generated workspace `Cargo.toml` sets `overflow-checks = true` on the release profile, and `cargo build-sbf` uses release, so on an untouched scaffold this panics rather than wraps. Two things make the wrap real anyway. Someone removes that line, which happens the first time a team chases CU. Or someone turns `guardrails` off — the flip you ran yourself in m06-l2, which landed on nothing only because anchor-spl's edge held the feature on; on a crate without that edge, or after one change to the graph, it lands. Either way the wrap is one Cargo edit away, and a guard that only holds because of a profile setting is not a guard.
 
 Access control does not save you here. A perfectly authorized player can still request more than the vault holds. This is not a "who" bug, it is a "how much" bug, and the fix is checked arithmetic:
 

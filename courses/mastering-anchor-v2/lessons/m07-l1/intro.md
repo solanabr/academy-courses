@@ -153,7 +153,7 @@ There is a second-order risk here that is worse than any single bug. A team that
 
 That changelog is worth one glance, because it models the posture. PR #4914, merged 2026-08-13, revised the headline benchmarks *down*: bytecode savings from 95% to 94%, and the compute win from 9.9x to 8.8x, with the caveat that "This version is alpha and exact values can move as codegen, pinocchio, and tooling change." Cite the 8.8x as context for how much faster the Pod path runs, never as a security number. The same honesty that revises a benchmark downward is the honesty that forbids treating any V2 default as audited.
 
-One name to file and not develop: the account-substitution class you saw in the bottom band has a canonical war story, the Cashio missing-`.mint` drain, and the DeFi and RWA Engineering course writes and patches that exploit end to end. We point there rather than retell it, and we take up the account-substitution class itself in the next lesson.
+One name to file and not develop: the account-substitution class you saw in the bottom band has a canonical war story, the Cashio missing-`.mint` drain, and that is the DeFi and RWA Engineering course's territory. We point there rather than retell it, and we take up the account-substitution class itself in the next lesson.
 
 ## Lab: four attacks, one branch
 

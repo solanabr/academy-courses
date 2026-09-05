@@ -28,7 +28,7 @@ blocks:
             feedback: "Order matters as much as the finding: keep the artifact, replay it, and patch after. Go the other way and you have thrown out the one thing proving the input was real and repeatable."
         explanation: "In this course, a green fuzz case = you broke it: anchor fuzz (Crucible, LibAFL/LiteSVM with sBPF edge coverage) surfaced an input that violates an invariant. Replay the crash artifact, fix the bug, and re-fuzz — a crash is a success of the process. The order is load-bearing: crash, replay, patch, re-fuzz. Patch first and you throw away the artifact that proved the bug was real and deterministic."
       - id: q2
-        prompt: "Which tool does `anchor fuzz` actually run under the hood in V2?"
+        prompt: "A teammate on an Anchor master build runs `anchor fuzz`. Which tool actually runs under the hood?"
         multiSelect: false
         options:
           - id: a
