@@ -58,10 +58,10 @@ blocks:
             correct: false
             feedback: "For a USD-pegged stablecoin the display price is 1:1; oracle depth is handed off, not a core skill here."
           - id: c
-            label: "USD-priced records are charged in exact USDC 1:1; oracle pricing for volatile assets is handed to the DeFi and RWA course."
+            label: "USD-priced records are charged in exact USDC 1:1; oracle pricing belongs to volatile assets and stays out of this course's scope."
             correct: true
             feedback: "A USD-pegged unit needs no conversion, leaving no rate to fetch and no spread to carry. The peg is an assumption, though, and a transfer fee still changes what lands."
-        explanation: "Because USDC is a USD peg, a USD-priced record is charged as the same number of USDC, 1:1, with no oracle needed. Display pricing only gets interesting for volatile assets, and that oracle-based pricing depth is named here and handed to the DeFi and RWA Engineering course, which covers it end to end. Building a price feed for a pegged stablecoin is wasted work."
+        explanation: "Because USDC is a USD peg, a USD-priced record is charged as the same number of USDC, 1:1, with no oracle needed. Display pricing only gets interesting for volatile assets, and that oracle-based pricing depth is deliberately out of scope here — DeFi and RWA Engineering territory, not a payments-course skill. Building a price feed for a pegged stablecoin is wasted work."
       - id: q8
         prompt: "Writing Wavelength's corridor decision record, you cite MoonPay Commerce. What is the accurate framing of what it is and how you cite its volume?"
         multiSelect: false
