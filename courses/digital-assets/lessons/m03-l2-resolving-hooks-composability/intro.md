@@ -56,6 +56,7 @@ let accounts = vec![
     AccountMeta::new_readonly(*mint_pubkey, false),
     AccountMeta::new_readonly(*destination_pubkey, false),
     AccountMeta::new_readonly(*authority_pubkey, false),
+    // …the builder then appends the validation account and the resolved extras.
 ];
 ```
 
@@ -65,7 +66,7 @@ The narrowing runs one direction only, and the alternative shows why it has to. 
 
 ![In the outer transfer the source and destination are writable and the owner signs, but inside Execute all four accounts arrive read-only and non-signer.](assets/v04-diagram.png)
 
-Sit with what that leaves the hook. It can read the amount from instruction data. It can read every account of the transfer. It can write to its own declared extras, which is why your treasury log works: the log PDA is the hook's account, declared writable in the metas, not inherited from the transfer. And it can return an error, which aborts the whole transaction atomically. That is the complete power inventory: observe, record on its own turf, and veto. A hook is a veto seat at the transfer table, never a hand on the money. When your teammate asks the drain question, the one-line answer is that the interface hands the hook every transfer account pre-stripped to read-only and non-signer, so there is nothing it can spend and no signature it can reuse.
+That is last lesson's power inventory, observe, record on its own turf, and veto, now read off the interface's own lines rather than asserted; the one addition worth making is that your treasury log works because the log PDA is the hook's account, declared writable in the metas, not inherited from the transfer. When your teammate asks the drain question, the one-line answer is that the interface hands the hook every transfer account pre-stripped to read-only and non-signer, so there is nothing it can spend and no signature it can reuse.
 
 Honesty requires the other side of the inventory, though, because "cannot steal" is not "cannot hurt". A veto is power. A hook that reverts unconditionally freezes every holder of the token, permanently if the hook is immutable, arbitrarily if its authority turns hostile. A hook can burn compute: Execute runs inside the transfer's budget with no cap of its own short of the transaction limit. And a malicious hook can absolutely move funds out of accounts its own program controls; the guarantee covers only the transfer's accounts. De-escalation makes the hook safe for the sender's balance. It does not make the hook safe for the token's liveness, and it does nothing about the cost. Hold both halves, because the ecosystem certainly does.
 
@@ -649,4 +650,4 @@ Third, take it to mainnet. Point your m01-l2 `decode-mint` inspector at PYUSD's 
 
 If any checkpoint here printed something mine did not, or your hook's account layout forced you to adapt a script, flag it in the course feedback channel with the command and output pasted in. Resolution bugs are exactly the class of failure that only shows up on real machines, and a reader's broken run teaches this course more than a clean one.
 
-Next module raises the stakes on what a transfer will even show. You just proved a hook cannot act on tokens it does not control; the next extension goes further and hides the amount itself. Confidential balances encrypt the number moving into a sealed envelope only the sender, the receiver, and an optional auditor can open, and be warned before you sketch a design that wants both: the two features do not compose. A hook cannot see or act on a confidential amount, so a mint picks its module, programmable transfers or hidden amounts, not both. That is where we go next: how Token-2022 moves value it refuses to show.
+Next module raises the stakes on what a transfer will even show. You just proved a hook cannot act on tokens it does not control; the next extension goes further and hides the amount itself. Confidential balances encrypt the number moving into a sealed envelope only the sender, the receiver, and an optional auditor can open, and be warned before you sketch a design that wants both: the pairing is treacherous. A confidential transfer still invokes your hook, but hands it a sentinel amount (`u64::MAX`) instead of the real number, so any hook whose logic gates on amounts goes blind exactly when the amount is hidden. That is where we go next: how Token-2022 moves value it refuses to show.

@@ -756,7 +756,7 @@ Four ways this build goes wrong, collected in one place because they are the one
 
 Two failures I expect during the run itself, so you can self-diagnose instead of bisecting.
 
-If the transfer reverts before `Execute` ever logs anything, you are in failure edge A: the account list is wrong. Check the order in `hooked_transfer` first, extras in manifest order, then the program, then the validation account, and check that `ExtraAccountMetaList::size_of` matches the number of entries `harvest_metas` returns. A size mismatch corrupts the list quietly at init and only shows up here.
+If the transfer reverts before `Execute` ever logs anything, you are in failure edge A: the account list is wrong. Check the list in `hooked_transfer` first — every manifest extra present, plus the hook program and the validation account; presence is what matters, since Token-2022 resolves extras by pubkey, not position — and check that `ExtraAccountMetaList::size_of` matches the number of entries `harvest_metas` returns. A size mismatch corrupts the list quietly at init and only shows up here.
 
 If `cargo build-sbf` succeeds but the harness cannot find the program, check `SO_PATH`. `cargo test` runs with the package root as the working directory, so `target/deploy/harvest_hook.so` is correct for the layout above and wrong if you nested the crate inside a workspace with a shared target directory. If you did nest it, point `SO_PATH` at the workspace's target instead.
 

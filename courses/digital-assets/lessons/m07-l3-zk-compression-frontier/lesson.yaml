@@ -50,12 +50,12 @@ blocks:
           - id: a
             label: "Correct: Light Token has replaced compressed tokens as the mainnet default, so migrate now."
             correct: false
-            feedback: "No doc positions Light Token as the default, and it isn't on mainnet; this is exactly the claim that was refuted on review."
+            feedback: "No doc positions Light Token as the default, and it isn't on mainnet; check the sources and this claim falls apart."
           - id: b
             label: "Light Token is mainnet-live but scoped to distribution flows only (the Claim and WithdrawFundingPool primitives), so it's the right rail for the compost drop and nothing else."
             correct: false
-            feedback: "It's devnet-only right now, and the airdrop-only framing was part of the refuted 'flip' narrative."
+            feedback: "It's devnet-only right now, and the airdrop-only framing is part of the same 'default flipped' story the sources don't support."
           - id: c
             label: "Light Token is an emerging, devnet-only rail; the supported compressed-token path is still the current one. Treat it as a direction, not a default."
             correct: true
-        explanation: "The adversarial round refuted the 'default flipped' framing: Light Token runs on devnet only, publishes no hot-path CU figure, and no doc names it the default. The supported compressed-token rail remains current; Light Token is a promising direction, not today's production choice."
+        explanation: "Hold the 'default flipped' framing up to the sources and it falls apart: Light Token runs on devnet only, publishes no hot-path CU figure, and no doc names it the default. The supported compressed-token rail remains current; Light Token is a promising direction, not today's production choice."

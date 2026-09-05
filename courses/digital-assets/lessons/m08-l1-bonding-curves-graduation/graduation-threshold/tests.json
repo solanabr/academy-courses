@@ -9,7 +9,7 @@
     "id": "t2-round-curve",
     "input": "30, 1000, 800",
     "expectedOutput": "Math.abs(result - 120) < 0.01",
-    "description": "30*1000/(1000-800) - 30 = 120: draining 80% of the token reserve quadruples the SOL reserve."
+    "description": "30*1000/(1000-800) - 30 = 120: draining 80% of the token reserve takes the SOL reserve from 30 to 150; the threshold is the 120 SOL added (4x the initial reserve)."
   },
   {
     "id": "t3-deeper-sol-reserve",

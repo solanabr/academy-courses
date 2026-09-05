@@ -52,7 +52,7 @@ blocks:
           - id: b
             label: "Closing the mint automatically burns every outstanding token account."
             correct: false
-            feedback: "Closing a mint doesn't touch holder accounts; outstanding balances aren't burned by the close."
+            feedback: "There is nothing for the close to burn: a mint with outstanding supply cannot be closed at all (MintHasSupply). Close only succeeds once supply is zero, so holder accounts are never touched."
           - id: c
             label: "The close authority is permanently transferred to the system program."
             correct: false
