@@ -1,6 +1,6 @@
 # Token or Token-2022: The Decision Rule
 
-> **Version stamp — checked 2026-07-25.** `@solana/kit@7.0.0` · `@solana/subscriptions@0.4.0` (exact) · `@x402/svm@2.19.0` · `@solana-program/token` latest `0.15.0`, `@solana-program/token-2022` latest `0.13.0`. Every dependency range quoted below was read off the published package manifests on that date.
+> **Version stamp — re-stamped 2026-09-05** (first checked 2026-07-25). `@solana/kit` — per-workspace peer rule (2026-08-23) · `@solana/subscriptions` **0.5.0 line** (0.4.0 documented fallback only) · `@x402/svm` **2.23.0 line** · `@solana-program/token` / `token-2022` — pin at authoring. Every dependency range quoted below was read off the published package manifests on **2026-07-25** and is re-verified at authoring.
 
 This is a checkpoint, not new material. You are about to open a delegation against a specific mint, and the program will either take that mint or refuse it. Before you write the call, get the rule straight.
 
@@ -54,7 +54,7 @@ Pin `@solana-program/token` yourself, at whatever version your own code imports,
 
 Three clauses, and the third is the one everybody skips.
 
-There are around 28 Token-2022 extensions. This course is not going to tour them — Blueshift already owns that material and does it well. What matters here is that **your payment rail gets a veto**, and the Subscriptions Delegation Program uses it.
+There are around 28 Token-2022 extensions. This course is not going to tour them — that depth now lives in-house: **Digital Assets, Tokenization & Token Extensions** (`digital-assets`) owns the extension catalog end to end. What matters here is that **your payment rail gets a veto**, and the Subscriptions Delegation Program uses it.
 
 ## What the rail refuses
 
