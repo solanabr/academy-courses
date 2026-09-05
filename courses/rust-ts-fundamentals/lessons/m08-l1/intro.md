@@ -6,7 +6,7 @@ M7 closed the edge tier: the Rust engine runs as WASM at a second workers.dev UR
 
 ## Measure something first
 
-Your station has been probing `https://api.mainnet.solana.com` since m07-l1 put it on the worker's target list, and so far it has been just another URL that returns 200. Ask it a real question. Paste this into your terminal right now:
+Your station has been probing `https://api.mainnet.solana.com` since m07-l1 put it on the worker's target list, and so far the relationship has been transport-shallow: a POST that either answers promptly or, as m07-l1 documented, greets your isolate with a 403 and gets swapped for the publicnode fallback. Either way, nobody has asked it a real question yet. Paste this into your terminal right now:
 
 ```bash
 curl -sS https://api.mainnet.solana.com -X POST \
@@ -95,7 +95,12 @@ Now the vocabulary for what getSlot actually returned. A slot is the network's s
 
 How fast is the heartbeat? This is where the lesson gets a date on it. On 2026-08-28, four days before this course's research sweep, SIMD-0525 stage 2 activated on mainnet and took the slot-time target from 400ms down to 300ms. That is a quarter off the interval, which is a third more slots per second: the chain you are probing sped up the week this material was written. A fundamentals course launching now teaches a chain whose heartbeat changed last week, which tells you something about why every number in this course carries a date.
 
-One footgun in how that fact gets cited, because it will bite anyone who checks sources. The SIMD-0525 document's own frontmatter still said Draft while the change was live on mainnet. The proof is not the spec, it is the chain: the stage-2 feature gate carries an activation slot of 441,936,000, and anyone can decode that gate account from public RPC. Do the division on that slot and you get exactly 1023, no remainder: the gate's recorded slot is the opening tick of epoch 1023, and the feature took EFFECT at epoch 1024, one boundary later, because that is how Solana feature gates work: activation lands during one epoch, the behavior switches on at the start of the next. Keep that one-epoch lag in your head; the challenge's boundary question pokes at exactly this slot. I re-checked it while writing this on 2026-09-02: still there, still active, one getAccountInfo call. Cite the on-chain gate, never a spec's status line. There is also a stage 3 targeting 250ms; as of this writing its gate was not live, and the measurement you are about to take will confirm the chain still runs at stage-2 pace. If stage 3 lands after this lesson ships, your gauge gets more interesting, not wrong. That is the point of building a gauge instead of memorizing a number.
+One footgun in how that fact gets cited, because it will bite anyone who checks sources. The SIMD-0525 document's own frontmatter still said Draft while the change was live on mainnet. The proof is not the spec, it is the chain, and the two numbers the challenge will poke at deserve lines of their own:
+
+- The stage-2 feature gate records an activation slot of **441,936,000**. Divide by 432,000 and you get exactly 1023, no remainder: that slot is the opening tick of epoch 1023.
+- The behavior switched on at the start of epoch **1024**, one boundary later, because that is how Solana feature gates work: activation lands during one epoch, the switch flips at the next boundary. Keep that one-epoch lag in your head.
+
+Anyone can decode the gate account from public RPC; I re-checked while writing this on 2026-09-02, still there, still active, one getAccountInfo call. Cite the on-chain gate, never a spec's status line. There is also a stage 3 targeting 250ms; as of this writing its gate was not live, and the measurement you are about to take will confirm the chain still runs at stage-2 pace. If stage 3 lands after this lesson ships, your gauge gets more interesting, not wrong. That is the point of building a gauge instead of memorizing a number.
 
 ![A timeline runs from the August activation through two dated measurements to an open arrow for the reader's own probe.](assets/v03-timeline.webp)
 

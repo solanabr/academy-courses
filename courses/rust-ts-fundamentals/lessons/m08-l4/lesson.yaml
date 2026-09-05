@@ -42,9 +42,9 @@ blocks:
             correct: false
             feedback: "The signature math is identical Ed25519 either way, where the key lives changes custody and UX, not cryptographic strength."
           - id: c
-            label: "Wallet UX is the client-side course's seam; a throwaway key keeps this about the pipe flow"
+            label: "Wallet UX is deliberately out of this course's scope; a throwaway key keeps this about the pipe flow"
             correct: true
-        explanation: "The boundary is on purpose and stated by name: wallet-standard, connection UX, and signing prompts belong to solana-client-side-mastery. A gitignored 32-byte throwaway holding worthless devnet SOL is the minimal signer that lets this lesson teach message-building, signing, and confirmation, and the moment you want a real wallet is the moment you open the sibling course."
+        explanation: "The boundary is on purpose: this course teaches the write pipe, and wallet-standard, connection UX, and signing prompts are a client-side discipline of their own. A gitignored 32-byte throwaway holding worthless devnet SOL is the minimal signer that lets this lesson teach message-building, signing, and confirmation; wanting a real wallet is the signal you have reached that boundary, and the catalog's client-side course (in production) is where that depth lands."
       - id: m08-l4-q3
         prompt: "Your script builds the transaction message at startup, does other work for two minutes, then sends, and confirmation fails every time. What did the pipe flow's lifetime step already tell you?"
         multiSelect: false
@@ -111,4 +111,4 @@ blocks:
             label: "It's rent charged to the sender to cover the recipient account's on-chain storage"
             correct: false
             feedback: "Close to a real mechanism, wrong charge: account storage economics exist on Solana, but the sender's per-transaction cost here is the fee. The deeper account-model story belongs to btc-to-sol-evolution."
-        explanation: "Reads were free because they mutate nothing; this is the other side of that asymmetry, the fee payer (your throwaway key) pays for the write. The unguided challenge makes this exact observation mechanical: read both balances before and after and assert the delta is amount plus fee. Fee mechanics, priority fees, and why fees move belong to the client-side course."
+        explanation: "Reads were free because they mutate nothing; this is the other side of that asymmetry, the fee payer (your throwaway key) pays for the write. The unguided challenge makes this exact observation mechanical: read both balances before and after and assert the delta is amount plus fee. Fee mechanics, priority fees, and why fees move are transaction-landing depth beyond this course's scope."
