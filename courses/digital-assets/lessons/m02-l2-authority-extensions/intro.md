@@ -150,8 +150,10 @@ npm install -D tsx@4.23.12 typescript@5.9.3
    } from '@solana-program/token-2022';
    import { getCreateAccountInstruction } from '@solana-program/system';
 
-   const rpc = createSolanaRpc('http://127.0.0.1:8899');
-   const rpcSubscriptions = createSolanaRpcSubscriptions('ws://127.0.0.1:8900');
+   // Cluster-agnostic on purpose: step 5 will want to re-run this whole file
+   // against devnet, so the endpoints yield to env vars.
+   const rpc = createSolanaRpc(process.env.RPC_URL ?? 'http://127.0.0.1:8899');
+   const rpcSubscriptions = createSolanaRpcSubscriptions(process.env.RPC_WS_URL ?? 'ws://127.0.0.1:8900');
    const send = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
    const airdrop = airdropFactory({ rpc, rpcSubscriptions });
 
@@ -278,7 +280,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3
 
    Checkpoint: create a fresh token account for this mint and try to send from it. It reverts with `AccountFrozen`. Thaw that one account with `getThawAccountInstruction` signed by the freeze authority, retry, and the transfer works. You just onboarded one holder without touching any other.
 
-5. **PermissionedBurn and MintCloseAuthority.** Configure both, then prove the burn path changed:
+5. **PermissionedBurn and MintCloseAuthority.** Configure both — on separate mints, and with the newer one behind a probe, because this is the step where the lab-top caveat bites:
 
    ```typescript
    import {
@@ -289,27 +291,51 @@ npm install -D tsx@4.23.12 typescript@5.9.3
    } from '@solana-program/token-2022';
 
    const burnAuthority = await generateKeyPairSigner();
-   const controlledMint = await createExtendedMint(
+
+   // MintCloseAuthority on its own mint, unconditionally: every cluster's
+   // Token-2022 build knows this extension, so step 7's TLV assert always
+   // has a live mint to decode.
+   const closableMint = await createExtendedMint(
      payer,
      mintAuthority,
      6,
-     [
-       extension('PermissionedBurn', { authority: burnAuthority.address }),
-       extension('MintCloseAuthority', { closeAuthority: mintAuthority.address }),
-     ],
+     [extension('MintCloseAuthority', { closeAuthority: mintAuthority.address })],
      (mint) => [
-       getInitializePermissionedBurnInstruction({ mint: mint.address, authority: burnAuthority.address }),
        getInitializeMintCloseAuthorityInstruction({
          mint: mint.address,
          closeAuthority: mintAuthority.address,
        }),
      ],
    );
+
+   // PermissionedBurn behind a probe: the newest extension in the catalog,
+   // and this cluster's bundled build may predate it. On a build that does,
+   // the extension initializer itself throws before the mint exists — catch
+   // it, say so, and leave the mint null so step 7 can branch on it.
+   let permissionedMint: KeyPairSigner | null = null;
+   try {
+     permissionedMint = await createExtendedMint(
+       payer,
+       mintAuthority,
+       6,
+       [extension('PermissionedBurn', { authority: burnAuthority.address })],
+       (mint) => [
+         getInitializePermissionedBurnInstruction({
+           mint: mint.address,
+           authority: burnAuthority.address,
+         }),
+       ],
+     );
+   } catch {
+     console.log(
+       'SKIPPED: PermissionedBurn (simnet build predates the extension; proven on devnet in step 5)',
+     );
+   }
    ```
 
-   Checkpoint, with a cluster asterisk the next paragraph explains: on a cluster whose Token-2022 build knows the extension, a standard `burnChecked` against `controlledMint` reverts with `Error: Invalid instruction`, custom program error 0xc (decimal 12), and the permissioned burn, `getPermissionedBurnCheckedInstruction` with `burnAuthority` co-signing, succeeds. Standard burn is dead the moment PermissionedBurn is present.
+   Checkpoint, in two halves. On any cluster: `closableMint` is live and `decode-mint closableMint.address` lists its `MintCloseAuthority` TLV. On a cluster whose Token-2022 build knows PermissionedBurn: `permissionedMint` is live too, a standard `burnChecked` against it reverts with `Error: Invalid instruction`, custom program error 0xc (decimal 12), and the permissioned burn, `getPermissionedBurnCheckedInstruction` with `burnAuthority` co-signing, succeeds. Standard burn is dead the moment PermissionedBurn is present.
 
-   This is the step that trips over the caveat from the top of the lab. PermissionedBurn is the newest extension in the catalog, and on surfpool 1.2.1 the bundled Token-2022 build does not know it yet: `getInitializePermissionedBurnInstruction` comes back `Error: Invalid instruction`, 0xc, from the extension initializer itself, before the mint is ever created. That is your simnet, not your code. The deployed mainnet program does support it, and you can prove that without spending a lamport, because a simulation executes against the real program: build the same instruction list and send it to `simulateTransaction` on mainnet with `sigVerify: false` and `replaceRecentBlockhash: true`, and the logs come back `Instruction: PermissionedBurnExtension` / `PermissionedBurnInstruction::Initialize` / success. To watch the full checkpoint actually run, the dead standard burn and the live co-signed burn both, point this one step at devnet, the cluster where you can write with the real program: `createSolanaRpc('https://api.devnet.solana.com')`, airdrop to the payer, and run the same code. Everything else in this lab runs on the surfnet as written; Pausable, checked on the same build, is fine.
+   Here is why the probe sits in the worked code instead of being left to you. PermissionedBurn is the newest extension in the catalog, and on surfpool 1.2.1 the bundled Token-2022 build does not know it yet: `getInitializePermissionedBurnInstruction` comes back `Error: Invalid instruction`, 0xc, from the extension initializer itself, before the mint is ever created. That is your simnet, not your code — and since this lab is one file of top-level awaits run in order, an uncaught throw here would kill steps 6 and 7 on every surfnet run. The deployed mainnet program does support it, and you can prove that without spending a lamport, because a simulation executes against the real program: build the same instruction list and send it to `simulateTransaction` on mainnet with `sigVerify: false` and `replaceRecentBlockhash: true`, and the logs come back `Instruction: PermissionedBurnExtension` / `PermissionedBurnInstruction::Initialize` / success. To watch the full checkpoint actually run, the dead standard burn and the live co-signed burn both, re-run the whole file against devnet, the cluster where you can write with the real program — the endpoints went env-overridable in step 1 for exactly this moment: `RPC_URL=https://api.devnet.solana.com RPC_WS_URL=wss://api.devnet.solana.com npx tsx labs/m02-l2/verify-authorities.ts` (devnet's faucet rate-limits; if step 1's airdrop fails, top the payer up via faucet.solana.com and retry). Everything else in this lab runs on the surfnet as written; Pausable, checked on the same build, is fine.
 
 6. **The flagship: guard versus delegate.** This is the flagship proof. You have a mint carrying a PermanentDelegate and a holder account with CpiGuard enabled. CpiGuard only acts *inside a CPI*, so both moves route through the `spl-instruction-padding` program (`iXpADd6AW1k5FaaXum5qHbSqyd7TtoN6AD7suVa83MF`), which wraps an inner instruction and re-invokes it via CPI.
 
@@ -465,7 +491,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3
 
 ![The same CpiGuard-protected account blocks Alice's own wrapped CPI transfer but allows the permanent delegate's identical wrapped transfer, because the guard demands a delegate signer and the permanent delegate is carved out by name.](assets/v08-diagram.png)
 
-7. **Wire it into the gate.** The five demonstrations already live in one file, `labs/m02-l2/verify-authorities.ts`; now finish it into a gate: create each throwaway mint, decode it with your m01-l2 inspector to assert its extension TLV is actually present, then run the behavioral proofs: the Pausable transfer reverting, the DefaultAccountState freeze-then-thaw, and the guard-versus-delegate pair. The PermissionedBurn proof is conditional, because of the step-5 simnet caveat: probe the initializer first, run the dead-standard-burn and live-co-signed-burn assertions when the cluster supports the extension, and print one `SKIPPED: PermissionedBurn (simnet build predates the extension; proven on devnet in step 5)` line when it does not. A skip that names its reason keeps the gate honest on every cluster this course runs against. This file is the artifact the lesson adds to SPROUT's toolkit, `sprout-mint-authorities`, and it consumes both things you already shipped: the mint-creation plumbing from the economics lab and the `decode-mint` inspector. The assertion tail for the flagship looks like this:
+7. **Wire it into the gate.** The five demonstrations already live in one file, `labs/m02-l2/verify-authorities.ts`; now finish it into a gate: create each throwaway mint, decode it with your m01-l2 inspector to assert its extension TLV is actually present, then run the behavioral proofs: the Pausable transfer reverting, the DefaultAccountState freeze-then-thaw, and the guard-versus-delegate pair. The PermissionedBurn proof is conditional, because of the step-5 simnet caveat — and the probe already exists: step 5's worked code leaves `permissionedMint` null on a build that predates the extension and prints the `SKIPPED: PermissionedBurn (simnet build predates the extension; proven on devnet in step 5)` line for you. Branch on it: when `permissionedMint` is non-null, run the dead-standard-burn and live-co-signed-burn assertions against it; when it is null, the printed skip has already told the truth. A skip that names its reason keeps the gate honest on every cluster this course runs against. This file is the artifact the lesson adds to SPROUT's toolkit, `sprout-mint-authorities`, and it consumes both things you already shipped: the mint-creation plumbing from the economics lab and the `decode-mint` inspector. The assertion tail for the flagship looks like this:
 
    ```typescript
    const { ownerBlocked, delegatePassed } = await proveGuardVsDelegate(
