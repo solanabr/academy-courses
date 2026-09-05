@@ -1,7 +1,7 @@
 id: course-rust-ts-fundamentals
 slug: rust-ts-fundamentals
 title: "Rust & TypeScript Fundamentals for Web3"
-description: "By the end you can read and write the Rust and TypeScript that real web3 codebases are made of, and ship them: a TypeScript dashboard on Vercel, edge workers in both languages on Cloudflare, and a containerized Rust service on GHCR, all wired to live Solana data with one signed devnet transfer."
+description: "By the end you can read and write the Rust and TypeScript that real web3 codebases are made of, and ship them: a TypeScript dashboard on Vercel, edge workers in both languages on Cloudflare, and a containerized Rust service on GHCR, all wired to live Solana data with one signed devnet transfer. This is a local-toolchain course, so expect to install as you build: Node in module one, rustup and cargo in module four, Docker in module six, and the Solana CLI in m08-l4, where a local validator stands by as the last-resort fallback for a dry devnet faucet."
 difficulty: beginner
 duration: 52
 xpPerLesson: 20

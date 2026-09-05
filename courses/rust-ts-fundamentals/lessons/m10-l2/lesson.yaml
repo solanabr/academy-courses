@@ -56,5 +56,5 @@ blocks:
           - id: c
             label: "A signal you have out-grown your stack: prefer crates and patterns that never surface explicit lifetimes"
             correct: false
-            feedback: "Avoidance inverts the lesson. Hitting a lifetime wall at need-time is the 80/20 system WORKING, the deep-dive is bookmarked for precisely this moment, and the on-ramp course you'd be in promises just-in-time help with it too."
+            feedback: "Avoidance inverts the lesson. Hitting a lifetime wall at need-time is the 80/20 system WORKING: the deep-dive is bookmarked for precisely this moment, and the wall is rarer than you fear, the Anchor V2 labs strip old lifetime annotations rather than demanding new ones."
         explanation: "This is the map functioning as designed: the 20% was never missing, you know exactly where it lives (the canonical Rust deep-dives this course bookmarked) and now you know WHEN you need it. The taught-vs-bookmarked table re-sorted by urgency exists so this moment feels like collecting a reserved item, not discovering a hole in your education."
