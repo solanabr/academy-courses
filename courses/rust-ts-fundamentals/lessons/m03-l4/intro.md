@@ -188,7 +188,7 @@ The TypeScript tier ends at this lesson, so the course owes you the map it promi
 - **The full tsconfig surface.** You own the strict canon from m01-l2's table; the remaining several dozen flags get looked up per-flag, on demand, forever. Nobody memorizes them. Now you know that.
 - **node:test.** The zero-dependency runner got its honest sidebar in m02-l4; vitest is this course's lane. If a dependency-free context wants tests, the sidebar is the on-ramp.
 - **Bun and Deno.** Both alive and shipping (Bun 1.4, Deno 2.9, both with late-August 2026 releases). This course runs Node because the surveyed Solana ecosystem does: every studied repo declares Node engines and a pnpm packageManager pin, none declare Bun or Deno. Positioning, not disdain; revisit signal five in a year and see if the lockfiles moved.
-- **React beyond the data-consumer slice, and everything client.** Routing, forms, state libraries, wallet UX, transaction landing: that is the client-side mastery course's territory, and its stated floor, TS-strong, is a bar you now clear.
+- **React beyond the data-consumer slice, and everything client.** Routing, forms, state libraries, wallet UX, transaction landing: that is the client-side mastery course's territory, in production as I write, and the TS strength you now hold is exactly the foundation that kind of work builds on.
 - **jest.** Named, not taught: it is vitest's older sibling and you will meet it in anza's repositories. The API surface is close enough that your vitest fluency mostly transfers.
 
 That is the whole gate. Every bookmark has an address, every address has a trigger for when to visit, and the map you got in the course opener just gained its first "you are here" pin: TS-strong, with the 20% locations memorized.
@@ -222,7 +222,7 @@ The worked half is done: the build runs, the exports map carries types beside Ja
    npm publish --access public
    ```
 
-   `npm login` bounces through the browser. The `--access public` flag is the gotcha from the theory section: without it, a scoped first publish fails with an error about payment plans, because scoped packages default private and private is paid. With it, the terminal prints your package name and version, and that is the whole ceremony. `@YOUR_NPM_USERNAME/pulse-core@0.1.0` now exists on the public registry. Go look at its page on npmjs.com; you have a shipped-artifacts page now, and it renders your README.
+   `npm login` bounces through the browser. The `--access public` flag is the gotcha from the theory section: without it, a scoped first publish fails with an error about payment plans, because scoped packages default private and private is paid. With it, the terminal prints your package name and version, and that is the whole ceremony. `@YOUR_NPM_USERNAME/pulse-core@0.1.0` now exists on the public registry. Go look at its page on npmjs.com; you have a shipped-artifacts page now. It will say no README was found, truthfully, because the clean tarball you inspected in step 3 contains none; writing one is the first post-ship polish this lesson leaves to you.
 
 5. **Prove it like a stranger.** Somewhere OUTSIDE the workspace, your home directory, anywhere:
 
