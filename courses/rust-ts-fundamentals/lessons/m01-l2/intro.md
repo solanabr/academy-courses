@@ -352,7 +352,7 @@ Hints, not steps: `process.argv.slice(2)` hands you every URL at once. You alrea
 
 And expect to meet the flag again. The moment you index into your results array, `noUncheckedIndexedAccess` will remind you the array might be empty, and this time there's no printed fix to copy. You know its move now; handle the case the flag's way.
 
-If you want a second workout, this lesson's page on the course platform carries a companion coding challenge in its interactive editor panel (starter code and grader included, nothing to download): `latencyStats`, which turns a batch of samples into min, max, mean, and p95. One sample is noise, a summary is signal; that exact function ships in the fleet later. Later lessons hand out their challenges the same way, so when one says "the starter", that panel is where it lives.
+If you want a second workout, this lesson's page on the course platform carries a companion coding challenge in its interactive editor panel (starter code and grader included, nothing to download): `latencyStats`, which turns a batch of samples into min, max, mean, and p95. One sample is noise, a summary is signal; that exact function ships in the fleet next module, when m02-l3's fleet report puts it on station duty. Later lessons hand out their challenges the same way, so when one says "the starter", that panel is where it lives.
 
 ## Where the heartbeat goes next
 

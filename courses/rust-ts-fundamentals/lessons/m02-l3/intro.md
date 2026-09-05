@@ -314,6 +314,20 @@ The fade this module has been running continues: the pool and the burst were ful
    console.log(`429s in final report: ${finished429}  (retries spent absorbing them: ${retriesTotal})`);
    ```
 
+   One more line joins the footer, and it is a homecoming. m01-l2's companion challenge, `latencyStats`, was sold with a promise: that exact function ships in the fleet. It ships now. Paste your graded solution into `src/fleet.ts` (or write it fresh from the same contract: min, max, mean rounded to two decimals, nearest-rank p95), then fold the successful probes through it below the counts. Its contract takes a comma-separated string, so the adapter is one `join`:
+
+   ```ts
+   const okLatencies = reports.flatMap(({ result }) =>
+     result.kind === "ok" ? [result.latencyMs] : [],
+   );
+   if (okLatencies.length > 0) {
+     const s = latencyStats(okLatencies.join(","));
+     console.log(`latency: min ${s.min}  max ${s.max}  mean ${s.mean}  p95 ${s.p95}  (ms, over ${okLatencies.length} ok probes)`);
+   }
+   ```
+
+   The stats function you built in m01-l2, now on station duty: one sample was noise, and fifty per sweep is exactly the batch it was built to summarize. The `length` guard is not politeness. A sweep where every probe failed has no latencies to fold, `latencyStats` throws on an empty batch by its own contract, and skipping the line is the honest report.
+
    With the server from the opener still running:
 
    ```bash
@@ -323,10 +337,13 @@ The fade this module has been running continues: the pool and the burst were ful
    My run:
 
    ```text
-   50 targets in 2561ms with pool of 5
+   50 targets in 2562ms with pool of 5
    ok: 50  timeout: 0  http-error: 0  dns-error: 0
    429s in final report: 0  (retries spent absorbing them: 0)
+   latency: min 251  max 279  mean 254.7  p95 263  (ms, over 50 ok probes)
    ```
+
+   The latency spread sits a hair above the server's 250ms floor, connection setup being what it is; your digits will differ, the shape will not.
 
    Put it next to the opener's burst run and its `429s: 25 / 50`. Same fifty targets, same server, same cap. The only thing that changed is who bounds the in-flight work: nobody, or you. That side-by-side is the artifact of this lesson and your verify gate: fifty targets, one typed result each, zero 429s.
 
