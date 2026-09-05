@@ -1,4 +1,4 @@
-# Bubblegum v2: mint a million NFTs for the price of a coffee
+# Bubblegum v2: mint a million NFTs for the price of a laptop
 
 ## Summary
 
@@ -41,7 +41,7 @@ console.log(`${(sol / 2 ** 20).toFixed(8)} SOL per cNFT`);
 0.00000812 SOL per cNFT
 ```
 
-One account. Eight and a half SOL. A million NFTs. That third line is roughly 0.00001 SOL each, which lines up with the figure Metaplex publishes for a million compressed NFTs, and the whole thing costs less than a decent coffee in most of the cities you might be reading this from.
+One account. Eight and a half SOL. A million NFTs. That third line is roughly 0.00001 SOL each, which lines up with the figure Metaplex publishes for a million compressed NFTs. Price it at the $150/SOL anchor this lesson uses throughout and the whole tree runs about $1,300: the price of a decent laptop, for an airdrop that per-asset accounts priced at $300,000. (If you want the small anchor instead: one coffee's worth of SOL covers a few thousand crates' worth of leaves.)
 
 Today you build that tree for real. The autonomy fade, out loud: the theory and the tree-cost derivation are worked in full, the tree spec is yours to choose and defend (step 5 makes you derive the depth and justify the buffer and canopy before minting your first crate), and the soulbound achievement crate plus its transfer-rejection proof are entirely yours, solo, with only the two function signatures fixed for you.
 

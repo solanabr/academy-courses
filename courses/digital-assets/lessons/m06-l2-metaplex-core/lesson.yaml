@@ -28,15 +28,15 @@ blocks:
           - id: a
             label: "Core assets can only join a collection during the program's scheduled re-index window, when the collection authority batch-approves pending members; mint again after the next window closes and the reads will populate."
             correct: false
-            feedback: "There's no re-index window and no batch approval; membership is set at mint time relative to an existing verified collection, not stamped in later."
+            feedback: "There's no re-index window and no batch approval; membership is written at mint against an existing collection, or afterwards only by an explicit two-signature update — never by a scheduled program pass."
           - id: b
             label: "The assets need a Royalties plugin before they can be collection members."
             correct: false
             feedback: "Royalties and membership are independent plugins/relationships; a missing Royalties plugin doesn't explain empty membership."
           - id: c
-            label: "The collection must exist and be verified BEFORE assets are minted into it; minting first and retrofitting membership doesn't establish verified membership."
+            label: "The collection didn't exist when the assets were minted, so they came out as orphans with Address update authorities; nothing retrofits membership on its own — moving an orphan in later takes an explicit update signed by authorities on both sides."
             correct: true
-        explanation: "Core's model is collection-first: you create and verify the Almanac collection, then mint assets INTO it so membership is set at mint. This ordering isn't optional here: Bubblegum v2 in the next module mints cNFTs into a Core collection too, so the verified-collection-first habit is load-bearing."
+        explanation: "Core's model is collection-first: you create and verify the Almanac collection, then mint assets INTO it so membership is written at mint. An after-the-fact update path does exist — a retrofit signed by authorities on both sides — but nothing runs it for you, which is why the membership reads came back empty. The collection-first habit stays load-bearing: Bubblegum v2 in the next module mints cNFTs into a Core collection too."
       - id: m06-l2-metaplex-core-q2
         prompt: "A stakeholder wants the ~0.0029 SOL Core mint cost printed as a hard guarantee in your docs. How do you frame it honestly?"
         multiSelect: false
