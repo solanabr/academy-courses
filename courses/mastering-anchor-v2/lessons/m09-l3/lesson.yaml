@@ -28,7 +28,7 @@ blocks:
             feedback: "The wiring is the artifact. Hand it over finished and there is nothing left to assess; one rung gets worked end to end as a template, and the other three are yours."
         explanation: "The no-undemonstrated-accretion rule: the capstone gates on your producing the composition, so the CPI edges (including the counter increment) are worked steps you write, not a finished registry you receive. A pre-built wiring would prove nothing about your ability to compose the rungs — the wiring itself is the artifact under test, which is why R1 is worked in full as a template and R2, R3, and R4 are yours."
       - id: m09-l3-q2
-        prompt: "Before the devnet deploy, the capstone runs the three-program floor together on a Surfpool localnet via anchor test. What does that step catch that per-program unit tests do not?"
+        prompt: "Before the devnet deploy, the capstone runs the five-program floor together on a Surfpool localnet via anchor test. What does that step catch that per-program unit tests do not?"
         multiSelect: false
         options:
           - id: a
