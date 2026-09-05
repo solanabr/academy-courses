@@ -55,7 +55,7 @@ blocks:
           - id: b
             label: "After the CPI: withdraw first, then refund if the score fell short."
             correct: false
-            feedback: "Atomicity does revert a transfer when a later require! fails, which is why this looks safe. But paying first means the guard no longer gates the payout: the moment any later step can commit before your revert, you have paid out on a false condition."
+            feedback: "Atomicity does revert the transfer when a later require! fails — nothing can partially commit inside a failed Solana transaction. What makes this wrong is fragility, not leakage: pay-then-check is only safe while the check stays fatal and stays in this instruction, and one refactor that softens the require! pays out on a false condition. Guard-first has nothing to maintain."
           - id: c
             label: "It does not matter: the transaction is atomic, so a failed check reverts the CPI."
             correct: false
