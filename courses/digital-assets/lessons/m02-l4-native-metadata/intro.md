@@ -140,10 +140,10 @@ The build: re-create SPROUT with the pointer in its extension set, write the TLV
 
     ```bash
     mkdir -p labs/m02-l4
-    npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0 @solana-program/system@0.12.2
+    npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
     ```
 
-    Same pins, same reason, as m02-l1's pin paragraph argued in full: kit 6.10.0 is the house rule, and each `@solana-program/*` version is the last minor that peers kit ^6 (verified against npm 2026-08-22; re-verify when you read this).
+    Same pins, same reason, as m02-l1's pin paragraph argued in full: the workspace pins the kit major its `@solana-program/*` clients peer against, which today means kit 7.1.1 with each client at its current kit-^7 minor (verified against npm 2026-09-05; re-verify when you read this).
 
 2. **Surfnet up.** The lab runs against the local surfnet you have used since m02-l1 (`surfpool start --no-tui --no-studio`; it forks mainnet lazily, which is why the PYUSD probe worked, and honors airdrops, which is why the next script funds itself). Devnet works as a fallback: `RPC_URL=https://api.devnet.solana.com WS_URL=wss://api.devnet.solana.com npx tsx ...`, with the faucet replacing the airdrop call if it rate-limits you.
 

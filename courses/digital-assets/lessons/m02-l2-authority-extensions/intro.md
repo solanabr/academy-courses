@@ -116,10 +116,10 @@ surfpool start --no-tui --no-studio
 
 One workspace note before the install, because the layout changes here and stays changed for the rest of the course. Shared dependencies now live at the workspace ROOT, the folder that contains `labs/`. Run the installs below from that root (if the root has no `package.json` yet: `npm init -y && npm pkg set type=module` first). Lesson code keeps living in per-lesson folders like `labs/m02-l2/`, and every run command from here on is given from the root. The self-contained `labs/m02-l1` package from last lesson stays exactly as it is: relative imports such as `../m01-l2/decode-mint` resolve by file location, not by where you run from, so nothing there breaks.
 
-The pins are the same trio as m02-l1, for the reasons argued at length there (kit 6.10.0 is the house rule; `@solana-program/token-2022@0.12.0` and `@solana-program/system@0.12.2` are the last minors that peer kit ^6, and anything newer hard-fails `ERESOLVE`). The 0.12.0 token client already ships every builder this lesson needs (`getInitializePermanentDelegateInstruction`, `getInitializePausableConfigInstruction`, `getInitializePermissionedBurnInstruction`, and the rest). If npm complains about an unresolvable peer on `@solana/kit`, that is this exact seam: pin all three exactly rather than fighting it.
+The pins are the same trio as m02-l1, for the reasons argued at length there (kit 7.1.1 because that is the major this workspace's clients peer against; `@solana-program/token-2022@0.15.0` and `@solana-program/system@0.13.0` are the current minors that peer kit ^7, and the next minors up jump to ^8 and hard-fail `ERESOLVE`). The 0.15.0 token client ships every builder this lesson needs (`getInitializePermanentDelegateInstruction`, `getInitializePausableConfigInstruction`, `getInitializePermissionedBurnInstruction`, and the rest). If npm complains about an unresolvable peer on `@solana/kit`, that is this exact seam: pin all three exactly rather than fighting it.
 
 ```bash
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0 @solana-program/system@0.12.2
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
 npm install -D tsx@4.23.12 typescript@5.9.3
 ```
 

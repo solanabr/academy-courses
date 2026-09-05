@@ -127,13 +127,13 @@ Hands on keyboard, roughly forty minutes. This workspace gets consumed by later 
 mkdir -p labs/m01-l2 && cd labs/m01-l2
 npm init -y
 npm pkg set type=module
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0
 npm install -D tsx@4.20.5
 ```
 
 tsx moves into the workspace as a dev dependency at the same 4.20.5 pin the m01-l1 one-liners used, so the bare `npx tsx` commands below resolve to this pinned local copy instead of whatever npx would fetch today.
 
-The pins deserve a paragraph, because I had to make a real decision here and you should see it. As of 2026-08-22, npm's `latest` for `@solana/kit` is 8.0.0 and the broad ecosystem peer standard is the v7 line, but this course's house rule pins the kit v6 line, which ended at 6.10.0. That constrains the client: `@solana-program/token-2022` 0.13.0 and everything after it peer-depends on kit ^7 or newer, so installing anything current against kit 6 fails the peer check outright. The last v6-compatible line is **0.12.0**, which peers kit ^6.4.0. I verified those peer ranges against npm today rather than trusting any doc, including this one: they will drift, and `npm view @solana-program/token-2022 peerDependencies` takes ten seconds. So the pair is kit 6.10.0 plus token-2022 0.12.0, exact versions, no carets in anger. If the install above completed without an `ERESOLVE` complaint, your workspace matches mine.
+The pins deserve a paragraph, because I had to make a real decision here and you should see it. As of 2026-09-05, npm's `latest` for `@solana/kit` is 8.2.0, but "install latest" is not how you pin a Solana workspace. The rule that actually decides the number: pin the kit major your workspace's `@solana-program/*` clients peer against. This workspace's client is `@solana-program/token-2022`, whose current line is **0.15.0** and peers kit ^7.0.0 — 0.16.0 has already jumped its peer range to ^8, so installing that against kit 7 fails the peer check outright. The newest kit inside the ^7 range is 7.1.1, and that settles it. I verified those peer ranges against npm today rather than trusting any doc, including this one: they will drift, and `npm view @solana-program/token-2022 peerDependencies` takes ten seconds. So the pair is kit 7.1.1 plus token-2022 0.15.0, exact versions, no carets in anger. If the install above completed without an `ERESOLVE` complaint, your workspace matches mine.
 
 **2. Write the inspector, worked part first.** Before the code, hold the whole decision flow in your head once. It is short, and every branch is something the theory just taught:
 
@@ -145,7 +145,7 @@ Now create `decode-mint.ts`. Everything here is shown complete except one region
 // decode-mint.ts - R1, the Overgrowth mint inspector.
 // Parses a mint account's raw bytes: 82-byte base, bare-vs-extended, TLV walk.
 // Run: npx tsx decode-mint.ts <MINT_ADDRESS> [RPC_URL]
-// Pins (verified 2026-08-22): @solana/kit 6.10.0, @solana-program/token-2022 0.12.0
+// Pins (verified 2026-09-05): @solana/kit 7.1.1, @solana-program/token-2022 0.15.0
 
 import { pathToFileURL } from "node:url";
 import { createSolanaRpc, address, getBase58Decoder } from "@solana/kit";
