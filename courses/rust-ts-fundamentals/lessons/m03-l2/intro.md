@@ -157,13 +157,16 @@ Goal: the `<pre>` dump becomes a typed, parsed, classifier-colored status board 
          return { url, checkedAt, result: { kind: "http-error", status: res.status } };
        }
        return { url, checkedAt, result: { kind: "ok", latencyMs } };
-     } catch {
-       return { url, checkedAt, result: { kind: "timeout", budgetMs: 10_000 } };
+     } catch (err) {
+       if (err instanceof Error && err.name === "TimeoutError") {
+         return { url, checkedAt, result: { kind: "timeout", budgetMs: 10_000 } };
+       }
+       return { url, checkedAt, result: { kind: "dns-error", host: new URL(url).hostname } };
      }
    }
    ```
 
-   Delete the local v0 `ProbeResult` declaration while you are in there; the type now arrives from `pulse-core`, type-only, costing the runtime nothing. Rename the writer's result array element type to `TargetStatus` and the rest compiles untouched. Run it once from `packages/pulse-fleet`, `npx tsx fleet.ts`, and open the fresh `status.json` at the repo root: every row now reads `{ "url", "checkedAt", "result": { "kind": ... } }`. The v0 dialect m02-l1 made unrepresentable in `probe.ts` has finally been evicted from the one file still allowed to lie in it. Commit and push before building the board, so the cron's next run publishes union rows for your live URL too.
+   Walk the catch, because it is the m02-l3 exit map compressed to two arms. `AbortSignal.timeout` rejects with an error *named* `TimeoutError`, so that name check is the "our own timer fired" exit and becomes the `timeout` variant with the budget it blew. Everything else in the catch is the network itself failing, DNS, connection refused, TLS, before any budget could expire; `fetch` rejects those immediately as a `TypeError`, and they land in the `dns-error` arm exactly as the m02-l1 drill taught. A bare `catch` here would publish a dead host as a ten-second timeout, the precise small lie this rewire exists to evict. Delete the local v0 `ProbeResult` declaration while you are in there; the type now arrives from `pulse-core`, type-only, costing the runtime nothing. Rename the writer's result array element type to `TargetStatus` and the rest compiles untouched. Run it once from `packages/pulse-fleet`, `npx tsx fleet.ts`, and open the fresh `status.json` at the repo root: every row now reads `{ "url", "checkedAt", "result": { "kind": ... } }`. The v0 dialect m02-l1 made unrepresentable in `probe.ts` has finally been evicted from the one file still allowed to lie in it. Commit and push before building the board, so the cron's next run publishes union rows for your live URL too.
 
 3. **Schema the boundary.** Create `src/status.ts`, the board's border checkpoint. The schema mirrors the report the writer you just rewired emits: `generatedAt`, plus one entry per target wrapping the `ProbeResult` union:
 
