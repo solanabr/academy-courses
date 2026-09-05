@@ -14,7 +14,7 @@ blocks:
     solution: port-init-space/solution.rs
     tests: port-init-space/tests.json
     hints:
-      - "The V2 idiom is `Account::DISCRIMINATOR.len() + T::INIT_SPACE`; DISCRIMINATOR.len() is 8."
+      - "The V2 idiom is `T::DISCRIMINATOR.len() + T::INIT_SPACE`, both through the same `T`; DISCRIMINATOR.len() is 8."
       - "INIT_SPACE is field bytes ONLY -- it never includes the discriminator, so add the 8 back exactly once."
       - "An empty struct still costs 8 bytes on-chain (test t3)."
       - "Add the 8 with a checked_add inside the same chain as the field sums: a `+ 8` bolted on after unwrap_or turns an overflow into a plausible-looking 8."
@@ -58,7 +58,7 @@ blocks:
             label: "Keep `dup` as written and wrap the handler body in a Rust `unsafe { }` block; the constraint spelling itself is unchanged in V2."
             correct: false
             feedback: "The opt-out is a per-constraint spelling, `unsafe(dup)`, not a Rust `unsafe` block elsewhere in the code. The keyword absolutely changed -- plain `dup` no longer compiles."
-        explanation: "This is the per-line C9 fork: v1.0 spells the opt-out `dup`; V2 spells it `unsafe(dup)`, and plain `dup` is a compile error whose text tells you to write `unsafe(dup)`. Duplicate-mutable detection still runs -- V2 just forces you to acknowledge the escape hatch as unsafe at the site where you use it. The word is doing work: it makes you accept, right where you deviate, the obligation to write the handler so it never forms conflicting mutable references. A `dup` that silently compiled was a risk you could forget; an `unsafe(dup)` you had to type is a risk you chose."
+        explanation: "This is a fork the port hits one line at a time: v1.0 spells the opt-out `dup`; V2 spells it `unsafe(dup)`, and plain `dup` is a compile error whose text tells you to write `unsafe(dup)`. Duplicate-mutable detection still runs -- V2 just forces you to acknowledge the escape hatch as unsafe at the site where you use it. The word is doing work: it makes you accept, right where you deviate, the obligation to write the handler so it never forms conflicting mutable references. A `dup` that silently compiled was a risk you could forget; an `unsafe(dup)` you had to type is a risk you chose."
       - id: m10-l2-q3
         prompt: "A migrator says 'V2 removed `.reload()`, so I'll just call it manually after each CPI like before.' Why is that both impossible and unnecessary in V2?"
         multiSelect: false

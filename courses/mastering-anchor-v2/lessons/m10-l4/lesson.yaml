@@ -53,9 +53,9 @@ blocks:
             correct: false
             feedback: "m05 touches Token-2022 only from the program's seat and explicitly hands the transfer-hook interface to the Digital Assets course; there is no priority-fee module at all, because this course refuses client-side tx-landing entirely. Neither topic is owned here."
           - id: b
-            label: "Nowhere in this wave -- transfer hooks and priority-fee science fall outside the whole curriculum, so both of them send you to external docs."
+            label: "Nowhere in the catalog -- transfer hooks and priority-fee science fall outside the whole curriculum, so both of them send you to external docs."
             correct: false
-            feedback: "They are firmly in scope for the wave, just not for THIS course: Digital Assets owns the transfer-hook interface and Client-Side Mastery owns tx-landing. The boundary is a handoff to a named sibling, not an omission from the curriculum."
+            feedback: "They are firmly in the catalog, just not in THIS course: Digital Assets owns the transfer-hook interface and Client-Side Mastery owns tx-landing. The boundary is a handoff to a named sibling, not an omission from the curriculum."
           - id: c
             label: "Transfer hooks to the Digital Assets course; priority fees and tx-landing to the Client-Side course. This course owns the framework layer."
             correct: true

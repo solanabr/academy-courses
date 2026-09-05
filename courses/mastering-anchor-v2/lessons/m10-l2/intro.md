@@ -38,13 +38,13 @@ Before the decisions, one piece of vocabulary and one map, because the ground is
 
 The lifetimes go for a related reason. In v1 every account struct carried `<'info>` because the framework threaded a borrow of the transaction's account slice through your types by hand, and you paid for that plumbing in every signature you ever wrote. V2's account model tracks those borrows differently, so the lifetime annotation stops being something you write. Handlers take `&mut Context<T>`, the wrappers lose `<'info>`, and a whole column of angle brackets disappears from your code. Compared to what? Compared to a v1 struct where `pub struct Initialize<'info>` and `Account<'info, Config>` repeated the same lifetime a dozen times to say one thing the compiler now infers.
 
-If going one layer deeper than "the framework handles it" is the itch you keep scratching, that is exactly where the Low-Level Solana course lives: it rebuilds programs beneath Anchor entirely, in raw `no_std` pinocchio with no framework at all, so you can see the machinery V2 is now sitting on.
+If going one layer deeper than "the framework handles it" is the itch you keep scratching, that is exactly where the Low-Level Solana course lives: beneath the framework entirely, on the machinery V2 is now sitting on.
 
 ![A comparison table pairing each v1 Anchor spelling with its V2 replacement and the one-line reason, from Pubkey-to-Address through the removal of reload().](assets/v03-comparison.png)
 
 ### Decision 2: zero-copy is the default, so the ceremony around it disappears
 
-In m02 you learned zero-copy the hard way: `#[account(zero_copy)]`, `AccountLoader`, `load()` and `load_mut()`, all to avoid deserializing a big account into the stack. V2 makes that the ordinary path. `Account<T>` is zero-copy by default, which requires `T: Pod` with a no-padding layout. **Pod** is plain old data, from module 2: a fixed-size, alignment-clean struct whose every bit pattern is a valid value, so the framework can lay a typed view directly over the account bytes instead of decoding them. The consequences ripple outward, and this is where a careless port quietly breaks.
+In m02 you met the v1 ceremony as history you never had to run: `#[account(zero_copy)]`, `AccountLoader`, `load()` and `load_mut()`, all to avoid deserializing a big account into the stack. V2 makes zero-copy the ordinary path, which is why you only ever read about the old way. `Account<T>` is zero-copy by default, which requires `T: Pod` with a no-padding layout. **Pod** is plain old data, from module 2: a fixed-size, alignment-clean struct whose every bit pattern is a valid value, so the framework can lay a typed view directly over the account bytes instead of decoding them. The consequences ripple outward, and this is where a careless port quietly breaks.
 
 First, the easy one: the `zero_copy` attribute is gone. There is nothing to opt into because you are already in. Delete it.
 
