@@ -103,7 +103,9 @@ Be precise about which command proves which half, because the two are separate a
 ```bash
 # The Rust side: who owns the crate your program actually links against.
 cargo owner --list anchor-lang
-cargo search anchor-lang                    # repository field on the crate
+cargo info anchor-lang                      # the `repository:` row names the source repo
+# (cargo search won't do here: it prints only name/version/description,
+#  never the repository field — `cargo info` is the command that reads it.)
 
 # The npm side: the repository field, version by version, is where the two
 # custody transfers are legible.
@@ -251,8 +253,14 @@ Third, do the one authority move devnet *can* execute, because the previous modu
 ```bash
 solana program show <SWAP_PROGRAM_ID> -u devnet     # read the Authority line
 solana-keygen new -o /tmp/new-authority.json --no-bip39-passphrase
+# Pass the new authority as a KEYPAIR, not a pubkey: the CLI requires the
+# incoming authority to co-sign the handoff, the guard that stops you from
+# typo-ing your program away to an address nobody holds. (A bare pubkey makes
+# the command fail on a missing signature unless you add
+# --skip-new-upgrade-authority-signer-check — a flag for hardware-wallet flows,
+# and exactly the guard you should not rehearse turning off.)
 solana program set-upgrade-authority <SWAP_PROGRAM_ID> -u devnet \
-  --new-upgrade-authority $(solana address -k /tmp/new-authority.json)
+  --new-upgrade-authority /tmp/new-authority.json
 solana program show <SWAP_PROGRAM_ID> -u devnet     # read it again
 ```
 

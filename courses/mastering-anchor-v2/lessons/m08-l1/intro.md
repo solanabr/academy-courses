@@ -32,7 +32,7 @@ Before you drive the route, look at the map. The four moves are not independent.
 
 Notice the shape. Publishing (B) and generating (C) both branch off the IDL, and they are independent of each other. You can generate a client without ever publishing the IDL on-chain, and you can publish without generating. We do both because they serve different callers: publishing serves *anyone*, generating serves *you*. Keep that split in mind, it is the answer to two of the check questions at the end.
 
-### The IDL is the contract, and v2 quietly changed it
+### The IDL is the contract, and v2 deliberately left it alone
 
 An IDL (Interface Description Language) file is a JSON description of your program: its address, its instructions with their arguments and required accounts, its account layouts, its error codes, and the discriminators for each. It is the machine-readable version of everything you would otherwise have to read out of `lib.rs` by hand. Build it with the CLI:
 
@@ -40,13 +40,13 @@ An IDL (Interface Description Language) file is a JSON description of your progr
 anchor idl build --program-name token_ticket_swap -o target/idl/token_ticket_swap.json
 ```
 
-Here is the part that matters for a framework course, because it is a V2 delta and it has teeth. The v2 IDL keeps the **same 8-byte discriminators** as v1 by default, so a call you built against a v1-era IDL still targets the right instruction. But the v2 spec adds new fields the v1 spec never had, describing how types serialize and how enums are represented in memory. Those `serialization` and `repr` fields make the IDL a more complete description of your program. They also introduce a risk the Anchor docs name explicitly: not every client generator knows what to do with them yet.
+Here is the part that matters for a framework course, because the expectation runs the other way. A ground-up `no_std` rewrite sounds like it should have forked the interface format, and it did not: the v2 IDL keeps the **same 8-byte discriminators** as v1 by default, and the IDL *spec* itself is untouched — the spec source in the pinned v2.0.0-rc.1 tag is byte-for-byte identical to the one in the 1.1.2 baseline. That identity includes the `serialization` and `repr` fields, the ones describing how types serialize and how enums are laid out in memory: both predate V2 (they arrived with the 0.30-era spec rewrite) and both lines carry them at the same place in the same file. V2's actual delta in this module is not in the JSON at all; it is in how the JSON reaches the world — the CLI's publishing path through the Program Metadata Program, which the next section walks. The stability is the feature: a call built against a v1-era IDL still targets the right instruction under a v2 program, and a v2 IDL drops into any tool that already reads the modern spec.
 
-If the discriminator staying stable sounds like a footnote, remember what you did when you computed a discriminator preimage by hand earlier in this course: you hashed the instruction's namespaced name and watched the first eight bytes become the selector the runtime routes on. Those exact eight bytes are what the IDL carries in every instruction's `discriminator` array. That is why a v1-era call still lands against a v2 program: the selector did not move, only the description wrapped around it grew. A generated client reads those bytes straight out of the IDL, so you never hand-type a discriminator again, and you never fat-finger one into a call that silently targets the wrong instruction.
+If the discriminator staying stable sounds like a footnote, remember what you did when you computed a discriminator preimage by hand earlier in this course: you hashed the instruction's namespaced name and watched the first eight bytes become the selector the runtime routes on. Those exact eight bytes are what the IDL carries in every instruction's `discriminator` array. That is why a v1-era call still lands against a v2 program: the selector did not move, and neither did the description wrapped around it. A generated client reads those bytes straight out of the IDL, so you never hand-type a discriminator again, and you never fat-finger one into a call that silently targets the wrong instruction.
 
-![A v2 IDL keeps v1 discriminators but adds serialization and repr fields on types; a client generator that ignores those fields is only safe on default borsh types.](assets/v02-annotated-code.png)
+![The IDL spec is identical between the 1.x baseline and the v2 tag — discriminators, serialization and repr fields all unchanged; a client generator that ignores serialization/repr is only safe on default borsh types on either line.](assets/v02-annotated-code.png)
 
-So this is a write-time probe, not a fact you can freeze from me. Before you trust a generated client for a program that uses non-default serialization or a custom `repr`, confirm your generator version consumes those fields. For the swap you are shipping, `Pool` is a plain borsh struct and `swap_arcade_for_tickets` takes two `u64`s, so you are safely inside what every generator handles. The moment you ship a program that is not, that probe is on you.
+So this is a write-time probe, not a fact you can freeze from me. Before you trust a generated client for a program that uses non-default serialization or a custom `repr` — fields the modern spec has carried since the 0.30 era, on both lines — confirm your generator version consumes them. For the swap you are shipping, `Pool` is a plain borsh struct and `swap_arcade_for_tickets` takes two `u64`s, so you are safely inside what every generator handles. The moment you ship a program that is not, that probe is on you.
 
 ### Put the IDL on-chain so anyone can call you
 
@@ -71,7 +71,7 @@ anchor idl upgrade -f target/idl/token_ticket_swap.json <YOUR_SWAP_PROGRAM_ID> \
 anchor idl fetch -o fetched.json <YOUR_SWAP_PROGRAM_ID> --provider.cluster devnet
 ```
 
-Under the hood these write through the Program Metadata Program. Checkpoint: after `idl init`, that last `idl fetch` command pulls your IDL out of the cluster into `fetched.json` using nothing but the program id. Diff it against `target/idl/token_ticket_swap.json` and it should match. If `idl init` fails saying the account already exists, you have published before, use `idl upgrade`. If it fails on authority, the wallet you are signing with is not the program's upgrade authority, and only that key may write.
+Under the hood these write through the Program Metadata Program. Checkpoint: after `idl init`, that last `idl fetch` command pulls your IDL out of the cluster into `fetched.json` using nothing but the program id. Diff it against `target/idl/token_ticket_swap.json` and it should match. If `idl init` fails saying the account already exists, the usual culprit is not some forgotten session of yours: the RC's `anchor deploy` uploads the IDL by default whenever `target/idl/<name>.json` exists, so a plain deploy has already published for you. Either pass `--no-idl` at deploy time to keep publishing an explicit step (what this course's lab does), or accept the auto-upload and use `idl upgrade` for every later edit. If it fails on authority, the wallet you are signing with is not the program's upgrade authority, and only that key may write.
 
 There is a real trade-off in publishing, and I would rather you hear it from me than a support thread. The IDL account costs rent, and the on-chain copy is only as current as your last `idl upgrade`. Publish once, change the program, forget to upgrade the IDL, and now every client that trusts the chain builds calls against a stale interface. On-chain IDL is a commitment to keep it fresh, not a fire-and-forget.
 
@@ -158,7 +158,13 @@ node --version     # anchor codama drives @codama/cli via npx, so Node must be p
 **1. Deploy the swap, then build and publish its IDL.** R4 has only ever run in LiteSVM and Surfpool, so it needs to be on the cluster before anything here works: the IDL account is keyed to a real program id, and a client needs an address to call. `anchor deploy` uses the workspace program keypair, so the id it prints stays yours for the rest of the course.
 
 ```bash
-anchor deploy --provider.cluster devnet   # prints Program Id -> <YOUR_SWAP_PROGRAM_ID>
+# -p: deploy ONLY the swap. A bare `anchor deploy` loops every program in the
+#     workspace, prints one Program Id per program, and pays ProgramData rent for
+#     each — far more than one airdrop covers at this point in the course.
+# --no-idl: the RC uploads target/idl/<name>.json during deploy by default; skip
+#     that here so the publish stays the explicit `idl init` two lines down.
+anchor deploy -p token_ticket_swap --no-idl --provider.cluster devnet
+                                          # prints Program Id -> <YOUR_SWAP_PROGRAM_ID>
                                           # short on funds? solana airdrop 2 -u devnet, retry
 anchor idl build --program-name token_ticket_swap -o target/idl/token_ticket_swap.json
 anchor idl init -f target/idl/token_ticket_swap.json <YOUR_SWAP_PROGRAM_ID> \
@@ -196,7 +202,7 @@ Checkpoint: `tsconfig.json` and `package.json` exist at the repo root. That `inc
 anchor codama generate -l js -p clients target/idl/token_ticket_swap.json
 ```
 
-Checkpoint: `clients/js/instructions/` contains a `getSwapArcadeForTicketsInstructionAsync` builder, `clients/js/accounts/` contains `findPoolPda` and `fetchPool`, and `clients/js/errors/` contains your `SwapError` variants. If the folder is empty, `npx` could not fetch `@codama/cli`, check that Node is on your PATH and re-run.
+Checkpoint: `clients/js/instructions/` contains a `getSwapArcadeForTicketsInstructionAsync` builder, `clients/js/pdas/` contains `findPoolPda`, `clients/js/accounts/` contains `fetchPool`, and `clients/js/errors/` contains your `SwapError` variants — Codama's JS renderer splits PDA finders into their own `pdas/` folder, so do not go hunting for the finder under `accounts/`. If the folder is empty, `npx` could not fetch `@codama/cli`, check that Node is on your PATH and re-run.
 
 **3. Pin kit to the peer major.** Install the client's runtime dependencies, pinned to the major your `@solana-program` packages peer on.
 
@@ -301,7 +307,7 @@ Two kit specifics worth naming while they are in front of you. `sendAndConfirmTr
 
 Checkpoint for the whole lab: `sendSwap` returns a signature, and that signature resolves on a devnet explorer as a confirmed swap. That is a caller, other than you, moving R4. The vault key is out of your pocket.
 
-One extra checkpoint that costs you two lines and proves the read half. The same generation gave you `fetchPool` and `findPoolPda` in `accounts/`. Derive the pool address and decode it, no manual borsh:
+One extra checkpoint that costs you two lines and proves the read half. The same generation gave you `fetchPool` in `accounts/` and `findPoolPda` in `pdas/`, both re-exported from the client root. Derive the pool address and decode it, no manual borsh:
 
 ```typescript
 import { fetchPool, findPoolPda } from '../clients/js';
@@ -317,7 +323,7 @@ If `pool.data.bump` reads back as the stored canonical bump and the two mints ma
 
 Now solo, with no worked answer in front of you. The challenge is `wire-kit-swap-client`, a self-contained TypeScript file (`starter.ts` and its `tests.json` under this lesson's challenge directory). It strips the send down to the two decisions that are actually yours, so it grades deterministically with no RPC and no signing.
 
-Your `planSwapClient(input)` gets an object with six fields: `splPeer`, a string like `"^7.0.0"` (the range `@solana-program/token` declares); `kitLatest`, a string like `"8.0.0"` (npm's `latest`, the trap); `owner`, the caller's address; `recentBlockhash`; and the two trade numbers, `amountIn` and `minOut`. It also gets `swapInstruction(owner, amountIn, minOut)`, a provided builder standing in for the generated one. You return four things:
+Your `planSwapClient` takes six positional arguments, in this order: `owner`, the caller's address; the two trade numbers, `amountIn` and `minOut` (both `bigint`); `recentBlockhash`; `splPeer`, a string like `"^7.0.0"` (the range `@solana-program/token` declares); and `kitLatest`, a string like `"8.0.0"` (npm's `latest`, the trap). Below it in the same file sits `swapInstruction(owner, amountIn, minOut)`, a provided builder standing in for the generated one — treat it as a given. You return four things:
 
 - `pinnedKitMajor`: the major from `splPeer`, even when `kitLatest` is newer. The pin comes from the peer range, never from latest.
 - `feePayer`: the caller (`owner`).

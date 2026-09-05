@@ -50,9 +50,9 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "One steward sits under the whole verify chain, and Squads v4 is immutable, so the handoff cannot be undone"
+            label: "One steward sits under the whole verify chain, and the Squads v4 program itself is immutable — the multisig can still vote authority onward, but nobody can ever patch the multisig code"
             correct: true
-            feedback: "It is checkable, not a rumour — one organisation builds the framework, signs the tag, publishes the crates and runs the registry. And immutability is the reassurance and the trap at once."
+            feedback: "It is checkable, not a rumour — one organisation builds the framework, signs the tag, publishes the crates and runs the registry. And be precise about the immutability: the Squads *program* cannot be patched, while the handoff itself stays reversible — an M-of-N proposal can execute a SetUpgradeAuthority back to any key. Only setting the authority to None is forever."
           - id: b
             label: "Squads v4 is upgradeable, so a bad authority move can be rolled back later by patching the multisig program itself"
             correct: false
@@ -61,7 +61,7 @@ blocks:
             label: "Once verify-from-repo reports a match, the only trust left is in the multisig members' own keys"
             correct: false
             feedback: "A match removes your need to trust the builder of your program, not the builder of the framework. The pinned image, the anchor-lang crates, and the registry are all still trusted — and the match says nothing about irreversibility."
-        explanation: "Two honest caveats stack: a single steward (OtterSec) spans the framework, crates, and registry; and Squads v4 immutability makes authority endgames irreversible. Verify twice before you commit. The steward claim is checkable, not a rumor: OtterSec builds the Anchor framework and GPG-signs the v2 tag under trixter-osec, publishes the anchor-lang crates on crates.io and @anchor-lang/core on npm (repository field pointing at otter-sec since v1.1.1), and runs the verified-builds registry Anchor verifies against."
+        explanation: "Two honest caveats stack: a single steward (OtterSec) spans the framework, crates, and registry; and the Squads v4 program has been immutable since Nov 2024 — the code you hand authority to can never be fixed or swapped. The handoff itself is not the irreversible step: an M-of-N proposal can vote upgrade authority back out to any key, and only setting the authority to None is forever. Verify twice before you commit either move. The steward claim is checkable, not a rumor: OtterSec builds the Anchor framework and GPG-signs the v2 tag under trixter-osec, publishes the anchor-lang crates on crates.io and @anchor-lang/core on npm (repository field pointing at otter-sec since v1.1.1), and runs the verified-builds registry Anchor verifies against."
       - id: m08-l2-q4
         prompt: "The pins table lists a Solana CLI version for the verifiable-build toolchain. A reader asks, 'is that the current Solana version?'"
         multiSelect: false
