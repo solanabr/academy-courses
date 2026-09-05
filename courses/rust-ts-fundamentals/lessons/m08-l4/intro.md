@@ -42,7 +42,7 @@ And here is the part most tutorials hide: the airdrop fails in multiple ways, an
 
 My favorite detail from the research sweep, and your first color of the day: faucet.solana.com carries explicit instructions for AI agents, steering them toward a proof-of-work faucet or a local validator instead. Probed live on 2026-09-01. The rate limit has a welcome mat for the machines it is limiting. Take the hint the faucet itself is giving: the fallback is not an apology, it is the documented path.
 
-![A flow where a balance check leads to at most three spaced airdrop attempts before stopping with local validator fallback instructions.](assets/v02-flowchart.webp)
+![A flow where a balance check leads to at most three spaced airdrop attempts before exiting nonzero with printed last-resort local-validator fallback instructions.](assets/v02-flowchart.webp)
 
 Programmatically, the ask goes through kit's `airdropFactory`, which wraps the request-and-confirm dance for you. You will wire it into `tx-check` in the lab with exactly the shape in that flowchart: three attempts, growing gaps, then a loud, useful failure. The backoff thinking is the same jittered discipline you hand-rolled for 429s in m02-l3. Faucets are rate-limited HTTP services. Everything you learned about being polite to those applies here unchanged.
 
@@ -127,7 +127,7 @@ const signature = getSignatureFromTransaction(signed);
 
 **Step 3: `setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m)`.** This is the step with a clock in it. The message gets stamped with a recent blockhash, and the network only accepts the transaction while that blockhash is still recent, a window of 150 blocks, which at the 300ms slot time you measured in m08-l1 is about 45 seconds. (It was a minute back when slots targeted 400ms, which is why you will still meet 'about a minute' in older write-ups.) Why would a network do that to you? Because the alternative is worse: without an expiry, a transaction that failed to land could sit in the void and execute hours later, after you gave up and sent a replacement. The lifetime is why unlanded transactions die cleanly instead of haunting you. The practical rule falls straight out: fetch the blockhash inside the send path, right before you build the message, never at script start. A script that builds its message at startup, does two minutes of other work, then sends, will fail confirmation every single time, and now you know why before it happens to you.
 
-![A timeline showing a transaction signed within seconds landing safely while one sent after two minutes arrives past the roughly 45 second blockhash expiry and dies.](assets/v06-timeline.webp)
+![A timeline showing a transaction signed within seconds landing safely while one sent after two minutes arrives past the roughly 45 second blockhash expiry, 150 slots at 300ms each, and dies.](assets/v06-timeline.webp)
 
 **Step 4: `appendTransactionMessageInstruction(getTransferSolInstruction({...}), m)`.** An instruction is one unit of work for one program; a transaction message carries a list of them. Ours carries exactly one: a system-program SOL transfer, built by `getTransferSolInstruction` from `@solana-program/system` with a source signer, a destination address, and an amount. The `lamports()` helper brands the amount with the right type; a lamport, from m08-l1, is the base unit, one billionth of a SOL, and amounts are bigints because u64 does not fit in a JavaScript number.
 

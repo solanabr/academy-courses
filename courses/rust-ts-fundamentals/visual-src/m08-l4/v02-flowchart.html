@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The funding decision tree tx-check encodes
      purpose: show that the airdrop is a best-effort dependency with a budget, backed by a rehearsed fallback, never a hot retry loop
-     data: start: balance check -> enough? -> yes: proceed to transfer no -> airdrop attempt 1 -> success: proceed fail -> wait 2s -> attempt 2 -> success: proceed fail -> wait 8s -> attempt 3 -> success: proceed fail -> STOP: print fallback instructions (solana-test-validator + RPC_URL switch), exit 1 annotation on retries: "3 attempts, growing gaps: the m02-l3 discipline. The faucet budget is 2 per 8h; a hot loop burns it in seconds."
+     data: start: balance check -> enough? -> yes: proceed to transfer no -> airdrop attempt 1 -> success: proceed fail -> wait 2s -> attempt 2 -> success: proceed fail -> wait 8s -> attempt 3 -> success: proceed fail -> STOP: exit 1, print operator instructions (last resort if the faucet stays dry: the local-validator fallback + the RPC_URL switch; the script prints it, never runs it) annotation on retries: "3 attempts, growing gaps: the m02-l3 discipline. The faucet budget is 2 per 8h; a hot loop burns it in seconds."
      prompt: Top-to-bottom decision flowchart following the data: balance check, three airdrop attempts with the 2s and 8s waits labeled on the connecting arrows, success edges exiting right to "proceed to transfer", the final failure node ending in the exit-1 fallback box. Put the budget annotation as a callout beside the retry column.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -53,9 +53,9 @@
         <div class="vcon" style="height:36px;"><span class="vlbl">fail &middot; wait 8s</span><div class="vline"></div><div class="vtri"></div></div>
         <div class="node" style="height:58px;"><h4>airdrop: attempt 3</h4></div>
         <div class="vcon" style="height:36px;"><span class="vlbl">fail</span><div class="vline"></div><div class="vtri"></div></div>
-        <div class="node" style="height:96px; background:var(--stbr-yellow); border-color:var(--stbr-yellow);">
-          <h4>STOP: print fallback instructions</h4>
-          <p style="color:var(--stbr-dark); font-weight:600;">solana-test-validator + the RPC_URL switch &middot; <span class="mono">exit 1</span></p>
+        <div class="node" style="height:118px; background:var(--stbr-yellow); border-color:var(--stbr-yellow);">
+          <h4>STOP: <span class="mono">exit 1</span>, print operator instructions</h4>
+          <p style="color:var(--stbr-dark); font-weight:600;">last resort if the faucet stays dry: the local-validator fallback + the RPC_URL switch, printed for the operator, never auto-run</p>
         </div>
       </div>
       <div style="width:160px; flex:none; display:flex; flex-direction:column;">
