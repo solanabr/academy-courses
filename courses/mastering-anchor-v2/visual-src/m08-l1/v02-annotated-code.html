@@ -74,8 +74,8 @@
   .sw.a { background: rgba(0,139,76,0.15); color: var(--stbr-emerald-800); }
   .sw.b { background: var(--surface-accent); color: var(--text-on-accent); }
 </style>
-  <div class="stbr-eyebrow">idl v2 &middot; a write-time probe</div>
-  <h2 class="viz-title">what v2 added to the IDL</h2>
+  <div class="stbr-eyebrow">the idl &middot; a write-time probe</div>
+  <h2 class="viz-title">the IDL spec: identical across the jump</h2>
 
   <div class="cols">
     <div class="left">
@@ -96,22 +96,22 @@
         <div class="sk">custom type entry &mdash; a Pod account from some other program, not your Pool</div>
         <div class="code"><div class="cl">{
   <span class="key">"name"</span>: "SomePodRecord",
-  <span class="new">"serialization"</span>: "bytemuck",   <span class="dim">// v2-only: how this type serializes</span>
-  <span class="new">"repr"</span>: { "kind": "c" },       <span class="dim">// v2-only: in-memory representation</span>
+  <span class="new">"serialization"</span>: "bytemuck",   <span class="dim">// same spec on 1.x: how this type serializes</span>
+  <span class="new">"repr"</span>: { "kind": "c" },       <span class="dim">// same spec on 1.x: in-memory representation</span>
   <span class="key">"type"</span>: { "kind": "struct", "fields": [ <span class="dim">...</span> ] }
 }</div></div>
       </div>
 
       <div class="rule">
         <span class="vk">the rule</span>
-        <span class="vt">A generator that ignores the new fields still works on borsh/default types &mdash; and is not guaranteed on the rest.</span>
+        <span class="vt">A generator that ignores these fields still works on default borsh types &mdash; on either line &mdash; and is not guaranteed on the rest.</span>
       </div>
     </div>
 
     <div class="right">
       <div class="lgd">
-        <div class="sw a">unchanged from v1</div>
-        <div class="sw b">v2-only</div>
+        <div class="sw a">identical on both lines</div>
+        <div class="sw b">non-default &mdash; probe it</div>
       </div>
 
       <div class="ann">
@@ -120,18 +120,18 @@
       </div>
 
       <div class="ann hot">
-        <div class="ak">serialization &mdash; v2-only</div>
-        <div class="at"><code>"bytemuck"</code> tells a reader this type is not borsh. Verify your generator handles it.</div>
+        <div class="ak">serialization &mdash; same spec on both lines</div>
+        <div class="at"><code>"bytemuck"</code> tells a reader this type is not borsh. Verify your generator handles it &mdash; on either line.</div>
       </div>
 
       <div class="ann hot">
-        <div class="ak">repr &mdash; v2-only</div>
+        <div class="ak">repr &mdash; same spec on both lines</div>
         <div class="at"><code>{ "kind": "c" }</code> pins the in-memory layout. Verify your generator handles it.</div>
       </div>
 
       <div class="ann">
         <div class="ak">why it is a probe</div>
-        <div class="at">Point your generator at a v2 IDL carrying these two fields. Whether it reads them or silently drops them is what you actually learn.</div>
+        <div class="at">Point your generator at an IDL carrying these two fields. Whether it reads them or silently drops them is what you actually learn.</div>
       </div>
     </div>
   </div>

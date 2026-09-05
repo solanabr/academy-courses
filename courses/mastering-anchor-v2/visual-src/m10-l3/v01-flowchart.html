@@ -12,8 +12,8 @@
 <body>
 <!-- flowchart: Which toolchain builds what
      purpose: show why building the port on the ambient 1.1.2 silently produces a v1 artifact, and where the isolated RC has to sit
-     data: Source (edited vault) -> decision: which anchor-cli is on PATH? branch A: anchor-cli 1.1.2 (ambient/host) -> "builds, no V2 errors" -> v1 artifact (WRONG, behaves like v1) branch B: anchor-cli 2.0.0-rc.1 (isolated, pinned in verify/Dockerfile) -> emits the V2 deprecations + the E0599 missing-method error on .reload() -> V2 artifact (correct) note: the host box has 1.1.2 installed; the RC must be an isolated, pinned toolchain
-     prompt: Vertical decision flowchart. One source node at top splits on "which anchor-cli is on PATH?" into two branches. Left branch (1.1.2, host) ends in a red "v1 artifact, silently wrong" terminal. Right branch (2.0.0-rc.1, isolated + pinned) ends in a green "V2 artifact" terminal, with a callout that this branch is the one that produces the deprecation warnings and the missing-method error the rest of the lesson relies on. Label the branches clearly; the failure mode is the teaching point.
+     data: Source (edited vault) -> decision: which anchor-lang does Cargo.toml pin? branch A: anchor-lang 1.x (stale pin) -> "builds, no V2 errors" under ANY CLI -> v1 artifact (WRONG, behaves like v1) branch B: anchor-lang 2.0.0-rc.1 (step 1 flips the row) -> emits the V2 deprecations + the E0599 missing-method error on .reload() -> V2 artifact (correct) note: the pin selects the major; the CLI on PATH does not
+     prompt: Vertical decision flowchart. One source node at top splits on "which anchor-lang does Cargo.toml pin?" into two branches. Left branch (1.x, stale) ends in a red "v1 artifact, silently wrong" terminal. Right branch (2.0.0-rc.1, flipped in step 1) ends in a green "V2 artifact" terminal, with a callout that this branch is the one that produces the deprecation warnings and the missing-method error the rest of the lesson relies on. Label the branches clearly; the failure mode is the teaching point.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -68,8 +68,8 @@
              font-family:var(--font-body); font-size:13.5px; color:var(--text-secondary); }
   .fc-note code { font-family:var(--font-mono); font-size:12.5px; color:var(--text-primary); font-weight:600; }
 </style>
-  <div class="stbr-eyebrow">pin the toolchain first</div>
-  <h2 class="viz-title">which toolchain builds what</h2>
+  <div class="stbr-eyebrow">flip the pin first</div>
+  <h2 class="viz-title">which pin builds what</h2>
 
   <div class="fc-src">
     <div class="t">source: the edited vault</div>
@@ -85,7 +85,7 @@
 
   <div class="fc-dec">
     <div class="k">decision</div>
-    <div class="q">which <span style="font-family:var(--font-mono)">anchor-cli</span> is on PATH?</div>
+    <div class="q">which <span style="font-family:var(--font-mono)">anchor-lang</span> does Cargo.toml pin?</div>
   </div>
 
   <svg width="1456" height="50" viewBox="0 0 1456 50">
@@ -98,9 +98,9 @@
   <div class="fc-cols">
     <div class="fc-col">
       <div class="fc-box">
-        <div class="fc-lab">branch a &middot; the host box</div>
-        <div class="fc-h"><code>anchor-cli 1.1.2</code> — ambient</div>
-        <div class="fc-p">whatever is already installed on the machine</div>
+        <div class="fc-lab">branch a &middot; the stale pin</div>
+        <div class="fc-h"><code>anchor-lang = "1.x"</code> still in the manifest</div>
+        <div class="fc-p">under ANY CLI &mdash; the host 1.1.2 and the RC alike</div>
       </div>
       <div class="fc-box">
         <div class="fc-h">builds clean — no V2 errors</div>
@@ -115,9 +115,9 @@
 
     <div class="fc-col">
       <div class="fc-box">
-        <div class="fc-lab">branch b &middot; isolated + pinned</div>
-        <div class="fc-h"><code>anchor-cli 2.0.0-rc.1</code></div>
-        <div class="fc-p">pinned in <code>verify/Dockerfile</code>, never the host PATH</div>
+        <div class="fc-lab">branch b &middot; the flipped pin</div>
+        <div class="fc-h"><code>anchor-lang = "2.0.0-rc.1"</code></div>
+        <div class="fc-p">step 1 of the port flips this row before any code edit</div>
       </div>
       <div class="fc-box">
         <div class="fc-h">emits V2 deprecations + <code>E0599</code> on <code>.reload()</code></div>
@@ -126,11 +126,11 @@
       <div class="fc-term good">
         <div class="fc-lab">terminal &middot; correct</div>
         <div class="fc-h">V2 artifact</div>
-        <div class="fc-p">built by the toolchain the port is actually targeting</div>
+        <div class="fc-p">built from the dependency graph the port actually targets</div>
       </div>
     </div>
   </div>
 
-  <div class="fc-note">The host box has <code>1.1.2</code> installed — so the RC has to be an isolated, pinned toolchain, verified with <code>anchor --version</code> before the first edit.</div>
+  <div class="fc-note">No symbol in your source selects a framework major &mdash; the <code>anchor-lang</code> row in <code>Cargo.toml</code> does. The CLI on PATH matters for the CLI&rsquo;s own behavior, not for which major your crate compiles against.</div>
 </div>
 </body></html>

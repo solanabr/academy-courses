@@ -72,10 +72,10 @@
     <tr><td class="lab">Account wrapper lifetime</td>
       <td class="v1">Signer&lt;'info&gt;, Account&lt;'info, T&gt;</td>
       <td class="v2">Signer, Account&lt;T&gt;</td></tr>
-    <tr><td class="lab">Bump lookup <span style="font-family:var(--font-body);font-weight:500;font-size:14px;color:var(--text-muted);">(pre-1.0)</span></td>
-      <td class="v1">ctx.bumps.get("vault")</td>
+    <tr><td class="lab">Bump lookup <span style="font-family:var(--font-body);font-weight:500;font-size:14px;color:var(--text-muted);">(the string map died in 0.29)</span></td>
+      <td class="v1">ctx.bumps.vault</td>
       <td class="v2">ctx.bumps.vault</td></tr>
   </table>
-  <div class="verdict">five renames, same program underneath &mdash; translate the names and V2 anatomy reads like v1</div>
+  <div class="verdict">four renames and one thing that never moved &mdash; translate the names and V2 anatomy reads like v1</div>
 </div>
 </body></html>

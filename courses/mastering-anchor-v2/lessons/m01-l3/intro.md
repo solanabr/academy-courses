@@ -89,7 +89,7 @@ This is a straight rename of two things you use constantly, which is exactly why
 
 The rename is not cosmetic churn, and it is worth understanding where it comes from so it stops feeling arbitrary. V2 is a no_std rewrite built on pinocchio, and pinocchio brings its own address type through the `solana-address` crate rather than the older `solana-program::Pubkey`. So when Anchor V2 sits on that foundation, the type it hands you up top is the one the foundation speaks: `Address`. The `.key()` to `.address()` change is the accessor following the type. Read it that way and the pattern generalizes: most of what looks new in a V2 signature is the pinocchio foundation surfacing through the framework instead of being papered over. That is the same thesis from lesson one, seen from the type side rather than the compute side.
 
-![A five-row table mapping v1 to V2, covering the handler signature, Pubkey to Address.key() to .address(), the dropped account-wrapper lifetime, and the older map-style bump lookup versus field access.](assets/v03-comparison.png)
+![A five-row table mapping v1 to V2, covering the handler signature, Pubkey to Address, .key() to .address(), the dropped account-wrapper lifetime, and the bump read that is identical on both sides because the string map died in 0.29.](assets/v03-comparison.png)
 
 ### The <'info> lifetimes are gone from the wrappers
 

@@ -65,11 +65,11 @@
   .foot9 code { font-family:var(--font-mono); font-weight:700; color:var(--stbr-yellow); }
 </style>
   <div class="stbr-eyebrow">where today's bump behaviour came from</div>
-  <h2 class="viz-title">how the bump became a macro-time field</h2>
+  <h2 class="viz-title">the bump&rsquo;s lineage, pre-0.29 to V2</h2>
   <div class="tl">
     <div class="up">
       <div class="card">
-        <div class="lab">v1 era</div>
+        <div class="lab">pre-0.29</div>
         <div class="ttl">runtime bump,<br>string map</div>
         <div class="txt"><code>Account&lt;T&gt;</code> deserialized with borsh. The bump was found at runtime and read back out of a string-keyed map: <code>ctx.bumps.get("name")</code>.</div>
       </div>
@@ -78,9 +78,9 @@
     <div class="up"></div>
     <div class="up">
       <div class="card">
-        <div class="lab">2026-08 &middot; lang-v2 crate</div>
-        <div class="ttl">Anchor V2:<br>no_std rewrite</div>
-        <div class="txt">A ground-up rewrite on <code>pinocchio</code>, no_std, with the account model rebuilt around zero-copy.</div>
+        <div class="lab">#4390 &rarr; lang-v2, 2026-08</div>
+        <div class="ttl">manifesto &rarr;<br>no_std rewrite</div>
+        <div class="txt">The &ldquo;zero-copy by default&rdquo; manifesto reframes borsh <code>Account&lt;T&gt;</code> as the slow path; V2 rebuilds the account model on <code>pinocchio</code>.</div>
       </div>
       <div class="stem"></div>
     </div>
@@ -95,9 +95,9 @@
     <div class="down">
       <div class="stem"></div>
       <div class="card">
-        <div class="lab">otter-sec/anchor#4390</div>
-        <div class="ttl">the &ldquo;zero-copy by default&rdquo; manifesto</div>
-        <div class="txt">Reframes borsh <code>Account&lt;T&gt;</code> as the slow path, and argues zero-copy should be what you get without asking.</div>
+        <div class="lab">Anchor 0.29 &middot; two majors before V2</div>
+        <div class="ttl">the typed bumps struct</div>
+        <div class="txt"><code>ctx.bumps.get("name")</code> dies; <code>ctx.bumps.vault</code> is a typed field, so a misspelled name fails to compile. The 1.x line already reads this way.</div>
       </div>
     </div>
     <div class="down"></div>
@@ -105,12 +105,12 @@
       <div class="stem acc"></div>
       <div class="card here">
         <div class="lab">today</div>
-        <div class="ttl">macro-time const bumps</div>
-        <div class="txt">The bumps struct folds into typed fields &mdash; <code>ctx.bumps.vault</code> &mdash; while the derivation still runs at validation.</div>
+        <div class="ttl">literal-seed bump consts</div>
+        <div class="txt">When every seed is a compile-time literal, V2 precomputes the canonical bump as a const at expansion; runtime-seeded PDAs still derive at validation.</div>
         <span class="herechip">you are here</span>
       </div>
     </div>
   </div>
-  <div class="foot9">What moved to macro time is the <code>bumps</code> struct, not the search. The other saving is separate: the on-curve check is skipped for program-owned PDAs &mdash; about <code>1,000 CU</code>, project-reported.</div>
+  <div class="foot9">What V2 moves to macro time is the literal-seed const &mdash; the typed struct dates to 0.29, and a runtime-seeded search still runs at validation. The other saving is separate: the on-curve check is skipped for program-owned PDAs &mdash; about <code>1,000 CU</code>, project-reported.</div>
 </div>
 </body></html>

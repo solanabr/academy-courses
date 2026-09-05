@@ -88,7 +88,7 @@
         <div class="cob">the player's lamports fund the rent for the new account.</div></div></div>
       <div class="co"><span class="num">3</span><div><div class="cot">space = DISCRIMINATOR.len() + INIT_SPACE</div>
         <div class="cob">8 bytes of discriminator plus the Pod body. In V2 you write it this way &mdash; <b>never a magic 8</b>.</div></div></div>
-      <div class="co hi"><span class="num">4</span><div><div class="cot">seeds = [b"vault", player.address()]</div>
+      <div class="co hi"><span class="num">4</span><div><div class="cot">seeds = [b"vault", player.address().as_ref()]</div>
         <div class="cob">the namespace: a constant prefix plus the per-player key. This is what makes the address distinct and re-derivable.</div></div></div>
       <div class="co hi"><span class="num">5</span><div><div class="cot">bump</div>
         <div class="cob">bare, with no <b>= expr</b>: derive the canonical bump now and hand it to the handler as <b>ctx.bumps.vault</b>.</div></div></div>

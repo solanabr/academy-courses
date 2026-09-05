@@ -79,8 +79,9 @@
    || reserve_out == 0 { <span class="kw">return</span> 0; }</pre></div>
       <div class="a3-line"><span class="ln">2</span><pre><span class="kw">let</span> amount_in_with_fee =
    (amount_in <span class="kw">as</span> u128) * 997;</pre></div>
-      <div class="a3-line hot"><span class="ln">3</span><pre><span class="kw">let</span> numerator = amount_in_with_fee
-   .checked_mul(reserve_out <span class="kw">as</span> u128);</pre></div>
+      <div class="a3-line hot"><span class="ln">3</span><pre><span class="kw">let</span> numerator = <span class="kw">match</span> amount_in_with_fee
+   .checked_mul(reserve_out <span class="kw">as</span> u128)
+   { Some(n) =&gt; n, None =&gt; <span class="kw">return</span> 0 };</pre></div>
       <div class="a3-line"><span class="ln">4</span><pre><span class="kw">let</span> denominator = (reserve_in <span class="kw">as</span> u128)
    * 1000 + amount_in_with_fee;</pre></div>
       <div class="a3-line"><span class="ln">5</span><pre>(numerator / denominator) <span class="kw">as</span> u64</pre></div>
@@ -105,7 +106,7 @@
       </div>
       <div class="a3-note hot">
         <div class="k">the critical line &middot; overflow</div>
-        <div class="t">The only multiply that can exceed <code>u64</code>. <b><code>checked_mul</code> returns 0 on overflow</b> instead of wrapping.</div>
+        <div class="t">The one multiply that can overflow even <code>u128</code> &mdash; the <b>&times;997</b> spent the headroom. <b><code>checked_mul</code> hands back <code>None</code></b>; the match turns it into &ldquo;no quote&rdquo;, never a wrap.</div>
       </div>
       <div class="a3-note">
         <div class="k">defends &middot; scale + divide-by-zero</div>
