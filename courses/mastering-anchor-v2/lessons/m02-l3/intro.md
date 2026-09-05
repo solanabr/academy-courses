@@ -58,7 +58,7 @@ Notice what `BorshAccount<CabinetProfile>` is doing that `Account<Cabinet>` neve
 
 ![The Pod read path casts account bytes straight to a typed view, while the borsh path adds a deserialize on read and a serialize on write.](assets/v02-diagram.png)
 
-Be honest about *how much* it costs, because the answer is not a single number, and treating it as one is how people either panic or get complacent. Separate the average case from the worst case. On a tiny borsh struct, a single `Address` and a ten-character name, the deserialize is cheap in absolute terms; you would struggle to measure it against the rest of a handler. That is the average case, and it is why "borsh is slow" is too blunt to be useful. The worst case is the one that bites: the deserialize cost scales with the size of the data, so a `BorshAccount` holding a four-kilobyte description deserializes four kilobytes on *every* touch of that account, and re-serializes them on every write. A `Pod` cast does not care whether the account is fifty bytes or four kilobytes; it reads the field you asked for and stops. So the honest framing is not "borsh is slow" but "borsh's cost is proportional to the whole account's size and paid on every access, while Pod's is flat and near-zero." That proportionality is exactly why you isolate the big variable field instead of merging it into the account you touch constantly.
+Be honest about *how much* it costs, because the answer is not a single number, and treating it as one is how people either panic or get complacent. Separate the average case from the worst case. On a tiny borsh struct, a single `Address` and a ten-character name, the deserialize is cheap in absolute terms; you would struggle to measure it against the rest of a handler. That is the average case, and it is why "borsh is slow" is too blunt to be useful. The worst case is the one that bites: the deserialize cost scales with the size of the data, so a `BorshAccount` holding a four-kilobyte description pays a four-kilobyte deserialize in every instruction that loads it, and a four-kilobyte re-serialize on exit when it was writable. A `Pod` cast does not care whether the account is fifty bytes or four kilobytes; it reads the field you asked for and stops. So the honest framing is not "borsh is slow" but "borsh's cost is proportional to the whole account's size and paid on every access, while Pod's is flat and near-zero." That proportionality is exactly why you isolate the big variable field instead of merging it into the account you touch constantly.
 
 Say the trade-off out loud, because naming it is the credibility move and skipping it is how people ship the wrong tier. `BorshAccount` buys you variable length and easy nested or optional data. You pay it back in the (de)serialization cost that V2's whole thesis was built to eliminate, and, as we're about to see, in two documented wire incompatibilities. It earns its place *only* where `Pod` genuinely cannot reach. The corollary is the part people miss: a *mixed* account, one with some fixed fields and one unbounded field, should not go all-borsh. It should keep its fixed and bounded parts in `Pod` and isolate the unbounded part. More on that in the lab, because that is the actual design skill.
 
@@ -117,15 +117,7 @@ Issue #4937 was filed on 2026-08-16 and closed four days later, on 2026-08-20. T
 
 This is why you started `PINS.md` back in m01-l2, one table with a `verified` column, and why every pin in these lessons carries a "this will move, re-verify at write" tag. Add a `wincode` row to it now if you have not. V2 is a weeks-old RC, and the ref you are on decides the answer here: `wincode` sits at 0.5 on the published `2.0.0-rc.1` crate and on the `v2.0.0-rc.1` tag, and it has already moved to 0.6 on the `anchor-next` branch tip. Your program crate pins `wincode = "0.5"` by hand, so the tag is the ref that agrees with it — which is exactly why every install block from m02-l1 on pins `--tag v2.0.0-rc.1` rather than the branch. Track the branch instead and the tip's `anchor-lang` demands `solana-address 2.7.0`, your `< 2.7` ceiling refuses, and cargo fails the resolve before a single line compiles. `solana-address` is on its own cadence. You pin all of it together and you do not float any single crate, because #4937 is what floating one crate looks like: a green build on Monday, a trait-bound error on Tuesday, and an afternoon spent bisecting a dependency graph instead of shipping.
 
-```bash
-# The V2 RC is a git pin, not a cut avm release. Freshness note: as of
-# 2026-08-22 the RC is still 2.0.0-rc.1, published 2026-08-12
-# (otter-sec/anchor, tag v2.0.0-rc.1 = commit e4878b6d, on the anchor-next
-# branch). The tag holds; the branch tip does not. Re-verify before you rely on it.
-# macOS, if the build trips on LTO: prefix that line with CARGO_PROFILE_RELEASE_LTO=off
-cargo install --git https://github.com/otter-sec/anchor.git \
-  --tag v2.0.0-rc.1 anchor-cli --locked --force
-```
+The install line itself is not repeated here — this lesson's lab never invokes the toolchain. If you do need to reinstall, use m02-l1's exact block, `--tag v2.0.0-rc.1` and `--locked`: the tag, never the branch.
 
 ![A seven-step timeline showing wincode 0.5 and solana-address 0.6 drifting apart until the account borsh attribute broke, then issue #4937 closing with the pins reconciled.](assets/v07-timeline.png)
 
@@ -148,6 +140,7 @@ Two shape decisions in the code below are worth calling out, because both look l
 ```rust
 // Tier 1: fixed + bounded, stays zero-copy. Read with a cast.
 #[account]
+#[repr(C)]
 pub struct CabinetCore {
     pub machine_key: [u8; 32],       // fixed - Pod
     pub board: PodVec<Score, 10>,    // bounded MAX=10 - Pod
