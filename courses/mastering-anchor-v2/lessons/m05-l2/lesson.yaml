@@ -53,8 +53,8 @@ blocks:
           - id: c
             label: "The slippage guard: revert when the computed output is below the trader's min_out."
             correct: true
-            feedback: "Between the quote and the first transfer is the only window where the bound means anything — check it after either CPI and you are describing a fill that already happened. It is also the only trader protection this swap offers."
-        explanation: "Without a min_out the trader accepts any fill, including one degraded by ordering (a sandwich). The slippage guard reverts when computed output < min_out — its shape reuses the escrow's conditional-release logic. It's the one piece of trader protection this teaching swap offers. The guard has to run after the quote and before either CPI, so nothing settles at a price the trader never agreed to."
+            feedback: "The guard belongs between the quote and the first transfer — though be precise about why: a failed require! after the CPIs still reverts both transfers, so a bad fill never settles regardless of position. Checking early spends zero CPI compute on a doomed fill and keeps the trader's one protection standing legibly in front of the money. It is also the only trader protection this swap offers."
+        explanation: "Without a min_out the trader accepts any fill, including one degraded by ordering (a sandwich). The slippage guard reverts when computed output < min_out — its shape reuses the escrow's conditional-release logic. It's the one piece of trader protection this teaching swap offers. Run it after the quote and before either CPI — not because a late check would let a bad fill stand (a failed require! reverts the transfers; atomicity holds), but because early is cheaper and reads as the protection it is."
       - id: m05-l2-q3
         prompt: "You route both swap directions through the same InterfaceAccount and the program rejects the instruction as a duplicate mutable account. What's the clean fix?"
         multiSelect: false
