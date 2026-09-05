@@ -181,6 +181,24 @@ The plan, so you can see the whole board before the first command: a new binary 
 
    That is the m05-l1 chain, verbatim, one method deep. Run `cargo test --workspace`, green. This is what a workspace refactor should feel like.
 
+   While you are standing in the engine with consumer crates on both sides of it, collect a promise: m04-l2 made you mark the moved items `pub` and said module privacy would get its proper tour with Cargo in M6. This is that tour, and the workspace is the tour bus, because visibility only means something once there are outsiders. Rust's default is private, and your own layout already walks the levels that matter:
+
+   - `pub` plus a `lib.rs` re-export: `drive`, `next_state`, `parse_config`, the curated front door. Every binary in the workspace calls these as bare `pulse_engine::` names.
+   - `pub` without the re-export: `parse_state`. Still reachable, at the full path `pulse_engine::engine::parse_state`, which is exactly the module-path spelunking the m05-l2 re-export list exists to spare consumers. Reachable and advertised are different promises.
+   - Private, the default: `FixtureSource`'s `cursor` field. No path reaches it from outside the engine; type `FixtureSource::new(vec![1]).cursor` anywhere in the poller and ``error[E0616]: field `cursor` of struct `FixtureSource` is private`` is the whole conversation.
+
+   Between those poles sits `pub(crate)`: visible everywhere inside the engine crate, invisible to every consumer. Prove it with the compiler instead of taking my word. Flip the engine's `parse_state` to `pub(crate) fn parse_state`, drop `let _ = pulse_engine::engine::parse_state("Up");` into the poller's still-hello-world `main`, and run `cargo check --workspace`:
+
+   ```text
+   error[E0603]: function `parse_state` is private
+     --> crates/pulse-pollerd/src/main.rs
+      |
+      |     let _ = pulse_engine::engine::parse_state("Up");
+      |                                   ^^^^^^^^^^^ private function
+   ```
+
+   The engine itself compiled without complaint and its unit tests would still pass; only the outsider got refused, and that split is the entire meaning of the setting. `pub(crate)` is the honest marking for helpers that engine modules share but no consumer should couple to, because a `pub` you did not mean is a public API you now maintain. Revert both edits and move on; the tour's residue is the reflex, not the code.
+
 3. **One derive line.** The `/status` response serializes `ProbeState` to JSON, and serde is already an engine dependency, so add the derive to the state enum in the engine, which should now read `#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]`. The `serde::` path is doing quiet work: `engine.rs` has no `use serde::Serialize;` line (the config module imports it, this module never needed to), so the bare `Serialize` token would be a cannot-find-derive-macro error; the fully qualified form needs no import. One line, no new deps, and one audit while you are there: the `Clone` and `Copy` your m04-l3 enum has carried since birth are load-bearing today, because step 4's skeleton copies states out of the shared map (`map.get(&name).map(|s| s.state)`) and derives `Clone` on a struct holding one. If your derive list ever drifted from that canon, restore those two now, or step 4 greets you with E0507s the "one line" framing did not promise.
 
 4. **The poll loop: your one authored hard thing.** Named in the summary, delivered here as a completion skeleton. Two holes. Everything else in this file is given, because the hard idea is the loop's shape, not its plumbing. Replace `pulse-pollerd/src/main.rs` with:
@@ -259,7 +277,7 @@ The plan, so you can see the whole board before the first command: a new binary 
 
    And read the drain carefully, because `join_next` hands you a `Result` and that is not ceremony. A spawned task is a separate unit of failure: if its body panics, the panic is caught by the runtime and comes back to you here as an `Err`, instead of tearing down the daemon. Our probe body cannot realistically panic, there is no unwrap in it, but the `let ... else { continue }` (read it as destructure-or-skip) is the daemon-grade posture anyway: one poisoned probe should cost you one data point, never the rest of the tick. A monitor that dies of the thing it was monitoring is a bad joke.
 
-   TODO(2) is the state write: build a `TargetStatus` from `next_state(prev, ok, count)`, the measured latency, and `now`, and insert it under `name`. Your m04-l3 state machine, fed by real network results at last, and fed directly: the `ProbeSource` trait from that lesson stays where it was useful, feeding fixtures through `drive` back in the CLI, while a loop that already owns each result just hands it to `next_state`. The `failures` map above the loop exists because that machine's signature demands its third argument: `next_state` only lets `Degraded` fall to `Down` when the consecutive-failure count clears the threshold, so the loop has to remember the count between ticks, zeroed on success, bumped on failure. Note also the previous state defaulting to `Pending` for a target the map has never seen; first poll after boot, everything is `Pending` until evidence arrives, which is the honest answer.
+   TODO(2) is the state write: build a `TargetStatus` from `next_state(prev, ok, count)`, the measured latency, and `now`, and insert it under `name`. Your m04-l3 state machine, fed by real network results at last, and fed directly: a loop that already owns each result just hands it to `next_state`, no trait in between. The `ProbeSource` trait from that lesson is not being left behind, it is being paid off in step 7, one crate over, where the live plug m04-l3 promised finally goes in. The `failures` map above the loop exists because that machine's signature demands its third argument: `next_state` only lets `Degraded` fall to `Down` when the consecutive-failure count clears the threshold, so the loop has to remember the count between ticks, zeroed on success, bumped on failure. Note also the previous state defaulting to `Pending` for a target the map has never seen; first poll after boot, everything is `Pending` until evidence arrives, which is the honest answer.
 
    And look hard at the two lines around the lock. The mutex here is `std::sync::Mutex`, the plain one, and the critical section is tiny: lock, read the old state, insert, and the guard drops at the end of the iteration. There is no `.await` between lock and unlock. That is not an accident, it is the rule: hold a std lock across an `.await` and the task can be parked mid-critical-section while other tasks on the same thread try to take the same lock. Best case contention, worst case deadlock. Lock late, drop early, never await while holding. Say it once out loud; it will save you an evening within the year.
 
@@ -334,6 +352,66 @@ The plan, so you can see the whole board before the first command: a new binary 
    Every ENABLED target from your config is present, each with a state your m04-l3 machine assigned from a real network result, a measured latency, and a `last_poll` timestamp in unix seconds. Count the keys against the config before you move on: the station's config carries three targets, and the disabled tcp `rpc` entry is legitimately absent, because `into_targets` filters on `enabled` before the loop ever sees it. Two of three in the JSON is the pipeline working, not a bug. The exact state a failing target lands in depends on where your transition table routes a failure from its previous state, which is your machine's business, not the poller's; the poller only reports the verdict. The second response shows the same targets with `last_poll` advanced by roughly 30 seconds, and that word roughly is honest, because timers tick when the scheduler gets to them, so expect a second or so of skew rather than metronome precision. That advancing timestamp is your proof of life: the loop polled while nobody was watching, which is the entire job description. This pair of outputs, taken one interval apart and showing the timestamp advance with per-target states populated for every target in the config, is the lesson's gate. Keep both.
 
    One more expectation set on purpose: kill the daemon and restart it, and every target is back to square one, `Pending` until the first tick lands. State lives in a HashMap in process memory. Persistence is nobody's promise yet, and nothing in the station has claimed otherwise; when the poller deserves a memory that survives restarts, that will be its own decision with its own trade-offs.
+
+7. **Cash the m04-l3 promise: live HTTP behind the trait.** One IOU from the Rust tier falls due this lesson, and the daemon is deliberately not the crate paying it. m04-l3 froze the `ProbeSource` trait and promised live HTTP would one day plug in behind it; m05-l3 built the HTTP arm as a standalone call and told you to hold the itch. The poller you just built skips the trait too, on grounds you can now defend twice over: its loop already owns each result, so it hands them straight to `next_state`, and the blocking client is banned inside its runtime anyway, as the panic at the top of this lesson proved. So the plug lands one crate over, in `pulse-cli`, where blocking is legal and the m05-l3 client already lives. First give the trait a public name: it never made m05-l2's re-export list because no consumer had earned it a spot, and one just did, so add `ProbeSource` to the engine's `lib.rs` re-export line. Then extend `crates/pulse-cli/src/main.rs`:
+
+   ```rust
+   use pulse_engine::{ProbeSource, drive};
+
+   struct LiveSource {
+       client: reqwest::blocking::Client,
+       urls: Vec<String>,
+       cursor: usize,
+   }
+
+   impl LiveSource {
+       fn new(urls: Vec<String>, timeout_secs: u64) -> Result<Self, ProbeError> {
+           let client = reqwest::blocking::Client::builder()
+               .timeout(std::time::Duration::from_secs(timeout_secs))
+               .build()
+               .map_err(|e| ProbeError::Unreachable {
+                   reason: e.to_string(),
+               })?;
+           Ok(Self {
+               client,
+               urls,
+               cursor: 0,
+           })
+       }
+   }
+
+   impl ProbeSource for LiveSource {
+       fn next_latency(&mut self) -> Option<u64> {
+           let url = self.urls.get(self.cursor)?;
+           self.cursor += 1;
+           let started = Instant::now();
+           match self.client.get(url).send() {
+               Ok(_) => Some(started.elapsed().as_millis() as u64),
+               // A request that never came back is not the source running dry;
+               // it is one infinitely slow sample, and drive's budget check
+               // turns it into a failure.
+               Err(_) => Some(u64::MAX),
+           }
+       }
+   }
+   ```
+
+   Read the impl against m04-l3's `FixtureSource` and watch the contract absorb a second source without a single edit to `drive`: same signature, same `Option`, only the answer's origin changed from a vector to a socket. The `Err` arm is the one design decision in the file: `None` would mean "source exhausted" and end the drive early, so a failed request reports `u64::MAX` instead, an infinite latency no budget clears. Now make the plug a shipped surface rather than a code comment: give the CLI a third subcommand next to `Probe` and `Report`, a `Sweep` variant carrying a `urls: Vec<String>` positional and a `#[arg(long, default_value_t = 1500)] budget: u64`, all m05-l3 clap muscle, with this match arm:
+
+   ```rust
+       Command::Sweep { urls, budget } => {
+           let mut source = LiveSource::new(urls, 10)?;
+           let state = drive(&mut source, budget);
+           println!("sweep verdict: {state:?} (alerting: {})", state.is_alerting());
+       }
+   ```
+
+   ```bash
+   cargo run -p pulse-cli -- sweep https://www.rust-lang.org https://www.typescriptlang.org
+   # sweep verdict: Up (alerting: false)
+   ```
+
+   That printed line closes the loop m04-l3 opened: the trait that spent two modules feeding `drive` fixtures now feeds it live measurements, the socket from that lesson's diagram finally holds its second plug, and every boundary this module drew stayed where it was: the daemon keeps its direct path, the CLI keeps its blocking client, and the engine still contains no I/O at all.
 
 ## Challenge
 
