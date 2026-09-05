@@ -130,10 +130,10 @@ Row 6 is the other no-marker edit, and it teaches a different reflex.
 warning: use of deprecated function `__deprecated_has_one`: `has_one` is
          deprecated; on the sibling field, use
          `#[account(address = owner.field)]` instead.
-  --> programs/quarter_vault/src/lib.rs:71:18
-   |
-71 |         has_one = authority,
-   |         ^^^^^^^
+   --> programs/quarter_vault/src/lib.rs:126:9
+    |
+126 |         has_one = authority,
+    |         ^^^^^^^
 ```
 
 Two things about that warning are worth noticing. First, it names the replacement exactly, and it tells you where to put it: on the sibling field, as `#[account(address = owner.field)]`. For our vault, that is `address = state.authority` placed on the `authority` account, which checks that the passed authority's address equals the `authority` field stored in `state`. Same guarantee, new spelling. Second, and this is the color beat I want you to hold: that underline is not an accident. Down in the parser, `parse.rs` deliberately keeps the `has_one` keyword's source span around so that codegen can emit a warning pointing right back at those exact characters. Nobody underlines a token they did not plan to deprecate. The toolchain was built to guide the migration it created. The warning is a feature, not noise.
@@ -145,9 +145,10 @@ And on a moving RC, deprecated syntax is precisely what a later version is most 
 Here is the before and after for that one constraint:
 
 ```rust
-// v1: has_one lives on the state account.
+// v1: has_one lives on the state account (seeds elided).
 #[account(mut, has_one = authority)]
 pub state: Account<'info, VaultState>,
+#[account(mut)]
 pub authority: Signer<'info>,
 ```
 
@@ -159,11 +160,158 @@ pub state: BorshAccount<VaultState>,
 pub authority: Signer,
 ```
 
-Notice `state` is declared before `authority` now, so the `address = state.authority` expression can resolve. Notice too the dropped `<'info>` on the typed account. Those are rows 1 through 3 riding along. The deltas cluster; fixing one often lands three.
+Notice the declaration order: `state` before `authority`, so the `address = state.authority` expression can resolve — the handed vault already lists them that way, and the V2 spelling is what makes that order load-bearing. Notice too the dropped `<'info>` on the typed account. Those are rows 1 through 3 riding along. The deltas cluster; fixing one often lands three.
 
 ## Lab: drive the vault to green
 
-Time to build. You have the delta map and you understand the two hard rows. Now apply them. The provided program lives in `programs/quarter_vault/src/lib.rs` with `// TODO(migrate):` markers at the mechanical sites. Work top to bottom.
+Time to build. You have the delta map and you understand the two hard rows. Now apply them. The handed program is printed in full below. Scaffold a project with the 1.1.2 CLI already on your machine (`anchor init quarter_vault` — this is the one legitimate use the old toolchain has left in this course), replace the generated `programs/quarter_vault/src/lib.rs` with the listing, and make sure the program's manifest carries the v1 row the scaffold wrote:
+
+```toml
+# programs/quarter_vault/Cargo.toml — the row step 1 will flip.
+[dependencies]
+anchor-lang = "1.1.2"
+```
+
+Here is the vault, whole. The `// TODO(migrate):` markers sit at the mechanical sites; work top to bottom.
+
+```rust
+// programs/quarter_vault/src/lib.rs — the handed 0.31/1.0 vault.
+// Builds clean on anchor-lang 1.1.2. Does NOT build on the V2 RC.
+// The `// TODO(migrate):` markers flag the mechanical sites (rows 1-5).
+// Rows 6 and 7 carry no marker on purpose: the compiler finds them for you.
+
+use anchor_lang::prelude::*;
+use anchor_lang::system_program::{self, Transfer};
+
+declare_id!("Quart3rVau1t1111111111111111111111111111111");
+
+#[account]
+#[derive(InitSpace)]
+pub struct VaultState {
+    pub authority: Pubkey, // TODO(migrate): row 1 — Pubkey -> Address
+    pub bump: u8,
+    pub vault_bump: u8,
+    pub total_deposited: u64,
+    pub total_withdrawn: u64,
+}
+
+#[error_code]
+pub enum VaultError {
+    #[msg("counter overflow")]
+    Overflow,
+}
+
+#[program]
+pub mod quarter_vault {
+    use super::*;
+
+    // TODO(migrate): row 3 — handlers take `&mut Context<T>` in V2.
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let authority = ctx.accounts.authority.key(); // TODO(migrate): row 2 — .key() -> .address()
+        let state = &mut ctx.accounts.state;
+        state.authority = authority;
+        state.bump = ctx.bumps.state; // canonical bumps, stored once
+        state.vault_bump = ctx.bumps.vault;
+        state.total_deposited = 0;
+        state.total_withdrawn = 0;
+        Ok(())
+    }
+
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        system_program::transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.key(), // TODO(migrate): row 5 — &Address + cpi handles
+                Transfer {
+                    from: ctx.accounts.depositor.to_account_info(),
+                    to: ctx.accounts.vault.to_account_info(),
+                },
+            ),
+            amount,
+        )?;
+        let state = &mut ctx.accounts.state;
+        state.total_deposited = state
+            .total_deposited
+            .checked_add(amount)
+            .ok_or(VaultError::Overflow)?;
+        Ok(())
+    }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        let state_key = ctx.accounts.state.key(); // TODO(migrate): row 2
+        let vault_bump = ctx.accounts.state.vault_bump;
+
+        let seeds: &[&[u8]] = &[b"vault", state_key.as_ref(), &[vault_bump]];
+        let signer = &[seeds];
+
+        // v1 tail: build the transfer, read state while it is pending, run it, reload.
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.system_program.key(), // TODO(migrate): row 5
+            Transfer {
+                from: ctx.accounts.vault.to_account_info(),
+                to: ctx.accounts.authority.to_account_info(),
+            },
+            signer,
+        );
+        let already_out = ctx.accounts.state.total_withdrawn; // legal in v1: the CPI holds AccountInfo clones
+        system_program::transfer(cpi_ctx, amount)?;
+
+        ctx.accounts.state.reload()?; // v1 habit: re-deserialize after the CPI
+
+        let state = &mut ctx.accounts.state;
+        state.total_withdrawn = already_out
+            .checked_add(amount)
+            .ok_or(VaultError::Overflow)?;
+        Ok(())
+    }
+}
+
+// TODO(migrate): row 3 — drop the <'info> lifetimes on every struct below.
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + VaultState::INIT_SPACE, // TODO(migrate): row 4 — no magic 8 in V2
+        seeds = [b"state", authority.key().as_ref()],
+        bump
+    )]
+    pub state: Account<'info, VaultState>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(seeds = [b"vault", state.key().as_ref()], bump)]
+    pub vault: SystemAccount<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Deposit<'info> {
+    #[account(mut, seeds = [b"state", state.authority.as_ref()], bump = state.bump)]
+    pub state: Account<'info, VaultState>,
+    #[account(mut)]
+    pub depositor: Signer<'info>,
+    #[account(mut, seeds = [b"vault", state.key().as_ref()], bump = state.vault_bump)]
+    pub vault: SystemAccount<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Withdraw<'info> {
+    #[account(
+        mut,
+        seeds = [b"state", authority.key().as_ref()],
+        bump = state.bump,
+        has_one = authority,
+    )]
+    pub state: Account<'info, VaultState>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(mut, seeds = [b"vault", state.key().as_ref()], bump = state.vault_bump)]
+    pub vault: SystemAccount<'info>,
+    pub system_program: Program<'info, System>,
+}
+```
+
+That file `cargo check`s clean against `anchor-lang 1.1.2` — zero errors, zero deprecation warnings, because the deprecations are a V2 story and surfacing them is what step 6 is for. And if you took From Bitcoin to Solana, this is your own vault from its an-anchor-vault lesson — the same record-plus-vault split, the same stored canonical bumps, the same authority gate, with the single `balance` field grown into the two counters — so you are welcome to port the one your own hands built instead.
 
 **1. Flip the pin, then stand up the isolated toolchain.** First the edit that actually selects V2 — the manifest move the theory section just made load-bearing. Open `programs/quarter_vault/Cargo.toml` and change the `anchor-lang` row from its 1.x version to the RC:
 
@@ -414,7 +562,7 @@ Green test, zero deprecation warnings, on the RC toolchain, reproduced in the co
 
 The lab handed you the vault. The challenge takes the training wheels off.
 
-You will be given a **second** 0.31/1.0 program in `challenge/`: a two-vault `sweep` instruction that moves lamports from a source vault PDA to a destination vault PDA in one call, and updates a shared counter after the transfer. Its operators also use it to true up a single vault's counter by sweeping that vault into itself, and the shipped test does exactly that, so one account really does arrive in both mutable slots. It has no TODO markers at all. Port it to V2 and make its LiteSVM test pass with zero deprecation warnings.
+The **second** 0.31/1.0 program you assemble yourself, in `challenge/`, before you port it — ten minutes of the 1.x muscle memory you just retired, and it buys you a codebase with no TODO markers at all: a two-vault `sweep` instruction that moves lamports from a source vault PDA to a destination vault PDA in one call, and updates a shared counter after the transfer, written in full v1 idiom — `has_one` gating both vault states, and the counter read again through a `.reload()` after the CPI (the lab vault is your plumbing template; confirm the original builds clean on the 1.x line before you touch it). Its operators also use it to true up a single vault's counter by sweeping that vault into itself, so write the LiteSVM test to do exactly that — one account really does arrive in both mutable slots. Then port it to V2 and make that test pass with zero deprecation warnings.
 
 Three things make it harder than the lab, and each maps to something you now know:
 
