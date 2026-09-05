@@ -2,7 +2,7 @@
 
 ## Summary
 
-R13, the capstone, was the last build this course asks of you. Two moves remain, exactly as the capstone's closing promised: a cumulative checkpoint over three cold briefs, scored against the conflict matrix from module one and the compatibility thesis from module five, and then the close. Two of the briefs are novel and one sits deliberately next to the worked cafe memo, the calibration anchor. The fade is total. No worked answer arrives before yours does.
+R13, the capstone, was the last build this course asks of you. Two moves remain, exactly as the capstone's closing promised: a cumulative checkpoint over three cold briefs, scored against the conflict matrix from module one and the compatibility thesis from module five, and then the close. One brief is novel, one re-runs the mass-badge shape the capstone priced but never made you build, and one sits deliberately next to the worked cafe memo, the calibration anchor. The fade is total. No worked answer arrives before yours does.
 
 So close the notes. Browser tabs included. Here are the three briefs.
 
@@ -332,9 +332,9 @@ The honest limit, stated plainly, because that has been the deal all along. This
 
 Every one of those is somebody's course, and I can tell you whose.
 
-The **DeFi and RWA Engineering** course is the one that takes the primitives you just learned and makes them into an issuance business: RWA-specific issuance, the compliance rails around it, how live issuers actually structure their programs, and the LP depth that this course kept handing off by name. This course is its named prerequisite, so you are walking in the front door rather than climbing through a window. If your row three, the co-op share, felt like it wanted a lawyer in the room, that is the course where the lawyer shows up.
+The **DeFi and RWA Engineering** course is the one that takes the primitives you just learned and makes them into an issuance business: RWA-specific issuance, the compliance rails around it, how live issuers actually structure their programs, and the LP depth that this course kept handing off by name. Everything it assumes on the token layer is what you just built, so you are walking in the front door rather than climbing through a window. If your row three, the co-op share, felt like it wanted a lawyer in the room, that is the course where the lawyer shows up.
 
-The **Master Solana Frontend and Client-Side Development** course owns everything that happens between your script and the chain. Transaction landing and priority fees, the indexing layer underneath a DAS call, Geyser and gRPC when a rented index is not enough. Every time this course said "your reader script assumes an RPC that supports DAS" and moved on, that was the seam. That course is on the other side of it.
+The **Client-Side Mastery** course owns everything that happens between your script and the chain. Transaction landing and priority fees, the indexing layer underneath a DAS call, Geyser and gRPC when a rented index is not enough. Every time this course said "your reader script assumes an RPC that supports DAS" and moved on, that was the seam. That course is on the other side of it.
 
 The **Master Anchor V2** course is the framework itself. Macros, constraints, CPI mechanics, testing, migration. You wrote one hook program here and I told you what to type, deliberately, because a transfer hook is a token concept and Anchor is a framework concept and mixing them would have made both worse. If that program was the most interesting forty lines of the course for you, that is your next door.
 

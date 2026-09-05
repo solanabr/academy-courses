@@ -231,7 +231,7 @@ tsx runs TypeScript directly with no build step; the Node type definitions are t
 
 The `type=module` line is not ceremony. The glue script in step 7 uses top-level await, `npm init -y` defaults the package to CommonJS, and tsx refuses top-level await under CommonJS with an esbuild transform error that names neither of those facts. If you ever see `Top-level await is currently not supported with the "cjs" output format` mid-course, this line is the fix.
 
-2. Create `check-combo.ts` with the frozen interface and the forced-pair table. The signature below is a contract: later lessons import `checkCombo` and `REQUIRED_ACCOUNT_EXTENSIONS` by exactly these names, and m02-l1's economics mint gets gated through it.
+2. Create `check-combo.ts` with the frozen interface and the forced-pair table. The signature below is a contract: later lessons import `checkCombo` by exactly this name, and m02-l1's economics mint gets gated through it. (`REQUIRED_ACCOUNT_EXTENSIONS` is exported too, but only this lesson's own gate reads it.)
 
 ```ts
 // check-combo.ts: R2. The five rules of

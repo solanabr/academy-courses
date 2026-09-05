@@ -84,7 +84,7 @@ npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/
 npm install -D tsx@4.23.12 typescript@5.9.3
 ```
 
-2. Two more tools, both from the Rust world. The `spl-token` CLI ships with the Agave tools bundle you installed in m02-l1; if you skipped that, the one-liner is `sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"`, and `cargo install spl-token-cli` gets you the same binary standalone. Check the version, because the confidential surface changed across releases (Agave's release build installs the CLI unpinned, so your bundled copy is whatever was current the day that release was cut):
+2. Two more tools, both from the Rust world. The `spl-token` CLI you first probed with in m01-l4; as that lesson warned, it comes bundled with some Agave installs (m01-l3's one-liner, `sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"`) and not others, and `cargo install spl-token-cli` gets you the same binary standalone. Check the version, because the confidential surface changed across releases (Agave's release build installs the CLI unpinned, so your bundled copy is whatever was current the day that release was cut):
 
 ```bash
 spl-token --version   # spl-token-cli 5.6.1, the crates.io release as of 2026-08-22

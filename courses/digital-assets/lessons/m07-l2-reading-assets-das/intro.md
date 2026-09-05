@@ -114,7 +114,7 @@ Somewhere along the way the asset API grew a second job. Call `getAsset` with th
 
 Two limits belong right next to that capability, and both are in the provider docs rather than in anyone's blog post.
 
-The price is **cached up to 600 seconds**. That is fine for a portfolio row and wrong for anything that settles value. If you are pricing a swap, you want an oracle, and the DeFi and RWA Engineering course spends a whole lesson on doing that properly.
+The price is **cached up to 600 seconds**. That is fine for a portfolio row and wrong for anything that settles value. If you are pricing a swap, you want an oracle, and the DeFi and RWA Engineering course teaches how to do that properly.
 
 The price covers roughly the **top ten thousand tokens by 24-hour volume**. SPROUT is a course token on devnet. It will never be in that set, and neither will most of what your users hold. A missing `price_info` is not an error and it is not a misconfiguration on your side. Default it to null, render a dash, move on. Your reader will treat this as normal because you will write it that way in the lab.
 
@@ -256,7 +256,7 @@ So when should you not use it? Three cases, and they are all cases where the ind
 
 ![A decision flow routes signing-critical, unmodeled, and just-written reads to the raw account while every other read stays on DAS.](assets/v08-flowchart.png)
 
-That last clause about pipelines is a real boundary, not modesty. Building the pipeline (Geyser plugins, Yellowstone gRPC, webhook ingestion, replaying history into your own store) is a serious discipline and it belongs to the Client-Side Mastery course, which treats DAS as one rented index inside a much larger data module. This lesson is consumption. You are the client of an index, and your job is to be a well-behaved one: fail loudly on a missing method, default missing prices to null, and never assume the index knows something the chain has not confirmed.
+That last clause about pipelines is a real boundary, not modesty. Building the pipeline (Geyser plugins, Yellowstone gRPC, webhook ingestion, replaying history into your own store) is a serious discipline and it belongs to the Client-Side Mastery course, which treats DAS as one rented index inside a much larger data discipline. This lesson is consumption. You are the client of an index, and your job is to be a well-behaved one: fail loudly on a missing method, default missing prices to null, and never assume the index knows something the chain has not confirmed.
 
 ## Lab: build read-any-asset.ts
 
