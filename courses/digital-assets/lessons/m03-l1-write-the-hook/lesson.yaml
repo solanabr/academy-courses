@@ -3,6 +3,13 @@ slug: m03-l1-write-the-hook
 title: "Write the hook: the interface + your one Rust program"
 skills:
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "1.1.2"
+    litesvm: "0.15.2"
+    spl-transfer-hook-interface: "2.1.0"
+    spl-tlv-account-resolution: "0.11.1"
 blocks:
   - key: intro
     type: prose

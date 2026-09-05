@@ -3,6 +3,13 @@ slug: m10-l1-capstone-choose-primitive
 title: "Capstone: choose your primitive and wire the economy"
 skills:
   - solana-kit
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/token-2022": "0.15.0"
+    tsx: "4.23.12"
+    typescript: "5.9.3"
 blocks:
   - key: intro
     type: prose

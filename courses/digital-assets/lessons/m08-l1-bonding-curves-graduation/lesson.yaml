@@ -4,6 +4,12 @@ title: "Bonding curves & graduation: pump.fun from constants"
 skills:
   - solana-fundamentals
   - transactions
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    tsx: "4.23.12"
+    typescript: "5.9.3"
+    "@pump-fun/pump-sdk": "1.36.0"
 blocks:
   - key: intro
     type: prose

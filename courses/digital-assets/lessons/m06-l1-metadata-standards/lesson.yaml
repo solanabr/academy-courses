@@ -4,6 +4,11 @@ title: "The metadata standards wallets actually read"
 skills:
   - account-model
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/token-2022": "0.15.0"
 blocks:
   - key: intro
     type: prose

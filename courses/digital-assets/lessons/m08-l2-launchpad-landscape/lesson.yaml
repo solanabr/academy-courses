@@ -4,6 +4,10 @@ title: "The launchpad landscape, anti-snipe & what graduation seeds"
 skills:
   - solana-fundamentals
   - transactions
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    tsx: "4.23.12"
 blocks:
   - key: intro
     type: prose

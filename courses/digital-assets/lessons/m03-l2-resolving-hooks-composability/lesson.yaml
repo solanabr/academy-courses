@@ -3,6 +3,14 @@ slug: m03-l2-resolving-hooks-composability
 title: "Resolving hooks, and why they break composability"
 skills:
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    anchor-lang: "1.1.2"
+    spl-tlv-account-resolution: "0.11.1"
+    spl-token-cli: "5.6.1"
+    surfpool: "1.2.1"
 blocks:
   - key: intro
     type: prose
