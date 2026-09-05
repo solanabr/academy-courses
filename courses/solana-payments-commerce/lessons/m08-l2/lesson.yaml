@@ -79,13 +79,13 @@ blocks:
           - id: a
             label: "Resubmit it: durable nonces never expire, so it is always safe to broadcast again."
             correct: false
-            feedback: "Once the nonce advanced, resubmitting risks double-processing (the exact 2022 failure class)."
+            feedback: "Once the nonce advanced, the stored value no longer matches and the runtime deterministically rejects those bytes; resubmitting cannot land — it burns sends and muddies the ledger the drain depends on."
           - id: b
             label: "Re-sign it against the same stored nonce and submit; the cluster dedupes on signature, so a duplicate is simply dropped."
             correct: false
             feedback: "The nonce already advanced, so a re-signed transaction is a fresh authorization, not a dedupe."
           - id: c
-            label: "Exclude it from submission: the nonce is spent, and rebroadcasting risks double-processing."
+            label: "Exclude it from submission: the nonce is spent, the runtime will refuse the bytes, and the sale needs reconciliation, not another broadcast."
             correct: true
-            feedback: "Once the stored value has rolled, the lifetime is gone and duplicate-rejection no longer protects you. Dropping it is not resolving it, and that sale still needs a ledger state."
-        explanation: "A spent nonce is the danger zone. 'Never expires' is not 'always resubmittable': once advanced, the transaction must be dropped from the drain, which is exactly what your classifier's `unsafe` bucket enforces."
+            feedback: "Once the stored value has rolled, those bytes can never land again; what remains is bookkeeping. Dropping it is not resolving it, and that sale still needs a ledger state: landed earlier (RECONCILED) or lost (UNSAFE, a human decision)."
+        explanation: "A spent nonce ends the transaction's life: once advanced, the stored value no longer matches and a conforming validator rejects the bytes outright. 'Never expires' is not 'always resubmittable'. The drain excludes it and reconciles instead — and the double-charge that is still possible on these rails is re-signing the same sale against a fresh nonce, the human decision your classifier's `unsafe` bucket exists to force into the open."
