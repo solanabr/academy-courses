@@ -47,7 +47,7 @@ Answer those four in writing, in your memo, before you touch a recipe. I have wa
 
 Two gates stand between a set and a shipped mint, and they fire in this order.
 
-The first is the conflict matrix you ported in module 1. Five rules, taken straight out of `check_for_invalid_mint_extension_combinations`, and they are not advice. A set that violates one of them fails at `initialize_mint`, on chain, with an `InvalidExtensionCombination` error and your rent gone. Your `checkCombo` function already encodes all five, so the cost of asking is one import and one call. Ask.
+The first is the conflict matrix you ported in module 1. Five rules, taken straight out of `check_for_invalid_mint_extension_combinations`, and they are not advice. A set that violates one of them fails at `initialize_mint`, on chain, with an `InvalidExtensionCombination` error — and because the taught flow batches create-account, init-extensions and `initialize_mint` into one transaction, the whole thing reverts atomically: the rent lamports bounce back to your payer and you are out only the transaction fee, plus the redesign. Your `checkCombo` function already encodes all five, so the cost of asking is one import and one call. Ask.
 
 The second gate is the venue allowlist, and it is stricter than the matrix in the way that matters most: the matrix tells you what the token program refuses, and the allowlist tells you what the *market* refuses. Those are different failures. The first happens in a second, on devnet, for free. The second happens weeks later when someone tries to create a pool and finds out your mint cannot have one.
 
