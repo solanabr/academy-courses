@@ -14,12 +14,12 @@ npm init -y
 npm pkg set type=module   # the smoke script uses top-level await and import.meta
 npm install @solana/kit@6.10.0 @solana-program/token@0.14.0 @solana/kora@0.2.1 express@5 \
   @solana/kit-plugin-instruction-plan@^0.6.0 @solana/kit-plugin-payer@^0.6.0 \
-  @solana/kit-plugin-rpc@^0.6.0 @solana-program/compute-budget@^0.13.0 --legacy-peer-deps
+  @solana/kit-plugin-rpc@^0.6.0 @solana-program/compute-budget@0.16.0 --legacy-peer-deps
 npm install -D tsx@4 typescript @types/express @types/node
 solana-keygen new --no-bip39-passphrase -o buyer.json
 ```
 
-Pin notes, checked 2026-08-31. `@solana/kora` 0.2.1 is npm `latest`, published 2026-03-27 (the newer 0.3.0 betas sit on the `beta` tag only). It peers `@solana/kit` ^6.1.0, which our 6.10.0 satisfies cleanly, and this workspace stays on the v6 kit line like every checkout rung before it, so do not reach for the kit ^7 subscriptions client here. The one wrinkle: the SDK also peers `@solana-program/token` ^0.12.0, which our 0.14.0 pin technically fails, so a plain install refuses the pair. The three names it actually imports from that package exist unchanged in 0.14.0, which is why `--legacy-peer-deps` is safe in this specific workspace and not a habit to keep. `express` 5 and `tsx` 4 are the same majors the transaction-request server already runs. `--legacy-peer-deps` also turns off npm's automatic peer installation, which is why the four plugin packages are named explicitly.
+Pin notes, checked 2026-08-31. `@solana/kora` 0.2.1 is npm `latest`, published 2026-03-27 (the newer 0.3.0 betas sit on the `beta` tag only). It peers `@solana/kit` ^6.1.0, which our 6.10.0 satisfies cleanly, and this workspace stays on the v6 kit line like every checkout rung before it, so do not reach for the kit ^7 subscriptions client here. The one wrinkle: the SDK also peers `@solana-program/token` ^0.12.0, which our 0.14.0 pin technically fails, so a plain install refuses the pair. The three names it actually imports from that package exist unchanged in 0.14.0, which is why `--legacy-peer-deps` is safe in this specific workspace and not a habit to keep. `express` 5 and `tsx` 4 are the same majors the transaction-request server already runs. `@solana-program/compute-budget` is pinned 0.16.0, the last minor whose peer range accepts a v6 kit (0.17.0 jumped its peer to ^7) — the same digit the fee-recipe lesson pins later this module, so the repo states one compute-budget number everywhere. `--legacy-peer-deps` also turns off npm's automatic peer installation, which is why the four plugin packages are named explicitly.
 
 ## Summary
 

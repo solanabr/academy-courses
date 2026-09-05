@@ -16,18 +16,18 @@ cd pay && git checkout 94b3627   # the POS example this lesson was written again
 cd typescript && pnpm install && pnpm --filter @solana/pay build
 
 cd packages/solana-pay/examples/point-of-sale
-npm install   # use Node 20+
+npm install   # Node 24+, the course floor, more than covers this repo's own pins
 ```
 
 That block assumes `pnpm` is on your path; if it is not, `corepack enable pnpm` turns on the shim Node already ships.
 
-On the Node version, because it will bite you before the install finishes otherwise: the example's own `package.json` pins `engines.node >=18`, but it consumes the repo's core package by path (`"@solana/pay": "file:../../core"`), and that package pins `engines.node >= 20` for Ed25519 in `crypto.subtle`. The floor that actually applies is 20. Settle it now rather than at the first failing import:
+On the Node version, because it will bite you before the install finishes otherwise: the example's own `package.json` pins `engines.node >=18`, but it consumes the repo's core package by path (`"@solana/pay": "file:../../core"`), and that package pins `engines.node >= 20` for Ed25519 in `crypto.subtle`. So the floor this repo enforces is 20 — and the Node 24+ you have run since module 1 clears it with room. Confirm anyway rather than at the first failing import:
 
 ```bash
 node --version
 ```
 
-Checkpoint: `v20.x` or newer. On 18 the install may well succeed and then the first signature check throws inside `crypto.subtle`, which is a confusing failure to debug from the error message alone.
+Checkpoint: `v24.x` or newer, the course floor from module 1. On 18 the install may well succeed and then the first signature check throws inside `crypto.subtle`, which is a confusing failure to debug from the error message alone.
 
 One more pre-flight fix, and it is upstream's, not yours. `@solana/connector`, the wallet layer the POS uses, lists `@solana/web3.js` as an *optional* peer and reaches for it with `await import('@solana/web3.js')` inside a legacy-transaction branch this app never takes. Optional peers do not get installed, and the example sits outside the repo's pnpm workspace, so npm resolves it lock-free and that import has nothing to point at. Webpack does not care that the branch is dead: it resolves `import()` at build time and fails the build. You get a 500 on the first page load reading `Module not found: Can't resolve '@solana/web3.js'`. Still open on `main` as of 2026-09-01, so the pin did not cause it.
 
