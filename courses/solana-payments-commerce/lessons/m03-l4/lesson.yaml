@@ -84,7 +84,7 @@ blocks:
             correct: false
             feedback: "Reuse is right, but the enforcement date is unsourced and must never be cited; admission is not instant on setting a key."
           - id: c
-            label: "You reuse the m03-l2 transaction-request builder (accretion), and registry admission is a manual Dialect review requiring API-key auth, so you cannot gate your lesson on it."
+            label: "You reuse the m03-l2 transaction-request builder (accretion), and registry admission is a manual Dialect review entered by an emailed submission, so you cannot gate your lesson on it."
             correct: true
             feedback: "An Action returns an ordinary transaction, which is why one builder serves both surfaces. Anything gated on human review has no schedule, and an unsourced enforcement date is a guess."
-        explanation: "The blink's transaction is the same code path as the checkout: you reuse the m03-l2 builder, which is the accretion the ladder is showing. Registry admission is a manual Dialect review with API-key auth; only the API-key requirement is confirmed, the enforcement date is unsourced, so your lab gates on spec conformance plus a local client, not on registry status."
+        explanation: "The blink's transaction is the same code path as the checkout: you reuse the m03-l2 builder, which is the accretion the ladder is showing. Registry admission is a manual Dialect review entered by an emailed submission; the API key gates only the per-URL lookup endpoint, and the enforcement date is unsourced, so your lab gates on spec conformance plus a local client, not on registry status."

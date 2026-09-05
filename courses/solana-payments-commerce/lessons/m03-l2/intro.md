@@ -272,11 +272,29 @@ The layout you are about to fill in, and where it sits in the Wavelength workspa
    // The transaction-request endpoint: GET answers with display metadata,
    // POST {account} answers with a base64 transaction built server-side.
    import express from 'express';
-   import type { Request, Response } from 'express';
+   import type { NextFunction, Request, Response } from 'express';
    import { buildOrderTransaction } from './build-order-transaction';
    import type { OrderLine } from './catalog';
 
    const app = express();
+
+   // Cross-origin access, before any other middleware. Next lesson the
+   // point-of-sale page -- served from https://localhost:3001 -- POSTs to
+   // this endpoint itself, and a browser preflights that cross-origin JSON
+   // POST with an OPTIONS request. Without these headers the preflight
+   // fails and the real POST never leaves the page. A wallet scanning a QR
+   // is not a browser and never preflights; the POS page is, and does.
+   app.use((req: Request, res: Response, next: NextFunction) => {
+     res.setHeader('Access-Control-Allow-Origin', '*');
+     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+     if (req.method === 'OPTIONS') {
+       res.sendStatus(204);
+       return;
+     }
+     next();
+   });
+
    app.use(express.json());
    app.use(express.static('public'));
 
@@ -341,6 +359,8 @@ The layout you are about to fill in, and where it sits in the Wavelength workspa
    ```
 
    Drop any square PNG into `public/icon.png` (any placeholder art will do; wallets only need the URL to resolve) so the GET's icon URL works. The endpoint logs the reference on every build; keep that habit, it is the join key your watcher and your back office both live on.
+
+   The CORS block at the top deserves its own sentence, because its absence would be invisible today and fatal next lesson. Every consumer this server has met so far — curl, smoke.ts, a wallet resolving a QR — talks to it with no browser in the way, so nothing enforces CORS and the server would appear to work without those headers. The point-of-sale lesson changes the client: the POS *page* fetches the transaction itself, cross-origin, and a browser refuses to send that POST unless the preflight OPTIONS comes back stamped with `Access-Control-Allow-Origin`. The middleware answers the preflight with an empty 204 and stamps every response. File the pattern away; the blinks lesson makes the same rule load-bearing for an entire distribution channel.
 
 4. **Run it.** In one terminal, with your merchant wallet from module 2:
 
