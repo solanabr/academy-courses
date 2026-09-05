@@ -160,7 +160,7 @@ There is a bit of lineage worth carrying into the Lab, because it explains why t
 
 You are extending R2, the `quarter_vault` program, with a custom constraint. When you finish, `#[account(quarters::min_balance = 100)]` is a real keyword on the vault field, its `check` hook rejects an underfunded vault at constraint time, and a LiteSVM test proves both the reject and the pass. The `verify` bar for this artifact is one thing: `anchor test` is green, an under-floor vault is rejected by the constraint layer, and an at-or-above-floor vault passes.
 
-**1. Confirm the V2 toolchain.** Same check as the last two lessons, one line. If the version is wrong, the re-pin command is below it; do not build V2 content on a V1 `anchor` binary:
+**1. Confirm the V2 toolchain.** Same check as m03-l1's opener, one line. If the version is wrong, the re-pin command is below it; do not build V2 content on a V1 `anchor` binary:
 
 ```bash
 anchor --version         # must report a 2.0.0 RC line, not 1.x; rc.1 as of 2026-08-12

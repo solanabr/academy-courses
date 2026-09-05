@@ -138,16 +138,13 @@ One last widening, because the borrow model is a single instance of a pattern yo
 
 You are going to run two experiments. The first, on last lesson's vault, proves what the lock does *not* cover, because half of using a guarantee well is knowing where it is not. The second walks you into the real error, on the account shape that earned v1 its scars, and you fix it by reordering. The only new artifact is a scratch probe crate, which carries you through the Challenge and gets deleted after. First, make sure you are on the right toolchain, because none of this holds on the V1 line.
 
-**Step 1. Pin the V2 toolchain.** This course runs on the Anchor V2 release candidate, not the 1.1.2 V1 line that ships by default on many machines. As m01-l2 showed, `avm install` cannot fetch the RC: it downloads a prebuilt binary from the tag's GitHub Release, and no Release was cut for the v2 tag, so the download 404s. The documented channel is a cargo git install, pinned to the `v2.0.0-rc.1` tag:
+**Step 1. Pin the V2 toolchain.** One line:
 
 ```bash
-# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
-cargo install --git https://github.com/otter-sec/anchor.git \
-  --tag v2.0.0-rc.1 anchor-cli --locked --force
 anchor --version   # must report the V2 line (2.0.0-rc.1 as of 2026-08-12), not 1.1.2
 ```
 
-Freshness note: as of 2026-08-22 the V2 line ships as release candidates, so there is no blessed stable version number to hardcode. `2.0.0-rc.1` is the newest tag on `anchor-next` and the newest `anchor-lang`/`anchor-cli` on crates.io (published 2026-08-12); re-check both before you build, and pin whatever `anchor --version` reports in your `Anchor.toml` and CI so a teammate builds the same bytecode you did. When V2 tags a stable release, pin that instead.
+If it reports 1.x, re-pin with m01-l2's install block — `--tag v2.0.0-rc.1`, `--locked` — and remember why the detour exists: `avm install` fetches a prebuilt binary from the tag's GitHub Release, no Release was cut for the v2 tag, so the download 404s. Re-check for a newer rc before you build, and pin whatever `anchor --version` reports in your `Anchor.toml` and CI so a teammate builds the same bytecode you did.
 
 **Step 2. Prove the lock is exact.** Open the `withdraw` handler from last lesson. Here is the shape, with the probe read from the top of the lesson sitting in the middle of the CPI setup, while the handles are live:
 
@@ -209,7 +206,9 @@ crate-type = ["lib"]
 [dependencies]
 anchor-lang = "2.0.0-rc.1"     # crates.io, not the branch: see m01-l2
 anchor-spl  = "2.0.0-rc.1"     # anchor-lang and anchor-spl move together on the V2 line
-# The pins from m01-l2 — every program crate in this course carries them (issue #4937's class).
+# The pins from m01-l2 (issue #4937's class). The exact =2.6.0 suits this throwaway
+# probe; the arcade workspace crates ride the ">=2.6.1, <2.7" ceiling from m02-l1
+# instead, because a workspace resolves one solana-address for all of its members.
 wincode = { version = "0.5", features = ["derive"] }
 solana-address = "=2.6.0"      # rc.1 pins wincode 0.5; solana-address 2.7.0 moved to 0.6
 ```

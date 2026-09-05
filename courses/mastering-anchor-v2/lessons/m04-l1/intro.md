@@ -224,7 +224,7 @@ rustc scratch.rs -o scratch && ./scratch   # prints: checked debit ok
 
 That is the debit locked. `None` on underflow, mapped to an error, never a panic and never a wrap. In the real handler the error is a program error, not a `&str`, but the logic is exactly this.
 
-**4. Add the error variants.** Anchor V2 allows one `#[error_code]` enum per program, so extend the `VaultError` you already have rather than adding a second enum. Keep every variant from the last two lessons, in order, and append the new ones: appending matters, because variants are numbered from 6000 by position and re-ordering them silently renumbers errors your tests already assert on. `withdraw` needs five new reasons to refuse:
+**4. Add the error variants.** A program gets one 6000-based error space, and a second `#[error_code]` enum compiles green while silently numbering its variants into that same range — an offset collision, not a compile error — so extend the `VaultError` you already have rather than adding a second enum. Keep every variant from the last two lessons, in order, and append the new ones: appending matters, because variants are numbered from 6000 by position and re-ordering them silently renumbers errors your tests already assert on. `withdraw` needs five new reasons to refuse:
 
 ```rust
 #[error_code]

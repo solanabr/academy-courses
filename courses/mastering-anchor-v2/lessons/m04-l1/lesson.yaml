@@ -54,19 +54,19 @@ blocks:
             feedback: "The Anchor 1.0 line did take the program as a Pubkey, so this is the natural half-migration guess. V2 takes a &Address and wraps each account in a CpiHandle instead of a bare mutable reference."
         explanation: "V2's CpiContext::new(program: &Address, accounts) is the shape you will type all lesson. The accounts arrive as CpiHandle borrow-tracked handles, obtained with .cpi_handle() for a read and .cpi_handle_mut() for a write, which is the detail that makes the next lesson's compile-time safety possible. The PDA signer rides along separately through .with_signer(signer_seeds), the ergonomic wrapper over the raw invoke_signed syscall."
       - id: m04-l1-q3
-        prompt: "Your withdraw debits state.balance after the transfer. Which line is safe under the house rules?"
+        prompt: "Your withdraw debits state.credit after the transfer. Which line is safe under the house rules?"
         multiSelect: false
         options:
           - id: a
-            label: "state.balance = state.balance - amount; // safe: rustc panics on underflow"
+            label: "state.credit = state.credit - amount; // safe: rustc panics on underflow"
             correct: false
-            feedback: "A default debug build does panic, which is where that belief comes from. Build the same code with rustc -O, as a deployed program effectively is, and the subtraction wraps silently to a value near u64::MAX instead. Neither outcome is acceptable on a custody path."
+            feedback: "A default debug build does panic, which is where that belief comes from. But whether an optimized build panics or wraps is a manifest setting, not a rustc constant: with overflow-checks off, the subtraction wraps silently to a value near u64::MAX. A flag someone can flip is no guard, and neither a panic nor a wrap is acceptable on a custody path."
           - id: b
-            label: "state.balance -= amount; // safe: the require! above proved amount <= vault lamports"
+            label: "state.credit -= amount; // safe: the require! above proved amount <= vault lamports"
             correct: false
-            feedback: "The guard proves the request fits the SOL vault's lamport balance. state.balance is the separate ledger figure, and the two can drift apart, so the debit can still underflow. Use checked_sub."
+            feedback: "The guard proves the request fits the SOL vault's lamport balance. state.credit is the separate ledger figure, and the two can drift apart, so the debit can still underflow. Use checked_sub."
           - id: c
-            label: "state.balance = state.balance.checked_sub(amount).ok_or(VaultError::Underflow)?;"
+            label: "state.credit = state.credit.checked_sub(amount).ok_or(VaultError::Underflow)?;"
             correct: true
             feedback: "Atomicity only rewinds what raises, and a wrap raises nothing: the transfer commits and the ledger quietly disagrees with it. Turning the None into an error is what gives atomicity something to catch."
         explanation: "checked_sub returns None on underflow instead of panicking, and the ? turns that into a clean program error the caller can handle. On a custody path this is the difference between a rejected transaction and an aborted instruction with a confusing panic log. It also matters because atomicity only rewinds errors, not silent bugs: if the debit raises, the whole instruction aborts and the transfer that already ran unwinds with it, but a wrap never raises, so nothing rolls back and the vault is left believing it holds eighteen quintillion lamports. Make the bug an error."
