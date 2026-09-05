@@ -50,7 +50,7 @@ The station's event shape, given once, here, as the contract all three logging s
 - Every event carries `event` (one of `probe_result`, `state_change`, `error`), `target`, and `ts` (unix seconds).
 - `probe_result` adds `outcome` (`up` or `down`) and `latency_ms`.
 - `state_change` adds `from` and `to`, spelled in the emitting surface's own vocabulary: engine names (`Pending`, `Up`, `Degraded`, `Down`) on the poller, ProbeResult variant names on the fleet, verdict names on the edge; stable names within a surface, not one shared enum.
-- `error` adds `message`, and means the station itself hiccuped, not that a target went down. A down target is a `probe_result`; a panicked probe task is an `error`. Keeping those apart is what makes the error stream worth alarming on.
+- `error` adds `message`, and means the station itself hiccuped, not that a target went down. A down target is a `probe_result`; a panicked probe task is an `error`. Keeping those apart is what makes the error stream worth alarming on. When the failing surface is a chain read, `error` also carries `plane`, the four-verdict string from the `plane()` method m08-l3 made you write, because a chain read sits right on the seam between station-hiccuped and target-down, and the plane is what lets the 3 a.m. reader rule which side.
 
 One line per event, to stdout, and nothing else. In the Rust poller that is plain `serde_json` line-writing through the helper you just added, deliberately not a framework. In the fleet and the worker it is `console.log(JSON.stringify(...))`. Stdout matters more than it looks: the Docker logging pipeline, `wrangler tail`, and the Actions run log are all just readers of standard output, so by writing lines there you inherit three platforms' log plumbing for free.
 
@@ -108,7 +108,7 @@ The sweep itself is the lesson's fourth beat and the lab's quietest deliverable:
 
 The fade, stated once more so nobody is surprised mid-lab: one drill is worked in full (the incident grep in step 3). Everything else is a checklist against code and platforms you already own. Budget half your time for steps 5 through 7; one of them waits on a cron on purpose.
 
-1. **Finish the poller's events.** You emitted `probe_result` in the opener. Two boundaries remain, driven by the field list from the theory section:
+1. **Finish the poller's events.** You emitted `probe_result` in the opener. Three emits remain, driven by the field list from the theory section: two fresh boundaries and one debt m08-l3 pre-paid:
 
    - `state_change`: your drain loop computes the next state inline, inside the `map.insert` call (`state: next_state(prev, ok, count)`), so hoist it first: `let next = next_state(prev, ok, count);` above the insert, with `next` in the struct literal. The emit goes between the hoisted line and the insert, only on difference from `prev`. The fragment, where `next` is your hoisted state:
 
@@ -146,7 +146,31 @@ The fade, stated once more so nobody is surprised mid-lab: one drill is worked i
    };
    ```
 
-   (No new imports needed for that arm: `SystemTime` and `UNIX_EPOCH` have sat in this file's `use std::time::{...}` line since the m06-l1 skeleton.) `cargo run -p pulse-pollerd` and confirm the probe lines still flow. Checkpoint: one tick produces one `probe_result` line per target, and the first tick after boot produces `state_change` lines announcing `Pending` targets waking up.
+   (No new imports needed for that arm: `SystemTime` and `UNIX_EPOCH` have sat in this file's `use std::time::{...}` line since the m06-l1 skeleton.)
+
+   - chain `error`, the boundary m08-l3 pre-paid: your `chain_loop` already folds each failure's plane into `last_error` for `/status`; give the same failures a voice on stdout. In the failure path, after both awaits have finished and before the lock is taken, emit one event per `Err` you are holding. Your variable names are your own; the shape is one emit per failed read, and the balance read gets this block's twin:
+
+   ```rust
+   if let Err(e) = &slot {
+       log_event(json!({
+           "event": "error",
+           "target": "chain",
+           "plane": e.plane(),
+           "message": e.to_string(),
+           "ts": now,
+       }));
+   }
+   ```
+
+   This is the moment m08-l3 promised when it made you write `plane()`: four static strings, now greppable names on the log stream. Point the poller at that lesson's unresolvable RPC URL and one tick prints (your own 2 a.m. message where mine is; the plane in front is the part the enum guarantees):
+
+   ```text
+   {"event":"error","message":"could not reach the RPC endpoint: error sending request for url (https://rpc.invalid/)","plane":"transport","target":"chain","ts":1788350402}
+   ```
+
+   And the 3 a.m. difference between "the RPC was down" and "we were parsing it wrong" is now `grep '"plane":"transport"'` versus `grep '"plane":"shape"'`: one grep instead of one afternoon, exactly as billed.
+
+   `cargo run -p pulse-pollerd` and confirm the probe lines still flow. Checkpoint: one tick produces one `probe_result` line per target, the first tick after boot produces `state_change` lines announcing `Pending` targets waking up, and a sabotaged RPC URL produces `error` events wearing their plane.
 
 ![Three margin notes anchor the error, probe result, and state change emit points to their exact lines in the poller's drain loop.](assets/v06-annotated-code.webp)
 
