@@ -4,6 +4,14 @@ title: "Gasless with Kora: nobody brings SOL to a record fair"
 skills:
   - signers
   - transaction-fees
+versionStamp:
+  checkedAt: "2026-08-31"
+  packages:
+    "@solana/kit": "6.10.0"
+    "@solana-program/token": "0.14.0"
+    "@solana/kora": "0.2.1"
+    "@solana-program/compute-budget": "0.16.0"
+    "kora-cli": "2.0.5"
 blocks:
   - key: intro
     type: prose

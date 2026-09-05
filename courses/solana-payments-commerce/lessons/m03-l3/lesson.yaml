@@ -4,6 +4,10 @@ title: "The record fair: POS, and the mobile-hardware reality"
 skills:
   - solana-pay
   - confirmation
+versionStamp:
+  checkedAt: "2026-08-22"
+  packages:
+    "@solana/pay": "1.0.26"
 blocks:
   - key: intro
     type: prose

@@ -4,6 +4,13 @@ title: "Watch a dollar settle: your first five minutes on Solana rails"
 skills:
   - solana-fundamentals
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-08-23"
+  packages:
+    "@solana/pay": "1.0.26"
+    "@solana/kit": "6.10.0"
+    "qrcode-terminal": "0.12.0"
+    "tsx": "4.23.12"
 blocks:
   - key: intro
     type: prose

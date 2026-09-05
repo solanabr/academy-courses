@@ -4,6 +4,10 @@ title: "Trust no frontend: confirmation policy and server-side verification"
 skills:
   - confirmation
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-08-22"
+  packages:
+    "@solana/kit": "6.10.0"
 blocks:
   - key: intro
     type: prose
