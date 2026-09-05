@@ -93,7 +93,7 @@ The unlock? A folder that deliberately stays OUT of the workspace roster. Regist
 
 ![Checkout and ops workspaces stay pinned to kit 6 packages while one isolated subscriptions workspace pins kit 7, with the documented fallback to subscriptions 0.4.0 on kit 6.4.](assets/v06-diagram.png)
 
-Is this annoying? Mildly. Is it unusual? Not even slightly: any Node shop that survived the ESM migration, or a React major, has run this exact play. SDK ecosystems move front-to-back, the flagship packages jump first, integrations lag, and the boundary lives in your lockfiles for a quarter or two. You are not working around a mistake; you are watching an ecosystem mid-stride, and the per-workspace pin is what competence looks like while it lands.
+Is this annoying? Mildly. Is it unusual? Not even slightly: any Node shop that survived the ESM migration, or a React major, has run this exact play. SDK ecosystems move front-to-back, the flagship packages jump first, integrations lag, and the boundary lives in your lockfiles for a quarter or two. You are not working around a mistake; you are watching an ecosystem mid-stride, and the per-workspace pin is what competence looks like while it lands. Nor is it a rule this course invented: the Rust & TypeScript Fundamentals course drills it in its peer-ranges lesson and Master Anchor V2 drills it against a generated client's declared peers in its module eight — three courses, one rule.
 
 ## Lab: bill the record-of-the-month club
 
