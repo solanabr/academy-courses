@@ -151,7 +151,7 @@ Question two, the fun one: our workflow triggers on `push`, and the workflow its
 
 ![A developer's push triggers the workflow but the workflow's own token-authored commit lands in the repo without starting a new run.](assets/v04-diagram.webp)
 
-One forward pointer so the guard doesn't surprise you later: someday you'll WANT a commit to wake a second workflow, and the documented path is authenticating with a personal access token or a GitHub App token instead of `GITHUB_TOKEN`. That bridge belongs to module 9's who-monitors-the-monitor lesson; today, the guard working against propagation is exactly what we want.
+One forward pointer so the guard doesn't surprise you later: someday you'll WANT a commit to wake a second workflow, and the documented path is authenticating with a personal access token or a GitHub App token instead of `GITHUB_TOKEN`. That bridge comes back in module 10's capstone assembly, where you reread this exact guard as an operator; today, the guard working against propagation is exactly what we want.
 
 ### The silent stop
 
@@ -350,7 +350,7 @@ The pipeline runs your code, but nothing yet stops bad code from reaching it. Fi
 
 Add a second job named `typecheck` to `pulse.yml` that checks out the code, sets up Node the same way, installs, and runs `npx tsc --noEmit`. Then make the `probe` job depend on it, so a type error anywhere in the repo blocks the probe from running at all. Two hints and no more: jobs run in parallel unless one declares `needs:` on another, and everything the `typecheck` job requires is already demonstrated in the `probe` job's first three steps.
 
-Acceptance: introduce a deliberate type error in `fleet.ts`, push it to `main` and revert right after (yes, straight to `main`, this once: the workflow's push trigger only watches `main`, so a branch push would fire nothing; step 4's habit still stands for real changes), and watch the run fail at `typecheck` with `probe` skipped entirely; revert, push, all green. When m02-l4 formalizes CI gates with a real test suite, you'll already have built one from nothing.
+Acceptance, in order: introduce a deliberate type error in `fleet.ts` and push it (yes, straight to `main`, this once: the workflow's push trigger only watches `main`, so a branch push would fire nothing; step 4's habit still stands for real changes). Watch the run fail at `typecheck` with `probe` skipped entirely. Then revert the error, push again, and watch the whole pipeline go green. When m02-l4 formalizes CI gates with a real test suite, you'll already have built one from nothing.
 
 If your scheduled run stubbornly refuses to appear, or your skew number looks wild, bring the `gh run list` output to the course community; a dozen measured skews side by side teach more about best-effort scheduling than any doc page, and I read those threads.
 

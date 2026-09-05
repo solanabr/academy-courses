@@ -182,6 +182,7 @@ What about the rest of the generated file? It's real and worth knowing, and it i
 | `isolatedModules` | every file must be translatable alone, which is what fast per-file tools require |
 | `moduleDetection: "force"` | treat every file as a module, no accidental global scripts |
 | `noUncheckedSideEffectImports` | a bare `import "./x"` must point at something that exists |
+| `jsx: "react-jsx"` | how to compile JSX if any shows up; inert in this CLI project, earns its keep in module three |
 | `skipLibCheck` | don't re-typecheck your dependencies' declaration files on every run |
 | `sourceMap`, `declaration`, `declarationMap` | outputs for debuggers and library consumers; inert until you emit |
 
