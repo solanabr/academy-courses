@@ -36,7 +36,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Re-fetch the transaction server-side with getTransaction and check the mint, the token program, and the store ATA's balance delta."
+            label: "Re-fetch the transaction server-side with getTransaction and check the mint, the token program, and the balance delta on the merchant-owned token account."
             correct: true
             feedback: "Only a ledger read your own server performs is unforgeable; sponsorship changes nothing about proof, and every leg asserts the same way."
           - id: b

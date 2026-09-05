@@ -10,7 +10,7 @@ Today you answer that question with a log file. Before any theory, take inventor
 find . -mindepth 2 -maxdepth 3 -name package.json -not -path '*/node_modules/*' | wc -l
 ```
 
-Count them (mindepth skips the root manifest, and the extra depth level would catch any manifest nested a folder deeper; in this tree it should find none, because every workspace sits at the top level). Every one of those manifests is a rung you built and proved, and the count comes back at fourteen, one short of the roster below because tonight's `stack` workspace does not exist yet. Then open your latest `gate/report.md` beside the count: the fix-tasks you closed last lesson are the reason tonight gets to be boring. None of them, alone, can sell a record to a stranger. That gap between "all tests green" and "a business runs" is the last skill this course teaches, and honestly, it is the one integration engineers get paid for.
+Count them (mindepth skips the root manifest, and the extra depth level would catch any manifest nested a folder deeper; in this tree it should find none, because every workspace sits at the top level). Each of those manifests is a workspace you built and proved — most rungs got one of their own, though not all, and the roster note below names the ones that live inside another workspace or in no code at all — and the count comes back at fourteen, one short of the roster below because tonight's `stack` workspace does not exist yet. Then open your latest `gate/report.md` beside the count: the fix-tasks you closed last lesson are the reason tonight gets to be boring. None of them, alone, can sell a record to a stranger. That gap between "all tests green" and "a business runs" is the last skill this course teaches, and honestly, it is the one integration engineers get paid for.
 
 The findings up front:
 
@@ -41,7 +41,7 @@ The legs, in the order the script runs them. One buyer, scripted, on devnet:
 
 ![Flowchart of seven journey legs from ramp stub through refund, each feeding the shared server-side verifier that checks token program, mint, balance delta, and memo before printing PASS.](assets/v02-flowchart.png)
 
-Notice what the journey is not. It is not a UI walkthrough, and no leg ever trusts a wallet toast, a webhook payload, or a 200 response as proof. The course has one acceptance harness, the m04 verifier, and the journey calls it once per leg: re-fetch the transaction with `getTransaction`, check the token program, then the mint, then the recipient-ATA balance delta, then the memo. A sponsored transaction gets the same treatment as a plain one. Kora co-signing changes who paid the fee; it changes nothing about what deserves to be believed.
+Notice what the journey is not. It is not a UI walkthrough, and no leg ever trusts a wallet toast, a webhook payload, or a 200 response as proof. The course has one acceptance harness, the m04 verifier, and the journey calls it once per leg: re-fetch the transaction with `getTransaction`, check the token program, then the mint, then the balance delta on the merchant-OWNED token account (keyed on owner, the way the verifier has keyed it since m04 — that choice is what catches the wrong-mint fixture), then the memo. A sponsored transaction gets the same treatment as a plain one. Kora co-signing changes who paid the fee; it changes nothing about what deserves to be believed.
 
 ### The layout, and the seam you already solved
 
