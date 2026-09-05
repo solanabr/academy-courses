@@ -8,9 +8,10 @@
 //      measured in SECONDS of chain time. Comparing hours against a Unix
 //      timestamp calls everyone due ~3600x too often -- pulls the program
 //      refuses, at a base fee per refusal. Convert before you compare.
-//   2. Delegation/subscription accounts PERSIST until revoked. `expiresAtTs`
-//      is the only thing that stops a pull after the plan lapses (0 means "no
-//      expiry"). Ignore it and you keep charging a canceled-by-time customer.
+//   2. Delegation/subscription accounts PERSIST until revoked, so existence
+//      proves nothing. The program refuses a lapsed pull on-chain; your job is
+//      to mirror its `expiresAtTs` bound (0 means "no expiry") so the refusal
+//      happens here for free instead of on-chain at a base fee per tick.
 //
 // The grader calls decidePull positionally, one scalar per argument, in the
 // order declared below: active, expiresAtTs, lastChargedTs, periodHours, now.
@@ -19,13 +20,13 @@
 // seconds-based period window. The starter below forgets the ×3600 conversion
 // AND never checks expiry: the exact unit-and-clock bugs above.
 
-interface PullDecision {
+export interface PullDecision {
   shouldPull: boolean;
   reason: string; // "due" when pulling, else why it was held
   nextEligibleTs: number; // earliest Unix second a pull may fire (0 if N/A)
 }
 
-function decidePull(
+export function decidePull(
   active: boolean, // false once CancelSubscription has run
   expiresAtTs: number, // Unix seconds; 0 = never expires
   lastChargedTs: number, // Unix seconds of the previous successful pull
