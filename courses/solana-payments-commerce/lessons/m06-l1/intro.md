@@ -335,8 +335,11 @@ Three lines: the binding confirmation, the no-leak confirmation, and a `pay.coin
 
 ```typescript
 // ramp-embed/naive-onramp.ts: the working-but-leaky integration, as promised.
-// Two bugs, both from the top of the lesson: it binds the wrong chain, and it
-// leaks the raw address into the client URL.
+// Four repairs, and the grader checks all of them: it binds the wrong chain,
+// it leaks the raw address into the client URL, the URL never carries the
+// sessionToken, and defaultNetwork points at the wrong network. The first two
+// are the conceptual sins from the top of the lesson; the last two are what
+// the fix has to put in their place.
 
 interface OnrampInit {
   requestBody: {

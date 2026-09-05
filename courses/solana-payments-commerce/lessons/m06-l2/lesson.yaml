@@ -60,7 +60,7 @@ blocks:
           - id: c
             label: "USD-priced records are charged in exact USDC 1:1; oracle pricing belongs to volatile assets and stays out of this course's scope."
             correct: true
-            feedback: "A USD-pegged unit needs no conversion, leaving no rate to fetch and no spread to carry. The peg is an assumption, though, and a transfer fee still changes what lands."
+            feedback: "A USD-pegged unit needs no conversion, leaving no rate to fetch and no spread to carry. The peg is an assumption, though — and on a Token-2022 mint (not classic USDC) a transfer fee can still change what lands, which is why the roster check stays."
         explanation: "Because USDC is a USD peg, a USD-priced record is charged as the same number of USDC, 1:1, with no oracle needed. Display pricing only gets interesting for volatile assets, and that oracle-based pricing depth is deliberately out of scope here — DeFi and RWA Engineering territory, not a payments-course skill. Building a price feed for a pegged stablecoin is wasted work."
       - id: q8
         prompt: "Writing Wavelength's corridor decision record, you cite MoonPay Commerce. What is the accurate framing of what it is and how you cite its volume?"

@@ -1,6 +1,6 @@
 // The billing crank's per-subscription pull guard (reference solution).
 
-interface PullDecision {
+export interface PullDecision {
   shouldPull: boolean;
   reason: string; // "due" when pulling, else why it was held
   nextEligibleTs: number; // earliest Unix second a pull may fire (0 if N/A)
@@ -8,7 +8,7 @@ interface PullDecision {
 
 const SECONDS_PER_HOUR = 3600;
 
-function decidePull(
+export function decidePull(
   active: boolean, // false once CancelSubscription has run
   expiresAtTs: number, // Unix seconds; 0 = never expires
   lastChargedTs: number, // Unix seconds of the previous successful pull
