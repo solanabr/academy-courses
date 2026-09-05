@@ -116,10 +116,10 @@ Guided runs plus one deliverable you fill in yourself. You will run the fetch sc
 1. **Pin the workspace.** Same course workspace as every TS lab. If you are recreating it fresh:
 
    ```bash
-   npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0
+   npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0
    ```
 
-   Freshness note, verified against npm 2026-08-23: kit's `latest` tag is now 8.0.0, and the course stays pinned at 6.10.0 per the house toolchain rule, which keeps `@solana-program/token-2022` at 0.12.0, the last minor that peers kit ^6. Today's scripts also use the built-in `fetch`, so Node 18 or newer, and `npx tsx` to run TypeScript directly (it installs itself on first call; the workspace's `package.json` carries `"type": "module"` so top-level `await` works).
+   Freshness note, verified against npm 2026-09-05: kit's `latest` tag is now 8.2.0, and the course workspace stays pinned at 7.1.1 because that is the kit major its `@solana-program/token-2022@0.15.0` client peers against (^7; the 0.16 line moved to ^8). Today's scripts also use the built-in `fetch`, so Node 18 or newer, and `npx tsx` to run TypeScript directly (it installs itself on first call; the workspace's `package.json` carries `"type": "module"` so top-level `await` works).
 
 2. **Create `fetch-asset.ts`.** This is the provided script, in full. The only new machinery since m01-l2 is the PDA derivation at the top, so that gets the comment budget:
 

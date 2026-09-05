@@ -129,12 +129,12 @@ The plan: stand up a local surfnet, deploy last lesson's harvest-hook, mint a fr
 
    Checkpoint: `spl-token display $MINT` shows the TransferHook extension with your program id in it. Note what just happened silently: both token accounts were created with the TransferHookAccount extension, because a hooked mint forces it onto every holder.
 
-4. **Re-arm the hook's on-chain state.** Inside LiteSVM you initialized the ExtraAccountMetaList in the harness; this surfnet has never seen it. The initialize call is interface-standard, so I can hand it to you byte for byte. Set up a client workspace first (kit pinned at 6.10.0 exactly, per the house toolchain rule; note the last kit-v6-compatible `@solana-program/token-2022` is 0.12.0, which we deliberately do not need, everything below is raw kit):
+4. **Re-arm the hook's on-chain state.** Inside LiteSVM you initialized the ExtraAccountMetaList in the harness; this surfnet has never seen it. The initialize call is interface-standard, so I can hand it to you byte for byte. Set up a client workspace first (kit pinned at 7.1.1 exactly, the same peer-range pin the course workspace rides; note the kit-^7 line of `@solana-program/token-2022` is 0.15.0, which we deliberately do not need, everything below is raw kit):
 
    ```bash
    mkdir sprout-client && cd sprout-client
    npm init -y && npm pkg set type=module
-   npm install @solana/kit@6.10.0
+   npm install @solana/kit@7.1.1
    export MINT=... HOOK=... DEST=...
    ```
 

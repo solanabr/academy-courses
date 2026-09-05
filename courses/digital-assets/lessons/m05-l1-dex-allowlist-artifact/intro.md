@@ -140,10 +140,10 @@ The serious one: PYUSD, the flagship Token-2022 deployment, shipped by PayPal an
 
 You will build `predict-routability.ts`, the first draft of R6, wire it to real on-chain bytes, and put both SPROUT variants in front of it. The interface below is a contract: next lesson imports `isRoutable` from this exact file by this exact name.
 
-1. **Install the pins.** In `labs/m05-l1`, with your surfnet still running. The pin logic is unchanged from module 2 and I re-verified it against the registry on 2026-08-22: npm's `latest` for kit is 8.0.0 and the ecosystem peer standard is the v7 line, but this course rides the house v6 rule, so `@solana-program/token-2022@0.12.0` is the last minor peering `@solana/kit@^6.4.0` and `@solana-program/system@0.12.2` is its counterpart. Run `npm view @solana-program/token-2022@0.12.0 peerDependencies` yourself before you trust that sentence; this train ships monthly.
+1. **Install the pins.** In `labs/m05-l1`, with your surfnet still running. The pin logic is unchanged from module 2 and I re-verified it against the registry on 2026-09-05: npm's `latest` for kit is 8.2.0, but a workspace pins the kit major its own `@solana-program/*` deps peer against, and this one's `@solana-program/token-2022@0.15.0` peers `@solana/kit@^7.0.0`, with `@solana-program/system@0.13.0` as its counterpart. Run `npm view @solana-program/token-2022@0.15.0 peerDependencies` yourself before you trust that sentence; this train ships monthly.
 
 ```bash
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0 @solana-program/system@0.12.2
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
 npm install -D tsx typescript
 ```
 
@@ -339,7 +339,7 @@ Expected for the first two: the same verdicts as step 4, SPROUT ROUTABLE and the
 
 ![Pipeline flowchart from a mint address through the routability predictor to a verdict, with three earlier artifacts feeding in and a mainnet-fork pool-create attempt supplying the ground truth.](assets/v08-flowchart.png)
 
-6. **Now the part that can prove you wrong.** Everything so far is your model of the program. The ground truth is the program. On your surfnet fork, the CP-Swap deployment and its config accounts are the real mainnet ones, so a pool-create attempt is a genuine test. Raydium ships a demo repository whose CPMM section builds exactly this call with `raydium.cpmm.createPool({ programId: CREATE_CPMM_POOL_PROGRAM, poolFeeAccount: CREATE_CPMM_POOL_FEE_ACC, mintA, mintB... })`. Clone it in a separate folder, because the SDK rides web3.js v1 and you do not want it resolving against your kit v6 workspace:
+6. **Now the part that can prove you wrong.** Everything so far is your model of the program. The ground truth is the program. On your surfnet fork, the CP-Swap deployment and its config accounts are the real mainnet ones, so a pool-create attempt is a genuine test. Raydium ships a demo repository whose CPMM section builds exactly this call with `raydium.cpmm.createPool({ programId: CREATE_CPMM_POOL_PROGRAM, poolFeeAccount: CREATE_CPMM_POOL_FEE_ACC, mintA, mintB... })`. Clone it in a separate folder, because the SDK rides web3.js v1 and you do not want it resolving against your kit v7 workspace:
 
 ```bash
 cd .. && git clone https://github.com/raydium-io/raydium-sdk-V2-demo.git
