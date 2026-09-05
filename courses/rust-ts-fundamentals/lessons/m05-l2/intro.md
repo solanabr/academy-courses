@@ -233,7 +233,7 @@ The professional deliverable from a manifest read is one line per pin: what it i
 
 ## Lab: hoist, break, declare, verify
 
-The split already happened in the opener, so the lab starts from a green `cargo check --workspace` and makes the workspace earn its keep. Steps 1 through 3 are guided; step 4 is yours; step 5 proves the whole thing to CI.
+The split already happened in the opener, so the lab starts from a green `cargo check --workspace` and makes the workspace earn its keep. Steps 1 through 3 are guided; steps 4 and 5 are yours; step 6 proves the whole thing to CI.
 
 1. Commit the split as it stands, so every following diff is readable:
 
@@ -280,7 +280,25 @@ The split already happened in the opener, so the lab starts from a green `cargo 
 
 4. Declare the MSRV contract. This one is learner-led: add `rust-version = "1.85"` to both crates' `[package]` tables, and be able to say why 1.85 and not 1.98 in one sentence before you move on (the theory section's app-versus-library split is the sentence). Prove to yourself the field is enforced by reading, not running: the error text in the MSRV section above is what a 1.84 toolchain would print at your users. Then `cargo test --workspace`. Both crates build, the engine's m04 tests pass from the root, same green as before the split, new shape.
 
-5. Push, and watch the m04-l3 CI gate run unchanged. No workflow edits: the gate's cargo commands run against whatever the root manifest describes, and the root manifest now describes a workspace, so `cargo test` covers both members. Layout-agnostic CI is one of the quiet payoffs of cargo being one tool instead of five. When the run is green, the acceptance bar for the build half of this lesson is met: deps declared once at the root, both crates on edition 2024 with `rust-version` stated, `cargo test --workspace` green locally and in CI.
+5. Collect the integration tier. m04-l3 named Rust's second testing tier, integration tests in a top-level `tests/` directory, and told you to park it until the workspace split happened. It just happened, so collect it. Create `crates/pulse-engine/tests/engine_contract.rs`:
+
+   ```rust
+   // The integration tier: this file compiles as its own tiny crate, linked
+   // against pulse-engine, so it can only touch what lib.rs re-exports.
+   use pulse_engine::{FixtureSource, ProbeState, drive};
+
+   #[test]
+   fn the_fixture_story_survives_the_public_surface() {
+       // m04-l3's six-fixture walk: two clean probes, three failures past the
+       // budget, one recovery. Ends Up, exactly as you walked it by hand.
+       let mut source = FixtureSource::new(vec![212, 487, 1600, 1700, 1800, 90]);
+       assert_eq!(drive(&mut source, 1500), ProbeState::Up);
+   }
+   ```
+
+   Run `cargo test --workspace` and read the output with new eyes: below the unit-test binary you get a second runner line, `Running tests/engine_contract.rs`, because cargo compiled that file as its own crate and linked it against your library. That is the seam between the two tiers, and it is visibility, not geography: a `#[cfg(test)] mod tests` block lives inside the module and sees private items, while a file in `tests/` consumes the crate exactly as `pulse-cli` does, through the public surface you curated ten minutes ago. Which lets this one test do a job the five unit tests cannot: strip a name from the `lib.rs` re-export list and the unit suite stays green while this file stops compiling, the first consumer to notice the front door changed. One test holds the tier open today; the m04-l3 transition suite stays where it is, inside the module next to the match it pins, because poking `next_state`'s edge cases is unit-tier work and the file placement should say so.
+
+6. Push, and watch the m04-l3 CI gate run unchanged. No workflow edits: the gate's cargo commands run against whatever the root manifest describes, and the root manifest now describes a workspace, so `cargo test` covers both members and both tiers, the new `tests/` crate included. Layout-agnostic CI is one of the quiet payoffs of cargo being one tool instead of five. When the run is green, the acceptance bar for the build half of this lesson is met: deps declared once at the root, both crates on edition 2024 with `rust-version` stated, `cargo test --workspace` green locally and in CI.
 
 ## Challenge
 
