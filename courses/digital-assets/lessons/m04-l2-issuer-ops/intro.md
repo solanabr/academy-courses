@@ -43,7 +43,7 @@ The ElGamal registry program exists to break that dependency. It ships in the sa
 
 ![Flowchart contrasting the per-account owner-signature path with the registry path, where one registration enables signature-free provisioning via ConfigureAccountWithRegistry, both converging on manual approval.](assets/v02-flowchart.png)
 
-The fine print, because it decides what you can build today: creating the registry entry itself requires a pubkey validity proof, and proof generation currently lives in the Rust stack, not JavaScript. The Token-2022 side of the flow, the `ConfigureAccountWithRegistry` instruction that consumes an existing registry account, has a first-class builder in the JS client, and in the lab you fill that builder call so the shape lives in your fingers; be warned now that it stays dry-docked there, because without a Rust-created registry account it cannot execute, and the lab says so rather than pretending. The registry-creation side you should know by name, `spl-elgamal-registry` in the token repository, and treat as a Rust-side ops task. This asymmetry, where the instruction layer is complete and the client tooling covers it unevenly, is the recurring texture of confidential transfers, and it is exactly why this lesson keeps a Rust helper in its back pocket.
+The fine print, because it decides what you can build today: creating the registry entry itself requires a pubkey validity proof, and that proof you can generate in pure JavaScript — `@solana/zk-sdk`, a declared peer of the very token client this lesson pins, will hand you `new PubkeyValidityProofData(new ElGamalKeypair())` without a line of Rust. What the JS stack lacks at our pins is the other half: a client builder for the registry program's own create/update instructions. The Token-2022 side of the flow, the `ConfigureAccountWithRegistry` instruction that consumes an existing registry account, has a first-class builder in the JS client, and in the lab you fill that builder call so the shape lives in your fingers; be warned now that it stays dry-docked there, because without a created registry account it cannot execute, and the lab says so rather than pretending. The registry-creation side you should know by name, `spl-elgamal-registry` in the token repository; until a JS builder for its instructions lands, the pragmatic route is its Rust CLI — a client-tooling gap, not a cryptographic one. This asymmetry, where the instruction layer is complete and the client tooling covers it unevenly, is the recurring texture of confidential transfers, and it is exactly why this lesson keeps a Rust helper in its back pocket.
 
 ### The multi-transaction reality
 
@@ -104,7 +104,7 @@ cargo add solana-zk-sdk@7.0.1 bs58@0.5.1 base64@0.23.1
 # this helper depends on an exact version.
 ```
 
-   Then `src/main.rs`. This is the whole program, and it earns its existence twice over: the auditor pubkey needs to exist in two encodings (the CLI's help text admits it only accepts base64 today, "more methods in a future version", while the kit client wants base58), and the ConfidentialMintBurn branch needs an AES-encrypted zero for its initial decryptable supply, which no JS library will produce for you:
+   Then `src/main.rs`. This is the whole program, and the honest accounting of why it exists: nothing here strictly requires Rust — `@solana/zk-sdk` will mint the same ElGamal keypair and the same `AeKey` AES-encrypted zero in pure JS, and re-encoding is a two-liner — but the values feed both the CLI (whose help text admits it only accepts base64 today, "more methods in a future version") and the kit client (which wants base58), and one small binary that prints every key in every encoding, built on the same `solana-zk-sdk` crate the on-chain program trusts, is the ops-shaped tool for that. Prefer TypeScript? Port it against `@solana/zk-sdk` and keep the printout format:
 
 ```rust
 // ct-keygen: derive the encryption keys issuer ops needs, print every encoding.
@@ -412,13 +412,17 @@ fi
 
 ## Challenge
 
-The graded piece first: `validateConfidentialConfig`, the pre-flight check an issuer runs before building `initializeConfidentialTransferMint` at all, so a bad extension set dies in review instead of reverting on-chain. Step 3 hand-filled a config that happened to be legal; this function is what turns that luck into policy. The grader calls your function positionally, four scalars in this order, and the return type is this exact shape:
+The graded piece first: `validateConfidentialConfig`, the pre-flight check an issuer runs before building `initializeConfidentialTransferMint` at all, so a bad extension set dies in review instead of reverting on-chain. Step 3 hand-filled a config that happened to be legal; this function is what turns that luck into policy. The grader calls your function positionally, four scalars in this order, and the return type is this exact verdict shape — `ConfidentialConfig` is the name the starter gives the *outer* verdict, and the built three-field config rides inside it:
 
 ```ts
 type ConfidentialConfig = {
-  authority: string;
-  autoApproveNewAccounts: boolean;
-  auditorElGamalPubkey: string | null;
+  ok: boolean;
+  reason: string; // "ok" when valid, else the rejection slug
+  config: {
+    authority: string;
+    autoApproveNewAccounts: boolean;
+    auditorElGamalPubkey: string | null;
+  } | null;
 };
 
 function validateConfidentialConfig(
