@@ -1,12 +1,15 @@
 id: course-digital-assets
 slug: digital-assets
+sourceLocale: en
 title: "Digital Assets, Tokenization & Token Extensions"
-description: "By the end you can read any live mint's bytes, build Token-2022 mints and Core/compressed NFT assets from raw instructions, and wire a working on-chain token economy, choosing the right primitive and proving it resolves."
+description: "By the end you can read any live mint's bytes, build Token-2022 mints and Core/compressed NFT assets from raw instructions, and wire a working on-chain token economy, choosing the right primitive and proving it resolves. Expect to work locally: the labs install and use rustup, the Agave CLI, and surfpool's mainnet fork on your own machine, and a few steps touch devnet."
 difficulty: intermediate
 duration: 35
 xpPerLesson: 20
 xpReward: 560
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+trackId: 0
+trackLevel: 0
 thumbnail: assets/banner.webp
 modules:
   - key: token-layer
