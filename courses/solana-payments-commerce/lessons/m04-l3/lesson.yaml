@@ -56,7 +56,7 @@ blocks:
           - id: b
             label: "That the origin payment finalized; a push refund is irreversible."
             correct: true
-            feedback: "Reversing a payment a fork can still drop funds a gift you cannot claw back; finality is necessary and not sufficient, since an earlier reversal on that signature pays twice."
+            feedback: "Reversing a payment that a fork can still drop hands the buyer a gift you cannot claw back; finality is necessary but not sufficient, since an earlier reversal on that signature pays twice."
           - id: c
             label: "That at least ~150 blocks have passed so the origin blockhash expired, since a refund sent inside that window could be replayed against your treasury."
             correct: false

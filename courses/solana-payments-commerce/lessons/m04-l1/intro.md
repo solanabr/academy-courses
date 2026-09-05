@@ -290,8 +290,8 @@ export function createVerifier(deps: {
       return { ok: false, reason: 'underpaid', signature };
     }
 
-    // Whole-field equality, never substring: ids are variable-length, so
-    // `ord-102` would otherwise fulfill `ord-1024`.
+    // Whole-field equality, never substring: ids are variable-length, so a
+    // payment memoed `ord-1024` would otherwise fulfill order `ord-102`.
     const memoMatches = memosOf(tx).some((m) =>
       m.split(/[\s:]+/).includes(expected.orderId),
     );
@@ -519,7 +519,7 @@ First, the payment that must pass. The buyer's side of the transfer rides along 
       {
         "program": "spl-memo",
         "programId": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-        "parsed": "wavelength ord-1024"
+        "parsed": "wavelength:ord-1024:clube-single"
       }
     ]
   }
@@ -558,7 +558,7 @@ Next, attack 2's look-alike. Everything a partial check reads is right: the amou
       {
         "program": "spl-memo",
         "programId": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-        "parsed": "wavelength ord-1025"
+        "parsed": "wavelength:ord-1025:clube-single"
       }
     ]
   }
@@ -605,7 +605,7 @@ Attack 3: 30 real USDT under the right program, with a correct memo, landing in 
       {
         "program": "spl-memo",
         "programId": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-        "parsed": "wavelength ord-1026"
+        "parsed": "wavelength:ord-1026:clube-single"
       }
     ]
   }
@@ -652,7 +652,7 @@ Attack 4: right token, 1.50 short. The delta comes out at 28500000 against an ex
       {
         "program": "spl-memo",
         "programId": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-        "parsed": "wavelength ord-1027"
+        "parsed": "wavelength:ord-1027:clube-single"
       }
     ]
   }
@@ -699,7 +699,7 @@ Attack 5: a genuine, fully paid transaction for `ord-0999`, replayed against ord
       {
         "program": "spl-memo",
         "programId": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-        "parsed": "wavelength ord-0999"
+        "parsed": "wavelength:ord-0999:clube-single"
       }
     ]
   }
@@ -728,7 +728,17 @@ The checkpoint is concrete: the harness prints `live devnet payment: verified on
 
 ## Challenge
 
-**The coding challenge (harden-verify, in the challenge widget)** hands you a starter that is the theory section's naive verifier plus the dedup check you already built; the five remaining holes are yours to close. It comes with a transaction set containing one correct payment and every seeded attack. The starter fulfills the wrong-token payment, on purpose; watch it happen once before you fix anything, because seeing the false positive is the lesson. Your job is the ordered-reason contract: exactly one reason per call across `duplicate`, `wrong-token-program`, `no-payment`, `wrong-mint`, `underpaid`, `wrong-reference`, and `verified`, with the amount always computed from the on-chain balance delta. The widget calls your `verifyPayment` positionally, the way its grader can: the parsed transaction arrives as a single JSON string, then the five expected-order fields as flat arguments (`expectedMint`, `expectedTokenProgram`, `recipientAta`, `expectedAmount` as a bigint, `orderRef`), and finally the fulfilled-signature set as another JSON string. The starter already `JSON.parse`s both strings on entry, so your checks work with real values; the transfer amounts arrive as decimal strings of base units, the shape `getTransaction` reports them in, so lift them with `BigInt()` before the money math. `Number()` is exact only below 2**53 and one of the widget's transactions settles above it, which is the decimals lesson collecting its debt. Two small shape differences from the lab, both stated in the widget: it hands you an already-flattened list of transfers rather than pre/post balance arrays, so "nothing landed in your ATA" is its own `no-payment` reason instead of the lab's zero-delta underpayment, and its memo is the bare order ref, so the reference check is equality on the whole memo rather than the lab's whole-field match inside a structured one. Both reject a prefix, which is the property that matters. The three hints in the widget are the three mistakes everyone makes, in order of popularity: trusting a transfer before checking its program, reading an amount from a client field, and returning a pile of reasons instead of the first one.
+**The coding challenge (harden-verify, in the challenge widget)** hands you a starter that is the theory section's naive verifier plus the dedup check you already built; the five remaining holes are yours to close. It comes with a transaction set containing one correct payment and every seeded attack. The starter fulfills the wrong-token payment, on purpose; watch it happen once before you fix anything, because seeing the false positive is the lesson. Your job is the ordered-reason contract: exactly one reason per call across `duplicate`, `wrong-token-program`, `no-payment`, `wrong-mint`, `underpaid`, `wrong-reference`, and `verified`, with the amount always computed from the on-chain balance delta. The widget calls your `verifyPayment` positionally, the way its grader can — here is the seven-argument contract as a list, because you will read it back mid-debug:
+
+1. The parsed transaction, as a single JSON string.
+2. `expectedMint`, flat.
+3. `expectedTokenProgram`, flat.
+4. `recipientAta`, flat.
+5. `expectedAmount`, as a bigint.
+6. `orderRef`, flat.
+7. The fulfilled-signature set, as another JSON string.
+
+The starter already `JSON.parse`s both strings (arguments 1 and 7) on entry, so your checks work with real values; the transfer amounts arrive as decimal strings of base units, the shape `getTransaction` reports them in, so lift them with `BigInt()` before the money math. `Number()` is exact only below 2**53 and one of the widget's transactions settles above it, which is the decimals lesson collecting its debt. Two small shape differences from the lab, both stated in the widget: it hands you an already-flattened list of transfers rather than pre/post balance arrays, so "nothing landed in your ATA" is its own `no-payment` reason instead of the lab's zero-delta underpayment, and its memo is the bare order ref, so the reference check is equality on the whole memo rather than the lab's whole-field match inside a structured one. Both reject a prefix, which is the property that matters. The three hints in the widget are the three mistakes everyone makes, in order of popularity: trusting a transfer before checking its program, reading an amount from a client field, and returning a pile of reasons instead of the first one.
 
 **The solo rung** is the assessment gate for this lesson, and it is the one this module is named for. Run your completed verifier against a real devnet payment and all seeded attacks; it must fulfill only the correct one and store its signature. Then do the part no test can check for you: write your shop's confirmation policy as a short table in the repo, three tiers of payment value, each with its commitment level and one sentence defending it against the no-chargeback asymmetry. There is no universally right table. There is a table you can defend, and the defense is the skill.
 

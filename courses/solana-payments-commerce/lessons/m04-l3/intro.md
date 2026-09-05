@@ -87,7 +87,7 @@ An orphan row is not a problem to auto-solve; it is a problem to surface. The te
 
 ### The refund you have to invent
 
-Now the warped pressing. On the card rails you grew up integrating, this moment is heavily paved. Stripe has a refunds API, the issuer has a chargeback process behind it, and an entire dispute machine stands behind that. The machine exists because card payments are pull payments: the merchant reached into the buyer's account, so the system ships a lever to reach back. Push payments invert the geometry. The buyer handed you tokens in a final, atomic transfer; there is no lever, no counterparty who can reach into your account, and so nobody wrote a refunds page, because there is no refund primitive to document. When Shopify announced Solana Pay support in August 2023, the pitch literally sold chargebacks being eliminated by construction. True! And it is precisely why what comes next is original construction on our part, assembled from parts you already own, not something you can look up.
+Now the warped pressing. On the card rails you grew up integrating, this moment is heavily paved. Stripe has a refunds API, the issuer has a chargeback process behind it, and an entire dispute machine stands behind that. The machine exists because card payments are pull payments: the merchant reached into the buyer's account, so the system ships a lever to reach back. Push payments invert the geometry. The buyer handed you tokens in a final, atomic transfer; there is no lever, no counterparty who can reach into your account, and so nobody wrote a refunds page, because there is no refund primitive to document. The Shopify pitch this module's opening lesson unpacked — chargebacks eliminated by construction — was selling exactly this moment. True! And it is precisely why what comes next is original construction on our part, assembled from parts you already own, not something you can look up.
 
 So what is a refund, structurally? It is a payment. That is the whole insight. You hold the origin transaction, which names the buyer's wallet as the source. You hold transfer-kit, which pushes stablecoins to any address. A refund is a reverse push payment: same mint, amount less than or equal to what they actually paid, destination read from the origin transaction, plus one thing the payment rails will not give you for free, an audit link. The refund's ledger row records the origin signature it reverses, and its on-chain memo carries that signature too, so anyone auditing either side of the ledger can walk from sale to refund and back without trusting your database.
 
@@ -95,7 +95,7 @@ This is not us improvising in a vacuum. Stripe crossed this bridge first for its
 
 ![Comparison of card and push rails: cards ship a documented chargeback machine, while push rails ship no reversal primitive, so the merchant builds the refund as a new payment.](assets/v03-comparison.png)
 
-The asymmetry cuts both ways, and here is where it bites you rather than the buyer. No chargeback protects the merchant either. The first refund I queued on these rails, I triple-checked the destination like I was defusing something. Good instinct, wrong target: the address was fine, the problem was that the origin payment was seconds old. Think about what that means. A payment at `confirmed` commitment can, rarely, sit on a fork that gets dropped. If you refund it and the fork dies, the "payment" evaporates while your refund, a fully independent transaction, lands and finalizes anyway. You have now paid real money to reverse a payment that never happened, and there is no lever to reach back with, because you built on the rail that doesn't have one. The guard is one RPC call: the origin signature must report `finalized`, the commitment the network will not roll back, before the refund builder will sign anything. Finalization costs an ecosystem-estimated 12 seconds or so. A refund is never so urgent that it cannot wait twelve seconds; module 4's opening lesson already made this exact per-value argument for fulfillment, and the refund case is stronger, because now you are the payer.
+The asymmetry cuts both ways, and here is where it bites you rather than the buyer. No chargeback protects the merchant either. The first refund I queued on these rails, I triple-checked the destination like I was defusing something. Good instinct, wrong target: the address was fine, the problem was that the origin payment was seconds old. Think about what that means. A payment at `confirmed` commitment can, rarely, sit on a fork that gets dropped. If you refund it and the fork dies, the "payment" evaporates while your refund, a fully independent transaction, lands and finalizes anyway. You have now paid real money to reverse a payment that never happened, and there is no lever to reach back with, because you built on the rail that doesn't have one. The guard is one RPC call: the origin signature must report `finalized`, the commitment the network will not roll back, before the refund builder will sign anything. Finalization costs an ecosystem-estimated ten seconds or so, the same ~10s this module's opening lesson derived at the 300ms slot target. A refund is never so urgent that it cannot wait ten seconds; module 4's opening lesson already made this exact per-value argument for fulfillment, and the refund case is stronger, because now you are the payer.
 
 ![A refund request passes ledger checks and a finality gate on the origin signature before stablecoins are pushed to the originating wallet; an unfinalized origin is refused.](assets/v04-flowchart.png)
 
@@ -172,11 +172,10 @@ const rpc = createSolanaRpc(process.env.RPC_URL ?? 'https://api.devnet.solana.co
 // fulfillment; reconciliation's whole job is to re-derive truth from chain
 // state, including for payments the ledger already knows. Share the ingestion
 // store and every already-fulfilled payment would come back 'duplicate' and
-// read as unmatched. Fresh store per run: dedup stays where it belongs.
-const verify = createVerifier({
-  fetchTransaction: createRpcFetchTransaction(),
-  store: createMemoryStore(),
-});
+// read as unmatched. And "fresh per run" must mean per CALL, not per import:
+// the verifier is built inside reconcileOrder below, because a module-scope
+// store in a long-lived process would mark a re-reconciled payment
+// 'duplicate' -> unmatched, the exact failure this isolation exists to avoid.
 
 export type ReconcileResult =
   | { status: 'paid'; signature: Signature }
@@ -185,6 +184,10 @@ export type ReconcileResult =
   | { status: 'unmatched' };
 
 export async function reconcileOrder(reference: Address): Promise<ReconcileResult> {
+  const verify = createVerifier({
+    fetchTransaction: createRpcFetchTransaction(),
+    store: createMemoryStore(), // fresh per call; see the note above
+  });
   const order = getOrderByReference(reference);
   if (!order) return { status: 'unmatched' };
 
@@ -197,7 +200,7 @@ export async function reconcileOrder(reference: Address): Promise<ReconcileResul
     if (entry.err !== null) continue; // failed txs appear in this list too
 
     // The lesson-1 checks, unchanged: program, mint, delta, memo. Dedup runs
-    // against this file's fresh store, so history stays re-inspectable.
+    // against this call's fresh store, so history stays re-inspectable.
     const check = await verify(entry.signature, order);
     if (!check.ok && check.reason !== 'underpaid') continue;
 
