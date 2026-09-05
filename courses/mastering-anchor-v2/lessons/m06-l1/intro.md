@@ -174,7 +174,7 @@ If you would rather stay in your editor, most coverage extensions read `lcov.inf
 
 ### 5. Pin the baseline with Mollusk
 
-This is the one that sticks, and it starts with a build, not a test. Mollusk loads a compiled `.so` off disk by name, and the last thing that wrote to `target/deploy/` was step 2's `anchor test --profile`, which built in DEBUG. Measure that and you will pin a debug number and call it your baseline. So the rule, which holds every time you touch Mollusk from here on: **build the exact configuration you intend to measure, immediately before you measure it.**
+This is the one that sticks, and it starts with a build, not a test. Mollusk loads a compiled `.so` off disk by name, and nothing about that file says which configuration built it — step 2's `anchor test --profile` wrote a DEBUG build there, and later steps have written over the directory since. Measure whatever happens to be lying on disk and you cannot even say which build you pinned as your baseline. So the rule, which holds every time you touch Mollusk from here on: **build the exact configuration you intend to measure, immediately before you measure it.**
 
 ```bash
 cargo build-sbf              # release, defaults on: the configuration you actually ship

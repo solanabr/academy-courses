@@ -32,7 +32,7 @@ blocks:
           - id: b
             label: "Only debug assertions were stripped — `guardrails` is a debug-build lint, so a release build was already running without those checks."
             correct: false
-            feedback: "Tempting because Rust's overflow checks really are debug-only, but `guardrails` is an Anchor V2 crate feature compiled into every profile. Your release build was running those checks until you turned the feature off — which is exactly why the binary shrank."
+            feedback: "Tempting because rustc's overflow checks default to debug builds — though that is a per-profile manifest setting, and this course's workspace pins them on for release too. `guardrails`, either way, is an Anchor V2 crate feature compiled into every profile. Your release build was running those checks until you turned the feature off — which is exactly why the binary shrank."
           - id: c
             label: "Only the Mollusk harness changed — `guardrails` gates the test-time account checks, so the deployed program still runs every one."
             correct: false
@@ -71,7 +71,7 @@ blocks:
             label: "The delta is a sum over three variables, so no single change owns it and a regression can hide inside the win."
             correct: true
             feedback: "One net figure attributes to nothing. A regression covered by two wins ships invisibly and then lives there; no tool fixes that, because it's an experiment-design problem and the cure is one rebuild per variable."
-        explanation: "The whole point of the measured loop is causal clarity: change exactly one thing between measurements so the delta is attributable. Three changes at once could hide a regression cancelled by two wins — you would ship all three blind. Concretely: change 1 saves 400 CU, change 2 costs 200, change 3 does nothing, the sum still goes down, and you carry the 200-CU regression forever. The fix is not a better profiler; it is going back and isolating the flags one build at a time."
+        explanation: "The whole point of the measured loop is causal clarity: change exactly one thing between measurements so the delta is attributable. Three changes at once could hide a regression cancelled by a larger win — you would ship all three blind and carry the regression forever. The fix is not a better profiler; it is going back and isolating the flags one build at a time."
       - id: range-not-digit
         prompt: "const-rent's saving is quoted as ~85-90 CU, not a single number. Why does the course refuse to freeze one digit here?"
         multiSelect: false
