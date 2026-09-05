@@ -81,11 +81,11 @@ blocks:
             feedback: "A delegate pull is initiated by your crank, not by a webhook retry; signature dedup guards fulfillment, not pull cadence."
         explanation: "periodHours (plans) and periodLengthS (delegations) are the documented unit trap. Compare seconds against Unix chain time; 24 hours is 86,400 seconds, not 24."
       - id: m05-l2-q4
-        prompt: "A subscriber's plan lapsed last week, yet your crank still charged them today because the delegation account is still on-chain. Which check was missing, and why does the account persist?"
+        prompt: "A subscriber's plan lapsed last week, yet your crank still dispatched a pull for them today — refused on-chain, one base fee gone — because the delegation account is still there. Which guard check is missing, and why does the account persist?"
         multiSelect: false
         options:
           - id: a
-            label: "The active-flag check: the program clears a delegation's active flag and closes its account the moment a plan's term ends, so only a stale flag lets a pull through."
+            label: "The active-flag check: the program clears a delegation's active flag and closes its account the moment a plan's term ends, so only a stale flag lets a pull get dispatched."
             correct: false
             feedback: "Ending a term does not delete the account, and an active flag alone does not encode a time-based lapse."
           - id: b
@@ -93,7 +93,7 @@ blocks:
             correct: false
             feedback: "A zero allowance does not close the account, and it would not represent elapsed time either."
           - id: c
-            label: "The expiresAtTs-vs-chain-time check: these accounts persist until revoked, so expiry is the only thing that time-bounds a pull."
+            label: "The expiresAtTs-vs-chain-time check: these accounts persist until revoked, so existence proves nothing, and a guard that skips the expiry mirror pays for an on-chain refusal every tick."
             correct: true
-            feedback: "Nothing on-chain reaps an account on a schedule, and existence proves nothing about validity; 0 is the sentinel for never expires, which a naive now-greater-than test rejects outright."
-        explanation: "These accounts stay on-chain until a revoke instruction closes them. Nothing auto-expires them, so your crank must compare expiresAtTs against chain time on every pull (with 0 meaning 'never expires')."
+            feedback: "Nothing on-chain reaps an account on a schedule. The program refuses the lapsed pull before a token moves; your guard's job is to refuse it before a fee is spent. And 0 is the sentinel for never expires, which a naive now-greater-than test rejects outright."
+        explanation: "These accounts stay on-chain until a revoke instruction closes them, and the program — not account existence — enforces the expiry bound, refusing a lapsed pull before any token moves. Your crank mirrors that check (expiresAtTs vs chain time, 0 meaning 'never expires') so the refusal costs nothing instead of a base fee per tick."
