@@ -166,7 +166,7 @@ Simplicity second. One logical transfer is several dependent transactions with p
 
 - Confidential transfer must be enabled at mint creation. You cannot add it to an existing mint later; there is no retrofit, only a new mint and a migration.
 - Encrypted is not anonymous. Sender and receiver addresses stay fully public; only the amount is hidden.
-- A transfer hook cannot see or act on confidential amounts. The two extensions do not compose, so pick your module: programmable transfers or hidden amounts, not both.
+- A transfer hook cannot see or act on confidential amounts. The two extensions do compose mechanically — a confidential transfer still invokes the hook, handing it the sentinel amount `u64::MAX`, and PYUSD's own mint carries both — but your hook goes amount-blind on the confidential path. Any hook whose logic gates on amounts must be designed for that sentinel, or the pairing is a trap.
 - The sub-2^48 cap means a confidential balance is not a full-range u64, and your amount validation must say so.
 
 When NOT to reach for it, then, reduces to one test: any token that must trade on a DEX or settle in a single transaction is out. What remains is the payroll case, B2B settlement, treasury operations: flows between counterparties who already know each other and simply do not want the amounts on a billboard.
