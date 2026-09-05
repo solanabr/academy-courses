@@ -597,7 +597,7 @@ If you run `04-pull.ts` a second time immediately, you should see `refused: too-
 
 ## Challenge
 
-The period-window guard you imported in the lab is the solo piece, and the starter I ship you contains, on purpose, exactly the two documented unit-and-clock bugs from the theory. The function takes its five inputs as plain positional scalars, in the order the fields matter, `active, expiresAtTs, lastChargedTs, periodHours, now`, which is also exactly how the grader (and the lab) will call it. Save it as `subscriptions/decide-pull.ts`, the module `04-pull.ts` and the gate both import:
+The period-window guard you imported in the lab is the solo piece, and the starter I ship you contains, on purpose, exactly the two documented unit-and-clock bugs from the theory. The function takes its five inputs as plain positional scalars, in the order the fields matter, `active, expiresAtTs, lastChargedTs, periodHours, now`, which is also exactly how the grader (and the lab) will call it. One seam between the two surfaces: the coding widget's copy of this starter carries the declarations bare, because the grader executes them without module syntax, while the file you save keeps the `export` keywords below so the imports resolve. Save it as `subscriptions/decide-pull.ts`, the module `04-pull.ts` and the gate both import:
 
 ```typescript
 export interface PullDecision {
