@@ -93,11 +93,11 @@ Two receipts to place the feature in the real world before we build. PYUSD, the 
 
 The plan: one crate, one program, one test file. You will build the hook, initialize its manifest, mint a hooked SPROUT variant inside the harness, and drive two transfers through it. Everything in this lab was built and run on this machine on 2026-08-22 with the exact pins below, including the compute numbers you just read.
 
-A scope note before the first command, because it changes how you should read the code. This lab uses Anchor and does not teach it. The framework layer, the macros, the account constraints, the CPI mechanics, the testing patterns, belongs to the Master Anchor V2 course, and if a `#[derive(Accounts)]` block here makes you want a fuller explanation of what the constraint system is doing, that is the course to take it to. What you are learning here is the interface and the extension, not the framework. The program is about forty lines of logic wearing a thin Anchor coat, and everything specific to hooks would look the same in raw Rust with more ceremony.
+A scope note before the first command, because it changes how you should read the code. This lab uses Anchor and does not teach it. The framework layer, the macros, the account constraints, the CPI mechanics, the testing patterns, belongs to the Master Anchor V2 course (`mastering-anchor-v2`), and if a `#[derive(Accounts)]` block here makes you want a fuller explanation of what the constraint system is doing, that is the course to take it to; if you have never read an Anchor program at all, its opening anatomy module is the right read-this-first before this lab. What you are learning here is the interface and the extension, not the framework. The program is about forty lines of logic wearing a thin Anchor coat, and everything specific to hooks would look the same in raw Rust with more ceremony.
 
 The autonomy ladder for the lab, stated plainly so you know when you are on your own: steps 1 through 6 are worked with you, step 7 leaves the `gate` function deliberately empty for you to write, step 9 is where the test suite goes red against that empty gate, and the Challenge is unscaffolded.
 
-**1. Get the build toolchain.** You need Rust and the Solana toolchain's SBF compiler. If `cargo-build-sbf` is not already on your path from earlier work:
+**1. Get the build toolchain.** You need Rust and the Solana toolchain's SBF compiler. No Rust toolchain at all yet? The Rust & TypeScript Fundamentals course installs it from zero in about twenty minutes in its m04-l1, and its module 4 more broadly is where the Rust-reading fluency this lesson leans on comes from. If `cargo-build-sbf` is not already on your path from earlier work:
 
 ```bash
 # Rust, if you do not have it

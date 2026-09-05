@@ -97,7 +97,7 @@ And when a client asks you the direct question, which they will, the honest answ
 
 The opener's `curl` proved the account exists. Now you build the decoder that turns those bytes into a verdict, the same read I performed for the table above. This is deliberately dependency-light: one msgpack library, Node's built-in `fetch`, no Metaplex SDK, because the point is that you can audit the enforcement story from raw bytes even if every client library disappears.
 
-1. Set up a workspace. You need Node (the course floor is unchanged from m06-l1: Node 18 or newer, anything with built-in `fetch`) and exactly one package:
+1. Set up a workspace. You need Node (the course floor is unchanged from m01-l1: Node 20 or newer, anything with built-in `fetch`) and exactly one package:
 
    ```bash
    mkdir ruleset-audit && cd ruleset-audit
