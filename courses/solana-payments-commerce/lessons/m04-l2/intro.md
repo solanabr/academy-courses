@@ -497,7 +497,7 @@ Run it:
 npx tsx smoke.ts
 ```
 
-With the two placeholder throws still in place, the smoke fails on the ledger row count (each throw is caught, logged with its `Your turn` message by the receiver's catch block, and the claim released, so no row is ever written), which is the lab telling you the completion rungs are genuinely yours. When your `claim` and `record` are right, it prints the pass line. Wire `npm run verify:backoffice` to this script in `package.json` (`"verify:backoffice": "tsx smoke.ts"`), because the capstone re-runs every rung's verify by that name.
+With the two placeholder throws still in place, the smoke fails on the ledger row count (each throw is caught, logged with its `Your turn` message by the receiver's catch block, and the claim released, so no row is ever written), which is the lab telling you the completion rungs are genuinely yours. When your `claim` and `record` are right, it prints the pass line. Wire `npm run verify:backoffice` to this script in `package.json` (`"verify:backoffice": "tsx smoke.ts"`), so every rung's verify stays runnable by name — the habit that pays when the capstone's journey harness shakes the assembled stack and you need to re-check one rung in isolation.
 
 ![Comparison of the smoke test's stubbed verifier, resolver, and temp ledger against the live devnet wiring, with the signature registry identical on both sides.](assets/v08-comparison.png)
 
