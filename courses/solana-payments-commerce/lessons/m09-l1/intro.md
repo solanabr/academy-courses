@@ -210,9 +210,9 @@ Mounting at the root matters for one surface in particular: the blink's `actions
 
 ![Route map of the single server on port 3000 branching to health check, transaction request with the gasless path, root-mounted blink actions, and the x402 and MPP payment routes.](assets/v07-diagram.png)
 
-A word on the quietest surface in that map, because it is easy to forget it is even there. The MPP challenge path from the protocols module rides inside the x402 app with no extra mounting work: the same pressing-price route that answers an unpaid x402 call with a 402 also serves the `WWW-Authenticate: Payment` challenge for MPP-speaking clients, per the draft-solana-charge-00 flow you built against, splits cap and all. Two machine-payment protocols, one route, zero new code tonight. When the agent leg runs, it exercises the x402 side; the MPP side is mounted, live, and waiting for the first client that speaks it, which is roughly the correct posture for a payment-method spec that still moves in its own repo rather than sitting on any standards body's clock. You built for the rail that has traffic and mounted the one that is coming.
+A word on the quietest surface from the protocols module, because it is easy to misremember it as already wired in. The MPP challenge path does NOT ride inside the x402 app: in module 7 the `WWW-Authenticate: Payment` challenge was served by the separate `pay gate` process, driven by `paywall.yml` and proxying a payment-free upstream, and nothing tonight changes that architecture — exactly the "config file standing in front of the x402 workspace" from the roster note above. boot.ts spawns three processes, server, worker, crank, and a pay gate is not one of them, so the assembled stack speaks x402 only. If you want the MPP side live it is one more terminal, not new code: expose a bare pressing-price route for the gate to proxy (the x402-mounted route cannot be its upstream, since the gate requires a payment-free one), point `paywall.yml` at it, and run the gate on :4021 exactly as in module 7. You built for the rail that has traffic; the one that is coming stays a documented command away, which is the honest posture for a payment-method spec that still moves in its own repo rather than sitting on any standards body's clock.
 
-**4. The background loops.** The worker and the crank stay separate processes, and the crank's process boundary is what preserves the kit seam at runtime: spawned through npm with its workspace as the working directory, its imports resolve against the kit-7 island's own `node_modules`, never yours. First point each loop's workspace at its entry file (mine are `src/worker.ts` in backoffice and `src/crank.ts` in subscriptions; use your actual filenames):
+**4. The background loops.** The worker and the crank stay separate processes. One mental model to correct before you wire them, because it is a common one: it is not the process boundary, and not the working directory, that preserves the kit seam at runtime. Node resolves a bare import by walking up from the *importing file's* location to the nearest `node_modules`, so the crank's imports land in the kit-7 island for exactly one reason — `crank.ts` lives inside `subscriptions/`, whose own `node_modules` holds kit 7. It would resolve identically launched from any directory, and a process spawned with the "right" cwd that imported a file outside the island would still get kit 6. What the separate process buys you is lifecycle isolation — a crashed crank cannot take the server down — not import isolation; the entry file's address does that. First point each loop's workspace at its entry file (mine are `src/worker.ts` in backoffice and `src/crank.ts` in subscriptions; use your actual filenames):
 
 ```bash
 npm pkg set scripts.start="tsx src/worker.ts" --workspace backoffice
@@ -229,7 +229,9 @@ import { fileURLToPath } from 'node:url';
 // npm's --workspace flag only resolves from the repo root, and boot itself
 // runs with cwd inside stack/, so every child is spawned from the root
 // explicitly. npm then executes each script with the workspace itself as
-// cwd, which is what keeps the crank's imports inside the kit-7 island.
+// cwd -- a convenience for the scripts' relative paths, nothing more:
+// import resolution never depends on cwd, only on where each entry file
+// lives.
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 
 interface Proc {
@@ -238,8 +240,8 @@ interface Proc {
   script: string;
 }
 
-// Three long-lived processes. The crank runs via its own workspace so its
-// imports resolve against the kit-7 island, never against our kit-6 tree.
+// Three long-lived processes. The crank's entry file lives inside the
+// kit-7 island, so its imports resolve there, never against our kit-6 tree.
 const PROCS: Proc[] = [
   { name: 'server', workspace: 'stack', script: 'serve' },
   { name: 'worker', workspace: 'backoffice', script: 'start' },
@@ -286,8 +288,10 @@ Checkpoint: `npm run --workspace stack boot` shows three prefixed startup lines,
 ```typescript
 // stack/src/journey.ts
 import { execFile } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { createKeyPairSignerFromPrivateKeyBytes } from '@solana/kit';
 import { createVerifier } from '../../verifier/src/verify';
 import { createRpcFetchTransaction } from '../../verifier/src/rpc';
 import { createMemoryStore } from '../../verifier/src/store';
@@ -399,7 +403,33 @@ async function legRampStub(): Promise<string> {
   return 'session-token URL shaped correctly, wallet address absent';
 }
 
+// One buyer for the whole journey (see "One buyer, staged balances").
+// Minted fresh in main() before any leg runs; legs 2-7 sign and pay with it.
+let buyer: Awaited<ReturnType<typeof createKeyPairSignerFromPrivateKeyBytes>>;
+
+async function mintBuyer() {
+  // The staged-balances plan, made real: a fresh buyer per run, persisted
+  // to /tmp/buyer.json in solana-keygen's 64-byte format so the mid-debug
+  // airdrop command works, with BUYER_ADDRESS exported before any leg runs
+  // (the ramp leg's leak check reads it, and child processes inherit it).
+  // Funding it -- USDC to its ATA, deliberately zero SOL -- is your leg
+  // bodies' staging work, not the mint's.
+  const seed = crypto.getRandomValues(new Uint8Array(32));
+  const signer = await createKeyPairSignerFromPrivateKeyBytes(seed, true);
+  const pubkeyBytes = new Uint8Array(
+    await crypto.subtle.exportKey('raw', signer.keyPair.publicKey),
+  );
+  writeFileSync(
+    '/tmp/buyer.json',
+    JSON.stringify(Array.from(seed).concat(Array.from(pubkeyBytes))),
+  );
+  process.env.BUYER_ADDRESS = signer.address;
+  return signer;
+}
+
 async function main(): Promise<void> {
+  buyer = await mintBuyer();
+
   const results: LegResult[] = [];
 
   results.push(await assertLeg('ramp-stub', legRampStub));
@@ -430,7 +460,7 @@ main().catch((err) => {
 
 Checkpoint before you write a single leg body: with the stack booted in terminal one and only leg 1 wired, `npm run journey` prints one `PASS ramp-stub:` line, then `journey: 1/1 legs passed`, and exits 0. Prove the harness works while it is still judging one easy leg; a driver you first debug at leg 6 is a driver you do not trust at leg 6.
 
-The closing shape of every chain leg is the same four lines, so here is the pattern once, with the record club's round numbers, and then it is never shown again:
+The closing shape of every chain leg is the same four lines, so here is the pattern once, priced at the catalog's pressing, and then it is never shown again:
 
 ```typescript
 // the tail of every chain leg: one verifier verdict decides PASS
@@ -439,14 +469,14 @@ const result = await retryRead(() =>
     recipient: STORE_WALLET,
     recipientAta: STORE_USDC_ATA,
     mint: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
-    amountBaseUnits: 12_000_000n,
+    amountBaseUnits: 12_500_000n,
     orderId,
   }),
 );
 if (!result.ok) throw new Error(result.reason);
 ```
 
-Twelve devnet USDC, in base units, against the devnet mint your transfer-kit config has pinned since module 2. For the gasless leg, add the two sponsored-specific reads on the same fetched transaction: the fee payer must equal the Kora signer and must not equal the buyer, and the buyer's lamport delta must be exactly zero. For the dunning half of leg 4, the assertion is not about a transaction at all; it is a ledger read proving the forced failure became an open invoice and that no retry transaction against the buyer's wallet exists.
+Twelve and a half devnet USDC — the pressing's catalog price, unchanged since the transaction-request lesson set it — in base units, against the devnet mint your transfer-kit config has pinned since module 2. For the gasless leg, add the two sponsored-specific reads on the same fetched transaction: the fee payer must equal the Kora signer and must not equal the buyer, and the buyer's lamport delta must be exactly zero. For the dunning half of leg 4, the assertion is not about a transaction at all; it is a ledger read proving the forced failure became an open invoice and that no retry transaction against the buyer's wallet exists.
 
 ![Flowchart of a forced renewal failure where the passing path records an open invoice with no wallet retry, while a wallet retry or an authority revoke fail.](assets/v08-flowchart.png)
 
@@ -483,7 +513,7 @@ And so you know the target you are debugging toward, here is what a green night 
 [worker] backoffice worker ready
 [crank] crank armed on plan wavelength-motm
 PASS ramp-stub: session-token URL shaped correctly, wallet address absent
-PASS gasless-first-purchase: Kora fee payer, buyer lamports unchanged, 12 USDC verified
+PASS gasless-first-purchase: Kora fee payer, buyer lamports unchanged, 12.5 USDC verified
 PASS webhook-fulfilled-order: exactly one ledger row across three deliveries
 PASS subscription-and-dunning: pull reconciled; forced failure -> open invoice, no retry
 PASS blink-purchase: ActionPostResponse tx from the module-3 builder, verified
