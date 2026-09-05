@@ -4,12 +4,23 @@
 
 Last lesson the back office grew ears: it ingests Helius webhooks idempotently, verifies every event on-chain before believing it, and writes an orders ledger keyed by the transaction signature, fulfilling exactly once. Today a buyer tests what it cannot do yet. They bought a pressing of a live session, the record arrived warped, and they want their money back. You open Solana's payments docs looking for the refund flow and find nothing, because chargebacks were designed out of the rails on purpose. The reversal is yours to build.
 
-Before anything new, thirty seconds of housekeeping this module has been deferring, then prove the baseline still answers. The ops folders you created as bare siblings join the `wavelength` workspace now, so they can import each other by name (`verifier`, `transfer-kit`) instead of by relative path; `npm init -y` named each package after its folder, which is exactly the name the workspace resolver uses. From the `wavelength` root:
+Before anything new, two minutes of housekeeping this module has been deferring, then prove the baseline still answers. The ops folders you created as bare siblings join the `wavelength` workspace now, so they can import each other by name (`verifier`, `transfer-kit`) instead of by relative path. Importing by name takes two things, and the roster only provides the first. Registering the folders as workspaces makes npm symlink each package into the root `node_modules` under its package name (`npm init -y` named each after its folder). But when a file then says `from 'verifier'`, Node follows that symlink to the package's `package.json` and opens whatever `main` names, and `npm init -y` wrote `"main": "index.js"`, a file neither package has. Point `main` at each package's real front door instead. `transfer-kit` has had a barrel at `src/index.ts` since module 2; the verifier never got one, because until today every consumer imported its files by relative path. Give it the same front door:
+
+```ts
+// verifier/src/index.ts
+export { createVerifier } from './verify.ts';
+export { createMemoryStore } from './store.ts';
+export { createRpcFetchTransaction } from './rpc.ts';
+export type { ExpectedOrder, VerifyResult, RejectReason } from './types.ts';
+```
+
+Then, from the `wavelength` root, register the roster and aim both `main` fields (tsx, which runs every script in this course, resolves a TypeScript entry directly):
 
 ```bash
 cd ~/wavelength
 npm pkg set --json workspaces='["transfer-kit","verifier","backoffice","backoffice-refunds"]'
 npm pkg set type="module"
+npm pkg set main="src/index.ts" --workspace transfer-kit --workspace verifier
 npm install
 npm run --workspace backoffice verify:backoffice
 ```
@@ -112,13 +123,40 @@ Six steps. The reconciler and refund builder are scaffolded with TODOs; the poli
 mkdir -p backoffice-refunds/src
 cd backoffice-refunds && npm init -y && npm pkg set type=module
 npm pkg set scripts.build="tsc --noEmit"
+npm pkg set scripts.verify:refunds="tsx verify-refunds.ts"
 npm install -D tsx typescript @types/node
 cd .. && npm install
 ```
 
-Create these six files as you work through the steps below: `reconcile.ts`, `refund.ts`, `policy.ts`, `origin.ts`, `sweep.ts`, and `ledger.ts`, the last one a thin extension of the backoffice ledger, plus the verify harness. The build succeeds with the scaffolds in place because every TODO throws rather than type-errors; the harness is what will tell you they are unfinished.
+Create these seven files under `src/` as you work through the steps below: `reconcile.ts`, `refund.ts`, `policy.ts`, `origin.ts`, `sweep.ts`, `ledger.ts` (a thin extension of the backoffice ledger), and `reconcile-demo.ts`, the checkpoint driver printed in step 2. The verify harness the script line just wired, `verify-refunds.ts`, lives at the package root exactly like the verifier's did, and step 6 prints it whole. The build succeeds with the scaffolds in place because every TODO throws rather than type-errors; the harness is what will tell you they are unfinished.
 
-**Step 2: the reconciler.** Open `backoffice-refunds/src/reconcile.ts`. The walk is the one from the theory section: the signature search and the failed-transaction filter are given, and the TODO is the classification, the step where the verifier's observed delta becomes one of the four states:
+**Step 2: the reconciler.** One amendment to the verifier comes first, because the classification below reads a field lesson 1's contract does not carry. The freeze on `VerifyResult` was about the call shape, `verify(signature, expectedOrder)`, and about never changing an existing field; adding one is neither. In `verifier/src/types.ts`, the result gains the observed delta:
+
+```ts
+// verifier/src/types.ts: the one amendment to the frozen contract, additive.
+export type VerifyResult =
+  | { ok: true; reason: 'verified'; signature: string; paidBaseUnits: bigint }
+  | {
+      ok: false;
+      reason: RejectReason | 'not-found';
+      signature: string;
+      paidBaseUnits?: bigint;
+    };
+```
+
+Required on the pass branch, optional on the reject branch, because rejections upstream of the delta check (`duplicate`, `not-found`) never learned the number. In `verifier/src/verify.ts`, the two returns downstream of the delta computation carry it:
+
+```ts
+// verifier/src/verify.ts: both returns that know the delta now report it.
+    if (credit.delta < expected.amountBaseUnits) {
+      return { ok: false, reason: 'underpaid', signature, paidBaseUnits: credit.delta };
+    }
+    // ...memo check unchanged...
+    deps.store.add(signature);
+    return { ok: true, reason: 'verified', signature, paidBaseUnits: credit.delta };
+```
+
+Every earlier caller still type-checks, because none of them read a field that did not exist; re-run `npm run --workspace verifier verify:verifier` to prove the amendment broke nothing. Now open `backoffice-refunds/src/reconcile.ts`. The walk is the one from the theory section: the signature search and the failed-transaction filter are given, and the TODO is the classification, the step where the verifier's observed delta becomes one of the four states:
 
 ```ts
 // backoffice-refunds/src/reconcile.ts
@@ -164,19 +202,63 @@ export async function reconcileOrder(reference: Address): Promise<ReconcileResul
     if (!check.ok && check.reason !== 'underpaid') continue;
 
     // TODO: classify by the observed delta, in base units, never floats.
-    // The verifier hands you check.paidBaseUnits. Record the payment against
-    // order.id, then return 'paid' when it equals order.amountBaseUnits,
-    // 'underpaid' when it is short, 'overpaid' when it exceeds. Bigints only:
-    // one float comparison here misroutes every borderline amount.
+    // The verifier hands you check.paidBaseUnits (always present on the
+    // 'verified' and 'underpaid' branches; the optionality covers rejections
+    // upstream of the delta check). Record the payment against order.id, then
+    // return 'paid' when it equals order.amountBaseUnits, 'underpaid' when it
+    // is short, 'overpaid' when it exceeds. Bigints only: one float
+    // comparison here misroutes every borderline amount.
     throw new Error('TODO: classify the observed delta');
   }
   return { status: 'unmatched' };
 }
 ```
 
-Two design notes, because they are the interesting decisions. First, the verifier stays the single judge; the scaffold extends its result with the observed `paidBaseUnits` on both branches (an additive change, every earlier caller still works) so the reconciler can classify instead of just accept or reject. An `underpaid` rejection is no longer a dead end, it is data. One caveat to carry into module 7: in the verifier's ordering the amount check runs before the memo check, so an `underpaid` verdict carries no order binding by itself. On the reference path that is safe, the signature search already bound every candidate to this order's reference, but the memo path must re-check the memo before classifying a short payment, or a stranger's transfer could route into your policy queue. Second, notice the reconciler never trusts the webhook path at all. Webhooks told you something probably happened; reconciliation is the batch process that would rebuild the truth from chain state alone if every webhook were lost. Merchants who have run month-end against a PSP settlement report already know this shape: same job, except your settlement report is the chain, queryable any time.
+Two design notes, because they are the interesting decisions. First, the verifier stays the single judge; the amendment you just made hands the reconciler the observed `paidBaseUnits` so it can classify instead of just accept or reject. An `underpaid` rejection is no longer a dead end, it is data. One caveat to carry into module 7: in the verifier's ordering the amount check runs before the memo check, so an `underpaid` verdict carries no order binding by itself. On the reference path that is safe, the signature search already bound every candidate to this order's reference, but the memo path must re-check the memo before classifying a short payment, or a stranger's transfer could route into your policy queue. Second, notice the reconciler never trusts the webhook path at all. Webhooks told you something probably happened; reconciliation is the batch process that would rebuild the truth from chain state alone if every webhook were lost. Merchants who have run month-end against a PSP settlement report already know this shape: same job, except your settlement report is the chain, queryable any time.
 
 The memo path and the treasury sweep from the theory section live in `sweep.ts`, wired but with the `tryMatchByReferenceOrMemo` TODO open: reference lookup first, memo parse as the fallback, orphan row when both miss. Fill it after the main walk works; the harness only exercises the reference path today, and module 7 will lean on the memo half.
+
+The checkpoint driver is `src/reconcile-demo.ts`, fully worked. It seeds the open-orders row the reconciler will look up (in production, your checkout server makes that `recordOrder` call the moment it mints the reference; here the demo stands in for it), then runs the walk and prints the verdict. It reads the same environment variables module 4's live harness taught you, so nothing new to remember:
+
+```ts
+// backoffice-refunds/src/reconcile-demo.ts
+// Usage: npx tsx backoffice-refunds/src/reconcile-demo.ts <reference>
+// Seeds an open order against the reference, then reconciles it.
+import { address } from '@solana/kit';
+import { recordOrder } from './ledger';
+import { reconcileOrder } from './reconcile';
+
+function req(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`set ${name}, same variable as the module 4 live harness`);
+  return v;
+}
+
+if (!process.argv[2]) throw new Error('usage: reconcile-demo.ts <reference>');
+const reference = address(process.argv[2]);
+
+const order = {
+  orderId: process.env.ORDER_ID ?? 'ord-0231',
+  recipient: req('MERCHANT'),
+  recipientAta: req('MERCHANT_ATA'),
+  mint: process.env.MINT ?? '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
+  amountBaseUnits: BigInt(process.env.AMOUNT_BASE_UNITS ?? '30000000'),
+};
+recordOrder(order, reference);
+
+const result = await reconcileOrder(reference);
+if (result.status === 'unmatched') {
+  console.log(`reconcile: order ${order.orderId} unmatched`);
+  process.exit(1);
+}
+const paid =
+  'paidBaseUnits' in result ? result.paidBaseUnits : order.amountBaseUnits;
+console.log(
+  `reconcile: order ${order.orderId} ${result.status}, signature ${result.signature}, ${paid} base units`,
+);
+```
+
+It imports `recordOrder` from `ledger.ts`, which step 3 fleshes out; the open-orders half is two Map operations, so if you are running strictly in order, jump ahead, wire those two functions, and come back.
 
 Checkpoint before moving on. Pay one of your own devnet orders from a second wallet (the transfer-kit CLI from module 2 does this in one line), then reconcile it:
 
@@ -283,6 +365,11 @@ Read the shape of it. Guards first, in cheapness order: three ledger checks that
 
 ```ts
 // backoffice-refunds/src/origin.ts
+import { createSolanaRpc } from '@solana/kit';
+import type { Address, Signature } from '@solana/kit';
+
+const rpc = createSolanaRpc(process.env.RPC_URL ?? 'https://api.devnet.solana.com');
+
 export async function getOriginatingWallet(
   originSignature: Signature,
   mint: Address,
@@ -318,6 +405,9 @@ Back to the builder itself. The `already refunded` check matters more than it lo
 
 ```ts
 // backoffice-refunds/src/policy.ts
+import type { ExpectedOrder } from 'verifier';
+import type { ReconcileResult } from './reconcile';
+
 export type UnderpayPolicy =
   | { kind: 'hold-for-topup'; windowMinutes: number }
   | { kind: 'refund-minus-fee'; feeBaseUnits: bigint };
@@ -331,23 +421,160 @@ export const policy: { underpay: UnderpayPolicy; overpay: OverpayPolicy } = {
   underpay: { kind: 'hold-for-topup', windowMinutes: 60 },
   overpay: { kind: 'credit-to-order' },
 };
+
+// The ledger event a routed non-exact payment produces. No fulfillment
+// member exists here on purpose.
+export interface PolicyEvent {
+  orderId: string;
+  policy: UnderpayPolicy['kind'] | OverpayPolicy['kind'];
+  paidBaseUnits: bigint;
+  at: string;
+}
+
+// Yours to write: take an underpaid reconcile result and the order it
+// shorts, and return the PolicyEvent your stated policy dictates.
+export function routeUnderpaid(
+  result: Extract<ReconcileResult, { status: 'underpaid' }>,
+  order: ExpectedOrder,
+): PolicyEvent {
+  throw new Error('TODO: route by your stated policy');
+}
 ```
 
-Note what the type system refuses to express: there is no `fulfill-anyway` member and no ungated instant auto-refund member. The two traps are unrepresentable, which is the cheapest guard you will ever ship. Your routing function takes an underpaid reconcile result and returns the ledger event your policy dictates; the scaffold's harness checks only that an underpaid order produces a policy-stamped ledger row rather than a fulfillment.
+Note what the type system refuses to express: there is no `fulfill-anyway` member and no ungated instant auto-refund member. The two traps are unrepresentable, which is the cheapest guard you will ever ship. `routeUnderpaid` takes an underpaid reconcile result and returns the ledger event your policy dictates; the harness checks only that an underpaid order produces a policy-stamped event rather than a fulfillment.
 
-**Step 6: run the gate.**
+**Step 6: the gate.** Save as `backoffice-refunds/verify-refunds.ts`, the file step 1's script line already points at. Read the order of operations before you run it: the underpaid check goes first because its reconcile records the payment row that the refund half then reverses, and the two must-fail probes bracket the one call that spends money.
+
+```ts
+// backoffice-refunds/verify-refunds.ts
+// The lesson's acceptance gate, wired to `npm run verify:refunds`.
+// Env: REFERENCE (the reference of the devnet payment you made in step 2's
+// checkpoint), plus MERCHANT / MERCHANT_ATA / MINT / AMOUNT_BASE_UNITS from
+// the module 4 live harness. Optional: FRESH_SIGNATURE, see below.
+import { address, signature } from '@solana/kit';
+import { getPayment, recordOrder } from './src/ledger';
+import { reconcileOrder } from './src/reconcile';
+import { policy, routeUnderpaid } from './src/policy';
+import { refundPayment } from './src/refund';
+import { getOriginatingWallet } from './src/origin';
+
+function fail(msg: string): never {
+  console.error(`REFUNDS FAIL: ${msg}`);
+  process.exit(1);
+}
+
+function req(name: string): string {
+  const v = process.env[name];
+  return v ?? fail(`set ${name}, same variables as the module 4 live harness`);
+}
+
+const reference = address(req('REFERENCE'));
+const priceBaseUnits = BigInt(process.env.AMOUNT_BASE_UNITS ?? '30000000');
+
+// 1. Underpaid routing. An order for double the price turns the real payment
+// into a short one, which must land in policy, never in fulfillment.
+const order = {
+  orderId: 'ord-underpaid-check',
+  recipient: req('MERCHANT'),
+  recipientAta: req('MERCHANT_ATA'),
+  mint: process.env.MINT ?? '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
+  amountBaseUnits: priceBaseUnits * 2n,
+};
+recordOrder(order, reference);
+const short = await reconcileOrder(reference);
+if (short.status !== 'underpaid') {
+  fail(`expected underpaid, got ${short.status}: is your classification comparing base units?`);
+}
+const event = routeUnderpaid(short, order);
+if (event.policy !== policy.underpay.kind) {
+  fail(`routed to ${event.policy}, but your stated policy is ${policy.underpay.kind}`);
+}
+console.log(`  underpaid order ${order.orderId}: routed to ${event.policy}`);
+
+// 2. Must fail: an origin the ledger has never seen.
+const mintAddress = address(order.mint);
+try {
+  await refundPayment(signature('1'.repeat(64)), {
+    to: address(order.recipient),
+    mint: mintAddress,
+    amountBaseUnits: 1n,
+    reason: 'must-never-send',
+  });
+  fail('a refund against an origin the ledger has never seen went through');
+} catch (err) {
+  if (!(err instanceof Error && err.message.includes('refusing to refund'))) throw err;
+  console.log('  unknown origin: refused, as it must be');
+}
+
+// 3. The real reversal: refund the payment part 1 just classified.
+const originSignature = short.signature;
+const payment = getPayment(originSignature);
+if (!payment) fail('classification never recorded the payment row; re-read the step 2 TODO');
+try {
+  const to = await getOriginatingWallet(originSignature, mintAddress);
+  const refund = await refundPayment(originSignature, {
+    to,
+    mint: mintAddress,
+    amountBaseUnits: BigInt(payment.paidBaseUnits),
+    reason: 'verify-harness',
+  });
+  console.log(`  refund ${refund.signature}: recorded, linked to origin`);
+} catch (err) {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (msg.includes('already refunded')) {
+    console.log('  refund: idempotency guard held on re-run; linkage already in the ledger');
+  } else if (msg.includes('not finalized')) {
+    fail('origin payment not finalized yet; wait a few seconds and re-run');
+  } else {
+    throw err;
+  }
+}
+
+// 4. Must fail, env-gated: a refund requested before the origin finalized.
+const freshSig = process.env.FRESH_SIGNATURE;
+if (freshSig) {
+  const fresh = signature(freshSig);
+  const freshRow = getPayment(fresh);
+  if (!freshRow) fail('FRESH_SIGNATURE has no ledger row: reconcile it first');
+  try {
+    await refundPayment(fresh, {
+      to: await getOriginatingWallet(fresh, mintAddress),
+      mint: mintAddress,
+      amountBaseUnits: BigInt(freshRow.paidBaseUnits),
+      reason: 'must-never-send',
+    });
+    fail('refund went through: either the finality guard is missing, or the payment finalized before the gate ran; use a fresher signature');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!msg.includes('not finalized')) throw err;
+    console.log('  finality guard: refused the pre-finality refund');
+  }
+} else {
+  console.log('  finality guard: SKIP (set FRESH_SIGNATURE to exercise it)');
+}
+
+console.log(
+  'refunds: refund recorded against origin signature; underpaid order routed to policy',
+);
+```
+
+Run it from the package:
 
 ```bash
-npm run verify:refunds
+npm run --workspace backoffice-refunds verify:refunds
 ```
 
-The harness replays a finalized devnet payment, requests its refund, then seeds an underpaid order and reconciles it. Expected output:
+Expected output, first run:
 
 ```
+  underpaid order ord-underpaid-check: routed to hold-for-topup
+  unknown origin: refused, as it must be
+  refund <signature>: recorded, linked to origin
+  finality guard: SKIP (set FRESH_SIGNATURE to exercise it)
 refunds: refund recorded against origin signature; underpaid order routed to policy
 ```
 
-It will also try two things that must fail: a refund against an origin the ledger has never seen, and a refund requested seconds after a fresh payment, before finality. If either succeeds, your guards are ornamental; go back to step 4.
+The two must-fail probes are the teeth. The unknown-origin refusal runs every time: `signature('1'.repeat(64))` is the all-zeros signature, and if pushing money against it does anything but throw, your ledger guard is ornamental — go back to step 4. The finality refusal needs a payment that has not finalized yet, which no harness can conjure on demand, so it is env-gated: pay an order, run `reconcile-demo` on it immediately, export the signature as `FRESH_SIGNATURE`, and re-run the gate inside the ~12-second finalization window. Refunding it must be refused. Note also what a re-run proves for free: part 3 hits the `already refunded` guard and reports it as a pass, because idempotency surviving a second run is the property, not an inconvenience.
 
 ## Challenge
 
