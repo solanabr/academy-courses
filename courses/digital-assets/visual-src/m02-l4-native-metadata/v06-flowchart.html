@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The five-instruction order that creates a named mint
      purpose: fix the create-time vs post-init seam and where the realloc happens
-     data: 1. SystemProgram.createAccount: space = 234 (pointer only), lamports = rent(394) 2. InitializeMetadataPointer: authority + metadataAddress = the mint itself  [create-time zone] 3. InitializeMint: decimals, mint authority, freeze authority  [the seam] 4. InitializeTokenMetadata: program follows pointer to itself, REALLOCS 234 -> 394, writes name/symbol/uri  [post-init zone] 5. UpdateTokenMetadataField: writes additional_metadata "harvest_season" = "spring" (may realloc again) Annotation: steps 1-2 must precede 3; steps 4-5 must follow 3; extra lamports from step 1 are consumed by the realloc in step 4.
+     data: 1. getCreateAccountInstruction (@solana-program/system): space = 234 (pointer only), lamports = rent(394) 2. InitializeMetadataPointer: authority + metadataAddress = the mint itself  [create-time zone] 3. InitializeMint: decimals, mint authority, freeze authority  [the seam] 4. InitializeTokenMetadata: program follows pointer to itself, REALLOCS 234 -> 394, writes name/symbol/uri  [post-init zone] 5. UpdateTokenMetadataField: writes additional_metadata "harvest_season" = "spring" (may realloc again) Annotation: steps 1-2 must precede 3; steps 4-5 must follow 3; extra lamports from step 1 are consumed by the realloc in step 4.
      prompt: Vertical five-step flowchart, one node per instruction in the listed order. Shade the background in two zones split at step 3: "before InitializeMint: fixed-size, create-time extensions" above, "after InitializeMint: variable-size metadata, realloc" below. Annotate node 1 with "allocate 234, fund 394" and node 4 with "realloc 234 to 394". A thin side-arrow from node 1's lamports to node 4 labeled "pre-funded rent claimed here".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -81,7 +81,7 @@
         <div class="zl">before InitializeMint &mdash; fixed-size, create-time extensions</div>
         <div class="ins">
           <div class="n">1</div>
-          <div class="b"><div class="in">SystemProgram.createAccount</div>
+          <div class="b"><div class="in">getCreateAccountInstruction</div>
             <div class="id">space = 234 (pointer only) &middot; lamports = rent(394)</div></div>
           <div class="tag y">allocate 234, fund 394</div>
         </div>
