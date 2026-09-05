@@ -11,10 +11,10 @@ So what does a grown-up non-custodial billing system do with a failed renewal? T
 - **RevokeAbandonedSubscription and RevokeAbandonedDelegation** close dead subscription and delegation PDAs and return their rent lamports to the recorded payer. Cancelled arrangements stop costing you money.
 - The 2026 provider landscape, negatives included: MoonPay Commerce pay links support subscriptions, Stripe Billing supports stablecoin subscriptions, and Sphere has no recurring product at all.
 
-Prove the baseline: from the course repo root, re-run last lesson's gate:
+Prove the baseline: from last lesson's `subscriptions/` folder, its working directory for every command, re-run its gate:
 
 ```bash
-npx tsx subscriptions/pull.test.ts
+npx tsx pull.test.ts
 ```
 
 You should see the pull land in the ledger as a reconciled invoice. That ledger row is today's raw material: dunning is what happens to the rows that never get written. How the work splits today, out loud: the state machine and its adapter are worked, typed in with me against the six transitions, the gate harness proves them, and the full two-cycles-plus-one-failure run at the end is solo, no scaffold.
@@ -414,7 +414,9 @@ Run it from the `dunning` folder:
 
 ```bash
 npx tsx statemachine.test.ts
-``` Expected output:
+```
+
+Expected output:
 
 ```
 failed renewal -> open-invoice (no wallet retry); settle -> resume; cancel -> RevokeAbandoned enqueued
@@ -426,7 +428,7 @@ If the refusal assertion fails, your open-invoice arm went soft; if the zero-ret
 
 The transitions were completion work. The run is solo, on devnet, against the real club from last lesson.
 
-Plan terms are immutable once subscribed (that is what the `expected*` fields you signed enforce), so compressing the period means a second plan, not an edit: create plan id 2 with `periodHours: 1n` (an hour is the floor the plan's unit allows), subscribe your funded test listener to it, and leave the old plan's delegation alone; it keeps its own clock, and you can unsubscribe it later. Be honest with yourself about the wall clock this buys: two full cycles on an hourly plan is two hours, so start the crank early in the session, let it tick, and do the drain between cycle two and cycle three. Run those two cycles and watch two paid invoice rows land through the reconciler. Now force the failure: drain the test subscriber's ATA (send its USDC-dev balance elsewhere from the subscriber's wallet), let the crank fire the third pull, and prove the failure lands as an open invoice, not as a wallet retry: your ledger must show one open invoice row and zero further pull attempts against that subscription, which the state machine's thrown refusal guarantees if your crank routes through it. Then walk both exits. Exit one: top the ATA back up, pay the invoice through its reference key, and confirm the settle event resumes the subscription and the next cycle bills normally. Exit two: cancel a second test subscription outright, run the revoke queue consumer, and confirm the RevokeAbandoned lands, checking the rent lamports arriving back at the recorded payer's balance.
+Plan terms are immutable once subscribed (that is what the `expected*` fields you signed enforce), so compressing the period means a second plan, not an edit: create plan id 2 with `periodHours: 1n` (an hour is the floor the plan's unit allows), subscribe your funded test listener to it, and leave the old plan's delegation alone; it keeps its own clock, and you can unsubscribe it later. Be honest with yourself about the wall clock this buys: two full cycles on an hourly plan is two hours, so start the crank early in the session, let it tick, and do the drain between cycle two and cycle three. Run those two cycles and watch two paid invoice rows land through the reconciler. Now force the failure: drain the test subscriber's ATA (send its USDC-dev balance elsewhere from the subscriber's wallet), let the crank fire the third pull, and prove the failure lands as an open invoice, not as a wallet retry: your ledger must show one open invoice row and zero further pull attempts against that subscription, which the state machine's thrown refusal guarantees if your crank routes through it. Then walk both exits. Exit one: top the ATA back up, pay the invoice through its reference key, and confirm the settle event resumes the subscription and the next cycle bills normally. Exit two: stand up a second test listener for it — a fresh keypair with a little devnet SOL and USDC-dev, through the same subscribe flow as last lesson — and subscribe it to the hourly plan. Then walk the full teardown in order: cancel its subscription outright, revoke its Subscription Authority from that subscriber's wallet (the unilateral exit door from last lesson; this is the step that makes the accounts *abandoned* rather than merely lapsed), run the revoke queue consumer, and confirm the RevokeAbandoned lands, checking the rent lamports arriving back at the recorded payer's balance. Keep your first listener out of this exit: its Subscription Authority must stay live for Exit one's resumed billing, and a consumer pointed at it will log the live-SA refusal and requeue — the designed precondition, not a bug.
 
 Accept: a ledger trace showing two paid cycles, one open invoice with no automatic wallet-retry attempts, one settle-and-resume, and one cancel whose rent-recovery signature you can paste. That trace, all five beats of it, is the artifact.
 
