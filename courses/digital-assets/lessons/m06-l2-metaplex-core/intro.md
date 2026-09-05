@@ -127,7 +127,7 @@ Three catalog entries deserve a closer look before you type them.
 
 The three owner-managed delegates are what you reach for when an asset has to participate in something while staying its owner's. Attach `TransferDelegate` with an escrow program's address and that program can move an Almanac out of a wallet when a sale settles, without ever custodying it first. Attach `FreezeDelegate` with `frozen: true` and a staking program as the authority and the asset locks in place: still in the owner's wallet, still visible in every UI, simply unmovable until the program thaws it. That is how Core staking works, and it is why Core staking needs no vault account. The asset never goes anywhere; it just stops being able to. `BurnDelegate` is the crafting case. A farmer feeds two Almanac volumes into the Overgrowth composter and the program burns both under a delegation granted earlier, with no signature prompt at burn time.
 
-The API is `addPlugin` to attach one, and `approvePluginAuthority` to hand the key to a program address afterwards. The snippet below is illustrative, not runnable as pasted: the two addresses are PLACEHOLDERS you must replace (the first is literally the System Program's address, which is what an all-ones base58 string decodes to), and the approve only works on a plugin that exists, so an `addPlugin(umi, { asset, plugin: { type: "TransferDelegate" } })` call precedes it in any real flow:
+The API is `addPlugin` to attach one, and `approvePluginAuthority` to hand the key to a program address afterwards. The snippet below is illustrative, not runnable as pasted: the two addresses are PLACEHOLDERS you must replace (the first is literally the System Program's address, which is what an all-ones base58 string decodes to; the second is an arbitrary valid address standing in for your escrow program), and the approve only works on a plugin that exists, so an `addPlugin(umi, { asset, plugin: { type: "TransferDelegate" } })` call precedes it in any real flow:
 
 ```typescript
 // labs/m06-l2/delegate-transfer.ts (illustrative: replace BOTH placeholder
@@ -143,7 +143,7 @@ async function main() {
     plugin: { type: "TransferDelegate" },
     newAuthority: {
       type: "Address",
-      address: publicKey("22222222222222222222222222222222"),  // PLACEHOLDER: the escrow program
+      address: publicKey("8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"),  // PLACEHOLDER: the escrow program
     },
   }).sendAndConfirm(umi);
 }

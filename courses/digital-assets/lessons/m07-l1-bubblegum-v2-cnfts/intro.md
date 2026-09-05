@@ -233,7 +233,7 @@ That is not fatal, and plenty of production drops run multi-tree on purpose. But
 
 Those are `maxBufferSize: 64` rows, produced with the `tree-size.ts` helpers you just wrote in a five-line loop over depths at a fixed canopy 8 (`tree-cost.ts` sweeps canopy at fixed depth, so this sweep is its one-minute sibling), and they say something slightly startling once you stare at them. Depth barely costs anything. Going from sixteen thousand leaves to sixteen *million* costs about 0.145 SOL more in rent, because the depth only affects the changelog buffer's row width, not the leaf storage. Nothing stores your leaves. There is nothing to store.
 
-So the guidance almost writes itself: be generous with depth, be deliberate with canopy, and be honest about buffer. Depth is nearly free and permanent, so overshoot it. Canopy is expensive and permanent, so price it against the proof length your writes can actually carry. Buffer is cheap and permanent, so match it to your worst expected write concurrency and stop thinking about it.
+So the guidance almost writes itself: be generous with depth, be deliberate with canopy, and be honest about buffer. Depth is nearly free and permanent, so overshoot it. Canopy is expensive and permanent, so price it against the proof length your writes can actually carry. Buffer sits between the two and is just as permanent: cheaper than canopy, but real money at size (the depth-20 table's 64-to-256 jump costs about 0.9 SOL), so match it to your worst expected write concurrency rather than defaulting it upward.
 
 Not every depth and buffer pairing is legal, incidentally, and this is the reason `tree-size.ts` carries that pair table rather than two independent lists of allowed values. The on-chain account layout is generated for a fixed set of combinations: depth 14 accepts buffer 64, 256, 1024 or 2048 and nothing else, depth 26 starts at 512, and buffer 128 is not a legal size at any depth at all. Checking the two fields separately would wave through half a dozen pairings the program will refuse. A bad pairing does not fail gracefully at runtime either, it fails as an unhelpful account-size error after you have already paid the rent, so let the guard throw before you spend.
 
@@ -305,7 +305,7 @@ One thing changes about your setup, and it changes for a reason you should sit w
 export DAS_RPC_URL="https://devnet.helius-rpc.com/?api-key=YOUR_KEY"
 ```
 
-1. **The shared setup.** One helper owns the connection, the wallet, and the address book. Note the three Umi plugins: `mplCore()` for the collection, `mplBubblegum()` for the tree, and `dasApi()` for the reads. Without that third one, `umi.rpc.getAsset` does not exist.
+1. **The shared setup.** One helper owns the connection, the wallet, and the address book. Note the three Umi plugins: `mplCore()` for the collection, `mplBubblegum()` for the tree, and `dasApi()` for the reads. Without that third one, `umi.rpc.getAsset` does not exist. (One type-system honesty note: with these exact pins the das-api augmentation does not reach `umi.rpc` under a strict `tsc` module-resolution pass, so your editor may red-squiggle `getAsset`; the lab's documented `npx tsx` runs are unaffected, and the squiggle is the pinned stack's gap, not your code.)
 
     ```typescript
     // overgrowth/umi.ts

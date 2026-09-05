@@ -51,7 +51,7 @@ The first is the conflict matrix you ported in module 1. Five rules, taken strai
 
 The second gate is the venue allowlist, and it is stricter than the matrix in the way that matters most: the matrix tells you what the token program refuses, and the allowlist tells you what the *market* refuses. Those are different failures. The first happens in a second, on devnet, for free. The second happens weeks later when someone tries to create a pool and finds out your mint cannot have one.
 
-And under both sits the footgun that makes this lesson exist at all: Token-2022 extensions must be enabled at mint creation and cannot be added afterwards, and the "most" that qualifies that sentence is exactly the two exceptions m02 taught, TokenMetadata's post-init TLV write behind a create-time pointer and the account-level extensions added via the reallocate dance. Every power extension on the mint is birth-only. There is no migration. There is no patch. If you got the set wrong you mint a new token and you move everyone to it, which is a product event, not a deploy.
+And under both sits the footgun that makes this lesson exist at all, the birth-only rule from the opening paragraph: extensions are enabled at mint creation, with only m02's two narrow post-init paths as exceptions. Every power extension on the mint is birth-only. There is no migration. There is no patch. If you got the set wrong you mint a new token and you move everyone to it, which is a product event, not a deploy.
 
 Think of it as casting a bell. Everything about the tone gets decided in the mould, in one pour, and once the metal is cold your only remaining tool is a grinder. You can tune a bell after casting. You cannot make it a different bell.
 
@@ -127,7 +127,7 @@ Pool composition, routing and LP strategy for whatever you list are a different 
 
 Four rails are on the taught menu: three came out of the economy module, and the fourth, the airdrop, out of m08-l3's compost drop. You wire exactly one of the four. Fee routing harvests the withheld amounts a transfer fee accumulates into a treasury. A gate checks a wallet for a holding and grants or refuses access. An airdrop distributes against a merkle root with a claim path. A buyback spends treasury SOL on a client-side swap and burns what it bought.
 
-Most briefs have an obvious fit. The cafe's owner wanting a cut of peer transfers is a fee route, because the fee is already accumulating in recipient accounts and the rail is the harvest. The musician's drop is a gate if holders get something, or an airdrop if the drop is the distribution. The device badge is a gate almost by definition, since the badge exists to authorise a device. The regulated token is a fee route or nothing, because the compliance rail is off chain by construction.
+Most briefs have an obvious fit. The cafe's owner wanting a cut of peer transfers is a fee route, because the fee is already accumulating in recipient accounts and the rail is the harvest. The musician's drop is a gate if holders get something, or an airdrop if the drop is the distribution. The device badge is a gate almost by definition, since the badge exists to authorise a device. The regulated token is a fee route or nothing, because the compliance rail is off chain by construction — and if you take it, note that the endorsed compliance set carries its fee at 0 bps, which withholds nothing: set a token nonzero fee (1 bps is plenty) for the wired rail, or your before-and-after printout cannot differ.
 
 The reason it is one and not three is not workload. It is proof. A rail counts only when a script prints a before and an after, and three half-wired rails produce zero of those while one finished rail produces a receipt. Pick the rail whose before-and-after you can actually make visible in a terminal, and wire that one properly.
 
@@ -185,11 +185,13 @@ export interface SelectionMemo {
   assetAddress: string;
 }
 
-// Declare only the tags YOUR mint will actually produce. 'compressed' always
-// appears; 'collection' appears only if you mint the leaf INTO a collection.
-// A badge minted collectionless comes back as ['compressed'] alone, so either
-// declare just that, or mint under a collection and declare both. Neither is
-// wrong for the badge brief; verify.ts holds you to whichever you declared.
+// The full cNFT tag menu verify.ts understands. Leave this constant alone:
+// your declaration happens in memo.json, and it must list only the tags YOUR
+// mint will actually produce. 'compressed' always appears; 'collection'
+// appears only if you mint the leaf INTO a collection. A badge minted
+// collectionless comes back as ['compressed'] alone, so declare just that, or
+// mint under a collection and declare both. Neither is wrong for the badge
+// brief; verify.ts holds you to whichever you declared.
 export const CNFT_TAGS = ['compressed', 'collection'];
 
 export function loadMemo(path = 'capstone/memo.json'): SelectionMemo {
@@ -318,7 +320,7 @@ main();
 
 `npx tsx capstone/venue.ts` prints 85.005 SOL for the reference curve and one verdict line per venue. If your brief is fungible, paste that output straight into `memo.md`. If you took the musician's drop or the device badge, paste only the no-curve-venue line: the reference-curve derivation above it prints for calibration on every run, and graduation math in a badge memo is exactly the kind of off-spec residue a reviewer flags.
 
-Two of the branches in that file exist because an artifact reused outside its original assumption will lie to you rather than error. If you took the musician's drop or the device badge, no curve venue applies at all, and saying so is worth more than inventing one. And if you took classic SPL, notice that `checkGraduationVenue` is not a general oracle: it was written for SPROUT, so its very first test asks whether the venue speaks Token-2022 and its reason string names SPROUT out loud. Point it at a classic mint and it would refuse pump.fun, which is exactly the venue a classic mint is welcome at; the spl-token branch in the code above deliberately skips the call for that reason, so the refusal is one you only see if you force the function past that branch, and the run you just did printed the honest sentence instead. That is not a bug in the function, it is a function used off its spec, and catching it is the kind of thing a capstone is for.
+Two of the branches in that file exist because an artifact reused outside its original assumption will lie to you rather than error. If you took the musician's drop or the device badge, no curve venue applies at all, and saying so is worth more than inventing one. And if you took classic SPL, notice that `checkGraduationVenue` is not a general oracle: it was written for SPROUT, so its very first test asks whether the venue speaks Token-2022 and its reason string names SPROUT out loud. Point it at a classic mint and it would refuse pump.fun, exactly the venue a classic mint is welcome at. That is why the spl-token branch in the code above bypasses the call entirely: your run printed the honest sentence instead of an off-spec refusal. That is not a bug in the function, it is a function used off its spec, and catching it is the kind of thing a capstone is for.
 
 **5. Ship the asset, from a recipe you already wrote.** No new mechanism here, which is the point of a capstone. Token-2022 mint: your module 2 recipe with your declared set. Core collection with Royalties and numbered prints: your module 6 recipe, and the Edition plugin is the piece the musician's brief was pointing at all along. cNFT badge: your module 7 tree, sized by your own math, with soulbound leaves if the brief says non-transferable.
 

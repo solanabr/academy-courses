@@ -132,7 +132,7 @@ Which brings me to the trade-off I owe you, and it cuts against the lesson you a
 
 Two production stories make the same point from opposite ends, and then we build.
 
-The one that still makes me laugh: pump.fun's transfer hook program, deployed at `333UA891CYPpAJAthphPT3hg1EkUBLhNFoP9HoWW3nug`, is six lines long. `#[program] pub mod transfer_hook_authority {}`, and that is the whole thing. They squatted the hook authority slot so nobody else could take it, and shipped a no-op to hold it. An empty program guarding billions is the neatest possible illustration of why allowlists exist: from a pool's seat there is no way to tell that program apart from one that burns 200k compute units and calls out to three other programs, short of reading and pinning its bytecode.
+The one that still makes me laugh: pump.fun's transfer hook program, deployed at `333UA891CYPpAJAthphPT3hg1EkUBLhNFoP9HoWW3nug`, is six lines long. `#[program] pub mod transfer_hook_authority {}`, and that is the whole thing. They pointed the birth-only hook slot at a no-op and left it there, so the mint carries a hook that is guaranteed to do nothing rather than a slot that could later be pointed at live logic. An empty program guarding billions is the neatest possible illustration of why allowlists exist: from a pool's seat there is no way to tell that program apart from one that burns 200k compute units and calls out to three other programs, short of reading and pinning its bytecode.
 
 The serious one: PYUSD, the flagship Token-2022 deployment, shipped by PayPal and Paxos in May 2024 with a compliance-shaped extension set including a permanent delegate and a transfer hook. Helius's stablecoin-landscape survey put it at $215.9M held across just 20.4k token accounts as of 2025-05-29; supply moves daily, and the only current number is the one your own `getAccountInfo` returns. Every one of those power extensions is configured and dormant, the hook program id null, the fee zero basis points. But hold this against what you just learned: dormant is not absent, so those TLV entries still fail the extension walk, and on CP-Swap it is the hardcoded `MINT_WHITELIST`, not the dormancy, that lets PYUSD route. That is a token designed by people who understood the admission price exactly: hold the switch, leave it off, buy the auditor's goodwill with dormancy, and buy admission venue by venue, by name.
 
@@ -344,15 +344,15 @@ Expected for the first two: the same verdicts as step 4, SPROUT ROUTABLE and the
 ```bash
 cd .. && git clone https://github.com/raydium-io/raydium-sdk-V2-demo.git
 cd raydium-sdk-V2-demo && npm install
-# the demo wires its cluster and signer in src/config.ts: point `connection` at your
-# surfnet (http://127.0.0.1:8899) and load `owner` from ~/.config/solana/id.json there.
-# Then in src/cpmm/createCpmmPool.ts swap the DEVNET_PROGRAM_ID pair the file ships with
-# for the mainnet CREATE_CPMM_POOL_PROGRAM / CREATE_CPMM_POOL_FEE_ACC constants it already
-# imports - your fork carries mainnet's deployment, not devnet's. mintA is your SPROUT
-# variant; for mintB use WSOL (So11111111111111111111111111111111111111112), which the
-# fork already knows and your payer funds with `spl-token wrap 1`. Then run it twice,
-# once per SPROUT variant.
 ```
+
+   Then three edits in the demo's own files before you run anything, because this configuration IS the step that produces your ground truth:
+
+   - `src/config.ts` wires the cluster and signer: point `connection` at your surfnet (`http://127.0.0.1:8899`) and load `owner` from `~/.config/solana/id.json`.
+   - In `src/cpmm/createCpmmPool.ts`, swap the `DEVNET_PROGRAM_ID` pair the file ships with for the mainnet `CREATE_CPMM_POOL_PROGRAM` / `CREATE_CPMM_POOL_FEE_ACC` constants it already imports; your fork carries mainnet's deployment, not devnet's.
+   - `mintA` is your SPROUT variant; for `mintB` use WSOL (`So11111111111111111111111111111111111111112`), which the fork already knows and your payer funds with `spl-token wrap 1`.
+
+   Then run it twice, once per SPROUT variant.
 
 Expected: SPROUT creates a pool, the hooked variant fails inside the program. Record the exact failure, because the failure's shape is the finding: what counts is a custom program error attributed to the CP-Swap program id in the transaction logs, the caller's rendering of the check returning `Ok(false)`, not a thrown SDK exception before anything was sent. And read this honestly. There are two ways this step goes sideways and they mean different things. If the SDK's token lookup cannot resolve your local mint through Raydium's hosted API, that is a client-side miss and not the program's verdict; you have learned something about the SDK, nothing about the allowlist. Only an error thrown by the program counts as the program answering. If you cannot get the full path running today, say so in your notes rather than promoting the predictor's opinion to evidence, and take the degrade path in step 7.
 
@@ -420,7 +420,7 @@ Then one extension of the challenge that no test can grade, and it is the one th
 
 The gate for this lesson: `npx tsx verify-routability.ts` green on all seven assertions, and both SPROUT variants run through `profile-from-mint.ts` against your fork with the verdicts matching what you predicted, SPROUT routable and the hooked variant rejected. If you got the full pool-create path running in step 6, the fork's answer and your predictor's answer agree and you have evidence. If you took the degrade path, you have a model validated against source rather than against execution, and the honest write-up sentence is "predictor matches token.rs at 244e124; the pool-create attempt is unrun." Both are passes. Only one of them is proof, and knowing which you are holding is the actual skill.
 
-The misses I expect, in the order they usually happen. A whitelisted permanent-delegate case returning `false` means your bypass branches are below the extension check instead of above it. Everything returning `true` means `some` crept in where `every` belongs. And a `profile-from-mint` run that reports zero extensions on a mint you know carries three usually means you pointed it at a classic SPL clone of your mint, or your surfnet restarted and lost the local mint you created before it. Re-mint with the two commands the opener names and re-run; the fork is cheap.
+The misses I expect, in the order they usually happen. A whitelisted permanent-delegate case returning `false` means your bypass branches are below the extension check instead of above it. A mint carrying one off-list extension passing while a bare extensionless mint fails means `some` crept in where `every` belongs. And a `profile-from-mint` run that reports zero extensions on a mint you know carries three usually means you pointed it at a classic SPL clone of your mint, or your surfnet restarted and lost the local mint you created before it. Re-mint with the two commands the opener names and re-run; the fork is cheap.
 
 If your read of `token.rs` disagrees with mine, the line numbers moved, the five became four or six, or the whitelist grew past four entries, that is not a bug in your work, that is the moving target this lesson keeps warning about. Post the commit hash and the diff in the course discussion. I would rather this page be corrected by a learner than believed by one.
 

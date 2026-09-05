@@ -58,4 +58,4 @@ blocks:
             label: "The launchpad automatically strips the TransferHook extension from the mint during migration so the graduation pool can be created without it."
             correct: false
             feedback: "A launchpad cannot remove a mint-level extension: extensions are fixed at mint creation. The venue must accept it or you must not ship it."
-        explanation: "The routable extension set from R6 is not advisory: it decides which graduation AMMs are legal. A hook-bearing SPROUT reverts on Raydium's allowlist but graduates on Meteora DBC, which explicitly supports transfer-hook configs. Choose the venue to match the token, or change the token."
+        explanation: "The routable extension set from R6 is not advisory: it decides which graduation AMMs are legal. A hook-bearing SPROUT reverts on Raydium's allowlist but has a documented path on Meteora DBC, whose docs describe transfer-hook base tokens — a claim the lesson filed as documented-but-unverified, so verify it before you launch on it. Choose the venue to match the token, or change the token."

@@ -15,7 +15,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Token-2022 with display extensions (MetadataPointer + TokenMetadata) plus 0-bps TransferFeeConfig; pursue Raydium's MINT_WHITELIST if compliance needs PermanentDelegate"
+            label: "Token-2022 with display extensions (MetadataPointer + TokenMetadata) plus 0-bps TransferFeeConfig, keeping the mint's base-layer freeze authority for the compliance freeze; pursue Raydium's MINT_WHITELIST if compliance also needs PermanentDelegate clawback"
             correct: true
           - id: b
             label: "Token-2022 with PermanentDelegate + TransferHook so compliance can freeze bad actors and screen every transfer against a sanctions list, since Raydium's CP-Swap routes Token-2022 mints the same way it routes classic SPL"
@@ -25,7 +25,7 @@ blocks:
             label: "A Metaplex Core asset with a Freeze delegate, since it is the cheapest compliant option"
             correct: false
             feedback: "Core assets are NFTs, not fungible tokens; a divisible payment token needs a fungible mint, which Core does not provide."
-        explanation: "The compatibility thesis decides this brief: fee, display, and accounting extensions get whitelisted, power extensions get refused — and the one-liner must never contain the word compliance, because compliance-shaped extensions like PermanentDelegate are exactly the powers the allowlist refuses. PermanentDelegate is a power extension, so the only way to keep it AND stay routable on Raydium is the static MINT_WHITELIST path that regulated stablecoins use; otherwise you ship display-only extensions and enforce compliance off the DEX."
+        explanation: "The compatibility thesis decides this brief: fee, display, and accounting extensions get whitelisted, power extensions get refused — and the one-liner must never contain the word compliance, because compliance-shaped extensions like PermanentDelegate are exactly the powers the allowlist refuses. The freeze itself needs no extension at all: it is the mint's base-layer freeze authority, a day-one field on every mint, which is why it costs nothing on the allowlist. PermanentDelegate is the clawback power, and keeping it while staying routable on Raydium means the static MINT_WHITELIST path that regulated stablecoins use; otherwise you ship display-only extensions and enforce compliance off the DEX."
       - id: q2
         prompt: "The musician's-drop brief wants numbered edition prints with royalties that survive to 2026. Which primitive fits?"
         multiSelect: false
@@ -43,13 +43,13 @@ blocks:
             feedback: "Token Metadata is officially legacy and pNFT enforcement runs through Token Auth Rules, which Metaplex marks Deprecated and whose flagship rule set blocks zero programs. You would ship a deprecated stack for enforcement that is armed but idle."
         explanation: "The 2026 ship-path for new NFT work is Metaplex Core; the Edition plugin gives numbered prints and the Royalties plugin carries the configuration. This is exactly the worked edition step from the Core lesson, which is why the brief points here."
       - id: q3
-        prompt: "You shipped a cNFT loot drop, but your verification script's getAsset call returns empty. What is the most likely cause?"
+        prompt: "You shipped a cNFT loot drop, but your verification script's getAsset call fails against the endpoint you pointed it at. What is the most likely cause?"
         multiSelect: false
         options:
           - id: a
             label: "The cNFT was never minted, because a valid cNFT always resolves on any RPC"
             correct: false
-            feedback: "cNFT data lives off-chain in RPC-managed data stores; a plain RPC returns nothing even for a validly minted cNFT."
+            feedback: "cNFT data lives off-chain in RPC-managed data stores; even a validly minted cNFT cannot resolve through a plain RPC, so the failure proves nothing about the mint."
           - id: b
             label: "The memo declared the wrong extension set for the asset"
             correct: false
@@ -57,4 +57,4 @@ blocks:
           - id: c
             label: "You are querying an RPC without DAS support, and cNFT reads require a DAS-supporting RPC"
             correct: true
-        explanation: "A cNFT's on-chain footprint is a Merkle leaf hash; the full asset is reconstructed by DAS indexers from off-chain data stores. A verification script that points at a non-DAS RPC will always read empty, which is why the integration proof depends on a DAS endpoint."
+        explanation: "A cNFT's on-chain footprint is a Merkle leaf hash; the full asset is reconstructed by DAS indexers from off-chain data stores. A verification script pointed at a non-DAS RPC fails outright — your challenge run's JSON-RPC method-not-found throw — which is why the integration proof depends on a DAS endpoint."

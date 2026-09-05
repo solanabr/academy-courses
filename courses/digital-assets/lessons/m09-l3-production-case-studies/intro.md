@@ -20,7 +20,7 @@ Here is what you could not do then and will do today. Four of those eight are sw
 
 The route through this lesson: first what PYUSD's mint says today and how to derive active-versus-dormant from values rather than presence, then the economics of an armed slot, which is the part nobody prices. Then three shipped things measured against what you built: Jito's JTO drop against your merkle path, the stablecoin rails that pay for all of this, and the agent-identity work that is genuinely new and genuinely unproven. You leave with `dormancy-report.ts`, a tool that points at any mint and tells you which of its powers are live.
 
-The autonomy fade: the classifier is worked in full for the extensions PYUSD carries, you write the rule for one it does not, and the memo at the end is entirely yours. That memo is the assessed piece, and it is the same shape as the one your capstone asks for next week.
+The autonomy fade: the classifier is worked in full for the extensions PYUSD carries, you write the rule for one it does not, and the memo at the end is entirely yours. That memo is the piece you grade yourself on, and it is the same shape as the one your capstone asks for next week.
 
 ## Armed, not fired
 
@@ -392,11 +392,11 @@ You are going to build `dormancy-report.ts`: point it at any mint, and it prints
 
 ## Challenge
 
-Solo, and this is the assessed piece. Write the dormancy memo.
+Solo, and this is the piece you hold yourself to a pass/fail standard on — nothing collects it, which is exactly why writing it honestly is the exercise. Write the dormancy memo.
 
 Run `dormancy-report.ts` against PYUSD's live mint and write five sentences a colleague could act on, one per item below. Which of its eight TLV extensions are active and which are configured but dormant, with the hook program id and the transfer-fee values you actually read. Who holds the options, by address. What the exercise latency is for the hook versus the fee, and why those differ. One sentence on what you would monitor if your product settled in this token. And one sentence naming the thing your report cannot tell you.
 
-Accepted when the memo derives its verdicts from values rather than presence, quotes numbers your own run printed, dates itself, and names the authority address. Rejected if it says PYUSD has confidential transfers so PYUSD balances are private. The rails are configured, the turnstile is locked, and the difference is the lesson.
+Call it accepted when the memo derives its verdicts from values rather than presence, quotes numbers your own run printed, dates itself, and names the authority address. Call it rejected if it says PYUSD has confidential transfers so PYUSD balances are private. The rails are configured, the turnstile is locked, and the difference is the lesson.
 
 Optional second pass if agents are anywhere near your roadmap: add two sentences on `is_agent` and the Metaplex Agent Registry that would survive a skeptical reader in 2027. Hint: they contain the word "yet."
 

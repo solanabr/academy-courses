@@ -612,7 +612,7 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
 
     Check the branch order against the program before you move on. Time before `start_ts` yields nothing; time at or after `end_ts` yields the whole locked amount; in between it is a proportion. A start later than the end is not a special case, it simply never begins.
 
-5. **The claim run.** Create `compost-airdrop/claim.ts`. This drives a four-recipient distributor through both claim paths and through three failures. The unlocked claim is worked for you; the locked loop is the solo half, and it is marked.
+5. **The claim run.** Create `compost-airdrop/claim.ts`. This drives a four-recipient distributor through both claim paths and through three failures. The unlocked claim is worked for you; the locked loop is the solo half, and it is marked. One stack note: this file is pure local simulation and calls nothing from Light, but it lives in the same quarantined v1 workspace as the warm-up, so it reuses that workspace's `PublicKey` for base58 and byte math rather than mixing a second SDK into one folder.
 
     ```typescript
     // compost-airdrop/claim.ts

@@ -284,10 +284,16 @@ export async function checkGate(owner: string, rule: GateRule): Promise<GateResu
   const held = assets.find((a) => a.id === rule.mint && classifyAsset(a).fungible);
   // token_info.balance arrives as a JSON number from most DAS providers. Do
   // not launder it through Math.floor: last lesson's rule stands, a Number
-  // above 2^53 lies quietly, so coerce via String. A provider that ships a
-  // balance too big for a JSON number is a provider you escalate, not round.
+  // above 2^53 lies quietly (the damage is already done at JSON.parse), and
+  // above ~1e21 String() turns it into exponent notation. The check below
+  // makes that second case loud: a provider that ships a balance too big for
+  // a JSON number is a provider you escalate, not round.
   const rawBalance = held?.token_info?.balance;
-  const balance = rawBalance === undefined ? 0n : BigInt(String(rawBalance).split(".")[0] || "0");
+  const asString = rawBalance === undefined ? "0" : String(rawBalance);
+  if (asString.includes("e") || asString.includes("E")) {
+    throw new Error(`balance ${asString} exceeds JSON number range: escalate to the provider`);
+  }
+  const balance = BigInt(asString.split(".")[0] || "0");
   return {
     owner,
     allowed: balance >= rule.minimum,

@@ -43,7 +43,7 @@ blocks:
             label: "Skip the merkle path and mint SPROUT directly to every points holder in one transaction."
             correct: false
             feedback: "A single-transaction mint to all holders doesn't scale and throws away the claim/vesting path you already built; the migration reuses that merkle path."
-        explanation: "Kamino KMNO is a candidate case study with an honest numbers gap: the conversion tokenomics aren't public. The transferable lesson is the mechanism, a merkle-claim migration (reusing your R11 path, with claim_locked for any vesting), not a ratio you'd be inventing."
+        explanation: "Kamino KMNO is a candidate case study with an honest numbers gap: the conversion tokenomics aren't public. The transferable lesson is the mechanism, a merkle-claim migration (reusing the conversion-window path you just built, with claim_locked for any vesting), not a ratio you'd be inventing."
       - id: m09l2-q3-stale-index
         prompt: "Your gate-check just passed a wallet that transferred its Founding-Farmer cNFT away five seconds ago. What's the most likely cause?"
         multiSelect: false

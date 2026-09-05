@@ -439,6 +439,10 @@ async function main(): Promise<void> {
   await send(treasury, [
     getHarvestWithheldTokensToMintInstruction({
       mint: SPROUT,
+      // Fork scale: a handful of dirty accounts fits one transaction, so the
+      // whole list rides in one instruction. At fleet scale this is where the
+      // packing problem bites: wrap the list in chunk() from step 2 and send
+      // one harvest per batch.
       sources: dirty.map((d) => d.account),
     }),
     getWithdrawWithheldTokensFromMintInstruction({
