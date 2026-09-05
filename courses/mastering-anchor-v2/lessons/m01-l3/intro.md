@@ -177,7 +177,7 @@ Now read what the test does against the dispatch flow you just traced. `anchor_v
 anchor test
 ```
 
-`anchor test` builds the program, runs the LiteSVM test, and skips starting a validator because the in-process VM does not need one. It should compile and then **fail** on `send_transaction failed`, because the `accounts::Greet` builder is still an empty TODO and the accounts you sent do not match what `greet` expects. That red is the correct state to be in right now. It stays red until you fill the TODO in the Challenge, and turning it green is the graded half of this lesson. What you want to confirm at this step is narrower: the workspace compiles again after the rewrite, and the failure is the assertion, not a missing symbol.
+`anchor test` builds the program, runs the LiteSVM test, and skips starting a validator because the in-process VM does not need one. It should **fail at compile time**, in the test file, with `error[E0063]: missing field 'player' in initializer of 'Greet'` — the `accounts::Greet` builder is still an empty TODO, and a Rust struct literal must name every field, so the compiler stops you before anything is ever sent. That red is the correct state to be in right now. It stays red until you fill the TODO in the Challenge, and turning it green is the graded half of this lesson. What you want to confirm at this step is narrower: the program crate itself compiles after the rewrite, and the one error left names the exact field you are about to fill — not a missing symbol from the V2 renames.
 
 **Step 3. Confirm the deploy is still live.** The LiteSVM test is where `greet` runs. Separately, prove the copy you pushed in m01-l2 is still there and still yours. Point the CLI at your devnet program id from the pins file:
 
