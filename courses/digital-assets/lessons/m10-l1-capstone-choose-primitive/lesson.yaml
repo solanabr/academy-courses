@@ -25,7 +25,7 @@ blocks:
             label: "A Metaplex Core asset with a Freeze delegate, since it is the cheapest compliant option"
             correct: false
             feedback: "Core assets are NFTs, not fungible tokens; a divisible payment token needs a fungible mint, which Core does not provide."
-        explanation: "The compatibility thesis decides this brief: compliance and display extensions get whitelisted, power extensions get refused. PermanentDelegate is a power extension, so the only way to keep it AND stay routable on Raydium is the static MINT_WHITELIST path that regulated stablecoins use; otherwise you ship display-only extensions and enforce compliance off the DEX."
+        explanation: "The compatibility thesis decides this brief: fee, display, and accounting extensions get whitelisted, power extensions get refused — and the one-liner must never contain the word compliance, because compliance-shaped extensions like PermanentDelegate are exactly the powers the allowlist refuses. PermanentDelegate is a power extension, so the only way to keep it AND stay routable on Raydium is the static MINT_WHITELIST path that regulated stablecoins use; otherwise you ship display-only extensions and enforce compliance off the DEX."
       - id: q2
         prompt: "The musician's-drop brief wants numbered edition prints with royalties that survive to 2026. Which primitive fits?"
         multiSelect: false
