@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- comparison: The two double-charge bugs, side by side
+<!-- comparison: The two fee-burning bugs, side by side
      purpose: make both failure modes concrete before the reader meets them in the challenge starter
-     data: bug: hours-as-seconds | wrong: nowTs < lastChargedTs + periodHours | consequence: 24h window becomes 24 seconds, ~3600x over-billing | fix: periodSeconds = periodHours * 3600, compare seconds to seconds bug: missing expiry check | wrong: pull whenever the delegation account exists | consequence: lapsed subscribers keep getting charged; accounts persist until revoked | fix: refuse when expiresAtTs != 0 AND nowTs >= expiresAtTs; 0 means never
-     prompt: Two-column comparison card, one column per bug. Each column: the buggy expression in monospace, the real-world consequence, and the one-line fix. Emphasize the 3600x factor in the first column and the "0 means never" clause in the second. Structure only; house brand styles apply.
+     data: bug: hours-as-seconds | wrong: nowTs < lastChargedTs + periodHours | consequence: 24h window becomes 24 seconds, ~3600x pulls the program refuses, a base fee each | fix: periodSeconds = periodHours * 3600, compare seconds to seconds bug: missing expiry check | wrong: pull whenever the delegation account exists | consequence: lapsed subscribers keep getting pulls dispatched; the program refuses each, accounts persist until revoked | fix: refuse when expiresAtTs != 0 AND nowTs >= expiresAtTs; 0 means never
+     prompt: Two-column comparison card, one column per bug. Each column: the buggy expression in monospace, the real-world consequence, and the one-line fix. Emphasize the 3600x refused-pull factor in the first column and the "0 means never" clause in the second. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -57,7 +57,7 @@
              color:var(--text-on-brand); }
 </style>
   <div class="stbr-eyebrow">meet both failure modes before the challenge starter ships them to you</div>
-  <h2 class="viz-title">the two double-charge bugs, side by side</h2>
+  <h2 class="viz-title">the two fee-burning bugs, side by side</h2>
   <div class="cols">
     <div class="col">
       <div class="col-head">
@@ -70,7 +70,7 @@
       </div>
       <div class="sec">
         <div class="cap">consequence</div>
-        <div class="cons">a 24-hour window becomes 24 <b>seconds</b> &mdash; <span class="mark">~3600&times; over-billing</span></div>
+        <div class="cons">a 24-hour window becomes 24 <b>seconds</b> &mdash; <span class="mark">~3600&times; refused pulls</span>, a base fee each</div>
       </div>
       <div class="fix">
         <div class="cap">the one-line fix</div>
@@ -88,7 +88,7 @@
       </div>
       <div class="sec">
         <div class="cap">consequence</div>
-        <div class="cons">lapsed subscribers keep getting charged &mdash; accounts persist until revoked</div>
+        <div class="cons">lapsed pulls keep getting dispatched &mdash; each refused on-chain, one base fee gone; accounts persist until revoked</div>
       </div>
       <div class="fix">
         <div class="cap">the one-line fix</div>
@@ -96,6 +96,6 @@
       </div>
     </div>
   </div>
-  <div class="verdict">two ways to double-charge: wrong units and no expiry &mdash; the starter ships both, your guard removes both</div>
+  <div class="verdict">two ways to burn fees on refused pulls: wrong units and no expiry &mdash; the starter ships both, your guard removes both</div>
 </div>
 </body></html>

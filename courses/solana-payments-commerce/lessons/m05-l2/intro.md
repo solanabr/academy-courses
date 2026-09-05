@@ -14,7 +14,7 @@ You should see `{ '@solana/kit': '^7.0.0' }`. Now run `npm view @solana/pay peer
 
 - The program lives at `De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44` and its trick is one move: a Subscription Authority PDA per (user, mint) takes the single delegate slot ONCE with a u64::MAX approval, then per-plan delegation PDAs carry the real, enforced billing limits. One slot, as many subscriptions as the user wants.
 - You ship **club-billing**: create Wavelength's record-of-the-month plan, subscribe a test user, pull one billing period, and land that pull as an invoice row in the exact backoffice orders ledger you built in the webhook lesson. One honesty note carried through the lab: the official pull carries no reference key and no memo, so billing truth is crank-written, keyed on the pull's signature, not reference-reconciled the way a checkout is; the dunning lesson attaches a reference to the invoice when settlement needs one.
-- Two documented unit-and-clock bugs mis-bill in the wild, and neither is an exploit: plans measure their period in `periodHours` while everything you compare against is Unix seconds, and subscription accounts never expire on their own, so `expiresAtTs` is the only time-bound a pull has.
+- Two documented unit-and-clock bugs bite integrators in the wild, and neither is an exploit or a double-charge — the program refuses a mistimed or lapsed pull on-chain, so both bugs burn crank fees, not subscriber money. Plans measure their period in `periodHours` while everything you compare against is Unix seconds, and subscription accounts never close on their own, so `expiresAtTs` — not account existence — is the time-bound your guard must mirror.
 - The client is `@solana/subscriptions` 0.5.0, and it peers `@solana/kit` ^7.0.0 while your checkout workspaces sit on kit ^6. That seam is real, it is the ecosystem's current state, and we handle it with a separate workspace pin, not a rewrite.
 
 One more thing worth saying plainly. Version 0.5.0 of this program was deployed to mainnet on 2026-08-10, twelve days ago as I write this. That date is the v0.5.0 deploy, not the program's mainnet debut (earlier versions were live before it), but it still makes this the newest load-bearing thing in the course. You are learning it before most integration guides exist. That is not a risk disclosure, it is the job: payments engineers get paid for being early and correct at the same time.
@@ -79,9 +79,9 @@ Now the footguns, because this program's two documented integration bugs are bot
 
 **Bug one: hours are not seconds.** A `Plan` stores its cadence as `periodHours` (720 for Wavelength's monthly plan). A `RecurringDelegation` stores its cadence as `periodLengthS`, in seconds. Every timestamp you will ever compare against, `currentPeriodStartTs`, `expiresAtTs`, chain time, is Unix seconds. Compare `periodHours` directly against a seconds delta and your window shrinks by a factor of 3,600: your crank calls a 24-hour plan due again after 24 seconds. Note who saves the subscriber here — the program does, exactly as the enforcement section said: the early pull is refused with the period-not-elapsed error before a token moves. What the program cannot save is your wallet and your logs: every refused pull costs the crank a base fee and a log line, on every tick, forever, until you notice. The rule is boring and absolute: convert to seconds at the boundary, compare only seconds. 24 hours is 86,400 seconds, not 24.
 
-**Bug two: nothing expires by itself.** Subscription and delegation accounts persist on-chain until an explicit revoke instruction closes them. A plan whose term ended last week still has a live delegation account sitting there, and if your crank only checks "does the delegation exist," it will happily charge a lapsed subscriber. `expiresAtTs` is the ONLY time-bound on a pull, and it must be checked against chain time on every single tick. And its zero case bites in the other direction: `expiresAtTs` of 0 means "never expires," so a guard that naively compares `now >= expiresAtTs` treats every no-expiry subscription as expired at the epoch and refuses to bill anyone. Handle zero first, then compare.
+**Bug two: nothing expires by itself.** Subscription and delegation accounts persist on-chain until an explicit revoke instruction closes them. A plan whose term ended last week still has a live delegation account sitting there, and if your crank only checks "does the delegation exist," it will keep dispatching pulls for that lapsed subscriber. Same division of labor as bug one: the program enforces the time-bound — a pull against a lapsed delegation is refused with its subscription-cancelled error before a token moves, so nobody gets charged — and what the existence-only crank buys itself is the same tax, a base fee and a log line per refused tick, forever. `expiresAtTs` against chain time is the check your guard mirrors on every tick, so the refusal happens in your process for free instead of on-chain for a fee. And its zero case bites in the other direction: `expiresAtTs` of 0 means "never expires," so a guard that naively compares `now >= expiresAtTs` treats every no-expiry subscription as expired at the epoch and refuses to bill anyone. Handle zero first, then compare.
 
-![Two documented billing bugs sit side by side: reading periodHours as seconds over-bills roughly 3600 times, and skipping expiresAtTs keeps charging subscribers whose plans lapsed.](assets/v05-comparison.png)
+![Two documented billing bugs sit side by side: reading periodHours as seconds dispatches pulls roughly 3600 times too often, and skipping expiresAtTs keeps dispatching pulls for lapsed subscribers; the program refuses both, at a base fee per refusal.](assets/v05-comparison.png)
 
 ### The kit seam: v6 checkout, v7 billing
 
@@ -229,11 +229,15 @@ import {
   findPlanPda,
   getCreatePlanInstruction,
 } from "@solana/subscriptions";
-import { findAssociatedTokenPda } from "@solana-program/token";
-import { CLUB_MINT, CLUB_TOKEN_PROGRAM, loadSigner } from "./config";
+import { address } from "@solana/kit";
+import { CLUB_MINT, loadSigner } from "./config";
 import { sendIxs } from "./send";
 
 const PLAN_ID = 1n;
+
+// The on-chain Plan stores destinations and pullers as fixed four-slot
+// arrays; unused slots carry the system address as an explicit "empty".
+const NONE = address("11111111111111111111111111111111");
 
 async function main() {
   const merchant = await loadSigner("keys/merchant.json");
@@ -241,13 +245,6 @@ async function main() {
   const [planPda] = await findPlanPda({
     owner: merchant.address,
     planId: PLAN_ID,
-  });
-
-  // Pulls may only land in a destination the plan declares up front.
-  const [treasuryAta] = await findAssociatedTokenPda({
-    owner: merchant.address,
-    mint: CLUB_MINT,
-    tokenProgram: CLUB_TOKEN_PROGRAM,
   });
 
   const ix = getCreatePlanInstruction({
@@ -260,11 +257,17 @@ async function main() {
       terms: {
         amount: 15_000_000n, // 15 USDC at 6 decimals
         periodHours: 720n, // HOURS on the plan; you convert everywhere else
+        // The program stamps its own clock over this field at execution;
+        // 03-subscribe reads the stored value back rather than trusting ours.
         createdAt: BigInt(Math.floor(Date.now() / 1000)),
       },
       endTs: 0n, // 0 = no scheduled end, the same zero-means-never convention as expiry
-      destinations: [treasuryAta],
-      pullers: [merchant.address],
+      // Destinations are WALLET addresses, never token accounts: the program
+      // whitelists the owner, and each pull presents that owner's ATA for the
+      // plan's mint, derived at pull time. Declare an ATA here and every pull
+      // is refused on-chain with the destination-not-in-whitelist error.
+      destinations: [merchant.address, NONE, NONE, NONE],
+      pullers: [merchant.address, NONE, NONE, NONE],
       metadataUri: "https://wavelength.example/plans/record-of-the-month.json",
     },
   });
@@ -279,7 +282,7 @@ main().catch((e) => {
 });
 ```
 
-The `destinations` and `pullers` arrays are the plan's own access control, on-chain: pulls can only land in a declared destination, and only the plan owner or a whitelisted puller can initiate one. Your crank keypair goes in `pullers` when you productionize; for the lab the merchant key pulls directly.
+The `destinations` and `pullers` arrays are the plan's own access control, on-chain: a pull can only land in the ATA of a declared destination wallet, and only the plan owner or a whitelisted puller can initiate one. Both arrays travel as fixed four-slot structs (the client encodes exactly four entries, hence the `NONE` padding) and both hold wallet addresses, verified against devnet: real plans store owners, and a plan that stored an ATA instead had its pulls refused with the destination-not-in-whitelist error. Your crank keypair goes in `pullers` when you productionize; for the lab the merchant key pulls directly.
 
 **5. Subscribe the test user.** The acceptance step, and my favorite design detail in the whole program. `03-subscribe.ts`:
 
@@ -414,7 +417,13 @@ async function main() {
     mint: CLUB_MINT,
     tokenProgram: CLUB_TOKEN_PROGRAM,
   });
-  const receiverAta = plan.data.data.destinations[0];
+  // destinations[0] is the treasury WALLET the plan declared; the receiving
+  // token account is that wallet's ATA, derived here at pull time.
+  const [receiverAta] = await findAssociatedTokenPda({
+    owner: plan.data.data.destinations[0],
+    mint: CLUB_MINT,
+    tokenProgram: CLUB_TOKEN_PROGRAM,
+  });
 
   const ix = await getTransferSubscriptionInstructionAsync({
     subscriptionPda,
