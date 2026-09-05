@@ -84,7 +84,7 @@ Name the cost, though, because the hedge is not free. You are taking a dependenc
 
 ## Lab: gate once, answer both
 
-The goal transcript: one gate in front of the pressing-price API, an unpaid call rejected with both protocols' challenges, and one MPP-negotiated paid call completed by `pay curl`. Type along; the transcript is the artifact your assessment asks for.
+The goal transcript: one gate in front of the pressing-price API, an unpaid call rejected with both protocols' challenges, and one MPP-negotiated paid call completed by `pay curl`. Type along; the transcript is the artifact the accept bar below asks you to hold — the platform grades the quiz, the transcript is your own evidence.
 
 A schema honesty note before step one, in the same spirit as every version pin in this course: the gate's config surface belongs to a CLI that ships fast. The fields below were read off `pay 0.26.0` on 2026-08-22 by asking the tool to write its own config, which is step 3, and that generated file outranks this page everywhere except one known 0.26.0 scaffold bug (a stale `forward_url` field) that step 3 walks you through fixing.
 
@@ -212,7 +212,7 @@ The `WWW-Authenticate` line is MPP's challenge, in the auth header this lesson j
 pay curl 'http://localhost:4021/price?record=WVL-014&runSize=500'
 ```
 
-Watch the sequence it narrates: first request, 402 received, protocol chosen (MPP here, since `pay curl` is a native speaker), charge intent signed, retry with the `Authorization` credential, and then your quote JSON with a `Payment-Receipt` header on the response. Capture the whole transcript; it is the first deliverable of your assessment. I will admit the first time I ran this flow end to end, the part that got me was not the payment landing, it was how boring the transcript looks. An auth challenge, a credential, a receipt. Thirty years of HTTP muscle memory, now with money in it.
+Watch the sequence it narrates: first request, 402 received, protocol chosen (MPP here, since `pay curl` is a native speaker), charge intent signed, retry with the `Authorization` credential, and then your quote JSON with a `Payment-Receipt` header on the response. Capture the whole transcript; it is the first item on the accept bar below. I will admit the first time I ran this flow end to end, the part that got me was not the payment landing, it was how boring the transcript looks. An auth challenge, a credential, a receipt. Thirty years of HTTP muscle memory, now with money in it.
 
 **7. Prove the other speed still plays.** The gate claims to serve x402 too, so verify with the paying agent you built last lesson, pointed at the gate instead of the old middleware. Its base URL is the `API_URL` env var you wired last lesson, and it appends its own `?run=...&invoice=...`, which is exactly why step 2's API accepts `run` as well as `runSize`:
 
