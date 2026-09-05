@@ -43,11 +43,11 @@ Here is the collapse that earns this lesson its title: a test suite is an uptime
 
 ## Probes pointed inward
 
-You have been doing "testing" manually since m01-l2: run the fleet, eyeball the output, nod. That works until the code changes while you are not looking at the output, which is what the rest of this course is. Every module from here adds code that other code depends on. The suite is how a change to the backoff formula in module 5 gets caught before it breaks the dashboard in module 3.
+You have been doing "testing" manually since m01-l2: run the fleet, eyeball the output, nod. That works until the code changes while you are not looking at the output, which is what the rest of this course is. Every module from here adds code that other code depends on. The suite is how a careless change to the fleet's output shape gets caught before it breaks the dashboard you will ship in module 3, which reads that shape and nothing else.
 
 ![Five monitoring concepts such as probes and expected readings map one to one onto testing concepts such as function calls and assertions.](assets/v01-diagram.webp)
 
-vitest is the runner this course uses: it speaks TypeScript natively with zero config, it finds anything matching `*.test.ts`, and it is where new Solana TypeScript work has landed. Around 99.9 million downloads a week as of this writing, for whatever download counts are worth. The patterns below are the daily 80%: tables, fake timers, fixtures, coverage. Everything else is bookmarked at the end of this section.
+vitest is the runner this course uses: it speaks TypeScript natively with zero config, and it finds anything matching `*.test.ts`. Around 99.9 million downloads a week as of this writing, for whatever download counts are worth; not a Solana-ecosystem verdict, though, and this lesson will show you the other camp before it ends. The patterns below are the daily 80%: tables, fake timers, fixtures, coverage. Everything else is bookmarked at the end of this section.
 
 ### The table is the spec
 
