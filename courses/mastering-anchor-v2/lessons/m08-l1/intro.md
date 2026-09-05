@@ -52,7 +52,7 @@ So this is a write-time probe, not a fact you can freeze from me. Before you tru
 
 You have a JSON file. A JSON file in your repo helps exactly the people who have your repo. To let a wallet, an explorer, or a stranger's script resolve your interface from nothing but your program id, the IDL has to live on the chain.
 
-Think of it the way a city handles a building. Anyone can draw a blueprint, but the blueprint that *counts*, the one a contractor can pull and build against, is the one filed with the city under the building's address, amendable only by the owner of record. Solana's version of that filing cabinet is the **Program Metadata Program**. Anchor dropped its own built-in IDL instructions back in 1.0, and V2 inherits that removal: the IDL is stored through this program, at a deterministic address derived from your program id, writable only by the program's upgrade authority.
+Think of it the way a city handles a building. Anyone can draw a blueprint, but the blueprint that *counts*, the one a contractor can pull and build against, is the one filed with the city under the building's address, amendable only by the owner of record. Solana's version of that filing cabinet is the **Program Metadata Program**. Anchor dropped its own built-in IDL instructions back in 1.0, and V2 inherits that removal: the IDL is stored through this program, at a deterministic address derived from your program id, writable only by the program's upgrade authority. So when you type `anchor idl init` in a moment, the verbs are old but the machinery is not — the 0.x-era commands of the same name wrote to Anchor's own on-chain IDL accounts, the mechanism 1.0 removed, while this CLI reuses the verb names as a front end for the Program Metadata Program, which is why teaching them here does not resurrect the retired path.
 
 ![The Program Metadata Program stores the IDL at a canonical PDA derived from the program id; anyone can read it, but only the upgrade authority may write or upgrade it.](assets/v03-diagram.png)
 
@@ -123,7 +123,7 @@ So the newest kit and the kit your dependencies want are different majors. This 
 
 Both halves of that chart are true in the same week: the download crossover says kit is where the ecosystem is going, and the peer ranges say do not chase its version number.
 
-So the durable rule, the one thing to carry out of this lesson if you carry nothing else: **pin `@solana/kit` to the major your `@solana-program` dependencies declare, never to `latest`.** Today that major is 7. Install it explicitly:
+So the durable rule, the one thing to carry out of this lesson if you carry nothing else: **pin `@solana/kit` to the major your `@solana-program` dependencies declare, never to `latest`.** It is the same law two sibling courses teach from their own seats — Payments and Commerce applies it per workspace, where two workspaces in one repo legitimately pin different kit majors because each matches its own peers, and Rust & TypeScript Fundamentals derives it from how npm peer ranges resolve in the first place. Today that major is 7. Install it explicitly:
 
 ```bash
 # Freshness: verified 2026-08-22. kit latest is 8.0.0, but the @solana-program

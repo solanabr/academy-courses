@@ -24,7 +24,7 @@ The bad news is that Token-2022 quietly moves two pieces of real work onto your 
 
 That is the entire lesson. Two consequences, observed live, reasoned about from the program's seat. I will walk the first read with you step by step in the lab. The challenge at the end you run on your own, against a mint you pick. That is the fade: guided now, solo in fifteen minutes.
 
-One hard boundary, stated up front so neither of us drifts. This lesson teaches Token-2022 as a *consequence for your program*. It does not teach you to design extensions, and it does not walk the transfer-hook interface. The Digital Assets course walks the transfer-hook interface end to end and owns extension-standards depth. When we hit that line, we stop and point there. On purpose.
+One hard boundary, stated up front so neither of us drifts. This lesson teaches Token-2022 as a *consequence for your program*. It does not teach you to design extensions, and it does not walk the transfer-hook interface. The Digital Assets course walks the transfer-hook interface end to end and owns extension-standards depth — its module 3 is where you write the hook this lesson only reads. When we hit that line, we stop and point there. On purpose.
 
 ## What actually changes for your program
 
