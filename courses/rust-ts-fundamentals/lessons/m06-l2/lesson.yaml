@@ -58,7 +58,7 @@ blocks:
           - id: c
             label: "Unauthenticated pulls are capped per shared IPv4 address, `docker login` moves you to your own allowance"
             correct: true
-        explanation: "Unauthenticated Docker Hub pulls are capped at 100 per 6 hours per IPv4 address, and behind coworking/campus/CI NAT, everyone shares that pool. A free account and `docker login` gives you your own 200 per 6 hours, which is why this lesson teaches the login before your first real pull, with GHCR waiting in m06-l4 as the escape hatch."
+        explanation: "Unauthenticated Docker Hub pulls are capped at 100 per 6 hours per IPv4 address, and behind coworking/campus/CI NAT, everyone shares that pool. A free account and `docker login` moves the counting to your account, where Docker's 2025 policy makes pulls effectively unlimited (abuse-rate limited, not metered), which is why this lesson teaches the login before your first real pull, with GHCR waiting in m06-l4 as the escape hatch."
       - id: m06-l2-q4
         prompt: "Your poller binary is a few megabytes, but `docker images` shows the naive image at multiple gigabytes. Where did the weight come from?"
         multiSelect: false
