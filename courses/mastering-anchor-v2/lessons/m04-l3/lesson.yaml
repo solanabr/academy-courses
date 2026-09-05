@@ -17,16 +17,16 @@ blocks:
           - id: a
             label: "No: V2's MUT_MASK check rejects any instruction carrying more than one mut account."
             correct: false
-            feedback: "MUT_MASK records which fields are mut, but the dispatcher only fails when two of those fields resolve to the SAME address. A cap on the number of mutable accounts does not exist."
+            feedback: "MUT_MASK records which fields are mut, but the dispatcher only fails on an address collision that touches the writable set — the same address arriving in two slots with at least one of them marked mut. A cap on the number of mutable accounts does not exist."
           - id: b
             label: "Yes: distinct mutable accounts are fine; only the SAME account passed twice needs unsafe(dup)."
             correct: true
-            feedback: "A compile-time mask records which fields are writable; a runtime walk compares the addresses that actually arrived. Neither alone raises anything — only an address collision inside the writable set does."
+            feedback: "A compile-time mask records which fields are writable; a runtime walk compares the addresses that actually arrived. Neither alone raises anything — only an address collision touching the writable set does, and one colliding slot marked mut is already enough. The escape for a genuine alias is unsafe(dup) on the mut slot."
           - id: c
             label: "Yes, but only if both carry unsafe(dup), since the check counts mut fields, not addresses."
             correct: false
             feedback: "Backwards: the check counts addresses, not fields. unsafe(dup) is the per-field opt-out for a genuine alias, and two distinct accounts never collide, so they need no opt-out."
-        explanation: "The default that V2 enforces is against duplicate mutable accounts, the aliasing hazard where one account is passed under two names and one write silently clobbers the other. Two different accounts, even both mutable, are exactly what composition needs and are allowed with no ceremony. The check is split across two moments: the derive macro bakes a compile-time 256-bit MUT_MASK of which fields are mut, and the dispatcher then walks that mask against a runtime bitvec of addresses seen so far, raising ConstraintDuplicateMutableAccount only when two mut fields resolve to one address."
+        explanation: "The default that V2 enforces is against duplicate mutable accounts, the aliasing hazard where one account is passed under two names and one write silently clobbers the other. Two different accounts, even both mutable, are exactly what composition needs and are allowed with no ceremony. The check is split across two moments: the derive macro bakes a compile-time 256-bit MUT_MASK of which fields are mut, and the dispatcher then walks that mask against a runtime bitvec of addresses seen so far, raising ConstraintDuplicateMutableAccount when an address collision touches the writable set — at least one of the colliding slots marked mut is enough, and only all-read-only aliases pass. The sanctioned escape for a genuine alias stays unsafe(dup) on the mut slot."
       - id: m04-l3-q2
         prompt: "You are migrating the escrow's authority check from has_one = maker. What is the V2 form?"
         multiSelect: false
