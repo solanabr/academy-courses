@@ -4,6 +4,11 @@ title: "Two Dockerfiles, one idea: multi-stage honesty"
 skills:
   - solana-fundamentals
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "cargo-chef": "0.1.78"
+    "pnpm": "11.25.0"
 blocks:
   - key: intro
     type: prose

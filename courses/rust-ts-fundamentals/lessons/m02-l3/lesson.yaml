@@ -4,6 +4,10 @@ title: "Async that survives contact: limits, backoff, cancellation"
 skills:
   - solana-kit
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "typescript": "7.0.2"
 blocks:
   - key: intro
     type: prose

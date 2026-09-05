@@ -3,6 +3,10 @@ slug: m04-l3
 title: "Enums are state machines"
 skills:
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "rustc": "1.98.0"
 blocks:
   - key: intro
     type: prose

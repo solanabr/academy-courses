@@ -6,6 +6,10 @@ skills:
   - solana-kit
   - rpc-reads
   - transactions
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "@solana/kit": "8.2.0"
 blocks:
   - key: intro
     type: prose

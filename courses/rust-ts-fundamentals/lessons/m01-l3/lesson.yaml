@@ -3,6 +3,10 @@ slug: m01-l3
 title: "Green means it ran without you: git, GitHub flow, Actions"
 skills:
   - solana-fundamentals
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "tsx": "4.23.13"
 blocks:
   - key: intro
     type: prose

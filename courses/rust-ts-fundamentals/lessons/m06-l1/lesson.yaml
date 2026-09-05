@@ -4,6 +4,12 @@ title: "A daemon, not a script: tokio + a /status endpoint"
 skills:
   - solana-fundamentals
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "tokio": "1.53.1"
+    "axum": "0.8.9"
+    "reqwest": "0.13.4"
 blocks:
   - key: intro
     type: prose

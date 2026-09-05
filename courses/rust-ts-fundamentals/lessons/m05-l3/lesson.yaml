@@ -3,6 +3,11 @@ slug: m05-l3
 title: "clap, a real probe arm, and a binary anyone can download"
 skills:
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "clap": "4.6.6"
+    "reqwest": "0.13.4"
 blocks:
   - key: intro
     type: prose

@@ -3,6 +3,10 @@ slug: m03-l3
 title: "Vercel: the URL"
 skills:
   - solana-kit
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "vercel": "59.11.2"
 blocks:
   - key: intro
     type: prose

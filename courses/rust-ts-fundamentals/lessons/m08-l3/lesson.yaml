@@ -6,6 +6,10 @@ skills:
   - solana-kit
   - rpc-reads
   - transactions
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "thiserror": "2.0.20"
 blocks:
   - key: intro
     type: prose

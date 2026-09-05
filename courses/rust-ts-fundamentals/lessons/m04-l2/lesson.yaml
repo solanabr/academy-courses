@@ -3,6 +3,11 @@ slug: m04-l2
 title: "Errors are values: Result, ?, and the two-crate canon"
 skills:
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "thiserror": "2.0.20"
+    "anyhow": "1.0.104"
 blocks:
   - key: intro
     type: prose
