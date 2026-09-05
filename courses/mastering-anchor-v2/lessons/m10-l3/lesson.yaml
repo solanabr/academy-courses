@@ -11,22 +11,22 @@ blocks:
     type: quiz
     questions:
       - id: m10-l3-q1
-        prompt: "Your port compiles locally with `anchor build` and you assume it is V2-ready. Then it behaves nothing like V2. What is the most likely toolchain mistake?"
+        prompt: "Your port compiles locally with `anchor build` and you assume it is V2-ready. Then it emits none of the V2 deprecations and behaves nothing like V2. What actually went wrong?"
         multiSelect: false
         options:
           - id: a
             label: "You omitted `CARGO_PROFILE_RELEASE_LTO=off` from the cargo install, so the CLI fell back to building the program with v1 codegen semantics."
             correct: false
-            feedback: "`CARGO_PROFILE_RELEASE_LTO=off` is only a macOS workaround for the release build blowing up; it is not a version switch and never selects v1 codegen. The real variable is which `anchor-cli` was on PATH."
+            feedback: "`CARGO_PROFILE_RELEASE_LTO=off` is only a macOS workaround for the release build blowing up; it is not a version switch of any kind. What selects the framework line is the `anchor-lang` row in Cargo.toml."
           - id: c
-            label: "You compiled with the machine's ambient `anchor-cli 1.1.2` instead of the isolated, pinned V2 RC toolchain."
+            label: "The `anchor-lang` pin in the program's `Cargo.toml` is still on the 1.x line — the dependency graph, not the CLI on your PATH, selects the framework major."
             correct: true
-            feedback: "What you'd see is nothing — no deprecation warnings, no missing-method error, none of what the port should produce. No source edit selects a major; the version the binary reports is the thing to check."
+            feedback: "Cargo resolves the crate graph identically under either CLI wrapper, so a 1.x pin builds a v1 artifact no matter which anchor-cli ran — and once the row reads 2.0.0-rc.1, even the old CLI surfaces the V2 deprecations and the missing-method error, because they come from the macros in the graph. m10-l1's recon grepped for exactly this row."
           - id: b
-            label: "You left `AccountLoader` in the source, and because V2 repurposed that type, its presence pins the crate to v1 compatibility codegen."
+            label: "You compiled with the machine's ambient `anchor-cli 1.1.2` instead of the pinned V2 RC CLI, and the old binary silently built the old framework."
             correct: false
-            feedback: "V2 does repurpose `AccountLoader`, which makes this tempting, but no symbol in your source can select a framework major version. Only the toolchain that compiled the crate does."
-        explanation: "The local machine has anchor 1.1.2 installed, which cannot build V2. The port must compile against the isolated V2 RC toolchain (documented git install from anchor-next, pinned in verify/Dockerfile). If `anchor build` used the ambient 1.1.2, you produced a v1 artifact and no amount of source edits will make it behave like V2. Two things that do NOT control this: `CARGO_PROFILE_RELEASE_LTO=off` is purely a macOS release-build workaround, and no type in your source — `AccountLoader` included — switches codegen between framework major versions. The tell is a build that emits neither the deprecation warnings nor the missing-method error this lesson promises; when that happens, re-run `anchor --version` and expect `2.0.0-rc.1`, not `1.1.2`."
+            feedback: "The tempting answer — but `anchor build` is a wrapper, and which binary shelled out to cargo does not change which `anchor-lang` the graph resolves. An unflipped pin misbehaves identically under both CLIs, and a flipped pin surfaces the V2 diagnostics under both. The isolated CLI earns its keep on scaffold, test-harness, and IDL behavior — not as the major-version switch."
+        explanation: "The framework major is selected by the `anchor-lang` dependency in Cargo.toml, and cargo resolves it identically under either CLI wrapper. The handed vault compiles on 1.x because it pins 1.x; leave that row alone and every build is a v1 build, whichever anchor-cli is on PATH — and once the row reads 2.0.0-rc.1, the deprecation warnings and the missing-method error appear under the old CLI too, because they come from the macros in the dependency graph. That is why step 1 of the port is a manifest edit before it is an install. The isolated, pinned RC CLI still matters — scaffolds, the test harness, and IDL handling ride the CLI line — but it is not what your compiled program behaves like. Two things that control nothing here: `CARGO_PROFILE_RELEASE_LTO=off` (a macOS build workaround) and any type name in your handlers. The switch that does control it sits in your source tree as a version row, which is exactly what m10-l1's recon (`rg \"anchor_version|anchor-lang\"`) taught you to read first."
       - id: m10-l3-q2
         prompt: "Mid-port, `cargo build` succeeds but prints a deprecation warning underlining `has_one` in a constraint you copied over. The test would still pass. Why resolve it anyway?"
         multiSelect: false

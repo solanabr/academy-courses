@@ -10,7 +10,7 @@ Before you read another paragraph, run this and look at the number it prints:
 anchor --version
 ```
 
-On this course's reference machine that says `anchor-cli 1.1.2`. Hold onto that number. It is about to become the single most important fact in this lesson, and the reason your first port attempt will "succeed" and then behave nothing like V2. We come back to it in step 1.
+On this course's reference machine that says `anchor-cli 1.1.2`. Hold onto that number — not because the CLI decides what your build is (it does not, and the single most important fact in this lesson is *what actually does*), but because a machine that prints 1.x is a machine whose habits, and whose handed vault, are still pinned to the 1.x crates. The pin is the story. We come back to it in step 1.
 
 ## Summary
 
@@ -28,9 +28,9 @@ Let's get the toolchain right first, because every other delta is downstream of 
 
 ### The toolchain is the whole ballgame
 
-Remember that `1.1.2` from a minute ago? Here is the trap it sets. You clone the vault, you start fixing type names, you run `anchor build`, and it compiles. You feel great. You assume you have a V2 program. You do not. You have a v1 artifact that happens to still parse, because your machine's installed `anchor-cli 1.1.2` is a V1-line toolchain and it *cannot build V2 at all*. It will never emit the V2 errors you are trying to resolve, so it silently builds the old thing.
+Remember that `1.1.2` from a minute ago? Here is the trap it sets, and it is subtler than "wrong binary." The handed vault compiles fine on 1.x, which means its `Cargo.toml` pins `anchor-lang` on the 1.x line — and *that pin, not the CLI on your PATH, is what selects the framework major*. `anchor build` is a wrapper; underneath it, cargo resolves your crate graph identically whichever anchor-cli invoked it. So if you clone the vault, start fixing type names, and never touch the manifest, you do not get a silent v1 artifact — you get a loud failure: `Address`, `.address()`, `&mut Context` exist nowhere in the 1.x crates, and the compiler says so at every site you just edited. The reverse holds too: bump the pin to `2.0.0-rc.1` and even the host's old CLI surfaces the V2 deprecations and the missing-method error, because those diagnostics come from the macros in the dependency graph, not from the binary that shelled out to cargo. You have already met this inversion twice — m10-l1's recon had you `rg "anchor_version|anchor-lang"` precisely because the pin is the fact that matters, and m10-l2 told you to pin the exact version in `Anchor.toml` and `Cargo.toml`. The version the *build* is, is the version the *manifest* says.
 
-So the first move is not a code edit. It is standing up an isolated V2 toolchain and pinning it.
+So the first move is not a handler edit. It is two pins, made together: the `anchor-lang = "2.0.0-rc.1"` row in the program's `Cargo.toml`, which is the switch that actually flips the major, and an isolated V2 CLI, which keeps every wrapper-level behavior — scaffolds, the test harness, IDL handling — on the same line as the crates, so `anchor --version` stays a truthful label for the whole toolchain.
 
 The install fights you a little, and it is worth knowing why. V2 has no GitHub Release object. There is a git tag, `v2.0.0-rc.1` on the anchor-next branch, but no published release for that tag, which means `avm install` cannot download a prebuilt binary for it the way it does for stable versions — the asset URL just 404s. The rc.1 crates did land on crates.io on 2026-08-12, but the docs lag that publish and the documented path is a direct git install (the docs point at the `anchor-next` branch tip; this course pins the tag that sits on that branch, for the reproducibility reason m01-l2 laid out):
 
@@ -65,7 +65,7 @@ COPY . .
 CMD ["anchor", "test"]
 ```
 
-![Building on the host's anchor-cli 1.1.2 silently yields a v1 artifact; only the isolated, pinned 2.0.0-rc.1 toolchain emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.png)
+![Building against a Cargo.toml that still pins anchor-lang 1.x yields a v1 artifact under any CLI; only a graph pinned to 2.0.0-rc.1 emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.png)
 
 That is the load-bearing setup. Get it wrong and every code edit below is theater. Get it right and the compiler starts doing your job for you.
 
@@ -167,7 +167,14 @@ Notice `state` is declared before `authority` now, so the `address = state.autho
 
 Time to build. You have the delta map and you understand the two hard rows. Now apply them. The provided program lives in `programs/quarter_vault/src/lib.rs` with `// TODO(migrate):` markers at the mechanical sites. Work top to bottom.
 
-**1. Stand up the isolated toolchain.** Install the RC exactly as above, then confirm you are on it inside the project, not on the host's 1.1.2:
+**1. Flip the pin, then stand up the isolated toolchain.** First the edit that actually selects V2 — the manifest move the theory section just made load-bearing. Open `programs/quarter_vault/Cargo.toml` and change the `anchor-lang` row from its 1.x version to the RC:
+
+```toml
+[dependencies]
+anchor-lang = "2.0.0-rc.1"   # was a 1.x row; THIS line is what selects the framework major
+```
+
+Without this edit, none of steps 2 through 7 can even begin to compile: every rename below targets names that do not exist in the 1.x crates. Then install the RC CLI exactly as above, and confirm the label is truthful:
 
 ```bash
 CARGO_PROFILE_RELEASE_LTO=off \
@@ -177,7 +184,7 @@ cargo install --git https://github.com/otter-sec/anchor \
 anchor --version    # must now report 2.0.0-rc.1, NOT 1.1.2
 ```
 
-If that still says 1.1.2, your PATH is resolving the old binary first. Fix that before writing a single line, or you will debug phantom failures for an hour. This is step 1 for a reason.
+If that still says 1.1.2, your PATH is resolving the old binary first. That will not change which framework your crate graph compiles against — the pin above governs that — but a mislabeled toolchain is how scaffold, test-harness, and IDL behavior drift off the line your crates are on, so fix it before writing a single line. This is step 1 for a reason.
 
 **2. Rename the types (rows 1 and 2).** Change every `Pubkey` to `Address` and every `.key()` to `.address()`. Build. The compiler will list the ones you missed as type and method errors. Let it. Here is the state struct after this pass:
 
@@ -261,7 +268,7 @@ pub fn deposit(ctx: &mut Context<Deposit>, amount: u64) -> Result<()> {
 
 Build. The mechanical rows are done. Now the two the compiler drives.
 
-A quick word on what you are probably seeing right now, because two failures are common at this exact point and both look scarier than they are. If the build spews dozens of `Address`-vs-`Pubkey` type errors in files you never touched, you missed a `.key()` somewhere upstream and the wrong type is propagating. Fix the earliest one in the compiler's list first, not the loudest, because the later errors are usually just fallout from it. And if `anchor build` succeeds with zero errors but also zero of the warnings this lesson keeps promising, stop and re-run `anchor --version`. A silent, warning-free build at this stage almost always means the ambient 1.1.2 crept back onto your PATH and you are building v1 again. That is step 1 reaching out to bite you, exactly as promised.
+A quick word on what you are probably seeing right now, because two failures are common at this exact point and both look scarier than they are. If the build spews dozens of `Address`-vs-`Pubkey` type errors in files you never touched, you missed a `.key()` somewhere upstream and the wrong type is propagating. Fix the earliest one in the compiler's list first, not the loudest, because the later errors are usually just fallout from it. And if it spews unresolved-name errors on the very lines you already fixed — `Address` unknown, `.address()` missing — the culprit is the other half of step 1: the `anchor-lang` pin is still on 1.x, so the names you renamed *toward* do not exist in the graph you are compiling against. The CLI on your PATH can neither cause nor cure either symptom; the diagnostics come from the crates cargo resolved, exactly as step 1 said. That is the manifest reaching out to bite you, precisely as promised.
 
 **6. Solo: resolve the deprecation warning (row 6).** There is no TODO for this. Build and read the warning. It underlines `has_one = authority` and names the replacement. Move the check to an `address` constraint on the authority account, exactly as shown earlier. Rebuild until the deprecation count is zero. Do not stop at "the test passes." Stop at "the warning is gone."
 
@@ -389,11 +396,11 @@ Then the gate itself:
 
 ```bash
 anchor test                              # LiteSVM suite: init, deposit, PDA-signed withdraw
-touch programs/quarter_vault/src/lib.rs  # force a real recompile, or cargo prints no warnings at all
+touch programs/quarter_vault/src/lib.rs  # belt and braces: force a genuine recompile before the grep
 cargo build 2>&1 | rg "deprecat"         # must print nothing (rg exits 1 on zero matches)
 ```
 
-That `touch` is not decoration. Cargo only re-emits warnings for crates it actually rebuilds, so grepping a warm build for `deprecat` returns clean whether or not `has_one` is still in your source. Touch the file and you are grading the code instead of the cache.
+That `touch` is belt and braces rather than load-bearing, and the distinction is worth a sentence: modern cargo caches a crate's diagnostics and *replays* them on warm builds, so the grep would catch a lingering `has_one` even against a build that recompiled nothing. Touching the file just makes the line you grep provably this build's fresh output rather than a replay — cheap insurance when you are about to report a number as final.
 
 Then run the same two commands inside the verify container, so the result you report was produced by the pinned RC and never by whatever is on your PATH:
 

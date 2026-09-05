@@ -83,9 +83,9 @@ The `8` was the account discriminator, and everything after it was you, counting
 
 ### 4. One #[error_code] enum per program
 
-0.32 let you scatter error definitions across multiple `#[error_code]` enums, one per module if you liked. 1.0 allows exactly one (PR #4300). If your inherited program split its errors into a `VaultError` and an `EscrowError` enum, it will not compile until you merge them into a single enum.
+0.32 let you scatter error definitions across multiple `#[error_code]` enums, one per module if you liked. 1.0's rule (PR #4300) is one enum per program — but hear the enforcement correctly, because this is the trap: a second `#[error_code]` enum still *compiles green* on the 1.x line. No error, no warning, verified against the pinned toolchain. If your inherited program split its errors into a `VaultError` and an `EscrowError`, the build that should have complained ships fine, and the hazard lands silently at runtime instead.
 
-The reason is discriminant collision, and it is worth walking one concrete instance to feel it. Anchor assigns each error a numeric code by its position in the enum, offset into a shared error-code space that starts at `6000`. Picture the inherited program: `VaultError` declares `Overflow` first, so it becomes `6000`, and `EscrowError` in another module also declares its first variant, which *also* wants to be `6000`. Now a client catches error `6000` off a failed transaction and has no way to know whether the vault overflowed or the escrow rejected, because two independent enums both counted from the same base and produced the same code for different meanings. Collapsing to exactly one enum per program makes the error code a single unambiguous index into a single list, so `6000` means one thing forever. The fix is a merge: move every variant into one enum, and if two subsystems shipped a same-named variant, rename one of them. It is tedious rather than hard, and the payoff is that your error codes finally each mean exactly one thing, which is what a caller decoding them off-chain needed all along.
+The hazard is discriminant collision, and it is worth walking one concrete instance to feel it. Anchor assigns each error a numeric code by its position in the enum, offset into a shared error-code space that starts at `6000`. Picture the inherited program: `VaultError` declares `Overflow` first, so it becomes `6000`, and `EscrowError` in another module also declares its first variant, which *also* wants to be `6000`. Now a client catches error `6000` off a failed transaction and has no way to know whether the vault overflowed or the escrow rejected, because two independent enums both counted from the same base and produced the same code for different meanings. Collapsing to exactly one enum per program makes the error code a single unambiguous index into a single list, so `6000` means one thing forever. The fix is a merge you impose yourself, because the compiler will not impose it for you: move every variant into one enum, and if two subsystems shipped a same-named variant, rename one of them. It is tedious rather than hard, and the payoff is that your error codes finally each mean exactly one thing, which is what a caller decoding them off-chain needed all along.
 
 ### 5. #[interface] and interface-instructions are gone
 
@@ -166,10 +166,11 @@ Earlier lessons handed you each command with its output. Here you get the moves 
 
    Expect the build to fail, loudly and in several places at once. That failure is the deliverable of this step, not a problem to solve yet.
 
-4. **Catalog every error against the six changes.** Do not fix anything. For each compiler error, write the change number it maps to. You are looking for the fingerprints: an unknown `#[interface]` attribute (change 5), a `Pubkey` vs `AccountInfo` mismatch on `CpiContext::new` (change 2), a second `#[error_code]` enum rejected (change 4). A hand-rolled `8 + ...` space literal (change 3) will not always error loudly, so grep for it directly:
+4. **Catalog every error against the six changes.** Do not fix anything. For each compiler error, write the change number it maps to. You are looking for the fingerprints: an unknown `#[interface]` attribute (change 5), a `Pubkey` vs `AccountInfo` mismatch on `CpiContext::new` (change 2). Two of the six leave no compiler error at all, so they have to be caught by grep, not by the build. A hand-rolled `8 + ...` space literal (change 3) will not always error loudly; and a second `#[error_code]` enum (change 4) never errors — two enums build green, which is exactly the trap the change-4 section warned about:
 
    ```bash
    rg "space\s*=\s*8\s*\+" .
+   rg -n "#\[error_code\]" .   # more than one hit inside a single program crate: change 4
    ```
 
 5. **Dry-run the deploy trap in your head, or on devnet.** You will not fix the deploy today, but locate the risk. If the program was ever deployed with an on-chain IDL the old way, note that a v1 deploy will trip on the stale IDL account until you close it with the 0.32.1 CLI. Write the exact close command you *would* run:
@@ -181,7 +182,7 @@ Earlier lessons handed you each command with its output. Here you get the moves 
    #   avm use 1.1.2
    ```
 
-**Checkpoint.** You are done when you have a written list: every break the build produced, each tagged with its change number and its one-line fix, plus a note on whether the legacy-IDL close applies. That list is a port plan. You have not written a line of the port, and you already know exactly what it will take. That is the whole trade this lesson made for you.
+**Checkpoint.** You are done when you have a written list: every break the build produced *plus* the two silent ones the greps surfaced, each tagged with its change number and its one-line fix, plus a note on whether the legacy-IDL close applies. That list is a port plan. You have not written a line of the port, and you already know exactly what it will take. That is the whole trade this lesson made for you.
 
 ## Challenge
 

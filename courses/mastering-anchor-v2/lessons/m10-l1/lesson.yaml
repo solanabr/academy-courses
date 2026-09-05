@@ -55,7 +55,7 @@ blocks:
           - id: b
             label: "Add a second `#[error_code]` enum so the regenerated IDL can still carry the legacy error variants."
             correct: false
-            feedback: "1.0 allows exactly one `#[error_code]` enum per program, so this would break the build rather than fix the deploy -- and error enums have nothing to do with the legacy IDL-account break."
+            feedback: "Adding a second `#[error_code]` enum would not even be caught: it compiles green on the 1.x line, and both enums silently base their codes at 6000, so the danger is a collision nothing warns about — the opposite of a fix. And error enums have nothing to do with the legacy IDL-account break."
           - id: c
             label: "Close the legacy on-chain IDL account using the 0.32.1 CLI, then redeploy the program on the 1.x line."
             correct: true
