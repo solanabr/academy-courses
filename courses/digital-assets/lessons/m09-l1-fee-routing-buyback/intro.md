@@ -192,7 +192,16 @@ npm install -D tsx@4.23.12 typescript@5.9.3 @types/node @types/bn.js
 
 Checked against npm on 2026-09-05: kit's `latest` tag is 8.2.0, published 2026-08-29, but the first line pins by peer range, not by latest: `@solana-program/token-2022@0.15.0` is the current minor peering kit `^7.0.0` — the 0.16.0 release jumped to `^8` — so kit sits at 7.1.1, the newest release inside that range, and `@solana-program/system@0.13.0` matches it. Re-run `npm view @solana-program/token-2022@0.15.0 peerDependencies` when you scaffold; this matrix moves monthly.
 
-The second line is the interesting one. `@meteora-ag/cp-amm-sdk` is Meteora's first-party DAMM v2 client and it ships web3.js v1 types, not kit. You are going to run two clients in one script, and that is not a mistake I am hiding from you: it is what integrating with a first-party SDK actually looks like in 2026. Kit does the Token-2022 legs because that is where kit is excellent. Web3.js v1 does the swap leg because that is what the venue's own SDK speaks. The 1.4.6 pin is a 2026-08-21 npm read, the same one the DeFi & RWA Engineering course froze, fitting for the SDK whose deeper machinery that course owns; run `npm view @meteora-ag/cp-amm-sdk version` the day you scaffold.
+The second line is the interesting one. `@meteora-ag/cp-amm-sdk` is Meteora's first-party DAMM v2 client and it ships web3.js v1 types, not kit. You are going to run two clients in one script, and that is not a mistake I am hiding from you: it is what integrating with a first-party SDK actually looks like in 2026. Kit does the Token-2022 legs because that is where kit is excellent. Web3.js v1 does the swap leg because that is what the venue's own SDK speaks. The 1.4.6 pin is a 2026-08-21 npm read, the same one the DeFi & RWA Engineering course froze, fitting for the SDK whose deeper machinery that course owns; run `npm view @meteora-ag/cp-amm-sdk version` the day you scaffold. And to name the rule this arrangement rides: Meteora publishes no kit surface for DAMM v2, so the v1 dependency is unavoidable — it stays quarantined to the vendor-facing swap leg of this workspace, and every first-party line you write outside that leg remains kit.
+
+**1b. Create `treasury.json`, the key the whole rail signs with.** No earlier module made this file, and that is a gap to close now rather than discover at step 6: the m02 scripts parked every authority on throwaway in-memory signers, fine for throwaway mints and useless for a rail whose withdraw leg has to be signable next week. Mint the key once and fund it on the fork:
+
+```bash
+solana-keygen new --no-bip39-passphrase -o labs/m09-l1/treasury.json
+solana airdrop 100 "$(solana-keygen pubkey labs/m09-l1/treasury.json)" --url http://127.0.0.1:8899
+```
+
+Then make the chain agree that this key holds the powers the rail exercises. Fee authorities are set at mint creation, and the throwaway keys holding them on any older SPROUT died with their process — so this is exactly the standing assumptions' "re-mint per m05-l1's opener" case, with one edit first. Open the composed-SPROUT builder (`labs/m02-l1/verify-economics.ts`, as re-pointed in m02-l4 step 7), load the treasury signer at the top with the same two `createKeyPairSignerFromBytes` lines `wire-economy.ts` uses below, and pass that signer in place of the throwaway one for exactly two roles: the mint authority and the fee config's `withdrawWithheldAuthority`. Re-mint, re-run your marketplace transfers, and the fork now carries a SPROUT whose fee jar this file can open — and whose supply next lesson's conversion window can mint, which is why the mint authority moves onto the same key. One echo from the theory section, so the code cannot contradict it in your head: production wants a PDA in this role, not a JSON file; every place this key signs is a place your program would `invoke_signed`.
 
 **2. Find the pile.** Create `find-withheld.ts`. This is the account scan, and it is the tool the rest of the rail is built on.
 
@@ -467,9 +476,14 @@ async function main(): Promise<void> {
   // made visible against it.
   const buyIxs = await venue.buyIxs(treasurySol, SLIPPAGE_PCT);
   const swap = new Transaction().add(...buyIxs);
-  await connection.sendTransaction(swap, [buyer], { skipPreflight: false });
+  // v1's sendTransaction returns at SUBMISSION, not confirmation. Read the
+  // balance before the swap lands and `bought` measures a pre-swap photograph
+  // (the burn section's stale-read trap, client-side edition) - so confirm first.
+  const swapSig = await connection.sendTransaction(swap, [buyer], { skipPreflight: false });
+  const latest = await connection.getLatestBlockhash("confirmed");
+  await connection.confirmTransaction({ signature: swapSig, ...latest }, "confirmed");
 
-  // Re-read the account AFTER the swap. Cached balances are how supply math goes wrong.
+  // Re-read the account AFTER the swap confirms. Cached balances are how supply math goes wrong.
   const balanceAfter = BigInt(
     (await connection.getTokenAccountBalance(new PublicKey(treasuryAta))).value.amount,
   );
