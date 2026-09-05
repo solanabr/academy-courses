@@ -71,7 +71,7 @@ worker = { version = "0.8" }
 worker-macros = { version = "0.8" }
 ```
 
-Three field-by-field observations. `crate-type = ["cdylib"]` tells cargo to produce a C-style dynamic library instead of a binary, which is the shape wasm-bindgen knows how to consume. The `worker` crate is the Rust SDK for the Workers platform: your types for `Request`, `Response`, `Env`, and the KV binding. And the pin says `"0.8"`, not a bare latest, because worker is pre-1.0. Say the m05-l2 rule out loud: under semver, a 0.x minor is allowed to break you the way a 2.0 would elsewhere, so the pin holds the 0.8 line on purpose and you read release notes before choosing 0.9. As I write, probed on crates.io 2026-09-02, the line sits at 0.8.5, published 2026-06-12. Freshness note: re-check that digit when you do this lab; a pre-1.0 SDK is exactly the kind of dependency whose current minor matters. (The template also pins its own edition at 2021 while your workspace runs 2024. Different editions across a path dependency are fine; editions are per-crate, which is precisely why they can exist at all.)
+Three field-by-field observations. `crate-type = ["cdylib"]` tells cargo to produce a C-style dynamic library instead of a binary, which is the shape wasm-bindgen knows how to consume. The `worker` crate is the Rust SDK for the Workers platform: your types for `Request`, `Response`, `Env`, and the KV binding. And the pin says `"0.8"`, not a bare latest, because worker is pre-1.0. Say the m05-l2 rule out loud: under semver, a 0.x minor is allowed to break you the way a 2.0 would elsewhere, so the pin holds the 0.8 line on purpose and you read release notes before choosing 0.9. As I write, probed on crates.io 2026-09-02, the line sits at 0.8.5, published 2026-06-12. Freshness note: re-check that digit when you do this lab; a pre-1.0 SDK is exactly the kind of dependency whose current minor matters. (The template also pins its own edition at 2021 while your workspace runs 2024; that is the m05-l2 survey playing out in one manifest, the ecosystem boarding late while your own host-side crates ride the current edition under that lesson's dated carve-out, and its rule covers this too: the template's edition is the template's contract. Different editions across a path dependency are fine; editions are per-crate, which is precisely why they can exist at all.)
 
 The template's `src/lib.rs` is eight lines and you can already read every one of them:
 
@@ -265,25 +265,27 @@ This is the station's second edge ship, the Rust twin of m07-l1's worker. The fe
        };
        let classified = classify_fixtures(&samples);
 
-       for c in &classified {
-           let key = format!("status:{}", c.name);
-           let prev: StoredStatus = kv
-               .get(&key)
-               .json()
-               .await?
-               .unwrap_or(StoredStatus { state: ProbeState::Pending, consecutive_failures: 0 });
-           let ok = matches!(c.verdict, pulse_engine::Verdict::Up);
-           let failures = if ok { 0 } else { prev.consecutive_failures + 1 };
-           let next = next_state(prev.state, ok, failures);
-           let stored = StoredStatus { state: next, consecutive_failures: failures };
-           // TODO 2: write `stored` back to KV under `key`, serialized with serde_json.
+       if req.method() == Method::Post {
+           for c in &classified {
+               let key = format!("status:{}", c.name);
+               let prev: StoredStatus = kv
+                   .get(&key)
+                   .json()
+                   .await?
+                   .unwrap_or(StoredStatus { state: ProbeState::Pending, consecutive_failures: 0 });
+               let ok = matches!(c.verdict, pulse_engine::Verdict::Up);
+               let failures = if ok { 0 } else { prev.consecutive_failures + 1 };
+               let next = next_state(prev.state, ok, failures);
+               let stored = StoredStatus { state: next, consecutive_failures: failures };
+               // TODO 2: write `stored` back to KV under `key`, serialized with serde_json.
+           }
        }
 
        Response::from_json(&classified)
    }
    ```
 
-   Read the shape before filling the holes. POST means "here are fresh samples, classify them". GET means "classify whatever KV saw last". Either way the verdicts come from `classify_fixtures` and the per-target state advances through `next_state`: the same two functions, the same four-state machine, the same thresholds that have answered in the CLI since M4 and in the poller since M6. The worker authors no logic. It is a shell around the engine, which has been this course's definition of a good shell since m03-l1.
+   Read the shape before filling the holes. POST means "here are fresh samples, classify them and advance the per-target state". GET means "classify whatever KV saw last", and it is deliberately a pure read: the verdicts are recomputed, but the `for` loop that advances state sits behind the POST gate, so looking at the worker moves nothing and writes nothing. That gate is load-bearing twice over. m04-l3 defined `consecutive_failures` as consecutive PROBE failures, and a probe happens when samples arrive, not every time someone looks; an ungated loop would let three idle GETs, or one crawler wandering onto the public workers.dev URL, walk a Degraded target to Down with zero new probe data. And every KV put spends the daily write budget m07-l1 sized with almost no headroom; reads must not spend it. The verdicts come from `classify_fixtures` and the POST path advances through `next_state`: the same two functions, the same four-state machine, the same thresholds that have answered in the CLI since M4 and in the poller since M6. The worker authors no logic. It is a shell around the engine, which has been this course's definition of a good shell since m03-l1.
 
 5. **Complete the KV pair.** This is the taught piece of the lab, so here are the two lines, with the reasoning. TODO 1:
 
