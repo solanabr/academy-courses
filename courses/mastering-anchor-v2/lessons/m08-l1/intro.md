@@ -121,7 +121,7 @@ So the newest kit and the kit your dependencies want are different majors. This 
 
 ![On 2026-08-21 legacy web3.js still edged kit 1,882,726 to 1,738,844 in weekly downloads, and kit shipped 8.0.0 the same day, while the ecosystem still peered on kit ^7.](assets/v07-chart.png)
 
-That is the felt version of the rule. Kit closing to within eight percent of legacy web3.js, with the crossover imminent, is the tooling telling you kit is where the ecosystem is going. Kit shipping 8.0.0 the same afternoon your dependencies peer on ^7 is that same ecosystem telling you not to chase the version number. Both are true in the same week.
+Both halves of that chart are true in the same week: the download crossover says kit is where the ecosystem is going, and the peer ranges say do not chase its version number.
 
 So the durable rule, the one thing to carry out of this lesson if you carry nothing else: **pin `@solana/kit` to the major your `@solana-program` dependencies declare, never to `latest`.** Today that major is 7. Install it explicitly:
 
@@ -138,7 +138,7 @@ Why not just pin `latest` and let npm sort it out? Because of what npm does with
 
 There is a second consumer of the IDL that you have already met from the other side. In v1, a program could consume *another* program's IDL at compile time through `declare_program!`, generating a CPI interface from a vendored IDL — one Anchor program calling another by its published interface instead of by matching source versions. That is exactly what your escrow has been doing to the vault since m04-l3, and it is verified working on the 2.0.0-rc.1 line this course pins: the JSON you have been harvesting into `idls/` is an IDL doing the compile-time half of the job this lesson's client-side half describes. The capstone leans on it four rungs wide in m09-l3.
 
-Worth knowing while you are here: the reason the course consumes programs by IDL rather than by source is not taste. The scaffold's source-level `cpi` feature tops out at one consumed program per binary on the RC — a second one collides at link time on an unmangled dispatch symbol — so the IDL path is both V2's own mechanism and the only one that scales to the four-rung floor. Where the same move gets used in anger beyond this course: the DeFi and RWA Engineering course consumes live protocols' IDLs directly, in its reading-a-live-protocol lesson.
+Worth knowing while you are here: the reason the course consumes programs by IDL rather than by source is not taste. The scaffold's source-level `cpi` feature tops out at one consumed program per binary on the RC — a second one collides at link time on an unmangled dispatch symbol — so the IDL path is both V2's own mechanism and the only one that scales to the four-rung floor. Where the same move gets used in anger beyond this course: consuming a live protocol's published IDL directly, which is the DeFi and RWA Engineering course's territory.
 
 ## The Lab
 
@@ -238,12 +238,12 @@ spl-token mint <TICKET_MINT> 1000              # tickets to seed the pool with
 
 # The pool and its two reserves. `init_pool` is the instruction you wrote in the
 # swap lab; the generated client has a builder for it too, so send it the same way
-# the pipe below sends the swap, or drive it from a LiteSVM-style Rust test pointed
-# at devnet. Either way it prints nothing: read the reserve addresses back with
-# findPoolPda + fetchPool, which is the extra checkpoint at the end of this lab.
+# the pipe below sends the swap — same pipe, different builder. It prints nothing:
+# prove it landed by deriving the pool with findPoolPda and decoding it with
+# fetchPool, which is the extra checkpoint at the end of this lab.
 ```
 
-`<POOL_ARCADE_RESERVE>` and `<POOL_TICKET_RESERVE>` are the two reserve token accounts `init_pool` created, and `fetchPool` is how you read them back without writing them down. Also: `secretKey` in the signature below is the 64 bytes of your devnet keypair file, which you can load with `new Uint8Array(JSON.parse(fs.readFileSync(process.env.HOME + '/.config/solana/id.json', 'utf8')))`.
+`<POOL_ARCADE_RESERVE>` and `<POOL_TICKET_RESERVE>` are the two reserve token accounts `init_pool` created — note their addresses down when it runs, because the pool record itself stores the mints and bump, and that record (via `fetchPool`) is what the checkpoint at the end decodes. Also: `secretKey` in the signature below is the 64 bytes of your devnet keypair file, which you can load with `new Uint8Array(JSON.parse(fs.readFileSync(process.env.HOME + '/.config/solana/id.json', 'utf8')))`.
 
 ```typescript
 import {
@@ -301,7 +301,7 @@ async function sendSwap(secretKey: Uint8Array): Promise<string> {
 
 The three fills, so you can check yourself once you have tried them: `(m) => setTransactionMessageFeePayerSigner(trader, m)`, then `(m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m)`, then `(m) => appendTransactionMessageInstruction(swapIx, m)`. Notice `amountIn` and `minOut` are `bigint`s, not numbers, that `n` suffix is not decoration, it is how kit carries a `u64` without losing precision above 2^53.
 
-Two kit specifics worth naming while they are in front of you. `sendAndConfirmTransactionFactory` takes both `rpc` and `rpcSubscriptions`, because kit confirms by listening on a websocket for the signature rather than polling, which is why you created a subscriptions client next to the RPC one. And `assertIsTransactionWithBlockhashLifetime` is not ceremony: it is a type guard that refuses to compile the send unless the message actually carries a blockhash lifetime, so forgetting the lifetime line becomes a type error at your desk instead of a dropped transaction on devnet. Getting the trade to *land* reliably under real load is a separate craft, and it belongs to the Client-Side Mastery course's landing module. Here you are proving the call is well-formed and confirmable, not tuning it for a congested leader.
+Two kit specifics worth naming while they are in front of you. `sendAndConfirmTransactionFactory` takes both `rpc` and `rpcSubscriptions`, because kit confirms by listening on a websocket for the signature rather than polling, which is why you created a subscriptions client next to the RPC one. And `assertIsTransactionWithBlockhashLifetime` is not ceremony: it is a type guard that refuses to compile the send unless the message actually carries a blockhash lifetime, so forgetting the lifetime line becomes a type error at your desk instead of a dropped transaction on devnet. Getting the trade to *land* reliably under real load is a separate craft, and it belongs to the Client-Side Mastery course. Here you are proving the call is well-formed and confirmable, not tuning it for a congested leader.
 
 ![A kit transaction is built by setting the fee payer, the blockhash lifetime, and the instruction, then signed, guarded, sent and confirmed, and its signature read back.](assets/v08-flowchart.png)
 
@@ -338,6 +338,6 @@ Stop and check the answer shape you were supposed to produce: a `clients/` direc
 
 The trade you made, stated plainly so you carry it forward: a generated client is only ever as fresh as the IDL you published and the Codama version you pinned. Skip an `idl upgrade` after a program change and callers build against a stale interface. Chase `latest` on kit and you break the `@solana-program` peer graph the day a new major ships. You traded hand-written control for regeneration discipline, and that discipline is the `verified` date on every pin.
 
-One more direction, so you know where this client goes next. Getting a well-formed transaction *built* is this lesson. Getting it to *land* reliably under load, priority fees, retries, the whole art of transaction landing, is the Client-Side Mastery course's job, in its landing module. This course owns the framework and the interface, it hands landing strategy to the course that owns it.
+One more direction, so you know where this client goes next. Getting a well-formed transaction *built* is this lesson. Getting it to *land* reliably under load, priority fees, retries, the whole art of transaction landing, is the Client-Side Mastery course's job. This course owns the framework and the interface, it hands landing strategy to the course that owns it.
 
 You can call the swap now. But can anyone prove the bytes running on devnet were built from your source, and not swapped for something else after you looked away? Next lesson you run a deterministic build in Docker, deploy it, and verify the on-chain bytes against your source with one command, then meet the uncomfortable fact that the whole verify chain leans on a single steward.

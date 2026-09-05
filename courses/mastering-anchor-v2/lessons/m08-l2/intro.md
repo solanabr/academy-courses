@@ -173,7 +173,7 @@ git ls-remote https://github.com/otter-sec/anchor.git 'refs/tags/v2.0.0-rc.1*'
 # e4878b6d...  refs/tags/v2.0.0-rc.1^{}    <- the commit it points at
 ```
 
-So why spell it the harder way here? Because a tag is a *ref* and a commit is a *fact*. A tag can be moved or deleted and re-cut at a different commit; the hash `e4878b6d` names one immutable object and nothing else can ever answer to it. Everywhere else in this course the tag is precise enough, and it reads better. Here the whole deliverable is a hash that a stranger reproduces, so the toolchain is named at the tightest granularity that exists, and it matches the line in your verify Dockerfile character for character. If `anchor --version` reports something other than the RC after this, the commit has been rewritten and you re-pin from the tag.
+So why spell it the harder way here? Because a tag is a *ref* and a commit is a *fact*. A tag can be moved or deleted and re-cut at a different commit; the hash `e4878b6d` names one immutable object and nothing else can ever answer to it. Everywhere else in this course the tag is precise enough, and it reads better. Here the whole deliverable is a hash that a stranger reproduces, so the toolchain is named at the tightest granularity that exists — the same discipline `solana-verify` applies when it pins its stock build image rather than floating one. If `anchor --version` reports something other than the RC after this, the commit has been rewritten and you re-pin from the tag.
 
 Also worth stating plainly, since the pins table hedges it: the Anchor CLI you run locally is not inside the deterministic envelope. `solana-verify build` compiles inside the pinned Docker image, using the toolchain in that image, so the hash is a function of the image and your source, not of your host `anchor`. Pinning your local CLI keeps *you* consistent between lessons. Pinning the image is what makes the proof work.
 
@@ -274,9 +274,9 @@ Check yourself against the four ways this goes wrong in practice, because they a
 
 Did your `verify-from-repo` actually run against devnet with your own program id, and report a real match? Reading the narrated flows does not count as the proof. The gate is a hash match you produced, plus the mismatch you produced after editing one line. If you only read, you have not passed yet.
 
-Did the `verify-from-repo` in your terminal use `--library-name`? On a single-program workspace it is optional and on yours it is not, because `quarters` holds five programs by now and the tool has no way to guess which one your program id belongs to.
+Did the `verify-from-repo` in your terminal use `--library-name`? On a single-program workspace it is optional and on yours it is not, because `quarters` holds three programs by now — five once the capstone lands — and the tool has no way to guess which one your program id belongs to.
 
-Did you keep the pins-table Solana version in its lane? The 3.1.10 in that table is the local-CI and Docker toolchain pin that makes the build deterministic. It is not a claim that current Solana is 3.1. Current stable is Agave v4.2.1 as of 2026-08-22, tracked separately and re-verified when you print it.
+Did you keep the pins-table Solana version in its lane? Build fact, not network fact — if that distinction is not instant by now, re-read the pins-table walk above before moving on.
 
 And did you try the remote submit-job on devnet and get confused when it returned nothing? That silence is exactly what the cluster scope predicts, because the remote registry path is mainnet-only. On devnet, local `verify-from-repo` is the entire proof, and the reason the remote job fails there is its cluster scope, not a missing deploy and not a stopped daemon.
 
