@@ -1,6 +1,8 @@
 // The billing crank's per-subscription pull guard (reference solution).
 
-export interface PullDecision {
+// Bare declarations here: the grader executes the widget copy without module
+// syntax; the lab's decide-pull.ts carries `export` on both declarations.
+interface PullDecision {
   shouldPull: boolean;
   reason: string; // "due" when pulling, else why it was held
   nextEligibleTs: number; // earliest Unix second a pull may fire (0 if N/A)
@@ -8,7 +10,7 @@ export interface PullDecision {
 
 const SECONDS_PER_HOUR = 3600;
 
-export function decidePull(
+function decidePull(
   active: boolean, // false once CancelSubscription has run
   expiresAtTs: number, // Unix seconds; 0 = never expires
   lastChargedTs: number, // Unix seconds of the previous successful pull
