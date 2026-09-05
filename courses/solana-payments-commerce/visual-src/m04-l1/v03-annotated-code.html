@@ -10,7 +10,7 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- annotated-code: The three fields verify() reads from a jsonParsed getTransaction response
+<!-- annotated-code: The four fields verify() reads from a jsonParsed getTransaction response
      purpose: give the reader a map of the response anatomy before the code consumes it
      data: meta.preTokenBalances / meta.postTokenBalances: entries of { accountIndex, mint, owner, programId, uiTokenAmount: { amount, decimals } } for every token account the tx touched, snapshotted before and after annotation 1: programId on each entry names the owning token program: classic Token or Token-2022; this is the check almost everyone skips annotation 2: uiTokenAmount.amount is an exact base-unit integer as a string; pair pre and post by accountIndex and subtract as bigints; never touch the float uiAmount transaction.message.instructions: with jsonParsed, an spl-memo instruction arrives as { program: "spl-memo", parsed: "<the memo text>" }; that parsed string is where your builder stamped the order id meta.err: non-null means the transaction landed but failed; a failed transfer moves nothing, so its deltas are zero
      prompt: Annotated code panel showing an abridged jsonParsed getTransaction response as JSON, with the three regions the verifier reads (pre/postTokenBalances, the parsed spl-memo instruction, meta.err) highlighted and the annotations from data attached as callouts pointing at programId, uiTokenAmount.amount, and parsed. Elide everything else with ellipses so the three regions dominate. Structure only; house brand styles apply.
@@ -51,7 +51,7 @@
   .note-y b { color:var(--stbr-dark); }
 </style>
   <div class="stbr-eyebrow">response anatomy, before the code consumes it</div>
-  <h2 class="viz-title">the three fields verify() reads</h2>
+  <h2 class="viz-title">the four fields verify() reads</h2>
   <div class="wrap">
     <div class="code">
 <span class="ln">{</span>
