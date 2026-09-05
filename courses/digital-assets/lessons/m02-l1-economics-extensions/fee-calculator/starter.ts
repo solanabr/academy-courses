@@ -9,7 +9,7 @@
  * Fix the function so it matches the on-chain behavior for every test case.
  *
  * The grader calls transferFee(amount, basisPoints, maximumFee) directly -
- * keep it a plain top-level function declaration (no export, no imports).
+ * keep transferFee declared plainly at top level (no export, no imports).
  *
  * @param amount        pre-fee transfer amount, in base units (bigint)
  * @param basisPoints   transfer_fee_basis_points (0..=10000)
