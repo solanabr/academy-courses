@@ -38,14 +38,14 @@ blocks:
             correct: false
             feedback: "Network fees here are not a percentage of value, and validators take no cut of the amount transferred. The base fee is flat per signature and independent of the sum moved."
           - id: b
-            label: "A flat 5000-lamport base fee, so a typical payment costs well under a tenth of a cent whatever the size."
+            label: "A flat 5000-lamport base fee, so a typical payment costs a small fraction of one cent whatever the size."
             correct: true
             feedback: "Fees price signatures, not value; ticket size drops out of the math."
           - id: c
             label: "Nothing at all. Transfers on Solana are free, so there is no fee line to budget for."
             correct: false
             feedback: "Not free: every transaction pays a base fee of 5000 lamports plus any priority fee. It is tiny, but budgeting it as literally zero will bite you at scale and on account creation."
-        explanation: "The base fee is a flat 5000 lamports per signature, so a typical payment costs under $0.001, orders of magnitude below card interchange and, more to the point, flat rather than percentage-based. That flips the economics for small-ticket sales, and it deletes the float: nothing is held back on a schedule, so there is nothing to anticipate. Account creation has its own one-time rent cost, which you meet next module where token accounts appear."
+        explanation: "The base fee is a flat 5000 lamports per signature, so a typical payment costs a small fraction of one cent ($0.00075 at $150 per SOL, $0.0015 at $300 — quote the band, not a baked-in dollar figure), orders of magnitude below card interchange and, more to the point, flat rather than percentage-based. That flips the economics for small-ticket sales, and it deletes the float: nothing is held back on a schedule, so there is nothing to anticipate. Account creation has its own one-time rent cost, which you meet next module where token accounts appear."
       - id: m01-l2-q3
         prompt: "Your finance lead loves that 'chargebacks don't exist' on these rails. What is the honest other half of that trade you should tell them?"
         multiSelect: false
