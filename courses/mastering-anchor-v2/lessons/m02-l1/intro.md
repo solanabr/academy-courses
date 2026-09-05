@@ -7,9 +7,11 @@ In m01-l4 you read what `#[derive(Accounts)]` actually generates: the load-then-
 So let's make it exist for you in the next two minutes, no new toolchain: the V2 RC you built from git back in m01-l2 is what compiles all of this. Confirm PATH is still serving it before you type anything, because your machine also carries the stable 1.x line and the account model below behaves differently there:
 
 ```bash
-which anchor       # expect ~/.cargo/bin/anchor, not the avm shim
-anchor --version   # expect the v2 line, not 1.1.2
+which anchor       # ~/.cargo/bin/anchor either way — the avm shim lives at the same path, so this only proves it's on PATH
+anchor --version   # the real check: expect the v2 line, not 1.1.2
 ```
+
+Do not lean on `which` to tell the shim from the git install: avm's shim *is* `~/.cargo/bin/anchor` (a link to `~/.avm/bin/avm`), and the git build writes the same path, so the two are indistinguishable by location. The version line is the only check that can catch the wrong toolchain.
 
 R1 is a new program, so scaffold it beside the greeter:
 
@@ -18,11 +20,16 @@ anchor init cabinet-counter
 cd cabinet-counter
 ```
 
-One dependency first. The Pod derive you are about to lean on is checked by `bytemuck`, and the scaffold does not pull it in, so add it to `programs/cabinet-counter/Cargo.toml` under `[dependencies]`:
+Dependencies first, and a fresh scaffold needs more than one. The Pod derive you are about to lean on is checked by `bytemuck`, which the scaffold does not pull in — and the scaffold also lacks the wincode/solana-address pins from m01-l2, so building it as-is dies in the `#[program]` expansion with the same E0433 that lesson taught you to expect. Open `programs/cabinet-counter/Cargo.toml`, change the scaffold's `anchor-lang` git row to the crates.io version, and make `[dependencies]` read:
 
 ```toml
+anchor-lang = "2.0.0-rc.1"
 bytemuck = "1.25"
+wincode = { version = "0.5", features = ["derive"] }
+solana-address = ">=2.6.1, <2.7"
 ```
+
+Step 1 of the lab comes back to every one of these rows and explains why it looks the way it does — including why that last pin is a ceiling and not the `=2.6.0` equality m01-l2 used. For now they just need to exist so the build can.
 
 Now open `programs/cabinet-counter/src/lib.rs` and add this struct below the generated `Counter`, leaving the rest of the scaffold alone for now. `PodU64` comes from the `anchor_lang::prelude::*` the scaffold already imports; it is the wrapper this lesson spends its middle section deriving, and for the next two minutes you can read it as "a `u64` that is safe to cast from bytes":
 
@@ -113,7 +120,7 @@ The first: is mutating the buffer in place not dangerous? In V1 you edited a sta
 
 The second: what about accounts that need to grow, a vector that gets longer over time? That is the honest limit of `HeaderOnly`. A pure Pod body is fixed-size by definition, because a cast needs to know the field offsets in advance, and a `Vec` has no fixed offset. V2's answer is not "you cannot have variable data," it is "variable data lives in a declared trailing region, not smuggled inside the Pod header." That trailing region is a later lesson. For today, fixed-size is the point, and it is most of what account state actually is.
 
-The third: does this break clients that read the account with Borsh? It changes the wire layout, yes. A Pod struct is a flat C-layout blob, not a Borsh encoding, so an old client that ran `Greeter.deserialize` on the bytes will read garbage. The client has to read the same way the program writes: cast the bytes, do not decode them. That is a real migration cost, and pretending otherwise would be dishonest. It is also the same cost the whole ecosystem is paying once, which is why the framework made it the default rather than an opt-in that fragments the client story forever.
+The third: does this break clients that read the account with Borsh? Not always, and the greeter is the honest counterexample: Borsh encodes a `u64` as eight little-endian bytes, and `PodU64` stores eight little-endian bytes, so for a header of plain integers the two layouts coincide and an old client running `Greeter.deserialize` still reads the correct count. The break comes from everything Borsh could express that a Pod header cannot: a `Vec` with its length prefix, an `Option` with its tag byte, a `String`. Migrating a struct like that to V2 means restructuring it — the dynamic parts move to a declared trailing region — and that restructuring is what moves the bytes out from under a client still decoding the old shape. So the client rule is absolute even when the bytes happen to match today: read the same way the program writes — cast the bytes at known offsets, do not run the old decoder and hope. That is a real migration cost, and pretending otherwise would be dishonest. It is also the same cost the whole ecosystem is paying once, which is why the framework made it the default rather than an opt-in that fragments the client story forever.
 
 ### The trade-off, stated plainly
 
@@ -149,7 +156,7 @@ cargo install --git https://github.com/otter-sec/anchor.git \
 
 Do not verify V2 content on the 1.1.2 toolchain; the account model is different and the code below will not behave the same.
 
-**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — this is a fresh scaffold, so the pins have to be re-added here or the first build dies in the `#[program]` expansion. The scaffold writes `anchor-lang` as a git row tracking the `anchor-next` branch; edit it to the crates.io version, exactly as m01-l2 did, because that is the only source that resolves against the two pins under it. One of those two pins changes shape here, and the reason is worth a sentence now rather than a surprise in module 6: the greeter was a throwaway workspace of one, but this crate is the first rung of the arcade, and it ends up sharing a workspace with the other four — R2 starts that workspace in m03-l1, R3 and R4 are scaffolded straight into it, and m09-l3 moves this crate in beside them. A workspace resolves **one** `solana-address` for all of its members, so the row has to be a ceiling every member can agree on rather than an equality only one of them can. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
+**Step 1. Confirm the dependencies.** Your `programs/cabinet-counter/Cargo.toml` needs `anchor-lang` on the V2 line, `bytemuck`, and the wincode/solana-address pins from m01-l2 — you re-added all four rows in the opener, because this is a fresh scaffold and skipping the pins kills the first build in the `#[program]` expansion. Now is when each row earns its explanation. The scaffold had written `anchor-lang` as a git row tracking the `anchor-next` branch; you edited it to the crates.io version, exactly as m01-l2 did, because that is the only source that resolves against the two pins under it. One of those two pins changed shape here, and the reason is worth a sentence now rather than a surprise in module 6: the greeter was a throwaway workspace of one, but this crate is the first rung of the arcade, and it ends up sharing a workspace with the other four — R2 starts that workspace in m03-l1, R3 and R4 are scaffolded straight into it, and m09-l3 moves this crate in beside them. A workspace resolves **one** `solana-address` for all of its members, so the row has to be a ceiling every member can agree on rather than an equality only one of them can. The freshness note that matters here is `bytemuck`, currently 1.25.2 (published 2026-07-19). Any 1.x works.
 
 ```toml
 [dependencies]

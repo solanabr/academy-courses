@@ -59,7 +59,7 @@ blocks:
           - id: c
             label: "The Cashio exploit — an unvalidated collateral account."
             correct: false
-            feedback: "Cashio is a runtime security incident about a missing account check, taught end-to-end in the DeFi & RWA course. A missing constraint fails on-chain at execution; it never breaks a build."
+            feedback: "Cashio is a runtime security incident about a missing account check — territory for the coming DeFi & RWA Engineering course. A missing constraint fails on-chain at execution; it never breaks a build."
         explanation: "Issue #4937 (filed 2026-08-16, closed 2026-08-20) is the RC's first war story: a wincode 0.5 vs solana-address 0.6 mismatch produced a trait-bound error that broke #[account(borsh)] until the pins were reconciled. It's exactly why the course centralizes pins with freshness notes. Note the failure mode — not a runtime bug and not a subtle wire mismatch, but a green build on Monday and a compile error on Tuesday in a feature you never touched, which is what floating a single crate looks like."
       - id: m02-l3-q4
         prompt: "An account needs a fixed [u8; 32] key, a leaderboard of at most 10 scores, and a free-form description. What's the best modeling?"
