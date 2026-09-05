@@ -6,7 +6,7 @@ m07-l1 shipped the TS worker: pulse-core's pure logic running on a cron in hundr
 
 ## The bet pays out
 
-Back in M4 I made you keep the Rust engine pure: the classifier, the state machine, the serde types, all of them functions from values to values, no socket or file handle anywhere in the crate. In m05-l2 we split that purity into its own workspace crate and I listed its future consumers, and one of them read "a WASM worker (later in the deploy tier)". It is later in the deploy tier. Two commands start the collection:
+Back in M4 I made you keep the Rust engine pure: the classifier, the state machine, the serde types, all of them functions from values to values, no socket or file handle anywhere in the crate. In m05-l2 we split that purity into its own workspace crate and I listed what a pure core can feed, ending with "even a WASM worker in the deploy tier". It is later in the deploy tier. Two commands start the collection:
 
 ```bash
 rustup target add wasm32-unknown-unknown
