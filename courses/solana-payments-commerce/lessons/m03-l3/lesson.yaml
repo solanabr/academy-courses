@@ -52,7 +52,7 @@ blocks:
           - id: a
             label: "The pay repo's first-party examples/point-of-sale, configured to point at the transaction-request endpoint you built in m03-l2."
             correct: true
-            feedback: "A display shell cannot confirm a sale; the stall still needs the module 4 check."
+            feedback: "The first-party example is the sanctioned base, and it does more than display: it finds the payment by reference and validates the transfer before flipping to confirmed. It still only vouches for the payment it was watching — the server-side verification discipline arrives in module 4."
           - id: b
             label: "The Commerce Kit PaymentButton component, which ships a hosted merchant dashboard and is the production-supported POS surface for stalls."
             correct: false

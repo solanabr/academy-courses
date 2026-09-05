@@ -2,7 +2,7 @@
 
 Last lesson you built transfer-kit and sent real USDC on devnet: decimals-safe base units, a memo, a reference key, a signature you could find again. The kit works. It also has a landmine in it, and today a customer steps on it: they pay in PYUSD, the kit builds and signs a transaction that looks perfectly well-formed, and the network refuses it at the door: the RPC dry-runs every transaction before broadcasting it (a step called preflight simulation), the simulation hands the classic Token program a mint it does not own, and the send comes back a rejected promise. No failed transaction on an explorer, no signature the chain has ever heard of, and no money moved.
 
-PYUSD is a dollar stablecoin. Six decimals, same as USDC. Same word on the label. So why does the exact code that moves USDC cleanly refuse to build a PYUSD transfer? Run this before any theory. Two curls, no wallet needed:
+PYUSD is a dollar stablecoin. Six decimals, same as USDC. Same word on the label. So why does the exact code that moves USDC cleanly get its PYUSD transfer thrown out at the door? Run this before any theory. Two curls, no wallet needed:
 
 ```bash
 curl -s https://api.mainnet-beta.solana.com -X POST \
@@ -594,7 +594,7 @@ if (pyusd.transferHookProgram !== null) {
 if (typeof pyusd.transferFeeBps !== "number") {
   throw new Error(`PYUSD: transfer fee did not read as a number`);
 }
-console.log(`PYUSD: 8 extensions, transfer fee ${pyusd.transferFeeBps} bps (live)`);
+console.log(`PYUSD: ${pyusd.extensions.length} extensions, transfer fee ${pyusd.transferFeeBps} bps (live)`);
 
 const keyBytes = new Uint8Array(
   JSON.parse(await readFile(`${process.env.HOME}/.config/solana/id.json`, "utf8")),

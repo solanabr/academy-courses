@@ -45,9 +45,12 @@ Here is the shape a GET must return, mirrored from `@solana/actions-spec` 2.4.2 
 
 ```ts
 // drop-blink/src/types.ts
-// Hand-mirrored from @solana/actions-spec 2.4.2 so you read every field once.
-// The spec package is frozen alongside the rest of the tooling; the shapes below
-// are the live contract blink clients check against.
+// Mirrored from @solana/actions-spec 2.4.2, trimmed to the fields this lesson
+// exercises; the spec package carries more (optional `type` on the top-level
+// action, an `error` field, parameter pattern/min/max, a wider LinkedActionType
+// union). Diff against node_modules and you will find those extras on the spec
+// side — deliberate omissions, not drift. The package is frozen alongside the
+// rest of the tooling; these shapes are the live contract blink clients check.
 
 export interface ActionParameter {
   name: string;      // the template variable this fills, e.g. {qty}
@@ -123,7 +126,7 @@ And the tooling record tells its own story. Here is the release timeline, which 
 
 ![Timeline from the 2024 blinks launch through the last SDK releases, Dialect's pivot to a hosted library, and the 2026 write date with no newer versions shipped.](assets/v05-timeline.png)
 
-`@solana/actions` has not shipped since 2024-11-05. `@dialectlabs/blinks` has not shipped since 2025-04-04. Sixteen months of silence from the client SDK is not a maintenance gap you route around, it is a signal about where the vendor's attention went: Dialect pivoted to a hosted Standard Blinks Library, a managed service, rather than the open SDK. So this course builds against the wire contract instead of the frozen SDKs; if a project of yours does adopt them, pin `@dialectlabs/blinks@0.22.5` and `@solana/actions@1.6.6` exactly, write the staleness note in your package.json comment or README, and treat "wait for the next release" as not a plan.
+`@solana/actions` has not shipped since 2024-11-05. `@dialectlabs/blinks` has not shipped since 2025-04-04. Sixteen months of silence from the client SDK is not a maintenance gap you route around, it is a signal about where the vendor's attention went: Dialect pivoted to a hosted Standard Blinks Library, a managed service, rather than the open SDK. So this course builds against the wire contract instead of the frozen SDKs; if a project of yours does adopt them, pin the two frozen versions the summary names exactly, write the staleness note in your package.json comment or README, and treat "wait for the next release" as not a plan.
 
 The hosted Standard Blinks Library can look like the way out of the frozen-SDK problem: let Dialect run the blink for you. Two reasons to build your own endpoint anyway. First, your drop is your inventory, your pricing, your memo-and-reference reconciliation; a hosted service is the wrong home for the payment logic your whole back office keys on, and this course has been building that logic into one owned code path for three lessons. Second, and this is the durable reason: the artifact of this lesson is spec conformance, and no host can own that for you. The Actions spec is a wire contract, GET metadata in, `{account}` POST out; a frozen SDK does not change the contract your endpoints speak, and any renderer built next year against the same spec executes your store without you shipping a line. You are building against the protocol, not against Dialect's roadmap. That is the correct dependency to take on a vendor whose SDK has been silent for sixteen months.
 
@@ -447,6 +450,6 @@ Accept: GET validates, POST returns a spec-conformant response reusing the trans
 
 ## Checkpoint, and where the module lands
 
-If the smoke test fought you, the failure is almost certainly one of four: CORS headers applied after a route matched (move the middleware above every route, static included), `actions.json` mounted under `/api` instead of the root, the builder import path not matching your checkout-txreq layout, or `MERCHANT_ADDRESS` missing from the server's environment (the imported builder requires it and 400s without it). Ten minutes, in my experience, mostly the third one. And if something subtler broke, diff your types file against `@solana/actions-spec` in `node_modules`; the spec package is frozen, so a mismatch is on our side by definition. When you get the pass, take the win seriously: you shipped a protocol-conformant storefront-in-a-link, with reach claims you can defend line by line, and that combination is rarer in the wild than the endpoint itself.
+If the smoke test fought you, the failure is almost certainly one of four: CORS headers applied after a route matched (move the middleware above every route, static included), `actions.json` mounted under `/api` instead of the root, the builder import path not matching your checkout-txreq layout, or `MERCHANT_ADDRESS` missing from the server's environment (the imported builder requires it and 400s without it). Ten minutes, in my experience, mostly the third one. And if something subtler broke, diff your types file against `@solana/actions-spec` in `node_modules`; the spec package is frozen, so any field we mirror that disagrees with the source is on our side by definition (fields that exist only on the spec side are the deliberate trims the types file's header names). When you get the pass, take the win seriously: you shipped a protocol-conformant storefront-in-a-link, with reach claims you can defend line by line, and that combination is rarer in the wild than the endpoint itself.
 
 Three surfaces, one payment core: the QR checkout, the fair stall, and now a blink that executes wherever something renders it. Wavelength can sell a record through a page, across a table, and inside a link. Which means the front of the store is done, and the honest question moves inward: money is arriving from three surfaces and you are still trusting frontends to tell you about it. Next module leaves the storefront for the back office, where you trust no frontend and verify every payment server-side.

@@ -192,7 +192,7 @@ Worked rung: every command below is given. You clone (done above), rewire, and r
    npx local-ssl-proxy --source 3443 --target 3100
    ```
 
-   Checkpoint: `curl -k https://localhost:3443/txreq` returns your endpoint's GET response, the label and icon JSON from last lesson's smoke test.
+   Checkpoint: `curl -k https://localhost:3443/txreq` returns your endpoint's GET response, the label and icon JSON from last lesson's smoke test. The `-k` flag skips the certificate trust check, and the browser will not: open `https://localhost:3443/txreq` in the browser too and accept the self-signed certificate now, or the POS page's fetch dies later with ERR_CERT_AUTHORITY_INVALID before the sale flow ever starts.
 
 3. **Flip the toggle.** In `src/client/components/pages/App.tsx`, make the two edits from the theory section:
 

@@ -49,7 +49,7 @@ Make it concrete with the memo you just read. Later in this course, when Wavelen
 
 ### The repo that changed sides
 
-Second demo, and this one comes with a plot twist. Solana's official payments library ships on npm as `@solana/pay`. Install it and something unexpected lands next to it. This is the exact command the lab runs, so do not run it twice:
+Second demo, and this one comes with a plot twist. Solana's official payments library ships on npm as `@solana/pay`. Install it and something unexpected lands next to it. The lab's step 5 re-runs this install with two more packages beside it, so run this now for the demo and still run step 5's fuller command when you get there:
 
 ```bash
 npm i @solana/pay@1.0.26
