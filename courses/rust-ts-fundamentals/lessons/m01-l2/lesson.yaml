@@ -3,6 +3,11 @@ slug: m01-l2
 title: "Node 24, TypeScript 7, and your first probe"
 skills:
   - solana-fundamentals
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "typescript": "7.0.2"
+    "tsx": "4.23.13"
 blocks:
   - key: intro
     type: prose

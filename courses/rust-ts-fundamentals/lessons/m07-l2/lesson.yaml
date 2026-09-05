@@ -4,6 +4,10 @@ title: "The payoff: Rust on the same edge"
 skills:
   - solana-kit
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "worker": "0.8.5"
 blocks:
   - key: intro
     type: prose

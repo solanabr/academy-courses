@@ -3,6 +3,11 @@ slug: m09-l1
 title: "Supply chain: the 86-minute attack"
 skills:
   - solana-fundamentals
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "cargo-audit": "0.22.2"
+    "typescript": "7.0.2"
 blocks:
   - key: intro
     type: prose

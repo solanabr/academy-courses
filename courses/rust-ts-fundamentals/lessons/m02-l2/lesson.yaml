@@ -4,6 +4,10 @@ title: "Parse, don't validate: zod at the boundary"
 skills:
   - solana-kit
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "zod": "4.5.4"
 blocks:
   - key: intro
     type: prose

@@ -3,6 +3,13 @@ slug: m05-l2
 title: "cargo mastery: editions, workspaces, features, MSRV"
 skills:
   - solana-programs
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "serde": "1.0.229"
+    "serde_json": "1.0.151"
+    "thiserror": "2.0.20"
+    "anyhow": "1.0.104"
 blocks:
   - key: intro
     type: prose

@@ -3,6 +3,10 @@ slug: m03-l2
 title: "React as a consumer: the dashboard"
 skills:
   - solana-kit
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "zod": "4.5.4"
 blocks:
   - key: intro
     type: prose

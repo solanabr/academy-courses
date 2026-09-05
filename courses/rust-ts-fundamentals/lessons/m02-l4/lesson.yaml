@@ -4,6 +4,10 @@ title: "Tests are probes for your code: vitest"
 skills:
   - solana-kit
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "vitest": "4.1.11"
 blocks:
   - key: intro
     type: prose

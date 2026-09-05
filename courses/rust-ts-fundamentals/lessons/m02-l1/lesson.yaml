@@ -4,6 +4,10 @@ title: "Make impossible states unrepresentable"
 skills:
   - solana-kit
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "typescript": "7.0.2"
 blocks:
   - key: intro
     type: prose

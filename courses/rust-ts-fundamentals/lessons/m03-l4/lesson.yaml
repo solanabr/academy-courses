@@ -3,6 +3,10 @@ slug: m03-l4
 title: "Publish something real: tsdown and the signs of a dying dep"
 skills:
   - solana-kit
+versionStamp:
+  checkedAt: "2026-09-02"
+  packages:
+    "tsdown": "0.22.14"
 blocks:
   - key: intro
     type: prose
