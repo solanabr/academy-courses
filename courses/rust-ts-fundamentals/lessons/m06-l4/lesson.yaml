@@ -28,7 +28,7 @@ blocks:
             feedback: "Compose consumes images that Dockerfiles (or registries) provide, it replaces your hand-typed docker run flags, never the build definitions."
         explanation: "The module's division of labor: Dockerfiles define images, compose orchestrates them on YOUR machine for development, and the registry is where 'runs anywhere' actually begins. This course teaches compose as local-dev tooling on purpose, orchestration across machines is the tier-gate's signposted out-of-scope."
       - id: m06-l4-q2
-        prompt: "Your Actions job pushed pulse-pollerd to GHCR with a green run, but an anonymous `docker pull` of it returns not-found. What happened?"
+        prompt: "Your Actions job pushed pulse-pollerd to GHCR with a green run, but an anonymous `docker pull` of it comes back denied. What happened?"
         multiSelect: false
         options:
           - id: a
