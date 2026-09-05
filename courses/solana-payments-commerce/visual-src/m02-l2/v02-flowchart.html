@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: Where the wrong-program transfer actually fails
-     purpose: pin down that every local stage passes and the refusal happens on-chain, arriving as a failed signature rather than an exception
-     data: Stage 1: build TransferChecked against the hardcoded classic program id, valid-looking bytes, passes Stage 2: sign locally, passes Stage 3: network accepts the transaction for processing, passes Stage 4: classic Token program checks the mint's owner field on execution Stage 5: owner mismatch, the program returns an error Surfaced as: a failed transaction with a signature on an explorer; sendAndConfirmTransactionFactory rejects the promise carrying the program's error Never produced: a local exception or any validation warning before the send
-     prompt: Left-to-right five-node flowchart of the stages as listed, with the first three nodes marked as passing and the last two as the on-chain check and refusal. Draw a clear boundary line between the local stages and the on-chain stages. Below the refusal node, two outcome tags: what the developer sees, a failed signature and a rejected promise, and what never happens, a local exception.
+     purpose: pin down that every local stage passes and the refusal happens at the RPC's preflight simulation, arriving as a rejected promise with no on-chain trace
+     data: Stage 1: build TransferChecked against the hardcoded classic program id, valid-looking bytes, passes Stage 2: sign locally, passes Stage 3: send hands the signed bytes to the RPC, passes Stage 4: preflight simulation dry-runs the tx; the classic Token program checks the mint's owner field Stage 5: owner mismatch, the simulation errors and the send is refused before broadcast Surfaced as: sendAndConfirmTransactionFactory rejects the promise carrying Transaction simulation failed plus the program's error; no explorer entry Never produced: a local exception before the send, or any on-chain trace (only skipPreflight would move the refusal on-chain)
+     prompt: Left-to-right five-node flowchart of the stages as listed, with the first three nodes marked as passing and the last two as the preflight check and refusal. Draw a clear boundary line between the local stages and the RPC-side simulation. Below the refusal node, two outcome tags: what the developer sees, a rejected promise with no explorer entry, and what never happens, a local exception or an on-chain trace.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -55,22 +55,22 @@
 </style>
 <div class="card">
   <div class="stbr-eyebrow">wrong-program transfer</div>
-  <h2 class="viz-title">every local stage passes &mdash; the chain refuses</h2>
-  <div class="zones"><div class="zone local">runs locally &amp; in transit &mdash; nothing objects</div><div class="zone chain">on-chain, at execution</div></div>
+  <h2 class="viz-title">every local stage passes &mdash; the preflight refuses</h2>
+  <div class="zones"><div class="zone local">runs locally &amp; in transit &mdash; nothing objects</div><div class="zone chain">at the RPC &mdash; preflight simulation</div></div>
   <div class="flow">
     <div class="node"><div class="st">stage 1</div><div class="nm">build TransferChecked</div><div class="sub">against the hardcoded classic program id &mdash; valid-looking bytes</div><span class="ok"><span>passes</span></span></div>
     <div class="arrcell"><svg width="24" height="16"><line x1="0" y1="8" x2="16" y2="8" stroke="#1b231d" stroke-width="2.5"/><polygon points="24,8 14,3 14,13" fill="#1b231d"/></svg></div>
     <div class="node"><div class="st">stage 2</div><div class="nm">sign locally</div><div class="sub">the signature is over the bytes, not their meaning</div><span class="ok"><span>passes</span></span></div>
     <div class="arrcell"><svg width="24" height="16"><line x1="0" y1="8" x2="16" y2="8" stroke="#1b231d" stroke-width="2.5"/><polygon points="24,8 14,3 14,13" fill="#1b231d"/></svg></div>
-    <div class="node"><div class="st">stage 3</div><div class="nm">network accepts</div><div class="sub">transaction taken in for processing</div><span class="ok"><span>passes</span></span></div>
+    <div class="node"><div class="st">stage 3</div><div class="nm">send to the RPC</div><div class="sub">the kit's send tail hands over the signed bytes &mdash; nothing local objects</div><span class="ok"><span>passes</span></span></div>
     <div class="bnd"><svg width="24" height="16"><line x1="0" y1="8" x2="16" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="24,8 14,3 14,13" fill="#008b4c"/></svg></div>
-    <div class="node check"><div class="st">stage 4 &middot; on-chain</div><div class="nm">classic Token program runs</div><div class="sub">checks the mint's owner field on execution</div></div>
+    <div class="node check"><div class="st">stage 4 &middot; preflight</div><div class="nm">the RPC dry-runs the tx</div><div class="sub">the simulated classic Token program checks the mint's owner field</div></div>
     <div class="arrcell"><svg width="24" height="16"><line x1="0" y1="8" x2="16" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="24,8 14,3 14,13" fill="#008b4c"/></svg></div>
-    <div class="node fail"><div class="st">stage 5 &middot; refusal</div><div class="nm">owner mismatch</div><div class="sub">the program returns an error &mdash; the transfer never happens</div><span class="ok"><span>fails</span></span></div>
+    <div class="node fail"><div class="st">stage 5 &middot; refusal</div><div class="nm">owner mismatch</div><div class="sub">the simulation errors and the send is refused &mdash; nothing is ever broadcast</div><span class="ok"><span>fails</span></span></div>
   </div>
   <div class="out">
-    <div class="ocard see"><div class="oh">what the developer sees</div><div class="ob">a <b>failed transaction with a signature</b> on an explorer &mdash; <code>sendAndConfirmTransactionFactory</code> rejects the promise carrying the program's error</div></div>
-    <div class="ocard never"><div class="oh">what never happens</div><div class="ob">a local exception, or any validation warning before the send &mdash; the refusal only exists on-chain</div></div>
+    <div class="ocard see"><div class="oh">what the developer sees</div><div class="ob">a <b>rejected promise</b> from <code>sendAndConfirmTransactionFactory</code> carrying <code>Transaction simulation failed</code> plus the program's error &mdash; no explorer entry, no signature the chain has heard of</div></div>
+    <div class="ocard never"><div class="oh">what never happens</div><div class="ob">a local exception before the send &mdash; and no on-chain trace either: only <code>skipPreflight</code> would push this refusal on-chain and cost the fee</div></div>
   </div>
 </div>
 </div>

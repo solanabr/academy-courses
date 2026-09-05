@@ -66,7 +66,7 @@
     <div class="axis" style="left:1020px; width:396px;"></div>
     <div class="brk" style="left:988px;"></div>
     <div class="brk" style="left:1002px;"></div>
-    <div class="band band-replay">on-chain replay risk<small>blockhash validity: 150 blocks at the 300ms target slot time &rarr; ends ~45s</small></div>
+    <div class="band band-replay">on-chain replay risk<small>blockhash validity: 150 blocks &times; 300ms target slot time = ~45s &mdash; derive from live slot time, never memorize</small></div>
     <div class="band band-webhook">webhook redelivery window<small>your provider may redeliver the same event for minutes &mdash; the duplicate check must keep answering</small></div>
     <div class="takeaway"><b>eviction lands well after both threat windows close.</b> both bands are long over by t=10min &mdash; dropping the signature is safe, and state stays bounded.</div>
     <div class="dot" style="left:70px;"></div>

@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: Who signs what, and where
      purpose: isolate the signature responsibilities so the reader can state the who-signs-where answer the gate asks for
-     data: versioned transaction signature slots: [owner slot: the paying agent] [fee-payer slot: named by extra.feePayer] paying agent: signs owner slot at build time -> transaction is partially signed, inert facilitator /verify: reads the partially signed tx, checks terms, signs NOTHING facilitator /settle: adds the fee-payer signature -> transaction fully signed -> submits to network merchant: signs nothing, ever; it only relays and fulfills
-     prompt: A transaction card with two labeled signature slots. Three actor annotations point at it in order: the agent stamps the owner slot (step badge 1), verify is shown as an eye icon touching nothing (step badge 2), settle stamps the fee-payer slot and fires an arrow to a network node (step badge 3). A side note states the merchant never signs. Structure only; house brand styles apply.
+     data: versioned transaction signature slots: [owner slot: the paying agent] [fee-payer slot: named by extra.feePayer] paying agent: signs owner slot at build time -> transaction is partially signed, inert facilitator /verify: fills the fee-payer slot on a scratch copy and simulates, never submits facilitator /settle: adds the fee-payer signature for broadcast -> transaction fully signed -> submits to network merchant: signs nothing, ever; it only relays and fulfills
+     prompt: A transaction card with two labeled signature slots. Three actor annotations point at it in order: the agent stamps the owner slot (step badge 1), verify is shown signing a scratch copy to simulate, submitting nothing (step badge 2), settle stamps the fee-payer slot and fires an arrow to a network node (step badge 3). A side note states the merchant never signs. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -98,7 +98,7 @@
         <div class="slot">
           <div class="sn">fee-payer slot</div>
           <div class="sd">named by <b>extra.feePayer</b></div>
-          <div class="stamp fee">SIGNED at /settle &middot; the facilitator adds this one</div>
+          <div class="stamp fee">SIGNED for broadcast at /settle &middot; /verify signs a scratch copy first, purely to simulate</div>
         </div>
       </div>
 
@@ -110,8 +110,8 @@
 
       <div class="actor" style="left:990px; top:20px; width:360px; border-style:dashed;">
         <div class="ah"><span class="num">2</span><span class="an">facilitator /verify</span></div>
-        <div class="ab">reads the partially signed tx and checks the terms &mdash; <b>signs NOTHING</b></div>
-        <div class="ab" style="margin-top:4px; font-style:italic;">looks, never touches</div>
+        <div class="ab">fills the fee-payer slot on a <b>scratch copy</b> and simulates the result &mdash; <b>never submits</b></div>
+        <div class="ab" style="margin-top:4px; font-style:italic;">a simulation cannot move money</div>
       </div>
       <div class="eye" style="left:918px; top:78px; width:72px;"><div class="stop"></div><div class="dash"></div></div>
 
