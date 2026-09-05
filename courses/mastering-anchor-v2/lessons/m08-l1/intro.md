@@ -150,8 +150,8 @@ Tooling install at first use. You built the Anchor V2 RC from its git channel ba
 # If the RC is not on this machine, rebuild it from the documented channel:
 # cargo install --git https://github.com/otter-sec/anchor.git \
 #   --tag v2.0.0-rc.1 anchor-cli --locked --force
-which anchor       # expect ~/.cargo/bin/anchor, not the avm shim
-anchor --version   # expect: anchor-cli 2.0.0-rc.1 (freshness 2026-08-22; RC, re-check)
+which anchor       # ~/.cargo/bin/anchor either way (the avm shim lives at the same path) — only proves it's on PATH
+anchor --version   # the real check: anchor-cli 2.0.0-rc.1 (freshness 2026-08-22; RC, re-check)
 node --version     # anchor codama drives @codama/cli via npx, so Node must be present
 ```
 
