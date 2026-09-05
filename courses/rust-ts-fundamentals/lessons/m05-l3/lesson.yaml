@@ -11,7 +11,7 @@ blocks:
     type: quiz
     questions:
       - id: m05l3-q1
-        prompt: "You put #[derive(Parser)] on an Args struct with two subcommands and ran cargo run, --help. Where did the formatted help screen, usage lines, and version string come from?"
+        prompt: "You put #[derive(Parser)] on an Args struct with two subcommands and ran `cargo run -- --help`. Where did the formatted help screen, usage lines, and version string come from?"
         multiSelect: false
         options:
           - id: a
@@ -63,7 +63,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Your exit level here, structs, enums, traits, Result, serde, plus the Anchor course's on-ramp; unsafe and deep lifetimes are not on that path"
+            label: "Your exit level here, structs, enums, traits, Result, serde, plus the concept course's account model, then Anchor practice; unsafe and deep lifetimes are not on that path"
             correct: true
           - id: b
             label: "Work through the Rustonomicon first despite its warning, on-chain programs are systems code, and unsafe fluency is the real prerequisite"
@@ -73,4 +73,4 @@ blocks:
             label: "Finish TRPL cover to cover, then Comprehensive Rust in full, program authoring needs the language's whole surface before any of the chain makes sense"
             correct: false
             feedback: "Breadth-first completionism is what the 80/20 seam exists to prevent, the gate's resources are drills and references to pull from as needed, not prerequisites to exhaust."
-        explanation: "The gate's map: what this tier taught IS the Rust that real program authoring builds on; lifetimes-beyond-reading, unsafe, and macro authoring stay bookmarked (Rustonomicon, when you someday need it; Rustlings and Comprehensive Rust as drills). Where Rust goes on-chain is the Anchor course's door, and the account-and-transaction concepts underneath it live in the Bitcoin-to-Solana evolution course. Turn back now, it is not necessary."
+        explanation: "The gate's map: what this tier taught IS the Rust that real program authoring builds on; lifetimes-beyond-reading and unsafe stay bookmarked behind the Rustonomicon, macro authoring behind TRPL's macros chapter and The Little Book of Rust Macros, with Rustlings and Comprehensive Rust as drills. The on-chain route runs through the Bitcoin-to-Solana evolution course's account-and-transaction concepts, with the Mastering Anchor course as the deep end once you ship. Turn back now, it is not necessary."

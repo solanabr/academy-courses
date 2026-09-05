@@ -41,7 +41,7 @@ let url = url.ok_or_else(|| "missing key: url".to_string())?;
 let timeout_ms = timeout_ms.ok_or_else(|| "missing key: timeout_ms".to_string())?;
 ```
 
-Twenty minutes, give or take, of `Option` tracking, `ok_or_else` calls, and error strings. For ONE flat record. With THREE fields. Now look at `pulse.config.json`, the real fleet config from M2, with its nested objects and its array of targets, and do the math on hand-parsing that. That number is what this lesson deletes. Keep your hand-rolled parser though; it comes back as the challenge, and finishing it is how you will know exactly what the derive bought you.
+Twenty minutes, give or take, of `Option` tracking, `ok_or_else` calls, and error strings. For ONE flat record. With THREE fields. Now scale that up to a fleet-level config, a fleet name plus an array of target records, the m02-l2 shape this lesson is about to resurrect (the full story of where that file went lives a few screens down), and do the math on hand-parsing that. That number is what this lesson deletes. Keep your hand-rolled parser though; it comes back as the challenge, and finishing it is how you will know exactly what the derive bought you.
 
 ## The compiler writes the parser
 
@@ -297,7 +297,7 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
    }
    ```
 
-   One expectation set before you run it: this temporary main orphans the entire m04 engine surface, so the build arrives wearing a wall of dead-code warnings, a couple dozen of them, every lesson-long. Expected, and temporary: next lesson's workspace split puts the engine back in a consumed crate. Just do not push until then, because the station's CI runs `cargo clippy, -D warnings` and would count every one of them as an error. `cargo run` should print:
+   One expectation set before you run it: this temporary main orphans the entire m04 engine surface, so the build arrives wearing a wall of dead-code warnings, a couple dozen of them, every lesson-long. Expected, and temporary: next lesson's workspace split puts the engine back in a consumed crate. Just do not push until then, because the station's CI runs `cargo clippy -- -D warnings` and would count every one of them as an error. `cargo run` should print:
 
    ```text
    fleet "pulse-prod": 2 target(s)
