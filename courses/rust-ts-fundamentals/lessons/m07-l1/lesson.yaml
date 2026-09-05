@@ -32,9 +32,9 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "In wrangler.toml under [vars], since that file configures the worker"
+            label: "In wrangler.jsonc under \"vars\", since that file configures the worker"
             correct: false
-            feedback: "[vars] is committed plaintext configuration, anyone with repo access reads your token. Vars are for non-secret config only."
+            feedback: "\"vars\" is committed plaintext configuration, anyone with repo access reads your token. Vars are for non-secret config only."
           - id: b
             label: "Set with `wrangler secret put`, with a gitignored .dev.vars copy for local dev"
             correct: true
@@ -42,7 +42,7 @@ blocks:
             label: "In a KV entry the worker reads at startup, since KV is private storage"
             correct: false
             feedback: "KV is data storage, not a secret store, values are readable via the API and your own public endpoint code could leak them. Secrets go through the secrets binding."
-        explanation: "The taught split: .dev.vars (dotenv syntax, gitignored) supplies local dev; `wrangler secret put` stores the prod value, which is not visible after set. wrangler.toml vars are for public config. This is the same secrets-hygiene glue beat the m09-l2 four-platform sweep will revisit."
+        explanation: "The taught split: .dev.vars (dotenv syntax, gitignored) supplies local dev; `wrangler secret put` stores the prod value, which is not visible after set. wrangler.jsonc vars are for public config. This is the same secrets-hygiene glue beat the m09-l2 four-platform sweep will revisit."
       - id: m07-l1-q3
         prompt: "You add a retry loop that busy-spins computing statistics over probe history, and invocations start erroring on the free tier, but your request count is nowhere near the daily cap. What limit did you hit?"
         multiSelect: false

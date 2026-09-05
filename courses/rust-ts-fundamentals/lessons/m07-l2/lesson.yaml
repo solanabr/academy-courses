@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "reqwest is too large a dependency, WASM binaries have a size cap that big crates exceed"
             correct: false
-            feedback: "Size limits exist but that's not the failure here: reqwest's native TLS and socket stack simply has no OS to call on the 'unknown' target. It fails to compile, not to fit."
+            feedback: "Size limits exist but that's not the failure here: reqwest itself compiles on wasm32 (it carries a browser backend); the blocking module the CLI leans on is conditionally compiled away, so the code that touches it fails with E0433. An I/O boundary, not a size cap."
           - id: c
             label: "reqwest is async, and WASM cannot run any async Rust code at all"
             correct: false
