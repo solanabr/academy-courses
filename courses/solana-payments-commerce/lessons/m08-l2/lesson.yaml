@@ -4,6 +4,11 @@ title: "Deferred payments: durable nonces at the fair (and the outage that scarr
 skills:
   - transactions
   - signers
+versionStamp:
+  checkedAt: "2026-08-31"
+  packages:
+    "@solana/kit": "6.10.0"
+    "@solana-program/system": "0.12.2"
 blocks:
   - key: intro
     type: prose

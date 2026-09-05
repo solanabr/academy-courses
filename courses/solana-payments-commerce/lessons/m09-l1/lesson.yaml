@@ -7,6 +7,11 @@ skills:
   - subscriptions-program
   - solana-kit
   - version-pinning
+versionStamp:
+  checkedAt: "2026-08-23"
+  packages:
+    "express": "5.1.0"
+    "@solana/kit": "6.10.0"
 blocks:
   - key: intro
     type: prose

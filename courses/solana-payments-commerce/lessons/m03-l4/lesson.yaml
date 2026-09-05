@@ -4,6 +4,12 @@ title: "A blink for the drop: actions that execute anywhere (that renders them)"
 skills:
   - solana-pay
   - transactions
+versionStamp:
+  checkedAt: "2026-08-22"
+  packages:
+    "express": "5.2.1"
+    "@solana/kit": "6.10.0"
+    "@solana/actions-spec": "2.4.2"
 blocks:
   - key: intro
     type: prose

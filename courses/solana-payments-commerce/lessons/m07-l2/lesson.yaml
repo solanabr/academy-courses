@@ -4,6 +4,14 @@ title: "Paywall the pressing-price API, then build the bot that pays it"
 skills:
   - x402-protocol
   - api-monetization
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@x402/express": "2.23.0"
+    "@x402/svm": "2.23.0"
+    "@x402/core": "2.23.0"
+    "express": "4.21.2"
+    "@solana/kit": "6.10.0"
 blocks:
   - key: intro
     type: prose

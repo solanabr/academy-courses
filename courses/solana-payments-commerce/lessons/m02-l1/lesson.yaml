@@ -7,6 +7,12 @@ skills:
   - pdas
   - checked-arithmetic
   - version-pinning
+versionStamp:
+  checkedAt: "2026-08-22"
+  packages:
+    "@solana/kit": "6.10.0"
+    "@solana-program/token": "0.14.0"
+    "@solana-program/memo": "0.11.2"
 blocks:
   - key: intro
     type: prose

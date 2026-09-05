@@ -4,6 +4,11 @@ title: "Checkout with a QR: the Solana Pay spec, live"
 skills:
   - solana-pay
   - rpc-reads
+versionStamp:
+  checkedAt: "2026-08-22"
+  packages:
+    "@solana/pay": "1.0.26"
+    "@solana/kit": "6.10.0"
 blocks:
   - key: intro
     type: prose

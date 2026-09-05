@@ -5,6 +5,10 @@ skills:
   - confirmation
   - compute-budget
   - transaction-fees
+versionStamp:
+  checkedAt: "2026-08-31"
+  packages:
+    "@solana-program/compute-budget": "0.16.0"
 blocks:
   - key: intro
     type: prose
