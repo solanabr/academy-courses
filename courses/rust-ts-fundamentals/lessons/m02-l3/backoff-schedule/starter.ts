@@ -7,8 +7,8 @@
 // Return the delays joined with commas, e.g. "500,1000,2000,4000,5000".
 // retries = 0 returns the empty string.
 //
-// The naive version below is what got the fleet rate-limit-banned in the
-// lab: it starts doubling immediately (first wait is 2x base, not base)
+// The naive version below is the kind of schedule that earns a fleet a
+// rate-limit ban: it starts doubling immediately (first wait is 2x base, not base)
 // and it never applies the cap, so late attempts wait absurdly long.
 // Fix both. Keep backoffSchedule the FIRST function, the grader calls it.
 
