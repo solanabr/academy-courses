@@ -29,7 +29,7 @@ blocks:
             feedback: "Decoding inspects a past transaction; it never re-submits or re-authorizes anything. That payment settled exactly once, when its sender signed it."
         explanation: "The demo needs zero setup because Solana's ledger is public and readable over any RPC. Every settled transfer (sender, amount, mint, memo) is queryable by anyone, which is the opposite of a card processor's private, permissioned dashboard. That public-by-default property is exactly what lets a merchant reconcile payments later without a PSP sitting in the middle."
       - id: m01-l1-q2
-        prompt: "Installing @solana/pay also dropped a `pay` CLI binary on your PATH, and the canonical Solana Pay GitHub URL now redirects to a repo whose headline product is an agentic-payments CLI. What is the honest read of that?"
+        prompt: "Installing @solana/pay also dropped a `pay` CLI executable into node_modules/.bin (found by npx, never on your global PATH), and the canonical Solana Pay GitHub URL now redirects to a repo whose headline product is an agentic-payments CLI. What is the honest read of that?"
         multiSelect: false
         options:
           - id: a
