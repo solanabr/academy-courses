@@ -144,7 +144,7 @@ pub trait ProbeSource {
 }
 ```
 
-That signature is a frozen contract in this course: get it verbatim, because `drive` below is written against it and nothing later is allowed to reshape it. `&mut self` because a source advances as you pull from it; `Option<u64>` because every source eventually runs dry, and you already know from m04-l2 that "maybe a value" is spelled Option, not a sentinel like `-1`. One honest forward note, so this socket never becomes a promise the course quietly drops: m05-l3's HTTP arm is a standalone call returning one measurement, not a `ProbeSource` implementation, and that lesson says out loud why it keeps the two apart. The trait is the seam that lets `drive` run on fixtures in a unit test today and lets a second source slot in the day you want one. Today's implementation is the fixture-backed one:
+That signature is a frozen contract in this course: get it verbatim, because `drive` below is written against it and nothing later is allowed to reshape it. `&mut self` because a source advances as you pull from it; `Option<u64>` because every source eventually runs dry, and you already know from m04-l2 that "maybe a value" is spelled Option, not a sentinel like `-1`. One honest forward note, so this socket never becomes a promise the course quietly drops: m05-l3's HTTP arm is a standalone call returning one measurement, not a `ProbeSource` implementation, and that lesson says out loud why it keeps the two apart. The trait is the seam that lets `drive` run on fixtures today and lets a second source slot in the day you want one. Today's implementation is the fixture-backed one:
 
 ```rust
 pub struct FixtureSource {
