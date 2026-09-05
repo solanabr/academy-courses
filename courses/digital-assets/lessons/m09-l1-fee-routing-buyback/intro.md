@@ -185,12 +185,12 @@ Run it against surfpool, forked from mainnet, so the DAMM v2 program and its acc
 **1. Pin the toolchain.** Two lines, and the second one needs a word of honesty.
 
 ```bash
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0 @solana-program/system@0.12.2
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
 npm install @meteora-ag/cp-amm-sdk@1.4.6 @solana/web3.js@1.98.4 bn.js@5.2.2
 npm install -D tsx@4.23.12 typescript@5.9.3 @types/node @types/bn.js
 ```
 
-Checked against npm on 2026-09-01: kit's `latest` tag is 8.2.0, published 2026-08-29, and this course deliberately stays on the v6 line per the house rule, which forces `@solana-program/token-2022@0.12.0` as the last minor peering kit `^6.4.0`. The 0.13.0 release jumped to `^7`. Re-run `npm view @solana-program/token-2022@0.12.0 peerDependencies` when you scaffold; this matrix moves monthly.
+Checked against npm on 2026-09-05: kit's `latest` tag is 8.2.0, published 2026-08-29, but the first line pins by peer range, not by latest: `@solana-program/token-2022@0.15.0` is the current minor peering kit `^7.0.0` — the 0.16.0 release jumped to `^8` — so kit sits at 7.1.1, the newest release inside that range, and `@solana-program/system@0.13.0` matches it. Re-run `npm view @solana-program/token-2022@0.15.0 peerDependencies` when you scaffold; this matrix moves monthly.
 
 The second line is the interesting one. `@meteora-ag/cp-amm-sdk` is Meteora's first-party DAMM v2 client and it ships web3.js v1 types, not kit. You are going to run two clients in one script, and that is not a mistake I am hiding from you: it is what integrating with a first-party SDK actually looks like in 2026. Kit does the Token-2022 legs because that is where kit is excellent. Web3.js v1 does the swap leg because that is what the venue's own SDK speaks. The 1.4.6 pin is a 2026-08-21 npm read, the same one the DeFi & RWA Engineering course froze, fitting for the SDK whose deeper machinery that course owns; run `npm view @meteora-ag/cp-amm-sdk version` the day you scaffold.
 

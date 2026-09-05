@@ -176,11 +176,11 @@ Work in the same `overgrowth/` folder that holds `das.ts` and `classify.ts` from
 
 ```bash
 cd overgrowth
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0
 npm install -D tsx@4.23.12 typescript@5.9.3 @types/node@24
 ```
 
-Pins checked against npm on 2026-09-01. The kit `latest` tag is 8.2.0, published 2026-08-29, and the ecosystem's peer standard is the v7 line, but this course's house rule keeps us on kit v6, whose line ended at 6.10.0. That pin decides the rest: `@solana-program/token-2022@0.12.0` is the last minor whose peer range accepts kit `^6.4.0`, and everything from 0.13.0 onward peers `^7`. These clients ship monthly. Run `npm view @solana-program/token-2022 peerDependencies` before you trust the pair.
+Pins checked against npm on 2026-09-05. The kit `latest` tag is 8.2.0, published 2026-08-29, but latest is not the rule: a workspace pins the kit major its own `@solana-program/*` deps peer against. Here that client is `@solana-program/token-2022@0.15.0`, whose peer range accepts kit `^7.0.0` — everything from 0.16.0 onward peers `^8` — and that decides the rest: kit 7.1.1, the newest release inside the range. These clients ship monthly. Run `npm view @solana-program/token-2022 peerDependencies` before you trust the pair.
 
 Then the environment. Six values, no secrets in the repo:
 

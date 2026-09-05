@@ -152,11 +152,11 @@ One standing rule, and it is graded: reuse only skills this course taught. No de
 **1. Set up, with the same pins the labs used.** Install into your course workspace, not a fresh one, because `verify.ts` imports the reader you already wrote:
 
 ```bash
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0
 npm install -D tsx@4.23.12 typescript@5.9.3 @types/node@24
 ```
 
-Freshness note, since these pins are the ones you will re-check first when something breaks a year from now. On 2026-08-22 npm's `latest` for `@solana/kit` was 8.0.0, and this course deliberately stays on the 6.10.0 line: `@solana-program/token-2022@0.12.0` declares a peer range of `^6.4.0`, so the pair above is the peer-valid combination for the code you have already written. Never install "latest" here. Check the peer range and pin the exact pair.
+Freshness note, since these pins are the ones you will re-check first when something breaks a year from now. On 2026-09-05 npm's `latest` for `@solana/kit` was 8.2.0, and this course pins 7.1.1 anyway: `@solana-program/token-2022@0.15.0` declares a peer range of `^7.0.0`, so the pair above is the peer-valid combination for the code you have already written. Never install "latest" here. Check the peer range and pin the exact pair.
 
 **2. Write the memo's machine-readable half first.** Prose memos drift from reality; a JSON memo gets compared against the chain. This is the file `verify.ts` reads:
 
