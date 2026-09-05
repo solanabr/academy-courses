@@ -11,7 +11,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "A user's plain Token-2022 transfer of your hooked SPROUT reverts with 'insufficient account keys', yet the identical transfer works in your test harness. What is the client failing to do?"
+        prompt: "A user's plain Token-2022 transfer of your hooked SPROUT reverts with MissingAccount — 'An account required by the instruction is missing' — yet the identical transfer works in your test harness. What is the client failing to do?"
         multiSelect: false
         options:
           - id: a
@@ -25,7 +25,7 @@ blocks:
           - id: c
             label: "Fetch the ExtraAccountMetaList and append the hook's resolved extra accounts to the instruction."
             correct: true
-        explanation: "A hooked transfer only works if the client resolves the ExtraAccountMetaList off-chain and forwards those extra accounts on the transferring instruction. The harness did this for you; a naive wallet transfer does not, so the runtime cannot supply the hook its declared accounts and reverts with 'insufficient account keys'. This forwarding burden is the resolution tax hooks push onto every integrator."
+        explanation: "A hooked transfer only works if the client resolves the ExtraAccountMetaList off-chain and forwards those extra accounts on the transferring instruction. The harness did this for you; a naive wallet transfer does not, so Token-2022 never finds the validation account and the runtime cannot invoke a hook program it was never handed — the naive case dies with MissingAccount. Keep the taxonomy straight: 'not enough account keys' is the different, partial-forwarding failure, the diagnostic trap the challenge drills. This forwarding burden is the resolution tax hooks push onto every integrator."
       - id: q2
         prompt: "A teammate worries your allowlist hook could be rewritten to drain the sender's tokens mid-transfer. From what the interface guarantees, why can't any hook do that?"
         multiSelect: false
