@@ -28,7 +28,7 @@ blocks:
             label: "No signature is missing; the agent fully signs and submits, and the facilitator only reads the result."
             correct: false
             feedback: "The agent PARTIALLY signs on purpose so the facilitator can sponsor fees. If the agent fully signed and submitted, there would be no facilitator-as-fee-payer role at all."
-        explanation: "The whole point of the exact-SVM scheme is fee sponsorship: the agent signs everything except the fee-payer slot, and the facilitator's /settle adds the fee-payer signature and broadcasts. /verify only inspects the partially-signed transaction; it does not sign."
+        explanation: "The whole point of the exact-SVM scheme is fee sponsorship: the agent signs everything except the fee-payer slot, and the facilitator's /settle adds the fee-payer signature and broadcasts. /verify also fills that slot, but on a scratch copy and only to simulate the completed transaction; it never submits, so /settle stays the only step that moves money."
       - id: q2-cu-figure
         prompt: "A teammate writing your API docs wants to state 'each x402 settle costs about 20,000 compute units' so buyers can budget. What should you tell them?"
         multiSelect: false
