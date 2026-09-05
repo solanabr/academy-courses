@@ -71,7 +71,7 @@ The proof-of-production beat is better than an audit badge anyway: Helius runs i
 
 The plan's mint can be a Token-2022 mint, and two behaviors matter for billing. First, if the mint carries a transfer hook, the program forwards the hook's extra accounts into its TransferChecked CPI, so a pull composes with hook-gated tokens instead of dying on them; the client even ships a `resolveTransferHookAccounts` helper for the account resolution. Second, if a destination account has MemoTransfer enabled (it demands a memo on every incoming transfer), the pull is rejected atomically: no partial state, no stuck funds, the transaction just fails whole. The program also vets the mint's extension set when the authority is initialized and refuses combinations it cannot bill safely, so you find out at setup time, not at charge time.
 
-That is everything we need to KNOW here. How the transfer-hook interface itself works, end to end, is the Digital Assets, Tokenization and Token Extensions course's territory; it walks the interface as its one authored program. We are hook consumers, and consumers get to stay blissfully thin.
+That is everything we need to KNOW here. How the transfer-hook interface itself works, end to end, is the Digital Assets, Tokenization and Token Extensions course's territory. We are hook consumers, and consumers get to stay blissfully thin.
 
 ### The two clocks that mis-bill people
 
