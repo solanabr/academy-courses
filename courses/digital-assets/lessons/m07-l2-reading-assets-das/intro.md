@@ -8,11 +8,11 @@ So you are now holding three assets in three different shapes, and a wallet inte
 
 ```bash
 mkdir -p overgrowth && cd overgrowth
-npm install @solana/kit@6.10.0 @solana-program/token-2022@0.12.0
+npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0
 npm install -D tsx@4.23.12 typescript@5.9.3 @types/node@24
 ```
 
-Pins, checked against npm on 2026-08-22. The kit `latest` tag is 8.0.0 (published 2026-08-21) and the ecosystem's peer standard is the v7 line, but this course's house rule is still kit v6, so we stay on 6.10.0 and pair it with `@solana-program/token-2022@0.12.0`, the last minor whose peer range accepts kit ^6.4.0. That train ships monthly. Run `npm view @solana-program/token-2022 peerDependencies` on the day you scaffold.
+Pins, checked against npm on 2026-09-05. The kit `latest` tag is 8.2.0, but the number that decides the pin is the peer range, not the latest tag: `@solana-program/token-2022@0.15.0`, the current minor of this course's client, peers kit ^7.0.0 — the 0.16 line moved to ^8 — so kit is 7.1.1, the newest release inside that range. That train ships monthly. Run `npm view @solana-program/token-2022 peerDependencies` on the day you scaffold.
 
 ```typescript
 // overgrowth/shape-check.ts - does this id have an account at all?
