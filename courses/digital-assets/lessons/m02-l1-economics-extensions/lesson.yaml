@@ -3,6 +3,15 @@ slug: m02-l1-economics-extensions
 title: "Economics extensions: fees, interest, scaled UI (and where the fees GO)"
 skills:
   - account-model
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/token-2022": "0.15.0"
+    "@solana-program/system": "0.13.0"
+    typescript: "5.9.3"
+    tsx: "4.20.5"
+    surfpool: "1.2.1"
 blocks:
   - key: intro
     type: prose

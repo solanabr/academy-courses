@@ -4,6 +4,16 @@ title: "Airdrops at scale: cost engineering & vesting claims"
 skills:
   - solana-fundamentals
   - transactions
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@lightprotocol/stateless.js": "0.23.3"
+    "@lightprotocol/compressed-token": "0.23.3"
+    "@solana/web3.js": "1.98.4"
+    "@solana/spl-token": "0.4.15"
+    helius-airship: "0.9.4"
+    tsx: "4.23.12"
+    typescript: "5.9.3"
 blocks:
   - key: intro
     type: prose

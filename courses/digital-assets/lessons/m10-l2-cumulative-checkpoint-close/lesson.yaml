@@ -3,6 +3,10 @@ slug: m10-l2-cumulative-checkpoint-close
 title: "Cumulative checkpoint and close"
 skills:
   - solana-kit
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    tsx: "4.23.12"
 blocks:
   - key: intro
     type: prose

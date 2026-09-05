@@ -3,6 +3,11 @@ slug: m05-l2-designing-routable-token
 title: "Designing a routable, compliant token"
 skills:
   - transactions
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    tsx: "4.23.12"
+    typescript: "5.9.3"
 blocks:
   - key: intro
     type: prose

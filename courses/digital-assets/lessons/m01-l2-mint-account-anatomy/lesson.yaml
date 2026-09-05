@@ -5,6 +5,12 @@ skills:
   - account-model
   - solana-programs
   - solana-fundamentals
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/token-2022": "0.15.0"
+    tsx: "4.20.5"
 blocks:
   - key: intro
     type: prose

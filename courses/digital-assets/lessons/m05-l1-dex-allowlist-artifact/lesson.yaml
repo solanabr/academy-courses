@@ -3,6 +3,13 @@ slug: m05-l1-dex-allowlist-artifact
 title: "The DEX allowlist as a teaching artifact"
 skills:
   - transactions
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/token-2022": "0.15.0"
+    "@solana-program/system": "0.13.0"
+    surfpool: "1.2.1"
 blocks:
   - key: intro
     type: prose
