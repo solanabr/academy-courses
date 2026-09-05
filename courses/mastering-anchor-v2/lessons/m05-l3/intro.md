@@ -1,6 +1,6 @@
 # Token-2022 from the framework's seat
 
-Last lesson you shipped the token-ticket swap: constant-product math over two SPL-token vaults, the invariant holding across a trade, the slippage guard firing the moment a fill came in under quote. It works. You proved it works. Then a player walks up to the cabinet with a token you did not test against.
+Last lesson you shipped the token-ticket swap: constant-product math over two SPL-token reserves, the invariant holding across a trade, the slippage guard firing the moment a fill came in under quote. It works. You proved it works. Then a player walks up to the cabinet with a token you did not test against.
 
 Their mint is Token-2022. It carries a transfer fee and a transfer hook. And here is the honest question, the one this whole lesson turns on: does your `transfer_checked` call still work, silently under-deliver, or fail outright?
 
@@ -50,7 +50,7 @@ The framework does help here, and it helps more than the classic path did. In yo
 
 ![A Token-2022 mint keeps the classic 82-byte layout, pads to 165 bytes, marks the account type at byte 165, then carries a TLV extension tail.](assets/v03-annotated-code.png)
 
-One detail in that diagram surprises people, so name it before it bites: the tail does not start at byte 82. An extended mint is padded out to 165 bytes, the classic *token account* size, and byte 165 carries a one-byte account-type tag, `1` for a mint. Only then does the TLV run, from byte 166 to the end. The padding exists so a reader can never confuse an extended mint with a token account by length alone, which is exactly the ambiguity a 82-byte mint and a 165-byte account would otherwise create. On PYUSD that leaves 700 bytes of tail under the 866.
+One detail in that diagram surprises people, so name it before it bites: the tail does not start at byte 82. An extended mint is padded out to 165 bytes, the classic *token account* size, and byte 165 carries a one-byte account-type tag, `1` for a mint. Only then does the TLV run, from byte 166 to the end. The padding exists so a reader can never confuse an extended mint with a token account by length alone: a bare 82-byte mint was never ambiguous, but an 82-byte base plus a TLV tail could land at exactly 165 bytes — a token account's length — and that is the collision the padding plus the type tag rule out. On PYUSD that leaves 700 bytes of tail under the 866.
 
 So what actually breaks if you ignore this and assume the classic 82 bytes? Two ways, both ugly. If you slice the account to a fixed length and read a field by offset, you either land on a byte that means something else now or you run clean past the buffer, and your program is making decisions on garbage. If you deserialize with a fixed-size decoder, it either rejects the account or hands you a base struct that silently drops everything in the tail. Neither failure announces itself as "you assumed the wrong size." They surface as garbage values and mystery rejects, which is the worst kind of bug to chase.
 
@@ -209,7 +209,7 @@ Two notes before you go hunting on your own. First, everything you just did to a
 
 The lab handed you a mint whose answer is "no extra accounts." Now you make one that says "yes." Hunting mainnet for a live hook is a needle-in-a-haystack exercise with no way to tell failure from bad luck, so you are going to mint the specimen yourself on devnet, where you control every input.
 
-The `programId` in the TransferHook extension is just a stored pubkey; nothing validates that it points at a real hook program at mint time. So any program id you own makes the field read as set, which is exactly the state you are trying to observe. Use the one you already deployed:
+The `programId` in the TransferHook extension is just a stored pubkey; nothing validates that it points at a real hook program at mint time. So any program id you own makes the field read as set, which is exactly the state you are trying to observe — it does not even have to be deployed. Your swap's id from `Anchor.toml` works even though that program has only ever run inside LiteSVM, and the R0 greeter you actually shipped in m01-l2 works just as well:
 
 ```bash
 solana config set --url devnet
@@ -222,7 +222,7 @@ spl-token --program-id TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb \
 
 That prints a new mint address. Put it in `inspect.ts` as `MINT`, switch `RPC_URL` to `https://api.devnet.solana.com`, and run it. If `spl-token` is not on your machine, `cargo install spl-token-cli` puts it there.
 
-Acceptance: the last line reads `ACTIVE` and prints the program id you passed. If it reads dormant instead, you created the mint without `--transfer-hook` or against the classic token program; check the `--program-id` flag, which is what selects Token-2022.
+Acceptance: the last line reads `ACTIVE` and prints the program id you passed. If it reads `none` instead, you created the mint without `--transfer-hook`. If the reader errors before printing anything — an owner or decode failure — you created a classic mint; check the `--program-id` flag, which is what selects Token-2022. (`dormant` you should not see here: `create-token --transfer-hook` writes a real program id into the field.)
 
 When the last line reads `ACTIVE`, sit with what it means for the swap you built. Your current instruction sends four accounts. This mint's transfers need more, resolved from the hook's on-chain list, and your swap as written would fail against it. You do not have to fix that today. Actually building the resolution belongs to the standards depth we are deliberately leaving to the Digital Assets course. Noticing that you would have to is the skill this lesson was for.
 

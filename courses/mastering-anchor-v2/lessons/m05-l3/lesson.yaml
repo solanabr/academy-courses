@@ -62,15 +62,15 @@ blocks:
             feedback: "A partial re-teach is exactly the boundary creep the design forbids — it duplicates owned material and leaves learners unsure which course actually teaches the interface end to end."
         explanation: "The boundary is explicit: this course teaches Token-2022 from the program's seat (account sizing, forwarding hook accounts), and the Digital Assets course owns extension-standards depth and walks the transfer-hook interface end to end. Keeping the line sharp is the lesson's job — mechanics here, standards there. Concretely, reading the extension-aware account length, detecting a TransferHook extension and reading its programId, and reasoning about whether a transfer must forward extra accounts belong here; designing extensions, writing a hook program, and wiring its account-resolution interface belong there."
       - id: m05-l3-q4
-        prompt: "During the run-observe beat, you note the CU number Anchor's docs printed for a similar transfer and cite it as fixed. What does the lesson teach you to do instead?"
+        prompt: "Budgeting space for a Token-2022 mint, you reach for the account length a docs example printed for a similar mint and cite it as fixed. What does the lesson teach you to do instead?"
         multiSelect: false
         options:
           - id: a
-            label: "Cite the docs figure; Anchor's published CU benchmarks are versioned guarantees you can budget against."
+            label: "Cite the docs figure; a measurement published in official docs is a versioned guarantee you can budget against."
             correct: false
             feedback: "Anchor's own team revised its headline numbers down in PR #4914 and attached an explicit 'exact values can move' caveat — a published benchmark is a snapshot, not a versioned guarantee."
           - id: b
-            label: "Average the CU figures from several Anchor blog posts to smooth out per-release variation."
+            label: "Average the figures quoted across several posts to smooth out per-release variation."
             correct: false
             feedback: "Averaging stale figures does not make any of them current, and it hides which release each came from. The lesson's move is to read the live account and reason from the observation."
           - id: c

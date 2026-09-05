@@ -30,7 +30,7 @@ What you build, and the shape of each piece, so you can skim before you dig:
 
 The fade this lesson: I derive the curve and hand you the token-in transfer worked in full. The token-out transfer is a fill-in that mirrors it. The slippage guard is yours to write solo, because by then you will have seen its twin in the escrow and you should not need me for it.
 
-One scope line before we start. This is a teaching swap, an Anchor pattern, not a DeFi protocol. If you want real-venue automated market making with live liquidity-provider depth, the DeFi and RWA Engineering course integrates Orca and Meteora pools end to end. Here the swap exists to teach two-sided PDA composition, not to trade against.
+One scope line before we start. This is a teaching swap, an Anchor pattern, not a DeFi protocol. If you want real-venue automated market making with live liquidity-provider depth, that is the DeFi and RWA Engineering course's territory. Here the swap exists to teach two-sided PDA composition, not to trade against.
 
 ## The price lives in the reserves
 
@@ -254,6 +254,7 @@ pub struct SwapArcadeForTickets {
 }
 
 #[account]
+#[derive(InitSpace)]
 pub struct Pool {
     pub arcade_mint: Address,  // 32
     pub ticket_mint: Address,  // 32
@@ -316,18 +317,13 @@ R4 is a new program. Say plainly what it does and does not reuse, because the te
 
 The autonomy fade is explicit: step 1 is a spec you implement, step 2 you type from the formula, steps 3 and 4 are worked, step 5's second CPI is a completion you type against a stub, and steps 6 and 7 are solo.
 
-First, the toolchain. This course runs on the Anchor V2 release candidate, which is newer than the `anchor-cli 1.1.2` your machine may have from the 1.x line. You built it from git back in m01-l2, because `avm install` cannot fetch the RC: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s, and `avm list` stops at `1.1.2`. Re-pin it the same documented way:
+First, the toolchain, one line:
 
 ```bash
-# The documented V2 channel: build anchor-cli from git, pinned to the RC's tag.
-# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
-cargo install --git https://github.com/otter-sec/anchor.git \
-  --tag v2.0.0-rc.1 anchor-cli --locked --force
-
-anchor --version       # confirm you are on the V2 line, not 1.1.2
+anchor --version       # confirm you are on the V2 line (2.0.0-rc.1 as of 2026-08-22), not 1.1.2
 ```
 
-Freshness note: the V2 line is a release candidate at the time of writing (2026-08-22), `2.0.0-rc.1` on `anchor-next`, so pin the exact commit your course workspace declares rather than tracking the branch head. Do not verify V2 lessons on the 1.1.2 line; the CPI and account APIs differ and your code will not compile against the old one.
+If it reports 1.x, re-pin with m01-l2's install block — `--tag v2.0.0-rc.1`, `--locked`, the git channel, since `avm` still cannot fetch the RC. Do not verify V2 lessons on the 1.1.2 line; the CPI and account APIs differ and your code will not compile against the old one.
 
 1. **Stand up the pool state (spec, no code given).** Write an `init_pool` instruction. It creates the `Pool` account at `seeds = [POOL_SEED]` with a bare `bump`, stores both mint addresses and `ctx.bumps.pool`, and `init`s two token accounts whose `token::authority` is the pool PDA, one per mint, paid for by the caller. You have written every one of those lines before: `init` plus `seeds` plus `bump` is module 3, storing the canonical bump is module 3, and creating a program-owned token account is last lesson's `Initialize` with a different authority. Checkpoint: `anchor test` shows the pool account created and both reserve token accounts reporting the pool PDA as their authority.
 

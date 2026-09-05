@@ -22,22 +22,22 @@ blocks:
     type: quiz
     questions:
       - id: m05-l2-q1
-        prompt: "Your swap quote computes reserve_in * reserve_out for the invariant, and it panics on a large trade against a deep pool. Both reserves are u64. What's the fix?"
+        prompt: "Your swap quote multiplies amount_in_with_fee * reserve_out on its way to a fill, and it panics on a large trade against a deep pool. Every operand is u64. What's the fix?"
         multiSelect: false
         options:
           - id: a
             label: "Cap every reserve at u32::MAX at init so the product of two reserves always fits inside a u64."
             correct: false
-            feedback: "A u32::MAX cap does make that one product fit, but it caps pool depth at about 4.3 billion base units and still leaves amount_in_with_fee * reserve_out unguarded. The defect is the width of the multiply, not the size of the reserves."
+            feedback: "A u32::MAX cap does make that one product fit, but it caps pool depth at about 4.3 billion base units and still leaves the invariant check's reserve_in * reserve_out unguarded. The defect is the width of the multiply, not the size of the reserves."
           - id: b
-            label: "Cast both reserves to u128 before multiplying and use checked_mul, then divide down."
+            label: "Cast the operands to u128 before multiplying and use checked_mul, then divide down."
             correct: true
             feedback: "Widen the intermediate, not the stored fields, and keep it checked, because three factors is one more than u128 can absorb. Narrowing back down is safe: the output cannot exceed a value that already fit."
           - id: c
             label: "Switch reserve_in and reserve_out to i64 so an overflow wraps to a negative value you can test for."
             correct: false
             feedback: "Rust panics on overflow in debug and wraps in release, so there is no reliable negative to test for, and SPL token amounts are unsigned u64 anyway. A u128 intermediate with checked_mul is the pattern the lesson freezes into swap_out."
-        explanation: "Two u64 reserves multiplied can exceed u64. The house pattern (and rust.md) is a u128 intermediate plus checked_mul: promote, multiply, divide back down to u64. That's exactly what the swap_out coding challenge exercises. The final cast back to u64 is safe because the output can never exceed reserve_out, which is already a u64."
+        explanation: "Two u64 amounts multiplied can exceed u64. The house pattern (and rust.md) is a u128 intermediate plus checked_mul: promote, multiply, divide back down to u64. That's exactly what the swap_out coding challenge exercises. The final cast back to u64 is safe because the output can never exceed reserve_out, which is already a u64."
       - id: m05-l2-q2
         prompt: "A trader sees a quote of 906 tickets, but between quote and execution the reserves shift and they'd only get 880. Your program still fills the trade. What did you forget?"
         multiSelect: false

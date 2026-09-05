@@ -550,10 +550,13 @@ fn withdraw_moves_the_spl_balance_under_the_vault_signature() {
     let after = spl_setup::token_balance(&svm, &ctx.vault_ata);
     assert_eq!(after, 0, "the vault PDA signed the tokens out");
 
-    // proof the signature is what did it: an over-withdraw is rejected, not panicked
+    // an over-withdraw is rejected, not panicked. Be precise about who refuses:
+    // the token program fails the transfer CPI on insufficient funds before your
+    // checked_sub ever runs; the ledger guard exists for drift the token balance
+    // cannot see, and this assert only proves the refusal path is an Err.
     assert!(
         spl_setup::send_withdraw(&mut svm, &ctx, 1_000_000_000).is_err(),
-        "over-withdraw must return an error, checked_sub not `-`"
+        "over-withdraw must return an error, never a wrap or a panic"
     );
 }
 ```
