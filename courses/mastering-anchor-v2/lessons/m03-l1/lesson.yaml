@@ -1,6 +1,14 @@
 id: lesson-mav2-m03-l1
 slug: m03-l1
 title: "PDAs & canonical bumps in V2"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    anchor-v2-testing: "2.0.0-rc.1"
+    litesvm: "0.11.0"
+    wincode: "0.5.5"
+    solana-address: "2.6.1"
 skills:
   - solana-programs
   - anchor

@@ -1,6 +1,11 @@
 id: lesson-mav2-m07-l3
 slug: m07-l3
 title: "The audit checklist as a lab; fuzz as the assessment"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    crucible-fuzz-cli: "0.2.1"
+    crucible-fuzzer: "0.2.1"
 skills:
   - anchor
 blocks:

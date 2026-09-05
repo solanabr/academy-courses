@@ -1,6 +1,14 @@
 id: lesson-mav2-m02-l1
 slug: m02-l1
 title: "Account<T> is zero-copy by default"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-cli: "2.0.0-rc.1"
+    anchor-lang: "2.0.0-rc.1"
+    wincode: "0.5.5"
+    solana-address: "2.6.1"
+    bytemuck: "1.25.2"
 skills:
   - account-model
 blocks:

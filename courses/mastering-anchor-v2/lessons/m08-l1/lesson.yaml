@@ -1,6 +1,12 @@
 id: lesson-mav2-m08-l1
 slug: m08-l1
 title: "Ship a client: the IDL, Program Metadata, and a Codama/kit client"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/system": "0.13.0"
+    "@solana-program/token": "0.15.0"
 skills:
   - solana-kit
   - solana-programs

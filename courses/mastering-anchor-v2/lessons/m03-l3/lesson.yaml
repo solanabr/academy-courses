@@ -1,6 +1,12 @@
 id: lesson-mav2-m03-l3
 slug: m03-l3
 title: "Write your own constraint: the AccountConstraint trait"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    anchor-v2-testing: "2.0.0-rc.1"
+    litesvm: "0.11.0"
 skills:
   - solana-programs
   - anchor

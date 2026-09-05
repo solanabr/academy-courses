@@ -1,6 +1,11 @@
 id: lesson-mav2-m07-l1
 slug: m07-l1
 title: "What V2 kills at compile time"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-cli: "2.0.0-rc.1"
+    anchor-lang: "2.0.0-rc.1"
 skills:
   - anchor
 blocks:

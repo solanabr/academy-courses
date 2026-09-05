@@ -1,6 +1,11 @@
 id: lesson-mav2-m05-l3
 slug: m05-l3
 title: "Token-2022 from the framework's seat"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@solana/kit": "7.1.1"
+    "@solana-program/token-2022": "0.15.0"
 skills:
   - solana-programs
 blocks:

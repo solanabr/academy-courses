@@ -1,6 +1,13 @@
 id: lesson-mav2-m10-l3
 slug: m10-l3
 title: "Migration capstone: port a 0.31/1.0 program to V2"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    anchor-lang-v1-baseline: "1.1.2"
+    anchor-cli: "2.0.0-rc.1"
+    anchor-v2-testing: "2.0.0-rc.1"
 skills:
   - anchor
 blocks:

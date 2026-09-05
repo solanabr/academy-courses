@@ -1,6 +1,15 @@
 id: lesson-mav2-m01-l2
 slug: m01-l2
 title: "Two parallel lines, and the install that fights you"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-cli: "2.0.0-rc.1"
+    anchor-lang: "2.0.0-rc.1"
+    wincode: "0.5.5"
+    solana-address: "2.6.0"
+    rust: "1.89.0"
+    solana-cli: "3.1.10"
 skills:
   - anchor
 blocks:

@@ -1,6 +1,11 @@
 id: lesson-mav2-m07-l2
 slug: m07-l2
 title: "What still bites you (exploit then patch)"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    anchor-v2-testing: "2.0.0-rc.1"
 skills:
   - anchor
 blocks:

@@ -1,6 +1,14 @@
 id: lesson-mav2-m09-l3
 slug: m09-l3
 title: "Capstone: run the whole arcade floor"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    surfpool: "1.5.0"
+    mollusk-svm: "0.15.1"
+    solana-verify: "0.5.1"
+    solana-cli: "3.1.10"
+    anchor-lang: "2.0.0-rc.1"
 skills:
   - solana-programs
 blocks:

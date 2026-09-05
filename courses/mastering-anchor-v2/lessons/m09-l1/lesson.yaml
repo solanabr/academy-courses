@@ -1,6 +1,14 @@
 id: lesson-mav2-m09-l1
 slug: m09-l1
 title: "Strip the framework I: rebuild the vault native"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    pinocchio: "0.9.0"
+    pinocchio-system: "0.4.0"
+    pinocchio-pubkey: "0.3.0"
+    litesvm: "0.16.0"
+    solana-sdk: "4.0.0"
 skills:
   - solana-programs
 blocks:

@@ -1,6 +1,12 @@
 id: lesson-mav2-m04-l2
 slug: m04-l2
 title: "The reload footgun is gone"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    solana-address: "2.6.0"
+    wincode: "0.5.5"
 skills:
   - anchor
 blocks:

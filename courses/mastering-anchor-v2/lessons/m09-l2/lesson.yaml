@@ -1,6 +1,10 @@
 id: lesson-mav2-m09-l2
 slug: m09-l2
 title: "Strip the framework II: the diff, and what Anchor generates"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
 skills:
   - solana-programs
 blocks:

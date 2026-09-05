@@ -1,6 +1,10 @@
 id: lesson-mav2-m10-l1
 slug: m10-l1
 title: "0.3x -> 1.0: the pains migrators still hit"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-cli: "1.1.2"
 skills:
   - anchor
 blocks:

@@ -1,6 +1,13 @@
 id: lesson-mav2-m02-l2
 slug: m02-l2
 title: "Pod data types, lists in an account, and zero-copy events"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    wincode: "0.5.5"
+    anchor-v2-testing: "2.0.0-rc.1"
+    litesvm: "0.11.0"
 skills:
   - account-model
 blocks:

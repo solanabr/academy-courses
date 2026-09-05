@@ -1,6 +1,13 @@
 id: lesson-mav2-m08-l2
 slug: m08-l2
 title: "Prove it: a verifiable build on devnet, and the authority trust surface"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    solana-verify: "0.5.1"
+    docker: "27.0.0"
+    solana-cli: "3.1.10"
+    anchor-cli: "2.0.0-rc.1"
 skills:
   - solana-kit
   - solana-programs

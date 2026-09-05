@@ -1,6 +1,10 @@
 id: lesson-mav2-m01-l4
 slug: m01-l4
 title: "#[derive(Accounts)], dispatch, discriminators & errors"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
 skills:
   - anchor
 blocks:

@@ -1,6 +1,14 @@
 id: lesson-mav2-m05-l1
 slug: m05-l1
 title: "token_interface & transfer_checked: upgrade the vault and escrow to SPL"
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    anchor-lang: "2.0.0-rc.1"
+    anchor-v2-testing: "2.0.0-rc.1"
+    litesvm: "0.11.0"
+    solana-address: "2.6.1"
+    wincode: "0.5.5"
 skills:
   - solana-programs
 blocks:
