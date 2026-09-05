@@ -2,7 +2,7 @@
 
 You just diffed your native vault against the V2 macro expansion, line by line, and took the one-beat asm-v2 peek. You can now predict what the derive writes and why, which means the framework stopped being a black box the last time you ran `cargo expand`. Good. Hold onto that, because this lesson spends it.
 
-Here is the pain, stated plain. Every rung you built stands alone. The cabinet-counter counts. The quarter-vault holds. The prize-escrow settles. The token-ticket swap quotes. Four programs, four green test suites, four devnet deploys, and not one of them knows the others exist. An arcade is not four machines in four rooms. It is a floor: a play bumps a counter, the counter feeds a credit into a vault, a win releases a prize from an escrow, and a pile of tickets swaps for something at the counter. Nobody wired the floor yet. That is the capstone, and it is almost entirely yours.
+Here is the pain, stated plain. Every rung you built stands alone. The cabinet-counter counts. The quarter-vault holds. The prize-escrow settles. The token-ticket swap quotes. Four programs, four green test suites, one of them — the swap — already live on devnet, and not one of them knows the others exist. An arcade is not four machines in four rooms. It is a floor: a play bumps a counter, the counter feeds a credit into a vault, a win releases a prize from an escrow, and a pile of tickets swaps for something at the counter. Nobody wired the floor yet. That is the capstone, and it is almost entirely yours.
 
 One piece of housekeeping first, because everything below assumes it. R1 has been living on its own since m02-l1: `anchor init cabinet-counter` made it a workspace of one, while R2, R3, and R4 all grew inside the `quarter-vault` workspace you started in m03-l1. The floor builds, tests, and deploys as one workspace — one `Anchor.toml`, one `target/deploy` every harness loads from, one `idls/` directory — so copy R1 in before you scaffold anything. The original workspace stays where it is — this is a copy, not a move, and you can delete the old tree once the registry builds. From the root of that arcade workspace:
 
@@ -109,13 +109,9 @@ This is the capstone lab. The R1 edge is worked. The rest is yours. I will keep 
 
 > Freshness note: this is written against the Anchor V2 release candidate on the 2.x line (the docs tree published under `v2`), `2.0.0-rc.1` as of 2026-08-22. Install the toolchain from the documented git channel (Step 0, `avm` cannot fetch the RC). The machine-default `anchor-cli 1.1.2` is the V1 line and will not compile the `CpiHandle` or `&Address` grammar below. Version pins in this lab carry the date they were checked; re-verify before you build.
 
-**Step 0. Pin the toolchain.** One trap first, and m01-l2 already walked you into it on purpose: **`avm install` cannot fetch the V2 RC.** `avm install` downloads a prebuilt binary from the tag's GitHub Release assets, and no Release was cut for `v2.0.0-rc.1` — only the tag itself exists — so the download 404s. So you install the CLI from the documented git channel, not from `avm`:
+**Step 0. Pin the toolchain.** One line, and the trap behind it is one you already know by heart — `avm install` still 404s on the RC, no GitHub Release was ever cut for the tag — so if the check fails, re-run m01-l2's git install (`--tag v2.0.0-rc.1`, `--locked`):
 
 ```bash
-# No GitHub Release for the v2 tag -> no binary to download. Build from the tag.
-# macOS, if the build trips on LTO: prefix with CARGO_PROFILE_RELEASE_LTO=off
-cargo install --git https://github.com/otter-sec/anchor.git \
-  --tag v2.0.0-rc.1 anchor-cli --locked --force
 anchor --version           # expect: anchor-cli 2.0.0-rc.1
 ```
 
@@ -283,7 +279,12 @@ Write that program id down. Step 10 needs it twice, and the done ledger asks for
 cargo install solana-verify --locked   # v0.5.1 (solana-foundation/solana-verifiable-build; the old Ellipsis-Labs URL redirects); re-check the latest release
 solana-verify build --library-name floor_registry
 solana-verify get-executable-hash target/deploy/floor_registry.so
-# after deploying that artifact, compare against the on-chain program:
+# solana-verify build just overwrote target/deploy with the deterministic artifact.
+# Step 9's anchor deploy shipped a non-deterministic build, so redeploy NOW — skip
+# this and the two hashes below will not match:
+solana program deploy target/deploy/floor_registry.so \
+  --program-id target/deploy/floor_registry-keypair.json
+# then compare against the on-chain program:
 solana-verify get-program-hash -u devnet <FLOOR_REGISTRY_PROGRAM_ID>
 solana-verify verify-from-repo -u devnet \
   --program-id <FLOOR_REGISTRY_PROGRAM_ID> \

@@ -231,7 +231,7 @@ Six checks. The first five line up one for one with the comparison table above, 
 
 Notice what TryFrom buys you: by the time `process()` runs, validation is done and the business logic never re-checks. That separation, validate-then-act, is exactly what Anchor gives you by splitting the accounts struct from the instruction body, and you just built it by hand.
 
-Checkpoint: `cargo build-sbf` still fails, and the error list should have shrunk by one: `Withdraw` now exists, so what remains is the missing `Init` plus an unresolved `Withdraw::process`, which you write next. Watch for one error that is not on that list: a borrow-checker complaint about `cfg` means you moved the `let vault_bump = cfg[33];` read below the `Ok(...)` line, and it has to happen while the borrow is alive.
+Checkpoint: `cargo build-sbf` still fails, and the error list should have shrunk by one: `Withdraw` now exists, so what remains is the missing `Init` plus an unresolved `Withdraw::process`, which you write next. Watch for one error that is not on that list: a borrow-checker complaint about `cfg` means your `let vault_bump = cfg[33];` read escaped the scope where the `try_borrow_data` guard is alive. Copy the byte out while the borrow is held, exactly where the comment puts it, instead of trying to read through the guard after it drops.
 
 ### Step 3: the withdraw body, and the completion you fill in
 

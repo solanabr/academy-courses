@@ -8,6 +8,9 @@ So let us read it. The tool that prints the code a macro generates is `cargo-exp
 
 ```bash
 cargo install cargo-expand   # re-check crates.io for a newer version at build time
+# The expansion itself runs under a nightly rustc (-Zunpretty=expanded is a nightly
+# flag): `rustup toolchain install nightly` once, and cargo-expand finds it on its
+# own. The workspace stays pinned to stable 1.89.0; only the expansion borrows nightly.
 cargo expand --package quarter-vault > expanded.rs
 ```
 
@@ -160,7 +163,7 @@ You met `MUT_MASK` in module 1, so the mechanism is not new: the derive computes
 
 Is that class real, or is it a cosmetic guard you could skip? It is real. Imagine a batch handler that touches two prize pools, both writable. Pass the same pool for both and a naive handler debits it once, credits it twice, and the accounting is wrong in a way no test with distinct accounts would ever surface. The framework rejects that call before your handler runs. When you genuinely mean to pass one account twice, you opt out per field, and the opt-out is spelled to make you feel it: `unsafe(dup)`. Plain `dup` without the `unsafe` wrapper is a compile error, on purpose. The keyword is the seatbelt light.
 
-There is a detail here that matters more next lesson than it does now, so file it. The duplicate walk is not per-struct, it is per-tree. The derive emits a trait that reports the mutable keys a struct serializes on exit, and when you nest one Accounts struct inside another, the outer struct calls each inner struct's implementation and merges the keys into one set. So the guard catches a collision even when the same account arrives once as a direct field and once buried inside a composite. That is exactly the shape the capstone floor-registry has: it composes the vault, escrow, and swap, and a naive hand-rolled composition is precisely where a duplicate-mutable aliasing bug would hide. Your native vault never had this walk at one level. A native registry would need it at every level, merged, and would have it nowhere.
+There is a detail here that matters more next lesson than it does now, so file it. The duplicate walk is not per-struct, it is per-tree. The derive emits a trait that reports the mutable keys a struct serializes on exit, and when you nest one Accounts struct inside another, the outer struct calls each inner struct's implementation and merges the keys into one set. So the guard catches a collision even when the same account arrives once as a direct field and once buried inside a composite. That is exactly the shape the capstone floor-registry has: it composes the cabinet-counter, the vault, the escrow, and the swap, and a naive hand-rolled composition is precisely where a duplicate-mutable aliasing bug would hide. Your native vault never had this walk at one level. A native registry would need it at every level, merged, and would have it nowhere.
 
 ![A two-lane diagram contrasting the V2 duplicate-mutable guard's exhaustive walk against native pinocchio's single hand-written pair comparison.](assets/v05-diagram.png)
 
@@ -235,7 +238,7 @@ Two footnotes before the Lab, because both are traps.
 
 First, `AccountLoader`. If you grep the V2 docs you will still find it, and it is tempting to read that as "nothing changed." Wrong the other way, too: do not read the account-model rewrite as "AccountLoader is gone." It is neither. In V2 `AccountLoader` is repurposed as a sequential account cursor, and the docs warn that it means something else now than it did on the 0.x line. Same name, different job. Carry that carefully.
 
-Second, the floor of this course has a trapdoor, and you get exactly one look through it. Anchor V2 can link hand-written sBPF: `asm-v2` lets you drop a hot path to assembly and have the framework link it into the program the VM runs. Look once. It tells you the framework has an escape hatch all the way down to the instruction the machine executes. Then stop, because chasing sBPF depth here is the wrong course. Why the VM runs it that way, the loader, the syscalls, the verifier, belongs to the Low-Level Solana course, not this one. That course runs this exact mirror in the other direction: it rebuilds a counter with no framework at all and explains why the machine executes it the way it does. If you want to go beneath sBPF, that is the door. Here, we stay framework-level: what the macro expands to, and why.
+Second, the floor of this course has a trapdoor, and you get exactly one look through it. Anchor V2 can link hand-written sBPF: `asm-v2` lets you drop a hot path to assembly and have the framework link it into the program the VM runs. Look once. It tells you the framework has an escape hatch all the way down to the instruction the machine executes. Then stop, because chasing sBPF depth here is the wrong course. Why the VM runs it that way — the loader, the syscalls, the verifier, programs with no framework at all — belongs to the Low-Level Solana course, not this one. If you want to go beneath sBPF, that is the door. Here, we stay framework-level: what the macro expands to, and why.
 
 ## Lab: annotate your own expansion
 
@@ -259,7 +262,7 @@ Solo, no scaffolding. Take these three lines from a V2 expansion. For each, stat
 
 ```text
 (a)  let state: Account<Vault> = Account::try_from(next_account_info)?;
-(b)  const MUT_MASK: [u64; 4] = /* bits set for state, sol_vault */;
+(b)  const MUT_MASK: [u64; 4] = /* bits set for state, sol_vault, authority */;
 (c)  /* the walk over every mutable pair, run in the dispatcher */
 ```
 
