@@ -126,7 +126,11 @@ npm view @solana-program/token@0.15.0 peerDependencies
 git ls-remote https://github.com/otter-sec/anchor.git 'refs/tags/v2.0.0-rc.1*'
 # read the `^{}` (peeled) line, not the bare tag line — an annotated tag's bare
 # line returns the tag-object SHA (2f77733f...), not the commit; expect e4878b6d
-curl -sI https://github.com/otter-sec/anchor/releases/tag/v2.0.0-rc.1      # expect 404
+# Probe the API, not the HTML page: github.com now renders /releases/tag/<tag>
+# with a 200 even when no Release object exists (observed 2026-09-05). The API
+# 404 below is the signal that still means "no Release, avm's asset fetch fails".
+curl -s -o /dev/null -w '%{http_code}\n' \
+  https://api.github.com/repos/otter-sec/anchor/releases/tags/v2.0.0-rc.1   # expect 404
 ```
 
 When a value moves, update it in **every** lesson that writes it — the grep targets are
