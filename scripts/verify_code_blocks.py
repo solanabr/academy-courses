@@ -45,11 +45,11 @@ KNOWN_CRATES = {
     "thiserror": "1",
 }
 
-FN_RE = re.compile(r"^\s*(?:pub\s+)?(?:const\s+)?fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M)
+FN_RE = re.compile(r"^(?:pub\s+)?(?:const\s+)?fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M)
 
 
 def pick_entry_fn(src: str):
-    """Last-defined top-level fn that isn't main — helpers come first by convention."""
+    """Last-defined column-0 fn that isn't main — nested/module helpers are invisible by indentation."""
     names = [m.group(1) for m in FN_RE.finditer(src) if m.group(1) != "main"]
     return names[-1] if names else None
 
