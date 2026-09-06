@@ -45,7 +45,7 @@ KNOWN_CRATES = {
     "thiserror": "1",
 }
 
-FN_RE = re.compile(r"^\s*(?:pub\s+)?fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M)
+FN_RE = re.compile(r"^\s*(?:pub\s+)?(?:const\s+)?fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M)
 
 
 def pick_entry_fn(src: str):
