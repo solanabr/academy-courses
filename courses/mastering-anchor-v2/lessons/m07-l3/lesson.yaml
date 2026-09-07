@@ -40,7 +40,7 @@ blocks:
             feedback: "Crucible saves the failing sequence as a crash artifact and replays it deterministically with `--replay`, so a reproducible crash is a finding, not mutator noise, and that is the entire point of running it."
         explanation: "In this course, a green fuzz case = you broke it: anchor fuzz (Crucible, LibAFL/LiteSVM with sBPF edge coverage) surfaced an input that violates an invariant. Replay the crash artifact, fix the bug, and re-fuzz: a crash is a success of the process. The order is load-bearing: crash, replay, patch, re-fuzz. Patch first and you throw away the artifact that proved the bug was real and deterministic."
       - id: q2
-        prompt: "A teammate on an Anchor master build runs `anchor fuzz`. Which tool actually runs under the hood?"
+        prompt: "A teammate on the V1 line's CLI (anchor-cli 1.2.0) runs `anchor fuzz`. Which tool actually runs under the hood?"
         multiSelect: false
         options:
           - id: c
@@ -58,7 +58,7 @@ blocks:
           - id: a
             label: "Crucible (`crucible-fuzz-cli`), a LibAFL engine driving a LiteSVM runtime."
             correct: true
-            feedback: "Verified 2026-08-22: that subcommand lives on master, which pins the crate at 0.2.1; the RC branch's CLI has no fuzz command at all."
+            feedback: "Checked 2026-09-07: that subcommand rides the V1 line, whose 1.2.0 release (2026-09-04) pins `crucible-fuzz-cli` at 0.2.1; the 2.0.0-rc.1 CLI has no fuzz command at all."
           - id: d
             label: "Anchor's own fuzz engine, added to the CLI beside `anchor coverage` and `anchor debugger`."
             correct: false

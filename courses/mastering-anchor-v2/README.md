@@ -31,7 +31,7 @@ lessons carry; treat a stale date as an unverified pin.
 | `anchor-cli` (install-channel lesson) | `2.0.0-rc.1` | git `otter-sec/anchor`, `--branch anchor-next` | 2026-08-22 | m01-l2 |
 | `anchor-cli` (every lesson after) | `2.0.0-rc.1` | git `--tag v2.0.0-rc.1` (= commit `e4878b6d`) | 2026-08-22 | m02-l1 onward |
 | `anchor-cli` (verify Dockerfile) | `2.0.0-rc.1` | git `--rev e4878b6d` | 2026-08-22 | m08-l2 |
-| `anchor-cli` (fuzz CLI) | not version-pinned — tracks `master` HEAD, V1 line past `1.1.2` | git `otter-sec/anchor`, `--branch master`, `--root ~/.anchor-master` | 2026-08-22 | m07-l3 |
+| `anchor-cli` (fuzz CLI) | `1.2.0` — the V1 line, released 2026-09-04 | `cargo install anchor-cli --version 1.2.0 --locked --root ~/.anchor-fuzz` | 2026-09-07 | m07-l3 |
 | `anchor-lang` (library) | `2.0.0-rc.1` | crates.io, published 2026-08-12 (immutable) | 2026-08-22 | m02-l1 onward |
 | `wincode` | `0.5`, `features = ["derive"]` | crates.io | 2026-08-22 | m02-l1 onward |
 | `solana-address` (standalone crates) | `=2.6.0` | crates.io | 2026-08-22 | m01-l2's greeter, m04-l2's `borrow_probe`, m10-l2's port crate |
@@ -45,7 +45,7 @@ lessons carry; treat a stale date as an unverified pin.
 | `solana-sdk` (Mollusk's dev-dep) | `4` | crates.io | 2026-09-01 | m06-l1, m06-l2, m09-l3, m09-l1 |
 | `solana-short-vec` / `solana-signature` | `>=3.2.2, <3.3` / `>=3.4.1, <3.5` | crates.io — dev-deps, **only in the Mollusk crates** | 2026-09-01 | m06-l1, m06-l2, m09-l3 |
 | `solana-address` (**every arcade-workspace member**) | `>=2.6.1, <2.7` | crates.io | 2026-09-01 | m02-l1, m03-l1, m04-l3, m05-l1, m06-l1, m06-l2, m09-l3 |
-| `crucible-fuzz-cli` / `crucible-fuzzer` | `0.2.1` | pinned by Anchor **`master`**'s CLI, not by the RC | 2026-08-22 | m07-l3 |
+| `crucible-fuzz-cli` / `crucible-fuzzer` | `0.2.1` | pinned by the **V1 line**'s CLI (`anchor-cli` 1.2.0), not by the RC | 2026-09-07 | m07-l3 |
 | `surfpool` | `>= 1.1.2` | `run.surfpool.run` install script | 2026-08-22 | m09-l3 |
 | `pinocchio` / `pinocchio-system` / `pinocchio-pubkey` | `0.9` / `0.4` / `0.3` | crates.io — **move as a set** | 2026-08-22 | m09-l1 |
 | `@solana/kit` | `^7` | npm — match the major `@solana-program/*` peers on | 2026-08-22 | m08-l1 |
@@ -83,9 +83,12 @@ lessons carry; treat a stale date as an unverified pin.
   install channel is that lesson's subject; every later lesson pins the tag.
 - **Solana `3.1.10` is a build pin, never a currency claim.** Current stable Agave was `v4.2.1` at
   authoring. Two lessons defuse this explicitly; do not "fix" the number to look newer.
-- **`anchor fuzz` lives on `master`, not on the RC.** The `anchor-next` CLI ships
-  `anchor test --profile`, `anchor debugger`, and `anchor coverage`, and has no `fuzz` subcommand.
-  m07-l3 depends on that split being true; re-check it whenever either branch moves.
+- **`anchor fuzz` rides the V1 line, not the RC.** Checked 2026-09-07: `anchor-cli` 1.2.0
+  (released 2026-09-04) depends on `crucible-fuzz-cli = "0.2.1"` and dispatches `Command::Fuzz`
+  into it, while the `2.0.0-rc.1` CLI ships `anchor test --profile`, `anchor debugger`, and
+  `anchor coverage`, and has no `fuzz` subcommand. m07-l3 depends on that split being true;
+  re-check it whenever either line moves. (Until 1.2.0 shipped this was a `--branch master`
+  git build — that instruction is retired, do not reintroduce it.)
 - **The course consumes programs by IDL — `declare_program!` + a workspace-root `idls/`
   directory — never by `features = ["cpi"]` path deps.** Two rc.1 defects force this, both
   reproduced by execution: a program that references the `cpi` modules of **two**
@@ -109,7 +112,7 @@ lessons carry; treat a stale date as an unverified pin.
 | A new Anchor V2 RC or the stable release | Whole course | Full re-authoring pass, not a version bump. `rc.2` may move constraint spellings, the `CpiHandle` grammar, or the feature-flag set — all of which are taught, quizzed, and graded here. |
 | A GitHub Release appears for a v2 tag | m01-l2 | The avm-404 story is the lesson's spine. If `avm install` starts working, m01-l2 needs rewriting, not editing. |
 | `@solana-program/*` peers move off kit `^7` | m08-l1 | Re-pin per workspace, per the rule the lesson teaches. Never repo-wide. |
-| Anchor `master` merges `fuzz` into the RC line | m07-l3 | The branch-split fact the lesson turns on stops being true. |
+| Anchor ships `fuzz` in the V2 line | m07-l3 | The line-split fact the lesson turns on stops being true. |
 | A published V2 audit or a committed stable date | m10-l4 | The conclusion routes on exactly those two signals. Both are currently absent; if either lands, the decision tree changes. |
 | Devnet reset, or the twin signatures prune | m01-l1 | The lesson pins two live devnet programs + reference signatures inline (verified 2026-09-02). Run [`twins/redeploy.sh`](./twins/README.md) and re-pin the four values it prints. |
 
