@@ -59,7 +59,7 @@ blocks:
           - id: b
             label: "Marking both reserve accounts unsafe(dup) so the fill is not rejected."
             correct: false
-            feedback: "unsafe(dup) is the escape hatch for genuinely duplicated mutable accounts. reserve_arcade and reserve_ticket are distinct accounts holding different mints, so the default is already satisfied — and account aliasing has nothing to do with the price a trader receives."
+            feedback: "unsafe(dup) is the escape hatch for genuinely duplicated mutable accounts. reserve_arcade and reserve_ticket are distinct accounts holding different mints, so the default is already satisfied, and account aliasing has nothing to do with the price a trader receives."
           - id: c
             label: "The slippage guard: revert when output comes in below the trader's min_out."
             correct: true
@@ -72,7 +72,7 @@ blocks:
             label: "You read the reserves after the pull CPI, so the output came from stale balances."
             correct: false
             feedback: "The handler already reads both reserves up front, and it has to: a typed read while a cpi_handle_mut() is live does not compile. Read them after the transfer instead and the quote would be fresher, not staler. The reserves in this scenario moved before the transaction landed at all, so no read ordering inside the handler could have seen it coming."
-        explanation: "Without a min_out the trader accepts any fill, including one degraded by ordering (a sandwich). The slippage guard reverts when computed output < min_out — its shape reuses the escrow's conditional-release logic. It's the one piece of trader protection this teaching swap offers. Run it after the quote and before either CPI — not because a late check would let a bad fill stand (a failed require! reverts the transfers; atomicity holds), but because early is cheaper and reads as the protection it is."
+        explanation: "Without a min_out the trader accepts any fill, including one degraded by ordering (a sandwich). The slippage guard reverts when computed output < min_out; its shape reuses the escrow's conditional-release logic. It's the one piece of trader protection this teaching swap offers. Run it after the quote and before either CPI, not because a late check would let a bad fill stand (a failed require! reverts the transfers; atomicity holds), but because early is cheaper and reads as the protection it is."
       - id: m05-l2-q3
         prompt: "You route both swap directions through the same InterfaceAccount and the program rejects the instruction as a duplicate mutable account. What's the clean fix?"
         multiSelect: false
@@ -84,7 +84,7 @@ blocks:
           - id: b
             label: "Add unsafe(dup) to the shared reserve field so V2 accepts one account serving both directions."
             correct: false
-            feedback: "unsafe(dup) is an escape hatch for when duplication is genuinely intended. Collapsing both reserves into one account aliases the two sides of the curve and corrupts the k accounting — that's a design bug, not a case for opting out of the check."
+            feedback: "unsafe(dup) is an escape hatch for when duplication is genuinely intended. Collapsing both reserves into one account aliases the two sides of the curve and corrupts the k accounting: that's a design bug, not a case for opting out of the check."
           - id: c
             label: "Turn off the duplicate-mutable default with an anchor-lang Cargo feature, keeping one shared reserve."
             correct: false
@@ -93,7 +93,7 @@ blocks:
             label: "Make one of the pool's two slots immutable so one reserve token account satisfies it."
             correct: false
             feedback: "That silences the checker rather than fixing the layout, and it breaks the trade: a constant-product swap debits one side and credits the other, so both reserves have to be writable. The check is not complaining that two slots are mut, it is complaining that one account arrived in both."
-        explanation: "A constant-product pool needs two separate reserves, so each side is its own token account — reserve_arcade and reserve_ticket, holding different mints, both with token::authority = pool — and the duplicate-mutable default is satisfied naturally. unsafe(dup) is only for deliberately duplicated accounts; reaching for it here would paper over a design error. Note the reserves are not R2 vault instances: a vault's ATA is owned by the vault PDA, while a reserve's authority must be the pool PDA."
+        explanation: "A constant-product pool needs two separate reserves, so each side is its own token account, reserve_arcade and reserve_ticket, holding different mints, both with token::authority = pool, and the duplicate-mutable default is satisfied naturally. unsafe(dup) is only for deliberately duplicated accounts; reaching for it here would paper over a design error. Note the reserves are not R2 vault instances: a vault's ATA is owned by the vault PDA, while a reserve's authority must be the pool PDA."
       - id: m05-l2-q4
         prompt: "Between the input transfer_checked CPI and reading the pool's new balance, you try to keep a typed reference to the vault account. V2 refuses to compile. Why is that a feature?"
         multiSelect: false
@@ -114,4 +114,4 @@ blocks:
             label: "It is the duplicate-mutable default firing, because the two live CPI handles alias the same reserve account."
             correct: false
             feedback: "Two of V2's new defaults are being run together here. Duplicate-mutable is an account-validation rule about one account arriving in two writable slots, and it fires at runtime before the handler starts. What stopped this build is the borrow checker holding a typed read against a live handle, and the two handles in a swap point at different reserves anyway."
-        explanation: "In v1, forgetting .reload() after a CPI meant acting on stale deserialized data. V2's CpiHandle holds a borrow, so the compiler rejects typed access during a live handle — the footgun becomes a compile error rather than a silent runtime bug that ships. You read reserves before you open the handle or after it closes, never during. That is why step 1 of the swap handler reads reserve_arcade.amount() and reserve_ticket.amount() into locals before any TransferChecked struct is built: the whole stale-read class is removed by the language, not by a call you must remember."
+        explanation: "In v1, forgetting .reload() after a CPI meant acting on stale deserialized data. V2's CpiHandle holds a borrow, so the compiler rejects typed access during a live handle; the footgun becomes a compile error rather than a silent runtime bug that ships. You read reserves before you open the handle or after it closes, never during. That is why step 1 of the swap handler reads reserve_arcade.amount() and reserve_ticket.amount() into locals before any TransferChecked struct is built: the whole stale-read class is removed by the language, not by a call you must remember."
