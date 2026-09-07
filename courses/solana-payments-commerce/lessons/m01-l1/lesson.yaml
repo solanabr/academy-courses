@@ -35,7 +35,7 @@ blocks:
             correct: false
             feedback: "Decoding inspects a past transaction; it never re-submits or re-authorizes anything. That payment settled exactly once, when its sender signed it."
           - id: d
-            label: "You queried a node operator's private developer mirror, so what you got back is a courtesy copy of the record, not the ledger."
+            label: "You queried a node operator's private developer mirror, so what you got back is a courtesy copy of the record rather than the settlement record itself."
             correct: false
             feedback: "There is no separate reporting copy to drift out of sync with. Every node replicates the same ledger, so the record that endpoint handed you is the settlement record."
         explanation: "The demo needs zero setup because Solana's ledger is public and readable over any RPC. Every settled transfer (sender, amount, mint, memo) is queryable by anyone, which is the opposite of a card processor's private, permissioned dashboard. That public-by-default property is exactly what lets a merchant reconcile payments later without a PSP sitting in the middle."
@@ -52,11 +52,11 @@ blocks:
             correct: true
             feedback: "A redirect moves attention, not code; your package still publishes from that monorepo, and shifted attention is where maintenance eventually follows."
           - id: c
-            label: "Your npm package was hijacked somewhere upstream, and the surprise `pay` binary is a supply-chain compromise you should strip out."
+            label: "Your npm package was hijacked; a surprise `pay` binary is a supply-chain compromise you should remove."
             correct: false
             feedback: "The binary is intentional: the package.json declares a `pay` bin entry. It is a documented feature of the official package, not a compromise."
           - id: d
-            label: "The package is CLI-first now: the binary replaced its TypeScript exports, so there is nothing left to import."
+            label: "The package is CLI-first now: the binary replaced its TypeScript exports, so a checkout has nothing left to import from it."
             correct: false
             feedback: "Both surfaces ship together. Step 6 of the lab imports `encodeURL` from the very package that dropped the executable into node_modules/.bin."
         explanation: "The redirect and the bundled CLI are real signals that the Foundation's energy moved from QR checkout toward agent/HTTP payments, but 'moved energy' is not 'deleted.' The classic library is still shipped and maintained inside the same monorepo. Reading ecosystem shifts honestly (what changed versus what was actually removed) is a survival skill in a market this young."
@@ -69,7 +69,7 @@ blocks:
             correct: false
             feedback: "Speed is a property, not proof of adoption. It does not tell your teammate that a mainstream processor is actually in the market."
           - id: b
-            label: "The bundled `pay` CLI wraps a shell command and clears a 402 payment challenge for you."
+            label: "The bundled `pay` CLI wraps any shell command and clears a 402 payment challenge on your behalf."
             correct: false
             feedback: "That is a neat capability, but it is a Foundation tool, not evidence that an incumbent payments company adopted these rails."
           - id: c

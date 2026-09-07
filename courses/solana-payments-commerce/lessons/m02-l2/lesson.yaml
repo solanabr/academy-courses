@@ -84,7 +84,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "It is locked in a pool on Ethereum while a wrapped IOU token is minted on Solana, redeemable back through the same pool whenever the holder wants out."
+            label: "It is locked in a pool on Ethereum and a wrapped IOU token is minted on Solana, redeemable back later."
             correct: false
             feedback: "That is the lock-and-wrap bridge model; CCTP does not use pools or wrapped IOUs, it burns and natively mints."
           - id: b
@@ -96,7 +96,7 @@ blocks:
             correct: true
             feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Fast Transfer waits on the SOURCE chain's finality, so an Ethereum-sourced transfer is slower than the ~8 seconds quoted for Solana-as-source, and the standard route still runs 15 to 19 minutes."
           - id: d
-            label: "It is burned on Ethereum and minted on Solana in about 8 seconds, since Solana's finality is what a Fast Transfer waits on."
+            label: "It is burned on Ethereum and minted natively on Solana in about 8 seconds, since Solana's own finality is the thing a Fast Transfer has to wait on."
             correct: false
             feedback: "The mechanism is right and the direction is backwards, which is how most summaries of CCTP get it wrong. What has to become irreversible is the burn, and the burn happened on Ethereum, so an inbound buyer waits out Ethereum."
         explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5. Fast Transfer timing is keyed to the SOURCE chain, because what is being waited on is the burn becoming irreversible where it happened — the widely-quoted ~8 seconds is Solana as source, and a buyer bridging in from Ethereum waits longer than that while still beating the ~15 to 19 minute standard path. Quote the row for your buyers' source chain."
