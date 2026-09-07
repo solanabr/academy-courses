@@ -414,11 +414,36 @@ Three rungs, and the middle one is where the shop comes alive.
 
 **Worked.** Done: the lab above was it, ending at the named TODO failure. If your smoke test fails with anything other than `TODO: newReference`, fix that first; the two usual suspects are a missing `checkout/public/page.js` (rerun the esbuild step) and a typo in an address literal, which `address(...)` rejects at import time with a base58 error.
 
-**Completion.** Fill both holes. In `payment.ts`, make `newReference` mint and return a fresh address; in `watcher.ts`, replace the `expected` object with the sale's true story: real `amount`, plus `splToken` and `reference`. Both answers appear verbatim in the theory section. Acceptance, in two stages. First, `npx tsx checkout/smoke.ts` prints exactly three lines: `transfer-request URL valid`, `QR bundle built`, `reference watcher armed`. Second, the sale itself: run `npx tsx checkout/server.ts`, open `http://localhost:3010`, and pay the QR on devnet. Scan it with a mobile wallet switched to devnet holding the devnet USDC you funded in module 2 (most wallets hide the devnet switch behind a developer-settings toggle; if yours will not switch networks at all, skip the phone, the other path gates identically), or let your own tooling play the customer: run transfer-kit's `sendStablecoin` the way module 2's `pay.ts` does, aimed at your `MERCHANT` address with `amount: toBaseUnits('12.5', 6)`, exact base units for 12.5 devnet USDC. No kit edit needed: since the roster lesson, `sendStablecoin` takes `reference` from its caller as a required option, so pass the reference from the server log (`checkout open ref=...`) and it rides along on the transfer. Either way, the acceptance is one server log line: `SOLD LP-041 ref=<your reference> sig=<signature>`. That signature is a real devnet transaction; look it up in any explorer and find your `LP-041` memo sitting on-chain.
+**Completion.** Fill both holes. In `payment.ts`, make `newReference` mint and return a fresh address; in `watcher.ts`, replace the `expected` object with the sale's true story: real `amount`, plus `splToken` and `reference`. Both answers appear verbatim in the theory section. Acceptance, in two stages. First, `npx tsx checkout/smoke.ts` prints exactly three lines: `transfer-request URL valid`, `QR bundle built`, `reference watcher armed`.
 
-**Solo.** Wavelength stocks a second record. Add it to `record.ts` at a different price, serve it at `/lp-042` with its own checkout, and sell both. Acceptance: two `SOLD` log lines with two different references, each validated against its own price, and you can say out loud which reference belongs to which record without reading the amounts. If you reused one reference for both, you already know which sentence in the theory you skipped. Design decisions are yours: per-record watcher functions, a records map, whatever holds two SKUs honestly.
+Second, the sale itself, and it needs a customer who is not you. `validateTransfer` measures the balance *change* on the recipient's token account, so a wallet paying itself moves nothing and the sale is rejected with `amount not transferred` however correct your code is. Your merchant keypair is the recipient, so it cannot also be the buyer. Stock a second wallet before you start the server, from the `wavelength` root:
 
-If validation keeps rejecting a payment you are sure you sent, read the `ValidateTransferError` message before touching code, it names the expectation that failed. An amount mismatch at this stage is almost always the decimal-units bug wearing a new outfit: check whether something in your send path multiplied by a million one time too many.
+```bash
+CUSTOMER=$(solana-keygen pubkey /tmp/customer.json)   # the pretend customer from module 2 lesson 1
+solana transfer "$CUSTOMER" 0.05 --allow-unfunded-recipient --url devnet
+npm run --workspace transfer-kit pay -- "$CUSTOMER" 13
+```
+
+The first line gives the customer SOL to pay transaction fees with; the second moves 13 devnet USDC out of your merchant balance, enough for one 12.5 sale with change. Funding a wallet in the currency it is about to pay you back in feels circular, and it is: on devnet you are both sides of the counter and the money comes home at the end of the run. If your merchant balance will not cover 13, Circle's faucet allows another drip once its cooldown has passed.
+
+Now run `npx tsx checkout/server.ts`, open `http://localhost:3010`, note the `checkout open ref=...` line it prints, and pay that QR on devnet by one of two routes.
+
+*Phone.* Scan it with a mobile wallet switched to devnet — the wallet you created in module 1, stocked exactly the same way, substituting the address the wallet app shows you for `$CUSTOMER` in the two commands above. Most wallets hide the devnet switch behind a developer-settings toggle; if yours will not switch networks at all, skip the phone, the CLI path gates identically.
+
+*CLI.* Let your own tooling play the customer. transfer-kit's `pay` script grew exactly the two knobs this needs last lesson: `PAYER_KEYFILE` chooses the signing wallet, and a fourth argument accepts a reference somebody else minted. From the `wavelength` root:
+
+```bash
+PAYER_KEYFILE=/tmp/customer.json \
+  npm run --workspace transfer-kit pay -- $(solana address) 12.5 <ref-from-the-server-log>
+```
+
+`$(solana address)` is the merchant address you pasted into `record.ts`, `12.5` is the decimal string the kit converts to base units for you (the URL and the kit agree on decimal units here; only the instruction underneath speaks base units), and the reference is what lets the watcher your server already armed recognize this transfer as its sale.
+
+Either way, the acceptance is one server log line: `SOLD LP-041 ref=<your reference> sig=<signature>`. That signature is a real devnet transaction; look it up in any explorer and find your `LP-041` memo sitting on-chain.
+
+**Solo.** Wavelength stocks a second record. Add it to `record.ts` at a different price, serve it at `/lp-042` with its own checkout, and sell both. Top the customer wallet up first with the same `pay` line — its change from the first sale will not cover a second one — then ring both. Acceptance: two `SOLD` log lines with two different references, each validated against its own price, and you can say out loud which reference belongs to which record without reading the amounts. If you reused one reference for both, you already know which sentence in the theory you skipped. Design decisions are yours: per-record watcher functions, a records map, whatever holds two SKUs honestly.
+
+If validation keeps rejecting a payment you are sure you sent, read the `ValidateTransferError` message before touching code, it names the expectation that failed. `amount not transferred` on a transfer you can see in an explorer means the payer and the recipient were the same wallet: check that `PAYER_KEYFILE` is actually in the environment of the command you ran, because without it the script signs as the merchant and the delta is zero. A genuine amount *mismatch* is usually the decimal-units bug wearing a new outfit: check whether something in your send path multiplied by a million one time too many.
 
 One request before you close the terminal: if any step fought you, note which one. This module's remaining lessons assume this scaffold went in clean, and the friction list from readers is how the course gets sharper. Where it went smoothly, take the win; you stood up a payment rail from a URL spec and five functions, and most people integrating card checkouts have never once watched their own money confirm.
 
