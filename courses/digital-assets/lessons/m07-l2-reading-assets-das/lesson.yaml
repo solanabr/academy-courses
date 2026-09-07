@@ -77,7 +77,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Add a CoinGecko fetch keyed by mint address, since DAS is a digital-asset metadata API: it covers NFTs and collections but leaves fungible pricing to dedicated market-data providers."
+            label: "Add a CoinGecko fetch keyed by mint address, since DAS covers NFTs and collections but leaves fungible pricing to market-data providers."
             correct: false
             feedback: "DAS did become the fungible + price API: getAsset with showFungible returns token_info.price_info for top tokens, so no second API is needed."
           - id: b
@@ -85,7 +85,7 @@ blocks:
             correct: false
             feedback: "getAssetProof returns a Merkle proof for compressed assets; price comes from getAsset's showFungible, not from a proof call."
           - id: c
-            label: "Call getAsset with showFungible and read token_info.price_info.price_per_token; DAS already serves the price for top tokens."
+            label: "Call getAsset with showFungible and read token_info.price_info.price_per_token; DAS serves it."
             correct: true
             feedback: "One flag on a call your reader already makes. Render a dash when price_info is absent, because a token outside the priced slice is the normal case, not an error."
           - id: d

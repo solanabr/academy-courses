@@ -68,9 +68,9 @@ blocks:
             correct: false
             feedback: "The allowlist reverts pool creation on any off-list extension; it does not silently ignore it."
           - id: b
-            label: "Pool creation reverts on the off-allowlist extension; pick a venue whose AMM accepts your routable set, or drop the extension."
+            label: "Pool creation reverts on the off-allowlist extension; pick a venue that accepts your set."
             correct: true
-            feedback: "The curve was never the risk; the last instruction was. Match the venue to the token you actually built, or build a token the venue will hold."
+            feedback: "The curve was never the risk; the last instruction was. Two fixes and no third: match the venue to the token, or drop the extension so the token matches the venue."
           - id: c
             label: "The launchpad automatically strips the TransferHook extension from the mint during migration so the graduation pool can be created without it."
             correct: false

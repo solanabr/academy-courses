@@ -34,11 +34,11 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "85 SOL is a graduation_target field stored in pump's BondingCurve account, written at curve creation and read back by the migrate instruction at graduation time."
+            label: "85 SOL is a graduation_target field stored in pump's BondingCurve account, read by the migrate instruction at graduation."
             correct: false
             feedback: "No such field exists; the curve stores reserves, not a graduation price. The threshold is implied by those reserves, not stored."
           - id: b
-            label: "85 SOL is derived from the constant-product invariant on the published virtual and real reserves, and changes if those constants change."
+            label: "85 SOL is derived from the invariant on the published reserves, and moves when they move."
             correct: true
             feedback: "Three constants and one invariant, and no 85 anywhere in the inputs. That is why the derivation survives a config change and a memorised number does not."
           - id: c
@@ -59,15 +59,15 @@ blocks:
             correct: false
             feedback: "Early prices are cheap, but draining a larger fraction pushes further up the steepening curve; the final virtual SOL reserve rises, not falls."
           - id: b
-            label: "It stays 85 SOL; graduation is fixed by the program regardless of the constants a curve was created with."
+            label: "It stays 85 SOL; graduation is fixed by the program regardless of the virtual and real token reserve constants."
             correct: false
             feedback: "The threshold is a function of the constants, not a program-level constant; changing the reserves changes it."
           - id: c
-            label: "It rises, because draining a larger fraction of the token reserve forces the final virtual SOL reserve higher along the curve."
+            label: "It rises: draining a larger fraction of the token reserve forces the final virtual SOL reserve higher."
             correct: true
             feedback: "Run the worked variant: 30 virtual SOL, 1B virtual tokens, 800M real tokens gives 120 SOL. Same formula, a 41% higher bar, no folklore."
           - id: d
-            label: "Unchanged unless total supply moves too, since the graduation threshold tracks the share of supply the curve may sell."
+            label: "Unchanged unless total supply moves too, since the graduation threshold tracks the share of the token reserve the curve may sell."
             correct: false
             feedback: "Total supply is the one published constant that never enters this arithmetic; it only prices the remainder the curve never offers. The threshold moves on the reserves alone."
         explanation: "finalVirtualSol = k / (virtualToken − realToken). A larger realToken shrinks the denominator, so finalVirtualSol grows and the SOL added to graduate rises. This is exactly why a flat opening-price estimate is wrong: the curve steepens as the reserve drains."

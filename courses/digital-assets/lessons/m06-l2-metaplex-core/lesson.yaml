@@ -59,7 +59,7 @@ blocks:
             correct: true
             feedback: "Cite the vendor, show your own account. Attribution costs one clause and it is what keeps the comparison usable when somebody checks it against their own mint."
           - id: b
-            label: "As a fixed protocol constant baked into the Core program: every mint pays exactly 0.0029 SOL and 17,000 CU on every cluster, regardless of rent schedule or account size."
+            label: "As a fixed protocol constant baked into the Core program: every mint pays exactly 0.0029 SOL and 17,000 CU."
             correct: false
             feedback: "It's not a protocol constant; it's a vendor benchmark that varies with rent and instruction shape, so it can't be promised as an invariant."
           - id: c

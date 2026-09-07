@@ -72,7 +72,7 @@ blocks:
             correct: false
             feedback: "You still have to read the variant to integrate legacy assets correctly; 'legacy' means you consume it, not that you can ignore its shape."
           - id: d
-            label: "Against the code's 6 variants, and then walk away from the integration: a legacy standard whose docs and source disagree about the TokenStandard enum is not safe for a production reader."
+            label: "Against the code's 6 variants, then walk away: a legacy standard whose docs and source disagree is not safe for a production reader."
             correct: false
             feedback: "Drift is the normal condition of a maintenance-mode standard, not a red flag. Most NFTs on Solana live here, so a reader that refuses to read them is a product that cannot ship."
         explanation: "Token Metadata is in maintenance mode, so its docs page trails its source. The code enum carries 6 variants, adding ProgrammableNonFungibleEdition; an integration that only knows the documented 5 mishandles the sixth. When docs and code disagree on a legacy standard, the code is the truth you integrate against."

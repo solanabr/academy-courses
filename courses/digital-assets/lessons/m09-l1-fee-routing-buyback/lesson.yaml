@@ -85,7 +85,7 @@ blocks:
             correct: false
             feedback: "Those are two independent legs: the fee-burn and the SOL-funded buyback-burn. They needn't be equal; conservation is about the fee split summing back to the harvest."
           - id: b
-            label: "burnedFromFees + toTreasury must equal the harvested amount; the split creates and destroys nothing."
+            label: "burnedFromFees + toTreasury must equal harvested; the split creates and destroys nothing."
             correct: true
             feedback: "The split only labels. Hold that on every input, including the ugly ones, and the supply assertion at the end of the run has something to stand on."
           - id: c
