@@ -12,9 +12,8 @@
 <body>
 <!-- table: Depth is nearly free, canopy is not
      purpose: correct the intuition that a bigger tree costs meaningfully more, and locate the real cost in canopy
-     data: maxBufferSize 64 throughout. Derived with overgrowth/tree-size.ts (depth loop at fixed canopy 8). depth 14 | 16,384 leaves      | 0.222 SOL no canopy | 0.336 SOL canopy 8 | 6 proof nodes depth 17 | 131,072 leaves     | 0.266 SOL no canopy | 0.379 SOL canopy 8 | 9 proof nodes depth 20 | 1,048,576 leaves   | 0.309 SOL no canopy | 0.423 SOL canopy 8 | 12 proof nodes depth 24 | 16,777,216 leaves  | 0.367 SOL no canopy | 0.481 SOL canopy 8 | 16 proof nodes Delta across a 1000x supply increase: about 0.145 SOL. Delta from adding canopy 8 at any depth: about 0.114 SOL. Delta from canopy 14 at depth 20 (the vendor's 8.5 SOL spec, buffer 256): 8.5 SOL.
-     data-note: RENT-RATE PROVENANCE (added 2026-09-06): every SOL figure in this spec was derived at 6,960 lamports/byte, the pre-SIMD-0437 rate. Mainnet moved to 6,333 on 2026-09-03 and devnet is at 5,080, so on the next render derive each SOL value as (128 + bytes) x the rate read from `solana rent 0` on the cluster the lesson targets, and label the card with that rate and date. The BYTE counts are unaffected and are the durable half.
-     prompt: Designed data table, four rows, five columns as listed. Emphasize the "no canopy" column by showing how little it moves top to bottom, using a small inline bar or sparkline per row sized to the SOL value on a shared scale. Add two footer callout strips: "1000x more supply costs about 0.145 SOL more" and "canopy, not depth, is where the money goes". Keep the proof nodes column plain numeric.
+     data: maxBufferSize 64 throughout. Derived with overgrowth/tree-size.ts (depth loop at fixed canopy 8). Stated in BYTES, matching the lesson's own table: bytes belong to the account layout and read the same to every learner, while SOL is bytes times a per-byte rent rate that SIMD-0437 is stepping down and that differs per cluster. depth 14 | 16,384 leaves      | 31,800 bytes no canopy | 48,120 bytes canopy 8 | 6 proof nodes depth 17 | 131,072 leaves     | 38,040 bytes no canopy | 54,360 bytes canopy 8 | 9 proof nodes depth 20 | 1,048,576 leaves   | 44,280 bytes no canopy | 60,600 bytes canopy 8 | 12 proof nodes depth 24 | 16,777,216 leaves  | 52,600 bytes no canopy | 68,920 bytes canopy 8 | 16 proof nodes Delta across a 1000x supply increase: 20,800 bytes. Delta from adding canopy 8, at every depth: exactly 16,320 bytes. Delta from canopy 14 at depth 20 (the vendor's spec, buffer 256): 1,223,352 bytes, twenty times the largest row here. To price any row: (128 + bytes) x your cluster's rate; 6,333 on mainnet and 5,080 on devnet, both read 2026-09-06.
+     prompt: Designed data table, four rows, five columns as listed. Emphasize the "no canopy" column by showing how little it moves top to bottom, using a small inline bar or sparkline per row sized to the byte count on a shared 0-70,000 scale. Add two footer callout strips: "1000x more supply costs 20,800 more bytes" and "canopy, not depth, is where the money goes". Keep the proof nodes column plain numeric, and put the bytes-to-SOL conversion with its rates and date in the note line.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -61,39 +60,39 @@
     <tr>
       <th>depth</th>
       <th>leaves</th>
-      <th style="width:26%;">rent, no canopy <small>bars share one 0&ndash;0.5 SOL scale</small></th>
-      <th style="width:26%;">rent, canopy 8</th>
+      <th style="width:26%;">bytes, no canopy <small>bars share one 0&ndash;70,000 byte scale</small></th>
+      <th style="width:26%;">bytes, canopy 8</th>
       <th>proof nodes</th>
     </tr>
     <tr>
       <td class="dc-depth">14</td><td class="dc-leaves">16,384</td>
-      <td><span class="dc-sol">0.222 SOL</span><div class="dc-bar hero" style="width:44.4%;"></div></td>
-      <td><span class="dc-sol">0.336 SOL</span><div class="dc-bar deep" style="width:67.2%;"></div></td>
+      <td><span class="dc-sol">31,800</span><div class="dc-bar hero" style="width:45.4%;"></div></td>
+      <td><span class="dc-sol">48,120</span><div class="dc-bar deep" style="width:68.7%;"></div></td>
       <td class="dc-nodes">6</td>
     </tr>
     <tr>
       <td class="dc-depth">17</td><td class="dc-leaves">131,072</td>
-      <td><span class="dc-sol">0.266 SOL</span><div class="dc-bar hero" style="width:53.2%;"></div></td>
-      <td><span class="dc-sol">0.379 SOL</span><div class="dc-bar deep" style="width:75.8%;"></div></td>
+      <td><span class="dc-sol">38,040</span><div class="dc-bar hero" style="width:54.3%;"></div></td>
+      <td><span class="dc-sol">54,360</span><div class="dc-bar deep" style="width:77.7%;"></div></td>
       <td class="dc-nodes">9</td>
     </tr>
     <tr>
       <td class="dc-depth">20</td><td class="dc-leaves">1,048,576</td>
-      <td><span class="dc-sol">0.309 SOL</span><div class="dc-bar hero" style="width:61.8%;"></div></td>
-      <td><span class="dc-sol">0.423 SOL</span><div class="dc-bar deep" style="width:84.6%;"></div></td>
+      <td><span class="dc-sol">44,280</span><div class="dc-bar hero" style="width:63.3%;"></div></td>
+      <td><span class="dc-sol">60,600</span><div class="dc-bar deep" style="width:86.6%;"></div></td>
       <td class="dc-nodes">12</td>
     </tr>
     <tr>
       <td class="dc-depth">24</td><td class="dc-leaves">16,777,216</td>
-      <td><span class="dc-sol">0.367 SOL</span><div class="dc-bar hero" style="width:73.4%;"></div></td>
-      <td><span class="dc-sol">0.481 SOL</span><div class="dc-bar deep" style="width:96.2%;"></div></td>
+      <td><span class="dc-sol">52,600</span><div class="dc-bar hero" style="width:75.1%;"></div></td>
+      <td><span class="dc-sol">68,920</span><div class="dc-bar deep" style="width:98.5%;"></div></td>
       <td class="dc-nodes">16</td>
     </tr>
   </table></div>
   <div class="dc-feet">
-    <div class="dc-callout plain">1000&times; more supply costs about 0.145 SOL more</div>
+    <div class="dc-callout plain">1000&times; more supply costs 20,800 more bytes</div>
     <div class="dc-callout hot">canopy, not depth, is where the money goes</div>
   </div>
-  <div class="dc-note">buffer 64 throughout &middot; derived with overgrowth/tree-size.ts &middot; the vendor&rsquo;s 8.5 SOL spec is depth 20 with canopy 14 and buffer 256 &mdash; canopy again</div>
+  <div class="dc-note">buffer 64 throughout &middot; derived with overgrowth/tree-size.ts &middot; the vendor&rsquo;s spec is depth 20 with canopy 14 and buffer 256: <b>1,223,352 bytes</b>, twenty times the largest row here &mdash; canopy again<br>bytes, not SOL, because rent is (128 + bytes) &times; your cluster&rsquo;s rate &mdash; 6,333 lamports/byte on mainnet and 5,080 on devnet, both read 2026-09-06, and SIMD-0437 is still stepping it down</div>
 </div>
 </body></html>

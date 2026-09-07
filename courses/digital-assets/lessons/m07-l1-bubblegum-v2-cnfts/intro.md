@@ -317,7 +317,7 @@ So the guidance almost writes itself: be generous with depth, be deliberate with
 
 Not every depth and buffer pairing is legal, incidentally, and this is the reason `tree-size.ts` carries that pair table rather than two independent lists of allowed values. The on-chain account layout is generated for a fixed set of combinations: depth 14 accepts buffer 64, 256, 1024 or 2048 and nothing else, depth 26 starts at 512, and buffer 128 is not a legal size at any depth at all. Checking the two fields separately would wave through half a dozen pairings the program will refuse. A bad pairing does not fail gracefully at runtime either, it fails as an unhelpful account-size error after you have already paid the rent, so let the guard throw before you spend.
 
-![A four-row table where raising tree depth from 16 thousand to 16 million leaves adds only about 0.14 SOL, locating the real cost of a compressed tree in the canopy.](assets/v06-table.png)
+![A four-row table in account bytes where raising tree depth from 16 thousand to 16 million leaves adds only 20,800 bytes, locating the real cost of a compressed tree in the canopy.](assets/v06-table.png)
 
 ### What changed in v2
 

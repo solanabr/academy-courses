@@ -81,7 +81,7 @@ A million devices at Core prices is 2,900 SOL. A million devices in one tree is 
 
 The bill comes due on the read side, and it is the fourth footgun of the course arriving on schedule. A cNFT's on-chain footprint is a leaf hash. The asset itself is reconstructed by DAS indexers from data stores the RPC manages. Point a verification script at an RPC without DAS support and `getAsset` returns nothing, for an asset that minted perfectly, and you will spend twenty minutes suspecting your asset id. That is not a cost you can refactor away later. It is a dependency you accept at design time, and it belongs in the memo right next to the tree's rent line.
 
-![A log-scale bar chart comparing the per-asset cost of a Metaplex Core mint against compressed NFT leaves in two tree sizes, showing gaps of roughly 140 and 360 times.](assets/v03-chart.png)
+![A log-scale bar chart comparing the per-asset cost of a Metaplex Core mint against compressed NFT leaves in two tree sizes, showing gaps of two and nearly three orders of magnitude.](assets/v03-chart.png)
 
 ### The NFT briefs have exactly one ship-path
 

@@ -12,9 +12,8 @@
 <body>
 <!-- chart: What a drop costs, classic accounts versus compressed
      purpose: show that the ratio is constant while the absolute bill goes from irrelevant to unaffordable
-     data: Grouped bars on a log Y axis, lamports converted to SOL. 1,000 recipients: classic 2.04 SOL, compressed 0.0103 SOL 10,000 recipients: classic 20.39 SOL, compressed 0.103 SOL 100,000 recipients: classic 203.93 SOL, compressed 1.03 SOL 1,000,000 recipients: classic 2,039.28 SOL, compressed 10.30 SOL Per recipient: classic 2,039,280 lamports (rent, refundable on close); compressed 10,300 lamports (5,000 create + 5,300 one write, spent). Annotation on the 1,000,000 classic bar: "about $300,000 at $150 SOL". Footnote: saving is 99.5% at every scale.
-     data-note: RENT-RATE PROVENANCE (added 2026-09-06): every SOL figure in this spec was derived at 6,960 lamports/byte, the pre-SIMD-0437 rate. Mainnet moved to 6,333 on 2026-09-03 and devnet is at 5,080, so on the next render derive each SOL value as (128 + bytes) x the rate read from `solana rent 0` on the cluster the lesson targets, and label the card with that rate and date. The BYTE counts are unaffected and are the durable half.
-     prompt: Grouped bar chart, four groups on the X axis labeled 1k / 10k / 100k / 1M recipients, two bars per group labeled "classic SPL ATAs" and "compressed". Logarithmic Y axis in SOL so all eight bars are legible. Print the SOL value above each bar. Add a callout on the tallest classic bar reading "about $300,000 at $150 SOL". Add a footnote line: "99.5% saved at every scale; classic rent is refundable on close, compressed state cost is spent."
+     data: Grouped bars on a log Y axis, lamports converted to SOL. The classic column is DERIVED, not pasted: a classic SPL token account is 165 bytes of data + the 128-byte account header = 293 bytes, times the per-byte rent rate of the cluster you will pay on. Rate used here: 6,333 lamports/byte, mainnet-beta, read 2026-09-06 (SIMD-0437's first step landed 2026-09-03; devnet was already a step further down at 5,080 and a surfpool fork still served the old 6,960). 293 x 6,333 = 1,855,569 lamports per classic recipient. 1,000 recipients: classic 1.86 SOL, compressed 0.0103 SOL 10,000 recipients: classic 18.56 SOL, compressed 0.103 SOL 100,000 recipients: classic 185.56 SOL, compressed 1.03 SOL 1,000,000 recipients: classic 1,855.57 SOL, compressed 10.30 SOL Per recipient: classic 1,855,569 lamports (rent, refundable on close, and it moves with the rate); compressed 10,300 lamports (5,000 create + 5,300 one write, spent, and NOT rent so it does not move). Annotation on the 1,000,000 classic bar: "about $278,000 at $150 SOL". Footnote: saving is 99.4% at this rate, at every scale.
+     prompt: Grouped bar chart, four groups on the X axis labeled 1k / 10k / 100k / 1M recipients, two bars per group labeled "classic SPL ATAs" and "compressed". Logarithmic Y axis in SOL so all eight bars are legible. Print the SOL value above each bar. Add a callout on the tallest classic bar reading "about $278,000 at $150 SOL". Carry the rent rate, its cluster and its date on the card itself, right under the title, so the classic column is never read as a constant. Add a footnote line: "99.4% saved at every scale; classic rent is refundable on close, compressed state cost is spent."
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -27,7 +26,8 @@
 <div class="viz">
   <div style="background:var(--surface-card);border-radius:24px;padding:30px 44px 24px;">
     <div class="stbr-eyebrow" style="color:var(--stbr-emerald);text-transform:uppercase;font-family:var(--font-display);font-weight:800;">the ratio is constant &mdash; the absolute bill is not</div>
-    <h2 class="viz-title" style="font-size:36px;margin:6px 0 20px;color:var(--stbr-dark);">What a drop costs: classic accounts vs compressed</h2>
+    <h2 class="viz-title" style="font-size:36px;margin:6px 0 4px;color:var(--stbr-dark);">What a drop costs: classic accounts vs compressed</h2>
+    <div style="font-family:var(--font-body);font-size:13.5px;font-weight:600;color:var(--text-secondary,#4a5a4e);margin:0 0 16px;">classic column = <span style="font-family:var(--font-mono);">293 bytes &times; 6,333 lamports/byte = 1,855,569</span> per recipient &mdash; mainnet-beta, read 2026-09-06. The rate is a network parameter SIMD-0437 is stepping down; re-read it (<span style="font-family:var(--font-mono);">solana rent 0</span>, &divide; 128) and this whole column moves with you.</div>
 
     <div style="display:flex;gap:14px;">
       <!-- y axis -->
@@ -52,8 +52,8 @@
           <!-- 1k -->
           <div style="display:flex;gap:10px;align-items:flex-end;">
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
-              <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">2.04</div>
-              <div style="width:58px;height:190px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
+              <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">1.86</div>
+              <div style="width:58px;height:187px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
               <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">0.0103</div>
@@ -63,8 +63,8 @@
           <!-- 10k -->
           <div style="display:flex;gap:10px;align-items:flex-end;">
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
-              <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">20.39</div>
-              <div style="width:58px;height:262px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
+              <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">18.56</div>
+              <div style="width:58px;height:259px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
               <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">0.103</div>
@@ -74,8 +74,8 @@
           <!-- 100k -->
           <div style="display:flex;gap:10px;align-items:flex-end;">
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
-              <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">203.93</div>
-              <div style="width:58px;height:335px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
+              <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">185.56</div>
+              <div style="width:58px;height:332px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
               <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">1.03</div>
@@ -85,9 +85,9 @@
           <!-- 1M -->
           <div style="display:flex;gap:10px;align-items:flex-end;">
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
-              <div style="background:var(--stbr-yellow);border-radius:8px;padding:4px 10px;font-family:var(--font-body);font-weight:700;font-size:12.5px;color:var(--stbr-dark);margin-bottom:5px;white-space:nowrap;">&asymp; $300,000 at $150 SOL</div>
-              <div style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--stbr-dark);margin-bottom:3px;">2,039.28</div>
-              <div style="width:58px;height:408px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
+              <div style="background:var(--stbr-yellow);border-radius:8px;padding:4px 10px;font-family:var(--font-body);font-weight:700;font-size:12.5px;color:var(--stbr-dark);margin-bottom:5px;white-space:nowrap;">&asymp; $278,000 at $150 SOL</div>
+              <div style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--stbr-dark);margin-bottom:3px;">1,855.57</div>
+              <div style="width:58px;height:404px;background:var(--stbr-green);border-radius:6px 6px 0 0;"></div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
               <div style="font-family:var(--font-mono);font-size:13px;color:var(--stbr-dark);margin-bottom:3px;">10.30</div>
@@ -108,7 +108,7 @@
     <div style="display:flex;align-items:center;gap:24px;margin-top:14px;border-top:1px solid var(--border-subtle,#e5decb);padding-top:12px;">
       <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:var(--stbr-green);border-radius:4px;"></div><div style="font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--stbr-dark);">classic SPL ATAs</div></div>
       <div style="display:flex;align-items:center;gap:8px;"><div style="width:16px;height:16px;background:var(--stbr-emerald);border-radius:4px;"></div><div style="font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--stbr-dark);">compressed</div></div>
-      <div style="font-family:var(--font-body);font-size:13.5px;color:var(--text-secondary,#4a5a4e);">99.5% saved at every scale; classic rent (2,039,280 lamports/recipient) is refundable on close, compressed state cost (10,300 = 5,000 create + 5,300 one write) is spent.</div>
+      <div style="font-family:var(--font-body);font-size:13.5px;color:var(--text-secondary,#4a5a4e);">99.4% saved at every scale; classic rent (1,855,569 lamports/recipient at this rate) is refundable on close, compressed state cost (10,300 = 5,000 create + 5,300 one write) is not rent, does not move with the rate, and is spent.</div>
     </div>
   </div>
 </div>

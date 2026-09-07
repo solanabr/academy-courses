@@ -12,9 +12,8 @@
 <body>
 <!-- comparison: A million crates, two ways to pay for it
      purpose: put the compression decision on lamport figures the reader can check, not on adjectives
-     data: Classic per-asset account (bare SPL token account, 165 bytes: the cheapest possible floor; a Core asset runs ~0.0029 SOL by the vendor figure, so ~2,900 SOL per million) per asset: ~0.002 SOL rent-exempt 1,000,000 assets: ~2,000 SOL  (~$300,000 at $150/SOL) read path: getAccountInfo, any RPC write path: sign and send, no proof Compressed (Bubblegum v2 tree, depth 20 / buffer 256 / canopy 14) whole tree: 8.515 SOL rent-exempt, 1,223,352 bytes, one account per asset: 0.00000812 SOL  (~0.00001 SOL, matches the vendor figure) read path: DAS-supporting RPC only, getAccountInfo returns nothing write path: fetch a fresh Merkle proof, then send Ratio: ~235x cheaper on rent; cost moves from per-asset to per-tree
-     data-note: RENT-RATE PROVENANCE (added 2026-09-06): every SOL figure in this spec was derived at 6,960 lamports/byte, the pre-SIMD-0437 rate. Mainnet moved to 6,333 on 2026-09-03 and devnet is at 5,080, so on the next render derive each SOL value as (128 + bytes) x the rate read from `solana rent 0` on the cluster the lesson targets, and label the card with that rate and date. The BYTE counts are unaffected and are the durable half.
-     prompt: Two-column comparison card. Left column "Classic account", right column "Compressed leaf". Four labeled rows: rent per asset, rent for 1,000,000, read path, write path. Put the 8.515 SOL and ~2,000 SOL figures at large type as the visual anchor of each column, with the ~235x ratio called out in a strip across the bottom. Mark the two right-column read/write rows as costs, not wins, so the card does not read as pure advocacy.
+     data: BOTH columns priced at one rate so the comparison is sound: 6,333 lamports/byte, mainnet-beta, read 2026-09-06, matching the prose paragraph this figure sits under. Rent is (128-byte account header + data) x that rate, and the rate is a network parameter SIMD-0437 is stepping down. Classic per-asset account (bare SPL token account, 165 bytes of data + the 128-byte header = 293 bytes: the cheapest possible floor; a Core asset runs ~0.0029 SOL by the vendor figure, so ~2,900 SOL per million) per asset: 1,855,569 lamports, ~0.00186 SOL rent-exempt 1,000,000 assets: ~1,856 SOL  (~$278,000 at $150/SOL) read path: getAccountInfo, any RPC write path: sign and send, no proof Compressed (Bubblegum v2 tree, depth 20 / buffer 256 / canopy 14) whole tree: 1,223,352 bytes, one account, 7.748 SOL rent-exempt at the same rate (6.215 SOL on devnet's 5,080; 8.515 SOL at the pre-SIMD-0437 6,960, which is where the vendor's ~8.5 SOL comes from) per asset: 0.00000739 SOL read path: DAS-supporting RPC only, getAccountInfo returns nothing write path: fetch a fresh Merkle proof, then send Ratio: ~240x cheaper on rent, and that ratio is RATE-INVARIANT because both sides are rent -- 293,000,000 bytes against 1,223,480 is 239.5x at every rate the network has ever charged. Cost moves from per-asset to per-tree.
+     prompt: Two-column comparison card. Left column "Classic account", right column "Compressed leaf". Four labeled rows: rent per asset, rent for 1,000,000, read path, write path. Put the ~1,856 SOL and 7.748 SOL figures at large type as the visual anchor of each column, each with its byte count and the shared rate underneath, and call the ~240x ratio out in a strip across the bottom with the note that it does not move with the rate. Mark the two right-column read/write rows as costs, not wins, so the card does not read as pure advocacy.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -61,19 +60,20 @@
   .verdict-text { font-family:var(--font-body); font-weight:600; font-size:17px;
                   color:var(--text-on-brand); }
 </style>
-  <div class="stbr-eyebrow">compression, priced in lamports</div>
+  <div class="stbr-eyebrow">compression, priced in lamports &mdash; both columns at one rate</div>
   <h2 class="viz-title">a million crates, two ways to pay for it</h2>
+  <div style="font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--text-secondary);margin:2px 0 6px;">rent = (128-byte header + data) &times; <span style="font-family:var(--font-mono);">6,333 lamports/byte</span> &mdash; mainnet-beta, read 2026-09-06. SIMD-0437 is stepping that rate down; re-read it and both columns move together.</div>
   <div class="cmp-row">
     <div class="col">
       <div class="col-head deep">Classic account</div>
       <div class="anchor">
         <div class="anchor-label">rent for 1,000,000 assets</div>
-        <div class="anchor-num">~2,000 SOL</div>
-        <div class="anchor-sub">~$300,000 at $150/SOL &mdash; one rent-exempt account per asset</div>
+        <div class="anchor-num">~1,856 SOL</div>
+        <div class="anchor-sub">~$278,000 at $150/SOL &mdash; one rent-exempt account per asset, 293,000,000 bytes in total</div>
       </div>
       <div class="attr"><div class="attr-key">rent / asset</div>
-        <div class="attr-val">~0.002 SOL rent-exempt
-          <small>bare SPL token account, 165 bytes &mdash; the cheapest floor; a Core asset runs ~0.0029 SOL &rarr; ~2,900 SOL per million</small></div></div>
+        <div class="attr-val">1,855,569 lamports
+          <small>bare SPL token account, 165 bytes of data + the 128-byte header = 293 &times; 6,333 &mdash; the cheapest floor; a Core asset runs ~0.0029 SOL &rarr; ~2,900 SOL per million</small></div></div>
       <div class="attr"><div class="attr-key">read path</div>
         <div class="attr-val">getAccountInfo, any RPC</div></div>
       <div class="attr"><div class="attr-key">write path</div>
@@ -83,12 +83,12 @@
       <div class="col-head emerald">Compressed leaf</div>
       <div class="anchor">
         <div class="anchor-label">rent for the whole tree</div>
-        <div class="anchor-num">8.515 SOL</div>
-        <div class="anchor-sub">one account, 1,223,352 bytes &mdash; depth 20 / buffer 256 / canopy 14</div>
+        <div class="anchor-num">7.748 SOL</div>
+        <div class="anchor-sub">one account, 1,223,352 bytes &mdash; depth 20 / buffer 256 / canopy 14 &middot; 6.215 SOL on devnet, 8.515 at the old 6,960 the vendor quoted</div>
       </div>
       <div class="attr"><div class="attr-key">rent / asset</div>
-        <div class="attr-val">0.00000812 SOL
-          <small>~0.00001 SOL &mdash; matches the vendor figure</small></div></div>
+        <div class="attr-val">0.00000739 SOL
+          <small>a few millionths either way &mdash; the tree is one account, so this falls as the tree fills</small></div></div>
       <div class="attr"><div class="attr-key">read path</div>
         <div class="attr-val">DAS-supporting RPC only<span class="chip-cost">cost</span>
           <small>getAccountInfo returns nothing</small></div></div>
@@ -97,8 +97,8 @@
     </div>
   </div>
   <div class="verdict">
-    <div class="verdict-ratio">~235&times; cheaper on rent</div>
-    <div class="verdict-text">the cost moves from per-asset to per-tree &mdash; and the reads and writes pick up the tab</div>
+    <div class="verdict-ratio">~240&times; cheaper on rent</div>
+    <div class="verdict-text">and that multiple does not move with the rate &mdash; both sides are rent, so it is 293,000,000 bytes against 1,223,480. The cost moves from per-asset to per-tree, and the reads and writes pick up the tab.</div>
   </div>
 </div>
 </body></html>

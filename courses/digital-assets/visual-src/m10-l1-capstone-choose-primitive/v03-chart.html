@@ -12,9 +12,8 @@
 <body>
 <!-- chart: Per-unit mint cost, Core asset versus one cNFT leaf
      purpose: show the per-unit gap that decides any mass-mint brief, and that it widens as the tree gets bigger
-     data: series (SOL per asset, log scale): Metaplex Core asset:              0.0029     (vendor-published) Bubblegum v2 leaf, depth 14:      0.0000205  (derived: 0.336 SOL tree / 16,384 leaves, buffer 64 / canopy 8) Bubblegum v2 leaf, depth 20:      0.0000081  (derived: 8.515 SOL tree / 1,048,576 leaves, buffer 256 / canopy 14) ratio annotations: about 140x at depth 14 ; about 360x at depth 20 scale-out row (1,000,000 units): Core = 2,900 SOL ; one depth-20 tree = about 8.5 SOL caveat annotation on the cNFT bars: tree rent is set by depth/buffer/canopy, not by leaf count, so per-leaf cost FALLS as the tree grows; capacity is fixed at creation; reads require a DAS-supporting RPC
-     data-note: RENT-RATE PROVENANCE (added 2026-09-06): every SOL figure in this spec was derived at 6,960 lamports/byte, the pre-SIMD-0437 rate. Mainnet moved to 6,333 on 2026-09-03 and devnet is at 5,080, so on the next render derive each SOL value as (128 + bytes) x the rate read from `solana rent 0` on the cluster the lesson targets, and label the card with that rate and date. The BYTE counts are unaffected and are the durable half.
-     prompt: Three horizontal bars on a logarithmic x-axis labeled SOL per asset, values as given. Print each value at the end of its bar. Draw two brackets from the Core bar, one to each cNFT bar, labeled "about 140x" and "about 360x". Below the chart, a single annotated row showing the one-million-unit totals. Attach the caveat text to the two cNFT bars as a footnote marker, not as chart furniture.
+     data: series (SOL per asset, log scale). The two cNFT bars are rent -- bytes x a per-byte rate SIMD-0437 is stepping down -- and are priced at devnet's 5,080 lamports/byte, read 2026-09-06, the cluster and date this lesson's prose quotes. The Core bar is a fixed vendor price, NOT rent, so the multiples between them move with the rate: at the pre-SIMD-0437 6,960 they were about 140x and 360x. Metaplex Core asset:              0.0029     (vendor-published, not rent) Bubblegum v2 leaf, depth 14:      0.0000150  (derived: 48,120-byte tree / 16,384 leaves, buffer 64 / canopy 8) Bubblegum v2 leaf, depth 20:      0.0000059  (derived: 1,223,352-byte tree / 1,048,576 leaves, buffer 256 / canopy 14) ratio annotations: about 190x at depth 14 ; about 490x at depth 20, both at this rate scale-out row (1,000,000 units): Core = 2,900 SOL ; one depth-20 tree = about 6.2 SOL at this rate caveat annotation on the cNFT bars: tree rent is set by depth/buffer/canopy, not by leaf count, so per-leaf cost FALLS as the tree grows; capacity is fixed at creation; reads require a DAS-supporting RPC
+     prompt: Three horizontal bars on a logarithmic x-axis labeled SOL per asset, values as given. Print each value at the end of its bar. Draw two brackets from the Core bar, one to each cNFT bar, labeled "about 190x" and "about 490x", and say in the footnote that those multiples are rate-dependent because only one side of them is rent. Carry the rate, its cluster and its date under the title. Give each cNFT row its tree size in BYTES rather than SOL, since that half does not rot. Below the chart, a single annotated row showing the one-million-unit totals. Attach the caveat text to the two cNFT bars as a footnote marker, not as chart furniture.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -60,10 +59,11 @@
           font-size:13px; line-height:1.35; color:var(--text-secondary); }
 </style>
   <div class="stbr-eyebrow">the gap that decides a mass-mint brief</div>
-  <h2 class="viz-title" style="font-size:42px;margin-bottom:6px;">per-unit mint cost: Core asset vs one cNFT leaf</h2>
+  <h2 class="viz-title" style="font-size:42px;margin-bottom:2px;">per-unit mint cost: Core asset vs one cNFT leaf</h2>
+  <div style="font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--text-secondary);margin:0 0 6px;">cNFT bars are rent: (128 + tree bytes) &times; <span style="font-family:var(--font-mono);">5,080 lamports/byte</span>, devnet, read 2026-09-06. The Core bar is a vendor price and is not rent, so the multiples below move when the rate does.</div>
   <div class="card">
     <div class="row">
-      <div class="row-label">Metaplex Core asset<small>vendor-published</small></div>
+      <div class="row-label">Metaplex Core asset<small>vendor-published &mdash; a price, not rent</small></div>
       <div class="track">
         <div class="gridline" style="left:0;"></div><div class="gridline" style="left:245px;"></div><div class="gridline" style="left:490px;"></div><div class="gridline" style="left:735px;"></div><div class="gridline" style="left:979px;"></div>
         <div class="bar bar-core" style="left:0;width:848px;"></div>
@@ -72,31 +72,31 @@
       <div class="ratio">the baseline</div>
     </div>
     <div class="row">
-      <div class="row-label">Bubblegum v2 leaf, depth 14 &dagger;<small>0.336 SOL tree &divide; 16,384 leaves &middot; buffer 64 / canopy 8</small></div>
+      <div class="row-label">Bubblegum v2 leaf, depth 14 &dagger;<small>48,120-byte tree &divide; 16,384 leaves &middot; buffer 64 / canopy 8</small></div>
       <div class="track">
         <div class="gridline" style="left:0;"></div><div class="gridline" style="left:245px;"></div><div class="gridline" style="left:490px;"></div><div class="gridline" style="left:735px;"></div><div class="gridline" style="left:979px;"></div>
-        <div class="bar bar-cnft" style="left:0;width:321px;"></div>
-        <div class="val" style="left:335px;">0.0000205</div>
+        <div class="bar bar-cnft" style="left:0;width:288px;"></div>
+        <div class="val" style="left:302px;">0.0000150</div>
       </div>
-      <div class="ratio">about 140&times; cheaper than Core</div>
+      <div class="ratio">about 190&times; cheaper than Core</div>
     </div>
     <div class="row">
-      <div class="row-label">Bubblegum v2 leaf, depth 20 &dagger;<small>8.515 SOL tree &divide; 1,048,576 leaves &middot; buffer 256 / canopy 14</small></div>
+      <div class="row-label">Bubblegum v2 leaf, depth 20 &dagger;<small>1,223,352-byte tree &divide; 1,048,576 leaves &middot; buffer 256 / canopy 14</small></div>
       <div class="track">
         <div class="gridline" style="left:0;"></div><div class="gridline" style="left:245px;"></div><div class="gridline" style="left:490px;"></div><div class="gridline" style="left:735px;"></div><div class="gridline" style="left:979px;"></div>
-        <div class="bar bar-cnft" style="left:0;width:223px;"></div>
-        <div class="val" style="left:237px;">0.0000081</div>
+        <div class="bar bar-cnft" style="left:0;width:189px;"></div>
+        <div class="val" style="left:203px;">0.0000059</div>
       </div>
-      <div class="ratio">about 360&times; cheaper than Core</div>
+      <div class="ratio">about 490&times; cheaper than Core</div>
     </div>
     <div class="axis"><span>10&#8315;&#8310;</span><span>10&#8315;&#8309;</span><span>10&#8315;&#8308;</span><span>10&#8315;&#179;</span><span>10&#8315;&#178;</span></div>
     <div class="axis-cap">SOL per asset &mdash; logarithmic scale</div>
     <div class="scaleout">
       <span style="font-family:var(--font-display);font-weight:900;">at 1,000,000 units</span>
       <span>Core: <b>2,900 SOL</b></span>
-      <span>one depth-20 tree: <b>&asymp; 8.5 SOL</b></span>
+      <span>one depth-20 tree: <b>&asymp; 6.2 SOL</b></span>
     </div>
-    <div class="foot">&dagger; tree rent is set by depth / buffer / canopy, not by leaf count &mdash; per-leaf cost <b>falls</b> as the tree grows. Capacity is fixed at creation, and reads require a DAS-supporting RPC.</div>
+    <div class="foot">&dagger; tree rent is set by depth / buffer / canopy, not by leaf count &mdash; per-leaf cost <b>falls</b> as the tree grows. Capacity is fixed at creation, and reads require a DAS-supporting RPC.<br>The two multiples are <b>rate-dependent</b>: only the cNFT side is rent. At the pre-SIMD-0437 6,960 lamports/byte they read about 140&times; and 360&times;. The order of magnitude is the finding; the digit is not.</div>
   </div>
 </div>
 </body></html>
