@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: The four assembly footguns, their symptoms, and the fix
      purpose: let the reader match a failing journey run to its cause before debugging blind
-     data: footgun: kit cross-contamination (a kit-6 workspace imports a kit-7-only subscriptions helper) | symptom: type errors or duplicate-kit runtime weirdness in the server process | fix: the crank is its own process with cwd inside the subscriptions workspace; nothing outside that folder imports from it footgun: loops started without the idempotency guard | symptom: one purchase, two fulfillments on a retried event | fix: worker and crank both claim the signature before acting; the webhook leg triple-delivers on purpose footgun: asserting before the fair queue drained | symptom: webhook leg FAILs with not-found on the queued sale | fix: drain at boot and wait for the queue-empty line before starting the journey footgun: devnet RPC rate limit mid-journey | symptom: a leg FAILs on a read timeout though the transaction landed | fix: wrap verifier reads in bounded retries; a timeout is a retry, a verifier rejection is a failure
+     data: footgun: kit cross-contamination (a kit-6 workspace imports a kit-7-only subscriptions helper) | symptom: type errors or duplicate-kit runtime weirdness in the server process | fix: keep crank.ts inside the subscriptions folder — an entry file resolves bare imports by walking up from its own location, never from cwd, so the separate process buys lifecycle isolation and the file's address buys import isolation; nothing outside that folder imports from it footgun: loops started without the idempotency guard | symptom: one purchase, two fulfillments on a retried event | fix: worker and crank both claim the signature before acting; the webhook leg triple-delivers on purpose footgun: asserting before the fair queue drained | symptom: webhook leg FAILs with not-found on the queued sale | fix: drain at boot and wait for the queue-empty line before starting the journey footgun: devnet RPC rate limit mid-journey | symptom: a leg FAILs on a read timeout though the transaction landed | fix: wrap verifier reads in bounded retries; a timeout is a retry, a verifier rejection is a failure
      prompt: Four-row comparison table with columns footgun, symptom, and fix, populated verbatim from data. Give each row a small icon-free severity accent and keep the fix column visually strongest. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -50,7 +50,7 @@
     <div class="frow">
       <div class="cell fg">kit cross-contamination &mdash; a kit-6 workspace imports a kit-7-only subscriptions helper</div>
       <div class="cell sy">type errors or duplicate-kit runtime weirdness in the server process</div>
-      <div class="cell fx">the crank is its own process with cwd inside the subscriptions workspace; nothing outside that folder imports from it</div>
+      <div class="cell fx">keep <span style="font-family:var(--font-mono);font-size:0.92em;">crank.ts</span> inside the subscriptions folder &mdash; an entry file resolves imports from its own location, not from cwd; nothing outside that folder imports from it</div>
     </div>
     <div class="frow">
       <div class="cell fg">loops started without the idempotency guard</div>
