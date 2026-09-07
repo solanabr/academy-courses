@@ -209,6 +209,8 @@ solana airdrop 100 "$(solana-keygen pubkey labs/m09-l1/treasury.json)" --url htt
 
 Then make the chain agree that this key holds the powers the rail exercises. Fee authorities are set at mint creation, and the throwaway keys holding them on any older SPROUT died with their process — so this is exactly the standing assumptions' "re-mint per m05-l1's opener" case, with one edit first. Open the composed-SPROUT builder (`labs/m02-l1/verify-economics.ts`, as re-pointed in m02-l4 step 7), load the treasury signer at the top with the same two `createKeyPairSignerFromBytes` lines `wire-economy.ts` uses below, and pass that signer in place of the throwaway one for exactly two roles: the mint authority and the fee config's `withdrawWithheldAuthority`. Re-mint, re-run your marketplace transfers, and the fork now carries a SPROUT whose fee jar this file can open — and whose supply next lesson's conversion window can mint, which is why the mint authority moves onto the same key. One echo from the theory section, so the code cannot contradict it in your head: production wants a PDA in this role, not a JSON file; every place this key signs is a place your program would `invoke_signed`.
 
+You do not need to open the treasury's SPROUT token account by hand, and the asymmetry with step 1c's `--fund-recipient` is deliberate rather than an oversight: `wire-economy.ts` creates it itself, idempotently, as the first instruction of the harvest transaction. That is on purpose. The maker's account is set up once by a human before the rail exists, whereas the treasury's is a precondition of the rail's own first write, so the rail owns it and a cold re-run cannot leave you a derived address that was never created.
+
 **1c. Pick leg 3's door, and stand up its counterparty.** The buyback needs someone to buy from. Two doors, and the rail downstream cannot tell them apart, which is the point.
 
 *Door A, the market.* You launched SPROUT yourself on Meteora DBC, drove the curve past your `migration_quote_threshold`, and kept the DAMM v2 pool address the migration printed. Nothing in this course walks you through that, and I am not going to pretend otherwise. If you have that pool, set `SPROUT_POOL` and leg 3 is a real swap with real slippage against real forked state.
@@ -498,6 +500,7 @@ import {
   fetchMint,
   fetchToken,
   getBurnCheckedInstruction,
+  getCreateAssociatedTokenIdempotentInstructionAsync,
   getHarvestWithheldTokensToMintInstruction,
   getWithdrawWithheldTokensFromMintInstruction,
   findAssociatedTokenPda,
@@ -559,7 +562,19 @@ async function main(): Promise<void> {
   console.log(`dirty accounts: ${dirty.length}, withheld total: ${harvested}`);
   if (harvested === 0n) throw new Error("nothing withheld: run marketplace trades first");
 
+  // Open the treasury's SPROUT account before anything tries to pay into it.
+  // `findAssociatedTokenPda` above DERIVED an address; deriving is not creating,
+  // and every leg from here down writes to this account: leg 2 names it as
+  // `feeReceiver`, leg 3 has the counterparty transfer into it, leg 4 burns out
+  // of it. Idempotent, so re-running the rail is free.
+  const openTreasuryAta = await getCreateAssociatedTokenIdempotentInstructionAsync({
+    payer: treasury,
+    owner: treasury.address,
+    mint: SPROUT,
+  });
+
   await send(treasury, [
+    openTreasuryAta,
     getHarvestWithheldTokensToMintInstruction({
       mint: SPROUT,
       // Fork scale: a handful of dirty accounts fits one transaction, so the
