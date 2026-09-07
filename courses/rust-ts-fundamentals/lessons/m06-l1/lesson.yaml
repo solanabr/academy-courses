@@ -34,7 +34,7 @@ blocks:
             correct: true
             feedback: "A parked task is a few hundred bytes of state, so 40 in flight cost roughly one thread. Same suspension model as m02-l3's TS fleet, with the scheduler now a crate in your lockfile."
           - id: d
-            label: "The runtime spreads probe work across all cores, so a sweep uses the whole CPU"
+            label: "The runtime spreads probe work across all your cores, so one sweep finally uses the whole CPU"
             correct: false
             feedback: "That is parallelism, and these probes have almost no CPU work to spread. The thread is parked in a syscall waiting for bytes; more cores buy nothing when nobody is computing."
         explanation: "Async is a concurrency model for waiting. Your probes are I/O-bound: the runtime parks each task at its .await and resumes it when the socket has news, so 40 concurrent probes cost roughly one thread instead of 40. This is the same suspension model you used in m02-l3's TS fleet, tokio just makes the runtime an explicit dependency instead of an ambient event loop."
