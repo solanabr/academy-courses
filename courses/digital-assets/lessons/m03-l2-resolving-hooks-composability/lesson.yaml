@@ -23,7 +23,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "A user's plain Token-2022 transfer of your hooked SPROUT reverts with MissingAccount — 'An account required by the instruction is missing' — yet the identical transfer works in your test harness. What is the client failing to do?"
+        prompt: "A user's plain Token-2022 transfer of your hooked SPROUT reverts with MissingAccount ('An account required by the instruction is missing'), yet the identical transfer works in your test harness. What is the client failing to do?"
         multiSelect: false
         options:
           - id: a
@@ -37,7 +37,16 @@ blocks:
           - id: c
             label: "Fetch the ExtraAccountMetaList and append the hook's resolved extra accounts to the instruction."
             correct: true
-        explanation: "A hooked transfer only works if the client resolves the ExtraAccountMetaList off-chain and forwards those extra accounts on the transferring instruction. The harness did this for you; a naive wallet transfer does not, so Token-2022 never finds the validation account and the runtime cannot invoke a hook program it was never handed — the naive case dies with MissingAccount. Keep the taxonomy straight: 'not enough account keys' is the different, partial-forwarding failure, the diagnostic trap the challenge drills. This forwarding burden is the resolution tax hooks push onto every integrator."
+            feedback: "The manifest is the only published statement of what the hook needs, and a client that does not read it hands Token-2022 a transaction with no validation account in it."
+          - id: d
+            label: "Append the hook program id to the transfer; the runtime resolves the rest"
+            correct: false
+            feedback: "Token-2022 hunts for the validation account among the accounts you sent. Missing it, resolution never starts, so there is nothing to forward to the hook program either."
+          - id: e
+            label: "Nothing client-side: the harness passes because LiteSVM resolves the hook's accounts for you, so this is a cluster difference"
+            correct: false
+            feedback: "The harness is where you placed every account by hand. A wallet on any cluster builds the same four-account transfer, and it dies the same way."
+        explanation: "A hooked transfer only works if the client resolves the ExtraAccountMetaList off-chain and forwards those extra accounts on the transferring instruction. The harness did this for you; a naive wallet transfer does not, so Token-2022 never finds the validation account and the runtime cannot invoke a hook program it was never handed, so the naive case dies with MissingAccount. Keep the taxonomy straight: 'not enough account keys' is the different, partial-forwarding failure, the diagnostic trap the challenge drills. This forwarding burden is the resolution tax hooks push onto every integrator."
       - id: q2
         prompt: "A teammate worries your allowlist hook could be rewritten to drain the sender's tokens mid-transfer. From what the interface guarantees, why can't any hook do that?"
         multiSelect: false
@@ -45,6 +54,7 @@ blocks:
           - id: a
             label: "Inside Execute the transfer's accounts arrive read-only and non-signer, so the hook can neither spend them nor reuse the sender's signature."
             correct: true
+            feedback: "AccountMeta::new_readonly(pubkey, false) is the whole guarantee, and you can read it in the interface crate's own builder: no writability to spend with, no signature to reuse."
           - id: b
             label: "The Token-2022 program snapshots every account balance before the hook runs, then automatically refunds any tokens the hook attempted to move once it returns."
             correct: false
@@ -53,6 +63,10 @@ blocks:
             label: "Hooks execute in a sandboxed VM with no access to the transfer's accounts at all."
             correct: false
             feedback: "The hook does receive the accounts, since it needs them to make its decision, but they are de-escalated to read-only; there is no separate sandbox VM."
+          - id: d
+            label: "The hook runs in a separate transaction after the transfer settles, so the sender's signature is already spent by the time your code sees the accounts"
+            correct: false
+            feedback: "Execute is a CPI inside the same transaction, which is exactly what lets a hook veto a transfer at all. The protection is that the inherited accounts arrive stripped, not that they arrive late."
         explanation: "The interface builds the transfer's accounts as AccountMeta::new_readonly(pubkey, false), read-only AND non-signer, before invoking the hook. So the hook can inspect the transfer but cannot move its funds or ride the sender's signature. (A malicious hook can still move funds ITS OWN PDAs control; the guarantee is only about the transfer's accounts.) That de-escalation, plus arbitrary CU, is the code-level root of why DEXes refuse hooks."
       - id: q3
         prompt: "You want SPROUT tradeable on Raydium's CP-Swap, but it carries your TransferHook. What does Raydium's allowlist do, and why?"
@@ -65,8 +79,13 @@ blocks:
           - id: b
             label: "It rejects pool creation; TransferHook is not among the five accepted extensions, because hooks run arbitrary code per transfer."
             correct: true
+            feedback: "The five it accepts are all passive, and arbitrary per-transfer code with unbounded CU makes a pool impossible to price safely, so creation reverts rather than degrading."
           - id: c
             label: "It allows the hook only if the mint also carries a PermanentDelegate."
             correct: false
             feedback: "PermanentDelegate is itself rejected (Raydium refuses it because a delegate holder could sweep the pool vault), and pairing two rejected extensions does not unlock the pool."
+          - id: d
+            label: "It rejects the pool until your hook program itself is vetted onto Raydium's list of approved hooks, after which the same mint routes normally"
+            correct: false
+            feedback: "The door in the pool program is a short hardcoded list of MINT addresses vetted by hand, plus classic mints and mint-association accounts. No extension and no hook program is approved as a category."
         explanation: "Raydium's CP-Swap whitelists exactly five extensions (TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount); any other reverts pool creation. TransferHook is rejected by name because arbitrary per-transfer code with unbounded CU makes a pool un-priceable and un-safe. This is the compatibility thesis the course keeps returning to: the extensions that keep you tradeable are the passive fee, display and accounting ones, not the ones that run code or move other people's tokens (which is where the compliance-shaped powers land)."
