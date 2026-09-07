@@ -716,7 +716,14 @@ With your two TODOs filled correctly, every fixture prints its reason and the fi
 
 ![Table of five fixtures, a correct payment and four attacks, each paired with the single reason the verifier must return and the property that reason proves.](assets/v08-table.png)
 
-Then the live half. Make a fresh devnet payment through your checkout from the QR lesson (or send one directly with transfer-kit), note its signature and order id, and:
+Then the live half. Make a fresh devnet payment through your checkout from the QR lesson, or send one directly with transfer-kit — either way it has to come from the pretend customer, not from your merchant keypair, because this verifier's amount check is a balance delta on your own token account and a self-payment moves it by zero:
+
+```bash
+PAYER_KEYFILE=/tmp/customer.json \
+  npm run --workspace transfer-kit pay -- $(solana address) 12.5
+```
+
+Note the signature it prints and the order id you are testing against, then:
 
 ```bash
 REAL_SIGNATURE=<sig> ORDER_ID=<id> MERCHANT=$(solana address) \

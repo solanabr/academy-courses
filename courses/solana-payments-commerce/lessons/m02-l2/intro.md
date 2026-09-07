@@ -467,21 +467,29 @@ import { USDC_DEVNET, USDC_DECIMALS } from "./mints.js";
 
 const recipientArg = process.argv[2];
 const amountArg = process.argv[3] ?? "1.25";
+const referenceArg = process.argv[4];
 if (!recipientArg) {
   console.error(
-    "usage: npm run --workspace transfer-kit pay -- <recipient-wallet> [amount]",
+    "usage: [PAYER_KEYFILE=<path>] npm run --workspace transfer-kit pay -- <recipient-wallet> [amount] [reference]",
   );
   process.exit(1);
 }
 
-const keyfile = `${homedir()}/.config/solana/id.json`;
+// PAYER_KEYFILE lets this script send AS somebody else, which is the whole
+// point of the pretend customer you made in lesson 1. Unset, it is your
+// merchant identity, exactly as before.
+const keyfile = process.env.PAYER_KEYFILE ?? `${homedir()}/.config/solana/id.json`;
 const bytes = new Uint8Array(JSON.parse(await readFile(keyfile, "utf8")));
 const payer = await createKeyPairSignerFromBytes(bytes);
 
 // The caller owns these two now, on purpose: the checkout that
-// generates a reference is the thing that must remember it.
+// generates a reference is the thing that must remember it. Pass a
+// reference in when you are paying a checkout that already minted one;
+// omit it and this script mints a throwaway of its own.
 const baseUnits = toBaseUnits(amountArg, USDC_DECIMALS);
-const reference = (await generateKeyPairSigner()).address;
+const reference = referenceArg
+  ? address(referenceArg)
+  : (await generateKeyPairSigner()).address;
 
 const result = await sendStablecoin({
   rpcUrl: "https://api.devnet.solana.com",
@@ -521,6 +529,8 @@ await writeFile(
   ),
 );
 ```
+
+   Two knobs went in that the old file did not have, and module 3 cashes both. `PAYER_KEYFILE` chooses which keypair signs: leave it unset and you are the merchant, set it to `/tmp/customer.json` and this script becomes your pretend customer paying *you*. A fourth argument accepts a reference someone else minted, which is how a script plays the customer for a checkout that already generated its own tracking number. Neither knob changes today's run; both exist because a merchant paying themselves is not a payment, and module 3's checkout needs a real second wallet on the other side of the counter.
 
    Checkpoint: `npx tsc --noEmit` from the `wavelength` root goes silent again, and `npm run --workspace transfer-kit verify` still passes against last lesson's receipt.
 

@@ -263,14 +263,23 @@ console.log(
 
 It imports `recordOrder` from `ledger.ts`, which step 3 fleshes out; the open-orders half is two Map operations, so if you are running strictly in order, jump ahead, wire those two functions, and come back.
 
-Checkpoint before moving on. Pay one of your own devnet orders from a second wallet (the transfer-kit CLI from module 2 does this in one line), then reconcile it:
+Checkpoint before moving on. Pay one of your own devnet orders from a second wallet — a second wallet specifically, because the verifier reads the balance change on your merchant token account and a merchant paying themselves changes nothing. The transfer-kit CLI does both halves, from the `wavelength` root (if `/tmp/customer.json` has no SOL left, `solana transfer $(solana-keygen pubkey /tmp/customer.json) 0.05 --allow-unfunded-recipient --url devnet` refills it):
 
 ```bash
-npx tsx backoffice-refunds/src/reconcile-demo.ts <reference-from-your-order>
+npm run --workspace transfer-kit pay -- $(solana-keygen pubkey /tmp/customer.json) 13
+PAYER_KEYFILE=/tmp/customer.json \
+  npm run --workspace transfer-kit pay -- $(solana address) 12.5
+```
+
+The second run prints the `reference` it attached. Feed that to the demo, with the price you actually paid:
+
+```bash
+MERCHANT=$(solana address) MERCHANT_ATA=<your usdc ata> AMOUNT_BASE_UNITS=12500000 \
+  npx tsx backoffice-refunds/src/reconcile-demo.ts <reference-from-your-order>
 ```
 
 ```
-reconcile: order ord-0231 paid, signature 5Kd...w2, 30000000 base units
+reconcile: order ord-0231 paid, signature 5Kd...w2, 12500000 base units
 ```
 
 Exact amounts, exact match, status `paid`. If you get `unmatched` on a payment you can see in the explorer, your verifier rejected it; run the demo with `DEBUG=verify` and read which of the five checks said no. That failure loop, reconciler says unmatched, verifier says why, is the debugging rhythm for the rest of the course.
