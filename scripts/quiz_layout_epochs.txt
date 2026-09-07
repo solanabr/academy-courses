@@ -1,0 +1,23 @@
+# Per-course salt epoch for scripts/quiz_permute.py. Default is 1; a course only
+# needs a line here once it has been re-rolled.
+#
+# Option order is a pure function of
+#   sha256("<slug>|epoch<N>" | lessonSlug | blockKey | questionId | optionId)
+# so a course's layout is reproducible forever and `quiz_permute.py check` can
+# prove, in CI, that nobody hand-tuned a question's option order.
+#
+# WHEN TO BUMP: a course lands on an arrangement that trips scripts/quiz_stats.py
+# even though the content is sound. Randomness is lumpy and that will happen. The
+# only sanctioned remedy is to bump this course's epoch and re-run `apply` over
+# the whole course.
+#
+# WHEN NOT TO BUMP: to make a single awkward question look better. Hand-tuning
+# one question is how the last answer-key scheme was born -- someone optimising
+# a statistic question by question is indistinguishable from a generator doing
+# the same thing, and it produces the same predictable output.
+#
+# Bump in its OWN commit, never alongside a lesson.yaml edit, and state the
+# reason. That way every re-roll is visible in the log as a re-roll rather than
+# hiding inside a content diff.
+#
+# slug: epoch          # reason, date
