@@ -2,8 +2,9 @@ id: lesson-mav2-m07-l3
 slug: m07-l3
 title: "The audit checklist as a lab; fuzz as the assessment"
 versionStamp:
-  checkedAt: "2026-09-05"
+  checkedAt: "2026-09-07"
   packages:
+    anchor-cli: "1.2.0"
     crucible-fuzz-cli: "0.2.1"
     crucible-fuzzer: "0.2.1"
 skills:
@@ -43,12 +44,12 @@ blocks:
           - id: b
             label: "Trident (Ackee), wired in as the default `fuzz` backend."
             correct: false
-            feedback: "Trident is a real, maintained alternative, but it is not the built-in path: its cadence stalled (0.12.0 from 2025-11-27) and Anchor wired Crucible into the CLI instead."
+            feedback: "Trident is a real, maintained alternative, but it is not the built-in path: its last stable is 0.12.0 from 2025-11-27, with the 0.13.0 line still on release candidates (rc.4, 2026-05-14), and Anchor wired Crucible into the CLI instead."
           - id: c
             label: "cargo-fuzz with libFuzzer, over a native (non-sBPF) build."
             correct: false
             feedback: "anchor fuzz executes the compiled `.so` inside LiteSVM and traces sBPF edges; cargo-fuzz/libFuzzer would instrument a native host build, which is not the bytecode that runs on-chain."
-        explanation: "anchor fuzz is Crucible (crucible-fuzz-cli), embedded in the CLI, using a LibAFL/LiteSVM backend with sBPF edge coverage. Trident (Ackee) is a one-paragraph alternative whose release cadence stalled; it is not the default. Checked 2026-08-22: it is `master`'s CLI that pins `crucible-fuzz-cli = \"0.2.1\"` and dispatches `Command::Fuzz` into it, while the anchor-next RC CLI ships `anchor coverage` and has no `fuzz` subcommand at all."
+        explanation: "anchor fuzz is Crucible (crucible-fuzz-cli), embedded in the CLI, using a LibAFL/LiteSVM backend with sBPF edge coverage. Trident (Ackee) is a one-paragraph alternative that has not cut a stable release since 0.12.0 (2025-11-27) and is still on 0.13.0 release candidates; it is not the default. Checked 2026-09-07: it is the V1 line's CLI — released as anchor-cli 1.2.0 on 2026-09-04 — that pins `crucible-fuzz-cli = \"0.2.1\"` and dispatches `Command::Fuzz` into it, while the 2.0.0-rc.1 CLI ships `anchor coverage` and has no `fuzz` subcommand at all."
       - id: q3
         prompt: "Your audit checklist passes and fuzzing is clean. A stakeholder asks 'so it is proven secure?' What is the grounded answer?"
         multiSelect: false

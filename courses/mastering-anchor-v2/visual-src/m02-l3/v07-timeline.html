@@ -12,7 +12,7 @@
 <body>
 <!-- timeline: Issue #4937, how one unpinned crate broke the escape hatch
      purpose: turn "pin your dependencies" from advice into a concrete failure you can picture
-     data: 1. anchor-lang pins wincode 0.5; #[account(borsh)] compiles and ships 2. solana-address moves to 0.6 on its own cadence 3. a dependency bump pulls in the 0.6 line 4. wincode 0.5 vs solana-address 0.6 disagree at the trait-bound level 5. #[account(borsh)] stops compiling, trait-bound error, not a runtime bug 6. 2026-08-16: issue #4937 filed 7. 2026-08-20: pins reconciled, issue #4937 closed
+     data: 1. anchor-lang pins wincode 0.5; #[account(borsh)] compiles and ships 2. solana-address 2.7.0 raises ITS OWN wincode requirement to 0.6 (solana-address has only ever shipped a 2.x line - never a 0.6) 3. a dependency bump pulls in that 0.6 line 4. wincode 0.5 and wincode 0.6 disagree at the trait-bound level 5. #[account(borsh)] stops compiling, trait-bound error, not a runtime bug 6. 2026-08-16: issue #4937 filed 7. 2026-08-20: pins reconciled, issue #4937 closed
      prompt: Horizontal 7-step timeline, left to right, one node per numbered event above. Mark step 5 (the break) in an alert color and step 7 (the fix, dated 2026-08-20) in a resolved color. Short label under each node. The takeaway line beneath: "one floated crate = a compile-time break in a feature you didn't touch."
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -110,13 +110,13 @@
       <div class="t7-cell">
         <div class="t7-stem"></div>
         <div class="t7-card"><span class="t7-k"></span>
-          <div class="t7-t"><code>solana-address</code> moves to <code>0.6</code> on its own cadence.</div></div>
+          <div class="t7-t"><code>solana-address 2.7.0</code> raises its own <code>wincode</code> requirement to <code>0.6</code>.</div></div>
       </div>
       <div class="t7-cell"></div>
       <div class="t7-cell">
         <div class="t7-stem"></div>
         <div class="t7-card"><span class="t7-k"></span>
-          <div class="t7-t"><code>wincode 0.5</code> vs <code>solana-address 0.6</code> disagree at the trait-bound level.</div></div>
+          <div class="t7-t"><code>wincode 0.5</code> vs <code>wincode 0.6</code> disagree at the trait-bound level.</div></div>
       </div>
       <div class="t7-cell"></div>
       <div class="t7-cell">

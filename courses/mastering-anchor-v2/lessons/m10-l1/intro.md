@@ -11,8 +11,9 @@ Here is the scenario, and it is not hypothetical. You inherit a program that bui
 #   cargo install --git https://github.com/otter-sec/anchor avm --force
 # (otter-sec/anchor is the repo's current home; the coral-xyz and
 #  solana-foundation URLs still redirect there.)
-# Toolchain is the 1.x line. anchor-cli 1.1.2 is current as of 2026-08-22;
-# re-check `avm list` before you pin, the line moves.
+# Toolchain is the 1.x line. 1.1.2 is the version this recon is written against;
+# the line moved on 2026-09-04, when 1.2.0 shipped. Pin 1.1.2 here so the recon
+# output matches the lesson, and re-check `avm list` before you pin anything else.
 avm install 1.1.2
 avm use 1.1.2
 anchor build

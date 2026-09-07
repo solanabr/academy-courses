@@ -467,7 +467,7 @@ pub struct Withdraw {
 }
 ```
 
-**8. Run the gate.** The acceptance test is the same shape every rung in this course used: a LiteSVM test that passes. LiteSVM is the default Anchor test template, so `anchor init` scaffolded a Rust harness under `tests/`. Reach LiteSVM the way the rest of this course did, through the scaffold's wrapper rather than a direct pin, so your harness cannot drift off the version the toolchain expects (the rc.1 `anchor-v2-testing` pins `litesvm 0.11`; crates.io's latest litesvm is 0.15 as of 2026-08-22, which is exactly why you do not pin it yourself):
+**8. Run the gate.** The acceptance test is the same shape every rung in this course used: a LiteSVM test that passes. LiteSVM is the default Anchor test template, so `anchor init` scaffolded a Rust harness under `tests/`. Reach LiteSVM the way the rest of this course did, through the scaffold's wrapper rather than a direct pin, so your harness cannot drift off the version the toolchain expects (the rc.1 `anchor-v2-testing` pins `litesvm 0.11`; crates.io's latest litesvm is 0.16.0 as of 2026-09-07, four minors ahead, which is exactly why you do not pin it yourself):
 
 ```toml
 # programs/quarter_vault/Cargo.toml - dev-dependencies

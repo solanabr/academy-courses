@@ -102,7 +102,7 @@ Time to make the two consequences visible. We will write a small reader, point i
 
 I am walking every step here. Copy along.
 
-**1. Install the client dependencies.** No Rust and no Anchor in this lab: the question is about what a mint *is*, so the reader is a Node script and your V2 toolchain sits this one out. We use `@solana/kit` and the kit-native Token-2022 client. Watch the pin: kit's npm `latest` is 8.0.0 as of 2026-08-21, but the `@solana-program/*` clients peer kit `^7`, so pin `^7` here and let them agree.
+**1. Install the client dependencies.** No Rust and no Anchor in this lab: the question is about what a mint *is*, so the reader is a Node script and your V2 toolchain sits this one out. We use `@solana/kit` and the kit-native Token-2022 client. Watch the pin, and watch the *pair*: as of 2026-09-07 kit's npm `latest` is 8.2.0 while `@solana-program/token-2022`'s `latest` is 0.16.1, which peers kit `^8`. The install below deliberately holds the older pair — `token-2022@^0.15` peers kit `^7` — because a matched pair is what has to resolve, not the newest of either. Run the freshness check below before you touch these, and move both together or neither.
 
 ```bash
 npm install @solana/kit@^7 @solana-program/token-2022@^0.15
