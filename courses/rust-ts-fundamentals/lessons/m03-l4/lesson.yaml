@@ -25,10 +25,15 @@ blocks:
           - id: b
             label: "Fix the files field first, the contract is dist plus types plus package.json, and anything env-shaped near a tarball is a leak risk"
             correct: true
+            feedback: "The tarball is the deliverable, and npm's unpublish policy makes it effectively permanent. Twenty seconds reading the dry-run listing is the cheapest professionalism habit in the course."
           - id: c
             label: "Keep src/ in deliberately, consumers need the original sources alongside dist/ for source maps and editor go-to-definition to resolve"
             correct: false
             feedback: "Shipping sources is a legitimate optional choice some packages make, but it's opt-in curation via the files field, not a requirement, and it never justifies test files or env samples in the tarball."
+          - id: d
+            label: "The exports map already hides everything but dist, so those unreachable files in the tarball are just dead weight and nothing worse than that"
+            correct: false
+            feedback: "Two allowlists, two jobs: exports governs what a consumer can import, files governs what gets uploaded. An unimportable .env.example still lands on every machine that installs you, readable by anyone."
         explanation: "The tarball IS the product: whatever npm pack lists is what every install delivers, forever (unpublishing is heavily restricted). The files field is the allowlist; the dry-run is the pre-flight read. Twenty seconds of reading the listing is the cheapest security-and-professionalism habit in this course."
       - id: m03l4-q2
         prompt: "A build tool you're evaluating has 8M weekly downloads, but its README opens with 'this project is not actively maintained anymore' and points at a successor. How do you weigh the signals?"
@@ -45,6 +50,11 @@ blocks:
           - id: c
             label: "The README notice outranks the metrics, it's the maintainer's own words; verify with last-publish date and the successor's health, then plan around it"
             correct: true
+            feedback: "Downloads are a lagging indicator with years of inertia: tsup still out-downloads the successor it points at, ten months after its last release. The README is today's information."
+          - id: d
+            label: "Wait for the successor to out-download the original, since a migration is usually only safe once the two counts have crossed"
+            correct: false
+            feedback: "Those counts cross years late, because every old lockfile and template keeps pulling the incumbent. Waiting for the graph means adopting a tool the day its replacement stops being new."
         explanation: "The checklist's ranking: maintainer signals first (README notices, publish cadence), revealed ecosystem preferences second, raw popularity last. tsup is the worked case, huge downloads, honest abdication, active successor, and the correct read is 'migrate on your schedule, don't adopt fresh.' m09-l1 turns this same read into a written audit verdict."
       - id: m03l4-q3
         prompt: "A consumer of your published package reports: the JS imports and runs, but TypeScript says 'Cannot find module @you/pulse-core'. What shipped wrong?"
@@ -53,6 +63,7 @@ blocks:
           - id: a
             label: "The exports map is missing its types condition, modern TS resolves through exports, so the .d.ts entry must sit beside the JS entry it describes"
             correct: true
+            feedback: "Two resolvers, one map: Node walks exports for the JavaScript and TypeScript walks the same map for the types. A declaration file the map does not expose might as well not be in the tarball."
           - id: b
             label: "The consumer needs typescript declared as a peerDependency of your package so their compiler version is pinned to one that can read your declarations"
             correct: false
@@ -61,6 +72,10 @@ blocks:
             label: "Scoped packages need a matching @types/pulse-core package published to DefinitelyTyped before editors will pick their declarations up"
             correct: false
             feedback: "DefinitelyTyped exists for packages that DON'T ship their own types, a package bundling its d.ts needs only correct wiring, no external types package."
+          - id: d
+            label: "The top-level types field is missing, and that entry is where TypeScript resolves declarations from before it ever reads an exports map"
+            correct: false
+            feedback: "That field is the pre-exports spelling, and it is what a consumer on an older resolution mode would read. Once an exports map exists, it governs, and the types condition inside it is the entry that counts."
         explanation: "The dual concern from m03-l1's boundary lesson, now with real stakes: under nodenext-style resolution, TypeScript walks the exports map, top-level types alone isn't enough. tsdown emits both artifacts; your exports map decides whether they travel together. The scratch-project install proof exists to catch exactly this before a stranger does."
       - id: m03l4-q4
         prompt: "Tier-gate check: after M3 you want to get seriously good at type-level programming, conditional types, mapped types, the wizardry. Per the course's map, what's the honest route?"
@@ -73,8 +88,13 @@ blocks:
           - id: b
             label: "That's the bookmarked 20%, type-challenges plus the Handbook's generics material; this course taught the daily layer and where the rest lives"
             correct: true
+            feedback: "The 20% was never missing, it was filed. The tier gate names an address and a trigger for each piece, and this one's trigger is a library signature making you curious rather than tired."
           - id: c
             label: "Hold off until you've finished the client-side mastery course, serious client work demands type-level fluency, so that layer has to be taught there first"
             correct: false
             feedback: "Nothing in the map routes type-level programming through the client-side course; its territory is wallet UX and transaction landing, and the wizardry is bookmarked self-serve: type-challenges plus the Handbook's generics material."
+          - id: d
+            label: "M7's edge lesson returns to TypeScript depth, so the conditional and mapped type material lands there once the workers need it"
+            correct: false
+            feedback: "The TypeScript tier ends here; M7 spends its TypeScript on an edge runtime, not on the type system. Nothing later in the course reopens type-level authoring, which is why the gate hands you the drill yard instead."
         explanation: "The tier-gate is the 80/20 contract kept honestly: unions, narrowing, zod, async discipline, packages, taught. Type-level programming, full tsconfig breadth, Bun/Deno, deep React, bookmarked, each with a named home. The map you got in m01-l1 just gained its first 'you are here' pin: TS-strong, with the 20% locations memorized."
