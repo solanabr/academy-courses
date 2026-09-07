@@ -14,8 +14,8 @@ So what does a grown-up non-custodial billing system do with a failed renewal? T
 Start the clock before you read, because this lesson's solo run is the longest wall-clock wait in the course and it is a wait you cannot compress. The run needs two full billing cycles, an hour is the floor the plan's `periodHours` unit allows, so two cycles is two hours of real time. Set it going now and read the theory while it ticks. From last lesson's `subscriptions/` folder:
 
 1. Create plan id 2 with `periodHours: 1n` (the Challenge explains why it must be a second plan rather than an edit: plan terms are immutable once subscribed).
-2. Subscribe your funded test listener to it, through the same subscribe flow as last lesson.
-3. Start the crank and leave it running: `CLUB_MINT=<your devnet mint> MERCHANT=$(solana address) npx tsx 05-crank.ts`.
+2. Subscribe your funded test listener to it, through the same subscribe flow as last lesson, and make sure its address is the one in `subscribers.json`.
+3. Point `04-pull.ts` at the new plan — its `PLAN_ID` is hardcoded to `1n` from last lesson — then start the crank and leave it running: `CLUB_MINT=<your devnet mint> npx tsx 05-crank.ts`.
 
 By the time you reach the Challenge, cycle one should have billed and cycle two should be close, and the drain goes between cycle two and cycle three. If you would rather read first and run later, that is fine — just know you are choosing to sit out two hours at the end instead of during.
 
