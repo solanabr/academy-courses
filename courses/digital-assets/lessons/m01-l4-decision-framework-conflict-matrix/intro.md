@@ -362,12 +362,26 @@ check-combo: all 8 assertions passed
 
 If you are failing on a reason string rather than a verdict, that is the tag assert doing its job. Check which rule your guard order fires first: a set can violate two rules at once (add ConfidentialMintBurn to the rule 4 pair and rules 3 and 4 both apply), and source order decides which reason wins. Match the source order and the tags line up.
 
-7. Now close the loop with R1. Everything so far validated hypothetical sets; the artifact contract says check-combo runs against a real mint's ACTUAL set, which is exactly what your m01-l2 inspector emits. Write `check-live.ts` as glue (adjust the import path and export name to match your own decode-mint file; this snippet assumes the decoded result carries the `extensions: {name, type, length}[]` array your R1 assert-script already checks):
+7. Now close the loop with R1. Everything so far validated hypothetical sets; the artifact contract says check-combo runs against a real mint's ACTUAL set, which is exactly what your m01-l2 inspector emits. And there is one seam to cross first, the one m01-l2 warned you about in its naming note: `checkCombo` is a 1:1 port of Rust, so it speaks the Rust spellings, while `decode-mint` names extensions out of the pinned JS client's `ExtensionType` enum, and on three entries the two disagree. Type 16 is `ConfidentialTransferFeeConfig` in the source and `ConfidentialTransferFee` in the client. Type 25 is `ScaledUiAmount` and `ScaledUiAmountConfig`. Type 26 is `Pausable` and `PausableConfig`. Feed the client's strings straight into the Rust rules and rule 2 fires on PYUSD, the course's own flagship mint, which is very much not what a real mint that already initialized should produce.
+
+So the glue has one job before it hands the list over, and m01-l2 already told you which field to trust: the u16 is the identity, names are per-toolchain skins over it. Normalize on the NUMBER. Write `check-live.ts` (adjust the import path and export name to match your own decode-mint file; this snippet assumes the decoded result carries the `extensions: {name, type, length}[]` array your R1 assert-script already checks):
 
 ```ts
 // check-live.ts: R1 feeds R2. Decode a live mint, judge its set.
 import { decodeMint } from "../m01-l2/decode-mint";
 import { checkCombo } from "./check-combo";
+
+// The three type codes where the pinned client's enum and the Rust source
+// disagree on spelling. Keyed on the u16 rather than on the client's string,
+// because the number is the extension's identity and the string is a skin:
+// a name-to-name table would go stale the next time a client renames one, and
+// this table can only go stale if a type code changes meaning, which is a far
+// louder event.
+const RUST_NAME_BY_TYPE: Record<number, string> = {
+  16: "ConfidentialTransferFeeConfig", // client: ConfidentialTransferFee
+  25: "ScaledUiAmount", //               client: ScaledUiAmountConfig
+  26: "Pausable", //                     client: PausableConfig
+};
 
 const mintAddress = process.argv[2];
 if (!mintAddress) {
@@ -376,12 +390,12 @@ if (!mintAddress) {
 }
 
 const decoded = await decodeMint(mintAddress);
-const names = decoded.extensions.map((ext) => ext.name);
+const names = decoded.extensions.map((ext) => RUST_NAME_BY_TYPE[ext.type] ?? ext.name);
 console.log(`extensions: [${names.join(", ")}]`);
 console.log(checkCombo(names));
 ```
 
-Point it at the pinned mint from m01-l2 and you should see its extension list followed by `{ valid: true }`. Then cash in the note you kept from m01-l2's step 10: run the strangest mint you found through the same pipeline. It will come back valid too, because it initialized, and that is the interesting part: read its list against the nine marked stones and see which cross-extension law it lives under, if any. Of course it is valid: it initialized, so it passed these same five rules inside the program the day it was born. Which is the quiet punchline of the whole lab. Every live Token-2022 mint on mainnet is a witness that already passed the function you just ported. Your validator moves that judgment from after the fact to before the design review.
+Point it at the pinned mint from m01-l2 and you should see its extension list, with type 16 now printed in the source's spelling, followed by `{ valid: true }`. Take the detour if that surprises you: comment the normalization out, re-run, and watch your brand-new validator reject PayPal's stablecoin with `rule 2: TransferFeeConfig + ConfidentialTransferMint require ConfidentialTransferFeeConfig` — a rejection that is perfectly correct about the rule and perfectly wrong about the mint. Two tools, two vocabularies, one type code, and an hour of debugging rules that were never broken. Every integration you ever write across two SDKs has a seam like this one somewhere in it. Then cash in the note you kept from m01-l2's step 10: run the strangest mint you found through the same pipeline. It will come back valid too, because it initialized, and that is the interesting part: read its list against the nine marked stones and see which cross-extension law it lives under, if any. Of course it is valid: it initialized, so it passed these same five rules inside the program the day it was born. Which is the quiet punchline of the whole lab. Every live Token-2022 mint on mainnet is a witness that already passed the function you just ported. Your validator moves that judgment from after the fact to before the design review.
 
 ![Pipeline flowchart from mint address through decode-mint (R1) into checkCombo (R2), forking to proceed-on-valid or fix-the-set-on-rejection, gating every later mint build in the course.](assets/v09-flowchart.png)
 
