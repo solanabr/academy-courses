@@ -71,13 +71,13 @@ So the thesis, in one line you can hand to a product manager: fee, display, and 
 
 The numbers that settle the DePIN badge brief came out of your own labs rather than a marketing page.
 
-A Metaplex Core mint costs a vendor-published 0.0029 SOL, one account, no metadata PDA, no master edition PDA. That is the cheap uncompressed option, and Metaplex published the figure, not this course.
+A Metaplex Core mint costs a vendor-published ~0.003 SOL, one account, no metadata PDA, no master edition PDA. That is the cheap uncompressed option, and Metaplex published the figure, not this course — tilde included, because their table gives an approximation and hardening it into a fourth digit would be this course inventing precision on their behalf.
 
-The tree you sized in module 7 at depth 14, buffer 64, canopy 8 cost about 0.336 SOL and holds 16,384 leaves: roughly 0.0000205 SOL per badge, about 140 times cheaper per unit than Core, paid up front, for a fixed capacity you commit to at creation.
+The tree you sized in module 7 at depth 14, buffer 64, canopy 8 is 48,120 bytes and holds 16,384 leaves: 0.245 SOL at devnet's rent rate on 2026-09-06, so roughly 0.000015 SOL per badge, about 200 times cheaper per unit than Core, paid up front, for a fixed capacity you commit to at creation. That multiple is rate-dependent in a way the cNFT-to-cNFT ones are not, because only one side of it is rent: at the pre-SIMD-0437 6,960 it read about 150 times.
 
 Do not extrapolate that per-leaf number, and this is the part that trips people. Tree rent is not linear in leaf count. A concurrent Merkle tree account is sized by depth, buffer and canopy, not by how many leaves you intend to fill, so buying capacity is nearly free while buying canopy is not. Module 7's million-leaf tree, depth 20 with buffer 256 and canopy 14, is 1,223,352 bytes for 1,048,576 leaves, which came to 6.215 SOL on devnet's rent rate on 2026-09-06 and would have been 8.515 SOL before SIMD-0437 started cutting that rate. Price it on your own cluster; the bytes are the durable half. Either way it is a few millionths of a SOL per badge, hundreds of times cheaper per unit than Core. The bigger tree is the cheaper one per leaf, which is backwards from every other rent intuition you have, and it is why the mass-mint brief gets priced against the tree you would actually build rather than the one you built for practice.
 
-A million devices at Core prices is 2,900 SOL. A million devices in one tree is single-digit SOL. There is no design argument that survives that ratio, which is the useful thing about order-of-magnitude gaps: they end debates rather than starting them.
+A million devices at Core prices is about 3,000 SOL. A million devices in one tree is single-digit SOL. There is no design argument that survives that ratio, which is the useful thing about order-of-magnitude gaps: they end debates rather than starting them.
 
 The bill comes due on the read side, and it is the fourth footgun of the course arriving on schedule. A cNFT's on-chain footprint is a leaf hash. The asset itself is reconstructed by DAS indexers from data stores the RPC manages. Point a verification script at an RPC without DAS support and `getAsset` returns nothing, for an asset that minted perfectly, and you will spend twenty minutes suspecting your asset id. That is not a cost you can refactor away later. It is a dependency you accept at design time, and it belongs in the memo right next to the tree's rent line.
 
@@ -121,7 +121,7 @@ Which is the whole point. The threshold is a consequence of a curve someone else
 
 The venue section also does a job that has nothing to do with curves: it asks whether the venue can hold the token you chose at all. `checkGraduationVenue` refuses pump's path for any Token-2022 mint, because the `create` instruction pins the classic token program, and it accepts CP-Swap only when every extension in your set is on the five-item allowlist. Run it against your own declared set and paste the output. A venue verdict computed from your set is worth more than three paragraphs of prose about routability, and it takes one command.
 
-Pool composition, routing and LP strategy for whatever you list are a different discipline, and the DeFi and RWA Engineering course teaches them properly. Your memo stops at "this venue can hold this token, and here is the threshold at today's constants."
+Pool composition, routing and LP strategy for whatever you list are a different discipline, and the planned DeFi and RWA Engineering course teaches them properly. Your memo stops at "this venue can hold this token, and here is the threshold at today's constants."
 
 ### Exactly one rail, and why exactly one
 

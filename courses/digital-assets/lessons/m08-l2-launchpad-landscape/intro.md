@@ -158,7 +158,7 @@ The BASE side, the side SPROUT would live on, rests on a separate documentation 
 
 `migration_quote_threshold` is the graduation trigger, in units of the quote token, and it is a number you choose rather than a number you derive.
 
-Cost side, because a venue this flexible is not free. Every segment is a distribution decision you now have to defend, and a piecewise curve gives you many more ways to be wrong than a fixed one does. The pool math and the LP strategy that would let you shape those segments intelligently are genuinely out of scope here, and I am not going to fake them: the DeFi and RWA Engineering course teaches liquidity provision at real depth, and that is where curve shaping stops being a menu and becomes a discipline. This lesson takes you exactly as far as choosing the venue and knowing what its knobs are.
+Cost side, because a venue this flexible is not free. Every segment is a distribution decision you now have to defend, and a piecewise curve gives you many more ways to be wrong than a fixed one does. The pool math and the LP strategy that would let you shape those segments intelligently are genuinely out of scope here, and I am not going to fake them: the planned DeFi and RWA Engineering course teaches liquidity provision at real depth, and that is where curve shaping stops being a menu and becomes a discipline. This lesson takes you exactly as far as choosing the venue and knowing what its knobs are.
 
 ![An annotated excerpt of Meteora's Dynamic Bonding Curve source showing MAX_CURVE_POINT at 16 and MAX_CURVE_POINT_CONFIG at 20, with callouts naming the failure each number causes if trusted alone.](assets/v04-annotated-code.png)
 

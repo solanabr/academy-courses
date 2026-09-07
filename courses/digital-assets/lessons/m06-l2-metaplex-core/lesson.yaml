@@ -51,7 +51,7 @@ blocks:
             feedback: "There's no re-index window and no batch approval; membership is written at mint against an existing collection, or afterwards only by an explicit two-signature update, never by a scheduled program pass."
         explanation: "Core's model is collection-first: you create and verify the Almanac collection, then mint assets INTO it so membership is written at mint. An after-the-fact update path does exist — a retrofit signed by authorities on both sides — but nothing runs it for you, which is why the membership reads came back empty. The collection-first habit stays load-bearing: Bubblegum v2 in the next module mints cNFTs into a Core collection too."
       - id: m06-l2-metaplex-core-q2
-        prompt: "A stakeholder wants the ~0.0029 SOL Core mint cost printed as a hard guarantee in your docs. How do you frame it honestly?"
+        prompt: "A stakeholder wants the ~0.003 SOL Core mint cost printed as a hard guarantee in your docs. How do you frame it honestly?"
         multiSelect: false
         options:
           - id: c
@@ -59,7 +59,7 @@ blocks:
             correct: false
             feedback: "The course did not measure it: the figure comes from Metaplex's docs. Presenting it as your own measurement launders a vendor claim."
           - id: b
-            label: "As a fixed protocol constant baked into the Core program: every mint pays exactly 0.0029 SOL and 17,000 CU."
+            label: "As a fixed protocol constant baked into the Core program: every mint pays exactly 0.003 SOL and 17,000 CU."
             correct: false
             feedback: "It's not a protocol constant; it's a vendor benchmark that varies with rent and instruction shape, so it can't be promised as an invariant."
           - id: a

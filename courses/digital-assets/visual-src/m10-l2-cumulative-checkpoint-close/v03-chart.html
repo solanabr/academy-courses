@@ -12,7 +12,7 @@
 <body>
 <!-- chart: One million badges, three ways to pay for it
      purpose: show that the mass-mint constraint is decided by arithmetic, not preference
-     data: Bar chart, log scale on the cost axis, cost in SOL to create 1,000,000 holdings. The two rent bars are bytes x a per-byte rate, and they carry the same LAMPORTS_PER_BYTE the lesson's own decision-alarm code sets: 6,333, mainnet-beta, read 2026-09-06, with SIMD-0437 still stepping it down. Classic SPL token accounts: 1,856 SOL (derived: 293 bytes x 6,333 = 1,855,569 lamports of rent per account x 1,000,000) Metaplex Core assets: 2,900 SOL (derived: 0.0029 SOL per asset, vendor-published, x 1,000,000 -- a vendor price, not rent) Bubblegum v2 compressed NFTs: 7.75 SOL (one 1,223,352-byte tree, depth 20 / buffer 256 / canopy 14, at the same rate) Annotation on the cNFT bar: about 240x cheaper than the nearest alternative, and that multiple is rate-invariant because both bars are rent. Footnote: the rent bars move with the rate and the ratio between them does not; re-read the rate before you quote any of this in a budget.
+     data: Bar chart, log scale on the cost axis, cost in SOL to create 1,000,000 holdings. The two rent bars are bytes x a per-byte rate, and they carry the same LAMPORTS_PER_BYTE the lesson's own decision-alarm code sets: 6,333, mainnet-beta, read 2026-09-06, with SIMD-0437 still stepping it down. Classic SPL token accounts: 1,856 SOL (derived: 293 bytes x 6,333 = 1,855,569 lamports of rent per account x 1,000,000) Metaplex Core assets: 3,000 SOL (derived: ~0.003 SOL per asset, vendor-published, x 1,000,000 -- a vendor price, not rent) Bubblegum v2 compressed NFTs: 7.75 SOL (one 1,223,352-byte tree, depth 20 / buffer 256 / canopy 14, at the same rate) Annotation on the cNFT bar: about 240x cheaper than the nearest alternative, and that multiple is rate-invariant because both bars are rent. Footnote: the rent bars move with the rate and the ratio between them does not; re-read the rate before you quote any of this in a budget.
      prompt: Horizontal bar chart with three bars on a logarithmic cost axis labeled in SOL. Order the bars descending by cost: Metaplex Core assets, classic SPL token accounts, Bubblegum v2 cNFTs. Print the exact value at the end of each bar. Emphasize the shortest bar and attach the annotation about the roughly 240x gap to it. Place the derivation note for each bar in small text under its label -- bytes x rate for the two rent bars, so neither reads as a constant -- and the rate, cluster, date and rate-invariance footnote below the chart.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -60,13 +60,13 @@
     <div class="chart">
       <div class="ylab">
         <div class="nm">Metaplex Core assets</div>
-        <div class="dv">derived: 0.0029 SOL per asset, vendor-published, &times; 1,000,000 &mdash; a vendor price, not rent</div>
+        <div class="dv">derived: ~0.003 SOL per asset, vendor-published, &times; 1,000,000 &mdash; a vendor price, not rent</div>
       </div>
       <div class="track">
         <div class="grid" style="left:25%"></div><div class="grid" style="left:50%"></div>
         <div class="grid" style="left:75%"></div><div class="grid" style="left:100%"></div>
-        <div class="bar" style="left:0; width:86.6%;"></div>
-        <div class="val" style="left:87.7%;">2,900 SOL</div>
+        <div class="bar" style="left:0; width:86.9%;"></div>
+        <div class="val" style="left:88.0%;">3,000 SOL</div>
       </div>
       <div class="ylab">
         <div class="nm">classic SPL token accounts</div>

@@ -113,7 +113,7 @@ The direction is easier to defend than any single number. Stripe bought Bridge f
 
 ![A timeline runs from PYUSD's May 2024 launch through JTO's vesting end and Stripe's Bridge close to the 2026 agent-identity frontier and today's live mint read.](assets/v06-timeline.png)
 
-That is the honest reason your capstone is worth doing. Not that tokens are exciting. That the plumbing you have been building is the plumbing a payments processor just paid for. The Solana Payments and Commerce course reads this exact PYUSD mint from the integration side, and the compliance rails that sit above these primitives, Token ACL among them, are deliberately not taught here; they are the DeFi and RWA Engineering course's territory.
+That is the honest reason your capstone is worth doing. Not that tokens are exciting. That the plumbing you have been building is the plumbing a payments processor just paid for. The Solana Payments and Commerce course reads this exact PYUSD mint from the integration side, and the compliance rails that sit above these primitives, Token ACL among them, are deliberately not taught here; they are the planned DeFi and RWA Engineering course's territory.
 
 ### The frontier, dated and hedged
 

@@ -92,7 +92,7 @@ You have three ways to pay that bill, and they cost different amounts.
 
 ![A timeline shows a cNFT transfer landing on chain, the DAS index lagging, and a gate check inside that gap wrongly passing a former holder, with remedies aligned beneath.](assets/v02-timeline.png)
 
-There is a fourth answer that people reach for and I want to name it so you skip it: streaming the state yourself so you always have the freshest view. That is a real technique and it is a real project. Building indexers, Geyser plugins, and gRPC pipelines is the Client-Side Mastery course's material, and if your gate genuinely needs sub-second freshness on compressed assets, that is where to go. For a members' door, it is a data platform you now own so a stranger cannot read your alpha channel for eleven seconds.
+There is a fourth answer that people reach for and I want to name it so you skip it: streaming the state yourself so you always have the freshest view. That is a real technique and it is a real project. Building indexers, Geyser plugins, and gRPC pipelines is the planned Client-Side Mastery course's material, and if your gate genuinely needs sub-second freshness on compressed assets, that is where to go. For a members' door, it is a data platform you now own so a stranger cannot read your alpha channel for eleven seconds.
 
 ### Points are a promise, SPROUT is the settlement
 

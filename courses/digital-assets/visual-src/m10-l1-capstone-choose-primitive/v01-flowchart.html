@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: From a product brief to a primitive family
      purpose: show that four constraint questions decide the family before any code is written
-     data: start: product brief Q1 "divisible?" -> no: Q3 ; yes: Q2 Q2 "must stay tradeable on a DEX?" -> yes: Token-2022, fee/display/accounting extensions only (or classic SPL) no: Token-2022, any extension set you can justify Q3 "how many will exist?" -> up to ~thousands: Metaplex Core asset (~0.0029 SOL each, vendor-published) ~millions: Bubblegum v2 cNFT (a leaf in a tree, DAS required to read) Q4 (applied to every leaf) "who must be able to freeze / claw back / block transfer / update / take a cut?" -> each answer names one extension or plugin, and each one spends compatibility
+     data: start: product brief Q1 "divisible?" -> no: Q3 ; yes: Q2 Q2 "must stay tradeable on a DEX?" -> yes: Token-2022, fee/display/accounting extensions only (or classic SPL) no: Token-2022, any extension set you can justify Q3 "how many will exist?" -> up to ~thousands: Metaplex Core asset (~0.003 SOL each, vendor-published) ~millions: Bubblegum v2 cNFT (a leaf in a tree, DAS required to read) Q4 (applied to every leaf) "who must be able to freeze / claw back / block transfer / update / take a cut?" -> each answer names one extension or plugin, and each one spends compatibility
      prompt: Top-to-bottom decision flowchart. One start node (product brief), then Q1 as a diamond branching to Q2 (yes) and Q3 (no). Q2 branches to two terminal boxes, Q3 branches to two terminal boxes. Draw Q4 as a wide band under all four terminals with an arrow touching each, labeled "the set, not the family". Terminal boxes carry their cost annotation exactly as in the data.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -86,7 +86,7 @@
         <div class="term-row">
           <div class="term"><span class="chip" style="align-self:flex-start;margin:0 0 2px;">up to ~thousands</span>
             <span class="term-name">Metaplex Core asset</span>
-            <span class="term-cost">~0.0029 SOL each, vendor-published</span></div>
+            <span class="term-cost">~0.003 SOL each, vendor-published</span></div>
           <div class="term"><span class="chip" style="align-self:flex-start;margin:0 0 2px;">~millions</span>
             <span class="term-name">Bubblegum v2 cNFT</span>
             <span class="term-cost">a leaf in a tree, DAS required to read</span></div>
