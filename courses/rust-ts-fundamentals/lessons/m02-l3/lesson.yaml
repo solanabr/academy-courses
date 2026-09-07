@@ -42,7 +42,7 @@ blocks:
             correct: false
             feedback: "Connection reuse is not the mechanism, the limit was requests per window per IP, and fifty requests in one instant exhausts it regardless of sockets."
           - id: d
-            label: "Fifty targets simply exceed a cap of 25 requests per second, so a fleet that size collects 429s whatever pace you set"
+            label: "Fifty targets simply exceed a cap of 25 requests per second, so a fleet of that size collects 429s at whatever pace you set it to"
             correct: false
             feedback: "The pooled run disproves it: same fifty targets, same server, same cap, zero 429s once five workers bound the in-flight count. Fleet size never touched the wall; the burst shape did."
         explanation: "Promise.all is a join, not a scheduler: by the time you call it, every promise you mapped has already started. Fifty probes in one tick is a burst the target experiences as an attack. Concurrency is a budget you spend, the pool is how you meter it out."
@@ -79,14 +79,14 @@ blocks:
             label: "Rate-limited endpoints reject retries that arrive at predictable intervals, so randomized delays are required for the requests to be accepted"
             correct: false
             feedback: "Servers don't inspect your schedule's predictability, they count requests per window. The problem jitter solves is on YOUR side: synchronized clients."
-          - id: d
-            label: "Workers waking together would push more than five probes in flight at once, and the jitter is what holds the pool to its size"
-            correct: false
-            feedback: "The pool holds itself: a worker cannot start a second probe until its own returns, whatever time it wakes. Jitter changes when retries land, never how many run at once."
           - id: c
             label: "Probes that got 429'd together retry together, each wave re-triggers the same limit, and the stampede never drains without jitter"
             correct: true
             feedback: "Synchronized failures retry synchronized: the same cap refuses five probes at once, all five compute the same delay, all five wake in the same instant, and the herd re-triggers the limit that made it."
+          - id: d
+            label: "Workers waking together would push more than five probes in flight at once, and the jitter is what holds the pool to its size"
+            correct: false
+            feedback: "The pool holds itself: a worker cannot start a second probe until its own returns, whatever time it wakes. Jitter changes when retries land, never how many run at once."
         explanation: "The limit hit all fifty probes in the same window, so pure exponential backoff has them ALL return at the same future instant, a stampede that re-triggers the limit, forever. Jitter smears the retries across the window so the herd thins out. It is a coordination fix, not a speed fix."
       - id: m02l3-q4
         prompt: "A probe's AbortController fires at the 3-second timeout. What does the abort actually accomplish?"
@@ -105,7 +105,7 @@ blocks:
             correct: false
             feedback: "One timeout is one data point, not a verdict, the probe returns a timeout variant and the target stays in rotation. Trend decisions belong to the classifier."
           - id: d
-            label: "The fetch resolves with a status 0 response at the timeout, which the probe checks for instead of a rejection"
+            label: "The fetch resolves with a status 0 response at the timeout, which the probe checks for instead of catching a rejection"
             correct: false
             feedback: "An abort rejects the promise, it does not hand back a response to inspect. That is why probeOnce wraps the await in try/catch and asks controller.signal.aborted which kind of failure it just caught."
         explanation: "AbortController is how a timeout becomes a first-class outcome: the signal rejects the fetch, the pool slot frees for the next target, and the failure lands in the same typed union every other result uses, aggregated, not thrown. The remote side may finish anyway; what you bought is bounded waiting and a clean report."

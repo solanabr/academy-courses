@@ -48,14 +48,14 @@ blocks:
             label: "Fake timers only intercept setInterval, so the backoff's promise-based delays still wait in real time and the suite stays slow"
             correct: false
             feedback: "vi.useFakeTimers intercepts the timer functions your delays sit on, advance the clock and the pending timers fire; the pattern is exactly built for this test."
-          - id: d
-            label: "The suite trades precision for speed, so you assert that roughly five waits happened rather than pinning each delay's value"
-            correct: false
-            feedback: "Precision is what the fake clock buys, not what it costs. Landing on 499 and then 500 is the whole exercise, and a roughly-five-waits assertion is what you would settle for against a real clock."
           - id: c
             label: "You advance the clock synchronously past each delay, the exact 500/1000/2000ms schedule asserts in milliseconds of real time"
             correct: true
             feedback: "The delays are not shortened, they are simply not waited on. Each scheduled instant keeps its exact value and you jump the clock onto it, which is what lets the test pin 500 and 1000 by name."
+          - id: d
+            label: "The suite trades precision for speed, so you assert that roughly five waits happened instead of pinning each delay's exact value"
+            correct: false
+            feedback: "Precision is what the fake clock buys, not what it costs. Landing on 499 and then 500 is the whole exercise, and a roughly-five-waits assertion is what you would settle for against a real clock."
         explanation: "Fake timers replace waiting with control: the test advances the clock to each scheduled instant and asserts what fired. The schedule's exact values stay pinned, which is the point, because the m02-l3 formula IS a contract, and the suite runs in milliseconds, which keeps it in the cron's gate without stretching the pipeline."
       - id: m02l4-q3
         prompt: "Coverage reports 100% on the classifier, and a teammate declares it fully tested. The lesson's 'signal, not idol' framing says what?"

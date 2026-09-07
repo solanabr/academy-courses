@@ -63,7 +63,7 @@ blocks:
             correct: true
             feedback: "GA landed with patch fixes already rolled in, so the stable 7.x line begins and ends at 7.0.2. Prose can say TypeScript 7.0; an install line has to say the version the registry actually holds."
           - id: d
-            label: "7.0.0 lives behind the next dist-tag, so the line needs typescript@next"
+            label: "7.0.0 lives behind the next dist-tag, so the install line needs typescript@next"
             correct: false
             feedback: "The next tag carries a 7.1.0 dev build, not a 7.0.0. Ask the registry yourself with npm view typescript dist-tags.latest dist-tags.next and the two tags answer the question in one line."
         explanation: "A registry quirk worth knowing, and worth confirming yourself with `npm view typescript versions`: no 7.0.0 was ever published in any form, and 7.0.1 exists only as the pre-release 7.0.1-rc, so TypeScript 7's stable line begins and ends at 7.0.2 (checked 2026-09-06). Prose can say 'TypeScript 7.0'; install lines must say 7.0.2. It's also a small preview of a course-long habit: versions are checked against the registry, never assumed."
@@ -84,7 +84,7 @@ blocks:
             correct: false
             feedback: "Linters read your source, not the compiler's output, and the native port changes the compiler's implementation language, not what it emits. The gap is the missing programmatic API."
           - id: d
-            label: "It needs a global tsc on PATH, and npx-scoped installs hide the local one"
+            label: "It needs a global tsc installed on PATH, and npx-scoped installs hide the local one"
             correct: false
             feedback: "npx runs the binary in your own node_modules, which is the point of a per-project pin; nothing here is hidden. A linter does not shell out to tsc anyway, it asks the compiler API for types."
         explanation: "The GA post says it plainly: 'We expect TypeScript 7.1 to ship with a new (and different) API.' Until then, tooling that programmatically drives the compiler, typescript-eslint, framework language plugins, stays on 5.x/6.x, which is why kit itself builds with typescript ^5.9.3. Fastest compiler ever shipped, ecosystem still catching up: both true at once."

@@ -43,7 +43,7 @@ blocks:
             correct: false
             feedback: "assertNever is an ordinary function you wrote, the magic is entirely in narrowing. Any function taking `never` would behave identically."
           - id: d
-            label: "The classifier's declared return type stopped covering the new variant, so the default arm's return is what tsc rejects until Verdict grows an arm"
+            label: "The classifier's declared return type stopped covering the new variant, so the default arm's return is what tsc rejects"
             correct: false
             feedback: "Read the error text: it complains about an ARGUMENT not assignable to parameter of type 'never'. assertNever returns `never`, which is assignable to any return type, and Verdict never changed."
         explanation: "Exhaustiveness is a feature you opt into: handle every variant and the default arm's value narrows to never, which accepts nothing. Add a variant and the leftover type is no longer never, the compile fails at exactly the sites that must learn about the new case. It is a refactor checklist the compiler writes for you."
@@ -64,7 +64,7 @@ blocks:
             correct: true
             feedback: "Same erased runtime, opposite defaults: any permits every operation and asks nothing, unknown permits none until a typeof or discriminant check has done the proving. The friction is the feature."
           - id: d
-            label: "The compiler infers the config's real shape from the parsed JSON, so its own fields autocomplete right away"
+            label: "The compiler infers the config's real shape from the parsed JSON, so its own fields start autocompleting right away"
             correct: false
             feedback: "JSON.parse hands back bytes nobody has proven anything about; there is no shape to infer from at compile time. Autocomplete arrives only after you narrow, or after next lesson's schema parses it for you."
         explanation: "any is the compiler resigning; unknown is the compiler demanding proof. Same runtime, opposite defaults: any permits everything and spreads through your code; unknown permits nothing until narrowed, which forces the parse-at-the-boundary discipline the fleet is about to adopt."
@@ -85,7 +85,7 @@ blocks:
             correct: false
             feedback: "latencyMs exists ONLY on the 'ok' variant, that precision is the point. Consumers narrow to the arm first, then the field is guaranteed within it."
           - id: d
-            label: "Malformed records read back from status.json can no longer enter the fleet, because they match no variant"
+            label: "Malformed records read back from status.json can no longer enter the fleet, because they match none of the union's variants"
             correct: false
             feedback: "Types are erased, so the union proves things about values your code constructs and nothing at all about bytes off the disk. Guarding that border takes a runtime parse, which is why parseProbe returns null."
         explanation: "Make impossible states unrepresentable: each variant carries exactly its own data, so the incoherent combinations simply have no encoding. Validation you never have to remember beats validation someone will eventually forget, v0's polite lie was one forgotten check away, permanently."
@@ -106,7 +106,7 @@ blocks:
             correct: false
             feedback: "TS types are erased at compile time, the emitted JS is the same speed. The win is correctness under stakes, not throughput."
           - id: d
-            label: "Security audits typically refuse to sign off on untyped code that moves money, so the ecosystem standardised early"
+            label: "Security audits typically refuse to sign off on untyped code that moves money, so the ecosystem standardised on types early"
             correct: false
             feedback: "Audits concentrate on the on-chain program, and no review board made this call for the ecosystem. The pressure came from the cost of being wrong once, which is why teams adopted types before anyone required it."
         explanation: "Web2 ships bugs and patches them; web3 frequently cannot, a drained account does not un-drain. When the cost of a wrong state is unbounded and irreversible, proofs the compiler can make for free stop being ceremony and start being the cheapest insurance available. Money code can't shrug."
