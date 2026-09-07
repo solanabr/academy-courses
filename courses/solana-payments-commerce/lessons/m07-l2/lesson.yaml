@@ -46,7 +46,7 @@ blocks:
             correct: false
             feedback: "Blockhash expiry makes a transaction fail to land; it does not add instructions to an otherwise-valid payment. The settlement cache is a replay guard, not a verification path. The cause here is wallet-injected guard instructions."
           - id: d
-            label: "Wallets add guard instructions, so the verifier ignores the instruction list and checks only the transfer amount and the memo."
+            label: "Wallets add guard instructions, so the verifier stops reading the instruction list at all and checks only the transfer amount, the mint, and the memo."
             correct: false
             feedback: "Property-based verification is not the same as looking away. The verifier walks the instructions that were actually signed, checks the transfer, the memo and the fee-payer isolation, and tolerates additions from one allowlisted guard program while rejecting every other one. An allowlist of one is still an allowlist."
         explanation: "Phantom and Solflare inject Lighthouse guard instructions into transactions to protect users, so a naive rebuild-and-compare check fails on legitimate payments. x402's SVM verifier hardcodes an allowlist for the Lighthouse guard program and verifies the transaction that was actually signed. The lesson: verify signed reality, not your idealized rebuild."
@@ -91,7 +91,7 @@ blocks:
             correct: false
             feedback: "USDC is a recognized pegged asset; that is not the blocker. The blocker is the $1 per-payment cap the default spendControls enforce."
           - id: d
-            label: "The agent holds no SOL for fees, so signing fails before the payment header is ever built."
+            label: "The agent's wallet holds no SOL for the network fee, so signing fails and the loop gives up quietly before it ever builds the payment header."
             correct: false
             feedback: "This agent is designed never to hold SOL: the facilitator named in extra.feePayer sponsors the fee, which is why the wallet carries devnet USDC and nothing else. A gasless buyer is the whole economic point of exact-SVM, so a missing SOL balance is not what stopped this call."
         explanation: "The @x402/core client spendControls default to recognized pegged assets with a $1 USD cap per payment unless overridden. A $1.50 call exceeds that cap, so the pre-flight guard declines it before signing, which reads as a silent no-op unless you log the reason. Raise the cap deliberately or price the call under it."
@@ -112,7 +112,7 @@ blocks:
             correct: true
             feedback: "A reference deployment is scoped to the networks it serves, which makes the URL part of the network binding. Swapping it is the easy half, with trust, KYT, and fee terms riding along."
           - id: d
-            label: "No; on mainnet the resource server settles for itself, so drop the facilitator URL entirely."
+            label: "No; on mainnet the resource server signs and submits for itself, so you drop the facilitator URL and keep the rest of the config as it is."
             correct: false
             feedback: "Right verdict on the URL, wrong replacement. Your merchant server never touches the chain and never holds a fee-payer key: it learns the sponsor address from a facilitator at boot, which is what initialize() is for. Removing the facilitator removes the account that pays the fee."
         explanation: "The x402.org facilitator is devnet/testnet only, a deliberate reference deployment. A mainnet launch must swap the facilitator URL to a production one (Corbits, Dexter, PayAI, Solvador, or Coinbase CDP), which is a config change plus the trust and KYT considerations that come with picking a facilitator."

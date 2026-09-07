@@ -70,7 +70,7 @@ blocks:
             correct: true
             feedback: "A USD-pegged unit needs no conversion, leaving no rate to fetch and no spread to carry. The peg is an assumption, though, and on a Token-2022 mint (not classic USDC) a transfer fee can still change what lands, which is why the roster check stays."
           - id: d
-            label: "Charge 1:1 now, and treat oracle pricing for volatile assets, staleness windows and spread policy, as work this course still owes you."
+            label: "Charge 1:1 now, and treat oracle pricing for volatile assets, staleness and spread rules, as work this course still owes you."
             correct: false
             feedback: "The 1:1 half is right; the promissory note is not one this course wrote. Staleness windows, confidence intervals and spread policy are handed off to DeFi and RWA Engineering by name, and the corridor record notes the handoff rather than teaching a quarter of it."
         explanation: "Because USDC is a USD peg, a USD-priced record is charged as the same number of USDC, 1:1, with no oracle needed. Display pricing only gets interesting for volatile assets, and that oracle-based pricing depth is deliberately out of scope here — DeFi and RWA Engineering territory, not a payments-course skill. Building a price feed for a pegged stablecoin is wasted work."
@@ -91,7 +91,7 @@ blocks:
             correct: false
             feedback: "It is a MoonPay product, not a Foundation processor, and the figure is a marketed dated number, not an on-chain read."
           - id: d
-            label: "It is ex-Helio, and because the $40M figure reaches you through Solana's ecosystem roundup it is third-party verified and needs no date."
+            label: "It is ex-Helio, and the $40M figure comes via Solana's ecosystem roundup, so it is third-party verified."
             correct: false
             feedback: "The roundup reports MoonPay reporting itself, so the chain has two links and the number is still the vendor's chosen one. Publication elsewhere changes who repeated a figure, not who measured it, and a flow figure for a young product decays whoever prints it."
         explanation: "MoonPay Commerce is the former Helio: hel.io redirects into MoonPay's commerce arm. Its marketed volume, over $40M in single-payment volume since the October 2025 launch with 88% on Solana, is a moving figure, so the decision record cites it with source and date. Treating any marketed volume number as a fixed constant is the footgun the whole numbers-discipline rule guards against."
