@@ -26,7 +26,7 @@ The autonomy fade this lesson: the derive-expansion walkthrough is fully worked,
 
 Start from the status quo and its limit. A raw Solana program receives one flat slice of accounts and one flat slice of bytes. Every safety property you care about, that this account is a signer, that this one is owned by your program, that this pubkey really is the PDA you think it is, has to be checked by hand, in the right order, with no help from the compiler. Miss one check and you have a vulnerability. The whole reason `#[derive(Accounts)]` exists is to move that checklist from something you remember to something the macro generates.
 
-So the natural question is: what exactly does it generate, and in what order? Because the order is not cosmetic. It is the difference between a constraint that protects you and a constraint that runs too late to matter.
+So the natural question is: what exactly does it generate, and in what order? Because the order decides whether a constraint protects you or runs too late to matter.
 
 The derive generates three phases, and they always run in this sequence:
 
@@ -55,7 +55,7 @@ For that struct, the derive generates an implementation of the `TryAccounts` tra
 
 That sketch is deliberately simplified, but the structure is faithful. Three things are worth pulling out of it, because they answer questions the abstract version leaves open.
 
-First, field order is load order. The macro walks your struct top to bottom. If a later field's constraint depends on an earlier field, for example an `address = config.authority` that compares against a `config` account declared above it, the earlier field is guaranteed to have loaded first. Reorder your fields and you can genuinely change which check runs against loaded-versus-unloaded data. Declaration order is not decoration.
+First, field order is load order. The macro walks your struct top to bottom. If a later field's constraint depends on an earlier field, for example an `address = config.authority` that compares against a `config` account declared above it, the earlier field is guaranteed to have loaded first. Reorder your fields and you can genuinely change which check runs against loaded-versus-unloaded data.
 
 Second, the duplicate-mutable guard is not folded into any single field's load, and it does not even live in `try_accounts`. The dispatcher walks the incoming account views first, notes any address that appears twice in a bitvec, and AND-s that bitvec against the struct's compile-time `MUT_MASK` in a single four-word test before the typed loading starts. Composites are handled at compile time rather than at runtime: a `Nested<Inner>` field folds the inner struct's own `MUT_MASK`, shifted by that field's offset, into the outer mask. So one test covers the whole account tree, and it catches a collision even when the same account is passed to a direct field and to a field buried inside a composite.
 
