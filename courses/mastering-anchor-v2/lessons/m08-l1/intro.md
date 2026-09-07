@@ -327,7 +327,7 @@ async function sendSwap(secretKey: Uint8Array): Promise<string> {
 }
 ```
 
-The three fills, so you can check yourself once you have tried them: `(m) => setTransactionMessageFeePayerSigner(trader, m)`, then `(m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m)`, then `(m) => appendTransactionMessageInstruction(swapIx, m)`. Notice `amountIn` and `minOut` are `bigint`s, not numbers, that `n` suffix is not decoration, it is how kit carries a `u64` without losing precision above 2^53.
+The three fills, so you can check yourself once you have tried them: `(m) => setTransactionMessageFeePayerSigner(trader, m)`, then `(m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m)`, then `(m) => appendTransactionMessageInstruction(swapIx, m)`. Notice `amountIn` and `minOut` are `bigint`s, not numbers; that `n` suffix is how kit carries a `u64` without losing precision above 2^53.
 
 Two kit specifics worth naming while they are in front of you. `sendAndConfirmTransactionFactory` takes both `rpc` and `rpcSubscriptions`, because kit confirms by listening on a websocket for the signature rather than polling, which is why you created a subscriptions client next to the RPC one. And `assertIsTransactionWithBlockhashLifetime` is not ceremony: it is a type guard that refuses to compile the send unless the message actually carries a blockhash lifetime, so forgetting the lifetime line becomes a type error at your desk instead of a dropped transaction on devnet. Getting the trade to *land* reliably under real load is a separate craft, and it belongs to the Client-Side Mastery course. Here you are proving the call is well-formed and confirmable, not tuning it for a congested leader.
 
