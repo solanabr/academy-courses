@@ -26,7 +26,7 @@ blocks:
             correct: false
             feedback: "It's stronger than a warning (cargo errors on unsupported toolchains), and under resolver v3 it actively shapes which dependency versions get picked."
           - id: b
-            label: "Dependencies are now vendored at their 1.82-era versions in the lockfile, and cargo update refuses to move any of them forward past that era"
+            label: "Dependencies are now vendored at their 1.82-era versions in the lockfile, and cargo update refuses to move any of them past that era"
             correct: false
             feedback: "No vendoring or freezing happens, resolution still prefers new versions; it just falls back past releases whose own MSRV exceeds yours."
           - id: d
@@ -43,11 +43,11 @@ blocks:
         multiSelect: false
         options:
           - id: d
-            label: "Subscribe with workspace = true and restate features = [\"derive\"], since inheritance carries the version but not the features"
+            label: "Subscribe with workspace = true and restate features = [\"derive\"], since inheritance carries the version string but not the feature list"
             correct: false
             feedback: "The root entry declares version AND features together, and the subscription inherits both, which is why the engine's block is three bare workspace = true lines."
           - id: b
-            label: "Nothing, root-declared workspace dependencies are injected into every member automatically, which is the point of centralizing"
+            label: "Nothing, root-declared workspace dependencies are injected into every member's build automatically, which is the whole point of centralizing"
             correct: false
             feedback: "Members that never mention serde don't get it, automatic injection would bloat every crate with every dep. The root declares; each member still opts in."
           - id: c

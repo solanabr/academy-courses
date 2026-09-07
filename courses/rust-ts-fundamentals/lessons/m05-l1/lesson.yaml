@@ -36,7 +36,7 @@ blocks:
             correct: false
             feedback: "No derive can check runtime INPUT at compile time, the config file arrives long after the build. Tagging improves the runtime error, it can't move it."
           - id: a
-            label: "Untagged enums can't hold variants with different fields at all, so the tag attribute is required before the enum compiles"
+            label: "Untagged enums can't hold variants with different fields at all, so the attribute is what lets Http and Tcp coexist in one enum"
             correct: false
             feedback: "Untagged enums compile fine with differing variants, the problem is how they MATCH input (first fit wins), not whether they compile."
           - id: b
@@ -44,7 +44,7 @@ blocks:
             correct: true
             feedback: "serde reads the discriminant first and dispatches to exactly one variant, which is why a bad kind comes back as `unknown variant grpc, expected http or tcp` with a line and column attached."
           - id: d
-            label: "Tagging also closes the entry to unknown fields, so a typo beside \"kind\" becomes a named error instead of ignored data"
+            label: "Tagging also closes the entry to unknown fields, so a typo like \"timout_ms\" beside \"kind\" becomes a named error instead of ignored data"
             correct: false
             feedback: "Different attribute, and one you cannot pair with this struct anyway: serde ignores unknown JSON fields by default, and deny_unknown_fields is documented as not combining with the flatten Target uses."
         explanation: "Internally tagged representation reads the discriminant field first and dispatches to exactly one variant, the same job your TS discriminated union's \"kind\" field does for zod. Untagged means serde tries variants in order and takes the first that fits, which silently mis-parses ambiguous data and produces vague errors when nothing fits."
@@ -78,11 +78,11 @@ blocks:
             correct: false
             feedback: "That is how JS array chains behave (each .map allocates a new array immediately), Rust adapters build a description and do no work until consumed."
           - id: c
-            label: "Awaiting it, filter and map return futures, so the chain needs an async runtime before any element is produced"
+            label: "Awaiting it, filter and map return futures, so the chain needs an async runtime spun up around it before any element is produced"
             correct: false
             feedback: "No futures here, iterators are synchronous and lazy. Async arrives next module for I/O; laziness is a separate idea."
           - id: d
-            label: "Naming the collection type on the binding, an inert chain starts pulling as soon as the compiler knows what to build"
+            label: "Naming the collection type on the binding, an inert chain starts pulling as soon as the compiler knows what container to build"
             correct: false
             feedback: "The annotation answers E0282, which asks collect WHAT to build, not WHETHER to run. A for loop needs no annotation and still drives the chain."
           - id: a
@@ -107,7 +107,7 @@ blocks:
             correct: false
             feedback: "Position comes free. serde_json tracks line and column as it reads, so the one-step from_str error already prints `at line 16 column 25` with no Value detour."
           - id: c
-            label: "An Ok(Config) with timeout_ms set to the type's default, plus a warning, serde recovers leniently unless you opt into strict mode"
+            label: "An Ok(Config) with timeout_ms set to its type default, plus a warning, serde recovers leniently unless you opt into strict mode"
             correct: false
             feedback: "serde is strict by default, no silent defaults, no warnings. (Opt-in lenience exists per-field via #[serde(default)], which is the opposite arrangement.)"
         explanation: "from_str returns Result<Config, serde_json::Error>, and the error knows its line and column, a parse failure is a value that flows through the same map_err/? plumbing as everything else in the engine. This is why the hand-rolled parser you wrote in the challenge and the derived one are drop-in equals at the type level; serde just writes better errors than you were going to."

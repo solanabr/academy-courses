@@ -26,11 +26,11 @@ blocks:
             correct: true
             feedback: "A parked task is a few hundred bytes of state, so 40 in flight cost roughly one thread. Same suspension model as m02-l3's TS fleet, with the scheduler now a crate in your lockfile."
           - id: a
-            label: "Each individual HTTP request completes faster because async I/O has lower latency"
+            label: "Each individual HTTP request completes faster, because async I/O has lower latency than blocking I/O"
             correct: false
             feedback: "Async does not speed up a single request, the network takes what the network takes. It changes how many WAITS one thread can hold at once, not how long each wait lasts."
           - id: b
-            label: "The runtime spawns one OS thread per target so the kernel schedules all 40 probes"
+            label: "The runtime spawns one OS thread per target, so the kernel schedules all 40 probes at once"
             correct: false
             feedback: "That describes plain threads, not async. Tokio's point is the opposite: many tasks multiplexed onto few threads, parked while they wait."
           - id: d
@@ -47,7 +47,7 @@ blocks:
             correct: true
             feedback: "The migration buys a dependency and an annotation. Async pays at fan-out, which is exactly why the poller in this lesson earns tokio and the CLI still does not."
           - id: c
-            label: "It is required anyway, reqwest cannot make requests without a tokio runtime present"
+            label: "It is required anyway, reqwest cannot make any request without a tokio runtime present to drive it"
             correct: false
             feedback: "You disproved this yourself in m05-l3: reqwest's `blocking` feature is exactly the sanctioned no-runtime path for simple tools."
           - id: d
@@ -55,7 +55,7 @@ blocks:
             correct: false
             feedback: "Those phases are sequential by protocol: you cannot handshake with an address you have not resolved. Async overlaps separate requests, never the stages inside one."
           - id: b
-            label: "Lower latency on that one request, since async I/O bypasses the blocking syscall path"
+            label: "Lower latency on that one request, since async I/O bypasses the blocking syscall path in the kernel"
             correct: false
             feedback: "The request itself is not faster, async changes scheduling of many waits, not the duration of one. For a single fetch the runtime is pure overhead."
         explanation: "Async pays at fan-out. One blocking call in a short-lived CLI is the honest right-size, which is why m05-l3 taught blocking reqwest first and why this lesson only reaches for tokio once the poller needs many concurrent probes on a schedule."

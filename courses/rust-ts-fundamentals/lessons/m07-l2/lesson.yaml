@@ -66,11 +66,11 @@ blocks:
             correct: true
             feedback: "So KV carries the core path and R2 becomes a clearly-labeled optional extension. Note what the reason is NOT: the allowance is generous and the product fits; the gate is the card, before a cent is spent."
           - id: b
-            label: "Object storage belongs to a sibling course, and this course never teaches what a sibling owns"
+            label: "Object storage belongs to a sibling Academy course, and this course never teaches what a sibling owns"
             correct: false
             feedback: "No sibling course owns R2, the hand-off map covers Solana depth, Anchor, wallets, and tokens. R2 is out of the CORE path for a cost-honesty reason, not a boundary one."
           - id: a
-            label: "R2's free tier is too small for probe history, so the lab would hit the cap mid-module"
+            label: "R2's free tier is too small for a whole fleet's probe history, so the lab would hit the cap mid-module"
             correct: false
             feedback: "10 GB-month dwarfs a probe fleet's JSON output, the allowance is generous. The blocker isn't quota; it's what enabling the product asks of you first."
           - id: d

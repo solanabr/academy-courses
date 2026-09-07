@@ -45,7 +45,7 @@ blocks:
             correct: false
             feedback: "GITHUB_TOKEN with packages write is a fully supported push path, and visibility is a package setting, not a token property."
           - id: a
-            label: "The push silently failed, green Actions runs do not verify that registry writes landed"
+            label: "The push silently failed, and a green Actions run does not verify that the registry write actually landed"
             correct: false
             feedback: "A failed push fails the step and the run. The image is there; the question is who is allowed to see it."
           - id: c
