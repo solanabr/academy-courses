@@ -2,7 +2,7 @@
 
 Last lesson you taught a script to talk to a Bitcoin node. `btc_rpc.py` opens a connection, fires a JSON-RPC call (a request that names a method plus its arguments and gets back one JSON answer), and hands you the result. You asked the chain questions; it answered. That was rung two of the toolkit. The half-course artifact, a bot that watches a live chain and reacts to it, is now one loop away from that file.
 
-Here is the trick this lesson turns. You will send a payment in one terminal and catch it in another, with your own code, before any block confirms it. Two terminals, one node, and the gap between them.
+This lesson turns one trick. You will send a payment in one terminal and catch it in another, with your own code, before any block confirms it. Two terminals, one node, and the gap between them.
 
 Open two terminals. In the first, ask your regtest node (the private test network where you mine your own blocks on demand) what is waiting in line to be mined right now:
 
@@ -135,7 +135,7 @@ Walk one through with real numbers, because the formula only becomes useful once
 
 ## Whose waiting room was that?
 
-You have been calling it a mempool this whole time. Now that you want the word, take it. A **mempool** (short for memory pool) is the set of valid transactions a node has received and is holding in its own memory, waiting to be mined. It is a staging area, not a ledger. Nothing in it is settled. Everything in it is a candidate.
+You have been calling it a mempool this whole time. Now that you want the word, take it. A **mempool** (short for memory pool) is the set of valid transactions a node has received and is holding in its own memory, waiting to be mined. It is a staging area, not a ledger: nothing in it is settled, and everything in it is a candidate.
 
 And here is where most people carry a wrong mental model for years. There is no global mempool floating above the network that every node reads from. When you broadcast a transaction, it gossips across the peer-to-peer network node by node, arriving at different machines at different times. Some nodes accept it; some have not heard of it yet; some drop it because it pays too little, or because their pool is full and they evicted the cheapest tenants to make room. Two honest nodes, sitting side by side, can hold genuinely different queues at the same instant, and neither is wrong.
 
@@ -145,7 +145,7 @@ The waiting room you were watching, then, belonged to your node, and only your n
 
 ![Three nodes each holding a different set of pending transactions, showing there is no single shared global mempool.](assets/v04-diagram.webp)
 
-This is not a pedantic distinction. It is the reason two of your future bugs will exist. A watcher pointed at node A will never fire on a transaction that only reached node B, and if you build anything that assumes "the network saw it because my node saw it," you have quietly hard-coded a lie. Confirmation is the only global truth here, because a mined block propagates to everyone and the winning chain is shared. The queue in front of it is a thousand slightly different local guesses about what the next block might contain.
+This distinction is the reason two of your future bugs will exist. A watcher pointed at node A will never fire on a transaction that only reached node B, and if you build anything that assumes "the network saw it because my node saw it," you have quietly hard-coded a lie. Confirmation is the only global truth here, because a mined block propagates to everyone and the winning chain is shared. The queue in front of it is a thousand slightly different local guesses about what the next block might contain.
 
 ## What a light client cannot see
 
@@ -163,7 +163,7 @@ Notice the punchline, because it closes the loop with your own tool. The mempool
 
 ## The gap is a market
 
-On your regtest node this gap is a quiet queue you drive yourself. On a public chain it is contested ground. Every transaction that broadcasts sits in the open for a moment before it settles, and anyone watching the mempool can read pending trades before they execute. That is not a bug in someone's code. It is the natural consequence of a public queue with a mining step after it, and money pools in exactly that kind of gap.
+On your regtest node this gap is a quiet queue you drive yourself. On a public chain it is contested ground. Every transaction that broadcasts sits in the open for a moment before it settles, and anyone watching the mempool can read pending trades before they execute. That is not a bug in someone's code but the natural consequence of a public queue with a mining step after it, and money pools in exactly that kind of gap.
 
 On EVM chains, the ones where the ledger can run programs, this pooling got a name: **MEV**, Maximal Extractable Value, the profit a block producer or a searcher can extract by choosing which transactions to include and in what order. Make the searcher concrete rather than abstract. Suppose a trader broadcasts one large swap: sell a big pile of token X for token Y on an automated market maker, a trade so large that filling it will visibly move the price. A searcher's bot, polling the mempool with the very same diff loop you just wrote, spots that pending swap before any block includes it. It builds two transactions of its own and pays just enough fee to have them ordered on either side of the victim's: one that buys token Y an instant before the big swap lands, and one that sells that same Y back an instant after. The large swap drags the price up between them; the searcher bought at the old price and sells into the new one, and the spread is pure profit. The original trader gets a worse fill than they would have received alone and never agreed to carry those two passengers. The maneuver has a name, a sandwich, and it depends on exactly one capability: reading a trade in the queue before it settles. That is precisely the power your watcher just handed you, minus the money and minus the adversaries.
 

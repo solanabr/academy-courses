@@ -154,7 +154,7 @@ So what is left of the EOA/contract line? Two things, and both still matter. A c
 
 ## Why no UTXO can hold that number
 
-Now map hard from what you already watched. Back in the mempool, Bitcoin's global state is not a table of balances at all. It is the unspent-output set: a pile of **UTXOs** (unspent transaction outputs). A UTXO is spend-once and immutable. It is created by one transaction's output and consumed entirely by the single transaction that spends it. There is no persistent key-value store attached to a Bitcoin script, and no slot anywhere that survives a spend.
+Now map hard from what you already watched. Back in the mempool, Bitcoin's global state is not a table of balances at all but the unspent-output set: a pile of **UTXOs** (unspent transaction outputs). A UTXO is spend-once and immutable. It is created by one transaction's output and consumed entirely by the single transaction that spends it. There is no persistent key-value store attached to a Bitcoin script, and no slot anywhere that survives a spend.
 
 So "how many USDC does this address hold across all its interactions" has no home in Bitcoin. Watch the obvious fixes fail, one tier at a time, because ruling them out *is* the derivation.
 
@@ -174,9 +174,9 @@ One loose end dangles. If a contract can run arbitrary code, what stops a contra
 
 Gas.
 
-Gas is the EVM's metering unit, and you pay for it in ETH (whose smallest unit is the wei: 1 ETH = 1e18 wei). Every opcode costs a fixed amount of gas. `SLOAD` costs a little; `SSTORE` costs a lot, because writing durable state is the expensive thing on the whole machine. A plain ETH transfer that touches no contract costs exactly 21,000 gas, a fixed floor you can count on. Every transaction carries a gas limit, and if execution exceeds it, the EVM halts and reverts, keeping the gas already spent. An infinite loop does not hang the network. It runs until it burns through its limit, then dies, and the sender pays for every step it took on the way down. Infinite loops are not forbidden by a rule. They are made economically impossible, which is a stronger guarantee: you do not have to detect them, you only have to charge for them.
+Gas is the EVM's metering unit, and you pay for it in ETH (whose smallest unit is the wei: 1 ETH = 1e18 wei). Every opcode costs a fixed amount of gas. `SLOAD` costs a little; `SSTORE` costs a lot, because writing durable state is the expensive thing on the whole machine. A plain ETH transfer that touches no contract costs exactly 21,000 gas, a fixed floor you can count on. Every transaction carries a gas limit, and if execution exceeds it, the EVM halts and reverts, keeping the gas already spent. An infinite loop does not hang the network: it runs until it burns through its limit, then dies, and the sender pays for every step it took on the way down. Nothing in the rules forbids the loop; the price makes it economically impossible, which is a stronger guarantee: you do not have to detect infinite loops, you only have to charge for them.
 
-That pricing is also why `SSTORE` is the costly opcode. You are not paying for a computation that ends. You are paying every full node to hold your written bytes on disk indefinitely, and the fee is the closest thing the system has to rent on permanence.
+That pricing is also why `SSTORE` is the costly opcode. You are not paying for a computation that ends; you are paying every full node to hold your written bytes on disk indefinitely, and the fee is the closest thing the system has to rent on permanence.
 
 ![A flowchart showing each opcode deducting gas until the limit is hit, at which point execution halts and reverts while keeping spent gas, making infinite loops bounded and paid-for.](assets/v07-flowchart.webp)
 
@@ -186,15 +186,15 @@ Every design in this course gets its bill named out loud. Here is this one, and 
 
 Persistent accounts buy expressiveness. A single slot that answers "how much does X hold" in one read. Code that enforces rules on that slot. A whole class of contracts, tokens and auctions and pooled logic, that Bitcoin's outputs simply cannot express. The bill for that is real and permanent. Every `SSTORE` is metered gas, so state costs money to write. Worse, the written state must be held by every full node effectively forever: this is state bloat, and it grows without a natural ceiling as long as the chain lives, because nothing ever consumes a slot the way a spend consumes a UTXO. And the very feature that makes contracts powerful, shared mutable state, is what makes reentrancy and race conditions possible. Two calls touching the same slot in the wrong order is a bug class that cannot exist when there is no shared slot to fight over.
 
-Set that against the honest baseline: Bitcoin's spend-once UTXOs. They cannot express a token balance, which is a genuine loss, not a quirk to wave away. But they are cheaper to verify, trivially parallel (two unrelated outputs never touch the same state, so a validator can check them at the same time with zero coordination), and immune to the entire family of shared-state bugs. Statefulness is not a free upgrade. It is a cost you choose to pay because, for programmable money, the expressiveness is worth more than the parallelism and the safety you give up. Say that trade out loud every time, because the next chapter of this course pays for it in a completely different currency.
+Set that against the honest baseline: Bitcoin's spend-once UTXOs. They cannot express a token balance, which is a genuine loss, not a quirk to wave away. But they are cheaper to verify, trivially parallel (two unrelated outputs never touch the same state, so a validator can check them at the same time with zero coordination), and immune to the entire family of shared-state bugs. Statefulness is a cost you choose to pay because, for programmable money, the expressiveness is worth more than the parallelism and the safety you give up. Say that trade out loud every time, because the next chapter of this course pays for it in a completely different currency.
 
 ![A table weighing Ethereum's stateful accounts against Bitcoin's spend-once UTXOs across balance expressiveness, write cost, state growth, parallelism, and bug surface.](assets/v08-table.webp)
 
 ## Build: the deploy-and-poke harness
 
-`Counter.sol` is not a throwaway. It is the first EVM-side tool in your ops-bot toolkit. Until now the toolkit only watched: the mempool watcher from last lesson reads the chain and reacts. This one writes and reads contract state: deploy a contract, send it a transaction, read a slot back. It sits right beside the mempool watcher the toolkit already carries, and in the capstone the anvil-plus-contract harness is one of the three rungs you can pick from when you wire a supervised agent by hand. Add it to the toolkit now.
+`Counter.sol` is the first EVM-side tool in your ops-bot toolkit. Until now the toolkit only watched: the mempool watcher from last lesson reads the chain and reacts. This one writes and reads contract state: deploy a contract, send it a transaction, read a slot back. It sits right beside the mempool watcher the toolkit already carries, and in the capstone the anvil-plus-contract harness is one of the three rungs you can pick from when you wire a supervised agent by hand. Add it to the toolkit now.
 
-Here is the canonical artifact, with one blank where the work is:
+The canonical artifact, with one blank where the work is:
 
 ```solidity
 // SPDX-License-Identifier: MIT

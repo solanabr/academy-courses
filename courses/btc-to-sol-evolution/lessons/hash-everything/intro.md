@@ -176,7 +176,7 @@ Be precise about what you now have, because the gaps matter as much as the win. 
 
 ## Fingerprinting a whole batch: Merkle trees
 
-The chain commits each block to the one before it, which handles a sequence. But a block is not one record. It's a batch of thousands. So how do you fingerprint a thousand records into a single digest without re-hashing all thousand every time you want to check just one? You build a tree.
+The chain commits each block to the one before it, which handles a sequence. But a block is a batch of thousands of records, not one. So how do you fingerprint a thousand records into a single digest without re-hashing all thousand every time you want to check just one? You build a tree.
 
 Hash each record into a leaf digest. Pair the leaves up and hash each pair into a parent. Pair the parents and hash those. Keep climbing, halving the count at every floor, until one digest is left at the top: the **Merkle root** (a single fingerprint that commits to the entire set of records beneath it). The root is to the batch what the previous-block digest is to the chain: 64 characters that seal everything under them.
 

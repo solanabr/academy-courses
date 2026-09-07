@@ -2,7 +2,7 @@
 
 Last lesson you wired a bot to a face: a headless script and a browser button, both driving the same vault. They worked, right up until you closed the laptop and both forgot everything. The toolkit is complete now: every rung you built is sitting in the repo, waiting. Today you wire those rungs into one operator that doesn't forget.
 
-Here is the scenario that decides whether any of it was real. Your bot funds a wallet, submits a swap, and is halfway through a second operation when the process dies at 3am. You restart it. Does it pick up where it left off, or does it re-fund the wallet and re-send that swap, paying twice? Right now you have no idea, because nothing it did was written to disk.
+One scenario decides whether any of it was real. Your bot funds a wallet, submits a swap, and is halfway through a second operation when the process dies at 3am. You restart it. Does it pick up where it left off, or does it re-fund the wallet and re-send that swap, paying twice? Right now you have no idea, because nothing it did was written to disk.
 
 So don't reason about it. Build it and run it. The supervisor is three files at the root of your toolkit, and they wire together pieces you already shipped: `btc_rpc.py` from module 2, and the `@solana/kit` client work from the Solana module.
 
@@ -322,15 +322,15 @@ One trap sits underneath that Bitcoin code, and reusing your own work is how you
 
 The Solana side keeps a different secret under the same ordering law. The Solana agent uses `@solana/kit`, and it generates a fresh key as 32 random bytes, `crypto.getRandomValues(new Uint8Array(32))`, the private-key seed. It persists that seed as a JSON array straight to `state/sol.key`, then turns it into a signer with `createKeyPairSignerFromPrivateKeyBytes(seed)`. On restart it reads the same 32 bytes and calls the same function, and because an ed25519 keypair is fully determined by its seed, it gets the identical address back every time. Funding is where the second footgun waits. The agent funds once with kit's `airdropFactory`, `await airdrop({ recipientAddress: signer.address, lamports: lamports(2_000_000_000n) })`, and records it against the cursor, never on every boot. Devnet's public faucet caps a single airdrop at 2 SOL per call and rate-limits hard: hammer it and you get HTTP 429 back instead of lamports.
 
-I learned that one by shipping the wrong order. An early version of this bot called the airdrop inside the agent's startup path with no cursor check. It worked twice. On the third restart devnet returned 429, the funding step that should never have re-run threw, and the agent crash-looped over money it already had. The fix was not a retry loop. It was moving the airdrop behind the cursor so the second boot skips it entirely. Provision once, persist, resume.
+I learned that one by shipping the wrong order. An early version of this bot called the airdrop inside the agent's startup path with no cursor check. It worked twice. On the third restart devnet returned 429, the funding step that should never have re-run threw, and the agent crash-looped over money it already had. The fix was not a retry loop but moving the airdrop behind the cursor, so the second boot skips it entirely. Provision once, persist, resume.
 
 ![Annotated code showing the keypair persisted to disk before the first on-chain funding call on both chains, with the 101-block and airdrop-once footguns marked.](assets/v03-annotated-code.webp)
 
 ## The cursor is the only thing between you and a double-send
 
-The keypair files make your addresses stable. They do nothing to stop a replay. That job belongs to the cursor, and it is where the load-bearing rule earns its keep.
+The keypair files make your addresses stable, but they do nothing to stop a replay. That job belongs to the cursor, and it is where the load-bearing rule earns its keep.
 
-Picture the run again. The bot confirmed op 0 (funding), then died mid-op 1 (a swap). On resume it has to answer two questions about the work in flight: has this already happened, and if it has, do not do it again. The guard against a replay? The cursor, read before the bot acts.
+Picture the run again. The bot confirmed op 0 (funding), then died mid-op 1 (a swap). On resume it has to answer two questions about the work in flight: has this already happened, and if it has, do not do it again. The guard against a replay is the cursor, read before the bot acts.
 
 Concretely, the cursor is a small store you own, and the brief hands you two honest shapes for it: an append-only JSONL file (one confirmed operation id per line, never rewritten) or a SQLite table. Append-only JSONL is the simpler of the two and the harder to corrupt by accident, because you only ever add a line, never edit one. SQLite buys you queries and transactions at the cost of a lock that can dangle if the process dies at the wrong instant. Either way, on resume the supervisor reads the highest confirmed id and makes a skip-or-apply decision about the next queued operation.
 
@@ -354,9 +354,9 @@ That reconciliation is why the manifest, not the cursor and not the key files, i
 
 Every design in this course gets its price read out loud, and cold-restart safety has a real one.
 
-First: it is not a library you import. You pay for it in code you write and maintain. Every operation has to be made idempotent or on-chain-guarded by hand, which means a `state/` directory you now have to back up and a cursor store that can itself corrupt or drift from chain truth. A JSONL file half-written during a crash, a SQLite lock left dangling, a confirmed transaction the cursor never recorded: each is a new failure mode you took on in exchange for surviving a `kill -9`. The safety is real and the maintenance is real, and the second does not evaporate because the first is nice.
+First: there is no library to import, so you pay for it in code you write and maintain. Every operation has to be made idempotent or on-chain-guarded by hand, which means a `state/` directory you now have to back up and a cursor store that can itself corrupt or drift from chain truth. A JSONL file half-written during a crash, a SQLite lock left dangling, a confirmed transaction the cursor never recorded: each is a new failure mode you took on in exchange for surviving a `kill -9`. The safety is real and the maintenance is real, and the second does not evaporate because the first is nice.
 
-Second, and this one no amount of clean supervisor code can refactor away: the moment value crosses from Bitcoin to Solana, you have added a trust assumption that survives every reboot. Persistence makes your bot honest about what it did. It does nothing to make a bridge trustless. Restarting the operator a thousand times cleanly does not shrink the bridge's trust surface by a single validator. So the honest move is not to eliminate that assumption. It is to name it, out loud, for every leg. Which is the last thing this lesson does.
+Second, and this one no amount of clean supervisor code can refactor away: the moment value crosses from Bitcoin to Solana, you have added a trust assumption that survives every reboot. Persistence makes your bot honest about what it did. It does nothing to make a bridge trustless. Restarting the operator a thousand times cleanly does not shrink the bridge's trust surface by a single validator. So the honest move is to name that assumption, out loud, for every leg, which is the last thing this lesson does.
 
 ## Every leg, tagged
 

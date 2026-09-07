@@ -140,7 +140,7 @@ Except it was the second time the idea was invented. Inside GCHQ, the British si
 
 ## The aha: this keypair is a wallet
 
-Here is the part worth slowing down for, because it is the bridge the rest of the course walks across. You did not build a toy. You built a wallet.
+Slow down for this part, because it is the bridge the rest of the course walks across. You built a wallet, not a toy.
 
 Strip a crypto wallet down to its core and there is no account inside it, no balance stored in it, no server it logs into. There is a keypair. The private key is the thing you guard, the public key is the thing you share, and the "address" a stranger pastes to pay you is derived from that public key. How directly depends on the chain, and the difference is worth knowing now because two lessons from now you will decode one. A Solana address *is* the 32-byte public key, base58-encoded: the key itself, wearing a readable coat. A Bitcoin address is one step further removed: it encodes a *hash* of the public key, which is why a Bitcoin output's type reads `witness_v0_keyhash` and why the key itself only appears on chain when you spend, not when you receive. When you "own" coins, no system stored a row that says so under your name; it stored records that only your private key can authorize spending from, and your public key is the name those records point at. Ownership is not a field in a database. It is the ability to produce a signature nobody else can.
 
@@ -154,13 +154,13 @@ Which is exactly why the trade-off lands where it does.
 
 ## The trade-off: the key is the identity
 
-Every tool in this course gets its cost named out loud. This one's is the sharpest in the whole curriculum, because it is not a performance cost or a complexity cost. It is existential.
+Every tool in this course gets its cost named out loud. This one's is the sharpest in the whole curriculum, because it is existential rather than a matter of performance or complexity.
 
 The private key *is* the identity. Not a credential for the identity, not a way to access it. It is the identity, fully, and that single fact cuts both directions with the same blade. Lose the key and the identity is gone permanently: there is no reset link, no support desk, no human anywhere with the authority to restore it, because restoring it would mean someone else could mint your signatures, which is precisely the power the design refused to grant anyone. Coins that only your key can authorize become coins nobody can ever authorize again. On the other side, leak the key and the thief does not *impersonate* you. The thief *is* you, indistinguishably, because a signature made with your private key is your signature by definition, and no verifier on Earth can tell a theft from a legitimate use. The signature is valid. That is all the system knows how to ask.
 
 Self-custody's freedom and its blast radius are the same property. The reason no government can freeze your account is the same reason no one can unfreeze it when you lose the key. You cannot keep the upside and delete the downside; they are one mechanism seen from two sides.
 
-Set it against the realistic alternative. A bank account has a reset button precisely because a bank can overrule you, which is the same authority that lets it freeze, seize, or reverse a payment without asking. You are not choosing between risk and safety. You are choosing which failure you would rather own: a stranger's power over your money, or your own responsibility for a key. Neither option is free, and anyone who tells you otherwise is selling one side of the trade. This course will keep making you pay one bill or the other, out loud, every time a design demands it.
+Set it against the realistic alternative. A bank account has a reset button precisely because a bank can overrule you, which is the same authority that lets it freeze, seize, or reverse a payment without asking. You are not choosing between risk and safety, but deciding which failure you would rather own: a stranger's power over your money, or your own responsibility for a key. Neither option is free, and anyone who tells you otherwise is selling one side of the trade. This course will keep making you pay one bill or the other, out loud, every time a design demands it.
 
 ![A two-column comparison pairing each freedom of self-custody with the matching danger, both traced to the single fact that the private key is the identity.](assets/v08-comparison.webp)
 
