@@ -52,7 +52,7 @@ Expected result: it compiles. Now break it on purpose. Change `high_score` to a 
 
 ## Why a field read should be a cast, not a decode
 
-Here is the sentence that started this whole framework rewrite. Anchor issue #4390, titled "Zero-copy account deserialization by default," calls today's `Account<T>` **the slow path** and **the number-one performance complaint from Anchor developers**. Not a niche gripe. The most common one. The entire V2 account model is the answer to that one issue, so it is worth slowing down and deriving why the old path is slow before we celebrate the new one.
+Here is the sentence that started this whole framework rewrite. Anchor issue #4390, titled "Zero-copy account deserialization by default," calls today's `Account<T>` **the slow path** and **the number-one performance complaint from Anchor developers**. The entire V2 account model is the answer to that one issue, so it is worth slowing down and deriving why the old path is slow before we celebrate the new one.
 
 ### The status quo and its bill
 
@@ -271,7 +271,7 @@ pub fn increment(ctx: &mut Context<Increment>, score: u64) -> Result<()> {
 }
 ```
 
-The `checked_add` is not ceremony. `play_count` is a `u64` you increment on every play, and the house rule for program arithmetic is checked-everything, so a wrap becomes a clean error instead of a silent reset to zero.
+The `checked_add` is there for a reason. `play_count` is a `u64` you increment on every play, and the house rule for program arithmetic is checked-everything, so a wrap becomes a clean error instead of a silent reset to zero.
 
 ![The harness starts LiteSVM, sends init then increment, slices the account bytes past the discriminator, casts them to Cabinet, and asserts both fields round-tripped.](assets/v07-flowchart.png)
 
@@ -366,7 +366,7 @@ Your acceptance bar, all three must hold:
 - A new test increments a couple of times to a real high score, calls `reset`, then reads `data[8..]` back and asserts `play_count == 0` **and** `high_score` still equals the score you set.
 - The existing `cabinet_round_trips` test still passes.
 
-The interesting part is the assertion, not the handler. A `reset` that accidentally zeroes both fields will pass a lazy test that only checks `play_count`. Write the test that would catch that bug: assert the high score survived. That is the whole point of the exercise. Both the handler and the test go in your own R1 checkout, next to what you just built; a reference solution sits beside this lesson — [reset-play-count/reset.rs](reset-play-count/reset.rs) for the handler and accounts struct, [reset-play-count/cabinet_reset.rs](reset-play-count/cabinet_reset.rs) for the test — for after you have a green run of your own.
+The interesting part is the assertion, not the handler. A `reset` that accidentally zeroes both fields will pass a lazy test that only checks `play_count`. Write the test that would catch that bug: assert the high score survived. That is what the exercise is testing. Both the handler and the test go in your own R1 checkout, next to what you just built; a reference solution sits beside this lesson — [reset-play-count/reset.rs](reset-play-count/reset.rs) for the handler and accounts struct, [reset-play-count/cabinet_reset.rs](reset-play-count/cabinet_reset.rs) for the test — for after you have a green run of your own.
 
 **Feedback beat.** Before you move on, answer this in one sentence, out loud or in a comment at the top of your test file: what two things does the `T: Pod` bound forbid in your struct? If your sentence names non-Pod fields (the bare `bool`) and implicit padding (the silent gap from a bad field order), you have the model. If it named only one, re-read the trade-off section, because the second one is the one that bites silently.
 
