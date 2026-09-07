@@ -170,11 +170,11 @@ Read the error path closely, because it is your m04-l2 muscle firing in a new gy
 ```rust
 #[derive(Debug, Error)]
 pub enum ProbeError {
-    #[error("fixture line could not be parsed: {0}")]
-    BadFixture(String),
-    #[error("latency {0} ms is outside the accepted range")]
+    #[error("not a latency reading: {0}")]
+    BadFixture(ParseIntError),
+    #[error("{0}ms is past the {MAX_SANE_LATENCY_MS}ms sanity ceiling")]
     OutOfRange(u64),
-    #[error("latency sum overflowed u64")]
+    #[error("u64 arithmetic overflowed")]
     Overflow,
     #[error("config rejected: {0}")]
     BadConfig(serde_json::Error),
@@ -183,9 +183,11 @@ pub enum ProbeError {
 }
 ```
 
+(The first four are reprinted exactly as m04-l2 and m05-l1 left them, messages included, so you can diff this against your own file: only the last variant is new. If your `#[error]` strings read differently because you wrote your own, keep yours, the strings are yours to phrase; the variant SHAPES are what the rest of the course leans on, and `BadFixture(ParseIntError)` in particular is what m05-l1's `.map_err(ProbeError::BadFixture)?` collapse compiles against.)
+
 Notice what `Unreachable` carries: a `String`, not a `reqwest::Error`. That is deliberate, and it is the architectural decision of the lesson. The enum lives in `pulse-engine`, and if the variant held reqwest's error type, the engine would grow a reqwest dependency, and the pure core you have been protecting since M4 would be pure no more. Why does that purity matter enough to flatten an error into a string? Because the engine has more futures than this CLI: m06 wants it inside a long-running poller, and m07-l2 wants to compile it to WASM for a Cloudflare Worker, an environment where a native HTTP stack cannot follow. An I/O-free engine ports; an engine with a socket in it does not. So the HTTP arm lives in `pulse-cli`, the engine stays a calculator, and the seam between them is a `String` crossing a crate boundary.
 
-One promise kept honest while we are here: this `probe` is a standalone call, and it does NOT implement the `ProbeSource` trait you froze in m04-l3. `drive` never sees these latencies today; the printed line is the whole product. Nor does the m06 poller plug it in later: that daemon calls `next_state` directly with each probe's result, which is the shorter path when there is exactly one kind of source and it already runs under an async runtime. So the trait stays what m04-l3 built it for, the seam that lets `drive` run against fixtures in a unit test, sitting ready for the day a second source shows up, and that day is next lesson: m06-l1 closes the loop with a blocking reqwest source plugged in behind the trait, right here in `pulse-cli`, where the blocking client stays legal. If your fingers itch to write `impl ProbeSource for` a reqwest-backed source right now, that is a healthy itch and precisely the m06-l1 move, so hold it one lesson; nothing in this lesson, the lab, or the challenge expects it.
+One promise kept honest while we are here: this `probe` is a standalone call, and it does NOT implement the `ProbeSource` trait you froze in m04-l3. `drive` never sees these latencies today; the printed line is the whole product. Nor does the m06 poller plug it in later: that daemon calls `next_state` directly with each probe's result, which is the shorter path when there is exactly one kind of source and it already runs under an async runtime. So the trait stays what m04-l3 built it for, the seam that lets `drive` run against canned latencies instead of a socket, which is precisely what m05-l2's `tests/engine_contract.rs` does from the integration tier, sitting ready for the day a second source shows up, and that day is next lesson: m06-l1 closes the loop with a blocking reqwest source plugged in behind the trait, right here in `pulse-cli`, where the blocking client stays legal. If your fingers itch to write `impl ProbeSource for` a reqwest-backed source right now, that is a healthy itch and precisely the m06-l1 move, so hold it one lesson; nothing in this lesson, the lab, or the challenge expects it.
 
 ![A pure engine crate with no I/O sits beside a CLI crate holding clap and reqwest, with future poller and WASM consumers attached to the engine.](assets/v03-diagram.webp)
 
