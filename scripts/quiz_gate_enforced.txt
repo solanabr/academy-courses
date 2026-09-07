@@ -16,12 +16,12 @@
 # listing them enforces nothing today and starts enforcing the moment their PR
 # lands -- which is the point: the gate arrives with the fix, not after it.
 mastering-anchor-v2        # c1fa1fd, 0 errors: best content-blind strategy 30.1% vs 24.2% chance
+rust-ts-fundamentals       # 0 errors: key length rank [33,38,38,22], best strategy 29.6% vs 24.9% chance
 
 # Still in the 2026-09 wave, uncomment as each one clears:
 #   solana-payments-commerce   # length-rank rebalance in progress
-#   digital-assets
-#   rust-ts-fundamentals       # length-rank rebalance in progress
-#   btc-to-sol-evolution
+#   digital-assets             # assessment merged, permutation pending
+#   btc-to-sol-evolution       # assessment in progress
 #
 # Deliberately out of scope this wave (owner decision, 2026-09-07):
 # visao-geral-solana, solana-speedrun, pilula-solana-superteam. These are
