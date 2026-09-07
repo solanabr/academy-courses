@@ -121,7 +121,7 @@ First, your trust surface multiplied. R3 depends on R2 being correct; a bug in t
 
 ![Stack height 1 is the top-level instruction and each CPI adds one to a live ceiling of 5, so this lesson's escrow-to-vault call sits at height 2.](assets/v05-table.png)
 
-There is a thesis under all of this. The Anchor manifesto issue that kicked off V2, number 4390, "Zero-copy account deserialization by default," argued for exactly one idea: make the account model safe by default and let unsound things fail to compile. Borrow-tracked composition is that thesis applied to the hardest case, one program building on another's state. The `CpiHandle` you fought last lesson and the duplicate-mutable default you just met are the same principle wearing two hats.
+There is a thesis under all of this. The Anchor manifesto issue that kicked off V2, number 4390, "Zero-copy account deserialization by default," argued for exactly one idea: make the account model safe by default and let unsound things fail to compile. Borrow-tracked composition is that thesis applied to the hardest case, one program building on another's state. The `CpiHandle` you fought last lesson and the duplicate-mutable default you just met are the same principle enforced at two different seams.
 
 ## Lab: build R3
 

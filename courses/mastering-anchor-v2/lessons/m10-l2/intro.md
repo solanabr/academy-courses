@@ -22,7 +22,7 @@ The hand-holding steps down here on purpose. Early modules narrated every keystr
 
 Start with the question that actually matters, because it is the one that keeps the rest of the lesson honest: why does 1.x to 2.0 break things that 0.3x to 1.0 did not?
 
-The naive answer is "more breaking changes piled up." Tempting, and wrong. If it were only volume, the fix would be the same as last time, only longer: bump the version, grind the errors, ship. That approach fails on the first file, and it fails for a specific reason. 0.3x to 1.0 was the same framework wearing new names. V2 is a different framework that happens to keep most of the names. It is a `no_std` rewrite built on pinocchio, the zero-copy, dependency-light runtime layer. Anchor did not edit its old code to get here. It rebuilt on a new foundation.
+The naive answer is "more breaking changes piled up." Tempting, and wrong. If it were only volume, the fix would be the same as last time, only longer: bump the version, grind the errors, ship. That approach fails on the first file, and it fails for a specific reason. 0.3x to 1.0 was the same framework with new names. V2 is a different framework that happens to keep most of the names. It is a `no_std` rewrite built on pinocchio, the zero-copy, dependency-light runtime layer. Anchor did not edit its old code to get here. It rebuilt on a new foundation.
 
 That single fact is the generator. Almost every delta ahead is a consequence of one of three design decisions baked into that rebuild, and if you carry the three decisions in your head you can predict the deltas instead of memorizing them.
 
