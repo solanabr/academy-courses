@@ -63,7 +63,7 @@ blocks:
             correct: false
             feedback: "There is a downside: the same finality that removes chargeback fraud also removes the institutional safety net customers may expect, and shifts all refund logic onto you."
           - id: b
-            label: "The network auto-reverses transfers that get flagged as fraudulent, so card-style buyer protection still comes free."
+            label: "The network auto-reverses fraudulent transfers, so you still get card-style protection at no cost."
             correct: false
             feedback: "The network never reverses a settled transfer. There is no automatic clawback; anyone promising card-style protection 'for free' is misreading the rails."
           - id: c
