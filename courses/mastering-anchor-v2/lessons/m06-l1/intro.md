@@ -75,7 +75,7 @@ For deeper work it wires up to a real debugger. Pass `--gdb` and Anchor exposes 
 
 `anchor coverage` answers a question the other three cannot: what did your tests never touch? It reconstructs line and branch coverage from SBF register traces and emits it as LCOV, the standard line-coverage report format that editors and CI tools already know how to display. Point it at the swap and it will show you, for instance, that your slippage-guard branch or your zero-amount early return never executed under any test.
 
-Here is the footgun, stated plainly so you do not wait for it: `anchor coverage` reports, it does not gate. It will not fail your build when coverage drops. It hands you an LCOV file and walks away. If you want a coverage floor enforced, that is a CI policy you write on top of the report, not a thing the tool does for you.
+Here is the footgun, stated plainly so you do not wait for it: `anchor coverage` reports, it does not gate. It hands you an LCOV file and walks away rather than failing your build when coverage drops. If you want a coverage floor enforced, that is a CI policy you write on top of the report, not a thing the tool does for you.
 
 ### Mollusk: exactly how many CU
 
@@ -168,7 +168,7 @@ genhtml target/anchor-v2-coverage/lcov.info -o target/anchor-v2-coverage/html
 open target/anchor-v2-coverage/html/index.html    # xdg-open on Linux
 ```
 
-Now you get a source view with every line coloured by hit count. Click into `lib.rs` and read which branches of the swap never ran. Very likely your happy path is green and an edge branch, the slippage revert or the zero-output guard, shows red. That red is not a build failure. Remember: coverage reports, it does not gate. It is telling you where a future test should go.
+Now you get a source view with every line coloured by hit count. Click into `lib.rs` and read which branches of the swap never ran. Very likely your happy path is green and an edge branch, the slippage revert or the zero-output guard, shows red. That red is not a build failure. Remember: coverage reports, it does not gate, and it is telling you where a future test should go.
 
 If you would rather stay in your editor, most coverage extensions read `lcov.info` directly; point one at that path and skip `genhtml`.
 
