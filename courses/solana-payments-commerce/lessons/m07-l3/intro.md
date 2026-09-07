@@ -74,7 +74,7 @@ Bet everything on MPP and you are betting on two documents at once, which is a t
 
 Bet everything on x402 and you get the traffic, the cross-chain reach, and the facilitator ecosystem you met last lesson, plus the trust boundary you also met last lesson: a settlement intermediary that sees every transaction and can filter what it settles. A fine seat, honestly. Just not a neutral one.
 
-Bet everything on AP2 or ACP and you have bet a Solana-native metered API on cards-first rails governed by Google or Stripe-and-OpenAI. For Wavelength's ChatGPT storefront someday, ACP is likely the right door, and the merchant-of-record clause makes it a genuinely merchant-friendly one. For the pressing-price API, where the buyer is a script with a wallet and no card, it is the wrong tool wearing the right logo.
+Bet everything on AP2 or ACP and you have bet a Solana-native metered API on cards-first rails governed by Google or Stripe-and-OpenAI. For Wavelength's ChatGPT storefront someday, ACP is likely the right door, and the merchant-of-record clause makes it a genuinely merchant-friendly one. For the pressing-price API, where the buyer is a script with a wallet and no card, it is the right vendor and the wrong tool.
 
 The tl;dr is: betting on one standard in August 2026 is premature, and you do not have to. The multi-speed turntable exists. `pay gate` puts a single gate in front of your API that answers x402 and MPP simultaneously, and `pay curl` on the client side negotiates whichever the server offers. You stop predicting the winner and start serving whoever shows up.
 
