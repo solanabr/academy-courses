@@ -98,7 +98,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Actions: an env block committed in the workflow YAML; Vercel: values in vercel.json; Cloudflare: wrangler.toml [vars]; Docker: an ENV line baked into the Dockerfile"
+            label: "Actions: an env block committed in the workflow YAML; Vercel: values in vercel.json; Cloudflare: a vars entry in wrangler.jsonc; Docker: an ENV line baked into the Dockerfile"
             correct: false
             feedback: "Every location in this list is a committed file, that is four different ways to publish a secret. Each platform provides an out-of-repo store precisely so config files can stay public."
           - id: b
