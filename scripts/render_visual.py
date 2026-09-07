@@ -175,10 +175,31 @@ def main() -> int:
     ap.add_argument("--check", action="store_true", help="report only; write nothing")
     ap.add_argument("--stale", metavar="REF",
                     help="list figures whose source changed since REF but were never re-rendered")
+    ap.add_argument("--render-stale", metavar="REF",
+                    help="re-render every figure --stale would list")
     args = ap.parse_args()
 
     if args.stale:
         return list_stale(args.stale)
+
+    if args.render_stale:
+        repo = repo_of(Path.cwd() / "x") or Path(__file__).resolve().parent.parent
+        r = run(["git", "-C", str(repo), "diff", "--name-only", args.render_stale, "--", "courses"])
+        changed = [Path(p) for p in r.stdout.split()]
+        assets = {p for p in changed if p.suffix in (".webp", ".png")}
+        todo = [p for p in changed
+                if p.suffix == ".html" and "visual-src" in p.parts
+                and asset_for(repo / p).relative_to(repo) not in assets]
+        if not todo:
+            print(f"nothing stale against {args.render_stale}.")
+            return 0
+        print(f"re-rendering {len(todo)} figure(s) against {args.render_stale}\n")
+        failures = 0
+        for p in todo:
+            rc = subprocess.run([sys.executable, __file__, str(repo / p)]).returncode
+            failures += 1 if rc else 0
+        print(f"\n{len(todo) - failures} rendered, {failures} failed.")
+        return 1 if failures else 0
     if args.source is None:
         ap.error("give a source file, or --stale <ref>")
 
