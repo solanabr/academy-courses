@@ -108,7 +108,7 @@ blocks:
             correct: false
             feedback: "Capturing into a local up top is the right idiom when you need the pre-CPI value, and it is how the handler grabs sol_bump. But the local is frozen at the instant you copied it, so it can never show the post-CPI balance."
           - id: d
-            label: "Take a fresh cpi_handle() on the vault and read through that handle"
+            label: "Take a fresh cpi_handle() on the vault after the CPI and read through that one"
             correct: false
             feedback: "A handle is how you hand an account to a CPI, not how you read one, and taking a second one is the move that keeps a borrow alive rather than ending it. The read you want is a plain typed field access below the line that consumes the CpiContext."
         explanation: "The V2 idiom is scope discipline: the handle exists only for the CPI, and once it drops the borrow is released and the live typed data is readable again. Where v1 asked you to remember .reload(), V2 asks you to structure the borrow, and the compiler checks you did. Capturing a value into a local before any handle exists is the complementary idiom for the other direction — it gives you the pre-CPI value — so a post-CPI read must sit below the line that consumes the CpiContext."

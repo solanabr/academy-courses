@@ -72,7 +72,7 @@ blocks:
             correct: false
             feedback: "has_one still parses but is deprecated and warns; new V2 code should use address = parent.field."
           - id: d
-            label: "`realloc::payer = payer` and `address = <the authority expression>`"
+            label: "`realloc::payer = payer` and `address = <authority expression>`"
             correct: false
             feedback: "The has_one half is right, which is also the half the compiler nags you about, so it is the one people fix first. The colon-nested realloc sub-keywords do not survive the port: V2 spells them flat, and the old form fails to compile rather than warning."
           - id: e

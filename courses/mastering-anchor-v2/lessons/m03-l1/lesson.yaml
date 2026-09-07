@@ -58,7 +58,7 @@ blocks:
             correct: false
             feedback: "There is no two-seed minimum — up to 16 seeds of at most 32 bytes each are allowed, and zero or one is legal. The derivation succeeds; the failure is semantic, not a limit."
           - id: d
-            label: "Nothing: each player's canonical bump differs, so the addresses stay distinct"
+            label: "Nothing: each player's canonical bump differs, so the vault address stays distinct"
             correct: false
             feedback: "The bump does vary from one seed set to the next, which is what makes this feel like enough separation. Derivation is a pure function of the seeds and the program id, so with the player key gone the inputs are identical for everyone and the same bump and the same 32 bytes come back out."
         explanation: "The seed scheme IS the namespace. Dropping the player key makes the derivation identity-independent, so all players resolve to a single PDA. Per-entity data needs a per-entity seed — the seed design is a security boundary, not a formality."

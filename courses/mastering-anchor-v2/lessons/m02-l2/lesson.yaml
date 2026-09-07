@@ -46,7 +46,7 @@ blocks:
             correct: false
             feedback: "There is no built-in eviction policy of any kind. The 4-byte length field tracks how many items are live, not how old they are — admitting and evicting is logic you write."
           - id: d
-            label: "It wraps to slot 0 like a ring buffer, so the eleventh post overwrites the first"
+            label: "It wraps to slot 0 like a ring buffer, so the eleventh post overwrites the oldest one"
             correct: false
             feedback: "A fixed-capacity buffer that wraps is a familiar shape, and it would make try_push infallible, which is the tell that this is not it. try_push past capacity returns an Err, and which entry to drop is a policy the Slab has no opinion about."
         explanation: "A Pod list has a compile-time capacity. You size for the worst case and manage insertion and eviction yourself; a write past MAX is a hard error. That fixed cap is exactly the price of a serialization-free list — the point of the high-score-cutoff challenge. The Slab does have one escape valve, resize_to_capacity(n), which reallocs the account and settles the rent difference — but it is an instruction you deliberately run, never a side effect of try_push, and nothing grows behind your back."
