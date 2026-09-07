@@ -47,14 +47,14 @@ blocks:
             label: "Response.json() parses the body as JSON regardless of MIME, though tools that sniff content-type can still reject it"
             correct: true
             feedback: "The fetch spec parses the body you asked it to parse and leaves the header unread. Convenient, and slightly dishonest: swap in a client that sniffs the type and this same response becomes a bug report."
-          - id: d
-            label: "text/plain sits on the fetch spec's own allowlist of JSON-compatible content types, so the parse is permitted"
-            correct: false
-            feedback: "No list gets consulted, which is the part worth keeping. json() reads the body and never asks what the header claimed, so nothing about text/plain was ever approved for this."
           - id: c
             label: "GitHub's CDN negotiates the type per client: browsers that send an Accept: application/json header get the correct MIME on the wire"
             correct: false
             feedback: "The probe checked this shape of variance, the headers came back identical regardless of request headers. No negotiation; it's text/plain for everyone."
+          - id: d
+            label: "text/plain sits on the fetch spec's own allowlist of JSON-compatible content types, so this parse is permitted through"
+            correct: false
+            feedback: "No list gets consulted, which is the part worth keeping. json() reads the body and never asks what the header claimed, so nothing about text/plain was ever approved for this."
         explanation: "The WHATWG fetch spec parses the body you asked it to parse, MIME be damned. That's convenient and slightly dishonest, which is why the lesson shows the header in devtools: the day you swap in an HTTP library that sniffs content-type, this exact response becomes a bug report."
       - id: m03l2-q3
         prompt: "In consumer-level terms: where does the fetched status data LIVE in your dashboard, and what makes the table repaint when new data arrives?"
@@ -73,7 +73,7 @@ blocks:
             correct: true
             feedback: "One direction only: state in, render out, pixels last. The setter is the single doorbell React answers, so anything that has to appear on screen has to live in state."
           - id: d
-            label: "In the polling effect's closure, where each tick re-runs the effect, so the parsed JSON reaches the table with no state setter involved"
+            label: "In the polling effect's closure, where each tick re-runs the effect and the parsed JSON reaches the table with no setter"
             correct: false
             feedback: "Effects run after a render; they do not cause one, and the interval fires the callback rather than re-running the effect. A value that never leaves the closure never reaches the JSX the component returned."
         explanation: "The whole consumer-level model in one sentence: state is the input, the component is a pure function of it, the DOM is the output, and setState is the only doorbell. Everything deeper, context, reducers, server components, is the client-side mastery course's territory, and the lesson says so by name."
@@ -85,10 +85,6 @@ blocks:
             label: "The m03-l1 boundary is real: fleet and dashboard demonstrably run the SAME classification code, one fix reaching both"
             correct: true
             feedback: "Last lesson the extraction was an argument; this line makes it a pixel. A green row on the board and a green verdict in the cron cannot disagree, because they are one function with two callers."
-          - id: d
-            label: "That duplication is worth removing, the same three-line function written twice is code nobody should repeat"
-            correct: false
-            feedback: "Repetition alone is cheap here; three lines twice costs nothing to type. What the import buys is that the copy which quietly disagrees after someone retunes the latency band cannot exist."
           - id: b
             label: "Bundle efficiency: importing from a workspace package lets Vite tree-shake the classifier to fewer bytes than a local copy would compile to"
             correct: false
@@ -97,4 +93,8 @@ blocks:
             label: "Type safety: cross-package imports are the only place Vite runs the TypeScript checker, so the boundary is where type errors get caught"
             correct: false
             feedback: "Type-checking covers the whole project regardless of package boundaries, the import's value is one source of truth, not a special checking mode."
+          - id: d
+            label: "That duplication is worth removing, the same three-line function written twice is code nobody should repeat"
+            correct: false
+            feedback: "Repetition alone is cheap here; three lines twice costs nothing to type. What the import buys is that the copy which quietly disagrees after someone retunes the latency band cannot exist."
         explanation: "This is the extraction demonstrated, not asserted: last lesson promised a second real consumer, and here it is, the exact classifier that gates the cron now colors the pixels. When m08-l2 adds chain-status rows, the same import means the fleet, the board, and eventually the edge worker all agree on what the colors mean."

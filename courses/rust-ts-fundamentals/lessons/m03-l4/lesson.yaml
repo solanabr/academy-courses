@@ -31,7 +31,7 @@ blocks:
             correct: false
             feedback: "Shipping sources is a legitimate optional choice some packages make, but it's opt-in curation via the files field, not a requirement, and it never justifies test files or env samples in the tarball."
           - id: d
-            label: "The exports map already hides everything but dist, so unreachable files in the tarball are dead weight and nothing worse"
+            label: "The exports map already hides everything but dist, so those unreachable files in the tarball are just dead weight and nothing worse than that"
             correct: false
             feedback: "Two allowlists, two jobs: exports governs what a consumer can import, files governs what gets uploaded. An unimportable .env.example still lands on every machine that installs you, readable by anyone."
         explanation: "The tarball IS the product: whatever npm pack lists is what every install delivers, forever (unpublishing is heavily restricted). The files field is the allowlist; the dry-run is the pre-flight read. Twenty seconds of reading the listing is the cheapest security-and-professionalism habit in this course."
@@ -89,12 +89,12 @@ blocks:
             label: "That's the bookmarked 20%, type-challenges plus the Handbook's generics material; this course taught the daily layer and where the rest lives"
             correct: true
             feedback: "The 20% was never missing, it was filed. The tier gate names an address and a trigger for each piece, and this one's trigger is a library signature making you curious rather than tired."
-          - id: d
-            label: "M7's edge lesson returns to TypeScript depth, so the conditional and mapped type material lands there once the workers need it"
-            correct: false
-            feedback: "The TypeScript tier ends here; M7 spends its TypeScript on an edge runtime, not on the type system. Nothing later in the course reopens type-level authoring, which is why the gate hands you the drill yard instead."
           - id: c
             label: "Hold off until you've finished the client-side mastery course, serious client work demands type-level fluency, so that layer has to be taught there first"
             correct: false
             feedback: "Nothing in the map routes type-level programming through the client-side course; its territory is wallet UX and transaction landing, and the wizardry is bookmarked self-serve: type-challenges plus the Handbook's generics material."
+          - id: d
+            label: "M7's edge lesson returns to TypeScript depth, so the conditional and mapped type material lands there once the workers need it"
+            correct: false
+            feedback: "The TypeScript tier ends here; M7 spends its TypeScript on an edge runtime, not on the type system. Nothing later in the course reopens type-level authoring, which is why the gate hands you the drill yard instead."
         explanation: "The tier-gate is the 80/20 contract kept honestly: unions, narrowing, zod, async discipline, packages, taught. Type-level programming, full tsconfig breadth, Bun/Deno, deep React, bookmarked, each with a named home. The map you got in m01-l1 just gained its first 'you are here' pin: TS-strong, with the 20% locations memorized."
