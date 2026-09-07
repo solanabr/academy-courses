@@ -30,7 +30,7 @@ blocks:
             correct: false
             feedback: "A signature proves control of the keypair, not that the wallet currently holds a specific cNFT. Holdings must be read from the chain, not asserted by the client."
           - id: b
-            label: "Check the local wallet adapter's cached token list in the browser, which is what the portfolio page already renders from."
+            label: "Check the local wallet adapter's cached token list for the Founding-Farmer cNFT, which is what the portfolio page renders from."
             correct: false
             feedback: "A client-side cache is both spoofable and stale. The gate must verify against a DAS/on-chain source, not the client's own report."
           - id: c

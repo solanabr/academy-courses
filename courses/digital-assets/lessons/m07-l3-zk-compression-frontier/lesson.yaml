@@ -14,26 +14,34 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "You're tempted to move Overgrowth's high-frequency in-game currency ledger onto compressed token accounts to save on rent. When is compression the WRONG call?"
-        multiSelect: false
+        prompt: "Overgrowth has to decide which of its state compresses. Select the three workload shapes this lesson rules out for compression."
+        multiSelect: true
         options:
           - id: a
-            label: "When the same accounts are written many times or updated repeatedly in the same block (like an AMM pool); the per-write proof and hashing cost dominates, so keep those as regular accounts."
+            label: "An in-game currency ledger debited on every craft, far past the few-hundred-lifetime-write band."
             correct: true
-            feedback: "Two variables decide it, lifetime writes and bytes per access, and the ledger loses on the first one. Holder count never enters the arithmetic."
+            feedback: "Write-heavy state is the first losing shape. Past the break-even the compressed path costs more lamports AND roughly 3,800 times the compute, forever."
           - id: b
-            label: "When you have more than ~16,384 holders, since a state tree cannot hold more leaves than that and a bigger drop needs a second one."
+            label: "A holder list past ~16,384 wallets, since a state tree cannot hold more leaves than that."
             correct: false
-            feedback: "Trees scale far past 16,384 (that's just one example size). The real constraint is write frequency and access size, not holder count."
+            feedback: "Trees scale far past 16,384 (that's just one example size), and a tree scales to holders happily. Holder count is the axis people reach for and it is the wrong one."
           - id: c
-            label: "Whenever the tokens must stay tradeable on a router like Jupiter, because a compressed balance cannot be decompressed back."
+            label: "Balances that must stay tradeable on a router like Jupiter, because a compressed balance cannot be decompressed back."
             correct: false
-            feedback: "Decompression is first-class; you decompress to swap on Jupiter. The binding constraint is write frequency, not tradeability."
+            feedback: "Decompression is first-class: you decompress, then you route. The round trip is the design, and it puts the cost on the holders who actually showed up."
           - id: d
-            label: "When the balances are read constantly by a dashboard rather than written, because each read has to pull a fresh 128-byte validity proof from Photon before the value can be shown to the holder."
+            label: "Balances a dashboard reads constantly, because each read has to pull a fresh 128-byte validity proof from Photon."
             correct: false
-            feedback: "The proof is a write-path artifact: it exists so the program can be convinced your leaf was in the tree. Reads are just an index query, and reading a lot is the workload compression is best at."
-        explanation: "Compression cuts account-creation cost ~400x but a compressed transfer runs ~292,000 CU. Write-heavy or same-block-updated state (AMM pools, hot ledgers) and >1 KB accesses lose on that inversion; one-shot distribution wins."
+            feedback: "The proof is a write-path artifact, there so the program can be convinced your leaf was in the tree. Reads are an index query, and reading a lot is what this rail is best at."
+          - id: e
+            label: "An AMM pool's state, rewritten several times inside one block by people who are not you."
+            correct: true
+            feedback: "The second losing shape, and it is worse than expensive. Every competing write moves the root, so your proof is stale before the transaction reaches the leader."
+          - id: f
+            label: "A four-kilobyte recipe blob, well past the roughly one-kilobyte-per-access line the guidance draws."
+            correct: true
+            feedback: "The third losing shape. Past about 1 KB per access the read and hashing cost of moving that blob through the machinery outweighs the rent you saved."
+        explanation: "Two variables decide it: lifetime writes and bytes per access. Three shapes lose on them, and the lesson names each one: write-heavy accounts, same-block repeated updates, and accesses past roughly 1 KB. Holder count is not on that list, because a tree scales to holders happily, and tradeability is not either, because decompression is a first-class door. The shape that wins is state created once, written once or twice, and held by an enormous number of distinct owners."
       - id: q2
         prompt: "Contrast the proofs behind your Harvest-crate cNFTs with Light's ZK-compression proofs. What actually differs?"
         multiSelect: false
