@@ -18,7 +18,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The 5% is enforced on-chain because seller_fee_basis_points is a protocol-level fee the runtime deducts."
+            label: "The 5% is enforced on-chain, because seller_fee_basis_points is a protocol-level fee the runtime deducts at transfer."
             correct: false
             feedback: "The runtime never deducts seller_fee_basis_points; it's a metadata field, not a fee the protocol collects."
           - id: b
@@ -30,7 +30,7 @@ blocks:
             correct: true
             feedback: "Armed but idle is the phrase to carry out: the freeze still forces the pNFT transfer path, and the rule waved through at the end of it collects nothing."
           - id: d
-            label: "The 5% is enforced because Token Metadata reads seller_fee_basis_points on the pNFT transfer path; the rule set's Pass on each operation just approves the venue."
+            label: "The 5% is enforced because Token Metadata reads seller_fee_basis_points on the pNFT transfer path before it refreezes; the rule set's Pass on each operation just approves the venue."
             correct: false
             feedback: "Token Metadata stores and serves that u16 and never spends it. Even in the enforcement era the rule set refused venues rather than collecting a fee."
         explanation: "For legacy Token Metadata, seller_fee_basis_points is indicative only. Enforcement would come from a Token Auth Rules RuleSet, but the flagship Metaplex Foundation Rule Set sets all operations to Pass: armed but idle. The royalty is a convention marketplaces may or may not honor, not an on-chain guarantee."
@@ -43,7 +43,7 @@ blocks:
             correct: true
             feedback: "Two different verbs for two different assets. Consuming a legacy standard costs you nothing; minting into it inherits an enforcement stack its own vendor walked away from."
           - id: b
-            label: "Mint the new drop as pNFTs too, for consistency with the existing collection."
+            label: "Mint the new drop as pNFTs too, so both collections sit on one standard and your integration code has a single path."
             correct: false
             feedback: "New pNFTs adopt a deprecated enforcement stack (Token Auth Rules) whose flagship rule enforces nothing; the course teaches TM/pNFT to evaluation depth precisely so you don't ship new ones."
           - id: c
@@ -60,7 +60,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The docs' 5 variants, because published docs are the canonical contract for an integration."
+            label: "The docs' 5 variants, because the published page is the canonical contract that an integration is written against."
             correct: false
             feedback: "For a legacy, lightly-maintained standard the docs lag the code; building against 5 variants means an asset of the 6th variant surprises you at runtime."
           - id: b
@@ -68,7 +68,7 @@ blocks:
             correct: true
             feedback: "Source is present tense, prose is the past tense of whenever someone last edited it. The variant that is missing from the page is the one that reaches your match statement in production."
           - id: c
-            label: "Neither; TokenStandard is deprecated, so you can ignore the variant entirely."
+            label: "Neither: TokenStandard is deprecated along with the rest of the standard, so the field can be ignored entirely."
             correct: false
             feedback: "You still have to read the variant to integrate legacy assets correctly; 'legacy' means you consume it, not that you can ignore its shape."
           - id: d
