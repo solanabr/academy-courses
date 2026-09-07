@@ -643,6 +643,19 @@ def m_heuristics(rep: CourseReport) -> None:
         low = min(scores)
         return scores.index(low) if scores.count(low) == 1 else None
 
+    def pick_len_rank(rank: int):
+        """"Always pick the Nth-shortest option."
+
+        longest/shortest are just the two ends of this family, and the middle is
+        where a real course lands: one measured range had the key third-longest
+        in 23 of 37 questions, which a learner can play for 62% while both ends
+        sit at chance. Testing only the extremes declares that clean.
+        """
+        def pick(q):
+            order = sorted(range(q.k), key=lambda i: (len(q.labels[i]), i))
+            return order[rank] if rank < q.k else None
+        return pick
+
     suite = {
         "longest": pick_longest, "shortest": pick_shortest,
         "only-option-without-an-absolute": pick_no_absolute,
@@ -650,6 +663,10 @@ def m_heuristics(rep: CourseReport) -> None:
         "most-prompt-overlap": pick_prompt_overlap,
         "least-like-the-others": pick_least_similar,
     }
+    # Interior length ranks. Rank 0 and the top rank duplicate shortest/longest
+    # for a fixed k, so only the middles add anything.
+    for r in range(1, max((q.k for q in singles), default=3) - 1):
+        suite[f"length-rank-{r}"] = pick_len_rank(r)
 
     # Per-question record of which strategies land on the key. This is the
     # authoring queue: a question three strategies solve needs real work, and a
