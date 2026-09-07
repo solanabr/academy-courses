@@ -59,14 +59,14 @@
           <p class="sig">main()</p>
           <p class="sub">// signer &rarr; ensureBalance &rarr; fresh recipient &rarr; blockhash &rarr; pipe(6) &rarr; sendAndConfirm</p>
         </div>
-        <div class="ann"><p>The whole write path in order; on success prints <span class="mono">confirmed: &lt;sig&gt;</span> plus an explorer link on devnet.</p></div>
+        <div class="ann"><span><p>The whole write path in order; on success prints <span class="mono">confirmed: &lt;sig&gt;</span> plus an explorer link on devnet.</p></span></div>
       </div>
       <div class="row">
         <div class="codep" style="border:3px solid var(--stbr-yellow);">
           <p class="sig">process contract</p>
           <p class="sub">// exit 0 &hArr; a transfer confirmed &middot; exit 1 + a loud reason otherwise</p>
         </div>
-        <div class="ann" style="background:#fdf3cf; border-color:var(--stbr-yellow);"><p><strong>Downstream trusts only this:</strong> m10-l1 invokes <span class="mono">npx tsx tx-check.ts</span> and reads the exit code. Target switched by <span class="mono">RPC_URL</span> / <span class="mono">RPC_WS_URL</span>.</p></div>
+        <div class="ann" style="background:#fdf3cf; border-color:var(--stbr-yellow);"><span><p><strong>Downstream trusts only this:</strong> m10-l1 invokes <span class="mono">npx tsx tx-check.ts</span> and reads the exit code. Target switched by <span class="mono">RPC_URL</span> / <span class="mono">RPC_WS_URL</span>.</p></span></div>
       </div>
     </div>
   </div>
