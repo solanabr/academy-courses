@@ -36,15 +36,15 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "64 hex characters (256 bits)"
+            label: "256 bits, the width of the running state SHA-256 folds every chunk into"
             correct: true
             feedback: "Any input, from one byte to a terabyte, folds down to exactly 256 bits: 32 bytes, printed as 64 hex characters at 4 bits per character. The fixed size is what lets one short string stand in for data of any size."
           - id: b
-            label: "32 hex characters (128 bits), one per byte"
+            label: "128 bits, one hexadecimal character per byte of the digest"
             correct: false
-            feedback: "32 is the digest size in bytes, not in hex characters, and one byte needs two hex characters rather than one. Chain the conversions and it comes out as 256 bits = 32 bytes = 64 hex characters."
+            feedback: "One byte needs two hexadecimal characters, not one, and 32 is SHA-256's size in bytes rather than in hex characters. Chain the conversions and it comes out as 256 bits = 32 bytes = 64 hex characters."
           - id: d
-            label: "40 hexadecimal characters (160 bits)"
+            label: "160 bits, the width git prints in a commit id"
             correct: false
             feedback: "That is SHA-1's digest, which is why the commit ids in git log run 40 characters and not 64. Digest width is the fastest way to tell the two functions apart on sight."
           - id: c
@@ -52,7 +52,7 @@ blocks:
             correct: false
             feedback: "Fixed output size is the point. SHA-256 folds the input into a running state 512 bits at a time, and the state that survives the last chunk is the digest, so a 4 GB video and a 6-byte string come out the same width."
           - id: e
-            label: "512 bits, the size of one input chunk"
+            label: "512 bits, the width of one input chunk"
             correct: false
             feedback: "512 bits is what SHA-256 reads on the way in, one chunk at a time. The running state it folds those chunks into is 256 bits wide, and that state is what comes out at the end."
         explanation: "SHA-256 always outputs 256 bits = 32 bytes, written as 64 hexadecimal characters (4 bits per character). The fixed size is a feature: a block header, a file, or a whole chain state all reduce to the same small, comparable fingerprint."

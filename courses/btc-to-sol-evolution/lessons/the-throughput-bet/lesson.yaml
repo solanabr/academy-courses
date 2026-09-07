@@ -70,7 +70,7 @@ blocks:
             correct: false
             feedback: "1,500 is what a local Ethernet segment typically carries, and the guarantee that matters is the smaller one every IPv6 hop must honour: 1,280 bytes. Subtract 48 bytes of headers from that floor and you have the real cap."
           - id: c
-            label: "1,232 bytes, the most data one slot leader can sign-verify within its 400 ms slot"
+            label: "1,232 bytes, the largest payload Gulf Stream will forward to a leader without splitting it"
             correct: false
-            feedback: "The number is right and the reason is invented. Signature verification cost scales with how many signatures a transaction carries, not with a byte ceiling, and the ceiling is a packet-size constraint that would hold even on an idle cluster."
+            feedback: "The number is right and the reason is invented. Gulf Stream is a routing decision, not a size rule: it hands the leader whatever the wire already accepted, and it splits nothing. The ceiling is a packet-size constraint that would hold even if no one were forwarding anything."
         explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the cap is derived from the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction (checked 2026-09-07). Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables. A larger limit has been proposed and is feature-gated, so treat 1,232 as this cluster's current value, not a permanent one."
