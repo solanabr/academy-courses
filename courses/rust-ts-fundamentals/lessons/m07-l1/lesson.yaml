@@ -18,6 +18,7 @@ blocks:
           - id: a
             label: "The pure logic, classifiers and result types with no node imports"
             correct: true
+            feedback: "m03-l1's extraction paying for itself: the classifiers, the types and backoffDelay are pure functions over plain data with no opinion about where they run. The port is import the core, rewrite the shell."
           - id: b
             label: "Everything, workerd runs JavaScript, so any JS module loads fine"
             correct: false
@@ -26,6 +27,14 @@ blocks:
             label: "Only code already bundled for browsers, since workers are browser runtimes"
             correct: false
             feedback: "workerd is its own runtime, not a browser, no DOM, but also more than a browser (KV, cron, bindings). The dividing line is node-specific I/O, not browser bundling."
+          - id: d
+            label: "The logic plus the config loader, since node builtins resolve under the compat shim"
+            correct: false
+            feedback: "The resolve is the trap. readFileSync is a real function under the compat shim and there is still no disk behind it, which is why the runtime dies naming /bundle/pulse.config.json. The module ported; the machine did not."
+          - id: e
+            label: "The logic and backoff helpers, once you re-export them through a worker-safe entry"
+            correct: false
+            feedback: "No second entry point is needed. The published package installs into the worker exactly as it installed into the dashboard, which is the third consumer proving the extraction."
         explanation: "This is the pure-core/IO-shell seam paying off: because m03-l1 extracted pulse-core with its logic separated from its node I/O, the classifiers and types port to the edge unchanged, while file reads and env access get replaced by platform fetch, bindings, and KV. The purity was never ceremony, it is portability."
       - id: m07-l1-q2
         prompt: "Your deployed worker needs an auth token for one protected probe target. Where does the token go so it works in prod without ever landing in git?"
@@ -38,10 +47,15 @@ blocks:
           - id: b
             label: "Set with `wrangler secret put`, with a gitignored .dev.vars copy for local dev"
             correct: true
+            feedback: "The prod value is stored encrypted and is never shown again, not in the dashboard and not by wrangler; only its name is visible. The .dev.vars half is what keeps `wrangler dev` working without it."
           - id: c
             label: "In a KV entry the worker reads at startup, since KV is private storage"
             correct: false
             feedback: "KV is data storage, not a secret store, values are readable via the API and your own public endpoint code could leak them. Secrets go through the secrets binding."
+          - id: d
+            label: "In a .env file the handler reads through process.env, the way the fleet loaded its token"
+            correct: false
+            feedback: "Nothing is ambient in a worker. Capabilities arrive as one typed env parameter declared in the config, which is the platform enforcing the injection your fleet only had by discipline."
         explanation: "The taught split: .dev.vars (dotenv syntax, gitignored) supplies local dev; `wrangler secret put` stores the prod value, which is not visible after set. wrangler.jsonc vars are for public config. This is the same secrets-hygiene glue beat the m09-l2 four-platform sweep will revisit."
       - id: m07-l1-q3
         prompt: "You add a retry loop that busy-spins computing statistics over probe history, and invocations start erroring on the free tier, but your request count is nowhere near the daily cap. What limit did you hit?"
@@ -58,6 +72,11 @@ blocks:
           - id: c
             label: "The 10 ms CPU budget per invocation, compute is metered, waiting on I/O is not"
             correct: true
+            feedback: "That asymmetry is the free tier's whole personality: a probe worker whose life is 99% waiting fits it beautifully, and number crunching belongs back in the Docker poller where CPU is yours by the hour."
+          - id: d
+            label: "The 10 ms budget, typically spent by awaiting fetches not by your loop"
+            correct: false
+            feedback: "Right limit, wrong spender. Awaiting a fetch costs no CPU at all, which is why three sequential probes in the cron handler are free and one tight synchronous loop is not."
         explanation: "Workers Free gives 100,000 requests/day and 10 ms of CPU per invocation. Time spent awaiting fetch is not CPU time, which is why a probe worker fits the free tier beautifully and a number-crunching worker does not. Heavy computation belongs in the Docker poller; the edge is for probes."
   - key: edge-ramp-check
     type: quiz
@@ -69,6 +88,7 @@ blocks:
           - id: a
             label: "Isolates are ephemeral and per-location, memory doesn't survive invocations or span cities"
             correct: true
+            feedback: "Statelessness is the platform's core deal, so shared state needs a shared store. KV's eventual consistency is fine here precisely because each entry carries its own checkedAt."
           - id: b
             label: "Worker memory is capped so small that a status object won't reliably fit in it"
             correct: false
@@ -77,6 +97,10 @@ blocks:
             label: "Top-level variables are read-only in workerd, so writes to them are silently dropped"
             correct: false
             feedback: "Globals are writable within an isolate's lifetime, that's why it works for a few requests before 'resetting'. Nothing is dropped; the isolate simply died or the request landed elsewhere."
+          - id: d
+            label: "That happens under wrangler dev, which reloads the module on each request; a deployed isolate keeps it"
+            correct: false
+            feedback: "Backwards. Dev is the friendlier case, one machine and one isolate, which is why it worked in dev is the classic bug here. Production spreads you across cities that never shared the variable."
         explanation: "Statelessness is the platform's core deal: your code runs as short-lived isolates in many cities, so shared state needs a shared store. KV is the taught answer for last-known-status, eventually consistent, globally readable, and generous enough on the free tier for a probe fleet's write rate."
       - id: m07-l1-q5
         prompt: "A teammate sends you a 2023 tutorial: 'deploy your status page with Cloudflare Pages.' Per the vendor's current docs, what's the right call for a NEW project?"
@@ -89,10 +113,15 @@ blocks:
           - id: b
             label: "Build on Workers, Cloudflare's Pages docs themselves say to start new projects with Workers"
             correct: true
+            feedback: "The durable habit outranks the platform trivia: the banner that settles this is on the vendor's own current docs, and a 2023 tutorial cannot know what 2026 recommends."
           - id: c
             label: "Use both, Pages for the static assets and a Worker for anything dynamic behind it"
             correct: false
             feedback: "You don't need the split anymore: Workers serves static assets directly, which is exactly why the vendor recommends it for new projects. Two platforms where one suffices is drift waiting to happen."
+          - id: d
+            label: "Pages is being deprecated, so start on Workers and migrate anything still living on Pages too"
+            correct: false
+            feedback: "The banner steers NEW projects; it announces no end-of-life and asks nobody to migrate. Reading a recommendation as a deadline is its own way of not reading the current docs."
         explanation: "Probed live 2026-09-01, the Pages docs banner reads: 'Workers supports most Pages use cases and offers a broader feature set... Start new projects with Workers.' The meta-lesson outranks the platform trivia: read the vendor's current docs, not blog posts from the year a tutorial was written."
       - id: m07-l1-q6
         prompt: "Your worker's cron probes the Solana public RPC getHealth endpoint and occasionally gets a 429. What does the station's own discipline say to do?"
@@ -105,8 +134,13 @@ blocks:
           - id: b
             label: "Apply the m02-l3 backoff and treat the cap (100 req/10s/IP) as a budget the probe respects"
             correct: true
+            feedback: "The chain arrives as one more endpoint with real limits, and backoffDelay plus equal jitter comes through the pulse-core import already written. That is M8's whole argument in one paragraph."
           - id: c
             label: "Switch the worker to @solana/kit, which manages public RPC rate limits for you"
             correct: false
             feedback: "kit is a client library, not a rate-limit exemption, the per-IP cap applies regardless of what constructs the request. kit reads arrive in M8 for other reasons; this lesson's ramp is deliberately a plain fetch."
+          - id: d
+            label: "Cache each getHealth response for ten seconds so repeated cron probes stop reaching the cap"
+            correct: false
+            feedback: "A cached liveness answer is a monitor lying on purpose. The probe's entire product is whether the RPC answered YOU, just now, and how fast; serve a ten-second-old ok and the status page reports a node it never spoke to."
         explanation: "The structural Solana ramp: the chain joins the target list as just another endpoint with real limits, 100 requests per 10 seconds per IP on the public RPC. The backoff-and-budget discipline you built for flaky HTTP in M2 is exactly what chain probing needs, which is the whole argument of M8 in miniature."
