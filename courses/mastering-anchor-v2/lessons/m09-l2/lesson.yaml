@@ -63,19 +63,19 @@ blocks:
         multiSelect: false
         options:
           - id: d
-            label: "In the Client-Side Mastery course, which owns the sBPF and wire depth under a send."
+            label: "In the client-side course, which owns the sBPF and wire depth under a send."
             correct: false
-            feedback: "That course picks up where a well-formed transaction ends: priority fees, retries, getting a send to land. What the VM does with the bytes once they arrive is the loader-and-syscall territory the boundary map routes elsewhere."
+            feedback: "The client-side boundary picks up where a well-formed transaction ends: priority fees, retries, getting a send to land. What the VM does with the bytes once they arrive is the loader-and-syscall territory the boundary map routes elsewhere."
           - id: b
-            label: "In the Low-Level Solana course, which owns runtime, loader, and sBPF depth."
+            label: "In the low-level Solana course, which owns runtime, loader, and sBPF depth."
             correct: true
-            feedback: "That course runs this same mirror in the opposite direction, rebuilding a counter with nothing underneath it. The peek here only establishes that a hand-written hot path can be linked in at all."
+            feedback: "Runtime, loader and sBPF depth is the boundary this course hands off, and the peek here only establishes that a hand-written hot path can be linked in at all. Read the handoff for what it is, though: a named boundary and a reading list, not a link you can follow — see the explanation."
           - id: a
             label: "Here in the next module, since Anchor V2's asm-v2 hot path puts sBPF in scope."
             correct: false
             feedback: "asm-v2 only proves the escape hatch exists — you can link a hand-written hot path. Why the VM executes it that way is handed off by the boundary map, not taught here."
           - id: c
-            label: "In the Digital Assets course, next to token standards and the transfer-hook interface."
+            label: "In the digital-assets course, next to token standards and the transfer-hook interface."
             correct: false
-            feedback: "Digital Assets owns token standards and the transfer-hook interface, which are program-level concerns, not VM or loader internals."
-        explanation: "This course stays framework-level: what the macro expands to. The sBPF peek is a single beat; the Low-Level Solana course owns loaders, sBPF, and syscalls, and it runs the same strip-the-framework mirror in the other direction on a counter — rebuilding it with no framework at all."
+            feedback: "Token standards and the transfer-hook interface sit behind a different boundary entirely — program-level concerns, not VM or loader internals."
+        explanation: "This course stays framework-level: what the macro expands to. The sBPF peek is a single beat, and loaders, sBPF and syscalls are the low-level boundary it hands off. One honest caveat about every sibling this course names: they are boundary names, describing who would own a topic, not entries in the shipped catalog — no low-level, client-side or digital-assets course has shipped in the Academy catalog. Treat a handoff as this course telling you truthfully what it is not teaching, and go to primary docs for the rest."

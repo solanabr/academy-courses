@@ -59,17 +59,17 @@ blocks:
             label: "The mint declares a TransferHook extension and you did not forward the hook program's extra accounts."
             correct: true
             feedback: "Presence of the extension is not the question; the program id recorded inside it is. All zeroes and the hook is inert, so that mint transfers fine on the ordinary account list."
-        explanation: "A mint with a TransferHook extension runs a hook program on every transfer, and that program needs its extra accounts forwarded in the instruction. transfer_checked itself is fine; a transfer against a hooked mint just won't complete unless you resolve and pass those accounts. Designing the hook is the Digital Assets course's job; noticing you must forward its accounts is yours. Note that the extension being present is not the trigger: the hook's programId is. An all-zero programId means the hook is declared but dormant, and the usual four accounts still suffice."
+        explanation: "A mint with a TransferHook extension runs a hook program on every transfer, and that program needs its extra accounts forwarded in the instruction. transfer_checked itself is fine; a transfer against a hooked mint just won't complete unless you resolve and pass those accounts. Designing the hook is standards work past this course's boundary; noticing you must forward its accounts is yours. Note that the extension being present is not the trigger: the hook's programId is. An all-zero programId means the hook is declared but dormant, and the usual four accounts still suffice."
       - id: m05-l3-q3
         prompt: "A teammate asks you to add full transfer-hook design, writing the hook program and its account-resolution interface, into this lesson's swap. What's the right call?"
         multiSelect: false
         options:
           - id: c
-            label: "Split the difference: write a minimal hook program here and defer only the account-resolution interface to Digital Assets."
+            label: "Split the difference: write a minimal hook program here and defer only the account-resolution interface past the standards boundary."
             correct: false
             feedback: "A partial re-teach is exactly the boundary creep the design forbids. It duplicates owned material and leaves learners unsure which course actually teaches the interface end to end."
           - id: b
-            label: "Decline: hook authoring is standards depth the Digital Assets course owns; this lesson stays at program-seat mechanics."
+            label: "Decline: hook authoring is standards depth past this course's boundary; this lesson stays at program-seat mechanics."
             correct: true
             feedback: "Sizing the account, spotting the extension, shipping the extra accounts along with the call: that's the program seat's work. Authoring the hook and its resolution interface is standards work, and it lives in one place."
           - id: a
@@ -80,7 +80,7 @@ blocks:
             label: "Tell them it is covered already: detecting the hook and authoring it are one skill from the program's seat."
             correct: false
             feedback: "Reading a stored programId off a mint and writing the program that field points at are not the same job, and the lesson draws that line in as many words: noticing is mechanics, authoring is the standard. Collapsing them is how a course quietly grows a second syllabus it never planned to maintain."
-        explanation: "The boundary is explicit: this course teaches Token-2022 from the program's seat (account sizing, forwarding hook accounts), and the Digital Assets course owns extension-standards depth and walks the transfer-hook interface end to end. Keeping the line sharp is the lesson's job: mechanics here, standards there. Concretely, reading the extension-aware account length, detecting a TransferHook extension and reading its programId, and reasoning about whether a transfer must forward extra accounts belong here; designing extensions, writing a hook program, and wiring its account-resolution interface belong there."
+        explanation: "The boundary is explicit: this course teaches Token-2022 from the program's seat (account sizing, forwarding hook accounts), and extension-standards depth -- authoring the hook and walking the transfer-hook interface end to end -- sits past its boundary. That boundary names a subject, not a shipped course: no digital-assets course exists in the Academy catalog today, so the honest handoff for hook authoring is the Token-2022 specification itself. Keeping the line sharp is the lesson's job: mechanics here, standards there. Concretely, reading the extension-aware account length, detecting a TransferHook extension and reading its programId, and reasoning about whether a transfer must forward extra accounts belong here; designing extensions, writing a hook program, and wiring its account-resolution interface belong there."
       - id: m05-l3-q4
         prompt: "Budgeting space for a Token-2022 mint, you reach for the account length a docs example printed for a similar mint and cite it as fixed. What does the lesson teach you to do instead?"
         multiSelect: false
