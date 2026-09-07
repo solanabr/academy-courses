@@ -178,9 +178,18 @@ def length_band(q: dict) -> tuple[int, int, bool]:
     else:                                # key drops one rank => new option must be SHORTER
         lo, hi = int(min(lens) * 0.85), max(int(key_len) - 1, int(min(lens) * 0.85) + 15)
 
-    # If the key is the longest of its set, ranks below cur_rank are unreachable
-    # no matter what we append. Flag it rather than pretending otherwise.
-    tighten = cur_rank == len(lens) - 1 and (h % 3 == 0)
+    # Rank 0 is unreachable by appending: the new option either sits above the key
+    # (rank unchanged) or below it (rank +1). Nothing makes an existing key the
+    # SHORTEST. So the only lever that opens rank 0 is shortening the key, and the
+    # questions where that is cheap are the ones whose key is already near the
+    # bottom -- not the ones where it is longest.
+    #
+    # The first version had this exactly backwards: it flagged `cur == max`, i.e.
+    # the questions that should be FILLING rank 3, and left the low-rank ones
+    # alone. On one course all five flagged questions were the wrong ones, and an
+    # agent that followed every band still landed at [0, 16, 21, 2], p=3.4e-07 --
+    # the same failure the flag existed to prevent.
+    tighten = cur_rank <= 1 and (h % 2 == 0)
     lo, hi = max(20, lo), max(lo + 15, hi)
     return lo, hi, tighten
 
