@@ -413,8 +413,8 @@ fn tx(svm: &LiteSVM, payer: &Keypair, instruction: Instruction) -> VersionedTran
 fn withdraw_moves_lamports_and_rejects_overdraw() {
     let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
-    svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so")
-        .unwrap();
+    let vault_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_vault.so");
+    svm.add_program_from_file(program_id, vault_so).unwrap();
 
     let authority = Keypair::new();
     svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();

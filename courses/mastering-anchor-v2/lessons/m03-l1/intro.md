@@ -224,8 +224,11 @@ fn quarter_vault_pda_derives_and_reads_back() {
     // `svm()` is LiteSVM::new() plus the profiling hook `anchor test --profile` turns on.
     let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
-    svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so")
-        .unwrap();
+    // cargo runs a test binary with its working directory at the package root, so a bare
+    // "target/deploy/..." would resolve inside programs/quarter-vault/ and miss. Anchor the
+    // path on the crate instead: the artifact lives in the workspace target dir, two up.
+    let vault_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_vault.so");
+    svm.add_program_from_file(program_id, vault_so).unwrap();
 
     // A player who will pay rent and own the vault.
     let player = Keypair::new();

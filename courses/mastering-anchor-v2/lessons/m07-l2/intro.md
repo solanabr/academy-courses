@@ -120,8 +120,10 @@ use anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTra
 #[test]
 fn drain_as_stranger() {
     let mut svm = anchor_v2_testing::svm();
-    svm.add_program_from_file(quarter_vault::ID, "target/deploy/quarter_vault.so").unwrap();
-    svm.add_program_from_file(quarter_prize::ID, "target/deploy/quarter_prize.so").unwrap();
+    let vault_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_vault.so");
+    let prize_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_prize.so");
+    svm.add_program_from_file(quarter_vault::ID, vault_so).unwrap();
+    svm.add_program_from_file(quarter_prize::ID, prize_so).unwrap();
 
     let (maker, player, stranger) = (Keypair::new(), Keypair::new(), Keypair::new());
     for kp in [&maker, &player, &stranger] {

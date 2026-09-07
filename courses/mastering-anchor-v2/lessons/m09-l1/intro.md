@@ -372,8 +372,8 @@ const PROGRAM_ID: Pubkey = pubkey!("<paste your generated pubkey>");
 #[test]
 fn withdraw_signed() {
     let mut svm = LiteSVM::new();
-    svm.add_program_from_file(PROGRAM_ID, "target/deploy/native_quarter_vault.so")
-        .unwrap();
+    let program_so = concat!(env!("CARGO_MANIFEST_DIR"), "/target/deploy/native_quarter_vault.so");
+    svm.add_program_from_file(PROGRAM_ID, program_so).unwrap();
 
     let authority = Keypair::new();
     svm.airdrop(&authority.pubkey(), 10_000_000_000).unwrap();

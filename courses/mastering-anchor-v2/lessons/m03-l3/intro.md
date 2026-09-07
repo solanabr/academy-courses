@@ -382,8 +382,8 @@ fn require_funded_tx(
 fn min_balance_rejects_below_and_passes_at_floor() {
     let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
-    svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so")
-        .unwrap();
+    let vault_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_vault.so");
+    svm.add_program_from_file(program_id, vault_so).unwrap();
 
     let player = Keypair::new();
     svm.airdrop(&player.pubkey(), 1_000_000_000).unwrap();

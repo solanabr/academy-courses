@@ -518,7 +518,8 @@ use anchor_v2_testing::{svm, Keypair, Signer as _};
 fn init_deposit_withdraw_roundtrip() {
     let mut svm = svm();
     let program_id = quarter_vault::ID;
-    svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so").unwrap();
+    let vault_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_vault.so");
+    svm.add_program_from_file(program_id, vault_so).unwrap();
 
     let authority = Keypair::new();
     svm.airdrop(&authority.pubkey(), 5_000_000_000).unwrap();

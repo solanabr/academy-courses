@@ -284,7 +284,8 @@ use anchor_v2_testing::{
 fn setup() -> (LiteSVM, Address) {
     let mut svm = anchor_v2_testing::svm();
     let program_id = quarter_vault::ID;
-    svm.add_program_from_file(program_id, "target/deploy/quarter_vault.so").unwrap();
+    let vault_so = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/deploy/quarter_vault.so");
+    svm.add_program_from_file(program_id, vault_so).unwrap();
     (svm, program_id)
 }
 
