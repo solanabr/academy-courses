@@ -42,15 +42,15 @@ blocks:
             correct: false
             feedback: "Network fees here are not a percentage of value, and validators take no cut of the amount transferred. The base fee is flat per signature and independent of the sum moved."
           - id: b
-            label: "A flat 5000-lamport base fee, so a typical payment costs a small fraction of one cent whatever the size."
+            label: "A flat 5000-lamport base fee, so a typical payment costs a small fraction of a cent whatever the size."
             correct: true
             feedback: "Fees price signatures, not value; ticket size drops out of the math."
           - id: c
-            label: "Nothing at all. Transfers on Solana are free, so there is no fee line to budget for."
+            label: "Nothing at all: Solana transfers are free, and the SOL you hold pays for account creation rather than for sends."
             correct: false
             feedback: "Not free: every transaction pays a base fee of 5000 lamports plus any priority fee. It is tiny, but budgeting it as literally zero will bite you at scale and on account creation."
           - id: d
-            label: "A flat fee, but netted out of the USDC itself, so the customer's $12 lands as slightly less than $12."
+            label: "A flat fee, but netted out of the USDC itself, so the customer's $12 arrives as a little less than $12."
             correct: false
             feedback: "The card habit of netting the cut out of the sale does not port. Fees are paid in SOL by whoever signs, and the USDC leg moves the exact amount the transfer names, so your $12 arrives as $12."
         explanation: "The base fee is a flat 5000 lamports per signature, so a typical payment costs a small fraction of one cent ($0.00075 at $150 per SOL, $0.0015 at $300 — quote the band, not a baked-in dollar figure), orders of magnitude below card interchange and, more to the point, flat rather than percentage-based. That flips the economics for small-ticket sales, and it deletes the float: nothing is held back on a schedule, so there is nothing to anticipate. Account creation has its own one-time rent cost, which you meet next module where token accounts appear."

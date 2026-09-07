@@ -32,7 +32,7 @@ blocks:
             correct: false
             feedback: "Transfer hooks have nothing to do with NFC; there is no tap-to-pay path on any mint type."
           - id: d
-            label: "Yes; the spec itself says a Solana Pay URL may be encoded in NFC tags, so tap is defined."
+            label: "Yes; the spec itself says a Solana Pay URL may be encoded in QR codes or NFC tags, so a tap flow is defined."
             correct: false
             feedback: "That sentence is about transport, not a tap flow. A tag holding the same solana: string is a QR code you cannot see; the spec defines no reader protocol, no handshake and no secure element."
         explanation: "The research is blunt here: no primary spec or docs support NFC anywhere in Solana Pay or Solana Mobile. QR is the checkout surface. Promising tap-to-pay to a vendor would be selling a capability that does not exist, so the honest build is a QR POS."
@@ -53,7 +53,7 @@ blocks:
             correct: true
             feedback: "With no terminal vendor in the market, a first-party example is the only maintained base; an example is not a product, and the upkeep is yours."
           - id: d
-            label: "Decaf left the Solana POS market, and the honest read is that in-store crypto checkout does not work, so skip the stall."
+            label: "Decaf left the Solana POS market for payment links, and the honest read is that in-store crypto checkout does not work, so tell the vendor to skip the stall."
             correct: false
             feedback: "The pivot says in-store demand was thinner than payout demand, which is a market fact about vendors rather than a verdict on your table. What it costs you is the vendor catalog, not the sale."
         explanation: "Decaf's site now sells payment links, invoicing, and remittances across 180+ countries, with the Solana POS past gone. The honest read is that in-store crypto POS demand was thinner than payout and remittance demand. With no vendor catalog to lean on, you build the stall on the pay repo's first-party POS example."
@@ -74,7 +74,7 @@ blocks:
             correct: false
             feedback: "Blinks are a social/link surface, not a POS terminal; that is the next lesson, and it does not replace the stall."
           - id: d
-            label: "The pay repo's examples/point-of-sale, aimed at its own bundled API route, which prices the cart for you."
+            label: "The pay repo's examples/point-of-sale, left aimed at its own bundled API route, which already prices the cart and stamps the order id."
             correct: false
             feedback: "Right base, wrong target. The bundled route is the example's own demo endpoint: it holds no catalog, stamps no order id, and knows nothing about the cart, so aiming the link there throws away three lessons of pricing you already own."
         explanation: "The pay repo ships examples/point-of-sale (a Next.js POS) as a first-party base. Configuring it to hit your transaction-request endpoint reuses the server-built pricing you already have. Commerce Kit is beta and blinks are a different surface, so neither is the stall's foundation."
@@ -95,7 +95,7 @@ blocks:
             correct: false
             feedback: "The mobile reality beat does matter for context; the fix is honest framing, not omission."
           - id: d
-            label: "Present the 0% fee line as verified, since a pricing claim is a promise, and drop the user numbers."
+            label: "Present the 0% fee line as verified, since a homepage pricing claim is a commitment, and drop the user numbers."
             correct: false
             feedback: "A fee line on a homepage is a pricing claim, which is a thing the vendor can revise, not an audited disclosure. Both lines travel with the same attribution, and neither one becomes a fact by being easier to check."
         explanation: "Seeker's homepage makes claims (a '150,000+ users' figure with an unclear referent, a dApp Store '0% platform fees' line) but shipped-unit numbers are undisclosed. The honest move is homepage-claims phrasing without presenting the numbers as verified, while still giving the vendor the mobile context."
