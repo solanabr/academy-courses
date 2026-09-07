@@ -21,18 +21,18 @@ blocks:
       de protótipo para a rede ativa em produção?
     multiSelect: false
     options:
-    - id: a
-      label: Esgotamento de recursos nos nós validadores, latência de agendamento
-        e backpressure de I/O sob alta carga de mensagens.
-      correct: true
-      feedback: Correto! O alto volume de tráfego expôs limites práticos de memória,
-        processamento e agendamento nos validadores sob estresse de produção.
     - id: b
       label: Redução drástica do tráfego para níveis próximos de zero, deixando os
         nós sem mensagens para processar.
       correct: false
       feedback: 'O desafio foi exatamente o oposto: a sobrecarga e o volume intenso
         de mensagens que saturaram os recursos dos nós.'
+    - id: a
+      label: Esgotamento de recursos nos nós validadores, latência de agendamento
+        e backpressure de I/O sob alta carga de mensagens.
+      correct: true
+      feedback: Correto! O alto volume de tráfego expôs limites práticos de memória,
+        processamento e agendamento nos validadores sob estresse de produção.
     - id: c
       label: Incapacidade dos nós em executar qualquer instrução mesmo sem receber
         mensagens da rede.
@@ -47,18 +47,18 @@ blocks:
       lição, quais padrões de eventos indicam instabilidade operacional em um nó?
     multiSelect: false
     options:
-    - id: a
-      label: Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas
-        RPC e pausas excessivas de processamento.
-      correct: true
-      feedback: Exato! Na análise de logs, slots ignorados, falhas em chamadas RPC
-        e pausas anômalas são os principais sinais de que o validador está sobrecarregado.
     - id: b
       label: Eventos regulares de confirmação de blocos no prazo previsto e sem mensagens
         de erro nos canais RPC.
       correct: false
       feedback: Confirmações regulares sem atrasos indicam operação saudável, e não
         instabilidade.
+    - id: a
+      label: Mensagens frequentes de 'slot skipped', falhas repetidas de chamadas
+        RPC e pausas excessivas de processamento.
+      correct: true
+      feedback: Exato! Na análise de logs, slots ignorados, falhas em chamadas RPC
+        e pausas anômalas são os principais sinais de que o validador está sobrecarregado.
     - id: c
       label: Ausência completa de registros de logs gerados pelos validadores durante
         a operação.
@@ -73,13 +73,6 @@ blocks:
       duráveis no fluxo de resposta a incidentes?
     multiSelect: false
     options:
-    - id: a
-      label: Mitigações de curto prazo estabilizam a rede e restabelecem o consenso
-        imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural.
-      correct: true
-      feedback: Perfeito! A prioridade imediata em um incidente é conter o impacto
-        e recuperar a estabilidade; depois, desenvolve-se o patch durável para eliminar
-        a causa raiz.
     - id: b
       label: Mitigações de curto prazo tornam desnecessária qualquer investigação
         da causa raiz ou correção durável futura.
@@ -92,5 +85,12 @@ blocks:
       correct: false
       feedback: O fluxo de resposta estruturado exige primeiro triagem e mitigação
         emergencial para conter danos antes de projetar soluções definitivas.
+    - id: a
+      label: Mitigações de curto prazo estabilizam a rede e restabelecem o consenso
+        imediatamente, enquanto remediações duráveis corrigem a causa raiz arquitetural.
+      correct: true
+      feedback: Perfeito! A prioridade imediata em um incidente é conter o impacto
+        e recuperar a estabilidade; depois, desenvolve-se o patch durável para eliminar
+        a causa raiz.
     explanation: A lição divide o fluxo em detecção, triagem, mitigação de curto prazo
       (estabilização emergencial) e remediação durável (eliminação da causa raiz).

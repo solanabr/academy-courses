@@ -26,7 +26,7 @@ Expected (your txid and address will differ; every regtest wallet rolls its own)
 
 Two commands, two very different answers to the same question. `getbalance` hands you one tidy number. `listunspent` (list unspent transaction outputs) hands you a list, and here it holds exactly one entry: a single 50 BTC output sitting at output index `0` of some transaction, matured after 101 confirmations. That single output is your whole fortune. The tidy number was your wallet doing arithmetic on it.
 
-![getbalance returns one computed number while listunspent returns the list of stored outputs, and the balance equals the sum of that list.](assets/v01-comparison.png)
+![getbalance returns one computed number while listunspent returns the list of stored outputs, and the balance equals the sum of that list.](assets/v01-comparison.webp)
 
 ## Send it, then read it back
 
@@ -92,7 +92,7 @@ Trimmed to the fields that carry the lesson (your txids, addresses, and the paym
 
 There it is: one input (`vin`), two outputs (`vout`). Look hard at that single input. It carries no amount. It carries a pointer: a `txid` and a `vout` index. Read the pointer. Its `txid` is `f2c9a4e1...` and its `vout` is `0`, which is the exact coin you saw in `listunspent` at the top of this lesson: output index 0 of your matured coinbase (the special first transaction of a block that mints new coins to the miner). The transaction you just built reaches back, names that 50 BTC output by address, and eats it.
 
-![A 50 BTC input is consumed and split into a 10 BTC payment output and a 39.99997640 change output, with a 2360-satoshi fee as the unclaimed gap.](assets/v02-flowchart.png)
+![A 50 BTC input is consumed and split into a 10 BTC payment output and a 39.99997640 change output, with a 2360-satoshi fee as the unclaimed gap.](assets/v02-flowchart.webp)
 
 ## Trace it by hand: the artifact
 
@@ -106,7 +106,7 @@ Now the outputs, one at a time. Read `vout[0]`: value 10 BTC, address `bcrt1qkx8
 
 Last, look at the input's `txinwitness`, the two-element array holding a signature and a public key. This is the reveal from the keys-and-signatures lesson doing its one job right here: it unlocks `vin[0]`, proving you hold the private key that the coinbase output was locked to. Strip that witness out and the transaction becomes a claim with no proof behind it, and every honest node on the network rejects it on sight. An output is a lock; the witness is the key turning in it. Read those three annotations back in order, input to source, each output to its role, witness as the unlocking proof, and you have narrated a whole transaction straight from raw JSON. That narration is exactly what every block explorer does behind its pretty tables, and now you can do it without one.
 
-![The decoded transaction annotated so the input traces to the 50 BTC coinbase source, the two outputs are tagged payment and change, and the fee is shown as the gap with no field of its own.](assets/v03-annotated-code.png)
+![The decoded transaction annotated so the input traces to the 50 BTC coinbase source, the two outputs are tagged payment and change, and the fee is shown as the gap with no field of its own.](assets/v03-annotated-code.webp)
 
 ## Your balance is a bedtime story
 
@@ -127,7 +127,7 @@ bitcoin-cli -regtest listunspent 0
 
 The 50 BTC coin is gone from the list. It was consumed, and a consumed output never reappears. In its place sit two outputs, both yours, both children of the transaction you sent: the 10 BTC payment (your fresh address was in your own wallet, so it counts) and the 39.99997640 change. Your `getbalance` fell to 49.99997640, which is 50 minus exactly 0.00002360, the fee. And here is the reveal the whole lesson was pointed at. Where is the 50 living, then? Nowhere: your wallet added it up. A **UTXO** is an unspent transaction output, a discrete chunk of bitcoin created by one transaction and not yet eaten by another, and your wallet's "balance" is nothing but the sum of every UTXO it holds a key for. Spend one, and the sum recomputes. There is no account, no row, no field named `balance` on the chain that a transaction increments or decrements. There are only outputs: created, then later destroyed, whole.
 
-![A table contrasting the account model, where a balance is a stored row, with Bitcoin's UTXO model, where balance is a computed sum of unspent outputs and payments consume whole outputs.](assets/v04-table.png)
+![A table contrasting the account model, where a balance is a stored row, with Bitcoin's UTXO model, where balance is a computed sum of unspent outputs and payments consume whole outputs.](assets/v04-table.webp)
 
 ## The fee hides in the gap
 
@@ -149,7 +149,7 @@ The second footgun is quieter and cost me an afternoon once, so let me pay that 
 
 That is why `listunspent` reports both `txid` and `vout` on every entry, and why the payment/change order in your decode being possibly flipped from mine is not a cosmetic detail. If your wallet put change at index 0 and payment at index 1, then "spend the change" means `vout: 1` for you and `vout: 0` for me. Confuse the txid you sent with the output index you spend, and you either point at nothing or point at the wrong coin.
 
-![A transaction input holds a txid plus a vout index that together point at one specific output among several the source transaction created, so the index is not optional.](assets/v05-diagram.png)
+![A transaction input holds a txid plus a vout index that together point at one specific output among several the source transaction created, so the index is not optional.](assets/v05-diagram.webp)
 
 ## Addresses are hashes because of a ghost
 
@@ -157,7 +157,7 @@ Look once more at each output's `scriptPubKey`. That field is the lock: the cond
 
 Early Bitcoin had a pay-to-IP mode, removed as insecure. You could point your client at an IP address, and the node behind it would hand back a fresh public key to pay to, live, over the wire. Convenient, and fatally so: nothing authenticated that the key came from who you meant to pay, so anyone sitting between you and that IP could swap in their own key and pocket the coins. It was removed as trivially attackable, and its ghost is the reason ownership today is expressed as a hash of a key baked into the output. You commit, in advance and in public, to the fingerprint of who may spend, and the spender later reveals the key and a signature that fit it. No live handshake, nothing to intercept. That is the same commit-then-reveal shape you built with hashes two lessons ago, now guarding coins, and the `txinwitness` you traced is the reveal half firing.
 
-![The removed pay-to-IP mode let an attacker between payer and node swap in their own key during a live handshake, which is why outputs today lock to a hash of a key committed in advance and revealed only at spend time.](assets/v06-diagram.png)
+![The removed pay-to-IP mode let an attacker between payer and node swap in their own key during a live handshake, which is why outputs today lock to a hash of a key committed in advance and revealed only at spend time.](assets/v06-diagram.webp)
 
 ## Why count this way, and where it hurts
 
@@ -165,13 +165,13 @@ The obvious design is the one you would reach for on any Tuesday: store a balanc
 
 Make that concrete with the two coins you now hold. Say two transactions arrive at a node in the same instant. Transaction X spends your 10 BTC output, `vout` 0 of `7b1e4c9a...`. Transaction Y spends your 39.99997640 output, `vout` 1 of the very same transaction. A validator picks up X, follows its input pointer to output 0, confirms that output exists and is still unspent, checks the witness against the lock, and accepts. It picks up Y and does the same walk to output 1, wholly independently. Feed them in the order X then Y, or Y then X, or hand X to one CPU core and Y to another running in parallel: every path reaches accept, because the two proofs never read the same byte of state. Neither transaction needs to know the other exists. The node does not have to decide which one went first, because going first means nothing when the state each transaction touches is disjoint from the other.
 
-![Transaction X verifies against output 0 and transaction Y against output 1 on separate cores, and because they share no state the node reaches the same accept result in any order or in parallel.](assets/v07-diagram.png)
+![Transaction X verifies against output 0 and transaction Y against output 1 on separate cores, and because they share no state the node reaches the same accept result in any order or in parallel.](assets/v07-diagram.webp)
 
 The account model works the other way, and this is where the cost lands. Picture the same value living as a single balance row that reads 49.99997640. Transaction X wants to subtract 10 from that row; transaction Y wants to subtract 39.99997640 from it. Both must read that one number, and both must write it back, so the system cannot check them independently no matter how many cores it owns. Run X first and the row holds 39.99997640 by the time Y reads it; run Y first and it holds 10 when X reads it; run them at the same instant on two cores and they can clobber each other's write and leave the row holding a wrong total, with coins conjured or destroyed. To stay correct, the system must serialize those two transfers and agree on their order before it can even begin to check them. That forced ordering is the tax the account model pays on every conflicting transfer, and the UTXO model simply does not owe it.
 
 That independence is not a free win, and this course names the bill every time. Grant the account model its real strength first: a single mutable balance is the natural home for shared state, for a pot of money that many parties update by a common rule, which is exactly what a contract is. UTXOs make that miserable. There is no "the pool's balance" to nudge; there is a scattering of discrete outputs, and expressing "everyone can add to this and the rule decides who withdraws" means threading logic through outputs that were built to do one thing: sit locked until one key unlocks them. So the trade-off, stated plainly: UTXOs give Bitcoin parallel-verifiable, stateless transactions, but make shared state, like a contract everyone updates, miserable to express. Hold that thought until the EVM chapter, where a different chain pays the opposite bill to get contracts back.
 
-![A comparison showing the UTXO model wins parallel stateless verification but struggles with shared contract state, while the account model wins natural shared state at the cost of serialized execution, flagged as the next module.](assets/v08-comparison.png)
+![A comparison showing the UTXO model wins parallel stateless verification but struggles with shared contract state, while the account model wins natural shared state at the cost of serialized execution, flagged as the next module.](assets/v08-comparison.webp)
 
 ## Build: annotate the decode
 
@@ -200,7 +200,7 @@ bitcoin-cli -regtest listunspent 0 | python3 -c 'import json,sys; print(len(json
 
 You should see `2`, then a txid, then `2` again. Decode that new txid and confirm `vin` has length 2 and the two pointers match the coins you predicted.
 
-![Neither the 10 BTC nor the 39.99997640 BTC output alone covers a 45 BTC payment, so coin selection must consume both, producing a two-input transaction.](assets/v09-diagram.png)
+![Neither the 10 BTC nor the 39.99997640 BTC output alone covers a 45 BTC payment, so coin selection must consume both, producing a two-input transaction.](assets/v09-diagram.webp)
 
 In your write-up, explain the selection in one line: the wallet chose both because 45 exceeds every single UTXO you hold, and the only subset that clears 45 plus fee is the whole set. That sentence is the analyze objective, earned from a number you forced.
 

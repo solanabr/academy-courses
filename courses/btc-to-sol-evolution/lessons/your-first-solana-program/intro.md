@@ -19,7 +19,7 @@ That is v4.1.1, the current stable release as this lesson was written; versions 
 
 One trap before anything else, because it's the single most common way a good tutorial wastes your afternoon. If you copied that install line from an older gist, you probably typed `release.solana.com`. That domain is dead for this. The client was handed off from the original `solana-labs/solana` repository to Anza's `agave` repo, and the installer moved with it: the live domain is `release.anza.xyz`. That handoff is exactly why the banner says `solana-cli` under the hood of Agave and not something older. When a command in this lesson resembles one you've seen before but the URL differs, trust the URL here.
 
-![A comparison of the old solana-labs install URL and build command against the current Anza agave equivalents, sharing one cause: the client was handed off to a new repo.](assets/v01-comparison.png)
+![A comparison of the old solana-labs install URL and build command against the current Anza agave equivalents, sharing one cause: the client was handed off to a new repo.](assets/v01-comparison.webp)
 
 ## Point at devnet and get funded
 
@@ -53,7 +53,7 @@ A deploy costs SOL even here, and that catches web2 engineers off guard, because
 
 Before the code, a thirty-second orientation, because this is the first place in the whole course where you author a real programming language instead of a shell command. You do not need to learn Rust to finish today. You need to recognize six shapes. Here they are at a glance, and then we move:
 
-![A beginner reference table mapping Rust shapes (use, fn, a macro with a trailing bang, struct, impl, and a leading-underscore name) to one-line plain-English meanings, noting that struct and impl do not appear in today's program.](assets/v02-table.png)
+![A beginner reference table mapping Rust shapes (use, fn, a macro with a trailing bang, struct, impl, and a leading-underscore name) to one-line plain-English meanings, noting that struct and impl do not appear in today's program.](assets/v02-table.webp)
 
 You have a funded identity on a live network and nothing to deploy. Fix that. The program itself is deliberately boring, because today's payoff is not the code: it's what the network does to the code. Here is a minimal native program, no framework, just the raw entrypoint:
 
@@ -110,7 +110,7 @@ first_program.so first_program-keypair.json
 
 Two files, and the second one matters more than it looks. `target/deploy/first_program.so` is the compiled bytecode, the thing you'll upload. `target/deploy/first_program-keypair.json` is a fresh keypair the build generated for you on this first `cargo build-sbf`, and its public key is about to become your program's permanent address on-chain. Guard it. We'll come back to exactly how much it matters.
 
-![Rust source compiles through cargo build-sbf and LLVM into an sBPF .so binary plus a generated keypair whose public key becomes the program's on-chain ID.](assets/v03-diagram.png)
+![Rust source compiles through cargo build-sbf and LLVM into an sBPF .so binary plus a generated keypair whose public key becomes the program's on-chain ID.](assets/v03-diagram.webp)
 
 ## Deploy
 
@@ -128,7 +128,7 @@ The CLI never asked which address to use. It didn't need to: it read `target/dep
 
 Here's my confession, and it's the reason I keep saying guard that keypair. The first devnet program I ever shipped, I ran `git clean` on the repo a week later to reclaim disk, and `target/` went with it, `first_program-keypair.json` included. The program is still up there. I can read every byte of it. I can never change it, never upgrade it, never reclaim its rent, because the key that authorized all of those is gone. The CLI doesn't warn you about that. It's just Tuesday. The keypair is the program ID and the upgrade authority at the same time, and losing the file loses both.
 
-![The deploy command uploads the .so and reads the keypair file, whose public key becomes both the program ID and the upgrade authority.](assets/v04-annotated-code.png)
+![The deploy command uploads the .so and reads the keypair file, whose public key becomes both the program ID and the upgrade authority.](assets/v04-annotated-code.webp)
 
 ## Invoke it: hand over an account list
 
@@ -237,7 +237,7 @@ That split is doing real work, and it is worth understanding why the loader both
 
 One thing to file away for when you read newer proposals: SIMD-0162 proposes removing the `executable` flag entirely, on the logic that being owned by a loader is the real signal that an account is code. It hasn't shipped. As of Agave 4.x the flag is still set, and `solana account <program-id>` still shows you `Executable: true`. When it does land, ownership by the loader stays the thing that actually makes a program a program.
 
-![A loader-v3 deploy creates a tiny program account that points to a large separate ProgramData account holding the sBPF bytecode and the upgrade authority.](assets/v05-diagram.png)
+![A loader-v3 deploy creates a tiny program account that points to a large separate ProgramData account holding the sBPF bytecode and the upgrade authority.](assets/v05-diagram.webp)
 
 ## Three things you can now prove
 
@@ -251,7 +251,7 @@ Any stranger can read every byte. The ProgramData account is public, like every 
 
 This is exactly where the mental model from Heroku and friends has to go. Steelman the EVM version first, because it's genuinely convenient: an EVM contract account holds its code and its storage together, the contract writes to its own storage every time it updates a balance, and code plus data live in one place you think of as "the contract." That colocation is why so much web2 intuition ports cleanly to Ethereum. Solana splits them on purpose, and pays for it in exactly that convenience.
 
-![A comparison showing EVM contracts colocate code and storage in one self-writable account, while Solana keeps code in ProgramData and forces all mutable state into separate passed-in accounts.](assets/v06-comparison.png)
+![A comparison showing EVM contracts colocate code and storage in one self-writable account, while Solana keeps code in ProgramData and forces all mutable state into separate passed-in accounts.](assets/v06-comparison.webp)
 
 The naive fix a web2 engineer reaches for is to let the program own its own account and write to it directly, EVM-style, the way a service owns its database and updates rows whenever it likes. Solana forbids precisely that, and the reason traces straight back to the parallelism the last course module foreshadowed. Start from what makes Solana fast: it does not process transactions one at a time down a single line. It runs many of them at once, spread across cores, whenever they do not touch the same state. To pull that off, the runtime needs one thing before it executes anything: a complete, up-front list of every account each transaction will read and write. Given those lists, it can prove that two transactions are disjoint and schedule them side by side, with no risk of one clobbering what the other is mid-way through changing.
 
@@ -259,7 +259,7 @@ Now watch what a self-writing program would do to that guarantee. If a program c
 
 That state still has to live somewhere, and it goes into other accounts. Each piece of mutable data gets its own account, owned by your program so your program is permitted to write it, created explicitly and passed into each instruction by whoever calls it. Your code is one account. Every balance, every record, every counter it manages is a different account, handed to it at call time and declared in the transaction that touches it. You proved the half that forces the other half.
 
-![A diagram showing that an up-front honest list of accounts lets the runtime prove transactions are disjoint and run them in parallel, while a self-writing program would make that list a lie and force sequential execution.](assets/v07-diagram.png)
+![A diagram showing that an up-front honest list of accounts lets the runtime prove transactions are disjoint and run them in parallel, while a self-writing program would make that list a lie and force sequential execution.](assets/v07-diagram.webp)
 
 ## The trade-off
 
@@ -269,13 +269,13 @@ Immutability and public readability are the entire point and the entire price. Y
 
 That devnet SOL was real rent, not a gas fee you pay once and forget. It looks like play money because it's valueless, but the mechanism is mainnet's exactly. Every validator in the cluster keeps a full copy of your account on its own disk, so persistent on-chain storage is one of the network's scarcest shared resources, and the chain prices it explicitly, by the byte. Rather than dripping a fee out of the account every block, Solana has you deposit enough SOL up front to make the account rent-exempt, an amount that scales directly with the account's size and then sits locked inside it for as long as the account exists. A bigger program is a bigger account and a bigger locked deposit. The split you just uncovered decides where that cost lands: the proxy program account is tiny and nearly free, while the ProgramData account carrying the whole `.so` is where the real reserve is tied up. Close a program you still control and its authority can reclaim that SOL; lose the authority and the deposit is stranded on-chain forever, paying to keep alive a program nobody can ever touch again.
 
-![A table contrasting the tiny near-free proxy program account with the large ProgramData account that holds the real per-byte rent-exempt deposit, locked for the account's life.](assets/v08-table.png)
+![A table contrasting the tiny near-free proxy program account with the large ProgramData account that holds the real per-byte rent-exempt deposit, locked for the account's life.](assets/v08-table.webp)
 
 The upgrade path hangs on a single file. `target/deploy/first_program-keypair.json` is the program ID and, under loader-v3, the upgrade authority. (In a real deployment you'd usually transfer that authority to a separate, well-guarded key or a multisig, so a leaked build keypair can't touch the program.) Lose the authorizing key and the program is frozen exactly as it stands, forever. That is the immutability you asked for, finally showing its teeth.
 
 And "stateless" is the ergonomic tax. The convenience you took for granted your whole career, a service that just writes to its own database, is gone. A counter needs its own account, created up front and passed in on every call. Every mutable value becomes one more account to allocate, fund to rent-exemption, track, and pass in at the right position, and a whole class of bug that barely exists in web2 (forgetting to pass an account, or passing the wrong one) shows up to take its place. What you buy with that overhead is the parallelism from a moment ago, plus state that is isolated, independently verifiable, and impossible for one program to silently corrupt inside another's storage. The tax is real; so is what it purchases.
 
-![A table pairing each benefit of a deployed Solana program, immutability, public bytecode, on-chain storage, statelessness, with its direct cost.](assets/v09-table.png)
+![A table pairing each benefit of a deployed Solana program, immutability, public bytecode, on-chain storage, statelessness, with its direct cost.](assets/v09-table.webp)
 
 ## Build: `first-solana-program`
 
@@ -283,7 +283,7 @@ What you made today is the first on-chain rung of the toolkit this course assemb
 
 Here's the whole path you just walked, start to live, so you can run it from memory:
 
-![A six-step flowchart from installing the CLI through config, airdrop, build, deploy, and inspection, ending at the gate that proves the program is live and loader-owned.](assets/v10-flowchart.png)
+![A six-step flowchart from installing the CLI through config, airdrop, build, deploy, and inspection, ending at the gate that proves the program is live and loader-owned.](assets/v10-flowchart.webp)
 
 The one command that certifies the whole thing:
 

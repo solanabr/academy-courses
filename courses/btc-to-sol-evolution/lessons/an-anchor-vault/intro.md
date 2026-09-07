@@ -32,7 +32,7 @@ Sit with why that exact pairing happens. Deposit succeeds and withdraw fails in 
 
 **Never written a line of Rust? Good, you do not need to.** Read this lesson the way you read a recipe: follow the steps and you finish with a working vault. Three things are about to show up on screen, and not one of them asks you to be a systems programmer. The first is Rust, the language Solana programs are written in. You will read far more of it than you type, and every line you do type is handed to you. The second is those `#[...]` tags stacked above each block, called macros: treat them as pre-written machinery you stamp onto your code, so the framework generates the tedious parts instead of you. The third is the PDA, and here is the whole idea in one breath: an address with no password, that only your program is allowed to use. Hold those three and every code block below reads as a recipe, not a wall.
 
-![The deposit test moves 0.5 SOL from the owner into the vault PDA; the withdraw test fails because the keyless vault has no signer yet.](assets/v01-annotated-code.png)
+![The deposit test moves 0.5 SOL from the owner into the vault PDA; the withdraw test fails because the keyless vault has no signer yet.](assets/v01-annotated-code.webp)
 
 ## What you just watched, named
 
@@ -40,7 +40,7 @@ The account holding your half-SOL is a **Program-Derived Address**: a PDA, an ac
 
 If you're coming from the EVM, this is the one mental move that trips everyone. Over there, a contract simply holds funds at its own address, and the same address that stores the code also stores the balance. Solana splits that single thing into two. The code lives in one account, the program. The money lives in another, the PDA. And the program proves it may move the PDA's money not with a signature from a key, but by handing the runtime the exact seeds the address was built from. Name that difference out loud now, because half of Solana's account model is downstream of it.
 
-![A comparison showing the EVM keeps code and funds at one contract address, while Solana splits them into a program account and a keyless PDA bound by seeds.](assets/v02-comparison.png)
+![A comparison showing the EVM keeps code and funds at one contract address, while Solana splits them into a program account and a keyless PDA bound by seeds.](assets/v02-comparison.webp)
 
 ## Why the vault has no key by construction
 
@@ -50,7 +50,7 @@ Building an address that provably nobody can sign for means going the other way.
 
 The engineering is a short search. `find_program_address` takes your seeds (say `b"vault"` and the owner's public key) plus your program ID, appends one extra byte called the bump, and hashes the whole thing. If the resulting 32 bytes happen to land on the curve, that address would have a private key, which is forbidden, so it throws that bump away, subtracts one, and tries again. It counts the bump down from 255 until it finds the first value that produces an off-curve address. That first working value is the **canonical bump**: the single, largest bump that yields a valid, keyless PDA for those seeds. Store it once and you never search again.
 
-![A diagram of the bump search counting down from 255 until it finds an off-curve address, labeling that first working value the canonical bump.](assets/v03-diagram.png)
+![A diagram of the bump search counting down from 255 until it finds an off-curve address, labeling that first working value the canonical bump.](assets/v03-diagram.webp)
 
 ## The layout: one record, one vault
 
@@ -114,7 +114,7 @@ By the time control reaches the function body, the record account already exists
 
 The bare `bump` in each constraint (no value after it) tells Anchor to run `find_program_address` for you and expose the result on `ctx.bumps`. That search costs compute, and storing the answer instead of repeating it on every future call saves roughly 1,500 compute units per access. That's the third footgun on this lesson's list, prevented in one line: recomputing the PDA bump every call, when the canonical bump has been sitting in state the whole time.
 
-![A field-by-field breakdown of VaultState showing 42 bytes of data plus an 8-byte discriminator for 50 total, with both bumps stored to skip re-derivation.](assets/v04-annotated-code.png)
+![A field-by-field breakdown of VaultState showing 42 bytes of data plus an 8-byte discriminator for 50 total, with both bumps stored to skip re-derivation.](assets/v04-annotated-code.webp)
 
 ## Deposit: an ordinary transfer in
 
@@ -192,7 +192,7 @@ pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
 
 The only difference between a transfer that moves your money and one the chain rejects is `.with_signer(signer_seeds)`. That method is what turns a plain CPI into a PDA-signed CPI. The `program_id` you pass to `CpiContext::new` is `ctx.accounts.system_program.key()`, a `Pubkey`: that is the type `CpiContext::new` takes for the program in Anchor 1.x, not an `AccountInfo` (hand it `.to_account_info()` and the program will not compile). When you later move SPL tokens instead of SOL you switch to a different helper, `transfer_checked`, which also takes the mint and its decimals, while native SOL through the System Program stays on the plain `transfer` shown here. Same shape, different program, different helper.
 
-![A flowchart showing the runtime re-deriving the vault address from the supplied seeds and program ID, accepting the transfer only if they match, with no private key involved.](assets/v05-flowchart.png)
+![A flowchart showing the runtime re-deriving the vault address from the supplied seeds and program ID, accepting the transfer only if they match, with no private key involved.](assets/v05-flowchart.webp)
 
 ## The one check between the funds and everyone else
 
@@ -222,7 +222,7 @@ The vault is derived from `vault_state.authority`, the owner stored at init, so 
 
 I have shipped that bug. Early on, in a hackathon vault, I left the check off because the PDA seeds already used the owner's key and I reasoned the address alone was protection enough. It was not. The address said whose money it was; it said nothing about who was asking. A friend drained my devnet vault from a second wallet in about thirty seconds to make the point, and I have written the authority check first, every time, since. Do not treat it as a formality. It is the fifty lines of trust the whole module is about, compressed into one constraint.
 
-![A side-by-side of the withdraw instruction showing that without the authority check a stranger drains the vault, and with it the program halts with a custom Unauthorized error.](assets/v06-comparison.png)
+![A side-by-side of the withdraw instruction showing that without the authority check a stranger drains the vault, and with it the program halts with a custom Unauthorized error.](assets/v06-comparison.webp)
 
 ## Run it for real, on devnet
 
@@ -246,13 +246,13 @@ anchor deploy
 
 The airdrop caps at 2 SOL per request; if it's dry, the Solana Foundation web faucet is the fallback. One thing that will save you a confused hour: unlike `solana program deploy`, `anchor deploy` re-deploys to the *same* program ID on every run, reading it from `target/deploy/vault-keypair.json`. You can confirm which ID you're publishing with `solana address -k target/deploy/vault-keypair.json`. Then run your deposit and withdraw against devnet and read the balances change on a public explorer, not just in a log line you wrote yourself.
 
-![A run-book table listing the AVM install, airdrop, anchor test with and without a local validator, anchor build and deploy, and the command to read the program ID.](assets/v07-table.png)
+![A run-book table listing the AVM install, airdrop, anchor test with and without a local validator, anchor build and deploy, and the command to read the program ID.](assets/v07-table.webp)
 
 ## The trade-off you just bought
 
 Every design in this course gets its cost named, and this one's bill is the whole reason vaults are worth teaching. You moved custody from a key to a program, and that buys real things: automation, rules the funds obey without a human in the loop, an account nobody can drain by stealing a phrase off a sticky note. A key you can keep offline in a drawer and no online attacker can reach it. But a withdraw check you get slightly wrong drains the entire vault in a single transaction, and there is no drawer to hide the program in: it runs in the open, on request, forever. Custody by key fails one wallet at a time. Custody by code fails all at once, at the speed of one bug.
 
-![A comparison of custody by key versus custody by code, showing code custody buys automation but widens a bug's blast radius from one wallet to the whole vault at once.](assets/v08-comparison.png)
+![A comparison of custody by key versus custody by code, showing code custody buys automation but widens a bug's blast radius from one wallet to the whole vault at once.](assets/v08-comparison.webp)
 
 There's a second, quieter cost, and it's the one that eats beginners. **Rent-exemption**: an account only stays alive on Solana if it holds at least a minimum balance, and that minimum scales with how much data the account stores. Your vault is a `SystemAccount` holding no data of its own, so its floor is small, but it is not zero, and that non-zero floor is the trap.
 
@@ -260,7 +260,7 @@ Walk a withdraw through it. Say the vault holds one SOL and the owner asks to pu
 
 So a correct withdraw has only two safe endings. It either leaves the vault comfortably above the rent-exempt floor, or it closes the account out to exactly zero on purpose and returns every last lamport, the rent deposit included, to the owner. Anything in the gap between those two, a balance above zero but below the floor, is a slow leak with a deadline attached. That's the second footgun on the list, and it is the meanest kind: it passes every green check on your machine and then loses somebody's money on a Tuesday, in production, with no stack trace to catch it.
 
-![A flowchart of the three withdraw outcomes, above the rent floor is safe, exactly zero is safe, and a balance in the gap passes tests now but gets purged at the next epoch boundary with the money silently lost.](assets/v09-flowchart.png)
+![A flowchart of the three withdraw outcomes, above the rent floor is safe, exactly zero is safe, and a balance in the gap passes tests now but gets purged at the next epoch boundary with the money silently lost.](assets/v09-flowchart.webp)
 
 Two more sharp edges worth knowing exist. Duplicate mutable accounts are now disallowed by default, so you can't accidentally pass the same writable account into two slots; you opt back in with the `dup` constraint on the rare instruction that genuinely needs it. And the client you'll reach for next lesson does not talk to this program by hand: it is generated straight from this program's IDL and speaks to it through `@solana/kit`, so you never hand-write a call. File both away.
 
@@ -268,7 +268,7 @@ Two more sharp edges worth knowing exist. Duplicate mutable accounts are now dis
 
 The starter is where you finish this.
 
-![A table of the three vault exercises: Completion writes the signer seeds, Solo writes a non-owner rejection test, and Harden adds a rent-floor guard and test that blocks a withdrawal from dropping the vault below rent-exempt.](assets/v10-table.png)
+![A table of the three vault exercises: Completion writes the signer seeds, Solo writes a non-owner rejection test, and Harden adds a rent-floor guard and test that blocks a withdrawal from dropping the vault below rent-exempt.](assets/v10-table.webp)
 
 **Completion.** Fill in the withdraw instruction's `signer_seeds` array so the vault PDA signs its own outbound transfer, and make the failing test pass. It's the one line you saw above: `&[&[b"vault", authority_key.as_ref(), &[bump]]]`. Run `anchor test`, watch the red X turn green, and watch the 0.5 SOL complete the round-trip back to the owner.
 

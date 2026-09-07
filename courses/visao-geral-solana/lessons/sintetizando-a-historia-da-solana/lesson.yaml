@@ -1,0 +1,69 @@
+id: lesson-vgs-sintetizando-a-historia-da-solana
+slug: sintetizando-a-historia-da-solana
+title: "Sintetizando a História da Solana"
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=EM4fQJLjAXo
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Quantos marcos explicativos a lição recomenda selecionar, e com que exigência?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Exatamente vinte marcos, listados em ordem cronológica e sem exigência de evidência para cada um."
+      correct: false
+      feedback: "Vinte itens sem exigência de evidência produzem uma lista, não uma síntese explicativa."
+    - id: c
+      label: "Um único marco, escolhido pelo maior impacto de mídia, servindo como resumo de toda a trajetória."
+      correct: false
+      feedback: "Um marco isolado não sustenta uma narrativa que ligue eventos a escolhas arquiteturais."
+    - id: a
+      label: "De cinco a oito marcos, cada um justificado por evidência primária ou forte evidência secundária."
+      correct: true
+      feedback: "Correto! A faixa e a exigência de evidência são explícitas na lição."
+    explanation: "Selecione de cinco a oito marcos explicativos, cada um sustentado por evidência primária ou forte evidência secundária."
+  - id: q2
+    prompt: "Quais são os três elementos do Arcabouço da Linha Narrativa apresentado na lição?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Introdução, desenvolvimento e conclusão, herdados da estrutura clássica de redação escolar."
+      correct: false
+      feedback: "Essa é uma estrutura genérica de texto; o arcabouço da lição é específico para evidência histórica."
+    - id: a
+      label: "Espinha (marcos), conectores (mecanismos) e painéis de evidência (citações)."
+      correct: true
+      feedback: "Correto! A espinha ordena, os conectores explicam e os painéis sustentam."
+    - id: c
+      label: "Hipótese, experimento e resultado, herdados do método experimental das ciências naturais."
+      correct: false
+      feedback: "O arcabouço não é experimental: ele organiza marcos, mecanismos e citações."
+    explanation: "O arcabouço tem espinha (marcos), conectores (mecanismos) e painéis de evidência (citações)."
+  - id: q3
+    prompt: "Qual é a exigência do rascunho de síntese pedido na lição?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Exatamente 2.000 palavras, sem exigência de vincular eventos históricos a escolhas de arquitetura."
+      correct: false
+      feedback: "O tamanho está errado e a vinculação explícita entre evento e arquitetura é justamente o que se pede."
+    - id: c
+      label: "Um resumo de uma única frase, sem citações e sem indicação das evidências que o sustentam."
+      correct: false
+      feedback: "Uma frase não comporta os dois vínculos evento-arquitetura exigidos nem as citações."
+    - id: a
+      label: "De 500 a 800 palavras, ligando explicitamente ao menos dois eventos a escolhas arquiteturais."
+      correct: true
+      feedback: "Correto! E as afirmações mais fracas devem ser anotadas para revisão por pares."
+    explanation: "O rascunho tem 500 a 800 palavras e liga pelo menos dois eventos a escolhas arquiteturais."

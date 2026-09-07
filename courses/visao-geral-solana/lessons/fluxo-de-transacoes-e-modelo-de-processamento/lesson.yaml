@@ -1,0 +1,70 @@
+id: lesson-vgs-fluxo-de-transacoes-e-modelo-de-processamento
+slug: fluxo-de-transacoes-e-modelo-de-processamento
+title: "Fluxo de Transações e Modelo de Processamento"
+skills:
+- solana-fundamentals
+- transactions
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=nhSDJvY3AQE
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Qual é a sequência de estágios pela qual uma transação passa, conforme a lição?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Confirmação, execução, entrada, ordenação e validação."
+      correct: false
+      feedback: "A confirmação é o estágio final, não o inicial."
+    - id: a
+      label: "Entrada, validação, ordenação pelo leader, execução e confirmação."
+      correct: true
+      feedback: "Correto! Cada estágio tem um componente responsável associado."
+    - id: c
+      label: "Ordenação, confirmação, entrada, execução e validação."
+      correct: false
+      feedback: "A entrada precede a ordenação, e a confirmação encerra o fluxo."
+    explanation: "O fluxo vai de entrada e validação a ordenação pelo leader, execução e confirmação."
+  - id: q2
+    prompt: "Qual é o propósito das checagens de assinatura e preflight realizadas na entrada?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Garantir que a transação seja incluída em um slot escolhido pelo cliente."
+      correct: false
+      feedback: "Essas checagens não determinam em qual slot a transação entra."
+    - id: c
+      label: "Substituir a necessidade de votação dos validators."
+      correct: false
+      feedback: "A votação continua sendo parte do fluxo; as checagens de entrada não a substituem."
+    - id: a
+      label: "Evitar carga desnecessária sobre os leaders, rejeitando cedo mensagens inválidas."
+      correct: true
+      feedback: "Correto! Essas checagens filtram na entrada para poupar os componentes seguintes."
+    explanation: "Checagens de assinatura e preflight na entrada previnem carga desnecessária nos leaders."
+  - id: q3
+    prompt: "Qual destes é um observável que a lição indica coletar ao depurar uma transação?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Inclusão em um slot, recibos e logs da transação, votos dos validators e consultas a blocos finalizados."
+      correct: true
+      feedback: "Correto! São sinais observáveis em cada checkpoint do pipeline."
+    - id: b
+      label: "O endereço do datacenter físico em que o leader do slot estava sendo executado no momento do envio."
+      correct: false
+      feedback: "A localização física do leader não é exposta pelo pipeline nem ajuda a localizar o estágio com falha."
+    - id: c
+      label: "O documento de identidade do titular da carteira que assinou e submeteu a transação à rede."
+      correct: false
+      feedback: "A rede valida assinaturas criptográficas, não identidades civis."
+    explanation: "A lição lista observáveis verificáveis na própria rede: inclusão em um slot, recibos e logs da transação, votos dos validators e consultas a blocos finalizados."

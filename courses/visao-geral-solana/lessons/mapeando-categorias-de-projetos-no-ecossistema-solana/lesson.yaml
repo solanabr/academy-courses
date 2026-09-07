@@ -1,0 +1,70 @@
+id: lesson-vgs-mapeando-categorias-de-projetos-no-ecossistema-solana
+slug: mapeando-categorias-de-projetos-no-ecossistema-solana
+title: "Mapeando categorias de projetos no ecossistema Solana"
+skills:
+- solana-fundamentals
+- rpc-reads
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=bB9bmlcYyHc
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "No mapeamento de terminologia para papel apresentado na lição, o que corresponde a `account`?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Dados e estado."
+      correct: true
+      feedback: "Correto! `program` é lógica on-chain, `account` é dado/estado e RPC/indexer é acesso a dados."
+    - id: b
+      label: "Lógica on-chain executada por transações."
+      correct: false
+      feedback: "Essa é a definição de `program`, não de `account`."
+    - id: c
+      label: "Camada de acesso e consulta a dados."
+      correct: false
+      feedback: "Essa é a função de RPC e indexadores."
+    explanation: "O mapeamento é: `program` = lógica on-chain, `account` = dados/estado, RPC/indexer = acesso a dados."
+  - id: q2
+    prompt: "Como a lição sugere classificar um projeto a partir de sua documentação?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Pela idade do domínio e pelo tamanho da equipe listada na página \"Sobre\", que indicam a maturidade da categoria."
+      correct: false
+      feedback: "Idade de domínio e tamanho de equipe falam de maturidade organizacional, não de qual papel técnico o projeto ocupa."
+    - id: a
+      label: "Pelo que a documentação enfatiza: program IDs indicam protocolo, métricas RPC indicam infraestrutura e fluxos de assinatura indicam wallets/clients."
+      correct: true
+      feedback: "Correto! O que a documentação coloca em destaque revela a categoria do projeto."
+    - id: c
+      label: "Pelo volume de commits no repositório público, que separa protocolos de infraestrutura e de aplicações de usuário."
+      correct: false
+      feedback: "Atividade de repositório é sinal de manutenção, e não distingue protocolo, infraestrutura e wallet."
+    explanation: "A ênfase da documentação (program IDs, métricas RPC, fluxos de assinatura) indica a categoria do projeto."
+  - id: q3
+    prompt: "Quais sinais de saúde a lição associa a cada categoria de projeto?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Engajamento em redes sociais serve como sinal de saúde para todas as categorias, sem distinção."
+      correct: false
+      feedback: "Engajamento social não mede disponibilidade de infraestrutura nem atividade on-chain."
+    - id: c
+      label: "O preço do token nativo serve como sinal de saúde para todas as categorias, sem distinção."
+      correct: false
+      feedback: "Preço é um sinal de mercado e não diferencia as categorias entre si."
+    - id: a
+      label: "Atividade on-chain para programas, uptime e latência para infraestrutura, notas de release e SDKs para wallets."
+      correct: true
+      feedback: "Correto! Cada categoria é avaliada pelo sinal que corresponde à sua função."
+    explanation: "Cada categoria tem seu próprio sinal: atividade on-chain para programas, uptime e latência para infraestrutura de RPC e indexação, e notas de release e SDKs para wallets e clientes."
