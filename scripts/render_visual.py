@@ -117,11 +117,54 @@ def encode_webp(png: Path, out: Path) -> tuple[str, float, int]:
     return best_mode, best_psnr, best_size
 
 
+def list_stale(ref: str) -> int:
+    """Every figure whose HTML source changed since `ref` but whose asset did not.
+
+    This is the sweep driver. Content fixes edit `visual-src/*.html` and
+    deliberately do NOT re-render -- rendering is a separate pass so the decor
+    rule is applied once, by one person, with the diffs reviewed together. That
+    leaves a window where the source is corrected and the shipped image still
+    teaches the old model, which is precisely the state six figures have been in
+    since round 1. This finds them instead of relying on someone's notes.
+    """
+    repo = Path(__file__).resolve().parent.parent
+    r = run(["git", "-C", str(repo), "diff", "--name-only", ref, "--", "courses"])
+    if r.returncode != 0:
+        sys.exit(f"git diff against {ref} failed: {r.stderr.strip()}")
+    changed = [Path(p) for p in r.stdout.split()]
+    html = [p for p in changed if p.suffix == ".html" and "visual-src" in p.parts]
+    assets = {p for p in changed if p.suffix in (".webp", ".png")}
+
+    stale = []
+    for p in html:
+        asset = asset_for(repo / p)
+        rel = asset.relative_to(repo)
+        if rel not in assets:
+            stale.append((p, rel))
+
+    if not stale:
+        print(f"no stale figures against {ref}: every changed visual source was re-rendered.")
+        return 0
+    print(f"{len(stale)} figure(s) whose source changed since {ref} but whose shipped asset did not:")
+    for src_p, asset_p in stale:
+        exists = "" if (repo / asset_p).exists() else "   [asset missing]"
+        print(f"  {src_p}{exists}")
+    print("\nRe-render each with:  scripts/render_visual.py <source>")
+    return 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("source", type=Path, help="the visual-src HTML")
+    ap.add_argument("source", type=Path, nargs="?", help="the visual-src HTML")
     ap.add_argument("--check", action="store_true", help="report only; write nothing")
+    ap.add_argument("--stale", metavar="REF",
+                    help="list figures whose source changed since REF but were never re-rendered")
     args = ap.parse_args()
+
+    if args.stale:
+        return list_stale(args.stale)
+    if args.source is None:
+        ap.error("give a source file, or --stale <ref>")
 
     src = args.source
     if not src.is_file():
