@@ -53,9 +53,9 @@ blocks:
           - id: b
             label: "4,096 bytes — one memory page, so a transaction always fits a single page buffer"
             correct: false
-            feedback: "Page size has nothing to do with it. The cap is a NETWORK constant: transactions travel as single packets, so they must fit the IPv6 minimum MTU of 1,280 bytes, minus 48 bytes of headers — 1,232 for the payload."
+            feedback: "Page size has nothing to do with it. The cap comes from NETWORKING: transactions travel as single packets, so they must fit the IPv6 minimum MTU of 1,280 bytes, minus 48 bytes of headers — 1,232 for the payload. It is a protocol parameter, not a constant of nature, so check it against your cluster."
           - id: c
             label: "1,232 bytes — the most data one slot leader can sign-verify within its 400 ms slot"
             correct: false
             feedback: "Right number, wrong reason — signature throughput is not the constraint (validators verify thousands per slot). The 1,232 comes from networking: the 1,280-byte IPv6 minimum MTU minus 40 bytes of IPv6 header and 8 of fragment header."
-        explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the cap is the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction. Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables."
+        explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the cap is derived from the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction (checked 2026-09-07). Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables. A larger limit has been proposed and is feature-gated, so treat 1,232 as this cluster's current value, not a permanent one."
