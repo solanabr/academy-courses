@@ -12,11 +12,15 @@
 # separate "turn on the gate" commit (that is where the fix silently never
 # lands). Deleting a slug to make a build green is a revert, not a fix.
 #
-# In scope for the 2026-09 assessment wave, uncomment as each course lands:
-#   mastering-anchor-v2
-#   solana-payments-commerce
+# Verified passing at the commit noted. These courses are not on main yet, so
+# listing them enforces nothing today and starts enforcing the moment their PR
+# lands -- which is the point: the gate arrives with the fix, not after it.
+mastering-anchor-v2        # 734dc34, 0 errors: best content-blind strategy 30.1% vs 24.2% chance
+
+# Still in the 2026-09 wave, uncomment as each one clears:
+#   solana-payments-commerce   # length-rank rebalance in progress
 #   digital-assets
-#   rust-ts-fundamentals
+#   rust-ts-fundamentals       # length-rank rebalance in progress
 #   btc-to-sol-evolution
 #
 # Deliberately out of scope this wave (owner decision, 2026-09-07):
