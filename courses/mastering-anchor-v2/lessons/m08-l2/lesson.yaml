@@ -45,7 +45,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The program has not been deployed, so there are no on-chain bytes to hash"
+            label: "The program was never deployed, so there are no on-chain bytes to hash"
             correct: false
             feedback: "A missing deploy would break the local verify-from-repo too. Here the program is deployed and the job still returns nothing, because the constraint is cluster scope, not a missing program account."
           - id: b
@@ -91,7 +91,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Yes — the pinned toolchain tracks the newest stable Agave release at build time"
+            label: "Yes — the pinned toolchain always tracks the newest stable Agave release at build time"
             correct: false
             feedback: "The build pin (Solana 3.1.10) and current stable (Agave v4.2.1 as of writing) drift apart on purpose. A pin that chased the newest release would be a moving toolchain, which is exactly the free variable that breaks the hash."
           - id: b

@@ -67,7 +67,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "It isn't — verify-from-repo just compares hashes locally; the `--remote` OtterSec job is what produces a verifiable build."
+            label: "It isn't — verify-from-repo only compares hashes locally; only the `--remote` OtterSec job produces a verifiable build."
             correct: false
             feedback: "Tempting because the public registry entry is what other people can look up, but `--remote` submits your build to that registry and only runs against mainnet. That is distribution. The reproducibility proof is the local Docker rebuild whose hash matches the on-chain program."
           - id: b
@@ -75,7 +75,7 @@ blocks:
             correct: true
             feedback: "Reproducibility does not care which cluster you point it at. The remote submission and the multisig handoff are distribution and governance, which are different jobs entirely."
           - id: c
-            label: "Because a program keeps the same address across clusters, so a devnet verify carries over to the mainnet deployment."
+            label: "Because a program keeps the same address across clusters, so a devnet verify carries over to that program's mainnet deployment."
             correct: false
             feedback: "Each deploy is its own program account on its own cluster, and nothing about a devnet hash says anything about a mainnet one. What the devnet verify proves is that your source reproduces the bytecode you deployed — on whatever cluster you point it at."
           - id: d
