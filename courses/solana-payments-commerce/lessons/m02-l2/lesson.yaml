@@ -86,7 +86,7 @@ blocks:
           - id: c
             label: "It is burned on the source domain and natively minted on Solana (domain 5), with a Fast Transfer landing well inside the standard route's window."
             correct: true
-            feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Fast Transfer waits on the SOURCE chain's finality, so an Ethereum-sourced transfer is slower than the ~8 seconds quoted for Solana-as-source, and the standard route still runs 15 to 19 minutes."
+            feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Fast Transfer waits on the SOURCE chain's finality, so an Ethereum-sourced transfer is slower than the ~8 seconds quoted for Solana-as-source, and the standard route out of Ethereum still runs 15 to 19 minutes."
           - id: d
             label: "It is burned on Ethereum and minted natively on Solana in about 8 seconds, since Solana's finality is what a Fast Transfer waits on."
             correct: false
@@ -96,7 +96,7 @@ blocks:
             correct: false
             feedback: "That is the lock-and-wrap bridge model; CCTP does not use pools or wrapped IOUs, it burns and natively mints."
           - id: b
-            label: "It moves over a shared liquidity network in roughly 15 to 19 minutes, the same on every chain."
+            label: "It moves over a shared liquidity network in roughly 15 to 19 minutes, with the depth of that shared pool on each side setting the pace."
             correct: false
-            feedback: "That mixes CCTP's standard cross-chain range with the wrong mechanism; a Fast Transfer is far quicker than the standard route, and how much quicker depends on the source chain's finality."
-        explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5. Fast Transfer timing is keyed to the SOURCE chain, because what is being waited on is the burn becoming irreversible where it happened — the widely-quoted ~8 seconds is Solana as source, and a buyer bridging in from Ethereum waits longer than that while still beating the ~15 to 19 minute standard path. Quote the row for your buyers' source chain."
+            feedback: "The number is in the right neighborhood for this route and the mechanism is wrong, which is the trap: CCTP has no shared pool to be deep or shallow, it burns and natively mints. And that number is Ethereum's standard-route row, not a CCTP constant — with Solana as the source, standard is 32 confirmations, about 25 seconds."
+        explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5. Fast Transfer timing is keyed to the SOURCE chain, because what is being waited on is the burn becoming irreversible where it happened — the widely-quoted ~8 seconds is Solana as source, and a buyer bridging in from Ethereum waits longer than that while still beating Ethereum's ~15 to 19 minute standard path. Every one of these numbers is a per-source-chain row in Circle's table, never a property of CCTP: standard out of Solana is ~25 seconds against Ethereum's 15 to 19 minutes. Quote the row for your buyers' source chain."

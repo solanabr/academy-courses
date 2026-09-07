@@ -24,7 +24,7 @@ blocks:
             correct: true
             feedback: "Churn tracks age and governance, not how dated a page looks: an unmaintained dependency stops surprising you and still accrues unfixed bugs."
           - id: d
-            label: "The @solana/kit pins, since npm's latest tag already sits two majors past the 6.10 and 7.1 lines you hold and a pinned major stops resolving once the registry moves on."
+            label: "The @solana/kit pins, since npm's latest tag already sits two majors past the 6.10 line and one past the 7.1 line you hold, and a pinned major stops resolving once the registry moves on."
             correct: false
             feedback: "Published versions do not expire: 6.10.0 installs exactly as well the day kit 9 ships. Kit does move fast, which is why the repo pins per workspace and records why, and that is the piece you have already learned to hold still. What moves under you is the young end of the stack, where the client and the spec themselves change."
           - id: b

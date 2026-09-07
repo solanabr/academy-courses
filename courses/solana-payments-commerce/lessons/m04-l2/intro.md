@@ -177,7 +177,7 @@ npm install express@5.1.0
 npm install -D tsx@4 typescript @types/express @types/node
 ```
 
-Pins and their freshness notes: `express` is pinned at 5.1.0 here, but any 5.x works and nothing in this receiver depends on the difference (the blink lesson installed 5.2.1, which is npm's current 5.x as of 2026-08-22). `tsx` 4 is the runner the whole course uses; this install line is its install if the machine is fresh. No Helius SDK appears in this install line, or anywhere in this course: the webhook is created with a curl and the receiver reads plain JSON off an HTTP POST, so `HELIUS_API_KEY` from the module 2 setup is the only Helius dependency you have. That is rather the point — ingestion is just HTTP, and a webhook receiver that needs a vendor SDK to parse a request body has taken on a dependency for nothing.
+Pins and their freshness notes: `express` is pinned at 5.1.0 here, but any 5.x works and nothing in this receiver depends on the difference (the blink lesson installed 5.2.1, which is npm's current 5.x as of 2026-08-22). `tsx` 4 is the runner the whole course uses; this install line is its install if the machine is fresh. No Helius SDK appears in this install line, and this course never installs one: the webhook is created with a curl and the receiver reads plain JSON off an HTTP POST, so `HELIUS_API_KEY` from the module 2 setup is the only Helius dependency you have. That is rather the point — ingestion is just HTTP, and a webhook receiver that needs a vendor SDK to parse a request body has taken on a dependency for nothing.
 
 **2. Types: the contract we consume and the two fields we read.**
 
