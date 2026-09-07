@@ -36,7 +36,7 @@ blocks:
             correct: true
             feedback: "Whatever the client can edit, an attacker can edit; the token is a bearer credential, which is why it is minted one-time and short-lived."
           - id: d
-            label: "It also proves the buyer authorized that destination, so a tampered POST body cannot redirect funds."
+            label: "It also proves the buyer authorized that destination, so a tampered POST body cannot redirect the funds."
             correct: false
             feedback: "The token binds a destination; it says nothing about who asked for it. The lab's /session route still takes the address from a client POST, and closing that hop takes a logged-in session or a wallet signature your app owns."
         explanation: "The headless flow mints a one-time session token on the server, binding the destination address and receivable assets. The client then opens a URL carrying only that token. A tampered client URL cannot redirect the funded USDC, because the address never travels in the query string. That is the exact property your coding challenge enforces: bind server-side, never leak."

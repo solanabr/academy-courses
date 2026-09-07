@@ -99,7 +99,7 @@ blocks:
             correct: false
             feedback: "Exposing the sponsor key client-side is strictly worse; validation, not key exposure, is the control."
           - id: d
-            label: "Allowlist the programs your checkout calls and stop there, since a program allowlist bounds which instructions get sponsored."
+            label: "Allowlist the programs your checkout calls and stop there, since a program allowlist already bounds which instructions get sponsored."
             correct: false
             feedback: "A program allowlist is the outer wall, not the whole building. One allowed program carries many instructions, which is why the config also caps signatures and lamports and why fee_payer_policy exists: it is what stops a transaction whose inner instruction moves lamports out of the sponsor account signing it."
         explanation: "A paymaster with no validation is an open drain. Kora's allowlists and validation rules are the whole safety story: restrict sponsorship to the exact instructions and programs your checkout emits."
