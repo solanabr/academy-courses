@@ -49,7 +49,7 @@ blocks:
             correct: false
             feedback: "The header lags reality: SIMD-0266 was merged on 2026-03-13 and its gate is active on mainnet. A 'Review' front-matter status does not mean unmerged."
           - id: b
-            label: "The SIMD was merged on 2026-03-13 and its feature gate is active on mainnet since epoch 971, so p-token is live regardless of the stale 'Review' header"
+            label: "SIMD-0266 merged on 2026-03-13 and its feature gate has been active on mainnet since epoch 971, so p-token is live"
             correct: true
             feedback: "Merged is a dated Git fact, and liveness is settled by the 9-byte gate account you can read yourself, which is why chain state outranks a document header here."
           - id: c
@@ -57,7 +57,7 @@ blocks:
             correct: false
             feedback: "Activation is governed by the on-chain feature gate, not the document header; the gate is active on mainnet, so it is live there today."
           - id: d
-            label: "Tell the teammate that SIMD-0266 was formally accepted in a governance vote, and that the vote is what moved p-token from Review status to live on mainnet"
+            label: "Tell the teammate SIMD-0266 was formally accepted in a governance vote, and that the vote is what moved p-token from Review to live on mainnet"
             correct: false
             feedback: "Accepted and approved are governance claims the paper trail does not support; the PR merged on 2026-03-13, and what put the engine on mainnet was the feature gate activating at epoch 971."
         explanation: "Say merged, not accepted or approved: merged is a Git fact (SIMD-0266 merged 2026-03-13) while its front-matter status still reads 'Review.' What actually gates activation is the on-chain feature gate ptokF…nSdP, which activated at slot 419,472,000 (epoch 971). The header is a lagging label; the gate is the truth."

@@ -56,7 +56,7 @@ blocks:
             correct: false
             feedback: "Extensions like permanent delegate and transfer fee change transfer behavior and who can move funds, the opposite of cosmetic."
           - id: d
-            label: "Token-2022 is a compatibility wrapper over the classic program, so PYUSD's extensions are add-ons around the same classic mint underneath"
+            label: "Token-2022 is a compatibility wrapper over the classic program, so PYUSD's eight extensions are add-ons bolted around the same classic mint underneath"
             correct: false
             feedback: "There is no wrapping: the two programs own their accounts separately, a classic instruction aimed at a Token-2022 mint fails, and USDC's 82-byte account has no region for an add-on to sit in."
         explanation: "The opener breaks the prior model on purpose: PYUSD is Token-2022, and its eight extensions (permanent delegate, transfer fee, confidential, metadata pointer, and more) are shapes the classic SPL program cannot even represent. 'A token' is a decision across shapes, which is why you must be able to read the bytes before you choose."

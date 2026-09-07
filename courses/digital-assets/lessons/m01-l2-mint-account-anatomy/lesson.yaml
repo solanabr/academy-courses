@@ -36,7 +36,7 @@ blocks:
             correct: false
             feedback: "82 bytes is the perfectly valid classic bare-mint size; only extended mints reach 165+1."
           - id: d
-            label: "It is a classic-program mint: Token-2022 sizes even an empty set at 166 bytes"
+            label: "It is a classic-program mint, since Token-2022 pads the base of any mint it creates to 165 bytes plus an account-type byte"
             correct: false
             feedback: "Size does not name the owner. Token-2022's own length model returns 82 bytes for an empty extension set, so read the owner field to tell the two programs apart."
         explanation: "The length is the first tell: 82 bytes is exactly the bare classic mint (authority, supply, decimals, init flag, freeze authority) with no account-type discriminator and no TLV region. Extensions force the base to 165 bytes plus a 1-byte type, so an 82-byte read means no extensions, full stop."
