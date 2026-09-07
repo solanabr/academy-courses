@@ -616,11 +616,17 @@ The plan: stand up a local surfnet, deploy last lesson's harvest-hook, mint a fr
    const sim = await rpc
      .simulateTransaction(getBase64EncodedWireTransaction(naive), { encoding: 'base64' })
      .send();
-   // kit decodes numeric RPC fields as bigints, including the instruction
-   // index inside InstructionError, and JSON.stringify throws TypeError on any
-   // bigint it meets. Without this replacer act 1 dies right here with a stack
-   // trace pointing at your own file, and act 2 never runs. Number() is safe
-   // for an instruction index and keeps it unquoted in the output.
+   // kit decodes numeric RPC fields as bigints unless the field is on its
+   // allowed-numeric list, and the instruction index inside InstructionError
+   // is not on it. JSON.stringify throws TypeError on any bigint it meets, so
+   // without this replacer act 1 dies right here with a stack trace pointing
+   // at your own file, and act 2 never runs. Number() is safe for an
+   // instruction index and keeps it unquoted in the output.
+   //
+   // Worth knowing WHY this is a kit problem specifically: m01-l1 stringified
+   // the same InstructionError shape with no replacer and no crash, because it
+   // spoke to the RPC with a bare fetch and JSON.parse never produces bigints.
+   // The hazard arrives with the typed client, not with the JSON.
    const bigintSafe = (_key: string, value: unknown): unknown =>
      typeof value === 'bigint' ? Number(value) : value;
    console.log('naive transfer err:', JSON.stringify(sim.value.err, bigintSafe));

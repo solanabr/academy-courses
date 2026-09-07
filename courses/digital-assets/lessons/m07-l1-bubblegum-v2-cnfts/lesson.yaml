@@ -39,21 +39,21 @@ blocks:
             feedback: "The Core collection verifies membership and holds collection-level plugins, but it does not store each cNFT's metadata; the leaf hash does."
         explanation: "State compression stores only a hash of each asset as a leaf in an on-chain concurrent Merkle tree. The readable metadata lives in a DAS provider's index, which is exactly why the next lesson needs a DAS RPC to read a crate back."
       - id: q2
-        prompt: "You need roughly one million Harvest crates. A colleague budgets 8.5 SOL per crate. What should you tell them?"
+        prompt: "You need roughly one million Harvest crates. A colleague reads the vendor's ~8.5 SOL figure and budgets 8.5 SOL per crate. What should you tell them?"
         multiSelect: false
         options:
           - id: a
             label: "8.5 SOL per crate is right, because each compressed mint provisions its own full account."
             correct: false
-            feedback: "8.5 SOL is the total for ~1M cNFTs, not per-asset; each works out to roughly 0.00001 SOL."
+            feedback: "The vendor's 8.5 SOL is the total for ~1M cNFTs, not per-asset; each works out to a few millionths of a SOL."
           - id: b
-            label: "About 8.5 SOL for the whole tree of ~1M leaves, roughly 0.00001 SOL per cNFT."
+            label: "Single-digit SOL for the whole tree of ~1M leaves, a few millionths of a SOL per cNFT."
             correct: true
           - id: c
             label: "About 0.34 SOL flat, the fixed cost of any Bubblegum v2 tree regardless of depth."
             correct: false
             feedback: "0.34 SOL is the cost of a 16,384-leaf tree specifically; tree cost scales with depth, buffer, and canopy. It is not a flat fee."
-        explanation: "Vendor figures put ~1M cNFTs at ~8.5 SOL total (~0.00001 SOL each) and a 16,384-leaf tree at ~0.34 SOL. Cost is a property of the tree's depth/buffer/canopy, derived once for the whole supply, not paid per asset."
+        explanation: "Cost is a property of the tree's depth/buffer/canopy, derived once for the whole supply, not paid per asset. Vendor figures put ~1M cNFTs at ~8.5 SOL total and a 16,384-leaf tree at ~0.34 SOL; both were quoted at 6,960 lamports/byte, and SIMD-0437 has since cut that rate, so derive the SOL from the byte count on your own cluster and treat the vendor number as a sanity check rather than a quote."
       - id: q3
         prompt: "You want the Founding-Farmer achievement crate to be non-transferable. Someone insists cNFTs can never be soulbound. What's the correct move in Bubblegum v2?"
         multiSelect: false

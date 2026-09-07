@@ -346,7 +346,7 @@ You will encode the reasoning above as a small program, because a verdict you ca
 
     Sit with the middle row for a second. Twelve thousand players, and the compressed version of their currency ledger costs about ten times the classic version. That is the same mechanism that makes row one a 194x saving, run in the other direction. One number, two signs, and write frequency is the only thing that changed.
 
-6. **Sanity-check the drop row against the next module.** Your compost-drop row says about 10,300 lamports per recipient. Module 8's airdrop lesson budgets roughly 10,300 compressed against 2,039,280 classic; the classic figure is the same per-recipient token-account rent this lesson models, just measured exactly there ((128 + 165) bytes at 6,960 lamports per byte is 2,039,280) where this lesson used a round 2,000,000 constant. Your number should agree on the compressed side and sit slightly under on the classic side. If it does not, you changed a constant.
+6. **Sanity-check the drop row against the next module.** Your compost-drop row says about 10,300 lamports per recipient. Module 8's airdrop lesson budgets roughly 10,300 compressed against a classic figure it derives rather than quotes: (128 + 165) bytes at your cluster's per-byte rent rate, which was 6,333 on mainnet on 2026-09-06 and gives 1,855,569. This lesson used a round 2,000,000 constant for the same thing, which was a slight UNDER-estimate at the old 6,960 rate and is a slight over-estimate now. Your number should agree exactly on the compressed side, because compressed cost is not rent and did not move, and sit within about 10% on the classic side. If the compressed side disagrees, you changed a constant.
 
 ## Challenge
 
