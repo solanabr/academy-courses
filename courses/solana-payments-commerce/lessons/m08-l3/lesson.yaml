@@ -17,26 +17,26 @@ blocks:
     type: quiz
     questions:
       - id: m08-l3-q1
-        prompt: "The gate makes you write a commitment policy: one line for a $12 pressing at the stall, another for a $9,000 order from a shop that buys in bulk. What does the official guidance point you toward?"
+        prompt: "Your fair-queue drain runs at closing time, settling transactions buyers signed hours ago at the stall, one of them a bulk order big enough to matter. What does your commitment policy owe that drained sale?"
         multiSelect: false
         options:
           - id: b
-            label: "`finalized` for both, since money is money and only finality is ever safe."
+            label: "`confirmed` covers the whole drain, because the buyer already authorized the payment when they signed it back at the fair."
             correct: false
-            feedback: "Finalizing everything adds latency the small sale doesn't need; the guidance scales commitment to value."
+            feedback: "Signing is authorization, not settlement. Commitment prices the chance that the block carrying the transfer gets dropped, and that chance does not shrink because the signature is hours old."
           - id: c
-            label: "`processed` for the record so checkout feels instant, and `confirmed` for the wholesale order."
+            label: "`processed`, since the drain is a batch job and its own retry loop will pick up anything the network happens to drop."
             correct: false
-            feedback: "processed is UI-only and can be dropped in forks, so it is never a settlement gate for real money."
+            feedback: "`processed` can vanish in a fork, so it is never the gate that releases goods; and a retry loop still has to pick some commitment before it can believe the answer it re-reads."
           - id: d
-            label: "`confirmed` below the documented 500 USDC line and `finalized` above it, the threshold the guidance names."
+            label: "Escalate every drained sale to `finalized` regardless of size, since the documented 500 USDC line applies once settlement is deferred."
             correct: false
-            feedback: "The two-tier shape is right and the citation is invented. No document names the figure where the gate flips; the 500 USDC in the sample verdicts was one reference build's choice, called out as such. Deriving your own threshold from what a reversion at each tier would cost you is the judgement the challenge asks for."
+            feedback: "No document names that figure. The 500 USDC in this lesson's sample verdicts is one reference build's choice, flagged as such. The line stays yours to derive, and it keys off what a reversal would cost you, not off whether the sale sat in a queue."
           - id: a
-            label: "`confirmed` for the everyday record sale; `finalized` for the high-value or compliance-sensitive wholesale order."
+            label: "The same escalation the live path gets: hold it to `finalized` before marking it fulfilled if it crosses your threshold, because no buyer is standing there to re-run."
             correct: true
-            feedback: "The guidance is qualitative: no doc names the figure where the gate flips, which leaves that line yours to set and to write down."
-        explanation: "The policy scales commitment to value: `confirmed` covers most payments, `finalized` protects high-value or compliance-sensitive ones, and `processed` is UI-only (never the gate that releases goods)."
+            feedback: "A drain is a settlement path like any other, so the rule has to reach it too. Write the row so it forces you to grep every commitment argument in the codebase, not just the ones you remember writing."
+        explanation: "Commitment binds to the moment you decide money arrived, not to how the checkout felt, so a deferred drain enforces the same value-scaled rule the live path does, and with the buyer long gone, a payment reversed there has nobody to re-charge. `processed` is never that gate, and the 500 USDC figure in the sample verdicts is one build's choice rather than a documented threshold."
       - id: m08-l3-q2
         prompt: "The gate asks how you set priority fees on the transactions your store sends. How deep should this lesson go?"
         multiSelect: false
