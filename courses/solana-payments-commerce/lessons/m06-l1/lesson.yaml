@@ -35,9 +35,13 @@ blocks:
             label: "The address and asset are bound to a server-minted token, so the client URL cannot redirect the funds."
             correct: true
             feedback: "Whatever the client can edit, an attacker can edit; the token is a bearer credential, which is why it is minted one-time and short-lived."
+          - id: d
+            label: "It also proves the buyer authorized that destination, so a tampered POST body cannot redirect the funds."
+            correct: false
+            feedback: "The token binds a destination; it says nothing about who asked for it. The lab's /session route still takes the address from a client POST, and closing that hop takes a logged-in session or a wallet signature your app owns."
         explanation: "The headless flow mints a one-time session token on the server, binding the destination address and receivable assets. The client then opens a URL carrying only that token. A tampered client URL cannot redirect the funded USDC, because the address never travels in the query string. That is the exact property your coding challenge enforces: bind server-side, never leak."
       - id: q2
-        prompt: "A SOL-less buyer uses the embedded Stripe onramp to fund a purchase. Days later a dispute is filed on the card. Who eats the fraud and handles the chargeback?"
+        prompt: "A SOL-less buyer uses the embedded Stripe onramp to fund a purchase. Days later a dispute is filed on the card. Who eats the loss and handles the chargeback?"
         multiSelect: false
         options:
           - id: a
@@ -52,6 +56,10 @@ blocks:
             label: "The buyer's card issuer, since onramp purchases are treated as cash advances with no recourse."
             correct: false
             feedback: "Onramp buys are not cash advances, and the merchant-of-record is Stripe, not the issuer."
+          - id: d
+            label: "No one: the USDC leg settled with finality, so the card dispute has nowhere to land."
+            correct: false
+            feedback: "Finality settles the USDC leg, not the card leg. The charge stays disputable for months, and the dispute lands on whoever is merchant-of-record for it."
         explanation: "Stripe runs its fiat-to-crypto onramp as merchant-of-record: it handles KYC and absorbs fraud and disputes. That is precisely what you are buying by embedding a ramp instead of taking cards yourself. The tradeoff is that Stripe, not you, owns the geo and asset coverage and the preview-status limits."
       - id: q3
         prompt: "Wavelength wants an artist to cash USDC royalties out to a bank, so you reach for Coinbase Offramp. What constraint shapes the integration compared with the onramp you just embedded?"
@@ -69,13 +77,17 @@ blocks:
             label: "Offramp requires you to become the merchant-of-record, taking on the payout KYC yourself."
             correct: false
             feedback: "The hosted flow keeps KYC with Coinbase; the point of a hosted offramp is that you do not take on the payout compliance."
+          - id: d
+            label: "The hosted exit needs no session token: you redirect with a partnerUserRef and a redirectUrl, and Coinbase signs the artist in."
+            correct: false
+            feedback: "Both directions have been session-token-initialized since July 2025, so the sell URL carries a sessionToken alongside partnerUserRef and redirectUrl. Hosting changes where the screens live, not how the session is bound."
         explanation: "The onramp can be embedded headlessly; the offramp is hosted-only, so the way out is a redirect into Coinbase's own flow, with ACH or PayPal as the payout rails. You give up embedded UX for the exit and, in exchange, keep the payout KYC off your plate."
       - id: q4
         prompt: "Two flows in this lesson both cross between fiat and crypto: a processor settling your card sales to a fiat balance, and a user off-ramping their own USDC to a bank. Why does the course insist these are different?"
         multiSelect: false
         options:
           - id: a
-            label: "They run on different blockchains, so the KYC provider differs by chain."
+            label: "They run on different blockchains, so the KYC provider differs by the chain used."
             correct: false
             feedback: "Same chain in both cases; the difference is the actor and the direction, not the chain."
           - id: b
@@ -86,4 +98,8 @@ blocks:
             label: "They involve different actors, so the KYC surface and the merchant-of-record sit in different places for each."
             correct: true
             feedback: "Compliance follows whoever is legally transacting, not the direction the money moves, so the actor at each seam is yours to keep track of."
+          - id: d
+            label: "One moves money out and the other moves it in, so KYC attaches to the direction of the transfer."
+            correct: false
+            feedback: "Both of these carry value from crypto to fiat, so direction does not tell them apart. What tells them apart is who is transacting: your business at the processor, or the artist at the ramp."
         explanation: "Merchant fiat settlement is the processor acting for you, the merchant; a user off-ramp is the buyer or artist acting for themselves. Different actor, different KYC surface, different merchant-of-record. The dev's compliance job is not to run either flow but to know which is which at every seam, which is exactly what the assessment asks you to state in one line."
