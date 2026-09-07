@@ -20,8 +20,18 @@ rust-ts-fundamentals       # 0 errors: key length rank [33,38,38,22], best strat
 solana-payments-commerce   # 0 errors: key length rank [23,27,25,20], best strategy 28.4% vs 25.0% chance
 digital-assets             # 0 errors: spread 28/86 over 1.7x -> 0/86, best strategy 26.7% vs 24.7% chance
 
-# Still in the 2026-09 wave, uncomment as each one clears:
-#   btc-to-sol-evolution       # assessment in progress
+# btc-to-sol-evolution deliberately NOT listed here, though it passes.
+#
+# It is the one wave course already merged to main, so a slug on THIS branch
+# would enforce against main's copy -- which is the pre-fix version, because
+# the fix lives on fix/btc-to-sol-evolution-round3-07-09-2026. Listing it here
+# turns this branch red for a defect that is already fixed somewhere else, and
+# that is exactly the "permanently red check people learn to ignore" this file
+# exists to avoid.
+#
+# Its slug belongs in the b2s PR, added when that branch and this one meet.
+# Verified passing there: 'longest' picked the key 72.7% of the time before the
+# wave and 27.3% after, against a 24.5% chance rate.
 #
 # Deliberately out of scope this wave (owner decision, 2026-09-07):
 # visao-geral-solana, solana-speedrun, pilula-solana-superteam. These are
