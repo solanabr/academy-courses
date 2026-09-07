@@ -37,7 +37,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Oracles are banned at the protocol level, and no contract may ever consume off-chain data"
+            label: "Oracles are banned at the protocol level, and no contract may ever consume data from outside the chain"
             correct: false
             feedback: "Contracts consume off-chain data constantly; that is the entire oracle industry. What is forbidden is fetching it mid-execution, so the data has to arrive as an ordinary transaction that writes it into storage first."
           - id: b
@@ -45,7 +45,7 @@ blocks:
             correct: false
             feedback: "Latency is the smaller problem and determinism is not preserved at all. Two nodes replaying the same block hours apart would receive two different prices, and the block itself would stop being replayable."
           - id: c
-            label: "Consensus requires deterministic execution: every node must compute the same result, and a live API call could return different answers to different nodes"
+            label: "Consensus requires deterministic execution: every node must compute the same result, and a live API call could hand the contract a different price"
             correct: true
             feedback: "This is the same determinism that made module 0's hash reproducible on every machine, pointed at a different job. Every node replays every transaction, so any input that varies by who is asking or when breaks agreement on the block."
           - id: d

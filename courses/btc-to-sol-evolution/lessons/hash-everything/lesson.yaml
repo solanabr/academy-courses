@@ -40,11 +40,11 @@ blocks:
             correct: true
             feedback: "Any input, from one byte to a terabyte, folds down to exactly 256 bits: 32 bytes, printed as 64 hex characters at 4 bits per character. The fixed size is what lets one short string stand in for data of any size."
           - id: b
-            label: "32 hex characters (128 bits), one hex character per byte of the 32-byte digest"
+            label: "32 hex characters (128 bits), one per byte"
             correct: false
-            feedback: "32 is the digest size in bytes, not in hex characters, and a byte needs two hex characters rather than one. Chain the conversions and it comes out as 256 bits = 32 bytes = 64 hex characters."
+            feedback: "32 is the digest size in bytes, not in hex characters, and one byte needs two hex characters rather than one. Chain the conversions and it comes out as 256 bits = 32 bytes = 64 hex characters."
           - id: c
-            label: "It depends on the input, since longer files produce longer digests"
+            label: "It depends on input size, not a fixed width"
             correct: false
             feedback: "Fixed output size is the point. SHA-256 folds the input into a running state 512 bits at a time, and the state that survives the last chunk is the digest, so a 4 GB video and a 6-byte string come out the same width."
           - id: d

@@ -20,7 +20,7 @@ blocks:
             correct: false
             feedback: "The public key only checks. If it could also sign, publishing it would hand every stranger your spending power, and the scheme would be a shared secret again. Private key signs, public key checks, and that split is the entire trick."
           - id: b
-            label: "Only the holder of the private key can sign; anyone with the public key can verify"
+            label: "Only the private key's holder can produce a signature; anyone with the public key can check it"
             correct: true
             feedback: "Signing needs the secret; checking needs nothing secret at all. That is what lets you prove authorship to strangers without handing them anything, and why thousands of nodes can check signatures made by a key they will never see."
           - id: c
