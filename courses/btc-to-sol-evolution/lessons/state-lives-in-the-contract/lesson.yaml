@@ -23,14 +23,14 @@ blocks:
             label: "Persistent per-account state: a balance, a nonce, and (for contracts) storage and code that survive between transactions"
             correct: true
             feedback: "Four fields, one of which is a storageRoot pointing at a key-value map that belongs to the account. That is the slot your counter wrote with SSTORE and read back with SLOAD across two separate transactions, from two separate blocks."
-          - id: c
-            label: "Only a mutable balance, and contract data itself still lives off-chain with just its hash on-chain"
-            correct: false
-            feedback: "Contract storage is on-chain in full, replicated by every node, which is exactly why writing it is the most expensive thing the machine does. What lives on-chain as a hash is the root committing to that storage, not a pointer to data kept somewhere else."
           - id: d
             label: "A per-account transaction log, so a node replays that account's history to arrive at its balance"
             correct: false
             feedback: "No history is stored per account: the account is four fields and nothing more. Replaying history is the Bitcoin-shaped answer, and avoiding it is the point, since balanceOf derives one slot from the holder's address and issues a single read that costs the same however many transfers came before."
+          - id: c
+            label: "Only a mutable balance, and contract data itself still lives off-chain with just its hash on-chain"
+            correct: false
+            feedback: "Contract storage is on-chain in full, replicated by every node, which is exactly why writing it is the most expensive thing the machine does. What lives on-chain as a hash is the root committing to that storage, not a pointer to data kept somewhere else."
         explanation: "A UTXO is a one-shot value container: spend it and it is gone, remembering nothing. An EVM account is durable — it keeps a balance, a replay-protecting nonce, and for contracts a storage tree plus code that persist across transactions. That persistence is what makes a contract able to 'remember' your counter between calls."
       - id: q2
         prompt: "Gas and denominations: which pair is correct on the EVM?"
@@ -40,14 +40,6 @@ blocks:
             label: "1 ETH = 10^9 wei, and a plain ETH transfer costs 21,000 gas"
             correct: false
             feedback: "The gas figure is right and the denomination is off by 10^9: 10^9 is the gwei scale, the unit gas prices are quoted in. Wei is the base unit at 10^18 per ETH."
-          - id: b
-            label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 210,000 gas"
-            correct: false
-            feedback: "Denomination right, gas ten times too high. A bare value transfer is a flat 21,000 gas; six-figure numbers are deployment and heavy-storage territory, because SSTORE is what the machine charges most for."
-          - id: c
-            label: "1 ETH = 10^18 wei, and a plain transfer costs 21,000 gas"
-            correct: true
-            feedback: "Both halves are fixed floors you can count on. The 21,000 covers a transfer that touches no contract code at all; the moment an opcode writes a storage slot the meter climbs, which is how an infinite loop stays bounded rather than banned."
           - id: d
             label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 21,000 wei"
             correct: false
@@ -56,4 +48,12 @@ blocks:
             label: "1 ETH = 10^18 gwei, and a plain ETH transfer costs 21,000 gas"
             correct: false
             feedback: "That stacks the two scales on top of each other: 10^18 is the wei count and 10^9 is the gwei count, so 1 ETH is 10^9 gwei. The account's balance field is denominated in wei, which is the only unit the EVM itself stores."
+          - id: b
+            label: "1 ETH = 10^18 wei, and a plain ETH transfer costs 210,000 gas"
+            correct: false
+            feedback: "Denomination right, gas ten times too high. A bare value transfer is a flat 21,000 gas; six-figure numbers are deployment and heavy-storage territory, because SSTORE is what the machine charges most for."
+          - id: c
+            label: "1 ETH = 10^18 wei, and a plain transfer costs 21,000 gas"
+            correct: true
+            feedback: "Both halves are fixed floors you can count on. The 21,000 covers a transfer that touches no contract code at all; the moment an opcode writes a storage slot the meter climbs, which is how an infinite loop stays bounded rather than banned."
         explanation: "Wei is the base unit: 10^18 wei per ETH (gas prices are quoted in gwei, 10^9 wei, which is the usual source of confusion). A bare value transfer costs a fixed 21,000 gas; anything touching contract code or storage costs more, metered per EVM operation."

@@ -15,41 +15,41 @@ blocks:
         prompt: "Bitcoin has no account balances. When your wallet says '10 BTC', what do you actually control?"
         multiSelect: false
         options:
-          - id: a
-            label: "A row in the miners' database of unspent outputs, showing balance = 10, decremented when you pay"
-            correct: false
-            feedback: "The unspent-output set is real; the per-address row inside it is not. Outputs are consumed whole and replaced, never decremented in place, and nothing in that set is indexed by owner: your 10 BTC is your wallet summing the ones its keys can unlock."
-          - id: b
-            label: "A single on-chain balance field stored under your address, updated in place by each payment"
-            correct: false
-            feedback: "There is no balance field anywhere to update, which is why decoderawtransaction shows outputs being consumed whole rather than edited. The 10 BTC is a sum computed over discrete outputs, and that is exactly why paying part of one hands you change."
-          - id: c
-            label: "A set of unspent transaction outputs (UTXOs) your keys can unlock, which happen to sum to 10 BTC"
-            correct: true
-            feedback: "listunspent shows you the real thing and getbalance shows you the arithmetic over it. Spend one output and the sum recomputes from what is left, because nothing was ever stored as a total in the first place."
           - id: d
             label: "Ten coins stored inside your wallet file, which the node writes onto the chain each time you spend one"
             correct: false
             feedback: "The wallet file holds keys, not coins. The outputs themselves were written to the chain by the transactions that created them, which is why listunspent can point at a txid and a vout index for each one, and why deleting a wallet loses the keys rather than the money's record."
+          - id: a
+            label: "A row in the miners' database of unspent outputs, showing balance = 10, decremented when you pay"
+            correct: false
+            feedback: "The unspent-output set is real; the per-address row inside it is not. Outputs are consumed whole and replaced, never decremented in place, and nothing in that set is indexed by owner: your 10 BTC is your wallet summing the ones its keys can unlock."
+          - id: c
+            label: "A set of unspent transaction outputs (UTXOs) your keys can unlock, which happen to sum to 10 BTC"
+            correct: true
+            feedback: "listunspent shows you the real thing and getbalance shows you the arithmetic over it. Spend one output and the sum recomputes from what is left, because nothing was ever stored as a total in the first place."
+          - id: b
+            label: "A single on-chain balance field stored under your address, updated in place by each payment"
+            correct: false
+            feedback: "There is no balance field anywhere to update, which is why decoderawtransaction shows outputs being consumed whole rather than edited. The 10 BTC is a sum computed over discrete outputs, and that is exactly why paying part of one hands you change."
         explanation: "There is no balance anywhere on-chain — only the UTXO set. A 'balance' is a wallet-side fiction: the sum of unspent outputs your keys control, maybe one 10 BTC output, maybe seven odd-sized ones. Every payment consumes some of those outputs entirely and creates new ones."
       - id: q2
         prompt: "You hold one 10 BTC UTXO and want to pay 3 BTC. What happens to the other 7?"
         multiSelect: false
         options:
-          - id: a
-            label: "The 10 BTC UTXO is consumed whole; the transaction creates a 3 BTC output to the payee and a ~7 BTC change output back to you"
-            correct: true
-            feedback: "That change output goes to a fresh address your wallet minted without asking, which is why the decode showed a second output at an address you never typed. Read the addresses rather than the indexes: which of the two is payment and which is change varies from run to run."
-          - id: b
-            label: "The UTXO is split in place, with 3 BTC carved off while the same output keeps a 7 BTC remainder"
-            correct: false
-            feedback: "An output cannot be edited, only consumed in full and replaced. That is why the 50 BTC coin vanished from listunspent after the payment instead of shrinking, and why two brand-new outputs appeared in its place under a new txid."
-          - id: c
-            label: "You can pay exactly 3 BTC only if you also hold a 3 BTC UTXO; otherwise the node rejects the payment"
-            correct: false
-            feedback: "Exact denominations are never required. Coin selection takes whatever subset covers the bill and returns the overshoot as change, which is why sending 45 BTC out of a 10 and a 39.99997180 consumed both and still handed you a remainder."
           - id: d
             label: "The 7 BTC goes to the miner as the fee, since a transaction pays out only what it lists as outputs"
             correct: false
             feedback: "The first half of that is the rule and the second half is the footgun: whatever the outputs do not claim really is the miner's, which is precisely why the wallet adds the change output for you. Leave it out of a hand-built transaction and you would hand a miner nearly 7 BTC."
+          - id: a
+            label: "The 10 BTC UTXO is consumed whole; the transaction creates a 3 BTC output to the payee and a ~7 BTC change output back to you"
+            correct: true
+            feedback: "That change output goes to a fresh address your wallet minted without asking, which is why the decode showed a second output at an address you never typed. Read the addresses rather than the indexes: which of the two is payment and which is change varies from run to run."
+          - id: c
+            label: "You can pay exactly 3 BTC only if you also hold a 3 BTC UTXO; otherwise the node rejects the payment"
+            correct: false
+            feedback: "Exact denominations are never required. Coin selection takes whatever subset covers the bill and returns the overshoot as change, which is why sending 45 BTC out of a 10 and a 39.99997180 consumed both and still handed you a remainder."
+          - id: b
+            label: "The UTXO is split in place, with 3 BTC carved off while the same output keeps a 7 BTC remainder"
+            correct: false
+            feedback: "An output cannot be edited, only consumed in full and replaced. That is why the 50 BTC coin vanished from listunspent after the payment instead of shrinking, and why two brand-new outputs appeared in its place under a new txid."
         explanation: "UTXOs spend like banknotes: whole, never partially. Paying 3 from a 10 means consuming the 10 and minting two outputs — 3 to the payee, ~7 back to yourself as change (the gap is the miner fee). Forgetting the change output is the classic footgun: whatever the outputs don't claim, the miner keeps."

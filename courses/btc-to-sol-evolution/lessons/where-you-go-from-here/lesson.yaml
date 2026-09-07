@@ -14,22 +14,22 @@ blocks:
         prompt: "You run `anchor build --verifiable` / `solana-verify`. What does that let anyone confirm?"
         multiSelect: false
         options:
-          - id: a
-            label: "That the on-chain bytecode was built from the exact public source you point them at, a reproducible build"
-            correct: true
-            feedback: "It is the hashing lesson one level up: rebuild the source, fingerprint the result, compare it against the fingerprint of the deployed binary. Nobody has to trust you, your build machine or your CI, which is why the Docker sandbox pinning the toolchain is the point rather than the inconvenience."
-          - id: b
-            label: "That the program passed the security review the Solana Foundation requires of any program before a mainnet deploy"
-            correct: false
-            feedback: "No such gate exists. Anyone can deploy anything to mainnet at any time, which is precisely why the audit path is a cost you choose to pay and why unaudited code with real money behind it is a standing bounty."
           - id: c
             label: "That the deployed program can no longer be upgraded out from under its users"
             correct: false
             feedback: "Upgradeability is a separate decision you make about the upgrade authority: keep it on one key, spread it across a multisig, or burn it. A verified program with a live authority can be replaced tomorrow, and the verification simply stops matching."
+          - id: b
+            label: "That the program passed the security review the Solana Foundation requires of any program before a mainnet deploy"
+            correct: false
+            feedback: "No such gate exists. Anyone can deploy anything to mainnet at any time, which is precisely why the audit path is a cost you choose to pay and why unaudited code with real money behind it is a standing bounty."
           - id: d
             label: "That the deployer signed the build, so the bytes on-chain carry a signature tying them to the published repo"
             correct: false
             feedback: "Nothing is signed and nothing needs to be. The proof is that a stranger rebuilds your source themselves and gets the same fingerprint, which is exactly what removes you from the loop. A signature would only move the trust from your build machine to your key."
+          - id: a
+            label: "That the on-chain bytecode was built from the exact public source you point them at, a reproducible build"
+            correct: true
+            feedback: "It is the hashing lesson one level up: rebuild the source, fingerprint the result, compare it against the fingerprint of the deployed binary. Nobody has to trust you, your build machine or your CI, which is why the Docker sandbox pinning the toolchain is the point rather than the inconvenience."
         explanation: "A verifiable build is reproducibility: a pinned toolchain in a container produces bit-identical bytecode from the published source, so anyone can hash the on-chain program and confirm it matches. It proves WHAT is deployed, not that it is safe or immutable — those take audits and a burned upgrade authority respectively."
       - id: q2
         prompt: "Where would you go to study real Solana program vulnerabilities before writing production code?"
@@ -39,6 +39,10 @@ blocks:
             label: "The validator's source code, since real vulnerabilities live at the consensus level rather than in individual programs"
             correct: false
             feedback: "Program-level bugs are where the money actually leaves: unchecked arithmetic, a missing program-id check, an account taken on trust without proving it is the right account. The Drift exploit that prompted the incident-response network was a program, not the runtime."
+          - id: d
+            label: "Solscan, since every deployed program publishes its own source on the explorer for anyone to read"
+            correct: false
+            feedback: "A Solana program is deployed as compiled bytes and the source is published only if its authors choose to. Metis is the course's worked example of one that is not, which is why studying a closed program means working its interfaces and its audits instead of its source."
           - id: b
             label: "Curated attack collections and audit write-ups such as sealevel-attacks and Neodyme's research"
             correct: true
@@ -47,8 +51,4 @@ blocks:
             label: "Fuzz your own program, since exploit classes are specific to each codebase and published collections do not transfer"
             correct: false
             feedback: "The classes transfer almost perfectly, which is the whole reason a catalogue is worth reading: arithmetic overflow, missing program validation and account-data confusion show up again and again across unrelated programs. Fuzzing is a fine second step and a poor way to learn what to look for."
-          - id: d
-            label: "Solscan, since every deployed program publishes its own source on the explorer for anyone to read"
-            correct: false
-            feedback: "A Solana program is deployed as compiled bytes and the source is published only if its authors choose to. Metis is the course's worked example of one that is not, which is why studying a closed program means working its interfaces and its audits instead of its source."
         explanation: "The canonical study set is public: coral-xyz/sealevel-attacks catalogs the recurring program-level exploit classes (missing signer checks, account substitution, arithmetic errors) as paired vulnerable/fixed examples, and audit firms like Neodyme publish detailed write-ups of real findings. Reading them first is the cheapest security work you will ever do."

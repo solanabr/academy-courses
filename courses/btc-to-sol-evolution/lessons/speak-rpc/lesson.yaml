@@ -15,14 +15,6 @@ blocks:
         prompt: "Your `bitcoin-cli` commands are a thin wrapper over what, and how does a program talk to the node without the CLI?"
         multiSelect: false
         options:
-          - id: a
-            label: "JSON-RPC over HTTP: a program POSTs a JSON body naming a method and params to the node's RPC port"
-            correct: true
-            feedback: "curl, Python's requests and bitcoin-cli all produced the same answer because all three POST the same envelope to the same port. The CLI's whole job is finding the port, reading the cookie, wrapping your arguments and printing the result field."
-          - id: b
-            label: "gRPC with protobuf schemas, and bitcoin-cli ships the compiled .proto definitions programs must share"
-            correct: false
-            feedback: "No schema is shared and nothing is compiled. Satoshi bolted an existing web standard, JSON-RPC 1.0, onto bitcoind, which is why a dict and an HTTP request are the only tools you need and why every chain since answers the same shape of POST."
           - id: c
             label: "Direct reads of the node's database files, since bitcoin-cli opens the same LevelDB the daemon writes to"
             correct: false
@@ -31,15 +23,19 @@ blocks:
             label: "A local Unix domain socket, since the CLI and the daemon talk over a private channel on disk"
             correct: false
             feedback: "The channel is an ordinary TCP port, which is exactly why curl reaches it at http://127.0.0.1:18443/ and why pointing the same client at a rented node is a one-line change. Nothing about the transport is private to the CLI."
+          - id: a
+            label: "JSON-RPC over HTTP: a program POSTs a JSON body naming a method and params to the node's RPC port"
+            correct: true
+            feedback: "curl, Python's requests and bitcoin-cli all produced the same answer because all three POST the same envelope to the same port. The CLI's whole job is finding the port, reading the cookie, wrapping your arguments and printing the result field."
+          - id: b
+            label: "gRPC with protobuf schemas, and bitcoin-cli ships the compiled .proto definitions programs must share"
+            correct: false
+            feedback: "No schema is shared and nothing is compiled. Satoshi bolted an existing web standard, JSON-RPC 1.0, onto bitcoind, which is why a dict and an HTTP request are the only tools you need and why every chain since answers the same shape of POST."
         explanation: "Every bitcoin-cli command is a JSON-RPC call: an HTTP POST like {\"method\": \"getblockcount\", \"params\": []} against the node's RPC port. Any language with an HTTP client speaks it directly — which is why bots, explorers, and exchanges never shell out to the CLI."
       - id: q2
         prompt: "Which RPC port does a Bitcoin Core node listen on in regtest mode?"
         multiSelect: false
         options:
-          - id: a
-            label: "8332"
-            correct: false
-            feedback: "That is mainnet's RPC port, and pointing a regtest client at it is the footgun that looks like a dead node: nothing is listening, so the OS refuses the connection instantly and the failure is indistinguishable from a crashed daemon."
           - id: b
             label: "18443"
             correct: true
@@ -56,4 +52,8 @@ blocks:
             label: "8333"
             correct: false
             feedback: "8333 is mainnet's peer-to-peer port, the one other nodes connect to. Every network runs two ports, one for peers and one for RPC, and only the RPC side answers the JSON envelope your client builds."
+          - id: a
+            label: "8332"
+            correct: false
+            feedback: "That is mainnet's RPC port, and pointing a regtest client at it is the footgun that looks like a dead node: nothing is listening, so the OS refuses the connection instantly and the failure is indistinguishable from a crashed daemon."
         explanation: "Ports encode the network: 8332 mainnet, 18332 testnet, 18443 regtest. Your regtest experiments talk to 18443, and the wrong-port error you get otherwise is a safety feature — it makes it hard to point test tooling at real money by accident."

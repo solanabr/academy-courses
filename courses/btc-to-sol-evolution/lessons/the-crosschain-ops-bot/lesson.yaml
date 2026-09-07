@@ -23,22 +23,22 @@ blocks:
         prompt: "For your ops bot to survive a `kill -9` and resume correctly, which set of persisted artifacts is sufficient?"
         multiSelect: false
         options:
-          - id: a
-            label: "The keypair(s), a cursor (last confirmed slot or op id), and the spawned-agent manifest"
-            correct: true
-            feedback: "Each one prevents a different disaster: the keys keep your addresses stable across the reboot, the cursor keeps confirmed work from being replayed, and the manifest tells the supervisor which agents to bring back and which key each one owns."
-          - id: b
-            label: "The keypair(s) and the cursor, since spawned agents re-register themselves when they notice the parent restarted"
-            correct: false
-            feedback: "A killed parent takes its children with it, so there is nobody left to notice anything. Without a roster on disk the supervisor cannot even know it was supposed to be running a Bitcoin agent and a Solana agent, let alone which restored key belongs to which."
-          - id: c
-            label: "The cursor and the manifest, since the keypair can be re-derived from on-chain data after a restart"
-            correct: false
-            feedback: "Derivation runs one way. An address is computed from a secret, never the reverse, so a lost key file is a funded address you can no longer spend from. That is why both agents persist their bytes before the first satoshi or lamport ever moves."
           - id: d
             label: "The keypair(s), the cursor, and the supervisor's PID file, since the roster rebuilds from the running processes"
             correct: false
             feedback: "After a kill -9 there are no running processes to read a roster from, and a recorded pid is an integer the operating system is free to hand to someone else. That is exactly how a supervisor concludes an agent is still alive, never respawns it, and leaves a funded key with nobody minding it."
+          - id: a
+            label: "The keypair(s), a cursor (last confirmed slot or op id), and the spawned-agent manifest"
+            correct: true
+            feedback: "Each one prevents a different disaster: the keys keep your addresses stable across the reboot, the cursor keeps confirmed work from being replayed, and the manifest tells the supervisor which agents to bring back and which key each one owns."
+          - id: c
+            label: "The cursor and the manifest, since the keypair can be re-derived from on-chain data after a restart"
+            correct: false
+            feedback: "Derivation runs one way. An address is computed from a secret, never the reverse, so a lost key file is a funded address you can no longer spend from. That is why both agents persist their bytes before the first satoshi or lamport ever moves."
+          - id: b
+            label: "The keypair(s) and the cursor, since spawned agents re-register themselves when they notice the parent restarted"
+            correct: false
+            feedback: "A killed parent takes its children with it, so there is nobody left to notice anything. Without a roster on disk the supervisor cannot even know it was supposed to be running a Bitcoin agent and a Solana agent, let alone which restored key belongs to which."
         explanation: "Three things cannot be recomputed after a kill -9: the keypair (its address and spending power), the cursor (how far it got), and the agent manifest (what it spawned). Everything else — balances, confirmations, chain state — is re-readable from the chain. Persist those three and a cold restart becomes a resume instead of a do-over."
       - id: q2
         prompt: "Every operation the bot submits AFTER its cursor must be idempotent or on-chain-guarded. Why is that the rule?"
@@ -48,6 +48,10 @@ blocks:
             label: "Because validators de-duplicate by fee payer, so replayed operations would be silently dropped and leave gaps"
             correct: false
             feedback: "No chain de-duplicates by payer, and a rebuilt transaction carries a fresh blockhash and a fresh signature, so it looks entirely new on arrival. The network will happily execute your second airdrop or your second swap."
+          - id: d
+            label: "Because a kill -9 can leave a half-signed transaction waiting in the mempool, which a validator may still land on-chain after the restart"
+            correct: false
+            feedback: "Solana has no mempool to leave anything in, and a half-signed transaction is not a valid one anywhere. The replay this rule guards against is the bot's own: on resume it re-reads its queue and re-sends work whose confirmation it never got to record."
           - id: b
             label: "It is a performance rule: idempotent operations can be batched into one transaction and confirmed in a single round trip, so a restarted bot catches up faster"
             correct: false
@@ -56,10 +60,6 @@ blocks:
             label: "On resume the bot may re-see work it already sent; without an idempotent design or an on-chain guard it runs twice"
             correct: true
             feedback: "The crash that hurts is the one between the send and the cursor write, where the bot's own bookkeeping is missing work the chain already accepted. Asking the chain directly before applying an operation is the second belt that covers exactly that gap."
-          - id: d
-            label: "Because a kill -9 can leave a half-signed transaction waiting in the mempool, which a validator may still land on-chain after the restart"
-            correct: false
-            feedback: "Solana has no mempool to leave anything in, and a half-signed transaction is not a valid one anywhere. The replay this rule guards against is the bot's own: on resume it re-reads its queue and re-sends work whose confirmation it never got to record."
         explanation: "The crash window is unavoidable: the bot can die after an operation lands but before the cursor advances. On resume it will replay everything past the cursor — so each such operation must either change nothing the second time (idempotent) or be rejected by an on-chain check (guarded). That one rule is what makes kill -9 survivable."
       - id: q3
         prompt: "Wormhole secures messages with a 19-member guardian set and a 13-of-19 quorum. In the bridge trust taxonomy, which tier is that, and what do you trust?"
@@ -69,6 +69,10 @@ blocks:
             label: "Trust-minimized, since the guardian signatures are verified on-chain by the destination contract, so you trust only code and the two chains' consensus"
             correct: false
             feedback: "Checking a signature on-chain is not the same as proving the transfer. Trust-minimized means a ZK or light-client proof enforces the transfer with no separate roster in the loop; here a fixed roster of 19 named parties decides what gets attested in the first place."
+          - id: d
+            label: "External-validator-set, and a single stolen guardian key is enough to forge a message the bridge accepts"
+            correct: false
+            feedback: "The tier is right and the threshold is not: forging an attestation takes 13 of the 19 keys, which is exactly what makes an M-of-N roster stronger than a single custodian. The 2022 drain took none of them, because the flaw was in the contract checking the signatures rather than in the guardians holding the keys."
           - id: b
             label: "External-validator-set: you trust an honest majority of the named guardians, and compromising 13 of 19 keys breaks the bridge"
             correct: true
@@ -77,8 +81,4 @@ blocks:
             label: "Custodial, since Wormhole the company holds the locked assets and signs releases from its own infrastructure"
             correct: false
             feedback: "Custodial is where one company or multisig holds the assets and you trust its key security and legal standing, as with WBTC. Wormhole's authority sits with a named guardian set, which is a different failure surface: an M-of-N compromise rather than one operator going insolvent or being coerced."
-          - id: d
-            label: "External-validator-set, and a single stolen guardian key is enough to forge a message the bridge accepts"
-            correct: false
-            feedback: "The tier is right and the threshold is not: forging an attestation takes 13 of the 19 keys, which is exactly what makes an M-of-N roster stronger than a single custodian. The 2022 drain took none of them, because the flaw was in the contract checking the signatures rather than in the guardians holding the keys."
         explanation: "Wormhole is the external-validator-set tier: a fixed committee attests to cross-chain messages, and its threshold — 13 of 19 guardian keys — IS the security boundary. Stronger than one custodian, weaker than a light client that verifies the source chain's own consensus. Naming the committee you trust is the first question to ask of any bridge."
