@@ -37,7 +37,9 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 **Capabilities are ordered.** A block that `consumes: [deployed-program]` must appear after a block that produces it, anywhere earlier in the course — **or in a course listed earlier on a learning path this course sits on** (`paths/*.yaml`), which is how a course declares that it consumes the previous course's output. Only a `wallet-funding` block can produce `funded-wallet`; only a `deployable` `code` block can produce `deployed-program`. Producing across the boundary is a path-order fact only: it does not set `prerequisiteCourse`, which is written on-chain and gates enrollment.
 
-**No orphan files.** Every file in a lesson directory must be referenced by a block (`src`, `starter`, `solution`, `tests`, `idl`) or linked from a prose `.md`.
+**No orphan files.** Every file in a lesson directory must be referenced by a block (`src`, `starter`, `solution`, `tests`, `idl`) or linked from a prose `.md`. This is why translations live in a course-level `l10n/` folder rather than beside the lessons they translate — see [Translations](#translations) below.
+
+**A translation is an overlay, not a copy.** Never duplicate a course to publish it in another language. `course_id` is a PDA seed, so a duplicate forks the course's enrolment, progress bitmap and XP ledger permanently, and the two can never be merged.
 
 **An empty learning path must say why it is empty.** A path with no courses is hidden by the app either way, so it has to declare intent: `draft: true` means courses are on the way (and it must list them — `draft: true` with `courses: []` is an error), `retired: true` means permanently emptied with the id preserved (and its `courses` must stay empty). A path that never shipped to learners is deleted outright rather than retired — there is no id to reserve. See [paths/README.md](./paths/README.md).
 
@@ -66,3 +68,9 @@ An `openEnded` block asks the learner to write, and the AI replies once with fee
 ## Answer keys are public
 
 `solution` files and all test cases live in this public repo, by design. Grading is by **execution in a sandbox**, not by secrecy. Don't write a lesson whose value depends on the learner not seeing the answer.
+
+## Translations
+
+Every course declares the language it was written in — `sourceLocale: en | pt-BR | es` in `course.yaml` — and gains other languages through an optional `courses/<slug>/l10n/<locale>/` overlay holding a `strings.yaml` and any prose you translated. You don't have to translate everything: coverage is per string and per file, and anything you leave out renders in the course's source language. A translation is its own pull request, per course per language, and it touches nothing outside `l10n/`.
+
+The format, the rules that keep a translation away from ids and answer keys, and a worked example are in [courses/README.md § Translations](./courses/README.md#translations) and `courses/_template/l10n/pt-BR/`. Read them before starting — the overlay is not yet rendered by the app, and the constraints are currently enforced by review rather than by CI.

@@ -1,0 +1,70 @@
+id: lesson-vgs-terminologia-essencial-da-solana-em-contexto
+slug: terminologia-essencial-da-solana-em-contexto
+title: "Terminologia Essencial da Solana em Contexto"
+skills:
+- solana-fundamentals
+- transactions
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=P-NQ5PY8vio
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: "Segundo a lição, qual é a distinção entre validadores, nós e clientes?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Validadores são SDKs de cliente; nós são carteiras de usuário; clientes são mineradores que produzem blocos."
+      correct: false
+      feedback: "Cada papel está trocado: validadores participam do consenso e clientes apenas submetem transações."
+    - id: c
+      label: "Os três termos designam exatamente a mesma entidade: qualquer máquina que execute o software da rede Solana."
+      correct: false
+      feedback: "A lição separa explicitamente ator de consenso, processo em execução e software que submete transações."
+    - id: a
+      label: "Validadores são atores de consenso; nós são processos em execução e endpoints RPC; clientes são SDKs ou programas que submetem transações."
+      correct: true
+      feedback: "Correto! São três papéis distintos, frequentemente confundidos."
+    explanation: "Validadores participam do consenso, nós são processos e endpoints RPC, clientes submetem transações."
+  - id: q2
+    prompt: "O que uma transação declara, conforme a lição?"
+    multiSelect: false
+    options:
+    - id: a
+      label: "Quais contas serão lidas ou escritas."
+      correct: true
+      feedback: "Correto! Essa declaração é o que permite planejar a execução."
+    - id: b
+      label: "A quantidade de validadores que devem votar nela."
+      correct: false
+      feedback: "O número de votantes não é declarado pela transação."
+    - id: c
+      label: "O preço de mercado do token no momento do envio."
+      correct: false
+      feedback: "A transação não declara preço de mercado."
+    explanation: "Programas executam lógica, contas armazenam estado e lamports, e transações declaram as contas lidas ou escritas."
+  - id: q3
+    prompt: "O que são lamports segundo a lição?"
+    multiSelect: false
+    options:
+    - id: b
+      label: "Um formato de arquivo usado para exportar os logs de execução de um programa on-chain."
+      correct: false
+      feedback: "Logs de programa são texto retornado pelo runtime; lamport é unidade de valor, não formato de arquivo."
+    - id: a
+      label: "A menor unidade nativa, que aparece em taxas, aluguel e diferenças de saldo das contas."
+      correct: true
+      feedback: "Correto! Por isso lamports surgem nas saídas de transação e nos saldos pré/pós."
+    - id: c
+      label: "O nome do explorador oficial de blocos usado para inspecionar transações da rede."
+      correct: false
+      feedback: "Exploradores são interfaces de leitura; lamport é a menor unidade nativa de valor."
+    explanation: "Lamports são a menor unidade nativa e aparecem em taxas, aluguel e diferenças de saldo."
