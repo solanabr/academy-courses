@@ -45,9 +45,9 @@ blocks:
             correct: false
             feedback: "Difficulty came from a hardcoded target, not from hashing news. The headline is a proof of no earlier start, since you cannot cite tomorrow's front page today, plus a pointed editorial choice."
           - id: c
-            label: "It was the payload of the first payment, with Satoshi buying the newspaper's front page using the genesis reward"
+            label: "It was paid for: the genesis coinbase spent its 50 BTC on the front-page slot, which is why that reward is unspendable today"
             correct: false
-            feedback: "The genesis coinbase paid no one: its 50 BTC is famously unspendable. The text rides in the coinbase's free-form field purely as a timestamp anyone can recompute, and as a message."
+            feedback: "The reward really is unspendable, but not because it was spent. Block zero's 50 BTC was never written into the set of spendable outputs at all, a quirk of the original client that was never fixed, and the headline rides for free in the coinbase's open text field."
           - id: d
             label: "It pins the exact date, since a headline from 2009-01-03 could only have been written that morning, proving the block was mined that same day"
             correct: false
