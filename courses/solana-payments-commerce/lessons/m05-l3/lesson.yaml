@@ -28,6 +28,10 @@ blocks:
             label: "The subscription is cancelled immediately and its delegation PDA is closed on the spot, refunding the rent to the subscriber who paid it."
             correct: false
             feedback: "A failure moves to an open-invoice/grace state, not immediate cancel-and-close; cancellation is a separate, explicit transition."
+          - id: d
+            label: "The renewal is dropped, and the crank simply bills the subscriber again on the next scheduled cycle."
+            correct: false
+            feedback: "Dropping it loses the receivable. The missed period stays owed, and the state machine refuses a pull against an open invoice outright, so the next cycle is not where that money comes back."
         explanation: "Retry-never: with no custody there is nothing to dun. The failed pull becomes an open invoice the subscriber settles when they top up, the exact opposite of card-rail auto-retry."
       - id: m05-l3-q2
         prompt: "A subscriber cancels for good and you want to stop paying rent on their now-dead subscription accounts. Which action recovers it?"
@@ -45,6 +49,10 @@ blocks:
             label: "The subscriber must closeAccount on their ATA, which also frees the subscription PDAs."
             correct: false
             feedback: "Closing the user's ATA is a different account entirely and does not reclaim the program's subscription or delegation PDAs."
+          - id: d
+            label: "Nothing to do here: the subscriber's cancel already closed both of those accounts and returned every lamport of their rent."
+            correct: false
+            feedback: "Unsubscribing does close the delegation account and refund it. Revoking the authority only vacates the delegate slot, so the subscription PDA is still sitting there on your rent until a RevokeAbandoned call closes it."
         explanation: "RevokeAbandoned* is the lifecycle exit that recovers rent from dead subscription/delegation PDAs, so you stop paying to keep cancelled arrangements on-chain."
       - id: m05-l3-q3
         prompt: "You're advising Wavelength on outsourcing recurring billing to a provider. Based on the 2026 landscape, which statement is accurate?"
@@ -62,6 +70,10 @@ blocks:
             label: "MoonPay Commerce pay links and Stripe Billing both support subscriptions, including stablecoin ones, while Sphere has none at all."
             correct: true
             feedback: "Recurring is a separate product line from payments, and a strong payments vendor can simply not ship it; support is not coverage either, and the corridor is where that gap shows."
+          - id: d
+            label: "All three ship recurring billing, so the choice comes down to corridor coverage and price rather than capability."
+            correct: false
+            feedback: "Assuming every payments vendor also bills recurring is how the wrong one gets picked. Sphere is strong on payments, ramps and PIX settlement and ships no recurring product at all, so capability is the first filter, not the last."
         explanation: "The useful intelligence is the negatives: MoonPay Commerce and Stripe Billing both do recurring, Sphere does not. Assuming every payments provider bills recurring is how you pick the wrong vendor."
       - id: m05-l3-q4
         prompt: "You model dunning as a state machine in the backoffice rather than as retries against the chain. Why is that the right shape for non-custodial recurring revenue?"
@@ -79,4 +91,8 @@ blocks:
             label: "Because the Subscriptions program escrows one billing period of funds when a subscriber accepts a plan, so a retried pull draws on that escrow and eventually clears."
             correct: false
             feedback: "Nothing escrows the subscriber's funds; an empty ATA simply cannot be pulled, no matter how many times you retry."
+          - id: d
+            label: "Because the ledger is where a retry loop belongs: it holds the failures and re-attempts the pull on a backoff until the balance covers it."
+            correct: false
+            feedback: "Moving the loop into the ledger keeps the loop. A pull against an open invoice is refused as an invariant, precisely so nobody reinvents backoff against a wallet that only its owner can refill."
         explanation: "Non-custodial means you can't reach into the wallet. The only place you control state is your own ledger, so failure and lifecycle live there as an explicit state machine, which is exactly why retry-never is the honest policy."
