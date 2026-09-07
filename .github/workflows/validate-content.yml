@@ -52,3 +52,54 @@ jobs:
       - name: Lint content tree
         working-directory: tooling
         run: pnpm --filter @superteam-lms/content-lint exec tsx src/cli.ts "$GITHUB_WORKSPACE/content"
+
+  quiz-stats:
+    name: quiz-stats
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet pyyaml
+
+      # content-lint has no positional, statistical or length gate of any kind,
+      # so nothing upstream can see an answer key that is predictable from the
+      # keys before it. That is not hypothetical: every wave-2 course balanced
+      # its key positions almost perfectly while cycling a->b->c per lesson.
+      # Fixtures first: the rotation that shipped must fail, a Latin-square
+      # scheme that balances the marginal but never repeats a slot must fail,
+      # and an honest shuffle must PASS. Without that last case a gate can be
+      # green by failing everything, which is how the previous one got trusted.
+      - name: Gate selftest
+        run: python3 scripts/quiz_stats.py --selftest
+
+      - name: Assessment-layer statistics
+        run: python3 scripts/quiz_stats.py --all
+
+      # Option order is derived from a hash, so it can be verified rather than
+      # trusted. This catches a hand-tuned question, which is where the last
+      # answer-key scheme came from. Unlike every statistical metric above, it
+      # is conclusive at any n -- which is the only protection a 33-question
+      # course has, since the slot-repeat test has no power at that size.
+      #
+      # Enforced on the same opt-in list as the statistics, and for the same
+      # reason: the three out-of-scope courses have never been permuted, so
+      # checking them here would fail every build for work nobody funded.
+      # They are still checked -- the result is printed, it just cannot go red.
+      - name: Option order matches the hash
+        run: |
+          enforced=$(sed 's/#.*//' scripts/quiz_gate_enforced.txt | tr -s ' ' | xargs)
+          rc=0
+          for c in courses/*/course.yaml; do
+            d=$(dirname "$c"); slug=$(basename "$d")
+            if echo " $enforced " | grep -q " $slug "; then
+              python3 scripts/quiz_permute.py check "$d" || rc=1
+            else
+              python3 scripts/quiz_permute.py check "$d" || \
+                echo "  (not enforced for $slug -- see scripts/quiz_gate_enforced.txt)"
+            fi
+          done
+          exit $rc

@@ -1,0 +1,39 @@
+# Courses whose quiz layer FAILS THE BUILD when scripts/quiz_stats.py finds an
+# error-severity metric. Everything not listed is still measured and printed on
+# every run -- it just cannot red-line the build yet.
+#
+# The split exists because the assessment overhaul is funded for five courses.
+# Enforcing a gate on a course nobody is fixing would either block unrelated PRs
+# or train everyone to ignore a permanently-red check, and a check people ignore
+# is worse than no check.
+#
+# RULE: add a slug in the SAME pull request that fixes that course. Never
+# earlier (the build goes red for work that has not happened), never as a
+# separate "turn on the gate" commit (that is where the fix silently never
+# lands). Deleting a slug to make a build green is a revert, not a fix.
+#
+# Verified passing at the commit noted. These courses are not on main yet, so
+# listing them enforces nothing today and starts enforcing the moment their PR
+# lands -- which is the point: the gate arrives with the fix, not after it.
+mastering-anchor-v2        # c1fa1fd, 0 errors: best content-blind strategy 30.1% vs 24.2% chance
+rust-ts-fundamentals       # 0 errors: key length rank [33,38,38,22], best strategy 29.6% vs 24.9% chance
+solana-payments-commerce   # 0 errors: key length rank [23,27,25,20], best strategy 28.4% vs 25.0% chance
+digital-assets             # 0 errors: spread 28/86 over 1.7x -> 0/86, best strategy 26.7% vs 24.7% chance
+
+# btc-to-sol-evolution deliberately NOT listed here, though it passes.
+#
+# It is the one wave course already merged to main, so a slug on THIS branch
+# would enforce against main's copy -- which is the pre-fix version, because
+# the fix lives on fix/btc-to-sol-evolution-round3-07-09-2026. Listing it here
+# turns this branch red for a defect that is already fixed somewhere else, and
+# that is exactly the "permanently red check people learn to ignore" this file
+# exists to avoid.
+#
+# Its slug belongs in the b2s PR, added when that branch and this one meet.
+# Verified passing there: 'longest' picked the key 72.7% of the time before the
+# wave and 27.3% after, against a 24.5% chance rate.
+#
+# Deliberately out of scope this wave (owner decision, 2026-09-07):
+# visao-geral-solana, solana-speedrun, pilula-solana-superteam. These are
+# measured on every run and their numbers are real -- visao-geral keys the
+# longest option ~70% of the time -- but fixing them was not funded here.

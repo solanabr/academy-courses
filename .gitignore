@@ -5,3 +5,7 @@ node_modules/
 # local course-production staging (agent output; never commit directly)
 academy-pass1/
 academy-raw/
+
+# Python bytecode from scripts/
+__pycache__/
+*.pyc
