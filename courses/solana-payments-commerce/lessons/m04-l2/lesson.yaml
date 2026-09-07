@@ -32,10 +32,10 @@ blocks:
             correct: true
             feedback: "At-least-once delivery means the key has to come from the payment rather than the delivery; a per-delivery id changes on every retry and lets all three through."
           - id: d
-            label: "Helius retries on any non-2xx answer, so de-dupe on the delivery event id it stamps on each attempt it makes."
+            label: "Helius retries on any non-2xx answer, so de-dupe on a per-delivery event id off the request rather than on anything in the payment."
             correct: false
-            feedback: "The diagnosis is right and the key is wrong. A delivery id is minted per attempt, so all three retries carry different ones and all three pass the guard; only something derived from the payment stays constant across them."
-        explanation: "Retries on unsuccessful (roughly non-2xx) responses mean duplicate events are normal. The transaction signature is deterministic and unique per payment, so keying idempotency on it makes fulfillment exactly-once. That the signature is the right key is our sound inference, not a Helius quote."
+            feedback: "The diagnosis is right and the key is wrong, and it fails before you even get to the key: the enhanced payload has no delivery or attempt id in it. Its fields are `signature`, `type`, `slot`, `timestamp`, `feePayer`, `tokenTransfers` and the rest of the parsed transaction, and the one header you control, `authHeader`, is a constant you chose. There is nothing per-delivery to key on — and anything that did vary per attempt would differ across all three retries and let all three through. Only something derived from the payment stays constant."
+        explanation: "Retries on unsuccessful (roughly non-2xx) responses mean duplicate events are normal. The transaction signature is deterministic and unique per payment, so keying idempotency on it makes fulfillment exactly-once. And this one you do not have to infer: Helius's own webhook best practices say to use the `signature` field to deduplicate."
       - id: q6
         prompt: "A webhook arrives with a valid-looking TRANSFER payload and a signature you've never seen. Before writing an order, what must happen?"
         multiSelect: false
