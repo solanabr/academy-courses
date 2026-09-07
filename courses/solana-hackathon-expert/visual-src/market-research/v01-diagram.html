@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:38px 52px 34px;overflow:hidden}
+.viz-title{font-size:38px;margin:4px 0 24px}
+.cols{display:flex;gap:24px}
+.col{flex:1;display:flex;flex-direction:column;gap:10px}
+.ch{height:56px;background:var(--surface-brand);color:var(--text-on-brand);border-radius:var(--radius-md);display:flex;align-items:center;padding:0 20px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px}
+.cell{border:2px solid var(--stbr-dark);border-radius:var(--radius-md);padding:12px 18px;display:flex;flex-direction:column;justify-content:center}
+.cell.src{height:136px;border-color:var(--stbr-ink-300);background:var(--surface-paper)}
+.cell.pr{height:112px;border-color:var(--stbr-emerald)}
+.cell.np{height:88px}
+.cell .t{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.cell.pr .t{color:var(--stbr-emerald)}
+.cell.np .t{color:var(--text-primary)}
+.cell .v{font-family:var(--font-body);font-size:15px;line-height:1.35;color:var(--text-primary)}
+.cell.src .v{color:var(--text-secondary)}
+.cell .v b{color:var(--text-primary);font-weight:700}
+.cell .m{font-family:var(--font-mono);font-size:13px;color:var(--text-secondary)}
+.band{margin-top:20px;height:60px;border-radius:var(--radius-md);background:var(--surface-accent);color:var(--text-on-accent);display:flex;align-items:center;justify-content:center;gap:18px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px}
+.band .s{font-family:var(--font-body);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase}
+</style></head>
+<body>
+<!-- diagram: Three kinds of evidence a judge can click, and what each one is allowed to prove
+     purpose: give the reader the shape of a clickable number before the map and the sizing ask for many of them
+     data: Public platform count: earn.superteam.fun home, 213,730+ users and 2,680+ sponsors, read 2026-09-06. Proves: demand exists for a product of that kind. Does not prove: demand for yours. On-chain read: a program page on any explorer, transaction count (all time and last thirty days), time of the last transaction; a comparable's TVL where published. Proves: a competitor's real usage and when it went quiet; how much value people trust to that kind of product. Does not prove: address count equals people. Sponsor listing: a side track or bounty on Earn with the count of applicants where shown. Proves: builders believed the sponsor's problem was worth a week. Does not prove: end users want it. Every row carries: the count, the URL, the date read.
+     prompt: Three columns side by side, headed "public platform count", "on-chain read", "sponsor listing". Each column has three stacked cells: the example source, a cell labelled "proves", a cell labelled "does not prove", filled from the data. A band across the bottom spanning all three columns reads "every number: count, URL, date read". Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:512px;height:435px;right:-304px;top:307px;border-radius:51% 61% 58% 36% / 41% 55% 46% 52%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:391px;height:557px;bottom:-317px;left:392px;border-radius:58% 59% 63% 50% / 37% 55% 49% 60%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Evidence a judge can click</div>
+  <h2 class="viz-title">Three kinds of evidence a judge can click, and what each one is allowed to prove</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="ch">public platform count</div>
+      <div class="cell src"><div class="t">Example source</div><div class="v">earn.superteam.fun home: <b>213,730+ users</b> and <b>2,680+ sponsors</b></div><div class="m">read 2026-09-06</div></div>
+      <div class="cell pr"><div class="t">Proves</div><div class="v">demand exists for a product of that kind</div></div>
+      <div class="cell np"><div class="t">Does not prove</div><div class="v">demand for yours</div></div>
+    </div>
+    <div class="col">
+      <div class="ch">on-chain read</div>
+      <div class="cell src"><div class="t">Example source</div><div class="v">a program page on any explorer: <b>transaction count</b> (all time and last thirty days), <b>time of the last transaction</b>; a comparable's TVL where published</div></div>
+      <div class="cell pr"><div class="t">Proves</div><div class="v">a competitor's real usage and when it went quiet; how much value people trust to that kind of product</div></div>
+      <div class="cell np"><div class="t">Does not prove</div><div class="v">address count equals people</div></div>
+    </div>
+    <div class="col">
+      <div class="ch">sponsor listing</div>
+      <div class="cell src"><div class="t">Example source</div><div class="v">a side track or bounty on Earn with the <b>count of applicants</b> where shown</div></div>
+      <div class="cell pr"><div class="t">Proves</div><div class="v">builders believed the sponsor's problem was worth a week</div></div>
+      <div class="cell np"><div class="t">Does not prove</div><div class="v">end users want it</div></div>
+    </div>
+  </div>
+  <div class="band"><span class="s">every number</span> count, URL, date read</div>
+</div>
+</div>
+</body></html>

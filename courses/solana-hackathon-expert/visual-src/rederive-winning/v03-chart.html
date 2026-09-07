@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:36px 52px 28px;overflow:hidden}
+.viz-title{font-size:38px;margin:4px 0 22px}
+.row{display:flex;align-items:center;height:60px;margin-bottom:12px}
+.lab{width:210px;flex:none;font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px;color:var(--text-primary);line-height:1.05}
+.track{width:560px;flex:none;height:44px;background:var(--surface-paper);border-radius:var(--radius-sm);position:relative}
+.bar{position:absolute;left:0;top:0;height:44px;background:var(--surface-brand);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:flex-end;padding-right:12px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px;color:var(--text-on-brand)}
+.bar.hi{background:var(--surface-accent);color:var(--text-on-accent)}
+.note{flex:1;padding-left:22px;font-family:var(--font-body);font-size:16px;line-height:1.3;color:var(--text-secondary)}
+.axis{display:flex;align-items:center;height:26px;margin-bottom:10px}
+.axis .sp{width:210px;flex:none}
+.axis .tk{width:560px;flex:none;position:relative;height:26px;border-top:2px solid var(--stbr-dark)}
+.axis .tk span{position:absolute;top:4px;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--text-muted);width:40px;text-align:center;margin-left:-20px}
+.axis .cap{flex:1;padding-left:22px;font-family:var(--font-body);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--stbr-emerald);font-weight:600}
+.extra{border-top:2px solid var(--border-subtle);margin-top:8px;padding-top:12px}
+.extra .row{height:46px;margin-bottom:6px}
+.extra .lab{font-size:19px}
+.extra .track{height:14px;background:var(--surface-paper)}
+.extra .mark{position:absolute;top:-6px;width:8px;height:26px;border-radius:2px;background:var(--stbr-dark)}
+.extra .txt{flex:1;padding-left:22px;font-family:var(--font-body);font-size:16px;color:var(--text-primary);font-weight:600}
+.extra .txt small{display:block;font-weight:400;color:var(--text-secondary);font-size:14px}
+.src{margin-top:12px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted)}
+</style></head>
+<body>
+<!-- chart: Fiado's evidence pack rescored 0 to 10 against Frontier's factors, week 1
+     purpose: show the reader the shape of an honest week 1 rescoring, low where nothing is built yet, so their own numbers are not rounded up
+     data: a real problem: 7 (five dated conversations with owners that keep the notebook) it works: 3 (no devnet slice yet; scored on the plan) the story lands: 5 (pitch v1 rewritten from evidence, one feedback round of three) this team: 6 (a founder that has stood in the shop; repo work to come) Colosseum adds: Viability, as answered in the decision memo; Traction, near zero, one shop still a target Rubric: Founder + Market Fit; Insight; Product + Execution; Potential Market Size; Founder Communication; Viability; Traction (colosseum.com/hackathon, 2026-09-06)
+     prompt: A horizontal bar chart with four bars labelled a real problem, it works, the story lands, this team, on a 0 to 10 axis, values 7, 3, 5, 6, each bar carrying its one-sentence note at the end. Under the chart, two short rows for Viability and Traction with their text notes instead of bars, Traction visibly near the zero end. A source line for the rubric. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:445px;height:412px;right:-227px;top:355px;border-radius:60% 42% 39% 40% / 40% 63% 48% 48%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:570px;height:531px;bottom:-306px;left:-306px;border-radius:44% 50% 49% 59% / 58% 49% 54% 60%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Week 1, scored honestly</div>
+  <h2 class="viz-title">Fiado's evidence pack rescored 0 to 10 against Frontier's factors, week 1</h2>
+  <div class="row"><div class="lab">a real problem</div><div class="track"><div class="bar" style="width:392px">7</div></div><div class="note">five dated conversations with owners that keep the notebook</div></div>
+  <div class="row"><div class="lab">it works</div><div class="track"><div class="bar hi" style="width:168px">3</div></div><div class="note">no devnet slice yet; scored on the plan</div></div>
+  <div class="row"><div class="lab">the story lands</div><div class="track"><div class="bar" style="width:280px">5</div></div><div class="note">pitch v1 rewritten from evidence, one feedback round of three</div></div>
+  <div class="row"><div class="lab">this team</div><div class="track"><div class="bar" style="width:336px">6</div></div><div class="note">a founder that has stood in the shop; repo work to come</div></div>
+  <div class="axis"><div class="sp"></div><div class="tk"><span style="left:0">0</span><span style="left:280px">5</span><span style="left:560px">10</span></div><div class="cap">score out of 10, week 1</div></div>
+  <div class="extra">
+    <div class="row"><div class="lab">Viability</div><div class="track"></div><div class="txt">as answered in the decision memo<small>Colosseum adds this factor</small></div></div>
+    <div class="row"><div class="lab">Traction</div><div class="track"><div class="mark" style="left:14px"></div></div><div class="txt">near zero<small>Colosseum adds this factor; one shop still a target</small></div></div>
+  </div>
+  <div class="src">Rubric: Founder + Market Fit; Insight; Product + Execution; Potential Market Size; Founder Communication; Viability; Traction. colosseum.com/hackathon, 2026-09-06</div>
+</div>
+</div>
+</body></html>

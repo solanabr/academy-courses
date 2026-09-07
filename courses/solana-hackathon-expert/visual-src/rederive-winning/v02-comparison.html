@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:34px 52px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 18px}
+.cols{display:flex;gap:26px;align-items:flex-start}
+.col{flex:1;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column}
+.col.em{border-color:var(--stbr-emerald)}
+.ch{padding:10px 20px;height:58px;background:var(--surface-inverse);color:var(--text-on-dark);display:flex;flex-direction:column;justify-content:center}
+.col.em .ch{background:var(--surface-brand);color:var(--text-on-brand)}
+.ch .k{font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px;line-height:1}
+.ch .s{font-family:var(--font-body);font-size:13px;opacity:.9;margin-top:4px}
+.row{display:flex;align-items:center;height:37px;padding:0 20px;border-top:1.5px solid var(--border-subtle);font-family:var(--font-body);font-size:15px;color:var(--text-primary)}
+.row:first-of-type{border-top:0}
+.row .l{width:150px;flex:none;font-family:var(--font-display);font-weight:var(--weight-bold);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--stbr-emerald)}
+.row .v{flex:1;white-space:nowrap;overflow:hidden}
+.row .v b{font-weight:var(--weight-bold)}
+.row.slot .v{border:1.5px dashed var(--stbr-dark);background:var(--surface-accent);color:var(--text-on-accent);border-radius:var(--radius-sm);padding:3px 10px;font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;flex:none}
+.src{margin-top:auto;padding:6px 20px 8px;border-top:1.5px solid var(--border-subtle);font-family:var(--font-mono);font-size:12px;color:var(--text-muted);background:var(--surface-paper)}
+.band{margin-top:18px;border-radius:var(--radius-lg);background:var(--surface-brand);color:var(--text-on-brand);padding:12px 22px 10px}
+.band .r{display:flex;align-items:center;gap:26px}
+.band .t{font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px;white-space:nowrap}
+.band .it{font-family:var(--font-body);font-size:17px;font-weight:600;padding-left:22px;border-left:2px solid rgba(245,232,202,.5);white-space:nowrap}
+.band .src2{display:block;margin-top:8px;font-family:var(--font-mono);font-size:12px;opacity:.85}
+</style></head>
+<body>
+<!-- comparison: Cypherpunk against Frontier, with the lines that did not move underneath
+     purpose: let the reader check their own changed and unchanged note against the two archived seasons
+     data: Cypherpunk (submissions due October 30, 2025; winners announced December 13, 2025; colosseum.com/cypherpunk and blog.colosseum.com, 2026-09-07): 9,000+ participants; 1,576 final projects; six tracks (Infrastructure, Consumer, DeFi, Stablecoins, RWAs, Undefined); Grand Champion US$30,000 USDC; track firsts US$25,000; University Award US$10,000 (Pythia); Public Good US$10,000 (Samui Wallet) Frontier (April 6 to May 11, 2026, colosseum.com/frontier and solanacompass.com, 2026-09-06): 2,857 submissions; 10,000+ builders; tracks as printed on the page; Grand Champion US$30,000; Public Goods Award US$10,000; University Award US$10,000; US$10,000 x 20 teams; judges include Kuka (Superteam Brasil) and Aditya Shetty (Global Lead, Superteam) Unchanged across both and World's Fair (colosseum.com/hackathon, 2026-09-06): the seven judging factors; the portal field list; the 15-minute interview step
+     prompt: Two columns side by side, headed "Cypherpunk, submissions due October 30, 2025" and "Frontier, April 6 to May 11, 2026", each listing its rows from the data in order, with the Frontier tracks row shown as an empty slot labelled "copy from the page". A single wide band across the bottom labelled "unchanged" holding the three items. Source lines under each column and under the band. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:508px;height:508px;top:-303px;right:-303px;border-radius:60% 57% 38% 63% / 42% 35% 45% 64%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:525px;height:470px;bottom:-283px;left:-283px;border-radius:36% 36% 47% 54% / 42% 36% 58% 38%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Two archived seasons, side by side</div>
+  <h2 class="viz-title">Cypherpunk against Frontier, with the lines that did not move underneath</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="ch"><div class="k">Cypherpunk, submissions due October 30, 2025</div><div class="s">winners announced December 13, 2025, per blog.colosseum.com</div></div>
+      <div class="row"><div class="l">field</div><div class="v"><b>9,000+</b> participants</div></div>
+      <div class="row"><div class="l">field</div><div class="v"><b>1,576</b> final projects</div></div>
+      <div class="row"><div class="l">tracks</div><div class="v">six: Infrastructure, Consumer, DeFi, Stablecoins, RWAs, Undefined</div></div>
+      <div class="row"><div class="l">prize</div><div class="v">Grand Champion <b>US$30,000 USDC</b></div></div>
+      <div class="row"><div class="l">prize</div><div class="v">track firsts <b>US$25,000</b></div></div>
+      <div class="row"><div class="l">prize</div><div class="v">University Award <b>US$10,000</b>, Pythia</div></div>
+      <div class="row"><div class="l">prize</div><div class="v">Public Good <b>US$10,000</b>, Samui Wallet</div></div>
+      <div class="src">blog.colosseum.com, 2026-09-06</div>
+    </div>
+    <div class="col em">
+      <div class="ch"><div class="k">Frontier, April 6 to May 11, 2026</div><div class="s">as the archived page and Solana Compass printed it</div></div>
+      <div class="row"><div class="l">field</div><div class="v"><b>2,857</b> submissions</div></div>
+      <div class="row"><div class="l">field</div><div class="v"><b>10,000+</b> builders</div></div>
+      <div class="row slot"><div class="l">tracks</div><div class="v">copy from the page</div></div>
+      <div class="row"><div class="l">prize</div><div class="v">Grand Champion <b>US$30,000</b></div></div>
+      <div class="row"><div class="l">prize</div><div class="v">Public Goods Award <b>US$10,000</b></div></div>
+      <div class="row"><div class="l">prize</div><div class="v">University Award <b>US$10,000</b></div></div>
+      <div class="row"><div class="l">prize</div><div class="v"><b>US$10,000 x 20</b> teams</div></div>
+      <div class="row"><div class="l">judges</div><div class="v">Kuka, Superteam Brasil; Aditya Shetty, Global Lead, Superteam</div></div>
+      <div class="src">colosseum.com/frontier and solanacompass.com, 2026-09-06</div>
+    </div>
+  </div>
+  <div class="band">
+    <div class="r"><div class="t">unchanged</div>
+    <div class="it">the seven judging factors</div>
+    <div class="it">the portal field list</div>
+    <div class="it">the 15-minute interview step</div></div>
+    <div class="src2">across both and World's Fair: colosseum.com/hackathon, 2026-09-06</div>
+  </div>
+</div>
+</div>
+</body></html>

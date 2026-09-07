@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:30px 52px 24px;overflow:hidden}
+.viz-title{font-size:30px;margin:4px 0 18px}
+.cols{display:flex;gap:32px}
+.col{width:429px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);overflow:hidden}
+.hd{height:92px;padding:12px 18px;background:var(--surface-inverse);color:var(--text-on-dark);display:flex;flex-direction:column;justify-content:center}
+.col.hi .hd{background:var(--surface-brand);color:var(--text-on-brand)}
+.hd .n{font-family:var(--font-display);font-weight:var(--weight-black);font-size:20px;line-height:1.1}
+.hd .o{font-family:var(--font-mono);font-size:11.5px;opacity:.85;margin-top:6px;line-height:1.3;word-break:break-all}
+.bd{height:230px;padding:12px 18px}
+.col.hi .bd{background:var(--surface-paper)}
+.it{font-family:var(--font-body);font-weight:600;font-size:15px;line-height:1.3;color:var(--text-primary);margin-bottom:7px;padding-left:14px;position:relative}
+.it:before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--stbr-emerald)}
+.it small{display:block;font-weight:400;font-size:13px;color:var(--text-secondary);margin-top:2px}
+.arr{height:40px;position:relative}
+.arr svg{position:absolute;left:658px;top:0}
+.pick{border-radius:var(--radius-lg);background:var(--surface-accent);color:var(--text-on-accent);padding:14px 22px;display:flex;align-items:center;gap:22px}
+.pick .t{font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px;white-space:nowrap;flex:none}
+.pick .q{font-family:var(--font-body);font-weight:600;font-size:16px;line-height:1.35;padding-left:20px;border-left:2px solid rgba(27,35,29,.35)}
+</style></head>
+<body>
+<!-- comparison: The three grant doors a hackathon project can take after the deadline, as read on 2026-09-06
+     purpose: let the reader pick the door that fits the project's shape instead of applying to the first one they find
+     data: Milestone grant (Solana Foundation, solana.org/grants): for public goods; paid against milestones; guidelines Public Good, Open Source, Only Possible on Solana, Clear Use of Funds; review about one week, decision about three weeks Convertible grant (Solana Foundation, solana.org/grants): for public goods with a commercial component; can convert into an investment; same guidelines and clock Solana Foundation Brazil Grants (Superteam Brasil on Superteam Earn, superteam.fun/earn/grants/solana-foundation-brazil-grants): 0 to US$10,000 USDG; the older 'instagrants' label is outdated Fiado's pick: convertible, because the tab is commercial and the tab and reminder modules are the open-source part
+     prompt: Three columns side by side, one per door, headed with the door names in the data. Each column lists that door's rows as short stacked lines. Under the three columns a single wide band labelled "Fiado's pick" holding the last line of the data, with an arrow pointing up into the convertible column. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:521px;height:385px;right:-301px;top:347px;border-radius:37% 43% 56% 57% / 50% 40% 63% 41%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:542px;height:501px;bottom:-253px;left:-253px;border-radius:38% 57% 40% 46% / 55% 59% 38% 37%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+<div class="stbr-eyebrow">Pick the door that fits the project's shape</div>
+<h2 class="viz-title">The three grant doors a hackathon project can take after the deadline, as read on 2026-09-06</h2>
+<div class="cols"><div class="col "><div class="hd"><div class="n">Milestone grant</div><div class="o">Solana Foundation, solana.org/grants</div></div><div class="bd"><div class="it">for public goods</div><div class="it">paid against milestones</div><div class="it">guidelines<small>Public Good, Open Source, Only Possible on Solana, Clear Use of Funds</small></div><div class="it">review about one week, decision about three weeks</div></div></div><div class="col hi"><div class="hd"><div class="n">Convertible grant</div><div class="o">Solana Foundation, solana.org/grants</div></div><div class="bd"><div class="it">for public goods with a commercial component</div><div class="it">can convert into an investment</div><div class="it">same guidelines and clock</div></div></div><div class="col "><div class="hd"><div class="n">Solana Foundation Brazil Grants</div><div class="o">Superteam Brasil on Superteam Earn, superteam.fun/earn/grants/solana-foundation-brazil-grants</div></div><div class="bd"><div class="it">0 to US$10,000 USDG</div><div class="it">the older 'instagrants' label is outdated</div></div></div></div>
+<div class="arr"><svg width="36" height="40" viewBox="0 0 36 40"><line x1="18" y1="40" x2="18" y2="12" stroke="#1B231D" stroke-width="3"/><polygon points="6,14 30,14 18,0" fill="#1B231D"/></svg></div>
+<div class="pick"><div class="t">Fiado's pick</div><div class="q">convertible, because the tab is commercial and the tab and reminder modules are the open-source part</div></div>
+</div>
+</div>
+</body></html>

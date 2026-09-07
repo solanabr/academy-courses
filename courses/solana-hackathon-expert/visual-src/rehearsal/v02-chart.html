@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:28px 52px 22px;overflow:hidden}
+.viz-title{font-size:29px;margin:4px 0 20px}
+.wrap{display:flex;gap:24px;align-items:flex-start}
+.fun{width:1000px;flex:none}
+.r{display:flex;align-items:center;height:78px;margin-bottom:12px}
+.r .lab{width:280px;flex:none;display:flex;flex-direction:column;justify-content:center;padding-right:16px}
+.r .lab .c{font-family:var(--font-display);font-weight:var(--weight-black);font-size:34px;line-height:1;color:var(--text-primary)}
+.r .lab .w{font-family:var(--font-body);font-size:14px;color:var(--text-secondary);margin-top:4px}
+.r .area{width:720px;flex:none;display:flex;justify-content:center}
+.r .bar{height:78px;background:var(--surface-brand);border-radius:4px}
+.r.last .bar{background:var(--stbr-dark)}
+.r.last .lab .c{display:inline-block;background:var(--surface-accent);color:var(--text-on-accent);padding:4px 12px;border-radius:var(--radius-sm);align-self:flex-start}
+.right{width:328px;flex:none;display:flex;flex-direction:column;gap:12px}
+.side{border:2px solid var(--stbr-dark);border-radius:var(--radius-md);padding:12px 16px;background:var(--surface-paper)}
+.side .h{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--stbr-emerald);margin-bottom:6px}
+.side .q{font-family:var(--font-body);font-weight:600;font-size:14.5px;line-height:1.3;color:var(--text-primary)}
+.side .s{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);margin-top:4px}
+.gap{flex:1}
+.co{border:2px solid var(--stbr-emerald);border-radius:var(--radius-md);padding:10px 16px}
+.co .h{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--stbr-emerald);margin-bottom:6px}
+.co .p{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-body);font-size:15px;color:var(--text-primary);padding:4px 0;border-top:1.5px solid var(--border-subtle)}
+.co .p b{font-family:var(--font-display);font-weight:var(--weight-black);font-size:17px}
+.src{margin-top:14px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);line-height:1.4}
+</style></head>
+<body>
+<!-- chart: The Superteam Brasil funnel on Cypherpunk, from 299 registrations to two global track prizes
+     purpose: make the local-to-global shape visible in one season's real numbers so the reader sees why the local stage decides who reaches the global judges
+     data: Cypherpunk season, Superteam Brasil funnel per Cointelegraph Brasil, read 2026-09-06: 299 registered -> 52 projects submitted -> 7 classified -> 2 awarded The 2 awarded, in the global Stablecoin Track: MCPay first, US$25,000; Cloak third, US$15,000 Regional side track on the same season: US$11,200, Superteam Brasil x Tangem Wallet (earn.superteam.fun, 2026-09-06)
+     prompt: A single funnel chart with four horizontal bands narrowing top to bottom, labelled with the four counts and their labels from the data, each band's width proportional to its count. To the right of the bottom band, two small callouts naming the two global prizes with their amounts. A separate small box beside the funnel labelled "regional side track, same season" holding the US$11,200 line. A source line under the chart with both sources and the date. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:530px;height:534px;top:-307px;right:-307px;border-radius:64% 56% 62% 50% / 50% 39% 54% 42%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:414px;height:464px;bottom:-288px;left:587px;border-radius:36% 52% 51% 52% / 65% 61% 60% 52%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+<div class="stbr-eyebrow">The local stage decides who reaches the global judges</div>
+<h2 class="viz-title">The Superteam Brasil funnel on Cypherpunk, from 299 registrations to two global track prizes</h2>
+<div class="wrap">
+<div class="fun"><div class="r"><div class="lab"><div class="c">299</div><div class="w">registered</div></div><div class="area"><div class="bar" style="width:720px"></div></div></div><div class="r"><div class="lab"><div class="c">52</div><div class="w">projects submitted</div></div><div class="area"><div class="bar" style="width:125px"></div></div></div><div class="r"><div class="lab"><div class="c">7</div><div class="w">classified</div></div><div class="area"><div class="bar" style="width:17px"></div></div></div><div class="r last"><div class="lab"><div class="c">2</div><div class="w">awarded</div></div><div class="area"><div class="bar" style="width:5px"></div></div></div></div>
+<div class="right">
+<div class="side"><div class="h">regional side track, same season</div><div class="q">US$11,200, Superteam Brasil x Tangem Wallet</div><div class="s">earn.superteam.fun, 2026-09-06</div></div>
+<div class="gap" style="height:170px"></div>
+<div class="co"><div class="h">the 2 awarded, global Stablecoin Track</div><div class="p"><span>MCPay, first</span><b>US$25,000</b></div><div class="p"><span>Cloak, third</span><b>US$15,000</b></div></div>
+</div>
+</div>
+<div class="src">Sources: Cypherpunk season, Superteam Brasil funnel per Cointelegraph Brasil, read 2026-09-06; earn.superteam.fun, 2026-09-06</div>
+</div>
+</div>
+</body></html>
