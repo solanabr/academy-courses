@@ -652,8 +652,16 @@ def m_heuristics(rep: CourseReport) -> None:
         sit at chance. Testing only the extremes declares that clean.
         """
         def pick(q):
+            # Only genuinely INTERIOR ranks. For a 4-option question rank 3 is
+            # the longest and rank 0 the shortest, so scoring them here would
+            # double-count what `longest`/`shortest` already measure -- and a
+            # question would show as "solved by two strategies" when one fact
+            # was counted twice. The ladder is built from the course's largest
+            # k, so this guard matters whenever k varies within a course.
+            if rank <= 0 or rank >= q.k - 1:
+                return None
             order = sorted(range(q.k), key=lambda i: (len(q.labels[i]), i))
-            return order[rank] if rank < q.k else None
+            return order[rank]
         return pick
 
     suite = {
