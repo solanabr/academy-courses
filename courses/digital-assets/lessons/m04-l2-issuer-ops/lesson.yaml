@@ -71,7 +71,7 @@ blocks:
             correct: false
             feedback: "Running on devnet or surfpool is fine, but the honest, designed fallback is configure-plus-prove-state, not presenting a locally forced gate as real activation."
           - id: d
-            label: "Run the whole transfer flow anyway, and note in your write-up that the proof step may be unreliable while this cluster's gate is off"
+            label: "Run the transfer flow anyway, and note that the proof step may be unreliable here"
             correct: false
             feedback: "Caveating a step that cannot succeed is not the designed fallback. That path keeps the same mint, the same auditor and the same verify script, and drops only the live transfer."
         explanation: "The cluster plan is devnet-first (gates active per docs), surfpool secondary. If the zk-ElGamal gate is off, the transfer proofs will not verify, so the lab degrades to configuring ConfidentialTransferMint plus the auditor and proving that extension state on-chain: the same skill, minus the unavailable verification, stated openly."
@@ -88,7 +88,7 @@ blocks:
             correct: false
             feedback: "That extension governs withheld fees on confidential transfers, not confidential mint/burn of supply."
           - id: c
-            label: "ConfidentialMintBurn, which requires ConfidentialTransferMint to also be present on the mint."
+            label: "ConfidentialMintBurn, which requires ConfidentialTransferMint on the mint too."
             correct: true
             feedback: "Confidential supply on a mint whose transfers are public would protect nothing, so the dependency runs one way: confidential transfers without confidential supply is a product, the reverse is not."
           - id: d

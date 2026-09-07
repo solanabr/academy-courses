@@ -41,7 +41,7 @@ blocks:
             correct: false
             feedback: "They very much interact: the mint-level delegate acts on the account, and it wins over the account's guard."
           - id: d
-            label: "It is blocked: the delegate lacks this account owner's consent"
+            label: "It is blocked, since the delegate lacks the account owner's consent"
             correct: false
             feedback: "Consent is what a mint-level power does not need. The holder inherited the delegate by choosing to hold the token, and the guard defends the account's own authority surface, not the mint's."
         explanation: "PermanentDelegate is the one authority that always bypasses CpiGuard, a mint-level power the account never consented to. This is precisely why Raydium refuses it: 'a holder of the delegate can sweep any token account, including the pool vault.'"
@@ -83,7 +83,7 @@ blocks:
             correct: false
             feedback: "No authority transfer happens; the account is drained and zeroed, not handed off."
           - id: d
-            label: "Lamports sent to that address afterwards may be stranded, since the closed mint can hold no account there"
+            label: "Lamports sent to that address later may be stranded, since it can hold no account"
             correct: false
             feedback: "The address stays perfectly usable, and that is the problem: re-funding it creates a live account there, which is why the risk runs toward revival rather than toward loss."
         explanation: "Close-and-revival: an account that's been zeroed and rent-drained can be recreated by anyone who re-funds its address. Mark-closed hygiene (writing a sentinel byte) stops a revived account from being mistaken for fresh, trusted state."

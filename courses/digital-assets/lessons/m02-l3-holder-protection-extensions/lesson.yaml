@@ -65,7 +65,7 @@ blocks:
             correct: true
             feedback: "The memo has to sit immediately before the transfer in the same transaction, which is why perfectly normal partner code reverts against your account and nowhere else."
           - id: d
-            label: "The receiving account's owner has to attach the memo to each incoming transfer, and yours has not"
+            label: "The receiving account's owner has to attach the memo, and yours has not"
             correct: false
             feedback: "The memo rides in the sender's transaction, so the burden lands on every partner who transfers to you. That is the integration tax Meteora's checklist warns its integrators about."
         explanation: "MemoTransfer makes a destination refuse any incoming transfer that doesn't carry a memo instruction, the integration burden Meteora's checklist warns about ('ensure destinations accept memo-required'). The sender, not you, has to attach the memo."

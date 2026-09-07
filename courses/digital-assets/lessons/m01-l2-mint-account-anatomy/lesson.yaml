@@ -57,7 +57,7 @@ blocks:
             correct: false
             feedback: "Token-2022 TLV entries are not padded to an 8-byte alignment; the miss is the 4-byte type+length header, not alignment."
           - id: d
-            label: "The type-3 value is a COption pubkey, and the base layout showed those cost 36 bytes rather than 32, so the declared length under-reports the entry"
+            label: "Type 3's value is a COption pubkey, and the base layout priced those at 36 bytes, so the declared length under-reports it"
             correct: false
             feedback: "The 36-byte COption belongs to the base fields; a TLV value is the raw struct, and the walk prices MintCloseAuthority at the 32 bytes its own header declares."
         explanation: "A TLV entry is u16 type + u16 length + value, so the header is 4 bytes. Advancing by the value length alone leaves the cursor 4 bytes short, and every subsequent type/length read lands mid-field, cascading into garbage. The fix is to step by 4 + length per entry."

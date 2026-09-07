@@ -74,7 +74,7 @@ blocks:
             correct: false
             feedback: "This lesson teaches the CU drop as a token-layer mental model and explicitly refuses the runtime derivation, handing it off."
           - id: c
-            label: "In the Low-Level Solana course, which owns the loader, sBPF, and CU-metering machinery"
+            label: "In the Low-Level Solana course, which owns the loader, sBPF and CU metering"
             correct: true
             feedback: "This lesson stops at what changed and when; where each of the 76 units goes is a runtime question, and the course that owns the runtime answers it."
           - id: d

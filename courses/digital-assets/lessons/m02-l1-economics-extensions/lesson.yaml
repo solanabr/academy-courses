@@ -96,7 +96,7 @@ blocks:
             correct: false
             feedback: "Extensions have different processing costs; they are not uniform, which is exactly why a single table would be misleading."
           - id: d
-            label: "A published per-extension table prices mainnet, while the lab is running against a local fork"
+            label: "A published per-extension table prices mainnet, and the lab runs on a local fork"
             correct: false
             feedback: "There is no such table in the docs or the source to be cluster-specific about, which is the gap the measurement policy fills."
         explanation: "No per-extension CU/rent table exists in the docs or source. Rather than freeze an unpublished (and cluster-dependent) number, the testing thread measures it live with simulateTransaction, the same honest 'measure it, don't assert it' move you'll reuse for tree-cost and airdrop math later."
