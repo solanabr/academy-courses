@@ -49,6 +49,10 @@ blocks:
         prompt: "You need roughly one million Harvest crates. A colleague reads the vendor's ~8.5 SOL figure and budgets 8.5 SOL per crate. What should you tell them?"
         multiSelect: false
         options:
+          - id: c
+            label: "About 0.34 SOL flat, the fixed cost of any Bubblegum v2 tree regardless of depth."
+            correct: false
+            feedback: "0.34 SOL is the cost of a 16,384-leaf tree specifically; tree cost scales with depth, buffer, and canopy. It is not a flat fee."
           - id: a
             label: "8.5 SOL per crate is right, because each compressed mint provisions its own full account."
             correct: false
@@ -57,10 +61,6 @@ blocks:
             label: "Single-digit SOL for the whole tree of ~1M leaves, a few millionths of a SOL per cNFT."
             correct: true
             feedback: "The per-crate figure is that one bill divided by the leaf count, which is why it falls as the tree fills rather than being charged again."
-          - id: c
-            label: "About 0.34 SOL flat, the fixed cost of any Bubblegum v2 tree regardless of depth."
-            correct: false
-            feedback: "0.34 SOL is the cost of a 16,384-leaf tree specifically; tree cost scales with depth, buffer, and canopy. It is not a flat fee."
           - id: d
             label: "About 8.5 SOL for the tree, and then a few millionths of rent per crate as the leaves fill."
             correct: false
@@ -70,10 +70,6 @@ blocks:
         prompt: "You want the Founding-Farmer achievement crate to be non-transferable. Someone insists cNFTs can never be soulbound. What's the correct move in Bubblegum v2?"
         multiSelect: false
         options:
-          - id: a
-            label: "They're right: mint a Token-2022 NonTransferable mint instead, because cNFTs are always freely transferable."
-            correct: false
-            feedback: "That was true in the V1 era, but Bubblegum v2 added set_non_transferable_v2; a cNFT can be soulbound now."
           - id: b
             label: "Move the crate into a V1 tree, which enforces immutability at the leaf level."
             correct: false
@@ -86,4 +82,8 @@ blocks:
             label: "Call freeze_v2 on the leaf, because freezing is how v2 spells soulbound and there is no separate flag for it."
             correct: false
             feedback: "Freeze and non-transferable are different bits in the same flags byte, and freeze has a thaw_v2 to undo it. A frozen crate is parked, not welded."
+          - id: a
+            label: "They're right: mint a Token-2022 NonTransferable mint instead, because cNFTs are always freely transferable."
+            correct: false
+            feedback: "That was true in the V1 era, but Bubblegum v2 added set_non_transferable_v2; a cNFT can be soulbound now."
         explanation: "Bubblegum v2's set_non_transferable_v2, combined with a PermanentFreezeDelegate on the Core collection, produces genuinely soulbound cNFTs, the reversal of 2024-era folklore that compression couldn't do freeze or soulbound."

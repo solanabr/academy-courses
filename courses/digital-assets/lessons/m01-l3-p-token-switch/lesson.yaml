@@ -23,10 +23,6 @@ blocks:
         prompt: "A colleague insists 'SIMD-0266 shipped a new token program, so I need to update my client to the new address.' What is actually true?"
         multiSelect: false
         options:
-          - id: a
-            label: "p-token replaced the implementation at the SAME address with byte-identical layouts and discriminators, so no client changes are needed"
-            correct: true
-            feedback: "Layouts, discriminators and error codes were frozen on purpose, so the address kept its contract and the engine behind it is the part that changed."
           - id: b
             label: "p-token deployed at a fresh program address, so clients must swap the old TokenkegQ program id for the new one before the legacy deployment is disabled"
             correct: false
@@ -35,6 +31,10 @@ blocks:
             label: "p-token is Token-2022's successor, so clients should switch their extension logic to it"
             correct: false
             feedback: "p-token is the classic SPL engine, not a Token-2022 successor; no Token-2022 successor exists. Extensions still live only in Token-2022."
+          - id: a
+            label: "p-token replaced the implementation at the SAME address with byte-identical layouts and discriminators, so no client changes are needed"
+            correct: true
+            feedback: "Layouts, discriminators and error codes were frozen on purpose, so the address kept its contract and the engine behind it is the part that changed."
           - id: d
             label: "The classic program was upgraded in place through its upgrade authority, so the address is unchanged but clients should re-pin the program hash they verify against"
             correct: false
@@ -65,14 +65,14 @@ blocks:
         prompt: "You want to explain, at the token layer, WHY a classic transfer now costs 76 CU instead of 4,645. Where does the course say that 'why' properly belongs?"
         multiSelect: false
         options:
-          - id: a
-            label: "In Token-2022's extension source, since extensions are what made transfers cheaper"
-            correct: false
-            feedback: "Extensions are unrelated to the classic transfer cost; this is the classic SPL engine, and extensions add cost, not remove it."
           - id: b
             label: "In this lesson itself, which derives the number by stepping through the Pinocchio engine's allocator and zero-copy account internals line by line"
             correct: false
             feedback: "This lesson teaches the CU drop as a token-layer mental model and explicitly refuses the runtime derivation, handing it off."
+          - id: a
+            label: "In Token-2022's extension source, since extensions are what made transfers cheaper"
+            correct: false
+            feedback: "Extensions are unrelated to the classic transfer cost; this is the classic SPL engine, and extensions add cost, not remove it."
           - id: c
             label: "In the Low-Level Solana course, which owns the loader, sBPF and CU metering"
             correct: true

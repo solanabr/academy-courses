@@ -23,31 +23,27 @@ blocks:
         prompt: "Your inspector reads a mint and the account is 82 bytes exactly. What can you conclude before looking at anything else?"
         multiSelect: false
         options:
-          - id: a
-            label: "It is a bare mint with no extensions: 82 bytes is the classic base with no TLV region"
-            correct: true
-            feedback: "82 bytes is the whole base with nothing after it, so there is no account-type byte at offset 165 and no TLV region to walk."
-          - id: b
-            label: "It is a Token-2022 mint whose TLV entries all have zero-length values, so the extension region happens to add nothing to the account size"
-            correct: false
-            feedback: "Any extension pads the base to 165 bytes plus the account-type byte; an 82-byte account cannot carry TLV entries at all."
-          - id: c
-            label: "It is corrupted: every valid mint is at least 165 bytes"
-            correct: false
-            feedback: "82 bytes is the perfectly valid classic bare-mint size; only extended mints reach 165+1."
           - id: d
             label: "It is a classic-program mint, since Token-2022 pads the base of any mint it creates to 165 bytes plus an account-type byte"
             correct: false
             feedback: "Size does not name the owner. Token-2022's own length model returns 82 bytes for an empty extension set, so read the owner field to tell the two programs apart."
+          - id: b
+            label: "It is a Token-2022 mint whose TLV entries all have zero-length values, so the extension region happens to add nothing to the account size"
+            correct: false
+            feedback: "Any extension pads the base to 165 bytes plus the account-type byte; an 82-byte account cannot carry TLV entries at all."
+          - id: a
+            label: "It is a bare mint with no extensions: 82 bytes is the classic base with no TLV region"
+            correct: true
+            feedback: "82 bytes is the whole base with nothing after it, so there is no account-type byte at offset 165 and no TLV region to walk."
+          - id: c
+            label: "It is corrupted: every valid mint is at least 165 bytes"
+            correct: false
+            feedback: "82 bytes is the perfectly valid classic bare-mint size; only extended mints reach 165+1."
         explanation: "The length is the first tell: 82 bytes is exactly the bare classic mint (authority, supply, decimals, init flag, freeze authority) with no account-type discriminator and no TLV region. Extensions force the base to 165 bytes plus a 1-byte type, so an 82-byte read means no extensions, full stop."
       - id: m01-l2-q2
         prompt: "Parsing the TLV region, you read a type (u16) and a length (u16) of 32, then advance your cursor by 32 to the next entry. Your following entries all decode as garbage. What went wrong?"
         multiSelect: false
         options:
-          - id: a
-            label: "u16 values are big-endian, so the length is not really 32"
-            correct: false
-            feedback: "Endianness would corrupt the length read itself; here the length of 32 is right: the bug is advancing by 32 instead of 36."
           - id: b
             label: "You advanced by the value length only; each TLV entry also has a 4-byte header (2 for type + 2 for length), so you must advance by 4 + length"
             correct: true
@@ -60,25 +56,29 @@ blocks:
             label: "Type 3's value is a COption pubkey, and the base layout priced those at 36 bytes, so the declared length under-reports it"
             correct: false
             feedback: "The 36-byte COption belongs to the base fields; a TLV value is the raw struct, and the walk prices MintCloseAuthority at the 32 bytes its own header declares."
+          - id: a
+            label: "u16 values are big-endian, so the length is not really 32"
+            correct: false
+            feedback: "Endianness would corrupt the length read itself; here the length of 32 is right: the bug is advancing by 32 instead of 36."
         explanation: "A TLV entry is u16 type + u16 length + value, so the header is 4 bytes. Advancing by the value length alone leaves the cursor 4 bytes short, and every subsequent type/length read lands mid-field, cascading into garbage. The fix is to step by 4 + length per entry."
       - id: m01-l2-q3
         prompt: "You need to pre-fund rent for a new Token-2022 mint that will carry TransferFeeConfig and MetadataPointer. How do you get the exact byte size to size the account?"
         multiSelect: false
         options:
-          - id: a
-            label: "Add 165 to a fixed 32 bytes per extension and use that"
-            correct: false
-            feedback: "Extensions are not a fixed 32 bytes each: TokenMetadata is variable-length; TransferFeeConfig is larger than a pointer. A fixed-per-extension guess mis-sizes the account."
           - id: b
             label: "Deploy with the classic 82-byte size and let the program realloc as extensions initialize"
             correct: false
             feedback: "Mint extensions are set at creation and the account must be sized up front; you cannot start at 82 bytes and grow into extensions."
-          - id: c
-            label: "Compute it with ExtensionType::try_calculate_account_len for the chosen extension set"
-            correct: true
-            feedback: "Hand it the exact set and it returns the padded 165-byte base, the account-type byte, and 4 + value length per entry, which is your TLV walk run in reverse."
+          - id: a
+            label: "Add 165 to a fixed 32 bytes per extension and use that"
+            correct: false
+            feedback: "Extensions are not a fixed 32 bytes each: TokenMetadata is variable-length; TransferFeeConfig is larger than a pointer. A fixed-per-extension guess mis-sizes the account."
           - id: d
             label: "Start from getMintSize() at 82 and add each extension's value length"
             correct: false
             feedback: "getMintSize() with no arguments prices a bare mint; the moment one extension exists the base moves to 165 plus the account-type byte, and every entry also pays its own 4-byte header."
+          - id: c
+            label: "Compute it with ExtensionType::try_calculate_account_len for the chosen extension set"
+            correct: true
+            feedback: "Hand it the exact set and it returns the padded 165-byte base, the account-type byte, and 4 + value length per entry, which is your TLV walk run in reverse."
         explanation: "try_calculate_account_len is the space-calc model: give it the exact extension set and it returns the account length including the 165 base, the account-type byte, and each extension's real TLV size. From TypeScript you call its mirror, getMintSize, which is the function step 7 of the lab actually runs. Guessing a flat per-extension number under- or over-sizes the account and its rent."

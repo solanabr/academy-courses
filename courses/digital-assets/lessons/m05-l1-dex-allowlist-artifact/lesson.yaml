@@ -38,6 +38,10 @@ blocks:
             label: "Rejected: CP-Swap refuses every Token-2022 mint at pool creation regardless of its extension set; only classic SPL mints and the four MINT_WHITELIST entries can seed a pool."
             correct: false
             feedback: "CP-Swap does support Token-2022; it allowlists five specific extensions rather than refusing the program wholesale."
+          - id: d
+            label: "Created, though a nonzero fee rate would fail this walk; the check reads the fee's value"
+            correct: false
+            feedback: "The walk matches extension variants, not their settings. It asks whether a TransferFeeConfig entry exists, never whether the rate is zero or five percent."
           - id: b
             label: "Created: all three extensions are on the five-extension allowlist, so the mint passes."
             correct: true
@@ -46,36 +50,40 @@ blocks:
             label: "Created: Raydium runs the mint's transfer hook to price the fee, so any fee-bearing mint works."
             correct: false
             feedback: "There is no hook on this mint; TransferFeeConfig is allowlisted outright, and a hook would be the refused extension, not the enabling one."
-          - id: d
-            label: "Created, though a nonzero fee rate would fail this walk; the check reads the fee's value"
-            correct: false
-            feedback: "The walk matches extension variants, not their settings. It asks whether a TransferFeeConfig entry exists, never whether the rate is zero or five percent."
         explanation: "Raydium CP-Swap/CLMM allowlists exactly five extensions: TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount. A mint whose entire extension set falls inside that list creates a pool; the reject path fires only when an off-list extension is present."
       - id: m05l1-q2-hook-rationale
         prompt: "Your SPROUT variant wears the transfer hook you wrote in M3, and the pool-create reverts. Which of Raydium's own quoted rationales explains the rejection?"
         multiSelect: false
         options:
-          - id: a
-            label: "The hook encrypts transfer amounts, so the AMM cannot compute a price."
-            correct: false
-            feedback: "That is the ConfidentialTransfer rationale; a transfer hook does not encrypt amounts."
-          - id: b
-            label: "The hook grants a permanent delegate that can sweep the pool vault."
-            correct: false
-            feedback: "That is the PermanentDelegate rationale; a hook confers no delegate authority over the vault."
-          - id: c
-            label: "The hook invokes a custom program on every transfer, with arbitrary CU consumption."
-            correct: true
-            feedback: "Raydium's own words, and the reason is cost rather than theft: module 3 proved a hook cannot move the pool's funds, but it can spend the swap's compute budget with no ceiling."
           - id: d
             label: "The hook program is unreviewed, and the venue refuses code it has not audited"
             correct: false
             feedback: "Unreviewed is the published rationale for the group and member pointers, and it would not survive a hook that had been audited. The quoted reason for hooks is arbitrary per-transfer compute."
+          - id: b
+            label: "The hook grants a permanent delegate that can sweep the pool vault."
+            correct: false
+            feedback: "That is the PermanentDelegate rationale; a hook confers no delegate authority over the vault."
+          - id: a
+            label: "The hook encrypts transfer amounts, so the AMM cannot compute a price."
+            correct: false
+            feedback: "That is the ConfidentialTransfer rationale; a transfer hook does not encrypt amounts."
+          - id: c
+            label: "The hook invokes a custom program on every transfer, with arbitrary CU consumption."
+            correct: true
+            feedback: "Raydium's own words, and the reason is cost rather than theft: module 3 proved a hook cannot move the pool's funds, but it can spend the swap's compute budget with no ceiling."
         explanation: "Each refused extension has its own distinct rationale in Raydium's docs. For TransferHook it is exactly that it 'invokes a custom program on every transfer, with arbitrary CU consumption', plus the extra-account forwarding burden a pool would have to carry on every swap."
       - id: m05l1-q3-whitelist-bypass
         prompt: "A regulated stablecoin ships a PermanentDelegate extension (for compliance freeze/clawback) yet trades fine on Raydium CP-Swap. How, if PermanentDelegate is a refused extension?"
         multiSelect: false
         options:
+          - id: d
+            label: "An Orca-style Token Badge review approved the mint, and CP-Swap honours that approval"
+            correct: false
+            feedback: "A Token Badge is Orca's mechanism and it stops at Orca. CP-Swap's own doors are a hardcoded array of mint addresses and a mint-association account created through Raydium's admin path."
+          - id: c
+            label: "Raydium strips the PermanentDelegate entry from the mint's TLV during pool creation, neutering the delegate before the pool accepts any deposits."
+            correct: false
+            feedback: "Raydium cannot strip a mint's extension; it bypasses the check for whitelisted mints and never modifies the mint."
           - id: a
             label: "It sits in Raydium's static 4-entry MINT_WHITELIST (or carries a mint-association account), which bypasses the extension check entirely."
             correct: true
@@ -84,19 +92,15 @@ blocks:
             label: "PermanentDelegate is actually on the five-extension allowlist alongside TransferFeeConfig."
             correct: false
             feedback: "It is not; the allowlist is fee, metadata, interest, and scaled-UI only, and PermanentDelegate never appears on it."
-          - id: c
-            label: "Raydium strips the PermanentDelegate entry from the mint's TLV during pool creation, neutering the delegate before the pool accepts any deposits."
-            correct: false
-            feedback: "Raydium cannot strip a mint's extension; it bypasses the check for whitelisted mints and never modifies the mint."
-          - id: d
-            label: "An Orca-style Token Badge review approved the mint, and CP-Swap honours that approval"
-            correct: false
-            feedback: "A Token Badge is Orca's mechanism and it stops at Orca. CP-Swap's own doors are a hardcoded array of mint addresses and a mint-association account created through Raydium's admin path."
         explanation: "The check is skipped for classic SPL, for the hardcoded MINT_WHITELIST, and for mints with an initialized mint-association account. That bypass, not an allowlist entry, is how a whitelisted PermanentDelegate stablecoin routes despite the extension being otherwise refused."
       - id: m05l1-q4-per-venue
         prompt: "Your Token-2022 SPROUT (fee + metadata) routed on CP-Swap. You want the same pool on Raydium's older AMM v4 as a fallback. What happens there?"
         multiSelect: false
         options:
+          - id: d
+            label: "It routes: AMM v4 predates the allowlist, so it runs no extension check on any mint"
+            correct: false
+            feedback: "Predating Token-2022 is why it refuses, not why it waves you through. The program has no branch for a mint owned by a token program it was never taught about."
           - id: a
             label: "It routes: if CP-Swap's allowlist accepts it, AMM v4 inherits the same allowlist."
             correct: false
@@ -109,8 +113,4 @@ blocks:
             label: "It routes only after you remove MetadataPointer, which AMM v4's stricter check treats as a power extension the way CP-Swap treats TransferHook."
             correct: false
             feedback: "AMM v4 accepts no Token-2022 mint at all, allowlisted or not; dropping an extension will not help."
-          - id: d
-            label: "It routes: AMM v4 predates the allowlist, so it runs no extension check on any mint"
-            correct: false
-            feedback: "Predating Token-2022 is why it refuses, not why it waves you through. The program has no branch for a mint owned by a token program it was never taught about."
         explanation: "Routability is per-venue, not per-DEX. Raydium's AMM v4 and Stable AMM predate Token-2022 and accept classic SPL only; Token-2022 support lives in CP-Swap/CLMM (and Farm v6 reward mints). The same brand runs venues with different rules."
