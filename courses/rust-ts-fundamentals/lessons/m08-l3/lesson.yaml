@@ -2,10 +2,11 @@ id: lesson-rtf-m08-l3
 slug: m08-l3
 title: "The Rust path: raw JSON-RPC"
 skills:
-  - solana-fundamentals
-  - solana-kit
   - rpc-reads
-  - transactions
+  - schema-validation
+  - rust-result
+  - rust-structs
+  - error-handling
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

@@ -2,7 +2,9 @@ id: lesson-rtf-m03-l4
 slug: m03-l4
 title: "Publish something real: tsdown and the signs of a dying dep"
 skills:
-  - solana-kit
+  - npm-publishing
+  - semver
+  - supply-chain-security
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

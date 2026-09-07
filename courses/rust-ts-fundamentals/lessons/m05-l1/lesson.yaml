@@ -2,7 +2,9 @@ id: lesson-rtf-m05-l1
 slug: m05-l1
 title: "serde: the boundary parser"
 skills:
-  - solana-programs
+  - schema-validation
+  - rust-structs
+  - rust-enums
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

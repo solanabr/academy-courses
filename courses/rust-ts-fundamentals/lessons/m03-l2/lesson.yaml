@@ -2,7 +2,9 @@ id: lesson-rtf-m03-l2
 slug: m03-l2
 title: "React as a consumer: the dashboard"
 skills:
-  - solana-kit
+  - http-fundamentals
+  - schema-validation
+  - typescript-types
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

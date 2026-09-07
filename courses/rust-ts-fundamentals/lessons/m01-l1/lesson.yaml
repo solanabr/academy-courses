@@ -3,6 +3,7 @@ slug: m01-l1
 title: "The map: what we teach, what we bookmark, and why both languages"
 skills:
   - solana-fundamentals
+  - http-fundamentals
 blocks:
   - key: intro
     type: prose

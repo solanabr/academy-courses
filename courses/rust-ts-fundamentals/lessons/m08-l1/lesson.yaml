@@ -3,9 +3,10 @@ slug: m08-l1
 title: "A chain is a target: the minimal model + first reads"
 skills:
   - solana-fundamentals
-  - solana-kit
-  - rpc-reads
+  - account-model
   - transactions
+  - rpc-reads
+  - solana-kit
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

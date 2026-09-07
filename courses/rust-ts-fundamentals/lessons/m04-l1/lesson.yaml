@@ -2,7 +2,9 @@ id: lesson-rtf-m04-l1
 slug: m04-l1
 title: "Ownership is the point"
 skills:
-  - solana-programs
+  - rust-ownership
+  - rust-borrowing
+  - compiler-errors
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

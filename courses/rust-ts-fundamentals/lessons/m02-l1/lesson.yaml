@@ -2,8 +2,8 @@ id: lesson-rtf-m02-l1
 slug: m02-l1
 title: "Make impossible states unrepresentable"
 skills:
-  - solana-kit
-  - rpc-reads
+  - typescript-types
+  - error-handling
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

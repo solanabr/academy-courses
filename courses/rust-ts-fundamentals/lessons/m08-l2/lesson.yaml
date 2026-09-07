@@ -2,10 +2,11 @@ id: lesson-rtf-m08-l2
 slug: m08-l2
 title: "Reads in production: the Solana panel"
 skills:
-  - solana-fundamentals
-  - solana-kit
   - rpc-reads
-  - transactions
+  - solana-kit
+  - edge-runtimes
+  - version-pinning
+  - deployment
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

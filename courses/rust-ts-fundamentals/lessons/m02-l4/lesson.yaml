@@ -2,8 +2,9 @@ id: lesson-rtf-m02-l4
 slug: m02-l4
 title: "Tests are probes for your code: vitest"
 skills:
-  - solana-kit
-  - rpc-reads
+  - automated-testing
+  - async-concurrency
+  - ci
 versionStamp:
   checkedAt: "2026-09-02"
   packages:
