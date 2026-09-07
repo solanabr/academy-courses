@@ -33,7 +33,7 @@ blocks:
           - id: c
             label: "It breaks routability: power/control extensions get refused; only fee, display and accounting extensions get whitelisted."
             correct: true
-        explanation: "The thesis in one line, and note the word it must never contain: fee, display and accounting extensions (TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount) get whitelisted; power/control extensions (hook, permanent delegate, default-frozen, confidential) get refused. Do NOT say 'compliance gets whitelisted' — DefaultAccountState(Frozen) is the compliance team's favourite primitive and this question is grading its refusal. Adding a control extension 'just in case' costs you the venue."
+        explanation: "The thesis in one line, and note the word it must never contain: fee, display and accounting extensions (TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount) get whitelisted; power/control extensions (hook, permanent delegate, default-frozen, confidential) get refused. Do NOT say 'compliance gets whitelisted': DefaultAccountState(Frozen) is the compliance team's favourite primitive and this question is grading its refusal. Adding a control extension 'just in case' costs you the venue."
       - id: m05l2-q2-wallet-matrix-honesty
         prompt: "A teammate wants the README to publish 'Phantom shows the transfer-fee warning, Backpack doesn't, Solflare greys it out.' You ran no such test. What is the honest move for the routability report?"
         multiSelect: false
