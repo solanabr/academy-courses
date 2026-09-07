@@ -67,7 +67,7 @@ blocks:
           - id: a
             label: "They're historical trivia; durable nonces are now formally guaranteed stable, so the caveats are obsolete."
             correct: false
-            feedback: "The may-be-deprecated warning is still live and the double-processing risk is inherent; neither is obsolete."
+            feedback: "The may-be-deprecated warning is still live, and the 2022 halt is why the primitive is treated carefully to this day. The runtime bug itself was fixed, but nothing about that fix made the deprecation risk or the re-signing double-charge go away."
           - id: b
             label: "The docs' may-be-deprecated warning is live, and nonce double-processing caused a ~4.5-hour mainnet halt in 2022; both are risks you design around."
             correct: true

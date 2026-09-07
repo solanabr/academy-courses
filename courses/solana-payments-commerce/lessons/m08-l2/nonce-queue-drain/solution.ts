@@ -6,8 +6,9 @@
  * nonceAdvanced] runs with nonceAdvanced as 0/1; decode it, then classify.
  *
  * Branch on kind. A durable-nonce tx does not expire by wall clock, so age is
- * irrelevant to it -- but a spent nonce (nonceAdvanced) must never be rebroadcast
- * or you risk double-processing (the 2022-06-01 halt class). A blockhash tx is
+ * irrelevant to it -- but a spent nonce (nonceAdvanced) can never land again: the
+ * stored value has rolled, so the runtime rejects those exact bytes. It goes to
+ * `unsafe` for reconciliation, not back on the wire. A blockhash tx is
  * submittable only while it is inside the ~45s (150-block at 300ms) window.
  *
  * Pure -- no RPC, no imports -- so it grades deterministically.
@@ -41,7 +42,8 @@ function drainFairQueue(
   for (const item of items) {
     if (item.kind === "nonce") {
       // Durable nonces do not expire by wall clock. But a nonce that has already
-      // advanced is spent -- rebroadcasting risks double-processing.
+      // advanced is spent -- those bytes are dead, and the sale needs a ledger
+      // state (landed earlier, or lost), not another broadcast.
       if (item.nonceAdvanced) {
         unsafe.push(item.id);
       } else {
