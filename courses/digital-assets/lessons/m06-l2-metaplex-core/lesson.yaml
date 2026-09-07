@@ -38,7 +38,7 @@ blocks:
             correct: false
             feedback: "There's no re-index window and no batch approval; membership is written at mint against an existing collection, or afterwards only by an explicit two-signature update, never by a scheduled program pass."
           - id: b
-            label: "The assets need a Royalties plugin before they can be collection members."
+            label: "The assets need a Royalties plugin attached before a collection will accept them as members, and the plugin has to be added at mint rather than later."
             correct: false
             feedback: "Royalties and membership are independent plugins/relationships; a missing Royalties plugin doesn't explain empty membership."
           - id: c
@@ -46,7 +46,7 @@ blocks:
             correct: true
             feedback: "Read the arm and you have your diagnosis: Address means orphan, Collection means member. Order is the fix, and it has to be the order you mint in."
           - id: d
-            label: "The assets are members already; Core writes membership at mint but leaves it unverified until the collection authority signs a separate verify instruction, so run that once per asset and the membership reads populate without touching the assets' update authorities."
+            label: "The assets are members already; Core writes membership at mint but leaves it unverified until the collection authority signs a separate verify instruction, so run that once per asset and the reads populate."
             correct: false
             feedback: "That is the Token Metadata ritual, and Core deletes it. There is no verified boolean to flip: membership IS the update authority arm, writable only when the collection authority signs the mint itself."
         explanation: "Core's model is collection-first: you create and verify the Almanac collection, then mint assets INTO it so membership is written at mint. An after-the-fact update path does exist — a retrofit signed by authorities on both sides — but nothing runs it for you, which is why the membership reads came back empty. The collection-first habit stays load-bearing: Bubblegum v2 in the next module mints cNFTs into a Core collection too."
@@ -63,7 +63,7 @@ blocks:
             correct: false
             feedback: "It's not a protocol constant; it's a vendor benchmark that varies with rent and instruction shape, so it can't be promised as an invariant."
           - id: c
-            label: "As a measured result from this course's own benchmark harness."
+            label: "As a measured result from this course's own benchmark harness, run against the same surfnet the lab uses."
             correct: false
             feedback: "The course did not measure it: the figure comes from Metaplex's docs. Presenting it as your own measurement launders a vendor claim."
           - id: d
@@ -80,15 +80,15 @@ blocks:
             correct: false
             feedback: "Not on this badge, and the reason is the arm rather than the plugin. PermanentFreezeDelegate CAN be thawed while a freeze authority exists; the badge is welded because that authority was set to None at mint, and no key exists that could ever change it back."
           - id: b
-            label: "The badge was welded at mint by setting the plugin's authority to None, so no key can thaw it; a badge you might need to move needed a retained freeze authority from the start."
+            label: "The badge was welded at mint by setting the plugin's authority to None, so no key can thaw it."
             correct: true
             feedback: "The permanence lives in the authority arm, not in the plugin's name. Frozen plus a live authority is thawable; frozen plus None is frozen the way a number is even."
           - id: c
-            label: "The badge can move once because PermanentFreeze only blocks the second transfer onward."
+            label: "The badge can move once, because PermanentFreeze starts blocking only from the second transfer onward."
             correct: false
             feedback: "There's no one-free-transfer rule; PermanentFreeze blocks transfers outright from the moment it's applied."
           - id: d
-            label: "Since the badge is a collection member, the collection's authority usually resolves plugin control and can thaw it, because a member-level entry just overrides the collection's copy of the plugin."
+            label: "Since the badge is a collection member, the collection's authority usually resolves plugin control and can thaw it."
             correct: false
             feedback: "Precedence decides which plugin config applies, never who may act on it. Each entry carries its own authority arm, and this one holds None, so the collection authority is as powerless as anyone else."
         explanation: "Be precise about where the permanence comes from, because this is the lesson's most carefully drawn distinction. PermanentFreezeDelegate is freeze that CAN BE MADE irrevocable, not freeze that is born irrevocable: frozen=true plus an authority someone holds is thawable. What welds the Founding-Farmer badge is the authority arm set to None, which removes the key that could undo it. So the decision is made at mint and it is a decision about the authority: null it for assets that should never move, retain it when you might need to transfer later."

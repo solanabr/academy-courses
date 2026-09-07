@@ -23,7 +23,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The account was created with the wrong program and needs to be re-minted with the image embedded."
+            label: "The account was created with the wrong program, so it needs re-minting with the image bytes embedded."
             correct: false
             feedback: "Nothing is broken and nothing needs re-minting: on-chain accounts never embed the image. The bytes are supposed to be off-chain."
           - id: b
@@ -48,7 +48,7 @@ blocks:
             correct: true
             feedback: "Indirection is the surface: whatever the pointer names is what consumers treat as canonical, so the only target nobody else can substitute is the mint itself."
           - id: b
-            label: "None: the pointer target is cosmetic and wallets ignore it, reading the TLV directly regardless."
+            label: "None: the pointer target is cosmetic, since wallets ignore it and read the mint's TLV entry directly either way."
             correct: false
             feedback: "The target is not cosmetic: wallets follow the pointer to find the canonical metadata, so where it aims determines what they trust."
           - id: c
