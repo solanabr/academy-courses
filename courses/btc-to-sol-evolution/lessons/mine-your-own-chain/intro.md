@@ -44,7 +44,7 @@ bitcoin-cli -regtest getdifficulty
 
 Not one. Roughly four ten-billionths of one, which is the smallest number the encoding allows, and it does not move: regtest is the one network where Bitcoin's difficulty adjustment is switched off entirely, a detail we come back to when we meet the adjustment itself. You are borrowing the developers' test harness. Everything it touches lives in its own datadir, the directory where the node keeps the chain and your wallet, walled off from any real Bitcoin config.
 
-`createwallet` made a keypair store: the same signing primitive from last lesson, the one your `keytool` already builds, wearing a wallet's clothes. `getnewaddress` derived one address to receive coins.
+`createwallet` made a keypair store: the same signing primitive from last lesson, the one your `keytool` already builds, only here the node keeps the keys for you. `getnewaddress` derived one address to receive coins.
 
 One thing about that wallet will trip you up the first time you stop the node, so meet it now rather than at 1am. Bitcoin Core does not open wallets by itself. `listwallets` tells you which ones are currently open, `loadwallet <name>` opens one, and `unloadwallet <name>` closes it. The `load_on_startup=true` you passed just puts `lab` on the list the node opens for you, so a restart lands you back where you were:
 

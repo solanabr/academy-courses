@@ -162,7 +162,7 @@ The first instinct: just sum the address's UTXOs. That gives you a quantity of B
 
 The second instinct: teach the Bitcoin script to keep a balance. A script is a spend condition. It authorizes whether an output may move, and then the output is consumed and gone. It cannot write a value that outlives the spend, because the thing it guards ceases to exist the moment it succeeds. There is nowhere for the number to persist past the transaction that used it.
 
-The third instinct: bolt a side table of balances next to the chain. Do that and you have invented an account map, which is exactly the Ethereum model wearing a disguise, and you still need code that runs on read and write to maintain it. You did not fix UTXOs. You replaced them.
+The third instinct: bolt a side table of balances next to the chain. Do that and you have invented an account map, which is exactly the Ethereum model under another name, and you still need code that runs on read and write to maintain it. You did not fix UTXOs. You replaced them.
 
 That is the whole argument. A ledger that runs code needs accounts plus storage precisely because scripts can only authorize coin movement, never mutate shared state that persists. The number that remembers requires a place built to remember: a mutable slot in a per-account map, committed to a root, written by `SSTORE` and read by `SLOAD`. Bitcoin never built one, on purpose. Ethereum built exactly one, on purpose, and that single decision is what lets a contract answer a balance query in one read while Bitcoin cannot answer it at all.
 

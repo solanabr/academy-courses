@@ -185,7 +185,7 @@ The capstone bot inherits this exact fork. When it watches two chains at once an
 
 There is a way to make polling actively harmful, and I walked into it. The first time I ran a watcher against a live node, I set the interval to zero: a tight `while` loop calling `getrawmempool` as fast as the CPU would allow, because faster felt strictly better. Within a minute the node started refusing my calls. I had built a bot whose only job was to watch a node, and its first act was to knock that node over by hammering it. The fix is boring and it is the reason `POLL_SECONDS` exists at all: a sane interval, and, against any hosted endpoint, a hard respect for the provider's rate limit. Watching a node should cost the node almost nothing.
 
-The second footgun is the misnomer wearing a disguise. It is tempting to write "if my watcher saw it, the network saw it," and that sentence is false. Your watcher sees one node's queue. A transaction sitting in a peer's mempool that has not reached yours does not exist as far as your loop is concerned, and code that assumes otherwise will fire late, or never, and you will blame the wrong thing. When your logic needs certainty, it needs a confirmation, not a mempool sighting.
+The second footgun hides inside a misnomer. It is tempting to write "if my watcher saw it, the network saw it," and that sentence is false. Your watcher sees one node's queue. A transaction sitting in a peer's mempool that has not reached yours does not exist as far as your loop is concerned, and code that assumes otherwise will fire late, or never, and you will blame the wrong thing. When your logic needs certainty, it needs a confirmation, not a mempool sighting.
 
 ## The eyes of the toolkit
 
