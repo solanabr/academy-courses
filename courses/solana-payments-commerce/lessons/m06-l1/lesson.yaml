@@ -41,7 +41,7 @@ blocks:
             feedback: "The token binds a destination; it says nothing about who asked for it. The lab's /session route still takes the address from a client POST, and closing that hop takes a logged-in session or a wallet signature your app owns."
         explanation: "The headless flow mints a one-time session token on the server, binding the destination address and receivable assets. The client then opens a URL carrying only that token. A tampered client URL cannot redirect the funded USDC, because the address never travels in the query string. That is the exact property your coding challenge enforces: bind server-side, never leak."
       - id: q2
-        prompt: "A SOL-less buyer uses the embedded Stripe onramp to fund a purchase. Days later a dispute is filed on the card. Who eats the fraud and handles the chargeback?"
+        prompt: "A SOL-less buyer uses the embedded Stripe onramp to fund a purchase. Days later a dispute is filed on the card. Who eats the loss and handles the chargeback?"
         multiSelect: false
         options:
           - id: a

@@ -27,7 +27,7 @@ blocks:
     type: quiz
     questions:
       - id: m08-l2-q1
-        prompt: "A sale signed at your stall is submitted 4 minutes after signing and the RPC rejects it as an expired blockhash. At ~300ms slots, roughly how long was your submit window, and what removes the deadline?"
+        prompt: "A sale signed at your stall is submitted 4 minutes after signing and the RPC rejects it as an expired blockhash. At ~300ms slots, roughly how long was your submit window, and what takes the deadline away?"
         multiSelect: false
         options:
           - id: a
