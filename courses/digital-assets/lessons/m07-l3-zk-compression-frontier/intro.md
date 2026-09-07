@@ -125,17 +125,21 @@ And that dependency has a clock on it, which is where the same-block disqualifie
 
 Now the frontier, and the part where I need you to hold a line.
 
-Light Protocol is rebuilding its own headline product. Compressed tokens were the 2024 and 2025 airdrop darling, the thing everyone pointed at when arguing that Solana distribution could be cheap. Today that product sits under a documentation page titled "Legacy Compressed Tokens", while a successor called the Light Token Program grows up beside it.
+Light Protocol is rebuilding its own headline product. Compressed tokens were the 2024 and 2025 airdrop darling, the thing everyone pointed at when arguing that Solana distribution could be cheap. A successor called the Light Token Program is growing up beside it.
+
+A freshness note you should read before the rest of this section, because it is the section most likely to be stale by the time you get here. When this lesson was drafted, zkcompression.com filed the existing product under a page titled "Legacy Compressed Tokens", and that framing is where the section's shape came from. Re-probing the docs on 2026-09-06: that page 404s, the sitemap's 67 URLs contain no "legacy" or "light-token" entry at all, and llms.txt does not mention either. The docs now present `compressed-tokens` plainly, with no legacy label and no successor page beside it. I do not know whether that means the successor was folded in, renamed, or shelved, and I am not going to guess. What follows is what those pages said when I read them; treat every status claim in it as dated, and go read the site yourself before you repeat any of it.
 
 The successor is genuinely interesting. It is a Pinocchio rewrite, so it inherits the same zero-copy, no-framework-overhead posture that took classic SPL Token's transfer to 76 CU. It uses SPL-shaped single-byte discriminators rather than eight-byte ones, which is a small decision with a real consequence: instruction data that looks like SPL Token's makes integration a matter of pointing at a different program rather than learning a different protocol.
 
 The other two choices read like direct answers to complaints this lesson has been making. Protocol-sponsored rent moves the account cost off the user, which attacks the awkward middle of the round trip you just mapped, where a recipient who wants to act has to fund their own exit. And a native `Claim` primitive matters because "claim your drop" is the single most common thing anyone does with compressed tokens, and every existing drop bolts a separate distributor program on top to do it. Both are the right instincts. Neither is a reason to move production money today.
 
-Here is the line. The Light Token Program runs on Solana devnet only. Not mainnet. And no document positions it as the replacement for the supported compressed-token path. It is an emerging rail, worth watching, worth prototyping against, and not the thing you ship Overgrowth's currency on this quarter. If a teammate tells you the default flipped, that is the correction: emerging and devnet-only, with the existing compressed-token path still the current supported one.
+Here is the line, as the docs drew it at the time of that read: the Light Token Program ran on Solana devnet only, not mainnet, and no document positioned it as the replacement for the supported compressed-token path. It is an emerging rail, worth watching, worth prototyping against, and not the thing you ship Overgrowth's currency on this quarter.
+
+And here is the durable half, which survives the docs moving under both of us. The claim that decides your architecture is "is this rail supported on the cluster I ship on," and that claim has an owner: the protocol's docs and its own program deployments, not a teammate, not a blog post, and not this page. Go and check it, note the date beside what you find, and if a teammate tells you the default flipped, ask them for the same two things. A status claim without a source and a date is a rumour with good posture.
 
 One more thing, and this is a confession rather than a fact. An early draft of this lesson carried a compute-unit figure for the Light Token hot path. It came from my memory, it read beautifully, and it did not survive review, because it appears in no published source. There is no published CU number for that path. Do not quote one, not from me, not from a blog post, not from an assistant that sounds confident. On a program this young, a number with no source is a number someone made up.
 
-![Timeline showing compressed tokens moving from the 2024 airdrop headline to a Legacy Compressed Tokens page in 2026, alongside a devnet-only Light Token Program with no published compute figure.](assets/v07-timeline.png)
+![Timeline showing compressed tokens moving from the 2024 airdrop headline to a briefly-legacy-labelled 2026 docs page, alongside a devnet-only Light Token Program with no published compute figure.](assets/v07-timeline.png)
 
 ### The trade-off, named
 
@@ -356,7 +360,7 @@ Add `crafting-recipe-blob` to `run.ts`: 5,000 accounts, 2 lifetime writes each, 
 
 Then the memo, and this is the assessed part. Someone on your team proposes moving Overgrowth's in-game currency onto compressed token accounts to save on rent, and adds that you should ship it on the Light Token Program because that is the new default. Write them six sentences: the compress-or-not verdict with the write-frequency reason and a number from your own tool run, the one workload in Overgrowth that genuinely should compress, and the accurate status of the Light Token Program.
 
-Accepted when the memo names write frequency (not holder count) as the binding constraint, cites a figure your tool actually printed, and describes the Light Token Program as an emerging devnet-only rail with the supported compressed-token path still current. If your memo contains a compute-unit figure for the Light Token hot path, delete it, whatever your source told you.
+Accepted when the memo names write frequency (not holder count) as the binding constraint, cites a figure your tool actually printed, and states the Light Token Program's status **with the source and date you read it on** rather than repeating this lesson's. My read said emerging and devnet-only; the page it came from has since gone, which is exactly why the deliverable is a sourced sentence and not a memorised one. A memo that says "devnet-only, per this URL, read on this date" is right whatever the answer turns out to be. If your memo contains a compute-unit figure for the Light Token hot path, delete it, whatever your source told you.
 
 ## Checkpoint
 

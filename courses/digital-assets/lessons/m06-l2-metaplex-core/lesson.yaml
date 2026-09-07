@@ -66,12 +66,12 @@ blocks:
           - id: a
             label: "You can toggle PermanentFreeze off with the freeze delegate authority and re-enable it after the move."
             correct: false
-            feedback: "That describes the ordinary Freeze delegate, which is reversible. PermanentFreeze is the permanent variant; that's the whole point of using it for soulbound."
+            feedback: "Not on this badge, and the reason is the arm rather than the plugin. PermanentFreezeDelegate CAN be thawed while a freeze authority exists; the badge is welded because that authority was set to None at mint, and no key exists that could ever change it back."
           - id: b
-            label: "PermanentFreeze is permanent by design: the badge cannot be moved, which is exactly why it's the soulbound choice; a transferable badge needed a different plugin from the start."
+            label: "The badge was welded at mint by setting the plugin's authority to None, so no key can thaw it; a badge you might need to move needed a retained freeze authority from the start."
             correct: true
           - id: c
             label: "The badge can move once because PermanentFreeze only blocks the second transfer onward."
             correct: false
             feedback: "There's no one-free-transfer rule; PermanentFreeze blocks transfers outright from the moment it's applied."
-        explanation: "PermanentFreeze makes an asset non-transferable irreversibly, the soulbound mechanism for the Founding-Farmer badge. Because it can't be undone, it's a design decision made at mint: use it only for assets that should never move, and pick a reversible Freeze delegate when you might need to transfer later."
+        explanation: "Be precise about where the permanence comes from, because this is the lesson's most carefully drawn distinction. PermanentFreezeDelegate is freeze that CAN BE MADE irrevocable, not freeze that is born irrevocable: frozen=true plus an authority someone holds is thawable. What welds the Founding-Farmer badge is the authority arm set to None, which removes the key that could undo it. So the decision is made at mint and it is a decision about the authority: null it for assets that should never move, retain it when you might need to transfer later."

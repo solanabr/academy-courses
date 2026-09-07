@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: What confidentiality buys vs what it costs
      purpose: force the trade-off into one view so the when-NOT-to-use decision is mechanical
-     data: buys: amounts hidden from everyone except sender, receiver, optional auditor; balances encrypted at rest; on-chain verifiability preserved via three ZK proofs costs: no DEX routing (AMMs cannot price encrypted amounts; Raydium rejects outright); one transfer = several dependent transactions today; amounts capped below 2^48; must be enabled at mint creation; does not compose with transfer hooks; identities remain public decision rule: must trade on a DEX or settle in one transaction -> do not use; known-counterparty flows (payroll, B2B settlement, treasury) -> candidate
+     data: buys: amounts hidden from everyone except sender, receiver, optional auditor; balances encrypted at rest; on-chain verifiability preserved via three ZK proofs costs: no DEX routing (AMMs cannot price encrypted amounts; Raydium rejects outright); one transfer = several dependent transactions today; amounts capped below 2^48; must be enabled at mint creation; a transfer hook still fires on the confidential path but goes amount-blind, receiving the u64::MAX sentinel, so any hook that gates on amounts must be designed for it (the two DO compose mechanically - PYUSD's own mint carries both; do NOT reintroduce a 'does not compose' claim here, round 1 retracted it); identities remain public decision rule: must trade on a DEX or settle in one transaction -> do not use; known-counterparty flows (payroll, B2B settlement, treasury) -> candidate
      prompt: Two panels, "buys" (green accent) and "costs" (red accent), bulleted per data, costs panel visibly longer. Full-width decision band at the bottom with the two-branch rule: "DEX or single-tx settlement -> no. Known counterparties, amounts off the billboard -> candidate."
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -95,7 +95,7 @@
         </div>
         <div class="bc-item">
           <svg class="mark" width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="#1B231D" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="4" x2="4" y2="16" stroke="#1B231D" stroke-width="3" stroke-linecap="round"/></svg>
-          <span><b>does not compose with transfer hooks</b></span>
+          <span><b>transfer hooks go amount-blind</b> (they still fire, with the <code>u64::MAX</code> sentinel)</span>
         </div>
         <div class="bc-item">
           <svg class="mark" width="20" height="20" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="#1B231D" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="4" x2="4" y2="16" stroke="#1B231D" stroke-width="3" stroke-linecap="round"/></svg>

@@ -94,7 +94,7 @@ Every DAS response leads with an `interface` field, and that field is the router
 | `FungibleToken` | a plain fungible |
 | `Custom`, `Identity`, `Executable` | escape hatches you route to a fallback |
 
-Your Almanac asset arrives as `MplCoreAsset`. Your Harvest crate arrives as `MplBubblegumV2`. SPROUT arrives as `FungibleToken` or `FungibleAsset` depending on the provider's classification heuristics; the split is often described as metadata-linked, but in practice providers return `FungibleToken` for ordinary fungibles even when a name resolved fine (my own run printed `FungibleToken` with `name=Sprout` on the same line), so treat the pair as one fungible category and never branch on which of the two you got.
+Your Almanac asset arrives as `MplCoreAsset`. Your Harvest crate arrives as `MplBubblegumV2`. SPROUT arrives as `FungibleToken` or `FungibleAsset` depending on the provider's classification heuristics; the split is often described as metadata-linked, but in practice providers return `FungibleToken` for ordinary fungibles even when a name resolved fine (my own run printed `FungibleToken` and a resolved name on the same line), so treat the pair as one fungible category and never branch on which of the two you got.
 
 Two things about this enum are worth pausing on, because both cost people time.
 
@@ -593,7 +593,7 @@ Run it against a pump mint and `creators: 0` prints before any query runs, which
 **7. Ship it.** `npx tsx read-any-asset.ts` should now print three classification lines, a crate leaf reference, a populated price from the probe, an owner count with your Almanac asset present, and the extension state block. Shape of a passing run, with your own addresses and values in place of the placeholders:
 
 ```text
-SPROUT    FungibleToken    fungible         das-rpc=false  price=no price_info  name=Sprout
+SPROUT    FungibleToken    fungible         das-rpc=false  price=no price_info  name=SPROUT
 ALMANAC   MplCoreAsset     nft              das-rpc=false  price=no price_info  name=Almanac Vol. 1
 CRATE     MplBubblegumV2   compressed-nft   das-rpc=true   price=no price_info  name=Harvest Crate
   crate leaf: tree=<your tree> leaf_id=<n>
