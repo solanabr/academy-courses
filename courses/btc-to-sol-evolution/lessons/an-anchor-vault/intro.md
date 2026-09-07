@@ -2,7 +2,7 @@
 
 Last module you made a bet and won it. The throughput bet got you a live Solana program that stored a single number, and the price of Solana's parallel execution was declaring every account you touch up front, so the scheduler can prove two transactions won't collide before it runs them side by side. Those declared accounts were empty scaffolding then. Now they start holding real SOL.
 
-Here is the problem with every wallet you have built so far. Each one is exactly one stolen key away from empty. Leak the key, sign the wrong transaction once, and the funds are gone with no appeal and no undo. So put the SOL somewhere there is no key to steal: an account whose only authorized signer is your program's own code. Then try to drain it from the wrong wallet, and watch the chain refuse.
+Every wallet you have built so far has the same problem. Each one is exactly one stolen key away from empty. Leak the key, sign the wrong transaction once, and the funds are gone with no appeal and no undo. So put the SOL somewhere there is no key to steal: an account whose only authorized signer is your program's own code. Then try to drain it from the wrong wallet, and watch the chain refuse.
 
 Don't take my word for any of it. Build the starter and run its tests. Two files to paste, and then one command; we spend the rest of the lesson taking those two files apart.
 

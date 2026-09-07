@@ -51,7 +51,7 @@ A deploy costs SOL even here, and that catches web2 engineers off guard, because
 
 ## Build the program
 
-Before the code, a thirty-second orientation, because this is the first place in the whole course where you author a real programming language instead of a shell command. You do not need to learn Rust to finish today. You need to recognize six shapes. Here they are at a glance, and then we move:
+Before the code, a thirty-second orientation, because this is the first place in the whole course where you author a real programming language instead of a shell command. You do not need to learn Rust to finish today, only to recognize six shapes. Here they are at a glance, and then we move:
 
 ![A beginner reference table mapping Rust shapes (use, fn, a macro with a trailing bang, struct, impl, and a leading-underscore name) to one-line plain-English meanings, noting that struct and impl do not appear in today's program.](assets/v02-table.webp)
 
@@ -277,7 +277,7 @@ One thing to file away for when you read newer proposals: SIMD-0162 targets the 
 
 Count what that one `solana account` call certifies, because the three promises from the top are all sitting in that output.
 
-You can never edit it. The bytecode is fixed at the address. Changing it at all requires the upgrade authority to authorize a fresh deploy, and even that writes a new version rather than letting you reach in and mutate a byte. Lose the authority and "never" becomes literal.
+You can never edit it: the bytecode is fixed at the address. Changing it at all requires the upgrade authority to authorize a fresh deploy, and even that writes a new version rather than letting you reach in and mutate a byte. Lose the authority and "never" becomes literal.
 
 It can't write to itself. Here the account model underneath Solana starts to show through, and it's worth stating as a general rule, because the next lesson is built on it: every account on Solana has an owner, and that owner is always a program, and only the owning program is allowed to change the account's data or move its lamports. Your program account is owned by the loader, not by your program. So your program is not merely discouraged from writing there, it is structurally incapable of it, because the runtime rejects any attempt by a program to mutate an account it does not own. This is the sentence that breaks the web2 reflex, so say it plainly: programs are stateless. The program account stores only bytecode. It cannot hold your app's data, because it cannot write to itself at all.
 
