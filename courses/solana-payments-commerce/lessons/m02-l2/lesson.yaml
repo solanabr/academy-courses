@@ -17,7 +17,7 @@ blocks:
     type: quiz
     questions:
       - id: m02l2-q1
-        prompt: "Your transfer-kit hardcodes the classic Token program. A customer pays in PYUSD and the send is refused. What is the actual cause?"
+        prompt: "A customer pays in PYUSD and your kit's send is refused before it ever reaches the chain. What is the actual cause?"
         multiSelect: false
         options:
           - id: a
@@ -32,6 +32,10 @@ blocks:
             label: "PYUSD is owned by the Token-2022 program, so the transfer must be built against the mint's owner program, not a hardcoded classic Token program."
             correct: true
             feedback: "The owner is a field you read at runtime, not a symbol you look up: a hardcoded allowlist stays right until the next mint arrives."
+          - id: d
+            label: "The recipient holds no PYUSD account yet, and the kit's idempotent create instruction does not open one on a Token-2022 mint."
+            correct: false
+            feedback: "The idempotent create works on both programs once it is told which one owns the mint, and a missing account is the case it exists to absorb. The refusal fires earlier than that, on the mint's owner field."
         explanation: "A mint is owned by exactly one token program, and PYUSD is a Token-2022 mint. An instruction built for the classic Token program targets the wrong program id, so it cannot succeed. The fix is detectTokenProgram: read the mint's owner and route the transfer to it."
       - id: m02l2-q2
         prompt: "You read PYUSD's mint live and see a permanentDelegate configured. What does that mean for you as the merchant integrating it?"
@@ -49,6 +53,10 @@ blocks:
             label: "The permanent delegate freezes every PYUSD balance by default, so each holder's token account stays frozen until the issuer thaws it and signs off on that individual spend."
             correct: false
             feedback: "That describes a frozen default-account state, not a permanent delegate; ordinary PYUSD balances are spendable and need no per-spend issuer approval."
+          - id: d
+            label: "The delegate reaches the buyer's wallet but stops at your merchant account, so funds you have received are out of its scope."
+            correct: false
+            feedback: "The authority sits on the mint, so it reaches whichever account holds that mint, yours included. Receiving PYUSD puts your own balance inside the same reach the buyer's was in."
         explanation: "A permanent delegate is a Token-2022 extension granting a standing authority (here, the issuer) power to move tokens from any holder, effectively a seizure capability. It is a property of the mint you accept knowingly; your integration does not add or remove it, but a merchant should understand it before pricing in the asset."
       - id: m02l2-q3
         prompt: "PYUSD's mint carries a transferFeeConfig extension. How should your kit decide what fee, if any, applies when you send it?"
@@ -66,6 +74,10 @@ blocks:
             label: "Ignore it as a sender: any Token-2022 transfer fee is charged to the recipient as a separate deduction after settlement, so the amount you send and the amount invoiced always match."
             correct: false
             feedback: "A transfer fee is withheld from the transferred amount and is very much the sender's concern; you cannot ignore it."
+          - id: d
+            label: "Read the basis points once at startup and cache them for the process lifetime, since a fee change typically waits for an epoch boundary."
+            correct: false
+            feedback: "An epoch boundary is roughly a day and a half at the current slot time, and a checkout process outlives many of them. Caching for the life of the process is the same stale-rate bug, just slower to show up."
         explanation: "The presence of transferFeeConfig does not tell you the rate. Read the basis points live from the mint, because the fee can be nonzero and can be changed by its authority. PYUSD's is 0 today, but reading it is the only integration-safe habit, which is exactly why the lab reads rather than asserts it."
       - id: m02l2-q4
         prompt: "A buyer bridges USDC from Ethereum to pay you in the store. Using CCTP, how does that USDC arrive on Solana and how fast?"
@@ -83,4 +95,8 @@ blocks:
             label: "It is burned on the source domain and natively minted on Solana (domain 5), with a Fast Transfer landing well inside the standard route's window."
             correct: true
             feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Fast Transfer waits on the SOURCE chain's finality, so an Ethereum-sourced transfer is slower than the ~8 seconds quoted for Solana-as-source, and the standard route still runs 15 to 19 minutes."
+          - id: d
+            label: "It is burned on Ethereum and minted natively on Solana in about 8 seconds, since Solana's own finality is the thing a Fast Transfer has to wait on."
+            correct: false
+            feedback: "The mechanism is right and the direction is backwards, which is how most summaries of CCTP get it wrong. What has to become irreversible is the burn, and the burn happened on Ethereum, so an inbound buyer waits out Ethereum."
         explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5. Fast Transfer timing is keyed to the SOURCE chain, because what is being waited on is the burn becoming irreversible where it happened — the widely-quoted ~8 seconds is Solana as source, and a buyer bridging in from Ethereum waits longer than that while still beating the ~15 to 19 minute standard path. Quote the row for your buyers' source chain."

@@ -48,6 +48,10 @@ blocks:
             label: "A Subscription Authority PDA per (user, mint) takes the single slot with a u64::MAX approval; delegation PDAs carry the real limits."
             correct: true
             feedback: "Indirection turns one scarce slot into many arrangements. The holder is unlimited and the real limits live in program state, which moves the bound off the Token program onto that logic."
+          - id: d
+            label: "A Subscription Authority PDA takes the single slot with an approval sized to the sum of the plans, re-approved whenever a subscription is added."
+            correct: false
+            feedback: "Re-approving on every join puts the slot back in play and drags the subscriber into a signature per merchant. The authority takes the slot once, at u64::MAX, and is never touched again; the sums that matter live in the delegation accounts."
         explanation: "The SA PDA occupies the one slot with an unlimited approval; the actual, bounded limits live in delegation PDAs (fixed / recurring / plan). That is how one token account backs many subscriptions non-custodially."
       - id: m05-l2-q2
         prompt: "That delegate slot is held by a PDA rather than a keypair the merchant controls. Cashing in the ATA seed from module 2, why does a PDA holding the slot keep the arrangement non-custodial?"
@@ -65,12 +69,16 @@ blocks:
             label: "The merchant holds the PDA's private key in a hardware escrow and signs each pull with it, contractually agreeing to stay inside the plan's declared limits."
             correct: false
             feedback: "PDAs have no private key to hold, and custody-by-promise is exactly what this design removes."
+          - id: d
+            label: "The program's upgrade authority signs on the PDA's behalf, so custody sits with the Foundation rather than with you."
+            correct: false
+            feedback: "An upgrade authority replaces code; it cannot sign as a PDA, because no signature over a PDA exists to produce. That authority is a real residual trust worth naming in a security review, and it is not custody of anybody's funds."
         explanation: "No private key exists for a PDA, so there is no merchant secret to leak or abuse; the program's code is the only thing that can move funds, and only inside the delegation's declared limits."
   - key: check-lab
     type: quiz
     questions:
       - id: m05-l2-q3
-        prompt: "Your crank charged a subscriber twice within an hour. The plan's cadence is periodHours: 24. Reading your billing-window check, what is the most likely bug?"
+        prompt: "Your crank dispatched a second pull for the same subscriber an hour after the first, and the program refused it. The plan's cadence is periodHours: 24. Reading your billing-window check, what is the most likely bug?"
         multiSelect: false
         options:
           - id: a
@@ -85,6 +93,10 @@ blocks:
             label: "You forgot to store processed signatures, so a webhook retry re-triggered the pull."
             correct: false
             feedback: "A delegate pull is initiated by your crank, not by a webhook retry; signature dedup guards fulfillment, not pull cadence."
+          - id: d
+            label: "Your window check reads the delegation's periodLengthS, which the program stores in hours like a plan does."
+            correct: false
+            feedback: "The two fields disagree on purpose: a plan publishes periodHours, a recurring delegation stores periodLengthS in seconds. Assuming they share a unit is the same trap read from the other end."
         explanation: "periodHours (plans) and periodLengthS (delegations) are the documented unit trap. Compare seconds against Unix chain time; 24 hours is 86,400 seconds, not 24."
       - id: m05-l2-q4
         prompt: "A subscriber's plan lapsed last week, yet your crank still dispatched a pull for them today — refused on-chain, one base fee gone — because the delegation account is still there. Which guard check is missing, and why does the account persist?"
@@ -102,4 +114,8 @@ blocks:
             label: "The expiresAtTs-vs-chain-time check: these accounts persist until revoked, so existence proves nothing, and a guard that skips the expiry mirror pays for an on-chain refusal every tick."
             correct: true
             feedback: "Nothing on-chain reaps an account on a schedule. The program refuses the lapsed pull before a token moves; your guard's job is to refuse it before a fee is spent. And 0 is the sentinel for never expires, which a naive now-greater-than test rejects outright."
+          - id: d
+            label: "The expiresAtTs-vs-chain-time check, and a plain now-greater-than-expiresAtTs comparison covers it, since these accounts persist until revoked and a zero expiry marks one already lapsed."
+            correct: false
+            feedback: "Right field, inverted sentinel. Zero means never expires, so that comparison treats every open-ended subscriber as expired at the epoch and quietly bills nobody at all."
         explanation: "These accounts stay on-chain until a revoke instruction closes them, and the program — not account existence — enforces the expiry bound, refusing a lapsed pull before any token moves. Your crank mirrors that check (expiresAtTs vs chain time, 0 meaning 'never expires') so the refusal costs nothing instead of a base fee per tick."
