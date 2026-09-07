@@ -79,7 +79,7 @@ Do not extrapolate that per-leaf number, and this is the part that trips people.
 
 A million devices at Core prices is about 3,000 SOL. A million devices in one tree is single-digit SOL. There is no design argument that survives that ratio, which is the useful thing about order-of-magnitude gaps: they end debates rather than starting them.
 
-The bill comes due on the read side, and it is the fourth footgun of the course arriving on schedule. A cNFT's on-chain footprint is a leaf hash. The asset itself is reconstructed by DAS indexers from data stores the RPC manages. Point a verification script at an RPC without DAS support and `getAsset` returns nothing, for an asset that minted perfectly, and you will spend twenty minutes suspecting your asset id. That is not a cost you can refactor away later. It is a dependency you accept at design time, and it belongs in the memo right next to the tree's rent line.
+The bill comes due on the read side, and it is the fourth footgun of the course. A cNFT's on-chain footprint is a leaf hash. The asset itself is reconstructed by DAS indexers from data stores the RPC manages. Point a verification script at an RPC without DAS support and `getAsset` returns nothing, for an asset that minted perfectly, and you will spend twenty minutes suspecting your asset id. You cannot refactor that cost away later. It is a dependency you accept at design time, and it belongs in the memo right next to the tree's rent line.
 
 ![A log-scale bar chart comparing the per-asset cost of a Metaplex Core mint against compressed NFT leaves in two tree sizes, showing gaps of two and nearly three orders of magnitude.](assets/v03-chart.png)
 
@@ -536,7 +536,7 @@ Break your own proof, on purpose, three times. This is a five-minute exercise an
 
 **Two.** Remove a real extension from `declaredSet` and re-run. It should appear under `EXTRA` and exit 1. Most people's first version of this script only checks one direction, and it always passes, and it is always worthless.
 
-**Three.** Point `DAS_RPC_URL` at a plain RPC with no DAS support and re-run. If your asset is a cNFT you will get the JSON-RPC method-not-found path from your own transport, which is the failure mode you were warned about in module 7 arriving on cue. If your asset is a Token-2022 mint, note what happens and write it down: some plain endpoints answer `getAsset` for fungibles and some do not, and knowing which yours does is a portability fact about your stack.
+**Three.** Point `DAS_RPC_URL` at a plain RPC with no DAS support and re-run. If your asset is a cNFT you will get the JSON-RPC method-not-found path from your own transport, which is the failure mode module 7 warned you about. If your asset is a Token-2022 mint, note what happens and write it down: some plain endpoints answer `getAsset` for fungibles and some do not, and knowing which yours does is a portability fact about your stack.
 
 Then restore the memo and get back to a green run. Optionally, and this is the version worth putting in a portfolio: write a second brief's memo without minting anything, run `capstone/venue.ts` against it, and put both memos side by side. Two defensible choices for two different products, from the same toolkit, is a stronger artifact than one shipped token.
 

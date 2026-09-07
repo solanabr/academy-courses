@@ -83,7 +83,7 @@ Fair objection, and it is the one I would raise: if PYUSD never charges a fee an
 
 Because of a constraint you have carried since module one. Extensions are creation-time only. There is no instruction that bolts `transferHook` onto a mint that shipped without it. The alternative to arming a slot on day one is not "add it later." The alternative is: mint a new token, migrate every holder, get relisted on every venue, and update every integration that hardcoded your address.
 
-Now price the two paths honestly. Arming eight slots at creation costs some extra rent on one account, forever, and a permanent explanation burden with integrators. Migrating a regulated dollar with hundreds of millions in supply costs coordination with every exchange, custodian and wallet that touched it, plus the tail of value stranded in contracts nobody updates. Those are not the same order of magnitude. They are not close.
+Now price the two paths honestly. Arming eight slots at creation costs some extra rent on one account, forever, and a permanent explanation burden with integrators. Migrating a regulated dollar with hundreds of millions in supply costs coordination with every exchange, custodian and wallet that touched it, plus the tail of value stranded in contracts nobody updates. Those are not the same order of magnitude, and they are not close.
 
 ![A two-path comparison shows that arming extensions at mint creation costs extra bytes and integrator scrutiny, while the alternative is a full token migration later.](assets/v04-comparison.png)
 
@@ -366,7 +366,7 @@ You are going to build `dormancy-report.ts`: point it at any mint, and it prints
    a hook flip lands immediately; a fee change lands two epochs out, about 3.0 days at 0.3s slots
    ```
 
-   Above that you get eight blocks, each with its verdict, the field the verdict came from, and the authority holding it. Every authority line reads `2apBGMsS6ti9RyF5TwQTDswXBWskiJP2LD4cUEDqYJjk`. Sit with that for a second: one key, eight slots, four live today and four armed and waiting. (Armed is this lesson's word for the DORMANT four: configured, idle, and one signature from firing.)
+   Above that you get eight blocks, each with its verdict, the field the verdict came from, and the authority holding it. Every authority line reads `2apBGMsS6ti9RyF5TwQTDswXBWskiJP2LD4cUEDqYJjk`. One key, eight slots, four live today and four armed and waiting. (Armed is this lesson's word for the DORMANT four: configured, idle, and one signature from firing.)
 
    If your run shows a different tally, do not assume the lesson is right and your terminal is wrong. This is a live account and issuers change things. Read the `why:` line for the extension that moved. That reflex is the entire course, honestly.
 

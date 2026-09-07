@@ -54,7 +54,7 @@ Picture a market hall where every stall pays the hall a 1% cut. You would expect
 
 Somebody has to walk the floor.
 
-The stake for you is concrete and it is not abstract accounting: a fee you never harvest is a fee you never earned. It is not revenue sitting in a slow account, it is revenue that exists on paper and funds nothing. Every buyback you plan, every ops budget, every "the protocol is self-funding" line in your docs is downstream of one boring cron job that nobody is glamorous enough to want to own.
+The stake for you is concrete and it is not abstract accounting: a fee you never harvest is a fee you never earned, revenue that exists on paper and funds nothing. Every buyback you plan, every ops budget, every "the protocol is self-funding" line in your docs is downstream of one boring cron job that nobody is glamorous enough to want to own.
 
 You built the mechanism for walking the floor back in module 2, in the economics-extensions lesson, and you tested it against a single buyer. Today it becomes the first leg of a rail with three more legs bolted onto it.
 
@@ -80,7 +80,7 @@ The authority wiring around it deserves thirty seconds, because you set it once 
 
 ### What the crank costs to run
 
-The crank has an operating cost and it is yours forever. Somebody pays the transaction fees, somebody notices when the cron dies, somebody decides whether sweeping 400 accounts weekly beats sweeping 40 accounts daily. Most fee-token postmortems I have read are not exploits. They are nobody ran the cron.
+The crank has an operating cost and it is yours forever. Somebody pays the transaction fees, somebody notices when the cron dies, somebody decides whether sweeping 400 accounts weekly beats sweeping 40 accounts daily. Almost every fee-token postmortem I have read comes down to nobody running the cron.
 
 The good news is that the consolidation half is cheap. `harvest_withheld_tokens_to_mint` takes a whole `sources` array, so one instruction sweeps many accounts, and on my surfnet run back in the economics lesson a single-source harvest measured around 1,200 compute units. Consolidation being nearly free is exactly the right design for a call anyone is allowed to make.
 
@@ -110,7 +110,7 @@ pump.fun also has creator fees. They are not Token-2022 withheld fees, they do n
 
 The rest of pump's fee machinery is worth knowing precisely, because it is the closest thing the ecosystem has to a fee-policy reference implementation. Fees ran flat at 100 basis points for the entire early era. Then, at 2025-09-01 20:00 UTC, they became a market-cap-scaled schedule: your fee tier now depends on where your coin sits, which means the fee is a policy that moves under you rather than a constant you configured. Cashback coins invert the direction entirely, redirecting the creator fee back to traders through volume-accumulator PDAs. Protocol fees rotate across 8 fee recipients so the collection accounts do not become a single hot contended write. And fee sharing supports up to 10 shareholders, so the "creator" in creator fee can be a cap table.
 
-Sit with what the flag day means rather than just filing the date. Before it, a creator launching on pump knew the number: 100 basis points, the same for everyone, the same next month. After it, the fee a coin pays is a function of where that coin trades, which is a variable the creator does not set and cannot freeze. That is not a criticism of pump, whose schedule is published and whose reasoning is defensible. It is the general shape of launching on someone else's rail: you inherit their economic policy, including the version of it they ship after you launch. Your own Token-2022 fee is the opposite trade. You own the rate, you can make it permanent by nulling the config authority, and in exchange you own the harvesting, the indexing, the cron, and every integration that breaks because amount sent no longer equals amount received. Neither side of that trade is free. Pick the one whose costs you would rather be responsible for.
+Read what the flag day means rather than just filing the date. Before it, a creator launching on pump knew the number: 100 basis points, the same for everyone, the same next month. After it, the fee a coin pays is a function of where that coin trades, which is a variable the creator does not set and cannot freeze. That is not a criticism of pump, whose schedule is published and whose reasoning is defensible. It is the general shape of launching on someone else's rail: you inherit their economic policy, including the version of it they ship after you launch. Your own Token-2022 fee is the opposite trade. You own the rate, you can make it permanent by nulling the config authority, and in exchange you own the harvesting, the indexing, the cron, and every integration that breaks because amount sent no longer equals amount received. Neither side of that trade is free. Pick the one whose costs you would rather be responsible for.
 
 ![A timeline moves pump.fun fees from a flat 100 basis point era to the market-cap-scaled schedule of 2025-09-01 and on to Cashback redirects, with standing vault mechanics throughout.](assets/v03-timeline.png)
 
@@ -231,7 +231,7 @@ spl-token mint "$SPROUT_MINT" 1000 \
   --fund-recipient --url http://127.0.0.1:8899
 ```
 
-Say the quiet part before you run the rail: a buyback price you set yourself is not a market price. On a venue, the number is the reserve ratio and the market hands it to you. Here you are both sides of the trade, so the price is a governance decision wearing a constant's clothes, and every conclusion you draw from a door-B run inherits that. The venue module in step 3 exists so the day SPROUT does have a pool, the only line that changes is which door you opened.
+Say the quiet part before you run the rail: a buyback price you set yourself is not a market price. On a venue, the number is the reserve ratio and the market hands it to you. Here you are both sides of the trade, so the price is a governance decision that merely looks like a constant, and every conclusion you draw from a door-B run inherits that. The venue module in step 3 exists so the day SPROUT does have a pool, the only line that changes is which door you opened.
 
 **2. Find the pile.** Create `find-withheld.ts`. This is the account scan, and it is the tool the rest of the rail is built on.
 
@@ -692,7 +692,7 @@ Read those five lines against each other, because they only agree if the rail wo
 
 ![A two-bar chart sets a planned buyback against the smaller quantity actually received, attributing the gap to price impact, venue fee, and the token's own transfer fee.](assets/v08-chart.png)
 
-If the run throws `supply drop != burn`, you almost certainly computed `bought` instead of measuring it, or you re-used the pre-burn mint object. Both are the same mistake wearing different hats.
+If the run throws `supply drop != burn`, you almost certainly computed `bought` instead of measuring it, or you re-used the pre-burn mint object. Both are the same mistake.
 
 ## Challenge
 

@@ -135,7 +135,7 @@ The other two choices read like direct answers to complaints this lesson has bee
 
 Here is the line, as the docs drew it at the time of that read: the Light Token Program ran on Solana devnet only, not mainnet, and no document positioned it as the replacement for the supported compressed-token path. It is an emerging rail, worth watching, worth prototyping against, and not the thing you ship Overgrowth's currency on this quarter.
 
-And here is the durable half, which survives the docs moving under both of us. The claim that decides your architecture is "is this rail supported on the cluster I ship on," and that claim has an owner: the protocol's docs and its own program deployments, not a teammate, not a blog post, and not this page. Go and check it, note the date beside what you find, and if a teammate tells you the default flipped, ask them for the same two things. A status claim without a source and a date is a rumour with good posture.
+And here is the durable half, which survives the docs moving under both of us. The claim that decides your architecture is "is this rail supported on the cluster I ship on," and that claim has an owner: the protocol's docs and its own program deployments, not a teammate, not a blog post, and not this page. Go and check it, note the date beside what you find, and if a teammate tells you the default flipped, ask them for the same two things. A status claim without a source and a date is a rumour, however confidently it is delivered.
 
 One more thing, and this is a confession rather than a fact. An early draft of this lesson carried a compute-unit figure for the Light Token hot path. It came from my memory, it read beautifully, and it did not survive review, because it appears in no published source. There is no published CU number for that path. Do not quote one, not from me, not from a blog post, not from an assistant that sounds confident. On a program this young, a number with no source is a number someone made up.
 
@@ -348,7 +348,7 @@ You will encode the reasoning above as a small program, because a verdict you ca
     compute ratio per transfer: 3842x
     ```
 
-    Sit with the middle row for a second. Twelve thousand players, and the compressed version of their currency ledger costs about ten times the classic version. That is the same mechanism that makes row one a 194x saving, run in the other direction. One number, two signs, and write frequency is the only thing that changed.
+    Look hard at the middle row. Twelve thousand players, and the compressed version of their currency ledger costs about ten times the classic version. That is the same mechanism that makes row one a 194x saving, run in the other direction. One number, two signs, and write frequency is the only thing that changed.
 
 6. **Sanity-check the drop row against the next module.** Your compost-drop row says about 10,300 lamports per recipient. Module 8's airdrop lesson budgets roughly 10,300 compressed against a classic figure it derives rather than quotes: (128 + 165) bytes at your cluster's per-byte rent rate, which was 6,333 on mainnet on 2026-09-06 and gives 1,855,569. This lesson used a round 2,000,000 constant for the same thing, which was a slight UNDER-estimate at the old 6,960 rate and is a slight over-estimate now. Your number should agree exactly on the compressed side, because compressed cost is not rent and did not move, and sit within about 10% on the classic side. If the compressed side disagrees, you changed a constant.
 
