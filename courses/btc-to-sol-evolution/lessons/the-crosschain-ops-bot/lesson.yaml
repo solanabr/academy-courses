@@ -53,16 +53,16 @@ blocks:
             correct: false
             feedback: "Idempotency is a correctness property, and it buys nothing on the happy path. Its whole value shows up in the unhappy one, where a process died between sending an operation and recording that it sent it."
           - id: c
-            label: "On resume the bot may re-see operations it already sent; without idempotency or an on-chain guard it would double-execute them"
+            label: "On resume the bot may re-see work it already sent; without an idempotent design or an on-chain guard it runs twice"
             correct: true
             feedback: "The crash that hurts is the one between the send and the cursor write, where the bot's own bookkeeping is missing work the chain already accepted. Asking the chain directly before applying an operation is the second belt that covers exactly that gap."
           - id: d
-            label: "Because a kill -9 can leave a half-signed transaction waiting in the mempool, which a validator may still land after the restart"
+            label: "Because a kill -9 can leave a half-signed transaction waiting in the mempool, which a validator may still land on-chain after the restart"
             correct: false
             feedback: "Solana has no mempool to leave anything in, and a half-signed transaction is not a valid one anywhere. The replay this rule guards against is the bot's own: on resume it re-reads its queue and re-sends work whose confirmation it never got to record."
         explanation: "A crash can happen between 'submitted' and 'confirmed', so on resume the bot cannot know whether an operation landed. If re-running it would double-execute (a second airdrop, a second swap), the bot must either make the operation idempotent or check on-chain state before acting. The cursor plus that rule is what makes resume safe."
       - id: q3
-        prompt: "Wormhole secures messages with 19 named guardians and a 13-of-19 quorum. In the bridge trust taxonomy, which tier is that, and what do you trust?"
+        prompt: "Wormhole secures messages with a 19-member guardian set and a 13-of-19 quorum. In the bridge trust taxonomy, which tier is that, and what do you trust?"
         multiSelect: false
         options:
           - id: a

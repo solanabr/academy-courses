@@ -28,7 +28,7 @@ blocks:
             correct: true
             feedback: "Blocks near the tip can still be orphaned by a longer competing chain, and a reward inside an orphaned block evaporates rather than returning to the mempool. The wait pushes a reward past plausible reorg depth before anyone can be paid with it, which protects whoever you pay rather than you."
           - id: d
-            label: "The first 100 blocks on a fresh regtest chain pay no reward, so block 101 is the first one that mints anything"
+            label: "The first 100 blocks pay no reward at all, so block 101 is the first one that mints anything"
             correct: false
             feedback: "Every one of those blocks paid a full 50 BTC reward; listunspent proves it once they age, showing eleven separate 50 BTC outputs after ten more blocks matured blocks 2 through 11. The rewards were minted on schedule and simply locked, which is why the balance climbs in 50 BTC steps rather than appearing from nothing."
         explanation: "Coinbase outputs are consensus-locked for 100 blocks. If a reorg orphaned a block whose freshly-spent reward had already propagated, every downstream payment would unravel — so rewards must age past plausible reorg depth before entering circulation. Block 1's reward becomes spendable once 100 blocks sit on top of it: height 101."

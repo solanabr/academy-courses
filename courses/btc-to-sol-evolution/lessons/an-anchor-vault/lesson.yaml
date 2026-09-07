@@ -22,7 +22,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Your vault is a PDA, an address with no private key. Why does the program STORE the canonical bump in the vault's state account instead of re-deriving it every time?"
+        prompt: "Your vault is a PDA, an address with no private key. Why does the program STORE the canonical bump in the vault's state account instead of computing it again on each call?"
         multiSelect: false
         options:
           - id: a
@@ -43,7 +43,7 @@ blocks:
             feedback: "The runtime has no idea where your bump came from. It re-runs the derivation over whatever seeds you hand it and checks that they produce this address under your program id, so a freshly computed bump signs exactly as well as a stored one. Storing it is an optimization, not a permission."
         explanation: "PDAs have no private key, so the runtime signs on the program's behalf when handed the right seeds + bump. find_program_address is deterministic but not free: it searches 255 -> 0 for the first off-curve address, burning compute each call. Storing the canonical bump at initialization turns that search into a single field read and lets every later CPI sign with the stored value."
       - id: q2
-        prompt: "The deposit handler does `balance.checked_add(amount).ok_or(VaultError::Overflow)?` instead of `balance += amount`. Why?"
+        prompt: "The deposit path does `balance.checked_add(amount).ok_or(VaultError::Overflow)?` instead of `balance += amount`. Why?"
         multiSelect: false
         options:
           - id: a

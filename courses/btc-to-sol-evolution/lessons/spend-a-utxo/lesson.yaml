@@ -16,9 +16,9 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A row in the miners' shared account database with balance = 10, decremented when you pay"
+            label: "A row in the miners' database of unspent outputs, showing balance = 10, decremented when you pay"
             correct: false
-            feedback: "Miners keep no account table, and no such database exists to decrement. What the chain stores is the set of unspent outputs; your 10 BTC is your wallet summing the ones its keys can unlock."
+            feedback: "The unspent-output set is real; the per-address row inside it is not. Outputs are consumed whole and replaced, never decremented in place, and nothing in that set is indexed by owner: your 10 BTC is your wallet summing the ones its keys can unlock."
           - id: b
             label: "A single on-chain balance field stored under your address, updated in place by each payment"
             correct: false
