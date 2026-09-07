@@ -67,7 +67,7 @@ So the ATA program closed it: every associated token account ships ImmutableOwne
 
 ![Many senders compute the same derived ATA address, so reassigning its owner would redirect future deposits, and ImmutableOwner makes that reassignment revert with error 0x22.](assets/v03-diagram.png)
 
-The refusal it buys you is concrete, and you will trigger it in the lab: SetAuthority with authority type AccountOwner against an ImmutableOwner account reverts with custom program error 0x22 (decimal 34). Owner reassignment is not restricted. It is gone.
+The refusal it buys you is concrete, and you will trigger it in the lab: SetAuthority with authority type AccountOwner against an ImmutableOwner account reverts with custom program error 0x22 (decimal 34). On such an account, owner reassignment is gone rather than merely restricted.
 
 ### MemoTransfer: the account that demands a receipt
 
@@ -101,7 +101,7 @@ So here is the decision rule, as bluntly as I can put it. Reach for NonTransfera
 
 ![Comparison table of NonTransferable, ImmutableOwner, MemoTransfer, and CpiGuard showing where each lives, what it refuses, its observed error code, and who bears the cost.](assets/v06-comparison.png)
 
-Notice the theme: these four do not make anything possible. They make things impossible, selectively, and the engineering discipline they demand is proving the impossibility instead of asserting it. Which is precisely what the lab does.
+Notice the theme: all four make things impossible rather than possible, selectively, and the engineering discipline they demand is proving the impossibility instead of asserting it. Which is precisely what the lab does.
 
 ## Lab: make refusal a test
 

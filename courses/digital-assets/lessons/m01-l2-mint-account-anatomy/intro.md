@@ -45,7 +45,7 @@ byte 165:      1   (the account-type discriminator)
 bytes 166-169: 3 0 32 0  (first TLV header)
 ```
 
-Same 866 bytes as last lesson, but this time nothing parsed them for you. That `1` sitting at byte 165 and that little `3 0 32 0` run are not noise. They are the entire anatomy of this lesson, and by the end of it you will read them the way you read English. The difference from last time is the difference between trusting a decoder and owning the read: when your inspector prints the exact extension set of a mint you never made, computed by your own cursor arithmetic, nobody can hand-wave you again.
+Same 866 bytes as last lesson, but this time nothing parsed them for you. That `1` sitting at byte 165 and that little `3 0 32 0` run are the entire anatomy of this lesson, and by the end of it you will read them the way you read English. The difference from last time is the difference between trusting a decoder and owning the read: when your inspector prints the exact extension set of a mint you never made, computed by your own cursor arithmetic, nobody can hand-wave you again.
 
 ## Summary
 
@@ -91,7 +91,7 @@ This also settles a practical question about the token accounts you use daily. Y
 
 Everything from byte 166 to the end of the account is a sequence of **TLV entries**: type, length, value, repeated. Each entry is a u16 little-endian type code saying which extension this is, a u16 little-endian length saying how many value bytes follow, and then exactly that many value bytes. Four bytes of header, then the payload. Next entry immediately after. No separators, no count field up front, no index. The list is the walk.
 
-Your `peek.ts` output already contained a complete worked example. The four bytes at 166 were `3 0 32 0`. Read them as two little-endian u16s: type = 3, length = 32. Type 3 is MintCloseAuthority, and its value is a 32-byte pubkey. So bytes 170 through 201 are that authority, and the next entry's header begins at 166 + 4 + 32 = 202. At 202 you would find `12 0 32 0`: PermanentDelegate, another 32-byte pubkey, next header at 238. And so on, eight times, until the last entry ends exactly at byte 866, the edge of the account. When your cursor lands precisely on the account boundary with nothing left over, that is not luck. That is the reconciliation check that proves your walk read every byte.
+Your `peek.ts` output already contained a complete worked example. The four bytes at 166 were `3 0 32 0`. Read them as two little-endian u16s: type = 3, length = 32. Type 3 is MintCloseAuthority, and its value is a 32-byte pubkey. So bytes 170 through 201 are that authority, and the next entry's header begins at 166 + 4 + 32 = 202. At 202 you would find `12 0 32 0`: PermanentDelegate, another 32-byte pubkey, next header at 238. And so on, eight times, until the last entry ends exactly at byte 866, the edge of the account. When your cursor lands precisely on the account boundary with nothing left over, that is the reconciliation check that proves your walk read every byte.
 
 ![A table walking PYUSD's eight TLV entries from byte 166 to 866, showing each entry's type, name, length, and the cursor arithmetic that lands exactly on the account boundary.](assets/v04-annotated-code.png)
 
