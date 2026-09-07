@@ -61,7 +61,7 @@ The silver bullet? A transaction whose freshness stamp you control. That is exac
 
 ### The nonce account, field by field
 
-The stored value lives in a nonce account: a System Program-owned account, 80 bytes of data, that must be rent-exempt (about 0.00144768 SOL at that size; your code will ask the RPC rather than hardcode it). Fetch one with the generated client and you get the whole state back typed:
+The stored value lives in a nonce account: a System Program-owned account, 80 bytes of data, that must be rent-exempt (about 0.00106 SOL at that size on devnet on 2026-09-07, and falling; your code asks the RPC rather than hardcoding it, which is the whole reason that figure is safe to print here). Fetch one with the generated client and you get the whole state back typed:
 
 ```typescript
 import { fetchNonce } from '@solana-program/system';
@@ -76,7 +76,7 @@ const { data } = await fetchNonce(rpc, nonceAccountAddress);
 
 Two fields do the work. `authority` is the nonce authority, the account that must sign any instruction that moves this nonce; for the fair queue that is the merchant key, the same signer that runs checkout-txreq. And `blockhash` is the nonce value itself. The name is not an accident: the value is a hash derived from a real blockhash at the moment of the last advance, and it goes into the transaction's `recentBlockhash` field, wearing the same 32-byte costume, so the wire format never changes. What changes is how the runtime validates it. The remaining field, `lamportsPerSignature`, records the fee rate captured when the nonce last advanced, a leftover of the account's role in fee accounting that you will read and never touch.
 
-Cost, since a merchant should always know it. The rent deposit for 80 bytes is about 0.00144768 SOL per account, and it is a deposit, not a fee: `WithdrawNonceAccount` returns every lamport to the authority the day you retire a slot, so a four-slot pool ties up roughly 0.006 SOL for as long as you run the stall and costs you nothing to unwind. Per transaction, the durable-nonce path is slightly heavier than a blockhash one, since every sale carries the extra advance instruction and its accounts. For a payments flow that trade is invisible; the base fee math you did in module 1 still dominates.
+Cost, since a merchant should always know it. The rent deposit for 80 bytes was 1,056,640 lamports on devnet and 1,317,264 on mainnet when I read it on 2026-09-07, and both keep falling as SIMD-0437 steps the per-byte rate down — so read yours from `getMinimumBalanceForRentExemption(80)` rather than from this sentence. It is a deposit, not a fee: `WithdrawNonceAccount` returns every lamport to the authority the day you retire a slot, so a four-slot pool ties up about four times that number for as long as you run the stall and costs you nothing to unwind. Per transaction, the durable-nonce path is slightly heavier than a blockhash one, since every sale carries the extra advance instruction and its accounts. For a payments flow that trade is invisible; the base fee math you did in module 1 still dominates.
 
 ![An 80-byte nonce account laid out field by field: version, state, the 32-byte authority pubkey mapped to the merchant key, the 32-byte stored nonce value, and the fee rate.](assets/v02-diagram.png)
 

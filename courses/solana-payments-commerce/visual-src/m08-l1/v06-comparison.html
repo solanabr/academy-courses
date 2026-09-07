@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: Buyer-pays versus merchant-sponsors, side by side
      purpose: give the reader the deployment decision as a scannable trade table rather than a vibe
-     data: axis: who needs SOL | buyer-pays: the buyer, always | sponsored: nobody but your sponsor float axis: signatures on the tx | buyer-pays: 1 (buyer) | sponsored: 2 (Kora signer + buyer) axis: base fee per checkout | buyer-pays: 5000 lamports, buyer's | sponsored: 10,000 lamports, yours axis: first-time-buyer ATA rent | buyer-pays: buyer funds it | sponsored: you fund ~0.002 SOL, buyer can reclaim it axis: conversion at the stall | buyer-pays: SOL-less buyers walk | sponsored: USDC-only buyers complete axis: new attack surface | buyer-pays: none | sponsored: your paymaster; validation rules mandatory axis: when it wins | buyer-pays: crypto-native buyers who hold SOL | sponsored: onboarding, fairs, first purchases
+     data: axis: who needs SOL | buyer-pays: the buyer, always | sponsored: nobody but your sponsor float axis: signatures on the tx | buyer-pays: 1 (buyer) | sponsored: 2 (Kora signer + buyer) axis: base fee per checkout | buyer-pays: 5000 lamports, buyer's | sponsored: 10,000 lamports, yours axis: first-time-buyer ATA rent | buyer-pays: buyer funds it | sponsored: you fund the 165-byte rent-exempt minimum (~0.0015 SOL on devnet 2026-09-07, falling), buyer can reclaim it axis: conversion at the stall | buyer-pays: SOL-less buyers walk | sponsored: USDC-only buyers complete axis: new attack surface | buyer-pays: none | sponsored: your paymaster; validation rules mandatory axis: when it wins | buyer-pays: crypto-native buyers who hold SOL | sponsored: onboarding, fairs, first purchases
      prompt: A two-column comparison table with the seven axes as rows, buyer-pays left and merchant-sponsors right, cell text per the data. Highlight the conversion row as the reason to sponsor and the attack-surface row as the price of it.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -71,7 +71,7 @@
           <td class="c">10,000 lamports, yours</td></tr>
       <tr><td class="ax">first-time-buyer ATA rent</td>
           <td class="c">buyer funds it</td>
-          <td class="c">you fund ~0.002 SOL; buyer can reclaim it</td></tr>
+          <td class="c">you fund ~0.0015 SOL; buyer can reclaim it</td></tr>
       <tr class="win"><td class="ax">conversion at the stall<span class="pill y">why you sponsor</span></td>
           <td class="c">SOL-less buyers walk</td>
           <td class="c">USDC-only buyers complete</td></tr>

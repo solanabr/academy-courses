@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: Anatomy of a nonce account (80 bytes, System-owned, rent-exempt)
      purpose: give the reader a concrete picture of the account their pool will create before the lab creates four of them
-     data: Nonce account (owner: System Program 11111111111111111111111111111111, size 80 bytes, rent-exempt ~0.00144768 SOL): version (4 bytes) | state: Initialized (4 bytes) | authority pubkey (32 bytes) | nonce value / stored blockhash (32 bytes) | lamportsPerSignature (8 bytes) Arrow from "authority pubkey" -> "merchant key: only this signer can advance" Arrow from "nonce value" -> "copied into the transaction's recentBlockhash field"
-     prompt: A single horizontal byte-layout bar divided into five labeled segments with byte widths (version 4, state 4, authority 32, nonce value 32, lamportsPerSignature 8). Header above the bar: "Nonce account, owner System Program, 80 bytes, rent-exempt ~0.00144768 SOL". Two callout arrows below: from the authority segment to "merchant key: only this signer can advance", and from the nonce-value segment to "copied into the transaction's recentBlockhash field".
+     data: Nonce account (owner: System Program 11111111111111111111111111111111, size 80 bytes, rent-exempt: read from getMinimumBalanceForRentExemption(80), ~0.00106 SOL on devnet 2026-09-07 and falling): version (4 bytes) | state: Initialized (4 bytes) | authority pubkey (32 bytes) | nonce value / stored blockhash (32 bytes) | lamportsPerSignature (8 bytes) Arrow from "authority pubkey" -> "merchant key: only this signer can advance" Arrow from "nonce value" -> "copied into the transaction's recentBlockhash field"
+     prompt: A single horizontal byte-layout bar divided into five labeled segments with byte widths (version 4, state 4, authority 32, nonce value 32, lamportsPerSignature 8). Header above the bar: "Nonce account, owner System Program, 80 bytes, rent-exempt: ask the RPC for 80 bytes". Two callout arrows below: from the authority segment to "merchant key: only this signer can advance", and from the nonce-value segment to "copied into the transaction's recentBlockhash field".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -64,7 +64,7 @@
     <div class="meta">
       <div class="chip">owner: System Program 1111&hellip;1111</div>
       <div class="chip">size: 80 bytes</div>
-      <div class="chip">rent-exempt: ~0.00144768 SOL</div>
+      <div class="chip">rent-exempt: ask the RPC for 80 bytes</div>
     </div>
     <div class="bar">
       <div class="seg seg-plain" style="width:9%;flex:none;"><div class="sn">version</div><div class="sb">4 B</div></div>

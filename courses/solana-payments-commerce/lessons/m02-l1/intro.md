@@ -40,9 +40,18 @@ How do you find Alice's USDC account if she never told you its address? You comp
 
 Now the trap. Derivable is not the same as existing. If Bob has never held USDC, the address where his USDC would live is computable but vacant: no account exists there. Send tokens at a vacant address and the transfer fails. On card rails the acquiring bank guarantees the destination exists; here, nobody does. Every first-time customer arrives without a landing pad, and your checkout is the thing that notices.
 
-The fix is that whoever pays can create the account in the same transaction, and creating it costs real money: an ATA needs 2,039,280 lamports, roughly 0.00204 SOL, deposited as rent to exist. Last module I promised you the one-time line item card rails never showed you. This is it, the terminal rental of these rails: a fixed cost of standing up the till, not a cut of each sale. The associated-token-account program even ships an idempotent version of its create instruction, create-if-missing, which turns "does the account exist?" from a question you ask into a question you never need to ask. Your kit will prepend it to every payment unconditionally: if the account exists it is a no-op, if it does not you just funded your customer's landing pad.
+The fix is that whoever pays can create the account in the same transaction, and creating it costs real money: an ATA is 165 bytes and needs enough lamports deposited to make it rent-exempt. Last module I promised you the one-time line item card rails never showed you. This is it, the terminal rental of these rails: a fixed cost of standing up the till, not a cut of each sale. The associated-token-account program even ships an idempotent version of its create instruction, create-if-missing, which turns "does the account exist?" from a question you ask into a question you never need to ask. Your kit will prepend it to every payment unconditionally: if the account exists it is a no-op, if it does not you just funded your customer's landing pad.
 
-That is the trade-off, and I want it on the table before we build. Integer base units are exact but unforgiving: you now own the decimals bookkeeping the float shortcut used to hide. And paying a brand-new customer can require creating and rent-funding their ATA first, a real ~0.00204 SOL cost and an extra failure mode on every first-time buyer. Neither cost is hidden anymore. That is the deal on these rails, over and over: the machinery is exposed, and you are the one holding it.
+Ask the network what that deposit is rather than trusting any number you read, including mine:
+
+```bash
+curl -s https://api.devnet.solana.com -X POST -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getMinimumBalanceForRentExemption","params":[165]}'
+```
+
+On devnet on 2026-09-07 that answered `1488440` lamports, about 0.0015 SOL; the same call against mainnet answered `1855569`, about 0.0019 SOL. Two things to take from those being different numbers. First, the rent rate is a cluster runtime parameter, not a constant of the token program, so a figure copied from a tutorial is a figure from somebody else's cluster on somebody else's day. Second, it is actively falling: SIMD-0437 is stepping the per-byte rate down (the rent-exempt minimum is `(128 + bytes) × rate`, and 165 + 128 = 293, which is why every account size scales by the same factor when the rate moves), mainnet took its first step on 2026-09-03, devnet is already a step ahead of it, and further steps are scheduled. Older material — and older sentences in this course's own history — quotes 2,039,280 lamports for this account, which was correct before that first step and is now about 27% high on the cluster your labs run against. Run the curl.
+
+That is the trade-off, and I want it on the table before we build. Integer base units are exact but unforgiving: you now own the decimals bookkeeping the float shortcut used to hide. And paying a brand-new customer can require creating and rent-funding their ATA first, a real cost of roughly a thousandth of a SOL and an extra failure mode on every first-time buyer. Neither cost is hidden anymore. That is the deal on these rails, over and over: the machinery is exposed, and you are the one holding it.
 
 ![A flowchart showing derivation, an unconditional idempotent create, and the transfer bracketed as one atomic transaction, with the existence check crossed out.](assets/v02-flowchart.png)
 
@@ -285,7 +294,8 @@ export async function sendStablecoin(
   ]);
 
   // First-time recipient: this creates and rent-funds their ATA (payer pays,
-  // ~0.00204 SOL). If it already exists, the idempotent variant is a no-op, not an error.
+  // the rent-exempt minimum for 165 bytes). If it already exists, the
+  // idempotent variant is a no-op, not an error.
   const createDestination = getCreateAssociatedTokenIdempotentInstruction({
     payer,
     ata: destinationAta,
@@ -533,11 +543,11 @@ That is the checkpoint the whole lesson gates on. If the lookup returns nothing,
 
 ### 9. What that payment actually cost
 
-Close the loop with the cost recap module 1 promised you. Your payment carried one signature, so the base fee was 5000 lamports, a flat charge, a small fraction of one cent at any SOL price you care to plug in. And because your pretend customer had never held USDC, the transaction also created their ATA and deposited 2,039,280 lamports of rent, roughly 0.00204 SOL, the terminal-rental line item, paid by you as the fee payer. Run the same payment again to the same customer and watch the anatomy change: the idempotent create becomes a no-op, no rent, just the 5000-lamport fee. First-time buyers cost you a fraction of a cent plus the landing pad; repeat buyers cost the fraction alone.
+Close the loop with the cost recap module 1 promised you. Your payment carried one signature, so the base fee was 5000 lamports, a flat charge, a small fraction of one cent at any SOL price you care to plug in. And because your pretend customer had never held USDC, the transaction also deposited the 165-byte rent-exempt minimum you looked up at the top of this lesson — the terminal-rental line item, paid by you as the fee payer. Do not take my word for how much left your wallet: `solana balance` before and after a payment to a fresh address shows you the fee and the rent together, and subtracting the curl's answer leaves the fee. Run the same payment again to the same customer and watch the anatomy change: the idempotent create becomes a no-op, no rent, just the 5000-lamport fee. First-time buyers cost you a fraction of a cent plus the landing pad; repeat buyers cost the fraction alone.
 
 Zoom out for one paragraph, because the shape here matters more than the sizes. The recurring cost of taking a payment on these rails is flat and tiny at any ticket size, and the one meaningful cost is a one-time, per-customer capital expense that buys a permanent piece of on-chain infrastructure for that relationship. Card rails charge you a percentage forever and give you nothing durable back. Here you pay cents once and every subsequent payment from that customer rides nearly free. For a business with repeat customers, that is not a discount, it is a different cost model — carry it with you to module 6, where cost models like this one get weighed when we choose a rail per corridor.
 
-![Stacked bars compare a first-time customer paying the 5000-lamport base fee plus roughly 0.00204 SOL of one-time ATA rent against a repeat customer paying only that flat fee.](assets/v09-chart.png)
+![Stacked bars compare a first-time customer paying the 5000-lamport base fee plus the one-time ATA rent deposit, roughly a thousandth of a SOL, against a repeat customer paying only that flat fee.](assets/v09-chart.png)
 
 ## Challenge
 

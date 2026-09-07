@@ -12,7 +12,7 @@
 <body>
 <!-- chart: Cost anatomy of a payment: first-time vs repeat customer
      purpose: make the one-time ATA rent visibly separate from the recurring flat fee so the cost model lands as a shape, not a number
-     data: First-time customer: base fee 5000 lamports (flat, under a tenth of a cent) + ATA rent ~0.00204 SOL (one-time, refundable-in-kind infrastructure deposit paid by the fee payer) Repeat customer: base fee 5000 lamports only; the idempotent create is a no-op Annotation: rent is per (customer, mint) pair, paid once ever; the base fee recurs per transaction and does not scale with amount
+     data: First-time customer: base fee 5000 lamports (flat, a small fraction of one cent: $0.00075 at $150/SOL, $0.0015 at $300 -- quote the band) + ATA rent, the rent-exempt minimum for 165 bytes, read from getMinimumBalanceForRentExemption rather than hardcoded (1,488,440 lamports on devnet 2026-09-07; SIMD-0437 is stepping the rate down, so re-read it) (one-time, refundable-in-kind infrastructure deposit paid by the fee payer) Repeat customer: base fee 5000 lamports only; the idempotent create is a no-op Annotation: rent is per (customer, mint) pair, paid once ever; the base fee recurs per transaction and does not scale with amount
      prompt: Two stacked bars, one per customer type. The first-time bar has two segments, a thin base-fee segment and a larger ATA-rent segment, each labeled with its value; the repeat bar has only the thin base-fee segment. Annotate that the rent segment is one-time per customer-mint pair and the base fee recurs per transaction. Do not use a log scale; the visual disproportion between segments is the point.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -62,7 +62,7 @@
   <div class="plot">
     <div class="bar">
       <div class="rent">
-        <h3>ATA rent ~0.00204 SOL</h3>
+        <h3>ATA rent &mdash; 165-byte rent-exempt minimum</h3>
         <div class="d">2,040,000 lamports &mdash; a one-time, refundable-in-kind infrastructure deposit, paid by the fee payer</div>
         <div class="once">one-time &middot; per (customer, mint) pair</div>
       </div>
@@ -79,6 +79,6 @@
     </div>
   </div>
   <div class="names"><div class="n">first-time customer</div><div class="n">repeat customer</div></div>
-  <div class="anno"><b>rent</b> is paid once, ever, per (customer, mint) pair &middot; <b>the base fee</b> (flat, under a tenth of a cent) recurs per transaction and does not scale with amount &middot; drawn to scale &mdash; the 5,000-lamport fee is a hairline next to the rent deposit</div>
+  <div class="anno"><b>rent</b> is paid once, ever, per (customer, mint) pair &middot; <b>the base fee</b> (flat, a small fraction of one cent at any SOL price) recurs per transaction and does not scale with amount &middot; drawn to scale &mdash; the 5,000-lamport fee is a hairline next to the rent deposit</div>
 </div>
 </body></html>
