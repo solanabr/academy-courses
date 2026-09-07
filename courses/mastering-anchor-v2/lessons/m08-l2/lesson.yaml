@@ -9,8 +9,9 @@ versionStamp:
     solana-cli: "3.1.10"
     anchor-cli: "2.0.0-rc.1"
 skills:
-  - solana-kit
-  - solana-programs
+  - program-deployment
+  - version-pinning
+  - program-security
 blocks:
   - key: intro
     type: prose

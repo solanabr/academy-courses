@@ -3,6 +3,9 @@ slug: m10-l4
 title: "Conclusion: what you built, and should you move to V2 today?"
 skills:
   - anchor
+  - solana-programs
+  - program-security
+  - account-model
 blocks:
   - key: intro
     type: prose

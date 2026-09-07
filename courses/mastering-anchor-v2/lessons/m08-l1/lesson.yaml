@@ -8,8 +8,9 @@ versionStamp:
     "@solana-program/system": "0.13.0"
     "@solana-program/token": "0.15.0"
 skills:
+  - idl
   - solana-kit
-  - solana-programs
+  - program-deployment
 blocks:
   - key: intro
     type: prose

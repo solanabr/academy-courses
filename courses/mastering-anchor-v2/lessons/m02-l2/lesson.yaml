@@ -10,6 +10,8 @@ versionStamp:
     litesvm: "0.11.0"
 skills:
   - account-model
+  - anchor
+  - solana-programs
 blocks:
   - key: intro
     type: prose

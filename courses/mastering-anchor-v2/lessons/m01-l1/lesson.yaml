@@ -3,6 +3,9 @@ slug: m01-l1
 title: "Your Account<T> is the slow path"
 skills:
   - anchor
+  - account-model
+  - compute-budget
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

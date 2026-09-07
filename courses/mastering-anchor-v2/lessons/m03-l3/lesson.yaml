@@ -8,8 +8,9 @@ versionStamp:
     anchor-v2-testing: "2.0.0-rc.1"
     litesvm: "0.11.0"
 skills:
-  - solana-programs
   - anchor
+  - solana-programs
+  - program-security
 blocks:
   - key: intro
     type: prose

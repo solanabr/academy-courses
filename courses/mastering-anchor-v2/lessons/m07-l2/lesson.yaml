@@ -7,7 +7,10 @@ versionStamp:
     anchor-lang: "2.0.0-rc.1"
     anchor-v2-testing: "2.0.0-rc.1"
 skills:
-  - anchor
+  - program-security
+  - signers
+  - checked-arithmetic
+  - error-handling
 blocks:
   - key: intro
     type: prose

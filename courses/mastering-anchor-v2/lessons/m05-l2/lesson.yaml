@@ -6,7 +6,9 @@ versionStamp:
   packages:
     anchor-lang: "2.0.0-rc.1"
 skills:
-  - solana-programs
+  - spl-tokens
+  - checked-arithmetic
+  - anchor
 blocks:
   - key: intro
     type: prose

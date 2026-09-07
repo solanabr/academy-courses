@@ -10,8 +10,9 @@ versionStamp:
     wincode: "0.5.5"
     solana-address: "2.6.1"
 skills:
-  - solana-programs
+  - pdas
   - anchor
+  - program-testing
 blocks:
   - key: intro
     type: prose

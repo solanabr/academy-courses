@@ -11,6 +11,8 @@ versionStamp:
     solana-sdk: "4.0.0"
 skills:
   - solana-programs
+  - pdas
+  - program-testing
 blocks:
   - key: intro
     type: prose

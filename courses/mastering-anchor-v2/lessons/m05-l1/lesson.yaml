@@ -10,7 +10,10 @@ versionStamp:
     solana-address: "2.6.1"
     wincode: "0.5.5"
 skills:
-  - solana-programs
+  - spl-tokens
+  - token-2022
+  - cpi
+  - pdas
 blocks:
   - key: intro
     type: prose

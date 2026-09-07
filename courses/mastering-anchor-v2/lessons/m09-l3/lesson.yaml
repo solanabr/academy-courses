@@ -10,7 +10,9 @@ versionStamp:
     solana-cli: "3.1.10"
     anchor-lang: "2.0.0-rc.1"
 skills:
-  - solana-programs
+  - cpi
+  - idl
+  - program-deployment
 blocks:
   - key: intro
     type: prose

@@ -11,6 +11,8 @@ versionStamp:
     bytemuck: "1.25.2"
 skills:
   - account-model
+  - anchor
+  - program-testing
 blocks:
   - key: intro
     type: prose

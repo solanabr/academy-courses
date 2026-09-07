@@ -7,6 +7,8 @@ versionStamp:
     anchor-cli: "1.1.2"
 skills:
   - anchor
+  - version-pinning
+  - solana-programs
 blocks:
   - key: intro
     type: prose

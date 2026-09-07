@@ -10,7 +10,9 @@ versionStamp:
     solana-address: "2.6.1"
     wincode: "0.5.5"
 skills:
+  - compute-budget
   - solana-programs
+  - anchor
 blocks:
   - key: intro
     type: prose

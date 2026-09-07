@@ -3,6 +3,8 @@ slug: m01-l3
 title: "Program anatomy: what declare_id! and #[program] expand to"
 skills:
   - anchor
+  - solana-programs
+  - program-testing
 blocks:
   - key: intro
     type: prose

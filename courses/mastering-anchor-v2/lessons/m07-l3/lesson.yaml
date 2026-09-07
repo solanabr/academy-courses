@@ -8,7 +8,9 @@ versionStamp:
     crucible-fuzz-cli: "0.2.1"
     crucible-fuzzer: "0.2.1"
 skills:
-  - anchor
+  - program-security
+  - program-testing
+  - checked-arithmetic
 blocks:
   - key: intro
     type: prose

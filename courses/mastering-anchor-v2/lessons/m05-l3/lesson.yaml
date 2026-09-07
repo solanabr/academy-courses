@@ -7,7 +7,10 @@ versionStamp:
     "@solana/kit": "7.1.1"
     "@solana-program/token-2022": "0.15.0"
 skills:
-  - solana-programs
+  - token-2022
+  - spl-tokens
+  - solana-kit
+  - rpc-reads
 blocks:
   - key: intro
     type: prose

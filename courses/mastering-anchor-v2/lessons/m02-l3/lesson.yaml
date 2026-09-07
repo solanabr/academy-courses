@@ -3,6 +3,8 @@ slug: m02-l3
 title: "The borsh escape hatch: when Pod isn't enough"
 skills:
   - account-model
+  - anchor
+  - version-pinning
 blocks:
   - key: intro
     type: prose

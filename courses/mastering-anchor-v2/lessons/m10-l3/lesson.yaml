@@ -10,6 +10,9 @@ versionStamp:
     anchor-v2-testing: "2.0.0-rc.1"
 skills:
   - anchor
+  - pdas
+  - program-testing
+  - version-pinning
 blocks:
   - key: intro
     type: prose

@@ -7,7 +7,9 @@ versionStamp:
     anchor-cli: "2.0.0-rc.1"
     anchor-lang: "2.0.0-rc.1"
 skills:
+  - program-security
   - anchor
+  - account-model
 blocks:
   - key: intro
     type: prose

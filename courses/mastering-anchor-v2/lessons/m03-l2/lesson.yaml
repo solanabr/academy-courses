@@ -2,8 +2,10 @@ id: lesson-mav2-m03-l2
 slug: m03-l2
 title: "The constraint catalog (and init_if_needed, in situ)"
 skills:
-  - solana-programs
   - anchor
+  - signers
+  - program-security
+  - error-handling
 blocks:
   - key: intro
     type: prose

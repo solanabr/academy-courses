@@ -10,7 +10,9 @@ versionStamp:
     solana-address: "2.6.1"
     solana-cli: "3.1.10"
 skills:
-  - solana-programs
+  - compute-budget
+  - program-testing
+  - anchor
 blocks:
   - key: intro
     type: prose

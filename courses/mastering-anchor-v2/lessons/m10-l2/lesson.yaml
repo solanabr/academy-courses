@@ -9,6 +9,8 @@ versionStamp:
     wincode: "0.5.5"
 skills:
   - anchor
+  - account-model
+  - version-pinning
 blocks:
   - key: intro
     type: prose
