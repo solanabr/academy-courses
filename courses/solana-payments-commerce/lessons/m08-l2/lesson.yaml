@@ -94,7 +94,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Resubmit it: durable nonces never expire, so it is always safe to broadcast again."
+            label: "Resubmit it: durable nonces never expire, so it is always safe to broadcast them again."
             correct: false
             feedback: "Once the nonce advanced, the stored value no longer matches and the runtime deterministically rejects those bytes; resubmitting cannot land, it just burns sends and muddies the ledger the drain depends on."
           - id: b

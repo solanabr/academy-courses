@@ -87,7 +87,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "They run on different blockchains, so the KYC provider differs by chain."
+            label: "They run on different blockchains, so the KYC provider differs by the chain used."
             correct: false
             feedback: "Same chain in both cases; the difference is the actor and the direction, not the chain."
           - id: b

@@ -38,7 +38,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Keep it; 20k CU is the spec's stated cost for an exact-SVM settlement."
+            label: "Keep it; 20k CU is the spec's stated cost for a single exact-SVM settlement."
             correct: false
             feedback: "The spec states no CU figure at all. The '20k CU' number was refuted in research; it roughly equals a transfer plus an ATA creation, not a mandated cost."
           - id: b
@@ -50,7 +50,7 @@ blocks:
             correct: false
             feedback: "About 4.6k CU is a bare SPL transfer. A settle also carries the mandated ComputeBudget instructions, which are not free, and it may create an ATA. The spec pins no absolute, so do not print one."
           - id: d
-            label: "Drop it from the docs but keep 20k internally, since the spec states it."
+            label: "Drop it from the docs but keep 20k internally, since the spec itself states it."
             correct: false
             feedback: "The 20,000 is real and the spec is not where it comes from: it is DEFAULT_COMPUTE_UNIT_LIMIT in the reference SDK, the ceiling the client asks for when it prepends SetComputeUnitLimit. Budgeting against a requested limit is fine as long as you never call it a spec figure or a cost."
         explanation: "The x402 v2 spec mandates ComputeBudget SetLimit/SetPrice with a bounded CU PRICE, but it never states a CU count for a settlement. Any absolute you print needs an independent, dated source, or it should not be printed."
@@ -91,7 +91,7 @@ blocks:
             correct: false
             feedback: "Helius is not a facilitator on any network. The devnet-only caveat belongs to the x402.org facilitator, not to Helius."
           - id: c
-            label: "Helius is not an x402 facilitator; pick from Corbits, Dexter, PayAI, Solvador, or CDP, and note the x402.org facilitator is devnet-only."
+            label: "Helius is not a facilitator; pick Corbits, Dexter, PayAI, Solvador, or CDP."
             correct: true
             feedback: "Facilitator is a protocol role that a vendor relationship never confers, and the roster of who holds it moves, so this list is a snapshot to re-check at integration time."
           - id: d
