@@ -23,7 +23,7 @@
  * @param minOut          the slippage floor: fail rather than take less than this
  * @param recentBlockhash the transaction's lifetime
  * @param splPeer         e.g. "^7.0.0" — the range @solana-program/token declares
- * @param kitLatest       e.g. "8.0.0" — npm's `latest` today (a trap)
+ * @param kitLatest       e.g. "8.0.0" — whatever npm calls `latest` (a trap)
  */
 function planSwapClient(
   owner: string,
