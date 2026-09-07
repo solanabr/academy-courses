@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The exact-SVM round-trip, all four beats
      purpose: make the full challenge-pay-settle-receipt loop traceable, with all three headers and the facilitator endpoints in their exact positions
-     data: 1. bot -> merchant API: GET /price (no payment header) 2. merchant API -> bot: 402, body {}, PAYMENT-REQUIRED header carries the challenge (x402Version, error, resource, accepts[]: scheme, network CAIP-2 id, amount, asset, payTo, maxTimeoutSeconds, extra.feePayer, extra.memo) 3. bot: builds versioned tx, transfers amount of asset to the payTo owner with memo, fee-payer slot = extra.feePayer, PARTIALLY signs (owner slot only) 4. bot -> merchant API: GET /price + PAYMENT-SIGNATURE header (base64 partially signed tx) 5. merchant API -> facilitator /verify: inspect only, would this satisfy the terms? no signing, no submission 6. merchant API -> facilitator /settle: facilitator ADDS fee-payer signature, submits to network 7. merchant API -> bot: 200 + response body + PAYMENT-RESPONSE header (settlement receipt) legend: every protocol field rides a header; only the 200 carries a real body
+     data: 1. bot -> merchant API: GET /price (no payment header) 2. merchant API -> bot: 402, body {}, PAYMENT-REQUIRED header carries the challenge (x402Version, error, resource, accepts[]: scheme, network CAIP-2 id, amount, asset, payTo, maxTimeoutSeconds, extra.feePayer, extra.memo) 3. bot: builds versioned tx, transfers amount of asset to the payTo owner with memo, fee-payer slot = extra.feePayer, PARTIALLY signs (owner slot only) 4. bot -> merchant API: GET /price + PAYMENT-SIGNATURE header (base64 partially signed tx) 5. merchant API -> facilitator /verify: would this satisfy the terms? fills the fee-payer slot on its own scratch copy and SIMULATES the completed tx against current chain state; never submits, so no money moves 6. merchant API -> facilitator /settle: facilitator ADDS fee-payer signature, submits to network 7. merchant API -> bot: 200 + response body + PAYMENT-RESPONSE header (settlement receipt) legend: every protocol field rides a header; only the 200 carries a real body
      prompt: Vertical sequence flowchart with three lanes: bot, merchant API, facilitator. Seven numbered arrows as listed in data. Show arrow 2's PAYMENT-REQUIRED, arrow 4's PAYMENT-SIGNATURE and arrow 7's PAYMENT-RESPONSE headers as the same highlighted tag treatment, and mark arrow 2's body as empty. Mark the /verify step as signing a scratch copy to simulate (never submitting) and the /settle step with a signature-added badge. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -121,7 +121,7 @@
       <div class="step" style="left:728px; width:518px; top:402px;">
         <div class="slab"><span class="n">5</span><span class="t">/verify</span><span class="bdg">signs a scratch copy &middot; simulates, never submits</span></div>
         <div class="srow"><div class="l"></div><div class="hr"></div></div>
-        <div class="sub">inspect only: would this satisfy the terms? no signing, no submission</div>
+        <div class="sub">would this satisfy the terms? answered by simulation, so no money moves</div>
       </div>
 
       <div class="step" style="left:728px; width:518px; top:478px;">
