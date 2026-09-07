@@ -29,6 +29,11 @@ blocks:
           - id: c
             label: "Schedules are best-effort, delayed under load, and queued runs can even be dropped"
             correct: true
+            feedback: "Best-effort is the platform's own word for it: scheduled events get delayed when Actions is busy, and under enough load a queued job is dropped outright. A 30-minute heartbeat is built to shrug at both."
+          - id: d
+            label: "The cron counts 30 minutes from the end of the previous run, so each start slides later"
+            correct: false
+            feedback: "Cron fields are wall-clock slots, not a stopwatch: */30 means minute 0 and minute 30 of every hour, and the scheduler aims at those ticks whatever the previous run did. Sliding starts would never leave a slot empty either."
         explanation: "GitHub's own docs say scheduled events can be delayed during high-load periods, the start of every hour is named, and 'if the load is sufficiently high enough, some queued jobs may be dropped.' No delay bound is documented anywhere, so the station does what monitors do: diff scheduled time against actual commit time and know YOUR skew. A 30-minute heartbeat tolerates this fine; that tolerance is a design decision you just made."
       - id: m01-l3-q2
         prompt: "Your workflow commits status.json back to the repo on every run, a push, to a repo with a push-triggered workflow. Why doesn't this loop forever?"
@@ -37,6 +42,7 @@ blocks:
           - id: a
             label: "Events triggered by GITHUB_TOKEN don't create new workflow runs, the recursion guard"
             correct: true
+            feedback: "The platform ships the one guard you would otherwise have had to engineer: an event authored by GITHUB_TOKEN starts no new run, so the status commit lands as data rather than as a signal."
           - id: b
             label: "GitHub detects commit loops by content hashing and cancels the repeating runs"
             correct: false
@@ -45,6 +51,10 @@ blocks:
             label: "Workflows are rate-limited to one run per branch per minute, which breaks the cycle"
             correct: false
             feedback: "A per-minute cap would slow a loop, not stop it, you'd still burn a run every minute forever. The actual mechanism is that token-authored events don't trigger runs at all."
+          - id: d
+            label: "The bot's message carries a [skip ci] marker, so Actions ignores the push that workflow makes"
+            correct: false
+            feedback: "Look at the commit step: the message is just 'pulse: scheduled probe', no marker anywhere, and the run still doesn't repeat. What stops it is who signed the event, not what the message says."
         explanation: "The docs state it directly: events triggered by GITHUB_TOKEN will not create a new workflow run (workflow_dispatch and repository_dispatch excepted), a deliberate guard against accidental recursion. For the station it's a feature, not a limitation: the status commit is data, not a signal. When you someday WANT a downstream workflow to react, the documented path is a PAT or GitHub App token, a bridge m09-l2's alarm work walks past again."
       - id: m01-l3-q3
         prompt: "You return from a two-month break: repo untouched, no failure emails, and status.json's last commit is weeks old. What most likely happened?"
@@ -57,10 +67,15 @@ blocks:
           - id: b
             label: "Public-repo schedules auto-disable after 60 days of inactivity, it needs re-enabling"
             correct: true
+            feedback: "Sixty idle days switches a public repo's schedule off, and since nothing failed there is nothing to notify you about. One click on the Actions tab brings the same workflow file back to life."
           - id: c
             label: "Cron workflows expire after 90 days and must be recreated with a fresh workflow file"
             correct: false
             feedback: "Workflows never expire, the file is fine and nothing needs rewriting. The schedule was switched off by the inactivity rule, and one click (or one commit) brings the existing workflow back."
+          - id: d
+            label: "The commit step is failing on a 403, so runs go red without writing status.json"
+            correct: false
+            feedback: "A 403 on the push step is loud: the step fails, the run goes red, and a failed scheduled run is exactly what GitHub does mail you about. An empty inbox with a clean history points at a schedule that stopped, not one that broke."
         explanation: "The documented rule: in a public repository, scheduled workflows are automatically disabled when no repository activity has occurred in 60 days. No failure notification fires because nothing failed, the schedule just stopped, silently. Re-enable it in the Actions tab; the keepalive-commit countermeasure works in practice, though GitHub never defines which activity resets the clock, the lesson teaches the hedge along with the fix. This silent-death mode is exactly why m09-l2 builds an alarm for the monitor itself."
       - id: m01-l3-q4
         prompt: "A friend warns you: 'CI gets expensive, my team burns through the free minutes by mid-month.' Why does the station's pipeline cost nothing, this month and every month?"
@@ -77,4 +92,9 @@ blocks:
           - id: c
             label: "Public repos on standard runners are unmetered, minutes quotas only meter private repos"
             correct: true
+            feedback: "There is no quota being generously not-consumed here; the meter that would count these runs does not exist for a public repo on standard runners. Your friend's team is real, they are just on a private repo."
+          - id: d
+            label: "The repo is public, and public repos run free on any runner size GitHub offers"
+            correct: false
+            feedback: "Runner size is the catch. GitHub's billing docs say larger runners are always charged for, even when used by public repositories, so the free claim holds on the standard ones, which is all a three-URL probe needs."
         explanation: "The vendor's line: Actions usage is free for public repositories using standard GitHub-hosted runners; included minutes (Free plan: 2,000/month) are a private-repo concept. Two catches worth keeping: larger runners are ALWAYS charged, even on public repos, so the station stays on ubuntu-latest, and this economics is exactly why m01-l1 made 'your repo is public' a stated prerequisite with its cost said out loud."
