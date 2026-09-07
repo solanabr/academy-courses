@@ -12,14 +12,26 @@ Usage:
 
 Exit codes: 0 = all deferred blocks verified, 1 = >=1 violation, 2 = usage/env.
 
-Rust harness model: a challenge submission is a file defining one or more free
-functions; tests.json rows are {id, input, expectedOutput} where `input` is a
-verbatim Rust argument list (`vec![100, 50], 75, 3` / `"a", "b"` / `[7u8; 32]`).
-The harness appends a generated main() that pastes that list into a call to the
-entry function once per test and prints TEST:<id>:<value>. The entry function is
-the LAST-defined top-level fn (helpers precede the graded fn by convention).
-String expectedOutput values carry their own surrounding quotes; they are
-stripped before comparison, matching Display-formatted output.
+Rust comes in two shapes and they are graded differently, exactly as the platform
+grades them:
+
+buildType standard — the submission is a file of free functions. tests.json rows
+are {id, input, expectedOutput} where `input` is a verbatim Rust argument list
+(`vec![100, 50], 75, 3` / `"a", "b"` / `[7u8; 32]`). The harness appends a
+generated main() that pastes that list into a call to the entry function once per
+test and prints TEST:<id>:<value>. The entry function is the LAST-defined
+column-0 fn (helpers precede the graded fn by convention); a file with no column-0
+fn is reported as NOT GRADED rather than guessed at. String expectedOutput values
+carry their own surrounding quotes; they are stripped before comparison, matching
+Display-formatted output.
+
+buildType buildable — the submission IS a crate (an Anchor program), so there is
+no free function to call and the call harness does not apply. Its tests.json rows
+carry an empty `input` and assert compile-time facts ("compiles => `Ping` exists
+and derives Accounts"), enforced by a type-level verification harness inside the
+file itself. Verification is therefore the build: compile it as a library crate
+against the pinned dependencies. Compiling satisfies every row; the starter must
+fail to compile.
 """
 import json
 import re
@@ -46,10 +58,16 @@ KNOWN_CRATES = {
 }
 
 FN_RE = re.compile(r"^(?:pub\s+)?(?:const\s+)?fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M)
+# Indented fns exist only to explain a NOT-GRADED verdict. They are deliberately
+# not candidates: the generated main() calls the entry fn by bare name, so a fn
+# inside a mod or an impl would not resolve even if we picked it.
+NESTED_FN_RE = re.compile(
+    r"^[ \t]+(?:pub(?:\([^)]*\))?\s+)?(?:const\s+|async\s+)*fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M
+)
 
 
 def pick_entry_fn(src: str):
-    """Last-defined column-0 fn that isn't main — nested/module helpers are invisible by indentation."""
+    """Last-defined column-0 fn that isn't main — the only kind the call harness can reach."""
     names = [m.group(1) for m in FN_RE.finditer(src) if m.group(1) != "main"]
     return names[-1] if names else None
 
@@ -90,15 +108,47 @@ def cargo_check_loop(crate: Path, subject_pins: dict):
     return False, "dependency resolution did not converge"
 
 
-def run_rust_submission(work: Path, tag: str, src: str, tests: list, subject_pins: dict):
-    """Returns (compiled, results dict id->output or None, stderr)."""
+def scaffold_crate(work: Path, tag: str, lib: bool) -> Path:
     crate = work / tag
     if crate.exists():
         shutil.rmtree(crate)
-    subprocess.run(["cargo", "init", "--name", "challenge", "--vcs", "none", str(crate)], capture_output=True, check=True)
+    kind = "--lib" if lib else "--bin"
+    subprocess.run(["cargo", "init", "--name", "challenge", "--vcs", "none", kind, str(crate)], capture_output=True, check=True)
     shared_target = work / "target"
     (crate / ".cargo").mkdir(exist_ok=True)
     (crate / ".cargo" / "config.toml").write_text(f'[build]\ntarget-dir = "{shared_target}"\n')
+    return crate
+
+
+def deps_section(crate: Path) -> str:
+    """The crate's [dependencies] block — cargo init emits it last and cargo add appends to it."""
+    _, sep, tail = (crate / "Cargo.toml").read_text().partition("[dependencies]")
+    return sep + tail if sep else ""
+
+
+def first_error(stderr: str) -> str:
+    """The first rustc error line, so a 'starter fails' verdict shows WHY it failed."""
+    for line in stderr.splitlines():
+        if line.startswith("error"):
+            return line.strip()[:180]
+    return "(no rustc error line)"
+
+
+def run_rust_crate(work: Path, tag: str, src: str, subject_pins: dict, seed_deps: str = ""):
+    """buildType=buildable: compile the block as its own library crate, the way the
+    platform's build server grades it. Returns (compiled, stderr, deps_section)."""
+    crate = scaffold_crate(work, tag, lib=True)
+    (crate / "src" / "lib.rs").write_text(src)
+    if seed_deps:
+        head, _, _ = (crate / "Cargo.toml").read_text().partition("[dependencies]")
+        (crate / "Cargo.toml").write_text(head + seed_deps)
+    ok, err = cargo_check_loop(crate, subject_pins)
+    return ok, err, deps_section(crate)
+
+
+def run_rust_submission(work: Path, tag: str, src: str, tests: list, subject_pins: dict):
+    """Returns (compiled, results dict id->output or None, stderr)."""
+    crate = scaffold_crate(work, tag, lib=False)
     for debug_fmt in (False, True):
         try:
             harness = build_rust_harness(src, tests, debug_fmt)
@@ -143,6 +193,63 @@ def grade(results, tests):
     return passed, failed
 
 
+def verify_buildable_rust(key, tag, sol_src, start_src, tests, work, subject_pins, violations):
+    """The crate compiling IS the grade: every row asserts a fact the file's own
+    type-level harness turns into a compile error when it is missing."""
+    with_input = [t["id"] for t in tests if str(t.get("input", "")).strip()]
+    if with_input:
+        violations.append(
+            f"{key}: buildable rust rows {with_input} carry a call `input`, which the crate "
+            f"build does not evaluate — extend this script before merging one"
+        )
+    compiled, err, deps = run_rust_crate(work, f"{tag}-sol", sol_src, subject_pins)
+    if not compiled:
+        print(f"  {key}: SOLUTION does not compile as a crate\n{err[-2000:]}")
+        violations.append(f"{key}: SOLUTION does not compile as a crate: {first_error(err)}")
+    else:
+        print(f"  {key}: solution crate compiles — {len(tests)}/{len(tests)} compile assertion(s)")
+    # Seed the starter with the dependencies the solution resolved, so "starter fails"
+    # means the content failed, not that dependency discovery did.
+    s_compiled, s_err, _ = run_rust_crate(work, f"{tag}-start", start_src, subject_pins, seed_deps=deps)
+    if s_compiled:
+        violations.append(f"{key}: STARTER compiles — challenge is a no-op")
+    else:
+        print(f"  {key}: starter fails to compile (accepted as failing): {first_error(s_err)}")
+
+
+def verify_standard_rust(key, tag, sol_src, start_src, tests, work, subject_pins, violations):
+    if pick_entry_fn(sol_src) is None:
+        nested = sorted(set(NESTED_FN_RE.findall(sol_src)))
+        print(f"  {key}: NOT GRADED — no column-0 fn for the call harness")
+        violations.append(
+            f"{key}: NOT GRADED — the call harness needs a column-0 free fn and this file has "
+            f"none; the fn(s) it does define ({', '.join(nested) or 'none'}) are nested and "
+            f"unreachable from the generated main(). If the block is a whole crate, mark it "
+            f"buildType: buildable so it is compiled instead of called."
+        )
+        return
+    compiled, results, err = run_rust_submission(work, f"{tag}-sol", sol_src, tests, subject_pins)
+    if not compiled:
+        violations.append(f"{key}: SOLUTION does not compile: {err[:400]}")
+    else:
+        passed, failed = grade(results, tests)
+        if failed:
+            violations.append(f"{key}: SOLUTION fails tests {failed} (err tail: {err[:200]})")
+        print(f"  {key}: solution {len(passed)}/{len(tests)}")
+    if pick_entry_fn(start_src) is None:
+        print(f"  {key}: starter does not define the entry fn yet (accepted as failing)")
+        return
+    s_compiled, s_results, _ = run_rust_submission(work, f"{tag}-start", start_src, tests, subject_pins)
+    if not s_compiled:
+        print(f"  {key}: starter fails to compile (accepted as failing)")
+    else:
+        s_passed, s_failed = grade(s_results, tests)
+        if not s_failed:
+            violations.append(f"{key}: STARTER passes all {len(tests)} tests — challenge is a no-op")
+        else:
+            print(f"  {key}: starter fails {len(s_failed)}/{len(tests)}")
+
+
 def verify_course(course_dir: Path, only: str, work: Path):
     course_yaml = course_dir / "course.yaml"
     subject_pins = {}
@@ -177,23 +284,10 @@ def verify_course(course_dir: Path, only: str, work: Path):
             tests = json.loads((ldir / block["tests"]).read_text())
             sol_src = (ldir / block["solution"]).read_text()
             start_src = (ldir / block["starter"]).read_text()
-            compiled, results, err = run_rust_submission(work, f"{lesson}-sol", sol_src, tests, subject_pins)
-            if not compiled:
-                violations.append(f"{key}: SOLUTION does not compile: {err[:400]}")
-            else:
-                passed, failed = grade(results, tests)
-                if failed:
-                    violations.append(f"{key}: SOLUTION fails tests {failed} (err tail: {err[:200]})")
-                print(f"  {key}: solution {len(passed)}/{len(tests)}")
-            s_compiled, s_results, _ = run_rust_submission(work, f"{lesson}-start", start_src, tests, subject_pins)
-            if not s_compiled:
-                print(f"  {key}: starter fails to compile (accepted as failing)")
-            else:
-                s_passed, s_failed = grade(s_results, tests)
-                if not s_failed:
-                    violations.append(f"{key}: STARTER passes all {len(tests)} tests — challenge is a no-op")
-                else:
-                    print(f"  {key}: starter fails {len(s_failed)}/{len(tests)}")
+            # A buildable block is a crate, not a file of callable functions: compile it.
+            verify = verify_buildable_rust if buildable else verify_standard_rust
+            tag = f"{lesson}-{block.get('key')}"
+            verify(key, tag, sol_src, start_src, tests, work, subject_pins, violations)
     for key in deferred_ts:
         print(f"  {key}: buildType=buildable TS — compile-checked only (tsc) NOT IMPLEMENTED; flagging")
         violations.append(f"{key}: buildable-TS block present; extend this script before merging one")
