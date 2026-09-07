@@ -5,12 +5,18 @@ Your toolkit can already do two things, and each one took a full lesson to earn.
 So build one. Bitcoin, minus the internet: your laptop, a private chain, and a mining command that returns before you finish reading it, because the difficulty is dropped to the floor. No peers, no pool, no real electricity. You need Bitcoin Core installed (the `bitcoind` daemon plus the `bitcoin-cli` client) and a terminal.
 
 ```bash
-bitcoind -regtest -daemon
-bitcoin-cli -regtest createwallet "lab"
+bitcoind -regtest -daemon -fallbackfee=0.0002
+bitcoin-cli -regtest -named createwallet wallet_name=lab load_on_startup=true
 ADDR=$(bitcoin-cli -regtest getnewaddress)
 bitcoin-cli -regtest generatetoaddress 101 "$ADDR"
 bitcoin-cli -regtest getblockcount
 ```
+
+Two of those flags are there to save you from a wall you would otherwise hit next lesson, and both are worth naming now rather than debugging later.
+
+`-fallbackfee=0.0002` gives the node a fee rate to use when it has no idea what fees are. Bitcoin Core normally estimates fees from the last few hundred blocks of real traffic; a chain you just created has none, so estimation returns nothing, and since v0.19 the node refuses to invent a number for you. Leave the flag off and the first payment you try to send comes back with `Fee estimation failed. Fallbackfee is disabled.` The flag says: when you cannot estimate, use 0.0002 BTC per kilobyte. It is meaningless play money on regtest and it is exactly the wrong thing to set on mainnet, where you want real estimation.
+
+`-named` lets you pass RPC arguments by name instead of by position, which is the only sane way to reach the seventh argument of `createwallet`. That argument is `load_on_startup=true`, and it writes your wallet into a list the node re-opens every time it boots. Without it, Bitcoin Core loads no wallet at all on startup, and the next time you restart the node, `getbalance` answers `No wallet is loaded` instead of a number. You will meet the recovery move for that in a moment.
 
 The last line prints `101`. That is a working blockchain, 101 blocks deep, and every block on it was minted by you. Now ask it for your money:
 
@@ -26,13 +32,34 @@ bitcoin-cli -regtest getbalance
 
 Take the command apart, because every flag is load-bearing.
 
-`-regtest` put you in regression-test mode: a private Bitcoin network, identical to the real one in every rule that matters, except that you alone run it and the mining difficulty is trivial. Regtest exists because Bitcoin Core's own developers needed a chain where difficulty is ~1, so their test suites could mine blocks on demand instead of waiting on a global race. You are borrowing their test harness. Everything it touches lives in its own datadir, the directory where the node keeps the chain and your wallet, walled off from any real Bitcoin config.
+`-regtest` put you in regression-test mode: a private Bitcoin network, identical to the real one in every rule that matters, except that you alone run it and the mining difficulty is on the floor. Regtest exists because Bitcoin Core's own developers needed a chain where mining costs nothing, so their test suites could mine blocks on demand instead of waiting on a global race. Ask your node how far down that floor is:
 
-`createwallet` made a keypair store: the same signing primitive from last lesson, the one your `keytool` already builds, wearing a wallet's clothes. `getnewaddress` derived one address to receive coins. And `generatetoaddress`, the current regtest mining command, did the interesting part. It built 101 blocks and paid each block's reward to that address.
+```bash
+bitcoin-cli -regtest getdifficulty
+```
 
-A block is a batch of transactions plus a small header, and the header carries one field that changes everything: the digest of the block before it. That field is called `previousblockhash`, and it holds the SHA-256 fingerprint of the previous block. Read that twice, because you have seen it before. A block committing to the block before it is the exact hash chain you built by hand in lesson 1, where editing any record broke every seal downstream. Bitcoin is that chain one level up, with whole blocks sitting where single records sat. The genesis block, block 0, is the anchor at the bottom, hardcoded into every copy of the software so that no two honest nodes can disagree about where the chain starts. On regtest, its hash is the same on your machine as on mine: `0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206`.
+```
+4.656542373906925e-10
+```
 
-![Blocks linked by previousblockhash back to the genesis block, with an edit on an old block cascading to break every later link, the same hash chain from lesson 1.](assets/v02-diagram.webp)
+Not one. Roughly four ten-billionths of one, which is the smallest number the encoding allows, and it does not move: regtest is the one network where Bitcoin's difficulty adjustment is switched off entirely, a detail we come back to when we meet the adjustment itself. You are borrowing the developers' test harness. Everything it touches lives in its own datadir, the directory where the node keeps the chain and your wallet, walled off from any real Bitcoin config.
+
+`createwallet` made a keypair store: the same signing primitive from last lesson, the one your `keytool` already builds, wearing a wallet's clothes. `getnewaddress` derived one address to receive coins.
+
+One thing about that wallet will trip you up the first time you stop the node, so meet it now rather than at 1am. Bitcoin Core does not open wallets by itself. `listwallets` tells you which ones are currently open, `loadwallet <name>` opens one, and `unloadwallet <name>` closes it. The `load_on_startup=true` you passed just puts `lab` on the list the node opens for you, so a restart lands you back where you were:
+
+```bash
+bitcoin-cli -regtest listwallets     # ["lab"]
+bitcoin-cli -regtest loadwallet lab  # if you ever see "No wallet is loaded"
+```
+
+The failure mode is unmistakable once you have seen it. Restart a node with no wallet open and every wallet command answers `error code: -18 / No wallet is loaded. Load a wallet using loadwallet or create a new one with createwallet.` Open *two* wallets and the same commands answer `error code: -19`, because now the node does not know which one you meant. The fix for the first is `loadwallet`; the fix for the second is the `-rpcwallet` flag you meet in the exercise at the bottom of this lesson.
+
+And `generatetoaddress`, the current regtest mining command, did the interesting part. It built 101 blocks and paid each block's reward to that address.
+
+A block is a batch of transactions plus a small header, and the header carries one field that changes everything: the digest of the block before it. That field is called `previousblockhash`, and it holds the SHA-256 fingerprint of the previous block. Read that twice, because you have seen it before. A block committing to the block before it is the exact hash chain from the hashing lesson, where editing any record broke its link to the record after it and forced a re-seal of everything above. Bitcoin is that chain one level up, with whole blocks sitting where single records sat. The genesis block, block 0, is the anchor at the bottom, hardcoded into every copy of the software so that no two honest nodes can disagree about where the chain starts. On regtest, its hash is the same on your machine as on mine: `0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206`.
+
+![Blocks linked by previousblockhash back to the genesis block, with an edit on an old block breaking the link to its immediate child, the same hash chain from the hashing lesson.](assets/v02-diagram.webp)
 
 ## Read your own block
 
@@ -42,7 +69,7 @@ Do not take my word that the field is there. Pull block 1 off the chain and look
 bitcoin-cli -regtest getblock $(bitcoin-cli -regtest getblockhash 1)
 ```
 
-The inner call turns a height into a block hash, and `getblock` returns the block. Walk the fields that carry weight. `previousblockhash` is the genesis hash you just saw, so block 1 is literally bolted to block 0. `tx` is a list with a single entry, because your empty regtest blocks hold exactly one transaction each: the coinbase, the special transaction that mints the block reward out of nothing and has no sender. `merkleroot` is the single digest that commits to every transaction in the block; with only one transaction here, the root just equals that transaction's own digest, the same Merkle-root shape from lesson 1 collapsed to its simplest case. And `bits` reads `207fffff`, the encoded difficulty target: regtest's easiest-possible setting.
+The inner call turns a height into a block hash, and `getblock` returns the block. Walk the fields that carry weight. `previousblockhash` is the genesis hash you just saw, so block 1 is literally bolted to block 0. `tx` is a list with a single entry, because your empty regtest blocks hold exactly one transaction each: the coinbase, the special transaction that mints the block reward out of nothing and has no sender. `merkleroot` is the single digest that commits to every transaction in the block; with only one transaction here, the root just equals that transaction's own digest, the same Merkle-root shape you built by hand in the hashing lesson, collapsed to its simplest case. And `bits` reads `207fffff`, the encoded difficulty target: regtest's easiest-possible setting.
 
 The rest of the fields fill in the block's identity, and none of them are decoration. `height` is 1, its position counted up from genesis. `nonce` holds whatever number satisfied the target, which on regtest was almost certainly the first one the node tried. `time` is the Unix timestamp the block claims to have been mined at, and `version` plus `nTx` record the block format and the transaction count, one, matching that single-entry `tx` list. A real node on the real network checks every one of these before it will accept the block from a peer, and any that fails to add up gets the block rejected on sight.
 
@@ -56,23 +83,32 @@ Prove the link closes rather than trusting the diagram. Ask the chain for block 
 bitcoin-cli -regtest getblock $(bitcoin-cli -regtest getblockhash 2) | grep previousblockhash
 ```
 
-The value it prints is block 1's own `hash`, the `1a3f...e7` from the output above. Block 2 names block 1 as its parent, block 1 names genesis as its parent, and you could walk that thread all the way to the tip without ever finding a gap. That is the hash chain from lesson 1, made of blocks, and you just read one of its links off a live chain instead of taking it on faith.
+The value it prints is block 1's own `hash` — the one your own `getblock` printed a moment ago, which is unique to your chain and will not match mine. Compare the two strings character by character; they are the same 64 characters. Block 2 names block 1 as its parent, block 1 names genesis as its parent, and you could walk that thread all the way to the tip without ever finding a gap. That is the hash chain from the hashing lesson, made of blocks, and you just read one of its links off a live chain instead of taking it on faith.
 
 ## The ticket to append: proof-of-work
 
-Now the field that regtest quietly switched off. On the real network, you cannot just append a block because you feel like it. You have to earn the right, and the toll is proof-of-work: the requirement to find a number, the nonce, that makes the whole block's hash fall below a target so low that the only way to hit it is to try again, and again, billions of times, until one guess lands. Finding it is expensive. Checking it is instant, one hash. That asymmetry is the entire mechanism, and it is the same one-way trapdoor you metered in lesson 1, now pointed at a different job: turning electricity into an unforgeable ticket to add one block.
+Now the field that regtest quietly switched off. On the real network, you cannot just append a block because you feel like it. You have to earn the right, and the toll is proof-of-work: the requirement to find a number, the nonce, that makes the whole block's hash fall below a target so low that the only way to hit it is to try again, and again, billions of times, until one guess lands. Finding it is expensive. Checking it is instant, one hash. That asymmetry is the entire mechanism, and it is the same one-way trapdoor you metered in the hashing lesson, now pointed at a different job: turning electricity into an unforgeable ticket to add one block.
 
 It helps to make the target concrete, because "below a target" is doing quiet work. Read a block's 64-character hash not as text but as a single enormous number, 256 bits wide, sitting somewhere between zero and roughly 1.16 times ten to the seventy-seventh. The target is just another number in that same range, and the rule is blunt: your block's hash, read as a number, must come out less than or equal to it. Set the target near the top of the range and almost every hash qualifies. Push the target down toward zero and the band of winning hashes narrows to a sliver, so the fraction of random guesses that fall inside it shrinks in exact proportion. Difficulty is nothing more elaborate than how far down that target has been dragged.
 
 ![A 256-bit number line from zero to about 1.16 times ten to the seventy-seventh, showing that a high target leaves a wide winning band of hashes while a low target leaves only a thin sliver near zero, so difficulty is how far down the target is dragged.](assets/v04-diagram.webp)
 
-The nonce is the one field in the header you are free to spin. Change it and you have changed the header's bytes, which means the whole thing rehashes into a completely unrelated 64 characters, the avalanche effect from lesson 1 doing exactly what it did to your file: one flipped bit, a totally scrambled digest. There is no way to nudge a hash gently toward a smaller number. Each new nonce is a fresh, blind dice roll across that 256-bit range, and the only strategy anyone has ever found is to roll again. That is why finding a valid block is a matter of raw volume, billions of rolls, while checking one is a single throw: hash the header once, read it as a number, compare it to the target, done. Anyone on Earth can verify a winning block in the time it takes to hash 80 bytes, even though the winner had to try astronomically many times to produce it.
+The nonce is the one field in the header you are free to spin. Change it and you have changed the header's bytes, which means the whole thing rehashes into a completely unrelated 64 characters, the avalanche effect from the hashing lesson doing exactly what it did to your file: one flipped bit, a totally scrambled digest. There is no way to nudge a hash gently toward a smaller number. Each new nonce is a fresh, blind dice roll across that 256-bit range, and the only strategy anyone has ever found is to roll again. That is why finding a valid block is a matter of raw volume, billions of rolls, while checking one is a single throw: hash the header once, read it as a number, compare it to the target, done. Anyone on Earth can verify a winning block in the time it takes to hash 80 bytes, even though the winner had to try astronomically many times to produce it.
 
 On mainnet that instant command of yours is a planet-spanning race. Purpose-built machines, hundreds of exahashes per second across the network, burn real gigawatts guessing for the roughly ten minutes it takes the honest crowd to land one valid block. The network mints new coins to whoever wins, so the machines keep guessing, so the wall of work keeps rising. That wall is what makes Bitcoin's history hard to rewrite: to erase an old block you would have to redo its proof-of-work and every block since, faster than the entire honest network builds forward. Nobody has that much electricity lying around.
 
 ![A flowchart contrasting the miner's loop of picking a nonce, hashing the header, and comparing to the target billions of times until one wins, against the verifier's single hash-and-compare, with the accumulated work forming a wall that makes rewriting history require redoing all of it.](assets/v05-flowchart.webp)
 
-The ten-minute cadence is not a happy accident; it is enforced. Every 2016 blocks, roughly every two weeks, each node independently checks how long that stretch actually took against the fortnight it was supposed to take, and rescales the target to compensate. If hashing power flooded in and the 2016 blocks arrived early, the target drops and the next stretch gets harder. If miners left and blocks came slowly, the target rises and mining gets easier. The rule runs on every node from the same block data, so there is no committee and no vote; the difficulty simply tracks the total work the world is throwing at the chain, holding block time near ten minutes whether the network is ten laptops or ten million machines. Your regtest node runs the same adjustment code. It just never has enough blocks or enough elapsed time to move off the floor.
+The ten-minute cadence is not a happy accident; it is enforced. Every 2016 blocks, roughly every two weeks, each node independently checks how long that stretch actually took against the fortnight it was supposed to take, and rescales the target to compensate. If hashing power flooded in and the 2016 blocks arrived early, the target drops and the next stretch gets harder. If miners left and blocks came slowly, the target rises and mining gets easier. The rule runs on every node from the same block data, so there is no committee and no vote; the difficulty simply tracks the total work the world is throwing at the chain, holding block time near ten minutes whether the network is ten laptops or ten million machines. Your regtest node is the one place this does not happen: regtest ships with retargeting disabled outright, so the difficulty you read a moment ago is pinned there forever. Prove it rather than believing it, since 2000 blocks cost you nothing here:
+
+```bash
+A=$(bitcoin-cli -regtest getnewaddress)
+bitcoin-cli -regtest generatetoaddress 2000 "$A" > /dev/null
+bitcoin-cli -regtest getblockcount   # 2101, well past the 2016-block boundary
+bitcoin-cli -regtest getdifficulty   # 4.656542373906925e-10, unchanged
+```
+
+You mined straight through a retarget boundary at a wildly faster-than-target pace, and the difficulty did not budge. On mainnet that pace would have made the next stretch dramatically harder. Regtest is not simulating the adjustment cheaply; it has the adjustment turned off, which is one more reason it is a lab and not a currency. (If you ran that, your chain is now at 2101 and you have far more mature coins than the rest of this lesson assumes — the reset script you write in a minute puts it back.)
 
 Regtest deletes the wall. The `207fffff` target is the loosest the protocol allows, a `bits` value that decodes to a target sitting almost at the very top of that 256-bit range, so the first nonce your node tries already clears it and a block appears in milliseconds. That is why `generatetoaddress 101` returned before you could blink: there was no race to win, only a formality to stamp 101 times.
 
@@ -82,7 +118,7 @@ Regtest deletes the wall. The `207fffff` target is the loosest the protocol allo
 
 Back to the gap. You minted 101 blocks, each paying a 50 BTC reward, and `getbalance` insists on 50. It is not lying, and no coins went missing. The other rewards exist; they are just locked.
 
-Coinbase outputs mature after 100 confirmations. A freshly minted reward cannot be spent until 100 more blocks are stacked on top of the block that created it. The one-block answer to why it is 101 and not 1 is that a brand-new reward is provisional. Blocks at the very tip can still be undone by a reorganization, where a longer competing chain arrives and orphans the last few blocks, and any reward inside an orphaned block evaporates.
+Coinbase outputs mature 100 blocks deep. A freshly minted reward cannot be spent until 100 more blocks are stacked on top of the block that created it — which is 101 confirmations by the counting rule you just met, since a block counts itself. The one-block answer to why it is 101 and not 1 is that a brand-new reward is provisional. Blocks at the very tip can still be undone by a reorganization, where a longer competing chain arrives and orphans the last few blocks, and any reward inside an orphaned block evaporates.
 
 Watch how that plays out on the real network, because it is not a rare edge case. Suppose you mine block 101 and pocket its reward, and at nearly the same moment a miner on the other side of the planet mines a different block 101, one your node has never seen. For a few seconds the chain has two tips of equal height, a temporary fork, and different nodes believe different blocks. The tie breaks the instant someone mines block 102 on top of one of them. Say it lands on the stranger's 101. Now that fork is longer, every honest node switches to it because the rule is to follow the most-work chain, and your block 101 becomes an orphan: still valid-looking, still sitting on your disk, but no longer part of the history anyone else recognizes. The 50 BTC it paid you never happened on the winning chain. Any ordinary transactions your block carried slide back into the pool of unconfirmed transactions to be mined again, but a coinbase has no such second life; it is minted by the block itself, so when the block dies the coins die with it.
 
@@ -114,12 +150,12 @@ sleep 1
 DATADIR="$HOME/.bitcoin/regtest"
 # rm -rf "$DATADIR"        # <- fill this in
 
-# 3. restart the node on a now-empty chain
-bitcoind -regtest -daemon
+# 3. restart the node on a now-empty chain (same flags you booted it with)
+bitcoind -regtest -daemon -fallbackfee=0.0002
 sleep 2
 
 # 4. TODO(you): recreate the wallet and re-mine 101 blocks to a fresh address
-# bitcoin-cli -regtest createwallet "lab"
+# bitcoin-cli -regtest -named createwallet wallet_name=lab load_on_startup=true
 # ADDR=$(bitcoin-cli -regtest getnewaddress)
 # bitcoin-cli -regtest generatetoaddress 101 "$ADDR"
 
@@ -161,22 +197,26 @@ bitcoin-cli -regtest createwallet "wallet2"
 A2=$(bitcoin-cli -regtest -rpcwallet=wallet2 getnewaddress)
 bitcoin-cli -regtest generatetoaddress 10 "$A2"
 bitcoin-cli -regtest -rpcwallet=wallet2 getbalance   # 0.00000000
-bitcoin-cli -regtest -rpcwallet=lab getbalance       # 50.00000000
+bitcoin-cli -regtest -rpcwallet=lab getbalance       # 550.00000000
 ```
 
-Ten fresh blocks, 500 BTC minted to `wallet2`, and its spendable balance is `0.00000000`. Maturity blocked you at block 111, exactly as designed. The proof is in the depth: `wallet2`'s first reward sits in block 102, which at height 111 has only 9 blocks on top, far short of 100. Work out where it finally unlocks. Block 102 needs 100 blocks above it, so the tip has to reach height 202 before that first reward is spendable, and the tenth reward waits even longer. Your acceptance check is the two balances above: `lab` still holds its mature `50.00000000`, and `wallet2` holds `0.00000000` no matter how many blocks it mints, until the depth is there. The `-rpcwallet` flag is how you aim a command at one named wallet when several are loaded; forget it with two wallets open and the node will not know which balance you mean.
+Ten fresh blocks, 500 BTC minted to `wallet2`, and its spendable balance is `0.00000000`. Maturity blocked you at block 111, exactly as designed. The proof is in the depth: `wallet2`'s first reward sits in block 102, which at height 111 has only 9 blocks on top, far short of 100. Work out where it finally unlocks. Block 102 needs 100 blocks above it, so the tip has to reach height 202 before that first reward is spendable, and the tenth reward waits even longer.
+
+Now read `lab`'s number, because it is the same rule pointed the other way and it is easy to misread as a bug. `lab` did *not* stay at 50. Mining those ten blocks pushed the tip from 101 to 111, and every block above an old coinbase counts toward its maturity, so `lab`'s rewards from blocks 2 through 11 all crossed the 100-confirmation line at once. Eleven mature rewards, `550.00000000`. Your acceptance check is the two balances above: `wallet2` at `0.00000000`, because its coins are nine deep, and `lab` at `550.00000000`, because yours are now a hundred deep or more. Confirm the shape with `bitcoin-cli -regtest -rpcwallet=lab listunspent`, which lists eleven separate 50 BTC outputs — a detail the next lesson cares about a great deal.
+
+The `-rpcwallet` flag is how you aim a command at one named wallet when several are loaded, and now that `wallet2` is open you need it on every wallet call. Forget it with two wallets loaded and the node answers `error code: -19` rather than guessing which balance you meant.
 
 ## Checkpoint
 
 Run it, then say it. Two commands confirm the artifact is real:
 
 ```bash
-bitcoin-cli -regtest getblockchaininfo   # "chain": "regtest", "blocks": 101
-bitcoin-cli -regtest getbalance          # 50.00000000
+bitcoin-cli -regtest getblockchaininfo             # "chain": "regtest", "blocks": 111
+bitcoin-cli -regtest -rpcwallet=lab getbalance     # 550.00000000
 ```
 
-`getblockchaininfo` reports 101 blocks on the regtest chain, and `getbalance` reports 50 mature BTC. The one-line verifier is `bitcoin-cli -regtest getblockcount`, which should answer `101`. Now close the terminal and explain, out loud, in two sentences and no notes: what is the `previousblockhash` field doing?
+Those are the numbers *after* the exercise above, and the height is the giveaway: you mined 101 blocks and then ten more, so the chain reads 111 and `lab` reads 550. If you skipped the exercise, or ran `reset-chain.sh` since, you will see 101 and 50 instead, and both readings are correct — the pair simply has to agree with each other. The one-line verifier is `bitcoin-cli -regtest getblockcount`. Note the `-rpcwallet=lab` on the balance call: with `wallet2` also loaded, the bare form now errors instead of answering. Now close the terminal and explain, out loud, in two sentences and no notes: what is the `previousblockhash` field doing?
 
-A good answer says the field stores the digest of the block right before it, so the 101 blocks form the exact hash chain you built in lesson 1. And it lands on the consequence: change any old block and its digest changes, so the next block's `previousblockhash` stops matching and every seal after it breaks, which is why nobody can quietly rewrite the history you just mined.
+A good answer says the field stores the digest of the block right before it, so the 101 blocks form the exact hash chain the hashing lesson described. And it lands on the consequence: change any old block and its digest changes, so the very next block's `previousblockhash` stops matching. That one broken link is enough, because the only way to repair it is to re-mine that block and every block above it, which is why nobody can quietly rewrite the history you just mined.
 
 You own 50 regtest BTC, and the chain says so. But where, exactly, does it say so? Not in an account, and not in any field called `balance` anywhere in those 101 blocks; `getbalance` is a question your wallet answers, not a number the chain stores. Next lesson you go hunting for your money inside the chain itself and find the balance does not exist as a stored figure at all. It has to be reassembled, from scratch, every single time, out of the leftovers of transactions that nobody ever deleted.

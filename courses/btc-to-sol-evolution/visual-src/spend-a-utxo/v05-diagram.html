@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: an input dereferences {txid, vout}, like a pointer
      purpose: certify the footgun, a txid alone is ambiguous; you need the output index too
-     data: spending tx.vin[0] = { txid: 7b1e4c9a..., vout: 1 } ---dereference---> source tx 7b1e4c9a... has TWO outputs: vout 0: 10.00000000 (payment) vout 1: 39.99997640 (change) <== this is the coin being spent txid alone lands on the transaction; only txid + vout lands on a specific coin footgun: same txid, wrong index -> "missing inputs" or spending the wrong output
+     data: spending tx.vin[0] = { txid: ab3ed6ad..., vout: 1 } ---dereference---> source tx ab3ed6ad... has TWO outputs: vout 0: 39.99997180 (change) vout 1: 10.00000000 (payment) <== this is the coin being spent txid alone lands on the transaction; only txid + vout lands on a specific coin footgun: same txid, wrong index -> "missing inputs" or spending the wrong output
      prompt: Diagram, dark background, monospace. Left: a "vin[0]" box holding {txid, vout:1}. A dashed arrow labeled "dereference" points right into a "source tx" box listing two outputs, index 0 and index 1, with the arrow terminating on index 1 (highlighted). A red note: "txid alone is ambiguous, two outputs share it". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -59,7 +59,7 @@
   <div class="dg">
     <div class="vin">
       <div class="k">spending tx &middot; vin[0]</div>
-      <div class="obj">{<br>&nbsp;&nbsp;<span class="field">txid</span>: 7b1e4c9a&hellip;,<br>&nbsp;&nbsp;<span class="field">vout</span>: <span class="hit">1</span><br>}</div>
+      <div class="obj">{<br>&nbsp;&nbsp;<span class="field">txid</span>: ab3ed6ad&hellip;,<br>&nbsp;&nbsp;<span class="field">vout</span>: <span class="hit">1</span><br>}</div>
     </div>
     <div class="conn">
       <svg viewBox="0 0 380 150" preserveAspectRatio="none">
@@ -70,9 +70,9 @@
     </div>
     <div class="src">
       <div class="k">source tx</div>
-      <div class="txid">7b1e4c9a&hellip; &mdash; has TWO outputs</div>
-      <div class="outrow"><span class="oi">vout 0</span><span>10.00000000</span></div>
-      <div class="outrow spent"><span class="oi">vout 1</span><span>39.99997640</span><span class="tick">&larr; the coin being spent</span></div>
+      <div class="txid">ab3ed6ad&hellip; &mdash; has TWO outputs</div>
+      <div class="outrow"><span class="oi">vout 0</span><span>39.99997180</span></div>
+      <div class="outrow spent"><span class="oi">vout 1</span><span>10.00000000</span><span class="tick">&larr; the coin being spent</span></div>
     </div>
   </div>
   <div class="note">

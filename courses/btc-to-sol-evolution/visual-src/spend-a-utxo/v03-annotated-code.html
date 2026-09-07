@@ -12,8 +12,8 @@
 <body>
 <!-- annotated-code: the decoded transaction, annotated
      purpose: certify the artifact, every input traced to its source output, every output labeled by role
-     data: vin[0].txid = f2c9a4e1... # SOURCE: your coinbase output (seen in listunspent = 50.00000000) vin[0].vout = 0 # which output of that source tx (index 0) vin[0].txinwitness = [sig, pubkey] # the KEY: signature unlocking the locked coin vout[0].value = 10.00000000 # ROLE: payment -> the address you passed to sendtoaddress vout[1].value = 39.99997640 # ROLE: change -> a fresh address your wallet made for you # there is NO fee field anywhere. fee = source(50) - (10 + 39.99997640) = 0.00002360
-     prompt: Monospace annotated-code panel, dark background. Render the lines as code with the trailing comments in a warm accent. Draw a left-margin arrow from vin[0] up to a small box labeled "coinbase 50.00000000". Green tag on vout[0] "PAYMENT", blue tag on vout[1] "CHANGE". Red underline on the final comment "NO fee field".
+     data: vin[0].txid = 99fbf652... # SOURCE: your coinbase output (seen in listunspent = 50.00000000) vin[0].vout = 0 # which output of that source tx (index 0) vin[0].txinwitness = [sig, pubkey] # the KEY: signature unlocking the locked coin vout[0].value = 39.99997180 # ROLE: change -> a fresh address your wallet made for you vout[1].value = 10.00000000 # ROLE: payment -> the address you passed to sendtoaddress # there is NO fee field anywhere. fee = source(50) - (39.99997180 + 10) = 0.00002820
+     prompt: Monospace annotated-code panel, dark background. Render the lines as code with the trailing comments in a warm accent. Draw a left-margin arrow from vin[0] up to a small box labeled "coinbase 50.00000000". Blue tag on vout[0] "CHANGE", green tag on vout[1] "PAYMENT" (this run put change first; the roles follow the addresses, not the indexes). Red underline on the final comment "NO fee field".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -52,12 +52,12 @@
       <div class="srcbox"><span class="st">source: your coinbase output</span><span class="sv">50.00000000</span></div>
       <span class="srcarr">&larr;&nbsp;<span class="txt">vin[0] dereferences this</span></span>
     </div>
-    <div class="cline"><span class="code"><span class="k">vin[0].txid</span> = f2c9a4e1&hellip;</span><span class="cmt">the source tx (seen in <b>listunspent</b> = 50.00000000)</span></div>
+    <div class="cline"><span class="code"><span class="k">vin[0].txid</span> = 99fbf652&hellip;</span><span class="cmt">the source tx (seen in <b>listunspent</b> = 50.00000000)</span></div>
     <div class="cline"><span class="code"><span class="k">vin[0].vout</span> = 0</span><span class="cmt">which output of that source tx (index 0)</span></div>
     <div class="cline"><span class="code"><span class="k">vin[0].txinwitness</span> = [sig, pubkey]</span><span class="cmt">the <b>key</b>: signature unlocking the locked coin</span></div>
-    <div class="cline"><span class="code"><span class="k">vout[0].value</span> = 10.00000000</span><span class="cmt"><span class="pill pay">payment</span>to the address you passed to sendtoaddress</span></div>
-    <div class="cline"><span class="code"><span class="k">vout[1].value</span> = 39.99997640</span><span class="cmt"><span class="pill chg">change</span>a fresh address your wallet made for you</span></div>
-    <div class="feeline"><span class="code"># there is <span class="noflag">NO fee field</span> anywhere &mdash; fee = 50 &minus; (10 + 39.99997640) = 0.00002360</span></div>
+    <div class="cline"><span class="code"><span class="k">vout[0].value</span> = 39.99997180</span><span class="cmt"><span class="pill chg">change</span>a fresh address your wallet made for you</span></div>
+    <div class="cline"><span class="code"><span class="k">vout[1].value</span> = 10.00000000</span><span class="cmt"><span class="pill pay">payment</span>the address you passed to sendtoaddress</span></div>
+    <div class="feeline"><span class="code"># there is <span class="noflag">NO fee field</span> anywhere &mdash; fee = 50 &minus; (39.99997180 + 10) = 0.00002820</span></div>
   </div>
 </div>
 </body></html>

@@ -2,6 +2,17 @@
 
 Last lesson you mined 101 blocks on a chain nobody else runs, and your wallet lit up: 50 BTC, spendable, yours. Real coins on a real, if private, Bitcoin. So start that node again, because I am about to take that number away from you, and I mean it literally. It is not stored anywhere on the chain. Terminal open.
 
+First, put the lab back on the starting line, because this lesson is a study of **one** coin and last lesson's exercise left you holding eleven. Mining those ten extra blocks matured `lab`'s rewards from blocks 2 through 11 and opened a second wallet, so the chain is at height 111 with 550 BTC in eleven separate outputs. That state is correct and it is the wrong state for what follows. This is exactly what you wrote `reset-chain.sh` for:
+
+```bash
+./reset-chain.sh          # back to height 101, one wallet, one mature coin
+bitcoin-cli -regtest listwallets   # ["lab"] — if this prints [], run: bitcoin-cli -regtest loadwallet lab
+```
+
+`listwallets` is not ceremony. A node that was stopped and started re-opens only the wallets marked `load_on_startup`, and if yours is not on that list, every command below answers `error code: -18 / No wallet is loaded` instead of a number. One `loadwallet lab` fixes it.
+
+Now the two commands the lesson actually turns on:
+
 ```bash
 bitcoin-cli -regtest getbalance
 bitcoin-cli -regtest listunspent 0
@@ -13,9 +24,9 @@ Expected (your txid and address will differ; every regtest wallet rolls its own)
 50.00000000
 [
  {
- "txid": "f2c9a4e17b3d8056c1a9e04f7b2d6c8a3e5f0917d4b6c2a80e3f1957c6d4b0a2",
+ "txid": "99fbf65266b6963645050283a537e313036183f806ecf72cfacc2e0b91e6bf02",
  "vout": 0,
- "address": "bcrt1q7f3d9s2a6g0h4j8k1l5p9q3w7e2r6t0y4u8i2o",
+ "address": "bcrt1q3qvp2vwlfwzj7akerwsyw6qvp822yth8ky4su2",
  "amount": 50.00000000,
  "confirmations": 101,
  "spendable": true,
@@ -40,7 +51,7 @@ bitcoin-cli -regtest sendtoaddress "$DEST" 10
 You get back a single line, a transaction id:
 
 ```
-7b1e4c9a2f6d0358e9c4a7b1d5f8203c6e9a4b7d0f2c58a1e6b3d9f04c7a2e85
+ab3ed6adbb12b652f6b3711cf6865590b16c72b4312d8754f98920ec4ced504b
 ```
 
 That is the txid of the transaction you just broadcast into your node's **mempool** (the waiting room of transactions not yet mined into a block).
@@ -54,7 +65,7 @@ Notice the shape of what happened. You had one 50 BTC output. You wanted to move
 Pull the raw transaction and decode it into something you can read. Save the txid, fetch the hex, and expand it:
 
 ```bash
-TXID=7b1e4c9a2f6d0358e9c4a7b1d5f8203c6e9a4b7d0f2c58a1e6b3d9f04c7a2e85
+TXID=ab3ed6adbb12b652f6b3711cf6865590b16c72b4312d8754f98920ec4ced504b
 RAW=$(bitcoin-cli -regtest getrawtransaction "$TXID")
 bitcoin-cli -regtest decoderawtransaction "$RAW"
 ```
@@ -63,36 +74,36 @@ Trimmed to the fields that carry the lesson (your txids, addresses, and the paym
 
 ```json
 {
-  "txid": "7b1e4c9a...c7a2e85",
+  "txid": "ab3ed6ad...ced504b",
   "version": 2,
   "vin": [
     {
-      "txid": "f2c9a4e17b3d8056c1a9e04f7b2d6c8a3e5f0917d4b6c2a80e3f1957c6d4b0a2",
+      "txid": "99fbf65266b6963645050283a537e313036183f806ecf72cfacc2e0b91e6bf02",
       "vout": 0,
-      "txinwitness": [ "3044...01", "02e9...4c7a" ],
+      "txinwitness": [ "3044...a801", "02f2...6455" ],
       "sequence": 4294967293
     }
   ],
   "vout": [
     {
-      "value": 10.00000000,
+      "value": 39.99997180,
       "n": 0,
-      "scriptPubKey": { "address": "bcrt1qkx8z3m9v0n7c2a5s6d4f8g1h3j7l0p9q2w4e6r",
+      "scriptPubKey": { "address": "bcrt1qwztfg09u9l3n2mvtavqrzjk8lhrfd98y847a4z",
                         "type": "witness_v0_keyhash" }
     },
     {
-      "value": 39.99997640,
+      "value": 10.00000000,
       "n": 1,
-      "scriptPubKey": { "address": "bcrt1q9w2e6r4t7y0u3i5o8p1a4s7d0f3g6h9j2k5l8z",
+      "scriptPubKey": { "address": "bcrt1qmqapfzgg9vvkug8vzhvfkr6c309hhmsk3z8ff8",
                         "type": "witness_v0_keyhash" }
     }
   ]
 }
 ```
 
-There it is: one input (`vin`), two outputs (`vout`). Look hard at that single input. It carries no amount. It carries a pointer: a `txid` and a `vout` index. Read the pointer. Its `txid` is `f2c9a4e1...` and its `vout` is `0`, which is the exact coin you saw in `listunspent` at the top of this lesson: output index 0 of your matured coinbase (the special first transaction of a block that mints new coins to the miner). The transaction you just built reaches back, names that 50 BTC output by address, and eats it.
+There it is: one input (`vin`), two outputs (`vout`). Look hard at that single input. It carries no amount. It carries a pointer: a `txid` and a `vout` index. Read the pointer. Its `txid` is `99fbf652...` and its `vout` is `0`, which is the exact coin you saw in `listunspent` at the top of this lesson: output index 0 of your matured coinbase (the special first transaction of a block that mints new coins to the miner). The transaction you just built reaches back, names that 50 BTC output by address, and eats it.
 
-![A 50 BTC input is consumed and split into a 10 BTC payment output and a 39.99997640 change output, with a 2360-satoshi fee as the unclaimed gap.](assets/v02-flowchart.webp)
+![A 50 BTC input is consumed and split into a 39.99997180 change output and a 10 BTC payment output, with a 2820-satoshi fee as the unclaimed gap.](assets/v02-flowchart.webp)
 
 ## Trace it by hand: the artifact
 
@@ -100,9 +111,9 @@ This decoded transaction is the artifact you keep from this lesson. Not a file t
 
 Annotate three things, and do each one against the JSON on your screen rather than against my prose.
 
-Start with the input. Put your finger on `vin[0]` and read only its two identifying fields. Its `txid` is `f2c9a4e1...` and its `vout` is `0`. Now scroll back to the very first `listunspent` you ran, before you spent anything, and read its one entry: `txid` `f2c9a4e1...`, `vout` `0`, amount 50 BTC. Same txid, same index. That is not a coincidence and not a database lookup; it is a literal pointer, and following it by eye is the entire skill this lesson exists to teach. Write beside `vin[0]`: source is the coinbase output, index 0, worth 50 BTC. Notice what you had to do to get that number. The input itself has no `value` field, so the 50 came from the output it names, not from the input. That fetch, done automatically, is what a node performs on every input it validates before it can even begin the arithmetic.
+Start with the input. Put your finger on `vin[0]` and read only its two identifying fields. Its `txid` is `99fbf652...` and its `vout` is `0`. Now scroll back to the very first `listunspent` you ran, before you spent anything, and read its one entry: `txid` `99fbf652...`, `vout` `0`, amount 50 BTC. Same txid, same index. That is not a coincidence and not a database lookup; it is a literal pointer, and following it by eye is the entire skill this lesson exists to teach. Write beside `vin[0]`: source is the coinbase output, index 0, worth 50 BTC. Notice what you had to do to get that number. The input itself has no `value` field, so the 50 came from the output it names, not from the input. That fetch, done automatically, is what a node performs on every input it validates before it can even begin the arithmetic.
 
-Now the outputs, one at a time. Read `vout[0]`: value 10 BTC, address `bcrt1qkx8...`. Compare that address to the `$DEST` that `sendtoaddress` created and paid. They match, so `vout[0]` is the **payment**, the coin leaving for someone else. Label it. Read `vout[1]`: value 39.99997640, a different address, one you never typed and never saw until this decode. That is the **change-output** (the leftover an output sends back to you when the input you spent is bigger than the amount you wanted to send). Your wallet minted a fresh address, addressed the remainder to itself, and never asked your permission. Label it change, and write down its value, because you will predict it again in the solo exercise.
+Now the outputs, one at a time, and read the *addresses* rather than assuming an order. In this run `vout[1]` is the 10 BTC one, and its address `bcrt1qmqa...` matches the `$DEST` that `sendtoaddress` created and paid, so `vout[1]` is the **payment**, the coin leaving for someone else. Label it. That leaves `vout[0]`: value 39.99997180, at an address you never typed and never saw until this decode. That is the **change-output** (the leftover an output sends back to you when the input you spent is bigger than the amount you wanted to send). Your wallet minted a fresh address, addressed the remainder to itself, and never asked your permission. Label it change, and write down its value, because you will predict it again in the solo exercise. Your run may well put them the other way round; the address is what tells you which is which, never the index.
 
 Last, look at the input's `txinwitness`, the two-element array holding a signature and a public key. This is the reveal from the keys-and-signatures lesson doing its one job right here: it unlocks `vin[0]`, proving you hold the private key that the coinbase output was locked to. Strip that witness out and the transaction becomes a claim with no proof behind it, and every honest node on the network rejects it on sight. An output is a lock; the witness is the key turning in it. Read those three annotations back in order, input to source, each output to its role, witness as the unlocking proof, and you have narrated a whole transaction straight from raw JSON. That narration is exactly what every block explorer does behind its pretty tables, and now you can do it without one.
 
@@ -118,14 +129,14 @@ bitcoin-cli -regtest listunspent 0
 ```
 
 ```
-49.99997640
+49.99997180
 [
- { "txid": "7b1e4c9a...c7a2e85", "vout": 0, "amount": 10.00000000... },
- { "txid": "7b1e4c9a...c7a2e85", "vout": 1, "amount": 39.99997640... }
+ { "txid": "ab3ed6ad...ced504b", "vout": 0, "amount": 39.99997180... },
+ { "txid": "ab3ed6ad...ced504b", "vout": 1, "amount": 10.00000000... }
 ]
 ```
 
-The 50 BTC coin is gone from the list. It was consumed, and a consumed output never reappears. In its place sit two outputs, both yours, both children of the transaction you sent: the 10 BTC payment (your fresh address was in your own wallet, so it counts) and the 39.99997640 change. Your `getbalance` fell to 49.99997640, which is 50 minus exactly 0.00002360, the fee. And here is the reveal the whole lesson was pointed at. Where is the 50 living, then? Nowhere: your wallet added it up. A **UTXO** is an unspent transaction output, a discrete chunk of bitcoin created by one transaction and not yet eaten by another, and your wallet's "balance" is nothing but the sum of every UTXO it holds a key for. Spend one, and the sum recomputes. There is no account, no row, no field named `balance` on the chain that a transaction increments or decrements. There are only outputs: created, then later destroyed, whole.
+The 50 BTC coin is gone from the list. It was consumed, and a consumed output never reappears. In its place sit two outputs, both yours, both children of the transaction you sent: the 10 BTC payment (your fresh address was in your own wallet, so it counts) and the 39.99997180 change. Your `getbalance` fell to 49.99997180, which is 50 minus exactly 0.00002820, the fee. And here is the reveal the whole lesson was pointed at. Where is the 50 living, then? Nowhere: your wallet added it up. A **UTXO** is an unspent transaction output, a discrete chunk of bitcoin created by one transaction and not yet eaten by another, and your wallet's "balance" is nothing but the sum of every UTXO it holds a key for. Spend one, and the sum recomputes. There is no account, no row, no field named `balance` on the chain that a transaction increments or decrements. There are only outputs: created, then later destroyed, whole.
 
 ![A table contrasting the account model, where a balance is a stored row, with Bitcoin's UTXO model, where balance is a computed sum of unspent outputs and payments consume whole outputs.](assets/v04-table.webp)
 
@@ -134,14 +145,14 @@ The 50 BTC coin is gone from the list. It was consumed, and a consumed output ne
 Go back to that decoded transaction and hunt for the fee. You will not find it. There is no `fee` field, and that absence is the first footgun that bites everyone. The fee is not declared; it is inferred, as the gap between what went in and what came out. Every satoshi of an input must be either spent to an output or left on the table for the miner, and whatever you leave on the table is the fee. Compute it yourself, in satoshis, because satoshis are the real unit and BTC is the display fiction (100,000,000 sats to a coin):
 
 ```bash
-python3 -c "print(5000000000 - 1000000000 - 3999997640)"
+python3 -c "print(5000000000 - 1000000000 - 3999997180)"
 ```
 
 ```
-2360
+2820
 ```
 
-Fifty coins in, as 5,000,000,000 sats. Two outputs out, 1,000,000,000 plus 3,999,997,640, which is 4,999,997,640. The 2,360 sat difference is the fee, and it is captured by no output at all, which is precisely why the decode has no field for it. This is also why you should stop thinking in BTC the moment arithmetic matters: had I subtracted those numbers as floating-point BTC, Python would have handed me `2.3599999...e-05` and a wave of doubt. Integers of satoshis never lie to you. The chain reasons in satoshis; so should you.
+Those three numbers are the ones from *my* run; retype the line with the two `value` fields off your own decode, in satoshis, or the answer you get is mine and not yours. Fifty coins in, as 5,000,000,000 sats. Two outputs out, 1,000,000,000 plus 3,999,997,180, which is 4,999,997,180. The 2,820 sat difference is the fee, and it is captured by no output at all, which is precisely why the decode has no field for it. Your figure will land somewhere near it and will not match exactly, because the fee depends on the transaction's size in vbytes and on the `-fallbackfee` rate the node fell back to. This is also why you should stop thinking in BTC the moment arithmetic matters: had I subtracted those numbers as floating-point BTC, Python would have handed me `2.3599999...e-05` and a wave of doubt. Integers of satoshis never lie to you. The chain reasons in satoshis; so should you.
 
 ## An input is a pointer, not a coin
 
@@ -155,7 +166,7 @@ That is why `listunspent` reports both `txid` and `vout` on every entry, and why
 
 Look once more at each output's `scriptPubKey`. That field is the lock: the condition a future spender must satisfy, and here it is `witness_v0_keyhash`, meaning "spendable by whoever can sign with the key that hashes to this value." The address `bcrt1q...` you saw is just that key-hash, wrapped in a friendly encoding (bech32, the regtest variant prefixed `bcrt`). Notice what the lock commits to: a hash of a key, never the key itself. There is a historical reason for that, and it is a good ghost story.
 
-Early Bitcoin had a pay-to-IP mode, removed as insecure. You could point your client at an IP address, and the node behind it would hand back a fresh public key to pay to, live, over the wire. Convenient, and fatally so: nothing authenticated that the key came from who you meant to pay, so anyone sitting between you and that IP could swap in their own key and pocket the coins. It was removed as trivially attackable, and its ghost is the reason ownership today is expressed as a hash of a key baked into the output. You commit, in advance and in public, to the fingerprint of who may spend, and the spender later reveals the key and a signature that fit it. No live handshake, nothing to intercept. That is the same commit-then-reveal shape you built with hashes two lessons ago, now guarding coins, and the `txinwitness` you traced is the reveal half firing.
+Early Bitcoin had a pay-to-IP mode, removed as insecure. You could point your client at an IP address, and the node behind it would hand back a fresh public key to pay to, live, over the wire. Convenient, and fatally so: nothing authenticated that the key came from who you meant to pay, so anyone sitting between you and that IP could swap in their own key and pocket the coins. It was removed as trivially attackable, and its ghost is the reason ownership today is expressed as a hash of a key baked into the output. You commit, in advance and in public, to the fingerprint of who may spend, and the spender later reveals the key and a signature that fit it. No live handshake, nothing to intercept. That is the same commit-then-reveal shape you built with hashes in the hashing lesson, now guarding coins, and the `txinwitness` you traced is the reveal half firing.
 
 ![The removed pay-to-IP mode let an attacker between payer and node swap in their own key during a live handshake, which is why outputs today lock to a hash of a key committed in advance and revealed only at spend time.](assets/v06-diagram.webp)
 
@@ -163,11 +174,11 @@ Early Bitcoin had a pay-to-IP mode, removed as insecure. You could point your cl
 
 The obvious design is the one you would reach for on any Tuesday: store a balance per person and add and subtract from it. Bitcoin refuses, and the refusal buys something specific. Because every UTXO is independent, two transactions that spend different outputs never touch the same piece of state, so a validator can check them in any order, or at the same time, and reach the identical answer. Each transaction carries its own proof: name the outputs it consumes, show signatures that unlock them, and the math is complete without consulting a global "balance" that another transaction might be editing this instant. Verification is local and order-free.
 
-Make that concrete with the two coins you now hold. Say two transactions arrive at a node in the same instant. Transaction X spends your 10 BTC output, `vout` 0 of `7b1e4c9a...`. Transaction Y spends your 39.99997640 output, `vout` 1 of the very same transaction. A validator picks up X, follows its input pointer to output 0, confirms that output exists and is still unspent, checks the witness against the lock, and accepts. It picks up Y and does the same walk to output 1, wholly independently. Feed them in the order X then Y, or Y then X, or hand X to one CPU core and Y to another running in parallel: every path reaches accept, because the two proofs never read the same byte of state. Neither transaction needs to know the other exists. The node does not have to decide which one went first, because going first means nothing when the state each transaction touches is disjoint from the other.
+Make that concrete with the two coins you now hold. Say two transactions arrive at a node in the same instant. Transaction X spends your 39.99997180 output, `vout` 0 of `ab3ed6ad...`. Transaction Y spends your 10 BTC output, `vout` 1 of the very same transaction. A validator picks up X, follows its input pointer to output 0, confirms that output exists and is still unspent, checks the witness against the lock, and accepts. It picks up Y and does the same walk to output 1, wholly independently. Feed them in the order X then Y, or Y then X, or hand X to one CPU core and Y to another running in parallel: every path reaches accept, because the two proofs never read the same byte of state. Neither transaction needs to know the other exists. The node does not have to decide which one went first, because going first means nothing when the state each transaction touches is disjoint from the other.
 
 ![Transaction X verifies against output 0 and transaction Y against output 1 on separate cores, and because they share no state the node reaches the same accept result in any order or in parallel.](assets/v07-diagram.webp)
 
-The account model works the other way, and this is where the cost lands. Picture the same value living as a single balance row that reads 49.99997640. Transaction X wants to subtract 10 from that row; transaction Y wants to subtract 39.99997640 from it. Both must read that one number, and both must write it back, so the system cannot check them independently no matter how many cores it owns. Run X first and the row holds 39.99997640 by the time Y reads it; run Y first and it holds 10 when X reads it; run them at the same instant on two cores and they can clobber each other's write and leave the row holding a wrong total, with coins conjured or destroyed. To stay correct, the system must serialize those two transfers and agree on their order before it can even begin to check them. That forced ordering is the tax the account model pays on every conflicting transfer, and the UTXO model simply does not owe it.
+The account model works the other way, and this is where the cost lands. Picture the same value living as a single balance row that reads 49.99997180. Transaction X wants to subtract 39.99997180 from that row; transaction Y wants to subtract 10 from it. Both must read that one number, and both must write it back, so the system cannot check them independently no matter how many cores it owns. Run X first and the row holds 10 by the time Y reads it; run Y first and it holds 39.99997180 when X reads it; run them at the same instant on two cores and they can clobber each other's write and leave the row holding a wrong total, with coins conjured or destroyed. To stay correct, the system must serialize those two transfers and agree on their order before it can even begin to check them. That forced ordering is the tax the account model pays on every conflicting transfer, and the UTXO model simply does not owe it.
 
 That independence is not a free win, and this course names the bill every time. Grant the account model its real strength first: a single mutable balance is the natural home for shared state, for a pot of money that many parties update by a common rule, which is exactly what a contract is. UTXOs make that miserable. There is no "the pool's balance" to nudge; there is a scattering of discrete outputs, and expressing "everyone can add to this and the rule decides who withdraws" means threading logic through outputs that were built to do one thing: sit locked until one key unlocks them. So the trade-off, stated plainly: UTXOs give Bitcoin parallel-verifiable, stateless transactions, but make shared state, like a contract everyone updates, miserable to express. Hold that thought until the EVM chapter, where a different chain pays the opposite bill to get contracts back.
 
@@ -179,17 +190,19 @@ Your completion task is the reading, not new code. Take the decoded transaction 
 
 - Every input traced to its source output. For `vin[0]`, write the source txid and vout, and its value, which you read off `listunspent` before you spent it. One input here, so one trace.
 - Every output labeled payment or change. Say which `n` is the payment (matches the address you passed to `sendtoaddress`) and which is change (an address your wallet made), with each value.
-- The fee, computed as source value minus the sum of outputs, in satoshis, matching the `2360` you printed.
+- The fee, computed as source value minus the sum of outputs, in satoshis, matching the number you printed from your own two `value` fields.
 
 That annotated decode is the whole artifact. It feeds the watcher you build in the infrastructure module, which does this same tracing on transactions it never sent, for wallets it does not own.
 
 ## Do it yourself: force two inputs
 
-Now the solo half, where you make coin selection show its hand. You currently hold two UTXOs: 10.00000000 and 39.99997640. **Coin-selection** is your wallet's algorithm for choosing which UTXOs to feed into a payment. It is not as dumb as grabbing coins at random, and understanding the two strategies it runs tells you exactly why change appears when it does.
+Now the solo half, where you make coin selection show its hand. You currently hold two UTXOs: 10.00000000 and 39.99997180. **Coin-selection** is your wallet's algorithm for choosing which UTXOs to feed into a payment. It is not as dumb as grabbing coins at random, and understanding how it decides tells you exactly why change appears when it does.
 
-Bitcoin Core tries two approaches in sequence. First it attempts branch-and-bound, a search for some subset of your outputs whose total lands on the target plus fee almost exactly. An exact match is the prize, because it lets the wallet skip creating a change output at all, and a transaction with no change is smaller, cheaper to confirm, and leaks less about which coins are yours. When no such tidy subset exists, the wallet falls back to a knapsack-style selection that, in the simple case, behaves largest-first: take the biggest output you own, and if that one alone does not cover the bill, add the next biggest, and keep adding until the running total clears the target plus fee. Here is the part that produces change. Whatever the running total overshoots the target by does not evaporate and cannot be left inside an input, because a payment must account for every satoshi of every input it consumes. The overshoot has to go somewhere, so the wallet hands it back to you as a second output. Leftover is the cause of change, every single time, and branch-and-bound exists precisely to avoid leftover when it can.
+Modern Bitcoin Core does not try one algorithm and fall back to another. It runs several *in parallel* and then picks between their answers. Branch-and-bound searches for a subset of your outputs whose total lands on the target plus fee almost exactly; an exact match is the prize, because it lets the wallet skip creating a change output at all, and a transaction with no change is smaller, cheaper to confirm, and leaks less about which coins are yours. Alongside it, a knapsack-style solver runs a thousand randomized rounds looking for a good-enough combination, and a single-random-draw solver just shuffles your outputs and takes them until the bill is covered, which is deliberately unpredictable so an observer cannot infer much from your input set. Every solver that produces a valid answer hands it back, and the wallet keeps the one with the lowest **waste** — a score that weighs the fee you pay now to spend each extra input against what those inputs would cost to spend later. Reaching for "largest first" as a mental model will mislead you: none of the solvers works that way.
 
-Now give the algorithm a problem that only one answer solves: send 45 BTC. Branch-and-bound hunts for a subset that sums near 45 and finds none, because neither 10 nor 39.99997640 nor any single coin you hold sits anywhere near 45. Largest-first takes over: it grabs the 39.99997640, sees that it falls short of 45, and is forced to add the 10 as well, producing a transaction with exactly two inputs. Their sum, 49.99997640, overshoots 45 by just under 5 BTC, so that leftover comes straight back as a change output. You have engineered both a two-input transaction and a fresh change output at once, out of a single carefully chosen number. Predict the before and after, then run it and check.
+Here is the part that produces change, whichever solver wins. Whatever the chosen inputs overshoot the target by does not evaporate and cannot be left inside an input, because a payment must account for every satoshi of every input it consumes. The overshoot has to go somewhere, so the wallet hands it back to you as a second output. Leftover is the cause of change, every single time, and branch-and-bound exists precisely to avoid leftover when it can.
+
+Now give the algorithm a problem that only one answer solves: send 45 BTC. It does not matter which solver wins, because with only two coins in the wallet there is exactly one subset that clears 45 plus fee, and it is both of them. Neither 10 nor 39.99997180 covers the bill alone, so every solver that returns anything at all returns the pair, and you get a transaction with exactly two inputs. Their sum, 49.99997180, overshoots 45 by just under 5 BTC, so that leftover comes straight back as a change output. You have engineered both a two-input transaction and a fresh change output at once, out of a single carefully chosen number. Predict the before and after, then run it and check.
 
 ```bash
 DEST2=$(bitcoin-cli -regtest getnewaddress)
@@ -200,9 +213,9 @@ bitcoin-cli -regtest listunspent 0 | python3 -c 'import json,sys; print(len(json
 
 You should see `2`, then a txid, then `2` again. Decode that new txid and confirm `vin` has length 2 and the two pointers match the coins you predicted.
 
-![Neither the 10 BTC nor the 39.99997640 BTC output alone covers a 45 BTC payment, so coin selection must consume both, producing a two-input transaction.](assets/v09-diagram.webp)
+![Neither the 10 BTC nor the 39.99997180 BTC output alone covers a 45 BTC payment, so coin selection must consume both, producing a two-input transaction.](assets/v09-diagram.webp)
 
-In your write-up, explain the selection in one line: the wallet chose both because 45 exceeds every single UTXO you hold, and the only subset that clears 45 plus fee is the whole set. That sentence is the analyze objective, earned from a number you forced.
+In your write-up, explain the selection in one line: the wallet chose both because 45 exceeds every single UTXO you hold, and the only subset that clears 45 plus fee is the whole set, so no solver had a cheaper option to prefer. That sentence is the analyze objective, earned from a number you forced.
 
 ## Checkpoint
 

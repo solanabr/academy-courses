@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: one transaction, consuming and producing
-     purpose: certify that a payment destroys whole outputs and creates new ones, with the fee as the leftover gap
-     data: CONSUMED (vin) PRODUCED (vout) coinbase output #0: 50.00000000 -> payment (vout 0): 10.00000000 -> to bcrt1qkx8...e6r change (vout 1): 39.99997640 -> back to your wallet arithmetic: 50.00000000 in == 10.00000000 + 39.99997640 + fee fee = 50.00000000 - 49.99997640 = 0.00002360 (2360 sats), captured by NO output
-     prompt: Left-to-right flowchart, dark background, monospace. One input box "50.00000000 (coinbase #0)" on the left, an arrow into a transaction node, two output boxes on the right: "10.00000000 payment" and "39.99997640 change". A thin red sliver between the arrows labeled "fee 2360 sats (no output holds it)". No decorative icons.
+     purpose: certify that a payment destroys whole outputs and creates new ones, with the fee as the leftover gap. The three columns must not overlap: the consumed-input card and its 50.00000000 amount have to stay fully visible beside the transaction band.
+     data: CONSUMED (vin) PRODUCED (vout) coinbase output #0: 50.00000000 -> change (vout 0): 39.99997180 -> back to your wallet payment (vout 1): 10.00000000 -> to bcrt1qmqa...ff8 -> back to your wallet arithmetic: 50.00000000 in == 10.00000000 + 39.99997180 + fee fee = 50.00000000 - 49.99997180 = 0.00002820 (2820 sats), captured by NO output
+     prompt: Left-to-right flowchart, dark background, monospace. One input box "50.00000000 (coinbase #0)" on the left, an arrow into a transaction node, two output boxes on the right: "39.99997180 change (vout 0)" and "10.00000000 payment (vout 1)" in that order. A thin red sliver between the arrows labeled "fee 2820 sats (no output holds it)". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -24,7 +24,7 @@
 <div class="viz">
 <style>
   .fc { display:flex; align-items:center; gap:28px; margin-top:40px; }
-  .side { flex:0 0 380px; display:flex; flex-direction:column; }
+  .side { flex:0 0 380px; min-width:0; display:flex; flex-direction:column; }
   .side.out { gap:20px; }
   .colhead { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
     text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:14px; }
@@ -36,12 +36,12 @@
   .box.pay { border-color:rgba(0,139,76,0.40); background:rgba(0,139,76,0.07); }
   .box.pay .amt { color:var(--stbr-emerald); }
   .box.chg { border-color:rgba(48,108,64,0.30); }
-  .txn { flex:1; align-self:stretch; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .txn { flex:1 1 0; min-width:0; align-self:center; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .txnode { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-lg);
     padding:26px 30px; text-align:center; width:100%; }
   .txnode .lbl { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
     text-transform:uppercase; color:var(--stbr-yellow); }
-  .txnode .eq { font-family:var(--font-mono); font-size:17px; color:var(--stbr-ink-300); margin-top:12px; line-height:1.5; }
+  .txnode .eq { font-family:var(--font-mono); font-size:16px; overflow-wrap:anywhere; color:var(--stbr-ink-300); margin-top:12px; line-height:1.5; }
   .txnode .eq b { color:var(--stbr-cream); }
   .arr { flex:0 0 34px; text-align:center; color:var(--stbr-emerald); font-size:30px; font-weight:900; }
   .fee { margin-top:26px; display:flex; align-items:center; gap:16px; background:rgba(192,57,43,0.06);
@@ -61,19 +61,19 @@
     <div class="txn">
       <div class="txnode">
         <div class="lbl">transaction</div>
-        <div class="eq"><b>50.00000000</b> in&nbsp;==&nbsp;10.00000000<br>+&nbsp;39.99997640&nbsp;+&nbsp;fee</div>
+        <div class="eq"><b>50.00000000</b> in&nbsp;==&nbsp;10.00000000<br>+&nbsp;39.99997180&nbsp;+&nbsp;fee</div>
       </div>
     </div>
     <div class="arr">&rarr;</div>
     <div class="side out">
       <div class="colhead">produced (vout)</div>
-      <div class="box pay"><div class="amt">10.00000000</div><div class="role">payment (vout 0) &rarr; bcrt1qkx8&hellip;e6r</div></div>
-      <div class="box chg"><div class="amt">39.99997640</div><div class="role">change (vout 1) &rarr; back to your wallet</div></div>
+      <div class="box chg"><div class="amt">39.99997180</div><div class="role">change (vout 0) &rarr; back to your wallet</div></div>
+      <div class="box pay"><div class="amt">10.00000000</div><div class="role">payment (vout 1) &rarr; bcrt1qmqa&hellip;ff8</div></div>
     </div>
   </div>
   <div class="fee">
     <div class="sliver"></div>
-    <div class="ftxt">fee = 50.00000000 &minus; 49.99997640 = <b>0.00002360</b> (2360 sats) &mdash; captured by no output, it is the leftover gap.</div>
+    <div class="ftxt">fee = 50.00000000 &minus; 49.99997180 = <b>0.00002820</b> (2820 sats) &mdash; captured by no output, it is the leftover gap.</div>
   </div>
 </div>
 </body></html>
