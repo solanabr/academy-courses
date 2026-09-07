@@ -42,7 +42,7 @@ Mecanicamente, validadores executam o runtime que invoca programas e atualiza co
 
 Implicação: quando um guia diz para "pedir a um validador para confirmar", normalmente significa consultar o estado produzido pelo consenso; quando diz para "chamar o RPC", refere-se à API do nó. Essa distinção importa ao interpretar mensagens de erro. Por exemplo, uma transação rejeitada por um nó RPC com um erro de preflight pode ainda ser aceita por um nó configurado de forma diferente se esse nó oferecer configurações de simulação de preflight distintas. Entender esses papéis fará com que você interprete melhor instruções operacionais e identifique se uma instrução se refere ao estado de consenso (validador) ou a uma interface de serviço (nó/RPC) à qual clientes se conectam.
 
-![Validador, Nó e Cliente — Mapa Rápido](assets/v01-validador-no-e-cliente-mapa-rapido.png)
+![Validador, Nó e Cliente — Mapa Rápido](assets/v01-validador-no-e-cliente-mapa-rapido.webp)
 
 ## Modelo Mental: Programas, Contas e Transações (a Metáfora do Correio)
 
@@ -62,7 +62,7 @@ Por que isso importa na prática: quando você lê um doc da Solana que diz "for
 
 Finalmente, essa metáfora esclarece logs e erros retornados. Se uma transação falha com a mensagem "Program failed to complete", pense em um atolamento da máquina: o atendente parou de processar ao encontrar um formato de envelope inesperado ou falta de selo. Saber qual conta a máquina estava operando (a partir dos logs ou do trace no explorador) direciona você para a caixa e o conjunto de regras exatos a serem inspecionados a seguir.
 
-![Metáfora do Correio: Programas, Contas e Transações](assets/v02-metafora-do-correio.png)
+![Metáfora do Correio: Programas, Contas e Transações](assets/v02-metafora-do-correio.webp)
 
 ## Exemplo Passo a Passo: Uma Transação de Transferência de Token (conceitual)
 
@@ -80,7 +80,7 @@ Passo 4 — Resultado e visão no explorador: Após o processamento, exploradore
 
 Implicação: na documentação, quando instruções listam "pré-condições" como "a conta do destinatário deve estar inicializada" eles estão dizendo quais caixas devem já existir e estar isentas de aluguel antes do atendente processar o envelope. Reconhecer cada etapa e onde termos específicos aparecem permitirá que você traduza notas curtas de protocolo em verificações concretas quando depois inspecionar transações reais ou ler READMEs de contratos.
 
-![Fluxo Conceitual: Transferência SPL](assets/v03-fluxo-conceitual-transferencia-spl.png)
+![Fluxo Conceitual: Transferência SPL](assets/v03-fluxo-conceitual-transferencia-spl.webp)
 
 ## Conclusão & Principais Lições
 

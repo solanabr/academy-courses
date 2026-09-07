@@ -100,7 +100,7 @@ cast call $COUNTER "number()(uint256)" --rpc-url http://127.0.0.1:8545
 
 Sit with what just happened, because it is subtler than "a program counted to two." Each `cast send` is a fully independent transaction, mined into its own block, with nothing in your shell holding a value between the two commands. You could close the terminal between them. The second `increment()` had no memory of the first inside your machine, yet the number came back `2`. It climbed, and it stayed, across a boundary that should have wiped it.
 
-![Two independent increment transactions each raise a stored number, and a later read returns 2, proving the value persisted between separate transactions.](assets/v01-annotated-code.png)
+![Two independent increment transactions each raise a stored number, and a later read returns 2, proving the value persisted between separate transactions.](assets/v01-annotated-code.webp)
 
 Here is the cruel footnote, and my own first stumble on it. The first time I built on Anvil I lost an afternoon to a contract that kept resetting to zero. I had a shell script restarting `anvil` between test runs, quietly wiping the very state I was trying to inspect. The node was behaving exactly as documented: Anvil holds all state in memory, so persistence here is per-run, not durable. Kill the process and your Counter and its number vanish. The value survives independent transactions, which is the whole point of this lesson. It does not survive the machine. Real Ethereum keeps this same state on thousands of disks, effectively forever, and that difference is a cost we will put a number on before we finish.
 
@@ -114,19 +114,19 @@ To see how storage attaches to a contract, name the thing that owns it. An Ether
 
 The one to stare at is `storageRoot`. Contract storage is a per-contract 256-bit integer to 256-bit integer key-value map, committed as a **Merkle Patricia Trie** (a hash tree that folds an entire key-value map down to a single 256-bit root). That root, `storageRoot`, sits in the account header. When `increment()` ran, the EVM executed an `SSTORE` **opcode** (opcodes are the EVM's individual machine instructions; `SSTORE` writes a storage slot, `SLOAD` reads one) that wrote slot 0. When you called `number()`, it ran `SLOAD`. Both persist across transactions because the map is committed to the chain, not to the process. The number was never in memory waiting for you. It was in the trie, sealed under a root, where any node on Earth can recompute it.
 
-![A flowchart showing a write transaction running SSTORE on slot 0 and re-committing the storageRoot, then a later read running SLOAD and returning 2 from the committed trie.](assets/v02-flowchart.png)
+![A flowchart showing a write transaction running SSTORE on slot 0 and re-committing the storageRoot, then a later read running SLOAD and returning 2 from the committed trie.](assets/v02-flowchart.webp)
 
 But why fold storage into a single number at all, instead of just keeping the map and looking things up? Because a root is a *commitment*: a value you can check against without trusting whoever hands you the data underneath it. The Merkle Patricia Trie hashes every slot into its parent node, and every parent into its parent, until the entire map collapses into one 256-bit hash. Change a single slot anywhere in the map and that top hash changes with it; there is no way to alter a value and leave the root untouched. That property is what turns stored state into *provable* state. Suppose some node claims your Counter's slot 0 holds `2`. Rather than take its word, you demand a proof: the value itself, plus the handful of sibling hashes along the path from that leaf up to the root. You hash your way up the path yourself, and if you arrive at the `storageRoot` you already hold, the value is confirmed. You verified one slot without ever downloading the other slots, and without trusting the node that served it. The proof stays small, logarithmic in the size of the map rather than the whole thing, which is exactly why this scales to millions of accounts.
 
 The commitment also nests, and that is the part that matters for the whole chain. The `storageRoot` lives inside the account, and every account hashes into a single global **state root** that is sealed into the block header the validators agree on. So one slot is checkable all the way up the ladder: slot → storageRoot → state root → block header. A light client holding nothing but block headers can query some untrusted node for a single balance and verify the answer against a header it already trusts. This is not an academic nicety, either: it is precisely how a bridge, or a light client running on another chain, reads an Ethereum value without running a full Ethereum node. They hold headers and check proofs. Committing to a root, rather than merely keeping a map, is what makes state something anyone can prove without storing any of it.
 
-![An Ethereum account's four fields, with storageRoot pointing into a Merkle Patricia Trie whose slot 0 holds the value 2, written by SSTORE and read by SLOAD.](assets/v03-diagram.png)
+![An Ethereum account's four fields, with storageRoot pointing into a Merkle Patricia Trie whose slot 0 holds the value 2, written by SSTORE and read by SLOAD.](assets/v03-diagram.webp)
 
 Now walk back to the question that opened this lesson: how many USDC does an address hold? You can finally answer it, and the answer runs on exactly the machinery you just watched. A token balance does not sit in slot 0 the way your `number` does, because a token contract has to remember a balance for every holder at once. It keeps them all in a single `mapping(address => uint256)`: a map from a holder's address to their amount. When you call `balanceOf(someAddress)`, the contract scans nothing and sums nothing. It takes the mapping's declared base slot `p` and the holder's address as the key, hashes the two together, `keccak256(key . p)`, to derive the one storage slot where that holder's balance lives, and issues exactly one `SLOAD` against it. One hash to locate the slot, one read to fetch it, one number back. Reading it is a single `SLOAD` whose cost does not grow with how many transfers the holder ever received, which is the opposite of a Bitcoin balance that must sum a lifetime of outputs.
 
 That is the "single slot it just remembers" from the opening image, made concrete. The balance was placed there by an earlier `SSTORE`, a transfer in or a mint, and it has waited in the trie ever since, addressable by anyone who knows `p` and the address. Any node can recompute the same slot from the same two inputs and prove the returned value against the state root, so the balance is not merely fast to read, it is verifiable to read. Bitcoin has no `p`, no key-derived slot, and no `SLOAD` to serve one, which is precisely why the same question has no answer there, as the rest of this lesson makes structural.
 
-![An annotated panel showing balanceOf hashing the holder address with the mapping base slot to derive one storage slot, then a single SLOAD returning the balance, contrasted with Bitcoin's scan-and-sum.](assets/v04-annotated-code.png)
+![An annotated panel showing balanceOf hashing the holder address with the mapping base slot to derive one storage slot, then a single SLOAD returning the balance, contrasted with Bitcoin's scan-and-sum.](assets/v04-annotated-code.webp)
 
 Where a variable sits inside that map is a real enough problem that the language now has opinions about it. Solidity 0.8.35, released April 29, 2026, added the `erc7201` builtin for computing namespaced storage slots: a language-level admission that "which slot does this variable occupy" is a first-class design question, not an afterthought you can leave to chance.
 
@@ -134,7 +134,7 @@ Two kinds of account share that four-field tuple, and the difference between the
 
 There is one honest blur to name, because 2026 tooling leans on it. Since EIP-7702, shipped in the Pectra hardfork (mainnet May 7, 2025), an EOA can temporarily set its `codeHash` to point at a contract for the duration of a single transaction, borrowing contract behavior for one call. It is the first time an externally-owned account could wear code at all, bending a line Ethereum drew at launch in 2015. But it bends the line; it does not erase it. The borrowed code runs, then the `codeHash` reverts. A contract account still holds persistent, autonomous storage that outlives any single transaction, and a borrowing EOA does not. Persistent per-contract state is still the thing only contract accounts own.
 
-![A timeline from Ethereum's 2015 launch through EIP-7702 in May 2025 and Solidity 0.8.35 in April 2026, showing the EOA/contract line bending but persistent storage staying contract-only.](assets/v05-timeline.png)
+![A timeline from Ethereum's 2015 launch through EIP-7702 in May 2025 and Solidity 0.8.35 in April 2026, showing the EOA/contract line bending but persistent storage staying contract-only.](assets/v05-timeline.webp)
 
 ## Why no UTXO can hold that number
 
@@ -150,7 +150,7 @@ The third instinct: bolt a side table of balances next to the chain. Do that and
 
 That is the whole argument. A ledger that runs code needs accounts plus storage precisely because scripts can only authorize coin movement, never mutate shared state that persists. The number that remembers requires a place built to remember: a mutable slot in a per-account map, committed to a root, written by `SSTORE` and read by `SLOAD`. Bitcoin never built one, on purpose. Ethereum built exactly one, on purpose, and that single decision is what lets a contract answer a balance query in one read while Bitcoin cannot answer it at all.
 
-![A two-column comparison of Bitcoin's spend-once UTXO set against Ethereum's mutable account map, ending on the fact that only the account map can hold a persistent token balance.](assets/v06-comparison.png)
+![A two-column comparison of Bitcoin's spend-once UTXO set against Ethereum's mutable account map, ending on the fact that only the account map can hold a persistent token balance.](assets/v06-comparison.webp)
 
 ## The meter that makes code safe
 
@@ -162,7 +162,7 @@ Gas is the EVM's metering unit, and you pay for it in ETH (whose smallest unit i
 
 That pricing is also why `SSTORE` is the costly opcode. You are not paying for a computation that ends. You are paying every full node to hold your written bytes on disk indefinitely, and the fee is the closest thing the system has to rent on permanence.
 
-![A flowchart showing each opcode deducting gas until the limit is hit, at which point execution halts and reverts while keeping spent gas, making infinite loops bounded and paid-for.](assets/v07-flowchart.png)
+![A flowchart showing each opcode deducting gas until the limit is hit, at which point execution halts and reverts while keeping spent gas, making infinite loops bounded and paid-for.](assets/v07-flowchart.webp)
 
 ## The trade-off
 
@@ -172,7 +172,7 @@ Persistent accounts buy expressiveness. A single slot that answers "how much doe
 
 Set that against the honest baseline: Bitcoin's spend-once UTXOs. They cannot express a token balance, which is a genuine loss, not a quirk to wave away. But they are cheaper to verify, trivially parallel (two unrelated outputs never touch the same state, so a validator can check them at the same time with zero coordination), and immune to the entire family of shared-state bugs. Statefulness is not a free upgrade. It is a cost you choose to pay because, for programmable money, the expressiveness is worth more than the parallelism and the safety you give up. Say that trade out loud every time, because the next chapter of this course pays for it in a completely different currency.
 
-![A table weighing Ethereum's stateful accounts against Bitcoin's spend-once UTXOs across balance expressiveness, write cost, state growth, parallelism, and bug surface.](assets/v08-table.png)
+![A table weighing Ethereum's stateful accounts against Bitcoin's spend-once UTXOs across balance expressiveness, write cost, state growth, parallelism, and bug surface.](assets/v08-table.webp)
 
 ## Build: the deploy-and-poke harness
 

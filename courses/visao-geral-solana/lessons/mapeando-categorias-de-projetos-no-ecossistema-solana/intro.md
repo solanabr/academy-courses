@@ -52,7 +52,7 @@ Ao avaliar um projeto, foque em como ele usa os termos centrais. Por exemplo, um
 
 Indicadores de participação ativa de desenvolvedores estão igualmente ligados a esses papéis. Para programs, procure commits frequentes no repositório do program, scripts de deploy claros referenciando program IDs e evidências on-chain de atividade de upgrade ou interações com o program. Para projetos de infraestrutura, verifique dashboards de uptime, relatórios de latência de RPC e status de sincronização de indexer. Para wallets e apps de consumidor, priorize notas de lançamento que mostrem compatibilidade com a runtime atual e vetores de teste explícitos para construção de transações. Usaremos esses indicadores específicos por categoria no exemplo prático que segue.
 
-![Categorias Principais de Projetos](assets/v01-categorias-principais-de-projetos.png)
+![Categorias Principais de Projetos](assets/v01-categorias-principais-de-projetos.webp)
 
 ## Como Isso Aparece no Mundo Real: Exemplos Concretos de Projetos
 
@@ -66,7 +66,7 @@ Exemplo 3 — Um marketplace de NFT e storefront: marketplaces combinam uma UI o
 
 Ao longo desses exemplos você usará as mesmas regras de classificação: onde um projeto documenta program IDs e esquemas de accounts, trate-o como um on-chain program ou protocolo; onde a documentação prioriza superfície de API e garantias de sincronização de dados, trate-o como infraestrutura; onde a ênfase está em fluxos de assinatura, chaves de usuário e UX, trate-o como um cliente ou integração de wallet. Esses mapeamentos são práticos: eles permitem decidir onde procurar verificação autoritativa (explorers on-chain para programs, páginas de status para infraestrutura, notes de release e SDKs para wallets e clientes).
 
-![Exemplos Concretos de Projetos](assets/v02-exemplos-concretos-de-projetos.png)
+![Exemplos Concretos de Projetos](assets/v02-exemplos-concretos-de-projetos.webp)
 
 ## Modelo Mental: A Metáfora da Cidade para Interdependências e Sinais
 
@@ -80,7 +80,7 @@ Usar a metáfora também ajuda ao avaliar riscos de interdependência. Se um mar
 
 Finalmente, o modelo da cidade ajuda a priorizar sinais de saúde de desenvolvedor. Commits frequentes e legíveis no repositório de um program são como construção visível contínua em uma fábrica; dashboards de uptime são como avisos públicos em bibliotecas; releases ativos de SDK são como vitrines de loja indicando compatibilidade com mudanças recentes de programas. Essas analogias dão um checklist rápido para classificar e validar projetos em termos práticos.
 
-![Metáfora da Cidade: Dependências e Sinais](assets/v03-metafora-da-cidade-dependencias-e-sinais.png)
+![Metáfora da Cidade: Dependências e Sinais](assets/v03-metafora-da-cidade-dependencias-e-sinais.webp)
 
 ## Conclusão & Principais Lições
 

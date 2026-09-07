@@ -11,6 +11,7 @@ New here? Jump to **[Add a course](#add-a-course-in-five-steps)** or read the fu
 | Folder | What's in it | Guide |
 |---|---|---|
 | `courses/<slug>/` | a course: its details, modules, and lessons | [courses/README.md](./courses/README.md) |
+| `courses/<slug>/l10n/<locale>/` | optional translations of that course | [Translations](./courses/README.md#translations) |
 | `achievements/*.yaml` | badges learners earn, and how they're unlocked | [achievements/README.md](./achievements/README.md) |
 | `quests/*.yaml` | daily / streak challenges that award XP | [quests/README.md](./quests/README.md) |
 | `paths/*.yaml` | ordered collections of courses | [paths/README.md](./paths/README.md) |
@@ -43,16 +44,19 @@ The automated checks enforce these — they're mostly about not breaking things 
 - **A challenge's reference solution must pass its own tests, and its starter must fail them** — a starter that already passes has nothing to solve.
 - **Answers are public.** Solution files and tests live right here in the open. Challenges are graded by running the learner's code, not by hiding the answer — so don't write a lesson that only works if the answer is secret.
 - **Every course needs a creator wallet.** Set `course.creator` to the author's Solana address — that's how they receive credit (and creator XP) for the course. It becomes `Course.creator` on-chain and is **immutable after the course is created**, so get it right the first time.
+- **A course is one course in every language it's available in.** Say which language you wrote it in with `sourceLocale`, and add translations as an optional `l10n/<locale>/` folder beside your lessons. Never copy a course to translate it — that would split its learners, their progress, and its XP across two courses that can never be merged. See [Translations](./courses/README.md#translations).
 
 Each folder's README has the exact fields and a worked example.
 
 ## Add a course in five steps
 
 1. Read [courses/CATALOG.md](./courses/CATALOG.md) — the course lineup, its syllabus, and the stack to teach.
-2. Copy the template: `cp -r courses/_template courses/<your-slug>`
-3. Edit `course.yaml` — the title, difficulty, `creator` wallet, and the modules-and-lessons outline.
+2. Copy the template: `cp -r courses/_template courses/<your-slug>`, then `rm -rf courses/<your-slug>/l10n` — that folder is a translation *of the template* and shouldn't follow your course.
+3. Edit `course.yaml` — the title, difficulty, `creator` wallet, `sourceLocale` (the language you're writing in), and the modules-and-lessons outline.
 4. Write your lessons under `lessons/<slug>/` (text, challenges, quizzes).
 5. Check your work locally (below), then open a pull request.
+
+**Translating an existing course** is a separate, smaller pull request: add `courses/<slug>/l10n/<locale>/` with a `strings.yaml` and the prose you translated. You don't have to translate everything — anything you leave out falls back to the course's source language. See [Translations](./courses/README.md#translations).
 
 ## Check your work
 

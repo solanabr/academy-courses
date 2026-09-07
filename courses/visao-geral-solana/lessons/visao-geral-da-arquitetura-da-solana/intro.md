@@ -46,7 +46,7 @@ Mantenha clara a distinção entre padrões gerais de blockchain e escolhas espe
 
 Operacionalmente, esses objetivos influenciam papéis dos nós e a topologia: a rede espera que líderes produzam entradas ordenadas rapidamente, validators executem agressivamente e votem com frequência, e nós RPC respondam a leituras e gravações de clientes com snapshots de baixa latência. Você verá esses papéis mais de perto na próxima lição, mas por ora lembre-se da cadeia de design: objetivos -> mecanismos -> consequências operacionais. Essa cadeia é a maneira mais simples de prever como um novo recurso ou padrão de carga afetará o sistema.
 
-![Objetivos Arquitetônicos](assets/v01-objetivos-arquitetonicos.png)
+![Objetivos Arquitetônicos](assets/v01-objetivos-arquitetonicos.webp)
 
 ## Modelo mental: o livro-razão de alto desempenho como linha de montagem
 
@@ -70,7 +70,7 @@ Use esse modelo mental ao analisar desempenho ou depurar comportamentos: pergunt
 | Controle de Qualidade e Junção | Validar, votar e resolver forks | Votação de validators e lógica de escolha de fork |
 | Embalagem | Marcar saídas finalizadas | Marcadores de finalidade e estado confirmado do ledger |
 
-![Modelo Linha de Montagem](assets/v02-modelo-linha-de-montagem.png)
+![Modelo Linha de Montagem](assets/v02-modelo-linha-de-montagem.webp)
 
 ## Ciclo de vida da transação: do cliente ao estado finalizado
 
@@ -90,7 +90,7 @@ Finalização (estabilidade visível à aplicação): após peso de votos sufici
 
 Por que esse fluxo importa na prática: ao projetar clientes ou programas, o estágio em que você espera confirmação determina como lidar com lógica de retry, idempotência e observação de estado. Por exemplo, se você assumir finalidade imediatamente após a submissão, pode enviar transações duplicadas em conflito; em vez disso, projete considerando a latência observada entre submissão e finalização e implemente idempotência ou detecção de conflito adequadamente. Entender o ciclo de vida também ajuda a escolher os pontos de integração corretos para monitoramento, depuração e tuning de desempenho.
 
-![Ciclo de Vida da Transação](assets/v03-ciclo-de-vida-da-transacao.png)
+![Ciclo de Vida da Transação](assets/v03-ciclo-de-vida-da-transacao.webp)
 
 ## Conclusão & Principais Lições
 

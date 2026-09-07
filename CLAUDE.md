@@ -11,6 +11,7 @@ Source of truth for all Superteam Academy content. This repo is data, not code: 
 | Editing… | Read |
 |---|---|
 | a course / lesson / slots | [courses/README.md](./courses/README.md) + `schema/course.schema.json`, `schema/lesson.schema.json` |
+| a translation (`courses/*/l10n/`) | [courses/README.md § Translations](./courses/README.md#translations) + the worked example at `courses/_template/l10n/pt-BR/` |
 | an achievement | [achievements/README.md](./achievements/README.md) + `schema/achievement.schema.json` |
 | a quest | [quests/README.md](./quests/README.md) + `schema/quest.schema.json` |
 | a learning path | [paths/README.md](./paths/README.md) + `schema/path.schema.json` |
@@ -25,6 +26,9 @@ Source of truth for all Superteam Academy content. This repo is data, not code: 
 - **`openEnded` never mints XP.** It's a reflection: one learner message, one AI reply.
 - **`course.creator` is the author's wallet and is immutable.** It maps straight to `Course.creator` on-chain (there is no `instructor` indirection — the `instructors/` folder was removed). Must be on-curve. Changing it after creation costs a full close-and-recreate, so mainnet courses must be created with the final wallet.
 - **`trackId` / `trackLevel` are equally immutable.** They order the catalog; get them right before a course is created on-chain.
+- **A translation is an overlay, never a second course.** `courses/<slug>/l10n/<locale>/` holds display strings and images only — never ids, slugs, `skills`, block keys or order, quiz `correct` flags, XP/creator/track fields, code `starter`/`solution`, or test `input`/`expectedOutput`. Duplicating a course to translate it forks its PDA, enrolment, slot bitmap and XP ledger, and two `course_id`s can never be merged.
+- **Never name a file `course.yaml`, `lesson.yaml` or `slots.lock.json` inside `l10n/`.** The compiler matches those names by suffix at *any* depth and would ship the overlay as a duplicate document. Content-lint escalates the two `.yaml` names to an error; **it cannot see `slots.lock.json`** — that scan only walks `.yaml`, a gap the app repo documents in `repo-paths.ts`. Structured strings go in `strings.yaml`.
+- **`sourceLocale` is the language a course is written in, and is set once at creation.** Fallback is always *requested → sourceLocale*, never → `en`; most live courses are PT-BR originals with no English version at all.
 
 ## Validate locally
 
@@ -45,3 +49,7 @@ This tree was originally extracted from the CMS that the platform used before co
 `course.creator` flows to `Course.creator` on-chain, but the `wallet → platform user` linkage (`profiles.wallet_address`) is what makes a creator's name and profile render in the app — a course whose creator wallet has no linked profile still works, it just shows the raw address.
 
 **The creator wallet IS the teacher pointer** (owner ruling, 2026-07-28). There is no teacher registry file and no `githubId` indirection: `course.creator` → `profiles.wallet_address` → the teacher's platform account is the whole model. The one requirement it puts on you is real: a course must be created on-chain with the instructor's **actual** wallet the first time, because `creator` is immutable afterwards.
+
+**Translations are authorable but inert.** `sourceLocale` is stripped by the app's non-strict `Course` Zod, and the compiler does not read `l10n/` at all, so an overlay stages without shipping. Expect a content-lint `warning` on any real course's `l10n/<locale>/strings.yaml` (*unclassified content file*) — it is benign, and the fix is app-side (`classify()` needs the path), never moving the file.
+
+**This repo picked Candidate B; the app spec recommends A.** `docs/superpowers/specs/2026-07-27-content-i18n-mechanism.md` in the app repo is design-only, pending owner decision D-5, and recommends per-lesson overlays (`lessons/<dir>/l10n/<locale>.yaml` plus `intro.<locale>.md` siblings). We shipped its Candidate B — a course-level mirrored subtree — named `l10n/` rather than `i18n/`. The reason is `gate5-orphans.ts`: it errors on any file in a lesson directory that no block references, and its allowlist is `lesson.yaml` and `*.quiz.yaml` only, so Candidate A is two gate-5 errors per translated lesson while Candidate B needs no gate change. Do not "correct" this tree toward the spec without reopening D-5.

@@ -43,9 +43,9 @@ Para operacionalizar o mapa, introduzimos três regras de decisão que você usa
 
 Aplique o mapa à terminologia conforme a encontra. Quando você ler a entrada de um glossário de projeto ou o README, anote a camada de recurso que ela representa e observe quais evidências confirmariam a alegação. Com o tempo, esse hábito treina você a ler documentação não como verdade final, mas como uma camada de evidência em um processo de verificação mais amplo — exatamente a mentalidade que você usará ao preparar comparações nos módulos seguintes.
 
-![Mapa de Recursos em Camadas](assets/v01-mapa-de-recursos-em-camadas.png)
+![Mapa de Recursos em Camadas](assets/v01-mapa-de-recursos-em-camadas.webp)
 
-![Mapa de Recursos por Camada](assets/v02-mapa-de-recursos-por-camada.png)
+![Mapa de Recursos por Camada](assets/v02-mapa-de-recursos-por-camada.webp)
 
 ## Fluxo de Trabalho: Checklist Prático para Navegar pelos Recursos da Solana
 
@@ -72,7 +72,7 @@ Use a seguinte tabela como referência compacta que você pode reproduzir ao faz
 
 Aplique este fluxo de trabalho de forma consistente quando você curar recursos para uma matriz comparativa. As linhas da matriz são os projetos e as colunas são os sinais dos recursos; isso produz entradas estruturadas para análises posteriores sobre incentivos ou trade-offs de arquitetura.
 
-![Checklist Prático de Navegação](assets/v03-checklist-pratico-de-navegacao.png)
+![Checklist Prático de Navegação](assets/v03-checklist-pratico-de-navegacao.webp)
 
 ## Exemplo Concreto: Explorar um Projeto e Preparar Notas de Comparação
 
@@ -88,7 +88,7 @@ Finalmente, inspecione sinais comunitários: procure um Discord ativo ou um tóp
 
 Este exemplo concreto mostra como terminologia, evidência de repositório, docs e rastros on-chain se combinam em um resumo conciso e comparável. Ao repetir esse processo em múltiplos projetos, você terá entradas padronizadas que alimentam diretamente o trabalho comparativo exigido pelos próximos módulos.
 
-![De Sinal a Inferência](assets/v04-de-sinal-a-inferencia.png)
+![De Sinal a Inferência](assets/v04-de-sinal-a-inferencia.webp)
 
 ## Conclusão & Principais Lições
 

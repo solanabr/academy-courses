@@ -18,7 +18,7 @@ vault balance after: 100000000
 
 The last line is the vault's balance in lamports (the smallest unit of SOL, a billionth of one), and it went up by exactly the 0.1 SOL the bot deposited. The middle line is your receipt from the network. Nothing about that receipt was faked: re-run the script and the balance climbs again, because a second, separate read confirmed it against the chain, not against a variable in memory. You just did the thing test files pretend to do, from a program that will still be running when the test harness is long gone.
 
-![A headless script prints the vault balance before, a transaction receipt, and the balance after, which has risen by the deposited amount.](assets/v01-annotated-code.png)
+![A headless script prints the vault balance before, a transaction receipt, and the balance after, which has risen by the deposited amount.](assets/v01-annotated-code.webp)
 
 ## Read the bot you just ran
 
@@ -42,7 +42,7 @@ codama.accept(renderVisitor("./bot/generated"));
 
 Run `node codama.mjs` and a `bot/generated/` folder appears, holding a typed function for every instruction, a decoder for every account, and a helper for every PDA. `codama` reads the IDL and writes the client so you never do. Change the program, rebuild, regenerate, and the client rewrites itself. That is why you never hand-write an ABI here (the Application Binary Interface an Ethereum client has to maintain by hand, and keep in sync by hand, and get subtly wrong by hand). The build step is the source of truth, and the generated client is a reader of it, not a second author who can disagree.
 
-![The Rust program compiles through anchor build into an IDL, which Codama renders into a generated client the bot imports, so the interface is generated, not hand-written.](assets/v02-flowchart.png)
+![The Rust program compiles through anchor build into an IDL, which Codama renders into a generated client the bot imports, so the interface is generated, not hand-written.](assets/v02-flowchart.webp)
 
 ## One shape for every transaction
 
@@ -86,7 +86,7 @@ Now the instruction. `getDepositInstructionAsync` is one of the functions `codam
 
 Then the part that is identical for every transaction on Solana. `createTransactionMessage({ version: 0 })` starts an empty versioned message, and `pipe` threads it through three edits in order: name who pays the fee and signs (`setTransactionMessageFeePayerSigner`, handed the `owner` signer), stamp it with a recent blockhash so the network can date it (`setTransactionMessageLifetimeUsingBlockhash`, from `rpc.getLatestBlockhash()`), and drop your one instruction in (`appendTransactionMessageInstruction`). `pipe` is just left-to-right function application: each line takes the message so far and returns the next version of it, so you read the transaction being assembled top to bottom.
 
-![An annotation of the kit deposit pipeline mapping each call to its job, grouped into build, sign, and send stages.](assets/v03-annotated-code.png)
+![An annotation of the kit deposit pipeline mapping each call to its job, grouped into build, sign, and send stages.](assets/v03-annotated-code.webp)
 
 `signTransactionMessageWithSigners` is the payoff for attaching the signer to the message earlier. It walks the message, finds every account that must sign, and asks each attached signer to do it. Here that is just `owner`, so one signature goes on. This is the seam the whole lesson turns on, so mark it: the transaction does not care *which kind* of pen signed it. A key loaded off disk and a browser wallet both produce a signer, and both slot into this exact line. Swap the signer and every other line stays the same.
 
@@ -96,7 +96,7 @@ Then the part that is identical for every transaction on Solana. `createTransact
 
 That commitment level is `"confirmed"`, and it is worth a full paragraph because it is the dial between speed and certainty. Commitment is Solana's answer to how sure you want to be that a transaction is real, and it has three rungs. `"processed"` means a single validator has seen it and it might still be dropped. `"confirmed"` means validators representing a supermajority of stake, more than two-thirds, have voted on the block that holds your transaction, which is strong enough for almost every client. `"finalized"` means the block is buried dozens deep and is practically irreversible, at the cost of a few more seconds. The bot asks for `"confirmed"`, so when that line returns, you know the deposit landed, not merely that you fired it into the dark.
 
-![A table of the three Solana commitment levels, processed, confirmed, and finalized, describing what each guarantees and how strong it is, with confirmed marked as the bot's choice.](assets/v04-table.png)
+![A table of the three Solana commitment levels, processed, confirmed, and finalized, describing what each guarantees and how strong it is, with confirmed marked as the bot's choice.](assets/v04-table.webp)
 
 The base-58 string it returns, captured here as `signature`, is your **transaction signature** (the identifier that pins your exact transaction on-chain: your permanent receipt). Paste it into a block explorer, Solana Explorer or Solscan, and you can pull up the whole transaction: which program ran, which accounts changed and by how much, the compute it burned, the fee it paid. In the bot it is proof for you; in a frontend you turn it into a clickable link so a user can watch their own deposit settle.
 
@@ -108,7 +108,7 @@ Look back at the imports. Every primitive, the RPC, the signer, the message buil
 
 The reason is the generated client. The `@solana-program` packages and the client `codama` renders both depend on kit, and as of now they require `@solana/kit@^6.4.0`. Kit v7 shipped ahead of that ecosystem, so if you install `@solana/kit@7` alongside a generated client, `npm` throws a peer-dependency error and nothing installs. Pin kit to the 6 line and everything agrees. Concretely: `npm install @solana/kit@^6.10.0`, and let the generated client pull its matching pieces. This is not kit being broken; it is a young ecosystem where the client generators trail the core SDK by one major version, and the fix is simply to install the version the whole toolchain shares.
 
-![A comparison of kit v7 versus v6 showing that the generated client requires v6, so v6 is the version to install despite v7 being newer.](assets/v05-comparison.png)
+![A comparison of kit v7 versus v6 showing that the generated client requires v6, so v6 is the version to install despite v7 being newer.](assets/v05-comparison.webp)
 
 ## The face: a button that signs
 
@@ -178,7 +178,7 @@ function DepositButton({ account }) {
 
 Put the two files side by side and the point lands on its own. The `getDepositInstructionAsync` line is identical. The `pipe` block is identical. The one signer produced by `useWalletAccountTransactionSendingSigner` is passed to `setTransactionMessageFeePayerSigner` exactly where the bot passed `owner`, and it is the same signer the deposit instruction names as its `owner` account, because the connected wallet is now the vault's owner. The only real difference is the send call: the bot's local key signs and then a separate helper sends, while the wallet's signer signs and sends in one motion (`signAndSendTransactionMessageWithSigners`), because the wallet is the one holding the connection to the network. Same pipeline, a different pen.
 
-![A single shared transaction pipeline fed by two signers, a disk keypair for the bot and a wallet signer for the button, showing the signer is the only difference.](assets/v06-diagram.png)
+![A single shared transaction pipeline fed by two signers, a disk keypair for the bot and a wallet signer for the button, showing the signer is the only difference.](assets/v06-diagram.webp)
 
 ## The bot grows an ear: listen instead of poll
 
@@ -203,7 +203,7 @@ for await (const notification of notifications) {
 
 `accountNotifications` takes the account you care about, here the vault's record PDA that `findVaultStatePda` derived, and `subscribe` hands back an async stream. `for await` then blocks on that stream, waking your code only when the chain has something to say. When it does, `fetchVaultState` decodes the account through the very generated codec the client has been using all along, turning raw bytes back into a typed object with a real `balance`, exactly the way the deposit read it, except this time you never asked. The chain volunteered it. That trailing `"confirmed"` is the same commitment rung from earlier, so you react to what is real, not to a maybe that might still get dropped, and the `abortSignal` is your off switch: when it fires the stream closes and the loop ends, instead of leaking an open socket for the life of the process.
 
-![A two-column comparison of the Bitcoin polling watcher against kit's accountNotifications subscription, showing polling asks on a timer while a subscription is pushed the new bytes.](assets/v07-comparison.png)
+![A two-column comparison of the Bitcoin polling watcher against kit's accountNotifications subscription, showing polling asks on a timer while a subscription is pushed the new bytes.](assets/v07-comparison.webp)
 
 ## Name the cost
 
