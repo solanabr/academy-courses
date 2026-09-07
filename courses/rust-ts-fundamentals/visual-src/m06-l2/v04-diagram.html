@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: Why the coworking space breaks your pull
      purpose: make the shared-IP rate limit visible so a 429 at a shared network reads as expected, not mysterious
-     data: Left: coworking space with many laptops -> one NAT router -> one public IPv4 -> Docker Hub sees ONE address -> shared pool: 100 unauthenticated pulls per 6 hours Right: same laptop, logged in via docker login -> Hub counts per ACCOUNT -> own pool: effectively unlimited under Docker's 2025 policy (abuse-rate limited, not metered) Failure symptom: HTTP 429 on pull
-     prompt: Two-panel diagram. Panel 1: several laptops funneling through one router labeled with a single IPv4 address into Docker Hub, with a meter labeled "100 pulls / 6 h, shared". Panel 2: one laptop with a user badge going to Docker Hub, meter labeled "effectively unlimited, yours". Caption the left panel's arrow with "429".
+     data: Left: coworking space with many laptops -> one NAT router -> one public IPv4 -> Docker Hub sees ONE address -> shared pool: 100 unauthenticated pulls per 6 hours Right: same laptop, logged in via docker login -> Hub counts per ACCOUNT -> own pool: 200 pulls per 6 hours (Docker Personal; only paid Pro/Team/Business are unlimited, docs.docker.com/docker-hub/usage/ read 2026-09-06) Failure symptom: HTTP 429 on pull
+     prompt: Two-panel diagram. Panel 1: several laptops funneling through one router labeled with a single IPv4 address into Docker Hub, with a meter labeled "100 pulls / 6 h, shared". Panel 2: one laptop with a user badge going to Docker Hub, meter labeled "200 pulls / 6 h, yours". Caption the left panel's arrow with "429".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -76,7 +76,7 @@
         <div class="v04-hub">Docker Hub</div>
         <div style="font-family:var(--font-body);font-size:14.5px;color:var(--text-secondary);margin-top:8px;">your pulls draw from your own pool</div>
         <div class="v04-meter">
-          <div class="v04-mlab">effectively unlimited, yours alone <span style="font-weight:400;color:var(--text-secondary);">(2025 policy: abuse-rate limited, not metered)</span></div>
+          <div class="v04-mlab">200 pulls / 6 h, yours alone</div>
           <div class="v04-mbar"><div style="width:100%;background:var(--stbr-emerald);"></div></div>
         </div>
       </div>
