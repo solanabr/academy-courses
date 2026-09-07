@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:36px 52px 30px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.grid{display:grid;grid-template-columns:1.15fr 0.9fr 1.6fr 1.25fr;column-gap:12px;row-gap:10px}
+.h{height:46px;border-radius:var(--radius-md);display:flex;align-items:center;padding:0 16px;font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:.12em;text-transform:uppercase;background:var(--surface-inverse);color:var(--text-on-dark)}
+.h.focal{background:var(--surface-accent);color:var(--text-on-accent);font-weight:var(--weight-black)}
+.c{min-height:104px;border-radius:var(--radius-md);padding:12px 16px;display:flex;flex-direction:column;justify-content:center;font-family:var(--font-body);font-size:15px;line-height:1.35;color:var(--text-secondary);border:1.5px solid var(--border-subtle)}
+.c.i{font-family:var(--font-display);font-weight:var(--weight-black);font-size:18px;line-height:1.15;color:var(--text-primary);border-color:var(--stbr-dark)}
+.c.no{border:2px solid var(--stbr-emerald);color:var(--text-primary);font-size:16px;font-weight:600}
+.c.no b{display:block;font-family:var(--font-display);font-weight:var(--weight-black);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--stbr-emerald);margin-bottom:4px}
+.c.bs{background:var(--surface-paper);border-color:var(--surface-paper)}
+.c.bs b{display:block;font-family:var(--font-display);font-weight:var(--weight-bold);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+</style></head>
+<body>
+<!-- comparison: The four instruments that fit in a week, what each costs, and whether it can produce a no
+     purpose: let the reader pick the cheapest instrument that can still disconfirm their assumption instead of the most impressive one
+     data: Five conversations with the people in the pitch sentence | about an hour each including the walk | can say no directly, the person who must change their routine says they will not | blind spot: five is small, and friends must be excluded Fake door or waitlist | about a day | can say no only about pull, nobody leaves a contact | blind spot: says nothing about behavior after the door; team network signups excluded On-chain comparables | nothing new, already in the sizing | can say no about the rails, if the volume is not there | blind spot: says nothing about the owner One competitor's real users | about two hours of reading | can say no if nobody complains about the thing you fix | blind spot: their users are not yet yours
+     prompt: Four rows, one per instrument, with four columns: instrument, cost, how it can say no, blind spot. The "how it can say no" column is the focal column and should read as the heaviest cell in each row. Rows ordered as in the data. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:536px;height:563px;bottom:-314px;right:-314px;border-radius:49% 54% 42% 53% / 57% 62% 49% 52%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:450px;height:478px;left:-267px;top:259px;border-radius:62% 48% 35% 56% / 37% 54% 44% 39%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Four instruments, one week</div>
+  <h2 class="viz-title">The four instruments that fit in a week, what each costs, and whether it can produce a no</h2>
+  <div class="grid">
+    <div class="h">instrument</div><div class="h">cost</div><div class="h focal">how it can say no</div><div class="h">blind spot</div>
+    <div class="c i">Five conversations with the people in the pitch sentence</div>
+    <div class="c">about an hour each including the walk</div>
+    <div class="c no"><b>can say no directly</b>the person who must change their routine says they will not</div>
+    <div class="c bs"><b>blind spot</b>five is small, and friends must be excluded</div>
+    <div class="c i">Fake door or waitlist</div>
+    <div class="c">about a day</div>
+    <div class="c no"><b>can say no only about pull</b>nobody leaves a contact</div>
+    <div class="c bs"><b>blind spot</b>says nothing about behavior after the door; team network signups excluded</div>
+    <div class="c i">On-chain comparables</div>
+    <div class="c">nothing new, already in the sizing</div>
+    <div class="c no"><b>can say no about the rails</b>if the volume is not there</div>
+    <div class="c bs"><b>blind spot</b>says nothing about the owner</div>
+    <div class="c i">One competitor's real users</div>
+    <div class="c">about two hours of reading</div>
+    <div class="c no"><b>can say no</b>if nobody complains about the thing you fix</div>
+    <div class="c bs"><b>blind spot</b>their users are not yet yours</div>
+  </div>
+</div>
+</div>
+</body></html>

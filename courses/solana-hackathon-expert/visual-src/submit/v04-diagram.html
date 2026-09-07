@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:30px 52px 24px;overflow:hidden}
+.viz-title{font-size:30px;margin:4px 0 16px}
+.hub{position:relative;height:484px;width:1352px}
+.centre{position:absolute;left:456px;top:0;width:440px;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);overflow:hidden}
+.centre .h{height:42px;display:flex;align-items:center;padding:0 16px;background:var(--surface-accent);color:var(--text-on-accent);font-family:var(--font-display);font-weight:var(--weight-black);font-size:18px}
+.f{height:44px;display:flex;align-items:center;padding:0 16px;border-top:1.5px solid var(--border-subtle);font-family:var(--font-body);font-weight:600;font-size:15px;color:var(--text-primary);gap:10px}
+.f .i{font-family:var(--font-display);font-weight:var(--weight-black);font-size:12px;color:var(--stbr-emerald);width:22px;flex:none}
+.f.blank{background:var(--surface-paper)}
+.f.blank .n{border:1.5px dashed var(--stbr-ink-500);border-radius:var(--radius-sm);padding:3px 8px;color:var(--text-secondary)}
+.f .tag{margin-left:auto;background:var(--surface-inverse);color:var(--text-on-dark);border-radius:var(--radius-pill);padding:3px 10px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:11px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.s{position:absolute;width:376px;border:2px solid var(--stbr-emerald);border-radius:var(--radius-md);display:flex;align-items:center;padding:0 14px;font-family:var(--font-mono);font-weight:600;font-size:14px;color:var(--stbr-emerald);line-height:1.25;background:var(--surface-card)}
+.s.l{left:0}.s.r{left:976px}
+.a{position:absolute;width:80px;height:16px}
+.a.l{left:376px}.a.r{left:896px}
+.strip{margin-top:14px;border-radius:var(--radius-lg);background:var(--surface-inverse);color:var(--text-on-dark);padding:10px 20px;display:flex;align-items:center;gap:14px}
+.strip .h{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;white-space:nowrap;flex:none;margin-right:6px}
+.strip .c{font-family:var(--font-body);font-size:14px;border:1.5px solid rgba(245,232,202,.4);border-radius:var(--radius-sm);padding:5px 12px;white-space:nowrap}
+.strip .c.slot{border-style:dashed}
+</style></head>
+<body>
+<!-- diagram: Fiado's portal answers and the rung each one was copied from
+     purpose: show that every answered field in Fiado's package points back at a file that already existed, so nothing is composed on submission day
+     data: Portal fields, centre: name; description; blockchains and tools; teammates; location; logo; repository; presentation video; demo video; GTM, validation and distribution Feeds: pitch final -> name; evidence pack + decision memo + one-pager -> description (blank, to write); narrative log -> blockchains and tools; team card -> teammates, location, leader; deck -> logo; the repo + access grant -> repository; two-videos -> presentation video, demo video; one-pager + evidence pack + partner list -> GTM, validation and distribution (blank, to write) Also in the file: deadline UTC (slot until the live page prints the hour), deadline local (converted), checklist signed, confirmation screenshot
+     prompt: A hub layout. In the centre, a tall box labelled "portal answers, Fiado" listing the ten fields in the order given. Around it, the source files as smaller nodes with one arrow each into the field they feed, following the feeds list exactly. The two blank fields are drawn with dashed outlines and the tag "to write". Under the hub, a separate strip holding the deadline, checklist and confirmation lines. Keep arrows uncrossed where possible. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:527px;height:457px;right:-287px;top:305px;border-radius:63% 45% 36% 53% / 55% 52% 58% 35%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:459px;height:496px;bottom:-269px;left:614px;border-radius:46% 51% 54% 48% / 57% 62% 46% 38%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<div class="card">
+<div class="stbr-eyebrow">Nothing composed on submission day</div>
+<h2 class="viz-title">Fiado's portal answers and the rung each one was copied from</h2>
+<div class="hub"><div class="centre"><div class="h">portal answers, Fiado</div><div class="f"><div class="i">01</div><span>name</span></div><div class="f blank"><div class="i">02</div><span class="n">description</span><span class="tag">to write</span></div><div class="f"><div class="i">03</div><span>blockchains and tools</span></div><div class="f"><div class="i">04</div><span>teammates</span></div><div class="f"><div class="i">05</div><span>location</span></div><div class="f"><div class="i">06</div><span>logo</span></div><div class="f"><div class="i">07</div><span>repository</span></div><div class="f"><div class="i">08</div><span>presentation video</span></div><div class="f"><div class="i">09</div><span>demo video</span></div><div class="f blank"><div class="i">10</div><span class="n">GTM, validation and distribution</span><span class="tag">to write</span></div></div><div class="s l" style="top:48px;height:36px">pitch final</div><div class="a l" style="top:58.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="0" y1="8" x2="68" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="66,1 80,8 66,15" fill="#008B4C"/></svg></div><div class="s l" style="top:92px;height:36px">evidence pack + decision memo + one-pager</div><div class="a l" style="top:102.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="0" y1="8" x2="68" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="66,1 80,8 66,15" fill="#008B4C"/></svg></div><div class="s l" style="top:136px;height:36px">narrative log</div><div class="a l" style="top:146.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="0" y1="8" x2="68" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="66,1 80,8 66,15" fill="#008B4C"/></svg></div><div class="s l" style="top:180px;height:80px">team card (teammates, location, leader)</div><div class="a l" style="top:212.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="0" y1="8" x2="68" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="66,1 80,8 66,15" fill="#008B4C"/></svg></div><div class="s r" style="top:268px;height:36px">deck</div><div class="a r" style="top:278.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="80" y1="8" x2="12" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="14,1 0,8 14,15" fill="#008B4C"/></svg></div><div class="s r" style="top:312px;height:36px">the repo + access grant</div><div class="a r" style="top:322.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="80" y1="8" x2="12" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="14,1 0,8 14,15" fill="#008B4C"/></svg></div><div class="s r" style="top:356px;height:80px">two-videos</div><div class="a r" style="top:388.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="80" y1="8" x2="12" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="14,1 0,8 14,15" fill="#008B4C"/></svg></div><div class="s r" style="top:444px;height:36px">one-pager + evidence pack + partner list</div><div class="a r" style="top:454.0px"><svg width="80" height="16" viewBox="0 0 80 16"><line x1="80" y1="8" x2="12" y2="8" stroke="#008B4C" stroke-width="2.5"/><polygon points="14,1 0,8 14,15" fill="#008B4C"/></svg></div></div>
+<div class="strip"><div class="h">also in the file</div><div class="c slot">deadline UTC: slot until the live page prints the hour</div><div class="c">deadline local (converted)</div><div class="c">checklist signed</div><div class="c">confirmation screenshot</div></div>
+</div>
+</div>
+</body></html>

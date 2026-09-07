@@ -1,0 +1,60 @@
+id: lesson-she-rehearsal
+slug: rehearsal
+title: "Rehearse the season before the season"
+skills:
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your prize table still holds Frontier's US$10,000 USDG Superteam Brasil side track, and on 2026-09-06 the World's Fair page is not up yet. A teammate writes US$10,000 on the next-season line. Predict what the plan should hold instead."
+        multiSelect: false
+        options:
+          - id: a
+            label: "The US$10,000, since the side track amount held between seasons and a plan needs a number to budget the rehearsal against."
+            correct: false
+            feedback: "The amount moved from US$11,200 on Cypherpunk to US$10,000 on Frontier, so it is never this season's amount until the page says so."
+          - id: b
+            label: "The Cypherpunk figure of US$11,200, since the higher of the two known rows is the safer estimate for a budget line."
+            correct: false
+            feedback: "Cypherpunk came before Frontier, and the point is that the number moves every season, not which old number is bigger."
+          - id: c
+            label: "A dated slot with no amount, expected September 14, 2026, filled only when earn.superteam.fun carries it."
+            correct: true
+        explanation: "Quoting last season's side track as this season's is the easy footgun, because the old number is already in your prize table. The row moved from US$11,200 on Cypherpunk to US$10,000 USDG on Frontier, and as of 2026-09-06 the World's Fair Superteam Brasil side track was only expected on September 14. So the plan holds a dated slot with no amount until earn.superteam.fun carries the row, and the check date is written next to it."
+      - id: q2
+        prompt: "The Passo Fundo banca scores Fiado low on a criterion that Colosseum's seven factors do not carry. A teammate wants to move a slide for it. Predict what the plan's changes line does."
+        multiSelect: false
+        options:
+          - id: a
+            label: "Leaves the deck alone and logs it as information about that edition, changing only where a score points at a factor Colosseum also reads."
+            correct: true
+          - id: b
+            label: "Moves the slide, since the banca is the largest room of strangers before the season and its scores are the target the rehearsal exists for."
+            correct: false
+            feedback: "Colosseum's seven factors are the target, and the banca's scores are a feedback round that tests your delivery of them."
+          - id: c
+            label: "Rebuilds the deck to the next edition's spec, since each rehearsal carries its own rubric and the package should match the one it enters."
+            correct: false
+            feedback: "Rebuilding for a rehearsal's spec is the footgun the plan refuses, since the package is exported and changed once, never rebuilt."
+        explanation: "The rehearsal is not a second target. The banca has its own criteria and the temptation is to tune the package toward those scores, but Colosseum's seven factors are the target and the banca is a feedback round that tests how you deliver them to strangers who score it. The package changes only where a score points at a factor Colosseum also reads, and a criterion the banca has and Colosseum does not is information about that edition, not a reason to move a slide."
+      - id: q3
+        prompt: "Three Superteam Brasil editions overlap on the calendar and a team of two wants to enter all three before the side track is announced on September 14. Predict what the plan does and what the team would otherwise arrive with."
+        multiSelect: false
+        options:
+          - id: a
+            label: "Enters all three, since more rehearsals mean more scores to read, and exports the package once for each edition's form."
+            correct: false
+            feedback: "A team of two that enters all three rehearses nothing and arrives on September 14 with three half-packages and no scores read."
+          - id: b
+            label: "Enters the two online editions, since they cost no trip, and skips the in-person one because presence is a test the global portal never runs anyway."
+            correct: false
+            feedback: "Presence in a room is the one test the Colosseum portal will never give you, which is why the in-person edition is the one to take when someone can travel."
+          - id: c
+            label: "Names one edition and writes a no with a reason next to the others, since three at once means three half-packages and no scores read."
+            correct: true
+        explanation: "A rehearsal costs a week of the month and a second set of forms, and three at once costs the month. A team of two that enters all three arrives on September 14 with three half-packages and no scores it had time to read. The plan names one rehearsal, the in-person one when somebody can be in the room, and says no to the rest in writing so the no is already there when the next page looks easy."

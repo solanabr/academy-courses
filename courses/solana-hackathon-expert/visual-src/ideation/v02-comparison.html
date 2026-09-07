@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style><style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:38px 52px 34px;overflow:hidden}
+.viz-title{font-size:38px;margin:4px 0 22px}
+.cols{display:flex;gap:28px}
+.col{flex:1;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);overflow:hidden}
+.col.em{border-color:var(--stbr-emerald)}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px;height:72px;background:var(--surface-inverse);color:var(--text-on-dark)}
+.col.em .ch{background:var(--surface-brand);color:var(--text-on-brand)}
+.ch .k{font-family:var(--font-display);font-weight:var(--weight-black);font-size:22px;line-height:1}
+.ch .s{font-family:var(--font-body);font-size:14px;line-height:1.25;opacity:.9;margin-top:4px}
+.badge{background:var(--surface-accent);color:var(--text-on-accent);font-family:var(--font-display);font-weight:var(--weight-black);font-size:16px;border-radius:var(--radius-pill);padding:7px 14px;white-space:nowrap}
+.row{display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 20px;border-top:1.5px solid var(--border-subtle)}
+.row:first-of-type{border-top:0}
+.row .f{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:18px;color:var(--text-primary)}
+.tag{font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;border-radius:var(--radius-pill);padding:5px 12px;white-space:nowrap;border:1.5px solid transparent}
+.tag.int{background:var(--surface-brand);color:var(--text-on-brand)}
+.tag.gate{border-color:var(--stbr-emerald);color:var(--stbr-emerald)}
+.tag.arg{border-color:var(--stbr-ink-300);color:var(--text-secondary)}
+.tag.back{background:var(--surface-inverse);color:var(--text-on-dark)}
+.band{margin-top:22px;border-radius:var(--radius-md);background:var(--surface-paper);padding:14px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px}
+.band .t{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--stbr-emerald);white-space:nowrap}
+.band .n{font-family:var(--font-display);font-weight:var(--weight-black);font-size:20px;color:var(--text-primary);white-space:nowrap}
+.band .tr{order:4;flex-basis:100%;font-family:var(--font-body);font-size:15px;color:var(--text-secondary);line-height:1.3}
+.band .src{order:3;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-left:auto;white-space:nowrap}
+</style></head>
+<body>
+<!-- comparison: Where an idea starts, and what the rubric asks of it afterward
+     purpose: make the reader see that a capability-first idea has to backfill five of the seven factors
+     data: Problem-first: starts with a person and the thing they cannot do today; the interview supplies Insight, Founder + Market Fit and Potential Market Size from the start; the technology is chosen last, at the gate. Capability-first: starts with a chain feature and looks for a use; Insight and Product + Execution can be argued; Founder + Market Fit, Potential Market Size, Founder Communication, Viability and Traction have to be invented after the build. Field, Cypherpunk (submissions due October 30, 2025; winners announced December 13, 2025): 9,000+ participants, 1,576 final projects; tracks Infrastructure, Consumer, DeFi, Stablecoins, RWAs, Undefined (colosseum.com/cypherpunk; blog.colosseum.com, 2026-09-07)
+     prompt: Two columns headed "problem-first" and "capability-first". Each column lists the seven Colosseum factor names; in the left column the factors supplied by the interview are marked "from the interview" and the rest "chosen at the gate"; in the right column two factors are marked "arguable" and five are marked "backfilled after the build". A footer band with the Cypherpunk field figures and the six track names. Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:483px;height:472px;right:-299px;top:318px;border-radius:41% 45% 39% 52% / 58% 54% 52% 65%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:437px;height:552px;bottom:-308px;left:752px;border-radius:64% 59% 62% 38% / 52% 63% 59% 54%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Where an idea starts</div>
+  <h2 class="viz-title">Where an idea starts, and what the rubric asks of it afterward</h2>
+  <div class="cols">
+    <div class="col em">
+      <div class="ch"><div><div class="k">problem-first</div><div class="s">starts with a person and the thing they cannot do today; the technology is chosen last</div></div></div>
+      <div class="row"><div class="f">Founder + Market Fit</div><div class="tag int">from the interview</div></div>
+      <div class="row"><div class="f">Insight</div><div class="tag int">from the interview</div></div>
+      <div class="row"><div class="f">Product + Execution</div><div class="tag gate">chosen at the gate</div></div>
+      <div class="row"><div class="f">Potential Market Size</div><div class="tag int">from the interview</div></div>
+      <div class="row"><div class="f">Founder Communication</div><div class="tag gate">chosen at the gate</div></div>
+      <div class="row"><div class="f">Viability</div><div class="tag gate">chosen at the gate</div></div>
+      <div class="row"><div class="f">Traction</div><div class="tag gate">chosen at the gate</div></div>
+    </div>
+    <div class="col">
+      <div class="ch"><div><div class="k">capability-first</div><div class="s">starts with a chain feature and looks for a use</div></div><div class="badge">5 of 7 backfilled</div></div>
+      <div class="row"><div class="f">Founder + Market Fit</div><div class="tag back">backfilled after the build</div></div>
+      <div class="row"><div class="f">Insight</div><div class="tag arg">arguable</div></div>
+      <div class="row"><div class="f">Product + Execution</div><div class="tag arg">arguable</div></div>
+      <div class="row"><div class="f">Potential Market Size</div><div class="tag back">backfilled after the build</div></div>
+      <div class="row"><div class="f">Founder Communication</div><div class="tag back">backfilled after the build</div></div>
+      <div class="row"><div class="f">Viability</div><div class="tag back">backfilled after the build</div></div>
+      <div class="row"><div class="f">Traction</div><div class="tag back">backfilled after the build</div></div>
+    </div>
+  </div>
+  <div class="band">
+    <div class="t">Field, Cypherpunk (submissions due Oct 30, 2025; winners Dec 13, 2025)</div>
+    <div class="n">9,000+ participants &middot; 1,576 final projects</div>
+    <div class="tr">tracks: Infrastructure, Consumer, DeFi, Stablecoins, RWAs, Undefined</div>
+    <div class="src">blog.colosseum.com, 2026-09-06</div>
+  </div>
+</div>
+</div>
+</body></html>

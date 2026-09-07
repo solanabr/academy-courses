@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:30px 48px 24px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 16px}
+.hd{display:flex;gap:16px;margin-bottom:12px}
+.hl{width:380px;flex:none}
+.hq{width:474px;flex:none;background:var(--surface-brand);color:var(--text-on-brand);border-radius:var(--radius-md);padding:10px 16px;display:flex;align-items:center;gap:12px}
+.hq b{font-family:var(--font-display);font-weight:var(--weight-black);font-size:26px;flex:none}
+.hq span{font-size:15px;line-height:1.25;font-weight:var(--weight-semibold)}
+.row{display:flex;gap:16px;margin-top:10px}
+.lb{width:380px;flex:none;height:78px;border:2px solid var(--stbr-dark);border-radius:var(--radius-md);padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lb .n{font-family:var(--font-display);font-weight:var(--weight-black);font-size:19px;line-height:1.15;color:var(--text-primary)}
+.lb.hot{background:var(--surface-accent);border-color:var(--surface-accent)}
+.tag{flex:none;font-size:11px;line-height:1.2;font-weight:var(--weight-bold);text-transform:uppercase;letter-spacing:.06em;padding:5px 9px;border-radius:var(--radius-pill);background:var(--surface-inverse);color:var(--text-on-dark);text-align:center;max-width:170px}
+.cell{width:474px;flex:none;height:78px;border:1.5px solid var(--border-subtle);background:var(--surface-paper);border-radius:var(--radius-md);padding:0 16px;display:flex;align-items:center;gap:12px}
+.cell b{flex:none;width:52px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:18px;color:var(--stbr-emerald)}
+.cell b.no{color:var(--text-muted)}
+.cell span{font-size:14px;line-height:1.3;color:var(--text-primary)}
+.band{margin-top:16px;background:var(--surface-brand);color:var(--text-on-brand);border-radius:var(--radius-lg);padding:14px 20px;font-family:var(--font-display);font-weight:var(--weight-bold);font-size:18px;line-height:1.25}
+</style></head>
+<body>
+<!-- comparison: Fiado's candidate jobs against the two questions that pick the first one
+     purpose: let the reader see why paying part of a tab wins over the more obvious jobs, so they apply the same two questions to their own list
+     data: Question A: can a judge verify it on screen in three minutes? Question B: which assumption from the evidence pack does it test? open a tab: A, no, it is a form and a form proves nothing; B, none pay part of a tab from the regular's phone: A, yes, a transfer confirms and leaves a signature; B, the customer will hold the tab on a phone and settle in a stablecoin the reminder: A, yes, but only once a tab with a balance exists; B, the reminder reduces late payment (the memo's next assumption, "needs a tab") the supplier log: A, yes; B, nothing the pitch claims the loyalty stamps: A, yes; B, nothing the pitch claims chosen: pay part of a tab, with the reminder added last as the instrument for the next assumption
+     prompt: A five-row, two-column grid. Rows are the five candidate jobs in the data's order; columns are question A and question B, each cell holding the short answer from the data. The "pay part of a tab" row is marked as chosen and the reminder row carries a small tag reading "added last, as the instrument". Structural layout only; leave styling to the brand system.
+     BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
+     Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
+     Leave the .stbr-decor block untouched (per-asset brand decoration).
+     WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
+     background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:521px;height:538px;bottom:-300px;right:-300px;border-radius:45% 40% 45% 59% / 56% 61% 56% 50%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:468px;height:433px;left:-290px;top:323px;border-radius:44% 47% 59% 52% / 46% 43% 48% 43%;background:#ffd23f;opacity:0.8;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Two questions pick the first job</div>
+  <h2 class="viz-title">Fiado's candidate jobs against the two questions that pick the first one</h2>
+  <div class="hd"><div class="hl"></div><div class="hq"><b>A</b><span>can a judge verify it on screen in three minutes?</span></div><div class="hq"><b>B</b><span>which assumption from the evidence pack does it test?</span></div></div>
+  <div class="row"><div class="lb"><div class="n">open a tab</div></div><div class="cell"><b class="no">no</b><span>it is a form and a form proves nothing</span></div><div class="cell"><b class="no">none</b><span></span></div></div>
+  <div class="row"><div class="lb hot"><div class="n">pay part of a tab from the regular's phone</div><div class="tag">chosen</div></div><div class="cell"><b>yes</b><span>a transfer confirms and leaves a signature</span></div><div class="cell"><b>tests</b><span>the customer will hold the tab on a phone and settle in a stablecoin</span></div></div>
+  <div class="row"><div class="lb"><div class="n">the reminder</div><div class="tag">added last, as the instrument</div></div><div class="cell"><b>yes</b><span>but only once a tab with a balance exists</span></div><div class="cell"><b>tests</b><span>the reminder reduces late payment; the memo's next assumption, "needs a tab"</span></div></div>
+  <div class="row"><div class="lb"><div class="n">the supplier log</div></div><div class="cell"><b>yes</b><span></span></div><div class="cell"><b class="no">none</b><span>nothing the pitch claims</span></div></div>
+  <div class="row"><div class="lb"><div class="n">the loyalty stamps</div></div><div class="cell"><b>yes</b><span></span></div><div class="cell"><b class="no">none</b><span>nothing the pitch claims</span></div></div>
+  <div class="band">Chosen: pay part of a tab, with the reminder added last as the instrument for the next assumption.</div>
+</div>
+</div>
+</body></html>
