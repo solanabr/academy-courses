@@ -42,7 +42,7 @@ blocks:
             correct: true
             feedback: "It moves house: off the parent, onto the sibling account it actually constrains. And it replaces the equality test only, so a signer requirement still has to be declared on its own."
           - id: c
-            label: "Leave it -- `has_one` is fully supported on the V2 line and the warning is a known `anchor-next` false positive; silence it with `#[allow(deprecated)]`."
+            label: "Leave it -- `has_one` is fully supported on the V2 line and the warning is a known `anchor-next` false positive; silence it with `#[allow(deprecated)]` until a later RC clears it."
             correct: false
             feedback: "The warning is engineered, not a false positive: `has_one` is deprecated in favor of `address = parent.field` and is on a path to removal. `#[allow(deprecated)]` keeps syntax a later RC may drop."
           - id: d

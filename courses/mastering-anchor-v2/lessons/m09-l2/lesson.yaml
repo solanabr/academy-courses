@@ -33,7 +33,7 @@ blocks:
             correct: true
             feedback: "Scope is the real difference: your hand-written gate covered whichever single pair occurred to you, while generated code enumerates every writable pair the struct implies and keeps doing so as fields are added."
           - id: d
-            label: "Any duplicate address in the account list, whether or not a field is writable."
+            label: "A duplicate address in the account list, whether or not a field is writable."
             correct: false
             feedback: "The mask marks writable fields, so an address arriving twice through two read-only slots is a legal call and nothing rejects it. What trips the walk is an alias landing where at least one of its slots is mutable."
         explanation: "MUT_MASK plus the runtime duplicate-account walk is Anchor's duplicate-mutable defense: it rejects the same writable account appearing twice in one instruction. Native, nothing stops it — which is exactly the kind of guard the framework makes impossible to forget. Note the difference in scope: your native gate 6 compared the one pair you happened to think of, while the derive's walk is exhaustive over every mutable pair the struct implies and merged across nested structs, so it grows when you add a field and your hand-written comparison does not."
@@ -42,7 +42,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Reading stale account data after a CPI because you forgot .reload()."
+            label: "Reading stale account data after a CPI because you forgot to call .reload()."
             correct: true
             feedback: "Forgetting it raised nothing — no error, no warning, no panic — which is why it shipped as often as it did. A build failure does not restate the discipline; it retires the need for any."
           - id: b

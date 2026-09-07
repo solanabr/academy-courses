@@ -40,7 +40,7 @@ blocks:
             correct: true
             feedback: "Per workspace, not per repository: read the peer ranges your own dependencies declare and match that major. What npm calls latest has no bearing on whether the graph resolves."
           - id: c
-            label: "'latest' so npm resolves the newest kit for you"
+            label: "'latest' so npm always resolves the newest kit for you"
             correct: false
             feedback: "'latest' is exactly what the durable rule forbids: a kit major bump can break your peers overnight — kit 8 became latest the day it shipped."
           - id: d
