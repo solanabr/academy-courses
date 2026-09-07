@@ -12,8 +12,8 @@
 <body>
 <!-- chart: What one sponsored checkout costs the merchant
      purpose: separate the small per-transaction fee the sponsor always pays from the larger conditional rent cost before the lesson budgets either
-     data: base fee: 5000 lamports per signature x 2 signatures (Kora fee payer + buyer transfer) = 10,000 lamports per checkout priority fee: whatever the sponsor attaches, added on top conditional: token-account creation rent ~0.002 SOL, only when sponsorship creates the account note on rent: the buyer can later reclaim it by closing the account; budget it as spend, never as a loan
-     prompt: A horizontal stacked cost bar for one sponsored checkout with three labeled segments in increasing size: base fee (10,000 lamports, annotated "5000 x 2 signatures"), priority fee (variable, hatched), and conditional token-account rent (~0.002 SOL, clearly marked "only if the account is created"). A callout under the rent segment: "reclaimable by the buyer closing the account; budget as spend, not a loan".
+     data: base fee: 5000 lamports per signature x 2 signatures (Kora fee payer + buyer transfer) = 10,000 lamports per checkout priority fee: whatever the sponsor attaches, added on top conditional: token-account creation rent, the 165-byte rent-exempt minimum (~0.0015 SOL on devnet 2026-09-07 and falling as SIMD-0437 steps the rate down), only when sponsorship creates the account note on rent: the buyer can later reclaim it by closing the account; budget it as spend, never as a loan
+     prompt: A horizontal stacked cost bar for one sponsored checkout with three labeled segments in increasing size: base fee (10,000 lamports, annotated "5000 x 2 signatures"), priority fee (variable, hatched), and conditional token-account rent (~0.0015 SOL, clearly marked "only if the account is created"). A callout under the rent segment: "reclaimable by the buyer closing the account; budget as spend, not a loan".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -77,7 +77,7 @@
       </div>
       <div class="seg s3">
         <div><span class="chip" style="background:var(--stbr-dark);color:var(--stbr-cream);">only if the account is created</span></div>
-        <div class="v">token-account rent &middot; ~0.002 SOL</div>
+        <div class="v">token-account rent &middot; ~0.0015 SOL</div>
         <div class="n">the big line: one-time rent for the buyer&rsquo;s new token account</div>
       </div>
     </div>

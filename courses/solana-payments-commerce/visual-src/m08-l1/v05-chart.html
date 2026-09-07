@@ -12,8 +12,8 @@
 <body>
 <!-- chart: Cost anatomy of one sponsored checkout, in lamports
      purpose: make the fee-versus-rent asymmetry visible so the reader budgets the right line
-     data: bar 1: base fee, 2 signatures at 5000 lamports each = 10,000 lamports (paid every checkout, gone forever) bar 2: ATA creation rent = 2,039,280 lamports (~0.002 SOL; paid only when a token account is created; reclaimable by the BUYER closing the account, never by the sponsor) ratio annotation: the rent event costs ~200x the dual-signature fee scale note: log scale, values in lamports
-     prompt: A two-bar log-scale chart per the data: a small bar for the 10,000-lamport dual-signature fee and a dominant bar for the ~2,039,280-lamport ATA rent. Annotate the ~200x ratio between the bars, and tag the rent bar "reclaimable by the buyer, not by you".
+     data: bar 1: base fee, 2 signatures at 5000 lamports each = 10,000 lamports (paid every checkout, gone forever) bar 2: ATA creation rent = the 165-byte rent-exempt minimum, 1,488,440 lamports on devnet as of 2026-09-07 (~0.0015 SOL; paid only when a token account is created; reclaimable by the BUYER closing the account, never by the sponsor; SIMD-0437 is stepping the rate down, so the figure is dated on the chart) ratio annotation: the rent event costs ~150x the dual-signature fee scale note: log scale, values in lamports
+     prompt: A two-bar log-scale chart per the data: a small bar for the 10,000-lamport dual-signature fee and a dominant bar for the ~1,488,440-lamport ATA rent. Annotate the ~150x ratio between the bars, and tag the rent bar "reclaimable by the buyer, not by you".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -79,19 +79,19 @@
       <div class="val v1">10,000</div>
 
       <div class="bar b2"></div>
-      <div class="val v2">2,039,280</div>
+      <div class="val v2">1,488,440</div>
       <div class="tag">reclaimable by the buyer, not by you</div>
 
       <div class="rline"></div>
       <div class="rh up"></div>
       <div class="rh dnn"></div>
-      <div class="rchip">~200&times;</div>
+      <div class="rchip">~150&times;</div>
     </div>
     <div class="names">
       <div class="nm n1"><b>base fee</b>2 signatures &times; 5,000 &mdash; paid every checkout, gone forever</div>
-      <div class="nm n2"><b>ATA creation rent (~0.002 SOL)</b>only when sponsorship creates the buyer&rsquo;s token account</div>
+      <div class="nm n2"><b>ATA creation rent (devnet, 2026-09-07)</b>only when sponsorship creates the buyer&rsquo;s token account &mdash; re-read it, the rate is falling</div>
     </div>
-    <div class="foot">log scale, values in lamports &mdash; the rent event costs ~200&times; the dual-signature fee.</div>
+    <div class="foot">log scale, values in lamports &mdash; the rent event costs ~150&times; the dual-signature fee.</div>
   </div>
 </div>
 </body></html>

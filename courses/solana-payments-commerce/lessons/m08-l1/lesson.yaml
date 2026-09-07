@@ -28,14 +28,14 @@ blocks:
             correct: false
             feedback: "Priority fees are optional and small; they cannot explain a rent-sized shortfall."
           - id: b
-            label: "You paid ~0.00204 SOL of ATA-creation rent for buyers who later closed those accounts and kept the reclaim."
+            label: "You paid the 165-byte ATA-creation rent for buyers who later closed those accounts and kept the reclaim."
             correct: true
             feedback: "A rent deposit returns to whoever closes the account, not whoever funded it; that makes sponsorship an acquisition cost rather than a recoverable loan."
           - id: c
             label: "The base fee rose above 5000 lamports during the sale because the network was congested."
             correct: false
             feedback: "The 5000-lamport base fee is fixed; congestion changes optional priority fees, not the base fee."
-        explanation: "Sponsored ATA rent is reclaimable: when Kora funds a new token account for a buyer, that ~0.00204 SOL is real spend, and the buyer can later close the account and keep the reclaimed rent. Budget sponsorship as a cost, never as a recoverable loan."
+        explanation: "Sponsored ATA rent is reclaimable: when Kora funds a new token account for a buyer, that deposit is real spend, and the buyer can later close the account and keep the reclaimed rent. Size it from a live getMinimumBalanceForRentExemption(165) read rather than a remembered constant, since SIMD-0437 keeps stepping the rate down, and budget sponsorship as a cost, never as a recoverable loan."
       - id: m08-l1-q2
         prompt: "A teammate suggests using Octane instead of Kora for fee sponsorship. What's the accurate state of things as of your build?"
         multiSelect: false

@@ -145,7 +145,7 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
    solana airdrop 1 $(solana-keygen pubkey subscriber.json) --url devnet
    ```
 
-   The subscriber also needs devnet USDC to be billed against: send 100 from your module-2 wallet using transfer-kit's `sendStablecoin`, the exact flow from module 2 lesson 1's lab (which also creates the subscriber's ATA, and charges you the familiar 2,039,280 lamports (~0.00204 SOL) of ATA rent once). If the devnet faucet rate-limits the airdrops, wait a minute; you need SOL on both keypairs because the subscriber pays the approval fee and the crank pays every pull fee.
+   The subscriber also needs devnet USDC to be billed against: send 100 from your module-2 wallet using transfer-kit's `sendStablecoin`, the exact flow from module 2 lesson 1's lab (which also creates the subscriber's ATA, and charges you the 165-byte rent-exempt minimum once — the number module 2 had you curl rather than memorize). If the devnet faucet rate-limits the airdrops, wait a minute; you need SOL on both keypairs because the subscriber pays the approval fee and the crank pays every pull fee.
 
    Checkpoint: `solana balance $(solana-keygen pubkey subscriber.json) --url devnet` prints about 1 SOL, the same for the crank, and the subscriber's USDC balance reads 100. Nothing later in the lab works without all three.
 

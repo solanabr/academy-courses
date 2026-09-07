@@ -69,10 +69,10 @@ blocks:
             correct: false
             feedback: "Approve delegates a balance the signer already holds; a first-time receiver has nothing to delegate, and receiving needs no authorization from Bob at all."
           - id: c
-            label: "His associated token account for the USDC mint must be created and rent-funded, about 0.00204 SOL, by whoever includes the create instruction."
+            label: "His associated token account for the USDC mint must be created and rent-funded, at whatever getMinimumBalanceForRentExemption(165) currently returns, by whoever includes the create instruction."
             correct: true
             feedback: "Once per buyer per mint, and it is usually you who funds the rent."
-        explanation: "An ATA is the deterministic per-(owner, mint) account that holds a token balance. A first-time holder has none, so the payment transaction (or a prior one) must create and rent-fund it at 2,039,280 lamports, roughly 0.00204 SOL. That is a real cost and an extra failure mode on every new customer."
+        explanation: "An ATA is the deterministic per-(owner, mint) account that holds a token balance. A first-time holder has none, so the payment transaction (or a prior one) must create and rent-fund it at the rent-exempt minimum for 165 bytes. Ask the cluster for that number rather than memorizing one: SIMD-0437 is stepping the per-byte rate down, so it differs between mainnet and devnet today and falls again on each step. That is a real cost and an extra failure mode on every new customer."
       - id: m02l1-q3
         prompt: "Your kit sends with TransferChecked and attaches a reference key. What do those two choices buy you?"
         multiSelect: false
