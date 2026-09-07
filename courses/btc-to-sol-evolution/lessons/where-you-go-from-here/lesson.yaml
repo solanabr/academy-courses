@@ -15,30 +15,40 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "That the on-chain bytecode was built from the exact public source you point them at — a reproducible build"
+            label: "That the on-chain bytecode was built from the exact public source you point them at, a reproducible build"
             correct: true
+            feedback: "It is the hashing lesson one level up: rebuild the source, fingerprint the result, compare it against the fingerprint of the deployed binary. Nobody has to trust you, your build machine or your CI, which is why the Docker sandbox pinning the toolchain is the point rather than the inconvenience."
           - id: b
-            label: "That the program passed the security review Solana requires before a verifiable deploy"
+            label: "That the program passed the security review the Solana Foundation requires of any program before a mainnet deploy"
             correct: false
-            feedback: "No review gate exists — anyone can deploy anything. A verifiable build proves source-to-bytecode correspondence so others can READ what is deployed; whether that code is safe is still on you and your auditors."
+            feedback: "No such gate exists. Anyone can deploy anything to mainnet at any time, which is precisely why the audit path is a cost you choose to pay and why unaudited code with real money behind it is a standing bounty."
           - id: c
             label: "That the deployed program can no longer be upgraded out from under its users"
             correct: false
-            feedback: "Verifiability and upgradeability are orthogonal: the upgrade authority can still swap the bytecode later (and verification against the old source would then fail). Freezing a program means burning its upgrade authority — a separate act."
-        explanation: "A verifiable build is reproducibility: a pinned toolchain in a container produces bit-identical bytecode from the published source, so anyone can hash the on-chain program and confirm it matches. It proves WHAT is deployed, not that it is safe or immutable — those take audits and a burned upgrade authority respectively."
+            feedback: "Upgradeability is a separate decision you make about the upgrade authority: keep it on one key, spread it across a multisig, or burn it. A verified program with a live authority can be replaced tomorrow, and the verification simply stops matching."
+          - id: d
+            label: "That the deployer signed the build, so the bytes on-chain carry a signature tying them to the published repo"
+            correct: false
+            feedback: "Nothing is signed and nothing needs to be. The proof is that a stranger rebuilds your source themselves and gets the same fingerprint, which is exactly what removes you from the loop. A signature would only move the trust from your build machine to your key."
+        explanation: "A verifiable build is deterministic and reproducible: anyone can rebuild your published source and check that the resulting bytes hash to the same thing as the deployed program. It proves provenance (this bytecode came from this source), not safety and not immutability."
       - id: q2
         prompt: "Where would you go to study real Solana program vulnerabilities before writing production code?"
         multiSelect: false
         options:
           - id: a
-            label: "The validator's source code — real vulnerabilities live at the consensus level, not in individual programs"
+            label: "The validator's source code, since real vulnerabilities live at the consensus level rather than in individual programs"
             correct: false
-            feedback: "Program-level bugs — missing signer checks, account confusion, unchecked arithmetic — are where user funds actually get drained, and they are YOUR responsibility. The curated attack collections exist because these same mistakes repeat across projects."
+            feedback: "Program-level bugs are where the money actually leaves: unchecked arithmetic, a missing program-id check, an account taken on trust without proving it is the right account. The Drift exploit that prompted the incident-response network was a program, not the runtime."
           - id: b
             label: "Curated attack collections and audit write-ups such as sealevel-attacks and Neodyme's research"
             correct: true
+            feedback: "sealevel-attacks ships every trap twice, an insecure version beside its secure fix, so you learn each one by patching it yourself. Pair it with the published audit reports and you get the same findings in the words of the people paid to find them."
           - id: c
-            label: "Private audit archives — real exploit patterns circulate only under NDA between security firms"
+            label: "Fuzz your own program, since exploit classes are specific to each codebase and published collections do not transfer"
             correct: false
-            feedback: "The opposite: this field publishes aggressively. sealevel-attacks, Neodyme's write-ups, and public post-mortems document real exploit classes with runnable examples — free to study before you write a line of production code."
-        explanation: "The canonical study set is public: coral-xyz/sealevel-attacks catalogs the recurring program-level exploit classes (missing signer checks, account substitution, arithmetic errors) as paired vulnerable/fixed examples, and audit firms like Neodyme publish detailed write-ups of real findings. Reading them first is the cheapest security work you will ever do."
+            feedback: "The classes transfer almost perfectly, which is the whole reason a catalogue is worth reading: arithmetic overflow, missing program validation and account-data confusion show up again and again across unrelated programs. Fuzzing is a fine second step and a poor way to learn what to look for."
+          - id: d
+            label: "Solscan, since every deployed program publishes its own source on the explorer for anyone to read"
+            correct: false
+            feedback: "A Solana program is deployed as compiled bytes and the source is published only if its authors choose to. Metis is the course's worked example of one that is not, which is why studying a closed program means working its interfaces and its audits instead of its source."
+        explanation: "sealevel-attacks (coral-xyz) pairs an insecure and a secure implementation of each attack class, and Neodyme's pitfalls guide plus the anza-xyz/security-audits archive show the same classes in real programs. The recurring three — arithmetic overflow, missing program validation, account-data confusion — are what your checked arithmetic and account constraints were guarding against all course."
