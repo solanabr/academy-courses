@@ -228,22 +228,35 @@ Before it can run, six of those addresses have to exist on devnet, and nothing s
 ```bash
 solana config set --url devnet
 
-# The two mints, and the trader's token accounts, funded.
+# The two mints, and the trader's token accounts.
 spl-token create-token --decimals 6            # -> <ARCADE_MINT>
 spl-token create-token --decimals 6            # -> <TICKET_MINT>
 spl-token create-account <ARCADE_MINT>         # -> <TRADER_ARCADE_ATA>
 spl-token create-account <TICKET_MINT>         # -> <TRADER_TICKET_ATA>
 spl-token mint <ARCADE_MINT> 1000              # give the trader something to swap
-spl-token mint <TICKET_MINT> 1000              # tickets to seed the pool with
+# Read that last line precisely: `spl-token mint` takes an optional third argument,
+# the recipient TOKEN ACCOUNT, and its default is "the mint authority's own ATA" —
+# you. Nothing you have typed so far puts a single token inside the pool.
 
 # The pool and its two reserves. `init_pool` is the instruction you wrote in the
 # swap lab; the generated client has a builder for it too, so send it the same way
 # the pipe below sends the swap — same pipe, different builder. It prints nothing:
 # prove it landed by deriving the pool with findPoolPda and decoding it with
 # fetchPool, which is the extra checkpoint at the end of this lab.
+
+# Now fund the reserves, because `init_pool` CREATES the two reserve token accounts
+# and leaves them empty, and R4 has no deposit instruction — you never wrote one.
+# An empty reserve makes swap_out return 0 and the `require!(out > 0, ZeroOutput)`
+# guard reject every trade, so skip these two lines and the swap below cannot land.
+# You are still both mints' authority, so mint straight in by naming the reserve as
+# the recipient: the third argument the line above deliberately left off.
+spl-token mint <ARCADE_MINT> 1 <POOL_ARCADE_RESERVE>   # 1.000000 -> 1_000_000 base units
+spl-token mint <TICKET_MINT> 1 <POOL_TICKET_RESERVE>   # the same, so the pool starts balanced
 ```
 
-`<POOL_ARCADE_RESERVE>` and `<POOL_TICKET_RESERVE>` are the two reserve token accounts `init_pool` created — note their addresses down when it runs, because the pool record itself stores the mints and bump, and that record (via `fetchPool`) is what the checkpoint at the end decodes. Also: `secretKey` in the signature below is the 64 bytes of your devnet keypair file, which you can load with `new Uint8Array(JSON.parse(fs.readFileSync(process.env.HOME + '/.config/solana/id.json', 'utf8')))`.
+`<POOL_ARCADE_RESERVE>` and `<POOL_TICKET_RESERVE>` are the two reserve token accounts `init_pool` created, and you can read both straight back off the pool record with `fetchPool` — m07-l3's audit fix is what made the pool store the two reserve addresses alongside the mints and the bump, and that record is what the checkpoint at the end decodes.
+
+Those two mint lines leave the pool holding 1,000,000 / 1,000,000 base units, which is deliberately the reserve pair m05-l2's worked example used: an `amountIn` of `10_000` quotes 9,871 tickets out, comfortably clear of the `minOut` floor of `9_800` in the send below. Seed a different depth and recompute that floor before you send, or your own slippage guard will reject you — which is the guard working, not a bug. Also: `secretKey` in the signature below is the 64 bytes of your devnet keypair file, which you can load with `new Uint8Array(JSON.parse(fs.readFileSync(process.env.HOME + '/.config/solana/id.json', 'utf8')))`.
 
 ```typescript
 import {
@@ -314,10 +327,10 @@ import { fetchPool, findPoolPda } from '../clients/js';
 
 const [poolPda] = await findPoolPda();
 const pool = await fetchPool(rpc, poolPda);
-// pool.data.arcadeMint / pool.data.ticketMint / pool.data.bump, all typed
+// pool.data.arcadeMint / .ticketMint / .arcadeReserve / .ticketReserve / .bump, all typed
 ```
 
-If `pool.data.bump` reads back as the stored canonical bump and the two mints match what you deployed, your generated decoder is reading the same bytes your program wrote. The builder writes calls, the decoder reads state, and both came out of the one IDL.
+If `pool.data.bump` reads back as the stored canonical bump, the two mints match what you deployed, and the two reserve addresses match the accounts you just funded, your generated decoder is reading the same bytes your program wrote. The builder writes calls, the decoder reads state, and both came out of the one IDL.
 
 ## The Challenge
 
