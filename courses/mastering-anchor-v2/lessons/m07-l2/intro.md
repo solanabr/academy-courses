@@ -137,7 +137,9 @@ use anchor_lang::{
     prelude::Address, programs::System, solana_program::instruction::Instruction, Id,
     InstructionData, ToAccountMetas,
 };
-use anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTransaction};
+use anchor_v2_testing::{
+    Keypair, LiteSVM, Message, Signer, VersionedMessage, VersionedTransaction,
+};
 
 // The SPL client helpers m05-l1 shipped, reached by path instead of copied.
 // Each tests/*.rs is its own crate root, so you cannot `use` an item out of a
@@ -148,6 +150,14 @@ use anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTra
 mod spl_helpers;
 
 const ONE_TOKEN: u64 = 1_000_000;   // 6 decimals, same mint shape as m05-l1
+
+// The offset-64 read from m05-l1's spl_setup, restated here because that file
+// belongs to the vault's crate: a token account's `amount` is a little-endian
+// u64 at byte 64. (spl_helpers above builds instructions; it reads nothing.)
+fn token_balance(svm: &LiteSVM, ata: &Address) -> u64 {
+    let acct = svm.get_account(ata).expect("token account exists");
+    u64::from_le_bytes(acct.data[64..72].try_into().unwrap())
+}
 
 #[test]
 fn drain_as_stranger() {
@@ -203,7 +213,7 @@ fn drain_as_stranger() {
     // On the vuln branch this SUCCEEDS. That is the bug.
     svm.send_transaction(tx).unwrap();
     assert_eq!(
-        spl_helpers::token_balance(&svm, &f.stranger_ata),
+        token_balance(&svm, &f.stranger_ata),
         ONE_TOKEN,
         "the stranger walked off with the whole prize"
     );
