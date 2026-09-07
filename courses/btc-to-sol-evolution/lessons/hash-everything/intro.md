@@ -146,7 +146,7 @@ git rev-parse --show-object-format
 sha1
 ```
 
-Git still defaults to SHA-1 — a *hardened* SHA-1 that detects the SHAttered attack pattern and refuses those objects, but SHA-1 all the same, which is why the digests in your `git log` are still 40 characters and not 64. A SHA-256 mode exists in git, and a release that flips the default has been planned for years; the ecosystem around it, GitHub included, has not followed. That is the real lesson about hash migrations: the cryptography moves years before the tooling does. This course uses SHA-256, which has no known practical collision. Hash functions aren't magic; they're engineering with a shelf life, and the industry watches that shelf date closely.
+Git still defaults to SHA-1, a *hardened* SHA-1 that detects the SHAttered attack pattern and refuses those objects, but SHA-1 all the same, which is why the digests in your `git log` are still 40 characters and not 64. A SHA-256 mode exists in git, and a release that flips the default has been planned for years; the ecosystem around it, GitHub included, has not followed. That is the real lesson about hash migrations: the cryptography moves years before the tooling does. This course uses SHA-256, which has no known practical collision. Hash functions aren't magic; they're engineering with a shelf life, and the industry watches that shelf date closely.
 
 ## Three flavors of hard
 

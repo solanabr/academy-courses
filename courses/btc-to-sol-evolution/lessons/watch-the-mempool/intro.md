@@ -10,13 +10,13 @@ Open two terminals. In the first, ask your regtest node (the private test networ
 python3 -c "from btc_rpc import BitcoinRPC; print(BitcoinRPC().call('getrawmempool'))"
 ```
 
-What comes back depends on where you left the chain. If you worked through the last two lessons you broadcast two payments and never mined a block afterwards, so both are still queued — and they survived any restart in between, because Bitcoin Core writes its mempool to `mempool.dat` on shutdown and reloads it on start:
+What comes back depends on where you left the chain. If you worked through the last two lessons you broadcast two payments and never mined a block afterwards, so both are still queued, and they survived any restart in between, because Bitcoin Core writes its mempool to `mempool.dat` on shutdown and reloads it on start:
 
 ```
 ['3f8a9c2b7e1d4a6f0c5b8e2a1d9f7c3b6a4e0d2f8c1b5a7e9d3f6c0b2a4e8d1f', '9b1e4d70a2c8f3516d0be7a94c2f8d1e05a3b6c9f7e2d4081a5c3b9e6d0f2a47']
 ```
 
-An empty `[]` is just as correct — that is what a fresh chain, or one you have mined on since, reports. Either way, clear the room before you start, so you watch one arrival and not three. A single block confirms whatever is waiting:
+An empty `[]` is just as correct: that is what a fresh chain, or one you have mined on since, reports. Either way, clear the room before you start, so you watch one arrival and not three. A single block confirms whatever is waiting:
 
 ```bash
 bitcoin-cli -regtest generatetoaddress 1 "$(bitcoin-cli -regtest getnewaddress)"

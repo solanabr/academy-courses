@@ -35,7 +35,7 @@ You have actually run this exact call before, dressed differently. Try the versi
 bitcoin-cli -regtest getblockchaininfo
 ```
 
-Same numbers, pretty-printed, minus the `{"result": ..., "error": null, "id": ...}` wrapping. The CLI unwrapped it for you. Now do it a third way, from Python, so you can see there is no shell sorcery involved either. `requests` is a third-party package and it is the one dependency this lesson adds, so install it first — `btc_rpc.py`, further down, needs it too:
+Same numbers, pretty-printed, minus the `{"result": ..., "error": null, "id": ...}` wrapping. The CLI unwrapped it for you. Now do it a third way, from Python, so you can see there is no shell sorcery involved either. `requests` is a third-party package and it is the one dependency this lesson adds, so install it first; `btc_rpc.py`, further down, needs it too:
 
 ```bash
 python3 -m pip install requests
@@ -79,7 +79,7 @@ Two fields on that card will bite you later, so mark them now.
 
 `params` here is a positional array, and that is a choice, not a law. Order is the contract for the array form, and every call in this lesson uses it, but Bitcoin Core has accepted *named* parameters for years too: send `"params": {"height": 1}` instead of `"params": [1]` and it works exactly the same, which is what `bitcoin-cli -named` is doing under the hood. Next lesson sends named params over this very interface. Positional is the default here because it is the shorter thing to type and the shape you will see in most examples; reach for named the moment a call has seven optional arguments and you want the seventh.
 
-And `error` being `null` is how you know a call worked — but do not use the HTTP status alone to decide that, because the two disagree in a way that surprises people. With the legacy `"jsonrpc":"1.0"` envelope this lesson sends, an RPC-level error comes back with **HTTP 500** and an `error` object in the body:
+And `error` being `null` is how you know a call worked. Do not use the HTTP status alone to decide that, because the two disagree in a way that surprises people. With the legacy `"jsonrpc":"1.0"` envelope this lesson sends, an RPC-level error comes back with **HTTP 500** and an `error` object in the body:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" --user "$(cat "$COOKIE")" \
@@ -114,7 +114,7 @@ That leaves the field you have been ignoring: `id`. On a single call it looks li
 ]
 ```
 
-Run that against your own node and the answers come back in the order you asked, every single time, because Bitcoin Core walks a batch sequentially and appends each reply as it finishes. So why bother with `id` at all? Because *the specification does not promise it*, and the specification is what your client is written against. JSON-RPC explicitly allows a server to answer a batch in any order, and the moment your code runs against a different implementation — a load balancer that fans a batch out across nodes, a hosted RPC provider, a future Core release that parallelises — position stops being a reliable pairing key and `id` is the only thing left. Pairing by position is code that works on your laptop and breaks in production, which is the most expensive kind. Match each response's `id` to the request that carried the same label and you are correct on every implementation, including the polite one you are testing against today. Give every distinct call a distinct `id` and you can always sort the mail, no matter what order it lands in.
+Run that against your own node and the answers come back in the order you asked, every single time, because Bitcoin Core walks a batch sequentially and appends each reply as it finishes. So why bother with `id` at all? Because *the specification does not promise it*, and the specification is what your client is written against. JSON-RPC explicitly allows a server to answer a batch in any order, and the moment your code runs against a different implementation (a load balancer that fans a batch out across nodes, a hosted RPC provider, a future Core release that parallelises), position stops being a reliable pairing key and `id` is the only thing left. Pairing by position is code that works on your laptop and breaks in production, which is the most expensive kind. Match each response's `id` to the request that carried the same label and you are correct on every implementation, including the polite one you are testing against today. Give every distinct call a distinct `id` and you can always sort the mail, no matter what order it lands in.
 
 ## Who holds the password
 
@@ -241,7 +241,7 @@ The bar for this tool is the same brutal, fair bar as every tool in this course:
 
 ![A table of five methods with their wrapper invocation, bitcoin-cli equivalent, and expected result shape, including the deterministic regtest genesis hash for getblockhash 0.](assets/v06-table.webp)
 
-The `getblockhash 0` row is your anchor, because block 0 is the genesis block and every regtest node in the world shares the same genesis hash, `0f9188f1...`. If your wrapper prints that and so does `bitcoin-cli`, positional params are working. `getmempoolinfo` is the gift from next lesson to this one: whatever `size` it reports is the count of transactions your node is holding that no block has taken yet, which is the exact thing you are about to teach the wrapper to watch. Do not expect a `0` there — if you followed the last lesson you broadcast two payments and never mined a block afterwards, so this reads `2`, and it will still read `2` after a restart, because Bitcoin Core saves its mempool to `mempool.dat` on shutdown and reloads it on start. Mine a block (`generatetoaddress 1 $ADDR`) and watch the number fall to zero, which is the whole lifecycle in one command.
+The `getblockhash 0` row is your anchor, because block 0 is the genesis block and every regtest node in the world shares the same genesis hash, `0f9188f1...`. If your wrapper prints that and so does `bitcoin-cli`, positional params are working. `getmempoolinfo` is the gift from next lesson to this one: whatever `size` it reports is the count of transactions your node is holding that no block has taken yet, which is the exact thing you are about to teach the wrapper to watch. Do not expect a `0` there. If you followed the last lesson you broadcast two payments and never mined a block afterwards, so this reads `2`, and it will still read `2` after a restart, because Bitcoin Core saves its mempool to `mempool.dat` on shutdown and reloads it on start. Mine a block (`generatetoaddress 1 $ADDR`) and watch the number fall to zero, which is the whole lifecycle in one command.
 
 ## The trade-off: whose node is it
 
