@@ -13,7 +13,7 @@
 <!-- annotated-code: getblock on block 1, walked field by field
      purpose: show the reader the previousblockhash and the coinbase inside a block they minted
      data: $ bitcoin-cli -regtest getblock $(bitcoin-cli -regtest getblockhash 1) { "hash": "1a3f...e7", # block 1's own fingerprint (yours differs) "confirmations": 101, # block 1 plus the 100 blocks resting on top of it "height": 1, "tx": [ "b7c2...9f" ], # exactly one transaction: the coinbase (mints 50 BTC) "merkleroot": "b7c2...9f", # one tx, so the root equals that tx's digest "previousblockhash": "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", "bits": "207fffff" # the encoded difficulty target: regtest's floor }
-     prompt: Terminal/JSON mock, dark theme, monospace. Highlight "previousblockhash" with a callout "= the hash chain from lesson 1" and "tx" with a callout "the coinbase: new coins, no sender". Keep the genesis hash legible but unhighlighted. No icons.
+     prompt: Terminal/JSON mock, dark theme, monospace. Highlight "previousblockhash" with a callout "= the same hash chain from the hashing lesson" -- name that lesson, never number it; this course is not zero-indexed and hash-everything is lesson 2 and "tx" with a callout "the coinbase: new coins, no sender". Keep the genesis hash legible but unhighlighted. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -72,7 +72,7 @@
       </div>
       <div class="call g">
         <div class="fld">"previousblockhash"</div>
-        <div class="txt">the same hash chain from lesson 1 &mdash; it points at the block underneath, sealing the order.</div>
+        <div class="txt">the same hash chain from the hashing lesson &mdash; it points at the block underneath, sealing the order.</div>
       </div>
     </div>
   </div>

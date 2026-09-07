@@ -13,7 +13,7 @@
 <!-- diagram: two things the curve guarantees
      purpose: certify the pool never empties (asymptote) and that k grows every trade (fee stays in)
      data: guarantee 1, never dry: x*y = k is asymptotic to both axes draining reserve to 0 needs an INFINITE amount of the other token -> a quote always exists, however bad guarantee 2, k ratchets up: all 100 TKA enters reserves, but only 99.7 (997/1000) drives the output leftover fee stays in the pool forever pre-swap k = 1,000,000 -> post-swap product = 1,000,272.80 real invariant: x*y >= k_initial (LP yield, compounding)
-     prompt: Two-panel diagram, dark background, monospace. Left panel: a hyperbola hugging but never touching the axes, with a label "infinite token needed to reach 0". Asymptote labels must match the geometry: "x -> 0" sits at the TOP-LEFT beside the vertical axis (where the curve climbs and x shrinks) and "y -> 0" sits at the BOTTOM-RIGHT under the horizontal axis (where the curve flattens and y shrinks); both must sit fully inside the card, never clipped at its edge. Right panel: a small bar for k before (1,000,000) and after (1,000,272.80), the delta tinted green and labeled "fee retained = LP yield". No decorative icons.
+     prompt: Two-panel diagram, dark background, monospace. Left panel: a hyperbola hugging but never touching the axes, with a label "infinite token needed to reach 0". Asymptote labels must match the geometry: "x -> 0" sits at the TOP-LEFT beside the vertical axis (where the curve climbs and x shrinks) and "y -> 0" sits at the BOTTOM-RIGHT under the horizontal axis (where the curve flattens and y shrinks); both must sit fully inside the card, never clipped at its edge -- the SVG viewBox has to extend at least 20px below the lowest text baseline, since a baseline flush with the viewBox bottom shears the glyph bodies and the descender of the "y", which is what shipped. Right panel: a small bar for k before (1,000,000) and after (1,000,272.80), the delta tinted green and labeled "fee retained = LP yield". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -64,7 +64,10 @@
       <div class="g">guarantee 1 &mdash; never dry</div>
       <h3>x &middot; y = k is asymptotic to both axes</h3>
       <div class="plotbox">
-        <svg width="440" height="360" viewBox="0 0 440 360">
+        <!-- height 384, not 360: the "y -> 0" baseline sits at translate-y 10 + 350 = 360, so a
+               360-tall viewBox cut the glyph bodies and the y descender clean off. Keep >=20px
+               of viewBox below the lowest baseline. -->
+          <svg width="440" height="384" viewBox="0 0 440 384">
           <g transform="translate(46,10)">
             <line x1="0" y1="0" x2="0" y2="330" stroke="#b8bdb6" stroke-width="2"/>
             <line x1="0" y1="330" x2="380" y2="330" stroke="#b8bdb6" stroke-width="2"/>
