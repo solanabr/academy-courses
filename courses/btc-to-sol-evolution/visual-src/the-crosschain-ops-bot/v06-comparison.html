@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: three tiers of bridge trust
      purpose: certify the taxonomy every cross-chain leg gets sorted into
-     data: Custodial | holds the assets: a company or multisig | you trust: operator key security + legal integrity | breaks when: keys stolen, or firm coerced/insolvent | examples: WBTC, renBTC External-validator-set | holds the assets: a named validator roster | you trust: an honest majority of the set AND the contract | breaks when: M-of-N compromise, or a contract bug (Wormhole 2022) | examples: Wormhole (19 guardians, 13-of-19 for a VAA) Trust-minimized | holds the assets: enforced on-chain by proofs | you trust: code correctness + the chains' own consensus | breaks when: a proof-system or implementation bug | examples: ZK / light-client bridges
+     data: Custodial | holds the assets: a company or multisig | you trust: operator key security + legal integrity | breaks when: keys stolen, or firm coerced/insolvent | examples: WBTC (renBTC belongs on no live list - Ren shut down Dec 2022) External-validator-set | holds the assets: a named validator roster | you trust: an honest majority of the set AND the contract | breaks when: M-of-N compromise, or a contract bug (Wormhole 2022) | examples: Wormhole (19 guardians, 13-of-19 for a VAA) Trust-minimized | holds the assets: enforced on-chain by proofs | you trust: code correctness + the chains' own consensus | breaks when: a proof-system or implementation bug | examples: ZK / light-client bridges
      prompt: Three-row comparison card, dark background, monospace. Columns: "holds the assets", "you trust", "breaks when", "examples". Amber band on the External-validator-set row noting "the contract is part of the trust, not just the validators". No logos. Every cell in the why column is one continuous sentence: it must render as a single left-to-right text run, never split at its emphasized phrases into separate columns. Same constraint on the emphasized runs inside every other cell.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -48,7 +48,7 @@
       <div class="cell">a company or multisig</div>
       <div class="cell">operator key security <b>+</b> legal integrity</div>
       <div class="cell">keys stolen, or firm coerced / insolvent</div>
-      <div class="cell"><code>WBTC</code>, <code>renBTC</code></div>
+      <div class="cell"><code>WBTC</code></div>
     </div>
     <div class="tier mid">
       <div class="lead"><div class="nm">External<br>validator-set</div></div>

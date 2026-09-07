@@ -12,7 +12,7 @@
 <body>
 <!-- table: every leg in the design, tagged
      purpose: certify the assessment, name the trust tier of each cross-chain leg out loud
-     data: | leg | cross-chain? | trust tier | note | | --- | --- | --- | --- | | BTC regtest fund (generatetoaddress) | no (local node) | trust-minimized (your own regtest) | free money, no counterparty | | SOL devnet airdrop (kit airdrop) | no (faucet) | custodial faucet, zero value | 2 SOL cap, rate-limited | | Jupiter v6 swap (SOL only) | no (same chain) | on-chain program trust | trust the aggregator + pools, settled on Solana | | BTC -> Solana bridge (stretch) | YES | tBTC: external-validator-set (threshold ECDSA multisig, audited) / WBTC, renBTC: custodial | Wormhole cannot bridge native BTC (2025); this leg survives every reboot |
+     data: | leg | cross-chain? | trust tier | note | | --- | --- | --- | --- | | BTC regtest fund (generatetoaddress) | no (local node) | trust-minimized (your own regtest) | free money, no counterparty | | SOL devnet airdrop (kit airdrop) | no (faucet) | custodial faucet, zero value | 2 SOL cap, rate-limited | | Jupiter swap, api.jup.ag/swap/v1 (SOL only, mainnet-fork: Jupiter does not route on devnet) | no (same chain) | on-chain program trust | trust the aggregator + pools, settled on Solana | | BTC -> Solana bridge (stretch) | YES | tBTC: external-validator-set (threshold ECDSA multisig, audited) / WBTC: custodial | Wormhole cannot bridge native BTC (2025); this leg survives every reboot |
      prompt: Four-column table, dark background, monospace. Emphasize the header row. Shade the final row (BTC -> Solana bridge) faint red as the only leg that adds a surviving trust assumption. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -59,7 +59,7 @@
       <td>2 SOL cap, rate-limited</td>
     </tr>
     <tr>
-      <td class="leg">Jupiter v6 swap<br><code>SOL only</code></td>
+      <td class="leg">Jupiter swap<br><code>SOL only &middot; mainnet fork</code></td>
       <td><span class="cc no">no &mdash; same chain</span></td>
       <td><span class="tier">on-chain program trust</span></td>
       <td>trust the aggregator + pools, settled on Solana</td>
@@ -67,7 +67,7 @@
     <tr class="flag">
       <td class="leg">BTC &rarr; Solana bridge<br><code>stretch</code></td>
       <td><span class="cc yes">YES</span></td>
-      <td><span class="tier">tBTC: external-validator-set</span><br>(threshold ECDSA, audited) / WBTC, renBTC: custodial</td>
+      <td><span class="tier">tBTC: external-validator-set</span><br>(threshold ECDSA, audited) / WBTC: custodial</td>
       <td>Wormhole cannot bridge native BTC (2025); this leg survives every reboot</td>
     </tr>
   </table>

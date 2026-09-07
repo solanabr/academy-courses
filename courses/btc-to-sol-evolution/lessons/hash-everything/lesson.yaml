@@ -3,7 +3,6 @@ slug: hash-everything
 title: "Hash everything: the 64 characters under every blockchain"
 skills:
   - solana-fundamentals
-  - keypairs-wallets
 blocks:
   - key: intro
     type: prose
