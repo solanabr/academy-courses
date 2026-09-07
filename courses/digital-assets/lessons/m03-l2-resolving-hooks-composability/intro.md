@@ -136,6 +136,7 @@ The plan: stand up a local surfnet, deploy last lesson's harvest-hook, mint a fr
    mkdir sprout-client && cd sprout-client
    npm init -y && npm pkg set type=module
    npm install @solana/kit@7.1.1
+   npm install -D tsx@4.20.5
    export MINT=... HOOK=... DEST=...
    ```
 
@@ -526,7 +527,7 @@ The plan: stand up a local surfnet, deploy last lesson's harvest-hook, mint a fr
 
    Three details are worth a second read. The `executeKeys` array starts as the five base accounts and grows as each extra resolves, which is exactly how index-based seeds can legally reference an earlier extra: order, again, is an input. The role mapping keeps whatever signer and writable flags the metas declared for the hook's OWN accounts, that is how your treasury log stays writable. And `resolveMeta` refuses discriminator 2 loudly instead of guessing; the crate supports a pubkey-in-data variant that the harvest-hook never uses, and a resolver that silently mis-handles an encoding is worse than one that stops.
 
-6. **Run the tale of two transfers.** Now the payoff script, and note the on-chain revert will name the failure for you. Run `init-metas.ts` first (`npx tsx init-metas.ts`; tsx runs TypeScript directly, pinned at 4.20.5 back in m01-l1), then save `transfer.ts`:
+6. **Run the tale of two transfers.** Now the payoff script, and note the on-chain revert will name the failure for you. If you did not already run `init-metas.ts` in step 4, run it now (`npx tsx init-metas.ts`; tsx runs TypeScript directly, and step 4 put the 4.20.5 pin m01-l1 introduced into this workspace's own devDependencies rather than trusting whatever `npx` finds). Running it a SECOND time is not harmless and the failure is opaque: the Anchor `init` inside it creates the validation account, so a re-run comes back as a bare `Custom program error: #0`, which is `AccountAlreadyInUse` and means the account you wanted already exists. Then save `transfer.ts`:
 
    ```typescript
    // transfer.ts: the same TransferChecked, twice: once the way a naive wallet
@@ -615,7 +616,14 @@ The plan: stand up a local surfnet, deploy last lesson's harvest-hook, mint a fr
    const sim = await rpc
      .simulateTransaction(getBase64EncodedWireTransaction(naive), { encoding: 'base64' })
      .send();
-   console.log('naive transfer err:', JSON.stringify(sim.value.err));
+   // kit decodes numeric RPC fields as bigints, including the instruction
+   // index inside InstructionError, and JSON.stringify throws TypeError on any
+   // bigint it meets. Without this replacer act 1 dies right here with a stack
+   // trace pointing at your own file, and act 2 never runs. Number() is safe
+   // for an instruction index and keeps it unquoted in the output.
+   const bigintSafe = (_key: string, value: unknown): unknown =>
+     typeof value === 'bigint' ? Number(value) : value;
+   console.log('naive transfer err:', JSON.stringify(sim.value.err, bigintSafe));
    for (const line of sim.value.logs ?? []) console.log('  ', line);
 
    // Act 2: resolve the hook's extras off-chain and forward them.
