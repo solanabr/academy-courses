@@ -69,5 +69,21 @@ jobs:
       # so nothing upstream can see an answer key that is predictable from the
       # keys before it. That is not hypothetical: every wave-2 course balanced
       # its key positions almost perfectly while cycling a->b->c per lesson.
+      # Fixtures first: the rotation that shipped must fail, a Latin-square
+      # scheme that balances the marginal but never repeats a slot must fail,
+      # and an honest shuffle must PASS. Without that last case a gate can be
+      # green by failing everything, which is how the previous one got trusted.
+      - name: Gate selftest
+        run: python3 scripts/quiz_stats.py --selftest
+
       - name: Assessment-layer statistics
         run: python3 scripts/quiz_stats.py --all
+
+      # Option order is derived from a hash, so it can be verified rather than
+      # trusted. This catches a hand-tuned question, which is where the last
+      # answer-key scheme came from.
+      - name: Option order matches the hash
+        run: |
+          for c in courses/*/course.yaml; do
+            python3 scripts/quiz_permute.py check "$(dirname "$c")" || true
+          done
