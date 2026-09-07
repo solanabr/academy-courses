@@ -14,6 +14,7 @@ Here is what today establishes, up front:
 Before any theory, get the workspace standing. `fair-queue` sits next to `checkout-txreq` and `pos-stall` in your Wavelength workspace:
 
 ```bash
+cd ~/wavelength   # the workspace root; last lesson left you inside gasless-checkout
 mkdir fair-queue && cd fair-queue
 npm init -y && npm pkg set type=module
 npm install @solana/kit@6.10.0 @solana-program/system@0.12.2
@@ -127,14 +128,16 @@ The day has a shape, and the scripts follow it:
 
 ![Four-stage cycle: create the nonce pool once online, snapshot nonce values each morning, sign sales offline into a queue during the fair, and drain the queue safely when back online.](assets/v05-flowchart.png)
 
-1. **Keys and funding.** The merchant key is the same one checkout-txreq pays out to; export it next to the new directory as `merchant.json` if it is not already there. The demo buyer stands in for the customer wallet that would sign at a real stall:
+1. **Keys and funding.** `merchant.json` must be *the* merchant key, the one checkout-txreq pays out to, because the queue's sales credit that wallet and the drain reconciles against the same ledger. That key is the CLI identity module 2 created, so copy it rather than minting a new one — `solana-keygen new -o merchant.json` would hand you a different wallet, and nothing downstream would tell you: the sales would land, in the wrong shop. The demo buyer, by contrast, is genuinely fresh; it stands in for the customer wallet that would sign at a real stall:
 
    ```bash
-   solana-keygen new -o merchant.json --no-bip39-passphrase   # skip if you already have it
+   cp ~/.config/solana/id.json merchant.json    # THE merchant key, not a new one
    solana-keygen new -o buyer.json --no-bip39-passphrase
    solana airdrop 2 "$(solana-keygen pubkey merchant.json)" --url devnet
    solana airdrop 2 "$(solana-keygen pubkey buyer.json)" --url devnet
    ```
+
+   Confirm the copy before you build on it: `solana-keygen pubkey merchant.json` must print exactly what `solana address` prints. One forward note, because next lesson audits this: today that single key wears three hats — payment receiver, fee payer, and nonce authority — which is fine for a lab and is exactly what the prod-gate's key-separation row will ask you to split.
 
    Be clear about what `buyer.json` is: a demo stand-in, and it is hiding the one genuinely unsolved problem in this design, so let me name it instead of waving at it. At a real stall the buyer's wallet must sign on their own device, but module 3's QR flow cannot deliver that signature here: a transaction request has the wallet fetch the transaction from your server over the network, and the whole premise of this lesson is that there is no network. Getting an unsigned message onto the buyer's phone and the signed bytes back with no signal needs a local transport, a QR round-trip, NFC, or BLE, and building one is out of scope for this course, which is why the demo keypair is the only supported buyer path here. What the queue itself needs survives that limitation untouched: it does not care who produced the buyer's signature, only that the merchant key holds the two roles that matter, fee payer and nonce authority, so when a local-transport wallet integration exists, the queue's design does not change.
 
