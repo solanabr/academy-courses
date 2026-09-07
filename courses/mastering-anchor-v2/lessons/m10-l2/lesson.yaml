@@ -45,6 +45,10 @@ blocks:
             label: "Leave it -- `has_one` is fully supported on the V2 line and the warning is a known `anchor-next` false positive; silence it with `#[allow(deprecated)]` until a later RC clears it."
             correct: false
             feedback: "The warning is engineered, not a false positive: `has_one` is deprecated in favor of `address = parent.field` and is on a path to removal. `#[allow(deprecated)]` keeps syntax a later RC may drop."
+          - id: d
+            label: "Rewrite it as `#[account(address = <parent>.authority)]` on the sibling field; the underline lands on that exact keyword because rustc resolves a deprecation warning to the token naming it."
+            correct: false
+            feedback: "The spelling is right and the mechanism is not. A deprecation on a generated item would point wherever codegen happened to place it; the framework keeps the `has_one` span deliberately so the warning can land back on the word you typed."
         explanation: "V2 deprecates `has_one` in favor of `address = parent.field` (any expression). The framework's parser deliberately records the `has_one` keyword span so codegen can underline it -- the deprecation warning is engineered, not incidental, and it is telling you the exact edit to make. Note where the constraint lands: it moves off the parent account and onto the sibling, e.g. `#[account(address = config.authority)] pub authority: Signer`. `address` swaps the equality check only; the authority still has to be a `Signer`."
       - id: m10-l2-q2
         prompt: "Your v1 code opts a duplicate mutable account out of the dup check with `#[account(mut, dup)]`. In V2 the build fails on `dup`. What does the fix look like and what is the reasoning?"
@@ -66,6 +70,10 @@ blocks:
             label: "Keep `dup` as written and wrap the handler body in a Rust `unsafe { }` block; the constraint spelling itself is unchanged in V2."
             correct: false
             feedback: "The opt-out is a per-constraint spelling, `unsafe(dup)`, not a Rust `unsafe` block elsewhere in the code. The keyword absolutely changed -- plain `dup` no longer compiles."
+          - id: d
+            label: "Write `#[account(mut, unsafe(dup))]`; the wrapper is needed because V2 dropped the runtime walk behind it."
+            correct: false
+            feedback: "Right edit, wrong story. The walk is still there: the dispatcher marks addresses that arrive twice and ANDs them against `MUT_MASK`. What `unsafe(dup)` does is exempt one field you deliberately aliased, which is why the word sits at that field and nowhere else."
         explanation: "This is a fork the port hits one line at a time: v1.0 spells the opt-out `dup`; V2 spells it `unsafe(dup)`, and plain `dup` is a compile error whose text tells you to write `unsafe(dup)`. Duplicate-mutable detection still runs -- V2 just forces you to acknowledge the escape hatch as unsafe at the site where you use it. The word is doing work: it makes you accept, right where you deviate, the obligation to write the handler so it never forms conflicting mutable references. A `dup` that silently compiled was a risk you could forget; an `unsafe(dup)` you had to type is a risk you chose."
       - id: m10-l2-q3
         prompt: "A migrator says 'V2 removed `.reload()`, so I'll just call it manually after each CPI like before.' Why is that both impossible and unnecessary in V2?"
@@ -83,6 +91,10 @@ blocks:
             label: "It is unnecessary because V2 re-deserializes every account touched by a CPI as soon as the invocation returns, so a typed copy is never stale."
             correct: false
             feedback: "V2 does not silently re-deserialize anything after a CPI; that would cost compute on every call. The safety is static: borrow-tracked `CpiHandle`s make stale typed access a compile error."
+          - id: d
+            label: "There is no method left to call: `.reload()` needed the `AccountInfo` clone V2 no longer hands you, and the transaction is atomic anyway, so a bad CPI reverts the read with it."
+            correct: false
+            feedback: "Atomicity covers the call that errors, not the call that succeeds against a premise your handler read before the transfer. That second case is the whole reason `.reload()` was written, and it is closed by the borrow, not by the revert."
         explanation: "In V2, CPI accounts are borrow-tracked CpiHandles, and typed data access while a handle is live is a compile error. The whole reason `.reload()` existed in v1 -- stale deserialized data after a CPI mutated the account -- can no longer be expressed, so the method was removed rather than kept. This is the m04-l2 derivation applied to migration. Concretely, the handle ties the CPI to a Rust borrow of the typed wrapper it came from, so a stale copy and a live handle cannot coexist: there is literally nothing left to reload."
       - id: m10-l2-q4
         prompt: "Grepping a v1 codebase for migration, you find `AccountLoader<'info, T>`. A colleague says 'AccountLoader is gone in V2, delete it.' Why is that wrong?"
@@ -100,4 +112,8 @@ blocks:
             label: "Because `AccountLoader` survives in V2 but is repurposed as a sequential account cursor, so deleting it or reusing it unchanged misbehaves silently."
             correct: true
             feedback: "The type that genuinely vanished fails loudly the moment you carry it across. A name that survives with a new meaning compiles, runs, and then behaves like something you did not ask for — much the worse of the two."
+          - id: d
+            label: "Because `AccountLoader` is deprecated rather than removed in V2, so it still loads zero-copy accounts until a later RC drops it."
+            correct: false
+            feedback: "That reading is the dangerous half of the false friend: same name, same assumed job, no warning. The zero-copy load moved to `Account<T>`, and what still answers to `AccountLoader` walks accounts in sequence instead."
         explanation: "V2 keeps the name `AccountLoader` but repurposes it as a sequential account cursor, not the v1 zero-copy wrapper -- the docs warn it 'means something else' in V2. Teaching it as 'gone' is the trap: the v1 zero-copy role moves to `Account<T>` (default zero-copy), while the surviving `AccountLoader` name now does something unrelated and will compile-and-misbehave if you assume the old meaning. Contrast that with `LazyAccount`, which is v1-only and has no V2 equivalent at all: carrying it across fails to resolve loudly rather than misbehaving quietly."
