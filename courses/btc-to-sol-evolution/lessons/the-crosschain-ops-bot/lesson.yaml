@@ -20,7 +20,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "For your ops bot to survive a `kill -9` and resume correctly, which three artifacts must it have persisted?"
+        prompt: "For your ops bot to survive a `kill -9` and resume correctly, which set of persisted artifacts is sufficient?"
         multiSelect: false
         options:
           - id: a
