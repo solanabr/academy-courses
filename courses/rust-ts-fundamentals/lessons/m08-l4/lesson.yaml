@@ -46,7 +46,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Browser wallets refuse devnet transactions, so a gitignored file keypair is the only signer that works here"
+            label: "Browser wallets refuse devnet transactions, so a file keypair is the only signer that works"
             correct: false
             feedback: "Wallets handle devnet fine, most have a network switch. The exclusion isn't technical capability; it's a deliberate boundary in what this course teaches."
           - id: b
@@ -99,11 +99,11 @@ blocks:
             correct: true
             feedback: "Reads cover exactly two of the layers a write touches, connectivity and RPC health. Key validity, message construction, signature acceptance, inclusion and confirmation are invisible to any question you ask, and there is one way to see them: sign something real and watch it land."
           - id: c
-            label: "That your throwaway account will stay funded, since confirmation locks the balance in place"
+            label: "That your account will stay funded, since confirmation locks the balance in place"
             correct: false
             feedback: "Confirmation finalizes one transaction; it guarantees nothing about future balances or future writes. It's a point-in-time proof of the pathway, not a standing warranty."
           - id: d
-            label: "That devnet's validators would accept the same message on mainnet"
+            label: "That devnet's validators would accept the very same message if it were aimed at mainnet"
             correct: false
             feedback: "A confirmation is scoped to the cluster that issued it. Devnet green proves your code and the network path to devnet; mainnet has its own congestion and its own fee market, which is where a default-fee transaction can simply fail to land."
         explanation: "The frame this lesson opened with: a transaction is the probe that mutates. Every layer that reads share, connectivity, RPC health, plus every layer they don't: key validity, correct message construction, signature acceptance, network inclusion, confirmation. That's why tx-check is the station's deepest health check and why m10-l1's demo script calls it."
@@ -116,7 +116,7 @@ blocks:
             correct: false
             feedback: "Devnet is alive and remains the lesson's primary target, the transfer that counts as SHIP #5 lands there when the faucet allows. The local chain is the rehearsed fallback, not the successor."
           - id: b
-            label: "Because local runs are the real test, mainnet-bound code should always be validated locally first"
+            label: "Because local runs are the real test, and mainnet-bound code should always be validated locally first"
             correct: false
             feedback: "The lesson says nearly the opposite: local green proves your CODE, while the devnet run is the one that exercises the actual network path. Neither replaces the other; they answer different questions."
           - id: c

@@ -57,7 +57,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A misconfiguration: the workflow's push trigger needs a path filter added so it fires on that commit"
+            label: "A misconfiguration: the workflow's push trigger needs a path filter added so that it fires on that commit"
             correct: false
             feedback: "Backwards, if that commit DID fire the push workflow, the cron would trigger itself forever. No path filter is missing; the platform is refusing the recursion for you, and you want it refused."
           - id: b
@@ -90,7 +90,7 @@ blocks:
             correct: false
             feedback: "K8s was explicitly signposted out of scope at the M6 tier-gate and never taught. The extension proves you can grow the system with the stack you actually own, orchestration is a different course's problem."
           - id: d
-            label: "The probe type and the Telegram alert both qualify, since neither adds a new platform"
+            label: "The probe type and the Telegram alert both qualify, since neither one adds a platform the station lacks"
             correct: false
             feedback: "Platforms are not the boundary; taught skills are. The Telegram idea adds no platform and still fails, because the bot SDK is a dependency nobody taught you to evaluate. Rewrite that same alert as a degraded flag an Actions step reads and it comes back in bounds."
         explanation: "The extension's one rule is taught skills only, and it is the assignment itself: prove you can extend a real system without a tutorial. A new probe-target type is pure composition, a union variant in the fleet, a check in the worker, a row on the dashboard. The other two each smuggle in an untaught tool, which is exactly the reflex this course spent ten modules replacing with selection."

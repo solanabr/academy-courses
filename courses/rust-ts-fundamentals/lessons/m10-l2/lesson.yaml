@@ -15,11 +15,11 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "You clear its bar now: Rust fluency is what the sign asks for, your exit here exceeds its reading bar, and the account model is detail its own labs hand you as you go"
+            label: "You clear its bar now: Rust fluency is what it wants, and your Rust exit here exceeds reading level"
             correct: false
             feedback: "The reading level IS met here, and it matters. But that course's own sign is a shipping bar: it assumes you already ship Anchor programs and want the V2 delta. Reading fluency is necessary and nowhere near sufficient; the concepts and the shipped-program reps still have to come from somewhere."
           - id: b
-            label: "Your Rust reading level is met here; the account-and-transaction concepts come from the Bitcoin-to-Solana course, and shipped-program reps come before its door"
+            label: "Your Rust reading level is met; accounts and transactions come from the Bitcoin-to-Solana course, then shipped-program reps"
             correct: true
             feedback: "Two halves to what you lack, and only one of them is a course: the concepts live in the Bitcoin-to-Solana sibling, and the reps nobody hands you. Take the concept course fast, since you over-qualify on its coding floor, then write and ship programs, then read the V2 delta as the delta it is."
           - id: c
@@ -27,7 +27,7 @@ blocks:
             correct: false
             feedback: "Programs do get TS clients, but the client-side course is the wallet-UX and tx-landing route, not an Anchor prerequisite. What you are missing is conceptual (accounts, PDAs, transactions as ideas, the concept sibling's job) plus actual shipped-program practice; the client-side course is neither."
           - id: d
-            label: "Start with the digital assets course, since token programs are the gentlest way into writing on-chain code"
+            label: "Start with the digital assets course, since token programs are the gentlest way into on-chain code, and its own labs walk you up to writing programs of your own"
             correct: false
             feedback: "That door has the taller sign, not the gentler one. Its PDA half belongs to the concepts course anyway, and the token-account background its first module leans on is something this course consciously did not supply, so you arrive owing it rather than warmed up."
         explanation: "The exit map's integrity moment: the Anchor course's own sign is blunt, it assumes you already ship Anchor programs and want the V2 delta. This course supplies the Rust reading level with evidence (you write structs, enums, traits, Result, and serde daily); the conceptual grasp of accounts, PDAs, and transactions is the Bitcoin-to-Solana evolution course's job, and the shipping reps are yours to earn between the two. Rust confidence alone does not clear a shipping bar."
@@ -69,7 +69,7 @@ blocks:
             correct: false
             feedback: "Avoidance inverts the lesson. Hitting a lifetime wall at need-time is the 80/20 system WORKING: the deep-dive is bookmarked for precisely this moment, and the wall is rarer than you fear, the Anchor V2 labs strip old lifetime annotations rather than demanding new ones."
           - id: d
-            label: "Ceremony to satisfy the compiler: add the widest annotation that compiles and move on"
+            label: "Ceremony to satisfy the compiler: add the widest annotation that compiles and get back to the lab"
             correct: false
             feedback: "The annotation is a claim about which handle is live when, and the compiler is arguing with you about it. Widening it until the error disappears retires the argument without reading it, which is the one habit that turns a bookmark coming due into a bug arriving later."
         explanation: "This is the map functioning as designed: the 20% was never missing, you know exactly where it lives (the canonical Rust deep-dives this course bookmarked) and now you know WHEN you need it. The taught-vs-bookmarked table re-sorted by urgency exists so this moment feels like collecting a reserved item, not discovering a hole in your education."

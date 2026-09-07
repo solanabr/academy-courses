@@ -34,7 +34,7 @@ blocks:
             correct: false
             feedback: "It reads fine, it's the kitchen-sink client precisely because it does everything. The point is what ELSE it drags in for a program that will only ever ask two questions."
           - id: d
-            label: "Rust has no canonical client crate, so hand-rolling is the only path here"
+            label: "Rust has no canonical client crate of its own, so hand-rolling is the only path here"
             correct: false
             feedback: "There is a typed Rust path, and the lesson names it rather than hiding it: solana-rpc-client plus the granular solana-* crates, which is where reads graduate when they outgrow this pattern. Hand-rolling is a fit decision for a two-read poller, not a gap in the ecosystem."
         explanation: "The call this lesson makes: for a fundamentals reader, plain JSON-RPC over reqwest + serde_json reinforces the skills the course already built and carries zero Solana-crate churn. solana-client exists for full clients that submit transactions over QUIC to leaders, a different job. When reads outgrow this pattern, the typed path is solana-rpc-client and the granular crates in the go-deeper box."
@@ -43,7 +43,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "They must be counting dev-dependencies; by normal deps solana-client is far larger"
+            label: "They must be counting dev-dependencies; by normal deps solana-client is much larger"
             correct: false
             feedback: "No, by raw direct-dep count solana-rpc-client genuinely comes out ahead (light type-crates add up). Disputing their count loses; the count is real and it's the wrong axis."
           - id: b
@@ -55,7 +55,7 @@ blocks:
             correct: false
             feedback: "Dead-code elimination doesn't erase the costs of a big tree, compile time, audit surface, and churn all scale with what you pull in. Counts matter; RAW counts just don't rank these two crates correctly."
           - id: d
-            label: "Concede the count and adopt solana-client, since 29 direct deps beat 35"
+            label: "Concede the count and adopt solana-client, since its 29 direct deps beat the other 35"
             correct: false
             feedback: "Following the count where it leads is how a good number produces a bad decision. The 29-dep crate is the one carrying the submission transport stack, so conceding the axis hands you the heavier client for a job that makes two reads."
         explanation: "The corrected research row exists for this exact exchange: solana-rpc-client has more direct deps by raw count, yet zero of the QUIC/TPU/streamer transport machinery. The defensible claim is scoped, 'no submission transport a reader never uses', and the meta-lesson is to argue from the axis that actually differentiates, because a learner who counts will catch you."

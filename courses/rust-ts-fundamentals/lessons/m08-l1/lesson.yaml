@@ -48,7 +48,7 @@ blocks:
             correct: false
             feedback: "Slot and block are not synonyms: the slot is the tick of the clock, the block is what lands in it, and a slot with no block still advances the counter. getSlot returns ticks, so block height is the number you did not read."
           - id: e
-            label: "A 33-slot backlog this RPC node might still be replaying"
+            label: "A 33-slot backlog this RPC node might still be working through"
             correct: false
             feedback: "A node still catching up would say so: getHealth answered ok before you started. And a replaying node would race ahead of wall-clock time, while 33 ticks in ten seconds is exactly the pace the live network is producing them at."
         explanation: "A slot is the network's clock tick, the unit in which the chain schedules block production. At the post-SIMD-0525 300ms target, ten seconds is about 33 slots. This is the whole point of the gauge: the chain publishes its own heartbeat, and getSlot is the stethoscope."
@@ -69,7 +69,7 @@ blocks:
             correct: true
             feedback: "432,000 times 0.3 seconds is 129,600 seconds, exactly 36 hours. Nothing about the epoch was changed; the multiplier moved, and every schedule keyed to epoch boundaries moved with it."
           - id: d
-            label: "The feature gate activated mid-epoch, so this epoch alone came up short"
+            label: "The feature gate activated mid-epoch, so this one epoch alone came up short"
             correct: false
             feedback: "Feature gates flip at an epoch boundary, never partway through one: the stage-2 gate landed in epoch 1023 and the behavior switched at the start of 1024. And 36 hours is the new steady state, not a one-off transition."
         explanation: "The epoch is a slot-count, not a duration: 432,000 slots, always. Wall-clock epoch length = 432,000 x slot time, so 400ms gives 48h and 300ms gives 36h. Your epoch-clock challenge computes exactly this, one fixed constant, one measured variable."
