@@ -303,6 +303,7 @@ class CourseReport:
     questions: list[Question]
     findings: list[Finding] = field(default_factory=list)
     stats: dict = field(default_factory=dict)
+    enforced: bool = True
 
     def add(self, severity: str, metric: str, message: str) -> None:
         self.findings.append(Finding(severity, metric, message))
@@ -818,7 +819,11 @@ def render(rep: CourseReport) -> str:
     order = {ERROR: 0, WARN: 1, INFO: 2}
     for f in sorted(rep.findings, key=lambda f: order[f.severity]):
         lines.append(f"   [{ICON[f.severity]}] {f.metric}: {f.message}")
-    lines.append(f"   => {'FAIL' if rep.failed else 'pass'}")
+    if rep.failed and not rep.enforced:
+        verdict = "FAIL (not yet enforced — informational until this course goes through the wave)"
+    else:
+        verdict = "FAIL" if rep.failed else "pass"
+    lines.append(f"   => {verdict}")
     return "\n".join(lines)
 
 
@@ -831,9 +836,24 @@ def main() -> int:
 
     targets = list(args.courses)
     if args.all:
-        targets += [p.parent for p in sorted(Path("courses").glob("*/course.yaml"))]
+        # `_template` and `_draft` are scaffolding, not shipped courses.
+        targets += [p.parent for p in sorted(Path("courses").glob("*/course.yaml"))
+                    if not p.parent.name.startswith("_")]
     if not targets:
         ap.error("give at least one course directory, or --all")
+
+    # A course only fails the build once it has been through the assessment wave.
+    # Everything else is measured and printed but not enforced, so landing the
+    # gate does not red-line courses nobody has been funded to fix. Add a slug
+    # here in the same PR that fixes it -- never before, never separately.
+    enforced_file = Path(__file__).with_name("quiz_gate_enforced.txt")
+    enforced: set[str] | None = None
+    if enforced_file.is_file():
+        enforced = {
+            line.split("#", 1)[0].strip()
+            for line in enforced_file.read_text(encoding="utf-8").splitlines()
+            if line.split("#", 1)[0].strip()
+        }
 
     reports, failed = [], False
     for target in targets:
@@ -841,8 +861,9 @@ def main() -> int:
             print(f"skipping {target}: no course.yaml", file=sys.stderr)
             continue
         rep = analyse(target)
+        rep.enforced = enforced is None or rep.slug in enforced
         reports.append(rep)
-        failed = failed or rep.failed
+        failed = failed or (rep.failed and rep.enforced)
 
     if args.json:
         print(json.dumps([{
