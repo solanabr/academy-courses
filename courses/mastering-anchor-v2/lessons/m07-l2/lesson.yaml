@@ -43,14 +43,18 @@ blocks:
           - id: c
             label: "`Account<T>` ignores an explicit `owner` constraint, since the declaring-program owner is already implied by the typed wrapper."
             correct: false
-            feedback: "The owner genuinely is checked — just inside `load`, ahead of your hook, which is why you get `IllegalOwner`. Put the same `owner = X @ MyErr` on an `UncheckedAccount` and the hook becomes the only owner check, so it carries your error."
+            feedback: "The owner genuinely is checked, just inside `load`, ahead of your hook, which is why you get `IllegalOwner`. Put the same `owner = X @ MyErr` on an `UncheckedAccount` and the hook becomes the only owner check, so it carries your error."
+          - id: d
+            label: "The Solana runtime rejects an account your program does not own before the instruction even starts, so in practice no hook runs."
+            correct: false
+            feedback: "Programs are handed accounts they do not own on every call, which is how a token account or a vault from another program ever reaches your handler at all. Nothing pre-screens ownership for you. The check that fired is Anchor's own, inside `load`, and it fired because a typed wrapper is never handed over unverified."
         explanation: "For Account<T>, owner and discriminator verification happens inside load, ahead of the constraint hooks, so a wrong owner short-circuits to ProgramError::IllegalOwner and your `@ MyOwnerError` never fires. If you need the custom error, take an UncheckedAccount and assert the owner explicitly. The `@ MyErr` spelling is not gone in V2 — it simply cannot win a race it never enters, because the framework refuses to hand you a typed `T` it has not first verified is a `T`. Those two load-time checks are structural, not hooks, which is exactly why UncheckedAccount (no load-time owner check) is the type that lets you supply your own error."
       - id: q2
         prompt: "Your escrow uses an `UncheckedAccount` for the payout destination. What must accompany it so it is not an exploit?"
         multiSelect: false
         options:
           - id: a
-            label: "Nothing — in V2 the `/// CHECK:` doc comment the compiler demands is what validates an `UncheckedAccount`."
+            label: "Nothing: in V2 the `/// CHECK:` doc comment the compiler demands is what validates an `UncheckedAccount`."
             correct: false
             feedback: "The `/// CHECK:` comment is a lint requirement that forces you to document the risk in writing; nothing reads it at runtime. `UncheckedAccount` still performs no owner, discriminator, or identity check."
           - id: b
@@ -61,6 +65,10 @@ blocks:
             label: "An explicit `address`, `owner`, or `constraint` check that pins which account is allowed here."
             correct: true
             feedback: "An exact key beats a program id, which admits every account that program happens to own, and the broader form is only right where any of them would genuinely do in that slot."
+          - id: d
+            label: "Type it as `Account<T>` instead, so the framework's own owner and discriminator checks pin the account."
+            correct: false
+            feedback: "A typed wrapper pins the shape and the owning program, never the identity, and identity is the whole class: the attacker's account has the same type and the same owner as the one you meant. It is also the wrong move for this field, since a payout destination or a vault from another program cannot load as a typed account inside yours at all."
         explanation: "UncheckedAccount opts out of all framework validation, so you must pair it with an explicit `address = ...`, `owner = ...`, or `constraint = ...`. Without one, an attacker substitutes their own account — the account-substitution class no compiler in any framework can catch for you. Pinning with `address = escrow.maker` is strictly stronger than `owner = ...`: owner admits any account from that program, address admits exactly the one the escrow recorded. Reach for owner only when any account from that program is genuinely acceptable."
       - id: q3
         prompt: "A teammate assumes V2's `init_if_needed` is still feature-gated and inherently unsafe. What is actually true?"
@@ -73,18 +81,22 @@ blocks:
           - id: b
             label: "It is gated behind an `init-if-needed` feature flag exactly as in v1."
             correct: false
-            feedback: "V2 ships six feature flags — `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent`, `testing` — and `init-if-needed` is not among them. It is ungated, and the residual risk is a re-initialization logic bug, not flipping a flag."
+            feedback: "V2 ships six feature flags, `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent` and `testing`, and `init-if-needed` is not among them. It is ungated, and the residual risk is a re-initialization logic bug, not flipping a flag."
           - id: c
             label: "Reuse-validation covers space, owner, and discriminator, so reinit is impossible."
             correct: false
-            feedback: "Those three checks are structural and they do close the crudest reinit tricks, but they cannot judge business intent — overwriting a funded escrow back to zeros passes space, owner, and discriminator alike."
+            feedback: "Those three checks are structural and they do close the crudest reinit tricks, but they cannot judge business intent: overwriting a funded escrow back to zeros passes space, owner, and discriminator alike."
+          - id: d
+            label: "V2 ships it ungated because the duplicate-mutable check now covers reinit, so no extra guard is needed."
+            correct: false
+            feedback: "Those accounts really have been folded into the duplicate-mutable check since #4239, and that is a different question from this one. Duplicate-mutable catches one account arriving in two writable slots. Nothing in it can tell that the account you are about to re-initialize is holding somebody's money."
         explanation: "V2 makes init_if_needed ungated and adds reuse-validation over space, owner, and discriminator. That closes the crudest reinit tricks, but the framework cannot judge whether re-initializing THIS account is semantically valid — a reinit-over-live-state bug survives, so guard it. Concretely: the release's six feature flags do not include `init-if-needed`, and such accounts have been folded into the duplicate-mutable check since #4239, yet you still must check a stored flag or a nonzero field before letting the `init` branch run and reject when the account is already live."
       - id: q4
         prompt: "You patched the escrow withdraw with `balance - amount` plus an authority equality check, but a fuzz seed where amount > balance still misbehaves. The real fix is:"
         multiSelect: false
         options:
           - id: a
-            label: "Add a second required `Signer` to `Withdraw` so no single caller can move funds out alone."
+            label: "Add a second required `Signer` to `Withdraw` so no single caller moves funds out alone."
             correct: false
             feedback: "Multisig is more access control, and you already pinned the caller with the authority check. The failing seed is arithmetic: a perfectly authorized player asking for more than the vault holds."
           - id: b
@@ -95,4 +107,8 @@ blocks:
             label: "Widen the `balance` field to `u128` in the Pod account so the subtraction has enough headroom."
             correct: false
             feedback: "Headroom guards overflow, not underflow: every unsigned type wraps below zero, so `u128` produces a colossal bogus balance exactly as `u64` does. Only a checked operation rejects the case."
+          - id: d
+            label: "Use `saturating_sub` so the balance floors at zero instead of wrapping below it."
+            correct: false
+            feedback: "It stops the wrap and it still settles the withdraw. The vault hands over more than the ledger said it had, then records a balance of zero, and nothing anywhere returns an error. Rejection is the only correct outcome here, which is what makes `checked_sub` plus a real error the fix rather than any arithmetic that quietly succeeds."
         explanation: "Access control answers 'who,' but the over-withdraw is an arithmetic bug: unsigned subtraction underflows (wraps in release, panics in debug). checked_sub returns None on underflow so you can reject the withdrawal — the coding challenge for this lesson is exactly this patch plus the authority check. Note that the only correct outcome is a rejection, not a wrap and not a panic: Anchor's generated workspace sets `overflow-checks = true` on the release profile, so an untouched scaffold panics rather than wraps — but that is one Cargo edit away, and a guard that holds only because of a profile setting is not a guard."
