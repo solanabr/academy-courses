@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: Why the escrow barely changed
      purpose: show that custody delegation localizes the SPL upgrade to the vault CPI, leaving escrow policy untouched
-     data: R3 quarter_prize (policy, UNCHANGED): - Escrow { maker, player, vault, amount, winning_score, bump } - reserve records policy; redeem checks final_score >= winning_score - caller pinned: address = escrow.player - signs as escrow PDA: [b"escrow", maker, player, bump] the edge (CHANGED, one place): - reserve -> vault_cpi::init_vault + deposit now carry mint + maker/vault token accounts - redeem  -> vault_cpi::release now carries mint + vault/winner token accounts R2 quarter_vault (custody, upgraded in the lab): - the vault ATA holds the prize; release is a PDA-signed transfer_checked
-     prompt: Three horizontal bands. Top band "R3 policy" green, marked UNCHANGED, listing the four policy items. Middle band "the CPI edge" amber, marked "the one place that changed", showing reserve->deposit and redeem->release each gaining "+ mint + token accounts". Bottom band "R2 custody" listing the token account and transfer_checked. Down-arrows connect R3 -> edge -> R2. Monospace for identifiers.
+     data: R3 quarter_prize (policy, UNCHANGED): - Escrow { maker, player, vault, amount, winning_score, bump } - reserve records policy; redeem checks final_score >= winning_score - caller pinned: address = escrow.player - signs as escrow PDA: [b"escrow", maker, player, bump] the edge (CHANGED, one place): - reserve -> vault_cpi::initialize + deposit now carry mint + maker/vault token accounts - redeem  -> vault_cpi::release now carries mint + vault/winner token accounts R2 quarter_vault (custody, upgraded in the lab): - the vault ATA holds the prize; release is a PDA-signed transfer_checked
+     prompt: Three horizontal bands. Top band "R3 policy" green, marked UNCHANGED, listing the four policy items. Middle band "the CPI edge" amber, marked "the one place that changed", showing reserve->initialize+deposit and redeem->release each gaining "+ mint + token accounts". The reserve edge is vault_cpi::initialize, NOT init_vault: the SPL upgrade renamed the vault's init instruction and the re-harvested IDL generates the new name. Bottom band "R2 custody" listing the token account and transfer_checked. Down-arrows connect R3 -> edge -> R2. Monospace for identifiers.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -84,7 +84,7 @@
       <span class="tag chg">changed</span>
     </div>
     <div class="br">
-      <div class="li"><span class="d"></span><span class="x"><code>reserve &rarr; vault_cpi::init_vault + deposit</code> now carry <span class="plus">+ mint</span> <span class="plus">+ maker/vault token accounts</span></span></div>
+      <div class="li"><span class="d"></span><span class="x"><code>reserve &rarr; vault_cpi::initialize + deposit</code> now carry <span class="plus">+ mint</span> <span class="plus">+ maker/vault token accounts</span></span></div>
       <div class="li"><span class="d"></span><span class="x"><code>redeem &nbsp;&rarr; vault_cpi::release</code> now carries <span class="plus">+ mint</span> <span class="plus">+ vault/winner token accounts</span></span></div>
     </div>
   </div>

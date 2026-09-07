@@ -105,7 +105,7 @@ Two commands, not one, and the split is deliberate. `convert` is the honest half
 
 What lands under `clients/` is not a blob. The `-p` flag names a base directory and the CLI writes each language to `<base>/<language>`, so `-p clients -l js` renders into `clients/js/`. Inside it, Codama emits a directory you can read, one folder per kind of thing in your program:
 
-![The generated client is a directory of instructions, accounts, types, programs, and errors; the caller uses the instruction builder, the pool PDA finder, and the account decoder.](assets/v05-diagram.png)
+![The generated client is a directory of instructions, accounts, pdas, types, programs, and errors; the caller uses the instruction builder from instructions, the pool PDA finder from pdas, and the account decoder from accounts.](assets/v05-diagram.png)
 
 The builder is named after your instruction. `swap_arcade_for_tickets` becomes `getSwapArcadeForTicketsInstructionAsync`. The `-Async` suffix is Codama's convention for the variant that resolves what it can for you: it derives the `pool` PDA from its seeds and fills default program addresses, so you pass the accounts only you can know (the trader, the mints, the reserve and trader token accounts) and it assembles the rest. That is the whole point of generation. The account order, the discriminator, the borsh encoding of `amountIn` and `minOut`, the PDA derivation, all of it comes out of your IDL instead of out of your memory.
 

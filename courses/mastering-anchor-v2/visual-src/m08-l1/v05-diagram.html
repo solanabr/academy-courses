@@ -12,8 +12,9 @@
 <body>
 <!-- diagram: What anchor codama generate writes, and what each part gives you
      purpose: map the generated directory to the three things the caller actually uses
-     data: clients/js/            <- from `-p clients -l js`: <path>/<language> index.ts       -> re-exports everything below instructions/  -> getSwapArcadeForTicketsInstructionAsync(...)  // the builder you call accounts/      -> fetchPool(...)  and  findPoolPda(...)          // decoder + PDA finder types/         -> Pool, and the arg types (amountIn/minOut as bigint) programs/      -> the program address + program-level helpers errors/        -> typed SwapError (ZeroOutput, SlippageExceeded) The caller touches three of these: the instruction builder, the PDA finder, the decoder.
-     prompt: Directory-tree diagram of the five generated folders. Put a right-side callout on three of them: instructions -> "the swap builder", accounts -> "PDA finder + decoder", errors -> "typed reverts". Leave types/ and programs/ unannotated but present. Monospace tree, clean callouts.
+     data: clients/js/            <- from `-p clients -l js`: <path>/<language> index.ts       -> re-exports everything below instructions/  -> getSwapArcadeForTicketsInstructionAsync(...)  // the builder you call accounts/      -> fetchPool(...)          // the decoder
+     pdas/         -> findPoolPda(...)        // the PDA finder, its own folder types/         -> Pool, and the arg types (amountIn/minOut as bigint) programs/      -> the program address + program-level helpers errors/        -> typed SwapError (ZeroOutput, SlippageExceeded) The caller touches four of these folders for three things: the instruction builder (instructions/), the PDA finder (pdas/), the decoder (accounts/).
+     prompt: Directory-tree diagram of the six generated folders. Put a right-side callout on four of them: instructions -> "the swap builder", accounts -> "the decoder", pdas -> "its own folder, not accounts/", errors -> "typed reverts". pdas/ is a top-level sibling of accounts/ and must never be folded into it: the lesson checkpoint imports findPoolPda from pdas/ and fetchPool from accounts/. Leave types/ and programs/ unannotated but present. Monospace tree, clean callouts.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -88,10 +89,19 @@
 
     <div class="r hot">
       <div class="nm"><span class="g">&#9500;&#9472;&#9472;</span>accounts/</div>
-      <div class="ds"><b>fetchPool(...)</b> &middot; <b>findPoolPda(...)</b></div>
+      <div class="ds"><b>fetchPool(...)</b></div>
       <div class="co">
         <svg width="34" height="14" viewBox="0 0 34 14"><line x1="0" y1="7" x2="23" y2="7" stroke="#d9a608" stroke-width="2.6"/><polygon points="34,7 22,2 22,12" fill="#d9a608"/></svg>
-        <span class="chip">PDA finder + decoder</span>
+        <span class="chip">the decoder</span>
+      </div>
+    </div>
+
+    <div class="r hot">
+      <div class="nm"><span class="g">&#9500;&#9472;&#9472;</span>pdas/</div>
+      <div class="ds"><b>findPoolPda(...)</b></div>
+      <div class="co">
+        <svg width="34" height="14" viewBox="0 0 34 14"><line x1="0" y1="7" x2="23" y2="7" stroke="#d9a608" stroke-width="2.6"/><polygon points="34,7 22,2 22,12" fill="#d9a608"/></svg>
+        <span class="chip">its own folder, not accounts/</span>
       </div>
     </div>
 
