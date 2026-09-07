@@ -78,9 +78,9 @@ blocks:
           - id: b
             label: "It moves over a shared liquidity network in roughly 15 to 19 minutes, the same on every chain."
             correct: false
-            feedback: "That mixes CCTP's standard cross-chain range with the wrong mechanism; the Solana fast transfer is about 8 seconds, not 15 to 19 minutes."
+            feedback: "That mixes CCTP's standard cross-chain range with the wrong mechanism; a Fast Transfer is far quicker than the standard route, and how much quicker depends on the source chain's finality."
           - id: c
-            label: "It is burned on the source domain and natively minted on Solana (domain 5), with a Fast Transfer landing in about 8 seconds."
+            label: "It is burned on the source domain and natively minted on Solana (domain 5), with a Fast Transfer landing well inside the standard route's window."
             correct: true
-            feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Those 8 seconds are the fast path only, and the standard route still runs 15 to 19 minutes."
-        explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5, and a Fast Transfer to Solana settles in roughly 8 seconds, versus the ~15 to 19 minute standard cross-chain path."
+            feedback: "Burn-and-mint means what arrives is the canonical asset, with no pool behind it to run dry. Fast Transfer waits on the SOURCE chain's finality, so an Ethereum-sourced transfer is slower than the ~8 seconds quoted for Solana-as-source, and the standard route still runs 15 to 19 minutes."
+        explanation: "CCTP is burn-and-mint: the USDC is burned on the source chain and freshly, natively minted on the destination, so there is no wrapped IOU and no pool. Solana is domain 5. Fast Transfer timing is keyed to the SOURCE chain, because what is being waited on is the burn becoming irreversible where it happened — the widely-quoted ~8 seconds is Solana as source, and a buyer bridging in from Ethereum waits longer than that while still beating the ~15 to 19 minute standard path. Quote the row for your buyers' source chain."

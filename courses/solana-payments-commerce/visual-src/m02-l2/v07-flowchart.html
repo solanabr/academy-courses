@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: CCTP burn-and-mint versus the lock-and-wrap bridge model
-     purpose: contrast the mechanism so the reader understands why CCTP delivers native USDC with no pool risk, and where Solana's domain 5 and the 8-second figure live
-     data: Top path (CCTP): USDC on source chain -> burned on source domain -> Circle attestation -> native USDC minted on Solana (domain 5) -> lands in the buyer's ATA; Fast Transfer to Solana: about 8 seconds; standard transfer: waits for source-chain finality, minutes on Ethereum Bottom path (lock-and-wrap, for contrast): USDC locked in bridge pool -> wrapped IOU minted on destination -> IOU value depends on pool staying solvent; pool is an exploit target Verdict strip: CCTP output is the same native USDC mint the kit already sends
-     prompt: Two horizontal paths stacked with a dividing label between them. Top path in four nodes for burn, attest, mint, arrive, annotated with domain 5 on the Solana node and a timing badge reading about 8 seconds for Fast Transfer. Bottom path in three nodes for lock, wrap, depend-on-pool, with a risk marker on the pool node. Full-width strip below stating that the CCTP result is native USDC, not a wrapped token.
+     purpose: contrast the mechanism so the reader understands why CCTP delivers native USDC with no pool risk, and that Fast Transfer timing is keyed to the SOURCE chain (the widely-quoted ~8 seconds is Solana-as-source, not arrivals into Solana)
+     data: Top path (CCTP): USDC on source chain -> burned on source domain -> Circle attestation -> native USDC minted on Solana (domain 5) -> lands in the buyer's ATA; both paths wait on the SOURCE chain's finality: Fast Transfer is about 8 seconds when Solana is the source, longer from a slower-finality source such as Ethereum; standard transfer waits full source-chain finality, minutes on Ethereum Bottom path (lock-and-wrap, for contrast): USDC locked in bridge pool -> wrapped IOU minted on destination -> IOU value depends on pool staying solvent; pool is an exploit target Verdict strip: CCTP output is the same native USDC mint the kit already sends
+     prompt: Two horizontal paths stacked with a dividing label between them. Top path in four nodes for burn, attest, mint, arrive, annotated with domain 5 on the Solana node and a timing badge reading "Fast Transfer: source-chain finality, ~8s from Solana". Bottom path in three nodes for lock, wrap, depend-on-pool, with a risk marker on the pool node. Full-width strip below stating that the CCTP result is native USDC, not a wrapped token.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -56,7 +56,7 @@
 <div class="card">
   <div class="stbr-eyebrow">cross-chain USDC checkout</div>
   <h2 class="viz-title">burn-and-mint versus lock-and-wrap</h2>
-  <div class="pathlab"><span class="pl cctp">CCTP &mdash; burn-and-mint</span><span class="timing">Fast Transfer to Solana &asymp; 8 seconds</span><span class="timing2">standard transfer: waits for source-chain finality &mdash; minutes on Ethereum</span></div>
+  <div class="pathlab"><span class="pl cctp">CCTP &mdash; burn-and-mint</span><span class="timing">Fast Transfer: waits on the SOURCE chain &mdash; &asymp;8s from Solana</span><span class="timing2">standard transfer: waits for source-chain finality &mdash; minutes on Ethereum</span></div>
   <div class="flow">
     <div class="start"><div class="box dark"><span class="t">USDC on source chain</span></div></div>
     <div class="arrcell"><svg width="22" height="16"><line x1="0" y1="8" x2="14" y2="8" stroke="#008b4c" stroke-width="2.5"/><polygon points="22,8 12,3 12,13" fill="#008b4c"/></svg></div>

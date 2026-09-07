@@ -150,6 +150,7 @@ The split for today: I walk the scaffold, the endpoints, and the hosting rules w
 mkdir -p drop-blink/src drop-blink/public
 cd drop-blink
 npm init -y
+npm pkg set type=module
 npm install express@5.2.1 @solana/kit@6.10.0 @solana/actions-spec@2.4.2
 npm install -D tsx@4 typescript @types/express @types/node
 ```
