@@ -734,7 +734,16 @@ def m_answer_leak(rep: CourseReport) -> None:
 
 
 def m_dedup(rep: CourseReport) -> None:
-    """Repeat-keyed facts: the same claim keyed again in a different lesson."""
+    """Repeat-keyed facts -- a FLOOR, not a count.
+
+    Lexical similarity badly under-reports this. Measured on the real corpus, a
+    Jaccard scan finds 4 near-duplicate pairs across all five courses, while one
+    course keys the same thesis in at least eight lessons that share almost no
+    vocabulary. The real duplicates are semantic, so this metric is a cheap
+    backstop for the careless cases and nothing more. A course with zero hits
+    here has NOT been shown to be free of repeat-keyed facts; only an authored
+    claim ledger can show that.
+    """
     singles = [q for q in rep.questions if q.single and len(content_tokens(q.key_label)) >= 4]
     pairs = []
     for i, a in enumerate(singles):
@@ -747,7 +756,8 @@ def m_dedup(rep: CourseReport) -> None:
     rep.stats["repeat_keyed_pairs"] = len(pairs)
     if pairs:
         rep.add(WARN, "repeat-keyed",
-                f"{len(pairs)} cross-lesson pair(s) key near-identical claims: " + _sample(pairs))
+                f"at least {len(pairs)} cross-lesson pair(s) key near-identical claims "
+                f"(lexical floor — semantic repeats are invisible here): " + _sample(pairs))
 
 
 def m_emdash(rep: CourseReport) -> None:
