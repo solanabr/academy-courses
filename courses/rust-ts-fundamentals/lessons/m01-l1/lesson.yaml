@@ -18,14 +18,14 @@ blocks:
             label: "Open the bookmarked chapter for that concept, read what you need, come back"
             correct: true
             feedback: "A signpost is an address, not a warning. You open the one chapter the map points at, take what the error needs, and go back to the lab you were in; one chapter at point of need is the whole deal."
-          - id: b
-            label: "Pause the course and work through The Rust Book front to back before continuing"
-            correct: false
-            feedback: "That's the thousand-hour trap the map exists to prevent. The bookmarks are chapter-level and pulled at point of need, nobody shipping read the whole pile first."
           - id: c
             label: "Treat it as a gap in the course's coverage and look for a more complete course"
             correct: false
             feedback: "It's not a gap, it's the design. The lesson that signposted lifetimes told you exactly where the full treatment lives; a course that taught everything would be the pile, not the map."
+          - id: b
+            label: "Pause the course and work through The Rust Book front to back before continuing"
+            correct: false
+            feedback: "That's the thousand-hour trap the map exists to prevent. The bookmarks are chapter-level and pulled at point of need, nobody shipping read the whole pile first."
           - id: d
             label: "Keep editing the code until the error clears, since lifetimes are never taught here"
             correct: false
@@ -35,10 +35,10 @@ blocks:
         prompt: "drift-labs/protocol-v2, one flagship Solana repo, splits almost 50/50 by bytes: TypeScript 5,746,893 vs Rust 5,533,370. What is that number evidence FOR?"
         multiSelect: false
         options:
-          - id: a
-            label: "Solana teams are mid-migration from TypeScript to Rust, so Rust alone is the safer bet"
+          - id: d
+            label: "Most of that TypeScript is tests and scripts, so only the Rust half is the shipped product"
             correct: false
-            feedback: "There's no migration in that number, both halves are load-bearing and growing. The Rust is the on-chain program; the TS is its SDK, clients, and tests. Neither replaces the other."
+            feedback: "Tests are in there, but so are the SDK and every client an integrator imports. That surface ships, gets versioned and breaks users when it regresses, which is why the split sits near half rather than drifting to the program."
           - id: b
             label: "Production Solana products pair a Rust program with a TypeScript client, one product needs both"
             correct: true
@@ -47,10 +47,10 @@ blocks:
             label: "The two languages are interchangeable on this stack, so a developer can pick whichever they prefer"
             correct: false
             feedback: "They sit at different layers, not the same one: Rust where the program runs, TS where users and tooling live. Interchangeable would mean picking one; the byte split shows shipping teams pick both."
-          - id: d
-            label: "Most of that TypeScript is tests and scripts, so only the Rust half is the shipped product"
+          - id: a
+            label: "Solana teams are mid-migration from TypeScript to Rust, so Rust alone is the safer bet"
             correct: false
-            feedback: "Tests are in there, but so are the SDK and every client an integrator imports. That surface ships, gets versioned and breaks users when it regresses, which is why the split sits near half rather than drifting to the program."
+            feedback: "There's no migration in that number, both halves are load-bearing and growing. The Rust is the on-chain program; the TS is its SDK, clients, and tests. Neither replaces the other."
         explanation: "The single best 'why both languages' stat the research found: inside one production repo, the on-chain Rust and the client-side TypeScript are nearly equal by weight. That's the shape of the job, and the shape of this course."
       - id: m01-l1-q3
         prompt: "You open the MDN Core Scripting honesty check and the async unit, promises, callbacks, is genuinely new to you. What's the honest move?"
@@ -81,10 +81,6 @@ blocks:
             label: "The free-CI math, the dashboard's raw status.json fetch, and the Vercel repo lab"
             correct: true
             feedback: "Three paths ride on it: Actions is free and unmetered for public repos on standard runners, the dashboard reads status.json from the public raw URL, and the Vercel lab connects a personal public repo on the free tier."
-          - id: b
-            label: "GitHub policy, Actions workflows are only permitted to run on public repositories"
-            correct: false
-            feedback: "Actions runs fine on private repos, but metered, against a monthly minutes quota. The course's unmetered-CI path is a public-repo property, not an Actions requirement."
           - id: c
             label: "Runner speed, public repositories are scheduled onto faster GitHub-hosted machines"
             correct: false
@@ -93,4 +89,8 @@ blocks:
             label: "Just the free-CI math; the dashboard's raw status.json fetch works on a private repo too"
             correct: false
             feedback: "The CI billing is one of the three, not the whole list. A private repo's raw URL answers only to a credential your dashboard's browser fetch will not be carrying, so that path breaks too, weeks later and quietly."
+          - id: b
+            label: "GitHub policy, Actions workflows are only permitted to run on public repositories"
+            correct: false
+            feedback: "Actions runs fine on private repos, but metered, against a monthly minutes quota. The course's unmetered-CI path is a public-repo property, not an Actions requirement."
         explanation: "Three course-critical paths ride on the public repo: Actions is free and unmetered for public repos on standard runners, the dashboard will fetch status.json from the repo's public raw URL, and the Vercel Hobby lab connects a personal public repo. The cost is stated out loud, your station's code and history are public, and for a portfolio artifact, that's a feature."

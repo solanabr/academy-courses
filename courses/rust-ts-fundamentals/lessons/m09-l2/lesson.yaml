@@ -14,18 +14,18 @@ blocks:
         prompt: "At 3 a.m. you need to answer: 'when did the api target last flip from up to degraded?' Which logging style answers that with a single grep?"
         multiSelect: false
         options:
-          - id: a
-            label: "One JSON line per state change with named fields, event, target, from, to, and a timestamp, emitted at the boundary where the flip happens"
-            correct: true
-            feedback: "The question shapes the schema: because from and to are named fields, grep '\"event\":\"state_change\"' piped through the target name IS the incident query, and the ts on the hit is the answer. No dashboard, no ssh, thirty seconds."
-          - id: b
-            label: "A human-readable message like 'probe had a problem, retrying soon' printed wherever an error is caught, so the story reads naturally top to bottom"
-            correct: false
-            feedback: "Readable prose is for humans reading in order; incidents are answered by machines filtering at 3 a.m. Without named fields there is nothing for grep to anchor on, 'a problem' matches everything and answers nothing."
           - id: c
             label: "A line for every loop iteration with full state dumps, so any question is answerable because nothing was left out"
             correct: false
             feedback: "Volume is not answerability, per-iteration dumps bury the one flip you need under thousands of identical lines, and on the worker side they torch the daily event budget. Log events, not iterations."
+          - id: b
+            label: "A human-readable message like 'probe had a problem, retrying soon' printed wherever an error is caught, so the story reads naturally top to bottom"
+            correct: false
+            feedback: "Readable prose is for humans reading in order; incidents are answered by machines filtering at 3 a.m. Without named fields there is nothing for grep to anchor on, 'a problem' matches everything and answers nothing."
+          - id: a
+            label: "One JSON line per state change with named fields, event, target, from, to, and a timestamp, emitted at the boundary where the flip happens"
+            correct: true
+            feedback: "The question shapes the schema: because from and to are named fields, grep '\"event\":\"state_change\"' piped through the target name IS the incident query, and the ts on the hit is the answer. No dashboard, no ssh, thirty seconds."
           - id: d
             label: "One JSON line per /status request listing each target's current state, so a flip to degraded shows on the next read"
             correct: false
@@ -105,31 +105,23 @@ blocks:
             label: "Neither can happen, scheduled runs are guaranteed to execute once queued even under load, so a missing run means someone deleted or renamed the workflow file"
             correct: false
             feedback: "GitHub's own docs say the opposite: scheduled events are best-effort, can be delayed, and under sufficient load queued jobs may be dropped. Silence is a documented outcome, not proof of sabotage."
-          - id: b
-            label: "Best-effort scheduling can drop queued jobs under load, and 60 days of repo inactivity auto-disables the schedule, neither produces a failed run"
-            correct: true
-            feedback: "GitHub says it in writing: scheduled events can be delayed, and under sufficient load some queued jobs may be dropped. Both silent deaths leave the same trace, which is none, and that is why the station also commits heartbeat timestamps where an absence is visible to anything that looks."
-          - id: c
-            label: "The runs happened and failed on schedule, but notifications for scheduled workflows route to the organization's administrators rather than to the author"
-            correct: false
-            feedback: "Scheduled-workflow notifications go to the workflow's CREATOR, not to org admins, and this doesn't explain the missing runs. The real gap is that a run which never happens has no failure to notify about."
           - id: d
             label: "Your notification filter hid them, since a queued job that gets dropped under heavy load is recorded in the Actions tab as a skipped run rather than a failed one"
             correct: false
             feedback: "A dropped job leaves no run at all, so there is no skipped entry for a filter to hide and nothing in the Actions tab to find in the morning. The filter you set decides which failures reach you; it cannot decide anything about a run that never started."
+          - id: c
+            label: "The runs happened and failed on schedule, but notifications for scheduled workflows route to the organization's administrators rather than to the author"
+            correct: false
+            feedback: "Scheduled-workflow notifications go to the workflow's CREATOR, not to org admins, and this doesn't explain the missing runs. The real gap is that a run which never happens has no failure to notify about."
+          - id: b
+            label: "Best-effort scheduling can drop queued jobs under load, and 60 days of repo inactivity auto-disables the schedule, neither produces a failed run"
+            correct: true
+            feedback: "GitHub says it in writing: scheduled events can be delayed, and under sufficient load some queued jobs may be dropped. Both silent deaths leave the same trace, which is none, and that is why the station also commits heartbeat timestamps where an absence is visible to anything that looks."
         explanation: "This is the alarm of last resort's named hole: failure notifications require a run that runs and fails. A dropped job and a 60-day auto-disable both produce pure silence, which is why the station also persists heartbeat timestamps in status.json, where an ABSENCE is visible to anything that looks."
       - id: m09-l2-q6
         prompt: "The four-platform sweep: where does each credential live so it never lands in git? Pick the mapping that matches the taught table."
         multiSelect: false
         options:
-          - id: a
-            label: "Actions: an env block committed in the workflow YAML; Vercel: values in vercel.json; Cloudflare: a vars entry in wrangler.jsonc; Docker: an ENV line baked into the Dockerfile"
-            correct: false
-            feedback: "Every location in this list is a committed file, that is four different ways to publish a secret. Each platform provides an out-of-repo store precisely so config files can stay public."
-          - id: b
-            label: "One encrypted .env committed to the repo and decrypted at deploy time on every platform with a shared key kept in the team password manager"
-            correct: false
-            feedback: "Committed-but-encrypted schemes exist in industry, but they add a key-distribution problem this course never takes on, and one leaked key retroactively exposes the whole git history. The taught path is each platform's own secret store."
           - id: c
             label: "Actions repository secrets; Vercel env vars synced via vercel env pull; Cloudflare wrangler secret put with gitignored .dev.vars; Docker --env-file, never in images"
             correct: true
@@ -138,4 +130,12 @@ blocks:
             label: "Actions repository secrets; Vercel dashboard env vars; Cloudflare wrangler secret put with .dev.vars; Docker an ENV line, since the image stays in a private registry"
             correct: false
             feedback: "Three rows right and one that undoes them: docker history prints every layer of an image, ENV instructions included, so a private registry protects the value only until someone pulls the image. Pass it at run time with --env-file or compose env_file instead."
+          - id: a
+            label: "Actions: an env block committed in the workflow YAML; Vercel: values in vercel.json; Cloudflare: a vars entry in wrangler.jsonc; Docker: an ENV line baked into the Dockerfile"
+            correct: false
+            feedback: "Every location in this list is a committed file, that is four different ways to publish a secret. Each platform provides an out-of-repo store precisely so config files can stay public."
+          - id: b
+            label: "One encrypted .env committed to the repo and decrypted at deploy time on every platform with a shared key kept in the team password manager"
+            correct: false
+            feedback: "Committed-but-encrypted schemes exist in industry, but they add a key-distribution problem this course never takes on, and one leaked key retroactively exposes the whole git history. The taught path is each platform's own secret store."
         explanation: "The four-platform table in one breath: every platform separates committed configuration from injected secrets, repo secrets for Actions, dashboard env vars (pulled with `vercel env pull`) for Vercel, `wrangler secret put` plus `.dev.vars` for Cloudflare, and `--env-file`/`env_file` for Docker so images stay secret-free. The companion rule from the logging beat: never log the environment, or the sweep's work ends up in a retained log line."
