@@ -25,7 +25,7 @@ Open the printed localhost URL, see `Hello World!`, stop the dev server, and shi
 npx wrangler deploy
 ```
 
-The first deploy walks you through browser login and picking a `workers.dev` subdomain, then prints a live URL shaped like `pulse-edge-ts.<your-subdomain>.workers.dev`. Open it on your phone. That is a fourth platform live before the theory section is over, and the whole rest of this lesson is upgrading what answers at that URL.
+The first deploy walks you through browser login and picking a `workers.dev` subdomain, then prints a live URL shaped like `pulse-edge-ts.<your-subdomain>.workers.dev`. Open it on your phone. That is SHIP #4, a fourth platform live before the theory section is over, and the whole rest of this lesson is upgrading what answers at that URL. (The ships so far, in order: #1 the Actions cron in m01-l3, #2 the Vercel dashboard URL in m03-l3, #3 the GHCR images in m06-l4, #4 here. Next lesson's Rust twin lands a second URL under this same ship, because the platform is the ship and the second engine is the point.)
 
 ### What a Worker actually is
 
