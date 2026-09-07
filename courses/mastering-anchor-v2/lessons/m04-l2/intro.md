@@ -14,7 +14,7 @@ Now run `anchor build`. If what you have heard about V2's borrow model is "you c
 
 ## Summary
 
-One concept, and it is a why, not a how: reading an account's typed data while a live `CpiHandle` borrows that same account mutably is a compile error in Anchor V2, and that rule — landing on exactly the accounts a CPI could change and on nothing else — retires v1's `.reload()`-after-CPI footgun for good. Not softened. Not linted. Made unwritable.
+One concept, and it is a why, not a how: reading an account's typed data while a live `CpiHandle` borrows that same account mutably is a compile error in Anchor V2, and that rule — landing on exactly the accounts a CPI could change and on nothing else — retires v1's `.reload()`-after-CPI footgun for good. The bug is not softened or linted into submission; it simply cannot be written.
 
 We are going to reconstruct why the framework's authors chose to enforce this with the borrow checker instead of a warning, walk the naive alternatives and watch each one fail, and pin down the exact edge of the guarantee, because a safety promise you misjudge is worse than none. The v1 hazard was silent and it ran; the V2 replacement is loud and it stops the build. Moving a failure from runtime-and-quiet to compile-time-and-obvious is the whole thesis of V2, and this is that thesis applied to the moment one program calls another.
 
@@ -126,7 +126,7 @@ The doubt that usually follows is fair: what if I genuinely need a value mid-CPI
 
 ### The thesis, and the framework holding itself to it
 
-Zoom out for a second, because this is not one clever trick, it is a worldview. The #4390 manifesto argued that `Account<T>` being the slow path was not a performance footnote, it was the central flaw: the safe thing and the fast thing had drifted apart, so people paid a tax for safety and some of them stopped paying it. V2's answer was to make the safe path the fast path and the fast path the default. The borrow model is that same thesis carried one level up, into composition. Instead of making a safe post-CPI read cheap, it makes an unsafe one impossible. Same instinct, different lever: turn a whole class of bug into a compile error rather than a lint or a line in the docs.
+Zoom out for a second, because this is a worldview rather than one clever trick. The #4390 manifesto argued that `Account<T>` being the slow path was not a performance footnote, it was the central flaw: the safe thing and the fast thing had drifted apart, so people paid a tax for safety and some of them stopped paying it. V2's answer was to make the safe path the fast path and the fast path the default. The borrow model is that same thesis carried one level up, into composition. Instead of making a safe post-CPI read cheap, it makes an unsafe one impossible. Same instinct, different lever: turn a whole class of bug into a compile error rather than a lint or a line in the docs.
 
 ![A timeline running from the issue 4390 manifesto through Anchor 1.0.0 to the borrow model that removes .reload() and the fuzzing that found four framework bugs.](assets/v07-timeline.png)
 
@@ -376,7 +376,7 @@ If you can state the class in a sentence and your reorder builds, you own the co
 
 ## Where this leaves you
 
-Take the win. You just watched the borrow checker refuse to compile a bug that used to ship in production Anchor programs by the hundred, and you fixed it by moving one line. That is a strange and good feeling: the compiler caught something that used to require a code review, a careful reviewer, and a little luck. The stale-read-after-CPI class is not something you now avoid. It is something you can no longer write.
+Take the win. You just watched the borrow checker refuse to compile a bug that used to ship in production Anchor programs by the hundred, and you fixed it by moving one line. That is a strange and good feeling: the compiler caught something that used to require a code review, a careful reviewer, and a little luck. The stale-read-after-CPI class is no longer something you have to remember to avoid, because the compiler will not let you write it.
 
 Keep the edge sharp in your head, because it is the part people get wrong, in both directions. The guarantee covers typed account access only — raw `AccountInfo` lamports and hand-rolled byte reads are still yours to reason about — and it covers only the accounts a live handle actually borrows: everything you did not hand the CPI stays readable the whole time, which is why the R2 probe built green. The borrow model does not refresh anything, it gates when you are allowed to read so that the read you are allowed to do is fresh. If your fix built, you have hit the gate. If it did not build, the culprit is almost always a read that is still sitting above the line that drops the handle: move it down, past the call that consumes the `CpiContext`, and try again.
 
@@ -384,4 +384,4 @@ Here is the diagnostic set to carry out of this lesson, because the next time a 
 
 There is a natural next question hiding in all of this. If one program signing for itself is custody, what happens when a payout depends on two parties and a condition, and the deposit needs to live inside a vault you already built? That is composition, and it is where the borrow-tracked handle stops being a safety rule and starts being the thing that lets one program safely build on another's state. Next lesson you build R3, the prize-escrow: it reserves a deposit into a real R2 quarter-vault instance through a worked CPI, and releases the prize only when the win condition holds and the caller checks out. The escrow trusts the vault, and V2 makes that trust something the compiler helps you keep.
 
-You broke it, you fixed it, you named it. Happy building.
+You broke it and fixed it, and you can name the class. Happy building.

@@ -9,9 +9,9 @@ anchor --version
 which anchor
 ```
 
-Whatever prints back is almost certainly Anchor **1.1.2**, the current stable line, installed by `avm` and living on your PATH. That binary is the wrong tool for this course, and it will not tell you so. It will happily build a V2 lab against V1 semantics and hand you errors that make no sense. So the very first thing you learn about Anchor V2 is not a macro. It is that the version you already have is a trap, and the version you want fights back when you try to install it.
+Whatever prints back is almost certainly Anchor **1.1.2**, the current stable line, installed by `avm` and living on your PATH. That binary is the wrong tool for this course, and it will not tell you so. It will happily build a V2 lab against V1 semantics and hand you errors that make no sense. So the very first thing you learn about Anchor V2 has nothing to do with macros: the version you already have is a trap, and the version you want fights back when you try to install it.
 
-That is the lesson. Not a detour around the friction, the friction itself. Installing a release candidate off a branch, when the official installer has no binary to hand you, is what living on the frontier actually feels like. I want you to feel it once, with me narrating every wall so you know it is the tool and not you.
+That is the lesson: the friction itself, not a detour around it. Installing a release candidate off a branch, when the official installer has no binary to hand you, is what living on the frontier actually feels like. I want you to feel it once, with me narrating every wall so you know it is the tool and not you.
 
 ## Summary
 
@@ -19,17 +19,17 @@ Anchor ships on two parallel lines right now: stable **1.1.2**, and **2.0.0-rc.1
 
 The autonomy fade here is deliberate and shallow. This is a toolchain lesson, so the install and the scaffold are **fully worked**: I show every command, you follow exactly, no solo yet. The one step that is yours alone is the final deploy. You run `anchor deploy` against devnet, you read back a program id, and you paste it into the pins file. That is the whole graduation.
 
-One honest note up front. Every version number on this page is a snapshot with a date attached, and the RC will move. That is not sloppiness, it is the cost of being weeks early. The re-verify discipline you build here is the actual skill.
+One honest note up front. Every version number on this page is a snapshot with a date attached, and the RC will move. That is the cost of being weeks early, not sloppiness. The re-verify discipline you build here is the actual skill.
 
 ## Why the RC lives in its own house
 
-Start from the thing you can already see. There are two Anchor lines, and they are not a beta-then-stable staircase. They are parallel.
+Start from the thing you can already see. There are two Anchor lines, and they run in parallel rather than as a beta-then-stable staircase.
 
 The stable line is **1.1.2**. It is what `avm` installs, what crates.io serves as `anchor-lang`, and what most of the ecosystem builds against today. The frontier line is **2.0.0-rc.1**. It does not live on a published, blessed release the way 1.1.2 does. It lives on a development branch named `anchor-next`, and the only documented way to get a working CLI from it is to build that branch yourself with cargo.
 
 ![A side-by-side of stable Anchor 1.1.2 (avm/crates, already installed) versus the frontier 2.0.0-rc.1 (built from the anchor-next git branch, and labeled both "rc" and "alpha").](assets/v01-comparison.png)
 
-Here is the why underneath the what, because it is worth deriving once. A release candidate on an unmerged branch is not a promise, it is a work in progress that happens to have a version number. If you let it overwrite the 1.1.2 on your PATH, you now have exactly one Anchor, and it is the churning one. The moment `anchor-next` breaks (and RCs break, that is their job), every project on your machine breaks with it. Isolation is not caution for its own sake. It is keeping a stable tool for your stable work and a frontier tool for your frontier work, side by side, each honest about what it is.
+Here is the why underneath the what, because it is worth deriving once. A release candidate on an unmerged branch is not a promise, it is a work in progress that happens to have a version number. If you let it overwrite the 1.1.2 on your PATH, you now have exactly one Anchor, and it is the churning one. The moment `anchor-next` breaks (and RCs break, that is their job), every project on your machine breaks with it. Isolation here is practical rather than fussy: a stable tool for your stable work and a frontier tool for your frontier work, side by side, each honest about what it is.
 
 The good news is that "isolated" here does not mean a container or a virtual machine. It is simpler and more physical than that. The `cargo install` you are about to run drops a single binary at `~/.cargo/bin/anchor`. `avm`, meanwhile, manages your 1.1.2 through its own shim. Both want to answer when you type `anchor`, and which one wins is decided by nothing more exotic than PATH ordering. That is the whole isolation model: two binaries on disk, one name, and your shell picking the first match. It is also why the single most common confusion in this whole install is a build that behaves like V1 when you were sure you installed V2. The RC is there. Your PATH just handed you the other one. You will confirm which binary answers in the lab, and it is worth internalizing now that on the frontier, `which anchor` is a debugging command, not a formality.
 
@@ -347,7 +347,7 @@ Your gate is simple to state and it either passes or it does not.
 
 **Acceptance:** `anchor --version` prints the RC, the greeter deploys, and the program id resolves as an executable program on a devnet explorer. Three facts, all checkable. If all three hold, you have earned your first V2 deploy on a toolchain almost nobody in the ecosystem is running yet.
 
-One thing to sit with while it builds. You are now tracking two Anchor lines at once, 1.1.2 and `anchor-next`, and the frontier one will drift out from under your pins. That is not a bug in your setup. That is the deal. The convenience you gave up, one blessed `avm install` that just works, you traded for being weeks early on V2. The price of that trade is the `verified` column, and you pay it by re-running `anchor --version` and re-reading your pins on a schedule instead of trusting them forever.
+One thing to sit with while it builds. You are now tracking two Anchor lines at once, 1.1.2 and `anchor-next`, and the frontier one will drift out from under your pins. That drift is the deal you made, not a bug in your setup. The convenience you gave up, one blessed `avm install` that just works, you traded for being weeks early on V2. The price of that trade is the `verified` column, and you pay it by re-running `anchor --version` and re-reading your pins on a schedule instead of trusting them forever.
 
 ![Two triggers feed an observe-then-stamp loop that rewrites the verified date in PINS.md every time a human re-checks the moving RC.](assets/v08-flowchart.png)
 

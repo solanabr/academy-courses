@@ -69,7 +69,7 @@ An `ID` constant, a checked `id()` accessor, and a `check_id` helper, so the res
 
 The value in yours is whatever `anchor keys sync` wrote after your m01-l2 deploy; the one above is a stand-in. Swap in the program id from your pins file when you follow along, or the built `.so` will carry the wrong address and every invocation will bounce on the id check.
 
-That id check is not decoration. It is the very first thing the generated entrypoint does on every call: `check_id` the declared program id against the input program id, reject if they differ. Keep that in mind, because it is step one of the dispatch path we get to shortly. It is also why a `.so` built with someone else's `declare_id!` is dead on arrival: the program refuses to run as an address it was not compiled for.
+The id check is the very first thing the generated entrypoint does on every call: `check_id` the declared program id against the input program id, reject if they differ. Keep that in mind, because it is step one of the dispatch path we get to shortly. It is also why a `.so` built with someone else's `declare_id!` is dead on arrival: the program refuses to run as an address it was not compiled for.
 
 ### #[program]: the handler, and the &mut that surprises you
 
