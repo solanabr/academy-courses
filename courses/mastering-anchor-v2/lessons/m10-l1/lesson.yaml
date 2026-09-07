@@ -78,7 +78,7 @@ blocks:
             label: "Run `anchor login` and re-register the program under `[registry]` in Anchor.toml before the 1.x deploy."
             correct: false
             feedback: "`[registry]` and `anchor login` were both removed in 1.0. That publish flow no longer exists at all -- IDLs go on-chain through the Program Metadata Program instead."
-          - id: a2
+          - id: e
             label: "Pin `avm` back to 0.32.1 permanently, since the 1.x line has no way to write an IDL on-chain at all."
             correct: false
             feedback: "1.x writes IDLs fine -- through the Program Metadata Program. You drop back to the 0.32.1 CLI exactly once, to CLOSE the stale legacy IDL account, then switch forward and deploy on 1.x."

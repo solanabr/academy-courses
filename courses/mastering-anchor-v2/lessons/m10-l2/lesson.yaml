@@ -66,7 +66,7 @@ blocks:
             label: "Rename it to `#[account(mut, allow(dup))]`; V2 collected every constraint escape hatch under a single `allow` namespace."
             correct: false
             feedback: "There is no `allow` namespace for constraints, and no `allow(dup)`. The V2 spelling is specifically `unsafe(dup)`, and the compile error names it for you."
-          - id: a2
+          - id: e
             label: "Keep `dup` as written and wrap the handler body in a Rust `unsafe { }` block; the constraint spelling itself is unchanged in V2."
             correct: false
             feedback: "The opt-out is a per-constraint spelling, `unsafe(dup)`, not a Rust `unsafe` block elsewhere in the code. The keyword absolutely changed -- plain `dup` no longer compiles."
