@@ -24,14 +24,6 @@ blocks:
         prompt: "Your escrow's redeem instruction takes the escrow record and its vault account, and marks them both mut. Does V2 accept this?"
         multiSelect: false
         options:
-          - id: a
-            label: "No: V2's MUT_MASK check rejects any instruction carrying more than one mut account."
-            correct: false
-            feedback: "MUT_MASK records which fields are mut, but the dispatcher only fails on an address collision that touches the writable set — the same address arriving in two slots with at least one of them marked mut. A cap on the number of mutable accounts does not exist."
-          - id: b
-            label: "Yes: distinct mutable accounts are fine; only the SAME account passed twice needs unsafe(dup)."
-            correct: true
-            feedback: "A compile-time mask records which fields are writable; a runtime walk compares the addresses that actually arrived. Neither alone raises anything — only an address collision touching the writable set does, and one colliding slot marked mut is already enough. The escape for a genuine alias is unsafe(dup) on the mut slot."
           - id: c
             label: "Yes, but only if both carry unsafe(dup), since the check counts mut fields, not addresses."
             correct: false
@@ -40,15 +32,23 @@ blocks:
             label: "No: both are PDAs derived by the same program, so the duplicate walk treats them as one slot"
             correct: false
             feedback: "Sharing a deriving program makes two accounts feel related, and the seed scheme does put them in one namespace. The walk compares the addresses that actually arrived, not how they were derived, so two different addresses do not collide however alike their seeds look."
+          - id: b
+            label: "Yes: distinct mutable accounts are fine; only the SAME account passed twice needs unsafe(dup)."
+            correct: true
+            feedback: "A compile-time mask records which fields are writable; a runtime walk compares the addresses that actually arrived. Neither alone raises anything — only an address collision touching the writable set does, and one colliding slot marked mut is already enough. The escape for a genuine alias is unsafe(dup) on the mut slot."
+          - id: a
+            label: "No: V2's MUT_MASK check rejects any instruction carrying more than one mut account."
+            correct: false
+            feedback: "MUT_MASK records which fields are mut, but the dispatcher only fails on an address collision that touches the writable set — the same address arriving in two slots with at least one of them marked mut. A cap on the number of mutable accounts does not exist."
         explanation: "The default that V2 enforces is against duplicate mutable accounts, the aliasing hazard where one account is passed under two names and one write silently clobbers the other. Two different accounts, even both mutable, are exactly what composition needs and are allowed with no ceremony. The check is split across two moments: the derive macro bakes a compile-time 256-bit MUT_MASK of which fields are mut, and the dispatcher then walks that mask against a runtime bitvec of addresses seen so far, raising ConstraintDuplicateMutableAccount when an address collision touches the writable set — at least one of the colliding slots marked mut is enough, and only all-read-only aliases pass. The sanctioned escape for a genuine alias stays unsafe(dup) on the mut slot."
       - id: m04-l3-q2
         prompt: "You are migrating the escrow's authority check from has_one = maker. What is the V2 form?"
         multiSelect: false
         options:
-          - id: a
-            label: "Keep has_one = maker; V2 left that constraint unchanged."
+          - id: d
+            label: "owner = escrow.maker, the constraint that replaced has_one"
             correct: false
-            feedback: "has_one still parses in V2, which is what makes this tempting, but the compiler underlines it as deprecated and points you at address = escrow.maker."
+            feedback: "The two keywords sit next to each other in the catalog and one of them did take over from has_one. owner asks which program owns the account, and on a typed wrapper that question is already settled during load; the key-equality check is address =."
           - id: b
             label: "constraint = escrow.maker == maker.key(), the only remaining form."
             correct: false
@@ -57,10 +57,10 @@ blocks:
             label: "address = escrow.maker, the direct replacement for has_one."
             correct: true
             feedback: "It takes an arbitrary expression and can therefore say plainly what it does. The compiler underlines every site."
-          - id: d
-            label: "owner = escrow.maker, the constraint that replaced has_one"
+          - id: a
+            label: "Keep has_one = maker; V2 left that constraint unchanged."
             correct: false
-            feedback: "The two keywords sit next to each other in the catalog and one of them did take over from has_one. owner asks which program owns the account, and on a typed wrapper that question is already settled during load; the key-equality check is address =."
+            feedback: "has_one still parses in V2, which is what makes this tempting, but the compiler underlines it as deprecated and points you at address = escrow.maker."
           - id: e
             label: "maker: Signer alone - a signature proves the maker's identity"
             correct: false
@@ -74,10 +74,6 @@ blocks:
             label: "Before the CPI: the require! gate must pass before the withdraw runs."
             correct: true
             feedback: "Position is part of the audit trail: a reader should see the condition standing in front of the payout, not have to reason backwards about what a later revert would undo."
-          - id: b
-            label: "After the CPI: withdraw first, then refund if the score fell short."
-            correct: false
-            feedback: "Atomicity does revert the transfer when a later require! fails — nothing can partially commit inside a failed Solana transaction. What makes this wrong is fragility, not leakage: pay-then-check is only safe while the check stays fatal and stays in this instruction, and one refactor that softens the require! pays out on a false condition. Guard-first has nothing to maintain."
           - id: c
             label: "It does not matter: the transaction is atomic, so a failed check reverts the CPI."
             correct: false
@@ -86,4 +82,8 @@ blocks:
             label: "Inside the vault's withdraw handler, since that is where lamports move"
             correct: false
             feedback: "Putting the guard next to the movement is a tidy instinct, and the vault does guard what it can see. A win condition is the escrow's own business rule and is invisible to the vault, which validates its seeds and its balances; the caller keeps the one check only it can make."
+          - id: b
+            label: "After the CPI: withdraw first, then refund if the score fell short."
+            correct: false
+            feedback: "Atomicity does revert the transfer when a later require! fails — nothing can partially commit inside a failed Solana transaction. What makes this wrong is fragility, not leakage: pay-then-check is only safe while the check stays fatal and stays in this instruction, and one refactor that softens the require! pays out on a false condition. Guard-first has nothing to maintain."
         explanation: "A conditional release is only as safe as its ordering: the guard has to run and pass before a single lamport moves. Checking after the payout, or trusting that atomicity alone protects you, invites exactly the class of exploit escrows exist to prevent. Concretely, never pay first and check after: in redeem the require! lines come first and the quarter_vault::cpi::withdraw call comes last, so nothing moves until the caller constraint and the score check have both passed."

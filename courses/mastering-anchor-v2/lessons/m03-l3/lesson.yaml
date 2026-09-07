@@ -36,10 +36,6 @@ blocks:
             label: "check — a read-time gate on the loaded account, re-verified before every matching handler runs"
             correct: true
             feedback: "Of the other three, one fires once at creation, one only for accounts that get written back out, and the last mutates instead of judging. A floor has to hold on every call — that rules out all three."
-          - id: b
-            label: "init — the floor is a creation-time invariant, so it is enforced once after the account is allocated"
-            correct: false
-            feedback: "init fires only on the create path, and a balance floor has to hold on every instruction that loads the vault. Enforce it at birth alone and the very next set_credit can drop credit under the floor with nothing to catch it."
           - id: c
             label: "exit — the hook fires during account serialization, so it validates the final state written back out"
             correct: false
@@ -48,6 +44,10 @@ blocks:
             label: "update - the hook fires whenever a constrained value is written, so the floor tracks changes"
             correct: false
             feedback: "The fourth hook, and the one whose name most suggests a live invariant that follows the account around. update fires only inside an explicit update(...) clause, and it exists for a constraint that mutates the account; a floor judges rather than writes."
+          - id: b
+            label: "init — the floor is a creation-time invariant, so it is enforced once after the account is allocated"
+            correct: false
+            feedback: "init fires only on the create path, and a balance floor has to hold on every instruction that loads the vault. Enforce it at birth alone and the very next set_credit can drop credit under the floor with nothing to catch it."
         explanation: "check is the validation hook: it runs after load and before the handler, on every matching instruction, which is precisely where an invariant like a balance floor belongs. init is create-only and exit is post-handler, so neither gives you the up-front, every-call gate a min_balance constraint needs. Said the way the lesson argues it: the vault must ALREADY satisfy the invariant for the instruction to proceed, and that is re-verified each call, never cached and never one-time — which is the definition of a read-time gate. `update` is out too: it only fires inside an explicit `update(...)` clause, and a floor validates rather than mutates."
       - id: q2
         prompt: "Why does V2 dispatch namespaced constraints through an open AccountConstraint trait instead of just adding more built-in keywords?"
@@ -74,6 +74,10 @@ blocks:
         prompt: "Your min_balance check hook does a modest comparison, but a teammate proposes a version that re-reads and re-hashes a large slab on every call. What's the cost you just signed up for?"
         multiSelect: false
         options:
+          - id: c
+            label: "The expensive check runs on every matching instruction, so you pay that CU on a hot path forever"
+            correct: true
+            feedback: "Same budget as the handler, every call, forever. A cheap comparison is a wash; an expensive one is a tax you keep paying, and a wrong one reads as a passing constraint."
           - id: a
             label: "Nothing — constraint hooks are metered separately, outside the instruction's own compute budget"
             correct: false
@@ -82,10 +86,6 @@ blocks:
             label: "One time at init — codegen caches the check result on the account so later instructions skip the hook"
             correct: false
             feedback: "Codegen caches nothing. `ns::key = value` routes to check, and check re-runs on every instruction that declares the constraint, so the cost recurs on each call rather than amortizing at creation."
-          - id: c
-            label: "The expensive check runs on every matching instruction, so you pay that CU on a hot path forever"
-            correct: true
-            feedback: "Same budget as the handler, every call, forever. A cheap comparison is a wash; an expensive one is a tax you keep paying, and a wrong one reads as a passing constraint."
           - id: d
             label: "Just the calls that take the vault as mut, since a load without mut usually skips hooks"
             correct: false

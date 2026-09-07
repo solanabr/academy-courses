@@ -22,18 +22,18 @@ blocks:
         prompt: "You read a Token-2022 token account and hardcoded its length to the classic SPL TokenAccount size. The read returns garbage for some accounts. Why?"
         multiSelect: false
         options:
-          - id: a
-            label: "Token-2022 encrypts account data by default, so the base fields cannot be read without confidential-transfer keys."
-            correct: false
-            feedback: "Confidential transfer is one opt-in extension, not blanket encryption; the base fields of a Token-2022 account decode in the clear exactly like a classic one. The bug is the hardcoded length, not encryption."
-          - id: b
-            label: "Token-2022 stores its base fields in big-endian order, so a little-endian deserializer misreads supply and decimals."
-            correct: false
-            feedback: "Byte order is unchanged: Token-2022 kept the classic base layout precisely so existing parsers would not break. What breaks a fixed-length assumption is the TLV tail appended after that base."
           - id: c
             label: "Extensions append a TLV tail after the base layout, so the real length is data you must read, not a constant."
             correct: true
             feedback: "The classic base is preserved and padded, then a type tag and whatever entries the issuer added, which is why a real mainnet mint measures far longer than the constant your parser is holding."
+          - id: b
+            label: "Token-2022 stores its base fields in big-endian order, so a little-endian deserializer misreads supply and decimals."
+            correct: false
+            feedback: "Byte order is unchanged: Token-2022 kept the classic base layout precisely so existing parsers would not break. What breaks a fixed-length assumption is the TLV tail appended after that base."
+          - id: a
+            label: "Token-2022 encrypts account data by default, so the base fields cannot be read without confidential-transfer keys."
+            correct: false
+            feedback: "Confidential transfer is one opt-in extension, not blanket encryption; the base fields of a Token-2022 account decode in the clear exactly like a classic one. The bug is the hardcoded length, not encryption."
           - id: d
             label: "The extensions can sit ahead of the base layout, so a fixed offset lands on the wrong bytes."
             correct: false
@@ -43,39 +43,39 @@ blocks:
         prompt: "Your transfer_checked worked on a plain SPL mint but fails on a specific Token-2022 mint. What is the most likely program-seat cause?"
         multiSelect: false
         options:
-          - id: a
-            label: "The mint declares a TransferHook extension and you did not forward the hook program's extra accounts."
-            correct: true
-            feedback: "Presence of the extension is not the question; the program id recorded inside it is. All zeroes and the hook is inert, so that mint transfers fine on the ordinary account list."
           - id: b
             label: "Token-2022 needs its own transfer instruction, because transfer_checked exists only on the classic Token program."
             correct: false
             feedback: "transfer_checked is the one primitive that spans both programs, which is why the swap lesson built on it and why no branch was needed. The instruction name is right; the account list is short."
-          - id: c
-            label: "InterfaceAccount<Mint> refuses Token-2022 mints, so you must hardcode the Token-2022 program id in the accounts struct."
-            correct: false
-            feedback: "That is Account<TokenAccount>, which pins the owner to the classic Token program. InterfaceAccount<T> accepts accounts owned by either program, which is exactly why hardcoding a program id is the footgun token_interface removes."
           - id: d
             label: "The mint declares a TransferFeeConfig extension, so the token program typically rejects a transfer it would shrink."
             correct: false
             feedback: "A fee mint fails the other way, and that is the whole reason the two are worth separating. The transfer succeeds and less arrives than you sent, so nothing announces itself: your invariant is what eventually notices. A hook with a real programId is the one that stops the transfer outright."
+          - id: c
+            label: "InterfaceAccount<Mint> refuses Token-2022 mints, so you must hardcode the Token-2022 program id in the accounts struct."
+            correct: false
+            feedback: "That is Account<TokenAccount>, which pins the owner to the classic Token program. InterfaceAccount<T> accepts accounts owned by either program, which is exactly why hardcoding a program id is the footgun token_interface removes."
+          - id: a
+            label: "The mint declares a TransferHook extension and you did not forward the hook program's extra accounts."
+            correct: true
+            feedback: "Presence of the extension is not the question; the program id recorded inside it is. All zeroes and the hook is inert, so that mint transfers fine on the ordinary account list."
         explanation: "A mint with a TransferHook extension runs a hook program on every transfer, and that program needs its extra accounts forwarded in the instruction. transfer_checked itself is fine; a transfer against a hooked mint just won't complete unless you resolve and pass those accounts. Designing the hook is the Digital Assets course's job; noticing you must forward its accounts is yours. Note that the extension being present is not the trigger: the hook's programId is. An all-zero programId means the hook is declared but dormant, and the usual four accounts still suffice."
       - id: m05-l3-q3
         prompt: "A teammate asks you to add full transfer-hook design, writing the hook program and its account-resolution interface, into this lesson's swap. What's the right call?"
         multiSelect: false
         options:
-          - id: a
-            label: "Add it here: the lesson already reads the TransferHook extension, so authoring the hook program is the natural next step."
-            correct: false
-            feedback: "Reading the extension's programId is a program-seat mechanic; authoring the hook and its account-resolution interface is standards depth that lives in one place by design. Detecting is not designing."
-          - id: b
-            label: "Decline: hook authoring is standards depth the Digital Assets course owns; this lesson stays at program-seat mechanics."
-            correct: true
-            feedback: "Sizing the account, spotting the extension, shipping the extra accounts along with the call: that's the program seat's work. Authoring the hook and its resolution interface is standards work, and it lives in one place."
           - id: c
             label: "Split the difference: write a minimal hook program here and defer only the account-resolution interface to Digital Assets."
             correct: false
             feedback: "A partial re-teach is exactly the boundary creep the design forbids. It duplicates owned material and leaves learners unsure which course actually teaches the interface end to end."
+          - id: b
+            label: "Decline: hook authoring is standards depth the Digital Assets course owns; this lesson stays at program-seat mechanics."
+            correct: true
+            feedback: "Sizing the account, spotting the extension, shipping the extra accounts along with the call: that's the program seat's work. Authoring the hook and its resolution interface is standards work, and it lives in one place."
+          - id: a
+            label: "Add it here: the lesson already reads the TransferHook extension, so authoring the hook program is the natural next step."
+            correct: false
+            feedback: "Reading the extension's programId is a program-seat mechanic; authoring the hook and its account-resolution interface is standards depth that lives in one place by design. Detecting is not designing."
           - id: d
             label: "Tell them it is covered already: detecting the hook and authoring it are one skill from the program's seat."
             correct: false
@@ -85,6 +85,10 @@ blocks:
         prompt: "Budgeting space for a Token-2022 mint, you reach for the account length a docs example printed for a similar mint and cite it as fixed. What does the lesson teach you to do instead?"
         multiSelect: false
         options:
+          - id: c
+            label: "Read the live mint and reason from what you observe, because a remembered figure can already be stale."
+            correct: true
+            feedback: "Per mint as much as per release, since each carries its own extension set. An authority can bolt one on after issuance too; even a single mint's measurement has a shelf life."
           - id: a
             label: "Cite the docs figure; a measurement published in official docs is a versioned guarantee."
             correct: false
@@ -93,10 +97,6 @@ blocks:
             label: "Average the figures quoted across several posts to smooth out per-release variation."
             correct: false
             feedback: "Averaging stale figures does not make any of them current, and it hides which release each came from. The lesson's move is to read the live account and reason from the observation."
-          - id: c
-            label: "Read the live mint and reason from what you observe, because a remembered figure can already be stale."
-            correct: true
-            feedback: "Per mint as much as per release, since each carries its own extension set. An authority can bolt one on after issuance too; even a single mint's measurement has a shelf life."
           - id: d
             label: "Use the 866 bytes the lab measured on PYUSD, since a live mainnet reading beats a published figure."
             correct: false
