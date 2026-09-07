@@ -1,6 +1,6 @@
 id: lesson-b2s-sign-and-verify
 slug: sign-and-verify
-title: "Sign and verify: identity without an account"
+title: "Sign and verify: making an identity out of 32 random bytes"
 skills:
   - solana-fundamentals
   - keypairs-wallets

@@ -12,8 +12,8 @@
 <body>
 <!-- timeline: the line between key and code, drawn and bent
      purpose: place the EOA/contract distinction and its 2025-2026 softening on one dated line
-     data: 2015 (Ethereum launch): two account types drawn hard, EOA is key-controlled and initiates txs; contract is code-controlled and only responds 2025-05-07 (Pectra hardfork, EIP-7702): an EOA may temporarily set its codeHash to point at a contract, for the duration of one transaction 2026-04-29 (Solidity 0.8.35): erc7201 builtin for namespaced storage slots, "where state lives in the account" becomes first-class through-line: persistent, autonomous storage still belongs only to contract accounts
-     prompt: Horizontal timeline, dark background, three dated nodes as listed, left to right. A dashed line labeled "the EOA / contract boundary" runs across; at the 2025 node it bends but does not break. Small badge on the final node: "storage still contract-only". Monospace labels, no decorative icons.
+     data: 2015 (Ethereum launch): two account types drawn hard, EOA is key-controlled and initiates txs; contract is code-controlled and only responds 2025-05-07 (Pectra hardfork, EIP-7702): an EOA may point its code field at a contract via a 0xef0100||address delegation designator, and that delegation PERSISTS across transactions and blocks until the key holder replaces or clears it 2026-04-29 (Solidity 0.8.35): erc7201 builtin for namespaced storage slots, "where state lives in the account" becomes first-class through-line: the boundary bends but does not vanish - a contract's code is fixed at deploy and no key can swap it, while a delegated EOA's code is a pointer its key holder can re-point or revoke, and only an EOA can initiate a transaction
+     prompt: Horizontal timeline, dark background, three dated nodes as listed, left to right. A dashed line labeled "the EOA / contract boundary" runs across; at the 2025 node it bends but does not break. Small badge on the final node: "the key still decides". Do NOT label the 7702 node "temporary" or "one transaction" - the delegation persists until revoked, and that persistence is the security-relevant property. Monospace labels, no decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -77,9 +77,9 @@
     </div>
     <div class="cards">
       <div class="card">Two account types drawn <b>hard</b>: an <span class="mono">EOA</span> is key-controlled and initiates txs; a <span class="mono">contract</span> is code-controlled and only responds.</div>
-      <div class="card">An EOA may <b>temporarily</b> point its <span class="mono">codeHash</span> at a contract &mdash; for the duration of one transaction.</div>
+      <div class="card">An EOA may point its code at a contract &mdash; and that delegation <b>persists</b> until the key holder revokes it.</div>
       <div class="card you"><span class="mono">erc7201</span> builtin for namespaced storage slots &mdash; &ldquo;where state lives in the account&rdquo; becomes first-class.
-        <span class="badge">storage still contract-only</span></div>
+        <span class="badge">the key still decides</span></div>
     </div>
   </div>
 </div>
