@@ -2,10 +2,18 @@
 
 Last lesson you mined a private chain and spent a UTXO: real coins, a real transaction, your own node confirming it into a block. Every move went through `bitcoin-cli`, and every move felt like the command was reaching some secret hand into the machine. It wasn't. `bitcoin-cli` is a costume, and this lesson takes it off.
 
-Your regtest node from last lesson is still running. Before I name a single thing, point this at it and hit enter:
+Your regtest node from last lesson is still running. One path first, because the next command needs it and it is not the same on every machine. Bitcoin Core keeps a `.cookie` file inside its data directory, and that directory moves by operating system. Point a shell variable at yours and every command in this lesson will just work:
 
 ```bash
-curl --user "$(cat ~/.bitcoin/regtest/.cookie)" \
+export COOKIE=~/.bitcoin/regtest/.cookie                                   # Linux
+# export COOKIE="$HOME/Library/Application Support/Bitcoin/regtest/.cookie"  # macOS
+# export COOKIE="$APPDATA/Bitcoin/regtest/.cookie"                           # Windows (Git Bash)
+```
+
+If you started the node with an explicit `-datadir=`, the cookie is under that directory instead. Now point this at your node and hit enter:
+
+```bash
+curl --user "$(cat "$COOKIE")" \
   --data-binary '{"jsonrpc":"1.0","id":"demo","method":"getblockchaininfo","params":[]}' \
   -H 'content-type: text/plain;' \
   http://127.0.0.1:18443/
@@ -27,13 +35,19 @@ You have actually run this exact call before, dressed differently. Try the versi
 bitcoin-cli -regtest getblockchaininfo
 ```
 
-Same numbers, pretty-printed, minus the `{"result": ..., "error": null, "id": ...}` wrapping. The CLI unwrapped it for you. Now do it a third way, from Python, so you can see there is no shell sorcery involved either:
+Same numbers, pretty-printed, minus the `{"result": ..., "error": null, "id": ...}` wrapping. The CLI unwrapped it for you. Now do it a third way, from Python, so you can see there is no shell sorcery involved either. `requests` is a third-party package and it is the one dependency this lesson adds, so install it first — `btc_rpc.py`, further down, needs it too:
+
+```bash
+python3 -m pip install requests
+```
 
 ```python
+import os
 import requests
 from pathlib import Path
 
-user, password = Path.home().joinpath(".bitcoin/regtest/.cookie").read_text().strip().split(":", 1)
+cookie = Path(os.environ.get("COOKIE") or Path.home() / ".bitcoin/regtest/.cookie")
+user, password = cookie.read_text().strip().split(":", 1)
 
 resp = requests.post(
     "http://127.0.0.1:18443/",
@@ -68,7 +82,7 @@ Two fields on that card will bite you later, so mark them now.
 And `error` being `null` is how you know a call worked — but do not use the HTTP status alone to decide that, because the two disagree in a way that surprises people. With the legacy `"jsonrpc":"1.0"` envelope this lesson sends, an RPC-level error comes back with **HTTP 500** and an `error` object in the body:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" --user "$(cat ~/.bitcoin/regtest/.cookie)" \
+curl -s -o /dev/null -w "%{http_code}\n" --user "$(cat "$COOKIE")" \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"1.0","id":"x","method":"getblockhash","params":[99999999]}' \
   http://127.0.0.1:18443/
@@ -104,14 +118,12 @@ Run that against your own node and the answers come back in the order you asked,
 
 ## Who holds the password
 
-You slipped one thing past yourself in that first `curl`: `--user "$(cat ~/.bitcoin/regtest/.cookie)"`. That is authentication, and it is worth understanding, because it is the reason a random webpage can't POST to your node and drain it.
-
-One practical note before you run it: that path is Linux's. Bitcoin Core's data directory moves by operating system, and the cookie lives inside it — `~/Library/Application Support/Bitcoin/regtest/.cookie` on macOS, `%APPDATA%\Bitcoin\regtest\.cookie` on Windows. Substitute yours in every command below, or export it once: `COOKIE=$(cat "$HOME/Library/Application Support/Bitcoin/regtest/.cookie")` and then use `--user "$COOKIE"`. If you are running the node with an explicit `-datadir=`, the cookie is under that directory instead.
+You slipped one thing past yourself in that first `curl`: `--user "$(cat "$COOKIE")"`. That is authentication, and it is worth understanding, because it is the reason a random webpage can't POST to your node and drain it.
 
 Bitcoin Core will not answer an unauthenticated RPC request. The default scheme is **cookie auth** (a random `username:password` pair Bitcoin Core writes to a `.cookie` file every time it starts, so a local client can authenticate without you ever choosing a password). Read yours:
 
 ```bash
-cat ~/.bitcoin/regtest/.cookie
+cat "$COOKIE"
 ```
 
 ```
