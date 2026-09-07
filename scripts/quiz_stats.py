@@ -651,6 +651,12 @@ def m_heuristics(rep: CourseReport) -> None:
         "least-like-the-others": pick_least_similar,
     }
 
+    # Per-question record of which strategies land on the key. This is the
+    # authoring queue: a question three strategies solve needs real work, and a
+    # question none solve is already doing its job. Aggregate rates say a course
+    # is exploitable; this says WHERE.
+    solved: dict[str, list[str]] = defaultdict(list)
+
     results = {}
     for name, fn in suite.items():
         hits = attempts = 0
@@ -663,6 +669,7 @@ def m_heuristics(rep: CourseReport) -> None:
             chances.append(1.0 / q.k)
             if guess == q.correct_idx[0]:
                 hits += 1
+                solved[f"{q.lesson_slug}/{q.qid}"].append(name)
         if attempts < 12:
             continue
         p_null = sum(chances) / len(chances)
@@ -675,6 +682,8 @@ def m_heuristics(rep: CourseReport) -> None:
                     f"without reading the lesson")
 
     rep.stats["heuristics"] = results
+    rep.stats["review_queue"] = {k: v for k, v in sorted(
+        solved.items(), key=lambda kv: (-len(kv[1]), kv[0])) if len(v) >= 2}
     if results:
         best = max(results.values(), key=lambda r: r["rate"])
         rep.stats["best_heuristic"] = best["rate"]
@@ -916,6 +925,8 @@ def main() -> int:
     ap.add_argument("courses", nargs="*", type=Path, help="course directories (containing course.yaml)")
     ap.add_argument("--all", action="store_true", help="analyse every course under ./courses")
     ap.add_argument("--json", action="store_true", help="emit machine-readable JSON")
+    ap.add_argument("--review-queue", action="store_true",
+                    help="list the questions two or more content-blind strategies already solve")
     args = ap.parse_args()
 
     targets = list(args.courses)
@@ -948,6 +959,16 @@ def main() -> int:
         rep.enforced = enforced is None or rep.slug in enforced
         reports.append(rep)
         failed = failed or (rep.failed and rep.enforced)
+
+    if args.review_queue:
+        for rep in reports:
+            queue = rep.stats.get("review_queue") or {}
+            print(f"── {rep.slug}: {len(queue)} question(s) solved by 2+ content-blind strategies")
+            for qid, strategies in queue.items():
+                print(f"   {qid:44} {', '.join(strategies)}")
+            if not queue:
+                print("   (none — no question falls to two independent strategies at once)")
+        return 0
 
     if args.json:
         print(json.dumps([{
