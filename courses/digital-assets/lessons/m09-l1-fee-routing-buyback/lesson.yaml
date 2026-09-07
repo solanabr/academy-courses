@@ -54,17 +54,17 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "As a client-side swap (treasury SOL to SPROUT) against SPROUT's own DAMM v2 graduation pool, then a burn."
+            label: "As a client-side purchase paying treasury SOL for SPROUT, then a burn: a DAMM v2 swap if SPROUT has a pool, otherwise an OTC buy from a maker you stand up."
             correct: true
           - id: b
             label: "By deploying a custom constant-product AMM pool with treasury-owned LP positions, so the treasury controls its own liquidity, routing, and slippage."
             correct: false
-            feedback: "Pool composition, routing, and LP strategy are the DeFi & RWA Engineering course's material. This course does a client-side swap against a venue it already stood up, and teaches no AMM design."
+            feedback: "Pool composition, routing, and LP strategy are the DeFi & RWA Engineering course's material. This course buys client-side from whichever counterparty it has, and teaches no AMM design."
           - id: c
             label: "By calling harvest_withheld_tokens_to_mint a second time, which converts withheld fees directly into a burn."
             correct: false
-            feedback: "Harvest only moves withheld fees to the mint; it doesn't swap SOL for tokens or burn anything. The buyback is a separate swap-then-burn on the venue."
-        explanation: "The buyback leg is deliberately scoped to a client-side swap against the DAMM v2 pool SPROUT's Meteora DBC launch migrated into (the venue the launchpad-landscape decision chose), followed by a burn. One sentence of AMM math is used; none is taught. The depth lives in the DeFi & RWA Engineering course."
+            feedback: "Harvest only moves withheld fees to the mint; it doesn't swap SOL for tokens or burn anything. The buyback is a separate buy-then-burn."
+        explanation: "The buyback leg is deliberately scoped to a client-side purchase followed by a burn. If SPROUT has a DAMM v2 pool (the venue the launchpad-landscape decision chose, reachable only if you launched and migrated it yourself) that purchase is a swap; the course never launches SPROUT, so the guaranteed path is an OTC buy from a maker you stand up, at a price you set rather than read. Either way you measure what landed instead of computing it. One sentence of AMM math is used; none is taught. The depth lives in the DeFi & RWA Engineering course."
       - id: m09l1-q3-conservation
         prompt: "In the fee-split challenge you harvest 1,000,000 base units of SPROUT with a 20% burn share, and separately hold treasury SOL for the buyback. Which invariant must your function preserve?"
         multiSelect: false

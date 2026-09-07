@@ -2,7 +2,7 @@
 
 ## Summary
 
-Last lesson you built SPROUT's fee rail. Withheld marketplace fees harvested off the recipient accounts where Token-2022 had quietly parked them, routed into the treasury, spent on a buyback swap against SPROUT's DAMM v2 venue on the fork, and burned, with the mint's supply falling by exactly what you burned: the buyback plus the fee-burn share. Money in, money out, provable at both ends.
+Last lesson you built SPROUT's fee rail. Withheld marketplace fees harvested off the recipient accounts where Token-2022 had quietly parked them, routed into the treasury, spent on a buyback (a DAMM v2 swap if you had launched SPROUT and had its pool, otherwise an OTC buy from the maker you stood up), and burned, with the mint's supply falling by exactly what you burned: the buyback plus the fee-burn share. Money in, money out, provable at both ends.
 
 Two things in Overgrowth still run on vibes.
 
