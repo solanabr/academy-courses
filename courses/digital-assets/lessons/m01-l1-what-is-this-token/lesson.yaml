@@ -44,11 +44,11 @@ blocks:
         multiSelect: false
         options:
           - id: c
-            label: "It proves nothing about the model: extensions are cosmetic metadata that any wallet ignores"
+            label: "It proves nothing about the model: extensions are display-only metadata that wallets render and the token program ignores on transfer"
             correct: false
             feedback: "Extensions like permanent delegate and transfer fee change transfer behavior and who can move funds, the opposite of cosmetic."
           - id: a
-            label: "It proves classic SPL mints can also carry eight extensions, since the classic program shares the same TLV region once you enable it with an initialize-extension instruction"
+            label: "It proves classic SPL mints can also carry eight extensions, since the classic program shares the same TLV region once you initialize one"
             correct: false
             feedback: "Classic SPL mints carry no extensions at all. Extensions only exist on Token-2022, a different program. That is exactly the model break."
           - id: d
@@ -69,11 +69,11 @@ blocks:
             correct: false
             feedback: "A classic mint is the same 82-byte layout whichever token it is, and the log line reports the program's cost for the instruction, not a per-mint price."
           - id: b
-            label: "Because CU costs are random per transaction and cannot be measured reliably"
+            label: "Because CU accounting drifts with validator hardware and network load, so two simulations of the same transfer disagree"
             correct: false
             feedback: "They are deterministic enough to simulate and measure; that is exactly what the demo did. The reason to re-measure is that the engine changed, not that the number is noise."
           - id: a
-            label: "Because 76 CU is only what a devnet simulation reports; on mainnet-beta the same transfer is billed at a much higher rate that shifts with priority fees"
+            label: "Because 76 CU is only what a devnet simulation reports; on mainnet-beta the same transfer is billed at a higher rate that shifts with priority fees"
             correct: false
             feedback: "The figure is not a devnet artifact; it is the real post-p-token transfer cost, the same story the next lessons unpack. It is not memorized because it is a measured, movable number, not because clusters differ."
           - id: c

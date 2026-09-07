@@ -74,7 +74,7 @@ blocks:
         multiSelect: false
         options:
           - id: b
-            label: "So a single account can hold balances of multiple mints at once."
+            label: "So a single derived account can hold balances of several different mints at once."
             correct: false
             feedback: "An ATA holds exactly one mint; ImmutableOwner has nothing to do with multi-mint storage."
           - id: d

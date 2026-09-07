@@ -69,7 +69,7 @@ blocks:
             correct: false
             feedback: "The mechanisms are not even the same kind. Orca grants per-mint approval by human review and Jupiter publishes no policy at all, so there is no base rate to generalize from, only venues to check."
           - id: c
-            label: "Only if you also mint it under classic SPL, since aggregators ignore Token-2022 entirely."
+            label: "Only if you also mint a classic SPL twin, since aggregators skip Token-2022 mints when they build routes."
             correct: false
             feedback: "Aggregators do handle Token-2022; the point is each has its own per-extension policy, not that they ignore the program."
           - id: b
