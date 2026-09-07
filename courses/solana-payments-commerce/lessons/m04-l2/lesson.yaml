@@ -32,7 +32,7 @@ blocks:
             correct: false
             feedback: "Redelivery on non-2xx is documented behavior, not a bug; the fix is idempotency, not a downgrade."
           - id: d
-            label: "Helius retries on any non-2xx answer, so de-dupe on the event id it sends with each delivery."
+            label: "Helius retries on any non-2xx answer, so de-dupe on the delivery event id it stamps on each attempt it makes."
             correct: false
             feedback: "The diagnosis is right and the key is wrong. A delivery id is minted per attempt, so all three retries carry different ones and all three pass the guard; only something derived from the payment stays constant across them."
         explanation: "Retries on unsuccessful (roughly non-2xx) responses mean duplicate events are normal. The transaction signature is deterministic and unique per payment, so keying idempotency on it makes fulfillment exactly-once. That the signature is the right key is our sound inference, not a Helius quote."
@@ -83,11 +83,11 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "There's no analogy; chain webhooks are a brand-new discipline with no PSP equivalent."
+            label: "There's no analogy; chain webhooks are a brand-new discipline with nothing in a PSP integration to reuse."
             correct: false
             feedback: "It is largely the same discipline; pretending it's novel hides the reuse of hard-won PSP hygiene."
           - id: b
-            label: "Stripe webhook hygiene with different keys: the signature is the idempotency key."
+            label: "It's Stripe webhook hygiene with different keys: the transaction signature plays the idempotency key's role."
             correct: true
             feedback: "The delivery semantics are identical, and the hygiene ports over intact; Stripe signs its payloads, though, and here you re-read the chain instead."
           - id: c
@@ -95,7 +95,7 @@ blocks:
             correct: false
             feedback: "End-of-day matching is a later lesson's reconciliation work; the direct map here is Stripe's webhook idempotency, not its settlement report."
           - id: d
-            label: "It's Stripe webhook hygiene with different keys, but re-reading the chain has no Stripe counterpart, so that half of the discipline is new work you invent."
+            label: "It's Stripe webhook hygiene with different keys, but re-reading the chain has no Stripe counterpart at all."
             correct: false
             feedback: "That half ports over too. Retrieving the PaymentIntent before fulfilling is the Stripe habit the chain read replaces, and an integrator who already refuses to fulfil from a return URL is doing the same thing against a different source of truth."
         explanation: "The map-from-known: a Stripe integrator already de-dupes on idempotency keys and handles retries. Swap the idempotency key for the on-chain signature and the pattern transfers almost verbatim."

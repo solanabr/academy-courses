@@ -48,7 +48,7 @@ blocks:
             correct: false
             feedback: "64-bit doubles are only exact for integers up to 2**53; base-unit values above that (about 9 billion USDC) start rounding."
           - id: b
-            label: "It rounds silently past 2**53: large transfers send wrong cents, nothing throws."
+            label: "It silently rounds past 2**53, so large transfers send the wrong number of cents and nothing throws."
             correct: true
             feedback: "Doubles are exact only to 2**53, and the product gets rounded rather than rejected. A rounding helper cannot repair what a bigint parse would have prevented."
           - id: c
@@ -56,7 +56,7 @@ blocks:
             correct: false
             feedback: "`10 ** 6` evaluates fine with ordinary numbers and nothing throws at MAX_SAFE_INTEGER; the bug is silent precision loss, not a raised error."
           - id: d
-            label: "Rounding the product with Math.round fixes it, since the error is always sub-unit and the intended integer is recoverable."
+            label: "Rounding with Math.round fixes it: the error is always sub-unit, so the integer is recoverable."
             correct: false
             feedback: "Math.round buys you a passing test suite and a time bomb. Past 2 to the 53rd a double cannot represent every integer, so the drift becomes whole base units and there is no nearest-integer to round back to."
         explanation: "Money math must be exact. Base units are integers, and a mint balance can exceed JavaScript's 2**53 safe-integer ceiling, so any float step can round a transfer off by cents without any error. Parse the decimal string directly into a bigint, which is exactly what toBaseUnits does."
@@ -77,7 +77,7 @@ blocks:
             correct: true
             feedback: "Once per buyer per mint, and it is usually you who funds the rent."
           - id: d
-            label: "Bob has to open his own USDC account and fund the rent himself first, so your checkout has to send him through a wallet flow and wait for him to finish it before it can charge him for the record."
+            label: "Bob has to open his own USDC account and fund the rent himself first, so your checkout has to send him through a wallet flow and wait for him to finish before it can charge him."
             correct: false
             feedback: "Anyone can open an ATA for anyone, and the idempotent create instruction rides in the same transaction as the transfer. Bob never has to do anything, which is the whole reason a first-time buyer can pay you in one scan."
         explanation: "An ATA is the deterministic per-(owner, mint) account that holds a token balance. A first-time holder has none, so the payment transaction (or a prior one) must create and rent-fund it at the rent-exempt minimum for 165 bytes. Ask the cluster for that number rather than memorizing one: SIMD-0437 is stepping the per-byte rate down, so it differs between mainnet and devnet today and falls again on each step. That is a real cost and an extra failure mode on every new customer."
@@ -86,7 +86,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "TransferChecked verifies the mint and decimals; the reference key is a non-signer marker you can search on later."
+            label: "TransferChecked verifies the mint and decimals inside the instruction, and the reference key is a non-signer address you attach so reconciliation can find the payment later."
             correct: true
             feedback: "Account keys are indexed, which is why the marker is findable and also why it isn't secret; anyone can attach the same one, and the fields are what decide."
           - id: b
@@ -111,7 +111,7 @@ blocks:
             correct: false
             feedback: "A fresh blockhash produces a NEW signature, so if the first one also lands you have paid twice; this is the double-pay trap."
           - id: b
-            label: "Resubmit the exact same signed bytes; an identical signature can land at most once inside the ~150-block window."
+            label: "Resubmit the exact same signed transaction; identical bytes produce the same signature, so it can land at most once within the ~150-block window."
             correct: true
             feedback: "Duplicate signatures are rejected by the network, which is what makes resending idempotent; the guarantee dies with the blockhash, and only after it expires is rebuilding safe."
           - id: c
@@ -119,7 +119,7 @@ blocks:
             correct: false
             feedback: "Rebuilding after verified expiry is the lesson's own fallback, but expiry alone is not the whole check: if the first send actually landed during the window, a fresh signature pays the customer's bill twice. Confirm the original never landed before rebuilding — and notice what this answer costs even then: you sit out the whole window when resending the identical bytes immediately is just as safe and far faster."
           - id: d
-            label: "Call getSignatureStatuses once; a null there means the payment did not land, so rebuild it against a fresh blockhash and send the new one instead."
+            label: "Call getSignatureStatuses once; a null there means the payment did not land, so rebuild against a fresh blockhash and send that instead."
             correct: false
             feedback: "A null is a snapshot, and while the blockhash is still alive your original bytes can land the second after you read it. Expiry has to be checked first, and the status lookup needs searchTransactionHistory before its null means anything."
         explanation: "The same signed transaction always hashes to the same signature, and the network rejects a duplicate signature, so resubmitting identical bytes is idempotent and lands at most once while the blockhash is valid (~150 blocks). Send with maxRetries 0 and manage retries yourself with the same bytes; rebuild only after the blockhash truly expires and getSignatureStatuses (with searchTransactionHistory) confirms the original never landed."

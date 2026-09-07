@@ -35,7 +35,7 @@ blocks:
             correct: false
             feedback: "Decoding inspects a past transaction; it never re-submits or re-authorizes anything. That payment settled exactly once, when its sender signed it."
           - id: d
-            label: "You queried a node operator's private developer mirror, so what you got back is a courtesy copy of the record rather than the settlement record itself."
+            label: "You queried a node operator's private developer mirror, so what came back is a courtesy copy of the record, not the ledger."
             correct: false
             feedback: "There is no separate reporting copy to drift out of sync with. Every node replicates the same ledger, so the record that endpoint handed you is the settlement record."
         explanation: "The demo needs zero setup because Solana's ledger is public and readable over any RPC. Every settled transfer (sender, amount, mint, memo) is queryable by anyone, which is the opposite of a card processor's private, permissioned dashboard. That public-by-default property is exactly what lets a merchant reconcile payments later without a PSP sitting in the middle."
@@ -56,7 +56,7 @@ blocks:
             correct: false
             feedback: "The binary is intentional: the package.json declares a `pay` bin entry. It is a documented feature of the official package, not a compromise."
           - id: d
-            label: "The package is CLI-first now: the binary replaced its TypeScript exports, so a checkout has nothing left to import from it."
+            label: "The package is CLI-first now: the binary replaced its TypeScript exports, so there is nothing left to import."
             correct: false
             feedback: "Both surfaces ship together. Step 6 of the lab imports `encodeURL` from the very package that dropped the executable into node_modules/.bin."
         explanation: "The redirect and the bundled CLI are real signals that the Foundation's energy moved from QR checkout toward agent/HTTP payments, but 'moved energy' is not 'deleted.' The classic library is still shipped and maintained inside the same monorepo. Reading ecosystem shifts honestly (what changed versus what was actually removed) is a survival skill in a market this young."
@@ -77,7 +77,7 @@ blocks:
             correct: true
             feedback: "An incumbent settling merchants in fiat is the evidence a skeptic accepts; it proves the rail is real, not that buyers will choose it."
           - id: d
-            label: "Stablecoin float on Solana grew from about $1.5B to roughly $15.87B in under three years."
+            label: "Stablecoin float on Solana climbed from about $1.5B in December 2023 to roughly $15.87B by August 2026."
             correct: false
             feedback: "That figure is real and it is in the lesson, but float measures dollars sitting on the rails, not a payments company deciding to integrate them."
         explanation: "The strongest 'this is real' datum is an incumbent shipping it in production: Stripe accepts USDC-on-Solana at checkout and settles you in fiat. That is a mainstream PSP treating these rails as a first-class payment method, which is precisely the credibility signal the opener is built around."
