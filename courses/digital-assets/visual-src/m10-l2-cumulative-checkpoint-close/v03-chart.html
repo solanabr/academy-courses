@@ -12,9 +12,8 @@
 <body>
 <!-- chart: One million badges, three ways to pay for it
      purpose: show that the mass-mint constraint is decided by arithmetic, not preference
-     data: Bar chart, log scale on the cost axis, cost in SOL to create 1,000,000 holdings. Classic SPL token accounts: 2,039 SOL (derived: 2,039,280 lamports of rent per account x 1,000,000) Metaplex Core assets: 2,900 SOL (derived: 0.0029 SOL per asset, vendor-published, x 1,000,000) Bubblegum v2 compressed NFTs: 8.5 SOL (measured tree cost at 1,000,000 leaves) Annotation on the cNFT bar: about 240x cheaper than the nearest alternative Footnote: per-unit figures frozen 2026-08-22; re-derive before you quote them in a budget.
-     data-note: RENT-RATE PROVENANCE (added 2026-09-06): every SOL figure in this spec was derived at 6,960 lamports/byte, the pre-SIMD-0437 rate. Mainnet moved to 6,333 on 2026-09-03 and devnet is at 5,080, so on the next render derive each SOL value as (128 + bytes) x the rate read from `solana rent 0` on the cluster the lesson targets, and label the card with that rate and date. The BYTE counts are unaffected and are the durable half.
-     prompt: Horizontal bar chart with three bars on a logarithmic cost axis labeled in SOL. Order the bars descending by cost: Metaplex Core assets, classic SPL token accounts, Bubblegum v2 cNFTs. Print the exact value at the end of each bar. Emphasize the shortest bar and attach the annotation about the roughly 240x gap to it. Place the derivation note for each bar in small text under its label, and the freshness footnote below the chart.
+     data: Bar chart, log scale on the cost axis, cost in SOL to create 1,000,000 holdings. The two rent bars are bytes x a per-byte rate, and they carry the same LAMPORTS_PER_BYTE the lesson's own decision-alarm code sets: 6,333, mainnet-beta, read 2026-09-06, with SIMD-0437 still stepping it down. Classic SPL token accounts: 1,856 SOL (derived: 293 bytes x 6,333 = 1,855,569 lamports of rent per account x 1,000,000) Metaplex Core assets: 2,900 SOL (derived: 0.0029 SOL per asset, vendor-published, x 1,000,000 -- a vendor price, not rent) Bubblegum v2 compressed NFTs: 7.75 SOL (one 1,223,352-byte tree, depth 20 / buffer 256 / canopy 14, at the same rate) Annotation on the cNFT bar: about 240x cheaper than the nearest alternative, and that multiple is rate-invariant because both bars are rent. Footnote: the rent bars move with the rate and the ratio between them does not; re-read the rate before you quote any of this in a budget.
+     prompt: Horizontal bar chart with three bars on a logarithmic cost axis labeled in SOL. Order the bars descending by cost: Metaplex Core assets, classic SPL token accounts, Bubblegum v2 cNFTs. Print the exact value at the end of each bar. Emphasize the shortest bar and attach the annotation about the roughly 240x gap to it. Place the derivation note for each bar in small text under its label -- bytes x rate for the two rent bars, so neither reads as a constant -- and the rate, cluster, date and rate-invariance footnote below the chart.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -61,7 +60,7 @@
     <div class="chart">
       <div class="ylab">
         <div class="nm">Metaplex Core assets</div>
-        <div class="dv">derived: 0.0029 SOL per asset, vendor-published, &times; 1,000,000</div>
+        <div class="dv">derived: 0.0029 SOL per asset, vendor-published, &times; 1,000,000 &mdash; a vendor price, not rent</div>
       </div>
       <div class="track">
         <div class="grid" style="left:25%"></div><div class="grid" style="left:50%"></div>
@@ -71,23 +70,23 @@
       </div>
       <div class="ylab">
         <div class="nm">classic SPL token accounts</div>
-        <div class="dv">derived: 2,039,280 lamports of rent per account &times; 1,000,000</div>
+        <div class="dv">derived: 293 bytes &times; 6,333 lamports/byte = 1,855,569 per account &times; 1,000,000</div>
       </div>
       <div class="track">
         <div class="grid" style="left:25%"></div><div class="grid" style="left:50%"></div>
         <div class="grid" style="left:75%"></div><div class="grid" style="left:100%"></div>
-        <div class="bar" style="left:0; width:82.7%;"></div>
-        <div class="val" style="left:83.8%;">2,039 SOL</div>
+        <div class="bar" style="left:0; width:81.7%;"></div>
+        <div class="val" style="left:82.8%;">1,856 SOL</div>
       </div>
       <div class="ylab">
         <div class="nm">Bubblegum v2 cNFTs</div>
-        <div class="dv">measured tree cost at 1,000,000 leaves</div>
+        <div class="dv">derived: one 1,223,352-byte tree (depth 20 / buffer 256 / canopy 14) at the same rate</div>
       </div>
       <div class="track">
         <div class="grid" style="left:25%"></div><div class="grid" style="left:50%"></div>
         <div class="grid" style="left:75%"></div><div class="grid" style="left:100%"></div>
-        <div class="bar hot" style="left:0; width:23.2%;"></div>
-        <div class="val" style="left:24.4%;">8.5 SOL</div>
+        <div class="bar hot" style="left:0; width:22.2%;"></div>
+        <div class="val" style="left:23.4%;">7.75 SOL</div>
         <div class="anno">&asymp; 240&times; cheaper than the nearest alternative</div>
       </div>
       <div class="axcap" style="padding-right:24px;">cost to create 1,000,000 holdings &rarr;</div>
@@ -99,7 +98,7 @@
         <div class="tick" style="right:0; transform:none; text-align:right;">10,000 SOL &middot; log scale</div>
       </div>
     </div>
-    <div class="foot">per-unit figures frozen 2026-08-22 &mdash; re-derive before you quote them in a budget.</div>
+    <div class="foot">the two rent bars are <b>bytes &times; 6,333 lamports/byte</b> &mdash; mainnet-beta, read 2026-09-06, the same rate this lesson&rsquo;s decision-alarm code sets. SIMD-0437 is stepping it down, so re-read it before you quote a budget. The <b>240&times; gap does not move</b>: both bars are rent, so they scale together. Only the Core bar is a fixed vendor price.</div>
   </div>
 </div>
 </body></html>
