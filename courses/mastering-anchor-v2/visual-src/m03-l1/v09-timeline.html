@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- timeline: How the bump ended up as a compile-time const
-     purpose: place today's macro-time bump in the lineage of the V2 rewrite
-     data: - v1 era: Account<T> deserialized with borsh; bump found at runtime, stored in a string-keyed map (ctx.bumps.get("name")) - the #4390 "zero-copy by default" manifesto: reframes borsh Account<T> as "the slow path" (otter-sec/anchor#4390) - Anchor V2: ground-up no_std rewrite on pinocchio (lang-v2 crate, 2026-08) - consequence: the bumps struct folds to macro-time typed fields (ctx.bumps.vault) while the derivation still runs at validation; on-curve check skipped for program-owned PDAs (~1,000 CU, project-reported)
-     prompt: Horizontal four-stop timeline, left to right. Stops: "v1: runtime bump, string map", "#4390 manifesto: zero-copy by default", "V2: no_std pinocchio rewrite", "today: macro-time const bumps + on-curve skip". Understate it; no marketing gloss. Mark the last stop as "you are here".
+<!-- timeline: How the bump reached its current shape
+     purpose: place the 0.29 typed-bumps change and V2's narrower const optimization in the lineage of the rewrite, WITHOUT crediting the typed field to V2
+     data: - 0.28 and earlier: Account<T> deserialized with borsh; bump found at runtime and handed back through a string-keyed map (ctx.bumps.get("name")) - Anchor 0.29 (two majors before V2): the string map is REMOVED and replaced by a macro-generated typed bumps struct (ctx.bumps.vault); the 1.x line reads it identically - the #4390 "zero-copy by default" manifesto: reframes borsh Account<T> as "the slow path" (otter-sec/anchor#4390) - Anchor V2: ground-up no_std rewrite on pinocchio (lang-v2 crate, 2026-08) - consequence: V2's only bump-time addition is that an ALL-LITERAL seed scheme gets its canonical bump precomputed as a macro-time const; any seed carrying a runtime value (this vault's player key) still derives during validation, on 1.x and V2 alike; on-curve check skipped for program-owned PDAs (~1,000 CU, project-reported)
+     prompt: Horizontal five-stop timeline, left to right. Stops: "0.28: runtime bump, string map", "0.29: typed bumps struct (NOT a V2 change)", "#4390 manifesto: zero-copy by default", "V2: no_std pinocchio rewrite", "today: const bump for all-literal seeds only + on-curve skip". Understate it; no marketing gloss. Mark the last stop as "you are here".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).

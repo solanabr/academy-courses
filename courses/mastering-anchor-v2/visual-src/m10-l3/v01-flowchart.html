@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: Which toolchain builds what
-     purpose: show why building the port on the ambient 1.1.2 silently produces a v1 artifact, and where the isolated RC has to sit
-     data: Source (edited vault) -> decision: which anchor-lang does Cargo.toml pin? branch A: anchor-lang 1.x (stale pin) -> "builds, no V2 errors" under ANY CLI -> v1 artifact (WRONG, behaves like v1) branch B: anchor-lang 2.0.0-rc.1 (step 1 flips the row) -> emits the V2 deprecations + the E0599 missing-method error on .reload() -> V2 artifact (correct) note: the pin selects the major; the CLI on PATH does not
-     prompt: Vertical decision flowchart. One source node at top splits on "which anchor-lang does Cargo.toml pin?" into two branches. Left branch (1.x, stale) ends in a red "v1 artifact, silently wrong" terminal. Right branch (2.0.0-rc.1, flipped in step 1) ends in a green "V2 artifact" terminal, with a callout that this branch is the one that produces the deprecation warnings and the missing-method error the rest of the lesson relies on. Label the branches clearly; the failure mode is the teaching point.
+     purpose: show that the anchor-lang row, not the CLI on PATH, selects the framework major — and that on a source already edited for V2 a stale pin fails LOUDLY, not silently
+     data: Source (edited vault) -> decision: which anchor-lang does Cargo.toml pin? branch A: anchor-lang 1.x (stale pin) -> Address, .address() and &mut Context resolve nowhere in the 1.x crates, under ANY CLI -> build FAILS at every line you edited (no artifact) branch B: anchor-lang 2.0.0-rc.1 (step 1 flips the row) -> emits the V2 deprecations + the E0599 missing-method error on .reload() -> V2 artifact (correct) note: the pin selects the major; the CLI on PATH does not. The silent-v1 case is the UNEDITED vault on a stale pin: it builds clean and behaves like v1, which is why you read the pin before you read the CLI.
+     prompt: Vertical decision flowchart. One source node at top, labelled as the vault you have ALREADY edited for V2, splits on "which anchor-lang does Cargo.toml pin?" into two branches. Left branch (1.x, stale) ends in a red "no artifact - a loud failure" terminal. Right branch (2.0.0-rc.1, flipped in step 1) ends in a green "V2 artifact" terminal, with a callout that this branch is the one that produces the deprecation warnings and the missing-method error the rest of the lesson relies on. Label the branches clearly; the point is that the pin, not the CLI, decides, and that on edited source the wrong pin is loud.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -103,13 +103,13 @@
         <div class="fc-p">under ANY CLI &mdash; the host 1.1.2 and the RC alike</div>
       </div>
       <div class="fc-box">
-        <div class="fc-h">builds clean — no V2 errors</div>
-        <div class="fc-p">no deprecations, no missing-method error, nothing to read</div>
+        <div class="fc-h">nothing you just edited resolves</div>
+        <div class="fc-p"><code>Address</code>, <code>.address()</code>, <code>&amp;mut Context</code> exist nowhere in the 1.x crates</div>
       </div>
       <div class="fc-term bad">
         <div class="fc-lab">terminal &middot; the failure mode</div>
-        <div class="fc-h">v1 artifact — silently wrong</div>
-        <div class="fc-p">it compiles and it behaves like v1. Nothing tells you.</div>
+        <div class="fc-h">no artifact — a loud failure</div>
+        <div class="fc-p">the compiler names every line you edited. Leave the vault UNedited on this pin and it does build clean, into a v1 artifact — that is the silent case.</div>
       </div>
     </div>
 

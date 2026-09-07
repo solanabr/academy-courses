@@ -91,7 +91,7 @@ Now picture the exact attack the discriminator stops, because a class of bug you
 
 ### Signing as a PDA: seeds plus the stored bump
 
-A PDA has no private key. It "signs" a CPI by presenting, at call time, the exact seeds it was derived from plus its bump, and the runtime reconstructs the address to confirm the program is allowed to sign for it. That is the whole trick, and it is the part Anchor precomputes for you at macro time.
+A PDA has no private key. It "signs" a CPI by presenting, at call time, the exact seeds it was derived from plus its bump, and the runtime reconstructs the address to confirm the program is allowed to sign for it. That is the whole trick, and it is the part Anchor assembles for you. Be precise about *when*, because it is the same distinction m03-l1 drew: Anchor precomputes the canonical bump at macro time only when every seed is a byte literal. This vault's seeds carry the authority's key, so on the Anchor side the bump was derived during validation and then stored — which is exactly the byte you are about to read back by hand.
 
 Native, you assemble the signer yourself. And you use the **stored** canonical bump, the one you saved at init, not a freshly derived one. Re-running `find_program_address` inside every instruction burns roughly 1500 compute units per call, because it grinds through bump candidates from 255 downward looking for the one that is off-curve. You paid for that once at init. Store it, reuse it. Anchor stores it in the account and reads it back through `bump = vault.bump`; you do the same by hand.
 

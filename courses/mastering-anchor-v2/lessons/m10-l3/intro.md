@@ -65,7 +65,7 @@ COPY . .
 CMD ["anchor", "test"]
 ```
 
-![Building against a Cargo.toml that still pins anchor-lang 1.x yields a v1 artifact under any CLI; only a graph pinned to 2.0.0-rc.1 emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.png)
+![Building the edited vault against a Cargo.toml that still pins anchor-lang 1.x fails at every edited line under any CLI; only a graph pinned to 2.0.0-rc.1 emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.png)
 
 That is the load-bearing setup. Get it wrong and every code edit below is theater. Get it right and the compiler starts doing your job for you.
 

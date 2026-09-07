@@ -26,7 +26,7 @@ blocks:
           - id: a
             label: "Call find_program_address again inside the withdraw handler so the bump is always fresh"
             correct: false
-            feedback: "That reintroduces the runtime search V2's macro-time const was designed to avoid, and costs CU every call."
+            feedback: "That reintroduces the full runtime search on every call, and costs CU every time. Note which mechanism saves you here: V2's macro-time const only removes the search when every seed is a byte literal, and this vault's seeds carry the player key, so the stored bump — not the const — is what makes the withdraw cheap."
           - id: b
             label: "Recompute the bump from the seeds on the client and pass it in each instruction"
             correct: false
@@ -35,7 +35,7 @@ blocks:
             label: "Store the canonical bump in the vault's Pod state at init and reuse the stored value"
             correct: true
             feedback: "Derivation is deterministic for a fixed seed set, so one computation stored is every future computation skipped — and a byte you persisted yourself is a byte the caller can't influence."
-        explanation: "The canonical bump is stable for a given seed set, so you compute it once (V2 gives it to you as a macro-time const via ctx.bumps.name), persist it in the account, and reuse it. That is both the CU-cheap path and the safe one — no runtime search, no trusting client input."
+        explanation: "The canonical bump is stable for a given seed set, so you read it once at init from the typed `ctx.bumps.vault` field, persist it in the account, and reuse it as `bump = vault.bump`. That is both the CU-cheap path and the safe one — no runtime search, no trusting client input. Be precise about what `ctx.bumps.vault` is: a generated struct field on every Anchor line since 0.29, not a V2 invention, and V2's macro-time const applies only to an all-literal seed scheme — not to this vault, whose seeds include the player key and therefore still derive during validation."
       - id: q2
         prompt: "You seed the vault with [b\"vault\", player.address()] and it works. A teammate proposes seeding it with only [b\"vault\"] to 'keep it simple'. What breaks?"
         multiSelect: false

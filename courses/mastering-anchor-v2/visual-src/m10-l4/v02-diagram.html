@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: The four V2 ideas, wired to the five programs you built
      purpose: show that the Quarters programs are one connected model, not five exercises
-     data: center: Anchor V2 pillar 1: Account<T> = zero-copy Pod by default (issue #4390)  ->  cabinet-counter pillar 2: CPIs are borrow-tracked CpiHandles (reload footgun removed)  ->  floor-registry, quarter-vault pillar 3: PDA bumps arrive as a typed macro-time struct (ctx.bumps.vault); the derivation still runs at validation  ->  quarter-vault pillar 4: three named vulnerability classes (type cosplay, duplicate-mutable, stale-after-CPI) are compile errors, not runtime exploits; account substitution still is not  ->  prize-escrow, token-to-ticket swap
+     data: center: Anchor V2 pillar 1: Account<T> = zero-copy Pod by default (issue #4390)  ->  cabinet-counter pillar 2: CPIs are borrow-tracked CpiHandles (reload footgun removed)  ->  floor-registry, quarter-vault pillar 3: for an ALL-LITERAL seed scheme V2 precomputes the canonical bump as a macro-time const; the typed ctx.bumps.vault struct itself is Anchor 0.29, not a V2 delta, and a runtime-keyed seed still derives at validation  ->  quarter-vault pillar 4: three named vulnerability classes (type cosplay, duplicate-mutable, stale-after-CPI) are compile errors, not runtime exploits; account substitution still is not  ->  prize-escrow, token-to-ticket swap
      prompt: Central node labeled "Anchor V2" with four labeled pillars radiating outward. Each pillar connects with a thin arrow to the program name(s) that demonstrate it, listed above. Keep the four pillar labels short. This is a concept map, one center, four spokes, each spoke terminating in one or two artifact names. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -105,8 +105,8 @@
     <div class="row" style="top:326px">
       <div class="pil">
         <span class="pk">pillar 3</span>
-        <div class="pt">PDA bumps arrive as a typed macro-time struct</div>
-        <div class="ps"><code>ctx.bumps.vault</code> &mdash; the derivation still runs at validation; only the plumbing got typed</div>
+        <div class="pt">a bump const, but only for all-literal seeds</div>
+        <div class="ps">the typed <code>ctx.bumps.vault</code> struct is 0.29, not V2 &mdash; and a runtime-keyed seed like this vault&rsquo;s still derives at validation</div>
       </div>
       <div class="art">
         <div class="ak">shown by</div>

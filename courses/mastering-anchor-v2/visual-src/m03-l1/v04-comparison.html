@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- comparison: Reading the canonical bump, v1 versus V2
-     purpose: contrast the runtime string lookup with the macro-time typed field
-     data: axis: how you get the bump | v1 | V2 syntax        | ctx.bumps.get("vault").unwrap() | ctx.bumps.vault bump derivation | runtime, during validation      | runtime, during validation (unchanged) name->slot resolution | runtime map lookup by string | macro-expansion time (typed field) key type      | string ("vault")                | struct field (vault) failure mode  | typo compiles, panics at runtime| typo fails to compile fallibility   | returns Option, you unwrap      | infallible field access
-     prompt: Two-column comparison card, v1 on the left in muted tone, V2 on the right emphasized. Five labeled rows as above. Draw a small arrow from "runtime map lookup" to "macro-expansion time (const)" to signal the shift left in the pipeline.
+<!-- comparison: Reading the canonical bump, pre-0.29 versus today
+     purpose: contrast the pre-0.29 runtime string lookup with the typed field every line since 0.29 uses — this is a 0.29 change, NOT a V2 delta; do not relabel the columns v1/V2
+     data: axis: how you get the bump | 0.28 and earlier | 0.29 onward (1.x and V2 alike) syntax        | ctx.bumps.get("vault").unwrap() | ctx.bumps.vault bump derivation | runtime, during validation      | runtime, during validation (unchanged for runtime-keyed seeds) name->slot resolution | runtime map lookup by string | macro-expansion time (typed field) key type      | string ("vault")                | struct field (vault) failure mode  | typo compiles, panics at runtime| typo fails to compile fallibility   | returns Option, you unwrap      | infallible field access
+     prompt: Two-column comparison card, "0.28 and earlier" on the left in muted tone, "0.29 onward" on the right emphasized. Label the right column so it is unmistakably NOT "V2" — this landed two majors before V2 and 1.x reads it the same way. Five labeled rows as above. Draw a small arrow from "runtime map lookup" to "macro-expansion time (typed field)" to signal the shift left in the pipeline.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).

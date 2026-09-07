@@ -151,7 +151,7 @@ pub mod quarter_vault {
     pub fn init_vault(ctx: &mut Context<InitVault>) -> Result<()> {
         let vault = &mut ctx.accounts.vault;
         vault.owner = *ctx.accounts.player.address();
-        vault.bump = ctx.bumps.vault; // macro-time canonical bump, read as a typed field
+        vault.bump = ctx.bumps.vault; // canonical bump, read as a field off the typed bumps struct
         vault.credit = 0;
         Ok(())
     }
@@ -189,7 +189,7 @@ pub struct ReadVault {
 }
 ```
 
-Expected after this step: `anchor build` compiles both handlers and both derive structs. A `seeds`/`bump` typo shows up here as a compile error, not as a runtime constraint failure, which is exactly the shift-left the macro-time bump was built for.
+Expected after this step: `anchor build` compiles both handlers and both derive structs. Be precise about which typo this step catches, because only one of the two is a build error. Mistype the *field* on the bumps struct — `ctx.bumps.valut` — and the compiler rejects it, because the derive generated a struct with one field per PDA account and there is no such field. Mistype the *seed content* — `b"valt"` for `b"vault"` — and it compiles perfectly, because one byte string is as valid as another; that one fails at runtime as a seeds-constraint violation, which is exactly the failure step 5 has you read. The typed bumps struct shifts the first typo left. It has nothing to say about the second.
 
 Look hard at the difference between the two `bump` lines, because it is the point of the whole build. In `InitVault` you write bare `bump`, which tells the macro to find the canonical bump and hand it to you through `ctx.bumps.vault`. In `ReadVault` you write `bump = vault.bump`, which tells the macro to skip the search entirely and validate against the value you already stored. The first is compute you pay once. The second is compute you never pay again.
 
