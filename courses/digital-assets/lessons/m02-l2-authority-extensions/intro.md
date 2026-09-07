@@ -130,6 +130,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3
      airdropFactory,
      appendTransactionMessageInstructions,
      assertIsTransactionWithBlockhashLifetime,
+     createKeyPairSignerFromBytes,
      createSolanaRpc,
      createSolanaRpcSubscriptions,
      createTransactionMessage,
@@ -143,6 +144,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3
      type Instruction,
      type KeyPairSigner,
    } from '@solana/kit';
+   import { readFileSync } from 'node:fs';
    import {
      getInitializeMintInstruction,
      getMintSize,
@@ -159,13 +161,27 @@ npm install -D tsx@4.23.12 typescript@5.9.3
 
    // The two signers the whole lab leans on. `payer` fee-pays and funds
    // everything; `mintAuthority` only ever signs, so it needs no lamports.
-   const payer = await generateKeyPairSigner();
+   //
+   // The payer is env-overridable for one concrete reason. A throwaway signer
+   // is perfect against a surfnet, which airdrops on demand, and useless
+   // against devnet's faucet, which rate-limits: a funded address dies with
+   // the process, so "top it up and retry" would fund a key the next run has
+   // never heard of. Point PAYER_KEY at a file (`solana-keygen new -o
+   // payer.json`), fund THAT address once, and step 5's devnet re-run works.
+   const payer = process.env.PAYER_KEY
+     ? await createKeyPairSignerFromBytes(
+         new Uint8Array(JSON.parse(readFileSync(process.env.PAYER_KEY, 'utf8'))),
+       )
+     : await generateKeyPairSigner();
    const mintAuthority = await generateKeyPairSigner();
-   await airdrop({
-     recipientAddress: payer.address,
-     lamports: lamports(5_000_000_000n),
-     commitment: 'confirmed',
-   });
+   console.log(`payer: ${payer.address}`);
+   if (!process.env.PAYER_KEY) {
+     await airdrop({
+       recipientAddress: payer.address,
+       lamports: lamports(5_000_000_000n),
+       commitment: 'confirmed',
+     });
+   }
 
    async function submit(payer: KeyPairSigner, instructions: Instruction[]): Promise<void> {
      const { value: blockhash } = await rpc.getLatestBlockhash().send();
@@ -328,14 +344,23 @@ npm install -D tsx@4.23.12 typescript@5.9.3
      );
    } catch {
      console.log(
-       'SKIPPED: PermissionedBurn (simnet build predates the extension; proven on devnet in step 5)',
+       'SKIPPED: PermissionedBurn (simnet build predates the extension; prove it on devnet with this step\'s re-run)',
      );
    }
    ```
 
    Checkpoint, in two halves. On any cluster: `closableMint` is live and `decode-mint closableMint.address` lists its `MintCloseAuthority` TLV. On a cluster whose Token-2022 build knows PermissionedBurn: `permissionedMint` is live too, a standard `burnChecked` against it reverts with `Error: Invalid instruction`, custom program error 0xc (decimal 12), and the permissioned burn, `getPermissionedBurnCheckedInstruction` with `burnAuthority` co-signing, succeeds. Standard burn is dead the moment PermissionedBurn is present.
 
-   Here is why the probe sits in the worked code instead of being left to you. PermissionedBurn is the newest extension in the catalog, and on surfpool 1.2.1 the bundled Token-2022 build does not know it yet: `getInitializePermissionedBurnInstruction` comes back `Error: Invalid instruction`, 0xc, from the extension initializer itself, before the mint is ever created. That is your simnet, not your code — and since this lab is one file of top-level awaits run in order, an uncaught throw here would kill steps 6 and 7 on every surfnet run. The deployed mainnet program does support it, and you can prove that without spending a lamport, because a simulation executes against the real program: build the same instruction list and send it to `simulateTransaction` on mainnet with `sigVerify: false` and `replaceRecentBlockhash: true`, and the logs come back `Instruction: PermissionedBurnExtension` / `PermissionedBurnInstruction::Initialize` / success. To watch the full checkpoint actually run, the dead standard burn and the live co-signed burn both, re-run the whole file against devnet, the cluster where you can write with the real program — the endpoints went env-overridable in step 1 for exactly this moment: `RPC_URL=https://api.devnet.solana.com RPC_WS_URL=wss://api.devnet.solana.com npx tsx labs/m02-l2/verify-authorities.ts` (devnet's faucet rate-limits; if step 1's airdrop fails, top the payer up via faucet.solana.com and retry). Everything else in this lab runs on the surfnet as written; Pausable, checked on the same build, is fine.
+   Here is why the probe sits in the worked code instead of being left to you. PermissionedBurn is the newest extension in the catalog, and on surfpool 1.2.1 the bundled Token-2022 build does not know it yet: `getInitializePermissionedBurnInstruction` comes back `Error: Invalid instruction`, 0xc, from the extension initializer itself, before the mint is ever created. That is your simnet, not your code — and since this lab is one file of top-level awaits run in order, an uncaught throw here would kill steps 6 and 7 on every surfnet run. The deployed mainnet program does support it, and you can prove that without spending a lamport, because a simulation executes against the real program: build the same instruction list and send it to `simulateTransaction` on mainnet with `sigVerify: false` and `replaceRecentBlockhash: true`, and the logs come back `Instruction: PermissionedBurnExtension` / `PermissionedBurnInstruction::Initialize` / success. To watch the full checkpoint actually run, the dead standard burn and the live co-signed burn both, re-run the whole file against devnet, the cluster where you can write with the real program — the endpoints and the payer went env-overridable in step 1 for exactly this moment. Make a payer that survives a retry first, because devnet's faucet rate-limits and step 1's throwaway signer would strand every lamport you fed it:
+
+   ```bash
+   solana-keygen new --no-bip39-passphrase -o labs/m02-l2/payer.json
+   solana airdrop 2 "$(solana-keygen pubkey labs/m02-l2/payer.json)" --url devnet
+   # rate-limited? paste that same address into faucet.solana.com, then retry
+   PAYER_KEY=labs/m02-l2/payer.json \
+     RPC_URL=https://api.devnet.solana.com RPC_WS_URL=wss://api.devnet.solana.com \
+     npx tsx labs/m02-l2/verify-authorities.ts
+   ``` Everything else in this lab runs on the surfnet as written; Pausable, checked on the same build, is fine.
 
 6. **The flagship: guard versus delegate.** This is the flagship proof. You have a mint carrying a PermanentDelegate and a holder account with CpiGuard enabled. CpiGuard only acts *inside a CPI*, so both moves route through the `spl-instruction-padding` program (`iXpADd6AW1k5FaaXum5qHbSqyd7TtoN6AD7suVa83MF`), which wraps an inner instruction and re-invokes it via CPI.
 
@@ -394,7 +419,10 @@ npm install -D tsx@4.23.12 typescript@5.9.3
      getReallocateInstruction,
      getTransferCheckedInstruction,
    } from '@solana-program/token-2022';
-   import { type Address, type Instruction, AccountRole } from '@solana/kit';
+   // `Instruction` is already imported at the top of this file (step 1); this
+   // is one file, so re-importing the type is a TS2300 duplicate-identifier
+   // error even though tsx strips it and runs fine.
+   import { type Address, AccountRole } from '@solana/kit';
 
    const PADDING_PROGRAM =
      'iXpADd6AW1k5FaaXum5qHbSqyd7TtoN6AD7suVa83MF' as Address;
