@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: the same rules, one with the cost switched off
      purpose: certify why proof-of-work secures mainnet and why regtest is a lab, not a currency
-     data: axis | mainnet Bitcoin | your regtest chain difficulty | tens of trillions (auto-adjusts) | the protocol floor (~1) work per block | ~10^20 hashes across the network | one attempt, found instantly hardware | purpose-built ASICs, hundreds of EH/s | your laptop, idle time per block | ~10 minutes by design | milliseconds cost to append | real electricity, real money | free cost to REWRITE | redo all that work faster than everyone| free (this is the catch)
+     data: axis | mainnet Bitcoin | your regtest chain difficulty | auto-adjusts every 2016 blocks; read it live with getdifficulty | the protocol floor, 4.656542373906925e-10, and retargeting is disabled work per block | difficulty x 2^32 hashes, on the order of 10^23 across the network | one attempt, found instantly hardware | purpose-built ASICs, hundreds of EH/s | your laptop, idle time per block | ~10 minutes by design | milliseconds cost to append | real electricity, real money | free cost to REWRITE | redo all that work faster than everyone| free (this is the catch)
      prompt: Two-column comparison, dark theme, monospace, one row per axis. Tint the final row ("cost to rewrite") red on the regtest side. Caption: "no cost to append = no cost to rewrite". No logos, no icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -55,11 +55,11 @@
       <div class="hd reg" style="border-left:1.5px solid var(--border-on-dark);">your regtest chain<span class="sub">the lab</span></div>
 
       <div class="ax">difficulty</div>
-      <div class="cell">tens of <b>trillions</b> (auto-adjusts)</div>
+      <div class="cell">auto-adjusts every 2016 blocks &mdash; read it live with <b>getdifficulty</b></div>
       <div class="cell mid">the protocol floor (<b>~1</b>)</div>
 
       <div class="ax">work per block</div>
-      <div class="cell"><b>~10<sup>20</sup></b> hashes across the network</div>
+      <div class="cell">difficulty &times; 2<sup>32</sup> hashes &mdash; order of <b>10<sup>23</sup></b> across the network</div>
       <div class="cell mid">one attempt, <b>found instantly</b></div>
 
       <div class="ax">hardware</div>

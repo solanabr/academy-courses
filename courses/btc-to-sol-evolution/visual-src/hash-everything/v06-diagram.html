@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- diagram: a chain of digests
-     purpose: show why editing an old block visibly breaks every block after it
-     data: three blocks left to right; each contains "prev: <digest>" referencing the one before a red edit on block 1 cascades: block 1 digest changes -> block 2 "prev" mismatch -> block 3 mismatch side note: holding only the tip digest is enough to detect any edit anywhere upstream
-     prompt: Three linked block boxes, dark background, monospace. Each shows a truncated digest and a "prev:" field pointing at the previous box. A red pencil on block 1, red cascade arrows invalidating blocks 2 and 3. A small callout on the final digest: "64 chars summarize everything before". No decoration.
+     purpose: show why editing an old block is visible immediately, and why hiding it costs a re-seal of everything above
+     data: three blocks left to right; each contains "prev: <digest>" referencing the one before a red edit on block 1: block 1's digest changes -> block 2's "prev" no longer matches it. ONLY that one link mismatches; block 3's prev still matches block 2's unchanged digest. Hiding the edit means re-sealing block 2, which then breaks 3, and so on to the tip side note: holding only the tip digest is enough to detect any edit anywhere upstream
+     prompt: Three linked block boxes, dark background, monospace. Each shows a truncated digest and a "prev:" field pointing at the previous box. A red pencil on block 1 and ONE broken arrow, the 1->2 link, with the 2->3 link left intact and a caption explaining that repairing the broken link forces a re-seal of everything above. Do not draw block 3 as already invalid. A small callout on the final digest: "64 chars summarize everything before". No decoration.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -47,7 +47,7 @@
   .callout b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
 </style>
   <div class="stbr-eyebrow">a chain of digests</div>
-  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">edit one block, break the rest</h2>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">edit one block, break the next link</h2>
   <div class="chain">
     <div class="blk hit">
       <div class="hd"><span class="name">block 1</span><span class="edit">&#9998; edited</span></div>
@@ -77,6 +77,6 @@
       <div class="field"><div class="lab">this digest (tip)</div><div class="val self bad">04be&hellip;a8e2</div></div>
     </div>
   </div>
-  <div class="callout">Hold only the tip &mdash; those <b>64 chars summarize everything before</b>. One byte changed in block 1 and every downstream <code style="font-family:var(--font-mono);color:var(--stbr-yellow);">prev</code> stops matching.</div>
+  <div class="callout">Hold only the tip &mdash; those <b>64 chars summarize everything before</b>. One byte changed in block 1 and block 2&rsquo;s <code style="font-family:var(--font-mono);color:var(--stbr-yellow);">prev</code> stops matching &mdash; and covering that up means re-sealing every block above it.</div>
 </div>
 </body></html>

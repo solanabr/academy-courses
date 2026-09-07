@@ -28,7 +28,7 @@ blocks:
             feedback: "Preimage resistance is a real property, but a different one: not being able to find an input that produces a given digest. The total scrambling caused by a one-character change is the avalanche effect."
         explanation: "The avalanche effect: flip one input bit and roughly half the output bits flip, leaving no correlation between digests of near-identical inputs. That is what makes a hash a safe fingerprint — comparing digests reveals equality and nothing else, so an attacker cannot home in on data by watching digests get 'closer'."
       - id: q2
-        prompt: "A SHA-256 digest is always the same size regardless of input. How big, expressed as hex characters?"
+        prompt: "A SHA-256 digest is always the same size regardless of input. How many BITS is that digest?"
         multiSelect: false
         options:
           - id: a

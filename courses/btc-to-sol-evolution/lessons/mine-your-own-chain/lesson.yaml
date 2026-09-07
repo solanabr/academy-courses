@@ -18,13 +18,13 @@ blocks:
           - id: a
             label: "Regtest's difficulty adjustment needs 101 blocks before the chain accepts standard transactions"
             correct: false
-            feedback: "Regtest runs at near-zero difficulty and has no warm-up period for transactions. The 101 comes from a consensus rule about block rewards: a coinbase output needs 100 confirmations before it may be spent."
+            feedback: "Regtest runs at near-zero difficulty and has no warm-up period for transactions. The 101 comes from a consensus rule about block rewards: a coinbase output needs 100 blocks stacked on top of it before it may be spent."
           - id: b
             label: "Wallets refuse to spend outputs younger than 101 blocks as a reorg-safety default you can turn off"
             correct: false
-            feedback: "It is not a wallet preference — coinbase maturity (100 confirmations) is a consensus rule, and no flag disables it. Mining 101 blocks makes exactly one reward — the first block's — spendable."
+            feedback: "It is not a wallet preference — coinbase maturity (100 blocks on top) is a consensus rule, and no flag disables it. Mining 101 blocks makes exactly one reward — the first block's — spendable."
           - id: c
-            label: "A coinbase (block-reward) output only matures after 100 confirmations, so you mine 100 blocks on top of the first one — 101 total"
+            label: "A coinbase (block-reward) output only matures once 100 blocks sit on top of it, so you mine 100 blocks above the first one — 101 total"
             correct: true
         explanation: "Coinbase outputs are consensus-locked for 100 blocks. If a reorg orphaned a block whose freshly-spent reward had already propagated, every downstream payment would unravel — so rewards must age past plausible reorg depth before entering circulation. Block 1's reward becomes spendable once 100 blocks sit on top of it: height 101."
       - id: q2
