@@ -2,9 +2,10 @@ id: lesson-date-m01-l4-decision-framework-conflict-matrix
 slug: m01-l4-decision-framework-conflict-matrix
 title: "Classic SPL vs Token-2022: the decision framework + the conflict matrix"
 skills:
-  - account-model
+  - token-2022
   - solana-programs
-  - solana-fundamentals
+  - account-model
+  - error-handling
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

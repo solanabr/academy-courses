@@ -3,7 +3,9 @@ slug: m08-l1-bonding-curves-graduation
 title: "Bonding curves & graduation: pump.fun from constants"
 skills:
   - solana-fundamentals
-  - transactions
+  - solana-programs
+  - spl-tokens
+  - version-pinning
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

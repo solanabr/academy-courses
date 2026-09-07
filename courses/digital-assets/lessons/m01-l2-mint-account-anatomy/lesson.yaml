@@ -3,8 +3,9 @@ slug: m01-l2-mint-account-anatomy
 title: "Mint & account anatomy from raw bytes"
 skills:
   - account-model
-  - solana-programs
-  - solana-fundamentals
+  - token-2022
+  - spl-tokens
+  - rpc-reads
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

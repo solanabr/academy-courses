@@ -2,8 +2,10 @@ id: lesson-date-m08-l3-airdrops-at-scale
 slug: m08-l3-airdrops-at-scale
 title: "Airdrops at scale: cost engineering & vesting claims"
 skills:
-  - solana-fundamentals
-  - transactions
+  - merkle-proofs
+  - state-compression
+  - checked-arithmetic
+  - account-model
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

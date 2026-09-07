@@ -2,7 +2,10 @@ id: lesson-date-m04-l1-confidential-model
 slug: m04-l1-confidential-model
 title: "The confidential model: encrypted balances on a public chain"
 skills:
+  - token-2022
   - transactions
+  - rpc-reads
+  - account-model
 blocks:
   - key: intro
     type: prose

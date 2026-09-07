@@ -2,6 +2,10 @@ id: lesson-date-m10-l1-capstone-choose-primitive
 slug: m10-l1-capstone-choose-primitive
 title: "Capstone: choose your primitive and wire the economy"
 skills:
+  - token-2022
+  - state-compression
+  - token-metadata
+  - program-security
   - solana-kit
 versionStamp:
   checkedAt: "2026-09-05"

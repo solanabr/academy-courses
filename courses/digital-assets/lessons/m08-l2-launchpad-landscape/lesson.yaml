@@ -3,7 +3,9 @@ slug: m08-l2-launchpad-landscape
 title: "The launchpad landscape, anti-snipe & what graduation seeds"
 skills:
   - solana-fundamentals
-  - transactions
+  - rpc-reads
+  - token-2022
+  - version-pinning
 versionStamp:
   checkedAt: "2026-09-05"
   packages:
