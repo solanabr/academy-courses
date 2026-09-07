@@ -158,9 +158,15 @@ def length_band(q: dict) -> tuple[int, int, bool]:
     move (tighten the answer, never weaken a distractor), and the honest signal
     that appending cannot fix this one.
     """
-    lens = sorted(len(x) for x in q["labels"])
-    key_len = len(q["labels"][q["correct"][0]]) if q["correct"] else statistics.mean(lens)
-    cur_rank = sum(1 for l in lens if l < key_len)
+    raw = [len(x) for x in q["labels"]]
+    lens = sorted(raw)
+    key_i = q["correct"][0] if q["correct"] else 0
+    key_len = raw[key_i]
+    # Break ties by option index, exactly as quiz_stats.py does when it computes
+    # the rank it will later gate on. Ranking by "how many are strictly shorter"
+    # instead puts every tied option at the lowest shared rank, so a single tie
+    # silently moves the target by one and the band aims at the wrong place.
+    cur_rank = sorted(range(len(raw)), key=lambda i: (raw[i], i)).index(key_i)
     h = int(hashlib.sha256(f"{q['lesson']}|{q['qid']}|len".encode()).hexdigest()[:8], 16)
 
     # Reachable target ranks after appending exactly one option.
