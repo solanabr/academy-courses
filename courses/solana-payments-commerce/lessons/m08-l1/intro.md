@@ -432,7 +432,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
    MERCHANT_ADDRESS=$(solana address) npx tsx src/server.ts
    ```
 
-   If that exits with `EADDRINUSE`, module 6's ramp-embed session route is still holding the port: stop it (ctrl-C in its terminal), or start this one with `PORT=3210` and set `SERVER_URL` to match in the smoke check below. The ramp route keeps :3200 because that exact origin is registered in your CDP allowlist and changing it means editing a dashboard; this server has no such tie, so it is the one that moves. Checkpoint: `gasless-checkout listening on :3200`, and the Kora terminal stays quiet until a POST arrives. The `REFUSED` log line in the catch block is not decoration; it is the denial evidence the challenge and this lesson's gate both ask you to produce.
+   If that exits with `EADDRINUSE`, module 6's ramp-embed session route is still holding the port: stop it (ctrl-C in its terminal), or start this one with `PORT=3210` and set `SERVER_URL` to match in the smoke check below. The ramp route keeps :3200 because that exact origin is registered in your CDP allowlist and changing it means editing a dashboard; this server has no such tie, so it is the one that moves. Checkpoint: `gasless-checkout listening on :3200`, and the Kora terminal stays quiet until a POST arrives. The `REFUSED` log line in the catch block is the denial evidence the challenge and this lesson's gate both ask you to produce.
 
 6. **Fund the buyer with USDC and nothing else.** The buyer wallet you minted in the scaffold has no SOL, and it stays that way. Give it the record money using your own module 2 kit, from the workspace root:
 

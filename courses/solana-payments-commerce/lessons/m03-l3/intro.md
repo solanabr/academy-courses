@@ -65,7 +65,7 @@ How the work is shared out today: the worked lab hands you every command to clon
 
 ### What you just cloned
 
-The point-of-sale example is not a toy snippet. It is a small production-shaped app: a Next.js frontend, an API layer, rate limiting, and a `.env.example` that defaults `CLUSTER_ENDPOINT` to devnet. Its `package.json` at the pinned commit runs on `@solana/kit ^6.9.0` and consumes `@solana/pay` from the repo's own core package, whose npm release is 1.0.26 (published 2026-07-31, still `latest` at a 2026-08-22 check, peering kit ^6.9). That keeps the stall inside the same kit v6 workspace this course has used since module 2. On `main` it no longer would: a commit on 2026-08-31 moved the example to kit v8, which is exactly why the clone above checks out `94b3627` instead of riding `main`. At the pin, no new SDK line, no version cliff.
+The point-of-sale example is a small production-shaped app: a Next.js frontend, an API layer, rate limiting, and a `.env.example` that defaults `CLUSTER_ENDPOINT` to devnet. Its `package.json` at the pinned commit runs on `@solana/kit ^6.9.0` and consumes `@solana/pay` from the repo's own core package, whose npm release is 1.0.26 (published 2026-07-31, still `latest` at a 2026-08-22 check, peering kit ^6.9). That keeps the stall inside the same kit v6 workspace this course has used since module 2. On `main` it no longer would: a commit on 2026-08-31 moved the example to kit v8, which is exactly why the clone above checks out `94b3627` instead of riding `main`. At the pin, no new SDK line, no version cliff.
 
 Out of the box the whole app is configured by one URL, no config file involved:
 

@@ -81,7 +81,7 @@ This is why the lesson keeps saying "the raw primitive." One live subscription p
 
 ### The allowance only goes down
 
-The second thing Stripe-trained intuition gets wrong: the approved amount is not a monthly limit. It does not reset on the first of the month. It is a tank of fuel, filled once by the owner's signature, drained by every delegate transfer, refillable only by another owner signature.
+The second thing Stripe-trained intuition gets wrong: the approved amount is not a monthly limit and does not reset on the first of the month. It is a tank of fuel, filled once by the owner's signature, drained by every delegate transfer, refillable only by another owner signature.
 
 The record club charges 15 USDC per cycle. The subscriber approved 60. So:
 
@@ -112,7 +112,7 @@ The `authority` field has always meant "whoever has the right to move these fund
 
 Because it is the same instruction shape, everything module 3 and 4 taught keeps working unchanged. The crank attaches a fresh reference key so the back office can reconcile the pull into the orders ledger, and a memo so the charge names itself on-chain. Your webhook ingester from module 4 will see this pull like any other payment. Recurring revenue drops into the pipeline you already built, which is the payoff for building it in this order.
 
-The crank's real job, then, is not the transfer. It is the paragraph before the transfer: deciding whether pulling is still legitimate. I will confess the mistake so you can skip it: the first crank I wired cached the approval state at signup, because why would it change? A test wallet re-approved a different delegate mid-cycle, my crank submitted anyway, and I spent an evening staring at a custom program error 0x4 in a transaction log before the obvious sank in. The account state is the ledger. Your database is a cache with opinions. So the crank re-reads the token account every single cycle, before every pull, and answers three questions:
+The crank's real job, then, is not the transfer but the paragraph before it: deciding whether pulling is still legitimate. I will confess the mistake so you can skip it: the first crank I wired cached the approval state at signup, because why would it change? A test wallet re-approved a different delegate mid-cycle, my crank submitted anyway, and I spent an evening staring at a custom program error 0x4 in a transaction log before the obvious sank in. The account state is the ledger. Your database is a cache with opinions. So the crank re-reads the token account every single cycle, before every pull, and answers three questions:
 
 ![Three pre-pull checks map to outcomes: a missing delegate refuses as delegate-revoked, whether the owner revoked it or an exhausting pull cleared the slot; a foreign delegate refuses the same way; too small an allowance refuses as insufficient-allowance; and only an all-clear proceeds.](assets/v04-table.png)
 
