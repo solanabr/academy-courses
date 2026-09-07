@@ -325,21 +325,31 @@ def load_course(course_dir: Path) -> list[Question]:
         raise FileNotFoundError(f"no course.yaml under {course_dir}")
     course = yaml.safe_load(course_yaml.read_text(encoding="utf-8")) or {}
 
-    order: dict[str, int] = {}
+    # (module index, position within the module) -- the authoritative order.
+    # Sorting by directory name inside a module is WRONG: lesson dirs are bare
+    # slugs, so `como-funciona` sorts ahead of `por-que-solana` even though it is
+    # the second lesson. Every sequential metric here reads the key sequence in
+    # reading order, so a wrong order understates the structure it is looking for.
+    order: dict[str, tuple[int, int]] = {}
     for m_idx, module in enumerate(course.get("modules") or []):
-        for lesson_id in module.get("lessons") or []:
-            order[lesson_id] = m_idx
+        for l_idx, lesson_id in enumerate(module.get("lessons") or []):
+            order[lesson_id] = (m_idx, l_idx)
 
     lesson_files = sorted((course_dir / "lessons").glob("*/lesson.yaml"))
     parsed = []
+    unplaced = 0
     for path in lesson_files:
         doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         lesson_id = doc.get("id", "")
-        parsed.append((order.get(lesson_id, len(order)), path.parent.name, doc))
-    parsed.sort(key=lambda t: (t[0], t[1]))
+        if lesson_id in order:
+            m_idx, l_idx = order[lesson_id]
+        else:                       # not listed in course.yaml: park it at the end
+            m_idx, l_idx, unplaced = len(order), unplaced, unplaced + 1
+        parsed.append((m_idx, l_idx, path.parent.name, doc))
+    parsed.sort(key=lambda t: (t[0], t[1], t[2]))
 
     questions: list[Question] = []
-    for module_index, slug, doc in parsed:
+    for module_index, _lesson_index, slug, doc in parsed:
         for block in doc.get("blocks") or []:
             if block.get("type") != "quiz":
                 continue
