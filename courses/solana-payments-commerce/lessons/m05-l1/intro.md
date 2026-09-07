@@ -299,7 +299,7 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
    ```ts
    // crank/approve.ts: the SUBSCRIBER runs this once. It is the whole sign-up flow.
    import { address } from '@solana/kit';
-   import { getApproveCheckedInstruction } from '@solana-program/token';
+   import { getApproveCheckedInstruction, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
    import { resolveAta, toBaseUnits } from 'transfer-kit';
    import { loadSigner, sendIxs } from './send';
 
@@ -309,7 +309,9 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
 
    async function main() {
      const subscriber = await loadSigner(process.env.SUBSCRIBER_KEYPAIR ?? 'subscriber.json');
-     const subscriberAta = await resolveAta(subscriber.address, USDC_DEVNET);
+     // Third seed, the owning token program, required since the roster lesson.
+     // Devnet USDC is a classic Token mint, so it is static here.
+     const subscriberAta = await resolveAta(subscriber.address, USDC_DEVNET, TOKEN_PROGRAM_ADDRESS);
 
      const approveIx = getApproveCheckedInstruction({
        source: subscriberAta,
@@ -349,7 +351,11 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
      unwrapOption,
      type Instruction,
    } from '@solana/kit';
-   import { fetchToken, getTransferCheckedInstruction } from '@solana-program/token';
+   import {
+     fetchToken,
+     getTransferCheckedInstruction,
+     TOKEN_PROGRAM_ADDRESS,
+   } from '@solana-program/token';
    import { getAddMemoInstruction } from '@solana-program/memo';
    import { fromBaseUnits, resolveAta, toBaseUnits } from 'transfer-kit';
    import { checkPull } from './guard';
@@ -363,8 +369,8 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
 
    async function main() {
      const crank = await loadSigner(process.env.CRANK_KEYPAIR ?? 'crank.json');
-     const subscriberAta = await resolveAta(SUBSCRIBER, USDC_DEVNET);
-     const merchantAta = await resolveAta(MERCHANT, USDC_DEVNET);
+     const subscriberAta = await resolveAta(SUBSCRIBER, USDC_DEVNET, TOKEN_PROGRAM_ADDRESS);
+     const merchantAta = await resolveAta(MERCHANT, USDC_DEVNET, TOKEN_PROGRAM_ADDRESS);
 
      // 1. Read the account. Never pull on a cached view of the delegate slot.
      const tokenAccount = await fetchToken(rpc, subscriberAta);

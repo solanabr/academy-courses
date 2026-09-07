@@ -15,11 +15,34 @@ npm pkg set type=module   # the smoke script uses top-level await and import.met
 npm install @solana/kit@6.10.0 @solana-program/token@0.14.0 @solana/kora@0.2.1 express@5 \
   @solana/kit-plugin-instruction-plan@^0.6.0 @solana/kit-plugin-payer@^0.6.0 \
   @solana/kit-plugin-rpc@^0.6.0 @solana-program/compute-budget@0.16.0 --legacy-peer-deps
-npm install -D tsx@4 typescript @types/express @types/node
+npm install -D tsx@4 typescript @types/express @types/node --legacy-peer-deps
 solana-keygen new --no-bip39-passphrase -o buyer.json
 ```
 
-Pin notes, checked 2026-08-31. `@solana/kora` 0.2.1 is npm `latest`, published 2026-03-27 (the newer 0.3.0 betas sit on the `beta` tag only). It peers `@solana/kit` ^6.1.0, which our 6.10.0 satisfies cleanly, and this workspace stays on the v6 kit line like every checkout rung before it, so do not reach for the kit ^7 subscriptions client here. The one wrinkle: the SDK also peers `@solana-program/token` ^0.12.0, which our 0.14.0 pin technically fails, so a plain install refuses the pair. The three names it actually imports from that package exist unchanged in 0.14.0, which is why `--legacy-peer-deps` is safe in this specific workspace and not a habit to keep. `express` 5 and `tsx` 4 are the same majors the transaction-request server already runs. `@solana-program/compute-budget` is pinned 0.16.0, the last minor whose peer range accepts a v6 kit (0.17.0 jumped its peer to ^7) — the same digit the fee-recipe lesson pins later this module, so the repo states one compute-budget number everywhere. `--legacy-peer-deps` also turns off npm's automatic peer installation, which is why the four plugin packages are named explicitly.
+Both install lines carry `--legacy-peer-deps`, and the second one is not a copy-paste slip. npm re-validates the whole dependency tree on every install, not just the packages you named, so the conflict below is re-evaluated when you add four dev tools that have nothing to do with it. Drop the flag from the second line and it exits with `ERESOLVE` before installing anything.
+
+Pin notes, checked 2026-08-31. `@solana/kora` 0.2.1 is npm `latest`, published 2026-03-27 (the newer 0.3.0 betas sit on the `beta` tag only). It peers `@solana/kit` ^6.1.0, which our 6.10.0 satisfies cleanly, and this workspace stays on the v6 kit line like every checkout rung before it, so do not reach for the kit ^7 subscriptions client here. The wrinkle is that two of the SDK's other peer ranges are older than what this course pins: it asks for `@solana-program/token` ^0.12.0 against our 0.14.0, and `@solana-program/compute-budget` ^0.13.0 against our 0.16.0. npm's error message names whichever it hits first, usually compute-budget, so do not be surprised when the text differs from this paragraph. The names Kora actually imports from both packages exist unchanged at our pins, which is why `--legacy-peer-deps` is safe in this specific workspace and not a habit to keep. `express` 5 and `tsx` 4 are the same majors the transaction-request server already runs. `@solana-program/compute-budget` is pinned 0.16.0, the last minor whose peer range accepts a v6 kit (0.17.0 jumped its peer to ^7) — the same digit the fee-recipe lesson pins later this module, so the repo states one compute-budget number everywhere. `--legacy-peer-deps` also turns off npm's automatic peer installation, which is why the four plugin packages are named explicitly.
+
+One more file before the theory, because a checkpoint later in the lab leans on it. This workspace reaches back into `transfer-kit` and `checkout-txreq` through relative paths, and the root `tsconfig.json` from module 2 only ever included `transfer-kit/src`, so `tsc` run here would type-check none of the files you are about to write. Give the workspace its own config:
+
+```bash
+cat > tsconfig.json <<'JSON'
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["src", "verify", "../transfer-kit/src", "../checkout-txreq/src"]
+}
+JSON
+```
+
+`moduleResolution: "bundler"` is the honest setting here rather than the root's `NodeNext`: every cross-package import in this course is written without a file extension, which is what `tsx` resolves and what `NodeNext` rejects. The `include` list is the point — it names the two sibling packages this workspace imports, so a stale relative path or a drifted function signature over there fails here instead of hiding until runtime.
 
 ## Summary
 
@@ -258,7 +281,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
    // Same pricing, same assembly tail as checkout-txreq. One changed input:
    // the fee payer is the Kora signer, and Kora co-signs before the buyer sees it.
    import { address, generateKeyPairSigner, type Address } from '@solana/kit';
-   import { getTransferCheckedInstruction } from '@solana-program/token';
+   import { getTransferCheckedInstruction, TOKEN_PROGRAM_ADDRESS } from '@solana-program/token';
    import { resolveAta } from '../../transfer-kit/src/index';
    import { priceOrder, type OrderLine } from '../../checkout-txreq/src/catalog';
    import { finalizeTransaction } from '../../checkout-txreq/src/build-order-transaction';
@@ -296,8 +319,10 @@ What you are assembling, and where it sits in the Wavelength workspace:
 
      const { signer_address } = await kora.getPayerSigner();
 
-     const sourceAta = await resolveAta(buyer, USDC_MINT);
-     const destinationAta = await resolveAta(merchantAddress(), USDC_MINT);
+     // Third seed since the roster lesson: the owning token program. Devnet
+     // USDC is classic Token, so it is static here, exactly as in m03's builder.
+     const sourceAta = await resolveAta(buyer, USDC_MINT, TOKEN_PROGRAM_ADDRESS);
+     const destinationAta = await resolveAta(merchantAddress(), USDC_MINT, TOKEN_PROGRAM_ADDRESS);
 
      const transferIx = getTransferCheckedInstruction({
        source: sourceAta,
@@ -334,7 +359,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
 
    The capstone imports `buildSponsoredOrder` by this name, so the export is load-bearing the same way `finalizeTransaction` was in module 3. Notice also what did not change: no amount field on the input, ever. A sponsored checkout is still a checkout, and the server still owns the price.
 
-   Checkpoint: `npx tsc --noEmit` type-checks clean. That is the cheapest way to catch a stale relative path in the three cross-package imports (`transfer-kit`, the m03 catalog, the m03 builder) before the server hides it behind a 400.
+   Checkpoint: `npx tsc --noEmit -p tsconfig.json` from `gasless-checkout` type-checks clean. Point it at this workspace's own config, not the root one — the `-p` is what makes the check real, because the root config from module 2 includes only `transfer-kit/src` and would exit 0 on a file it never opened. With the right config it is the cheapest way to catch a stale relative path in the three cross-package imports (`transfer-kit`, the m03 catalog, the m03 builder), or a helper over there whose signature moved since you last called it, before the server hides either behind a 400.
 
 5. **The fair server.** Create `src/server.ts`. Fully worked; it is the transaction-request pair you know, on its own port, returning a transaction that already carries one of its two signatures:
 
