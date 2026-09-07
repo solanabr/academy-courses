@@ -233,7 +233,7 @@ The professional deliverable from a manifest read is one line per pin: what it i
 
 ## Lab: hoist, break, declare, verify
 
-The split already happened in the opener, so the lab starts from a green `cargo check --workspace` and makes the workspace earn its keep. Steps 1 through 3 are guided; steps 4 and 5 are yours; step 6 proves the whole thing to CI.
+The split already happened in the opener, so the lab starts from a green `cargo check --workspace` and makes the workspace earn its keep. Steps 1 through 3 are guided; step 4, the MSRV declaration, is the one that is yours; step 5 hands you the integration-test file complete, because what earns its keep there is reading the second runner line and knowing why the tier exists, not typing eight lines; step 6 proves the whole thing to CI. The unguided rep this lesson is actually betting on is the challenge, three pin verdicts written cold.
 
 1. Commit the split as it stands, so every following diff is readable:
 
@@ -284,7 +284,9 @@ The split already happened in the opener, so the lab starts from a green `cargo 
 
    ```rust
    // The integration tier: this file compiles as its own tiny crate, linked
-   // against pulse-engine, so it can only touch what lib.rs re-exports.
+   // against pulse-engine, so it sees exactly what any outside consumer sees.
+   // Private items are unreachable from here; pub ones are, either by the
+   // short name lib.rs re-exported or by their full module path.
    use pulse_engine::{FixtureSource, ProbeState, drive};
 
    #[test]

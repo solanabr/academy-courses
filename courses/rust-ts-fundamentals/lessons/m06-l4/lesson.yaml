@@ -42,7 +42,7 @@ blocks:
           - id: c
             label: "First publish defaults to PRIVATE, flip the package's visibility setting and the anonymous pull works"
             correct: true
-        explanation: "The lab gotcha, taught on camera: GHCR packages are born private. Anonymous pulls see not-found (not forbidden, no information leaks) until you flip visibility in the package settings. Public container images are free ('currently', per GitHub's own wording); private ones bill against the shared 500 MB pool."
+        explanation: "The lab gotcha, reproduced in step 5: GHCR packages are born private. An anonymous pull comes back denied, refused without confirming the package even exists, so the symptom looks like a bad tag rather than a permission problem, and that is the whole trap. Flip visibility in the package settings and the same command succeeds. Public container images are free ('currently', per GitHub's own wording); private ones bill against the shared 500 MB pool."
       - id: m06-l4-q3
         prompt: "You keep the station images private 'to be safe'. What does that choice actually spend on the GitHub Free plan?"
         multiSelect: false

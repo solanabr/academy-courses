@@ -216,7 +216,7 @@ One boundary, stated plainly so nobody over-applies today's patterns: everything
 
 ## Lab: the fleet, concurrent and polite
 
-The fade this module has been running continues: the pool and the burst were fully worked above; in this lab the backoff and abort wiring are completions where the skeleton is given and you author the missing organ; the challenge afterwards is yours alone.
+The fade this module has been running continues: the pool and the burst were fully worked above; the backoff loop in step 3 is a completion, skeleton given, two organs yours; the abort wiring in step 4 is retrieval, written from memory against a listing you have already read; the challenge afterwards is yours alone.
 
 1. **Rebuild the config schema for the concurrent fleet.** The fleet's dials belong in `pulse.config.json`, behind last lesson's parser, not hardcoded. The lab probes a flat list of local URLs under one shared budget, so reshape l2's schema in `src/config.ts`: targets become plain URLs, `timeoutMs` moves to the top level, and two new fields, `concurrency` and `retry`, carry the dials. Same boundary discipline, new shape, still `strictObject` because a config is a shape you own and l2's rule stands: an unknown key in it is an error, not a shrug. And `z.infer` updates `FleetConfig` for free:
 
@@ -260,7 +260,7 @@ The fade this module has been running continues: the pool and the burst were ful
 
    Run `npx tsx src/make-targets.ts` once.
 
-3. **Author the retry loop (completion).** In `src/fleet.ts`, the loop below is given with two holes. Fill the delay computation using `backoffDelay` and the equal-jitter line from the theory section, and make the retry decision per-variant: only a 429 with attempts remaining goes around again.
+3. **Author the retry loop (completion).** In `src/fleet.ts`, the loop below is given with two holes. Everything around them is complete; fill them from the theory section without scrolling back if you can.
 
    ```ts
    async function probeWithRetry(url: string, config: FleetConfig): Promise<ProbeReport> {
@@ -268,22 +268,34 @@ The fade this module has been running continues: the pool and the burst were ful
      let retries = 0;
      for (let attempt = 0; ; attempt++) {
        const result = await probeOnce(url, config.timeoutMs);
-       const retryable = result.kind === "http-error" && result.status === 429;
+       // TODO 1: set `retryable` from the variant. Retry policy is per-variant,
+       // and exactly one of the four earns another attempt.
        if (!retryable || attempt >= maxRetries) {
          return { url, result, retries };
        }
        retries += 1;
-       const delay = backoffDelay(attempt, baseMs, capMs);
-       const jittered = delay / 2 + Math.random() * (delay / 2);
+       // TODO 2: compute `jittered` from `backoffDelay(attempt, baseMs, capMs)`
+       // run through the equal-jitter line: keep half, randomize the other half.
        console.log(`  429 from ${url}: attempt ${attempt}, waiting ${Math.round(jittered)}ms`);
        await sleep(jittered);
      }
    }
    ```
 
+   The filled versions, once you have written yours:
+
+   ```ts
+   const retryable = result.kind === "http-error" && result.status === 429;
+   ```
+
+   ```ts
+   const delay = backoffDelay(attempt, baseMs, capMs);
+   const jittered = delay / 2 + Math.random() * (delay / 2);
+   ```
+
    (`ProbeReport` is `{ url: string; result: ProbeResult; retries: number }`: the union from l1 carrying its target and its cost. `sleep` is the two-liner `new Promise((resolve) => setTimeout(resolve, ms))`. One wiring note before the compiler asks: declare the four-variant `ProbeResult` union and this `ProbeReport` type at the top of `src/fleet.ts` yourself. There is nothing to import yet, deliberately: the l1 union lives in root `probe.ts`, which is a CLI script, not a module, so the fleet gets its own local copy today. m02-l4 moves the canonical copy into `src/classify.ts` and M3 extracts it into a package; this local one is the duplication that motivates both.)
 
-4. **Wire the abort (completion).** Take the `probeOnce` skeleton from the theory section and complete the three timeout moves yourself before comparing: the controller creation, the `signal` on the fetch options, and the `clearTimeout` in `finally`. Then map the exits: `signal.aborted` in the catch becomes the `timeout` variant, everything else in the catch becomes `dns-error`.
+4. **Wire the abort (from memory).** `probeOnce` is printed complete in the theory section, so this one is retrieval, not completion: close this page or scroll past it and write the function into `src/fleet.ts` yourself from the three moves, the controller creation, the `signal` on the fetch options, and the `clearTimeout` in `finally`, plus the exit mapping (`signal.aborted` in the catch becomes the `timeout` variant, everything else in the catch becomes `dns-error`). Then scroll back and diff yours against the listing. The line you most likely dropped is the `clearTimeout`, and the theory section says why that one hides.
 
 5. **Assemble and run.** `probeAll` from the theory section plus a small CLI footer: parse the config with l2's `parseOrExit`, call `probeAll`, then fold the reports into counts. An object keyed by variant kind is the quick version shown below; rewriting the fold as l1's exhaustive switch with `assertNever` is the sturdier version, and worth the five minutes.
 
@@ -326,7 +338,7 @@ The fade this module has been running continues: the pool and the burst were ful
    }
    ```
 
-   The stats function you built in m01-l2, now on station duty: one sample was noise, and fifty per sweep is exactly the batch it was built to summarize. The `length` guard is not politeness. A sweep where every probe failed has no latencies to fold, `latencyStats` throws on an empty batch by its own contract, and skipping the line is the honest report.
+   The stats function you built in m01-l2, now on station duty: one sample was noise, and fifty per sweep is exactly the batch it was built to summarize. The `length` guard is not politeness, and it is worth knowing exactly what it saves you from. Its starter says "input is guaranteed non-empty", and that promise is the caller's to keep: run `latencyStats([].join(","))` and you get no error, you get `{ min: 0, max: 0, mean: 0, p95: 0 }`, because `"".split(",")` is `[""]` and `Number("")` is `0`. So a sweep where every single probe failed would print a confident `min 0 max 0 mean 0 p95 0` line, the most dangerous kind of wrong: a monitor reporting perfect latency for a fleet that answered nothing. Skipping the line is the honest report. Boundary functions inherit their preconditions from whoever calls them, and this guard is where that one is kept.
 
    With the server from the opener still running:
 

@@ -185,7 +185,7 @@ A second housekeeping note, about the file you are NOT editing. `fleet.ts`, the 
 
 ```bash
 npx tsx probe.ts     # prints: healthy
-                     # then: usage: npx tsx probe.ts <url> [more urls...], exit 1
+                     # then: usage: npx tsx probe.ts <url>, exit 1
 npx tsc --noEmit     # exits clean. green.
 ```
 
