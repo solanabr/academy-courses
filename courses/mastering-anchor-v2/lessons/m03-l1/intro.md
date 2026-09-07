@@ -200,10 +200,11 @@ Look hard at the difference between the two `bump` lines, because it is the poin
 ```toml
 # One row, not three. anchor-v2-testing wraps LiteSVM and re-exports the pieces a
 # test file needs, so the SVM version is the harness's problem and not yours. At tag
-# v2.0.0-rc.1 it carries litesvm 0.11.0; crates.io is already at 0.15.2, and the
-# anchor-next branch tip has moved it to 0.13.1. Name litesvm yourself and you are
-# choosing one of those against a harness that expects another — two SVM versions in
-# one graph, failing in a way that reads like your test is wrong.
+# v2.0.0-rc.1 it carries litesvm 0.11.0; crates.io's latest is 0.16.0 as of
+# 2026-09-07, and the anchor-next branch tip has moved it to 0.13.1. Name litesvm
+# yourself and you are choosing one of those against a harness that expects
+# another — two SVM versions in one graph, failing in a way that reads like your
+# test is wrong.
 [dev-dependencies]
 anchor-v2-testing = { git = "https://github.com/otter-sec/anchor.git", tag = "v2.0.0-rc.1" }
 bytemuck = "1.25"     # to cast the account bytes back to the Pod state
