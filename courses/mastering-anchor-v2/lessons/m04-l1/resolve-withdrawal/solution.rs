@@ -3,7 +3,8 @@
 // The three failure cases are checked BEFORE computing the safe remainder, and
 // the subtraction still goes through `checked_sub` even though the guard above
 // already proved it cannot underflow: the proof is one refactor away from being
-// wrong, and a bare `-` wraps silently in a release build. A `const fn`, so the
+// wrong, and a bare `-` either aborts the transaction or, on a build with
+// overflow-checks off, wraps silently. A `const fn`, so the
 // harness below proves the guards at build time.
 const fn resolve_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) -> i64 {
     if requested == 0 {

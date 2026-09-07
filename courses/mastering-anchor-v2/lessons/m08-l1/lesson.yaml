@@ -67,7 +67,7 @@ blocks:
           - id: a
             label: "Run anchor idl init, which writes the IDL through the Program Metadata Program"
             correct: true
-            feedback: "Worth knowing what you are signing up for: an account you now pay rent on, and a second copy of your interface that goes stale the moment you deploy without re-running the upgrade."
+            feedback: "Worth knowing what you are signing up for: an account you now pay rent on, and a second copy of your interface that is only true for as long as somebody keeps republishing it. Which flow you are on decides who that somebody is — the RC's plain `anchor deploy` upserts the IDL for you, so the staleness bites on the explicit `--no-idl` flow this lab uses, where the re-publish is a step you have to remember."
           - id: b
             label: "Commit target/idl/token_ticket_swap.json and serve it from GitHub"
             correct: false
@@ -76,4 +76,4 @@ blocks:
             label: "Embed the IDL as a #[constant] so callers read it from the binary"
             correct: false
             feedback: "Nothing in v2 ships the IDL inside the executable — #[constant] only surfaces a value in the generated IDL JSON, it doesn't make the binary self-describing. The on-chain copy lives in a separate Program Metadata account."
-        explanation: "anchor idl init (and anchor idl upgrade for later edits) writes the IDL to the Program Metadata Program at the canonical [program, seed] PDA — permissionless to read, writable only by the program's upgrade authority — so any client can resolve your interface from the chain. Anchor removed its own built-in IDL instructions in 1.0 and V2 inherits that removal. The trade-off: the IDL account costs rent, and the on-chain copy is only as current as your last idl upgrade."
+        explanation: "anchor idl init (and anchor idl upgrade for later edits) writes the IDL to the Program Metadata Program at the canonical [program, seed] PDA — permissionless to read, writable only by the program's upgrade authority — so any client can resolve your interface from the chain. Anchor removed its own built-in IDL instructions in 1.0 and V2 inherits that removal. The trade-off: the IDL account costs rent, and the on-chain copy is only as current as its last publish — which on this lab's `--no-idl` flow means your last `idl upgrade`, and on a plain `anchor deploy` means the deploy itself, because the RC uploads the IDL by default."

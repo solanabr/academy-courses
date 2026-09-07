@@ -23,7 +23,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Because a CPI into another program can only be exercised against a live cluster, so the wiring cannot be unit-tested at all."
+            label: "Because exercising a CPI needs both programs actually deployed, so the wiring can only be checked once you are on devnet."
             correct: false
             feedback: "Tempting if you assume cross-program calls need a real validator, but they do not: LiteSVM runs the compiled programs in process, and the Surfpool localnet run in Step 8 stands the whole five-program floor up on your machine before devnet."
           - id: b

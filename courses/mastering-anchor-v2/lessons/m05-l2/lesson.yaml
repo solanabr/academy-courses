@@ -32,7 +32,7 @@ blocks:
           - id: a
             label: "Cap every reserve at u32::MAX at init so the product of two reserves always fits inside a u64."
             correct: false
-            feedback: "A u32::MAX cap does make that one product fit, but it caps pool depth at about 4.3 billion base units and still leaves the invariant check's reserve_in * reserve_out unguarded. The defect is the width of the multiply, not the size of the reserves."
+            feedback: "It guards the wrong product. Two reserves capped at u32::MAX multiply to 18,446,744,065,119,617,025, which does fit in a u64 — so reserve_in * reserve_out was never the exposure. The multiply that panicked is amount_in_with_fee * reserve_out, and amount_in is the caller's and uncapped, so capping the reserves does nothing for it while buying you a pool-depth ceiling of about 4.3 billion base units. The defect is the width of the multiply, not the size of the reserves."
           - id: b
             label: "Cast the operands to u128 before multiplying and use checked_mul, then divide down."
             correct: true
