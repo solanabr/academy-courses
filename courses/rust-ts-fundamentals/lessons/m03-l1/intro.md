@@ -129,7 +129,7 @@ Now the install-path honesty beat, because it changed recently and most tutorial
 npm i -g pnpm@11.25.0
 ```
 
-Pinned, explicit, works on every Node that has npm, which is all of them. (Version freshness: 11.25.0 is the `latest` dist-tag as I write this, 2026-09-02, and pnpm 12 is already publishing ahead of the tag, so re-check `npm view pnpm version` before you pin.) `corepack enable` still works on your Node 24 laptop today and dies on the next base image; a habit with an expiry date is a bad habit, and M6's Dockerfile will use the npm line for exactly this reason.
+Pinned, explicit, works on every Node that has npm, which is all of them. (Version freshness, and the answer changed while this course was being written: 11.25.0 held the `latest` dist-tag on 2026-09-02, but pnpm 12 took it on 2026-09-04, and a re-check on 2026-09-06 reads `latest` = 12.3.4 with the 11 line surviving under `latest-11` at 11.26.0. The course keeps pinning 11.25.0 anyway, on purpose: this digit has to match the `packageManager` field below, the CI job in step 7, and M6's Dockerfile, and `npm i -g pnpm@11.25.0` installs it no matter where `latest` has wandered. That is what a pin is for. For a repo of your own, run `npm view pnpm dist-tags` and choose deliberately.) `corepack enable` still works on your Node 24 laptop today and dies on the next base image; a habit with an expiry date is a bad habit, and M6's Dockerfile will use the npm line for exactly this reason.
 
 ![A timeline runs from the 2025 corepack removal vote through Node 25 dropping it to the pinned npm install command that outlives the change.](assets/v03-timeline.webp)
 

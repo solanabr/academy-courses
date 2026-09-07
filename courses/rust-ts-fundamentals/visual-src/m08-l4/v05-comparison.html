@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: Two fee-payer setters, one rule: pick a form and stay in it
      purpose: inoculate against the copy-paste failure of mixing address-form and Signer-form pipelines from different tutorials
-     data: setTransactionMessageFeePayer(address, m): takes a bare address; used in the kit repo's transfer-lamports example; you attach signing knowledge separately. setTransactionMessageFeePayerSigner(signer, m): takes the signer object; documented at solanakit.com; signTransactionMessageWithSigners can then find every required signer itself; the form this course and solana-client-side-mastery teach. Failure mode: copying the message build from one tutorial and the signing step from another, so the signing step cannot find the signer it expects.
+     data: setTransactionMessageFeePayer(address, m): takes a bare address; used in the kit repo's transfer-lamports example; you attach signing knowledge separately. setTransactionMessageFeePayerSigner(signer, m): takes the signer object; documented at solanakit.com; signTransactionMessageWithSigners can then find every required signer itself; the form this course teaches, on solanakit.com's authority. Both forms are real. Failure mode: copying the message build from one tutorial and the signing step from another, so the signing step cannot find the signer it expects.
      prompt: Side-by-side comparison of the two setter signatures as code-styled cards, each with its source attribution beneath (kit repo example vs solanakit.com docs) and a badge on the Signer form reading "taught here". A warning strip below both describes the mixed-tutorial failure mode from the data.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -52,7 +52,7 @@
           <p class="sig">setTransactionMessageFeePayerSigner(<br>&nbsp;&nbsp;signer, message)</p>
           <p class="sub">takes the signer object; signTransactionMessageWithSigners then finds every required signer itself</p>
         </div>
-        <p class="attr"><strong>source:</strong> solanakit.com docs &middot; the form this course and solana-client-side-mastery teach</p>
+        <p class="attr"><strong>source:</strong> solanakit.com docs &middot; the form this course teaches</p>
       </div>
     </div>
     <div style="margin-top:24px; background:var(--stbr-emerald); border-radius:var(--radius-lg); padding:17px 26px; display:flex; align-items:center; gap:18px;">

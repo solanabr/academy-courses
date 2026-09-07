@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- timeline: The blockhash lifetime window
-     purpose: make the roughly one minute expiry concrete so build-then-wait-then-send is understood as guaranteed failure
+     purpose: make the roughly 45 second expiry concrete (150 slots x 300ms) so build-then-wait-then-send is understood as guaranteed failure
      data: t=0s: rpc.getLatestBlockhash() fetched t=0-2s: message built, signed, sent (the happy path, well inside the window) t=~45s: blockhash no longer recent (150 slots x the course's taught 300ms slot time); network rejects the transaction t=120s: the build-at-startup-send-later script from the footgun arrives here: dead on arrival, every time annotation: "expiry is a feature: dead transactions stay dead instead of landing hours later"
-     prompt: Horizontal timeline from t=0 to t=120s with the four events from the data placed as markers. Shade the region up to roughly 60s as the valid window and the region after it as expired; the happy-path send sits inside the window, the delayed send clearly outside. The feature annotation goes under the expired region.
+     prompt: Horizontal timeline from t=0 to t=120s with the four events from the data placed as markers. Shade the region up to roughly 45s as the valid window and the region after it as expired; the happy-path send sits inside the window, the delayed send clearly outside. The feature annotation goes under the expired region.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).

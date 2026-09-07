@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: One signature, three homes: where a key lives changes custody, not math
      purpose: defuse the "is a file keypair a toy?" doubt and mark the wallet boundary as a course seam, not a capability gap
-     data: Center: 32-byte Ed25519 seed -> derived public key = your address -> identical signature math in all three homes. Home 1: gitignored seed file (this lesson): zero UX, full custody on you, worthless devnet SOL only. Home 2: browser wallet: connection UX, signing prompts, wallet-standard -> taught in solana-client-side-mastery. Home 3: hardware device: key never leaves the chip -> out of scope here. Banner: the network verifies the signature, never asks where the key lived.
+     data: Center: 32-byte Ed25519 seed -> derived public key = your address -> identical signature math in all three homes. Home 1: gitignored seed file (this lesson): zero UX, full custody on you, worthless devnet SOL only. Home 2: browser wallet: connection UX, signing prompts, wallet-standard -> the client-side sibling course's territory, in production as this was written, so no slug is quoted. Home 3: hardware device: key never leaves the chip -> out of scope here. Banner: the network verifies the signature, never asks where the key lived.
      prompt: Hub-and-spoke diagram: the seed-to-address derivation as the hub, three spokes for the file, browser wallet, and hardware homes with their one-line custody notes from the data. Mark the browser-wallet spoke with a course-seam badge naming the sibling course. Banner sentence along the bottom.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -62,7 +62,7 @@
         <ul><li>zero UX</li><li>full custody on you</li><li>worthless devnet SOL only</li></ul>
       </div>
       <div class="home" style="border-color:var(--stbr-emerald); border-width:3px;">
-        <span class="chip" style="background:var(--stbr-yellow); color:var(--stbr-dark);">course seam &rarr; solana-client-side-mastery</span>
+        <span class="chip" style="background:var(--stbr-yellow); color:var(--stbr-dark);">course seam &rarr; the client-side course</span>
         <h4>browser wallet</h4>
         <ul><li>connection UX</li><li>signing prompts</li><li>wallet-standard</li></ul>
       </div>

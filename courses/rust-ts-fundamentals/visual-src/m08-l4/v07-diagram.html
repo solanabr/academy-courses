@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: Resolve vs throw: what each outcome proves
      purpose: pin the asymmetry that defines tx-check's exit codes, resolving is proof but throwing is only suspicion
-     data: outcome A, promise resolves: transaction confirmed at "confirmed" commitment -> PROOF the write path works -> exit 0 outcome B, promise throws: one of three worlds, (1) transaction rejected, (2) expired unlanded, (3) websocket hiccup while the network confirmed it anyway -> SUSPICION, not proof of failure -> exit nonzero footer: fine for a health check (a false alarm costs one re-run); a bug with a body count for real value, retry-and-dedup discipline lives in client-side mastery
+     data: outcome A, promise resolves: transaction confirmed at "confirmed" commitment -> PROOF the write path works -> exit 0 outcome B, promise throws: one of three worlds, (1) transaction rejected, (2) expired unlanded, (3) websocket hiccup while the network confirmed it anyway -> SUSPICION, not proof of failure -> exit nonzero footer: fine for a health check (a false alarm costs one re-run); a bug with a body count for real value, retry-and-dedup discipline is the client-side course's landing science, handed off here
      prompt: Two-branch outcome diagram from a single "await sendAndConfirm(...)" node. The resolve branch leads to one green proof box and exit 0; the throw branch fans into the three possible worlds from the data before converging on an amber exit-nonzero box. Footer line spans the bottom.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -74,7 +74,7 @@
       </div>
     </div>
     <div style="margin-top:22px; background:var(--surface-paper); border:2px solid var(--border-subtle); border-radius:var(--radius-lg); padding:14px 24px;">
-      <p style="margin:0; font-family:var(--font-body); font-size:15.5px; color:var(--text-primary); line-height:1.4;">fine for a health check: a false alarm costs one re-run. For real value it&rsquo;s a bug with a body count; retry-and-dedup discipline lives in <strong>solana-client-side-mastery</strong>.</p>
+      <p style="margin:0; font-family:var(--font-body); font-size:15.5px; color:var(--text-primary); line-height:1.4;">fine for a health check: a false alarm costs one re-run. For real value it&rsquo;s a bug with a body count; retry-and-dedup discipline is the landing science this lesson hands off.</p>
     </div>
   </div>
 </div>
