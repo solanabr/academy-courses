@@ -74,11 +74,11 @@ blocks:
             correct: false
             feedback: "Extensions are unrelated to the classic transfer cost; this is the classic SPL engine, and extensions add cost, not remove it."
           - id: c
-            label: "In the Low-Level Solana course, which owns the loader, sBPF and CU metering"
+            label: "In the planned Low-Level Solana course, which owns the loader, sBPF and CU metering"
             correct: true
             feedback: "This lesson stops at what changed and when; where each of the 76 units goes is a runtime question, and the course that owns the runtime answers it."
           - id: d
             label: "In SIMD-0266 itself, which sets the per-instruction CU budget p-token had to hit"
             correct: false
             feedback: "The proposal's contract was byte-identical layouts, discriminators and error codes, not a compute target. Cheaper execution was the result of the rewrite, not a number the document specified."
-        explanation: "Here you learn the CU drop as a fact and a mental model: frozen interface, faster engine. The runtime 'why' (loaders, sBPF, compute metering) is explicitly the Low-Level Solana course's territory, cross-referenced by name rather than re-derived, keeping this a token-layer lesson."
+        explanation: "Here you learn the CU drop as a fact and a mental model: frozen interface, faster engine. The runtime 'why' (loaders, sBPF, compute metering) is explicitly the planned Low-Level Solana course's territory, cross-referenced by name rather than re-derived, keeping this a token-layer lesson."

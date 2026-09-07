@@ -12,7 +12,7 @@
 <body>
 <!-- comparison: What one NFT mint creates, Token Metadata versus Core
      purpose: make the account sprawl visible so the vendor cost numbers have a mechanical explanation
-     data: Token Metadata mint: mint account (SPL) + associated token account + metadata PDA (Metaplex-owned) + master edition PDA; pNFT path adds token record. Vendor-published cost ~0.022 SOL, ~205,000 CU. Core mint: one asset account (base fields + plugin list in the same bytes). Vendor-published cost ~0.0029 SOL, ~17,000 CU. Attribution line: figures are Metaplex's published benchmark, not independently measured.
+     data: Token Metadata mint: mint account (SPL) + associated token account + metadata PDA (Metaplex-owned) + master edition PDA; pNFT path adds token record. Vendor-published cost ~0.022 SOL, ~205,000 CU. Core mint: one asset account (base fields + plugin list in the same bytes). Vendor-published cost ~0.003 SOL, ~17,000 CU. Attribution line: figures are Metaplex's published benchmark, not independently measured.
      prompt: Two-column comparison. Left column titled "Token Metadata" stacks four account boxes (mint, ATA, metadata PDA, master edition PDA) with a dashed fifth (token record, pNFT only); right column titled "Core" shows a single account box with an inner stack labeled base asset + plugins. Under each column a cost strip with the SOL and CU figures. A footnote strip across the bottom: "vendor-published (Metaplex benchmark)".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -91,7 +91,7 @@
         </div>
       </div>
       <div class="cost hot">
-        <span class="cost-num">~0.0029 SOL</span><span class="cost-sep">&middot;</span>
+        <span class="cost-num">~0.003 SOL</span><span class="cost-sep">&middot;</span>
         <span class="cost-num">~17,000 CU</span>
         <span class="cost-cap">1 account</span>
       </div>

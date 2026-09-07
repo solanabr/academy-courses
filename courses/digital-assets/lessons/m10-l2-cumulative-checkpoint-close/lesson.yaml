@@ -43,7 +43,7 @@ blocks:
         multiSelect: false
         options:
           - id: b
-            label: "The DeFi and RWA Engineering course, where RWA issuance and the compliance rails around it live"
+            label: "The planned DeFi and RWA Engineering course, where RWA issuance and the compliance rails around it live"
             correct: true
             feedback: "Everything it assumes on the token layer is what you just built, which is why the hand-off is a front door rather than a window."
           - id: c
@@ -55,10 +55,10 @@ blocks:
             correct: false
             feedback: "This course taught you to read a compliance-shaped mint and refused the legal and issuer framing that turns one into a regulated instrument. Reading PYUSD is not structuring an issuance."
           - id: a
-            label: "The Client-Side Mastery course, since KYC checks and compliance screens ultimately run in the client and indexing layer the user touches"
+            label: "The planned Client-Side Mastery course, since KYC checks and compliance screens ultimately run in the client and indexing layer the user touches"
             correct: false
             feedback: "That course owns indexing infrastructure and transaction-landing, not RWA issuance or compliance framing."
-        explanation: "This course teaches the compliance-shaped primitives (freeze, permanent delegate, default-frozen, hooks) but deliberately refuses the legal and issuer framing. That RWA-specific issuance and compliance work is the DeFi and RWA Engineering course's territory, and it builds directly on the primitives taught here."
+        explanation: "This course teaches the compliance-shaped primitives (freeze, permanent delegate, default-frozen, hooks) but deliberately refuses the legal and issuer framing. That RWA-specific issuance and compliance work is the planned DeFi and RWA Engineering course's territory, and it builds directly on the primitives taught here."
       - id: q3
         prompt: "A checkpoint brief asks for a soulbound achievement badge minted to a million holders cheaply. Which taught primitive fits, and what makes the answer a 2026 answer?"
         multiSelect: false

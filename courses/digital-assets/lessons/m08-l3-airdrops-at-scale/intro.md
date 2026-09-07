@@ -270,7 +270,7 @@ Compressed balances also need a compression RPC to read, they usually want decom
 
 The claim path has its own bill. It adds a program dependency, in this case one whose repository has been quiet since 2025-04-30. It requires a second transaction per recipient for the vesting portion, and a third, and a fourth, because linear vesting means a claimant returns as often as they care to. It pushes about 1.3 million lamports of cost onto each claimant. And it needs an off-chain artifact, the tree and its proofs, hosted somewhere your users can reach.
 
-One boundary before the lab. Reading compressed state through a DAS or Photon RPC is consumption, and that is where this course stops. Standing up the indexer underneath it, Geyser plugins, gRPC streams, backfills, is the Client-Side Mastery course's territory, where provider choice and index reliability are first-class problems rather than a line in a lab.
+One boundary before the lab. Reading compressed state through a DAS or Photon RPC is consumption, and that is where this course stops. Standing up the indexer underneath it, Geyser plugins, gRPC streams, backfills, is the planned Client-Side Mastery course's territory, where provider choice and index reliability are first-class problems rather than a line in a lab.
 
 ## Lab: build the compost-airdrop
 

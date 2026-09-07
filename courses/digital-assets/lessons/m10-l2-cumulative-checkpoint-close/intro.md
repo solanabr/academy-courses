@@ -46,7 +46,7 @@ The trap in this row is a `TransferHook`, and it is a tempting one. Logging ever
 
 The badge brief is the one that separates a current mental model from an inherited one, because it stacks two constraints that used to be answered by two different primitives.
 
-Cheap at a million is compression's job and nothing else's. Metaplex Core is genuinely cheap per asset at about 0.0029 SOL, vendor-published, which is a wonderful number right up until you multiply it by a million and get roughly 2,900 SOL. A Bubblegum v2 tree sized for a million leaves is 1,223,352 bytes, which lands in the single digits of SOL at any rent rate the network has charged this year. That is a better deal by more than two orders of magnitude, the kind of gap where the arithmetic does the deciding, not taste.
+Cheap at a million is compression's job and nothing else's. Metaplex Core is genuinely cheap per asset at about 0.003 SOL, vendor-published, which is a wonderful number right up until you multiply it by a million and get roughly 3,000 SOL. A Bubblegum v2 tree sized for a million leaves is 1,223,352 bytes, which lands in the single digits of SOL at any rent rate the network has charged this year. That is a better deal by more than two orders of magnitude, the kind of gap where the arithmetic does the deciding, not taste.
 
 Not sellable is the half that used to break this. Folklore from 2024 says compressed NFTs cannot be frozen or made soulbound, which was true then and is simply false now. Bubblegum v2 ships `set_non_transferable_v2`, and a compressed NFT can be soulbound at mint. So the row is a cNFT under the club's collection, made non-transferable, with a gate as its rail, and the verdict cell reads not applicable because a soulbound badge was never going to a pool.
 
@@ -153,7 +153,7 @@ export function isRoutable(row: DecisionRow): boolean {
   return row.set.every((e) => RAYDIUM_CP_SWAP_ALLOWLIST.includes(e));
 }
 
-const SOL_PER_CORE_ASSET = 0.0029;
+const SOL_PER_CORE_ASSET = 0.003; // Metaplex's published ~0.003, read 2026-09-07
 // Module 7's depth-20 / buffer-256 / canopy-14 tree: 1,223,352 bytes.
 // Scaling this linearly is a deliberate simplification. Tree rent is set by
 // depth, buffer and canopy, not by leaf count, so a small tree costs MORE per
@@ -281,7 +281,7 @@ main();
 npx tsx score-table.ts
 ```
 
-You should see three FAIL lines and `0/3 rows survive the rules` at exit 1. The cafe row fails on the hook, the badge row fails on 2,900 SOL, and the co-op row fails because I left the rail cell empty. Read those three messages carefully, because they are the three ways a decision table goes wrong in practice: a feature that beats a constraint, a primitive whose cost only shows up when you multiply, and a plan with no value moving through it.
+You should see three FAIL lines and `0/3 rows survive the rules` at exit 1. The cafe row fails on the hook, the badge row fails on 3,000 SOL, and the co-op row fails because I left the rail cell empty. Read those three messages carefully, because they are the three ways a decision table goes wrong in practice: a feature that beats a constraint, a primitive whose cost only shows up when you multiply, and a plan with no value moving through it.
 
 **4.** Now paste your own three rows over `MY_TABLE`, exactly as you wrote them by hand, including the parts you are unsure about. Do not fix them on the way in. The point is to score what your memory produced, not what your memory produced plus fifteen seconds of second-guessing.
 
@@ -336,11 +336,11 @@ When I ran that on 2026-08-22 it printed `ACTIVE at slot 419472000`, the first s
 
 The honest limit, stated plainly, because that has been the deal all along. This course made you fluent in the token and asset layer and in its compatibility reality. It stopped at the graduation edge on purpose. No AMM design, no LP depth, no pool math beyond deriving one threshold from published constants. It refused the legal and issuer framing that turns a compliance-shaped extension set into an actual regulated instrument. It used Anchor for exactly one 40-line hook program and taught you none of the framework. It never touched transaction landing, priority fees, or indexing infrastructure at scale, and it stayed above the runtime the whole way.
 
-Every one of those is somebody's course, and I can tell you whose.
+Every one of those is somebody's course, and I can tell you whose — with one caveat you deserve up front, because a hand-off to a door that does not open is worse than no hand-off at all. Of the three below, only **Master Anchor V2** is published today. The other two are planned and not yet shipped, so treat them as a map of the territory and where its edges are, not as links you can click this afternoon. The catalog is the source of truth for what actually exists.
 
-The **DeFi and RWA Engineering** course is the one that takes the primitives you just learned and makes them into an issuance business: RWA-specific issuance, the compliance rails around it, how live issuers actually structure their programs, and the LP depth that this course kept handing off by name. Everything it assumes on the token layer is what you just built, so you are walking in the front door rather than climbing through a window. If your row three, the co-op share, felt like it wanted a lawyer in the room, that is the course where the lawyer shows up.
+The planned **DeFi and RWA Engineering** course is the one that takes the primitives you just learned and makes them into an issuance business: RWA-specific issuance, the compliance rails around it, how live issuers actually structure their programs, and the LP depth that this course kept handing off by name. Everything it assumes on the token layer is what you just built, so you are walking in the front door rather than climbing through a window. If your row three, the co-op share, felt like it wanted a lawyer in the room, that is the course where the lawyer shows up.
 
-The **Client-Side Mastery** course owns everything that happens between your script and the chain. Transaction landing and priority fees, the indexing layer underneath a DAS call, Geyser and gRPC when a rented index is not enough. Every time this course said "your reader script assumes an RPC that supports DAS" and moved on, that was the seam. That course is on the other side of it.
+The planned **Client-Side Mastery** course owns everything that happens between your script and the chain. Transaction landing and priority fees, the indexing layer underneath a DAS call, Geyser and gRPC when a rented index is not enough. Every time this course said "your reader script assumes an RPC that supports DAS" and moved on, that was the seam. That course is on the other side of it.
 
 The **Master Anchor V2** course is the framework itself. Macros, constraints, CPI mechanics, testing, migration. You wrote one hook program here and I told you what to type, deliberately, because a transfer hook is a token concept and Anchor is a framework concept and mixing them would have made both worse. If that program was the most interesting forty lines of the course for you, that is your next door.
 

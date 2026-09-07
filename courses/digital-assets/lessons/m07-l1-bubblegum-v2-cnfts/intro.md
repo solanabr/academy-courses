@@ -70,7 +70,7 @@ main().catch((e) => {
 
 One account. Six and a bit SOL. A million NFTs. That third line is roughly 0.000006 SOL each. Price it at the $150/SOL anchor this lesson uses throughout and the whole tree runs under a thousand dollars: the price of a decent laptop, for an airdrop that per-asset accounts price in the hundreds of thousands. (If you want the small anchor instead: one coffee's worth of SOL covers a few thousand crates' worth of leaves.)
 
-Your first line may not say 5,080, and if it does not, nothing here is broken. Metaplex publishes roughly 8.5 SOL for this exact tree, which was the right answer at 6,960 lamports per byte, the rate every cluster charged before SIMD-0437 started stepping it down. Mainnet moved to 6,333 on 2026-09-03; devnet is a step further along at 5,080; a surfpool fork was still serving 6,960 when I checked on 2026-09-06, because a fork inherits mainnet's accounts and not necessarily its rent schedule. Same bytes, three different bills. This is the first of many numbers in this course that belongs to the world rather than to the page, and the reason the script asks rather than asserts.
+Your first line may not say 5,080, and if it does not, nothing here is broken. Metaplex publishes 8.5012 SOL for a million-leaf tree, and that was the right answer at 6,960 lamports per byte, the rate every cluster charged before SIMD-0437 started stepping it down. Their row is not quite this tree, and step 3 makes the difference explicit: they publish depth 20 with buffer 1024 and canopy 13, this lesson builds buffer 256 and canopy 14, and the two land 0.17% apart by coincidence rather than by agreement. Mainnet moved to 6,333 on 2026-09-03; devnet is a step further along at 5,080; a surfpool fork was still serving 6,960 when I checked on 2026-09-06, because a fork inherits mainnet's accounts and not necessarily its rent schedule. Same bytes, three different bills. This is the first of many numbers in this course that belongs to the world rather than to the page, and the reason the script asks rather than asserts.
 
 Today you build that tree for real. The autonomy fade, out loud: the theory and the tree-cost derivation are worked in full, the tree spec is yours to choose and defend (step 5 makes you derive the depth and justify the buffer and canopy before minting your first crate), and the soulbound achievement crate plus its transfer-rejection proof are entirely yours, solo, with only the two function signatures fixed for you.
 
@@ -78,7 +78,7 @@ Today you build that tree for real. The autonomy fade, out loud: the theory and 
 
 ### The number that forces the design
 
-Here is the pain in dollars, priced from the floor up. The cheapest per-asset account on Solana is a bare 165-byte SPL token account; ask a cluster what one costs (`solana rent 165`) and mainnet answered 0.00185 SOL on 2026-09-06. That is the most charitable possible comparator: any real NFT shape costs more. Mint a million of anything that needs even that minimal account and you are holding on the order of 1,900 SOL of rent hostage; at $150 per SOL that is nearly $300,000, locked up, to hand out a crate. And the Core assets you shipped last module do not rescue you: at the vendor-published ~0.0029 SOL per asset, a million Core crates run about 2,900 SOL. Cheap per asset, roughly forty US cents each at that SOL price, is still a house at fleet scale. Per-asset anything is the problem.
+Here is the pain in dollars, priced from the floor up. The cheapest per-asset account on Solana is a bare 165-byte SPL token account; ask a cluster what one costs (`solana rent 165`) and mainnet answered 0.00185 SOL on 2026-09-06. That is the most charitable possible comparator: any real NFT shape costs more. Mint a million of anything that needs even that minimal account and you are holding on the order of 1,900 SOL of rent hostage; at $150 per SOL that is nearly $300,000, locked up, to hand out a crate. And the Core assets you shipped last module do not rescue you: at the vendor-published ~0.003 SOL per asset, a million Core crates run about 3,000 SOL. Cheap per asset, roughly forty US cents each at that SOL price, is still a house at fleet scale. Per-asset anything is the problem.
 
 That number is not a hypothetical anyone invented for a course. Solana had already blown past 500 million accounts and was adding roughly a million a day by November 2024, which is exactly the pressure that produced state compression in the first place (Helius wrote this up around their ZK-compression keynote, 2024-11-25; treat the counts as their snapshot, not a live reading). Every one of those accounts is a validator's RAM. The chain was growing a storage problem faster than it was growing users.
 
@@ -226,10 +226,13 @@ const targetSupply = Number(process.argv[2] ?? 1_000_000);
 const maxBufferSize = Number(process.argv[3] ?? 256);
 const maxDepth = depthForSupply(targetSupply);
 
-// The rate the vendor's headline figure was quoted at, before SIMD-0437.
-// Kept only so the comparison below can rescale their number to yours.
+// Metaplex's published million-leaf row, copied exactly: depth 20 with buffer
+// 1024 and canopy 13, at 8.5012 SOL. Note the spec, because it is NOT the one
+// this sweep runs. The rate is the pre-SIMD-0437 6,960 their page was written
+// under, kept only so the comparison below can rescale their number to yours.
+const VENDOR_SPEC = { maxDepth: 20, maxBufferSize: 1024, canopyDepth: 13 };
 const RATE_BEHIND_THE_VENDOR_FIGURE = 6960;
-const VENDOR_SOL_AT_THAT_RATE = 8.5;
+const VENDOR_SOL_AT_THAT_RATE = 8.5012;
 
 async function main(): Promise<void> {
   const rate = await readLamportsPerByte(RPC);
@@ -247,22 +250,27 @@ async function main(): Promise<void> {
     console.log(line);
   }
 
-  // The vendor's headline figure is quoted for exactly one spec AND at one
-  // rent rate, so only check against it when this run IS that spec, and
-  // rescale their SOL to the rate you just read before comparing. Comparing
-  // a 6,960-era number against a 5,080-era derivation is a unit error, not a
-  // finding.
-  if (maxDepth === 20 && maxBufferSize === 256) {
-    const derived = treeCostSol({ maxDepth: 20, maxBufferSize: 256, canopyDepth: 14 }, rate);
+  // Check the derivation against the vendor by deriving THEIR spec, not ours.
+  // Their number is quoted for exactly one configuration AND at one rent rate,
+  // so reproduce the configuration and rescale the rate before comparing;
+  // holding a 6,960-era number against a 5,080-era derivation would be a unit
+  // error, not a finding. Doing it this way makes the check real: it agrees to
+  // four decimal places, which is a verification. Pointing the same check at
+  // OUR spec would also have printed MATCH, and that would have been luck.
+  if (maxDepth === 20) {
     const vendorAtYourRate = VENDOR_SOL_AT_THAT_RATE * (rate / RATE_BEHIND_THE_VENDOR_FIGURE);
-    console.log(`\nvendor figure: ~${VENDOR_SOL_AT_THAT_RATE} SOL for ~1,000,000 cNFTs, quoted at ${RATE_BEHIND_THE_VENDOR_FIGURE} lamports/byte`);
-    console.log(`  rescaled to your rate: ~${vendorAtYourRate.toFixed(3)} SOL`);
-    console.log(`derived     : ${derived.toFixed(3)} SOL at depth 20 / buffer 256 / canopy 14`);
+    const theirs = treeCostSol(VENDOR_SPEC, rate);
+    const ours = treeCostSol({ maxDepth: 20, maxBufferSize, canopyDepth: 14 }, rate);
+    console.log(`\nvendor row : ${VENDOR_SOL_AT_THAT_RATE} SOL, depth 20 / buffer 1024 / canopy 13, quoted at ${RATE_BEHIND_THE_VENDOR_FIGURE} lamports/byte`);
+    console.log(`  rescaled to your rate: ${vendorAtYourRate.toFixed(4)} SOL`);
+    console.log(`derived, their spec  : ${theirs.toFixed(4)} SOL`);
     console.log(
-      Math.abs(derived - vendorAtYourRate) < 0.02 * vendorAtYourRate
-        ? "MATCH within rounding"
+      Math.abs(theirs - vendorAtYourRate) < 0.005 * vendorAtYourRate
+        ? "MATCH - the derivation reproduces the published row"
         : "MISMATCH - re-check the spec",
     );
+    console.log(`derived, this sweep  : ${ours.toFixed(4)} SOL at depth 20 / buffer ${maxBufferSize} / canopy 14`);
+    console.log(`  a DIFFERENT tree that lands ${(((ours - theirs) / theirs) * 100).toFixed(2)}% away - near, not the same`);
   }
 }
 
@@ -286,13 +294,15 @@ canopy   bytes        SOL      proof nodes on the wire
   13      699064      3.552           7
   14     1223352      6.215           6
 
-vendor figure: ~8.5 SOL for ~1,000,000 cNFTs, quoted at 6960 lamports/byte
-  rescaled to your rate: ~6.204 SOL
-derived     : 6.215 SOL at depth 20 / buffer 256 / canopy 14
-MATCH within rounding
+vendor row : 8.5012 SOL, depth 20 / buffer 1024 / canopy 13, quoted at 6960 lamports/byte
+  rescaled to your rate: 6.2049 SOL
+derived, their spec  : 6.2049 SOL
+MATCH - the derivation reproduces the published row
+derived, this sweep  : 6.2153 SOL at depth 20 / buffer 256 / canopy 14
+  a DIFFERENT tree that lands 0.17% away - near, not the same
 ```
 
-Read that table twice, because it is the single most useful thing in this lesson, and read it down the BYTES column first, because that column is physics and the SOL column is policy. A million-leaf tree with no canopy at all is 174,840 bytes; with the vendor's canopy 14 it is 1,223,352. Seven times the account, and therefore seven times the rent, at any rate the network ever charges. Six-sevenths of that famous figure, whatever it is denominated in this month, is canopy. What you are buying with it is a drop from twenty proof nodes to six, which is the difference between "my transfer instruction fits" and "my transfer instruction does not fit." The vendor's headline figure silently encodes a canopy choice, and now you know which one, and now you can pick a different one on purpose.
+Read that table twice, because it is the single most useful thing in this lesson, and read it down the BYTES column first, because that column is physics and the SOL column is policy. A million-leaf tree with no canopy at all is 174,840 bytes; at canopy 14 it is 1,223,352. Seven times the account, and therefore seven times the rent, at any rate the network ever charges. Six-sevenths of that famous figure, whatever it is denominated in this month, is canopy. What you are buying with it is a drop from twenty proof nodes to six, which is the difference between "my transfer instruction fits" and "my transfer instruction does not fit." And note what the check above just showed you: the vendor's own row buys almost exactly the same account a different way, canopy 13 with a buffer four times deeper, which is the same money spent on write concurrency instead of on proof length. Their headline figure silently encodes both choices, you now know which ones, and you can pick differently on purpose.
 
 My own bias, for what it is worth: I have watched more projects get burned by an undersized canopy than by an oversized one, because rent is a number you see on day zero and a blown transaction size is a number you see on drop day. If you are unsure, buy the canopy.
 
@@ -369,7 +379,7 @@ Compression trades cheap mints for read complexity and write coupling. Both halv
 
 **Writes need a fresh proof.** Every transfer, burn, freeze, and metadata update carries proof nodes, which means every write is coupled to the tree's current state and races every other write against the same tree.
 
-**And rent is not the whole bill.** Whatever the tree cost you, it bought the tree. It does not buy the million transactions that fill it. Each `mint_v2` is a transaction with its own base fee and, on any day worth dropping on, its own priority fee, and no amount of clever tree sizing makes that go away. Batching several mints into one transaction helps a lot and is the standard move for a real drop, but the ceiling on how many fit is set by transaction size, which is set by proof length, which is set by your canopy. The canopy decision reaches further than the rent line suggests. Landing a large batch reliably is a client-side discipline in its own right, and the Client-Side Mastery course owns that territory: priority fees, retries, and how to keep a batch from silently half-succeeding.
+**And rent is not the whole bill.** Whatever the tree cost you, it bought the tree. It does not buy the million transactions that fill it. Each `mint_v2` is a transaction with its own base fee and, on any day worth dropping on, its own priority fee, and no amount of clever tree sizing makes that go away. Batching several mints into one transaction helps a lot and is the standard move for a real drop, but the ceiling on how many fit is set by transaction size, which is set by proof length, which is set by your canopy. The canopy decision reaches further than the rent line suggests. Landing a large batch reliably is a client-side discipline in its own right, and the planned Client-Side Mastery course owns that territory: priority fees, retries, and how to keep a batch from silently half-succeeding.
 
 **And the sizing decisions are one-way.** Undersize `max_depth` and your supply cap is permanent. Undersize the canopy and every client transaction carries longer proofs forever, which can push a write past the transaction size limit at exactly the moment you have the most writes.
 
@@ -472,7 +482,7 @@ export DAS_RPC_URL="https://devnet.helius-rpc.com/?api-key=YOUR_KEY"
     npx tsx tree-cost.ts 16384 64
     ```
 
-    That prints the canopy sweep for a 16,384-leaf tree. The vendor prices this size at about 0.34 SOL, and their page predates the rent cut, so match on BYTES rather than on SOL: canopy 8 is 48,120 bytes, which was 0.336 SOL at 6,960 lamports/byte and prints as 0.245 SOL on devnet today. The sweep will also show you canopy 0 at 31,800 bytes, two-thirds the account and fourteen proof nodes on every client write instead of six. Same shape as the million-leaf table, two orders of magnitude down.
+    That prints the canopy sweep for a 16,384-leaf tree. This one you can match exactly, unlike the million-leaf row: Metaplex publishes depth 14 with buffer 64 and canopy 8 at 0.3358 SOL, which is precisely the spec this lab builds. Their page predates the rent cut, so match on BYTES rather than on SOL: canopy 8 is 48,120 bytes, which is 0.3358 SOL at 6,960 lamports/byte and prints as 0.245 SOL on devnet today. The sweep will also show you canopy 0 at 31,800 bytes, two-thirds the account and fourteen proof nodes on every client write instead of six. Same shape as the million-leaf table, two orders of magnitude down.
 
 4. **Create the tree and mint a crate (worked; step 5 hands you the spec decisions).** Here is the main script. Read the whole thing before running it.
 
