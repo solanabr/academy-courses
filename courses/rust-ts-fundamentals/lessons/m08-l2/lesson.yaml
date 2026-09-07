@@ -65,7 +65,7 @@ blocks:
             correct: false
             feedback: "Forcing past a peer error ships a version mismatch that fails at runtime instead of install time, strictly worse. The error is the package manager reading the contract for you."
           - id: d
-            label: "Pin @solana-program/system to the same major digit as kit, since the two ship in lockstep"
+            label: "Pin @solana-program/system to the same major as kit, since the two ship in lockstep"
             correct: false
             feedback: "The digits never lined up: at write time the client sat at 0.14.1 while peering @solana/kit ^8.0.0. Generated clients version on their own schedule and declare the kit range they were built against, which is the only place the pairing is written down."
         explanation: "Kit shipped two majors in just over nine weeks; any digit written into a tutorial (or this course) pre-rots. The durable rule from m03-l1, now paying off: read the peerDependencies of the packages you actually depend on, per workspace, and pin to what they demand. Digits belong only in install lines verified at the time you run them."

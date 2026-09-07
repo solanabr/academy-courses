@@ -69,7 +69,7 @@ blocks:
             correct: true
             feedback: "Run the loop arithmetic: 288 runs a day at 12 targets and 60 inner passes is 207,360 lines, over budget on noise alone. Emit at boundaries instead and the same day costs a few hundred events, which is the platform enforcing the rule this lesson already argued for."
           - id: d
-            label: "The KV free write limit of 1,000 writes a day, since each logged event is persisted before collection"
+            label: "The KV free write limit of 1,000 writes a day, since each logged event is persisted to KV before it is collected"
             correct: false
             feedback: "Logging and KV are unrelated paths here. Your events go to stdout and Workers Logs collects them; KV is where the station deliberately persists what it must remember, which is a much smaller set of writes than a log stream."
         explanation: "200,000 events/day sounds enormous until a loop logs per target per pass: a 5-minute cron over a dozen targets with chatty inner loops crosses it easily. The budget is the platform enforcing the lesson's own rule, boundary events (result, flip, error) carry all the forensic value at a fraction of the volume."
@@ -106,7 +106,7 @@ blocks:
             correct: false
             feedback: "GitHub's own docs say the opposite: scheduled events are best-effort, can be delayed, and under sufficient load queued jobs may be dropped. Silence is a documented outcome, not proof of sabotage."
           - id: b
-            label: "Best-effort scheduling can drop queued jobs under load, and 60 days of repo inactivity auto-disables the schedule, neither produces a failed run to notify about"
+            label: "Best-effort scheduling can drop queued jobs under load, and 60 days of repo inactivity auto-disables the schedule, neither produces a failed run"
             correct: true
             feedback: "GitHub says it in writing: scheduled events can be delayed, and under sufficient load some queued jobs may be dropped. Both silent deaths leave the same trace, which is none, and that is why the station also commits heartbeat timestamps where an absence is visible to anything that looks."
           - id: c
@@ -135,7 +135,7 @@ blocks:
             correct: true
             feedback: "One rule wearing four costumes: committed configuration stays public, injected values stay out of the repo. Pair it with the logging rule this lesson opened with, never log the environment, or the sweep's work reappears inside a retained log line."
           - id: d
-            label: "Actions repository secrets; Vercel dashboard env vars; Cloudflare wrangler secret put; Docker an ENV line, since the image stays in a private registry"
+            label: "Actions repository secrets; Vercel dashboard env vars; Cloudflare wrangler secret put with .dev.vars; Docker an ENV line, since the image stays in a private registry"
             correct: false
             feedback: "Three rows right and one that undoes them: docker history prints every layer of an image, ENV instructions included, so a private registry protects the value only until someone pulls the image. Pass it at run time with --env-file or compose env_file instead."
         explanation: "The four-platform table in one breath: every platform separates committed configuration from injected secrets, repo secrets for Actions, dashboard env vars (pulled with `vercel env pull`) for Vercel, `wrangler secret put` plus `.dev.vars` for Cloudflare, and `--env-file`/`env_file` for Docker so images stay secret-free. The companion rule from the logging beat: never log the environment, or the sweep's work ends up in a retained log line."

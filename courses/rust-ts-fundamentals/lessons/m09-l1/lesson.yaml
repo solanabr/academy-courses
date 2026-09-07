@@ -42,7 +42,7 @@ blocks:
             correct: true
             feedback: "Severity rates the bug as if every user ran it in the worst position; the path rates you. Id, range, patched version, path, and only then severity is the reading order, and pnpm why or cargo tree -i answers the path question in ten seconds."
           - id: d
-            label: "Mark it accept-risk without tracing the path, since a build-time advisory never reaches the runtime exposure that really matters"
+            label: "Mark it accept-risk without tracing the path, since a build-time advisory never reaches runtime exposure"
             correct: false
             feedback: "Build tooling runs on your laptop and in CI, which is exactly where the arrayref payload was aimed: a build script that executed at compile time on every machine that resolved the tree. Dev-only lowers the temperature and does not end the reading."
         explanation: "An audit report is a reading exercise before it is a patching exercise. Severity describes the bug; the dependency path describes YOUR exposure, runtime path, build-time path, and dev-only path are three different decisions. That reading is exactly what the written verdict captures."
@@ -97,7 +97,7 @@ blocks:
             correct: false
             feedback: "A publish cannot rewrite history: committed lockfiles kept resolving 0.3.9 and earlier, and existing builds were untouched. The exposure was in fresh resolutions during the window, not in what was already locked."
           - id: b
-            label: "Only projects whose Cargo.toml explicitly requested \"0.3.10\", everyone else's version requirement excluded the new release"
+            label: "Only projects whose Cargo.toml explicitly requested \"0.3.10\", since everyone else's version requirement excluded the new release"
             correct: false
             feedback: "Cargo's bare \"0.3.9\" is caret semantics: it means ^0.3.9 and happily accepts 0.3.10. Nobody had to ask for the malicious version by name, default ranges resolve forward to it."
           - id: c
@@ -105,7 +105,7 @@ blocks:
             correct: true
             feedback: "A new clone, a CI job with no committed lockfile, a cargo update: three ways to ask the registry a fresh question inside those 86 minutes. Nobody had to name the malicious version, the range said yes on their behalf, which is the deal semver ranges have always offered."
           - id: d
-            label: "Just the CI jobs, since a developer's local registry cache would have kept serving the copy of arrayref it already had"
+            label: "Just the CI jobs, since a developer's local registry cache would have kept serving the copy of arrayref it already had locally"
             correct: false
             feedback: "The cache answers for versions you already fetched, and a fresh resolution asks for a version you have not. The lesson lists the exposed acts on both sides of the wire, a new clone and a cargo update among them, which is a laptop as often as a runner."
         explanation: "The 86-minute window is the range mechanism working exactly as designed: SPL Token's `arrayref = \"0.3.9\"` is a compatible-range requirement, so any resolution performed while 0.3.10 was live would take it, while every committed Cargo.lock held the line at its recorded version. Ranges auto-heal AND auto-ingest; the lockfile decides which one you experience."
