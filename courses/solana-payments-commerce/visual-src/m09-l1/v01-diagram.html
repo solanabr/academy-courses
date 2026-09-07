@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: The wavelength-stack process tree
      purpose: show the three long-lived processes, which rungs live inside each, and where the kit-6/kit-7 boundary sits
-     data: process 1 "server" (kit-6 line): mounts checkout static pages, /txreq GET+POST, drop-blink (actions.json + action routes), x402 price API + MPP challenge, gasless (Kora) path inside txreq process 2 "worker" (kit-6 line): backoffice webhook receiver + refunds reconciler, writes orders ledger process 3 "crank" (kit-7 island): subscriptions workspace, club-billing pulls + dunning transitions, writes invoices into the SAME orders ledger shared core: transfer-kit imported by server and worker; verifier imported by worker and by the journey script offline: fair-queue (pos-stall) drains INTO the chain before the journey starts
+     data: process 1 "server" (kit-6 line): mounts checkout static pages, /txreq GET+POST, drop-blink (actions.json + action routes), x402 price API + MPP challenge; gasless-checkout app mounted alongside (Kora node on :8080 co-signs) process 2 "worker" (kit-6 line): backoffice webhook receiver + refunds reconciler, writes orders ledger process 3 "crank" (kit-7 island): subscriptions workspace, club-billing pulls + dunning transitions, writes invoices into the SAME orders ledger shared core: transfer-kit imported by server and worker; verifier imported by worker and by the journey script offline: fair-queue (pos-stall) drains INTO the chain before the journey starts
      prompt: Three process boxes side by side labeled server, worker, and crank, each listing its mounted rungs from data. Draw transfer-kit and verifier as a shared base bar beneath server and worker. Mark the crank box with a dashed boundary labeled "kit-7 island, own process, own node_modules". One arrow from a small fair-queue box into the chain icon labeled "drained before doors open". Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -73,7 +73,8 @@
           <div class="proc-head"><span class="proc-name">server</span><span class="proc-kit">kit-6 line</span></div>
           <div class="rungs">
             <div class="rung">checkout static pages</div>
-            <div class="rung"><code>/txreq</code> GET + POST &mdash; gasless (Kora) path inside</div>
+            <div class="rung"><code>/txreq</code> GET + POST</div>
+            <div class="rung"><code>/gasless</code> GET + POST &mdash; own app, Kora co-signs</div>
             <div class="rung">drop-blink &mdash; <code>actions.json</code> + action routes</div>
             <div class="rung">x402 price API + MPP challenge</div>
           </div>

@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: Per-rung workspaces across the kit v6/v7 seam
      purpose: show that the version seam is contained to one workspace and why the peer ranges never collide
-     data: monorepo root workspace checkout: @solana/pay 1.0.26 (peers kit ^6.9) + @solana-program/token 0.14.0 + kit ^6.10 workspace ops (backoffice, crank): helius-sdk 3.1.0 (peers ^6) + kit ^6.10 workspace subscriptions (THIS lesson): @solana/subscriptions 0.5.0 (peers kit ^7.0.0) + @solana-program/token 0.15.0 + kit ^7 (v7 line ends at 7.1.1) annotation: npm resolves each workspace's tree independently, so ^6 and ^7 never meet fallback note: if v7 friction appears, this one workspace drops to @solana/subscriptions 0.4.0 + kit ^6.4
+     data: monorepo root workspace checkout: @solana/pay 1.0.26 (peers kit ^6.9) + @solana-program/token 0.14.0 + kit ^6.10 workspace ops (backoffice, crank): helius-sdk 3.1.0 (peers ^6) + kit ^6.10 workspace subscriptions (THIS lesson): @solana/subscriptions 0.5.0 (peers kit ^7.0.0) + @solana-program/token 0.15.0 + kit ^7 (v7 line ends at 7.1.1) annotation: subscriptions is deliberately NOT in the root workspaces array; registered workspaces hoist into one shared root resolution, so only an unregistered folder with its own node_modules keeps ^6 and ^7 apart fallback note: if v7 friction appears, this one workspace drops to @solana/subscriptions 0.4.0 + kit ^6.4
      prompt: Tree diagram of a monorepo root with three workspace boxes: checkout, ops, and subscriptions. Each box lists its pinned packages and kit major from data. Color the subscriptions box distinctly and draw a dashed boundary around it labeled "the only kit ^7 island". A small footnote box carries the 0.4.0 fallback. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -111,7 +111,7 @@
       </div>
     </div>
     <div class="notes">
-      <div class="anno">npm resolves each workspace's tree <b>independently</b> &mdash; so <code>^6</code> and <code>^7</code> never meet in one resolution.</div>
+      <div class="anno">subscriptions stays <b>out of the root workspaces array</b> &mdash; registered workspaces hoist into one shared resolution, so only an unregistered folder with its own <code>node_modules</code> keeps <code>^6</code> and <code>^7</code> apart.</div>
       <div class="fallback"><b>fallback:</b> if v7 friction appears, this one workspace drops to <code>@solana/subscriptions 0.4.0</code> + <code>kit ^6.4</code>.</div>
     </div>
   </div>

@@ -16,14 +16,14 @@ The findings up front:
 
 - You ship **wavelength-stack**: one repo where every route imports transfer-kit as the shared payment core, the transaction-request, blink, and x402/MPP surfaces are mounted on ONE server (the module 3 QR checkout page stays a standalone static page on purpose; its payment path is the same transaction-request core the mounted surface exercises), the webhook worker and the billing crank run as background processes, and `npm run journey` drives a scripted seven-leg buyer journey against devnet.
 - There are no new concepts in this lesson. By design. Every load-bearing line is an import of something you already built, and the lesson's whole job is to make that visible: the blink reuses the module-3 transaction builder, the x402 memo invoice ids reconcile in the same backoffice ledger as your checkouts, and the module-4 verifier is the only judge of every leg.
-- The two kit pins from the subscriptions lesson survive assembly intact: the wavelength-checkout, backoffice, and x402 workspaces stay on their kit-6 line, the subscriptions workspace stays on its kit-7 line, and npm workspaces keep the two from ever meeting.
+- The two kit pins from the subscriptions lesson survive assembly intact: the wavelength-checkout, backoffice, and x402 workspaces stay on their kit-6 line and the subscriptions workspace stays on kit 7.1.1. Tonight is the night they finally share a tree, because assembly registers `subscriptions` into the root roster — so expect the `ERESOLVE`, and understand that what protects the crank at runtime is where its entry file lives, never the workspace boundary.
 - The gate is brutal and simple: seven PASS lines from the verifier, exit code 0, and the module-8 prod-gate checklist re-scored against the assembled stack, every row either passing or carrying a written fix-task.
 
 ## Soundcheck: fifteen rungs, one opening night
 
 Think of tonight as a venue's opening night. Every instrument arrived in its own case and passed its own bench test. The soundcheck is not about any instrument; it is about whether the room works when everything plays at once. Same here: assembly is a discipline of its own, with its own failure modes, and none of them live inside a single rung.
 
-![Architecture diagram of three processes: a server mounting four commerce surfaces, a webhook worker, and a subscriptions crank isolated as the kit-7 island, all sharing transfer-kit and one orders ledger.](assets/v01-diagram.png)
+![Architecture diagram of three processes: a server mounting the transaction-request, gasless, blink, and x402 surfaces, a webhook worker, and a subscriptions crank isolated as the kit-7 island, all sharing transfer-kit and one orders ledger.](assets/v01-diagram.png)
 
 ### The buyer journey is the spec
 
@@ -45,7 +45,11 @@ Notice what the journey is not. It is not a UI walkthrough, and no leg ever trus
 
 ### The layout, and the seam you already solved
 
-The target shape is one npm monorepo whose root `package.json` lists every rung as a workspace. You have been building toward this since module 2 without ceremony; assembly just makes the roster explicit. And a pre-empt, because a tidy-minded teammate will absolutely propose collapsing everything into one workspace on one kit version while you are in there. Refuse, politely, with the peer ranges in hand: `@solana/pay` 1.0.26 peers kit ^6.9 and `@solana/subscriptions` 0.5.0 peers kit ^7.0.0, and both are correct. That seam was the whole point of the subscriptions lesson, and it is not re-derived here: the wavelength-checkout, backoffice, and x402 workspaces keep their kit-6 pins, the subscriptions workspace keeps kit 7.1.1, and npm resolves each workspace's tree independently so the peer ranges never meet. Those lines were re-verified against npm in the subscriptions lesson on 2026-08-22; run `npm view @solana/subscriptions@0.5.0 peerDependencies` yourself before you install anything today, because this corner of npm has moved twice this quarter, and never, anywhere, pin to `latest`.
+The target shape is one npm monorepo whose root `package.json` lists every rung as a workspace. You have been building toward this since module 2 without ceremony; assembly just makes the roster explicit. And a pre-empt, because a tidy-minded teammate will absolutely propose collapsing everything into one workspace on one kit version while you are in there. Refuse, politely, with the peer ranges in hand: `@solana/pay` 1.0.26 peers kit ^6.9 and `@solana/subscriptions` 0.5.0 peers kit ^7.0.0, and both are correct. That seam was the whole point of the subscriptions lesson, and it is not re-derived here: the wavelength-checkout, backoffice, and x402 workspaces keep their kit-6 pins and the subscriptions workspace keeps kit 7.1.1.
+
+Be exact about what keeps them apart, though, because the subscriptions lesson was blunt on this and tonight is the night it gets tested. Registered npm workspaces are **not** isolation. npm hoists every registered package into one shared root resolution, so the moment the roster below names `subscriptions`, both kit majors are in one tree and npm has to reconcile them — which is precisely the `ERESOLVE` the install step below expects rather than hopes to avoid. Until now `subscriptions/` sat outside the roster and never met the kit-6 tree at all; registering it buys you `--workspace` scripts and one lockfile, and it costs you that reconciliation. What survives the merge is the pin, not a wall: npm parks one major at the root and nests the other under `subscriptions/node_modules`, which is what the checkpoint below verifies, and Node then resolves the crank's imports from there for one reason only — that is where its entry file lives. Step 4 says the same thing about the crank process, and it is worth reading twice, because "different workspace" and "different process" are both the wrong answer to why the island holds.
+
+Those peer ranges were re-verified against npm in the subscriptions lesson on 2026-08-22; run `npm view @solana/subscriptions@0.5.0 peerDependencies` yourself before you install anything today, because this corner of npm has moved twice this quarter, and never, anywhere, pin to `latest`.
 
 ![Monorepo diagram listing all fifteen workspace folders with the subscriptions workspace isolated as the only kit-7 island and the new stack workspace highlighted on the kit-6 side.](assets/v03-diagram.png)
 
@@ -147,9 +151,9 @@ npm pkg set scripts.serve="tsx src/server.ts" scripts.boot="tsx src/boot.ts" scr
 npm install
 ```
 
-Pins, with their freshness notes: `express` stays at 5.1.0 so the whole repo compiles against one version (npm's current 5.x is 5.2.1 as of 2026-08-23; resist the upgrade until you can bump every workspace together), and `@solana/kit` 6.10.0 is the last v6 release, the same pair every kit-6 workspace in the repo already carries. `tsx` is the runner you have used all course; the dev-install line is its install for this fresh workspace. Checkpoint: `npm ls --workspaces --depth 0` prints every workspace with no peer errors, and `subscriptions` is the only tree showing kit 7.1.1. If the root install `ERESOLVE`s instead, read which two packages collided; the usual pair is a kit-6 workspace against the kit-7 island, and the escape hatch you already used in the gasless lesson applies here too: `npm install --legacy-peer-deps` at the root, then re-run the `npm ls` line and confirm each workspace still resolves the kit line its own package.json pins before going any further.
+Pins, with their freshness notes: `express` stays at 5.1.0 so the whole repo compiles against one version (npm's current 5.x is 5.2.1 as of 2026-08-23; resist the upgrade until you can bump every workspace together), and `@solana/kit` 6.10.0 is the last v6 release, the same pair every kit-6 workspace in the repo already carries. `tsx` is the runner you have used all course; the dev-install line is its install for this fresh workspace. Expect that last `npm install` to fail, and read the failure rather than reaching for a flag reflexively. Registering `subscriptions` puts kit 6 and kit 7 in one tree for the first time in this course, so npm reports the `ERESOLVE` between them exactly as the subscriptions lesson said it would; the escape hatch is the one you already used in the gasless lesson, `npm install --legacy-peer-deps` at the root. Then the checkpoint: `npm ls --workspaces --depth 0` prints every workspace, and `subscriptions` is the only tree showing kit 7.1.1 — nested under its own `node_modules` rather than hoisted, which is the mechanism the seam section described. Confirm each workspace still resolves the kit line its own `package.json` pins before going any further; if any kit-6 workspace now reports 7.1.1, the flag papered over a real conflict and you must fix the pin, not the flag.
 
-**2. Export the apps, gate the listens.** Each surface workspace currently ends its server file with a bare `app.listen`. Importing such a file would start a stray listener, so give each one the same two-part edit: export the app, and only listen when run directly. Here it is on checkout-txreq; repeat it verbatim (with the right names) on drop-blink and the x402 server:
+**2. Export the apps, gate the listens.** Each surface workspace currently ends its server file with a bare `app.listen`. Importing such a file would start a stray listener, so give each one the same two-part edit: export the app, and only listen when run directly. Here it is on checkout-txreq; repeat it verbatim (with the right names) on drop-blink, the x402 server, and gasless-checkout — that last one is a real surface with its own routes, not a path inside another app, and leg 2 of tonight's journey calls it:
 
 ```typescript
 // checkout-txreq/src/server.ts, the bottom of the file.
@@ -187,12 +191,13 @@ import express from 'express';
 import { txreqApp } from '../../checkout-txreq/src/server';
 import { blinkApp } from '../../drop-blink/src/server';
 import { x402App } from '../../x402/src/server';
+import { gaslessApp } from '../../gasless-checkout/src/server';
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
 app.get('/healthz', (_req, res) => {
-  res.json({ ok: true, surfaces: ['txreq', 'blink', 'x402'] });
+  res.json({ ok: true, surfaces: ['txreq', 'blink', 'x402', 'gasless'] });
 });
 
 // Express apps are middleware: mounting at the root preserves each
@@ -200,15 +205,18 @@ app.get('/healthz', (_req, res) => {
 app.use(txreqApp);
 app.use(blinkApp);
 app.use(x402App);
+app.use(gaslessApp);
 
 app.listen(PORT, () => {
   console.log(`wavelength-stack listening on :${PORT}`);
 });
 ```
 
-Mounting at the root matters for one surface in particular: the blink's `actions.json` must sit at the domain root or wallets never render it, and a sub-path mount would quietly break the hosting rule you learned in the blink lesson. The gasless path needs no line here at all; it lives inside the txreq app already. Checkpoint: `npm run --workspace stack serve`, then `curl localhost:3000/healthz`, `curl localhost:3000/txreq`, and `curl localhost:3000/actions.json` all answer from one port.
+Mounting at the root matters for one surface in particular: the blink's `actions.json` must sit at the domain root or wallets never render it, and a sub-path mount would quietly break the hosting rule you learned in the blink lesson. The gasless surface earns a line of its own here, and it is worth knowing why, because it is easy to misremember: the sponsored builder reuses `finalizeTransaction` from checkout-txreq, but the routes do not live there. `GET`/`POST /gasless` were served by their own Express app in the `gasless-checkout` workspace, on its own port, and nothing before tonight ever mounted them anywhere else. Skip the `app.use(gaslessApp)` line and leg 2 of the journey gets a 404 from a stack that otherwise looks healthy. Checkpoint: `npm run --workspace stack serve`, then `curl localhost:3000/healthz`, `curl localhost:3000/txreq`, `curl localhost:3000/gasless`, and `curl localhost:3000/actions.json` all answer from one port.
 
-![Route map of the single server on port 3000 branching to health check, transaction request with the gasless path, root-mounted blink actions, and the x402 and MPP payment routes.](assets/v07-diagram.png)
+One prerequisite the gasless surface carries that the others do not: it talks to a Kora node. Its builder quotes and co-signs against `http://localhost:8080`, so that node has to be running before the journey starts, exactly as it was in the gasless lesson. It is not one of boot.ts's three children below, because it is not your process — it is an external binary, alongside the pay gate in that respect.
+
+![Route map of the single server on port 3000 branching to health check, transaction request, the mounted gasless Kora route, root-mounted blink actions, and the x402 and MPP payment routes.](assets/v07-diagram.png)
 
 A word on the quietest surface from the protocols module, because it is easy to misremember it as already wired in. The MPP challenge path does NOT ride inside the x402 app: in module 7 the `WWW-Authenticate: Payment` challenge was served by the separate `pay gate` process, driven by `paywall.yml` and proxying a payment-free upstream, and nothing tonight changes that architecture — exactly the "config file standing in front of the x402 workspace" from the roster note above. boot.ts spawns three processes, server, worker, crank, and a pay gate is not one of them, so the assembled stack speaks x402 only. If you want the MPP side live it is one more terminal, not new code: expose a bare pressing-price route for the gate to proxy (the x402-mounted route cannot be its upstream, since the gate requires a payment-free one), point `paywall.yml` at it, and run the gate on :4021 exactly as in module 7. You built for the rail that has traffic; the one that is coming stays a documented command away, which is the honest posture for a payment-method spec that still moves in its own repo rather than sitting on any standards body's clock.
 

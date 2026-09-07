@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: One port, every surface
      purpose: show the route map of the assembled server so collisions and root-mounted files are visible
-     data: :3000 /healthz -> stack itself :3000 /txreq GET+POST -> checkout-txreq app (gasless Kora path inside) :3000 /actions.json + action routes -> drop-blink app (root mount is load-bearing for wallets) :3000 pressing-price route -> x402 app: unpaid 402 with PAYMENT-SIGNATURE header flow, MPP WWW-Authenticate: Payment challenge static checkout pages -> served from each surface's own public dir via absolute paths
+     data: :3000 /healthz -> stack itself :3000 /txreq GET+POST -> checkout-txreq app :3000 /gasless GET+POST -> gasless-checkout app, mounted separately (Kora node on :8080 co-signs) :3000 /actions.json + action routes -> drop-blink app (root mount is load-bearing for wallets) :3000 pressing-price route -> x402 app: unpaid 402 with PAYMENT-SIGNATURE header flow, MPP WWW-Authenticate: Payment challenge static checkout pages -> served from each surface's own public dir via absolute paths
      prompt: Central node for port 3000 with branches to each mounted surface, labels from data. Flag the actions.json branch with a callout that root mounting is required by wallet clients. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -58,7 +58,10 @@
           <span class="target">the stack itself</span></div></div>
       <div class="rrow"><div class="link"><i></i></div>
         <div class="surf"><span class="route">/txreq &nbsp;GET + POST</span>
-          <span class="target">checkout-txreq app<span>gasless Kora path inside</span></span></div></div>
+          <span class="target">checkout-txreq app</span></div></div>
+      <div class="rrow"><div class="link"><i></i></div>
+        <div class="surf"><span class="route">/gasless &nbsp;GET + POST</span>
+          <span class="target">gasless-checkout app<span>mounted separately &middot; Kora node on :8080 co-signs</span></span></div></div>
       <div class="rrow"><div class="link"><i></i></div>
         <div class="surf"><span class="route">/actions.json + action routes</span>
           <span class="target">drop-blink app<br>
