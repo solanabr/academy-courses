@@ -245,7 +245,10 @@ def main() -> int:
         if not png.exists():
             sys.exit(f"sips failed for {src}")
 
-        out = (Path(tmp) / f"o{asset.suffix}") if args.check else asset
+        # Not `o{suffix}`: for a .png course that is the temp render itself, and
+        # copying a file onto itself raises SameFileError, so --check crashed on
+        # exactly the courses it was most needed for.
+        out = (Path(tmp) / f"check{asset.suffix}") if args.check else asset
         out.parent.mkdir(parents=True, exist_ok=True)
         before = asset.stat().st_size if asset.exists() else 0
         if asset.suffix == ".png":
