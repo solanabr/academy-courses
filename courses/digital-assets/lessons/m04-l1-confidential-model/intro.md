@@ -124,7 +124,16 @@ The mechanism that makes this workable is the context state account: a short-liv
 
 ![Flowchart of a confidential transfer split across dependent transactions: proofs verified into context accounts first, then the transfer referencing them, then context-account cleanup, constrained by the 1,232-byte transaction limit.](assets/v06-flowchart.png)
 
-This is not forever. Transaction format v1 (the SIMD-0296 line, now carried by SIMD-0385) raises the envelope precisely so flows like this can collapse into a single transaction, and it has shipped in Agave. But shipped is not activated. Agave's feature set names the gate `enable_tx_v1`, and when I probed that gate's address on 2026-08-22 there was no account behind it on mainnet or on devnet: not activated, not even staged. So 1,232 bytes remains the law and the multi-transaction dance remains the reality you engineer for. Re-check the gate before you quote this paragraph to anyone; it can flip in an epoch, and you do not need to memorize any address to check: `solana feature status --url mainnet-beta` with no argument lists every known gate with its address, status, and activation slot, so `solana feature status --url mainnet-beta | grep -i tx_v1` is the whole probe.
+This is not forever, and it is already moving. Transaction format v1 (the SIMD-0296 line, now carried by SIMD-0385) raises the envelope precisely so flows like this can collapse into a single transaction, and it has shipped in Agave. But shipped is not activated, and activated is per cluster. Agave's feature set names the gate `enable_tx_v1` and declares its address in `feature-set/src/lib.rs`:
+
+```bash
+solana account txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL --url mainnet-beta
+solana account txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL --url devnet
+```
+
+On 2026-09-06 mainnet answered `Error: AccountNotFound` — no account, so not activated and not even staged — while devnet returned an account owned by `Feature111111111111111111111111111111111111` whose nine data bytes decode as a `1` tag followed by activation slot 492,480,000. Devnet has it. Mainnet does not. So 1,232 bytes remains the law where your users are, the multi-transaction dance remains the reality you engineer for, and devnet is now a cluster where this particular constraint quietly does not reproduce — which is its own trap if you only ever test there.
+
+Two notes on the probe itself, because the obvious one does not work. `solana feature status` prints only the gates compiled into the CLI you are holding: 76 rows on solana-cli 3.1.10, and this gate is not among them, so both `| grep -i tx_v1` and `solana feature status <that address>` come back empty or `Unknown feature`. Reading the account directly is the probe that cannot go stale, because it asks the chain rather than the binary. And re-check it before you quote this paragraph to anyone: it flipped on one cluster between this lesson's drafting and its last review.
 
 The last constraint is the amount cap, and by now you can derive it yourself. Amounts are encrypted in chunks small enough to decrypt (a 16-bit low chunk, a 32-bit high chunk), so a single deposit or transfer is capped below 2^48. The source states it as a constant:
 

@@ -57,4 +57,4 @@ blocks:
           - id: c
             label: "Because the zero-knowledge proofs are too large to fit alongside the transfer in one transaction; transaction format v1 is meant to relax this but is not activated yet."
             correct: true
-        explanation: "The proofs exceed what fits beside the transfer in a single transaction, so the flow is split across dependent transactions (create context accounts, verify proofs, apply). Transaction format v1 (SIMD-0296 / SIMD-0385) is designed to collapse this to one transaction but is shipped-but-not-activated. Re-probe its gate status at write time."
+        explanation: "The proofs exceed what fits beside the transfer in a single transaction, so the flow is split across dependent transactions (create context accounts, verify proofs, apply). Transaction format v1 (SIMD-0296 / SIMD-0385) is designed to collapse this to one transaction; its enable_tx_v1 gate was active on devnet and absent on mainnet when this was last probed on 2026-09-06, so mainnet still splits. Re-probe the gate account yourself at write time, per cluster."
