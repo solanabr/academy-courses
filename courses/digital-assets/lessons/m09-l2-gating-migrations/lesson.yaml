@@ -32,9 +32,9 @@ blocks:
             correct: false
             feedback: "A client-side cache is both spoofable and stale. The gate must verify against a DAS/on-chain source, not the client's own report."
           - id: c
-            label: "Resolve the wallet's assets through a DAS read and confirm the Founding-Farmer cNFT actually resolves to that owner."
+            label: "Resolve the wallet's assets through a DAS read and confirm the Founding-Farmer cNFT actually resolves to that owner, accepting a bounded amount of index lag."
             correct: true
-        explanation: "Gating decides on an on-chain reality, so it reads one: resolve the wallet's assets through DAS (cNFT reads require a DAS-supporting RPC) and confirm the gating asset resolves to that owner. A signature or a client claim is not evidence of a current holding."
+        explanation: "Gating decides on an on-chain reality, so it reads one: resolve the wallet's assets through DAS (cNFT reads require a DAS-supporting RPC) and confirm the gating asset resolves to that owner. A signature or a client claim is not evidence of a current holding. DAS is an index, so this read is fresh to within the provider's lag rather than instantaneous, which is a bill worth paying for a chat role and worth topping up with an on-chain confirmation for anything expensive."
       - id: m09l2-q2-kmno-gap
         prompt: "You migrate compost points to SPROUT. The lesson points at Kamino's KMNO points-to-token migration as a case study but flags a gap. What's the honest way to use it?"
         multiSelect: false

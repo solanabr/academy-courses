@@ -40,7 +40,7 @@ Three whitelisted, four refused. That output is the whole lesson; the next three
 
 ### The thesis, one sentence
 
-Here it is: a DEX whitelists extensions that only change display or skim a declared fee, and refuses extensions that let the issuer run arbitrary code or move other people's tokens. Compliance and display on one side: TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount, the exact five on Raydium CP-Swap's allowlist. Power and control on the other: TransferHook, PermanentDelegate, DefaultAccountState frozen, ConfidentialTransfer, all refused. You verified the mechanics of this last lesson by reading the source. Today's question is different. Why is the line THERE, and not somewhere else?
+Here it is: a DEX whitelists extensions that only change display or skim a declared fee, and refuses extensions that let the issuer run arbitrary code or move other people's tokens. Fee, display and accounting on one side: TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount, the exact five on Raydium CP-Swap's allowlist. Power and control on the other: TransferHook, PermanentDelegate, DefaultAccountState frozen, ConfidentialTransfer, all refused. Say it in those words and not in the tempting shorter ones, because "compliance gets whitelisted" is false in a way that will cost somebody a launch: PermanentDelegate and DefaultAccountState are the compliance team's two favourite primitives and both sit on the refused side. The capstone drills this exact one-liner. You verified the mechanics of this last lesson by reading the source. Today's question is different. Why is the line THERE, and not somewhere else?
 
 ### Deriving the line from the pool's seat
 

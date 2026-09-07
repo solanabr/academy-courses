@@ -34,9 +34,9 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "In the treasury account you designated as the withdraw-withheld authority, credited automatically the moment the transfer settles."
+            label: "In a treasury token account, credited automatically the moment the transfer settles, because you named a withdraw-withheld authority at mint creation."
             correct: false
-            feedback: "Nothing auto-routes to a treasury. The fee authority can move fees, but only after a harvest step pulls them out of accounts."
+            feedback: "Nothing auto-routes to a treasury, and the withdraw-withheld authority is a KEY, not an account: it is permission to move fees later, never a destination that gets credited. Fees reach a treasury only when that key runs the harvest and withdraw steps."
           - id: b
             label: "Withheld on the buyer's (recipient's) token account, until you harvest it."
             correct: true
