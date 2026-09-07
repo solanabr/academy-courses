@@ -827,8 +827,72 @@ def render(rep: CourseReport) -> str:
     return "\n".join(lines)
 
 
+def _synth(scheme: str, lessons: int = 30, per_lesson: int = 3, k: int = 4) -> CourseReport:
+    """Build a synthetic course with a known keying scheme.
+
+    Labels are drawn from a fixed pool of equal-length strings so the length and
+    lexical metrics stay silent and each fixture tests exactly one thing.
+    """
+    rng = random.Random(4242)
+    pool = [f"an option of quite ordinary length, number {i:02d}" for i in range(k)]
+    qs: list[Question] = []
+    for li in range(lessons):
+        for qi in range(per_lesson):
+            idx = li * per_lesson + qi
+            if scheme == "rotation":
+                correct = (li + qi) % k          # the artifact this gate exists to catch
+            elif scheme == "all-first":
+                correct = 0
+            elif scheme == "honest":
+                correct = rng.randrange(k)
+            elif scheme == "balanced-no-repeat":
+                # a Latin-square style scheme: perfect marginal, never repeats
+                correct = (idx * 1) % k if qi == 0 else (qs[-1].correct_idx[0] + 1 + rng.randrange(k - 1)) % k
+            else:
+                raise ValueError(scheme)
+            qs.append(Question(
+                course="synth", lesson_slug=f"l{li:02d}", lesson_title="synthetic lesson",
+                module_index=li // 3, block_key="check", qid=f"l{li:02d}-q{qi}",
+                prompt="A synthetic prompt with no overlap.", explanation="x",
+                multi=False, labels=list(pool),
+                correct_idx=[correct], feedback_present=[True] * k,
+            ))
+    rep = CourseReport(slug=f"synth-{scheme}", questions=qs)
+    for metric in (m_sequence, m_repeat, m_marginal, m_module_seed):
+        metric(rep)
+    return rep
+
+
+def selftest() -> int:
+    """The regression test for this whole file: the schemes that shipped must
+    fail, and an honest shuffle must pass. A gate that fails everything is not a
+    gate, and neither is one that passes the artifact it was written for."""
+    cases = [
+        ("rotation", True, "the per-lesson a->b->c rotation that shipped in four courses"),
+        ("all-first", True, "every key in slot one"),
+        ("balanced-no-repeat", True, "perfect marginal, never repeats a slot"),
+        ("honest", False, "an honest uniform shuffle"),
+    ]
+    ok = True
+    for scheme, should_fail, why in cases:
+        rep = _synth(scheme)
+        failed = rep.failed
+        verdict = "PASS" if failed == should_fail else "**WRONG**"
+        if failed != should_fail:
+            ok = False
+        metrics = sorted({f.metric for f in rep.findings if f.severity == ERROR})
+        print(f"  [{verdict}] {scheme:20} expected {'fail' if should_fail else 'pass'}, "
+              f"got {'fail' if failed else 'pass'} — {why}")
+        if metrics:
+            print(f"           fired: {', '.join(metrics)}")
+    print("selftest OK" if ok else "selftest FAILED")
+    return 0 if ok else 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Statistical gate on a course's quiz layer.")
+    if "--selftest" in sys.argv:
+        return selftest()
     ap.add_argument("courses", nargs="*", type=Path, help="course directories (containing course.yaml)")
     ap.add_argument("--all", action="store_true", help="analyse every course under ./courses")
     ap.add_argument("--json", action="store_true", help="emit machine-readable JSON")
