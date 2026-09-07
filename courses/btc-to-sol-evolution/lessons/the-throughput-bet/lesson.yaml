@@ -18,15 +18,20 @@ blocks:
           - id: a
             label: "The runtime speculatively executes everything and rolls back whichever transactions turn out to conflict"
             correct: false
-            feedback: "Sealevel does not guess and undo — it KNOWS. Account access is declared before execution, so conflicts are computed up front and conflicting transactions are simply scheduled sequentially. Optimistic execute-and-rollback is how some OTHER chains parallelize."
+            feedback: "Optimistic execution is the fix that fails: under contention you slide back to sequential with re-runs and extra bookkeeping on top. Solana pays for certainty up front instead, which is why the account list is mandatory rather than a hint."
           - id: b
-            label: "Validator hardware — the same one-at-a-time execution loop just runs on much faster machines"
+            label: "Validator hardware, since the same one-at-a-time execution loop just runs on much faster machines"
             correct: false
-            feedback: "Faster hardware cannot parallelize a model that forbids it: the EVM offers no way to know what state a transaction touches before running it. Solana's up-front account declaration is what unlocks running many transactions at once."
+            feedback: "More cores buy nothing while the runtime cannot tell which transactions are safe to run together. The toy scheduler makes the point in ten lines: it parallelises on set arithmetic over declared writes, not on clock speed."
           - id: c
             label: "Every transaction declares all accounts it reads or writes up front, so the runtime can safely run non-overlapping transactions in parallel"
             correct: true
-        explanation: "The account-declaration rule is the throughput bet: because every transaction names its reads and writes before execution, the scheduler can prove two transactions are independent and run them simultaneously — many readers of one account in parallel, writers serialized. Declared access, not faster hardware, is the unlock."
+            feedback: "Sealevel never looks at your program's logic. It reads the AccountMetas, intersects the writable sets, and drops anything disjoint into the same batch across as many cores as it has."
+          - id: d
+            label: "Every transaction names the accounts it touches, and any two naming the same account are serialized, so throughput comes from spreading work across accounts"
+            correct: false
+            feedback: "The declaration is right and the collision rule is too strict. Sealevel intersects writable sets, not whole account lists, so any number of transactions can read one account in the same instant. An account becomes a chokepoint only when someone needs to write it."
+        explanation: "Solana's Sealevel runtime parallelizes because every transaction declares its full read/write account set in advance. Two transactions whose write sets don't intersect can run simultaneously on different cores. The EVM can't do this: contracts discover storage access dynamically, so conflicts are unknowable before execution."
       - id: q2
         prompt: "What is the base transaction fee on Solana, and what happens to it?"
         multiSelect: false
@@ -34,28 +39,38 @@ blocks:
           - id: a
             label: "5,000 lamports per signature, all of it paid to the validator that includes the transaction"
             correct: false
-            feedback: "Right number, wrong destination: half of every base fee is BURNED — destroyed forever — and the validator receives the other half. The burn makes spam impose a real, permanent cost."
+            feedback: "Half never reaches anyone: 2,500 of those 5,000 lamports are destroyed. Ethereum arrived at the same instinct from the opposite architecture with EIP-1559's burn, which is a nice reminder that the two designs are answering the same question."
           - id: b
-            label: "5,000 lamports per signature — 50% burned, 50% paid to the validator"
+            label: "5,000 lamports per signature: 50% burned, 50% paid to the validator"
             correct: true
+            feedback: "Flat, per signature, and unmoved by congestion, because the thing congestion used to price, your position in a global queue, is not for sale here. What you can still buy is ordering inside one leader's slot, and that is the priority fee."
           - id: c
             label: "5,000 lamports per compute unit consumed, burned in full"
             correct: false
-            feedback: "The base fee is per SIGNATURE, not per compute unit — a simple transfer and a heavy program call pay the same base fee. (Compute-based pricing exists only as optional priority fees.) And only half is burned; the validator keeps the rest."
-        explanation: "The base fee is 5,000 lamports (0.000005 SOL) per signature — flat, regardless of compute used. Half burns, permanently shrinking supply; half pays the block producer. Optional priority fees, priced per compute unit, sit on top when you want to outbid others for scarce blockspace."
+            feedback: "Compute units are metered by the separate priority fee, at a price you set in micro-lamports per CU, and 5,000 lamports per CU would make an ordinary 200,000 CU transaction cost a full SOL. The base fee counts signatures and nothing else."
+          - id: d
+            label: "5,000 lamports per signature, rising with congestion the way an EIP-1559 base fee does"
+            correct: false
+            feedback: "The figure is flat and does not move with load. That reflex comes from a chain where a last-second builder sorts a global pending set by price; Solana fixes the leader an epoch ahead, so there is no such auction for the base fee to track."
+        explanation: "Solana charges a flat 5,000 lamports per signature. Half is burned (deflationary, mirroring EIP-1559's burn) and half goes to the block-producing validator. Priority fees are separate and optional: compute_unit_price x compute_unit_limit, used to order transactions within a leader's queue."
       - id: q3
         prompt: "A whole Solana transaction is capped at how many bytes, and why that number?"
         multiSelect: false
         options:
           - id: a
-            label: "1,232 bytes — the IPv6 minimum MTU of 1,280 minus 48 bytes of headers"
+            label: "1,232 bytes: the IPv6 minimum MTU of 1,280 minus 48 bytes of headers"
             correct: true
+            feedback: "A networking constant decided by people who never heard of Solana bounds how many accounts one transaction can name, at 32 bytes per address. Address Lookup Tables exist to buy that budget back by referencing accounts through a short index."
           - id: b
-            label: "4,096 bytes — one memory page, so a transaction always fits a single page buffer"
+            label: "4,096 bytes, one memory page, so a transaction always fits a single page buffer"
             correct: false
-            feedback: "Page size has nothing to do with it. The cap comes from NETWORKING: transactions travel as single packets, so they must fit the IPv6 minimum MTU of 1,280 bytes, minus 48 bytes of headers — 1,232 for the payload. It is a protocol parameter, not a constant of nature, so check it against your cluster."
+            feedback: "Nothing about the limit is about memory layout. It is chosen so a transaction survives the network without fragmenting, which is a property of the wire rather than of any validator's allocator."
           - id: c
-            label: "1,232 bytes — the most data one slot leader can sign-verify within its 400 ms slot"
+            label: "1,232 bytes, the most data one slot leader can sign-verify within its 400 ms slot"
             correct: false
-            feedback: "Right number, wrong reason — signature throughput is not the constraint (validators verify thousands per slot). The 1,232 comes from networking: the 1,280-byte IPv6 minimum MTU minus 40 bytes of IPv6 header and 8 of fragment header."
-        explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the cap is derived from the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction (checked 2026-09-07). Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables. A larger limit has been proposed and is feature-gated, so treat 1,232 as this cluster's current value, not a permanent one."
+            feedback: "The number is right and the reason is invented. Signature verification cost scales with how many signatures a transaction carries, not with a byte ceiling, and the ceiling is a packet-size constraint that would hold even on an idle cluster."
+          - id: d
+            label: "1,500 bytes, the standard Ethernet MTU that every network hop carries"
+            correct: false
+            feedback: "1,500 is what a local Ethernet segment typically carries, and the guarantee that matters is the smaller one every IPv6 hop must honour: 1,280 bytes. Subtract 48 bytes of headers from that floor and you have the real cap."
+        explanation: "1,232 bytes, derived from networking, not economics: IPv6's guaranteed minimum MTU is 1,280 bytes; minus 48 bytes of IPv6 + fragment headers leaves 1,232. Every account address costs 32 bytes of that budget, which is why Address Lookup Tables exist for transactions touching many accounts."
