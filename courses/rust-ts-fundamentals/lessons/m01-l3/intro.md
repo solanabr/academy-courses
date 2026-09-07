@@ -37,10 +37,10 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 ```
 
-Now, in your `pulse` directory from last lesson, three moves: ignore the junk, snapshot everything else, and put it on GitHub. The `.gitignore` comes BEFORE the first commit. Committing `node_modules` is the classic first-week mistake, and undoing it later is far more annoying than preventing it now:
+Now, in your `pulse-station` directory from last lesson, three moves: ignore the junk, snapshot everything else, and put it on GitHub. The `.gitignore` comes BEFORE the first commit. Committing `node_modules` is the classic first-week mistake, and undoing it later is far more annoying than preventing it now:
 
 ```bash
-cd pulse
+cd pulse-station
 git init -b main
 
 printf "node_modules/\n.env\n" > .gitignore
@@ -53,8 +53,10 @@ git commit -m "pulse v0: strict-mode latency probe"
 
 ```bash
 gh auth login
-gh repo create pulse --public --source=. --push
+gh repo create pulse-station --public --source=. --push
 ```
+
+That repo name is load-bearing, so type it exactly: `raw.githubusercontent.com/<user>/pulse-station/main/status.json` is the URL m03-l2's dashboard fetches and m10-l1's demo script checks. Rename it later and you get to update both.
 
 The `--public` flag is economics, not idealism. GitHub's own billing docs say it plainly: "GitHub Actions usage is free for public repositories that use standard GitHub-hosted runners." Unmetered. No quota, no minutes counter, no card. This is the reason lesson m01-l1 (this course addresses lessons module-first: m01-l1 is module one, lesson one, the first lesson you read; from here on cross-references use that shorthand) made "your repo is public" a stated prerequisite: we are about to run a probe 48 times a day forever, and on a public repo that costs exactly nothing. We'll do the full arithmetic of the private alternative in a minute.
 

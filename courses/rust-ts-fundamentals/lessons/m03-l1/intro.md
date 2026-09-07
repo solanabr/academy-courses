@@ -28,7 +28,7 @@ npm error notsup Required: {"node":">=99"}
 npm error notsup Actual:   {"node":"v24.20.0","npm":"11.19.0"}
 ```
 
-(Transcript from npm 11.19; your package name and digits will differ, and older npm spells the `notsup` label out longer.) Read that like a working dev. `Required` is what your package.json claims; `Actual` is the machine it landed on; the install refused because a written promise and a real environment disagreed. Not an error message, a contract clause firing, and every field we cover today fires exactly like this on somebody's machine, eventually. Revert the sabotage and reinstall before moving on.
+(Transcript from npm 11.19; the package name is the one `npm init -y` took from your `pulse-station` directory back in m01-l2, your digits will differ, and older npm spells the `notsup` label out longer.) Read that like a working dev. `Required` is what your package.json claims; `Actual` is the machine it landed on; the install refused because a written promise and a real environment disagreed. Not an error message, a contract clause firing, and every field we cover today fires exactly like this on somebody's machine, eventually. Revert the sabotage and reinstall before moving on.
 
 ## Summary
 
@@ -228,7 +228,7 @@ The autonomy fade, out loud: step 1 through 4 are fully worked, diffs on screen,
      - "packages/*"
    ```
 
-   And a minimal root `package.json` (the root inherits the old repo-level name, `pulse-station` in mine, freed up by the rename you just did; it is private glue, never published):
+   And a minimal root `package.json` (the root inherits the old repo-level name, `pulse-station`, freed up by the rename you just did; it is private glue, never published):
 
    ```json
    {

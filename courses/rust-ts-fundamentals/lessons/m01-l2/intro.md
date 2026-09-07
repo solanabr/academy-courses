@@ -47,12 +47,12 @@ That single binary ships more than a JavaScript engine. `fetch` is built in. `pe
 Make the probe a real project:
 
 ```bash
-mkdir pulse && cd pulse
+mkdir pulse-station && cd pulse-station
 npm init -y
 npm pkg set type=module
 ```
 
-Three commands, one decision worth naming. `npm init -y` writes a `package.json`, the file that makes this directory a project npm understands. `npm pkg set type=module` declares that files here are ES modules, the modern import/export flavor. Why that matters gets one paragraph later; for now it's a box we tick so top-level `await` works.
+Three commands, one decision worth naming. The directory name is `pulse-station`, not `pulse`, because it is the whole station from m01-l1's diagram, not just today's probe: the GitHub repo in the next lesson takes this name, `npm init -y` stamps it into `package.json`, and both come back later (the dashboard fetches `https://raw.githubusercontent.com/YOUR_USER/pulse-station/main/status.json`, and m03-l1 hands the name down to the workspace root). `npm init -y` writes a `package.json`, the file that makes this directory a project npm understands. `npm pkg set type=module` declares that files here are ES modules, the modern import/export flavor. Why that matters gets one paragraph later; for now it's a box we tick so top-level `await` works.
 
 Now the toolchain:
 
@@ -226,7 +226,7 @@ Fully worked tier, and I'll say the quiet part out loud: this is the most hand-h
 
 The artifact contract, because later lessons will hold you to it: `pulse` v0 is a TypeScript file where `probe(url)` fetches the target with built-in fetch, times it with `performance.now()`, and prints URL, HTTP status, and latency in ms. Deliberately stringly and single-target. That's not a compliment, and it's on purpose: in the TypeScript-types lesson coming up, we'll feed this probe a malformed target, watch it lie politely, and replace its strings with a typed union. Version 0 is supposed to have room to grow.
 
-**1. Confirm the scaffold.** You should be inside `pulse/` with `package.json` (containing `"type": "module"`), `tsconfig.json` (with your two edits), and `node_modules` from the install. Prove it:
+**1. Confirm the scaffold.** You should be inside `pulse-station/` with `package.json` (containing `"type": "module"`), `tsconfig.json` (with your two edits), and `node_modules` from the install. Prove it:
 
 ```bash
 npx tsc --noEmit && echo ready
