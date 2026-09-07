@@ -33,9 +33,9 @@ blocks:
             correct: false
             feedback: "The bound is Pod-ness, not numeric-ness. Slab happily holds any Pod field, including the one-byte PodBool wrapper, so booleans are not banned — bare bool just isn't castable."
           - id: d
-            label: "A 1-byte bool after a PodU64 usually opens 7 bytes of padding, and Pod forbids padding; reorder the fields"
+            label: "The struct trips V2's no-padding assertion once a 1-byte field sits beside 8-byte ones; reorder largest-to-smallest"
             correct: false
-            feedback: "Padding is a real Pod failure and field order is a real fix for it, which is exactly why this reads correctly. It is the wrong failure here: a bare bool is rejected because 254 of its 256 byte patterns are undefined, so no ordering makes it castable. PodBool does."
+            feedback: "Both halves are real V2 facts, in the wrong place. The no-padding assertion exists and largest-to-smallest ordering is its fix, but neither fires here: PodU64 wraps [u8; 8] at alignment 1, so {PodU64, bool} is nine bytes with no gap in either order — that alignment-1 wrapper is the whole reason the Pod types exist. Seven bytes of padding is the native-u64-after-u8 story from this lesson's other diagram, not this one. A bare bool is rejected by the Pod bound itself, because 254 of its 256 byte patterns are undefined, so no ordering makes it castable. PodBool does."
           - id: b
             label: "bool isn't Pod because not every bit pattern is a valid bool, so bytemuck rejects it — use PodBool."
             correct: true
