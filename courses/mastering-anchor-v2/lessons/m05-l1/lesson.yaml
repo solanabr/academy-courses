@@ -68,7 +68,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Owner and discriminator checks run inside load, ahead of any constraint hook you attach."
+            label: "Owner and discriminator checks run inside load, ahead of any constraint hook."
             correct: true
             feedback: "Loading is not a hook — it happens first, and the account is refused before your annotation gets a look in. The way out is an untyped account and an ownership assertion you write."
           - id: b

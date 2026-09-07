@@ -36,7 +36,7 @@ blocks:
             correct: false
             feedback: "It guards the wrong product. Two reserves capped at u32::MAX multiply to 18,446,744,065,119,617,025, which does fit in a u64, so reserve_in * reserve_out was never the exposure. The multiply that panicked is amount_in_with_fee * reserve_out, and amount_in is the caller's and uncapped, so capping the reserves does nothing for it while buying you a pool-depth ceiling of about 4.3 billion base units. The defect is the width of the multiply, not the size of the reserves."
           - id: b
-            label: "Cast the operands to u128 before multiplying and use checked_mul, then divide down."
+            label: "Cast to u128 before multiplying, use checked_mul, then divide back down."
             correct: true
             feedback: "Widen the intermediate, not the stored fields, and keep it checked, because three factors is one more than u128 can absorb. Narrowing back down is safe: the output cannot exceed a value that already fit."
           - id: c
@@ -99,7 +99,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A live CpiHandle holds a Rust borrow of the typed account, so a typed read during it cannot compile."
+            label: "A live CpiHandle borrows the typed account, so a typed read during it cannot compile."
             correct: true
             feedback: "Snapshot both balances into locals before any mutable handle exists, and the whole class stops being expressible: no remembered call, no discipline to keep."
           - id: b

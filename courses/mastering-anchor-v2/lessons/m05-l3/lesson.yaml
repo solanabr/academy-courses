@@ -86,7 +86,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Cite the docs figure; a measurement published in official docs is a versioned guarantee you can budget against."
+            label: "Cite the docs figure; a measurement published in official docs is a versioned guarantee."
             correct: false
             feedback: "Anchor's own team revised its headline numbers down in PR #4914 and attached an explicit 'exact values can move' caveat — a published benchmark is a snapshot, not a versioned guarantee."
           - id: b
