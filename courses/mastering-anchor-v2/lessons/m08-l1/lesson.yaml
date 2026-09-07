@@ -38,11 +38,11 @@ blocks:
           - id: e
             label: ">=7, so npm can be trusted to move up once @solana-program does"
             correct: false
-            feedback: "An open-ended range resolves to the newest version that satisfies it, which today is kit 8.0.0, so `>=7` hits the same ERESOLVE that pinning 'latest' does. Moving a major is a decision you take after checking that the peer ranges moved too."
+            feedback: "An open-ended range resolves to the newest version that satisfies it, which as of 2026-09-07 was kit 8.2.0 and by the time you read this is probably higher, so `>=7` hits the same ERESOLVE that pinning 'latest' does. Moving a major is a decision you take after checking that the peer ranges moved too."
           - id: a
-            label: "^8 — pin the newest kit (8.0.0) so the client stays current"
+            label: "^8 — pin the newest kit (8.2.0 at the time of writing) so the client stays current"
             correct: false
-            feedback: "kit 8.0.0 is npm latest, but @solana-program/token 0.15.0 peers on @solana/kit ^7.0.0; pinning ^8 breaks the peer graph and the install fails."
+            feedback: "kit 8.2.0 was npm latest as of 2026-09-07 and yours will likely be newer, but @solana-program/token 0.15.0 peers on @solana/kit ^7.0.0; pinning ^8 breaks the peer graph and the install fails. Which digit is newest moves; which major your peers declare is what you read."
           - id: d
             label: "^6, because one repo should settle on a single kit major"
             correct: false
@@ -51,7 +51,7 @@ blocks:
             label: "^7 — match the major your @solana-program deps peer on"
             correct: true
             feedback: "Per workspace, not per repository: read the peer ranges your own dependencies declare and match that major. What npm calls latest has no bearing on whether the graph resolves."
-        explanation: "The durable rule (CF4): pin @solana/kit to the major your @solana-program dependencies declare, never to 'latest'. Today that major is 7, even though kit 8.0.0 is the newest published version."
+        explanation: "The durable rule (CF4): pin @solana/kit to the major your @solana-program dependencies declare, never to 'latest'. At the time of writing that major is 7 while npm latest was kit 8.2.0 (checked 2026-09-07). Expect both numbers to have moved by the time you run this — read them yourself with `npm view @solana/kit version` and `npm view @solana-program/token peerDependencies`. The digits are a dated observation; the rule that the pin comes from the peer range is what does not move."
       - id: m08-l1-q2
         prompt: "A teammate says 'skip Codama — just import @anchor-lang/core for the V2 client.' What's actually wrong with that?"
         multiSelect: false

@@ -97,11 +97,11 @@ blocks:
           - id: a
             label: "Yes — the pinned toolchain always tracks the newest stable Agave release at build time"
             correct: false
-            feedback: "The build pin (Solana 3.1.10) and current stable (Agave v4.2.1 as of writing) drift apart on purpose. A pin that chased the newest release would be a moving toolchain, which is exactly the free variable that breaks the hash."
+            feedback: "The build pin (Solana 3.1.10) and current stable (Agave v4.2.2 when mainnet-beta was queried on 2026-09-07; yours will likely be newer) drift apart on purpose. A pin that chased the newest release would be a moving toolchain, which is exactly the free variable that breaks the hash."
           - id: d
             label: "It's the devnet cluster's own version, which is why the deploy targets 3.1.10"
             correct: false
-            feedback: "A cluster runs its own release on its own schedule: current stable was Agave v4.2.1 while this table pinned 3.1.10. The number describes the environment the bytes were compiled in, and a deploy does not target a toolchain at all."
+            feedback: "A cluster runs its own release on its own schedule: mainnet-beta answered `getVersion` with Agave v4.2.2 on 2026-09-07, while this table pinned 3.1.10. Check yours rather than trusting that digit -- it moves, the pin does not. The number describes the environment the bytes were compiled in, and a deploy does not target a toolchain at all."
           - id: b
             label: "No — it's the local-CI/Docker toolchain pin, not a claim about the current release"
             correct: true
