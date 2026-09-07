@@ -21,11 +21,11 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Your `init_vault` handler needs to sign a withdrawal CPI later as the vault PDA. To keep that cheap and correct, what do you do with the bump you got at init time?"
+        prompt: "Your `init_vault` handler needs to sign a withdrawal CPI later as the vault PDA. To keep that cheap and correct, what do you do with the bump the macro hands you during validation?"
         multiSelect: false
         options:
           - id: a
-            label: "Call find_program_address again inside the withdraw handler so the bump is always fresh"
+            label: "Call find_program_address again inside the withdraw handler so the bump is re-derived each call"
             correct: false
             feedback: "That reintroduces the full runtime search on every call, and costs CU every time. Note which mechanism saves you here: V2's macro-time const only removes the search when every seed is a byte literal, and this vault's seeds carry the player key, so the stored bump — not the const — is what makes the withdraw cheap."
           - id: b
@@ -36,9 +36,13 @@ blocks:
             label: "Store the canonical bump in the vault's Pod state at init and reuse the stored value"
             correct: true
             feedback: "Derivation is deterministic for a fixed seed set, so one computation stored is every future computation skipped — and a byte you persisted yourself is a byte the caller can't influence."
+          - id: d
+            label: "Write a bare bump on withdraw; the macro typically finds it in one try"
+            correct: false
+            feedback: "Correct and idiomatic on the create path, which is what makes it look safe everywhere else. A bare bump asks the macro to search, and the search is priced per candidate it tries; bump = vault.bump validates against a byte you already stored and skips the walk."
         explanation: "The canonical bump is stable for a given seed set, so you read it once at init from the typed `ctx.bumps.vault` field, persist it in the account, and reuse it as `bump = vault.bump`. That is both the CU-cheap path and the safe one — no runtime search, no trusting client input. Be precise about what `ctx.bumps.vault` is: a generated struct field on every Anchor line since 0.29, not a V2 invention, and V2's macro-time const applies only to an all-literal seed scheme — not to this vault, whose seeds include the player key and therefore still derive during validation."
       - id: q2
-        prompt: "You seed the vault with [b\"vault\", player.address()] and it works. A teammate proposes seeding it with only [b\"vault\"] to 'keep it simple'. What breaks?"
+        prompt: "You seed the vault with [b\"vault\", player.address()] and it works. A teammate proposes dropping the second seed to 'keep it simple'. What breaks?"
         multiSelect: false
         options:
           - id: a
@@ -53,6 +57,10 @@ blocks:
             label: "Derivation aborts because find_program_address needs two seeds plus the program ID"
             correct: false
             feedback: "There is no two-seed minimum — up to 16 seeds of at most 32 bytes each are allowed, and zero or one is legal. The derivation succeeds; the failure is semantic, not a limit."
+          - id: d
+            label: "Nothing: each player's canonical bump differs, so the addresses stay distinct"
+            correct: false
+            feedback: "The bump does vary from one seed set to the next, which is what makes this feel like enough separation. Derivation is a pure function of the seeds and the program id, so with the player key gone the inputs are identical for everyone and the same bump and the same 32 bytes come back out."
         explanation: "The seed scheme IS the namespace. Dropping the player key makes the derivation identity-independent, so all players resolve to a single PDA. Per-entity data needs a per-entity seed — the seed design is a security boundary, not a formality."
       - id: q3
         prompt: "Porting an ancient 0.28-era snippet from an old tutorial, you see `let bump = ctx.bumps.get(\"vault\").unwrap();`. What is the rewrite that builds on today's lines, and when did the change actually land?"
@@ -70,4 +78,8 @@ blocks:
             label: "`find_program_address(seeds, id).1` recomputed inside the handler"
             correct: false
             feedback: "That is a runtime search — the exact cost a stored bump exists to delete; it is neither idiomatic nor cheap on any Anchor line."
+          - id: d
+            label: "ctx.bumps.vault - but it is a V2 addition, so keep .get(\"vault\") on the 1.x line and switch when the program moves to the RC"
+            correct: false
+            feedback: "Right rewrite, wrong credit, and this is the exact half-truth the ecosystem's migration posts keep repeating. The typed bumps struct landed in Anchor 0.29, two majors before V2 existed, so .get(\"vault\") does not build on the 1.x line either."
         explanation: "Anchor 0.29 — two majors before V2 — replaced the string-keyed bumps map with a generated typed struct, so on any modern line you read ctx.bumps.vault as a field: no string, no fallible unwrap, and a typo fails to compile. V2 keeps that idiom unchanged, so seeing .get(\"vault\") dates a snippet to 0.28 or earlier; it is not \"the v1 way.\" Be precise about what runs when: with a caller-keyed seed, the derivation itself still happens at runtime during account validation on every line. V2's only bump-time news is that an all-literal seed scheme gets its canonical bump precomputed as a macro-time const. The CU story lives elsewhere — bare `bump` runs the search, `bump = vault.bump` validates against a value you already stored."
