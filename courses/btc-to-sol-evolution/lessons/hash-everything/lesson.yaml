@@ -11,20 +11,25 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "`printf 'solana'` and `printf 'Solana'` produce completely different SHA-256 digests — not similar ones. What property is that, and why does it matter?"
+        prompt: "`printf 'solana'` and `printf 'Solana'` produce completely different SHA-256 digests, not similar ones. What property is that, and why does it matter?"
         multiSelect: false
         options:
           - id: a
-            label: "Salting — SHA-256 mixes in a per-run salt, so even identical inputs produce unrelated digests"
+            label: "Salting: SHA-256 mixes in a per-run salt, so even identical inputs produce unrelated digests"
             correct: false
-            feedback: "SHA-256 has no salt — it is a pure function, and identical inputs ALWAYS produce identical digests (that is what makes fingerprinting possible). The scrambling you saw comes from the one changed character, not from randomness."
+            feedback: "SHA-256 takes no salt: it is a pure function, and identical inputs always produce identical digests, which is the whole basis of fingerprinting. The scrambling you saw came from the one changed character, not from randomness."
           - id: b
-            label: "The avalanche effect — a one-bit change scrambles the whole output, so a digest cannot leak how similar two inputs are"
+            label: "The avalanche effect: a one-bit change scrambles the whole output, so a digest cannot leak how similar two inputs are"
             correct: true
+            feedback: "Flip one input bit and roughly half the output bits flip, so digests of near-identical inputs share nothing worth circling. That is what makes a digest a safe fingerprint: comparing two of them reveals equality and nothing else."
           - id: c
-            label: "Preimage resistance — the digests differ because you cannot run the function backwards"
+            label: "Preimage resistance: the digests differ because you cannot run the function backwards"
             correct: false
-            feedback: "Preimage resistance is a real property, but a different one: not being able to find an input that produces a given digest. The total scrambling caused by a one-character change is the avalanche effect."
+            feedback: "Preimage resistance is real, but it answers a different question: given a digest, you cannot find an input that produces it. It says nothing about how far apart the digests of two near-identical inputs land."
+          - id: d
+            label: "Determinism: the function is fixed and public, so two different inputs will always land on two completely unrelated digests"
+            correct: false
+            feedback: "Determinism constrains identical inputs, not different ones: same input, same digest, everywhere, forever. It cannot even promise that distinct inputs get distinct digests, since 2^256 outputs have to cover every possible input. What the demo showed is how violently the output moves, and that is a separate property."
         explanation: "The avalanche effect: flip one input bit and roughly half the output bits flip, leaving no correlation between digests of near-identical inputs. That is what makes a hash a safe fingerprint — comparing digests reveals equality and nothing else, so an attacker cannot home in on data by watching digests get 'closer'."
       - id: q2
         prompt: "A SHA-256 digest is always the same size regardless of input. How many BITS is that digest?"
@@ -33,14 +38,23 @@ blocks:
           - id: a
             label: "64 hex characters (256 bits)"
             correct: true
+            feedback: "Any input, from one byte to a terabyte, folds down to exactly 256 bits: 32 bytes, printed as 64 hex characters at 4 bits per character. The fixed size is what lets one short string stand in for data of any size."
           - id: b
-            label: "32 hex characters (128 bits)"
+            label: "32 hex characters (128 bits), one hex character per byte of the 32-byte digest"
             correct: false
-            feedback: "32 is the digest size in BYTES. 256 bits = 32 bytes = 64 hex characters, since each hex character encodes 4 bits."
+            feedback: "32 is the digest size in bytes, not in hex characters, and a byte needs two hex characters rather than one. Chain the conversions and it comes out as 256 bits = 32 bytes = 64 hex characters."
           - id: c
-            label: "It depends on the input — longer files produce longer digests"
+            label: "It depends on the input, since longer files produce longer digests"
             correct: false
-            feedback: "Fixed output size is the point: any input, from one byte to a terabyte, compresses to exactly 256 bits. That is what lets a short digest stand in for data of any size."
+            feedback: "Fixed output size is the point. SHA-256 folds the input into a running state 512 bits at a time, and the state that survives the last chunk is the digest, so a 4 GB video and a 6-byte string come out the same width."
+          - id: d
+            label: "40 hexadecimal characters (160 bits)"
+            correct: false
+            feedback: "That is SHA-1's digest, which is why the commit ids in git log run 40 characters and not 64. Digest width is the fastest way to tell the two functions apart on sight."
+          - id: e
+            label: "512 bits, the size of one input chunk"
+            correct: false
+            feedback: "512 bits is what SHA-256 reads on the way in, one chunk at a time. The running state it folds those chunks into is 256 bits wide, and that state is what comes out at the end."
         explanation: "SHA-256 always outputs 256 bits = 32 bytes, written as 64 hexadecimal characters (4 bits per character). The fixed size is a feature: a block header, a file, or a whole chain state all reduce to the same small, comparable fingerprint."
       - id: q3
         prompt: "The 2017 'SHAttered' result produced two different PDF files with the same SHA-1 hash. What does that tell you about algorithm choice?"
@@ -49,12 +63,17 @@ blocks:
           - id: a
             label: "It shows preimage attacks are practical, so any SHA-1 digest can now be reversed to its input"
             correct: false
-            feedback: "SHAttered was a COLLISION — two specially crafted inputs sharing one digest — not a preimage attack; nobody can 'reverse' a digest. But broken collision resistance alone disqualifies SHA-1 wherever two documents must never share a fingerprint."
+            feedback: "SHAttered was a collision, two crafted inputs sharing one digest, and not a preimage attack: nobody can reverse a digest. Broken collision resistance is on its own enough to disqualify SHA-1 wherever two documents must never share a fingerprint."
           - id: b
-            label: "Very little — a lab result with two PDFs does not affect real systems that hash other formats"
+            label: "Very little, since a lab result with two PDFs does not affect real systems that hash other formats"
             correct: false
-            feedback: "The PDFs were a demonstration, not the limit: the attack targets the algorithm, not the file format. Git, TLS certificates, and signature schemes all had to migrate off SHA-1 because of it."
+            feedback: "The PDFs were a demonstration, not the limit: the attack targets the algorithm, and the file format was only the wrapper. Git, TLS certificates and signature schemes all had to respond to it."
           - id: c
             label: "SHA-1's collision resistance is broken; choose a function like SHA-256 wherever two inputs must never share a digest"
             correct: true
+            feedback: "Once an attacker can craft two documents carrying one digest, anything that treats a digest as a unique fingerprint stops working: signatures, content addressing, block hashes. SHA-256 has no known practical collision, which is why this course and both chains in it are built on it."
+          - id: d
+            label: "SHA-1 is hardened, not broken: the variant git ships detects the attack, so SHA-1 stays fine anywhere"
+            correct: false
+            feedback: "Hardened SHA-1 spots the specific SHAttered pattern and refuses those objects. That is a guard bolted onto a broken function, not a repair of it, which is why git still prints 40-character SHA-1 digests and keeps a SHA-256 mode waiting for the ecosystem to move."
         explanation: "SHAttered demonstrated a practical SHA-1 collision: two distinct documents, one digest. Any system that treats a digest as a unique fingerprint — signatures, content addressing, block hashes — is unsafe on SHA-1. SHA-256 has no known collisions and remains the working standard, which is why Bitcoin and Solana are built on it."
