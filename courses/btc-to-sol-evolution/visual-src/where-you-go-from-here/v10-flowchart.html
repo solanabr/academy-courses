@@ -23,8 +23,12 @@
 <div class="viz">
 <style>
   .flow { display:flex; align-items:stretch; margin-top:36px; }
+  /* Block layout inside the node, not a column flex container. As flex items the
+     three lines kept flex-shrink:1, so the node squashed them below the height the
+     wrapped audit-firm list needs and that list spilled out under the card onto the
+     page. Blocks stack to their content height and the card grows to fit. */
   .node { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
-    border-radius:var(--radius-lg); padding:22px 18px; display:flex; flex-direction:column; justify-content:flex-start; text-align:center; }
+    border-radius:var(--radius-lg); padding:22px 18px; text-align:center; }
   .node .step { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.09em;
     text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:10px; }
   .node .t { font-family:var(--font-display); font-weight:900; font-size:19px; line-height:1.1;

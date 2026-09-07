@@ -13,7 +13,7 @@
 <!-- flowchart: one transaction, consuming and producing
      purpose: certify that a payment destroys whole outputs and creates new ones, with the fee as the leftover gap. The three columns must not overlap: the consumed-input card and its 50.00000000 amount have to stay fully visible beside the transaction band.
      data: CONSUMED (vin) PRODUCED (vout) coinbase output #0: 50.00000000 -> change (vout 0): 39.99997180 -> back to your wallet payment (vout 1): 10.00000000 -> to bcrt1qmqa...ff8 -> back to your wallet arithmetic: 50.00000000 in == 10.00000000 + 39.99997180 + fee fee = 50.00000000 - 49.99997180 = 0.00002820 (2820 sats), captured by NO output
-     prompt: Left-to-right flowchart, dark background, monospace. One input box "50.00000000 (coinbase #0)" on the left, an arrow into a transaction node, two output boxes on the right: "39.99997180 change (vout 0)" and "10.00000000 payment (vout 1)" in that order. A thin red sliver between the arrows labeled "fee 2820 sats (no output holds it)". No decorative icons.
+     prompt: Left-to-right flowchart, dark background, monospace. One input box "50.00000000 (coinbase #0)" on the left, an arrow into a transaction node, two output boxes on the right: "39.99997180 change (vout 0)" and "10.00000000 payment (vout 1)" in that order. A thin red sliver between the arrows labeled "fee 2820 sats (no output holds it)". No decorative icons. [render check: five columns side by side -- input card, arrow, transaction node, arrow, the two output cards stacked -- with every card fully visible and nothing printed over anything else]
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -23,9 +23,13 @@
 </div>
 <div class="viz">
 <style>
-  .fc { display:flex; align-items:center; gap:28px; margin-top:40px; }
-  .side { flex:0 0 380px; min-width:0; display:flex; flex-direction:column; }
-  .side.out { gap:20px; }
+  /* Explicit grid tracks, not flex. As `display:flex` with `.txn { flex:1 1 0 }`
+     the middle transaction node resolved to the full row width and printed straight
+     over both side columns, burying the input card. Named tracks cannot do that. */
+  .fc { display:grid; grid-template-columns:380px 34px 1fr 34px 380px; gap:28px;
+    align-items:center; margin-top:40px; }
+  .side { min-width:0; }
+  .side.out .box + .box { margin-top:20px; }
   .colhead { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
     text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:14px; }
   .box { border-radius:var(--radius-lg); padding:22px 26px; border:2px solid var(--border-subtle);
@@ -36,14 +40,14 @@
   .box.pay { border-color:rgba(0,139,76,0.40); background:rgba(0,139,76,0.07); }
   .box.pay .amt { color:var(--stbr-emerald); }
   .box.chg { border-color:rgba(48,108,64,0.30); }
-  .txn { flex:1 1 0; min-width:0; align-self:center; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .txn { min-width:0; }
   .txnode { background:var(--surface-inverse); color:var(--text-on-dark); border-radius:var(--radius-lg);
     padding:26px 30px; text-align:center; width:100%; }
   .txnode .lbl { font-family:var(--font-body); font-weight:800; font-size:13px; letter-spacing:.12em;
     text-transform:uppercase; color:var(--stbr-yellow); }
   .txnode .eq { font-family:var(--font-mono); font-size:16px; overflow-wrap:anywhere; color:var(--stbr-ink-300); margin-top:12px; line-height:1.5; }
   .txnode .eq b { color:var(--stbr-cream); }
-  .arr { flex:0 0 34px; text-align:center; color:var(--stbr-emerald); font-size:30px; font-weight:900; }
+  .arr { text-align:center; color:var(--stbr-emerald); font-size:30px; font-weight:900; }
   .fee { margin-top:26px; display:flex; align-items:center; gap:16px; background:rgba(192,57,43,0.06);
     border:2px solid rgba(192,57,43,0.28); border-radius:var(--radius-lg); padding:18px 28px; }
   .fee .sliver { flex:0 0 8px; align-self:stretch; min-height:34px; background:#c0392b; border-radius:var(--radius-pill); }
