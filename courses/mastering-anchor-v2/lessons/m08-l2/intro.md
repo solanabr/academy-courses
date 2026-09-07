@@ -274,7 +274,7 @@ Check yourself against the four ways this goes wrong in practice, because they a
 
 Did your `verify-from-repo` actually run against devnet with your own program id, and report a real match? Reading the narrated flows does not count as the proof. The gate is a hash match you produced, plus the mismatch you produced after editing one line. If you only read, you have not passed yet.
 
-Did the `verify-from-repo` in your terminal use `--library-name`? On a single-program workspace it is optional and on yours it is not, because `quarters` holds three programs by now — five once the capstone lands — and the tool has no way to guess which one your program id belongs to.
+Did the `verify-from-repo` in your terminal use `--library-name`? On a single-program workspace it is optional and on yours it is not, because `quarter-vault` holds three programs by now — five once the capstone lands — and the tool has no way to guess which one your program id belongs to.
 
 Did you keep the pins-table Solana version in its lane? Build fact, not network fact — if that distinction is not instant by now, re-read the pins-table walk above before moving on.
 

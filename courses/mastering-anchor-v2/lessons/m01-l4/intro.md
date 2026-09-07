@@ -156,8 +156,9 @@ You are still working on R0, the greeter. This lab extends it with a second and 
 First, the toolchain. You already built the V2 RC in m01-l2, and you learned there why `avm install` cannot fetch it for you: no GitHub Release was cut for the v2 tag, so the prebuilt binary it downloads 404s. The RC lives in the git channel (`cargo install --git ... --tag v2.0.0-rc.1 anchor-cli --locked --force` — m01-l2 built off the `anchor-next` branch itself because the channel was its subject; from here on the course pins the tag), and the binary is already on your machine. Confirm it is the one answering before you touch code:
 
 ```bash
-anchor --version   # expect: anchor-cli 2.0.0-rc.1
-which anchor       # expect: ~/.cargo/bin/anchor, not the avm shim
+anchor --version   # the real check: expect anchor-cli 2.0.0-rc.1, not 1.1.2
+which anchor       # ~/.cargo/bin/anchor either way — the avm shim lives at that same
+                   # path, so this only proves something is on PATH, never which build
 ```
 
 If that prints `1.1.2`, your PATH handed you the stable line again; re-read the four-walls table in m01-l2 and fix the ordering before anything else. While you are there, re-stamp the `verified` date on the anchor-cli row of `PINS.md`. The pin is `2.0.0-rc.1` as of this writing (August 2026), RCs move, and a fresh date on an unchanged value is the record that a human looked.

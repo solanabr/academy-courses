@@ -119,7 +119,7 @@ One version-line note so nobody trips: this course pins Solana CLI `3.1.10` as t
 
 **Step 1. The four interfaces are already in.** You harvested the IDLs and wrote the four `declare_program!` lines in the opening. Confirm `anchor build` still compiles the empty registry with all four generated modules resolved. `` error: `idls` directory not found `` means the harvest never ran — the rungs must be named before the registry compiles. A missing *item* inside a module (a function or field the compiler cannot find) means a stale JSON: re-run the harvest loop, because `declare_program!` compiles against the file, not the source.
 
-**Step 2. Wire R1, the counter increment (worked for you).** A play on a cabinet is one CPI: the registry calls the counter's `increment`. Here it is in full. Read every line, because this is the template you will copy three times.
+**Step 2. Wire R1, the counter increment (worked for you).** A play on a cabinet is one CPI: the registry calls the counter's `post_score` — `increment` as m02-l1 first wrote it, renamed in m02-l2 when the cabinet grew a board. Here it is in full. Read every line, because this is the template you will copy three times.
 
 ```rust
 use anchor_lang::prelude::*;
@@ -151,7 +151,10 @@ pub mod floor_registry {
         // cpi_handle_mut() takes a live borrow of `cabinet` for the callee; while it is
         // held you cannot also touch `cabinet` through its typed view. That borrow IS the
         // reload discipline, enforced by the compiler instead of your memory.
-        let cpi_accounts = counter_cpi::accounts::Increment {
+        // Named after the INSTRUCTION, and m02-l2 renamed it: `increment` became
+        // `post_score` when R1 grew a leaderboard, so the generated struct is
+        // `accounts::PostScore`, not `accounts::Increment`.
+        let cpi_accounts = counter_cpi::accounts::PostScore {
             cabinet: ctx.accounts.cabinet.cpi_handle_mut(),
             player: ctx.accounts.player.cpi_handle(),
         };
@@ -162,8 +165,9 @@ pub mod floor_registry {
             cpi_accounts,
         );
 
-        // The generated wrapper packs `score` and invokes R1.increment.
-        counter_cpi::increment(cpi_ctx, score)?;
+        // The generated wrapper packs the score and invokes R1.post_score, whose
+        // argument m02-l2 named `points`.
+        counter_cpi::post_score(cpi_ctx, score)?;
         Ok(())
     }
 }
@@ -183,7 +187,7 @@ pub struct RecordPlay {
 
 The player signs the outer transaction, and that signer privilege extends down through the CPI, so the counter sees a signed `player` without the registry signing anything itself. Nothing here is new. It is the escrow's `reserve` deposit with different names.
 
-Expected result: `anchor build` compiles the registry with one instruction and no warnings about unresolved `counter_cpi` paths. A "no method named `cpi_handle_mut`" error means you are on the machine-default V1 CLI, not the RC from Step 0; an unresolved `cabinet_counter::cpi` means the `declare_program!` line or its `idls/cabinet_counter.json` is missing. One naming rule to keep in your pocket for the solo edges: the generated CPI accounts structs are named after the **instruction** (`accounts::Increment` for `increment`), not after whatever the callee called its own context type — the IDL carries instruction names, and on the rungs the two happen to coincide.
+Expected result: `anchor build` compiles the registry with one instruction and no warnings about unresolved `counter_cpi` paths. A "no method named `cpi_handle_mut`" error means you are on the machine-default V1 CLI, not the RC from Step 0; an unresolved `cabinet_counter::cpi` means the `declare_program!` line or its `idls/cabinet_counter.json` is missing. One naming rule to keep in your pocket for the solo edges: the generated CPI accounts structs are named after the **instruction** (`accounts::PostScore` for `post_score`), not after whatever the callee called its own context type — the IDL carries instruction names, and on the rungs the two happen to coincide. Which is also why a rename you made two modules ago reaches you here: an `unresolved import counter_cpi::accounts::Increment` is a stale *name*, not a stale harvest, and re-running the harvest will not fix it.
 
 ![An annotated code card isolating the three reusable parts of a V2 CPI, with the rule to read typed state before opening a handle.](assets/v04-annotated-code.png)
 
@@ -265,6 +269,16 @@ Make the failure mode concrete, because it is the one that bites. Say the regist
 ```bash
 solana config set --url devnet
 solana airdrop 2                    # devnet SOL for the deploy
+# One callback before you deploy: m08-l2 handed the swap's upgrade authority to
+# /tmp/new-authority.json as a rehearsal. `anchor deploy` upgrades the whole
+# workspace signed by your workspace wallet, which is no longer the swap's
+# authority, so take it back first (and if a reboot already wiped /tmp, that
+# program is frozen at its current bytes and you deploy the rest without it).
+# Both sides are keypair FILES, which is m08-l2's own rule: a bare pubkey needs
+# --skip-new-upgrade-authority-signer-check, and that is not a flag to rehearse.
+solana program set-upgrade-authority <SWAP_PROGRAM_ID> -u devnet \
+  --upgrade-authority /tmp/new-authority.json \
+  --new-upgrade-authority ~/.config/solana/id.json
 anchor deploy                       # deploys the workspace to devnet
 # expect, per program:
 #   Deploy success
@@ -290,7 +304,7 @@ solana-verify verify-from-repo -u devnet \
   --program-id <FLOOR_REGISTRY_PROGRAM_ID> \
   --mount-path programs/floor-registry \
   --library-name floor_registry \
-  https://github.com/<you>/quarters
+  https://github.com/<you>/quarter-vault
 ```
 
 When the two hashes match, you have proven your public source reproduces the exact bytecode running on devnet. That is a real proof, and it is worth being precise about what it is and is not.

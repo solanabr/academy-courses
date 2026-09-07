@@ -123,7 +123,19 @@ This is the first place the diff shows. In R2, value lived in a *second* PDA: th
 
 ![An accounts-struct diff: the vault account keeps its seeds and bump, the separate sol-vault PDA is removed, and mint, token-account, and token-program lines are added.](assets/v05-annotated-code.png)
 
-The vault program in full, `initialize` through `release`. Read `withdraw` closely: that is the interim check you re-run.
+The **custody path** in full, `initialize` through `release`. Read `withdraw` closely: that is the interim check you re-run.
+
+One disposition table before you paste, because "the vault program" now means more than these four handlers, and a paste-over would silently delete the rest of module 3 without anyone saying so. The thesis of this lesson is that only the custody layer changes; here is that thesis spelled out artifact by artifact.
+
+| artifact | from | what happens to it |
+|---|---|---|
+| the `Config` PDA and the `address = config.authority` gate on `admin_set_credit` | m03-l2 | **Keep, unchanged.** It gates who may write the books, and the books did not change shape. |
+| `close_vault` | m03-l2 | **Keep, and notice what it now implies.** The vault's value no longer lives in the account you are closing. Close the state PDA while its ATA still holds tokens and nothing in the program will move them again, because every path that signs for the vault loads the state you just closed. Guard it — refuse to close a vault whose `credit` is non-zero — or drain first. |
+| `quarters::min_balance` and `require_funded` | m03-l3 | **Keep, unchanged.** The constraint reads `vault.credit`, which is still there and still a `u64`. |
+| `set_credit` | m03-l3 | **Delete it here.** m03-l3 called it "exactly the handler you would delete before shipping", and this is the lesson where the vault starts holding real value. An ungated credit-setter sitting beside real custody contradicts the deposit path you are about to write; `deposit` owns the books from now on. |
+| the `sol_vault` PDA and the `sol_bump` field | m04-l1 | **Gone.** This is the one genuine deletion the custody swap forces: value moved into a token account, so the System-owned lamport PDA and the bump you stored for it have no job left. |
+
+Only the last two rows are deletions, and only one of them is the custody swap's doing. That is the thesis holding.
 
 ```rust
 use anchor_lang::prelude::*;

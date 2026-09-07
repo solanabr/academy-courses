@@ -4,7 +4,7 @@ You just watched type cosplay, duplicate-mutable, and CpiHandle aliasing die at 
 
 So do not read yet. You are going to make the vulnerable branch yourself, from the escrow you already built, because the guards you are about to remove are guards *you* wrote and the removal is the first thing worth feeling.
 
-From the same `quarters` workspace as last lesson, on your clean R3/R4:
+From the same `quarter-vault` workspace as last lesson, on your clean R3/R4:
 
 ```bash
 git checkout -b vuln/prize-escrow

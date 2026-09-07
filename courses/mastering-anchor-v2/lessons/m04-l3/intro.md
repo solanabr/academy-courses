@@ -223,6 +223,8 @@ Checkpoint: `anchor build` compiles. If it complains about padding or a non-Pod 
 
 `reserve` creates the escrow record and, in the same instruction, moves the operator's lamports into a quarter-vault instance by calling R2. This is the worked example: read every handle.
 
+One placement note that applies to this listing and the `redeem` one in step 4, because pasting either at the top level of `lib.rs` compiles into dead code and then fails step 5 on an unresolved `quarter_prize::instruction::Reserve`. The `use` lines and the `#[derive(Accounts)]` struct are top-level items. The `pub fn` goes **inside** the `#[program] pub mod quarter_prize { use super::*; … }` module, exactly where m03-l1's `init_vault` went — that module is what generates the `instruction::` and `accounts::` builders the test reaches for.
+
 ```rust
 use anchor_lang::prelude::*;
 use quarter_vault::cpi as vault_cpi;
@@ -510,7 +512,7 @@ fn conditional_release() {
 }
 ```
 
-Run it. `anchor test` builds both programs and, on V2, drives the suite through Surfpool (v1.5.0 is the current release from solana-foundation/surfpool; install it with the documented one-liner, `curl -sL https://run.surfpool.run/ | bash`, and note that the `surfpool` crate on crates.io is a stale 0.1.0 placeholder, not the CLI), while the LiteSVM unit test above runs in-process:
+Run it. This suite is the one in-process LiteSVM test above, and that matters for what `anchor test` does: for the LiteSVM template the RC skips standing up a local validator at all, exactly as m01-l2 and m01-l3 said it would, so nothing here needs Surfpool installed. (`anchor test` on a validator-backed template is where Surfpool comes in, and m09-l3 installs it there for the capstone's integration run.) Expect:
 
 ```text
 running 1 test
