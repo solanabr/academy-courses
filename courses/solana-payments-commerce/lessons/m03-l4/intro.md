@@ -10,7 +10,7 @@ curl -s -X POST http://localhost:3100/txreq \
   -d '{"account":"'$(solana address)'"}'
 ```
 
-You should get back JSON with a base64 transaction in it. Look at that response for a second. A wallet POSTs `{account}`, your server prices the order and returns a signed-ready transaction. That is the whole trick of this lesson: the Actions spec is that same request-response pair, wearing a metadata layer so any surface can render a button around it. You already built the hard part.
+You should get back JSON with a base64 transaction in it. Look at that response for a second. A wallet POSTs `{account}`, your server prices the order and returns a signed-ready transaction. That is the whole trick of this lesson: the Actions spec is that same request-response pair, plus a metadata layer so any surface can render a button around it. You already built the hard part.
 
 ## Summary
 

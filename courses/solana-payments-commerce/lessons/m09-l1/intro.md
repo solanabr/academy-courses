@@ -512,7 +512,7 @@ Accept when `npm run journey` prints seven PASS lines and exits 0, AND the modul
 
 ## Checkpoint: seven lines
 
-If the journey is red, work the footgun table before you read a single line of leg code: a type error in the crank is cross-contamination, a doubled fulfillment is the missing claim guard, a not-found on the queued sale is an undrained queue, and a timeout dressed as a failure is devnet rate-limiting your reads. I will confess the one that got me when I first ran an assembled demo of my own: I watched a leg "fail" three times, rewrote a perfectly good handler twice, and the transaction had landed fine every single time. The public RPC was throttling my verification reads, not my payments. The retryRead wrapper in your harness exists because of exactly that evening.
+If the journey is red, work the footgun table before you read a single line of leg code: a type error in the crank is cross-contamination, a doubled fulfillment is the missing claim guard, a not-found on the queued sale is an undrained queue, and a timeout that looks like a failure is devnet rate-limiting your reads. I will confess the one that got me when I first ran an assembled demo of my own: I watched a leg "fail" three times, rewrote a perfectly good handler twice, and the transaction had landed fine every single time. The public RPC was throttling my verification reads, not my payments. The retryRead wrapper in your harness exists because of exactly that evening.
 
 And so you know the target you are debugging toward, here is what a green night looks like, the last checkpoint of the course:
 
