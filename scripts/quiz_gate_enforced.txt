@@ -17,9 +17,9 @@
 # lands -- which is the point: the gate arrives with the fix, not after it.
 mastering-anchor-v2        # c1fa1fd, 0 errors: best content-blind strategy 30.1% vs 24.2% chance
 rust-ts-fundamentals       # 0 errors: key length rank [33,38,38,22], best strategy 29.6% vs 24.9% chance
+solana-payments-commerce   # 0 errors: key length rank [23,27,25,20], best strategy 28.4% vs 25.0% chance
 
 # Still in the 2026-09 wave, uncomment as each one clears:
-#   solana-payments-commerce   # length-rank rebalance in progress
 #   digital-assets             # assessment merged, permutation pending
 #   btc-to-sol-evolution       # assessment in progress
 #
