@@ -586,7 +586,7 @@ Expected output, first run:
 refunds: refund recorded against origin signature; underpaid order routed to policy
 ```
 
-The two must-fail probes are the teeth. The unknown-origin refusal runs every time: `signature('1'.repeat(64))` is the all-zeros signature, and if pushing money against it does anything but throw, your ledger guard is ornamental — go back to step 4. The finality refusal needs a payment that has not finalized yet, which no harness can conjure on demand, so it is env-gated: pay an order, run `reconcile-demo` on it immediately, export the signature as `FRESH_SIGNATURE`, and re-run the gate inside the ~12-second finalization window. Refunding it must be refused. Note also what a re-run proves for free: part 3 hits the `already refunded` guard and reports it as a pass, because idempotency surviving a second run is the property, not an inconvenience.
+The two must-fail probes are the teeth. The unknown-origin refusal runs every time: `signature('1'.repeat(64))` is the all-zeros signature, and if pushing money against it does anything but throw, your ledger guard is ornamental — go back to step 4. The finality refusal needs a payment that has not finalized yet, which no harness can conjure on demand, so it is env-gated: pay an order, run `reconcile-demo` on it immediately, export the signature as `FRESH_SIGNATURE`, and re-run the gate inside the ~10-second finalization window this lesson derived at :98 (32 slots at the 300ms target). Refunding it must be refused. Note also what a re-run proves for free: part 3 hits the `already refunded` guard and reports it as a pass, because idempotency surviving a second run is the property, not an inconvenience.
 
 ## Challenge
 

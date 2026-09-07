@@ -10,9 +10,11 @@
  *     as an expired blockhash and you must re-sign it.
  *   - 'nonce' txs use a durable nonce and DO NOT expire by wall clock -- that is
  *     the whole point of the fair queue. But a durable nonce is single-use: once
- *     it has advanced (nonceAdvanced === true), rebroadcasting the tx risks
- *     DOUBLE-PROCESSING, the exact failure class behind the 2022-06-01 mainnet
- *     halt. A spent-nonce tx must never be resubmitted.
+ *     it has advanced (nonceAdvanced === true) the stored value no longer matches
+ *     the transaction's recentBlockhash, so a conforming validator rejects those
+ *     bytes outright. Rebroadcasting cannot land; it only burns sends and smudges
+ *     the ledger the drain depends on. A spent-nonce tx is never resubmitted --
+ *     it is reconciled (landed earlier) or escalated (lost), by a human.
  *
  * CALLING CONVENTION: the grader calls this function positionally --
  * drainFairQueue(nowSeconds, windowSeconds, queueJson). The queue arrives as
@@ -54,7 +56,7 @@ function drainFairQueue(
   for (const item of items) {
     // TODO: this naive pass treats EVERYTHING as a blockhash tx that expires by
     // wall clock. It ignores durable nonces (which do not expire) and never
-    // guards a spent nonce against double-processing. Fix it: branch on
+    // separates a spent nonce out for reconciliation. Fix it: branch on
     // item.kind, and for a nonce tx route nonceAdvanced === true into `unsafe`.
     const age = nowSeconds - item.signedAtSeconds;
     if (age <= windowSeconds) {
