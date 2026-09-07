@@ -706,6 +706,12 @@ def m_heuristics(rep: CourseReport) -> None:
                     f"{p_null:.1%} chance (exact p={p_val:.2g}) — this question set is partly solvable "
                     f"without reading the lesson")
 
+    # Every heuristic here picks ONE option, so multiSelect questions are outside
+    # the suite by construction. Say how many rather than letting them vanish:
+    # converting a question to multiSelect makes it disappear from this score,
+    # which is a legitimate fix when the answer is honestly a set and a way to
+    # launder a bad question when it is not.
+    rep.stats["heuristic_excluded_multiselect"] = sum(1 for q in rep.questions if q.multi)
     rep.stats["heuristics"] = results
     rep.stats["review_queue"] = {k: v for k, v in sorted(
         solved.items(), key=lambda kv: (-len(kv[1]), kv[0])) if len(v) >= 2}
@@ -861,8 +867,10 @@ def render(rep: CourseReport) -> str:
         lines.append(f"   key length rank  {rank}   (shortest→longest)")
     if s.get("heuristics"):
         best = max(s["heuristics"].items(), key=lambda kv: kv[1]["rate"])
+        excl = s.get("heuristic_excluded_multiselect", 0)
+        note = f"; {excl} multiSelect question(s) are outside this score" if excl else ""
         lines.append(f"   content-blind    best strategy '{best[0]}' scores {best[1]['rate']:.1%} "
-                     f"({best[1]['hits']}/{best[1]['n']}, p={best[1]['p']:.2g})")
+                     f"({best[1]['hits']}/{best[1]['n']}, p={best[1]['p']:.2g}){note}")
     if "hedge_ratio" in s or "absolutes_ratio" in s:
         lines.append(f"   lexical tells    hedge {s.get('hedge_ratio', float('nan')):.2f}x | "
                      f"absolutes {s.get('absolutes_ratio', float('nan')):.2f}x")
