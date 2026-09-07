@@ -31,7 +31,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "It unfurls natively in X for every viewer, because X added first-class native blink rendering to the timeline."
+            label: "It unfurls natively in X for every viewer, because X shipped first-class blink rendering into the timeline, so the card draws without any extension installed."
             correct: false
             feedback: "Native X rendering is not established; the 'unfurl in the feed' claim is frozen at 2024 launch language and is not how it works now."
           - id: b
@@ -39,11 +39,11 @@ blocks:
             correct: false
             feedback: "That is an overly specific, unverified claim; the actual render-surface list for 2026 is uncertain and must be checked at write time."
           - id: c
-            label: "X rendering is Chrome-extension-mediated, not native, and the 2026 surface list is uncertain, so you verify at write time and never promise 'renders everywhere.'"
+            label: "X rendering is Chrome-extension-mediated, not native, and the 2026 surface list is uncertain, so verify at write time and never promise 'renders everywhere.'"
             correct: true
             feedback: "Rendering lives in a client you do not control, and an extension-mediated unfurl reaches only the viewers who installed it. Everyone else needs the link to still open a page."
           - id: d
-            label: "Native wallet rendering was confirmed as of the 2024 launch wave, so the link works for anyone holding a Solana wallet."
+            label: "Native wallet rendering was confirmed as of the 2024 launch wave, so the link renders for anyone holding a Solana wallet, whether or not they run the extension."
             correct: false
             feedback: "The ecosystem pages naming specific wallets do date from that launch wave, which is exactly why they cannot carry a 2026 claim. Current behavior in any given wallet is untested until you test it, that week."
         explanation: "The research confirms X rendering is Chrome-extension-mediated, and the 2026 native-wallet render list is unverified. The safe design is spec conformance plus a local blinks client for the lab, with any surface claim living in a verified-at-write box. Promising a feed render you cannot guarantee is the trap."
@@ -85,7 +85,7 @@ blocks:
             correct: false
             feedback: "There is no such rename; @dialectlabs/blinks 0.22.5 and @solana/actions 1.6.6 remain the pins, frozen as they are."
           - id: d
-            label: "The package is deprecated on npm and Dialect points you at its hosted Standard Blinks Library instead, so there is no version of it left for you to pin."
+            label: "The package is deprecated on npm and Dialect points you at its hosted Standard Blinks Library, so there is no version left to pin."
             correct: false
             feedback: "Dialect's attention did move to the hosted library, but 0.22.5 is still published and installable. Frozen and deprecated are different states, and the frozen one is pinnable, which is what makes the staleness note worth writing."
         explanation: "@dialectlabs/blinks 0.22.5 (published 2025-04-04) and @solana/actions 1.6.6 (published 2024-11-05) are the newest versions that exist; no fresher ones have shipped. This course installs neither — it builds against @solana/actions-spec 2.4.2 and the wire contract — but if a project of yours does adopt them, pin those exact versions with a staleness note, because Dialect's investment moved to its hosted Standard Blinks Library rather than the core SDK."
@@ -106,7 +106,7 @@ blocks:
             correct: true
             feedback: "An Action returns an ordinary transaction, which is why one builder serves both surfaces. Anything gated on human review has no schedule, and an unsourced enforcement date is a guess."
           - id: d
-            label: "You reuse the m03-l2 builder, but the action-identity memo has to ride each transaction before Dialect will consider listing you."
+            label: "You reuse the m03-l2 transaction-request builder, but the action-identity memo has to ride each transaction, and the registry will not list an action whose transactions leave that memo out."
             correct: false
             feedback: "Action identity exists so indexers can attribute a transaction back to the action that produced it, not as an admission ticket. Registration is an emailed submission into a manual queue, memo or no memo."
         explanation: "The blink's transaction is the same code path as the checkout: you reuse the m03-l2 builder, which is the accretion the ladder is showing. Registry admission is a manual Dialect review entered by an emailed submission; the API key gates only the per-URL lookup endpoint, and the enforcement date is unsourced, so your lab gates on spec conformance plus a local client, not on registry status."

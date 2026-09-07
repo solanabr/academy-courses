@@ -53,11 +53,11 @@ blocks:
             correct: false
             feedback: "Nothing re-approves automatically; a new approval is always a fresh signed action by the token-account owner."
           - id: c
-            label: "15 USDC remains; a fourth pull exhausts it and clears the delegate, so a fifth finds none."
+            label: "15 USDC remains; a fourth 15-USDC pull exhausts the approval and clears the delegate, so a fifth fails with the delegate already revoked."
             correct: true
             feedback: "The Token program sets the delegate to None at zero, freeing the slot by itself; the allowance is what does not come back, and only a fresh owner-signed ApproveChecked restores it."
           - id: d
-            label: "15 USDC remains; the fourth pull empties the allowance, but the delegate slot stays yours until the owner signs a Revoke that finally clears it."
+            label: "15 USDC remains; the fourth pull empties the allowance, but the delegate slot stays yours until the owner signs a Revoke."
             correct: false
             feedback: "The arithmetic is right and the ending is not. The decrement that lands on exactly zero clears the delegate field in the same instruction, so nobody has to sign anything for the slot to empty."
         explanation: "The approved amount decrements per transfer: 60 → 45 → 30 → 15. The fourth pull empties it; the fifth reverts unless the owner signs a new ApproveChecked."
@@ -99,7 +99,7 @@ blocks:
             correct: false
             feedback: "A delegate TransferChecked can be paired with a memo/reference; the memo is not what the single slot limits."
           - id: d
-            label: "Because the delegate slot belongs to the wallet, so a subscriber's second subscription evicts the first even when it bills in a different mint."
+            label: "Because the delegate slot belongs to the wallet, so a subscriber's second subscription evicts the first even in a different mint."
             correct: false
             feedback: "The slot lives on a token account, and a token account is per mint. A club billing in USDC and one billing in EURC sit on separate accounts with separate slots; the collision only happens when both bill the same mint."
         explanation: "One slot means one live subscription per (user, mint). To let one token account back many billing arrangements you need a program that occupies the slot once and multiplexes real limits behind PDAs. That is the next lesson."
