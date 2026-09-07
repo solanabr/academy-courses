@@ -50,7 +50,7 @@ blocks:
             correct: false
             feedback: "Closing the user's ATA is a different account entirely and does not reclaim the program's subscription or delegation PDAs."
           - id: d
-            label: "Nothing to do here: the subscriber's cancel already closed both of those accounts and returned every lamport of their rent."
+            label: "Nothing to do: the subscriber's cancel already closed both accounts and returned every lamport of rent."
             correct: false
             feedback: "Unsubscribing does close the delegation account and refund it. Revoking the authority only vacates the delegate slot, so the subscription PDA is still sitting there on your rent until a RevokeAbandoned call closes it."
         explanation: "RevokeAbandoned* is the lifecycle exit that recovers rent from dead subscription/delegation PDAs, so you stop paying to keep cancelled arrangements on-chain."
@@ -71,7 +71,7 @@ blocks:
             correct: true
             feedback: "Recurring is a separate product line from payments, and a strong payments vendor can simply not ship it; support is not coverage either, and the corridor is where that gap shows."
           - id: d
-            label: "All three ship recurring billing, so the choice comes down to corridor coverage and price rather than capability."
+            label: "All three ship recurring billing, so the choice comes down to corridor coverage, payout speed and per-charge price rather than capability."
             correct: false
             feedback: "Assuming every payments vendor also bills recurring is how the wrong one gets picked. Sphere is strong on payments, ramps and PIX settlement and ships no recurring product at all, so capability is the first filter, not the last."
         explanation: "The useful intelligence is the negatives: MoonPay Commerce and Stripe Billing both do recurring, Sphere does not. Assuming every payments provider bills recurring is how you pick the wrong vendor."

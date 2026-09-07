@@ -34,7 +34,7 @@ blocks:
             correct: false
             feedback: "Signing first and warning later has already exposed the account; the spec rule is to refuse before signing, not to audit after."
           - id: d
-            label: "Sign for the extra account when the customer's wallet holds its key; the spec calls a request malicious when it demands a signature nobody controls."
+            label: "Sign for the extra account when the customer's wallet holds its key; the spec calls a request malicious when nobody controls it."
             correct: false
             feedback: "An account the customer controls is exactly what a hostile server hopes to get rubber-stamped: a treasury key, a multisig seat. The wallet knows one account was volunteered, and every other demanded signer is one nobody agreed to."
         explanation: "Because the server hands the wallet a fully built transaction, the wallet is the only thing standing between the user and an unexpected signature. The Solana Pay spec makes this explicit: a request that demands a signature from an account the user did not submit is malicious and must be rejected. That trust boundary is the price of server-side control."
@@ -67,7 +67,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Transaction requests support a dedicated coupon query parameter in the URL that transfer requests simply do not expose."
+            label: "Transaction requests add a dedicated coupon query parameter to the solana: URL, which transfer requests do not expose, so the discount travels inside the link the customer scans."
             correct: false
             feedback: "There is no coupon parameter; discount logic is code you run, not a URL field. This misses why server construction matters."
           - id: b
@@ -75,11 +75,11 @@ blocks:
             correct: false
             feedback: "There are no coupon or subtotal fields in the spec, and client-computed pricing is exactly the tamper risk you are escaping; the wallet never runs your discount logic."
           - id: c
-            label: "Because your server builds the transaction, it computes the discounted total and injects the memo and reference itself, so pricing never lives in a customer-controlled URL."
+            label: "Because your server builds the transaction, it computes the discounted total and injects the memo and reference itself, so pricing never lives in a customer-edited URL."
             correct: true
             feedback: "Backend-computed values are out of the payer's reach, which stops tampering but does nothing about replay; a single-use coupon still needs state on your side."
           - id: d
-            label: "Because the transaction request runs your discount inside an on-chain program, so the total is computed by the chain itself and no URL can edit it."
+            label: "Because the transaction request runs your discount inside an on-chain program, so the total is computed by the chain and no query string a customer edits can change it."
             correct: false
             feedback: "Nothing custom runs on-chain here. What comes back is a plain v0 transaction holding a memo and a TransferChecked, and the discount was arithmetic your server did before it built either one."
         explanation: "The whole reason to move to transaction requests is that construction happens on your backend. The server applies the coupon, computes the final total, and stamps the order id into a memo plus a reference before returning the built transaction. None of it is exposed in a URL the customer could edit."

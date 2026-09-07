@@ -49,7 +49,7 @@ blocks:
             correct: true
             feedback: "Indirection turns one scarce slot into many arrangements. The holder is unlimited and the real limits live in program state, which moves the bound off the Token program onto that logic."
           - id: d
-            label: "A Subscription Authority PDA takes the single slot with an approval sized to the sum of the plans, re-approved whenever a subscription is added."
+            label: "A Subscription Authority PDA takes the slot with an approval sized to the sum of the plans, re-approved on each new subscription."
             correct: false
             feedback: "Re-approving on every join puts the slot back in play and drags the subscriber into a signature per merchant. The authority takes the slot once, at u64::MAX, and is never touched again; the sums that matter live in the delegation accounts."
         explanation: "The SA PDA occupies the one slot with an unlimited approval; the actual, bounded limits live in delegation PDAs (fixed / recurring / plan). That is how one token account backs many subscriptions non-custodially."
@@ -70,7 +70,7 @@ blocks:
             correct: false
             feedback: "PDAs have no private key to hold, and custody-by-promise is exactly what this design removes."
           - id: d
-            label: "The program's upgrade authority signs on the PDA's behalf, so custody sits with the Foundation rather than with you."
+            label: "The program's upgrade authority holds the PDA's key and signs on its behalf, so custody sits with the Foundation rather than you."
             correct: false
             feedback: "An upgrade authority replaces code; it cannot sign as a PDA, because no signature over a PDA exists to produce. That authority is a real residual trust worth naming in a security review, and it is not custody of anybody's funds."
         explanation: "No private key exists for a PDA, so there is no merchant secret to leak or abuse; the program's code is the only thing that can move funds, and only inside the delegation's declared limits."
