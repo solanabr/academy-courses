@@ -12,8 +12,8 @@
 <body>
 <!-- comparison: submit / expired / unsafe: what each bucket means at the stall
      purpose: pin the classifier's three verdicts to their operational meaning and their governing rule
-     data: bucket: submit | rule: fresh blockhash within windowSeconds, or durable-nonce with nonceAdvanced false | meaning at the stall: broadcast now, order proceeds bucket: expired | rule: blockhash entry older than windowSeconds | meaning: harmless dead bytes; re-sign against a fresh blockhash or a nonce bucket: unsafe | rule: durable-nonce entry whose nonce already advanced | meaning: authorization spent; resubmission risks double-processing (the 2022-06-01 class); human decision required invariant row: all three buckets preserve input order
-     prompt: A three-column comparison card, one column per verdict: submit, expired, unsafe. Each column has two stacked cells: "rule" (the classifier condition) and "meaning at the stall" (the operational action), filled from the data rows. Give unsafe visual weight as the dangerous verdict (its meaning cites the 2022-06-01 double-processing class and "human decision required"). A full-width footer row spans all three columns: "all three buckets preserve input order".
+     data: bucket: submit | rule: fresh blockhash within windowSeconds, or durable-nonce with nonceAdvanced false | meaning at the stall: broadcast now, order proceeds bucket: expired | rule: blockhash entry older than windowSeconds | meaning: harmless dead bytes; re-sign against a fresh blockhash or a nonce bucket: unsafe | rule: durable-nonce entry whose nonce already advanced | meaning: authorization spent; the runtime rejects these bytes, so the live risk is re-SIGNING the same sale against a fresh nonce; human decision required invariant row: all three buckets preserve input order
+     prompt: A three-column comparison card, one column per verdict: submit, expired, unsafe. Each column has two stacked cells: "rule" (the classifier condition) and "meaning at the stall" (the operational action), filled from the data rows. Give unsafe visual weight as the dangerous verdict (its meaning cites re-signing as the live double-charge risk and "human decision required"). A full-width footer row spans all three columns: "all three buckets preserve input order".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -84,7 +84,7 @@
       </div>
       <div class="cell cell-mean">
         <div class="cl">meaning at the stall</div>
-        <div class="cb">authorization spent; resubmission risks double-processing &mdash; the 2022-06-01 class. <strong>Human decision required.</strong></div>
+        <div class="cb">authorization spent; the runtime now rejects these bytes. The live double-charge is re-SIGNING this sale. <strong>Human decision required.</strong></div>
       </div>
     </div>
   </div>

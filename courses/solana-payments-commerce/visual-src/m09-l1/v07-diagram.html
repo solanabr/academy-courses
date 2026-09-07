@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: One port, every surface
      purpose: show the route map of the assembled server so collisions and root-mounted files are visible
-     data: :3000 /healthz -> stack itself :3000 /txreq GET+POST -> checkout-txreq app :3000 /gasless GET+POST -> gasless-checkout app, mounted separately (Kora node on :8080 co-signs) :3000 /actions.json + action routes -> drop-blink app (root mount is load-bearing for wallets) :3000 pressing-price route -> x402 app: unpaid 402 with PAYMENT-SIGNATURE header flow, MPP WWW-Authenticate: Payment challenge static checkout pages -> served from each surface's own public dir via absolute paths
+     data: :3000 /healthz -> stack itself :3000 /txreq GET+POST -> checkout-txreq app :3000 /gasless GET+POST -> gasless-checkout app, mounted separately (Kora node on :8080 co-signs) :3000 /actions.json + action routes -> drop-blink app (root mount is load-bearing for wallets) :3000 pressing-price route -> x402 app: unpaid 402 with PAYMENT-SIGNATURE header flow (MPP gate is a separate process, not mounted here) static checkout pages -> served from each surface's own public dir via absolute paths
      prompt: Central node for port 3000 with branches to each mounted surface, labels from data. Flag the actions.json branch with a callout that root mounting is required by wallet clients. Structure only; house brand styles apply.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -68,7 +68,7 @@
           <span class="callout">root mount is load-bearing &mdash; wallet clients require it</span></span></div></div>
       <div class="rrow"><div class="link"><i></i></div>
         <div class="surf"><span class="route">pressing-price route</span>
-          <span class="target">x402 app<span>unpaid &rarr; 402 with PAYMENT-SIGNATURE header flow &middot; MPP <b>WWW-Authenticate: Payment</b> challenge</span></span></div></div>
+          <span class="target">x402 app<span>unpaid &rarr; 402 with PAYMENT-SIGNATURE header flow &middot; <b>MPP gate runs separately</b>, not on this server</span></span></div></div>
       <div class="rrow"><div class="link"><i></i></div>
         <div class="surf"><span class="route">static checkout pages</span>
           <span class="target">each surface&rsquo;s own public dir<span>served via absolute paths</span></span></div></div>
