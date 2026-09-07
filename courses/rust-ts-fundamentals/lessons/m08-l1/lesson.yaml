@@ -82,7 +82,7 @@ blocks:
             correct: false
             feedback: "getRecentPerformanceSamples reports the node's own recorded slot timings, your connection latency affects fetching the samples, not the values inside them. The research sweep measured the same 316 ms."
           - id: c
-            label: "Neither: the 300ms change hadn't actually activated yet, so both numbers are stale"
+            label: "Neither: the 300ms change hasn't activated yet, so both numbers are stale"
             correct: false
             feedback: "The stage-2 gate is decodable on-chain, activated at epoch 1024, 2026-08-28. The upgrade is live; the gap between 300 and 316 is the normal daylight between a target and a running system."
           - id: a
@@ -99,7 +99,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The public RPC covers read fees for you out of a shared faucet allowance"
+            label: "The public RPC covers your read fees out of a shared faucet allowance everyone draws on"
             correct: false
             feedback: "There's no fee being covered, reads simply aren't chain events. Fees exist to pay for state MUTATION, which is what transactions do and queries don't."
           - id: d

@@ -32,7 +32,7 @@ blocks:
         multiSelect: false
         options:
           - id: d
-            label: "The wire sends lamports as a string, and number cannot parse it at all"
+            label: "The wire sends lamports as a decimal string, and number cannot parse it at all"
             correct: false
             feedback: "The wire sends a JSON number, which parses fine. That is the trap: JSON.parse on a raw RPC response hands back a number that has already rounded anything above the cliff, before your code ever sees it. Kit reads the same bytes into a bigint instead."
           - id: c
@@ -44,7 +44,7 @@ blocks:
             correct: false
             feedback: "Sign isn't the issue, JS numbers hold negative integers fine. The problem is magnitude: past 2^53 - 1, number arithmetic silently rounds, which is fatal for money."
           - id: b
-            label: "bigint parses faster than number in the JSON-RPC response layer"
+            label: "bigint parses faster than number does in kit's JSON-RPC response decoding layer"
             correct: false
             feedback: "It's a correctness choice, not a performance one, bigint parsing is if anything slower. The point is that no balance can be silently corrupted on the way in."
         explanation: "2^53 - 1 lamports is about 9 million SOL, real accounts exceed it. Above that line, JS numbers round without warning; bigint doesn't. That's why the canonical read is `const { value: lamports } = await rpc.getBalance(address).send()` with lamports as bigint, and why your formatter does BigInt division and string padding instead of dividing by 1e9."
@@ -103,7 +103,7 @@ blocks:
             correct: true
             feedback: "The plugin packages read 0.19.0 at write time, and a pre-1.0 minor is allowed to break you. The pipe flow is the documented stable path that kit's own examples and generated clients speak, so what you wired is foundation. Re-run this calculus when the plugins cross 1.0."
           - id: d
-            label: "Yes, an early rewrite usually costs less than a later forced migration"
+            label: "Yes, an early rewrite usually costs less than a later forced migration under deadline"
             correct: false
             feedback: "That trade only pays once the target stops moving. At 0.19.0 the plugin API can change shape on a minor, so an early rewrite buys you the migration several times over instead of once, which is the same pre-1.0 arithmetic the pinning lesson ran."
           - id: b
