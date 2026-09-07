@@ -25,7 +25,7 @@ blocks:
             correct: false
             feedback: "Right about the image, wrong about the layer. The writable layer belongs to the container, not the image, and `docker ps -a` proves it by listing two separate exited containers."
           - id: c
-            label: "The registry's CDN warmed up after your first request, so the second pull was faster"
+            label: "The registry's CDN warmed up after your first request, so the second pull came down faster"
             correct: false
             feedback: "No second pull happened at all, the layers were already on disk. Registries serve machines that do not yet have the image; your machine now does."
           - id: a
@@ -33,7 +33,7 @@ blocks:
             correct: true
             feedback: "Images are pulled once and cached by layer; containers are stamped out fresh every time. That split is the whole architecture showing itself on your first command."
           - id: b
-            label: "Docker kept the first container alive in the background and reattached you to it"
+            label: "Docker kept the first container alive in the background and reattached you to it on run two"
             correct: false
             feedback: "Each `docker run` creates a NEW container from the image. The first container exited when its process did, nothing was reused except the image."
         explanation: "Images are pulled once and cached locally by layer; containers are cheap, disposable processes created from them. The pull-progress-then-instant pattern is the image/container split showing itself on your first command."

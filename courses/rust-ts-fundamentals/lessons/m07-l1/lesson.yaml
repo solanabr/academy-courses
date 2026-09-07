@@ -45,7 +45,7 @@ blocks:
             correct: false
             feedback: "Nothing is ambient in a worker. Capabilities arrive as one typed env parameter declared in the config, which is the platform enforcing the injection your fleet only had by discipline."
           - id: a
-            label: "In wrangler.jsonc under \"vars\", since that file configures the worker"
+            label: "In wrangler.jsonc under \"vars\", since that file is what configures the deployed worker"
             correct: false
             feedback: "\"vars\" is committed plaintext configuration, anyone with repo access reads your token. Vars are for non-secret config only."
           - id: b
@@ -53,7 +53,7 @@ blocks:
             correct: true
             feedback: "The prod value is stored encrypted and is never shown again, not in the dashboard and not by wrangler; only its name is visible. The .dev.vars half is what keeps `wrangler dev` working without it."
           - id: c
-            label: "In a KV entry the worker reads at startup, since KV is private storage"
+            label: "In a KV entry the worker reads at startup, since only the bound worker can read that namespace"
             correct: false
             feedback: "KV is data storage, not a secret store, values are readable via the API and your own public endpoint code could leak them. Secrets go through the secrets binding."
         explanation: "The taught split: .dev.vars (dotenv syntax, gitignored) supplies local dev; `wrangler secret put` stores the prod value, which is not visible after set. wrangler.jsonc vars are for public config. This is the same secrets-hygiene glue beat the m09-l2 four-platform sweep will revisit."
@@ -66,7 +66,7 @@ blocks:
             correct: false
             feedback: "KV write exhaustion would fail the KV puts, not kill the invocation mid-computation. The busy-spin is CPU, and CPU is what the free tier meters per invocation."
           - id: a
-            label: "The 100,000 requests/day allowance, cron runs count against it too"
+            label: "The 100,000 requests/day allowance, since scheduled cron invocations count against it too"
             correct: false
             feedback: "Cron invocations do count as requests, but you just observed the count is far under the daily cap. The symptom (per-invocation error under load) points at a per-invocation limit."
           - id: c
@@ -90,7 +90,7 @@ blocks:
             correct: false
             feedback: "A JSON snapshot fits in memory fine, size is not the issue. The issue is lifetime and locality: the isolate you wrote to may not be the one that serves the next request."
           - id: d
-            label: "That happens under wrangler dev, which reloads the module on each request; a deployed isolate keeps it"
+            label: "A wrangler dev artifact: dev reloads the module each request, a deployed isolate keeps it"
             correct: false
             feedback: "Backwards. Dev is the friendlier case, one machine and one isolate, which is why it worked in dev is the classic bug here. Production spreads you across cities that never shared the variable."
           - id: c
@@ -119,7 +119,7 @@ blocks:
             correct: false
             feedback: "That was the 2023 framing. Cloudflare's own Pages docs now steer new projects away, Workers serves static assets and offers the broader feature set (cron, KV, gradual deploys)."
           - id: d
-            label: "Pages is being deprecated, so start on Workers and migrate anything still living on Pages too"
+            label: "Pages is being deprecated, so start on Workers and migrate anything still on Pages too"
             correct: false
             feedback: "The banner steers NEW projects; it announces no end-of-life and asks nobody to migrate. Reading a recommendation as a deadline is its own way of not reading the current docs."
         explanation: "Probed live 2026-09-01, the Pages docs banner reads: 'Workers supports most Pages use cases and offers a broader feature set... Start new projects with Workers.' The meta-lesson outranks the platform trivia: read the vendor's current docs, not blog posts from the year a tutorial was written."
@@ -136,7 +136,7 @@ blocks:
             correct: false
             feedback: "A cached liveness answer is a monitor lying on purpose. The probe's entire product is whether the RPC answered YOU, just now, and how fast; serve a ten-second-old ok and the status page reports a node it never spoke to."
           - id: c
-            label: "Switch the worker to @solana/kit, which manages public RPC rate limits for you"
+            label: "Switch the worker over to @solana/kit, whose client handles the public RPC's rate limits for you"
             correct: false
             feedback: "kit is a client library, not a rate-limit exemption, the per-IP cap applies regardless of what constructs the request. kit reads arrive in M8 for other reasons; this lesson's ramp is deliberately a plain fetch."
           - id: b
