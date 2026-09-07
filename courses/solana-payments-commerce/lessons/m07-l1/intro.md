@@ -4,7 +4,7 @@
 
 You just compared fiat corridors and wrote Wavelength's corridor decision record for its US, EU, and Brazil buyers. Every customer so far has been a human holding a phone. This lesson, the customer stops being human.
 
-Here is the scene. An API answers a request with HTTP 402 Payment Required, a status code that sat dead for twenty-five years. This time the caller is not a human clicking a paywall. It is a bot: it reads the 402, pays, and retries the exact same request, all before the next line of your log. Nobody clicked anything. The protocol that makes that round-trip work is called x402, and by the end of this lesson you can read its v2 traffic like a native.
+Here is the scene. An API answers a request with HTTP 402 Payment Required, a status code that sat dead for twenty-five years. This time the caller is not a human clicking a paywall but a bot: it reads the 402, pays, and retries the exact same request, all before the next line of your log. Nobody clicked anything. The protocol that makes that round-trip work is called x402, and by the end of this lesson you can read its v2 traffic like a native.
 
 What you take away today, up front:
 

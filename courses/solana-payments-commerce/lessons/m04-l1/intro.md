@@ -749,7 +749,7 @@ The starter already `JSON.parse`s both strings (arguments 1 and 7) on entry, so 
 
 **The solo rung** is the assessment gate for this lesson, and it is the one this module is named for. Run your completed verifier against a real devnet payment and all seeded attacks; it must fulfill only the correct one and store its signature. Then do the part no test can check for you, and do it in the file that has been waiting for it since module 1: open `commitment-policy.md`, the four-heading document you drafted in m01-l2 and copied into the `wavelength` root in m02-l1. Module 1 promised twice that module 4 would turn that file into running code, and this is the step that pays the promise. Sharpen its headings into a table of three value tiers, each with its commitment level and one sentence defending it against the no-chargeback asymmetry — then wire it: the commitment string your verifier passes to `getTransaction` must be the one your table names for that tier, not a default someone typed once. A policy the code disagrees with is a document, not a policy. There is no universally right table. There is a table your code obeys and you can defend, and both halves are the skill.
 
-One more thing before you close the editor, because it reframes everything you just built. This verifier is not merely today's artifact:
+One more thing before you close the editor, because it reframes everything you just built. This verifier outlives today's lesson:
 
 ![Diagram showing the verify function built today consumed by the webhook lesson, later payment rungs, and the capstone acceptance harness, all funneling signatures through the same checks.](assets/v09-diagram.png)
 
