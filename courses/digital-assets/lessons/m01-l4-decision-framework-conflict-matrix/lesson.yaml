@@ -46,7 +46,7 @@ blocks:
             correct: false
             feedback: "ConfidentialMintBurn is a different rule (confidential supply); the missing piece for a confidential fee is ConfidentialTransferFeeConfig."
           - id: d
-            label: "Rule 1 fired, the incomplete-bridge guard; the fix is to add ConfidentialTransferFeeConfig"
+            label: "Rule 1 fired, the guard against an incomplete confidential-fee bridge; the fix is to add ConfidentialTransferFeeConfig"
             correct: false
             feedback: "The fix is right and the rule number is not, which is the whole point of naming guards: rule 1 keys on the bridge being present without both endpoints, and this set has no bridge in it yet."
         explanation: "Rule 2: TransferFeeConfig + ConfidentialTransferMint together require ConfidentialTransferFeeConfig. The pair is legal, but only once you add the extension that makes fees work under encryption; the fix is additive, not subtractive."
@@ -67,7 +67,7 @@ blocks:
             correct: false
             feedback: "The three test-only variants are separate; PermissionedBurn is a real production extension. The 29-variant count already excludes the test-only ones."
           - id: d
-            label: "The page has since added PermissionedBurn, so the omission was a timing accident and re-copying the docs later fixes the validator"
+            label: "The page has since added PermissionedBurn, so the omission was just a timing accident, and re-copying the docs after the next sweep would bring the validator back in line"
             correct: false
             feedback: "That page carries no version stamp, so a copy of it cannot say which world it describes; the enum at a named commit can, which is why the matrix is derived and not transcribed."
         explanation: "There is no official current matrix, and doc catalogs lag the code: the course's 2026-08-21 sweep caught solana.com with no PermissionedBurn page while solana-program.com already carried one, and the gap closed within a day. The source enum's 29 production variants are the truth, which is the whole reason this artifact is derived from check_for_invalid_mint_extension_combinations rather than copied from a page."
@@ -88,7 +88,7 @@ blocks:
             correct: true
             feedback: "Init legality is the floor the program enforces; whether a pool will hold the mint is a separate policy question per venue, and Module 5 takes that gate apart."
           - id: d
-            label: "DEX allowlists apply the same five source rules, so a set your validator accepts will route on Raydium unless a guard fires there instead"
+            label: "DEX allowlists apply these same five source rules before they pool a mint, so a set your validator accepts will route on Raydium unless a guard fires there too"
             correct: false
             feedback: "A venue's allowlist is policy, not the init function: it can refuse an extension whose behavior the venue did not model, however cleanly the set clears all five guards."
         explanation: "Legality is a floor, not routability. The five rules decide whether the program will initialize the mint; whether a DEX will pool it is a separate question governed by that venue's allowlist, and PermanentDelegate is exactly the kind of power extension Raydium refuses. That legal-versus-tradeable gap is the thesis Module 5 builds on."
