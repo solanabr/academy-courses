@@ -20,10 +20,6 @@ blocks:
         prompt: "The gate makes you write a commitment policy: one line for a $12 pressing at the stall, another for a $9,000 order from a shop that buys in bulk. What does the official guidance point you toward?"
         multiSelect: false
         options:
-          - id: a
-            label: "`confirmed` for the everyday record sale; `finalized` for the high-value or compliance-sensitive wholesale order."
-            correct: true
-            feedback: "The guidance is qualitative: no doc names the figure where the gate flips, which leaves that line yours to set and to write down."
           - id: b
             label: "`finalized` for both, since money is money and only finality is ever safe."
             correct: false
@@ -36,40 +32,36 @@ blocks:
             label: "`confirmed` below the documented 500 USDC line and `finalized` above it, the threshold the guidance names."
             correct: false
             feedback: "The two-tier shape is right and the citation is invented. No document names the figure where the gate flips; the 500 USDC in the sample verdicts was one reference build's choice, called out as such. Deriving your own threshold from what a reversion at each tier would cost you is the judgement the challenge asks for."
+          - id: a
+            label: "`confirmed` for the everyday record sale; `finalized` for the high-value or compliance-sensitive wholesale order."
+            correct: true
+            feedback: "The guidance is qualitative: no doc names the figure where the gate flips, which leaves that line yours to set and to write down."
         explanation: "The policy scales commitment to value: `confirmed` covers most payments, `finalized` protects high-value or compliance-sensitive ones, and `processed` is UI-only (never the gate that releases goods)."
       - id: m08-l3-q2
         prompt: "The gate asks how you set priority fees on the transactions your store sends. How deep should this lesson go?"
         multiSelect: false
         options:
-          - id: a
-            label: "Build a full fee-estimation service that samples recent prioritization fees per writable account and retunes the micro-lamport bid every slot."
-            correct: false
-            feedback: "That's landing science this course hands off; the gate wants a practical recipe, not a tuning engine."
-          - id: b
-            label: "State a one-box practical recipe for payment txs and hand transaction-landing depth to the Client-Side Mastery course."
-            correct: true
-            feedback: "A payment needs a fee floor that lands rather than an optimiser, and depth here is scope you could not maintain. Naming a handoff is not skipping it, and the box holds a default that works."
           - id: c
             label: "Skip priority fees: payments are small and low-value, so the base 5000-lamport fee is enough to land them even in a congested slot."
             correct: false
             feedback: "Under congestion a bare base-fee tx can be dropped; a practical priority-fee floor still matters."
+          - id: a
+            label: "Build a full fee-estimation service that samples recent prioritization fees per writable account and retunes the micro-lamport bid every slot."
+            correct: false
+            feedback: "That's landing science this course hands off; the gate wants a practical recipe, not a tuning engine."
           - id: d
             label: "Ship the one-box recipe and then the landing depth too, retry curves and Jito bundles included, since payments is where landing belongs."
             correct: false
             feedback: "Landing is a discipline of its own: per-account fee estimation, retry curves, Jito bundles, compute-budget science, and Client-Side Mastery owns it end to end the way this course owns commerce. A quarter-taught version of it is the quarter that loses money, which is why the box overpays slightly and stops."
+          - id: b
+            label: "State a one-box practical recipe for payment txs and hand transaction-landing depth to the Client-Side Mastery course."
+            correct: true
+            feedback: "A payment needs a fee floor that lands rather than an optimiser, and depth here is scope you could not maintain. Naming a handoff is not skipping it, and the box holds a default that works."
         explanation: "This is a boundary the course keeps honest: a one-box priority-fee recipe lands payment transactions reliably, and the deep landing strategy belongs to Client-Side Mastery. The gate names the handoff rather than faking depth."
       - id: m08-l3-q3
         prompt: "Your webhook worker has been quietly failing for days and orders aren't being fulfilled. Which gate row is designed to catch this?"
         multiSelect: false
         options:
-          - id: a
-            label: "The commitment-policy row, because the worker releases orders only at `confirmed` and these payments never reached that level."
-            correct: false
-            feedback: "The transactions confirmed fine; the failure is in ingestion, not commitment."
-          - id: b
-            label: "The idempotency row, because duplicate events are piling up unprocessed on the queue."
-            correct: false
-            feedback: "Idempotency guards against double-fulfillment, not silent non-delivery."
           - id: c
             label: "The webhook-failure-monitoring row: Helius auto-disables a webhook after sustained failure, so alert on failure rate."
             correct: true
@@ -78,25 +70,33 @@ blocks:
             label: "The reconciliation-export row, since its dated CSV is where a fulfillment gap gets caught before buyers notice."
             correct: false
             feedback: "The export is an accounting artifact you run on a cadence, so it finds the gap long after the buyer did; in the story that opens this family the first signal was a customer DM two days in. Catching it early takes something watching the sender, plus the polling fallback that degrades a dead webhook into slow fulfillment."
+          - id: a
+            label: "The commitment-policy row, because the worker releases orders only at `confirmed` and these payments never reached that level."
+            correct: false
+            feedback: "The transactions confirmed fine; the failure is in ingestion, not commitment."
+          - id: b
+            label: "The idempotency row, because duplicate events are piling up unprocessed on the queue."
+            correct: false
+            feedback: "Idempotency guards against double-fulfillment, not silent non-delivery."
         explanation: "Silent webhook failure stops fulfillment without an obvious error, and a Helius webhook can auto-disable itself after sustained failure. The monitoring row exists precisely to alert on the failure rate before orders quietly stop."
       - id: m08-l3-q4
         prompt: "You go looking for a Solana-native merchant accounting/reporting SaaS to close the books and find nothing purpose-built. What's the honest gate posture?"
         multiSelect: false
         options:
-          - id: a
-            label: "State it as an observed market gap as of your build date and ship your own reconciliation export as the interim answer."
-            correct: true
-            feedback: "Dating an observation makes it falsifiable rather than a claim about the world forever, and the export keeps you unblocked; a format accountants read is what keeps it replaceable."
-          - id: b
-            label: "Block go-live until a vendor exists, since you can't operate a store without accounting software."
-            correct: false
-            feedback: "You already have reference/memo reconciliation; the missing SaaS is a note, not a blocker."
-          - id: c
-            label: "Assume Stripe's dashboard covers it, since Stripe settles some of the crypto payments."
-            correct: false
-            feedback: "Stripe's dashboard covers its own rails, not your on-chain Solana Pay and x402 ledger."
           - id: d
             label: "State it as a market gap and ship the export, but leave off the date, since gaps like this typically hold for years."
             correct: false
             feedback: "The date is the part that makes it a finding rather than an opinion about the world forever. Young markets move, and an undated gap is the claim that ages into next year's emergency; write down when you looked, and what you would replace the export with once somebody builds the thing."
+          - id: b
+            label: "Block go-live until a vendor exists, since you can't operate a store without accounting software."
+            correct: false
+            feedback: "You already have reference/memo reconciliation; the missing SaaS is a note, not a blocker."
+          - id: a
+            label: "State it as an observed market gap as of your build date and ship your own reconciliation export as the interim answer."
+            correct: true
+            feedback: "Dating an observation makes it falsifiable rather than a claim about the world forever, and the export keeps you unblocked; a format accountants read is what keeps it replaceable."
+          - id: c
+            label: "Assume Stripe's dashboard covers it, since Stripe settles some of the crypto payments."
+            correct: false
+            feedback: "Stripe's dashboard covers its own rails, not your on-chain Solana Pay and x402 ledger."
         explanation: "Honest gaps are teaching content in a young market: with no purpose-built Solana merchant-accounting SaaS at build time, you state the gap with its date and lean on your own reference/memo reconciliation export until one exists."

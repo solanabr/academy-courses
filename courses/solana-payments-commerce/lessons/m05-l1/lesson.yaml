@@ -23,27 +23,31 @@ blocks:
         prompt: "Your crank is approved as delegate for 60 USDC on a subscriber's token account. Later, wanting a second service, the subscriber runs ApproveChecked approving a DIFFERENT backend as delegate on the same token account. What happens to your crank's approval?"
         multiSelect: false
         options:
-          - id: a
-            label: "Both delegates coexist; each keeps its own separate 60-USDC allowance on the account."
-            correct: false
-            feedback: "A token account has exactly one delegate slot, and there is no per-delegate ledger for a second approval to occupy."
-          - id: b
-            label: "The second ApproveChecked revokes your delegate entirely; your crank can no longer pull from that account."
-            correct: true
-            feedback: "The account has one delegate field, and a new approval overwrites it, which is why the crank re-reads the delegate every cycle instead of trusting the one it saw last."
-          - id: c
-            label: "Your delegate keeps its 60 USDC but is paused until the second delegate is revoked."
-            correct: false
-            feedback: "There is no pause state; the previous approval is overwritten, not suspended."
           - id: d
             label: "The second ApproveChecked revokes your delegate, but the Token program notifies your crank first."
             correct: false
             feedback: "The overwrite is silent. Nothing on-chain tells the evicted merchant it lost the slot, which is why the crank re-reads the account before every pull instead of trusting the approval it saw at signup."
+          - id: b
+            label: "The second ApproveChecked revokes your delegate entirely; your crank can no longer pull from that account."
+            correct: true
+            feedback: "The account has one delegate field, and a new approval overwrites it, which is why the crank re-reads the delegate every cycle instead of trusting the one it saw last."
+          - id: a
+            label: "Both delegates coexist; each keeps its own separate 60-USDC allowance on the account."
+            correct: false
+            feedback: "A token account has exactly one delegate slot, and there is no per-delegate ledger for a second approval to occupy."
+          - id: c
+            label: "Your delegate keeps its 60 USDC but is paused until the second delegate is revoked."
+            correct: false
+            feedback: "There is no pause state; the previous approval is overwritten, not suspended."
         explanation: "One active delegate per token account. Approving a new delegate automatically revokes the previous one, which is why the raw primitive supports only a single live subscription per (user, mint)."
       - id: m05-l1-q2
         prompt: "Your crank pulls 15 USDC per cycle via delegate-signed TransferChecked against a single 60-USDC ApproveChecked. After the third successful pull, what is the state of the allowance and what bounds a fourth pull?"
         multiSelect: false
         options:
+          - id: c
+            label: "15 USDC remains; a fourth 15-USDC pull exhausts the approval and clears the delegate, so a fifth fails with the delegate already revoked."
+            correct: true
+            feedback: "The Token program sets the delegate to None at zero, freeing the slot by itself; the allowance is what does not come back, and only a fresh owner-signed ApproveChecked restores it."
           - id: a
             label: "60 USDC remains; the approved amount is a standing per-transfer ceiling, so any number of 15-USDC pulls fit under it until the owner signs a Revoke."
             correct: false
@@ -52,10 +56,6 @@ blocks:
             label: "15 USDC remains, and the program automatically re-approves the crank at the start of each cycle."
             correct: false
             feedback: "Nothing re-approves automatically; a new approval is always a fresh signed action by the token-account owner."
-          - id: c
-            label: "15 USDC remains; a fourth 15-USDC pull exhausts the approval and clears the delegate, so a fifth fails with the delegate already revoked."
-            correct: true
-            feedback: "The Token program sets the delegate to None at zero, freeing the slot by itself; the allowance is what does not come back, and only a fresh owner-signed ApproveChecked restores it."
           - id: d
             label: "15 USDC remains; the fourth pull empties the allowance, but the delegate slot stays yours until the owner signs a Revoke."
             correct: false
@@ -90,6 +90,10 @@ blocks:
             label: "Because a delegate expires after exactly one transfer, so multi-cycle billing is impossible with the raw primitive."
             correct: false
             feedback: "The approval persists and covers multiple pulls until the allowance is exhausted; expiry-per-transfer is not how it works."
+          - id: d
+            label: "Because the delegate slot belongs to the wallet, so a subscriber's second subscription evicts the first even in a different mint."
+            correct: false
+            feedback: "The slot lives on a token account, and a token account is per mint. A club billing in USDC and one billing in EURC sit on separate accounts with separate slots; the collision only happens when both bill the same mint."
           - id: b
             label: "Because a subscriber who joins two merchants can grant only one live delegate, so the second merchant's approval silently evicts the first."
             correct: true
@@ -98,8 +102,4 @@ blocks:
             label: "Because delegate-signed transfers cannot carry a memo, so reconciliation into the orders ledger breaks."
             correct: false
             feedback: "A delegate TransferChecked can be paired with a memo/reference; the memo is not what the single slot limits."
-          - id: d
-            label: "Because the delegate slot belongs to the wallet, so a subscriber's second subscription evicts the first even in a different mint."
-            correct: false
-            feedback: "The slot lives on a token account, and a token account is per mint. A club billing in USDC and one billing in EURC sit on separate accounts with separate slots; the collision only happens when both bill the same mint."
         explanation: "One slot means one live subscription per (user, mint). To let one token account back many billing arrangements you need a program that occupies the slot once and multiplexes real limits behind PDAs. That is the next lesson."

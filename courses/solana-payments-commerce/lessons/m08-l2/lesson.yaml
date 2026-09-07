@@ -30,6 +30,14 @@ blocks:
         prompt: "A sale signed at your stall is submitted 4 minutes after signing and the RPC rejects it as an expired blockhash. At ~300ms slots, roughly how long was your submit window, and what takes the deadline away?"
         multiSelect: false
         options:
+          - id: d
+            label: "About 45 seconds, and a durable nonce stretches the deadline to a few hours."
+            correct: false
+            feedback: "The arithmetic is right and the fix is stronger than a longer lease. A nonce transaction has no wall-clock deadline at all: the docs put it as no restrictions on how old the nonce is, and the bytes stay submittable until someone advances that nonce. Which is also why the queue file is a drawer of bearer paper rather than a log."
+          - id: c
+            label: "About 45 seconds (150 blocks at 300ms); a durable nonce removes the wall-clock deadline."
+            correct: true
+            feedback: "The window is counted in blocks, and its wall-clock length follows the current slot time; every staged cut shortens the same 150 blocks, which is why the number is derived, not memorised."
           - id: a
             label: "About 5 minutes, since the 150-block window runs on 400ms slots plus confirmation lag, so the RPC must be misconfigured."
             correct: false
@@ -38,27 +46,19 @@ blocks:
             label: "About 2 minutes; widen it by raising maxRetries so the client keeps rebroadcasting."
             correct: false
             feedback: "Retries do not extend a blockhash's validity; the hash is simply too old to accept."
-          - id: c
-            label: "About 45 seconds (150 blocks at 300ms); a durable nonce removes the wall-clock deadline."
-            correct: true
-            feedback: "The window is counted in blocks, and its wall-clock length follows the current slot time; every staged cut shortens the same 150 blocks, which is why the number is derived, not memorised."
-          - id: d
-            label: "About 45 seconds, and a durable nonce stretches the deadline to a few hours."
-            correct: false
-            feedback: "The arithmetic is right and the fix is stronger than a longer lease. A nonce transaction has no wall-clock deadline at all: the docs put it as no restrictions on how old the nonce is, and the bytes stay submittable until someone advances that nonce. Which is also why the queue file is a drawer of bearer paper rather than a log."
         explanation: "A blockhash is valid for 150 blocks; at the current 300ms target slot time that is roughly 45 seconds, and each staged cut shrinks it further, so derive the window, never memorize it. No amount of retrying extends it. A durable nonce swaps the blockhash for a stored value that only moves when you advance it, so the transaction has no wall-clock deadline."
       - id: m08-l2-q2
         prompt: "You're assembling a durable-nonce transaction for an offline sale. Which condition is required for it to be valid?"
         multiSelect: false
         options:
-          - id: a
-            label: "AdvanceNonceAccount must be the first instruction (instruction 0) in the transaction."
-            correct: true
-            feedback: "The runtime reads position zero to decide whether a nonce is the lifetime, which makes ordering the signal; necessary, not sufficient, since the account must also be System-owned and rent-exempt."
           - id: b
             label: "The nonce account must be program-owned and non-rent-exempt to keep it cheap."
             correct: false
             feedback: "A nonce account is System-owned and MUST be rent-exempt; both parts of this are wrong."
+          - id: a
+            label: "AdvanceNonceAccount must be the first instruction (instruction 0) in the transaction."
+            correct: true
+            feedback: "The runtime reads position zero to decide whether a nonce is the lifetime, which makes ordering the signal; necessary, not sufficient, since the account must also be System-owned and rent-exempt."
           - id: c
             label: "The transfer must come before the advance so the payment settles first."
             correct: false
@@ -76,18 +76,18 @@ blocks:
             label: "They're historical trivia; durable nonces are now formally guaranteed stable, so the caveats are obsolete."
             correct: false
             feedback: "The may-be-deprecated warning is still live, and the 2022 halt is why the primitive is treated carefully to this day. The runtime bug itself was fixed, but nothing about that fix made the deprecation risk or the re-signing double-charge go away."
-          - id: b
-            label: "The docs' may-be-deprecated warning is live, and nonce double-processing caused a ~4.5-hour mainnet halt in 2022; both are risks you design around."
-            correct: true
-            feedback: "Two risks of different kinds: one on the roadmap, one operational; neither argues for avoiding the primitive, because offline signing has no substitute."
-          - id: c
-            label: "The outage proved the primitive is unsafe under load, so the queue should hold each sale unsigned and build a fresh-blockhash transaction once connectivity returns."
-            correct: false
-            feedback: "That defers the buyer's signature until after they have walked away; offline signing is the whole point, and careful nonce handling is the fix rather than abandoning the primitive."
           - id: d
             label: "The docs caveat is live, and the 2022 double-processing path still is too, so rebroadcasting spent bytes can charge a buyer twice."
             correct: false
             feedback: "Half a scar. The deprecation caveat is live; the double-processing path is not, because the 2022 repair separated the two validation domains and a conforming validator now rejects bytes whose nonce has advanced. Rebroadcasting them wastes a send and smudges the ledger. The double-charge still on the table is yours: re-signing the same sale against a fresh nonce."
+          - id: c
+            label: "The outage proved the primitive is unsafe under load, so the queue should hold each sale unsigned and build a fresh-blockhash transaction once connectivity returns."
+            correct: false
+            feedback: "That defers the buyer's signature until after they have walked away; offline signing is the whole point, and careful nonce handling is the fix rather than abandoning the primitive."
+          - id: b
+            label: "The docs' may-be-deprecated warning is live, and nonce double-processing caused a ~4.5-hour mainnet halt in 2022; both are risks you design around."
+            correct: true
+            feedback: "Two risks of different kinds: one on the roadmap, one operational; neither argues for avoiding the primitive, because offline signing has no substitute."
         explanation: "Both caveats are mandatory canon: the official docs' own may-be-deprecated warning and the 2022-06-01 double-processing halt. You use durable nonces anyway, but you build the queue knowing both risks."
       - id: m08-l2-q4
         prompt: "Your queue holds a durable-nonce sale whose nonce has ALREADY advanced (it was consumed by an earlier successful submit). What must the drain step do with it?"
