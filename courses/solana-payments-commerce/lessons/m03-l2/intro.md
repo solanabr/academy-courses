@@ -10,6 +10,7 @@ The silver bullet? Stop letting the wallet build the transaction. This lesson in
 mkdir -p checkout-txreq/src checkout-txreq/public
 cd checkout-txreq
 npm init -y
+npm pkg set type=module
 npm install @solana/kit@6.10.0 @solana-program/token@0.14.0 express@5
 npm install -D tsx@4 typescript @types/express @types/node
 ```
