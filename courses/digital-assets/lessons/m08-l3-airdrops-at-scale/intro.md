@@ -472,10 +472,14 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
     cost table OK
     ```
 
-3. **The tree.** Create `compost-airdrop/merkle.ts`. This is the distributor's hashing, ported exactly: sha256, a zero byte in front of leaves, a one byte in front of parents, sorted pairs. No dependencies at all.
+3. **The tree.** Create `compost-airdrop/merkle.ts`. This is the distributor's hashing, ported exactly: sha256, a zero byte in front of leaves, a one byte in front of parents, sorted pairs, and an odd node paired with itself. No dependencies at all. That last rule is the one to watch, because it is invisible on this lab's four-recipient tree (four is a power of two, so no level is ever odd) and decides every root you compute on a real list. Challenge 1 adds a fifth recipient, which is where it starts to matter.
 
     ```typescript
     // compost-airdrop/merkle.ts
+    // Ported from jito-foundation/distributor (merkle-tree/src/merkle_tree.rs,
+    // programs/merkle-distributor/src/instructions/new_claim.rs), read on
+    // 2026-08-22. m09-l2 ports the same file again under different names; if
+    // the two ever disagree, one of them is wrong about a deployed program.
     import { createHash } from "node:crypto";
 
     export type Hash32 = Uint8Array;
@@ -537,8 +541,13 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
         const below = levels[levels.length - 1];
         const above: Hash32[] = [];
         for (let i = 0; i < below.length; i += 2) {
-          // An odd node is promoted, not paired with itself.
-          above.push(i + 1 < below.length ? hashPair(below[i], below[i + 1]) : below[i]);
+          // An odd node is paired with ITSELF, not promoted to the level above.
+          // This is the line that decides whether your root equals the deployed
+          // program's: merkle_tree.rs duplicates the last entry when a level's
+          // length is odd, and promoting instead gives a different root for
+          // every tree whose width is not a power of two.
+          const right = i + 1 < below.length ? below[i + 1] : below[i];
+          above.push(hashPair(below[i], right));
         }
         levels.push(above);
       }
@@ -553,7 +562,10 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
           for (let level = 0; level < levels.length - 1; level++) {
             const nodes = levels[level];
             const sibling = i % 2 === 0 ? i + 1 : i - 1;
-            if (sibling < nodes.length) proof.push(nodes[sibling]);
+            // Same duplication on the proof side: find_path uses level[index]
+            // itself when the right sibling is off the end, so the proof folds
+            // through the self-pair the builder created.
+            proof.push(sibling < nodes.length ? nodes[sibling] : nodes[i]);
             i = Math.floor(i / 2);
           }
           return proof;
