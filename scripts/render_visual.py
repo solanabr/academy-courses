@@ -90,9 +90,20 @@ def committed_version(path: Path) -> str | None:
 
 
 def asset_for(src: Path) -> Path:
-    """visual-src/<lesson>/<name>.html -> lessons/<lesson>/assets/<name>.webp"""
+    """visual-src/<lesson>/<name>.html -> lessons/<lesson>/assets/<name>.<ext>
+
+    The extension is whatever is already committed there, NOT a constant. `main`
+    converted its assets to WebP (PR #52) but every in-flight course branch was
+    cut before that and still ships PNG, so hardcoding either one writes a file
+    nothing references and leaves the referenced one stale -- silently, because
+    the new file just shows up as untracked.
+    """
     course = src.parent.parent.parent
-    return course / "lessons" / src.parent.name / "assets" / f"{src.stem}.webp"
+    assets = course / "lessons" / src.parent.name / "assets"
+    for ext in (".webp", ".png"):
+        if (assets / f"{src.stem}{ext}").exists():
+            return assets / f"{src.stem}{ext}"
+    return assets / f"{src.stem}.webp"      # a genuinely new figure follows main
 
 
 def _parse_psnr(text: str) -> float | None:
@@ -234,10 +245,14 @@ def main() -> int:
         if not png.exists():
             sys.exit(f"sips failed for {src}")
 
-        out = Path(tmp) / "o.webp" if args.check else asset
+        out = (Path(tmp) / f"o{asset.suffix}") if args.check else asset
         out.parent.mkdir(parents=True, exist_ok=True)
         before = asset.stat().st_size if asset.exists() else 0
-        mode, psnr, size = encode_webp(png, out)
+        if asset.suffix == ".png":
+            shutil.copyfile(png, out)
+            mode, psnr, size = "png (matching the committed asset)", float("inf"), out.stat().st_size
+        else:
+            mode, psnr, size = encode_webp(png, out)
 
         dims = run(["sips", "-g", "pixelWidth", "-g", "pixelHeight", str(png)]).stdout
         w = h = "?"
@@ -246,6 +261,18 @@ def main() -> int:
                 w = line.split(":")[-1].strip()
             if "pixelHeight" in line:
                 h = line.split(":")[-1].strip()
+
+        # A rendered file nothing references is worse than no render at all: the
+        # stale image keeps shipping while the new one sits untracked, looking
+        # like work. Check the lesson actually points at what we just wrote.
+        lesson_dir = asset.parent.parent
+        referenced = any(asset.name in md.read_text(encoding="utf-8", errors="ignore")
+                         for md in lesson_dir.glob("*.md"))
+        if not referenced:
+            others = sorted(p.name for p in asset.parent.glob(f"{asset.stem}.*") if p != asset)
+            print(f"  WARNING: no markdown in {lesson_dir.name} references {asset.name}"
+                  + (f"; the lesson points at {', '.join(others)} instead" if others else "")
+                  + ". The shipped image is still the old one.")
 
         verb = "would write" if args.check else "wrote"
         psnr_s = "" if psnr == float("inf") else f", {psnr:.1f} dB"
