@@ -28,7 +28,7 @@ And three named vulnerability classes are now compile errors rather than runtime
 
 ![A concept map with Anchor V2 at the center and four spokes: Pod-by-default accounts, borrow-tracked CPIs, a bump const for all-literal seeds atop the typed struct 0.29 already gave you, and compile-time security, each wired to a program you built.](assets/v02-diagram.png)
 
-Notice what the map is really telling you. These are not four features bolted on. They are one decision, applied consistently: move work the developer used to do at runtime, and used to get wrong, up into the type system and the codegen. That is the through-line of the whole rewrite.
+Notice what the map is really telling you. These are not four features bolted on but one decision, applied consistently: move work the developer used to do at runtime, and used to get wrong, up into the type system and the codegen. That is the through-line of the whole rewrite.
 
 ### The framework that narrates its own why
 
@@ -42,13 +42,13 @@ A framework that revisits its own tradeoffs out loud is rare, and it is exactly 
 
 Here is where a lot of write-ups get cheerful and stop being useful. Let me not do that.
 
-The same release calls itself two contradictory things. The version is `2.0.0-rc.1`. "rc" means release candidate, which reads as "nearly done, just shaking out bugs." But the project labels the very same release "alpha" elsewhere, which reads as "early, expect movement." Both labels, one artifact. That is not a typo you get to round away. It is the maintainers telling you, in two words, that the thing is genuinely in between.
+The same release calls itself two contradictory things. The version is `2.0.0-rc.1`. "rc" means release candidate, which reads as "nearly done, just shaking out bugs." But the project labels the very same release "alpha" elsewhere, which reads as "early, expect movement." Both labels, one artifact. That is the maintainers telling you, in two words, that the thing is genuinely in between, and not a typo you get to round away.
 
 The docs say, in their own words, that V2 is not audited. Not "audit pending," not "audit in progress that we will link." Not audited. For a framework whose whole pitch includes killing vulnerability classes, that is the single most important sentence on the page.
 
 There is no committed date for the release candidate to become stable. Not "Q4," not "next quarter." As of this writing there is no such date published anywhere. Absence of a date is not a short date. It is the absence of a promise, and you should read it as exactly that and no softer.
 
-And the old line is not standing still. Anchor 1.1.2 is the current stable, and its line is still maintained and shipping. This is the two-parallel-lines reality: a moving, audited-by-time, production-proven v1 next to a faster, unaudited, undated v2. You are not choosing between a live option and a dead one. You are choosing between two live options with opposite risk profiles.
+And the old line is not standing still. Anchor 1.1.2 is the current stable, and its line is still maintained and shipping. This is the two-parallel-lines reality: a moving, audited-by-time, production-proven v1 next to a faster, unaudited, undated v2. You are not choosing between a live option and a dead one; you are choosing between two live options with opposite risk profiles.
 
 That distinction matters more than it looks, because it changes what "wait" costs you. Waiting on 1.1.2 is not the same as stagnating on it. The line keeps getting fixes, and it keeps tracking the runtime as the network itself changes under your program. You are parked on a road that is still being paved, not stranded on an abandoned one, and that is exactly why the patient branch of the tree is a real option rather than a euphemism for falling behind.
 
@@ -136,7 +136,7 @@ You pass when all three routings are correct and each justification names the sp
 
 One honest beat before the door. If the live-protocol routing felt anticlimactic, "the fast new thing, and the answer is wait," sit with why it did not feel that way to write. Recommending patience for someone else's user funds, on unaudited alpha, is the most builder-optimist thing in this course, not the least. Bullish on the tech, honest on the risk. That is the whole stance.
 
-Here is a thing worth knowing, framed as a survey result and not an absolute. The official learning path at solana.com/developers/courses now 308-redirects into a developer-content repository that was archived and frozen on 2025-01-24. As of 2026-08 we went looking and found no other Anchor V2 course anywhere. That is not a boast. It is the reason this conclusion is an on-ramp rather than a competitor: you are, as far as an exhausted search can tell, holding the current map of a place almost nobody has written down yet.
+Here is a thing worth knowing, framed as a survey result and not an absolute. The official learning path at solana.com/developers/courses now 308-redirects into a developer-content repository that was archived and frozen on 2025-01-24. As of 2026-08 we went looking and found no other Anchor V2 course anywhere. That is the reason this conclusion is an on-ramp rather than a competitor: you are, as far as an exhausted search can tell, holding the current map of a place almost nobody has written down yet.
 
 This is the end of the course, so the forward hook points outward instead of to a next lesson. The framework layer is yours now, and it is deliberately just the framework layer. The things this course refused, it refused because a sibling owns them and teaches them properly.
 

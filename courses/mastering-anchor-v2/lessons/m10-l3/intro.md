@@ -30,7 +30,7 @@ Let's get the toolchain right first, because every other delta is downstream of 
 
 Remember that `1.1.2` from a minute ago? Here is the trap it sets, and it is subtler than "wrong binary." The handed vault compiles fine on 1.x, which means its `Cargo.toml` pins `anchor-lang` on the 1.x line — and *that pin, not the CLI on your PATH, is what selects the framework major*. `anchor build` is a wrapper; underneath it, cargo resolves your crate graph identically whichever anchor-cli invoked it. So if you clone the vault, start fixing type names, and never touch the manifest, you do not get a silent v1 artifact — you get a loud failure: `Address`, `.address()`, `&mut Context` exist nowhere in the 1.x crates, and the compiler says so at every site you just edited. The reverse holds too: bump the pin to `2.0.0-rc.1` and even the host's old CLI surfaces the V2 deprecations and the missing-method error, because those diagnostics come from the macros in the dependency graph, not from the binary that shelled out to cargo. You have already met this inversion twice — m10-l1's recon had you `rg "anchor_version|anchor-lang"` precisely because the pin is the fact that matters, and m10-l2 told you to pin the exact version in `Anchor.toml` and `Cargo.toml`. The version the *build* is, is the version the *manifest* says.
 
-So the first move is not a handler edit. It is two pins, made together: the `anchor-lang = "2.0.0-rc.1"` row in the program's `Cargo.toml`, which is the switch that actually flips the major, and an isolated V2 CLI, which keeps every wrapper-level behavior — scaffolds, the test harness, IDL handling — on the same line as the crates, so `anchor --version` stays a truthful label for the whole toolchain.
+So the first move is not a handler edit but two pins, made together: the `anchor-lang = "2.0.0-rc.1"` row in the program's `Cargo.toml`, which is the switch that actually flips the major, and an isolated V2 CLI, which keeps every wrapper-level behavior — scaffolds, the test harness, IDL handling — on the same line as the crates, so `anchor --version` stays a truthful label for the whole toolchain.
 
 The install fights you a little, and it is worth knowing why. V2 has no GitHub Release object. There is a git tag, `v2.0.0-rc.1` on the anchor-next branch, but no published release for that tag, which means `avm install` cannot download a prebuilt binary for it the way it does for stable versions — the asset URL just 404s. The rc.1 crates did land on crates.io on 2026-08-12, but the docs lag that publish and the documented path is a direct git install (the docs point at the `anchor-next` branch tip; this course pins the tag that sits on that branch, for the reproducibility reason m01-l2 laid out):
 
@@ -116,7 +116,7 @@ Sit with that for a second, because it is a genuinely different philosophy — a
 
 ![In v1 a typed copy decoded once goes stale across a CPI and .reload() re-reads it; in V2 the loaded typed account holds the data borrow, so nothing changes underneath it and there is no reload method to call.](assets/v03-diagram.png)
 
-So the fix is not "find the V2 name for reload." There is none. The fix is structural: do not hold typed data of an account this CPI takes across the CPI. Read the scalars you need (the bump, the state key) into locals before the transfer, run the transfer, then take a fresh typed borrow after it completes to update your counters — and that post-CPI read is already live, which is why there is nothing left for a `.reload()` to do. The error is not an obstacle. It is the instruction. That is letting the compiler drive.
+So the fix is not "find the V2 name for reload." There is none. The fix is structural: do not hold typed data of an account this CPI takes across the CPI. Read the scalars you need (the bump, the state key) into locals before the transfer, run the transfer, then take a fresh typed borrow after it completes to update your counters — and that post-CPI read is already live, which is why there is nothing left for a `.reload()` to do. The error is the instruction, not an obstacle. That is letting the compiler drive.
 
 ![The V2 build throws exactly one error on the copied v1 withdraw, no method named reload, while the typed read a line above it compiles because state is not an account this transfer touches.](assets/v04-annotated-code.png)
 
@@ -140,7 +140,7 @@ Two things about that warning are worth noticing. First, it names the replacemen
 
 ![The has_one deprecation warning names its own replacement, underlines the exact token to remove, and does not fail the test, making it a checklist item.](assets/v05-annotated-code.png)
 
-And on a moving RC, deprecated syntax is precisely what a later version is most likely to remove. Resolving deprecations to zero is not tidiness. It is how you keep the port building against next month's tag. The warning is a checklist item that the framework hands you for free.
+And on a moving RC, deprecated syntax is precisely what a later version is most likely to remove. Resolving deprecations to zero is how you keep the port building against next month's tag. The warning is a checklist item that the framework hands you for free.
 
 Here is the before and after for that one constraint:
 

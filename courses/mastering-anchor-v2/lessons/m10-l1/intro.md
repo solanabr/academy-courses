@@ -102,7 +102,7 @@ A boundary note, because this is where courses overlap and I want to keep the li
 
 ### 6. The toolchain changed shape underneath the code
 
-The first five changes are things you edit in source. The sixth is not a code edit at all. It is the ground the code stands on, and it is the one that ambushes people at deploy time rather than build time.
+The first five changes are things you edit in source. The sixth is not a code edit at all, but the ground the code stands on, and it is the one that ambushes people at deploy time rather than build time.
 
 Start with the ambush. Your 0.32 program compiles on 1.x after you fix the source, you point it at devnet, you deploy, and the *deploy* errors on the on-chain IDL. Nothing in your Rust is wrong. The problem is a stale account from the old world.
 
