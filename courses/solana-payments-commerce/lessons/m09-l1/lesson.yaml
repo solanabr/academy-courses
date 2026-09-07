@@ -34,7 +34,7 @@ blocks:
           - id: c
             label: "Keep the two workspace pins; @solana/pay and @solana/subscriptions sit on different kit peer ranges, which is the seam m05-l2 taught."
             correct: true
-            feedback: "Peer ranges are constraints the packages publish, and resolution happens where each one is installed. Two trees do cost you, since values crossing between them are not the same types."
+            feedback: "Peer ranges are constraints the packages publish, and keeping both means keeping two resolutions — which registration alone will not give you, since npm hoists registered workspaces into one shared root tree. Two trees do cost you, since values crossing between them are not the same types."
         explanation: "The kit v6/v7 fragmentation is real and load-bearing: @solana/pay peers the kit-6 line while @solana/subscriptions 0.5.0 peers kit ^7. The course monorepo keeps per-workspace pins precisely so each package gets a compatible kit. Collapsing the workspaces re-introduces the peer conflict you already resolved."
       - id: m09l1-q2-verify-leg
         prompt: "Your journey script runs the Kora-sponsored purchase leg for a SOL-less buyer. The buyer's wallet returns a success toast. How should the demo assert that this leg PASSED?"

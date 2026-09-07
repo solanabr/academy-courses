@@ -357,7 +357,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
    }
    ```
 
-   The capstone imports `buildSponsoredOrder` by this name, so the export is load-bearing the same way `finalizeTransaction` was in module 3. Notice also what did not change: no amount field on the input, ever. A sponsored checkout is still a checkout, and the server still owns the price.
+   The capstone imports `buildSponsoredOrder` by this name, so the export is load-bearing the same way `finalizeTransaction` was in module 3. It also mounts the server you are about to write into the assembled stack, so keep the routes below on `/gasless` — this is a surface in its own right, not a branch of the transaction-request app that happens to reuse its tail. Notice also what did not change: no amount field on the input, ever. A sponsored checkout is still a checkout, and the server still owns the price.
 
    Checkpoint: `npx tsc --noEmit -p tsconfig.json` from `gasless-checkout` type-checks clean. Point it at this workspace's own config, not the root one — the `-p` is what makes the check real, because the root config from module 2 includes only `transfer-kit/src` and would exit 0 on a file it never opened. With the right config it is the cheapest way to catch a stale relative path in the three cross-package imports (`transfer-kit`, the m03 catalog, the m03 builder), or a helper over there whose signature moved since you last called it, before the server hides either behind a 400.
 
