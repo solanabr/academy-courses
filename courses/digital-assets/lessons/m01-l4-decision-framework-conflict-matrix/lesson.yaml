@@ -34,7 +34,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "The fee + confidential pair requires ConfidentialTransferFeeConfig; add it to make the set legal"
+            label: "The fee + confidential pair requires ConfidentialTransferFeeConfig; add it to be legal"
             correct: true
             feedback: "Rule 2 is the mirror of rule 1: the pair is incomplete rather than forbidden, and the fix adds an extension instead of dropping a requirement."
           - id: b
@@ -67,7 +67,7 @@ blocks:
             correct: false
             feedback: "The three test-only variants are separate; PermissionedBurn is a real production extension. The 29-variant count already excludes the test-only ones."
           - id: d
-            label: "The page has since added PermissionedBurn, so the omission was just a timing accident, and re-copying the docs after the next sweep would bring the validator back in line"
+            label: "The page has since added PermissionedBurn, so the omission was a timing accident and re-copying the docs later fixes the validator"
             correct: false
             feedback: "That page carries no version stamp, so a copy of it cannot say which world it describes; the enum at a named commit can, which is why the matrix is derived and not transcribed."
         explanation: "There is no official current matrix, and doc catalogs lag the code: the course's 2026-08-21 sweep caught solana.com with no PermissionedBurn page while solana-program.com already carried one, and the gap closed within a day. The source enum's 29 production variants are the truth, which is the whole reason this artifact is derived from check_for_invalid_mint_extension_combinations rather than copied from a page."

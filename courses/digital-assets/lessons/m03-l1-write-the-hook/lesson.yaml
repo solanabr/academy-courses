@@ -90,7 +90,7 @@ blocks:
             correct: false
             feedback: "Extension TLV data is not hand-patchable, and there is no freeze-patch-thaw flow for adding extensions."
           - id: d
-            label: "Use the mint's transfer-hook authority to point the existing slot at your program, the way an issuer chambers a dormant hook"
+            label: "Use the mint's transfer-hook authority to aim the existing slot at your program"
             correct: false
             feedback: "Aiming the slot is real and it needs a slot. The hook authority can chamber or null a program id on a mint that carried the TransferHook entry from its first block; the live SPROUT has no such entry."
         explanation: "Almost every Token-2022 extension, TransferHook included, is creation-only: it must be present when the mint is initialized. An existing mint without the extension can never grow one, so gating existing SPROUT means minting a new hooked variant and migrating, which is why the course builds the hook on a fresh SPROUT variant, not the original."

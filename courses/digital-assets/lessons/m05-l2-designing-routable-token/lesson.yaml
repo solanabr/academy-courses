@@ -35,7 +35,7 @@ blocks:
             correct: true
             feedback: "Fee, display and accounting extensions get whitelisted; power and control extensions get refused, and a frozen default is control. Reaching for one just in case costs you the venue."
           - id: d
-            label: "It costs nothing at the venue: the pool's own vault gets thawed at creation, so the frozen default never touches pool operations"
+            label: "Nothing breaks: the pool's vault is thawed at creation, so the frozen default never touches it"
             correct: false
             feedback: "The walk matches extension variants, so thawing every account in existence would not help. The DefaultAccountState entry itself is what pool creation refuses."
         explanation: "The thesis in one line, and note the word it must never contain: fee, display and accounting extensions (TransferFeeConfig, MetadataPointer, TokenMetadata, InterestBearingConfig, ScaledUiAmount) get whitelisted; power/control extensions (hook, permanent delegate, default-frozen, confidential) get refused. Do NOT say 'compliance gets whitelisted': DefaultAccountState(Frozen) is the compliance team's favourite primitive and this question is grading its refusal. Adding a control extension 'just in case' costs you the venue."
