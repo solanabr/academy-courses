@@ -55,7 +55,7 @@ And the enforcement is not advisory. Try to pull twice in a period and the progr
 
 ### The exit door, and what the subscriber traded for it
 
-Non-custodial billing is only honest if leaving is as unilateral as joining. It is. The subscriber can unsubscribe from a plan, which closes their delegation account, and they can revoke the Subscription Authority itself, which vacates the delegate slot and ends every delegation under it in one move. No merchant signature appears anywhere in either path; the wallet that consented can withdraw consent alone, at any time, and reclaims the rent the accounts held on the way out. Compare that with the twenty-minute retention flow your last gym membership made you eat.
+Non-custodial billing is only honest if leaving is as unilateral as joining. It is. The subscriber can unsubscribe from a plan, which closes their delegation account, and they can revoke the Subscription Authority itself, which vacates the delegate slot and ends every delegation under it in one move. No merchant signature appears anywhere in either path; the wallet that consented can withdraw consent alone, at any time. One precision about the rent those accounts hold, since it is easy to assume the exit refunds it: unsubscribing closes the delegation account and returns its rent to whoever paid for it, but revoking the Subscription Authority only vacates the delegate slot — it does not sweep the PDAs. Reclaiming those is a separate, merchant-run `RevokeAbandoned` call whose signer is the **recorded payer**, which is your wallet if you sponsored the subscribe. Next lesson builds that queue; today the point is that leaving is unilateral, not that it is self-cleaning. Compare that with the twenty-minute retention flow your last gym membership made you eat.
 
 The trade-off, named, because last lesson's design had a virtue this one quietly retires. The raw 60 USDC approval ran dry after four pulls, and that exhaustion forced a natural re-consent conversation every four months. The SA's u64::MAX approval never runs dry. The subscriber's protection is no longer a shrinking number; it is the per-plan limits plus that unilateral exit. Mechanically that is a strictly better protection, and it still deserves this paragraph, because the dwindling allowance was doing quiet UX work in the raw design that nothing automatic replaces here: nobody gets re-asked by default. Surface active subscriptions in your product UI and make cancel one tap; the chain will not nag on your behalf.
 
@@ -467,6 +467,15 @@ main().catch((e) => {
 });
 ```
 
+Run it, because everything after this step assumes one pull has landed:
+
+```bash
+CLUB_MINT=<your devnet mint> SUBSCRIBER=$(solana-keygen pubkey subscriber.json) \
+  npx tsx 04-pull.ts
+```
+
+Checkpoint: `pull landed in backoffice ledger: <signature>`. Run it a second time immediately and you should get `refused: too-early` before any transaction is built — that refusal is not a failure, it is your crank declining to spend a fee on a pull the program would reject anyway. Cheap refusals are the whole reason the guard exists client-side at all. (With the step-6 starter still unfixed you may see the first run land when it should not; that is the seam the Challenge closes, and the gate at the end of the lab is what judges it.)
+
 One conversion in there is deliberate and worth a sentence, because module 2 drilled the opposite habit into you. The `Number(...)` casts are on timestamps and an hour count, never on an amount: `sub.data.terms.amount` stays a `bigint` all the way into the instruction, exactly as the base-units rule demands. Unix seconds and a plan cadence are small integers that JavaScript represents exactly for the next quarter-million years; money is not. Guard takes numbers, transfer takes bigints, and the boundary between them is one line you can point at.
 
 **7. Wire the ledger bridge (your completion step).** `recordInvoice` does not exist yet; that gap is yours. It appends to the SAME `backoffice/orders.jsonl` the webhook lesson's live receiver (`main.ts`) writes checkout rows to, under the same discipline: one JSON line per row, keyed on the transaction signature, and a signature already present is never written twice. Here is mine, `ledger-bridge.ts`; write yours before you peek, then compare:
@@ -509,7 +518,24 @@ One wrinkle worth pre-empting, because your infrastructure is now good enough to
 
 ![Checkout events arrive by verified webhook and subscription pulls arrive by the billing crank, converging as signature-keyed, exactly-once rows in the single backoffice orders ledger.](assets/v08-diagram.png)
 
-**8. Put the crank back in charge.** Everything so far ran as one-off scripts, but the artifact this lesson ships is club-billing, and what makes it a billing system rather than a demo is last lesson's crank loop driving the pull path on a clock. The refactor takes two minutes: in `04-pull.ts`, lift the body of `main` into an exported `pullOnce(subscriber: Address)` and drop the `SUBSCRIBER` env read, since the subscriber is a parameter now; keep a two-line `main` that reads the env var and calls it, so the one-off script still works. Then `05-crank.ts` is last lesson's tick shape pointed at the new internals:
+**8. Put the crank back in charge.** Everything so far ran as one-off scripts, but the artifact this lesson ships is club-billing, and what makes it a billing system rather than a demo is last lesson's crank loop driving the pull path on a clock. The refactor takes two minutes, and one line of it is load-bearing in a way that is easy to miss. In `04-pull.ts`, lift the body of `main` into an exported `pullOnce(subscriber: Address)` and drop the module-scope `SUBSCRIBER` env read, since the subscriber is a parameter now. You still want the one-off script to work, so keep the `main` that reads the env var and calls `pullOnce` — but it must now only run when the file is executed directly, because `05-crank.ts` is about to *import* this file, and a module-level `main().catch(() => process.exit(1))` would fire on import and kill the crank before its first tick:
+
+```typescript
+// 04-pull.ts, at the bottom. The guard is what lets one file be both
+// a script and a library.
+const runDirectly =
+  process.argv[1] !== undefined &&
+  import.meta.url === new URL(`file://${process.argv[1]}`).href;
+
+if (runDirectly) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
+```
+
+That is the same direct-run gate the capstone puts on every server file, met here first. Then `05-crank.ts` is last lesson's tick shape pointed at the new internals:
 
 ```typescript
 // 05-crank.ts: the club-crank tick loop, now driving official pulls.
@@ -593,8 +619,6 @@ period-window: due -> pull landed in backoffice ledger (invoice reconciled)
 ```
 
 Expect it red on the first run, and expect it for a named reason: with the starter you saved in step 6, the second assertion fails, because a guard that treats `periodHours` as seconds calls a 23-hour-old subscription due. That red line is the seam between the lab and the Challenge, exactly like the crank guard's TODO last lesson; the gate turns green when you fix the two bugs below.
-
-If you run `04-pull.ts` a second time immediately, you should see `refused: too-early` before any transaction is built. That refusal is not a failure; it is your crank declining to spend a fee on a pull the program would reject anyway. Cheap refusals are the whole reason the guard exists client-side at all.
 
 ## Challenge
 

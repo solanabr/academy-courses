@@ -13,13 +13,13 @@ blocks:
     type: quiz
     questions:
       - id: m01-l2-q1
-        prompt: "You are porting your card mental model. A $2,000 electronics order arrives and you must decide when to release the goods. Which commitment level is the right default for a high-value, dispute-sensitive sale?"
+        prompt: "You are porting your card mental model. A $2,000 electronics order arrives and you must decide when to release the goods, knowing there is no chargeback path to undo the shipment. Which commitment level is the right default for a sale of that value?"
         multiSelect: false
         options:
           - id: a
             label: "Wait for `finalized`: the settled-funds equivalent, since a finalized block cannot be dropped by a fork."
             correct: true
-            feedback: "Fork risk is the only thing a commitment level controls; finality buys nothing against a fraudulent buyer, and its extra seconds are wasted on a $12 sale."
+            feedback: "Right, and be precise about what those seconds buy: fork risk is the only thing a commitment level controls. It does not protect you from a dishonest buyer — nothing on this rail does — but at $2,000 the residual chance of a dropped block is worth ten seconds you would not spend on a small ticket."
           - id: b
             label: "Release on `processed`, treating it as the authorization hold: the RPC hands back a signature in well under a second, which is enough to print the packing slip."
             correct: false
@@ -27,8 +27,8 @@ blocks:
           - id: c
             label: "Release on `confirmed` (the captured-charge equivalent), and claw the funds back later if the buyer disputes."
             correct: false
-            feedback: "`confirmed` is the sensible default for MOST payments, but for a high-value, compliance-sensitive order the guidance is to wait for `finalized`. And there is no later clawback here; that is the card metaphor leaking."
-        explanation: "Official guidance is qualitative: `confirmed` for most payments, `finalized` for high-value or compliance-sensitive ones, `processed` for UI only. The card analogy helps (finalized is like settled funds) but breaks in one direction: once finalized there is no chargeback path, so the decision is purely about fork risk, not reversal risk."
+            feedback: "`confirmed` is the sensible default for MOST payments, but the guidance reserves `finalized` for high-value and compliance-sensitive orders, and $2,000 of electronics is squarely the first. The clawback half is the card metaphor leaking: there is no later reversal on this rail, which is exactly why the decision has to be made before the goods leave."
+        explanation: "Official guidance is qualitative: `confirmed` for most payments, `finalized` for high-value or compliance-sensitive ones, `processed` for UI only. The card analogy helps (finalized is like settled funds) but breaks in one direction: there is no chargeback path at any commitment level, so the only thing you are pricing with this choice is fork risk. That is why value, not disputability, is the axis — a bigger ticket makes a rare dropped block more expensive, and the extra seconds cheap by comparison."
       - id: m01-l2-q2
         prompt: "A customer buys a $12 record. On card rails you would budget roughly 2.9% plus 30 cents in processor fees. What does the base network fee look like on these rails?"
         multiSelect: false

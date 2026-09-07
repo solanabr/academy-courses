@@ -221,7 +221,13 @@ cd ~/wavelength/x402
 API_URL=http://localhost:4021 npx tsx src/agent.ts
 ```
 
-The agent should settle exactly as it did last lesson, headers and facilitator and all, never noticing that the server behind the door changed. Two things do differ, so expect them rather than debugging them: the gate meters $0.10 a call against last lesson's $0.05 route price (still far under the spendControls cap), and the quote numbers reflect step 2's reworked price model. And remember the absence step 3 named: the gate path writes no ledger row, so this settlement shows up in your transcript and on the explorer, not in `orders.jsonl`. Same API, both protocols, one config file. Checkpoint: you now hold a terminal transcript with an unpaid 402 showing both challenges, one MPP-negotiated call with a `Payment-Receipt`, and one x402 settlement through the same gate.
+The agent should settle exactly as it did last lesson, headers and facilitator and all, never noticing that the server behind the door changed. Three things do differ, so expect them rather than debugging them.
+
+First, the gate meters $0.10 a call against last lesson's $0.05 route price (still far under the spendControls cap), and the quote numbers reflect step 2's reworked price model.
+
+Second, the agent's fourth call is the deliberate over-cap one, and it goes to `/price/rush`. That route does not exist here: step 2's bare API serves only `/price`, and `paywall.yml` declares only the `price` endpoint, so the gate answers 404 and the call never gets far enough to be declined by `spendControls`. That is correct behavior for this lesson, whose subject is protocol negotiation rather than allowances — the cap decline is last lesson's checkpoint and it already passed there. If you want the identical four-line transcript anyway, it is two small additions: an `app.get('/price/rush', ...)` in `price-api.ts` returning the same quote shape, and a second entry under `endpoints:` in `paywall.yml` with `path: "price/rush"` and a `price_usd` above the agent's cap. Optional, and worth doing once if you want to watch a gated route decline rather than 404.
+
+Third, remember the absence step 3 named: the gate path writes no ledger row, so this settlement shows up in your transcript and on the explorer, not in `orders.jsonl`. Same API, both protocols, one config file. Checkpoint: you now hold a terminal transcript with an unpaid 402 showing both challenges, one MPP-negotiated call with a `Payment-Receipt`, and one x402 settlement through the same gate.
 
 Notice what did not happen to your ladder while you did that. No new artifact was born today.
 

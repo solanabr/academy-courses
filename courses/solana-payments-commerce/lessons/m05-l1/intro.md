@@ -145,9 +145,20 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
    solana airdrop 1 $(solana-keygen pubkey subscriber.json) --url devnet
    ```
 
-   The subscriber also needs devnet USDC to be billed against: send 100 from your module-2 wallet using transfer-kit's `sendStablecoin`, the exact flow from module 2 lesson 1's lab (which also creates the subscriber's ATA, and charges you the 165-byte rent-exempt minimum once — the number module 2 had you curl rather than memorize). If the devnet faucet rate-limits the airdrops, wait a minute; you need SOL on both keypairs because the subscriber pays the approval fee and the crank pays every pull fee.
+   The subscriber also needs devnet USDC to be billed against, and this is worth a paragraph of arithmetic rather than a number, because devnet USDC is the one resource this course cannot conjure. Send it from your merchant wallet with transfer-kit's `pay` script, the exact flow from module 2 lesson 1's lab (which also creates the subscriber's ATA, and charges you the 165-byte rent-exempt minimum once — the number module 2 had you curl rather than memorize):
 
-   Checkpoint: `solana balance $(solana-keygen pubkey subscriber.json) --url devnet` prints about 1 SOL, the same for the crank, and the subscriber's USDC balance reads 100. Nothing later in the lab works without all three.
+   ```bash
+   npm run --workspace transfer-kit pay -- $(solana-keygen pubkey subscriber.json) 60
+   ```
+
+   Sixty is not decoration: this lesson's plan approves 60 USDC and pulls 15 per cycle, so 60 is exactly four cycles, and the fifth pull finding an empty delegate slot is the lesson's punchline. Your merchant wallet almost certainly does not hold 60 devnet USDC right now. Circle's faucet drips a small allowance per visit and rate-limits repeat visits, so getting to 60 means several visits spread across the day. Two honest ways through, pick one before you continue:
+
+   - **Drip and wait.** Visit faucet.circle.com whenever the cooldown lets you, until `spl-token balance 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU --url devnet` clears 60, then send it on. Highest fidelity to the numbers printed below, slowest.
+   - **Scale the plan down.** Divide every USDC figure in this lesson by ten: approve `6` instead of `60`, set `PLAN = '1.5'` instead of `'15'`, fund the subscriber with 6. The allowance arithmetic is identical — four pulls exhaust it, the fifth finds no delegate — and every checkpoint below reads the same story at one tenth the scale. This is the path I would take on a fresh devnet wallet, and the only cost is that the log lines print smaller numbers than mine.
+
+   If the SOL airdrops rate-limit, wait a minute and retry; you need SOL on both keypairs because the subscriber pays the approval fee and the crank pays every pull fee.
+
+   Checkpoint: `solana balance $(solana-keygen pubkey subscriber.json) --url devnet` prints about 1 SOL, the same for the crank, and the subscriber's USDC balance reads whichever figure you chose above. Nothing later in the lab works without all three.
 
 2. **The guard, as a completion scaffold.** Create `crank/guard.ts`. This is pure logic, no network, which is exactly what makes it testable offline before any devnet money moves:
 

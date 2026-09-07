@@ -284,7 +284,7 @@ reconcile: order ord-0231 paid, signature 5Kd...w2, 12500000 base units
 
 Exact amounts, exact match, status `paid`. If you get `unmatched` on a payment you can see in the explorer, your verifier rejected it; run the demo with `DEBUG=verify` and read which of the five checks said no. That failure loop, reconciler says unmatched, verifier says why, is the debugging rhythm for the rest of the course.
 
-**Step 3: the ledger grows a second row type.** Open `ledger.ts`. It grows in two directions, and the first is a store this module has quietly needed all along: an **open-orders table**. `recordOrder(order, reference)` stores an `ExpectedOrder` against the reference key your checkout minted, and `getOrderByReference` is its lookup; the reconcile-demo script seeds a row for the payment you are about to make, and your checkout server is where the call belongs in production. Without it, an unpaid or underpaid order would be invisible to the reconciler, because last lesson's ledger only ever recorded fulfilled payments. Second, last lesson's payment row was frozen at five fields, so say the extension out loud before using it: payment rows gain `paidBaseUnits`, the delta the verifier actually observed on-chain, which is a different number from the `amountBaseUnits` the order expected the moment anyone underpays, plus a nullable `refundSignature` that stays empty until a reversal names it. Both are additive, so every `rows()` reader from last lesson still works. Refunds then add a linked row of their own:
+**Step 3: the ledger grows a second row type.** Open `ledger.ts`. It grows in two directions, and the first is a store this module has quietly needed all along: an **open-orders table**. `recordOrder(order, reference)` stores an `ExpectedOrder` against the reference key your checkout minted, and `getOrderByReference` is its lookup; the reconcile-demo script seeds a row for the payment you are about to make, and your checkout server is where the call belongs in production. Without it, an unpaid or underpaid order would be invisible to the reconciler, because last lesson's ledger only ever recorded fulfilled payments. Second, last lesson's payment row was frozen at five fields, so say the extension out loud before using it: payment rows gain `paidBaseUnits`, the delta the verifier actually observed on-chain, which is a different number from the `amountBaseUnits` the order expected the moment anyone underpays, plus a nullable `refundSignature` that stays empty until a reversal names it. Both are additive, so every `rows()` reader from last lesson still works. Say the writer out loud, because it is the half everyone forgets and the omission is silent: **`recordRefund` writes twice** — it appends the refund row below, and it stamps `refundSignature` onto the payment row it reverses. Skip the second write and the `already refunded` guard in the refund builder reads a field nothing ever sets, so it never fires, and every re-run of your gate pushes another real refund on devnet — the exact double-send the guard exists to prevent. Refunds add a linked row of their own:
 
 ```ts
 // backoffice-refunds/src/ledger.ts (additions)
@@ -360,6 +360,8 @@ export async function refundPayment(
     reference: refundReference,
   });
 
+  // Writes twice: the refund row, AND refundSignature back onto the payment
+  // row. That back-stamp is what arms the `already refunded` guard above.
   recordRefund({
     originSignature,
     refundSignature: signature,
