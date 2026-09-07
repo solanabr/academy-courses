@@ -116,7 +116,7 @@ The instinct here is to ask which shape wins, and it is slightly the wrong insti
 
 ![Coinbase Onramp and Stripe's onramp compared: both make the provider merchant-of-record and KYC owner; they differ in integration shape, product status, and which one this lesson builds against.](assets/v06-comparison.png)
 
-The pattern generalizes past these two vendors, which is why it is worth internalizing now: whoever is merchant-of-record owns the fraud, the disputes, and the identity checks, and in exchange owns the coverage map. You will meet the same trade wearing different logos next lesson, and by the end of it, "who is merchant-of-record here?" should be the first question you ask any payments vendor, right before "and in what corridors?"
+The pattern generalizes past these two vendors, which is why it is worth internalizing now: whoever is merchant-of-record owns the fraud, the disputes, and the identity checks, and in exchange owns the coverage map. You will meet the same trade with a different set of vendors next lesson, and by the end of it, "who is merchant-of-record here?" should be the first question you ask any payments vendor, right before "and in what corridors?"
 
 ### The way back out
 
