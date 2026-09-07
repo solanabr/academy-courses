@@ -156,7 +156,7 @@ Permissionless-plus-idempotent is the right design here and it is worth understa
 
 ### The curve is a policy, and the policy changed under everyone
 
-Everything so far treats the four constants as physics. They are not. They are policy, set by an authority, and the clearest proof of that is what happened to pump's fees.
+Everything so far treats the four constants as physics. They are policy, set by an authority, and the clearest proof of that is what happened to pump's fees.
 
 For most of pump's life the bonding-curve fee was a flat 100 basis points. One percent, same for a coin worth four hundred dollars and a coin worth four million. Then on 2025-09-01 at 20:00 UTC that stopped being true. Fees became dynamic, scaled by the coin's market capitalization, and the shape of the change is visible in the SDK's own types:
 
@@ -173,7 +173,7 @@ Here is the stake for you, and it is not abstract. If you are modelling a launch
 
 ![A flowchart tracing a trade's fee from market-cap derivation through tier selection in the editable FeeConfig to a three-way split routed across eight rotating recipients.](assets/v04-flowchart.png)
 
-The same flag day brought Cashback coins, where creator fees route back to traders instead of to the creator, accounted through per-user volume-accumulator PDAs that the buy instruction touches on every trade. That is a genuinely different economic object wearing the same interface: identical curve math, opposite incentive for whoever is trading it. And fee collection itself rotates across eight recipient addresses, one `fee_recipient` plus a seven-entry `fee_recipients` array, which is an operational detail until the day you are indexing fee flows and wondering why they scatter.
+The same flag day brought Cashback coins, where creator fees route back to traders instead of to the creator, accounted through per-user volume-accumulator PDAs that the buy instruction touches on every trade. That is a genuinely different economic object behind the same interface: identical curve math, opposite incentive for whoever is trading it. And fee collection itself rotates across eight recipient addresses, one `fee_recipient` plus a seven-entry `fee_recipients` array, which is an operational detail until the day you are indexing fee flows and wondering why they scatter.
 
 ![A timeline marking 2025-09-01 20:00 UTC, with a flat 100 basis point fee before it and market-cap-tiered fees after, above a band noting the invariant did not change.](assets/v05-timeline.png)
 
@@ -499,7 +499,7 @@ Four tests, and the third is the one to think about. pump's reference constants 
 
 ![A table of the challenge's four test cases pairing each expected graduation threshold with the wrong flat-price answer, from the 85.005 reference curve to the zero-reserve sanity anchor.](assets/v09-table.png)
 
-Then a piece of judgment that no test can grade, and it is the deliverable this module actually wants. Write three sentences about SPROUT's launch. Sentence one: the graduation threshold you would model for SPROUT, and the constants it derives from, given that SPROUT is not launching on pump. Sentence two: why pump is unavailable to SPROUT, naming the specific mechanism rather than the vibe. Sentence three: what you would have to give up about SPROUT to make pump available, and whether you would. If your third sentence concludes that dropping the transfer fee to fit the venue is fine, go back to your R6 report and read what the fee is funding before you commit, because that is a treasury decision wearing a tooling costume.
+Then a piece of judgment that no test can grade, and it is the deliverable this module actually wants. Write three sentences about SPROUT's launch. Sentence one: the graduation threshold you would model for SPROUT, and the constants it derives from, given that SPROUT is not launching on pump. Sentence two: why pump is unavailable to SPROUT, naming the specific mechanism rather than the vibe. Sentence three: what you would have to give up about SPROUT to make pump available, and whether you would. If your third sentence concludes that dropping the transfer fee to fit the venue is fine, go back to your R6 report and read what the fee is funding before you commit. That is a treasury decision, and the tooling constraint is only what surfaced it.
 
 One more thing worth doing while the derivation is fresh. Take the `FeeConfig` and `FeeTier` types from earlier in this lesson and go read the actual tier table off chain. I deliberately did not print the thresholds here, because they are account data with an admin, and a course that freezes them is a course that lies to whoever reads it in six months. Pull them yourself, note the date next to what you find, and you will have done the thing this whole lesson is really teaching, which is telling the difference between a number that is derived, a number that is stored, and a number that is repeated.
 

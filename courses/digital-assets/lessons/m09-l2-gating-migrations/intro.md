@@ -138,11 +138,11 @@ Those two prefix bytes are not decoration. Without them, a 64-byte "leaf" could 
 
 ![An annotated breakdown of the distributor leaf shows claimant and amounts hashed into a node, zero and one byte prefixes on leaves and internal nodes, explained as second-preimage protection.](assets/v05-annotated-code.png)
 
-The payoff of knowing this precisely is that you can compute the root locally, in TypeScript, and get the same 32 bytes the on-chain verifier will compute. That is not a nice-to-have. It is how you check a distribution before you publish it, and how you debug the one claim that fails while the other nine thousand work.
+The payoff of knowing this precisely is that you can compute the root locally, in TypeScript, and get the same 32 bytes the on-chain verifier will compute. That is how you check a distribution before you publish it, and how you debug the one claim that fails while the other nine thousand work.
 
 ### Where the double-claim guard actually lives
 
-Last piece of theory, and it is the same idea as the door wearing a different hat.
+Last piece of theory, and it is the door's problem again, one opening over.
 
 A merkle proof proves that an entry is in the tree. It does not prove that the entry has not already been claimed, and it never can, because the proof is identical every time. Something has to remember. The reference distributor remembers by creating a `ClaimStatus` account per claimant, derived from the seeds `"ClaimStatus"`, the claimant's address, and the distributor's address, holding the claimant, the locked amount, the amount already withdrawn, and the unlocked amount. The account is created inside the claim transaction. Try to claim twice and the second transaction fails to create an account that already exists.
 
@@ -828,7 +828,7 @@ npx tsx -e "import {address} from '@solana/kit'; import {claimStatusAddress} fro
   console.log(await claimStatusAddress(address(process.env.DISTRIBUTOR!), address(process.env.HOLDER_WALLET!)));"
 ```
 
-Swap `FileClaimLedger` for `OnChainClaimLedger`, point it at any distributor address, and read what comes back. It will say "not claimed," because that `ClaimStatus` account does not exist for a distributor you never created. Sit with the fact that you cannot make it say "claimed" from a client, because that is the property you are actually buying.
+Swap `FileClaimLedger` for `OnChainClaimLedger`, point it at any distributor address, and read what comes back. It will say "not claimed," because that `ClaimStatus` account does not exist for a distributor you never created. You cannot make it say "claimed" from a client, and that inability is the property you are actually buying.
 
 And decide your own ratio before you look at mine. Take your real SPROUT supply, take the total compost points outstanding, and write down what percentage of the token points holders should end up with. Then work backwards to the per-point number. If that percentage makes you uncomfortable, you have just discovered why migration announcements are the tensest posts these teams write.
 

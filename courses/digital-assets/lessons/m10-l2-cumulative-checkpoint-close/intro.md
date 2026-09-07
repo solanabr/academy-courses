@@ -293,7 +293,7 @@ You should see three FAIL lines and `0/3 rows survive the rules` at exit 1. The 
 
 Three things, all writing, none of them code.
 
-First, defend each surviving row in one sentence that names the instrument. Not "cNFT because cheap" but "Bubblegum v2 with `set_non_transferable_v2`, because a million assets is a compression problem and soulbound is no longer a reason to leave compression." A defense that does not name the rule it applied is a preference wearing a lab coat.
+First, defend each surviving row in one sentence that names the instrument. Not "cNFT because cheap" but "Bubblegum v2 with `set_non_transferable_v2`, because a million assets is a compression problem and soulbound is no longer a reason to leave compression." A defense that does not name the rule it applied is only a preference.
 
 Second, write down the module you are going back to, and the specific thing you will re-derive when you get there. Not "re-read module five" but "re-run the additive check and watch five allowlisted extensions plus a delegate come back rejected." Vague intentions to revise are how people end a course feeling fine and stay exactly as capable as they were.
 
