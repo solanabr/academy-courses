@@ -87,7 +87,7 @@ blocks:
             correct: false
             feedback: "It is largely the same discipline; pretending it's novel hides the reuse of hard-won PSP hygiene."
           - id: b
-            label: "It's Stripe webhook hygiene with different keys: the transaction signature plays the idempotency key's role."
+            label: "Stripe webhook hygiene with different keys: the signature is the idempotency key."
             correct: true
             feedback: "The delivery semantics are identical, and the hygiene ports over intact; Stripe signs its payloads, though, and here you re-read the chain instead."
           - id: c

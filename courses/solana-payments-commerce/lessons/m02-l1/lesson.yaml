@@ -48,7 +48,7 @@ blocks:
             correct: false
             feedback: "64-bit doubles are only exact for integers up to 2**53; base-unit values above that (about 9 billion USDC) start rounding."
           - id: b
-            label: "It silently rounds past 2**53, so large transfers send the wrong number of cents and nothing throws."
+            label: "It rounds silently past 2**53: large transfers send wrong cents, nothing throws."
             correct: true
             feedback: "Doubles are exact only to 2**53, and the product gets rounded rather than rejected. A rounding helper cannot repair what a bigint parse would have prevented."
           - id: c
@@ -86,7 +86,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "TransferChecked verifies the mint and decimals inside the instruction, and the reference key is a non-signer address you attach so reconciliation can find the payment later."
+            label: "TransferChecked verifies the mint and decimals; the reference key is a non-signer marker you can search on later."
             correct: true
             feedback: "Account keys are indexed, which is why the marker is findable and also why it isn't secret; anyone can attach the same one, and the fields are what decide."
           - id: b
@@ -98,7 +98,7 @@ blocks:
             correct: false
             feedback: "TransferChecked works for classic Token mints too, and the fee payer is whichever signer the transaction names as fee payer, never a reference key."
           - id: d
-            label: "TransferChecked proves the sender actually owns the funds, and the reference key is a private token your checkout alone knows, so a match proves the payment came from your form."
+            label: "TransferChecked proves the sender actually owns the funds, and the reference key is a private marker your checkout alone knows, so a match proves the payment came from your form."
             correct: false
             feedback: "A reference key is an ordinary account address riding in a public transaction, so anyone reading the ledger can see it and reuse it. It tells you where to look for a payment; the amount, mint and destination are what tell you the payment is yours."
         explanation: "TransferChecked pins the mint and decimals so a mismatched transfer is rejected rather than silently mis-sent. A reference key is an extra non-signer account you include purely so reconciliation can locate the payment later by searching signatures for that key, the pattern the whole back office will lean on."

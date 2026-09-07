@@ -53,7 +53,7 @@ blocks:
             correct: false
             feedback: "Nothing re-approves automatically; a new approval is always a fresh signed action by the token-account owner."
           - id: c
-            label: "15 USDC remains; a fourth 15-USDC pull exhausts the approval and clears the delegate, so a fifth fails with the delegate already revoked."
+            label: "15 USDC remains; a fourth pull exhausts it and clears the delegate, so a fifth finds none."
             correct: true
             feedback: "The Token program sets the delegate to None at zero, freeing the slot by itself; the allowance is what does not come back, and only a fresh owner-signed ApproveChecked restores it."
           - id: d
