@@ -13,7 +13,7 @@
 <!-- comparison: one decision, four shadows: the map you built
      purpose: certify the artifact, each row traces to the single root cause
      data: old world (BTC/EVM) -> Solana counterpart -> the one-sentence why co-located code + state at one address -> stateless program (sBPF bytecode) + separate data accounts -> state must be declared, so the runtime can schedule around it sequential execution (dynamic storage) -> parallel execution via declared AccountMetas (Sealevel) -> non-overlapping writes provably cannot collide, so they run at once global mempool + gas auction -> no mempool; Gulf Stream to the known leader -> the leader schedule is fixed per epoch, so ordering needs no last-second auction gas balance you top up -> base fee + priority fee + rent-exempt minimum -> fees are set not auctioned; persistence is a refundable deposit, not a running charge ROOT CAUSE (all four): on Solana, data access is declared before execution
-     prompt: Four-row comparison card, dark background, monospace headers "old world / Solana / why". A single highlighted band across the bottom spanning all columns: "root cause: data access is declared before execution". No logos, no decorative icons.
+     prompt: Four-row comparison card, dark background, monospace headers "old world / Solana / why". A single highlighted band across the bottom spanning all columns: "root cause: data access is declared before execution". No logos, no decorative icons. Every cell in the why column is one continuous sentence: it must render as a single left-to-right text run, never split at its emphasized phrases into separate columns. Same constraint on the emphasized runs inside every other cell.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -50,22 +50,22 @@
     <div class="drow">
       <div class="old">co-located code + state at one address</div>
       <div class="sol">stateless program (sBPF) + separate data accounts</div>
-      <div class="why">state must be <b>declared</b>, so the runtime can schedule around it</div>
+      <div class="why"><span>state must be <b>declared</b>, so the runtime can schedule around it</span></div>
     </div>
     <div class="drow">
       <div class="old">sequential execution (dynamic storage)</div>
       <div class="sol">parallel execution via declared AccountMetas (Sealevel)</div>
-      <div class="why">non-overlapping writes provably <b>cannot collide</b>, so they run at once</div>
+      <div class="why"><span>non-overlapping writes provably <b>cannot collide</b>, so they run at once</span></div>
     </div>
     <div class="drow">
       <div class="old">global mempool + gas auction</div>
       <div class="sol">no mempool; Gulf Stream to the known leader</div>
-      <div class="why">the leader schedule is <b>fixed per epoch</b>, so ordering needs no last-second auction</div>
+      <div class="why"><span>the leader schedule is <b>fixed per epoch</b>, so ordering needs no last-second auction</span></div>
     </div>
     <div class="drow">
       <div class="old">gas balance you top up</div>
       <div class="sol">base fee + priority fee + rent-exempt minimum</div>
-      <div class="why">fees are <b>set, not auctioned</b>; persistence is a refundable deposit, not a running charge</div>
+      <div class="why"><span>fees are <b>set, not auctioned</b>; persistence is a refundable deposit, not a running charge</span></div>
     </div>
   </div>
   <div class="root">

@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- diagram: a block points back with a hash, the chain from lesson 1, one level up
+<!-- diagram: a block points back with a hash, the chain from the hashing lesson, one level up
      purpose: certify that previousblockhash is the same hash chain the reader already built
-     data: block 0 (genesis) hash: 0f9188f1...2206 (identical on every regtest node) block 1 { previousblockhash: 0f9188f1...2206, merkleroot: <tx digest>, tx: [coinbase] } block 2 { previousblockhash: <block 1 hash>, merkleroot: <tx digest>, tx: [coinbase] } ... block 101 { previousblockhash: <block 100 hash>... } <- the tip edit any old block -> its hash changes -> the next block's previousblockhash no longer matches -> every seal after it breaks
-     prompt: Left-to-right diagram, dark theme, monospace. Block boxes 0,1,2...,101 linked by arrows drawn from each block's "previousblockhash" field back to the prior block. A red pencil on block 1 with a red cascade breaking arrows 2..101. Callout on block 0: "genesis, hardcoded, its 50 BTC unspendable". No icons.
+     data: block 0 (genesis) hash: 0f9188f1...2206 (identical on every regtest node) block 1 { previousblockhash: 0f9188f1...2206, merkleroot: <tx digest>, tx: [coinbase] } block 2 { previousblockhash: <block 1 hash>, merkleroot: <tx digest>, tx: [coinbase] } ... block 101 { previousblockhash: <block 100 hash>... } <- the tip edit any old block -> its hash changes -> the NEXT block's previousblockhash no longer matches. Exactly one link mismatches, and that is enough: to hide the edit you must re-mine that block and every block above it
+     prompt: Left-to-right diagram, dark theme, monospace. Block boxes 0,1,2...,101 linked by arrows drawn from each block's "previousblockhash" field back to the prior block. A red pencil on block 1 breaking exactly ONE arrow, the 1->2 link. Do NOT draw a cascade breaking arrows 2..101: only the edited block's immediate child mismatches. The cost is that repairing that one link forces re-mining every block above it. Callout on block 0: "genesis, hardcoded, its 50 BTC unspendable". Refer to the earlier hashing lesson by NAME ("the hashing lesson"), never by number -- this course is not zero-indexed and hash-everything is lesson 2, so "lesson 1" is wrong. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -78,16 +78,16 @@
       <div class="field"><span class="lbl">prev</span><br><span class="v">&lt;block 1&gt;</span></div>
       <div class="field"><span class="lbl">merkleroot</span> <span class="v">&lt;tx&gt;</span></div>
     </div>
-    <div class="arr broken"></div>
+    <div class="arr"></div>
     <div class="gap">&hellip;</div>
-    <div class="arr broken"></div>
+    <div class="arr"></div>
     <div class="blk">
       <div class="h">block 101</div>
       <div class="field"><span class="lbl">prev</span><br><span class="v">&lt;block 100&gt;</span></div>
       <div class="field"><span class="lbl">the tip</span></div>
     </div>
-    <div class="breaklab">&#9889; its hash changes &rarr; every prev after it stops matching &rarr; seals 2&hellip;101 break</div>
+    <div class="breaklab">&#9889; its hash changes &rarr; block 2&rsquo;s prev stops matching &rarr; to hide it, re-mine 2&hellip;101</div>
   </div>
-  <div class="caption">Each block's <b>previousblockhash</b> is the fingerprint of the one before it. Rewrite an old block and every seal built on top of it fails &mdash; the chain is the hash chain from lesson 1.</div>
+  <div class="caption">Each block's <b>previousblockhash</b> is the fingerprint of the one before it. Rewrite an old block and exactly <b>one</b> link stops matching &mdash; its immediate child's. Hiding that costs you a re-mine of that block and every block above it. It is the same hash chain you built by hand in the hashing lesson, one level up.</div>
 </div>
 </body></html>

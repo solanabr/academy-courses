@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- diagram: a chain of digests
-     purpose: show why editing an old block visibly breaks every block after it
-     data: three blocks left to right; each contains "prev: <digest>" referencing the one before a red edit on block 1 cascades: block 1 digest changes -> block 2 "prev" mismatch -> block 3 mismatch side note: holding only the tip digest is enough to detect any edit anywhere upstream
-     prompt: Three linked block boxes, dark background, monospace. Each shows a truncated digest and a "prev:" field pointing at the previous box. A red pencil on block 1, red cascade arrows invalidating blocks 2 and 3. A small callout on the final digest: "64 chars summarize everything before". No decoration.
+     purpose: show why editing an old block is visible immediately, and why hiding it costs a re-seal of everything above
+     data: three blocks left to right; each contains "prev: <digest>" referencing the one before a red edit on block 1: its digest CHANGES, 7e42..b0d1 -> b8d5..41ca, while block 2 still stores the stale 7e42..b0d1 in its "prev". The two values either side of the break must be VISIBLY DIFFERENT -- a mismatch flag between two identical digests is the defect this figure kept shipping. ONLY that one link mismatches; block 3's prev (c93a..5f77) still matches block 2's unchanged digest (c93a..5f77), so block 3 carries no flag. Hiding the edit means re-sealing block 2, which then breaks 3, and so on to the tip side note: holding only the tip digest is enough to detect any edit anywhere upstream
+     prompt: Three linked block boxes, dark background, monospace. Each shows a truncated digest and a "prev:" field pointing at the previous box. A red pencil on block 1 and exactly ONE broken arrow, the 1->2 link, drawn with a visible break; the 2->3 link stays whole and is NOT red. Exactly ONE mismatch flag, on block 2, and the digest it disagrees with must actually differ from block 2's stored prev. Block 3 is unflagged, untinted and reads "still matches" -- do NOT draw it as already invalid, and do NOT tint block 2's own digest, which is unchanged. Caption explains that repairing the one broken link forces a re-seal of everything above. A small callout on the final digest: "64 chars summarize everything before". No decoration.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -36,47 +36,58 @@
     margin-top:4px; }
   .blk.hit { border-color:rgba(192,57,43,0.45); background:rgba(192,57,43,0.05); }
   .blk.hit .val.self { color:#a5342a; }
+  /* block 2 is not corrupt: only its stored `prev` went stale, so flag the border
+     and that one field, never its own digest. */
+  .blk.warn { border-color:rgba(192,57,43,0.45); }
   .blk .val.bad { color:#a5342a; }
+  .blk .was { display:block; margin-top:4px; font-family:var(--font-mono); font-size:14px;
+    color:var(--text-muted); }
+  .blk .was s { text-decoration:line-through; }
   .edit { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.04em;
     background:#c0392b; color:#fff; padding:4px 12px; border-radius:var(--radius-pill); }
-  .flag { display:inline-block; margin-top:6px; font-family:var(--font-body); font-weight:800;
-    font-size:12px; color:#a5342a; }
+  .flag { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.04em;
+    color:#fff; background:#c0392b; padding:4px 12px; border-radius:var(--radius-pill); }
+  .okflag { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.04em;
+    color:var(--stbr-emerald); }
   .link { flex:0 0 74px; position:relative; }
   .callout { margin-top:26px; background:var(--surface-inverse); color:var(--text-on-dark);
     border-radius:var(--radius-lg); padding:22px 30px; font-size:21px; font-weight:500; line-height:1.4; }
   .callout b { color:var(--stbr-yellow); font-family:var(--font-mono); font-weight:800; }
 </style>
   <div class="stbr-eyebrow">a chain of digests</div>
-  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">edit one block, break the rest</h2>
+  <h2 class="viz-title" style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">edit one block, break the next link</h2>
   <div class="chain">
     <div class="blk hit">
       <div class="hd"><span class="name">block 1</span><span class="edit">&#9998; edited</span></div>
       <div class="field"><div class="lab">prev</div><div class="val">a1c0&hellip;9f3e</div></div>
-      <div class="field"><div class="lab">this digest</div><div class="val self bad">7e42&hellip;b0d1</div></div>
+      <div class="field"><div class="lab">this digest &mdash; now</div><div class="val self bad">b8d5&hellip;41ca</div><span class="was">was <s>7e42&hellip;b0d1</s></span></div>
     </div>
     <div class="link">
       <svg width="74" height="60" viewBox="0 0 74 60" aria-hidden="true">
-        <line x1="0" y1="30" x2="60" y2="30" stroke="#c0392b" stroke-width="3"/>
+        <line x1="0" y1="30" x2="26" y2="30" stroke="#c0392b" stroke-width="3"/>
+        <line x1="29" y1="17" x2="43" y2="43" stroke="#c0392b" stroke-width="3"/>
+        <line x1="43" y1="17" x2="29" y2="43" stroke="#c0392b" stroke-width="3"/>
+        <line x1="46" y1="30" x2="60" y2="30" stroke="#c0392b" stroke-width="3"/>
         <polygon points="72,30 56,22 56,38" fill="#c0392b"/>
       </svg>
     </div>
-    <div class="blk hit">
-      <div class="hd"><span class="name">block 2</span></div>
-      <div class="field"><div class="lab">prev</div><div class="val bad">7e42&hellip;b0d1 &ne;</div><span class="flag">mismatch</span></div>
-      <div class="field"><div class="lab">this digest</div><div class="val self bad">c93a&hellip;5f77</div></div>
+    <div class="blk warn">
+      <div class="hd"><span class="name">block 2</span><span class="flag">&ne; mismatch</span></div>
+      <div class="field"><div class="lab">prev &mdash; stored, now stale</div><div class="val bad">7e42&hellip;b0d1</div></div>
+      <div class="field"><div class="lab">this digest &mdash; unchanged</div><div class="val self">c93a&hellip;5f77</div></div>
     </div>
     <div class="link">
       <svg width="74" height="60" viewBox="0 0 74 60" aria-hidden="true">
-        <line x1="0" y1="30" x2="60" y2="30" stroke="#c0392b" stroke-width="3"/>
-        <polygon points="72,30 56,22 56,38" fill="#c0392b"/>
+        <line x1="0" y1="30" x2="60" y2="30" stroke="#008b4c" stroke-width="3"/>
+        <polygon points="72,30 56,22 56,38" fill="#008b4c"/>
       </svg>
     </div>
-    <div class="blk hit">
-      <div class="hd"><span class="name">block 3</span></div>
-      <div class="field"><div class="lab">prev</div><div class="val bad">c93a&hellip;5f77 &ne;</div><span class="flag">mismatch</span></div>
-      <div class="field"><div class="lab">this digest (tip)</div><div class="val self bad">04be&hellip;a8e2</div></div>
+    <div class="blk">
+      <div class="hd"><span class="name">block 3</span><span class="okflag">still matches</span></div>
+      <div class="field"><div class="lab">prev</div><div class="val">c93a&hellip;5f77</div></div>
+      <div class="field"><div class="lab">this digest (tip)</div><div class="val self">04be&hellip;a8e2</div></div>
     </div>
   </div>
-  <div class="callout">Hold only the tip &mdash; those <b>64 chars summarize everything before</b>. One byte changed in block 1 and every downstream <code style="font-family:var(--font-mono);color:var(--stbr-yellow);">prev</code> stops matching.</div>
+  <div class="callout">Hold only the tip &mdash; those <b>64 chars summarize everything before</b>. One byte changed in block 1, so its digest is no longer <code style="font-family:var(--font-mono);color:var(--stbr-yellow);">7e42&hellip;b0d1</code> and block 2&rsquo;s stored <code style="font-family:var(--font-mono);color:var(--stbr-yellow);">prev</code> stops matching. That is the <i>only</i> broken link &mdash; until you cover it up, which means re-sealing block 2, which breaks 3, and on to the tip.</div>
 </div>
 </body></html>

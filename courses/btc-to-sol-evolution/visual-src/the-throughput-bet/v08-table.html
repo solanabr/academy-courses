@@ -12,7 +12,7 @@
 <body>
 <!-- table: what a transaction actually costs
      purpose: certify the three charges and their fixed rules, none is an open auction
-     data: | charge | rule | key number | where it goes | | --- | --- | --- | --- | | base fee | flat per signature | 5,000 lamports per signature | 50% burned, 50% to the validator | | priority fee | you set price and limit | ceil(compute_unit_price * compute_unit_limit / 1,000,000) lamports | to the validator; orders you in its queue | | compute ceiling | hard cap, not for sale | 1,400,000 CU per transaction | n/a: compute is bounded | | rent-exempt minimum | refundable size-based deposit | (account_data_len + 128) × 3,480 lamports/byte-year × 2 years | held by the account; returned on close |
+     data: | charge | rule | key number | where it goes | | --- | --- | --- | --- | | base fee | flat per signature | 5,000 lamports per signature | 50% burned, 50% to the validator | | priority fee | you set price and limit | ceil(compute_unit_price * compute_unit_limit / 1,000,000) lamports | to the validator; orders you in its queue | | compute ceiling | hard cap, not for sale | 1,400,000 CU per transaction | n/a: compute is bounded | | rent-exempt minimum | refundable size-based deposit | (account_data_len + 128) × lamports-per-byte-year × 2 years - QUERY the rate, do not print one: `solana rent 0` returned 810,624 on mainnet and 650,240 on devnet, 2026-09-07 | held by the account; returned on close |
      prompt: Four-row table, dark background, monospace headers "charge / rule / key number / where it goes". Shade the base-fee row to flag the 50% burn. Right-align the key-number column. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -67,7 +67,7 @@
     <tr>
       <td class="charge">rent-exempt min</td>
       <td>refundable, size-based deposit</td>
-      <td class="num">(bytes + 128) &times; 3,480 <span class="unit">&times; 2 yr</span></td>
+      <td class="num">(bytes + 128) &times; rate <span class="unit">&times; 2 yr</span><br><span class="unit">ask the cluster: <code>solana rent 0</code></span></td>
       <td>held by the account; returned on close</td>
     </tr>
   </table>

@@ -51,7 +51,7 @@ A deploy costs SOL even here, and that catches web2 engineers off guard, because
 
 ## Build the program
 
-Before the code, a thirty-second orientation, because this is the first place in the whole course where you author a real programming language instead of a shell command. You do not need to learn Rust to finish today. You need to recognize six shapes. Here they are at a glance, and then we move:
+Before the code, a thirty-second orientation, because this is the first place in the whole course where you author a real programming language instead of a shell command. You do not need to learn Rust to finish today, only to recognize six shapes. Here they are at a glance, and then we move:
 
 ![A beginner reference table mapping Rust shapes (use, fn, a macro with a trailing bang, struct, impl, and a leading-underscore name) to one-line plain-English meanings, noting that struct and impl do not appear in today's program.](assets/v02-table.webp)
 
@@ -126,19 +126,51 @@ Program Id: <PROGRAM_ID> # base58, unique to your keypair, copy it
 
 The CLI never asked which address to use. It didn't need to: it read `target/deploy/first_program-keypair.json`, took its public key, and used that as the program's address. Then it did something less obvious. A single Solana transaction is capped at a small size, far smaller than any compiled program, so the CLI could not upload the `.so` in one shot. Instead it opened a temporary on-chain buffer account, streamed the bytecode into it across many transactions, and only once the whole binary had landed did it finalize that buffer into your program's storage and print the ID. That is why deploying a real program takes a moment and a fistful of transactions rather than a single call. Copy that string. It's the artifact this whole lesson exists to produce, and later modules of this course point a bot straight at it.
 
-Here's my confession, and it's the reason I keep saying guard that keypair. The first devnet program I ever shipped, I ran `git clean` on the repo a week later to reclaim disk, and `target/` went with it, `first_program-keypair.json` included. The program is still up there. I can read every byte of it. I can never change it, never upgrade it, never reclaim its rent, because the key that authorized all of those is gone. The CLI doesn't warn you about that. It's just Tuesday. The keypair is the program ID and the upgrade authority at the same time, and losing the file loses both.
+Here's my confession, and it is also where I had the model wrong for longer than I would like. The first devnet program I ever shipped, I ran `git clean` on the repo a week later to reclaim disk, and `target/` went with it, `first_program-keypair.json` included. I spent an afternoon certain I had bricked the program. I had not, and the reason is worth knowing before you need it. Ask the cluster who is actually in charge:
 
-![The deploy command uploads the .so and reads the keypair file, whose public key becomes both the program ID and the upgrade authority.](assets/v04-annotated-code.webp)
+```bash
+solana program show <PROGRAM_ID>
+```
+
+```
+Program Id: <PROGRAM_ID>
+Owner: BPFLoaderUpgradeab1e11111111111111111111111
+ProgramData Address: <PROGRAMDATA_ADDRESS>
+Authority: <YOUR CLI WALLET ADDRESS>          # <- not the program keypair
+```
+
+That `Authority` line is your `~/.config/solana/id.json`, the wallet the airdrop funded, because `solana program deploy` sets the upgrade authority to the CLI's configured wallet unless you override it with `--upgrade-authority`. The program keypair had exactly two jobs, and both of them are finished: it fixed the address, and it signed the account into existence. Afterwards, upgrades, authority transfers, and closing the program to reclaim its rent all authenticate against the wallet, and you can prove it by upgrading with the keypair file deleted, passing the program's *address* instead of its keypair:
+
+```bash
+solana program deploy ./target/deploy/first_program.so --program-id <PROGRAM_ID>
+```
+
+So guard the right key. Losing the build keypair costs you nothing but the ability to re-derive that address from scratch. Losing the **wallet** freezes the program exactly as it stands, forever, and strands its rent deposit on-chain with it.
+
+![The deploy command uploads the .so and reads the keypair file, whose public key becomes the program ID, while the upgrade authority is set to the CLI's configured wallet.](assets/v04-annotated-code.webp)
 
 ## Invoke it: hand over an account list
 
-Live is a claim until you make it run. A deployed program sits inert; something has to send it a transaction before a single line of it executes. There's no `solana` subcommand for calling your own program, so you write the smallest client that can: a short TypeScript file that builds one instruction and fires it at your program ID. You don't need to follow every line. Copy it, paste in your ID, and run it:
+Live is a claim until you make it run. A deployed program sits inert; something has to send it a transaction before a single line of it executes. There's no `solana` subcommand for calling your own program, so you write the smallest client that can: a short TypeScript file that builds one instruction and fires it at your program ID.
+
+This is the first Node moment in the whole course, so set the directory up before you write the file. Three lines, in the same folder as `Cargo.toml`:
+
+```bash
+npm init -y && npm pkg set type=module
+npm install @solana/kit
+npm install -D tsx
+```
+
+Do not skip `npm pkg set type=module`. The script below uses top-level `await`, and without `"type": "module"` in `package.json` the runner compiles it as CommonJS and dies on `Top-level await is currently not supported with the "cjs" output format` before it ever reaches the network. Missing the `@solana/kit` install fails the same way, one line earlier, with `Cannot find package '@solana/kit'`.
+
+Now the file. You don't need to follow every line. Copy it, paste in your ID, and run it:
 
 ```typescript
 // invoke.ts: hand your live program an account list and watch it run
 import {
   createSolanaRpc, createSolanaRpcSubscriptions, sendAndConfirmTransactionFactory,
-  createKeyPairSignerFromBytes, address, AccountRole, pipe, createTransactionMessage,
+  createKeyPairSignerFromBytes, address, AccountRole, getSignatureFromTransaction,
+  pipe, createTransactionMessage,
   setTransactionMessageFeePayerSigner, setTransactionMessageLifetimeUsingBlockhash,
   appendTransactionMessageInstruction, signTransactionMessageWithSigners,
   assertIsTransactionWithBlockhashLifetime,
@@ -170,9 +202,11 @@ const message = pipe(
 );
 const signed = await signTransactionMessageWithSigners(message);
 assertIsTransactionWithBlockhashLifetime(signed);
-const signature = await sendAndConfirm(signed, { commitment: "confirmed" });
-console.log("invoked:", signature);
+await sendAndConfirm(signed, { commitment: "confirmed" });
+console.log("invoked:", getSignatureFromTransaction(signed));
 ```
+
+One line there is easy to mistype in a way that costs you the next command. `sendAndConfirm` returns `Promise<void>`: it reports success by returning and failure by throwing, and it never hands back a signature. The receipt is already in your hands, because a signed transaction carries its own signature, and `getSignatureFromTransaction(signed)` reads it out with no extra network call. Assign the result of `sendAndConfirm` to a variable and print that instead, and the line below reads `invoked: undefined`, with nothing to paste into the confirm command.
 
 Two fields in that instruction carry the whole point. `programAddress` is the ID your deploy printed, the front door you're knocking on. `accounts` is the account list: the set of accounts you hand the program at call time, each flagged with a role (signer, writable, or both). Today you hand over exactly one, your own wallet, and the program ignores it. That's fine, the mechanism is the lesson, not the payload.
 
@@ -235,7 +269,7 @@ Under loader-v3, a single `deploy` creates two accounts, not one. The account at
 
 That split is doing real work, and it is worth understanding why the loader bothers to keep two accounts instead of one. Separating identity from implementation is the whole trick behind upgrades. Callers, other programs, and later modules of this course all reference you by program ID, and that ID must never change. When you redeploy, the loader does not mint a new address; it overwrites the bytecode inside the ProgramData account and bumps the last-deployed slot, leaving the proxy untouched. Every caller that hard-coded your program ID still lands on the same front door and now finds new furniture behind it. Collapse the two accounts into one, the way a non-upgradeable deploy does, and the address and the code become the same object: change the code and you necessarily change the address, breaking everyone pointing at you. The proxy exists precisely so the code can move while the name stays put. At execution time the runtime takes the program ID you invoke, follows the pointer to the ProgramData account, loads the sBPF from there, and runs it. The indirection you are staring at in that tiny account size is the same indirection that fires on every single call.
 
-One thing to file away for when you read newer proposals: SIMD-0162 proposes removing the `executable` flag entirely, on the logic that being owned by a loader is the real signal that an account is code. It hasn't shipped. As of Agave 4.x the flag is still set, and `solana account <program-id>` still shows you `Executable: true`. When it does land, ownership by the loader stays the thing that actually makes a program a program.
+One thing to file away for when you read newer proposals: SIMD-0162 targets the `executable` flag, on the logic that being owned by a loader is the real signal that an account is code. Read the proposal carefully rather than the summaries, because what it removes is the runtime's *reliance* on the flag, not the field itself. Accounts still report it, and `solana account <program-id>` on any live program still prints `Executable: true` today. Check its current status on the SIMD repository rather than trusting a date written in a lesson. Either way the conclusion is the same one to carry: ownership by the loader is the thing that actually makes a program a program, and the flag is a legacy echo of that fact.
 
 ![A loader-v3 deploy creates a tiny program account that points to a large separate ProgramData account holding the sBPF bytecode and the upgrade authority.](assets/v05-diagram.webp)
 
@@ -243,7 +277,7 @@ One thing to file away for when you read newer proposals: SIMD-0162 proposes rem
 
 Count what that one `solana account` call certifies, because the three promises from the top are all sitting in that output.
 
-You can never edit it. The bytecode is fixed at the address. Changing it at all requires the upgrade authority to authorize a fresh deploy, and even that writes a new version rather than letting you reach in and mutate a byte. Lose the authority and "never" becomes literal.
+You can never edit it: the bytecode is fixed at the address. Changing it at all requires the upgrade authority to authorize a fresh deploy, and even that writes a new version rather than letting you reach in and mutate a byte. Lose the authority and "never" becomes literal.
 
 It can't write to itself. Here the account model underneath Solana starts to show through, and it's worth stating as a general rule, because the next lesson is built on it: every account on Solana has an owner, and that owner is always a program, and only the owning program is allowed to change the account's data or move its lamports. Your program account is owned by the loader, not by your program. So your program is not merely discouraged from writing there, it is structurally incapable of it, because the runtime rejects any attempt by a program to mutate an account it does not own. This is the sentence that breaks the web2 reflex, so say it plainly: programs are stateless. The program account stores only bytecode. It cannot hold your app's data, because it cannot write to itself at all.
 
@@ -271,7 +305,7 @@ That devnet SOL was real rent, not a gas fee you pay once and forget. It looks l
 
 ![A table contrasting the tiny near-free proxy program account with the large ProgramData account that holds the real per-byte rent-exempt deposit, locked for the account's life.](assets/v08-table.webp)
 
-The upgrade path hangs on a single file. `target/deploy/first_program-keypair.json` is the program ID and, under loader-v3, the upgrade authority. (In a real deployment you'd usually transfer that authority to a separate, well-guarded key or a multisig, so a leaked build keypair can't touch the program.) Lose the authorizing key and the program is frozen exactly as it stands, forever. That is the immutability you asked for, finally showing its teeth.
+The upgrade path hangs on a single key, and it is not the one in `target/`. `target/deploy/first_program-keypair.json` fixed the program ID; the **upgrade authority** is whatever key `solana program deploy` was configured with, which by default is your CLI wallet. Read it back any time with `solana program show <PROGRAM_ID>`. (In a real deployment you would move that authority off your day-to-day wallet onto a separate, well-guarded key or a multisig with `solana program set-upgrade-authority`, so a compromised laptop cannot touch the program.) Lose the authorizing key and the program is frozen exactly as it stands, forever. That is the immutability you asked for, finally showing its teeth.
 
 And "stateless" is the ergonomic tax. The convenience you took for granted your whole career, a service that just writes to its own database, is gone. A counter needs its own account, created up front and passed in on every call. Every mutable value becomes one more account to allocate, fund to rent-exemption, track, and pass in at the right position, and a whole class of bug that barely exists in web2 (forgetting to pass an account, or passing the wrong one) shows up to take its place. What you buy with that overhead is the parallelism from a moment ago, plus state that is isolated, independently verifiable, and impossible for one program to silently corrupt inside another's storage. The tax is real; so is what it purchases.
 
@@ -304,5 +338,7 @@ Solo. Now reason about what you deployed. Run `solana account <program-id>` and 
 Accept when `solana account <program-id>` returns `executable: true` owned by `BPFLoaderUpgradeab1e11111111111111111111111`, and you can point to the ProgramData account as the home of the bytecode and say, without notes, that programs are stateless.
 
 Checkpoint before you move on, from memory, out loud, one sentence: why can't the program account hold your app's data, and where must that data live instead? If your sentence lands near "because the program account is owned by the loader and stores only bytecode, so state lives in separate accounts the program owns and gets passed at call time," you have it.
+
+One heads-up about the graded exercise waiting for you below, because it is written in a dialect this lesson deliberately avoided. Everything above is a **native** program: the raw `entrypoint!` macro, `solana-program` and nothing else, so you could see the runtime's actual interface with no framework in the way. The graded block is the same idea rewritten in **Anchor**, the framework the last third of this course runs on, and it asks you to place two pieces it hands you verbatim: a `ping` handler inside `#[program]`, and the `#[derive(Accounts)] pub struct Ping {}` that handler names. You are not expected to know Anchor yet. You meet it properly two lessons from now, and nothing here asks you to invent a line. Read it as a preview of where the syntax is going: `#[program]` marks the module of instruction handlers, and every handler names an accounts struct that declares what it may touch, which is the same declared-accounts idea you have been reading about, wearing a macro.
 
 You just proved your program can't store a thing: it's frozen bytecode that can't even write to itself. So where does every balance, every counter, every user record on Solana actually live? Next lesson you go find it: accounts, and the rent you pay to keep them alive.

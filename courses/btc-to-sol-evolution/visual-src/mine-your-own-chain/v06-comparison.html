@@ -12,8 +12,8 @@
 <body>
 <!-- comparison: the same rules, one with the cost switched off
      purpose: certify why proof-of-work secures mainnet and why regtest is a lab, not a currency
-     data: axis | mainnet Bitcoin | your regtest chain difficulty | tens of trillions (auto-adjusts) | the protocol floor (~1) work per block | ~10^20 hashes across the network | one attempt, found instantly hardware | purpose-built ASICs, hundreds of EH/s | your laptop, idle time per block | ~10 minutes by design | milliseconds cost to append | real electricity, real money | free cost to REWRITE | redo all that work faster than everyone| free (this is the catch)
-     prompt: Two-column comparison, dark theme, monospace, one row per axis. Tint the final row ("cost to rewrite") red on the regtest side. Caption: "no cost to append = no cost to rewrite". No logos, no icons.
+     data: axis | mainnet Bitcoin | your regtest chain difficulty | auto-adjusts every 2016 blocks; read it live with getdifficulty | the protocol floor, 4.656542373906925e-10, and retargeting is disabled work per block | difficulty x 2^32 hashes, on the order of 10^23 across the network | one attempt, found instantly hardware | purpose-built ASICs, hundreds of EH/s | your laptop, idle time per block | ~10 minutes by design | milliseconds cost to append | real electricity, real money | free cost to REWRITE | redo all that work faster than everyone| free (this is the catch)
+     prompt: Two-column comparison, dark theme, monospace, one row per axis. Print the regtest difficulty as the literal 4.656542373906925e-10 that `getdifficulty` returns and the lesson quotes -- never round it to "~1", which is off by ten orders of magnitude and was shipped once already. Tint the final row ("cost to rewrite") red on the regtest side. Caption: "no cost to append = no cost to rewrite". No logos, no icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -55,28 +55,28 @@
       <div class="hd reg" style="border-left:1.5px solid var(--border-on-dark);">your regtest chain<span class="sub">the lab</span></div>
 
       <div class="ax">difficulty</div>
-      <div class="cell">tens of <b>trillions</b> (auto-adjusts)</div>
-      <div class="cell mid">the protocol floor (<b>~1</b>)</div>
+      <div class="cell"><span>auto-adjusts every 2016 blocks &mdash; read it live with <b>getdifficulty</b></span></div>
+      <div class="cell mid"><span>the protocol floor, <b>4.656542373906925e-10</b> &mdash; retargeting is disabled, so it never moves</span></div>
 
       <div class="ax">work per block</div>
-      <div class="cell"><b>~10<sup>20</sup></b> hashes across the network</div>
-      <div class="cell mid">one attempt, <b>found instantly</b></div>
+      <div class="cell"><span>difficulty &times; 2<sup>32</sup> hashes &mdash; order of <b>10<sup>23</sup></b> across the network</span></div>
+      <div class="cell mid"><span>one attempt, <b>found instantly</b></span></div>
 
       <div class="ax">hardware</div>
-      <div class="cell">purpose-built ASICs, <b>hundreds of EH/s</b></div>
+      <div class="cell"><span>purpose-built ASICs, <b>hundreds of EH/s</b></span></div>
       <div class="cell mid">your laptop, idle</div>
 
       <div class="ax">time per block</div>
-      <div class="cell"><b>~10 minutes</b> by design</div>
+      <div class="cell"><span><b>~10 minutes</b> by design</span></div>
       <div class="cell mid">milliseconds</div>
 
       <div class="ax">cost to append</div>
-      <div class="cell">real electricity, <b>real money</b></div>
+      <div class="cell"><span>real electricity, <b>real money</b></span></div>
       <div class="cell mid"><b>free</b></div>
 
       <div class="ax">cost to REWRITE</div>
-      <div class="cell">redo all that work <b>faster than everyone</b></div>
-      <div class="cell mid danger"><b>free</b> &mdash; this is the catch</div>
+      <div class="cell"><span>redo all that work <b>faster than everyone</b></span></div>
+      <div class="cell mid danger"><span><b>free</b> &mdash; this is the catch</span></div>
     </div>
   </div>
   <div class="verdict"><b>No cost to append = no cost to rewrite.</b> Regtest keeps every rule except the price, so it's a lab, not a currency.</div>

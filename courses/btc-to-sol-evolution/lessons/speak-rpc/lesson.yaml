@@ -15,31 +15,45 @@ blocks:
         prompt: "Your `bitcoin-cli` commands are a thin wrapper over what, and how does a program talk to the node without the CLI?"
         multiSelect: false
         options:
-          - id: a
-            label: "JSON-RPC over HTTP — a program POSTs a JSON body naming a method and params to the node's RPC port"
-            correct: true
-          - id: b
-            label: "gRPC with protobuf schemas — bitcoin-cli ships the compiled .proto definitions programs must share"
-            correct: false
-            feedback: "Bitcoin Core predates gRPC and never adopted it. The wire format is plain JSON-RPC over HTTP — any language that can POST a JSON body can drive the node with no special client library."
           - id: c
-            label: "Direct reads of the node's database files — the CLI is essentially a LevelDB viewer"
+            label: "Direct reads of the node's database files, since bitcoin-cli opens the same LevelDB the daemon writes to"
             correct: false
-            feedback: "Touching a running node's datafiles risks corruption and bypasses all mempool and wallet logic. The CLI is a thin HTTP client for the same JSON-RPC interface your own programs should use."
+            feedback: "The CLI never touches the chain files, and two processes reading one LevelDB would corrupt it. It authenticates like any other client, by reading the cookie off disk, and then asks the daemon over the network."
+          - id: d
+            label: "A local Unix domain socket, since the CLI and the daemon talk over a private channel on disk"
+            correct: false
+            feedback: "The channel is an ordinary TCP port, which is exactly why curl reaches it at http://127.0.0.1:18443/ and why pointing the same client at a rented node is a one-line change. Nothing about the transport is private to the CLI."
+          - id: a
+            label: "JSON-RPC over HTTP: a program POSTs a JSON body naming a method and params to the node's RPC port"
+            correct: true
+            feedback: "curl, Python's requests and bitcoin-cli all produced the same answer because all three POST the same envelope to the same port. The CLI's whole job is finding the port, reading the cookie, wrapping your arguments and printing the result field."
+          - id: b
+            label: "gRPC with protobuf schemas, and bitcoin-cli ships the compiled .proto definitions programs must share"
+            correct: false
+            feedback: "No schema is shared and nothing is compiled. Satoshi bolted an existing web standard, JSON-RPC 1.0, onto bitcoind, which is why a dict and an HTTP request are the only tools you need and why every chain since answers the same shape of POST."
         explanation: "Every bitcoin-cli command is a JSON-RPC call: an HTTP POST like {\"method\": \"getblockcount\", \"params\": []} against the node's RPC port. Any language with an HTTP client speaks it directly — which is why bots, explorers, and exchanges never shell out to the CLI."
       - id: q2
         prompt: "Which RPC port does a Bitcoin Core node listen on in regtest mode?"
         multiSelect: false
         options:
-          - id: a
-            label: "8332"
-            correct: false
-            feedback: "8332 is MAINNET's RPC port. Each network gets its own — the separation keeps a stray command from ever hitting real funds. Regtest listens on 18443."
           - id: b
             label: "18443"
             correct: true
+            feedback: "This is the one hardcoded in DEFAULT_URL for exactly that reason: pin it once as a named default and port confusion stops being a class of bug. Every curl, Python and CLI call in the lesson reached the node here."
           - id: c
             label: "18332"
             correct: false
-            feedback: "Close — 18332 is TESTNET's RPC port. Regtest sits one convention over, on 18443."
+            feedback: "That is testnet's RPC port. Testnet and regtest are different networks with different ports, different genesis blocks and different data directories, so a client aimed here never reaches the chain you mined."
+          - id: d
+            label: "18444"
+            correct: false
+            feedback: "18444 is regtest's peer-to-peer port, where nodes gossip blocks and transactions to each other. It speaks Bitcoin's binary wire protocol rather than JSON-RPC, so an HTTP POST arriving there gets nothing a client can parse."
+          - id: e
+            label: "8333"
+            correct: false
+            feedback: "8333 is mainnet's peer-to-peer port, the one other nodes connect to. Every network runs two ports, one for peers and one for RPC, and only the RPC side answers the JSON envelope your client builds."
+          - id: a
+            label: "8332"
+            correct: false
+            feedback: "That is mainnet's RPC port, and pointing a regtest client at it is the footgun that looks like a dead node: nothing is listening, so the OS refuses the connection instantly and the failure is indistinguishable from a crashed daemon."
         explanation: "Ports encode the network: 8332 mainnet, 18332 testnet, 18443 regtest. Your regtest experiments talk to 18443, and the wrong-port error you get otherwise is a safety feature — it makes it hard to point test tooling at real money by accident."

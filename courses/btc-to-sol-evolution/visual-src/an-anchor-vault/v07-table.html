@@ -12,7 +12,7 @@
 <body>
 <!-- table: the vault command run-book
      purpose: give one reference the reader can execute the whole round-trip from, grounded to source
-     data: step | command | what it does toolchain | avm install latest && avm use latest | pins Anchor CLI 1.1.2 (this lesson's target) fund | solana airdrop 2 | 2 SOL cap/request; faucet.solana.com is fallback fast test | anchor test | build + Surfpool validator + deploy + suite + teardown reuse valdr | anchor test --skip-local-validator | run against a validator already up ship | anchor build && anchor deploy | re-deploys to the SAME program ID each run read the id | solana address -k target/deploy/vault-keypair.json | the program ID you just published
+     data: step | command | what it does toolchain | avm install latest && avm use latest | installs whatever release is newest that day; avm install 1.1.2 pins this lesson's target fund | solana airdrop 2 | 2 SOL cap/request; faucet.solana.com is fallback fast test | anchor test | build, then Anchor.toml's [scripts] test; Rust template = cargo test on LiteSVM, no validator reuse valdr | anchor test --skip-local-validator | for TS templates: run against a validator already up ship | anchor build && anchor deploy | re-deploys to the SAME program ID each run, read from target/deploy/vault-keypair.json read the id | solana address -k target/deploy/vault-keypair.json | the program ID you just published
      prompt: Six-row command table, dark theme, monospace, columns "step / command / what it does". Group the first two rows under "setup" and the rest under "run"; shade the header row. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -44,12 +44,12 @@
   <table class="ct">
     <tr><th style="width:20%">step</th><th style="width:44%">command</th><th>what it does</th></tr>
     <tr class="grp"><td colspan="3">setup</td></tr>
-    <tr><td class="step">toolchain</td><td class="cmd"><code>avm install latest && avm use latest</code></td><td class="desc">pins Anchor CLI <b>1.1.2</b> (this lesson's target)</td></tr>
+    <tr><td class="step">toolchain</td><td class="cmd"><code>avm install latest && avm use latest</code></td><td class="desc">installs the <b>newest</b> release, not 1.1.2 &mdash; <code>avm install 1.1.2</code> pins this lesson's target</td></tr>
     <tr><td class="step">fund</td><td class="cmd"><code>solana airdrop 2</code></td><td class="desc">2 SOL cap/request; faucet.solana.com is fallback</td></tr>
     <tr class="grp"><td colspan="3">run</td></tr>
-    <tr><td class="step">fast test</td><td class="cmd"><code>anchor test</code></td><td class="desc">build + Surfpool validator + deploy + suite + teardown</td></tr>
-    <tr><td class="step">reuse valdr</td><td class="cmd"><code>anchor test --skip-local-validator</code></td><td class="desc">run against a validator already up</td></tr>
-    <tr><td class="step">ship</td><td class="cmd"><code>anchor build && anchor deploy</code></td><td class="desc">re-deploys to the <b>same</b> program ID each run</td></tr>
+    <tr><td class="step">fast test</td><td class="cmd"><code>anchor test</code></td><td class="desc">build, then <code>[scripts] test</code>: Rust template = <code>cargo test</code> on LiteSVM, <b>no validator</b></td></tr>
+    <tr><td class="step">reuse valdr</td><td class="cmd"><code>anchor test --skip-local-validator</code></td><td class="desc">TS templates only &mdash; run against a validator already up</td></tr>
+    <tr><td class="step">ship</td><td class="cmd"><code>anchor build && anchor deploy</code></td><td class="desc">re-deploys to the <b>same</b> program ID each run, read from the program keypair</td></tr>
     <tr><td class="step">read the id</td><td class="cmd"><code>solana address -k target/deploy/vault-keypair.json</code></td><td class="desc">the program ID you just published</td></tr>
   </table>
 </div>

@@ -4,7 +4,15 @@ Last lesson you watched unconfirmed transactions stream through the mempool: raw
 
 Start with a question Bitcoin structurally cannot answer: how many USDC does one address hold? There is no such number anywhere in Bitcoin. To produce it you would have to sum every unspent scrap that address ever received, one by one, by hand. Yet ask an ERC-20 token contract (the standard fungible-token contract on Ethereum) the same thing and it answers instantly, from a single slot it just... remembers. Where does that number physically live, and why can no Bitcoin output ever hold it?
 
-Don't theorize. Boot a machine that has the number and watch it remember. Terminal open.
+Don't theorize. Boot a machine that has the number and watch it remember. This module runs on **Foundry**, the Ethereum toolchain: `forge` builds and deploys contracts, `cast` calls them, and `anvil` is the local node. Install it once, the way this course installed Bitcoin Core before the Bitcoin module:
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+forge --version      # this lesson was written and run against forge 1.0.0-stable
+```
+
+Now boot the node. Terminal open.
 
 ```bash
 anvil
@@ -29,7 +37,7 @@ Mnemonic: test test test test test test test test test test test junk
 Listening on 127.0.0.1:8545 (Chain ID: 31337)
 ```
 
-That banner is the canonical local EVM devnet in 2026: Anvil, part of Foundry, a full Ethereum Virtual Machine (the EVM, the runtime every Ethereum node executes contract code on) speaking JSON-RPC at http://127.0.0.1:8545 on chain ID 31337. It hands you ten accounts, each preloaded with 10,000 ETH, unlocked and ready.
+That banner is the canonical local EVM devnet in 2026: Anvil, the node from the Foundry toolchain you just installed, a full Ethereum Virtual Machine (the EVM, the runtime every Ethereum node executes contract code on) speaking JSON-RPC at http://127.0.0.1:8545 on chain ID 31337. It hands you ten accounts, each preloaded with 10,000 ETH, unlocked and ready.
 
 Look hard at the wallet line, because it is a footgun with a body count. The mnemonic is `test test test test test test test test test test test junk`, identical on every Anvil, on every machine, forever. Account (0), `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`, is one of the most-known addresses in crypto, and its private key `0xac09...ff80` is printed in a million tutorials, this one included. On localhost that sameness is pure convenience. Send one cent of real ETH to that address on mainnet and it is drained before the next block confirms, because automated sweepers watch it around the clock. Never let that key touch a network you care about.
 
@@ -68,7 +76,7 @@ One line there earns a pause: `pragma solidity ^0.8.20`. The caret means "0.8.20
 Deploy it to the node you just booted:
 
 ```bash
-forge create src/Counter.sol:Counter \
+forge create src/Counter.sol:Counter --broadcast \
   --rpc-url http://127.0.0.1:8545 \
   --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
@@ -76,10 +84,12 @@ forge create src/Counter.sol:Counter \
 ```
 Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 Deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-Transaction hash: 0x2f5c...
+Transaction hash: 0x042254f8...
 ```
 
-Treat `forge create` as live fire. The moment you hand it `--private-key`, it signs and broadcasts a real deployment transaction to that RPC. On Anvil the gas is play money. Point the same command at a real network and it spends real ETH, with no preview step to save you.
+That `--broadcast` is the whole safety model of this command, so do not treat it as noise. Since Foundry 1.0, `forge create` **defaults to a dry run**: without the flag it compiles, simulates, prints the ABI, and sends nothing at all, ending with `Warning: To broadcast this transaction, add --broadcast to the previous command.` No `Deployed to:` line, no contract, and every `cast` call after it fails against an address that holds no code. If you got the warning instead of the two lines above, that is what happened; add the flag and rerun.
+
+Read the flag the other way round too, because that is the lesson worth keeping. `--broadcast` is live fire. The moment you pass it together with `--private-key`, `forge` signs and broadcasts a real deployment transaction to that RPC. On Anvil the gas is play money. Point the same command at a real network and it spends real ETH, and the only preview step standing between you and that is the flag you just learned to add.
 
 Save the address it printed, then poke the contract with two separate transactions and read the result:
 
@@ -132,13 +142,19 @@ Where a variable sits inside that map is a real enough problem that the language
 
 Two kinds of account share that four-field tuple, and the difference between them is the whole model. An **externally-owned account (EOA)** is controlled by a private key and can initiate transactions. Account (0), the one that deployed your Counter, is an EOA. A contract account is controlled by its bytecode: it holds storage and code, but it can only respond to incoming transactions, never start one. Your Counter is a contract account. It did nothing until you sent it `increment()`, then it ran its code and wrote its slot. Key signs; code responds.
 
-There is one honest blur to name, because 2026 tooling leans on it. Since EIP-7702, shipped in the Pectra hardfork (mainnet May 7, 2025), an EOA can temporarily set its `codeHash` to point at a contract for the duration of a single transaction, borrowing contract behavior for one call. It is the first time an externally-owned account could wear code at all, bending a line Ethereum drew at launch in 2015. But it bends the line; it does not erase it. The borrowed code runs, then the `codeHash` reverts. A contract account still holds persistent, autonomous storage that outlives any single transaction, and a borrowing EOA does not. Persistent per-contract state is still the thing only contract accounts own.
+There is one honest blur to name, because 2026 tooling leans on it. Since EIP-7702, shipped in the Pectra hardfork (mainnet May 7, 2025), an EOA can point its code field at a contract and start behaving like one. The account's code becomes a 23-byte *delegation designator*, `0xef0100` followed by the address it delegates to, and from then on any call to the EOA runs that contract's code in the EOA's own context, writing to the EOA's own storage.
 
-![A timeline from Ethereum's 2015 launch through EIP-7702 in May 2025 and Solidity 0.8.35 in April 2026, showing the EOA/contract line bending but persistent storage staying contract-only.](assets/v05-timeline.webp)
+Get the lifetime right, because the intuitive guess is wrong and the wrong guess is the dangerous one. The delegation is **not** scoped to one transaction. It is written into the account's code field and it **stays there across transactions and across blocks, until the key holder replaces it or clears it** by signing a new authorization pointing at the zero address. Storage written under the delegation persists in the EOA's trie the same way. Per-transaction borrowing was an earlier design (and the shape of the older EIP-3074), not what shipped.
+
+That persistence is the security story, not a footnote to it. Sign one malicious authorization and the attacker's code stays wired into your account, draining every deposit that arrives, until you notice and revoke. That is exactly the mechanism behind the wave of delegation-phishing that followed Pectra. A wallet prompt that says "one transaction" is describing the transaction that installs the delegation, not the lifetime of what it installs.
+
+So what is left of the EOA/contract line? Two things, and both still matter. A contract account's code is fixed by whoever deployed it and no key can swap it; a delegated EOA's code is a pointer its key holder chose and can re-point at will, which makes the key, not the code, still the root of authority. And a contract account can never initiate a transaction, while an EOA, delegated or not, can. The line bent hard. It did not vanish, and it did not bend in the direction of "the code goes away when the transaction ends."
+
+![A timeline from Ethereum's 2015 launch through EIP-7702 in May 2025 and Solidity 0.8.35 in April 2026, showing that a 7702 delegation persists in the EOA's code until the key holder revokes it, so the EOA/contract line bends without vanishing.](assets/v05-timeline.webp)
 
 ## Why no UTXO can hold that number
 
-Now map hard from what you already watched. Back in the mempool, Bitcoin's global state is not a table of balances at all. It is the unspent-output set: a pile of **UTXOs** (unspent transaction outputs). A UTXO is spend-once and immutable. It is created by one transaction's output and consumed entirely by the single transaction that spends it. There is no persistent key-value store attached to a Bitcoin script, and no slot anywhere that survives a spend.
+Now map hard from what you already watched. Back in the mempool, Bitcoin's global state is not a table of balances at all but the unspent-output set: a pile of **UTXOs** (unspent transaction outputs). A UTXO is spend-once and immutable. It is created by one transaction's output and consumed entirely by the single transaction that spends it. There is no persistent key-value store attached to a Bitcoin script, and no slot anywhere that survives a spend.
 
 So "how many USDC does this address hold across all its interactions" has no home in Bitcoin. Watch the obvious fixes fail, one tier at a time, because ruling them out *is* the derivation.
 
@@ -158,9 +174,9 @@ One loose end dangles. If a contract can run arbitrary code, what stops a contra
 
 Gas.
 
-Gas is the EVM's metering unit, and you pay for it in ETH (whose smallest unit is the wei: 1 ETH = 1e18 wei). Every opcode costs a fixed amount of gas. `SLOAD` costs a little; `SSTORE` costs a lot, because writing durable state is the expensive thing on the whole machine. A plain ETH transfer that touches no contract costs exactly 21,000 gas, a fixed floor you can count on. Every transaction carries a gas limit, and if execution exceeds it, the EVM halts and reverts, keeping the gas already spent. An infinite loop does not hang the network. It runs until it burns through its limit, then dies, and the sender pays for every step it took on the way down. Infinite loops are not forbidden by a rule. They are made economically impossible, which is a stronger guarantee: you do not have to detect them, you only have to charge for them.
+Gas is the EVM's metering unit, and you pay for it in ETH (whose smallest unit is the wei: 1 ETH = 1e18 wei). Every opcode costs a fixed amount of gas. `SLOAD` costs a little; `SSTORE` costs a lot, because writing durable state is the expensive thing on the whole machine. A plain ETH transfer that touches no contract costs exactly 21,000 gas, a fixed floor you can count on. Every transaction carries a gas limit, and if execution exceeds it, the EVM halts and reverts, keeping the gas already spent. An infinite loop does not hang the network: it runs until it burns through its limit, then dies, and the sender pays for every step it took on the way down. Nothing in the rules forbids the loop; the price makes it economically impossible, which is a stronger guarantee: you do not have to detect infinite loops, you only have to charge for them.
 
-That pricing is also why `SSTORE` is the costly opcode. You are not paying for a computation that ends. You are paying every full node to hold your written bytes on disk indefinitely, and the fee is the closest thing the system has to rent on permanence.
+That pricing is also why `SSTORE` is the costly opcode. You are not paying for a computation that ends; you are paying every full node to hold your written bytes on disk indefinitely, and the fee is the closest thing the system has to rent on permanence.
 
 ![A flowchart showing each opcode deducting gas until the limit is hit, at which point execution halts and reverts while keeping spent gas, making infinite loops bounded and paid-for.](assets/v07-flowchart.webp)
 
@@ -170,15 +186,15 @@ Every design in this course gets its bill named out loud. Here is this one, and 
 
 Persistent accounts buy expressiveness. A single slot that answers "how much does X hold" in one read. Code that enforces rules on that slot. A whole class of contracts, tokens and auctions and pooled logic, that Bitcoin's outputs simply cannot express. The bill for that is real and permanent. Every `SSTORE` is metered gas, so state costs money to write. Worse, the written state must be held by every full node effectively forever: this is state bloat, and it grows without a natural ceiling as long as the chain lives, because nothing ever consumes a slot the way a spend consumes a UTXO. And the very feature that makes contracts powerful, shared mutable state, is what makes reentrancy and race conditions possible. Two calls touching the same slot in the wrong order is a bug class that cannot exist when there is no shared slot to fight over.
 
-Set that against the honest baseline: Bitcoin's spend-once UTXOs. They cannot express a token balance, which is a genuine loss, not a quirk to wave away. But they are cheaper to verify, trivially parallel (two unrelated outputs never touch the same state, so a validator can check them at the same time with zero coordination), and immune to the entire family of shared-state bugs. Statefulness is not a free upgrade. It is a cost you choose to pay because, for programmable money, the expressiveness is worth more than the parallelism and the safety you give up. Say that trade out loud every time, because the next chapter of this course pays for it in a completely different currency.
+Set that against the honest baseline: Bitcoin's spend-once UTXOs. They cannot express a token balance, which is a genuine loss, not a quirk to wave away. But they are cheaper to verify, trivially parallel (two unrelated outputs never touch the same state, so a validator can check them at the same time with zero coordination), and immune to the entire family of shared-state bugs. Statefulness is a cost you choose to pay because, for programmable money, the expressiveness is worth more than the parallelism and the safety you give up. Say that trade out loud every time, because the next chapter of this course pays for it in a completely different currency.
 
 ![A table weighing Ethereum's stateful accounts against Bitcoin's spend-once UTXOs across balance expressiveness, write cost, state growth, parallelism, and bug surface.](assets/v08-table.webp)
 
 ## Build: the deploy-and-poke harness
 
-`Counter.sol` is not a throwaway. It is the first EVM-side tool in your ops-bot toolkit. Until now the toolkit only watched: the mempool watcher from last lesson reads the chain and reacts. This one writes and reads contract state: deploy a contract, send it a transaction, read a slot back. The cross-chain bot reuses exactly this harness every time it needs to poke an EVM contract, and it sits right beside the mempool watcher it already carries. Add it to the toolkit now.
+`Counter.sol` is the first EVM-side tool in your ops-bot toolkit. Until now the toolkit only watched: the mempool watcher from last lesson reads the chain and reacts. This one writes and reads contract state: deploy a contract, send it a transaction, read a slot back. It sits right beside the mempool watcher the toolkit already carries, and in the capstone the anvil-plus-contract harness is one of the three rungs you can pick from when you wire a supervised agent by hand. Add it to the toolkit now.
 
-Here is the canonical artifact, with one blank where the work is:
+The canonical artifact, with one blank where the work is:
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -193,13 +209,13 @@ contract Counter {
 }
 ```
 
-Completion: fill the `increment()` body so the stored number rises. You already ran the answer; write it from memory. Redeploy, run `cast send` twice, and confirm `cast call number()` returns 2.
+Completion: fill the `increment()` body so the stored number rises. You already ran the answer; write it from memory. Redeploy with `forge create --broadcast`, run `cast send` twice, and confirm `cast call number()` returns 2.
 
 Solo, unguided: give the contract a per-address ledger. Add `mapping(address => uint256) public balances` and a `credit()` function that bumps `balances[msg.sender]` by one. Deploy it, then call `credit()` from two different Anvil prefunded accounts (account (0) and account (1) from the boot banner, each signing with its own printed key), and read both balances back. You are done when the two addresses show different, persistent balances after their calls, and you can state in one sentence why this per-address map is impossible to express as a Bitcoin UTXO script. That sentence is the entire lesson, and if you can say it cold, you own the account model.
 
 ## Checkpoint
 
-Gate on doing first, no shortcuts. From a fresh `anvil`: deploy `Counter.sol`, run `increment()` twice via two separate `cast send` calls, and show `cast call number()` returns 2. The state survived two independent transactions, which no UTXO can do.
+Gate on doing first, no shortcuts. From a fresh `anvil`: deploy `Counter.sol` with `forge create --broadcast` (without the flag nothing is deployed and the rest of the gate cannot pass), run `increment()` twice via two separate `cast send` calls, and show `cast call number()` returns 2. The state survived two independent transactions, which no UTXO can do.
 
 Then, no notes, out loud: name the four fields of an Ethereum account, and in one sentence say why the unspent-output set cannot hold a token balance. A full answer lists nonce, balance, storageRoot, and codeHash, and lands the sentence somewhere near "a UTXO is spent once and consumed whole, with no slot that persists past the spend, so there is nowhere for a running balance to live." If both halves come easily, you have the thing this lesson exists to install.
 
