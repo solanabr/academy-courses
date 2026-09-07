@@ -82,7 +82,7 @@ blocks:
             label: "pnpm refuses to run when activated through corepack, so direct installation is mandatory"
             correct: false
             feedback: "pnpm ran fine under corepack for years, that was corepack's main job. The change is on Node's side: the runtime stopped bundling it."
-        explanation: "Node's TSC voted corepack out (gone from Node 25+ distributions; still present in Node 24 LTS). Image builds want deterministic, self-contained steps, so the course canon is an explicit, pinned global install, with the pin digit verified at write time, since pnpm's next major is already publishing."
+        explanation: "m03-l1 called this one in advance, so the delta is what the container adds. The reason is unchanged: Node's TSC voted corepack out, and it is gone from Node 25+ distributions while surviving in Node 24 LTS. What is new here is which digit you pin to and why. On a laptop the pin is a preference; in an image it is an agreement, because the container's pnpm has to match the workspace's `packageManager` field or `--frozen-lockfile` will argue with you, and an image that installed whatever `latest` served on build day would silently change pnpm majors between two builds of the same commit. pnpm's `latest` did exactly that mid-course, moving to the 12 line. Pin to the workspace, not to the tag."
       - id: m06-l3-q5
         prompt: "The containerized fleet-runner does one probe sweep and exits, and compose keeps restarting it forever. What is the honest fix?"
         multiSelect: false

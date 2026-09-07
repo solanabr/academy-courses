@@ -57,7 +57,7 @@ blocks:
           - id: c
             label: "The GITHUB_TOKEN recursion guard working as designed: workflow-authored events don't create new runs"
             correct: true
-        explanation: "Events triggered by the GITHUB_TOKEN do not create new workflow runs (workflow_dispatch and repository_dispatch excepted), GitHub's guard against accidental recursive workflows. For the station this guard is a feature: the heartbeat can commit its own status.json without triggering itself. The documented escape hatch (a PAT or GitHub App token) exists for when you WANT downstream runs, this design does not."
+        explanation: "You met the mechanism in m01-l3, so the capstone asks a different question about it: not what it does, but what it is load-bearing FOR. Edge 1 is the only edge in the hub whose correctness depends on a platform behavior nobody in this course wrote, and the station's whole heartbeat rests on it, so a reader of your architecture diagram has to know it is a designed guarantee rather than luck. That is the operator's read: name the platform behaviors your system leans on, and know which of them you would have had to build yourself. The escape hatch (a PAT or GitHub App token) is exactly the knob that would break this station if someone reached for it without asking why the default was chosen."
       - id: m10-l1-q4
         prompt: "For the solo extension, a learner shortlists three ideas: a new expected-status-code probe type wired end to end, a Telegram alert via a bot SDK, and deploying the poller to a Kubernetes cluster. Which one satisfies the extension's rules?"
         multiSelect: false
