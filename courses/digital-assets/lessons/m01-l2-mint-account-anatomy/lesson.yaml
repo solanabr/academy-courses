@@ -65,4 +65,4 @@ blocks:
           - id: c
             label: "Compute it with ExtensionType::try_calculate_account_len for the chosen extension set"
             correct: true
-        explanation: "try_calculate_account_len is the space-calc model: give it the exact extension set and it returns the account length including the 165 base, the account-type byte, and each extension's real TLV size. Guessing a flat per-extension number under- or over-sizes the account and its rent."
+        explanation: "try_calculate_account_len is the space-calc model: give it the exact extension set and it returns the account length including the 165 base, the account-type byte, and each extension's real TLV size. From TypeScript you call its mirror, getMintSize, which is the function step 7 of the lab actually runs. Guessing a flat per-extension number under- or over-sizes the account and its rent."

@@ -22,7 +22,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Token-2022 with display extensions (MetadataPointer + TokenMetadata) plus 0-bps TransferFeeConfig, keeping the mint's base-layer freeze authority for the compliance freeze; pursue Raydium's MINT_WHITELIST if compliance also needs PermanentDelegate clawback"
+            label: "Token-2022 with display extensions (MetadataPointer + TokenMetadata) plus a TransferFeeConfig armed at 0 bps, which withholds nothing until you raise it, keeping the mint's base-layer freeze authority for the compliance freeze; pursue Raydium's MINT_WHITELIST if compliance also needs PermanentDelegate clawback"
             correct: true
           - id: b
             label: "Token-2022 with PermanentDelegate + TransferHook so compliance can freeze bad actors and screen every transfer against a sanctions list, since Raydium's CP-Swap routes Token-2022 mints the same way it routes classic SPL"
