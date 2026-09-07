@@ -54,7 +54,7 @@ blocks:
             correct: false
             feedback: "Nothing here is ratified; the base scheme is an Internet-Draft with an expiry and the method spec has no standards-body status at all. Foundation authorship says who maintains one method."
           - id: d
-            label: "Two documents, with the datatracker registration on draft-solana-charge-00 because the Foundation submitted it, and the base scheme dated from its commits."
+            label: "Two documents, with the datatracker registration on draft-solana-charge-00, and the base scheme dated from its commit history."
             correct: false
             feedback: "The layers are the right frame and they are the wrong way up. Searching the datatracker for draft-solana- returns zero documents: the base scheme is the one on the IETF's clock, and the Solana method spec is the one you date from its git history."
         explanation: "MPP is two layers. draft-httpauth-payment-00, the 'Payment' HTTP authentication scheme from Tempo Labs and Stripe, is the document with an IETF registration and a genuine expiry. draft-solana-charge-00 is a payment-method spec registered under it, authored at the Solana Foundation, sitting in specs/methods/ beside tempo/charge and stripe/charge, and never submitted to the datatracker at all. Honest documentation names both layers and dates the Solana half from its commit log, never from the expiry its rendered page prints."
@@ -75,7 +75,7 @@ blocks:
             correct: false
             feedback: "Gating does not remove the facilitator/co-signer role; x402 still settles through a facilitator and MPP's pull mode still has the server co-sign. What gating buys is one API serving both protocols, not the elimination of that role."
           - id: d
-            label: "One gate answers both protocols and writes each settled call into the ledger by invoice id."
+            label: "One gate answers both protocols, and its pooled accounting writes each settled call into the backoffice ledger under its own invoice id."
             correct: false
             feedback: "The first half is what you bought; the second half is the seam the lesson leaves open on purpose. There is no memo field in paywall.yml and the gate's pooled accounting hands back no per-call id, so gate-routed sales appear on the explorer and in your transcript, never in orders.jsonl. Middleware-routed sales still reconcile, because you wired that hook yourself."
         explanation: "`pay gate api paywall.yml` lets one API answer both x402 and MPP, and `pay curl` auto-negotiates the 402 on whichever protocol the caller speaks. That is the hands-on payoff: instead of betting on a single standard in a fast-moving field, you gate once and let the CLI negotiate, accepting a churn-prone CLI dependency as the cost."

@@ -50,7 +50,7 @@ blocks:
             correct: false
             feedback: "About 4.6k CU is a bare SPL transfer. A settle also carries the mandated ComputeBudget instructions, which are not free, and it may create an ATA. The spec pins no absolute, so do not print one."
           - id: d
-            label: "Drop it from the docs but keep 20k internally, since the spec states that number as the SDK's default."
+            label: "Drop it from the docs but keep 20k internally, since the spec states it."
             correct: false
             feedback: "The 20,000 is real and the spec is not where it comes from: it is DEFAULT_COMPUTE_UNIT_LIMIT in the reference SDK, the ceiling the client asks for when it prepends SetComputeUnitLimit. Budgeting against a requested limit is fine as long as you never call it a spec figure or a cost."
         explanation: "The x402 v2 spec mandates ComputeBudget SetLimit/SetPrice with a bounded CU PRICE, but it never states a CU count for a settlement. Any absolute you print needs an independent, dated source, or it should not be printed."
@@ -71,7 +71,7 @@ blocks:
             correct: false
             feedback: "`Content-Length: 2` matching the two bytes `{}` is not truncation; it is the specified v2 body. The challenge is complete, and it lives in the PAYMENT-REQUIRED header your client never decoded."
           - id: d
-            label: "Nothing on the server, but your client should read the body once it pays: rejections and failed settlements do put their reason back into the JSON body."
+            label: "Nothing on the server, but your client should read the body once it pays: rejections and failed settlements put their reason in the JSON body."
             correct: false
             feedback: "The empty body is not a property of unpaid requests; it holds on the opening challenge, on a payment the facilitator rejected, and on a settlement that failed alike. The reason a request failed rides in the challenge header's `error` field every time, which is why read the header, never the body survives contact with production."
         explanation: "In x402 v2 the challenge travels as base64 JSON in the PAYMENT-REQUIRED response header, and the 402's body is the two bytes `{}` on the opening challenge, on a rejected payment, and on a failed settlement alike. Decoding that header yields `x402Version`, `error` (the failure reason), `resource`, and the `accepts` array of PaymentRequirements. v1 was the version that carried its challenge in the body; read the body of a v2 402 and you find an empty object every time."
@@ -116,7 +116,7 @@ blocks:
             correct: false
             feedback: "Dating what you keep is the right instinct applied to the wrong survivor. The two measure different things, a 30-day rolling total against a cumulative-on-Solana snapshot with a share claim, so neither makes the other redundant; keeping both attributed is the fix."
           - id: d
-            label: "Divide one by the other for a Solana share, roughly 49 percent, and label the estimate with both fetch dates."
+            label: "Divide one by the other for a Solana share, roughly 49 percent, dated to both fetches."
             correct: false
             feedback: "Two dates on a ratio still leave the windows mismatched, and a derived share is exactly the arithmetic the rule forbids: a rolling 30-day denominator under a cumulative numerator yields a percentage neither page measured. Note that solana.com already publishes a share figure, and it is not this one."
         explanation: "The two published numbers use different windows and metrics. The research rule is explicit: cite each with its own source and fetch date, and never combine them into one derived statistic, especially because live dashboard numbers drift daily."
