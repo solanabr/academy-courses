@@ -18,12 +18,17 @@ blocks:
           - id: a
             label: "'The mempool' is a single on-chain structure that every node stores byte-for-byte"
             correct: false
-            feedback: "The mempool is neither on-chain nor shared verbatim. It is each node's private pool of unconfirmed transactions; relay timing and local policy differ, so two nodes routinely hold different sets."
+            feedback: "Nothing pending is on-chain: a mempool lives in one machine's memory and no Merkle root commits to it, which is precisely why a light client can prove a payment confirmed and cannot see it while it waits."
           - id: b
             label: "Unconfirmed transactions are invisible until mined, so polling the mempool only ever shows the last block"
             correct: false
-            feedback: "The mempool is exactly where transactions ARE visible before mining — that is its purpose and why your watcher polls it. The catch is different: it is per-node, so what you see is one node's view."
+            feedback: "The mempool is where transactions are visible before mining, which is the whole reason your watcher caught a payment seconds after you sent it and before any block existed. The catch lies elsewhere: that view belongs to one node."
           - id: c
-            label: "There is no single global mempool — each node keeps its own, so what you see depends on which node you ask"
+            label: "There is no single global mempool: each node keeps its own, so what you see is whatever queue that one node holds"
             correct: true
+            feedback: "A watcher pointed at node A will never fire on a transaction that only ever reached node B. That is the difference between a mempool sighting and a confirmation, and it is why logic that needs certainty has to wait for a block."
+          - id: d
+            label: "Nodes gossip their mempools into one shared queue, so any difference between them clears within seconds"
+            correct: false
+            feedback: "Gossip spreads transactions but never reconciles the queues. A node drops a transaction that pays under its own minimum fee, and evicts its cheapest tenants when its pool fills, so two honest neighbours can disagree permanently rather than for a moment."
         explanation: "'The mempool' is a misnomer — every node maintains its own pool of unconfirmed transactions, shaped by what it has heard and its relay policy. A watcher reports one node's view, usually close to but never guaranteed identical to any other's. Fee estimators, MEV searchers, and explorers all live with that partial view."
