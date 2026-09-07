@@ -223,7 +223,7 @@ Checkpoint: zero errors. A typed client that does not typecheck is not a client,
 
 **5. Send one swap (completion problem).** Here is the kit send pipe, and it goes in `app/send-swap.ts`. Three load-bearing lines are blanked. Fill them: the fee payer is the caller, the lifetime is the recent blockhash, and the single appended instruction is the one your generated client builds. This is the exact skeleton the send follows.
 
-Before it can run, six of those addresses have to exist on devnet, and nothing so far created them. Do that first, with the same `spl-token` CLI you used for the Token-2022 read in module 5, then one call to the swap's own `init_pool`:
+Before it can run, six of those addresses have to exist on devnet, and nothing so far created them. Do that first: the same `spl-token` CLI you used for the Token-2022 read in module 5, then one call to the swap's own `init_pool`, then a two-line read to find out what `init_pool` made, then two more `spl-token` lines that need what the read told you.
 
 ```bash
 solana config set --url devnet
@@ -240,21 +240,36 @@ spl-token mint <ARCADE_MINT> 1000              # give the trader something to sw
 
 # The pool and its two reserves. `init_pool` is the instruction you wrote in the
 # swap lab; the generated client has a builder for it too, so send it the same way
-# the pipe below sends the swap — same pipe, different builder. It prints nothing:
-# prove it landed by deriving the pool with findPoolPda and decoding it with
-# fetchPool, which is the extra checkpoint at the end of this lab.
+# the pipe below sends the swap — same pipe, different builder. It prints nothing,
+# which is exactly why the next step exists: you cannot fund what you cannot name.
+```
 
+`init_pool` created two reserve token accounts and told you neither address, and the next two shell lines need both. Read them off the pool record with the other half of the client you just generated — `findPoolPda` from `pdas/`, `fetchPool` from `accounts/`, both re-exported from the client root. No manual borsh, no explorer:
+
+```typescript
+// app/read-pool.ts — run this once, right here, before you fund anything.
+import { createSolanaRpc } from '@solana/kit';
+import { fetchPool, findPoolPda } from '../clients/js';
+
+const rpc = createSolanaRpc('https://api.devnet.solana.com');
+const [poolPda] = await findPoolPda();
+const pool = await fetchPool(rpc, poolPda);
+// pool.data.arcadeMint / .ticketMint / .arcadeReserve / .ticketReserve / .bump, all typed
+console.log(pool.data.arcadeReserve, pool.data.ticketReserve);
+```
+
+Those two printed addresses are the `<POOL_ARCADE_RESERVE>` and `<POOL_TICKET_RESERVE>` below — m07-l3's audit fix is what made the pool store the two reserve addresses alongside the mints and the bump, and this is the lesson where you collect on it. The decode doubles as your proof that `init_pool` landed at all: if `pool.data.bump` reads back as the stored canonical bump and the two mints match what you deployed, the record is real. It is also the read half of the generated client doing real work rather than a demo — you needed it to make progress, not to admire it.
+
+```bash
 # Now fund the reserves, because `init_pool` CREATES the two reserve token accounts
 # and leaves them empty, and R4 has no deposit instruction — you never wrote one.
 # An empty reserve makes swap_out return 0 and the `require!(out > 0, ZeroOutput)`
 # guard reject every trade, so skip these two lines and the swap below cannot land.
 # You are still both mints' authority, so mint straight in by naming the reserve as
-# the recipient: the third argument the line above deliberately left off.
+# the recipient: the third argument the `mint 1000` line above deliberately left off.
 spl-token mint <ARCADE_MINT> 1 <POOL_ARCADE_RESERVE>   # 1.000000 -> 1_000_000 base units
 spl-token mint <TICKET_MINT> 1 <POOL_TICKET_RESERVE>   # the same, so the pool starts balanced
 ```
-
-`<POOL_ARCADE_RESERVE>` and `<POOL_TICKET_RESERVE>` are the two reserve token accounts `init_pool` created, and you can read both straight back off the pool record with `fetchPool` — m07-l3's audit fix is what made the pool store the two reserve addresses alongside the mints and the bump, and that record is what the checkpoint at the end decodes.
 
 Those two mint lines leave the pool holding 1,000,000 / 1,000,000 base units, which is deliberately the reserve pair m05-l2's worked example used: an `amountIn` of `10_000` quotes 9,871 tickets out, comfortably clear of the `minOut` floor of `9_800` in the send below. Seed a different depth and recompute that floor before you send, or your own slippage guard will reject you — which is the guard working, not a bug. Also: `secretKey` in the signature below is the 64 bytes of your devnet keypair file, which you can load with `new Uint8Array(JSON.parse(fs.readFileSync(process.env.HOME + '/.config/solana/id.json', 'utf8')))`.
 
@@ -320,17 +335,7 @@ Two kit specifics worth naming while they are in front of you. `sendAndConfirmTr
 
 Checkpoint for the whole lab: `sendSwap` returns a signature, and that signature resolves on a devnet explorer as a confirmed swap. That is a caller, other than you, moving R4. The vault key is out of your pocket.
 
-One extra checkpoint that costs you two lines and proves the read half. The same generation gave you `fetchPool` in `accounts/` and `findPoolPda` in `pdas/`, both re-exported from the client root. Derive the pool address and decode it, no manual borsh:
-
-```typescript
-import { fetchPool, findPoolPda } from '../clients/js';
-
-const [poolPda] = await findPoolPda();
-const pool = await fetchPool(rpc, poolPda);
-// pool.data.arcadeMint / .ticketMint / .arcadeReserve / .ticketReserve / .bump, all typed
-```
-
-If `pool.data.bump` reads back as the stored canonical bump, the two mints match what you deployed, and the two reserve addresses match the accounts you just funded, your generated decoder is reading the same bytes your program wrote. The builder writes calls, the decoder reads state, and both came out of the one IDL.
+And the read half is already proven, because you could not have got here without it: `findPoolPda` derived the pool and `fetchPool` decoded it back in step 5, typed and with no manual borsh, and the two reserve addresses it handed you are the accounts you funded and have now traded against. The builder writes calls, the decoder reads state, and both came out of the one IDL.
 
 ## The Challenge
 
