@@ -26,7 +26,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Wavelength gates a $6 single-record checkout on `finalized` and a $6,000 wholesale invoice on `confirmed`. Your lead flips them. Which pairing actually matches the risk?"
+        prompt: "Wavelength waits for the strongest commitment level on a $6 single-record checkout and settles for the middle one on a $6,000 wholesale invoice. Your lead says that is backwards. Which pairing matches the risk?"
         multiSelect: false
         options:
           - id: a
@@ -41,6 +41,10 @@ blocks:
             label: "Gate both on `finalized`: waiting roughly 31+ confirmations on every order gives ops one uniform rule and retires the per-value judgement call."
             correct: false
             feedback: "A uniform rule is not free. Finalizing a $6 record adds about 10s of ecosystem-estimated latency for risk that rounds to zero, and commitment is a per-value decision, not a constant."
+          - id: d
+            label: "Gate both on `confirmed`; the wholesale invoice is a known account."
+            correct: false
+            feedback: "Commitment prices fork risk, and a fork does not care who the buyer is. Knowing the counterparty helps with collections and with fraud; it does nothing about a block being dropped after you shipped."
         explanation: "Commitment is a policy knob tied to the cost of a reversed payment. `confirmed` (about 1-2s, ecosystem estimate) fits low-value goods; `finalized` (roughly 31+ confirmations) earns its latency only when a fork-dropped payment would actually hurt. `processed` is UI-only."
       - id: q2
         prompt: "Compared to your card-rail integration, what does the no-chargeback asymmetry actually change?"
@@ -58,6 +62,10 @@ blocks:
             label: "Refunds become automatic since disputes can't happen, so no refund code is needed."
             correct: false
             feedback: "Disputes-as-chargebacks vanish, but refunds are a separate thing you must build by hand; they are absent from every official doc."
+          - id: d
+            label: "Fraud drops to zero: payments are final, so fulfillment needs no verifying."
+            correct: false
+            feedback: "One direction of fraud closes and another opens wider. Nobody can claw a payment out of your account, but a buyer who gets you to ship against a payment that was never yours keeps the goods, and no rail exists to undo that."
         explanation: "Cards give you a costly reversal path; these rails do not. That asymmetry is exactly why the server, not the wallet's green check, must be the source of truth, and why the refund flow two lessons later is original construction."
   - key: check-verify
     type: quiz
@@ -78,6 +86,10 @@ blocks:
             label: "It never checked the token program, so a Token-2022 look-alike mint passed as classic-Token USDC."
             correct: true
             feedback: "An asset's identity is the owning program and the mint together, and a decoded amount names neither; even both are not the last check, since the delta on your own account decides."
+          - id: d
+            label: "It fulfilled at `confirmed`, so a fork dropped that block after shipping."
+            correct: false
+            feedback: "A dropped block leaves nothing behind: getTransaction stops answering for that signature, so the check would fail rather than pass. Repeatable free inventory means a payment that keeps passing your checks, not one that disappears."
         explanation: "Validating the mint is not enough; you must validate the token PROGRAM too (Token vs Token-2022). The verifier checks program, then mint, then the on-chain balance delta on your own account, never a client-supplied number."
       - id: q4
         prompt: "Why does the verifier store every processed signature, and where does that bite?"
@@ -95,4 +107,8 @@ blocks:
             label: "To satisfy Alpenglow's finality requirement: a payment counts as trusted only once its signature has been retained across the finality window."
             correct: false
             feedback: "Alpenglow is a labeled roadmap flag here, not a live gate; today's dedup is about webhook retries, not finality mechanics."
+          - id: d
+            label: "To prevent double-fulfillment on webhook redelivery; entries get evicted once the blockhash window closes about 45 seconds later."
+            correct: false
+            feedback: "Right reason, horizon too short. Blockhash expiry closes on-chain replay, but your webhook provider will happily redeliver long after that, so the entry has to outlive the retry window as well as the chain's."
         explanation: "Signatures are deterministic, so a redelivered webhook produces the same signature, and storing processed ones makes fulfillment exactly-once. The cost is unbounded state, so you evict past a horizon (for example, beyond the blockhash lifetime plus a margin)."
