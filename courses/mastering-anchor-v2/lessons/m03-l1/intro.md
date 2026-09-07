@@ -77,7 +77,7 @@ Where did this come from? It is not a one-off optimization someone bolted on. An
 
 ### The custody decision, said out loud
 
-One scoping note before code, because it will bite you later if it stays implicit. The quarter-vault you are about to build holds **native SOL**, as lamports, directly in the account. Not tokens. Credits are quarters, quarters are lamports, for now. That keeps this lesson about PDAs and nothing else. The SPL upgrade, where the vault graduates to holding an actual token balance, lands in module 5. If you find yourself reaching for a token account today, stop: that is a later lesson wearing this lesson's clothes.
+One scoping note before code, because it will bite you later if it stays implicit. The quarter-vault you are about to build holds **native SOL**, as lamports, directly in the account. Not tokens. Credits are quarters, quarters are lamports, for now. That keeps this lesson about PDAs and nothing else. The SPL upgrade, where the vault graduates to holding an actual token balance, lands in module 5. If you find yourself reaching for a token account today, stop: that is a later lesson leaking into this one.
 
 And the trade-off, stated plainly because it is the honest part. PDAs give you deterministic addressing with no keypair to guard and no lookup table to maintain. What you pay for that is *seed-design responsibility, forever*. The seed scheme is not a naming convention, it is the namespace and the access-control boundary at once. Get it right and every player has an isolated, re-derivable vault. Get it lazy, and you have a collision bug that no amount of later code can paper over.
 

@@ -359,7 +359,7 @@ One housekeeping fact for your patches. Anchor's own constraint rejections mostl
 
 ### The same loop on the swap
 
-The escrow was the whole taxonomy on one program. The swap (R4) is the same classes wearing token accounts instead of lamport vaults, and running the loop against it is what convinces you these are *classes*, not escrow trivia. `swap_arcade_for_tickets(amount_in, min_out)` pulls the trader's arcade tokens into the pool's arcade reserve and pushes tickets back out. Two of the surviving classes map straight onto it.
+The escrow was the whole taxonomy on one program. The swap (R4) is the same classes applied to token accounts instead of lamport vaults, and running the loop against it is what convinces you these are *classes*, not escrow trivia. `swap_arcade_for_tickets(amount_in, min_out)` pulls the trader's arcade tokens into the pool's arcade reserve and pushes tickets back out. Two of the surviving classes map straight onto it.
 
 First, substitution, class 2 again. The swap's `reserve_arcade` and `reserve_ticket` are the pool's own token accounts, the ones the trades price against. They carry `token::mint` and `token::authority = pool`, and neither of those says *which* account the pool meant: anyone can create a token account on the right mint with the pool as its authority, because SPL's `InitializeAccount` takes the owner as a plain argument and never asks the owner to sign. So an attacker passes their own pair as the reserves, the constant-product math prices against balances they control, and they quote themselves a fill the real pool would never offer. Same shape as the stranger draining the escrow: a valid account of the right type, simply not the one the program meant.
 

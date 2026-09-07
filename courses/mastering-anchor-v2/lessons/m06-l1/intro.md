@@ -2,7 +2,7 @@
 
 Last lesson you sat in the framework's seat and watched what changes when a mint arrives as Token-2022 instead of plain SPL. You pointed a small client-side reader at a provided mint, read its real length and its dormant transfer hook straight off the wire, then went hunting for a mint whose hook was live. No new program code was written. Your swap program, R4 in the Quarters barcade, still moves arcade tokens one way and tickets the other. It works. And you still have not measured what a single trade costs.
 
-Ask the honest question: how many compute units does one trade burn? Every answer you can give today is a shrug dressed up as an estimate. This whole module is about trading that shrug for a number you measured yourself, using V2's own first-party tooling instead of a marketing multiplier from someone else's benchmark.
+Ask the honest question: how many compute units does one trade burn? Every answer you can give today is a shrug with an estimate attached. This whole module is about trading that shrug for a number you measured yourself, using V2's own first-party tooling instead of a marketing multiplier from someone else's benchmark.
 
 So before any theory, do the thing. If you have not already put V2 on this machine, build the release candidate from its documented git channel, the same install you ran in m01. Remember from that lesson: `avm install` cannot fetch the RC, because it downloads prebuilt binaries from GitHub Releases and no Release was cut for the v2 tag. The sanctioned path is a source build from the repo's current home, otter-sec/anchor (the old coral-xyz and solana-foundation URLs redirect there), pinned to the `v2.0.0-rc.1` tag:
 
