@@ -24,7 +24,7 @@ That is the entire structural move of this lesson in one line. `Account<Cabinet>
 
 You are turning R1's counter into a bounded high-score table. Three things carry it. First, the Pod field toolkit: `PodU64`, `PodVec<T, MAX>`, `#[derive(bytemuck::Pod)]` and `Nested<T>`, the wrappers that keep a struct castable straight from bytes. Second, `Slab<Header, TailItem>`, the list-in-account primitive, where a fixed header is trailed by a bounded run of items. Third, the payoff m01-l4 promised you: `#[event(bytemuck)]`, a zero-copy event you emit and read back from the transaction logs.
 
-The honest catch runs through all of it, so hear it once up front: a Slab's capacity is fixed at compile time. You size for the worst case, you pay rent for the empty slots, and a write past `MAX` is a hard error, never an automatic resize. That fixed cap is not a wart. It is the exact price of a list you never have to serialize, and picking `MAX` is a real design decision.
+The honest catch runs through all of it, so hear it once up front: a Slab's capacity is fixed at compile time. You size for the worst case, you pay rent for the empty slots, and a write past `MAX` is a hard error, never an automatic resize. That fixed cap is the exact price of a list you never have to serialize, and picking `MAX` is a real design decision.
 
 On autonomy: the Lab hands you the finished Slab layout and the event struct. You write the admit and evict logic and the ordering assertion yourself. The solo challenge at the end, the leaderboard cutoff, you do with no scaffold at all. This lesson is where the training wheels on data layout come off and stay off.
 

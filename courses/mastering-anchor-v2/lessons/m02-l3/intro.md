@@ -20,7 +20,7 @@ The fade this time runs on judgment rather than code, because the deliverable is
 
 ## The second tier, and why it exists
 
-Start with the honest framing, because it is the thing most people get wrong. The escape hatch is not a defeat. `Pod` is not "the good way" and borsh "the bad way." They are two tiers of a deliberate design, and the skill this lesson trains is knowing which tier a given field belongs to.
+Start with the honest framing, because it is the thing most people get wrong. The escape hatch is not a defeat, and `Pod` is not "the good way" against borsh's "bad way." They are two tiers of a deliberate design, and the skill this lesson trains is knowing which tier a given field belongs to.
 
 Here is the motivating question, the one the `String` error forces on you. You have a field whose length you genuinely cannot know at compile time. What are your options?
 
@@ -66,7 +66,7 @@ Say the trade-off out loud, because naming it is the credibility move and skippi
 
 Before we go further, steelman the position I just argued against, because it is a genuinely reasonable one and you will feel its pull. The argument goes: `Pod` is a pain. Layout discipline, no padding, largest-to-smallest field ordering, `Pod` wrappers on every field, the whole tax you spent module 2 learning to pay. `BorshAccount` makes all of that disappear. Put a `String`, a `Vec`, an `Option`, whatever you want in a struct, derive the serializer, and get on with your life. Why not just make every account `BorshAccount` and stop fighting the byte layout?
 
-Grant the valid part, because it is real. For a program where CU is not the bottleneck, where accounts are touched rarely and the data is genuinely irregular, all-borsh *is* simpler, and simpler code has fewer bugs. I have shipped the all-borsh version of a program. It is fine, right up until it isn't. So the argument is not stupid. It is a real trade, and on the simplicity axis borsh wins.
+Grant the valid part, because it is real. For a program where CU is not the bottleneck, where accounts are touched rarely and the data is genuinely irregular, all-borsh *is* simpler, and simpler code has fewer bugs. I have shipped the all-borsh version of a program. It is fine, right up until it isn't. So the argument holds up: it is a real trade, and on the simplicity axis borsh wins.
 
 Now refine it, because the axis that argument optimizes is not the axis V2 was built on. Compared to what? Compared to `Account<T>`, whose entire reason for existing is that the v1 default deserialize was, in the framework's own words from issue #4390, "the slow path" and "the number-one performance complaint from Anchor developers." Choosing all-borsh is choosing to reintroduce, on every account, the exact cost the whole rewrite set out to erase. On an account you touch once a month, who cares. On the hot account in a program that runs thousands of times a slot, you just paid the framework's marquee optimization back in full, on data that mostly did not need it. The simplicity was real; it was also priced in CU, and you did not read the receipt. That is what "compared to what?" buys you: it turns "borsh is simpler" from a verdict into a trade with a named cost, and the cost is exactly the thing this course exists to teach you to see.
 
@@ -191,6 +191,6 @@ Write the artifact down; the prompt lives at [operator-ledger/prompt.md](operato
 
 ## Where this leaves you
 
-You did not learn "borsh is bad." You learned where the two tiers meet, and you can now stand at that seam and place any field on the correct side of it: fixed and bounded state cast straight from bytes for the CU win, genuinely unbounded state isolated behind `BorshAccount<T>`, and the two wincode-vs-borsh wire holes checked whenever the escape hatch comes out. That is the complete on-chain state model this course needed you to own before it could give that state an address.
+The lesson here was never "borsh is bad." You learned where the two tiers meet, and you can now stand at that seam and place any field on the correct side of it: fixed and bounded state cast straight from bytes for the CU win, genuinely unbounded state isolated behind `BorshAccount<T>`, and the two wincode-vs-borsh wire holes checked whenever the escape hatch comes out. That is the complete on-chain state model this course needed you to own before it could give that state an address.
 
 Because that is next. You can now model any state, fixed, bounded, or unbounded, and pick the right tier for each field. What you cannot yet do is *find* that state deterministically, or say who owns it. The next module gives your accounts an address and an owner: program-derived addresses, canonical bumps precomputed at macro-expansion time, and the full V2 constraint catalog. It opens on the quarter-vault, the prepaid-credit account whose address nobody hands out because the program re-derives it, alone, from the player's key, every single time.
