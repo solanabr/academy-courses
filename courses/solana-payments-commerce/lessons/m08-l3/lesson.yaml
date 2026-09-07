@@ -33,7 +33,7 @@ blocks:
             correct: false
             feedback: "processed is UI-only and can be dropped in forks, so it is never a settlement gate for real money."
           - id: d
-            label: "`confirmed` below the documented 500 USDC line and `finalized` above it, which is the threshold the official guidance names."
+            label: "`confirmed` below the documented 500 USDC line and `finalized` above it, the threshold the guidance names."
             correct: false
             feedback: "The two-tier shape is right and the citation is invented. No document names the figure where the gate flips; the 500 USDC in the sample verdicts was one reference build's choice, called out as such. Deriving your own threshold from what a reversion at each tier would cost you is the judgement the challenge asks for."
         explanation: "The policy scales commitment to value: `confirmed` covers most payments, `finalized` protects high-value or compliance-sensitive ones, and `processed` is UI-only (never the gate that releases goods)."
@@ -67,7 +67,7 @@ blocks:
             correct: false
             feedback: "The transactions confirmed fine; the failure is in ingestion, not commitment."
           - id: b
-            label: "The idempotency row, because duplicate events are piling up unprocessed."
+            label: "The idempotency row, because duplicate events are piling up unprocessed on the queue."
             correct: false
             feedback: "Idempotency guards against double-fulfillment, not silent non-delivery."
           - id: c

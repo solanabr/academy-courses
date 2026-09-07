@@ -16,7 +16,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "A fiat balance: Stripe settles pay-with-crypto to your Stripe balance, and refunds go back as stablecoins to the originating wallet."
+            label: "A fiat balance: Stripe settles the sale in fiat, and refunds go back as stablecoins to the originating wallet."
             correct: true
             feedback: "The legs are not symmetric; you receive a currency you never converted, while the return leg has to be a stablecoin push because the chain issues no reversal. Two units, one order."
           - id: b
@@ -49,7 +49,7 @@ blocks:
             correct: false
             feedback: "Sphere is the PIX anchor in the research; MoonPay Commerce is not the PIX choice here."
           - id: d
-            label: "Sphere, whose public page confirms BRL settlement for PIX buyers, with funds landing the same business day."
+            label: "Sphere, whose public page confirms BRL settlement for PIX buyers, same business day."
             correct: false
             feedback: "Sphere is the right row for the wrong reason. Its public page quotes settlement timing, under 30 minutes, and never states the settlement asset, so BRL is your assumption and not its claim. That cell stays marked confirm-with-vendor."
         explanation: "Sphere is the Brazil corridor anchor: its rails include PIX alongside SEPA and ACH, with settlement quoted under 30 minutes. That is exactly why a corridor decision is a per-geography table rather than one processor: Sphere wins Brazil and would do nothing for your US card buyer."

@@ -33,7 +33,7 @@ blocks:
             correct: true
             feedback: "Its shared-token design keeps the charge on the merchant's own processor: that role is a liability as much as a status, since disputes and tax come with it."
           - id: d
-            label: "x402, since the facilitator that settles each call takes on the merchant-of-record seat along with it."
+            label: "x402, since the facilitator that settles each call takes the merchant-of-record seat."
             correct: false
             feedback: "A facilitator is a settlement intermediary, not a seller. Under x402 you are selling directly to the agent and the facilitator's power is over whether a transaction gets submitted, which is a censorship surface rather than a change of counterparty. Confusing the two is the same blur the fiat seam map refused."
         explanation: "ACP, the Stripe-and-OpenAI Agentic Commerce Protocol, is built around the merchant staying merchant-of-record with a Shared Payment Token. That framing, familiar from card rails, is a real differentiator when you place the four standards, and it is exactly the lens the course uses at every payment seam."

@@ -70,7 +70,7 @@ blocks:
             correct: false
             feedback: "That is card-rail dunning, not the taught policy. The Helius model does NOT retry the failed renewal against the wallet."
           - id: b
-            label: "Record the failed renewal as an open invoice in the backoffice ledger without retrying it against the wallet, matching the dunning policy from m05-l3."
+            label: "Record the failed renewal as an open invoice in the ledger, without retrying it against the wallet."
             correct: true
             feedback: "With no way to force a pull, a ledger entry is the only durable outcome that failure produces; a state with no exit, though, is how open invoices accumulate forever."
           - id: c
