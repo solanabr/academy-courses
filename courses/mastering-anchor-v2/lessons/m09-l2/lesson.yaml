@@ -20,14 +20,14 @@ blocks:
         prompt: "Diffing your native vault against the V2 expansion, you find the derive generated a MUT_MASK associated const plus a runtime duplicate-account walk. You wrote no such check natively. What class of bug does that generated code close?"
         multiSelect: false
         options:
-          - id: a
-            label: "Unchecked arithmetic overflowing the u64 balance field when a deposit is added."
-            correct: false
-            feedback: "Overflow is closed by checked_add in the handler body, not by MUT_MASK or the duplicate-account walk."
           - id: b
             label: "Reading a stale typed field after a CPI mutated the account underneath it."
             correct: false
             feedback: "Real class, wrong guard: the stale post-CPI read is closed by the CpiHandle borrow model, a separate piece of the same expansion."
+          - id: a
+            label: "Unchecked arithmetic overflowing the u64 balance field when a deposit is added."
+            correct: false
+            feedback: "Overflow is closed by checked_add in the handler body, not by MUT_MASK or the duplicate-account walk."
           - id: c
             label: "Passing the same mutable account twice in one instruction (duplicate-mutable)."
             correct: true
@@ -41,10 +41,6 @@ blocks:
         prompt: "The expansion shows typed account access is blocked while a CpiHandle is live — your native code has no such guard. Which v1-era footgun did that borrow model replace?"
         multiSelect: false
         options:
-          - id: a
-            label: "Reading stale account data after a CPI because you forgot to call .reload()."
-            correct: true
-            feedback: "Forgetting it raised nothing — no error, no warning, no panic — which is why it shipped as often as it did. A build failure does not restate the discipline; it retires the need for any."
           - id: b
             label: "Signing a CPI with a re-derived bump instead of the stored canonical one."
             correct: false
@@ -57,25 +53,29 @@ blocks:
             label: "Passing the same writable account twice, a check v1 left to you."
             correct: false
             feedback: "Also a v1-era gap, and also closed in this expansion, but by the other guard: MUT_MASK plus the duplicate walk. The borrow model is about what you may read while a CPI is still in flight, not about which addresses arrived."
+          - id: a
+            label: "Reading stale account data after a CPI because you forgot to call .reload()."
+            correct: true
+            feedback: "Forgetting it raised nothing — no error, no warning, no panic — which is why it shipped as often as it did. A build failure does not restate the discipline; it retires the need for any."
         explanation: "In v1 you could hold typed data across a CPI and read a stale copy unless you called .reload(). V2's CpiHandle holds Rust borrows so typed access during a live handle is a compile error — the footgun becomes unrepresentable."
       - id: m09-l2-q3
         prompt: "You take the one-beat asm-v2 peek at hand-written sBPF, then stop. Per this course's scope, where does the 'why the VM runs it that way' depth live?"
         multiSelect: false
         options:
-          - id: a
-            label: "Here in the next module, since Anchor V2's asm-v2 hot path puts sBPF in scope."
-            correct: false
-            feedback: "asm-v2 only proves the escape hatch exists — you can link a hand-written hot path. Why the VM executes it that way is handed off by the boundary map, not taught here."
-          - id: b
-            label: "In the Low-Level Solana course, which owns runtime, loader, and sBPF depth."
-            correct: true
-            feedback: "That course runs this same mirror in the opposite direction, rebuilding a counter with nothing underneath it. The peek here only establishes that a hand-written hot path can be linked in at all."
-          - id: c
-            label: "In the Digital Assets course, next to token standards and the transfer-hook interface."
-            correct: false
-            feedback: "Digital Assets owns token standards and the transfer-hook interface, which are program-level concerns, not VM or loader internals."
           - id: d
             label: "In the Client-Side Mastery course, which owns the sBPF and wire depth under a send."
             correct: false
             feedback: "That course picks up where a well-formed transaction ends: priority fees, retries, getting a send to land. What the VM does with the bytes once they arrive is the loader-and-syscall territory the boundary map routes elsewhere."
+          - id: b
+            label: "In the Low-Level Solana course, which owns runtime, loader, and sBPF depth."
+            correct: true
+            feedback: "That course runs this same mirror in the opposite direction, rebuilding a counter with nothing underneath it. The peek here only establishes that a hand-written hot path can be linked in at all."
+          - id: a
+            label: "Here in the next module, since Anchor V2's asm-v2 hot path puts sBPF in scope."
+            correct: false
+            feedback: "asm-v2 only proves the escape hatch exists — you can link a hand-written hot path. Why the VM executes it that way is handed off by the boundary map, not taught here."
+          - id: c
+            label: "In the Digital Assets course, next to token standards and the transfer-hook interface."
+            correct: false
+            feedback: "Digital Assets owns token standards and the transfer-hook interface, which are program-level concerns, not VM or loader internals."
         explanation: "This course stays framework-level: what the macro expands to. The sBPF peek is a single beat; the Low-Level Solana course owns loaders, sBPF, and syscalls, and it runs the same strip-the-framework mirror in the other direction on a counter — rebuilding it with no framework at all."
