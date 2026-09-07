@@ -61,7 +61,7 @@ blocks:
             feedback: "Wallets do not send your RPC API key; discovery is via actions.json plus CORS, not RPC registration."
         explanation: "Blinks are discovered through actions.json at the domain root and loaded cross-origin, so both the actions endpoints and actions.json must send Access-Control-Allow-Origin: *. Missing either one is the classic 'works in curl, dead in a wallet' failure."
       - id: q3
-        prompt: "Picking dependencies for the blink, you reach for the latest @dialectlabs/blinks. What do you actually find, and how should you pin?"
+        prompt: "This lesson builds against the wire contract and installs neither Dialect SDK. Suppose a later project does want them and you reach for the latest @dialectlabs/blinks. What do you actually find, and how should you pin?"
         multiSelect: false
         options:
           - id: a
@@ -69,14 +69,14 @@ blocks:
             correct: false
             feedback: "There is no fresh cadence; the blinks tooling has been effectively frozen since 2025, so 'stay on latest' is a false comfort."
           - id: b
-            label: "The tooling is frozen since 2025, so you pin @dialectlabs/blinks 0.22.5 and @solana/actions 1.6.6 and add a staleness note."
+            label: "The tooling is frozen since 2025, so IF you adopt them you pin @dialectlabs/blinks 0.22.5 and @solana/actions 1.6.6 and add a staleness note."
             correct: true
             feedback: "Frozen is not broken, just yours to carry; an explicit pin is what makes that inheritance visible to whoever reads the manifest next."
           - id: c
             label: "The package was renamed to @solana-commerce/blinks, so you migrate to that supported successor before building."
             correct: false
             feedback: "There is no such rename; @dialectlabs/blinks 0.22.5 and @solana/actions 1.6.6 remain the pins, frozen as they are."
-        explanation: "@dialectlabs/blinks 0.22.5 (published 2025-04-04) and @solana/actions 1.6.6 (published 2024-11-05) are the newest versions that exist; no fresher ones have shipped. You pin them explicitly with a staleness note, because Dialect's investment moved to its hosted Standard Blinks Library rather than the core SDK."
+        explanation: "@dialectlabs/blinks 0.22.5 (published 2025-04-04) and @solana/actions 1.6.6 (published 2024-11-05) are the newest versions that exist; no fresher ones have shipped. This course installs neither — it builds against @solana/actions-spec 2.4.2 and the wire contract — but if a project of yours does adopt them, pin those exact versions with a staleness note, because Dialect's investment moved to its hosted Standard Blinks Library rather than the core SDK."
       - id: q4
         prompt: "Building the featured-record blink, where does the transaction inside your ActionPostResponse come from, and what can you honestly claim about registry admission?"
         multiSelect: false
