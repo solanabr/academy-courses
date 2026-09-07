@@ -2,9 +2,10 @@ id: lesson-date-m09-l1-fee-routing-buyback
 slug: m09-l1-fee-routing-buyback
 title: "Fee routing & buyback/burn: where the money actually flows"
 skills:
+  - token-2022
+  - solana-kit
   - transactions
-  - rpc-reads
-  - solana-fundamentals
+  - checked-arithmetic
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

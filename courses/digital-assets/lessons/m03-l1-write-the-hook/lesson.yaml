@@ -2,7 +2,11 @@ id: lesson-date-m03-l1-write-the-hook
 slug: m03-l1-write-the-hook
 title: "Write the hook: the interface + your one Rust program"
 skills:
+  - anchor
   - solana-programs
+  - pdas
+  - token-2022
+  - program-security
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

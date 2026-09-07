@@ -2,8 +2,10 @@ id: lesson-date-m06-l1-metadata-standards
 slug: m06-l1-metadata-standards
 title: "The metadata standards wallets actually read"
 skills:
+  - token-metadata
   - account-model
-  - solana-programs
+  - pdas
+  - rpc-reads
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

@@ -2,9 +2,11 @@ id: lesson-date-m01-l1-what-is-this-token
 slug: m01-l1-what-is-this-token
 title: "What is this token, really?"
 skills:
-  - account-model
-  - solana-programs
   - solana-fundamentals
+  - rpc-reads
+  - spl-tokens
+  - token-2022
+  - compute-budget
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

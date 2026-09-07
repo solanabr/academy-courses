@@ -2,7 +2,10 @@ id: lesson-date-m10-l2-cumulative-checkpoint-close
 slug: m10-l2-cumulative-checkpoint-close
 title: "Cumulative checkpoint and close"
 skills:
-  - solana-kit
+  - token-2022
+  - state-compression
+  - token-metadata
+  - solana-fundamentals
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

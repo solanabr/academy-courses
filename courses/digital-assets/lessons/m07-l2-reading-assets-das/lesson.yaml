@@ -2,8 +2,10 @@ id: lesson-date-m07-l2-reading-assets-das
 slug: m07-l2-reading-assets-das
 title: "Read anything: one DAS script for fungibles, Core assets, and cNFTs"
 skills:
-  - account-model
+  - das-api
   - rpc-reads
+  - token-2022
+  - state-compression
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

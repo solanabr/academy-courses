@@ -2,9 +2,11 @@ id: lesson-date-m09-l2-gating-migrations
 slug: m09-l2-gating-migrations
 title: "Gating & points-to-token migrations: wiring the whole economy"
 skills:
-  - transactions
-  - rpc-reads
-  - solana-fundamentals
+  - das-api
+  - merkle-proofs
+  - state-compression
+  - solana-kit
+  - pdas
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

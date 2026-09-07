@@ -2,7 +2,11 @@ id: lesson-date-m03-l2-resolving-hooks-composability
 slug: m03-l2-resolving-hooks-composability
 title: "Resolving hooks, and why they break composability"
 skills:
-  - solana-programs
+  - token-2022
+  - solana-kit
+  - transactions
+  - pdas
+  - error-handling
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

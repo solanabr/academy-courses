@@ -2,7 +2,11 @@ id: lesson-date-m02-l2-authority-extensions
 slug: m02-l2-authority-extensions
 title: "Authority extensions: who can touch your tokens"
 skills:
-  - account-model
+  - token-2022
+  - solana-kit
+  - program-security
+  - signers
+  - transactions
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

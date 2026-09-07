@@ -2,9 +2,10 @@ id: lesson-date-m09-l3-production-case-studies
 slug: m09-l3-production-case-studies
 title: "Production case studies & the frontier: what actually shipped"
 skills:
-  - transactions
+  - token-2022
   - rpc-reads
-  - solana-fundamentals
+  - program-security
+  - version-pinning
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

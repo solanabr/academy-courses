@@ -2,7 +2,10 @@ id: lesson-date-m05-l2-designing-routable-token
 slug: m05-l2-designing-routable-token
 title: "Designing a routable, compliant token"
 skills:
-  - transactions
+  - token-2022
+  - program-security
+  - account-model
+  - version-pinning
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

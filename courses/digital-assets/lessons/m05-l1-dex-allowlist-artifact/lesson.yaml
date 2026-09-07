@@ -2,7 +2,10 @@ id: lesson-date-m05-l1-dex-allowlist-artifact
 slug: m05-l1-dex-allowlist-artifact
 title: "The DEX allowlist as a teaching artifact"
 skills:
-  - transactions
+  - token-2022
+  - solana-kit
+  - program-security
+  - rpc-reads
 versionStamp:
   checkedAt: "2026-09-05"
   packages:

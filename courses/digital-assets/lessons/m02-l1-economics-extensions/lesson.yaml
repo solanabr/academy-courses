@@ -2,7 +2,11 @@ id: lesson-date-m02-l1-economics-extensions
 slug: m02-l1-economics-extensions
 title: "Economics extensions: fees, interest, scaled UI (and where the fees GO)"
 skills:
-  - account-model
+  - token-2022
+  - solana-kit
+  - transactions
+  - compute-budget
+  - checked-arithmetic
 versionStamp:
   checkedAt: "2026-09-05"
   packages:
