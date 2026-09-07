@@ -65,7 +65,7 @@ blocks:
             label: "gdb attached by hand to the built .so, since no Anchor subcommand shows sBPF registers."
             correct: false
             feedback: "Anchor does not leave you to wire this yourself. The debugger's TUI shows the registers changing as you step, and if you want gdb proper, `anchor debugger --gdb` exposes the solana-sbpf stub on 127.0.0.1:9001 for you to attach to. Reaching for bare gdb means doing by hand what a subcommand already hosts."
-        explanation: "anchor debugger is the instruction-level ratatui TUI; it is the only one of the four that lets you step and inspect, while the others produce reports after the fact. It does not run your suite — it builds the named test, replays its transaction, and halts at your program's first instruction. Passing `--gdb` additionally exposes the solana-sbpf gdb stub on 127.0.0.1:9001, so you can attach real gdb and set breakpoints by symbol name."
+        explanation: "anchor debugger is the instruction-level ratatui TUI; it is the only one of the four that lets you step and inspect, while the others produce reports after the fact. It does not run your suite; it builds the named test, replays its transaction, and halts at your program's first instruction. Passing `--gdb` additionally exposes the solana-sbpf gdb stub on 127.0.0.1:9001, so you can attach real gdb and set breakpoints by symbol name."
       - id: cu-precise-unit
         prompt: "You want CU-precise assertions on the trade instruction without standing up a validator, and you want to know how the testing thread escalates from here."
         multiSelect: false
@@ -86,7 +86,7 @@ blocks:
             label: "The LiteSVM harness from module 2, since it already reports compute units."
             correct: false
             feedback: "LiteSVM is the right shape and the wrong rung. It answers whether the instruction did the right thing, in process and fast, and this module escalates past it precisely because the next question is how many compute units the right thing took. That assertion is the one Mollusk adds."
-        explanation: "Mollusk gives CU-precise, in-process unit assertions on a single instruction. The module's testing thread escalates from the LiteSVM harness (m02) up to Mollusk here; Surfpool comes later for full-floor integration. Mollusk is a third-party crate with no Anchor affiliation, pinned at 0.15.1 in this lab, and it runs one instruction with no validator, no localnet, and no async — you build the instruction, hand it accounts, and assert `Check::success()` plus `Check::compute_units(N)`."
+        explanation: "Mollusk gives CU-precise, in-process unit assertions on a single instruction. The module's testing thread escalates from the LiteSVM harness (m02) up to Mollusk here; Surfpool comes later for full-floor integration. Mollusk is a third-party crate with no Anchor affiliation, pinned at 0.15.1 in this lab, and it runs one instruction with no validator, no localnet, and no async: you build the instruction, hand it accounts, and assert `Check::success()` plus `Check::compute_units(N)`."
       - id: coverage-output
         prompt: "You ran `anchor coverage` on the swap to find untested branches. What does it produce, and from what?"
         multiSelect: false
@@ -98,7 +98,7 @@ blocks:
           - id: b
             label: "A hard gate that fails the build when coverage drops below a threshold."
             correct: false
-            feedback: "Coverage hands you a report and walks away — it never fails a build. A coverage floor is CI policy you write on top of the LCOV file yourself."
+            feedback: "Coverage hands you a report and walks away; it never fails a build. A coverage floor is CI policy you write on top of the LCOV file yourself."
           - id: c
             label: "An LCOV report of line and branch coverage, from SBF register traces."
             correct: true
@@ -107,4 +107,4 @@ blocks:
             label: "An HTML site of line coverage, rendered from the swap's test run."
             correct: false
             feedback: "You can get that page, but not from this command. `anchor coverage` writes raw LCOV, a machine format of `DA:` and `BRDA:` records with no source in it, and turning that into something browsable is a second step you run yourself with genhtml or an editor extension."
-        explanation: "anchor coverage reconstructs line/branch coverage as LCOV from SBF register traces, so you can see which swap branches your tests never exercised. It reports; it does not decide or gate. The raw file at target/anchor-v2-coverage/lcov.info is a machine format of `DA:` and `BRDA:` records with no source in it — render it with `genhtml` (or point an editor extension at it) to read the red branches against your own lib.rs."
+        explanation: "anchor coverage reconstructs line/branch coverage as LCOV from SBF register traces, so you can see which swap branches your tests never exercised. It reports; it does not decide or gate. The raw file at target/anchor-v2-coverage/lcov.info is a machine format of `DA:` and `BRDA:` records with no source in it, so render it with `genhtml` (or point an editor extension at it) to read the red branches against your own lib.rs."
