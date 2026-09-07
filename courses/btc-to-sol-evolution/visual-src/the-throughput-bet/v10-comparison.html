@@ -50,22 +50,22 @@
     <div class="drow">
       <div class="old">co-located code + state at one address</div>
       <div class="sol">stateless program (sBPF) + separate data accounts</div>
-      <div class="why">state must be <b>declared</b>, so the runtime can schedule around it</div>
+      <div class="why"><span>state must be <b>declared</b>, so the runtime can schedule around it</span></div>
     </div>
     <div class="drow">
       <div class="old">sequential execution (dynamic storage)</div>
       <div class="sol">parallel execution via declared AccountMetas (Sealevel)</div>
-      <div class="why">non-overlapping writes provably <b>cannot collide</b>, so they run at once</div>
+      <div class="why"><span>non-overlapping writes provably <b>cannot collide</b>, so they run at once</span></div>
     </div>
     <div class="drow">
       <div class="old">global mempool + gas auction</div>
       <div class="sol">no mempool; Gulf Stream to the known leader</div>
-      <div class="why">the leader schedule is <b>fixed per epoch</b>, so ordering needs no last-second auction</div>
+      <div class="why"><span>the leader schedule is <b>fixed per epoch</b>, so ordering needs no last-second auction</span></div>
     </div>
     <div class="drow">
       <div class="old">gas balance you top up</div>
       <div class="sol">base fee + priority fee + rent-exempt minimum</div>
-      <div class="why">fees are <b>set, not auctioned</b>; persistence is a refundable deposit, not a running charge</div>
+      <div class="why"><span>fees are <b>set, not auctioned</b>; persistence is a refundable deposit, not a running charge</span></div>
     </div>
   </div>
   <div class="root">
