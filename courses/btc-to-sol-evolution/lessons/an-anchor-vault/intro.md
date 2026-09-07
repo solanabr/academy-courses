@@ -4,29 +4,304 @@ Last module you made a bet and won it. The throughput bet got you a live Solana 
 
 Here is the problem with every wallet you have built so far. Each one is exactly one stolen key away from empty. Leak the key, sign the wrong transaction once, and the funds are gone with no appeal and no undo. So put the SOL somewhere there is no key to steal: an account whose only authorized signer is your program's own code. Then try to drain it from the wrong wallet, and watch the chain refuse.
 
-Don't take my word for any of it. Open the starter and run the test.
+Don't take my word for any of it. Build the starter and run its tests. Two files to paste, and then one command; we spend the rest of the lesson taking those two files apart.
+
+Anchor's own scaffolder does the boring half. From the top of your toolkit (last lesson's program does not carry over; this is a fresh workspace):
 
 ```bash
-cd toolkit/vault        # fresh vault starter, last lesson's program does not carry over
+mkdir -p toolkit && cd toolkit
+anchor init vault --template single
+cd vault && anchor keys sync
+```
+
+`anchor init` writes a workspace: a Rust program under `programs/vault/`, a test beside it under `programs/vault/tests/`, and an `Anchor.toml` that wires the two together. `anchor keys sync` generates the program's keypair and pastes its public key into the program's `declare_id!` line, so the code and the workspace agree on one address.
+
+Replace `programs/vault/src/lib.rs` with this. It is the whole vault, with exactly one line hollowed out.
+
+```rust
+use anchor_lang::prelude::*;
+use anchor_lang::system_program::{transfer, Transfer};
+
+declare_id!("Ff89hyGaKhc1wnUdCpG9sbojCCXiXKPgDoucnnyW5MD3"); // yours: anchor keys sync
+
+#[program]
+pub mod vault {
+    use super::*;
+
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        let state = &mut ctx.accounts.vault_state;
+        state.authority = ctx.accounts.owner.key();
+        state.balance = 0;
+        state.vault_bump = ctx.bumps.vault;
+        state.state_bump = ctx.bumps.vault_state;
+        Ok(())
+    }
+
+    pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+        transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.key(),
+                Transfer {
+                    from: ctx.accounts.owner.to_account_info(),
+                    to: ctx.accounts.vault.to_account_info(),
+                },
+            ),
+            amount,
+        )?;
+        let state = &mut ctx.accounts.vault_state;
+        state.balance = state.balance.checked_add(amount).ok_or(VaultError::Overflow)?;
+        Ok(())
+    }
+
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        let authority_key = ctx.accounts.vault_state.authority;
+        let bump = ctx.accounts.vault_state.vault_bump;
+
+        // TODO(you): the vault has no private key, so its SEEDS are its signature.
+        // Until you supply them, the withdraw test fails. One line, from the lesson.
+        let signer_seeds: &[&[&[u8]]] = &[];
+        let _ = (authority_key, bump);
+
+        transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.key(),
+                Transfer {
+                    from: ctx.accounts.vault.to_account_info(),
+                    to: ctx.accounts.authority.to_account_info(),
+                },
+            )
+            .with_signer(signer_seeds),
+            amount,
+        )?;
+        let state = &mut ctx.accounts.vault_state;
+        state.balance = state.balance.checked_sub(amount).ok_or(VaultError::Overflow)?;
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    #[account(
+        init,
+        payer = owner,
+        space = VaultState::DISCRIMINATOR.len() + VaultState::INIT_SPACE,
+        seeds = [b"state", owner.key().as_ref()],
+        bump
+    )]
+    pub vault_state: Account<'info, VaultState>,
+    #[account(seeds = [b"vault", owner.key().as_ref()], bump)]
+    pub vault: SystemAccount<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Deposit<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    #[account(mut, seeds = [b"state", owner.key().as_ref()], bump = vault_state.state_bump)]
+    pub vault_state: Account<'info, VaultState>,
+    #[account(mut, seeds = [b"vault", owner.key().as_ref()], bump = vault_state.vault_bump)]
+    pub vault: SystemAccount<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Withdraw<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(mut, has_one = authority @ VaultError::Unauthorized)]
+    pub vault_state: Account<'info, VaultState>,
+    #[account(
+        mut,
+        seeds = [b"vault", vault_state.authority.as_ref()],
+        bump = vault_state.vault_bump
+    )]
+    pub vault: SystemAccount<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[account]
+#[derive(InitSpace)]
+pub struct VaultState {
+    pub authority: Pubkey,
+    pub balance: u64,
+    pub vault_bump: u8,
+    pub state_bump: u8,
+}
+
+#[error_code]
+pub enum VaultError {
+    #[msg("Arithmetic overflow")]
+    Overflow,
+    #[msg("Unauthorized: caller is not the vault authority")]
+    Unauthorized,
+}
+```
+
+Then swap the scaffolder's sample test for the vault's three. Delete `programs/vault/tests/test_initialize.rs` and save this as `programs/vault/tests/vault.rs`:
+
+```rust
+use {
+    anchor_lang::{
+        prelude::Pubkey,
+        solana_program::{instruction::Instruction, system_program},
+        AccountDeserialize, InstructionData, ToAccountMetas,
+    },
+    litesvm::LiteSVM,
+    solana_keypair::Keypair,
+    solana_message::{Message, VersionedMessage},
+    solana_signer::Signer,
+    solana_transaction::versioned::VersionedTransaction,
+};
+
+const HALF_SOL: u64 = 500_000_000;
+const PROGRAM: &[u8] = include_bytes!(concat!(env!("CARGO_TARGET_TMPDIR"), "/../deploy/vault.so"));
+
+struct Lab {
+    svm: LiteSVM,
+    owner: Keypair,
+    vault_state: Pubkey,
+    vault: Pubkey,
+}
+
+fn boot() -> Lab {
+    let program_id = vault::id();
+    let owner = Keypair::new();
+    let mut svm = LiteSVM::new();
+    svm.add_program(program_id, PROGRAM).unwrap();
+    svm.airdrop(&owner.pubkey(), 5_000_000_000).unwrap();
+    let vault_state =
+        Pubkey::find_program_address(&[b"state", owner.pubkey().as_ref()], &program_id).0;
+    let vault = Pubkey::find_program_address(&[b"vault", owner.pubkey().as_ref()], &program_id).0;
+    Lab { svm, owner, vault_state, vault }
+}
+
+impl Lab {
+    fn send(&mut self, ix: Instruction) -> Result<(), String> {
+        let blockhash = self.svm.latest_blockhash();
+        let msg = Message::new_with_blockhash(&[ix], Some(&self.owner.pubkey()), &blockhash);
+        let tx =
+            VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[&self.owner]).unwrap();
+        self.svm
+            .send_transaction(tx)
+            .map(|_| ())
+            .map_err(|e| format!("{}\n  {}", e.err, e.meta.logs.join("\n  ")))
+    }
+
+    fn initialize(&mut self) -> Result<(), String> {
+        let ix = Instruction::new_with_bytes(
+            vault::id(),
+            &vault::instruction::Initialize {}.data(),
+            vault::accounts::Initialize {
+                owner: self.owner.pubkey(),
+                vault_state: self.vault_state,
+                vault: self.vault,
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        );
+        self.send(ix)
+    }
+
+    fn deposit(&mut self, amount: u64) -> Result<(), String> {
+        let ix = Instruction::new_with_bytes(
+            vault::id(),
+            &vault::instruction::Deposit { amount }.data(),
+            vault::accounts::Deposit {
+                owner: self.owner.pubkey(),
+                vault_state: self.vault_state,
+                vault: self.vault,
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        );
+        self.send(ix)
+    }
+
+    fn withdraw(&mut self, amount: u64) -> Result<(), String> {
+        let ix = Instruction::new_with_bytes(
+            vault::id(),
+            &vault::instruction::Withdraw { amount }.data(),
+            vault::accounts::Withdraw {
+                authority: self.owner.pubkey(),
+                vault_state: self.vault_state,
+                vault: self.vault,
+                system_program: system_program::ID,
+            }
+            .to_account_metas(None),
+        );
+        self.send(ix)
+    }
+
+    fn state(&self) -> vault::VaultState {
+        let acct = self.svm.get_account(&self.vault_state).unwrap();
+        let mut data: &[u8] = &acct.data;
+        vault::VaultState::try_deserialize(&mut data).unwrap()
+    }
+
+    fn vault_lamports(&self) -> u64 {
+        self.svm.get_account(&self.vault).map(|a| a.lamports).unwrap_or(0)
+    }
+}
+
+#[test]
+fn initializes_a_per_owner_vault() {
+    let mut lab = boot();
+    lab.initialize().expect("initialize should succeed");
+    let state = lab.state();
+    assert_eq!(state.authority, lab.owner.pubkey());
+    assert_eq!(state.balance, 0);
+    assert_eq!(lab.vault_lamports(), 0);
+}
+
+#[test]
+fn deposits_half_a_sol_into_the_vault_pda() {
+    let mut lab = boot();
+    lab.initialize().expect("initialize should succeed");
+    lab.deposit(HALF_SOL).expect("deposit should succeed");
+    assert_eq!(lab.vault_lamports(), HALF_SOL);
+    assert_eq!(lab.state().balance, HALF_SOL);
+}
+
+#[test]
+fn withdraws_it_back_to_the_owner() {
+    let mut lab = boot();
+    lab.initialize().expect("initialize should succeed");
+    lab.deposit(HALF_SOL).expect("deposit should succeed");
+    if let Err(e) = lab.withdraw(HALF_SOL) {
+        panic!("withdraw failed:\n  {e}");
+    }
+    assert_eq!(lab.vault_lamports(), 0);
+    assert_eq!(lab.state().balance, 0);
+}
+```
+
+Now run it. The first `anchor test` compiles the Solana toolchain from scratch, so it takes a while; later runs are seconds.
+
+```bash
 anchor test
 ```
 
 The tail of the output:
 
 ```
- vault
- ✔ initializes a per-owner vault (409ms)
- ✔ deposits 0.5 SOL into the vault PDA (517ms)
- 1) withdraws it back to the owner
+running 3 tests
+test initializes_a_per_owner_vault ... ok
+test deposits_half_a_sol_into_the_vault_pda ... ok
+test withdraws_it_back_to_the_owner ... FAILED
 
- 2 passing (3s)
- 1 failing
+---- withdraws_it_back_to_the_owner stdout ----
+withdraw failed:
+  Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account
+  Program log: Instruction: Withdraw
+  DqSSScGkqS1giZrSAyUeEDVr6KxNhJavtuM9yUdiDtof's signer privilege escalated
 
- 1) vault withdraws it back to the owner:
- Error: failed to send transaction: Transaction signature verification failure
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
-Two green checks and one red X, and the red one is the entire lesson. Read the three result lines top to bottom, because each is a piece of state you now own. The first check initialized a per-owner vault: a record account now exists on chain, tagged to your wallet and ready to track a balance. The second check deposited half a SOL and passed, which means money moved out of your wallet and into an account you have never held a key for, and the runtime raised no objection at all. The third check tried to send that same half-SOL back to you, and the chain answered with a signature verification failure.
+Two green checks and one red, and the red one is the entire lesson. Read the three result lines top to bottom, because each is a piece of state you now own. The first test initialized a per-owner vault: a record account now exists, tagged to your wallet and ready to track a balance. The second deposited half a SOL and passed, which means money moved out of your wallet and into an account you have never held a key for, and the runtime raised no objection at all. The third tried to send that same half-SOL back to you, and the runtime refused: *signer privilege escalated*. The vault's address, printed there, was listed as a signer on the inner transfer, and nothing in the transaction entitled it to be one.
 
 Sit with why that exact pairing happens. Deposit succeeds and withdraw fails in the same file, against the same account, written in the same style. That asymmetry is not a flaw in the starter; it is the shape of the whole problem drawn in two lines of test output. The account the withdraw tries to move money *out of* has no private key, so it cannot produce the signature a transfer demands, and nobody has yet taught the program to sign in its place. The deposit never needed a signature from the vault because money flowing *in* is the sender's decision alone. That single red line is the thing you will fix, and by the end of the lesson you will have written the one array that turns it green.
 
@@ -150,7 +425,7 @@ Trace what `transfer` actually does, because the same three-part shape returns i
 
 The reason this CPI needs no special signing is the `from` account. The owner signed the outer transaction, and the System Program sees that signature carried into its own frame, so it moves the money without complaint. Hold that thought, because it is precisely the piece that will be *missing* in withdraw, where `from` is the keyless vault instead of a live signer.
 
-The CPI moves lamports, but it does not touch your `balance` field. That running tally in `vault_state` is your own bookkeeping, invisible to the System Program, so you update it by hand in the same instruction. Notice the last three lines and never write them any other way. That `checked_add` is not decoration. Bare `+` on a `u64` in a Solana program does not throw when it overflows on a release build; it wraps silently around to a tiny number, and a balance that wraps is a balance an attacker can play with. Checked arithmetic is mandatory in program code, and so is the rule that goes with it: no `unwrap()`, no `expect()`. You return an error, you never panic. `checked_add(amount).ok_or(VaultError::Overflow)?` is the whole pattern, and the fourth footgun on the list, unchecked add or subtract on the tracked balance, dies right there.
+The CPI moves lamports, but it does not touch your `balance` field. That running tally in `vault_state` is your own bookkeeping, invisible to the System Program, so you update it by hand in the same instruction. Notice the last three lines and never write them any other way. That `checked_add` is not decoration, though the reason is one step subtler than the usual telling. In a stock Rust release build, bare `+` on a `u64` does not throw when it overflows; it wraps silently around to a tiny number, and a balance that wraps is a balance an attacker can play with. Anchor's scaffold already heads off the silent half: open the workspace `Cargo.toml` you generated and you will find `overflow-checks = true` under `[profile.release]`, so on *this* scaffold a bare `+` panics instead of wrapping. That is better and still bad, because a panic aborts the whole transaction with an opaque failure the client cannot read or act on. `checked_add` buys the third outcome, the only good one: a named error you chose, that a client can catch by name. Checked arithmetic is mandatory in program code, and so is the rule that goes with it: no `unwrap()`, no `expect()`. You return an error, you never panic. `checked_add(amount).ok_or(VaultError::Overflow)?` is the whole pattern, and the fourth footgun on the list, unchecked add or subtract on the tracked balance, dies right there.
 
 ## Withdraw: teaching the vault to sign
 
@@ -158,7 +433,7 @@ This is the instruction that failed, and the reason it failed is the reason PDAs
 
 The mechanism is a re-supply of the recipe. The program hands the runtime the exact ingredients the address was built from: the byte string `b"vault"`, the owner's public key, and the canonical bump. The runtime re-runs the derivation, confirms those seeds produce this exact address under this exact program ID, and accepts that as the vault's signature. No key is ever involved, and no other program on the chain can forge it, because only your program can present seeds that hash to a PDA under your program's ID.
 
-That seeds array is the TODO in the starter. Here it is, filled in.
+That seeds array is the `TODO(you)` you pasted into `lib.rs`. Here it is, filled in.
 
 ```rust
 pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
@@ -229,11 +504,13 @@ I have shipped that bug. Early on, in a hackathon vault, I left the check off be
 A test passing in-process is a promise; devnet is the proof. First, the toolchain. This lesson is written against Anchor CLI 1.1.2. If `anchor --version` disagrees, install the current toolchain through AVM, Anchor's version manager:
 
 ```bash
-cargo install --git https://github.com/solana-foundation/anchor avm --force
+cargo install --git https://github.com/otter-sec/anchor avm --force
 avm install latest && avm use latest
 ```
 
-`anchor test` is doing more than running mocha. It builds every program in the workspace, spins up a local validator (in Anchor 1.0 that's Surfpool, not the old `solana-test-validator`), deploys your programs to it, runs the suite, then tears the whole thing down. Pass `--skip-local-validator` to point it at a validator you already have running instead. The default Rust test template is now LiteSVM, an in-process VM that executes your program with no validator at all, which is why the checks above returned in milliseconds.
+That repository moved: `solana-foundation/anchor` now redirects to `otter-sec/anchor`, which is the maintained home. The old URL still works through the redirect, and this course taught you a module ago to distrust exactly that kind of quiet handoff, so use the current one. Note also what `avm install latest` does and does not promise: it installs whatever Anchor's newest release happens to be the day you run it, which is not necessarily 1.1.2. If a later release moves something under you, `avm install 1.1.2 && avm use 1.1.2` pins the version this lesson was written and run against.
+
+`anchor test` is doing more than running your tests. It builds every program in the workspace down to a `.so`, then runs whatever command sits in `Anchor.toml` under `[scripts] test`. With the Rust template you just scaffolded, that command is plain `cargo test`, and the `skip_local_validator = true` line at the top of `Anchor.toml` means no validator is started at all: the tests run against LiteSVM, an in-process VM that loads the built `.so` directly into the test binary. That is why three tests finished in hundredths of a second. Scaffold with the TypeScript template instead (`anchor init vault --test-template mocha`) and `[scripts] test` becomes a mocha runner, and Anchor does spin up a local validator for it (in Anchor 1.0 that's Surfpool, not the old `solana-test-validator`), deploy your programs to it, run the suite, and tear the whole thing down. Same command, two very different machines underneath, and the seconds on your screen tell you which one you got.
 
 To move the same round-trip onto the live devnet, set the cluster and fund a wallet.
 
@@ -244,9 +521,9 @@ anchor build
 anchor deploy
 ```
 
-The airdrop caps at 2 SOL per request; if it's dry, the Solana Foundation web faucet is the fallback. One thing that will save you a confused hour: unlike `solana program deploy`, `anchor deploy` re-deploys to the *same* program ID on every run, reading it from `target/deploy/vault-keypair.json`. You can confirm which ID you're publishing with `solana address -k target/deploy/vault-keypair.json`. Then run your deposit and withdraw against devnet and read the balances change on a public explorer, not just in a log line you wrote yourself.
+The airdrop caps at 2 SOL per request; if it's dry, the Solana Foundation web faucet is the fallback. One thing that will save you a confused hour: `anchor deploy` re-deploys to the *same* program ID on every run, because it reads that ID from `target/deploy/vault-keypair.json` — the same keypair-derived address mechanism `solana program deploy` used two lessons ago, just with Anchor finding the file for you. Delete that keypair and the next deploy publishes a stranger. You can confirm which ID you're publishing with `solana address -k target/deploy/vault-keypair.json`, and `anchor keys list` prints the same thing for every program in the workspace. Then run your deposit and withdraw against devnet and read the balances change on a public explorer, not just in a log line you wrote yourself.
 
-![A run-book table listing the AVM install, airdrop, anchor test with and without a local validator, anchor build and deploy, and the command to read the program ID.](assets/v07-table.webp)
+![A run-book table listing the AVM install (which installs the newest release, not 1.1.2), the airdrop, anchor test on LiteSVM with no validator, the skip-local-validator variant for TypeScript templates, anchor build and deploy, and the command to read the program ID.](assets/v07-table.webp)
 
 ## The trade-off you just bought
 
@@ -254,27 +531,54 @@ Every design in this course gets its cost named, and this one's bill is the whol
 
 ![A comparison of custody by key versus custody by code, showing code custody buys automation but widens a bug's blast radius from one wallet to the whole vault at once.](assets/v08-comparison.webp)
 
-There's a second, quieter cost, and it's the one that eats beginners. **Rent-exemption**: an account only stays alive on Solana if it holds at least a minimum balance, and that minimum scales with how much data the account stores. Your vault is a `SystemAccount` holding no data of its own, so its floor is small, but it is not zero, and that non-zero floor is the trap.
+There's a second, quieter cost, and it's the one that eats beginners. **Rent-exemption**: an account only stays alive on Solana if it holds at least a minimum balance, and that minimum scales with how much data the account stores. Your vault is a `SystemAccount` holding no data of its own, so its floor is the smallest one there is, but it is not zero, and that non-zero floor is the trap. Ask a cluster for the number instead of memorizing one — `solana rent 0` prints the rent-exempt minimum for a zero-byte account on whichever cluster you are pointed at, and that figure differs between clusters and moves over time.
 
-Walk a withdraw through it. Say the vault holds one SOL and the owner asks to pull almost all of it out, leaving only a sliver behind. The transfer succeeds, the balance math checks out, and every test you wrote passes clean. Then, at the next epoch boundary, the runtime sweeps for accounts that have fallen below their rent-exempt minimum, finds your under-funded vault, purges it, and reclaims whatever was left. The owner's money is simply gone, and nothing in your program logged an error, because by its own rules your program did nothing wrong. The rule it broke belongs to the runtime, not to your code.
+Walk a withdraw through it. Say the vault holds one SOL and the owner asks to pull almost all of it out, leaving only a sliver behind. Two things are true about that transaction, and both of them surprise people.
 
-So a correct withdraw has only two safe endings. It either leaves the vault comfortably above the rent-exempt floor, or it closes the account out to exactly zero on purpose and returns every last lamport, the rent deposit included, to the owner. Anything in the gap between those two, a balance above zero but below the floor, is a slow leak with a deadline attached. That's the second footgun on the list, and it is the meanest kind: it passes every green check on your machine and then loses somebody's money on a Tuesday, in production, with no stack trace to catch it.
+The first: on a real cluster it does not go through. The runtime forbids an account from crossing out of rent-exempt into rent-paying, so the transfer is rejected before it settles. Try the same move with the plain CLI and the error is unmistakable:
 
-![A flowchart of the three withdraw outcomes, above the rent floor is safe, exactly zero is safe, and a balance in the gap passes tests now but gets purged at the next epoch boundary with the money silently lost.](assets/v09-flowchart.webp)
+```
+Error: RPC response error -32002: Transaction simulation failed:
+Transaction results in an account (0) with insufficient funds for rent
+```
+
+The second: nothing comes for it later, either. Periodic rent collection was switched off cluster-wide, which is exactly what the throughput lesson told you last lesson. There is no epoch-boundary reaper hunting under-funded accounts, because there is no rent collector at all any more. The gap is guarded at the door, not policed after the fact.
+
+So why does this footgun still have a body count? Because your test harness is not the runtime. LiteSVM does not apply that rent-state check on this path: run the sliver-leaving withdraw under `anchor test` and it returns green, and the vault sits there holding its 1,000 lamports as though nothing were wrong. Then you deploy, a real user asks for that same withdrawal, and the transaction bounces off a rule your suite never modelled, with an error that names *rent* when your program never said a word about rent. That is the modern shape of this trap: not a silent loss, but a green test that lies about production.
+
+So a correct withdraw has only two safe endings. It either leaves the vault comfortably above the rent-exempt floor, or it closes the account out to exactly zero on purpose and returns every last lamport, the rent deposit included, to the owner. Anything in the gap between those two passes on your machine and fails on the network. That's the second footgun on the list, and it is the meanest kind, because the one machine that would have caught it is the one machine you are not running.
+
+![A flowchart of the three withdraw outcomes: above the rent floor is safe, exactly zero is safe, and a balance in the gap passes the in-process LiteSVM test but is rejected by the real runtime with InsufficientFundsForRent.](assets/v09-flowchart.webp)
 
 Two more sharp edges worth knowing exist. Duplicate mutable accounts are now disallowed by default, so you can't accidentally pass the same writable account into two slots; you opt back in with the `dup` constraint on the rare instruction that genuinely needs it. And the client you'll reach for next lesson does not talk to this program by hand: it is generated straight from this program's IDL and speaks to it through `@solana/kit`, so you never hand-write a call. File both away.
 
 ## Do it yourself
 
-The starter is where you finish this.
+The starter is where you finish this — two starters, in fact, and they ask you for opposite ends of the same mechanism. The graded exercise in this lesson hands you a `VaultState` missing its two bump *fields*, the ones `initialize` writes and `withdraw` signs with, and it is checked by whether the file compiles. The workspace on your disk has those fields and is missing the signer-seeds *array*, and it is checked by whether the red test goes green. You cannot sign without the bump, and you cannot store the bump without the field.
 
 ![A table of the three vault exercises: Completion writes the signer seeds, Solo writes a non-owner rejection test, and Harden adds a rent-floor guard and test that blocks a withdrawal from dropping the vault below rent-exempt.](assets/v10-table.webp)
 
-**Completion.** Fill in the withdraw instruction's `signer_seeds` array so the vault PDA signs its own outbound transfer, and make the failing test pass. It's the one line you saw above: `&[&[b"vault", authority_key.as_ref(), &[bump]]]`. Run `anchor test`, watch the red X turn green, and watch the 0.5 SOL complete the round-trip back to the owner.
+**Completion.** Fill in the withdraw instruction's `signer_seeds` array so the vault PDA signs its own outbound transfer, and make the failing test pass. It's the one line you saw above: `&[&[b"vault", authority_key.as_ref(), &[bump]]]`. Delete the `let _ = (authority_key, bump);` line under it while you're there; it existed only to keep the compiler quiet about two values the blank version never used. Run `anchor test`, watch `withdraws_it_back_to_the_owner` flip from FAILED to ok, and watch the 0.5 SOL complete the round-trip back to the owner:
+
+```
+running 3 tests
+test initializes_a_per_owner_vault ... ok
+test deposits_half_a_sol_into_the_vault_pda ... ok
+test withdraws_it_back_to_the_owner ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```
 
 **Solo.** The authority check above is the guard. Prove it works. Write a test that submits a withdrawal signed by a *different* keypair against the owner's vault, and assert it fails with `VaultError::Unauthorized`. A passing solo means the vault drains for the owner and refuses everyone else, on devnet, with your own error message.
 
-**Harden.** The rent-exempt trap from earlier is not hypothetical, and right now nothing in `withdraw` stops it. Close it. Add a guard at the top of the instruction that reads the vault's own rent-exempt floor, `Rent::get()?.minimum_balance(0)` (zero bytes, because the `SystemAccount` vault stores no data of its own), and rejects any withdrawal that would leave the vault holding something above zero but under that floor. Return a new `VaultError::BelowRentExempt` instead of letting the transfer through. Then write the test that fires straight at it: deposit half a SOL, try to withdraw an amount that would strand the vault a handful of lamports below its minimum, and assert the call fails with `BelowRentExempt`. Without the guard, that withdrawal passes green and the account is swept at the next epoch, taking the remainder with it. With the guard, the silent loss is impossible to write. A footgun this quiet is one you can only prove you closed by aiming a test at it.
+**Harden.** The rent-exempt trap from earlier is not hypothetical, and right now nothing in `withdraw` stops it. Close it. Add a guard at the top of the instruction that reads the vault's own rent-exempt floor, `Rent::get()?.minimum_balance(0)` (zero bytes, because the `SystemAccount` vault stores no data of its own), and rejects any withdrawal that would leave the vault holding something above zero but under that floor. Return a new `VaultError::BelowRentExempt` instead of letting the transfer through. Then write the test that fires straight at it: deposit half a SOL, try to withdraw an amount that would strand the vault a handful of lamports below its minimum, and assert the call fails with `BelowRentExempt`. Without the guard, that withdrawal returns green in LiteSVM and then bounces on any real cluster with an `insufficient funds for rent` error that never mentions your program. With the guard, both machines agree, and they agree in your words:
+
+```
+Program log: AnchorError thrown in programs/vault/src/lib.rs. Error Code: BelowRentExempt.
+Error Number: 6002. Error Message: Withdrawal would leave the vault below its rent-exempt minimum.
+```
+
+That is what a guard buys you: not a new rule, but your own name on an existing one. A divergence this quiet is one you can only prove you closed by aiming a test at it.
 
 Checkpoint, from memory, one sentence out loud: why does the vault need no private key of its own? A good answer lands on the mechanism, not the vibe. The program signs for the account by re-supplying its seeds, so a private key wouldn't add security, it would only add a second way in, a liability the design deliberately doesn't have.
 

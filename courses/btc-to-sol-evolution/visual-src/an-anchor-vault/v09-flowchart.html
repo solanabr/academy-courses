@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: the three ways a withdraw can end
-     purpose: certify that a balance in the rent-exempt gap is a silent failure, not a caught error
-     data: withdraw runs -> what balance does it leave in the vault? leaves it comfortably ABOVE the rent-exempt floor -> safe, vault survives closes the account to EXACTLY zero, returns every lamport (rent included) -> safe, vault gone on purpose leaves it ABOVE zero but BELOW the floor (the gap) -> passes every test now... -> next epoch boundary: runtime sweeps, finds it under-funded, purges it -> whatever was left is reclaimed; owner's money gone; no error logged
-     prompt: Top-down flowchart, dark theme, monospace. One decision node ("resulting vault balance?") branching to three outcomes: two green ("above floor", "exactly zero"), one red ("in the gap") that flows down through an "epoch sweep -> purge -> money gone" chain. Callout on the red path: "green tests, silent loss". No decorative icons.
+     purpose: certify that a balance in the rent-exempt gap is rejected by the real runtime but waved through by the in-process test harness
+     data: withdraw runs -> what balance does it leave in the vault? leaves it comfortably ABOVE the rent-exempt floor -> safe, vault survives closes the account to EXACTLY zero, returns every lamport (rent included) -> safe, vault gone on purpose leaves it ABOVE zero but BELOW the floor (the gap) -> LiteSVM: green, vault sits at 1,000 lamports -> real cluster: rejected, InsufficientFundsForRent -> your suite modelled a rule the runtime does not share; nothing is ever swept, because rent collection is off cluster-wide
+     prompt: Top-down flowchart, dark theme, monospace. One decision node ("resulting vault balance?") branching to three outcomes: two green ("above floor", "exactly zero"), one red ("in the gap") that flows down through a "LiteSVM says green -> real cluster rejects with InsufficientFundsForRent -> your test lied" chain. Callout on the red path: "green tests, broken deploy". Do NOT depict an epoch sweep or a purge: rent collection is disabled cluster-wide and nothing is ever swept. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -56,7 +56,7 @@
     font-weight:900; font-size:22px; }
 </style>
   <div class="stbr-eyebrow">the three ways a withdraw can end</div>
-  <h2 class="viz-title">a balance in the gap is a silent loss</h2>
+  <h2 class="viz-title">a balance in the gap is a green test that lies</h2>
   <div class="fc">
     <div class="decwrap"><div class="decide"><span class="k">withdraw runs</span><span class="q">what balance does it leave in the vault?</span></div></div>
     <div class="fork"><span>&darr;</span><span>&darr;</span><span>&darr;</span></div>
@@ -67,15 +67,15 @@
         <div class="cond">leaves it <b>ABOVE zero but BELOW the floor</b> &mdash; the gap</div>
         <div class="verdict">passes every test now&hellip;</div>
         <div class="chain">
-          <div class="link"><span class="step">then &rarr;</span> next epoch boundary: runtime sweeps</div>
+          <div class="link"><span class="step">litesvm &rarr;</span> green; vault sits at 1,000 lamports</div>
           <div class="dnr">&darr;</div>
-          <div class="link"><span class="step">finds &rarr;</span> the account under-funded, purges it</div>
+          <div class="link"><span class="step">cluster &rarr;</span> rejected: <b>InsufficientFundsForRent</b></div>
           <div class="dnr">&darr;</div>
-          <div class="link final"><span class="step">result &rarr;</span> whatever was left is reclaimed; <b>owner's money gone; no error logged</b></div>
+          <div class="link final"><span class="step">result &rarr;</span> <b>the suite modelled a rule the runtime does not share</b></div>
         </div>
       </div>
     </div>
-    <div class="callout">green tests, silent loss</div>
+    <div class="callout">green tests, broken deploy</div>
   </div>
 </div>
 </body></html>
