@@ -183,13 +183,21 @@ The plan, so you can see the whole board before the first command: a new binary 
 
    While you are standing in the engine with consumer crates on both sides of it, collect a promise: m04-l2 made you mark the moved items `pub` and said module privacy would get its proper tour with Cargo in M6. This is that tour, and the workspace is the tour bus, because visibility only means something once there are outsiders. Rust's default is private, and your own layout already walks the levels that matter:
 
-   - `pub` plus a `lib.rs` re-export: `drive`, `next_state`, `parse_config`, the curated front door. Every binary in the workspace calls these as bare `pulse_engine::` names.
+   - `pub` plus a `lib.rs` re-export: `drive`, `next_state`, `parse_config`, `total_latency`, the curated front door. Consumers reach these as bare `pulse_engine::` names with no module path in sight, which is the whole point of curating the list: the CLI's `report` arm already calls `total_latency` that way, step 4's poller is about to call `parse_config` and `next_state`, and step 7 hands the CLI `drive`. `parse_config` is the one to watch, because it has been on this list since m05-l2 with nobody calling it: m05-l3 parked the CLI's config wiring and promised the m06 poller would pick the frozen signature back up. Step 4 is where that promise comes due, so the front door stops being aspirational.
    - `pub` without the re-export: `parse_state`. Still reachable, at the full path `pulse_engine::engine::parse_state`, which is exactly the module-path spelunking the m05-l2 re-export list exists to spare consumers. Reachable and advertised are different promises.
    - Private, the default: `FixtureSource`'s `cursor` field. No path reaches it from outside the engine; type `FixtureSource::new(vec![1]).cursor` anywhere in the poller and ``error[E0616]: field `cursor` of struct `FixtureSource` is private`` is the whole conversation.
 
    Between those poles sits `pub(crate)`: visible everywhere inside the engine crate, invisible to every consumer. Prove it with the compiler instead of taking my word. Flip the engine's `parse_state` to `pub(crate) fn parse_state`, drop `let _ = pulse_engine::engine::parse_state("Up");` into the poller's still-hello-world `main`, and run `cargo check --workspace`:
 
    ```text
+   warning: function `parse_state` is never used
+    --> crates/pulse-engine/src/engine.rs
+     |
+     | pub(crate) fn parse_state(raw: &str) -> Option<ProbeState> {
+     |               ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
    error[E0603]: function `parse_state` is private
      --> crates/pulse-pollerd/src/main.rs
       |
@@ -197,7 +205,7 @@ The plan, so you can see the whole board before the first command: a new binary 
       |                                   ^^^^^^^^^^^ private function
    ```
 
-   The engine itself compiled without complaint and its unit tests would still pass; only the outsider got refused, and that split is the entire meaning of the setting. `pub(crate)` is the honest marking for helpers that engine modules share but no consumer should couple to, because a `pub` you did not mean is a public API you now maintain. Revert both edits and move on; the tour's residue is the reflex, not the code.
+   Two messages, and the warning is not noise, it is the same fact told from inside. The engine still compiles and its unit tests would still pass, but the moment `parse_state` stopped being reachable from outside, the only remaining callers were `#[cfg(test)]` ones, which a plain `cargo check` does not build, so `dead_code` correctly reports a function nobody uses. That is structural, not a mistake in the drill: any `pub(crate)` item whose only non-test caller lived in another crate warns exactly like this, and the fix in real code is either a caller inside the crate or `#[allow(dead_code)]` with a written reason. The error below it is the outsider getting refused, and that split, quiet inside, hard stop outside, is the entire meaning of the setting. `pub(crate)` is the honest marking for helpers that engine modules share but no consumer should couple to, because a `pub` you did not mean is a public API you now maintain. Revert both edits and move on; the tour's residue is the reflex, not the code.
 
 3. **One derive line.** The `/status` response serializes `ProbeState` to JSON, and serde is already an engine dependency, so add the derive to the state enum in the engine, which should now read `#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]`. The `serde::` path is doing quiet work: `engine.rs` has no `use serde::Serialize;` line (the config module imports it, this module never needed to), so the bare `Serialize` token would be a cannot-find-derive-macro error; the fully qualified form needs no import. One line, no new deps, and one audit while you are there: the `Clone` and `Copy` your m04-l3 enum has carried since birth are load-bearing today, because step 4's skeleton copies states out of the shared map (`map.get(&name).map(|s| s.state)`) and derives `Clone` on a struct holding one. If your derive list ever drifted from that canon, restore those two now, or step 4 greets you with E0507s the "one line" framing did not promise.
 
@@ -208,7 +216,7 @@ The plan, so you can see the whole board before the first command: a new binary 
    use std::sync::{Arc, Mutex};
    use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-   use pulse_engine::{Config, ProbeState, ProbeTarget, next_state};
+   use pulse_engine::{Config, ProbeState, ProbeTarget, next_state, parse_config};
    use serde::Serialize;
    use tokio::task::JoinSet;
 
@@ -297,7 +305,7 @@ The plan, so you can see the whole board before the first command: a new binary 
    #[tokio::main]
    async fn main() -> Result<(), Box<dyn std::error::Error>> {
        let raw = std::fs::read_to_string("pulse.config.json")?;
-       let config: Config = serde_json::from_str(&raw)?;
+       let config: Config = parse_config(&raw)?; // m05-l3's parked promise, called at last
        let targets = config.into_targets();
 
        let statuses: StatusMap = Arc::new(Mutex::new(HashMap::new()));
@@ -351,7 +359,7 @@ The plan, so you can see the whole board before the first command: a new binary 
 
    Every ENABLED target from your config is present, each with a state your m04-l3 machine assigned from a real network result, a measured latency, and a `last_poll` timestamp in unix seconds. Count the keys against the config before you move on: the station's config carries three targets, and the disabled tcp `rpc` entry is legitimately absent, because `into_targets` filters on `enabled` before the loop ever sees it. Two of three in the JSON is the pipeline working, not a bug. The exact state a failing target lands in depends on where your transition table routes a failure from its previous state, which is your machine's business, not the poller's; the poller only reports the verdict. The second response shows the same targets with `last_poll` advanced by roughly 30 seconds, and that word roughly is honest, because timers tick when the scheduler gets to them, so expect a second or so of skew rather than metronome precision. That advancing timestamp is your proof of life: the loop polled while nobody was watching, which is the entire job description. This pair of outputs, taken one interval apart and showing the timestamp advance with per-target states populated for every target in the config, is the lesson's gate. Keep both.
 
-   One more expectation set on purpose: kill the daemon and restart it, and every target is back to square one, `Pending` until the first tick lands. State lives in a HashMap in process memory. Persistence is nobody's promise yet, and nothing in the station has claimed otherwise; when the poller deserves a memory that survives restarts, that will be its own decision with its own trade-offs.
+   One more expectation set on purpose, and it is sharper than "square one": kill the daemon, restart it, and `curl` `/status` before the first tick finishes. You do not get every target at `Pending`. You get `{}`, because the map is created empty and the only writes happen down in the drain loop. Then the first tick lands and every target appears already judged, `Up` or `Down`, because your m04-l3 table has no arm that RETURNS `Pending`: `(Pending, true) => Up` and `(Pending, false) => Down`. `Pending` is the loop's internal assumption about a target the map has never seen, not a state `/status` can ever hand you. State lives in a HashMap in process memory. Persistence is nobody's promise yet, and nothing in the station has claimed otherwise; when the poller deserves a memory that survives restarts, that will be its own decision with its own trade-offs.
 
 7. **Cash the m04-l3 promise: live HTTP behind the trait.** One IOU from the Rust tier falls due this lesson, and the daemon is deliberately not the crate paying it. m04-l3 froze the `ProbeSource` trait and promised live HTTP would one day plug in behind it; m05-l3 built the HTTP arm as a standalone call and told you to hold the itch. The poller you just built skips the trait too, on grounds you can now defend twice over: its loop already owns each result, so it hands them straight to `next_state`, and the blocking client is banned inside its runtime anyway, as the panic at the top of this lesson proved. So the plug lands one crate over, in `pulse-cli`, where blocking is legal and the m05-l3 client already lives. First give the trait a public name: it never made m05-l2's re-export list because no consumer had earned it a spot, and one just did, so add `ProbeSource` to the engine's `lib.rs` re-export line. Then extend `crates/pulse-cli/src/main.rs`:
 
