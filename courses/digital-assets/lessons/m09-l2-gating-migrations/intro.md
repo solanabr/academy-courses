@@ -351,7 +351,9 @@ If both lines say DENY, check the collection value before you check anything els
 
 **4. The tree.**
 
-Now the window. This file is given to you complete, because it has to be byte-compatible with what an on-chain verifier computes and there is no partial credit for a root that is almost right. And an acknowledgment you are owed, because you built this exact tree two lessons ago in `compost-airdrop` under different names: `leafHash` there is `hashLeaf` here, `tree.proofFor` becomes `getProof` over explicit levels, and the bytes hashed are identical, leaf prefix, intermediate prefix, sorted pairs and all. This copy is deliberately self-contained so `overgrowth/` carries no cross-folder import to break; if you doubt the two agree, hash the same entry through both and diff the hex, which takes a minute and settles it for good.
+Now the window. This file is given to you complete, because it has to be byte-compatible with what an on-chain verifier computes and there is no partial credit for a root that is almost right. And an acknowledgment you are owed, because you built this exact tree two lessons ago in `compost-airdrop` under different names: `leafHash` there is `hashLeaf` here, `tree.proofFor` becomes `getProof` over explicit levels, and the bytes hashed are identical, leaf prefix, intermediate prefix, sorted pairs and all. This copy is deliberately self-contained so `overgrowth/` carries no cross-folder import to break.
+
+If you doubt the two agree, diff the right thing. Hashing one entry through both `leafHash` and `hashLeaf` proves almost nothing: leaves are hashed identically by construction, so that check passes even when the two builders disagree. The place two merkle ports actually diverge is the level-combining rule, and it only shows up at an ODD level width, which a four- or eight-entry test list never produces. So build the same THREE-entry list through both and diff the roots. Equal roots at n=3 is evidence; equal leaf hashes is a tautology.
 
 ```typescript
 // overgrowth/merkle.ts - the distributor's tree, byte for byte.
