@@ -81,15 +81,15 @@
       <div class="c1-cell"><p>mutate fields <b>in place</b></p></div>
       <div class="c1-cell"><p>fixed size only; PodU64, PodBool,<br>PodVec&lt;T, MAX&gt;, Slab&lt;Header, Tail&gt;</p></div>
       <div class="c1-cell"><p>layout discipline (no padding,<br>largest-to-smallest, every field Pod)</p></div>
-      <div class="c1-cell"><p>state is fixed <b>OR</b> bounded with a known MAX</p></div>
+      <div class="c1-cell"><span><p>state is fixed <b>OR</b> bounded with a known MAX</p></span></div>
     </div>
     <div class="c1-col b">
       <div class="c1-head"><span class="k">tier 2 &middot; the escape hatch</span><span class="n">BorshAccount&lt;T&gt; &mdash; #[account(borsh)]</span></div>
-      <div class="c1-cell"><p>deserialize the <b>whole account</b> into a heap value</p></div>
+      <div class="c1-cell"><span><p>deserialize the <b>whole account</b> into a heap value</p></span></div>
       <div class="c1-cell"><p><b>re-serialize</b> the whole account</p></div>
       <div class="c1-cell"><p>String, Vec&lt;T&gt; with no MAX,<br>deeply nested / optional data</p></div>
       <div class="c1-cell"><p>the (de)serialize tax V2 was built to erase,<br>+ two wire holes</p></div>
-      <div class="c1-cell"><p>length is <b>genuinely unbounded</b> and Pod cannot reach</p></div>
+      <div class="c1-cell"><span><p>length is <b>genuinely unbounded</b> and Pod cannot reach</p></span></div>
     </div>
   </div>
   <div class="c1-verdict">

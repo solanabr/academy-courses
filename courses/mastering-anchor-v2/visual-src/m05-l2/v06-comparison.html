@@ -89,7 +89,7 @@
 
     <div class="k6-col a">
       <div class="k6-head"><span class="k">the 0.x line</span><span class="n">v1 &mdash; .reload()</span></div>
-      <div class="k6-cell"><p>the deserialized copy stayed <b>stale</b> until you called <code>.reload()</code> &mdash; silently</p></div>
+      <div class="k6-cell"><span><p>the deserialized copy stayed <b>stale</b> until you called <code>.reload()</code> &mdash; silently</p></span></div>
       <div class="k6-cell"><p>you acted on old balances &mdash; a real bug <b>shipped to mainnet more than once</b></p></div>
       <div class="k6-cell"><p><b>allowed</b> by the compiler, unsafe in practice</p></div>
       <div class="k6-cell cold"><p>in production, maybe</p></div>
@@ -98,7 +98,7 @@
     <div class="k6-col b">
       <div class="k6-head"><span class="k">the V2 model</span><span class="n">V2 &mdash; CpiHandle borrow</span></div>
       <div class="k6-cell"><p><code>CpiHandle</code> <b>borrows the typed wrapper</b> &mdash; there is no second copy to go stale</p></div>
-      <div class="k6-cell"><p>nothing to forget: no <code>.reload()</code> call exists to omit</p></div>
+      <div class="k6-cell"><span><p>nothing to forget: no <code>.reload()</code> call exists to omit</p></span></div>
       <div class="k6-cell"><p>typed access during a live handle <b>won&rsquo;t compile</b></p></div>
       <div class="k6-cell hot"><p>at compile time</p></div>
     </div>

@@ -77,13 +77,13 @@
     <div class="a3-panel">
       <div class="a3-line"><span class="ln">1</span><pre><span class="kw">if</span> amount_in == 0 || reserve_in == 0
    || reserve_out == 0 { <span class="kw">return</span> 0; }</pre></div>
-      <div class="a3-line"><span class="ln">2</span><pre><span class="kw">let</span> amount_in_with_fee =
-   (amount_in <span class="kw">as</span> u128) * 997;</pre></div>
-      <div class="a3-line hot"><span class="ln">3</span><pre><span class="kw">let</span> numerator = <span class="kw">match</span> amount_in_with_fee
+      <div class="a3-line"><span><span class="ln">2</span><pre><span class="kw">let</span> amount_in_with_fee =
+   (amount_in <span class="kw">as</span> u128) * 997;</pre></span></div>
+      <div class="a3-line hot"><span><span class="ln">3</span><pre><span class="kw">let</span> numerator = <span class="kw">match</span> amount_in_with_fee
    .checked_mul(reserve_out <span class="kw">as</span> u128)
-   { Some(n) =&gt; n, None =&gt; <span class="kw">return</span> 0 };</pre></div>
-      <div class="a3-line"><span class="ln">4</span><pre><span class="kw">let</span> denominator = (reserve_in <span class="kw">as</span> u128)
-   * 1000 + amount_in_with_fee;</pre></div>
+   { Some(n) =&gt; n, None =&gt; <span class="kw">return</span> 0 };</pre></span></div>
+      <div class="a3-line"><span><span class="ln">4</span><pre><span class="kw">let</span> denominator = (reserve_in <span class="kw">as</span> u128)
+   * 1000 + amount_in_with_fee;</pre></span></div>
       <div class="a3-line"><span class="ln">5</span><pre>(numerator / denominator) <span class="kw">as</span> u64</pre></div>
     </div>
 
