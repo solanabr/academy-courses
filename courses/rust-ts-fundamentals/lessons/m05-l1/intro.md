@@ -410,7 +410,7 @@ Numbered, scaffolds thinning as you descend. Steps 1 and 2 we do together, step 
 
    Two of three: the filter dropped the disabled TCP target, so the pipeline is load-bearing, not decoration. And the same four fixture latencies settle differently under different budgets, 2400 and 2600 ms sail under docs' 3000 budget and blow api's 2000 twice, which is the m04-l3 machine consuming real config for the first time. Say the limits out loud: the latencies are still fixtures, the engine still probes nothing, and the real HTTP arm is two lessons away in m05-l3.
 
-4. **The boundary drill (alone).** Copy the config to `pulse.config.broken.json`, set the api entry's `timeoutMs` to `"fast"`, and make `main` load the broken copy AFTER the real one, reporting the failure without dying:
+4. **The boundary drill (alone).** Copy the config to `pulse.config.broken.json` and set the api entry's `timeoutMs` to `"fast"`. Put the copy wherever the read below will find it, which depends on which of step 1's two wirings you took: if you made the symlink, the broken copy goes in `pulse-rs/` next to it; if you are reading `"../pulse.config.json"` directly, the copy goes at the repo root and the path in the snippet becomes `"../pulse.config.broken.json"`. Get this wrong and `?` hands you an `anyhow` NotFound before the refusal message this drill exists to show ever prints. Then make `main` load the broken copy AFTER the real one, reporting the failure without dying:
 
    ```rust
    let broken = fs::read_to_string("pulse.config.broken.json")?;

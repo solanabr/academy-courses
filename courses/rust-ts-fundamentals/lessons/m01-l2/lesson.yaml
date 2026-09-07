@@ -56,7 +56,7 @@ blocks:
           - id: c
             label: "There is no stable 7.0.0 or 7.0.1, stable 7.x on the registry is exactly 7.0.2"
             correct: true
-        explanation: "A registry quirk worth knowing: TypeScript 7's stable line begins at 7.0.2, 7.0.0 and 7.0.1 only ever existed as pre-release tags. Prose can say 'TypeScript 7.0'; install lines must say 7.0.2. It's also a small preview of a course-long habit: versions are checked against the registry, never assumed."
+        explanation: "A registry quirk worth knowing, and worth confirming yourself with `npm view typescript versions`: no 7.0.0 was ever published in any form, and 7.0.1 exists only as the pre-release 7.0.1-rc, so TypeScript 7's stable line begins and ends at 7.0.2 (checked 2026-09-06). Prose can say 'TypeScript 7.0'; install lines must say 7.0.2. It's also a small preview of a course-long habit: versions are checked against the registry, never assumed."
       - id: m01-l2-q3
         prompt: "You try wiring typescript-eslint into the fresh TS 7 project and it refuses to run. Per the lesson's caveat box, what's the actual cause?"
         multiSelect: false

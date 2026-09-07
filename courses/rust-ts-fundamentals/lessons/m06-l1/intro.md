@@ -181,32 +181,6 @@ The plan, so you can see the whole board before the first command: a new binary 
 
    That is the m05-l1 chain, verbatim, one method deep. Run `cargo test --workspace`, green. This is what a workspace refactor should feel like.
 
-   While you are standing in the engine with consumer crates on both sides of it, collect a promise: m04-l2 made you mark the moved items `pub` and said module privacy would get its proper tour with Cargo in M6. This is that tour, and the workspace is the tour bus, because visibility only means something once there are outsiders. Rust's default is private, and your own layout already walks the levels that matter:
-
-   - `pub` plus a `lib.rs` re-export: `drive`, `next_state`, `parse_config`, `total_latency`, the curated front door. Consumers reach these as bare `pulse_engine::` names with no module path in sight, which is the whole point of curating the list: the CLI's `report` arm already calls `total_latency` that way, step 4's poller is about to call `parse_config` and `next_state`, and step 7 hands the CLI `drive`. `parse_config` is the one to watch, because it has been on this list since m05-l2 with nobody calling it: m05-l3 parked the CLI's config wiring and promised the m06 poller would pick the frozen signature back up. Step 4 is where that promise comes due, so the front door stops being aspirational.
-   - `pub` without the re-export: `parse_state`. Still reachable, at the full path `pulse_engine::engine::parse_state`, which is exactly the module-path spelunking the m05-l2 re-export list exists to spare consumers. Reachable and advertised are different promises.
-   - Private, the default: `FixtureSource`'s `cursor` field. No path reaches it from outside the engine; type `FixtureSource::new(vec![1]).cursor` anywhere in the poller and ``error[E0616]: field `cursor` of struct `FixtureSource` is private`` is the whole conversation.
-
-   Between those poles sits `pub(crate)`: visible everywhere inside the engine crate, invisible to every consumer. Prove it with the compiler instead of taking my word. Flip the engine's `parse_state` to `pub(crate) fn parse_state`, drop `let _ = pulse_engine::engine::parse_state("Up");` into the poller's still-hello-world `main`, and run `cargo check --workspace`:
-
-   ```text
-   warning: function `parse_state` is never used
-    --> crates/pulse-engine/src/engine.rs
-     |
-     | pub(crate) fn parse_state(raw: &str) -> Option<ProbeState> {
-     |               ^^^^^^^^^^^
-     |
-     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
-
-   error[E0603]: function `parse_state` is private
-     --> crates/pulse-pollerd/src/main.rs
-      |
-      |     let _ = pulse_engine::engine::parse_state("Up");
-      |                                   ^^^^^^^^^^^ private function
-   ```
-
-   Two messages, and the warning is not noise, it is the same fact told from inside. The engine still compiles and its unit tests would still pass, but the moment `parse_state` stopped being reachable from outside, the only remaining callers were `#[cfg(test)]` ones, which a plain `cargo check` does not build, so `dead_code` correctly reports a function nobody uses. That is structural, not a mistake in the drill: any `pub(crate)` item whose only non-test caller lived in another crate warns exactly like this, and the fix in real code is either a caller inside the crate or `#[allow(dead_code)]` with a written reason. The error below it is the outsider getting refused, and that split, quiet inside, hard stop outside, is the entire meaning of the setting. `pub(crate)` is the honest marking for helpers that engine modules share but no consumer should couple to, because a `pub` you did not mean is a public API you now maintain. Revert both edits and move on; the tour's residue is the reflex, not the code.
-
 3. **One derive line.** The `/status` response serializes `ProbeState` to JSON, and serde is already an engine dependency, so add the derive to the state enum in the engine, which should now read `#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]`. The `serde::` path is doing quiet work: `engine.rs` has no `use serde::Serialize;` line (the config module imports it, this module never needed to), so the bare `Serialize` token would be a cannot-find-derive-macro error; the fully qualified form needs no import. One line, no new deps, and one audit while you are there: the `Clone` and `Copy` your m04-l3 enum has carried since birth are load-bearing today, because step 4's skeleton copies states out of the shared map (`map.get(&name).map(|s| s.state)`) and derives `Clone` on a struct holding one. If your derive list ever drifted from that canon, restore those two now, or step 4 greets you with E0507s the "one line" framing did not promise.
 
 4. **The poll loop: your one authored hard thing.** Named in the summary, delivered here as a completion skeleton. Two holes. Everything else in this file is given, because the hard idea is the loop's shape, not its plumbing. Replace `pulse-pollerd/src/main.rs` with:
@@ -420,6 +394,36 @@ The plan, so you can see the whole board before the first command: a new binary 
    ```
 
    That printed line closes the loop m04-l3 opened: the trait that spent two modules feeding `drive` fixtures now feeds it live measurements, the socket from that lesson's diagram finally holds its second plug, and every boundary this module drew stayed where it was: the daemon keeps its direct path, the CLI keeps its blocking client, and the engine still contains no I/O at all.
+
+## Visibility, now that the engine has outsiders
+
+The daemon runs, the CLI sweeps, and the engine in the middle is being consumed by two binaries at once. That is the moment to collect a promise: m04-l2 made you mark the moved items `pub` and said module privacy would get its proper tour with Cargo in M6. This is that tour, and it waited for right now on purpose, because visibility only means something once there are outsiders, and you have just finished building the second one. Nothing below changes the station; it is fifteen minutes with the compiler, and you revert it when you are done.
+
+Rust's default is private, and your own layout already walks the levels that matter:
+
+- `pub` plus a `lib.rs` re-export: `drive`, `next_state`, `parse_config`, `total_latency`, the curated front door. Consumers reach these as bare `pulse_engine::` names with no module path in sight, which is the whole point of curating the list: the poller's `main` calls `parse_config`, its loop calls `next_state`, and the CLI calls `total_latency` in its `report` arm and `drive` in the sweep you just wrote. `parse_config` is the one worth noticing, because it sat on that list from m05-l2 with nobody calling it: m05-l3 parked the CLI's config wiring and promised the m06 poller would pick the frozen signature back up. Step 4 is where that promise came due, and the front door stopped being aspirational.
+- `pub` without the re-export: `parse_state`. Still reachable, at the full path `pulse_engine::engine::parse_state`, which is exactly the module-path spelunking the m05-l2 re-export list exists to spare consumers. Reachable and advertised are different promises.
+- Private, the default: `FixtureSource`'s `cursor` field. No path reaches it from outside the engine; type `FixtureSource::new(vec![1]).cursor` anywhere in the poller and ``error[E0616]: field `cursor` of struct `FixtureSource` is private`` is the whole conversation.
+
+Between those poles sits `pub(crate)`: visible everywhere inside the engine crate, invisible to every consumer. Prove it with the compiler instead of taking my word. Flip the engine's `parse_state` to `pub(crate) fn parse_state`, drop `let _ = pulse_engine::engine::parse_state("Up");` in as the first line of the poller's `main`, and run `cargo check --workspace`:
+
+```text
+warning: function `parse_state` is never used
+ --> crates/pulse-engine/src/engine.rs
+  |
+  | pub(crate) fn parse_state(raw: &str) -> Option<ProbeState> {
+  |               ^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+error[E0603]: function `parse_state` is private
+  --> crates/pulse-pollerd/src/main.rs
+   |
+   |     let _ = pulse_engine::engine::parse_state("Up");
+   |                                   ^^^^^^^^^^^ private function
+```
+
+Two messages, and the warning is not noise, it is the same fact told from inside. The engine still compiles and its unit tests would still pass, but the moment `parse_state` stopped being reachable from outside, the only remaining callers were `#[cfg(test)]` ones, which a plain `cargo check` does not build, so `dead_code` correctly reports a function nobody uses. That is structural, not a mistake in the drill: any `pub(crate)` item whose only non-test caller lived in another crate warns exactly like this, and the fix in real code is either a caller inside the crate or `#[allow(dead_code)]` with a written reason. The error below it is the outsider getting refused, and that split, quiet inside, hard stop outside, is the entire meaning of the setting. `pub(crate)` is the honest marking for helpers that engine modules share but no consumer should couple to, because a `pub` you did not mean is a public API you now maintain. Revert both edits and run `cargo check --workspace` once more to confirm you are back to quiet; the tour's residue is the reflex, not the code.
 
 ## Challenge
 
