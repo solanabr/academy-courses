@@ -53,7 +53,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Measure it in the lab and report your measured number; the gap is a difference of scope."
+            label: "Measure it in the lab and report your own measured number; the gap is a difference of scope."
             correct: true
             feedback: "Reading AirShip's constants settles it in a minute: 15,000 lamports per transaction over 15 recipients is 1,000 each, and the 10,300 is state. Budget the sum, about 11,300."
           - id: b
@@ -61,11 +61,11 @@ blocks:
             correct: false
             feedback: "Vendor marketing numbers often quote a narrower scope; the course's rule is to measure disputed figures, not repeat them."
           - id: c
-            label: "Quote the wider 0.103 SOL figure, so the budget carries margin against vendor optimism."
+            label: "Quote the wider 0.103 SOL figure, so the budget carries margin against the vendor's scope."
             correct: false
             feedback: "Conservative and still short. The two figures are addends, not rivals, so the wider one alone still leaves the sender's fees out of the budget."
           - id: d
-            label: "Treat one of them as stale and cite the newer source, since two credible numbers for the same cost cannot both be right."
+            label: "Treat one of them as stale and cite the newer number, since two credible measured costs cannot both be right."
             correct: false
             feedback: "Both are current and both are right. They count different things, and nobody stated the scope, which is what made them look comparable."
         explanation: "A 10x gap between a vendor claim and first-party math is almost always a scope difference (what's counted as cost). The honest move is to measure it in your own lab and teach the method; the disputed number is never the load-bearing fact."
@@ -82,11 +82,11 @@ blocks:
             correct: true
             feedback: "One distributor carries both halves, and the locked half is a pull: unclaimed allocations sit in the vault costing you nothing until somebody returns for them."
           - id: c
-            label: "Compressed tokens vest automatically by epoch, so the schedule needs no program of its own."
+            label: "Compressed tokens vest automatically by epoch, so the vesting needs no distributor of its own."
             correct: false
             feedback: "Compression is a storage optimization; it has no vesting semantics of its own."
           - id: d
-            label: "LaunchLab's cliff and unlock-duration knobs, set at launch so the drop inherits the same schedule."
+            label: "LaunchLab's cliff and unlock-duration knobs, set at launch so the drop inherits the same vesting schedule."
             correct: false
             feedback: "Same idea, wrong seat. Those knobs are launch-side and fixed at launch, so they cannot express a schedule for a subset of a later distribution's recipients."
         explanation: "The Jito distributor (the one the JTO drop used) carries both an unlocked portion and a claim_locked path that releases linearly. That is the vesting primitive to reuse — with the caveat the lesson attaches to it and this answer inherits: the distributor is an SPL-era program and whether its vault and claim-time transfer CPI can pay out a fee-bearing Token-2022 mint is unverified here, so read its transfer CPI and stand up a devnet distributor before you commit SPROUT to it. LaunchLab's cliff+duration knobs are the launchpad-side equivalent from the previous lesson."
