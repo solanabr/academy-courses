@@ -83,13 +83,13 @@ Now flip the shared account from a write to a read, because that is the case whe
 
 ## Shift three: the mempool disappears
 
-Bitcoin and Ethereum both keep a global mempool: a shared waiting room where every broadcast transaction floats, unordered, until some miner or validator reaches in and picks which ones to include and in what order. That waiting room is where the fee auction happens. You bid, others bid, and whoever assembles the next block sorts by price and takes the top. Ordering is decided at the last second, by whoever happens to build the block, and you do not know in advance who that will be.
+Bitcoin and Ethereum both work the way the mempool lesson described: every node keeps its own mempool, a waiting room where broadcast transactions float unordered until some miner or validator reaches in and picks which ones to include and in what order. There is no single shared structure anywhere — the lesson was emphatic about that — but the mempools gossip to each other, so in practice a transaction reaches most block producers, and every one of them is holding a pending set it is free to sort. That waiting room is where the fee auction happens. You bid, others bid, and whoever assembles the next block sorts by price and takes the top. Ordering is decided at the last second, by whoever happens to build the block, and you do not know in advance who that will be.
 
 Solana deletes the waiting room. There is no global mempool. Instead, Gulf Stream (Solana's mempool-less transaction-forwarding protocol) routes transactions directly to the current and next scheduled leader: the validator whose turn it is to produce blocks. You can address it that precisely because the leader schedule is not a surprise. It is fixed for the whole epoch (Solana's roughly 2-day scheduling window) in advance, assigned by stake-weighted Proof of History, or PoH (a verifiable clock that stamps a cryptographic ordering onto time, so validators agree on sequence without stopping to poll each other). Stake-weighted means the more SOL staked to a validator, the more leader slots it draws.
 
-Follow why that fixed schedule is what dissolves the auction, not merely the waiting room, because the two are easy to conflate. On Bitcoin and Ethereum the order transactions execute in is decided at the last possible instant, by whoever wins the right to build the next block, and that builder is free to sort the pending set however pays best. The auction exists precisely because ordering stays up for grabs right until block time; the fee is what you pay to move up a queue that nobody has committed to yet. Solana settles ordering before anyone can bid on it. PoH is the verifiable clock doing that work: it stamps a cryptographic sequence onto time itself, so every validator already agrees what came before what without stopping to poll the others for a vote. Stake-weighted assignment then pins which validator owns each slot for the whole epoch, so both the identity of the orderer and the ordered flow of time are settled well in advance of your transaction existing. There is no last-second builder left to outbid, because the leader for your slot was fixed when the epoch began, and the position your transaction takes is governed by that clock rather than by a live sort of the highest offers. The auction was not banned; it was dismantled by leaving it nothing to auction. Ordering stopped being a scarce, sellable moment and became a property the network computes.
+Follow why that fixed schedule is what dissolves the auction, not merely the waiting room, because the two are easy to conflate. On Bitcoin and Ethereum the order transactions execute in is decided at the last possible instant, by whoever wins the right to build the next block, and that builder is free to sort the pending set however pays best. The auction exists precisely because ordering stays up for grabs right until block time; the fee is what you pay to move up a queue that nobody has committed to yet. Solana settles ordering before anyone can bid on it. PoH is the verifiable clock doing that work: it stamps a cryptographic sequence onto time itself, so every validator already agrees what came before what without stopping to poll the others for a vote. Stake-weighted assignment then pins which validator owns each slot for the whole epoch, so both the identity of the orderer and the ordered flow of time are settled well in advance of your transaction existing. There is no last-second builder left to outbid, because the leader for your slot was fixed when the epoch began, and the position your transaction takes is governed by that clock rather than by a live sort of the highest offers. The auction was not banned; the *inclusion* auction was dismantled by leaving it nothing to auction. Ordering stopped being a scarce, sellable moment between blocks and became a property the network computes. Do not over-read that into "Solana has no fee market and no MEV." A market for position survives *inside* the leader's slot: the priority fee you meet two sections down is exactly a bid for order within one leader's local queue, and out-of-protocol tip markets pay leaders to arrange transactions inside their own block. What vanished is the global, last-second bidding war over which block you land in. What remains is a narrower, faster contest over where you sit once you are there.
 
-![Bitcoin and the EVM push transactions into a global mempool sorted by an unknown block producer, while Solana's Gulf Stream forwards each transaction directly to the leader named in advance by the epoch schedule.](assets/v06-flowchart.webp)
+![Bitcoin and the EVM push transactions into gossiping per-node mempools, sorted by whichever block producer wins the next block, while Solana's Gulf Stream forwards each transaction directly to the leader named in advance by the epoch schedule.](assets/v06-flowchart.webp)
 
 Sit with the inversion, because it is the exact opposite of Bitcoin. On Bitcoin, any miner might pull your transaction from the mempool, and you find out who mined it after the fact. On Solana, the schedule is public roughly two days out, so you know which validator will process your transaction before you broadcast it. You are not throwing a bottle into the sea. You are addressing an envelope.
 
@@ -111,32 +111,38 @@ total priority fee = ceil(compute_unit_price * compute_unit_limit / 1,000,000) l
 
 The divisor is a million because the price is quoted in micro-lamports, millionths of a lamport, per CU. Put numbers on it: set `compute_unit_price` to 1,000 and `compute_unit_limit` to 200,000, and the formula returns `ceil(1,000 * 200,000 / 1,000,000)`, which is 200 lamports. No counterparty, no bidding war, just your two inputs. And there is a hard ceiling on the limit: a single transaction may consume at most 1,400,000 CU, no matter what you are willing to pay. Compute is capped, not for sale beyond the cap. That ceiling, not a gas market, is what bounds how much work one transaction can do.
 
-The deposit is the strange one, and it trips people who expect a running gas balance. An account does not pay a recurring charge to keep existing. It must hold a rent-exempt minimum: enough lamports, computed from its size, that it is never swept. The formula is fixed:
+The deposit is the strange one, and it trips people who expect a running gas balance. An account does not pay a recurring charge to keep existing. It must hold a rent-exempt minimum: enough lamports, computed from its size, that it is never swept. The shape of the calculation is stable:
 
 ```
-rent-exempt minimum = (account_data_len + 128) × 3,480 lamports/byte-year × 2 years
+rent-exempt minimum = (account_data_len + 128) × lamports-per-byte-year × 2 years
 ```
 
-The 128 is bookkeeping overhead added to your data length, 3,480 lamports per byte-year is the rate, and two years of it is the threshold. Compute it once for any size and you know the deposit. Run it:
+The 128 is bookkeeping overhead added to your data length, and two years of the per-byte-year rate is the threshold. What is *not* stable is that rate, so do not hardcode it and do not trust a number you read in a document — including this one. Ask the cluster you are actually deploying to:
 
-```python
-def rent_exempt_min(data_len):
-    return (data_len + 128) * 3480 * 2   # lamports
-
-for n in (0, 200):
-    print(n, "bytes ->", rent_exempt_min(n), "lamports")
+```bash
+solana -u devnet rent 0
+solana -u devnet rent 200
 ```
 
 ```
-0 bytes -> 890880 lamports
-200 bytes -> 2282880 lamports
+Rent-exempt minimum: 0.00065024 SOL
+Rent-exempt minimum: 0.00166624 SOL
 ```
 
-An empty account still costs 890,880 lamports to keep alive, because of that 128-byte overhead; a 200-byte one costs 2,282,880. Now name what this is not, because the mistake bites. It is not rent you pay down over time; periodic rent deduction is no longer applied. Fund the account above the minimum and it persists indefinitely; close it and the deposit comes back. Treat it as a refundable, size-based bond, not a subscription.
+That is `getMinimumBalanceForRentExemption` underneath, so any RPC client can ask the same question. Run it against two clusters and the point makes itself. Checked 2026-09-07:
+
+| cluster | 0 bytes | 200 bytes | implied lamports/byte-year |
+| --- | --- | --- | --- |
+| mainnet-beta (4.2.2) | 810,624 | 2,077,224 | 3,166.5 |
+| devnet (4.3.0-beta.3) | 650,240 | 1,666,240 | 2,540 |
+
+Two clusters, two different answers, and both are lower than the 3,480 lamports per byte-year this rate sat at for years. Neither is a bug. A roughly 90% reduction in the rent rate is being rolled out through a ladder of feature gates, and clusters cross those gates at different times, so the number is drifting downward and the gap between clusters is the rollout in progress. The formula's shape survives; the constant inside it does not. Query it, every time, on the cluster you are shipping to.
+
+Now name what this is not, because the mistake bites. It is not rent you pay down over time; periodic rent deduction is no longer applied. Fund the account above the minimum and it persists indefinitely; close it and the deposit comes back. Treat it as a refundable, size-based bond, not a subscription.
 
 I learned that the slow way. Early on I funded a devnet account and then sat refreshing its balance, waiting for the "rent" to start ticking down, certain I had misconfigured something because nothing was being deducted. Nothing ever was. The account just sat there, funded and permanent. There was no bill. I had invented one out of pure EVM habit, and burned an afternoon watching for a charge that does not exist.
 
-![A table of the base fee (5,000 lamports per signature, half burned), the set priority-fee formula, the 1,400,000 CU per-transaction cap, and the refundable rent-exempt minimum deposit.](assets/v08-table.webp)
+![A table of the base fee (5,000 lamports per signature, half burned), the set priority-fee formula, the 1,400,000 CU per-transaction cap, and the refundable rent-exempt minimum deposit, whose per-byte rate must be queried from the cluster rather than hardcoded.](assets/v08-table.webp)
 
 ## Recap, then the bill
 
@@ -148,7 +154,11 @@ Declaring accounts up front buys parallelism. It costs flexibility, and it costs
 
 First, you cannot discover accounts mid-execution. An EVM contract dereferences storage on the fly, following a mapping to wherever the data turns out to live. A Solana instruction cannot. If your program needs an account, it had to be in the declared list before the transaction ran. Logic that naturally wants to "look up X, then go read wherever X points" has to be restructured so every possible destination is named in advance, or split across several transactions. The scheduler's superpower and this limitation are the same fact seen from two sides: it can plan because you committed, and you are stuck with what you committed to.
 
-Second, there is a hard ceiling on how many accounts one transaction can even name. A Solana transaction is capped at 1,232 bytes total. And that number is not crypto-economics; it is plumbing. 1,232 is the IPv6 MTU of 1,280 bytes minus 48 bytes of headers: the largest packet the network guarantees it can carry without fragmenting. Every account address you declare is 32 bytes eating into that budget, so a networking constant, decided by people who never heard of Solana, bounds how many accounts a transaction can touch. That ceiling is the entire reason Address Lookup Tables exist, a mechanism that lets a transaction reference many accounts by short index instead of full 32-byte address. You will hit this wall for real next lesson.
+Second, there is a hard ceiling on how many accounts one transaction can even name. A Solana transaction is capped at 1,232 bytes total (checked 2026-09-07). And that number is not crypto-economics; it is plumbing. 1,232 is the IPv6 MTU of 1,280 bytes minus 48 bytes of headers: the largest packet the network guarantees it can carry without fragmenting. Every account address you declare is 32 bytes eating into that budget, so a networking constant, decided by people who never heard of Solana, bounds how many accounts a transaction can touch.
+
+File that as a *current protocol parameter*, though, not as a law of physics — the same discipline the rent rate just taught you. A raised transaction-size limit has been under active proposal and feature-gated development, and limits that ship behind feature gates land on different clusters at different times, exactly like the rent ladder above. Check the value against the cluster you are shipping to rather than against a document.
+
+Whatever the number is on the day you read this, the shape of the problem does not change: addresses are 32 bytes each and a transaction has a byte budget. That is the entire reason Address Lookup Tables exist, a mechanism that lets a transaction reference many accounts by a short index instead of a full 32-byte address, so a single transaction can name far more accounts than would ever fit spelled out. You will not build one in this course — the vault you are about to write names four accounts and never comes close to the ceiling — but the moment a real program starts naming dozens, lookup tables are the first thing you reach for.
 
 ![A byte-budget bar showing the 1,280 IPv6 MTU minus 48 header bytes equals a 1,232-byte transaction, with 32-byte account addresses consuming it until Address Lookup Tables are needed.](assets/v09-diagram.webp)
 
@@ -185,4 +195,4 @@ A filled version looks like this, and if your rows do not each end at the same r
 
 This one is spoken, not typed. Close the map, no notes, and reconstruct the four rows aloud: for each shift, say the old-world concept, the Solana counterpart, and the one-sentence why. Then answer three things from memory. Why do declared accounts let the runtime execute transactions in parallel. Why is there no mempool. And what is the base fee for a one-signature transaction. If that last answer is not "5,000 lamports" without a pause, the number has not landed yet. And if every why does not trace back to the same root, that data access is declared before execution, the map is still a list of features. It should feel like one decision casting four shadows.
 
-You now know state lives in data accounts you pass in. You have never made one. Next you conjure an account out of nothing, paying its rent-exempt minimum in real lamports to bring it into existence, and then you run straight into that 1,232-byte wall: the moment your transaction needs to name more accounts than a single packet can hold.
+You now know state lives in data accounts you pass in. You have never made one. Next you conjure an account out of nothing, paying its rent-exempt minimum in real lamports to bring it into existence, and hand its keys to a program instead of a person.
