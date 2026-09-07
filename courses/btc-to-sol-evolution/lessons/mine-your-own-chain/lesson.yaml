@@ -19,37 +19,37 @@ blocks:
             label: "Regtest's difficulty adjustment needs 101 blocks before the chain accepts standard transactions"
             correct: false
             feedback: "Regtest has its difficulty adjustment switched off entirely, which is why 2000 extra blocks left getdifficulty unchanged, and there is no warm-up period for transactions either. The 101 comes from a rule about block rewards, not about the chain's age."
-          - id: b
-            label: "Wallets hold new coins back for six confirmations, the reorg-safety default exchanges use before crediting a deposit"
-            correct: false
-            feedback: "Six confirmations is an exchange's own risk policy for ordinary payments, and it is nowhere in the protocol. Coinbase outputs are different: the 100-block wait is a consensus rule that applies to every block reward on every network, and no wallet setting shortens it."
-          - id: c
-            label: "A coinbase (block-reward) output only matures once 100 blocks sit on top of it, so you mine 100 blocks above the first one, 101 total"
-            correct: true
-            feedback: "Blocks near the tip can still be orphaned by a longer competing chain, and a reward inside an orphaned block evaporates rather than returning to the mempool. The wait pushes a reward past plausible reorg depth before anyone can be paid with it, which protects whoever you pay rather than you."
           - id: d
             label: "The first 100 blocks pay no reward at all, so block 101 is the first one that mints anything"
             correct: false
             feedback: "Every one of those blocks paid a full 50 BTC reward; listunspent proves it once they age, showing eleven separate 50 BTC outputs after ten more blocks matured blocks 2 through 11. The rewards were minted on schedule and simply locked, which is why the balance climbs in 50 BTC steps rather than appearing from nothing."
+          - id: c
+            label: "A coinbase (block-reward) output only matures once 100 blocks sit on top of it, so you mine 100 blocks above the first one, 101 total"
+            correct: true
+            feedback: "Blocks near the tip can still be orphaned by a longer competing chain, and a reward inside an orphaned block evaporates rather than returning to the mempool. The wait pushes a reward past plausible reorg depth before anyone can be paid with it, which protects whoever you pay rather than you."
+          - id: b
+            label: "Wallets hold new coins back for six confirmations, the reorg-safety default exchanges use before crediting a deposit"
+            correct: false
+            feedback: "Six confirmations is an exchange's own risk policy for ordinary payments, and it is nowhere in the protocol. Coinbase outputs are different: the 100-block wait is a consensus rule that applies to every block reward on every network, and no wallet setting shortens it."
         explanation: "Coinbase outputs are consensus-locked for 100 blocks. If a reorg orphaned a block whose freshly-spent reward had already propagated, every downstream payment would unravel — so rewards must age past plausible reorg depth before entering circulation. Block 1's reward becomes spendable once 100 blocks sit on top of it: height 101."
       - id: q2
         prompt: "Which command mines blocks on a modern Bitcoin Core regtest node, and what does it need?"
         multiSelect: false
         options:
-          - id: a
-            label: "`generatetoaddress`, given a block count and an address to receive the rewards"
-            correct: true
-            feedback: "Two arguments, both required: how many blocks, and where their coinbase rewards land. On regtest the target is at the top of the 256-bit range, so each block is a formality rather than a race, and 101 of them return before you finish reading the command."
-          - id: b
-            label: "`setgenerate true`, which flips the node into continuous background mining until you stop it"
-            correct: false
-            feedback: "setgenerate was removed from Bitcoin Core years ago, and nothing replaced the background miner. A modern node mints blocks only when you ask for a specific count, which is what makes regtest a lab you drive rather than a chain that runs on its own."
-          - id: c
-            label: "`getnewaddress`, since creating a fresh address triggers the node to mine its reward into it"
-            correct: false
-            feedback: "getnewaddress derives a wallet address and nothing else; it never touches the chain. That address is an argument you hand to generatetoaddress, which is the command that builds blocks and directs each coinbase reward."
           - id: d
             label: "`generate`, given only a block count, since the node mines the rewards into its own wallet"
             correct: false
             feedback: "The old generate RPC did take a bare count, which is exactly why it was removed: it forced the node to pick a destination from whichever wallet happened to be loaded. Naming the address explicitly is the whole reason the replacement takes two arguments."
+          - id: b
+            label: "`setgenerate true`, which flips the node into continuous background mining until you stop it"
+            correct: false
+            feedback: "setgenerate was removed from Bitcoin Core years ago, and nothing replaced the background miner. A modern node mints blocks only when you ask for a specific count, which is what makes regtest a lab you drive rather than a chain that runs on its own."
+          - id: a
+            label: "`generatetoaddress`, given a block count and an address to receive the rewards"
+            correct: true
+            feedback: "Two arguments, both required: how many blocks, and where their coinbase rewards land. On regtest the target is at the top of the 256-bit range, so each block is a formality rather than a race, and 101 of them return before you finish reading the command."
+          - id: c
+            label: "`getnewaddress`, since creating a fresh address triggers the node to mine its reward into it"
+            correct: false
+            feedback: "getnewaddress derives a wallet address and nothing else; it never touches the chain. That address is an argument you hand to generatetoaddress, which is the command that builds blocks and directs each coinbase reward."
         explanation: "generatetoaddress <count> <address> instantly mines <count> regtest blocks and pays each coinbase reward to <address>. It replaced the removed setgenerate; on regtest difficulty is trivial, so 'mining' is just block assembly — which is what makes a laptop-speed private chain possible."

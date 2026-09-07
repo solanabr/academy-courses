@@ -26,10 +26,6 @@ blocks:
         prompt: "What turns your Rust into a program the Solana runtime can execute, and how is the deployed program account marked?"
         multiSelect: false
         options:
-          - id: a
-            label: "`cargo build-sbf` compiles it to sBPF; the deployed program account is flagged `executable`"
-            correct: true
-            feedback: "sBPF is Solana's fork of the BPF bytecode format, and the fork exists so the runtime can meter untrusted code instruction by instruction. `solana account <program-id>` prints the flag straight back at you once the deploy lands."
           - id: b
             label: "`cargo build --release` produces the binary; the runtime marks it executable after its first successful transaction"
             correct: false
@@ -38,6 +34,10 @@ blocks:
             label: "`anchor deploy` compiles the Rust to sBPF on the validator itself, so nothing is built locally"
             correct: false
             feedback: "Validators never compile anything. Compilation happens on your machine and the deploy uploads the finished `.so`, streaming it through a temporary buffer account because one transaction is far too small to carry a whole binary."
+          - id: a
+            label: "`cargo build-sbf` compiles it to sBPF; the deployed program account is flagged `executable`"
+            correct: true
+            feedback: "sBPF is Solana's fork of the BPF bytecode format, and the fork exists so the runtime can meter untrusted code instruction by instruction. `solana account <program-id>` prints the flag straight back at you once the deploy lands."
           - id: d
             label: "`cargo build-sbf` compiles it to an sBPF binary, and the deployed program account lists your wallet as its owner"
             correct: false
@@ -51,10 +51,6 @@ blocks:
             label: "Anyone can push new bytecode to the program id, so 'upgradeable' means open to community contribution"
             correct: false
             feedback: "Upgrades are gated by a single key. The loader checks the stored upgrade authority against the signer, and a stranger's redeploy is rejected before any bytecode is read, which is why losing that key freezes the program permanently."
-          - id: b
-            label: "The upgrade authority can migrate the program and all its data accounts to a fresh address in one step"
-            correct: false
-            feedback: "There is no migration primitive. An upgrade rewrites the bytecode in the ProgramData account and touches nothing else, and data accounts belong to your program rather than to the loader, so moving them would be your own program's job."
           - id: c
             label: "The upgrade authority can replace the program's bytecode at the same program id, without changing its address"
             correct: true
@@ -63,4 +59,8 @@ blocks:
             label: "The upgrade authority publishes new bytecode at a fresh address, and the loader forwards calls from the old id to it"
             correct: false
             feedback: "Nothing forwards. Collapse identity and implementation into one object and every code change would break everyone pointing at you, which is precisely the problem the separate ProgramData account exists to avoid."
+          - id: b
+            label: "The upgrade authority can migrate the program and all its data accounts to a fresh address in one step"
+            correct: false
+            feedback: "There is no migration primitive. An upgrade rewrites the bytecode in the ProgramData account and touches nothing else, and data accounts belong to your program rather than to the loader, so moving them would be your own program's job."
         explanation: "The upgradeable loader splits a program into an address and swappable bytecode: the upgrade authority — and only it — can deploy new code to the same program id, so integrations and PDAs survive upgrades. Burn the authority and the code freezes forever; until then, 'who holds the upgrade authority' is part of the program's trust model."

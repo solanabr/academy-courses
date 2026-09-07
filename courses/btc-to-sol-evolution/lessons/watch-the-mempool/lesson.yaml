@@ -15,6 +15,10 @@ blocks:
         prompt: "Your watcher polls 'the mempool' for unconfirmed transactions. What is the catch in that phrase?"
         multiSelect: false
         options:
+          - id: c
+            label: "There is no single global mempool: each node keeps its own, so what you see is whatever queue that one node holds"
+            correct: true
+            feedback: "A watcher pointed at node A will never fire on a transaction that only ever reached node B. That is the difference between a mempool sighting and a confirmation, and it is why logic that needs certainty has to wait for a block."
           - id: a
             label: "'The mempool' is a single on-chain structure that every node stores byte-for-byte"
             correct: false
@@ -23,10 +27,6 @@ blocks:
             label: "Unconfirmed transactions are invisible until mined, so polling the mempool only ever shows the last block"
             correct: false
             feedback: "The mempool is where transactions are visible before mining, which is the whole reason your watcher caught a payment seconds after you sent it and before any block existed. The catch lies elsewhere: that view belongs to one node."
-          - id: c
-            label: "There is no single global mempool: each node keeps its own, so what you see is whatever queue that one node holds"
-            correct: true
-            feedback: "A watcher pointed at node A will never fire on a transaction that only ever reached node B. That is the difference between a mempool sighting and a confirmation, and it is why logic that needs certainty has to wait for a block."
           - id: d
             label: "Nodes gossip their mempools into one shared queue, so any difference between them clears within seconds"
             correct: false

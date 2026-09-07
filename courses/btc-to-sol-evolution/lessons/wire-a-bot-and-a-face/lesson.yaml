@@ -29,14 +29,14 @@ blocks:
             label: "The Anchor `Program` object, since @anchor-lang/core is the kit-native client generated from your IDL"
             correct: false
             feedback: "Anchor's own TypeScript client is real, but it is built on web3.js v1 rather than kit, so reaching for it here would pull a second, older SDK into a bot that already speaks kit end to end."
-          - id: b
-            label: "Codama, which reads the IDL and generates typed builders, PDA helpers and decoders"
-            correct: true
-            feedback: "That is why `node codama.mjs` made a `bot/generated/` folder appear, and why `getDepositInstructionAsync` derives both vault PDAs off-chain without you ever spelling out an address. Change the program, rebuild, regenerate, and the client rewrites itself."
           - id: c
             label: "tsc, since importing the IDL JSON makes TypeScript derive the callable client types automatically"
             correct: false
             feedback: "Importing JSON gives you a value with a shape, never functions that pack a discriminator and an account list. Something has to read the IDL and write code out of it, and that generator step is the one the install line pinned to a specific major."
+          - id: b
+            label: "Codama, which reads the IDL and generates typed builders, PDA helpers and decoders"
+            correct: true
+            feedback: "That is why `node codama.mjs` made a `bot/generated/` folder appear, and why `getDepositInstructionAsync` derives both vault PDAs off-chain without you ever spelling out an address. Change the program, rebuild, regenerate, and the client rewrites itself."
           - id: d
             label: "`anchor build`, which already writes a typed client into target/types for any TypeScript caller to import"
             correct: false
@@ -54,12 +54,12 @@ blocks:
             label: "The instruction, since the wallet adapter wraps deposits in its own format for browser safety"
             correct: false
             feedback: "The instruction comes out of the same generated `getDepositInstructionAsync` in both places, byte for byte. A wallet signs transactions; it never rewrites what is inside them, and a program that accepted a reformatted instruction would be a program with two interfaces."
-          - id: c
-            label: "The signer: the bot signs with a loaded keypair, the browser with the connected wallet, and everything else is the same code"
-            correct: true
-            feedback: "The message never learns which kind of pen signed it. `createKeyPairSignerFromBytes` and `useWalletAccountTransactionSendingSigner` both hand back a signer, and every other line of the pipeline reads identically on either side."
           - id: d
             label: "The generated client, since the browser needs a browser build of Codama's output while the bot imports the Node version of it"
             correct: false
             feedback: "There is one generated folder and you copy it across unchanged. Codama renders plain TypeScript with no runtime of its own, which is exactly why the frontend can import the same builders the bot has been calling."
+          - id: c
+            label: "The signer: the bot signs with a loaded keypair, the browser with the connected wallet, and everything else is the same code"
+            correct: true
+            feedback: "The message never learns which kind of pen signed it. `createKeyPairSignerFromBytes` and `useWalletAccountTransactionSendingSigner` both hand back a signer, and every other line of the pipeline reads identically on either side."
         explanation: "The kit pipeline — build message, set fee payer, set blockhash lifetime, append the Codama-generated instruction, sign, send — is identical in both worlds. The only variable is the signer plugged in: a file-loaded keypair in the bot, the wallet's signer in the browser. One code path, two key custodians."

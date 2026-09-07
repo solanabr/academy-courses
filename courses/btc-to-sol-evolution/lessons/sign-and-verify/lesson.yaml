@@ -19,14 +19,14 @@ blocks:
             label: "Anyone holding the public key can produce and check signatures, which is why it is called public"
             correct: false
             feedback: "The public key only checks. If it could also sign, publishing it would hand every stranger your spending power, and the scheme would be a shared secret again. Private key signs, public key checks, and that split is the entire trick."
-          - id: b
-            label: "Only the private key's holder can produce a signature; anyone with the public key can check it"
-            correct: true
-            feedback: "Signing needs the secret; checking needs nothing secret at all. That is what lets you prove authorship to strangers without handing them anything, and why thousands of nodes can check signatures made by a key they will never see."
           - id: c
             label: "Only the key's owner can verify a signature, and everyone else must take the owner's word for it"
             correct: false
             feedback: "Backwards: checking is the universal side. Any stranger holding your public key can run the math for themselves, which is exactly what happened when Python confirmed the signature OpenSSL had produced."
+          - id: b
+            label: "Only the private key's holder can produce a signature; anyone with the public key can check it"
+            correct: true
+            feedback: "Signing needs the secret; checking needs nothing secret at all. That is what lets you prove authorship to strangers without handing them anything, and why thousands of nodes can check signatures made by a key they will never see."
           - id: d
             label: "The private key encrypts the message, and anyone with the public key decrypts it"
             correct: false
@@ -36,6 +36,10 @@ blocks:
         prompt: "A signature is valid for a given message and public key. What exactly does that prove, and what does it not prove?"
         multiSelect: false
         options:
+          - id: c
+            label: "It proves the private-key holder authorized THAT exact message; it does not hide the message or identify a human"
+            correct: true
+            feedback: "The signature binds specific bytes to a specific public key, which is why turning send 100 to bob into send 900 to bob destroyed it. No confidentiality, no real-world identity, and those are exactly the properties a public ledger needs."
           - id: a
             label: "It proves the message was encrypted in transit and nobody else could read it"
             correct: false
@@ -44,10 +48,6 @@ blocks:
             label: "It proves which person legally owns the key, since signatures bind keys to real-world identity"
             correct: false
             feedback: "Nothing in the math names a human. A signature proves that the private key behind this public key authorized this message; attaching a person to that key is a separate, social problem, and on-chain the key simply is the identity."
-          - id: c
-            label: "It proves the private-key holder authorized THAT exact message; it does not hide the message or identify a human"
-            correct: true
-            feedback: "The signature binds specific bytes to a specific public key, which is why turning send 100 to bob into send 900 to bob destroyed it. No confidentiality, no real-world identity, and those are exactly the properties a public ledger needs."
           - id: d
             label: "It proves the exchange was safe from a man in the middle: an attacker cannot swap the public key in transit"
             correct: false
