@@ -61,9 +61,30 @@ Look at the request and both kinds of response side by side, because you need to
 
 ![The JSON-RPC request carries jsonrpc, id, method, and a positional params array; a success response fills result and leaves error null; an error response fills error and leaves result null, with id echoed throughout.](assets/v02-annotated-code.webp)
 
-Two fields on that card will bite you later, so mark them now. `params` is a positional array: the node reads arguments by position, not by name, so order is the contract. And `error` being `null` is how you know a call worked. A response can arrive perfectly, HTTP 200 and all, while `error` holds a complaint and `result` is `null`. That distinction between "the request reached the node and the node said no" versus "the request never arrived" is the seam your solo exercise pries open at the end.
+Two fields on that card will bite you later, so mark them now.
 
-That leaves the field you have been ignoring: `id`. On a single call it looks like pure ceremony. You send `"id":"demo"`, the node echoes `"id":"demo"` straight back, and nothing you do seems to depend on it. Its purpose only shows up the moment you stop making one call at a time. JSON-RPC lets you POST an *array* of request objects in a single HTTP round trip, and the node answers with an array of results, but it does not promise to hand them back in the order you asked. Watch what returns when you batch a height query and a hash query into one request:
+`params` here is a positional array, and that is a choice, not a law. Order is the contract for the array form, and every call in this lesson uses it, but Bitcoin Core has accepted *named* parameters for years too: send `"params": {"height": 1}` instead of `"params": [1]` and it works exactly the same, which is what `bitcoin-cli -named` is doing under the hood. Next lesson sends named params over this very interface. Positional is the default here because it is the shorter thing to type and the shape you will see in most examples; reach for named the moment a call has seven optional arguments and you want the seventh.
+
+And `error` being `null` is how you know a call worked — but do not use the HTTP status alone to decide that, because the two disagree in a way that surprises people. With the legacy `"jsonrpc":"1.0"` envelope this lesson sends, an RPC-level error comes back with **HTTP 500** and an `error` object in the body:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" --user "$(cat ~/.bitcoin/regtest/.cookie)" \
+  -H 'content-type: application/json' \
+  -d '{"jsonrpc":"1.0","id":"x","method":"getblockhash","params":[99999999]}' \
+  http://127.0.0.1:18443/
+```
+
+```
+500
+```
+
+```
+{"result":null,"error":{"code":-8,"message":"Block height out of range"},"id":"x"}
+```
+
+Switch the envelope to `"jsonrpc":"2.0"` and the identical mistake comes back **HTTP 200** with the same error body, because the JSON-RPC 2.0 spec says a well-formed request that the server understood is a successful HTTP exchange whatever the application answered. Batches always come back 200 as well. So the rule for a client is: read `error`, always, and never infer success from a status code. If you bolt `raise_for_status()` onto the wrapper you are about to build, you will turn a readable `Block height out of range` into a bare `500 Server Error` and lose the message you actually needed. That distinction between "the request reached the node and the node said no" versus "the request never arrived" is the seam your solo exercise pries open at the end.
+
+That leaves the field you have been ignoring: `id`. On a single call it looks like pure ceremony. You send `"id":"demo"`, the node echoes `"id":"demo"` straight back, and nothing you do seems to depend on it. Its purpose only shows up the moment you stop making one call at a time. JSON-RPC lets you POST an *array* of request objects in a single HTTP round trip, and the node answers with an array of results. Batch a height query and a hash query into one request:
 
 ```
 [
@@ -74,16 +95,18 @@ That leaves the field you have been ignoring: `id`. On a single call it looks li
 
 ```
 [
- {"result":"5f...","error":null,"id":"b"},
- {"result":101,"error":null,"id":"a"}
+ {"result":101,"error":null,"id":"a"},
+ {"result":"5f...","error":null,"id":"b"}
 ]
 ```
 
-The answer for `"b"` came back first. Without the `id`, you would be holding two results and no reliable way to say which one is the block count and which is the hash, because position in the response no longer maps to position in the request. With it, re-pairing is trivial: match each response's `id` to the request that carried the same label. For a bot firing dozens of calls to fill a single screen, or an explorer bundling every transaction in a block into one POST to cut round trips, that label is what keeps concurrent answers from getting shuffled into nonsense. Give every distinct call a distinct `id`, and you can always sort the mail no matter what order it lands in.
+Run that against your own node and the answers come back in the order you asked, every single time, because Bitcoin Core walks a batch sequentially and appends each reply as it finishes. So why bother with `id` at all? Because *the specification does not promise it*, and the specification is what your client is written against. JSON-RPC explicitly allows a server to answer a batch in any order, and the moment your code runs against a different implementation — a load balancer that fans a batch out across nodes, a hosted RPC provider, a future Core release that parallelises — position stops being a reliable pairing key and `id` is the only thing left. Pairing by position is code that works on your laptop and breaks in production, which is the most expensive kind. Match each response's `id` to the request that carried the same label and you are correct on every implementation, including the polite one you are testing against today. Give every distinct call a distinct `id` and you can always sort the mail, no matter what order it lands in.
 
 ## Who holds the password
 
 You slipped one thing past yourself in that first `curl`: `--user "$(cat ~/.bitcoin/regtest/.cookie)"`. That is authentication, and it is worth understanding, because it is the reason a random webpage can't POST to your node and drain it.
+
+One practical note before you run it: that path is Linux's. Bitcoin Core's data directory moves by operating system, and the cookie lives inside it — `~/Library/Application Support/Bitcoin/regtest/.cookie` on macOS, `%APPDATA%\Bitcoin\regtest\.cookie` on Windows. Substitute yours in every command below, or export it once: `COOKIE=$(cat "$HOME/Library/Application Support/Bitcoin/regtest/.cookie")` and then use `--user "$COOKIE"`. If you are running the node with an explicit `-datadir=`, the cookie is under that directory instead.
 
 Bitcoin Core will not answer an unauthenticated RPC request. The default scheme is **cookie auth** (a random `username:password` pair Bitcoin Core writes to a `.cookie` file every time it starts, so a local client can authenticate without you ever choosing a password). Read yours:
 
@@ -128,7 +151,17 @@ from typing import Any
 import requests
 
 DEFAULT_URL = "http://127.0.0.1:18443/"              # regtest, NOT 8332
-DEFAULT_COOKIE = Path.home() / ".bitcoin/regtest/.cookie"
+
+
+def _default_cookie() -> Path:
+    """Bitcoin Core's datadir moves by OS; the cookie lives inside it."""
+    if sys.platform == "darwin":
+        return Path.home() / "Library/Application Support/Bitcoin/regtest/.cookie"
+    if sys.platform.startswith("win"):
+        return Path.home() / "AppData/Roaming/Bitcoin/regtest/.cookie"
+    return Path.home() / ".bitcoin/regtest/.cookie"
+
+DEFAULT_COOKIE = _default_cookie()                   # the path is per-OS
 
 
 class BitcoinRPC:
@@ -196,7 +229,7 @@ The bar for this tool is the same brutal, fair bar as every tool in this course:
 
 ![A table of five methods with their wrapper invocation, bitcoin-cli equivalent, and expected result shape, including the deterministic regtest genesis hash for getblockhash 0.](assets/v06-table.webp)
 
-The `getblockhash 0` row is your anchor, because block 0 is the genesis block and every regtest node in the world shares the same genesis hash, `0f9188f1...`. If your wrapper prints that and so does `bitcoin-cli`, positional params are working. And `getmempoolinfo` returning `"size": 0` is a small gift from next lesson to this one: it proves the mempool is empty right now, which is the exact thing you are about to teach the wrapper to watch.
+The `getblockhash 0` row is your anchor, because block 0 is the genesis block and every regtest node in the world shares the same genesis hash, `0f9188f1...`. If your wrapper prints that and so does `bitcoin-cli`, positional params are working. `getmempoolinfo` is the gift from next lesson to this one: whatever `size` it reports is the count of transactions your node is holding that no block has taken yet, which is the exact thing you are about to teach the wrapper to watch. Do not expect a `0` there — if you followed the last lesson you broadcast two payments and never mined a block afterwards, so this reads `2`, and it will still read `2` after a restart, because Bitcoin Core saves its mempool to `mempool.dat` on shutdown and reloads it on start. Mine a block (`generatetoaddress 1 $ADDR`) and watch the number fall to zero, which is the whole lifecycle in one command.
 
 ## The trade-off: whose node is it
 
@@ -216,7 +249,7 @@ The first time I wrote a client like this, I was certain my node had crashed. Ev
 
 The second footgun hides inside `params`. The node reads arguments positionally, from an array, in order. If you hand a method an object with a guessed key name where it expected a positional array, you don't get a crash and you don't get silence: you get a well-formed response with `error` populated and `result` set to `null`. Your wrapper already handles this correctly by always sending `params` as a list and raising when `error` is not `null`. The lesson is to notice which failure you're looking at, because the two footguns produce opposite symptoms from the same-looking mistake.
 
-![A table separating transport errors (wrong port or stopped node, connection refused, request never arrives) from RPC-level errors (bad params, HTTP 200 with error populated, the node ran and refused).](assets/v08-table.webp)
+![A table separating transport errors (wrong port or stopped node, connection refused, request never arrives) from RPC-level errors (an out-of-range argument returning HTTP 500 on the legacy envelope with the error object populated, the node ran and refused).](assets/v08-table.webp)
 
 ## Do it yourself
 

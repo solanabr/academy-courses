@@ -181,8 +181,11 @@ The second footgun is the misnomer wearing a disguise. It is tempting to write "
 Save the tool. `watcher.py` is rung 3 of the ladder, and it is the direct ancestor of the capstone bot:
 
 ```bash
-mv watcher.py toolkit/
+mv watcher.py btc_rpc.py toolkit/
+python3 toolkit/watcher.py        # still works: prove it before you move on
 ```
+
+Move both files, not just the watcher, and the second line is the check that keeps you honest. `watcher.py` opens with `from btc_rpc import BitcoinRPC`, and Python resolves that against the directory the *script* lives in, not the directory you launched it from. Leave `btc_rpc.py` behind and the very next run dies with `ModuleNotFoundError: No module named 'btc_rpc'`, from inside `toolkit/` and from outside it alike. Filed together, the import resolves from anywhere. This is the first time the toolkit has held two files that know about each other, and it is the last time you get to move one without thinking about the other.
 
 Say the lineage out loud, because it is the point of the whole half-course. The toolkit now holds three things. Something that gives you an identity, the keys and the wallet you built back in module 0: who you are and what you can prove. Something that speaks to the chain, `btc_rpc.py`: a script that asks a node questions. And now something that watches the chain and reacts, `watcher.py`: eyes. Identity, chain, eyes. Stack those three and you have the skeleton of every bot this course will ever build.
 
