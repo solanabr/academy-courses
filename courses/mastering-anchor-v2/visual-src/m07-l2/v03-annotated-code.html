@@ -12,7 +12,7 @@
 <body>
 <!-- annotated-code: The signer/owner exploit and its one-line patch
      purpose: show the exact peeled-back field, the drain it enables, and the single constraint that closes it
-     data: VULN (drains): #[account(mut)]                        // any signer accepted pub player: Signer, // handler pays escrow.amount to ctx.accounts.player -> whoever signed EXPLOIT: a stranger (not escrow.player) signs redeem with final_score = 9_999 -> account load passes (they ARE a signer) -> handler pays the stranger. drain_as_stranger = ok PATCH (rejects the drain): #[account(mut, address = escrow.player)]   // key must equal the recorded player pub player: Signer, -> stranger's key != escrow.player -> rejected at load, before the handler -> drain_as_stranger now FAILS; conditional_release still passes
+     data: VULN (drains): pub player: Signer,                    // no pin at all: any signer accepted // handler pays escrow.amount to ctx.accounts.player -> whoever signed EXPLOIT: a stranger (not escrow.player) signs redeem with final_score = 9_999 -> account load passes (they ARE a signer) -> handler pays the stranger. drain_as_stranger = ok PATCH (rejects the drain): #[account(address = escrow.player)]   // key must equal the recorded player pub player: Signer, -> stranger's key != escrow.player -> rejected at load, before the handler -> drain_as_stranger now FAILS; conditional_release still passes
      prompt: Two stacked code cards, VULN (red header, "drains") and PATCH (green header, "rejects"). Between them a short EXPLOIT band describing the stranger's transaction. Highlight the added `address = escrow.player` clause in the PATCH card. Margin note: "rejected at account load, before the handler runs".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -74,8 +74,7 @@
 
   <div class="card">
     <div class="chead h-vuln"><span class="lb">vuln</span><span class="sb">drains</span></div>
-    <div class="code">#[account(mut)]                        <span class="cmt">// any signer accepted</span>
-pub player: Signer,</div>
+    <div class="code">pub player: Signer,                    <span class="cmt">// no pin: any signer accepted</span></div>
     <div class="out">handler pays <code>escrow.amount</code> to <code>ctx.accounts.player</code> — i.e. to <b>whoever signed</b></div>
   </div>
 
@@ -87,7 +86,7 @@ pub player: Signer,</div>
   <div class="lower">
     <div class="card">
       <div class="chead h-patch"><span class="lb">patch</span><span class="sb">rejects the drain</span></div>
-      <div class="code">#[account(mut, <span class="hl">address = escrow.player</span>)]   <span class="cmt">// key must equal the recorded player</span>
+      <div class="code">#[account(<span class="hl">address = escrow.player</span>)]   <span class="cmt">// key must equal the recorded player</span>
 pub player: Signer,</div>
       <div class="out">stranger's key != <code>escrow.player</code> &nbsp;&rarr;&nbsp; rejected at load, before the handler<br>
       <b>drain_as_stranger now FAILS</b> &nbsp;·&nbsp; conditional_release still passes</div>

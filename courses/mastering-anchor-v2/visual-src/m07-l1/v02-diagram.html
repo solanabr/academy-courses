@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: v1 deserialize-then-check vs V2 Pod-typed view
      purpose: show why the mismatch is a runtime event in v1 and a compile-time fact in V2
-     data: v1 path: account bytes -> read 8-byte discriminator -> compare to T's discriminator -> if ok, parse fields into T -> typed ref v1 seam: if the check is skipped (AccountInfo / hand-deser), a Vault flows into a Config-shaped parse V2 path: account data -> Account<T> casts bytes as Pod T (layout fixed at compile time) -> typed view V2 seam: the type T is chosen in the struct at compile time; a different T is a different Pod layout the compiler tracks
+     data: v1 path: account bytes -> read 8-byte discriminator -> compare to T's discriminator -> if ok, parse fields into T -> typed ref v1 seam: if the check is skipped (AccountInfo / hand-deser), a Pool flows into a FeeConfig-shaped parse V2 path: account data -> Account<T> casts bytes as Pod T (layout fixed at compile time) -> typed view V2 seam: the type T is chosen in the struct at compile time; a different T is a different Pod layout the compiler tracks
      prompt: Two stacked horizontal pipelines. Top: v1, four stages ending in a typed ref, with a red branch at the discriminator-check stage labeled "skippable runtime check". Bottom: V2, three stages, with a green lock icon at the "cast as Pod T" stage labeled "type fixed at compile time". Keep the two pipelines visually parallel so the reader sees the check move from runtime to compile time.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -96,7 +96,7 @@
     </div>
     <div class="seam y">
       <span class="sk">v1 seam</span>
-      <span class="st">skip the check &mdash; hand-decode from <code>AccountInfo</code> &mdash; and a <code>Vault</code> flows straight into a <code>Config</code>-shaped parse.</span>
+      <span class="st">skip the check &mdash; hand-decode from <code>AccountInfo</code> &mdash; and a <code>Pool</code> flows straight into a <code>FeeConfig</code>-shaped parse.</span>
     </div>
   </div>
 

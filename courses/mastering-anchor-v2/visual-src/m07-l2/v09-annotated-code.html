@@ -12,7 +12,7 @@
 <body>
 <!-- annotated-code: Raw subtraction versus checked_sub on the withdraw
      purpose: show the underflow the raw path hides and the checked path that rejects it, both against a concrete over-withdraw
-     data: input: balance = 30, amount = 100 (an over-withdraw) RAW (VULN): vault.balance = vault.balance - amount; -> release: wraps to 18446744073709551546 (u64 underflow), vault "gains" money -> debug:   panics -> neither rejects the withdrawal CHECKED (PATCH): vault.balance = vault.balance.checked_sub(amount).ok_or(VaultError::Underflow)?; -> checked_sub(30, 100) = None -> ? returns Err(VaultError::Underflow) -> the over-withdraw is REJECTED, balance unchanged
+     data: input: credit = 30, amount = 100 (an over-withdraw) RAW (VULN): vault.credit = vault.credit - amount; -> release: wraps to 18446744073709551546 (u64 underflow), the vault's books "gain" money -> debug:   panics -> neither rejects the withdrawal CHECKED (PATCH): vault.credit = vault.credit.checked_sub(amount).ok_or(VaultError::Underflow)?; -> checked_sub(30, 100) = None -> ? returns Err(VaultError::Underflow) -> the over-withdraw is REJECTED, credit unchanged
      prompt: Two code cards, RAW (red, "wraps or panics") and CHECKED (green, "rejects"). Between them a shared input line "balance = 30, amount = 100". Show the wrapped u64 value in the RAW card as the scary artifact and the Err return in the CHECKED card. Margin note: "this is a how-much bug, not a who bug".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -86,11 +86,11 @@
   <div class="cols">
     <div class="col">
       <div class="ch h-raw"><span class="l">raw</span><span class="s">wraps, or panics</span></div>
-      <div class="code">vault.balance = vault.balance - amount;</div>
+      <div class="code">vault.credit = vault.credit - amount;</div>
       <div class="steps">
         <div class="st"><b>release build</b> &mdash; u64 underflow: the vault &ldquo;gains&rdquo; money</div>
         <div class="scary">
-          <div class="sk">vault.balance becomes</div>
+          <div class="sk">vault.credit becomes</div>
           <div class="sv">18446744073709551546</div>
         </div>
         <div class="st"><b>debug build</b> &mdash; panics</div>
@@ -100,13 +100,13 @@
 
     <div class="col">
       <div class="ch h-chk"><span class="l">checked</span><span class="s">rejects</span></div>
-      <div class="code">vault.balance = vault.balance
+      <div class="code">vault.credit = vault.credit
     .checked_sub(amount)
     .ok_or(VaultError::Underflow)?;</div>
       <div class="steps">
         <div class="st"><code>checked_sub(30, 100)</code> &rarr; <code>None</code></div>
         <div class="st"><code>?</code> returns <code>Err(VaultError::Underflow)</code></div>
-        <div class="verd">The over-withdraw is REJECTED &mdash; balance unchanged at 30.</div>
+        <div class="verd">The over-withdraw is REJECTED &mdash; credit unchanged at 30.</div>
       </div>
     </div>
   </div>

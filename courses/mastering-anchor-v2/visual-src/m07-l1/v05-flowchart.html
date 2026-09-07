@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The compile-time kill funnel
      purpose: show four attacks entering the compiler and only one binary coming out
-     data: inputs (four attacks) -> [anchor build] -> outputs Attack 1 type cosplay      -> REJECTED (E0308 on the laundering cast; the account itself never passes the discriminator at load) Attack 2 duplicate-mutable -> REJECTED (bare dup, must be unsafe(dup)) Attack 3 CPI aliasing      -> REJECTED (E0502 vault borrowed by CpiHandle) Attack 4 bump recalculation-> BINARY PRODUCED -> runtime: re-derives the same canonical bump you stored, so it costs CU and changes nothing caption: three never become a binary; the one that does, does nothing
+     data: inputs (four attacks) -> [anchor build] -> outputs Attack 1 type cosplay      -> REJECTED (E0277 on the laundering cast; the account itself never passes the discriminator at load) Attack 2 duplicate-mutable -> REJECTED (bare dup, must be unsafe(dup)) Attack 3 CPI aliasing      -> REJECTED (E0502 reserve_ticket borrowed by CpiHandle) Attack 4 bump recalculation-> BINARY PRODUCED -> runtime: re-derives the same canonical bump you stored, so it costs CU and changes nothing caption: three never become a binary; the one that does, does nothing
      prompt: Left-to-right funnel. Four labeled inputs on the left feed a central box labeled "anchor build". Three arrows exit as red dead-ends with their error codes; one arrow (Attack 4) passes through to a "binary" node, then continues to a grey "runtime no-op" node. The visual asymmetry, three stopped and one hollow, is the message.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -120,7 +120,7 @@
       <div class="slot">
         <div class="dead"><div class="stopbar"></div><div class="dbody">
           <div class="dl"><svg width="15" height="15" viewBox="0 0 15 15"><line x1="2.5" y1="2.5" x2="12.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/><line x1="12.5" y1="2.5" x2="2.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/></svg> rejected</div>
-          <div class="dn"><code>E0308</code> on the laundering cast &mdash; and the account itself never passes the discriminator at load</div>
+          <div class="dn"><code>E0277</code> on the laundering cast &mdash; and the account itself never passes the discriminator at load</div>
         </div></div>
       </div>
       <div class="slot">
@@ -132,7 +132,7 @@
       <div class="slot">
         <div class="dead"><div class="stopbar"></div><div class="dbody">
           <div class="dl"><svg width="15" height="15" viewBox="0 0 15 15"><line x1="2.5" y1="2.5" x2="12.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/><line x1="12.5" y1="2.5" x2="2.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/></svg> rejected</div>
-          <div class="dn"><code>E0502</code> &mdash; vault is borrowed by a live <code>CpiHandle</code></div>
+          <div class="dn"><code>E0502</code> &mdash; reserve_ticket is borrowed by a live <code>CpiHandle</code></div>
         </div></div>
       </div>
       <div class="slot">

@@ -12,8 +12,8 @@
 <body>
 <!-- annotated-code: Why bare `dup` will not build on V2
      purpose: show the compile error and the exact fix the message names
-     data: attack: two mutable Account<QuarterVault> slots, opt-out spelled `dup` code: #[derive(Accounts)] pub struct DrainSwap { #[account(mut, dup)]      // <-- bare `dup` pub vault_a: Account<QuarterVault>, #[account(mut, dup)] pub vault_b: Account<QuarterVault>, } error: | error: duplicate-mutable opt-out must be written `unsafe(dup)` the MUT_MASK for this instruction marks `vault_a` and `vault_b` mutable; to intentionally allow the same account in both, write `unsafe(dup)` fix: change `dup` to `unsafe(dup)` only if the duplication is genuinely intended
-     prompt: Annotated code card. Show the DrainSwap struct with both `dup` attributes highlighted red, the compiler error block below it, and a callout arrow from `dup` to the word `unsafe(dup)` in the error. Three margin annotations as listed. Emphasis on the phrase "must be written unsafe(dup)".
+     data: attack: two mutable InterfaceAccount<TokenAccount> reserve slots, opt-out spelled `dup` code: #[derive(Accounts)] pub struct DrainPool { #[account(mut, dup)]      // <-- bare `dup` pub reserve_a: InterfaceAccount<TokenAccount>, #[account(mut, dup)] pub reserve_b: InterfaceAccount<TokenAccount>, } error: | error: duplicate-mutable opt-out must be written `unsafe(dup)` the MUT_MASK for this instruction marks `reserve_a` and `reserve_b` mutable; to intentionally allow the same account in both, write `unsafe(dup)` fix: change `dup` to `unsafe(dup)` only if the duplication is genuinely intended
+     prompt: Annotated code card. Show the DrainPool struct with both `dup` attributes highlighted red, the compiler error block below it, and a callout arrow from `dup` to the word `unsafe(dup)` in the error. Three margin annotations as listed. Emphasis on the phrase "must be written unsafe(dup)".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -72,12 +72,12 @@
   <div class="cols">
     <div class="left">
       <div class="code"><div class="cl">#[<span class="kw">derive</span>(Accounts)]
-<span class="kw">pub struct</span> DrainSwap {
+<span class="kw">pub struct</span> DrainPool {
     #[account(mut, <span class="bad">dup</span>)]     <span class="dim">// &lt;-- bare `dup`</span>
-    <span class="kw">pub</span> vault_a: Account&lt;QuarterVault&gt;,
+    <span class="kw">pub</span> reserve_a: InterfaceAccount&lt;TokenAccount&gt;,
 
     #[account(mut, <span class="bad">dup</span>)]
-    <span class="kw">pub</span> vault_b: Account&lt;QuarterVault&gt;,
+    <span class="kw">pub</span> reserve_b: InterfaceAccount&lt;TokenAccount&gt;,
 }</div></div>
 
       <div class="arrow">
@@ -92,7 +92,7 @@
         </div>
         <div class="errb">
           error: duplicate-mutable opt-out <span class="hl">must be written `unsafe(dup)`</span>
-          <span class="note">the <b>MUT_MASK</b> for this instruction marks <b>vault_a</b> and <b>vault_b</b> mutable; to intentionally allow the same account in both, write <b>unsafe(dup)</b>.</span>
+          <span class="note">the <b>MUT_MASK</b> for this instruction marks <b>reserve_a</b> and <b>reserve_b</b> mutable; to intentionally allow the same account in both, write <b>unsafe(dup)</b>.</span>
         </div>
       </div>
     </div>
@@ -100,7 +100,7 @@
     <div class="right">
       <div class="ann">
         <div class="ak">the attack</div>
-        <div class="at">Two mutable <code>Account&lt;QuarterVault&gt;</code> slots, with the opt-out spelled <code>dup</code> &mdash; pass the same vault twice and drain it against itself.</div>
+        <div class="at">Two mutable <code>InterfaceAccount&lt;TokenAccount&gt;</code> reserve slots, with the opt-out spelled <code>dup</code> &mdash; pass the same reserve twice and price the pool against itself.</div>
       </div>
       <div class="ann">
         <div class="ak">what V2 does</div>

@@ -33,7 +33,7 @@ blocks:
             feedback: "MUT_MASK is a compile-time const over every account the instruction declares, and on V2 defaults every `Account<T>` is already a Pod zero-copy view, so there is no ordinary slot for it to skip. The missing `unsafe` is a hard error, not a warning."
         explanation: "In V2, opting out of duplicate-mutable protection is spelled `unsafe(dup)`; writing bare `dup` is a compile error that names the fix. The MUT_MASK bitset is computed at compile time; the duplicate check itself still runs in the dispatcher, but the compiler blocks the unsafe spelling before you ever get there."
       - id: q2
-        prompt: "You try the classic type-cosplay attack — load a Vault account's bytes as a Config in V2. Why does it no longer type-check?"
+        prompt: "You try the classic type-cosplay attack — load a Pool account's bytes as a FeeConfig in V2. Why does it no longer type-check?"
         multiSelect: false
         options:
           - id: a
@@ -48,7 +48,7 @@ blocks:
             label: "`Account<T>` now writes the type's name into the account header and compares that string against `T` on every load."
             correct: false
             feedback: "This was one of the naive v1-era fixes the lesson rules out: it stores an extra field and still checks at runtime. V2 stores no type names — discriminators remain the sha256 default, and the new guarantee is Pod typing at compile time."
-        explanation: "V2's Account<T> is zero-copy and requires T: Pod; the bytes are cast to the declared type. Two clocks are running here, and the runtime one is what stops a smuggled account: at load, a QuarterVault handed to an `Account<Config>` slot is still rejected by the runtime discriminator check exactly as in v1. What V2 adds is closing the byte-level escape hatch — with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the deliberate `bytemuck::from_bytes::<Config>(&data[8..])` cast you would need instead is something a reviewer can grep for in one pass."
+        explanation: "V2's Account<T> is zero-copy and requires T: Pod; the bytes are cast to the declared type. Two clocks are running here, and the runtime one is what stops a smuggled account: at load, a Pool handed to an `Account<FeeConfig>` slot is still rejected by the runtime discriminator check exactly as in v1. What V2 adds is closing the byte-level escape hatch — with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the deliberate `bytemuck::from_bytes::<FeeConfig>(&data[8..])` cast you would need instead is something a reviewer can grep for in one pass."
       - id: q3
         prompt: "You hold a typed reference to an account and try to read its fields while a `CpiHandle` for that account is still live. What does V2 do?"
         multiSelect: false

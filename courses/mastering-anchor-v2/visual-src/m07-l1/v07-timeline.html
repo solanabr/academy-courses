@@ -12,7 +12,7 @@
 <body>
 <!-- timeline: The exploit branch, commit by commit
      purpose: show the four attempts and their build outcomes as a sequence, then the restore
-     data: commits (left to right): 1. attack 1: type cosplay        -> build FAILS (E0308 mismatched types) 2. attack 2: duplicate-mutable    -> build FAILS (must be unsafe(dup)) 3. attack 3: CPI aliasing         -> build FAILS (E0502 borrow of vault) 4. attack 4: bump recalculation   -> build SUCCEEDS, runtime no-op 5. restore R4 clean               -> anchor test GREEN
+     data: commits (left to right): 1. attack 1: type cosplay        -> build FAILS (E0277 trait bound not satisfied) 2. attack 2: duplicate-mutable    -> build FAILS (must be unsafe(dup)) 3. attack 3: CPI aliasing         -> build FAILS (E0502 borrow of reserve_ticket) 4. attack 4: bump recalculation   -> build SUCCEEDS, runtime no-op 5. restore R4 clean               -> anchor test GREEN
      prompt: Horizontal timeline of five commit nodes. Nodes 1-3 red with "build fails" and the error code. Node 4 amber with "builds, inert". Node 5 green with "tests pass". A thin caption under nodes 1-4 reads "three refused, one hollow"; under node 5 "R4 restored".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -78,7 +78,7 @@
       <div class="ch"><div class="cn">commit 1</div><div class="ct">attack 1<br>type cosplay</div></div>
       <div class="cb">
         <div class="status"><svg width="15" height="15" viewBox="0 0 15 15"><line x1="2.5" y1="2.5" x2="12.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/><line x1="12.5" y1="2.5" x2="2.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/></svg> build fails</div>
-        <div class="code">E0308<br>mismatched types</div>
+        <div class="code">E0277<br>trait bound not satisfied</div>
         <div class="note">the laundering cast never reaches a binary</div>
       </div>
     </div>
@@ -96,7 +96,7 @@
       <div class="ch"><div class="cn">commit 3</div><div class="ct">attack 3<br>CPI aliasing</div></div>
       <div class="cb">
         <div class="status"><svg width="15" height="15" viewBox="0 0 15 15"><line x1="2.5" y1="2.5" x2="12.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/><line x1="12.5" y1="2.5" x2="2.5" y2="12.5" stroke="#1b231d" stroke-width="2.8"/></svg> build fails</div>
-        <div class="code">E0502<br>borrow of vault</div>
+        <div class="code">E0502<br>borrow of reserve_ticket</div>
         <div class="note">the stale read is a borrow-check error, not a runtime surprise</div>
       </div>
     </div>

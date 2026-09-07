@@ -12,7 +12,7 @@
 <body>
 <!-- flowchart: The escrow's guarded redeem, top to bottom
      purpose: give the reader the final ordered shape so they can audit any conditional-release by position
-     data: load accounts: address = escrow.vault    (no vault substitution) address = escrow.player   (no caller substitution) address = escrow.maker    (no rent-recipient substitution) handler: copy scalars out (borrow model) require!(final_score >= winning)      <- guard BEFORE payout build withdraw CPI, escrow PDA signs vault debits with checked_sub          <- no underflow close = maker zeroes + sweeps          <- no revival
+     data: load accounts: address = escrow.vault    (no vault substitution) address = escrow.player   (no caller substitution) address = escrow.maker    (no rent-recipient substitution) handler: copy scalars out (borrow model) require!(final_score >= winning)      <- guard BEFORE payout build release CPI, escrow PDA signs vault debits credit with checked_sub   <- no underflow close = maker zeroes + sweeps          <- no revival
      prompt: Vertical flowchart in two bands: "load (constraints)" listing the three address pins, then "handler" listing copy-scalars, the require guard, the signed CPI, the checked debit, and the zeroing close. Mark the require line as a locked gate before the CPI. Positive tone throughout; this is the safe shape.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -100,12 +100,12 @@
     </div>
     <div class="step">
       <div class="sn">03</div>
-      <div class="sc">withdraw CPI &mdash; the escrow PDA signs, callee is a typed Program</div>
+      <div class="sc">release CPI &mdash; the escrow PDA signs, callee is a typed Program</div>
       <div class="sx">the caller cannot choose who you sign for</div>
     </div>
     <div class="step">
       <div class="sn">04</div>
-      <div class="sc">vault.balance = vault.balance.checked_sub(amount).ok_or(..)?;</div>
+      <div class="sc">vault.credit = vault.credit.checked_sub(amount).ok_or(..)?;</div>
       <div class="sx">no underflow: an over-withdraw returns Err instead of wrapping</div>
     </div>
     <div class="step">

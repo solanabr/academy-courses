@@ -10,7 +10,7 @@ grep -n "fn swap_arcade_for_tickets" programs/token-ticket-swap/src/lib.rs
 : > audit-checklist.txt   # one row per check: write a line number, or the word FAIL
 ```
 
-If the line you reached for is a `token::authority = pool` constraint, look again, because that is the trap in the question. Anyone can create an SPL token account whose authority is the pool PDA — `InitializeAccount` takes the owner as a plain argument, no signature from the owner required — and both reserves share that authority anyway. Authority says who may spend from an account, not which account the pool meant, which is precisely the substitution class from last lesson. The line that answers the question is the pin last lesson's mapping demanded for R4: the reserve's *address* checked against the reserve the pool recorded at init. If the only line you can point to is an authority constraint, write `FAIL` — you just made the checklist's first real find before the checklist even started. The point is not the difficulty. The point is that you looked, and that you now have one row of a file that says so.
+If the line you reached for is a `token::authority = pool` constraint, look again, because that is the trap in the question. Anyone can create an SPL token account whose authority is the pool PDA — `InitializeAccount` takes the owner as a plain argument, no signature from the owner required — and both reserves share that authority anyway. Authority says who may spend from an account, not which account the pool meant, which is precisely the substitution class from last lesson. The line that *would* answer the question is the pin last lesson's mapping demanded for R4: the reserve's *address* checked against a reserve the pool recorded at init. Go looking for it and you find something sharper than a missing constraint. `Pool` stores the two mints and its bump and nothing else — m05-l2 said as much when it noted the reserves sit "at addresses nobody derives" — so there is no recorded address on chain to check against. The line does not exist, and it cannot be written until the pool starts recording one. Write `FAIL`. You just made the checklist's first real find before the checklist even started, and it is a two-part fix rather than a one-liner, which is exactly the kind of thing a read-through waves past and a checklist does not. The point is not the difficulty. The point is that you looked, and that you now have one row of a file that says so.
 
 This lesson turns security from a feeling into a two-part procedure. Part one is a checklist you run by hand, row by row, against the swap: it makes your review repeatable and forces you to name the line that satisfies each guarantee. Part two is `anchor fuzz`, which runs the attack for you. You point it at the swap, walk away, and come back to a crash artifact for an input you would never have typed. The reframe that carries the whole lesson: a clean fuzz run is not reassurance, it is silence. A crash is the win, because a crash you found is a bug the attacker did not.
 
@@ -76,30 +76,70 @@ Everything below runs against the swap, the one program last lesson classified b
 
 ### 1. Install the CLI that actually carries `anchor fuzz`
 
-Get this toolchain fact right before you type anything, because getting it wrong costs an afternoon. Anchor has two live branches this course keeps naming: `anchor-next`, which carries the 2.0.0-rc.1 release candidate you have been building against, and `master`, which carries the V1 line past 1.1.2 toward the 1.2.0 milestone. **`anchor fuzz` is on `master`.** Checked 2026-08-22: `master`'s `cli/Cargo.toml` depends on `crucible-fuzz-cli = "0.2.1"` and its command enum dispatches `Command::Fuzz` into it, while the `anchor-next` CLI ships `anchor test --profile`, `anchor debugger`, and `anchor coverage` and has no `fuzz` subcommand at all. The released 1.1.2 on your machine does not have it either: Crucible landed on `master` after that tag.
+Get this toolchain fact right before you type anything, because getting it wrong costs an afternoon. Anchor has two live lines this course keeps naming: the 2.0.0-rc.1 release candidate you have been building against, and the V1 line, which moved past 1.1.2 to **1.2.0, released 2026-09-04**. **`anchor fuzz` rides the V1 line, not the RC.** Checked 2026-09-05 against the published crate: `anchor-cli` 1.2.0's manifest depends on `crucible-fuzz-cli = "0.2.1"` and its command enum dispatches `Command::Fuzz` into it, while the 2.0.0-rc.1 CLI ships `anchor test --profile`, `anchor debugger`, and `anchor coverage` and has no `fuzz` subcommand at all. The 1.1.2 that many machines carry does not have it either: Crucible landed after that tag.
 
-So you install a second CLI, from `master`. Both builds install a binary called `anchor`, so send this one to its own root instead of letting it overwrite your RC, and put that root first on `PATH` for the duration of this lesson:
+So you install a second CLI. Until 1.2.0 shipped this meant a `--branch master` git build; now it is a pinned release, which is strictly better because a released version cannot move under you. Both builds install a binary called `anchor`, so send this one to its own root instead of letting it overwrite your RC, and put that root first on `PATH` for the duration of this lesson:
 
 ```bash
-# The CLI that carries `anchor fuzz` (Crucible) is on master, not anchor-next.
-cargo install --git https://github.com/otter-sec/anchor.git --branch master anchor-cli \
-  --locked --root ~/.anchor-master
-export PATH="$HOME/.anchor-master/bin:$PATH"   # this shell only; drop it to get the RC back
+# The CLI that carries `anchor fuzz` (Crucible) is the V1 line, not the V2 RC.
+cargo install anchor-cli --version 1.2.0 --locked --root ~/.anchor-fuzz
+export PATH="$HOME/.anchor-fuzz/bin:$PATH"   # this shell only; drop it to get the RC back
 anchor fuzz --help   # unknown-subcommand error = you are running the wrong CLI
 ```
 
-Freshness note, and read it before you pin: both branches move, and which one carries the fuzzer is exactly the sort of thing that changes between release candidates. Re-run `anchor fuzz --help` against whichever CLI you have before you conclude the subcommand is missing; when the V2 tree picks Crucible up, this two-CLI dance collapses back to one. Nothing downstream in this lesson depends on which CLI hosts it, because the harness, the invariants, and the crash artifacts are all Crucible's. If your CLI has no `anchor fuzz`, install Crucible's own CLI and substitute `crucible` for `anchor fuzz` in every command below:
+Freshness note, and read it before you pin: both lines move, and which one carries the fuzzer is exactly the sort of thing that changes between releases. Re-run `anchor fuzz --help` against whichever CLI you have before you conclude the subcommand is missing; when the V2 tree picks Crucible up, this two-CLI dance collapses back to one. Nothing downstream in this lesson depends on which CLI hosts it, because the harness, the invariants, and the crash artifacts are all Crucible's. If your CLI has no `anchor fuzz`, install Crucible's own CLI and substitute `crucible` for `anchor fuzz` in every command below:
 
 ```bash
 git clone https://github.com/asymmetric-research/crucible
 cd crucible && cargo install --path crates/crucible-fuzz-cli
 ```
 
-One thing that does *not* change with the branch: Crucible traces sBPF edges on the compiled `.so` and generates its typed call bindings from a standard Anchor IDL, so it does not care which Anchor line built the program you point it at. Which gives you the working rule for the rest of this lesson: build the swap in a shell *without* the `PATH` override, so `anchor build` stays the V2 RC, and run every `anchor fuzz` command in the shell that has it.
+One thing that does *not* change with the CLI you install: Crucible traces sBPF edges on the compiled `.so` and generates its typed call bindings from a standard Anchor IDL, so it does not care which Anchor line built the program you point it at. Which gives you the working rule for the rest of this lesson: build the swap in a shell *without* the `PATH` override, so `anchor build` stays the V2 RC, and run every `anchor fuzz` command in the shell that has it.
 
 ### 2. Run the audit checklist and record every row
 
-Go back to the table above and fill the last column. Several rows should already pass on the swap because module 5 built them that way: the token program is a typed `Interface`, the reserve math is `checked_*`, the pool bump is stored. Last lesson only *mapped* the remaining classes onto R4's fields — it patched the escrow, not the swap. Do not take any of that on trust, which is the entire discipline of the row. If a pin the mapping said R4 needs — each reserve checked against the one the pool recorded — is not actually in the file, that is a `FAIL` and it is exactly what the checklist exists to surface. Write the line number that proves each. Row 2 is the one to look hard at: find every `UncheckedAccount` in the accounts struct and confirm each has an `address`, `owner`, or `constraint`. If one is bare, that is a `FAIL`, and you fix it now, before you fuzz, because the fuzzer is about to lean on exactly this kind of gap.
+Go back to the table above and fill the last column. Several rows should already pass on the swap because module 5 built them that way: the token program is a typed `Interface`, the reserve math is `checked_*`, the pool bump is stored. Last lesson only *mapped* the remaining classes onto R4's fields — it patched the escrow, not the swap. Do not take any of that on trust, which is the entire discipline of the row.
+
+Row 1 is the `FAIL` the opener already walked you into, and this is where you fix it, before you fuzz, because the fuzzer is about to lean on exactly this kind of gap. It is three edits, all shapes you have written before:
+
+```rust
+// 1. programs/token-ticket-swap/src/lib.rs - the pool records what it owns.
+#[account]
+#[derive(InitSpace)]
+pub struct Pool {
+    pub arcade_mint: Address,     // 32
+    pub ticket_mint: Address,     // 32
+    pub arcade_reserve: Address,  // 32  NEW
+    pub ticket_reserve: Address,  // 32  NEW
+    pub bump: u8,                 //  1
+    pub _pad: [u8; 7],            //  7  explicit Pod padding (129 -> 136)
+}
+
+// 2. in init_pool, beside the two mints and ctx.bumps.pool:
+pool.arcade_reserve = *ctx.accounts.reserve_arcade.address();
+pool.ticket_reserve = *ctx.accounts.reserve_ticket.address();
+
+// 3. in SwapArcadeForTickets, pin each reserve to the record. Keep the token::
+//    lines: they say what the account holds, the address says WHICH one it is.
+#[account(
+    mut,
+    address = pool.arcade_reserve @ SwapError::WrongReserve,
+    token::mint = mint_arcade,
+    token::authority = pool,
+)]
+pub reserve_arcade: InterfaceAccount<TokenAccount>,
+#[account(
+    mut,
+    address = pool.ticket_reserve @ SwapError::WrongReserve,
+    token::mint = mint_ticket,
+    token::authority = pool,
+)]
+pub reserve_ticket: InterfaceAccount<TokenAccount>,
+```
+
+Add a `WrongReserve` variant to `SwapError` while you are in there. One consequence to expect rather than discover: `Pool` just grew by 64 bytes, so a pool created before this edit no longer matches `INIT_SPACE` and will fail to load. Pools are cheap and this one is yours, so run `init_pool` again on a fresh deployment rather than writing a migration you would throw away — and note the two reserve addresses it prints, because module 8's client lab reads them back off the pool record.
+
+Now the rest. Write the line number that proves each remaining row. Row 2 is the next one to look hard at: find every `UncheckedAccount` in the accounts struct and confirm each has an `address`, `owner`, or `constraint`. If one is bare, that is a `FAIL` too, and it gets fixed here as well.
 
 Checkpoint: `audit-checklist.txt` has seven rows and every row carries a line number, not a blank and not a maybe. Any `FAIL` you wrote is fixed and re-checked before step 3.
 
@@ -136,6 +176,8 @@ Scaffolding also unlocks the rest of the `anchor fuzz` command family, and it is
 Do not fuzz a clean program first. Seed a bug you understand, confirm the fuzzer catches it, and only then trust a clean run. This is the same discipline as watching a test fail before you make it pass.
 
 Here is the swap's constant-product math. This is `swap_out`, the same function you have carried since you built R4, moved into its own `src/math.rs` for this lesson so the seeded edit is a one-line diff in a file nothing else touches. The invariant is `k = reserve_in * reserve_out`, and a trade must never let `k` shrink. Because the swap charges 0.3%, the fee stays in the pool, so in practice `k` grows a little on every trade; `k_now >= k_before` is the assertion that is true either way.
+
+That assertion also collects a debt from module 5. m05-l3 warned that a transfer-fee mint quietly voids the received-what-you-sent assumption, so the pool credits less than the trader sent "and your invariant drifts" — and then dropped the thread, because you had no invariant yet. This is it. Point the swap at an arcade mint carrying a transfer fee and the reserve grows by less than `amount_in` while the ticket side pays out an `out` quoted from the full `amount_in`: `k` genuinely shrinks, and `k_now >= k_before` is the line that goes red. The orphaned warning from module 5 and the assertion you are about to write are the same fact, two modules apart.
 
 ```rust
 // programs/token-ticket-swap/src/math.rs  (correct: the swap_out you built, with its fee)

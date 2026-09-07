@@ -9,7 +9,7 @@ cd quarters
 git checkout -b exploit/compile-time-kills
 ```
 
-You are going to author four deliberate attacks, one commit each, against the token-to-ticket swap you already built: a vault read through the Config lens, two mutable accounts marked plain `dup`, a typed field read while a CPI is in flight, and a hand-recomputed PDA bump. Then you hit `anchor build`. Three of them never produce a binary. One of them builds fine and does nothing. That gap, between "compiles" and "exploits," is the whole lesson.
+You are going to author four deliberate attacks, one commit each, against the token-to-ticket swap you already built: the pool read through a config lens, two mutable reserve slots marked plain `dup`, a typed reserve read while a CPI is in flight, and a hand-recomputed pool bump. Then you hit `anchor build`. Three of them never produce a binary. One of them builds fine and does nothing. That gap, between "compiles" and "exploits," is the whole lesson.
 
 This is the lesson that was genuinely impossible to teach before August 2026. The four vulnerability classes below used to need a runtime check, a test, or an auditor with a checklist. On the V2 defaults, three of them die where you write them, in red, at compile time. You get to watch each one die.
 
@@ -40,82 +40,87 @@ Start with the question that sits under all four: what is an account, to a progr
 
 ### Type cosplay, walked end to end
 
-The status quo, in v1: your instruction expects a `Config`, the attacker hands you a `Vault`, and if the two structs happen to line up in memory, your program reads the vault's bytes through the Config lens and trusts fields that mean something else entirely. The discriminator check is what stopped the crude version. The subtle version slipped through when two account types shared a prefix or when a program used `AccountInfo` and hand-deserialized without checking.
+The status quo, in v1: your instruction expects a `FeeConfig`, the attacker hands you a `Pool`, and if the two structs happen to line up in memory, your program reads the pool's bytes through the config lens and trusts fields that mean something else entirely. The discriminator check is what stopped the crude version. The subtle version slipped through when two account types shared a prefix or when a program used `AccountInfo` and hand-deserialized without checking.
 
 The motivating question: if the type is fixed in the struct definition, why is the runtime free to hand me the wrong bytes at all?
 
 Rule out the naive fixes first, because they are what v1 shipped. Naive fix one: add a discriminator and check it every load. It works, but it is a runtime check, which means it is a check you can forget, disable, or route around with `AccountInfo`. Naive fix two: compare a stored type-name string on load. Slower, still runtime, and now you are paying to store a name. Both fixes share the same flaw: they detect the mismatch after the program is already holding a typed reference to the wrong memory.
 
-V2 sharpens the requirement into something the compiler can enforce. On the V2 defaults, `Account<T>` (note the dropped lifetime) is a **zero-copy, Pod-typed view** of the account's data. `T` must implement `Pod`, which means it has no padding and a fully deterministic layout, and the bytes are cast directly to `T` rather than parsed field by field. This is the same design decision that issue #4390 argued for under the banner "zero-copy account deserialization by default," which named the old parse-on-load `Account<T>` as "the slow path" and "the #1 performance complaint." The point worth sitting with: Pod-by-default is a security move as much as a speed move. A deterministic, no-padding layout is exactly what makes "these bytes are a `Config`" a claim the type system can hold rather than a claim you re-check at runtime.
+V2 sharpens the requirement into something the compiler can enforce. On the V2 defaults, `Account<T>` (note the dropped lifetime) is a **zero-copy, Pod-typed view** of the account's data. `T` must implement `Pod`, which means it has no padding and a fully deterministic layout, and the bytes are cast directly to `T` rather than parsed field by field. This is the same design decision that issue #4390 argued for under the banner "zero-copy account deserialization by default," which named the old parse-on-load `Account<T>` as "the slow path" and "the #1 performance complaint." The point worth sitting with: Pod-by-default is a security move as much as a speed move. A deterministic, no-padding layout is exactly what makes "these bytes are a `FeeConfig`" a claim the type system can hold rather than a claim you re-check at runtime.
 
 ![A diagram contrasting v1's runtime discriminator check, which can be skipped, with V2's compile-time Pod-typed cast, where the account type is fixed in the struct and tracked by the compiler.](assets/v02-diagram.png)
 
-So when you write the cosplay, the type mismatch has nowhere to hide. Here is the attack, and here is the compiler refusing it. Your swap has two account types, both Pod:
+So when you write the cosplay, the type mismatch has nowhere to hide. One piece of honest setup first, because the shape of your own program matters here: R4 ships exactly **one** account type, the `Pool` you wrote in m05-l2, and cosplay needs two. So the exploit branch adds a second — a `FeeConfig` your swap does not have and is not going to grow. It is a prop, and naming it as one is part of the lesson: what the compile error below proves is a fact about the type system, not a claim about a field your program really holds.
 
 ```rust
-// programs/token-ticket-swap/src/state.rs  (R4, clean)
-use anchor_lang::prelude::*;
-
+// programs/token-ticket-swap/src/lib.rs  (R4, clean) - your swap's ONLY account type
 #[account]
-#[repr(C)]
-pub struct Config {
-    pub authority: Address,   // 32
-    pub rate: PodU64,         // tickets per quarter
-    pub bump: u8,
+#[derive(InitSpace)]
+pub struct Pool {
+    pub arcade_mint: Address,  // 32
+    pub ticket_mint: Address,  // 32
+    pub bump: u8,              //  1
+    pub _pad: [u8; 7],         //  7
 }
 
+// programs/token-ticket-swap/src/exploits.rs - the prop, exploit branch only.
+// An admin-config shape is the classic cosplay target: it carries an authority
+// worth stealing.
 #[account]
-#[repr(C)]
-pub struct QuarterVault {
-    pub authority: Address,        // 32
-    pub quarter_balance: PodU64,   // quarters held in custody
-    pub bump: u8,
+#[derive(InitSpace)]
+pub struct FeeConfig {
+    pub authority: Address,  // 32
+    pub fee_bps: u16,        //  2
+    pub bump: u8,            //  1
+    pub _pad: [u8; 5],       //  5
 }
 ```
 
-Now the cosplay. You hold the vault and try to read it as a Config to lift the authority:
+Now the cosplay. You hold the pool and try to read it as a `FeeConfig` to lift the authority:
 
 ```rust
-// ATTACK 1: type cosplay - read the vault's bytes through the Config lens
-pub fn cosplay(vault: &Account<QuarterVault>) -> Address {
-    let stolen: &Config = vault.as_ref(); // will not compile
+// ATTACK 1: type cosplay - read the pool's bytes through the FeeConfig lens
+pub fn cosplay(pool: &Account<Pool>) -> Address {
+    let stolen: &FeeConfig = pool.as_ref(); // will not compile
     stolen.authority
 }
 ```
 
-`Account<QuarterVault>` is a `Slab`, and a `Slab` implements `AsRef` for exactly two targets — the raw `AccountView` and the `Address` — never for some *other* Pod type. You asked it for a `&Config`, an impl that does not exist. The compiler stops cold:
+`Account<Pool>` is a `Slab`, and a `Slab` implements `AsRef` for exactly two targets — the raw `AccountView` and the `Address` — never for some *other* Pod type. You asked it for a `&FeeConfig`, an impl that does not exist. The compiler stops cold:
 
 ```text
-error[E0277]: the trait bound `Slab<QuarterVault>: AsRef<Config>` is not satisfied
+error[E0277]: the trait bound `Slab<Pool>: AsRef<FeeConfig>` is not satisfied
   --> programs/token-ticket-swap/src/exploits.rs
    |
-   |     let stolen: &Config = vault.as_ref();
-   |                                 ^^^^^^ the trait `AsRef<Config>` is not implemented
+   |     let stolen: &FeeConfig = pool.as_ref();
+   |                                   ^^^^^^ the trait `AsRef<FeeConfig>` is not implemented
    |
    = help: the following other types implement trait `AsRef<T>`:
              `Slab<T, H>` implements `AsRef<AccountView>`
              `Slab<T, H>` implements `AsRef<Address>`
 ```
 
-That is type cosplay converted into `E0277`: the trait surface simply refuses to offer a lens that is not the account's own type. The vault's bytes never get read through the wrong struct, because the wrong struct is a different Pod type and the two do not interconvert. Notice what did the work: not a new runtime check, but the ordinary Rust type system, given a deterministic layout to hold onto.
+That is type cosplay converted into `E0277`: the trait surface simply refuses to offer a lens that is not the account's own type. The pool's bytes never get read through the wrong struct, because the wrong struct is a different Pod type and the two do not interconvert. Notice what did the work: not a new runtime check, but the ordinary Rust type system, given a deterministic layout to hold onto.
 
-Now be honest about what that snippet did and did not prove, because on its own it proves less than it looks. Nobody ever shipped that line. `let x: &Config = y.as_ref()` on a `&QuarterVault` fails to compile on v1, on 0.29, on any Rust ever written; it is a type error, not an exploit. The line is there because it is the *laundering* attempt, the thing an attacker tries first once the typed wrapper is in the way, and it shows the typed wrapper holding. The real v1 attack never wrote that line. It went around the typed wrapper entirely:
+Now be honest about what that snippet did and did not prove, because on its own it proves less than it looks. Nobody ever shipped that line. `let x: &FeeConfig = y.as_ref()` on a `&Pool` fails to compile on v1, on 0.29, on any Rust ever written; it is a type error, not an exploit. The line is there because it is the *laundering* attempt, the thing an attacker tries first once the typed wrapper is in the way, and it shows the typed wrapper holding. The real v1 attack never wrote that line. It went around the typed wrapper entirely:
 
 ```rust
 // ATTACK 1, the shape it actually shipped in: hand-read raw bytes through
 // the wrong struct, so no wrapper and no discriminator is ever consulted.
 pub fn cosplay_v1(any_account: &AccountInfo) -> Result<Pubkey> {
     let data = any_account.try_borrow_data()?;
-    let cfg = Config::try_from_slice(&data[8..])?;  // is this REALLY a Config?
-    Ok(cfg.authority)                                // whatever bytes sat there, read as one
+    let cfg = FeeConfig::try_from_slice(&data[8..])?;  // is this REALLY a FeeConfig?
+    Ok(cfg.authority)                                  // whatever bytes sat there, read as one
 }
 ```
 
-Hand it a `QuarterVault` and it happily returns `quarter_balance`'s neighbourhood of bytes as an `authority`, because `try_from_slice` decodes whatever it is given. That is the class. Two things have to hold for V2 to answer it, and they answer it on two different clocks. At *load*, a `QuarterVault` account passed into a slot declared `Account<Config>` is rejected by the discriminator check, at runtime, exactly as v1's `Account<T>` rejected it: the tag says `account:QuarterVault` and the wrapper wanted `account:Config`. That half is not new. What *is* new is that the byte-level escape hatch closed: with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the bytemuck cast you would reach for instead, `from_bytes::<Config>(&data[8..])`, is a cast you have to write deliberately, on bytes you have not proven are a `Config`, in code a reviewer can grep for in one pass. The discriminator was always the runtime guard. V2's contribution is that the ordinary path no longer offers you a way around it, which is why the `E0277` above is the interesting failure rather than an obvious one.
+Hand it a `Pool` and it happily returns the first 32 bytes — `arcade_mint` — as an `authority`, because `try_from_slice` decodes whatever it is given. Note how plausible the result looks: a mint is a well-formed address, so nothing downstream smells wrong until someone signs against it. That is the class. Two things have to hold for V2 to answer it, and they answer it on two different clocks. At *load*, a `Pool` account passed into a slot declared `Account<FeeConfig>` is rejected by the discriminator check, at runtime, exactly as v1's `Account<T>` rejected it: the tag says `account:Pool` and the wrapper wanted `account:FeeConfig`. That half is not new. What *is* new is that the byte-level escape hatch closed: with `Account<T>` as a Pod view there is no `try_from_slice` on a loose slice to reach for, and the bytemuck cast you would reach for instead, `from_bytes::<FeeConfig>(&data[8..])`, is a cast you have to write deliberately, on bytes you have not proven are a `FeeConfig`, in code a reviewer can grep for in one pass. The discriminator was always the runtime guard. V2's contribution is that the ordinary path no longer offers you a way around it, which is why the `E0277` above is the interesting failure rather than an obvious one.
 
 ### Duplicate-mutable
 
-Same engine, different seam. The classic double-spend: an instruction takes two writable accounts, `vault_a` and `vault_b`, and the attacker passes the *same* account for both. Picture it on your swap. Your program reads `vault_a.quarter_balance`, reads `vault_b.quarter_balance`, credits `vault_a`, debits `vault_b`, and writes both back. If `vault_a` and `vault_b` are the same underlying account, the two in-memory copies diverge, and whichever write lands last wins. Credit a hundred quarters here, debit a hundred there, and the account keeps the credit while the debit evaporates. That is a mint out of thin air. In v1 the dispatcher ran a duplicate check to stop exactly this, but the check was easy to opt out of by accident, and plenty of programs did, usually by reaching for a raw account type to shave a constraint.
+Same engine, different seam. The classic double-spend: an instruction takes two writable accounts and the attacker passes the *same* account for both. The program reads a balance through one name, reads it again through the other, credits the first, debits the second, and writes both back. The two in-memory copies diverge, whichever write lands last wins, and the credit survives while the debit evaporates. That is a mint out of thin air. In v1 the dispatcher ran a duplicate check to stop exactly this, but the check was easy to opt out of by accident, and plenty of programs did, usually by reaching for a raw account type to shave a constraint.
+
+Try to picture it on your swap and something useful happens: you cannot. `SwapArcadeForTickets` carries `token::mint = mint_arcade` on `reserve_arcade` and `token::mint = mint_ticket` on `reserve_ticket`, and no token account holds two mints, so the two writable reserve slots are un-aliasable before the duplicate check gets a vote. A constraint you wrote in m05-l2 for a pricing reason closed this door for a security reason. That is the honest state of R4, and it is why the attack below is a *new* accounts struct you add on the exploit branch rather than an edit to the swap: you have to strip the pins to make the seam exist at all.
 
 On the V2 defaults, the set of writable accounts an instruction touches is a compile-time associated const, the **`MUT_MASK`** bitset. Opting out of the duplicate-mutable protection is a real thing you sometimes need, and it has a name: `unsafe(dup)`. Writing plain `dup` without `unsafe` is a hard compile error whose message tells you the fix. You cannot even build the unsafe spelling by accident, because the safe-looking spelling does not build.
 
@@ -133,11 +138,11 @@ Rule out the v1 answers in tiers, because the ecosystem tried all of them. Tier 
 
 V2's answer is a borrow, not a reminder. A **`CpiHandle`** is a borrow-tracked handle to the accounts a CPI will touch. While the handle is alive, it holds a Rust borrow over those accounts, and typed access to the same data does not compile until the handle is dropped. You physically cannot read the stale field, because the read does not build while the CPI is pending. The entire stale-after-CPI class collapses into the borrow checker, which is the one part of Rust that never forgets.
 
-![A vertical timeline of a CpiHandle's borrow window, marking every typed read of the vault inside it as a compile error, against the v1 stale read.](assets/v04-diagram.png)
+![A vertical timeline of a CpiHandle's borrow window, marking every typed read of the ticket reserve inside it as a compile error, against the v1 stale read.](assets/v04-diagram.png)
 
 ### Bump recalculation, the one that compiles
 
-The fourth class is the interesting one, because it does not produce an error. In v1, a program that recomputed a PDA bump on every call, instead of storing the canonical one, could be steered into signing with a non-canonical bump, and the recompute-the-wrong-bump family lived in that seam. On the V2 defaults the seam is tighter, but be precise about the mechanism, because it is easy to overclaim: the macro precomputes a bump as a compile-time const *only when every seed is a byte literal*. Your vault's seeds carry the authority's runtime key, so for the exact PDA you are about to attack the framework still derives at runtime — the codegen falls back to `find_and_verify_program_address` during validation. What it never does, on any seed shape, is accept a bump you hand it: validation re-derives the canonical result and compares.
+The fourth class is the interesting one, because it does not produce an error. In v1, a program that recomputed a PDA bump on every call, instead of storing the canonical one, could be steered into signing with a non-canonical bump, and the recompute-the-wrong-bump family lived in that seam. On the V2 defaults the seam is tighter, but be precise about the mechanism, because it is easy to overclaim: the macro precomputes a bump as a compile-time const *only when every seed is a byte-string literal* — a `b"..."` written out in the derive and nothing else. Your pool's seed list reads `seeds = [POOL_SEED]`, and `POOL_SEED` is a named `const`, not a literal, so the pool misses that optimization by a hair and the codegen falls back to deriving during validation. (If you want to check rather than take my word: the pinned tag's `lang-v2/derive/src/pda.rs` gates the whole thing on `seeds_as_byte_literals`, which matches a byte-string literal and returns `None` for a path expression — its own unit tests spell that out.) What the framework never does, on any seed shape, is accept a bump you hand it: validation re-derives the canonical result and compares.
 
 So when you hand-recompute a bump in your exploit, it compiles. `Address::find_program_address` is ordinary code. But the framework validates and signs against its own canonical derivation, so your recomputed value is either identical, in which case you changed nothing, or different, in which case PDA validation rejects it at runtime. The attack builds and goes nowhere. Keep that result close, because it is the bridge to the next lesson: compiling is not exploiting, and there is a whole set of classes where code compiles *and* drains an escrow.
 
@@ -180,24 +185,28 @@ anchor build 2>&1 | tee /tmp/attack1.log
 grep -A6 'E0277' /tmp/attack1.log
 ```
 
-You should see the `trait bound` block naming `Slab<QuarterVault>: AsRef<Config>` as unsatisfied, with the help note listing `AccountView` and `Address` as the only `AsRef` targets a `Slab` offers. Commit the failing state so the branch records the attempt:
+You should see the `trait bound` block naming `Slab<Pool>: AsRef<FeeConfig>` as unsatisfied, with the help note listing `AccountView` and `Address` as the only `AsRef` targets a `Slab` offers. Commit the failing state so the branch records the attempt:
 
 ```bash
 git add -A && git commit -m "attack 1: type cosplay (does not compile)"
 ```
 
-Checkpoint: `git log --oneline` shows one commit, and `/tmp/attack1.log` contains `E0277`. If the build *succeeded*, you accidentally made the two structs the same type, so re-check that `Config` and `QuarterVault` are distinct.
+Checkpoint: `git log --oneline` shows one commit, and `/tmp/attack1.log` contains `E0277`. If the build *succeeded*, you accidentally made the two structs the same type, so re-check that `Pool` and `FeeConfig` are distinct.
 
-**Step 2: finish the duplicate-mutable stub.** Open the stub and complete the second slot so both are mutable and both carry the plain `dup` opt-out:
+**Step 2: finish the duplicate-mutable stub.** This is a second accounts struct in `exploits.rs`, not an edit to `SwapArcadeForTickets` — as the derivation said, the real swap's `token::mint` pins make its reserve slots un-aliasable, so the attack has to drop them to have a seam. Complete the second slot so both are mutable and both carry the plain `dup` opt-out:
 
 <!-- verify: expect-fail the V2 default rejects bare `dup`; that compile error IS this lesson's point -->
 ```rust
 // STUB - finish this so both slots are `mut` and marked plain `dup`
 #[derive(Accounts)]
-pub struct DrainSwap {
+pub struct DrainPool {
+    pub trader: Signer,
+    #[account(seeds = [POOL_SEED], bump = pool.bump)]
+    pub pool: Account<Pool>,
     #[account(mut, dup)]
-    pub vault_a: Account<QuarterVault>,
-    // TODO: add vault_b as a second mutable QuarterVault, also marked plain `dup`
+    pub reserve_a: InterfaceAccount<TokenAccount>,
+    // TODO: add reserve_b as a second mutable InterfaceAccount<TokenAccount>,
+    //       also marked plain `dup`
 }
 ```
 
@@ -210,34 +219,38 @@ anchor build 2>&1 | grep -c 'unsafe(dup)'
 
 Checkpoint: the count is at least 1. The error told you to write `unsafe(dup)`, and you are going to leave it as bare `dup`, because the point is the rejection, not the fix. Commit it as a failing attempt.
 
-**Step 3: finish the CPI-aliasing stub.** Complete it so a typed read of the vault sits *between* the handle's creation and its `invoke`:
+**Step 3: finish the CPI-aliasing stub.** You have run this experiment once already, in m05-l2's step 3, where moving the reserve reads into the handle's window was a checkpoint. Same move, framed as an attack: complete the stub so a typed read of the ticket reserve sits *between* the handle's creation and its `invoke`:
 
 ```rust
-// STUB - read vault.quarter_balance while the CpiHandles are still live
-pub fn drain(ctx: &mut Context<Swap>) -> Result<()> {
-    let accts = Transfer {
-        from: ctx.accounts.vault.cpi_handle_mut(),
-        to: ctx.accounts.prize.cpi_handle_mut(),
-        authority: ctx.accounts.config.cpi_handle(),
+// STUB - read reserve_ticket.amount() while the CpiHandles are still live
+pub fn drain(ctx: &mut Context<SwapArcadeForTickets>) -> Result<()> {
+    let push = TransferChecked {
+        from: ctx.accounts.reserve_ticket.cpi_handle_mut(),
+        mint: ctx.accounts.mint_ticket.cpi_handle(),
+        to: ctx.accounts.trader_ticket.cpi_handle_mut(),
+        authority: ctx.accounts.pool.cpi_handle(),
     };
-    // TODO: read ctx.accounts.vault.quarter_balance HERE, while `accts` still holds the handles
-    transfer(CpiContext::new(ctx.accounts.token_program.address(), accts), 1)?;
+    // TODO: read ctx.accounts.reserve_ticket.amount() HERE, while `push` still holds the handles
+    token_interface::transfer_checked(
+        CpiContext::new(ctx.accounts.token_program.address(), push),
+        1,
+        ctx.accounts.mint_ticket.decimals(),
+    )?;
     Ok(())
 }
 ```
 
-Build. The borrow checker rejects the read with an `E0502`-class message: the vault is mutably borrowed by the `CpiHandle` inside `accts`, so you cannot take a second reference to read a field. Capture it, commit the failing attempt.
+Build. The borrow checker rejects the read with an `E0502`-class message: `reserve_ticket` is mutably borrowed by the `CpiHandle` inside `push`, so you cannot take a second reference to read its balance. Capture it, commit the failing attempt.
 
-Checkpoint: the build fails on a borrow error that names the handle and `vault`. If it *compiled*, your read landed after the handles went out of scope or after the `transfer`, which is the safe ordering, so move the read up.
+Checkpoint: the build fails on a borrow error that names the handle and `reserve_ticket`. If it *compiled*, your read landed after the handles went out of scope or after the `transfer_checked`, which is the safe ordering, so move the read up.
 
 **Step 4: run the bump attack and read the non-result.** This one compiles. Add the hand-recompute and build:
 
 ```rust
-// ATTACK 4: hand-recompute the bump instead of trusting the const
-pub fn wrong_bump(ctx: &mut Context<Swap>) -> Result<()> {
-    let (_pda, bump) =
-        Address::find_program_address(&[b"vault", ctx.accounts.config.authority.as_ref()], &crate::ID);
-    msg!("recomputed bump = {}, stored bump = {}", bump, ctx.accounts.vault.bump);
+// ATTACK 4: hand-recompute the bump instead of trusting the one the pool stored
+pub fn wrong_bump(ctx: &mut Context<SwapArcadeForTickets>) -> Result<()> {
+    let (_pda, bump) = Address::find_program_address(&[POOL_SEED], &crate::ID);
+    msg!("recomputed bump = {}, stored bump = {}", bump, ctx.accounts.pool.bump);
     Ok(())
 }
 ```
@@ -246,7 +259,7 @@ pub fn wrong_bump(ctx: &mut Context<Swap>) -> Result<()> {
 anchor build   # this one succeeds
 ```
 
-Checkpoint: the build is green, and the two bumps in the log are equal. There was no seam to exploit, only a const to re-derive. That green build is the point of the whole exercise: it compiled, and it drained nothing.
+Checkpoint: the build is green, and the two bumps in the log are equal. There was no seam to exploit, only the canonical bump to re-derive at your own CU expense. That green build is the point of the whole exercise: it compiled, and it drained nothing.
 
 **Step 5: restore R4 to clean and prove it.** Take the exploits back out and confirm the swap still passes:
 
@@ -266,8 +279,8 @@ The completion work is the Lab you just finished: three attacks expressed from s
 
 Pick one class and write a *new* variant of it against the swap. Some starting points, but invent your own if one occurs to you:
 
-- A different pair of aliased accounts for the CPI class: hold a typed read of the `prize` account, not the vault, while a handle over `prize` is live.
-- A cosplay in the other direction: read a `Config` as a `QuarterVault` and try to spend its `quarter_balance` field.
+- A different pair of aliased accounts for the CPI class: hold a typed read of `reserve_arcade`, not `reserve_ticket`, while a handle over `reserve_arcade` is live.
+- A cosplay in the other direction: read a `FeeConfig` as a `Pool` and try to lift its `ticket_mint`.
 - A duplicate-mutable across three slots instead of two.
 
 Before you compile, write down your prediction: does the V2 default kill this at compile time, or does it let it through? Then build and check yourself. The prediction is the graded part, not the compile. If you can call the outcome before you hit build, you have internalized the mechanism instead of memorizing the four examples. If your prediction was wrong, the interesting question is not "what is the fix" but "which of the four mechanisms did I misunderstand," and the derivation section is where you go to find out.

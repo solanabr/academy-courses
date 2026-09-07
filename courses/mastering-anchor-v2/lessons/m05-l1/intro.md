@@ -574,7 +574,7 @@ Checkpoint: green. The token balance moved out of the vault ATA, and the only th
 
 Here the fade kicks in. The vault is worked. The escrow is yours, and it is a smaller change than you might fear, for a reason that is the whole payoff of last lesson's design.
 
-The prize-escrow (R3), the `quarter-prize` program you built last lesson, never custodied the prize itself. It delegated custody to an R2 vault instance and reached it over a CPI. So when R2's custody went SPL, the escrow's *policy* did not change at all: `reserve` still records the maker, player, vault, amount, and winning score; `redeem` still checks `final_score >= escrow.winning_score` before anything moves; the caller is still pinned with `address = escrow.player`; the escrow still signs as its own PDA with `[b"escrow", maker, player, bump]`, seeds and order unchanged. The only thing that changed is what the escrow *passes down* to the vault: the mint and the token accounts now ride along on the `deposit` and `release` CPIs.
+The prize-escrow (R3), the `quarter-prize` program you built last lesson, never custodied the prize itself. It delegated custody to an R2 vault instance and reached it over a CPI. So when R2's custody went SPL, the escrow's *policy* did not change at all: `reserve` still records the maker, player, vault, amount, and winning score; `redeem` still checks `final_score >= escrow.winning_score` before anything moves; the caller is still pinned with `address = escrow.player`; the escrow still closes to the recorded `maker` so the rent goes back to the operator who paid it; the escrow still signs as its own PDA with `[b"escrow", maker, player, bump]`, seeds and order unchanged. The only thing that changed is what the escrow *passes down* to the vault: the mint and the token accounts now ride along on the `deposit` and `release` CPIs.
 
 That is the sentence to sit with. Because you built on a vault instead of inlining custody, the SPL migration never leaves the escrow's CPI edge: the accounts it threads into the vault CPI change, and `reserve` follows one mechanical rename, the vault's init instruction going from `init_vault` to `initialize`. Policy, condition, caller pin, PDA signing: untouched.
 
@@ -653,10 +653,14 @@ pub struct Redeem {
     pub player: Signer,
     #[account(
         mut,
+        close = maker,
         seeds = [b"escrow", escrow.maker.as_ref(), escrow.player.as_ref()],
         bump = escrow.bump,
     )]
     pub escrow: Account<Escrow>,
+    /// CHECK: close destination only, pinned to the maker the escrow recorded.
+    #[account(mut, address = escrow.maker)]
+    pub maker: UncheckedAccount,
     /// CHECK: address fixed by seeds; the quarter_vault program validates and signs it.
     #[account(
         mut,
@@ -685,6 +689,8 @@ pub struct Redeem {
     pub system_program: Program<System>,
 }
 ```
+
+Two lines in there carry over from the lamport version and are easy to lose in a rewrite, so name them: `close = maker` on the escrow, and the `maker` seat it needs as a close destination, pinned with `address = escrow.maker`. Drop either and a redeemed escrow stays open with its rent stranded — the policy line survives the custody swap exactly like the rest.
 
 One constraint in there is new, so take the thirty-second version now rather than guessing. `seeds::program = quarter_vault_program.address()` tells Anchor to derive that PDA against *another* program's id instead of your own. You need it because the vault PDA belongs to `quarter_vault`, not to the escrow: without that line Anchor would derive `[b"vault"...]` under the escrow's program id, get a different address, and reject the account you actually meant. Any time you constrain a PDA that a program you are calling owns, `seeds::program` is the line that points the derivation at the right owner.
 

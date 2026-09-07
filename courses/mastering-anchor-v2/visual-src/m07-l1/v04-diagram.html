@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: CpiHandle borrow lifetime
      purpose: show the window where typed access to the borrowed account is a compile error
-     data: timeline (top to bottom): 1. let accts = Transfer { from: ctx.accounts.vault.cpi_handle_mut(), to: ctx.accounts.prize.cpi_handle_mut() } -> a CpiHandle borrow of vault begins 2. read ctx.accounts.vault.quarter_balance -> COMPILE ERROR: vault is borrowed by the handle (E0502) 3. transfer(CpiContext::new(&token_program, accts), amount)? -> CPI runs, bytes may change 4. the handles go out of scope -> borrow ends 5. read ctx.accounts.vault.quarter_balance -> OK, fresh bytes, no reload needed contrast: v1 would compile step 2 and silently return the pre-CPI value
-     prompt: Vertical timeline, five steps. Draw a bracket spanning steps 1 through 4 labeled "vault borrowed by a CpiHandle". Mark step 2 with a red X and "won't compile". Mark step 5 with a green check and "fresh, no .reload()". In a side note, show the v1 behavior: step 2 compiles and returns stale.
+     data: timeline (top to bottom): 1. let push = TransferChecked { from: ctx.accounts.reserve_ticket.cpi_handle_mut(), to: ctx.accounts.trader_ticket.cpi_handle_mut() } -> a CpiHandle borrow of reserve_ticket begins 2. read ctx.accounts.reserve_ticket.amount() -> COMPILE ERROR: reserve_ticket is borrowed by the handle (E0502) 3. transfer_checked(CpiContext::new(&token_program, push), out, decimals)? -> CPI runs, bytes may change 4. the handles go out of scope -> borrow ends 5. read ctx.accounts.reserve_ticket.amount() -> OK, fresh bytes, no reload needed contrast: v1 would compile step 2 and silently return the pre-CPI value
+     prompt: Vertical timeline, five steps. Draw a bracket spanning steps 1 through 4 labeled "reserve_ticket borrowed by a CpiHandle". Mark step 2 with a red X and "won't compile". Mark step 5 with a green check and "fresh, no .reload()". In a side note, show the v1 behavior: step 2 compiles and returns stale.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -85,20 +85,20 @@
   <div class="cols">
     <div class="steps">
       <div class="brk"></div>
-      <div class="brklab">vault borrowed by a CpiHandle</div>
+      <div class="brklab">reserve_ticket borrowed by a CpiHandle</div>
 
       <div class="step">
         <div class="num">1</div>
         <div class="body">
-          <div class="mono">let accts = Transfer {<br>&nbsp;&nbsp;from: ctx.accounts.vault.<span class="g">cpi_handle_mut()</span>, to: ctx.accounts.prize.<span class="g">cpi_handle_mut()</span> }</div>
+          <div class="mono">let push = TransferChecked {<br>&nbsp;&nbsp;from: ctx.accounts.reserve_ticket.<span class="g">cpi_handle_mut()</span>, to: ctx.accounts.trader_ticket.<span class="g">cpi_handle_mut()</span> }</div>
         </div>
-        <div class="tag"><div class="tl">borrow begins</div><div class="tn">the handle now holds <b>vault</b></div></div>
+        <div class="tag"><div class="tl">borrow begins</div><div class="tn">the handle now holds <b>reserve_ticket</b></div></div>
       </div>
 
       <div class="step hot">
         <div class="num">2</div>
         <div class="body">
-          <div class="mono">read ctx.accounts.vault.quarter_balance</div>
+          <div class="mono">read ctx.accounts.reserve_ticket.amount()</div>
           <div class="sub">the typed field you wanted is exactly what the handle excludes.</div>
         </div>
         <div class="tag">
@@ -106,7 +106,7 @@
             <svg width="14" height="14" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12" stroke="#1d4327" stroke-width="2.6"/><line x1="12" y1="2" x2="2" y2="12" stroke="#1d4327" stroke-width="2.6"/></svg>
             won&rsquo;t compile
           </div>
-          <div class="tn">E0502 &mdash; vault is borrowed by the handle</div>
+          <div class="tn">E0502 &mdash; reserve_ticket is borrowed by the handle</div>
         </div>
       </div>
 
@@ -131,7 +131,7 @@
       <div class="step ok">
         <div class="num">5</div>
         <div class="body">
-          <div class="mono">read ctx.accounts.vault.quarter_balance</div>
+          <div class="mono">read ctx.accounts.reserve_ticket.amount()</div>
           <div class="sub">the same line as step 2 &mdash; now it is simply correct.</div>
         </div>
         <div class="tag">

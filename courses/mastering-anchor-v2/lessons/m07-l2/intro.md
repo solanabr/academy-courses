@@ -1,6 +1,6 @@
 # What still bites you (exploit then patch)
 
-You just watched type cosplay, duplicate-mutable, and CpiHandle aliasing die at compile time: three attacks that would not build. The fourth, bump recalculation, built cleanly and then did nothing, because the framework signs with a macro-time const and your recomputed byte had nowhere to go. Three refused, one hollow. The compiler was your bodyguard, and it did the job. This lesson the bodyguard goes home.
+You just watched type cosplay, duplicate-mutable, and CpiHandle aliasing die at compile time: three attacks that would not build. The fourth, bump recalculation, built cleanly and then did nothing, because the framework re-derives the canonical bump during validation and signs with that, so your recomputed byte had nowhere to go. Three refused, one hollow. The compiler was your bodyguard, and it did the job. This lesson the bodyguard goes home.
 
 So do not read yet. You are going to make the vulnerable branch yourself, from the escrow you already built, because the guards you are about to remove are guards *you* wrote and the removal is the first thing worth feeling.
 
@@ -10,7 +10,7 @@ From the same `quarters` workspace as last lesson, on your clean R3/R4:
 git checkout -b vuln/prize-escrow
 ```
 
-Then open `programs/quarter-prize/src/lib.rs` and delete three constraints from the `Redeem` accounts struct: the `address = escrow.player` on `player`, the `address = escrow.vault` on `vault_state`, and the `address = escrow.maker` on `maker`. Leave everything else. That is a rushed first draft, and it is what half the escrows on this chain shipped as.
+Then open `programs/quarter-prize/src/lib.rs` and peel three pins off the `Redeem` accounts struct — the SPL one you finished in m05-l1, not the lamport draft that preceded it. Delete the `address = escrow.player` on `player`, delete the `address = escrow.maker` on `maker`, and strip `vault` down to a bare `#[account(mut)]` by removing its whole `seeds` / `bump` / `seeds::program` derivation. Leave everything else, the two ATA constraints included. That is a rushed first draft, and it is what half the escrows on this chain shipped as.
 
 The `Escrow` record itself is unchanged from m04-l3, and the exploits below read it, so keep it in view:
 
@@ -75,28 +75,46 @@ Start with the exploit you already ran. Here is the redeem accounts struct on th
 ```rust
 #[derive(Accounts)]
 pub struct Redeem {
+    pub player: Signer,                    // VULN: any signer, not the recorded player
+
     #[account(
         mut,
         close = maker,
         seeds = [b"escrow", escrow.maker.as_ref(), escrow.player.as_ref()],
-        bump = escrow.bump
+        bump = escrow.bump,
     )]
     pub escrow: Account<Escrow>,
 
     /// CHECK: pinned by the address constraint the patch adds below
-    #[account(mut)]                        // VULN: any vault, not the one the escrow recorded
-    pub vault_state: UncheckedAccount,
-
-    #[account(mut)]                        // VULN: any signer, not the recorded player
-    pub player: Signer,
-
     #[account(mut)]                        // VULN: any account, substitutable rent recipient
     pub maker: UncheckedAccount,
 
+    /// CHECK: pinned by the constraint the patch adds below
+    #[account(mut)]                        // VULN: any vault, not the one the escrow recorded
+    pub vault: UncheckedAccount,
+
+    pub mint: InterfaceAccount<Mint>,
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = vault,
+        associated_token::token_program = token_program,
+    )]
+    pub vault_token_account: InterfaceAccount<TokenAccount>,
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = player,
+        associated_token::token_program = token_program,
+    )]
+    pub winner_token_account: InterfaceAccount<TokenAccount>,
+    pub token_program: Interface<'static, TokenInterface>,
     pub quarter_vault_program: Program<QuarterVault>,
     pub system_program: Program<System>,
 }
 ```
+
+Read the two ATA lines before you move on, because they are what makes the exploit *pay*. `winner_token_account` is derived from whoever sits in the `player` seat. Substitute the caller and you substitute the payout destination along with it — one edit, both halves of the theft.
 
 Nothing here is a compile error. `player` is a real `Signer`, so *someone* signed. But the program never checks that the someone is `escrow.player`. The whole conditional release turns on "only the named player may claim," and that sentence appears nowhere in the code. The exploit writes itself. A stranger signs a redeem, clears the score bar (self-reported, remember, this cabinet does not attest scores yet), and the vault pays them. The exploit tests run on LiteSVM, V2's default in-process Rust test harness, so add it to the program if it is not already there:
 
@@ -108,6 +126,10 @@ Nothing here is a compile error. `player` is a real `Signer`, so *someone* signe
 # types refusing to unify — instead of never happening at all.
 cargo add anchor-v2-testing --dev \
   --git https://github.com/otter-sec/anchor.git --tag v2.0.0-rc.1
+# The escrow crate needs the same two SPL client crates the vault's fixture used in
+# m05-l1, at the same pins, because the prize is tokens now and the setup has to mint
+# and move them.
+cargo add spl-token@9 spl-associated-token-account@8 --dev
 ```
 
 ```rust
@@ -116,6 +138,16 @@ use anchor_lang::{
     InstructionData, ToAccountMetas,
 };
 use anchor_v2_testing::{Keypair, Message, Signer, VersionedMessage, VersionedTransaction};
+
+// The SPL client helpers m05-l1 shipped, reached by path instead of copied.
+// Each tests/*.rs is its own crate root, so you cannot `use` an item out of a
+// sibling test binary — but `#[path]` compiles any file you point it at straight
+// into THIS crate, and it can point across packages. Same trick m05-l1's
+// spl_setup.rs used to reach spl_helpers.
+#[path = "../../quarter-vault/tests/spl_helpers.rs"]
+mod spl_helpers;
+
+const ONE_TOKEN: u64 = 1_000_000;   // 6 decimals, same mint shape as m05-l1
 
 #[test]
 fn drain_as_stranger() {
@@ -137,22 +169,27 @@ fn drain_as_stranger() {
     let (vault, _vb) =
         Address::find_program_address(&[b"vault", escrow.as_ref()], &quarter_vault::ID);
 
-    // Setup seam, and it is YOURS to write in this same file: a Rust integration
-    // test is its own crate, so a helper defined in another tests/ file cannot be
-    // imported here. Adapt the reserve flow from your m04-l3 test into a local
-    // fn reserve_prize: the maker reserves a 50_000_000-lamport prize behind a
-    // 5_000 winning score, creating the escrow and funding its vault.
-    reserve_prize(&mut svm, &maker, &player, escrow, vault, 50_000_000, 5_000);
+    // Setup seam, and it is YOURS to write in this same file: adapt the SPL reserve
+    // flow you built for m05-l1's solo into a local `fn reserve_prize`. It creates a
+    // 6-decimal mint, gives the maker, the player and the stranger each an ATA on it,
+    // then reserves a 1.0-token prize behind a 5_000 winning score — which means the
+    // two-call flow into the escrow's own vault instance, `initialize` then `deposit`.
+    // Have it hand back the mint and the ATA addresses so the assertion can read them.
+    let f = reserve_prize(&mut svm, &maker, &player, &stranger, escrow, vault, ONE_TOKEN, 5_000);
 
-    // The stranger, NOT escrow.player, redeems with a passing score.
-    let before = svm.get_account(&stranger.pubkey()).unwrap().lamports;
+    // The stranger, NOT escrow.player, redeems with a passing score — and because
+    // winner_token_account derives from the player seat, the payout follows them.
     let ix = Instruction {
         program_id: quarter_prize::ID,
         accounts: quarter_prize::accounts::Redeem {
-            escrow,
-            vault_state: vault,
             player: stranger.pubkey(),     // substitute the caller
+            escrow,
             maker: maker.pubkey(),
+            vault,
+            mint: f.mint,
+            vault_token_account: f.vault_ata,
+            winner_token_account: f.stranger_ata,
+            token_program: spl_token::ID,
             quarter_vault_program: quarter_vault::ID,
             system_program: System::id(),
         }
@@ -165,15 +202,18 @@ fn drain_as_stranger() {
 
     // On the vuln branch this SUCCEEDS. That is the bug.
     svm.send_transaction(tx).unwrap();
-    let after = svm.get_account(&stranger.pubkey()).unwrap().lamports;
-    assert!(after > before, "the stranger drained the prize");
+    assert_eq!(
+        spl_helpers::token_balance(&svm, &f.stranger_ata),
+        ONE_TOKEN,
+        "the stranger walked off with the whole prize"
+    );
 }
 ```
 
-That is a working drain, and it is 30 lines. The patch is one. On the `player` field, pin the caller to the pubkey the escrow recorded:
+That is a working drain, and the patch is one line. On the `player` field, pin the caller to the pubkey the escrow recorded:
 
 ```rust
-#[account(mut, address = escrow.player)]
+#[account(address = escrow.player)]
 pub player: Signer,
 ```
 
@@ -198,12 +238,12 @@ The patch on the escrow restores the pin the frozen version always had:
 pub maker: UncheckedAccount,
 ```
 
-Now the rent can only return to the recorded maker. Do the same to `vault_state`, which on the vuln branch carries only `mut` — any account at all — so an attacker substitutes a *different* vault they control and redirects the withdraw. One thing the patch must *not* do is promote the field to a typed `Account<Vault>`: the vault belongs to `quarter_vault`, a different program, so it could never load as a typed account inside `quarter_prize` — class 3 below derives exactly why, and it is the reason R3 declared the slot `UncheckedAccount` in the first place. The pin is the same address constraint, with a real error while it is at it:
+Now the rent can only return to the recorded maker. Do the same to `vault`, which on the vuln branch carries only `mut` — any account at all — so an attacker substitutes a *different* vault they control, and the `associated_token::authority = vault` line obligingly derives the vault ATA from *their* vault. One thing the patch must *not* do is promote the field to a typed `Account<Vault>`: the vault belongs to `quarter_vault`, a different program, so it could never load as a typed account inside `quarter_prize` — class 3 below derives exactly why, and it is the reason R3 declared the slot `UncheckedAccount` in the first place. Two spellings close it, and both are already in your vocabulary. The frozen escrow pins it by derivation, `seeds` + `bump` + `seeds::program`, which is what you wrote in m05-l1. The shorter one pins it against the record, with a real error while it is at it, and it is the one this lesson uses because it makes the substitution class visible in a single line:
 
 ```rust
 /// CHECK: pinned to the exact vault this escrow recorded
 #[account(mut, address = escrow.vault @ EscrowError::WrongVault)]
-pub vault_state: UncheckedAccount,
+pub vault: UncheckedAccount,
 ```
 
 **Completion problem.** I gave you the two patches above. Now you write the exploit that proves the `maker` hole was real. Fork `drain_as_stranger` into a `steal_rent_on_close` test: the legitimate player redeems correctly, but passes `maker: attacker.pubkey()` instead of the true maker, and you assert the attacker's balance grew by roughly the escrow's rent. Land it red on the peeled-back field, apply the `address = escrow.maker` pin, watch it go green. The accept bar is exactly the loop: the test passes against the vuln field and fails against the patch.
@@ -278,30 +318,32 @@ The escrow avoids it because it uses the `close = maker` constraint, and V2's cl
 
 ### Class 7: arithmetic overflow (the withdraw guard's real bug)
 
-The last class is the smallest to state and the easiest to ship. The vault's withdraw debits a balance. On the vuln branch it does it with raw subtraction:
+The last class is the smallest to state and the easiest to ship. The vault's `withdraw` debits its ledger, `vault.credit`, after the token move. On the vuln branch it does it with raw subtraction:
 
 ```rust
 // VULN: unsigned subtraction underflows.
-vault.balance = vault.balance - amount;
+vault.credit = vault.credit - amount;
 ```
 
-If `amount > balance`, this does not error. In debug builds it panics; in a build with overflow checks off it *wraps*, so a balance of 30 minus a withdraw of 100 becomes a gigantic positive number and your vault believes it holds far more than it does. Neither outcome is "the withdraw was rejected," which is the only correct one.
+If `amount > credit`, this does not error. In debug builds it panics; in a build with overflow checks off it *wraps*, so a credit of 30 minus a withdraw of 100 becomes a gigantic positive number and the vault's books believe it holds far more than it does. Neither outcome is "the withdraw was rejected," which is the only correct one.
+
+Reaching that line takes one extra move, and the move is the interesting part. `withdraw` transfers the tokens first and debits the ledger second, so while the ledger and the custody agree, the token program rejects an over-withdraw at the transfer CPI and the subtraction never runs — m05-l1 said exactly that when it had you assert the over-withdraw comes back an `Err`. The ledger guard exists for the case where the two numbers *disagree*, and they disagree the moment anybody transfers tokens straight into the vault's ATA. An associated token account is a public mailbox: `deposit` is not the only way tokens get in, and nothing on chain makes an unsolicited transfer bump `vault.credit`. So over-fund the vault ATA by hand, then withdraw more than `credit` but no more than the ATA actually holds. The transfer succeeds, the raw subtraction wraps, and the books now report a balance nobody ever put there.
 
 Know where your build sits on that, because it decides which of the two you get. Anchor's generated workspace `Cargo.toml` sets `overflow-checks = true` on the release profile, and `cargo build-sbf` uses release, so on an untouched scaffold this panics rather than wraps. Two things make the wrap real anyway. Someone removes that line, which happens the first time a team chases CU. Or someone turns `guardrails` off — the flip you ran yourself in m06-l2, which landed on nothing only because anchor-spl's edge held the feature on; on a crate without that edge, or after one change to the graph, it lands. Either way the wrap is one Cargo edit away, and a guard that only holds because of a profile setting is not a guard.
 
 Access control does not save you here. A perfectly authorized player can still request more than the vault holds. This is not a "who" bug, it is a "how much" bug, and the fix is checked arithmetic:
 
 ```rust
-// PATCH: checked_sub returns None exactly when amount > balance.
-vault.balance = vault
-    .balance
+// PATCH: checked_sub returns None exactly when amount > credit.
+vault.credit = vault
+    .credit
     .checked_sub(amount)
     .ok_or(VaultError::Underflow)?;
 ```
 
 `checked_sub` returns `None` in precisely the case that would underflow, so you convert that `None` into a real error and reject the over-withdraw. It is one method and one `?`. It is also, not coincidentally, the exact patch your coding challenge asks for.
 
-![An annotated code card comparing raw subtraction and checked_sub on a withdraw of 100 against a balance of 30, one wrapping and one rejecting.](assets/v09-annotated-code.png)
+![An annotated code card comparing raw subtraction and checked_sub on a withdraw of 100 against a ledger credit of 30, one wrapping and one rejecting.](assets/v09-annotated-code.png)
 
 One housekeeping fact for your patches. Anchor's own constraint rejections mostly live in the 2000s — `ConstraintAddress`, the one your pins raise, is Custom(2012) — but not all of them: a handful map straight onto the runtime's builtin errors instead, and `ConstraintOwner` is the sharp case, surfacing as `ProgramError::IllegalOwner` rather than any 2000s number, exactly as class 3 showed you. Your custom `#[error_code]` variants start at 6000 and count up. So an error in the 6000s is one of yours, and *which* one depends on the program: `quarter_prize` and `quarter_vault` each have their own `#[error_code]` enum, each numbered from 6000 by declaration order, so 6001 means one thing in a redeem rejection and another in a withdraw rejection. Read the program the error came from before you read the number. Knowing which band an error lives in tells you at a glance whether the framework rejected the transaction or your own guard did.
 
@@ -309,7 +351,9 @@ One housekeeping fact for your patches. Anchor's own constraint rejections mostl
 
 The escrow was the whole taxonomy on one program. The swap (R4) is the same classes wearing token accounts instead of lamport vaults, and running the loop against it is what convinces you these are *classes*, not escrow trivia. `swap_arcade_for_tickets(amount_in, min_out)` pulls the trader's arcade tokens into the pool's arcade reserve and pushes tickets back out. Two of the surviving classes map straight onto it.
 
-First, substitution, class 2 again. The swap's `reserve_arcade` and `reserve_ticket` are the pool's own token accounts, the ones the trades price against. If those fields are typed as bare `InterfaceAccount<TokenAccount>` with no pin to the pool that owns them, an attacker passes *their own* token accounts as the reserves. The constant-product math then prices against balances the attacker controls, so they quote themselves a fill the real pool would never offer and walk the ticket reserve out. Same shape as the stranger draining the escrow: a valid account of the right type, simply not the one the program meant. The patch is the same too, pin each reserve to the pool's recorded reserve so a substituted account is rejected at load.
+First, substitution, class 2 again. The swap's `reserve_arcade` and `reserve_ticket` are the pool's own token accounts, the ones the trades price against. They carry `token::mint` and `token::authority = pool`, and neither of those says *which* account the pool meant: anyone can create a token account on the right mint with the pool as its authority, because SPL's `InitializeAccount` takes the owner as a plain argument and never asks the owner to sign. So an attacker passes their own pair as the reserves, the constant-product math prices against balances they control, and they quote themselves a fill the real pool would never offer. Same shape as the stranger draining the escrow: a valid account of the right type, simply not the one the program meant.
+
+Now the uncomfortable half. The patch is the same *shape* as the escrow's — pin each reserve against what the pool recorded — except R4 as you built it records nothing to pin against: `Pool` holds the two mints and its bump, and the reserves sit at addresses nobody derives. So closing this one is two moves, not one: the pool has to start recording the two reserve addresses at init, and the swap has to pin each field against that record. That is a real, open finding against your own program. Do not patch it here on a hunch — next lesson opens by making you look for exactly this line, and fixing it is the first row of the audit checklist.
 
 Second, arbitrary CPI, class 5. The swap CPIs `transfer_checked` through `token_program`, and the frozen swap types it as `Interface<'static, TokenInterface>`, which pins the callee to a real token program (classic or Token-2022) and nothing else. Type it as an `UncheckedAccount` instead and the trader chooses which program moves the tokens, with the pool's authority behind the call. The type is the guard.
 
@@ -335,7 +379,7 @@ git checkout vuln/prize-escrow
 
 Freshness note: as of 2026-08-22 the V2 line ships only as release candidates (2.0.0-rc.1, tagged on `anchor-next`), so there is no stable version to hardcode. The branch head advances, so record the exact commit you built in `Anchor.toml` and CI so a teammate builds the same bytecode. When V2 tags stable, pin that instead.
 
-**Step 2. Land the three exploits.** Your `vuln` branch has `Redeem` with the guards peeled back: `player` with no `address`, `maker` with no `address`, `vault_state` with no `address`. Add the fourth peel now, in the vault, and this one takes two edits — which is itself the lesson: replace the `checked_sub` in `withdraw` with a raw `vault.balance - amount`, *and* comment out the `overflow-checks = true` line under the release profile in the workspace `Cargo.toml`. Class 4 told you why the second edit is mandatory: on an untouched Anchor scaffold, release builds keep overflow checks on, so the raw subtraction would panic-abort the transaction — a crash, not a drain — and `over_withdraw` would fail for the wrong reason. The wrap is one Cargo edit away, said class 4; for this exercise, you are the someone who makes it. Then put all three exploit tests in `programs/quarter-prize/tests/exploits.rs`: `drain_as_stranger` from class 1, `steal_rent_on_close` from the class-2 completion problem, and `over_withdraw`, which reserves a small prize and then redeems for more than the vault holds. Run all three and watch them pass, which is the wrong result and the whole point:
+**Step 2. Land the three exploits.** Your `vuln` branch has `Redeem` with the guards peeled back: `player` with no `address`, `maker` with no `address`, `vault` with no derivation pin. Add the fourth peel now, in the vault, and this one takes two edits — which is itself the lesson: replace the `checked_sub` in `withdraw` with a raw `vault.credit - amount`, *and* comment out the `overflow-checks = true` line under the release profile in the workspace `Cargo.toml`. Class 4 told you why the second edit is mandatory: on an untouched Anchor scaffold, release builds keep overflow checks on, so the raw subtraction would panic-abort the transaction — a crash, not a drain — and `over_withdraw` would fail for the wrong reason. The wrap is one Cargo edit away, said class 4; for this exercise, you are the someone who makes it. Then put all three exploit tests in `programs/quarter-prize/tests/exploits.rs`: `drain_as_stranger` from class 1, `steal_rent_on_close` from the class-2 completion problem, and `over_withdraw`, which sends tokens straight into the vault's ATA to push custody above the ledger, then withdraws more than `credit`. Run all three and watch them pass, which is the wrong result and the whole point:
 
 ```bash
 anchor build && cargo test --test exploits
@@ -349,7 +393,7 @@ test over_withdraw       ... ok
 test result: ok. 3 passed; 0 failed
 ```
 
-Three green exploits is three real holes. `drain_as_stranger` is the signer/owner class from the walkthrough. `steal_rent_on_close` is the account-substitution completion problem you wrote in class 2. `over_withdraw` requests more than the vault holds and — with the profile edit disarming the overflow checks — the raw subtraction wraps and lets it through. Checkpoint: all three report `ok`. If `steal_rent_on_close` fails instead, your test is asserting the wrong thing, not proving the hole is closed, so re-read the accept bar in class 2 before you move on.
+Three green exploits is three real holes. `drain_as_stranger` is the signer/owner class from the walkthrough. `steal_rent_on_close` is the account-substitution completion problem you wrote in class 2. `over_withdraw` requests more than the *ledger* says the vault holds, backed by an ATA the test over-funded by hand, and — with the profile edit disarming the overflow checks — the raw subtraction wraps and lets it through. Checkpoint: all three report `ok`. If `steal_rent_on_close` fails instead, your test is asserting the wrong thing, not proving the hole is closed, so re-read the accept bar in class 2 before you move on.
 
 **Step 3. Patch, one class at a time.** Apply the four constraints and the one checked op, exactly as derived above:
 
@@ -357,9 +401,9 @@ Three green exploits is three real holes. `drain_as_stranger` is the signer/owne
 // in Redeem accounts:
 /// CHECK: pinned to the exact vault this escrow recorded
 #[account(mut, address = escrow.vault @ EscrowError::WrongVault)]
-pub vault_state: UncheckedAccount,
+pub vault: UncheckedAccount,
 
-#[account(mut, address = escrow.player)]
+#[account(address = escrow.player)]
 pub player: Signer,
 
 #[account(mut, address = escrow.maker)]
@@ -368,8 +412,8 @@ pub maker: UncheckedAccount,
 
 ```rust
 // in the vault's withdraw handler:
-vault.balance = vault
-    .balance
+vault.credit = vault
+    .credit
     .checked_sub(amount)
     .ok_or(VaultError::Underflow)?;
 ```
@@ -382,7 +426,7 @@ require!(final_score >= ctx.accounts.escrow.winning_score, EscrowError::Conditio
 
 And restore the `overflow-checks = true` release line you commented out in step 2. The `checked_sub` no longer needs the profile to save it — that is the point of the patch — but the profile is the workspace's backstop for every *other* subtraction, and it goes back on.
 
-Checkpoint: `anchor build` is green. Four constraints, one checked op, and the restored profile line is the entire patch set, so if the build fails it is a spelling problem, not a design problem, and the compiler names the field.
+Checkpoint: `anchor build` is green. Three constraints, one checked op, and the restored profile line is the entire patch set, so if the build fails it is a spelling problem, not a design problem, and the compiler names the field.
 
 **Step 4. Prove the exploits are dead and the feature lives.** Run the exploits and the legitimate path together:
 
@@ -456,7 +500,7 @@ When the pure function is green, port it: the byte-walk in `is_authority` is one
 
 ## Did it work?
 
-You should now have a prize-escrow whose three exploit tests all fail, a legitimate release that still passes, and a withdraw guard that rejects both the wrong caller and the over-withdraw as a pure function you can reason about in isolation. The stranger cannot drain it. The substituted maker cannot steal the rent. The over-withdraw cannot wrap the balance. And every one of those fixes was a single constraint or a single checked operation, added because you *knew to add it*, not because the compiler forced your hand.
+You should now have a prize-escrow whose three exploit tests all fail, a legitimate release that still passes, and a withdraw guard that rejects both the wrong caller and the over-withdraw as a pure function you can reason about in isolation. The stranger cannot drain it. The substituted maker cannot steal the rent. The over-withdraw cannot wrap the ledger. And every one of those fixes was a single constraint or a single checked operation, added because you *knew to add it*, not because the compiler forced your hand.
 
 Keep the edge from this lesson sharp, because it is the part people get exactly backwards. Last lesson's compile-time wins are real, and this lesson's surviving classes are equally real, and the second set is more dangerous precisely because the first set trains you to trust the framework. The account-substitution class in particular is yours forever: no compiler, in this framework or any other, can tell a correct account from an attacker's when their types match and only the intent differs. If an exploit test still passes for you, it is not a mystery, it is a missing guard, and the test name is the class.
 
