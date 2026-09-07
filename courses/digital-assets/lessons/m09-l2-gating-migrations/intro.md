@@ -120,7 +120,7 @@ Which brings up the case study, and an honest gap in it. Kamino ran a points-to-
 
 You have the eligibility list. Why not just mint to everyone and be done?
 
-Because the person doing the minting pays for the accounts. You costed this exact thing when you built the compost airdrop: a classic token account runs about 2,039,280 lamports of rent per recipient, so pushing tokens to 100,000 wallets is roughly 204 SOL before you have sent a single transaction, and the compressed route brought that to roughly 1.03 SOL, about 99.5% saved. Those are the numbers that made a mass drop affordable at all.
+Because the person doing the minting pays for the accounts. You costed this exact thing when you built the compost airdrop: a classic token account is 293 bytes of rent per recipient, about 1,855,569 lamports at mainnet's rate on 2026-09-06, so pushing tokens to 100,000 wallets is roughly 186 SOL before you have sent a single transaction, and the compressed route brought that to roughly 1.03 SOL, well over 99% saved. Re-derive the classic side from your own cluster's rate before you quote it; the compressed side is not rent and does not move.
 
 A claim changes who is holding the invoice. The distributor puts one root on chain. Each recipient who wants their tokens sends their own transaction, pays their own account rent, and gets their own tokens. And the tail that never claims never costs you anything, which matters more than it sounds: in every large drop, a meaningful share of the allocation simply never gets collected. Under a push model you paid rent to create accounts for people who were never coming back.
 

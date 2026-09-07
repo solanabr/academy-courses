@@ -46,11 +46,11 @@ The trap in this row is a `TransferHook`, and it is a tempting one. Logging ever
 
 The badge brief is the one that separates a current mental model from an inherited one, because it stacks two constraints that used to be answered by two different primitives.
 
-Cheap at a million is compression's job and nothing else's. Metaplex Core is genuinely cheap per asset at about 0.0029 SOL, vendor-published, which is a wonderful number right up until you multiply it by a million and get roughly 2,900 SOL. A Bubblegum v2 tree sized for a million leaves lands at about 8.5 SOL all in. That is a better deal by more than two orders of magnitude, the kind of gap where the arithmetic does the deciding, not taste.
+Cheap at a million is compression's job and nothing else's. Metaplex Core is genuinely cheap per asset at about 0.0029 SOL, vendor-published, which is a wonderful number right up until you multiply it by a million and get roughly 2,900 SOL. A Bubblegum v2 tree sized for a million leaves is 1,223,352 bytes, which lands in the single digits of SOL at any rent rate the network has charged this year. That is a better deal by more than two orders of magnitude, the kind of gap where the arithmetic does the deciding, not taste.
 
 Not sellable is the half that used to break this. Folklore from 2024 says compressed NFTs cannot be frozen or made soulbound, which was true then and is simply false now. Bubblegum v2 ships `set_non_transferable_v2`, and a compressed NFT can be soulbound at mint. So the row is a cNFT under the club's collection, made non-transferable, with a gate as its rail, and the verdict cell reads not applicable because a soulbound badge was never going to a pool.
 
-![A log-scale bar chart comparing the cost of one million holdings across Core assets, classic SPL token accounts, and Bubblegum v2 compressed NFTs at about 8.5 SOL.](assets/v03-chart.png)
+![A log-scale bar chart comparing the cost of one million holdings across Core assets, classic SPL token accounts, and a single Bubblegum v2 tree, which is cheaper by more than two orders of magnitude.](assets/v03-chart.png)
 
 ### Row three, checked
 
@@ -154,12 +154,18 @@ export function isRoutable(row: DecisionRow): boolean {
 }
 
 const SOL_PER_CORE_ASSET = 0.0029;
-// Module 7's depth-20 / buffer-256 / canopy-14 tree: 8.515 SOL for 1,048,576 leaves.
+// Module 7's depth-20 / buffer-256 / canopy-14 tree: 1,223,352 bytes.
 // Scaling this linearly is a deliberate simplification. Tree rent is set by
 // depth, buffer and canopy, not by leaf count, so a small tree costs MORE per
 // leaf and this understates it. Good enough to trip the 100-SOL alarm, not a budget.
-const SOL_PER_MILLION_CNFTS = 8.5;
-const LAMPORTS_PER_CLASSIC_ATA = 2_039_280;
+//
+// The two rent figures below are BYTES x a per-byte rate, and the rate is a
+// network parameter SIMD-0437 is stepping down. 6,333 is mainnet's, read
+// 2026-09-06; devnet was already at 5,080. Re-read it (`solana rent 0`, divide
+// by 128) before this alarm decides anything real.
+const LAMPORTS_PER_BYTE = 6_333;
+const SOL_PER_MILLION_CNFTS = ((128 + 1_223_352) * LAMPORTS_PER_BYTE) / 1e9;
+const LAMPORTS_PER_CLASSIC_ATA = 293 * LAMPORTS_PER_BYTE;
 
 export function mintCostSol(primitive: PrimitiveFamily, units: number): number {
   switch (primitive) {

@@ -9,14 +9,20 @@ Today you touch one, in the first ten minutes, and then you spend the rest of th
 Start with the number, before any of the explanation:
 
 ```bash
-node -e "const classic=2_039_280, compressed=10_300, n=100_000; console.log('classic', (classic*n/1e9).toFixed(2), 'SOL / compressed', (compressed*n/1e9).toFixed(2), 'SOL /', ((1-compressed/classic)*100).toFixed(1)+'% saved')"
+# 293 bytes (165 of data + the 128-byte account header) at your cluster's
+# rent rate. Ask for the rate instead of pasting one; mine is mainnet's, read
+# 2026-09-06, and SIMD-0437 is stepping it down.
+RATE=$(curl -s https://api.mainnet-beta.solana.com -X POST -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getMinimumBalanceForRentExemption","params":[0]}' \
+  | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d).result/128))")
+node -e "const classic=293*$RATE, compressed=10_300, n=100_000; console.log('rate', $RATE, 'lamports/byte | classic', (classic*n/1e9).toFixed(2), 'SOL / compressed', (compressed*n/1e9).toFixed(2), 'SOL /', ((1-compressed/classic)*100).toFixed(1)+'% saved')"
 ```
 
 ```
-classic 203.93 SOL / compressed 1.03 SOL / 99.5% saved
+rate 6333 lamports/byte | classic 185.56 SOL / compressed 1.03 SOL / 99.4% saved
 ```
 
-Two hundred SOL against one. That is the same distribution, to the same hundred thousand wallets, priced two ways. And the reason this lesson exists is that neither number is the whole bill, both of them hide a scope decision, and the method you actually ship for SPROUT is a third one that neither number describes.
+Nearly two hundred SOL against one. That is the same distribution, to the same hundred thousand wallets, priced two ways. And the reason this lesson exists is that neither number is the whole bill, both of them hide a scope decision, and the method you actually ship for SPROUT is a third one that neither number describes.
 
 You will build the compost-airdrop: a cost table that computes per-recipient lamports across four distribution methods and matches the canonical figures, plus a merkle claim path that proves one unlocked claim and one linearly vesting `claim_locked` claim. The fade, stated up front: the cost model is walked with you line by line, the compressed figures are a completion problem you fill in yourself, and the second claim path, the locked one, is entirely yours.
 
@@ -115,17 +121,19 @@ That is your ten minutes. Now the money.
 
 Two numbers do all the work here, and both are per recipient.
 
-A classic SPL token account is 165 bytes of data plus the 128-byte account header the runtime adds, so 293 bytes, and rent exemption prices a byte at 6,960 lamports for two years. That multiplies out to 2,039,280 lamports per recipient. Measure it yourself rather than trust me:
+A classic SPL token account is 165 bytes of data plus the 128-byte account header the runtime adds, so 293 bytes, and rent exemption prices each of those bytes at a per-byte rate. The bytes are fixed by the account layout. The rate is not: it is a network parameter, SIMD-0437 is stepping it down in stages, and the clusters are not in step with each other. So measure it rather than trust me, and measure it on the cluster you will pay on:
 
 ```bash
-solana rent 165
+solana rent 165 --url mainnet-beta
+solana rent 165 --url devnet
 ```
 
 ```
-Rent-exempt minimum: 0.00203928 SOL
+Rent-exempt minimum: 0.001855569 SOL
+Rent-exempt minimum: 0.00148844 SOL
 ```
 
-That is 2,039,280 lamports on my Agave CLI, and it is exactly 293 times 6,960, so the byte arithmetic above is not a story told about the number, it is the number. Every classic cell in the table that follows is built from that one measurement, which means the table is only as current as the rent schedule: if `solana rent 165` ever prints something else on your cluster, your table moves with it and mine is stale. Recompute before you budget; the arithmetic is one multiplication.
+Those are my reads on 2026-09-06: 1,855,569 lamports on mainnet, which is exactly 293 times 6,333, and 1,488,440 on devnet, exactly 293 times 5,080. Before the first step of the cut landed on mainnet on 2026-09-03 the rate everywhere was 6,960 and this number was 2,039,280, which is what you will still find in most blog posts and, at the time of writing, on a surfpool fork, since a fork inherits mainnet's accounts and not necessarily its rent schedule. The byte arithmetic is not a story told about the number, it IS the number, at whatever rate your cluster charges today. Every classic cell in the table below is 293 times one rate, so the table is only as current as that rate. Recompute before you budget; the arithmetic is one multiplication.
 
 A compressed recipient costs about 10,300 lamports, and m07-l3's cost model already told you why: 5,000 lamports to create the compressed account, plus about 5,300 lamports of state cost for the one write that puts tokens in it. Create once, write once, done.
 
@@ -133,18 +141,20 @@ Nothing else in this lesson is as load-bearing as that ratio, so put it on the p
 
 | Recipients | Classic ATAs | Compressed | Saved |
 |---|---|---|---|
-| 1,000 | 2.04 SOL | 0.0103 SOL | 99.5% |
-| 10,000 | 20.39 SOL | 0.103 SOL | 99.5% |
-| 100,000 | 203.93 SOL | 1.03 SOL | 99.5% |
-| 1,000,000 | 2,039.28 SOL | 10.30 SOL | 99.5% |
+| 1,000 | 1.86 SOL | 0.0103 SOL | 99.4% |
+| 10,000 | 18.56 SOL | 0.103 SOL | 99.4% |
+| 100,000 | 185.56 SOL | 1.03 SOL | 99.4% |
+| 1,000,000 | 1,855.57 SOL | 10.30 SOL | 99.4% |
 
-The ratio is flat because both sides are linear. What changes with scale is whether the number is survivable. At a thousand recipients nobody cares. At a million, the classic column is 2,039 SOL, and at a SOL price of $150 that is roughly $300,000 of rent to hand out a token. A million accounts costs a house.
+Classic column at mainnet's 6,333 lamports/byte, read 2026-09-06. Multiply by your own rate over 6,333 to get yours; the compressed column does not move, because a compressed recipient's cost is not rent.
 
-![Grouped bar chart on a log axis comparing classic and compressed airdrop cost from 1k to 1M recipients, with classic reaching 2,039 SOL against compressed 10.3 SOL.](assets/v01-chart.png)
+The ratio is flat because both sides are linear. What changes with scale is whether the number is survivable. At a thousand recipients nobody cares. At a million, the classic column is over 1,800 SOL, and at a SOL price of $150 that is most of $300,000 of rent to hand out a token. A million accounts costs a house, and it cost a slightly bigger house last month.
 
-That $300,000 is not a rhetorical number, it is why ZK compression got built. Solana passed 500 million accounts and was adding roughly a million a day around November 2024, which was the framing Helius used in its compression keynote writeup that month. State growth is the bill, and airdrops are the fastest way to run it up.
+![Grouped bar chart on a log axis comparing classic and compressed airdrop cost from 1k to 1M recipients, with the classic column near two thousand SOL against compressed 10.3 SOL.](assets/v01-chart.png)
 
-One honesty note on the classic column, because it flatters compression if you skip it. Rent is a deposit. Close the account and the 2,039,280 lamports come back. The compressed 10,300 is spent and never returns. So the correct sentence is not "compression is 200 times cheaper", it is "compression converts a large refundable deposit into a small permanent cost", and whether that is a good trade depends on whether anyone was ever going to close those accounts. In an airdrop, mostly nobody does.
+That quarter of a million dollars is not a rhetorical number, it is why ZK compression got built. Solana passed 500 million accounts and was adding roughly a million a day around November 2024, which was the framing Helius used in its compression keynote writeup that month. State growth is the bill, and airdrops are the fastest way to run it up.
+
+One honesty note on the classic column, because it flatters compression if you skip it. Rent is a deposit. Close the account and every lamport of it comes back. The compressed 10,300 is spent and never returns. So the correct sentence is not "compression is 200 times cheaper", it is "compression converts a large refundable deposit into a small permanent cost", and whether that is a good trade depends on whether anyone was ever going to close those accounts. In an airdrop, mostly nobody does.
 
 ### Four ways to move a token to a stranger
 
@@ -167,7 +177,7 @@ The axis nobody puts on the marketing page is who pays.
 
 ![Comparison table of the cost model's four rows across sender cost, claimant cost, refundability, and RPC needs, noting the AirShip row is a scope slice atop compressed push and Light Claim is unpriced.](assets/v02-comparison.png)
 
-Read that table twice. A merkle claim is not cheap, it is *shifted*. The lamports did not disappear, they moved onto the person receiving the tokens, and that is a product decision as much as a cost decision: everyone who does not claim costs you nothing, and everyone who does claim pays about 1.3 million lamports to do it, most of it recoverable only if the ClaimStatus close path lets a claimant reclaim rent, a gate this lesson flags below as something it has not run. For a drop where you expect half the list to ignore you, that is a godsend. For a drop to users who have never held SOL, it is a wall.
+Read that table twice. A merkle claim is not cheap, it is *shifted*. The lamports did not disappear, they moved onto the person receiving the tokens, and that is a product decision as much as a cost decision: everyone who does not claim costs you nothing, and everyone who does claim pays about 1.2 million lamports to do it at mainnet's current rent rate, most of it recoverable only if the ClaimStatus close path lets a claimant reclaim rent, a gate this lesson flags below as something it has not run. For a drop where you expect half the list to ignore you, that is a godsend. For a drop to users who have never held SOL, it is a wall.
 
 ### The AirShip gap, measured not argued
 
@@ -252,7 +262,7 @@ Two properties of that design deserve naming. It is a pull, so unclaimed allocat
 
 ### The trade-off, named
 
-Compression cuts airdrop rent by about 99.5%, and here is the invoice for that.
+Compression cuts airdrop rent by well over 99%, and here is the invoice for that.
 
 A compressed token transfer costs roughly 292,000 compute units, because the program verifies a validity proof and rehashes tree state on every write. The classic path you measured in module 1, on the p-token engine, is 76 CU for a `Transfer`. Do not put those two numbers next to each other as though they are competing implementations of the same product. One is a balance in an account, one is a balance in a tree plus a proof; the compute difference is what the storage saving costs, and it is charged per write forever.
 
@@ -276,14 +286,25 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
 
     /** A classic SPL token account: 165 bytes of data plus the 128-byte account header. */
     export const CLASSIC_ATA_BYTES = 293;
-    /** Rent-exemption price of one byte for two years. */
-    export const LAMPORTS_PER_BYTE = 6_960;
     /**
-     * Rent locked by one classic recipient account: exactly what
-     * CLASSIC_ATA_BYTES * LAMPORTS_PER_BYTE gives and what `solana rent 165`
-     * prints. Refundable if the account is closed.
+     * Rent-exemption price of one byte for two years. THE ONLY NUMBER IN THIS
+     * FILE THAT BELONGS TO THE NETWORK RATHER THAN TO THE LAYOUT, and the one
+     * you must replace with your own read. mainnet-beta, 2026-09-06; devnet was
+     * a step further down at 5,080 and a surfpool fork was still on the old
+     * 6,960. Get yours in one line:
+     *
+     *   solana rent 0 --url <cluster>   # divide the lamports by 128
+     *
+     * SIMD-0437 is stepping this down over several releases, so a number you
+     * copied from a lesson is a number you will re-derive.
      */
-    export const CLASSIC_ATA_LAMPORTS = 2_039_280;
+    export const LAMPORTS_PER_BYTE = 6_333;
+    /**
+     * Rent locked by one classic recipient account. DERIVED, not pasted: at
+     * 6,333 this is 1,855,569, which is what `solana rent 165 --url
+     * mainnet-beta` printed on 2026-09-06. Refundable if the account is closed.
+     */
+    export const CLASSIC_ATA_LAMPORTS = CLASSIC_ATA_BYTES * LAMPORTS_PER_BYTE;
 
     /** Creating one compressed token account (m07-l3's figure). */
     export const COMPRESSED_CREATE_LAMPORTS = 5_000;
@@ -394,8 +415,10 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
     ```typescript
     // compost-airdrop/cost-table.ts
     import {
+      CLASSIC_ATA_BYTES,
       CLASSIC_ATA_LAMPORTS,
       COMPRESSED_RECIPIENT_LAMPORTS,
+      LAMPORTS_PER_BYTE,
       airshipPerRecipientLamports,
       methods,
       sol,
@@ -440,11 +463,17 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
       }
     };
 
-    expect("classic per recipient", CLASSIC_ATA_LAMPORTS, 2_039_280, 0);
+    // Two kinds of assertion, and the difference matters. The compressed
+    // figures are absolutes, because a compressed recipient's cost is not rent
+    // and does not move with the rent schedule. The classic figures assert
+    // CONSISTENCY with whatever LAMPORTS_PER_BYTE you set, because pinning them
+    // to an absolute would turn this gate into a tripwire that fires every time
+    // the network cuts rent, which is the opposite of what a cost model is for.
+    expect("classic per recipient", CLASSIC_ATA_LAMPORTS, CLASSIC_ATA_BYTES * LAMPORTS_PER_BYTE, 0);
     expect("compressed per recipient", COMPRESSED_RECIPIENT_LAMPORTS, 10_300, 0);
-    expect("classic at 100k (SOL)", classic100k / 1e9, 204, 0.5);
+    expect("classic at 100k (SOL)", classic100k / 1e9, (CLASSIC_ATA_LAMPORTS * 100_000) / 1e9, 0.001);
     expect("compressed at 100k (SOL)", compressed100k / 1e9, 1.03, 0.01);
-    expect("saving", saved, 0.995, 0.001);
+    expect("saving", saved, 1 - COMPRESSED_RECIPIENT_LAMPORTS / CLASSIC_ATA_LAMPORTS, 0.0001);
 
     // The assertion that actually reads your TODO: the compressed ROW in
     // methods() must carry the per-recipient state cost, not the shipped zero.
@@ -467,10 +496,12 @@ Everything after the warm-up is local and deterministic. No RPC, no keypair, no 
     After you fill it, the last lines read:
 
     ```
-    100k recipients: classic 203.9280 SOL / compressed 1.0300 SOL (99.5% saved)
+    100k recipients: classic 185.5569 SOL / compressed 1.0300 SOL (99.4% saved)
     AirShip's transaction side adds 1,000 lamports/recipient on top of the state cost.
     cost table OK
     ```
+
+    Those SOL figures are `LAMPORTS_PER_BYTE` times a fixed byte count, so they are yours to move: set the constant to your own cluster's rate and the whole table follows, assertions included.
 
 3. **The tree.** Create `compost-airdrop/merkle.ts`. This is the distributor's hashing, ported exactly: sha256, a zero byte in front of leaves, a one byte in front of parents, sorted pairs, and an odd node paired with itself. No dependencies at all. That last rule is the one to watch, because it is invisible on this lab's four-recipient tree (four is a power of two, so no level is ever odd) and decides every root you compute on a real list. Challenge 1 adds a fifth recipient, which is where it starts to matter.
 
@@ -823,7 +854,7 @@ Three extensions, in increasing order of how much they will teach you.
 
 **Three.** Extend the cost table with a `total_cost_of_ownership` column: for each method, the sender cost plus the claimant cost minus whatever is refundable, at 100,000 recipients. Then answer, in the file, which method you would ship for SPROUT and why, given that SPROUT carries a transfer fee. The answer is not the cheapest row and your comment should say so.
 
-Accept your work when the table's 100k row reads about 204 SOL classic against about 1.03 SOL compressed, both claims land, and the replay and stale-proof paths are rejected for the reasons the program would reject them.
+Accept your work when the table's 100k row reads about 186 SOL classic at mainnet's current rent rate (or 293 times whatever rate you set, times 100,000) against about 1.03 SOL compressed, both claims land, and the replay and stale-proof paths are rejected for the reasons the program would reject them.
 
 ## Checkpoint
 

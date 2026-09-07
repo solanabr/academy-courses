@@ -22,7 +22,7 @@ blocks:
     type: quiz
     questions:
       - id: m08l3-q1-100k-cost
-        prompt: "Your cost table shows classic ATAs at ≈204 SOL for 100,000 recipients. What is the compressed figure and the saving?"
+        prompt: "Your cost table shows classic ATAs at ≈186 SOL for 100,000 recipients (293 bytes each at mainnet's 6,333 lamports/byte, read 2026-09-06). What is the compressed figure and the saving?"
         multiSelect: false
         options:
           - id: a
@@ -34,9 +34,9 @@ blocks:
             correct: false
             feedback: "10.3 SOL is the per-1M compressed extrapolation, not the 100k figure. At 100k it is ten times less."
           - id: c
-            label: "≈1.03 SOL, about 99.5% saved (≈10,300 lamports/recipient vs ≈2.04M)."
+            label: "≈1.03 SOL, well over 99% saved (≈10,300 lamports/recipient vs ≈1.86M)."
             correct: true
-        explanation: "Per recipient: a classic ATA is ≈2,039,280 lamports; a compressed recipient ≈10,300. At 100k that is ≈204 SOL vs ≈1.03 SOL, a ~99.5% cut. Doing this arithmetic live is what makes a mass airdrop a budget line rather than a fantasy."
+        explanation: "Per recipient: a classic ATA is 293 bytes of rent, ≈1,855,569 lamports at mainnet's current per-byte rate; a compressed recipient ≈10,300, which is not rent and does not move with the rent schedule. At 100k that is ≈186 SOL vs ≈1.03 SOL, a ~99.4% cut. The exact percentage drifts as SIMD-0437 steps rent down — it was 99.5% at the old 6,960 rate — which is precisely why doing this arithmetic live, rather than quoting it, is what makes a mass airdrop a budget line rather than a fantasy."
       - id: m08l3-q2-airship-discrepancy
         prompt: "AirShip's marketing says a 10k-recipient drop costs 0.01 SOL; the zkcompression per-recipient math gives 0.103 SOL (a 10x gap). How do you handle it in the lab?"
         multiSelect: false
