@@ -39,7 +39,7 @@ blocks:
             label: "The keypair(s), the cursor, and the supervisor's PID file, since the roster rebuilds from the running processes"
             correct: false
             feedback: "After a kill -9 there are no running processes to read a roster from, and a recorded pid is an integer the operating system is free to hand to someone else. That is exactly how a supervisor concludes an agent is still alive, never respawns it, and leaves a funded key with nobody minding it."
-        explanation: "Three artifacts, three distinct failures they prevent: persisted keypairs keep your addresses stable across restarts (regenerate and you orphan funds); the cursor records the last confirmed operation so resumed work is never replayed; the manifest tells the supervisor which agents existed, with what config and PIDs, so it can respawn them deterministically."
+        explanation: "Three things cannot be recomputed after a kill -9: the keypair (its address and spending power), the cursor (how far it got), and the agent manifest (what it spawned). Everything else — balances, confirmations, chain state — is re-readable from the chain. Persist those three and a cold restart becomes a resume instead of a do-over."
       - id: q2
         prompt: "Every operation the bot submits AFTER its cursor must be idempotent or on-chain-guarded. Why is that the rule?"
         multiSelect: false
@@ -60,7 +60,7 @@ blocks:
             label: "Because a kill -9 can leave a half-signed transaction waiting in the mempool, which a validator may still land on-chain after the restart"
             correct: false
             feedback: "Solana has no mempool to leave anything in, and a half-signed transaction is not a valid one anywhere. The replay this rule guards against is the bot's own: on resume it re-reads its queue and re-sends work whose confirmation it never got to record."
-        explanation: "A crash can happen between 'submitted' and 'confirmed', so on resume the bot cannot know whether an operation landed. If re-running it would double-execute (a second airdrop, a second swap), the bot must either make the operation idempotent or check on-chain state before acting. The cursor plus that rule is what makes resume safe."
+        explanation: "The crash window is unavoidable: the bot can die after an operation lands but before the cursor advances. On resume it will replay everything past the cursor — so each such operation must either change nothing the second time (idempotent) or be rejected by an on-chain check (guarded). That one rule is what makes kill -9 survivable."
       - id: q3
         prompt: "Wormhole secures messages with a 19-member guardian set and a 13-of-19 quorum. In the bridge trust taxonomy, which tier is that, and what do you trust?"
         multiSelect: false
@@ -78,7 +78,7 @@ blocks:
             correct: false
             feedback: "Custodial is where one company or multisig holds the assets and you trust its key security and legal standing, as with WBTC. Wormhole's authority sits with a named guardian set, which is a different failure surface: an M-of-N compromise rather than one operator going insolvent or being coerced."
           - id: d
-            label: "External-validator-set, and the guardian set is the whole trust assumption, so an honest quorum makes the bridge safe"
+            label: "External-validator-set, and a single stolen guardian key is enough to forge a message the bridge accepts"
             correct: false
-            feedback: "The tier is right and the sentence stops a clause early. The 2022 drain happened with all 19 guardians behaving, because the destination contract accepted a message nobody had signed, so the contract is a trust assumption sitting right beside the roster."
-        explanation: "19 named guardians with a 13-of-19 proof-of-authority quorum is the external-validator-set tier: security rests on an honest majority of a fixed, named roster AND on the correctness of the contracts verifying their signatures. The 2022 Wormhole exploit is the proof — the guardians were honest; a signature-verification flaw in the Solana contract let an attacker forge a message."
+            feedback: "The tier is right and the threshold is not: forging an attestation takes 13 of the 19 keys, which is exactly what makes an M-of-N roster stronger than a single custodian. The 2022 drain took none of them, because the flaw was in the contract checking the signatures rather than in the guardians holding the keys."
+        explanation: "Wormhole is the external-validator-set tier: a fixed committee attests to cross-chain messages, and its threshold — 13 of 19 guardian keys — IS the security boundary. Stronger than one custodian, weaker than a light client that verifies the source chain's own consensus. Naming the committee you trust is the first question to ask of any bridge."

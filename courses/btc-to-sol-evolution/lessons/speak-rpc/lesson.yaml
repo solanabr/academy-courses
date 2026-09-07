@@ -31,7 +31,7 @@ blocks:
             label: "A local Unix domain socket, since the CLI and the daemon talk over a private channel on disk"
             correct: false
             feedback: "The channel is an ordinary TCP port, which is exactly why curl reaches it at http://127.0.0.1:18443/ and why pointing the same client at a rented node is a one-line change. Nothing about the transport is private to the CLI."
-        explanation: "bitcoin-cli is a thin JSON-RPC client. Every command is an HTTP POST carrying {\"method\": ..., \"params\": [...]} to the node's RPC port; the node answers with {\"result\": ..., \"error\": ...}. That is why any language with an HTTP library can drive a node — and why every wallet, explorer, and bot is ultimately this same call."
+        explanation: "Every bitcoin-cli command is a JSON-RPC call: an HTTP POST like {\"method\": \"getblockcount\", \"params\": []} against the node's RPC port. Any language with an HTTP client speaks it directly — which is why bots, explorers, and exchanges never shell out to the CLI."
       - id: q2
         prompt: "Which RPC port does a Bitcoin Core node listen on in regtest mode?"
         multiSelect: false
@@ -56,4 +56,4 @@ blocks:
             label: "8333"
             correct: false
             feedback: "8333 is mainnet's peer-to-peer port, the one other nodes connect to. Every network runs two ports, one for peers and one for RPC, and only the RPC side answers the JSON envelope your client builds."
-        explanation: "Regtest RPC is 18443; mainnet is 8332 and testnet is 18332. Pointing a client at the wrong port produces 'connection refused' — a transport error that looks exactly like a dead node, which is why the wrapper pins the port in one named constant instead of scattering literals."
+        explanation: "Ports encode the network: 8332 mainnet, 18332 testnet, 18443 regtest. Your regtest experiments talk to 18443, and the wrong-port error you get otherwise is a safety feature — it makes it hard to point test tooling at real money by accident."

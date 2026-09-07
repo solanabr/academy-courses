@@ -42,7 +42,7 @@ blocks:
             label: "`cargo build-sbf` compiles it to an sBPF binary, and the deployed program account lists your wallet as its owner"
             correct: false
             feedback: "The build half is right and the ownership half is the confusion worth clearing up. `solana program show` prints two different lines: Owner is BPFLoaderUpgradeab1e11111111111111111111111, while Authority is your CLI wallet. Your wallet can authorize an upgrade; it does not own the account, and no program may write an account it does not own."
-        explanation: "cargo build-sbf compiles Rust to sBPF bytecode (Solana's BPF variant) in target/deploy/*.so. On deploy, the program's account is created with executable = true and owned by a BPF loader, which is what lets the runtime dispatch transactions into it."
+        explanation: "cargo build-sbf cross-compiles your Rust to sBPF — Solana's sandboxed BPF dialect — producing a .so the validator can run. Deployment writes that bytecode into an account and sets its executable flag, which is all that distinguishes a 'program' from any other account: on Solana, programs are accounts whose data is code."
       - id: q2
         prompt: "You deployed under the BPF Loader Upgradeable. What does 'upgradeable' let you do, and who can?"
         multiSelect: false
@@ -63,4 +63,4 @@ blocks:
             label: "The upgrade authority publishes new bytecode at a fresh address, and the loader forwards calls from the old id to it"
             correct: false
             feedback: "Nothing forwards. Collapse identity and implementation into one object and every code change would break everyone pointing at you, which is precisely the problem the separate ProgramData account exists to avoid."
-        explanation: "The BPF Loader Upgradeable stores your bytecode in a ProgramData account controlled by an upgrade authority (by default, your deploying wallet). That authority — and only that authority — can redeploy new bytecode to the same program id. Set it to None and the program becomes permanently immutable."
+        explanation: "The upgradeable loader splits a program into an address and swappable bytecode: the upgrade authority — and only it — can deploy new code to the same program id, so integrations and PDAs survive upgrades. Burn the authority and the code freezes forever; until then, 'who holds the upgrade authority' is part of the program's trust model."

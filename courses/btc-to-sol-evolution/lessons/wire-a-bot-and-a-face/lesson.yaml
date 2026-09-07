@@ -41,7 +41,7 @@ blocks:
             label: "`anchor build`, which already writes a typed client into target/types for any TypeScript caller to import"
             correct: false
             feedback: "What the build writes there is a type describing the IDL, not the instruction builders, PDA helpers and account decoders the bot imports from `./generated`. The build step is the source of truth; the generator is what turns it into callable code."
-        explanation: "Anchor's build emits an IDL (target/idl/*.json). Codama (@codama/nodes-from-anchor + @codama/renderers-js) reads it and renders a kit-native TypeScript client: instruction builders, PDA derivation helpers, and account decoders. Regenerate after every anchor build and the client can never drift from the program."
+        explanation: "Codama is the IDL-to-client compiler of the kit stack: point it at your Anchor IDL and it generates getXInstructionAsync builders, findXPda helpers, and fetchX account decoders — kit-native, tree-shakable, no Anchor runtime attached. Bot and frontend import the same generated package."
       - id: q2
         prompt: "The same deposit runs from a Node bot and from a browser button. What is the ONE thing that differs between them?"
         multiSelect: false
@@ -62,4 +62,4 @@ blocks:
             label: "The generated client, since the browser needs a browser build of Codama's output while the bot imports the Node version of it"
             correct: false
             feedback: "There is one generated folder and you copy it across unchanged. Codama renders plain TypeScript with no runtime of its own, which is exactly why the frontend can import the same builders the bot has been calling."
-        explanation: "Kit's pipeline is signer-agnostic: build the message, attach a signer, sign, send. A bot's signer comes from createKeyPairSignerFromBytes; a browser's comes from useWalletAccountTransactionSendingSigner over a wallet-standard account. Same RPC, same generated instruction, same message-building code — only the pen changes."
+        explanation: "The kit pipeline — build message, set fee payer, set blockhash lifetime, append the Codama-generated instruction, sign, send — is identical in both worlds. The only variable is the signer plugged in: a file-loaded keypair in the bot, the wallet's signer in the browser. One code path, two key custodians."

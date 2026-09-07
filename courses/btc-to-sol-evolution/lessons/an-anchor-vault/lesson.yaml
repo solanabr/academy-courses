@@ -41,7 +41,7 @@ blocks:
             label: "Because the runtime only accepts seeds carrying a bump read from account data, and rejects one the program derived during the same call"
             correct: false
             feedback: "The runtime has no idea where your bump came from. It re-runs the derivation over whatever seeds you hand it and checks that they produce this address under your program id, so a freshly computed bump signs exactly as well as a stored one. Storing it is an optimization, not a permission."
-        explanation: "PDAs have no private key, so the runtime signs on the program's behalf when handed the right seeds + bump. find_program_address is deterministic but not free: it searches 255 -> 0 for the first off-curve address, burning compute each call. Storing the canonical bump at initialization turns that search into a single field read and lets every later CPI sign with the stored value."
+        explanation: "find_program_address loops from bump 255 downward until it finds an address off the ed25519 curve — deterministic, but ~1,500 CU per call. Storing the canonical bump at initialization turns every later derivation and PDA-signed CPI into a single cheap create_program_address with known seeds. Same address, a fraction of the compute."
       - id: q2
         prompt: "The deposit path does `balance.checked_add(amount).ok_or(VaultError::Overflow)?` instead of `balance += amount`. Why?"
         multiSelect: false
@@ -62,4 +62,4 @@ blocks:
             label: "The scaffold already sets overflow-checks = true, so a bare `+` panics instead of wrapping silently, and the checked call is only there as a style convention"
             correct: false
             feedback: "That flag really is in the workspace Cargo.toml and it really does turn a silent wrap into a panic, which is better and still not good enough. A panic aborts the transaction with a failure the client cannot read or branch on, where `checked_add` hands back an error you named yourself."
-        explanation: "In release builds Rust wraps on overflow rather than panicking, so a silent wrap could hand an attacker a tiny balance. Anchor's scaffold enables overflow-checks, which turns that into a panic — better, but still an opaque abort. checked_add returns Option, and ok_or maps None to a named program error the client can catch. Checked arithmetic is mandatory in program code; unwrap() and expect() are not allowed."
+        explanation: "In release builds unchecked `+` silently wraps; with overflow checks on, it panics and aborts the whole transaction with an opaque error. checked_add makes the failure a value — None — which ok_or turns into VaultError::Overflow: an explicit, auditable, client-readable outcome. In money code, arithmetic must fail loudly and by name."

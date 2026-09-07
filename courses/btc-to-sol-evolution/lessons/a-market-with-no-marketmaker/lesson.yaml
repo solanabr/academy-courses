@@ -31,7 +31,7 @@ blocks:
             label: "x · y = k stays constant, so a large enough swap can empty one reserve and halt the pool"
             correct: false
             feedback: "The formula is right and the consequence is inverted. Driving a reserve to zero would demand an infinite amount of the other token, because the hyperbola is asymptotic to both axes, so the pool keeps quoting at prices nobody sane would pay rather than running dry."
-        explanation: "The constant-product invariant x·y = k defines the whole pricing curve: any swap must leave the product unchanged (fees actually nudge it up). Because the curve is a hyperbola that never touches either axis, reserves approach but never reach zero — the pool can always quote, at ever-worsening prices."
+        explanation: "The invariant is the product: x·y = k. Buying token y removes some y and adds some x, and the curve reprices continuously — the closer a reserve gets to zero, the more of the other token each additional unit costs, approaching infinity. That is why a constant-product pool can always quote a price and can never be swept empty by trading."
       - id: q2
         prompt: "Why can't the AMM contract just call a price API at execution time to get a fair price?"
         multiSelect: false
@@ -52,7 +52,7 @@ blocks:
             label: "It can: Chainlink and oracles like it let a contract fetch a live price quote during execution, and this pool simply never imported the interface that would do it"
             correct: false
             feedback: "Oracle middleware works the other way round. It gathers and validates prices off-chain, then posts the agreed number on-chain in its own transaction, and the consuming contract does a plain storage read. Nothing reaches outside the machine while a swap is running."
-        explanation: "Blockchains require deterministic execution: every node must reach identical state from identical inputs. An external HTTP call would return different values to different nodes at different times — consensus would break. This is the oracle problem, and the workaround is oracle middleware writing prices on-chain first."
+        explanation: "Every validator re-executes every transaction and must arrive at byte-identical state. A live network call injects non-determinism — different responses, timeouts, reorderings — so it cannot exist inside execution. Prices either emerge from the pool's own reserves (the AMM trick) or arrive as signed on-chain data written by an oracle."
       - id: q3
         prompt: "A 0.3% fee (r = 0.997) stays in the pool. What does that do to the invariant k over many swaps?"
         multiSelect: false
@@ -73,4 +73,4 @@ blocks:
             label: "k grows during a swap and then falls back to its starting value as arbitrageurs restore the pool's ratio"
             correct: false
             feedback: "Arbitrage moves the ratio between the two reserves, never the product they multiply to. An arbitrageur's trade is itself a swap that pays the same 0.3%, so correcting a mispriced pool ratchets k up again rather than unwinding it."
-        explanation: "The 0.3% fee is taken from the input but stays in the reserves, so each swap leaves the product slightly larger than before: k ratchets upward. That growth is exactly the LPs' yield — their shares redeem for more tokens than they deposited. The invariant is really x·y ≥ k, not equality."
+        explanation: "With the fee retained, each swap satisfies x'·y' ≥ k rather than strict equality — the pool keeps 0.3% of every input, so the product grows monotonically with volume. LP tokens redeem a share of the reserves, which is how trading volume translates into LP earnings without any external payout."
