@@ -32,7 +32,7 @@ When you seeded 1000 and 1000, you were the pool's liquidity provider, and the `
 
 Every deposit after the first is measured against the pool as it already stands. The contract mints new shares in proportion to how much you grow the reserves, `totalShares · min(Δx / reserve0, Δy / reserve1)`, and it takes the *minimum* of the two ratios on purpose. Deposit off the current ratio and the excess on the richer side is ignored: you donate it to the existing providers and get no shares for it. That is why a healthy `addLiquidity` call has to arrive at the pool's live ratio, `reserve0 · _amount1 == reserve1 · _amount0`, and the contract reverts a deposit that would move the price instead of merely scaling the pool. And because every swap leaves its fee behind in the reserves, the pool your shares represent keeps growing even when nobody adds liquidity; redeem later and you burn your shares for a larger slice than you deposited, which is the entire economic reason to provide liquidity in the first place.
 
-![A table contrasting first-deposit share minting (geometric mean sqrt(amount0·amount1), which for 1000/1000 yields 1000 shares) with every later deposit (totalShares times the minimum of the two deposit-to-reserve ratios, so off-ratio excess earns no shares).](assets/v01-table.png)
+![A table contrasting first-deposit share minting (geometric mean sqrt(amount0·amount1), which for 1000/1000 yields 1000 shares) with every later deposit (totalShares times the minimum of the two deposit-to-reserve ratios, so off-ratio excess earns no shares).](assets/v01-table.webp)
 
 The first deposit is the exception that proves the rule. An empty pool has no ratio yet, so whoever opens it sets the price outright by choosing the two amounts. Seed 1000 and 1000 and you declare TKA and TKB equal; seed 1000 and 2000 and you declare one TKA worth two TKB, and the pool will believe you until a trader corrects it. Misprice that opening deposit and you have handed the first arbitrageur a free lunch, which is the earliest place a careless AMM leaks money.
 
@@ -46,7 +46,7 @@ The `r` is the fee haircut. This pool charges 0.3%, so `r = 0.997`, and that num
 
 Plug your run into the formula and it reconciles to the digit: `1000 · 0.997 · 100 / (1000 + 0.997·100) = 99700 / 1099.7 = 90.6611`. The number the contract printed is the number the math predicts.
 
-![The swap function computes amountOut = y*r*dx/(x+r*dx) after taking a 997/1000 fee on the input, so the price comes purely from the two reserves.](assets/v02-annotated-code.png)
+![The swap function computes amountOut = y*r*dx/(x+r*dx) after taking a 997/1000 fee on the input, so the price comes purely from the two reserves.](assets/v02-annotated-code.webp)
 
 ## The price you saw is not the price you got
 
@@ -60,7 +60,7 @@ It helps to split that 9% into its two causes. The flat fee accounts for only 0.
 
 Push the same pool harder and the effect compounds fast. Send 500 TKA instead of 100 and the formula gives `1000 · 0.997 · 500 / (1000 + 0.997·500) = 498500 / 1498.5 = 332.666` TKB, an execution price of `332.666 / 500 = 0.66533`. That is about 33.5% below the 1.0 you were quoted, against the roughly 9% the 100-TKA trade cost. Five times the order size, but nearly four times the percentage penalty on top of a far larger absolute one: price impact grows faster than the trade that causes it. The geometry says why. A 500-TKA order drags you five times farther along the hyperbola than a 100-TKA order, and the curve steepens the farther out you travel, so each additional TKA you push in buys progressively less TKB than the one before it. The tangent at the start no longer describes anything you can get. The practical lesson is to size trades against the pool you are hitting: a thin pool punishes a large order brutally, which is why serious traders split orders across blocks or venues, and why sandwich bots make their living front-running the ones who don't.
 
-![A hyperbola with a tangent at the start point and two secants to trade endpoints; the secants are steeper than the tangent and steeper still for the larger trade, showing price impact grows with size.](assets/v03-chart.png)
+![A hyperbola with a tangent at the start point and two secants to trade endpoints; the secants are steeper than the tangent and steeper still for the larger trade, showing price impact grows with size.](assets/v03-chart.webp)
 
 Here is the footgun that gap creates, and I paid for it personally. The first time I tried to predict a swap by hand, I took the amount out and shaved the 0.3% off *that*. My number never matched the contract, and I spent twenty minutes convinced the deployment was buggy. It wasn't. The fee comes off the **input** before it ever touches the formula; that is what `(_amountIn * 997) / 1000` does, so the order of operations is not decoration. Take the fee on the output and you compute a fill the pool will never give you.
 
@@ -70,7 +70,7 @@ So can you drain it dry? Look back at the hyperbola. As you push more and more T
 
 Now watch the invariant more carefully, because reading it as `x·y = k` exactly is the next trap. Your run started at `k = 1,000,000` and ended at `1100 · 909.3389 = 1,000,272.79`. The product grew. It grew because the 0.3% fee never leaves: the full 100 TKA landed in the reserves, but only 99.7 of it counted toward the output math, and that leftover stays in the pool forever. So the honest invariant is `x·y ≥ k_initial`, and every swap ratchets `k` upward. That drift is not a rounding error. It is the liquidity providers' yield, compounding into the reserves one trade at a time.
 
-![Left, the hyperbola never reaches either axis so the pool can't be emptied; right, the reserve product rises from 1,000,000 to 1,000,272.79 because the fee stays in.](assets/v04-diagram.png)
+![Left, the hyperbola never reaches either axis so the pool can't be emptied; right, the reserve product rises from 1,000,000 to 1,000,272.79 because the fee stays in.](assets/v04-diagram.webp)
 
 ## The wall this market cannot climb
 
@@ -80,13 +80,13 @@ It is worth being precise about how far the arbitrageur pushes, because that is 
 
 The obvious reflex is to make the contract fix its own blindness: have `swap()` call a price API, fetch the real quote, and refuse a bad fill. It cannot. Not "there is no library for it" cannot, but structurally cannot. Blockchains require fully deterministic computation: every node must reach identical state from identical inputs, or consensus falls apart. An external HTTP call would return different values at different times on different nodes, and the instant two validators disagree on what the contract read, they disagree on the block. This is **the oracle problem**, and it is a consequence of the same determinism that made your hash from module 0 reproducible on every machine.
 
-![A comparison showing the same determinism rule enabling module 0's reproducible hash on the left while forbidding a live in-contract price fetch on the right, since nodes calling an external API at different moments would read different values and break consensus, the oracle problem.](assets/v05-comparison.png)
+![A comparison showing the same determinism rule enabling module 0's reproducible hash on the left while forbidding a live in-contract price fetch on the right, since nodes calling an external API at different moments would read different values and break consensus, the oracle problem.](assets/v05-comparison.webp)
 
 On-chain code still ends up knowing off-chain prices, but it reaches them by a different route: a separate transaction writes the price into storage first. **Oracle middleware**, with Chainlink as the standard example, fetches prices off-chain, validates them across many independent sources, and posts the agreed result on-chain as an ordinary transaction. The contract then reads that value the same way your last lesson's contract read its own stored number: a plain load from storage, fully deterministic. The price still comes from the outside world; it just arrives through the front door of a state write instead of a live fetch mid-execution.
 
 Skip that separate feed and trust a pool's own spot price as if it were the truth, and you have built the exact hole a whole class of 2020 exploits climbed through. The lever was the **flash loan**: an uncollateralized loan that borrows and repays inside a single transaction, which lets an attacker wield millions they do not own for a few instructions. The playbook ran like this. Borrow a huge amount through a flash loan, dump it into a thin AMM to wrench that pool's spot price far from reality for the span of one transaction, then call into a lending or derivatives protocol that naively reads the manipulated pool as its price oracle. That victim protocol now values collateral or settles a position at a fabricated price, so the attacker borrows against inflated collateral or liquidates someone at a fake number, extracts the difference, unwinds the pool trade, and repays the flash loan, all atomically in one block. Nobody needed starting capital, and the manipulated price existed for only a handful of instructions, which was long enough. That wave drained tens of millions across several protocols and is the concrete reason serious DeFi never reads a raw spot price as an oracle. The fixes that followed all add friction the attacker cannot fake in a single block: a time-weighted average price that an instantaneous swing cannot move, or a dedicated, multi-source feed like the middleware above. The blindness we just named has a body count, and it is worth naming out loud every time you build on a pool.
 
-![Top path shows a contract making a live API call and two nodes reading different values, breaking consensus; bottom path shows an oracle writing the price on-chain first and the contract reading it deterministically from storage.](assets/v06-flowchart.png)
+![Top path shows a contract making a live API call and two nodes reading different values, breaking consensus; bottom path shows an oracle writing the price on-chain first and the contract reading it deterministically from storage.](assets/v06-flowchart.webp)
 
 ## Build: complete the swap
 
@@ -117,7 +117,7 @@ Two lines. You already saw both inside the annotated code above, and you already
 
 Four ways to get it wrong, every one of which the toolkit will catch:
 
-![A table of four AMM footguns, fee on output instead of input, misreading the invariant as exact, trusting spot as execution price, and seeding liquidity at a bad ratio, each with the symptom and the fix.](assets/v07-table.png)
+![A table of four AMM footguns, fee on output instead of input, misreading the invariant as exact, trusting spot as execution price, and seeding liquidity at a bad ratio, each with the symptom and the fix.](assets/v07-table.webp)
 
 That last row is the one to respect when you extend the pool, and it is the mechanic from the LP-shares section wearing its consequences on the outside. The first deposit into an empty pool sets the price outright, whatever ratio you choose; every deposit after that has to match the pool's current ratio (`reserve0·_amount1 == reserve1·_amount0`) or you hand the pool a free price move, and the contract stops you.
 
@@ -131,7 +131,7 @@ You pay for it in two currencies. Every non-trivial trade pays price impact plus
 
 Add a view function `getSpotPrice()` that returns `reserve1 * 1e18 / reserve0` (the `y/x` spot price, scaled so you can read the decimals), then run two swaps against a fresh 1000/1000 pool and compare: a tiny 1 TKA trade, and a large 500 TKA trade. Print the pre-trade spot price and each swap's execution price (`amountOut / amountIn`). The tiny trade should land within a whisker of spot; the large one should be visibly, measurably worse. Price impact, in your own output.
 
-![Side-by-side, a 1 TKA swap fills at 0.996 (about 0.4% below the 1.0 spot) while a 500 TKA swap fills at 0.665 (about 33.5% below), proving execution price worsens with trade size.](assets/v08-comparison.png)
+![Side-by-side, a 1 TKA swap fills at 0.996 (about 0.4% below the 1.0 spot) while a 500 TKA swap fills at 0.665 (about 33.5% below), proving execution price worsens with trade size.](assets/v08-comparison.webp)
 
 If you want to push it, run the large swap twice in a row and watch the second fill come out worse than the first: you have already moved the pool, so the second trade starts farther down the curve. That is the same mechanic an arbitrage bot lives on, viewed from the inside.
 
