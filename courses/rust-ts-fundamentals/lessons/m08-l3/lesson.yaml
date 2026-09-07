@@ -89,7 +89,7 @@ blocks:
             correct: false
             feedback: "Releases-with-binaries was m05-l3's ship, a different artifact on a different path. GHCR images build from the container workflow on push, no release tag involved, and GHCR mirrors nothing."
           - id: b
-            label: "You rebuild locally with cargo --release and docker push from your machine, as CI can't reach GHCR"
+            label: "You rebuild with cargo --release and docker push from your own machine, as CI can't reach GHCR"
             correct: false
             feedback: "CI has been pushing to GHCR with GITHUB_TOKEN since m06-l4, that was the whole point of ship #3. Hand-pushing from a laptop would bypass the tests-gate and reintroduce works-on-my-machine."
           - id: a

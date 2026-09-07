@@ -33,7 +33,7 @@ blocks:
             correct: true
             feedback: "Three spaced attempts, a catch that reads any message rather than one code, and an error that hands the operator the exact fallback command. That is a best-effort dependency with a hard budget handled the way m02-l3 taught, and the fallback works because everyone ran it once already."
           - id: d
-            label: "Skip the faucet and target the local validator, whose airdrops always land and never throttle"
+            label: "Skip the faucet for the local validator, whose airdrops always land and never throttle"
             correct: false
             feedback: "That is the fallback, not a replacement. A private chain of one confirms everything you send, which is what makes it prove your code and nothing about the network between you and a public cluster. The lab keeps both targets for that reason: one script, two chains, two different questions."
           - id: a
