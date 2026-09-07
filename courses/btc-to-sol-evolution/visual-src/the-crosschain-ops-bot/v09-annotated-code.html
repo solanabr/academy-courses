@@ -12,7 +12,7 @@
 <body>
 <!-- annotated-code: a swap that survives a restart
      purpose: show the four-step Jupiter swap wired as one idempotent, cursor-guarded operation
-     data: # op guard: skip if this op id is already in cursor.jsonl OR already landed on-chain if applied(op_id): return quote = GET /quote?inputMint=..&outputMint=..&amount=..&slippageBps=.. # slippageBps: max drift, 1bp = 0.01% swapTx = POST /swap { quote, userPublicKey } # returns a base64 transaction tx = deserialize(base64(swapTx)); tx.sign(operatorKeypair) sig = connection.sendRawTransaction(tx) append(cursor.jsonl, op_id) # only AFTER confirmation -> next restart SKIPs this op
+     data: # op guard: skip if this op id is already in cursor.jsonl OR already landed on-chain if applied(op_id): return quote = GET api.jup.ag/swap/v1/quote?inputMint=..&outputMint=..&amount=..&slippageBps=.. # slippageBps: max drift, 1bp = 0.01% swapTx = POST api.jup.ag/swap/v1/swap { quote, userPublicKey } # returns a base64 transaction tx = deserialize(base64(swapTx)); tx.sign(operatorKeypair) sig = await sendAndConfirm(tx)   # @solana/kit; NOT web3.js-v1 connection.sendRawTransaction append(cursor.jsonl, op_id) # only AFTER confirmation -> next restart SKIPs this op
      prompt: Monospace annotated-code panel, dark background. Five step lines plus the guard at top and the cursor append at bottom, both highlighted in a warm accent. Margin note: "guard first, append last = idempotent across a kill -9". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
