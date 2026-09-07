@@ -137,7 +137,7 @@ pub reserve_arcade: InterfaceAccount<TokenAccount>,
 pub reserve_ticket: InterfaceAccount<TokenAccount>,
 ```
 
-Add a `WrongReserve` variant to `SwapError` while you are in there. One consequence to expect rather than discover: `Pool` just grew by 64 bytes, so a pool created before this edit no longer matches `INIT_SPACE` and will fail to load. Pools are cheap and this one is yours, so run `init_pool` again on a fresh deployment rather than writing a migration you would throw away — and note the two reserve addresses it prints, because module 8's client lab reads them back off the pool record.
+Add a `WrongReserve` variant to `SwapError` while you are in there. One consequence to expect rather than discover: `Pool` just grew by 64 bytes, so any pool account created before this edit no longer matches `INIT_SPACE` and will not load. Every pool you have made so far lives inside a LiteSVM test that builds a fresh one each run, so here that costs you nothing — but note the shape of the trap for later, because the pool PDA derives from `[POOL_SEED]` alone and is therefore one fixed address per program: put a pool on a cluster and the only ways back are closing it or deploying to a new program id. There is no in-place resize on this path. Module 8's client lab decodes this record with `fetchPool`, so the two reserve addresses you start storing here are the ones it reads back.
 
 Now the rest. Write the line number that proves each remaining row. Row 2 is the next one to look hard at: find every `UncheckedAccount` in the accounts struct and confirm each has an `address`, `owner`, or `constraint`. If one is bare, that is a `FAIL` too, and it gets fixed here as well.
 
