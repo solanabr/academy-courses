@@ -960,6 +960,8 @@ def main() -> int:
     ap.add_argument("--json", action="store_true", help="emit machine-readable JSON")
     ap.add_argument("--review-queue", action="store_true",
                     help="list the questions two or more content-blind strategies already solve")
+    ap.add_argument("--ranks", action="store_true",
+                    help="per-question key length rank, lengths and spread — which questions to move")
     args = ap.parse_args()
 
     targets = list(args.courses)
@@ -992,6 +994,26 @@ def main() -> int:
         rep.enforced = enforced is None or rep.slug in enforced
         reports.append(rep)
         failed = failed or (rep.failed and rep.enforced)
+
+    if args.ranks:
+        # The aggregate says a course is unbalanced; this says which questions to
+        # move. Several people rebuilding these courses wrote their own version of
+        # this table because the gate reported a chi-square and nothing actionable.
+        for rep in reports:
+            rows = []
+            for q in rep.questions:
+                if not q.single:
+                    continue
+                lens = [len(l) for l in q.labels]
+                rank = sorted(range(q.k), key=lambda i: (lens[i], i)).index(q.correct_idx[0])
+                rows.append((rank, max(lens) / max(1, min(lens)),
+                             f"{q.lesson_slug}/{q.qid}", q.k, len(q.key_label), min(lens), max(lens)))
+            print(f"── {rep.slug}: {len(rows)} single-select questions")
+            print(f"   {'question':44} {'k':>2} {'rank':>4} {'key':>5} {'min':>5} {'max':>5} {'spread':>7}")
+            for rank, spread, name, k, keylen, lo, hi in sorted(rows, key=lambda r: (-r[0], -r[1])):
+                flag = "  <-- spread" if spread > 1.7 else ""
+                print(f"   {name:44} {k:2d} {rank:4d} {keylen:5d} {lo:5d} {hi:5d} {spread:6.2f}x{flag}")
+        return 0
 
     if args.review_queue:
         for rep in reports:
