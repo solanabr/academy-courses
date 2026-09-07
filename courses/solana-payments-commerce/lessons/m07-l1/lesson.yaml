@@ -28,6 +28,10 @@ blocks:
             label: "No signature is missing; the agent fully signs and submits, and the facilitator only reads the result."
             correct: false
             feedback: "The agent PARTIALLY signs on purpose so the facilitator can sponsor fees. If the agent fully signed and submitted, there would be no facilitator-as-fee-payer role at all."
+          - id: d
+            label: "The fee payer's signature is missing; /verify adds it and /settle broadcasts what verify signed."
+            correct: false
+            feedback: "Right slot, wrong step. The fee-payer signature /verify adds lives on a scratch copy it simulates and then discards; the signature that goes out is the one /settle puts on the real transaction. One of those two steps can move money, and it is not the rehearsal."
         explanation: "The whole point of the exact-SVM scheme is fee sponsorship: the agent signs everything except the fee-payer slot, and the facilitator's /settle adds the fee-payer signature and broadcasts. /verify also fills that slot, but on a scratch copy and only to simulate the completed transaction; it never submits, so /settle stays the only step that moves money."
       - id: q2-cu-figure
         prompt: "A teammate writing your API docs wants to state 'each x402 settle costs about 20,000 compute units' so buyers can budget. What should you tell them?"
@@ -45,9 +49,13 @@ blocks:
             label: "Change it to 4,600 CU, since a settle is just an SPL transfer and the ComputeBudget instructions the spec mandates cost nothing."
             correct: false
             feedback: "About 4.6k CU is a bare SPL transfer. A settle also carries the mandated ComputeBudget instructions, which are not free, and it may create an ATA. The spec pins no absolute, so do not print one."
+          - id: d
+            label: "Drop it from the docs but keep 20k internally, since the spec states that number as the SDK's default."
+            correct: false
+            feedback: "The 20,000 is real and the spec is not where it comes from: it is DEFAULT_COMPUTE_UNIT_LIMIT in the reference SDK, the ceiling the client asks for when it prepends SetComputeUnitLimit. Budgeting against a requested limit is fine as long as you never call it a spec figure or a cost."
         explanation: "The x402 v2 spec mandates ComputeBudget SetLimit/SetPrice with a bounded CU PRICE, but it never states a CU count for a settlement. Any absolute you print needs an independent, dated source, or it should not be printed."
       - id: q5-where-terms-live
-        prompt: "You curl an unpaid endpoint and get back HTTP/1.1 402 Payment Required, a `Content-Length: 2`, and a body of exactly `{}`. Your client then throws because `accepts` is undefined. What is actually wrong?"
+        prompt: "You curl an unpaid endpoint. Back comes `HTTP/1.1 402`, a `Content-Length: 2`, and a body of exactly `{}`. Your client throws immediately, because the terms array it expected to parse is not there. What is actually wrong?"
         multiSelect: false
         options:
           - id: a
@@ -61,7 +69,11 @@ blocks:
           - id: c
             label: "The 402 is malformed: a spec-conformant challenge must carry `accepts` in its JSON body, so this response was truncated in transit."
             correct: false
-            feedback: "`Content-Length: 2` matching the two bytes `{}` is not truncation; it is the specified v2 body. The challenge is complete — it lives in the PAYMENT-REQUIRED header your client never decoded."
+            feedback: "`Content-Length: 2` matching the two bytes `{}` is not truncation; it is the specified v2 body. The challenge is complete, and it lives in the PAYMENT-REQUIRED header your client never decoded."
+          - id: d
+            label: "Nothing on the server, but your client should read the body once it pays: rejections and failed settlements do put their reason back into the JSON body."
+            correct: false
+            feedback: "The empty body is not a property of unpaid requests; it holds on the opening challenge, on a payment the facilitator rejected, and on a settlement that failed alike. The reason a request failed rides in the challenge header's `error` field every time, which is why read the header, never the body survives contact with production."
         explanation: "In x402 v2 the challenge travels as base64 JSON in the PAYMENT-REQUIRED response header, and the 402's body is the two bytes `{}` on the opening challenge, on a rejected payment, and on a failed settlement alike. Decoding that header yields `x402Version`, `error` (the failure reason), `resource`, and the `accepts` array of PaymentRequirements. v1 was the version that carried its challenge in the body; read the body of a v2 402 and you find an empty object every time."
   - key: check-landscape
     type: quiz
@@ -82,6 +94,10 @@ blocks:
             label: "Helius is not an x402 facilitator; pick from Corbits, Dexter, PayAI, Solvador, or CDP, and note the x402.org facilitator is devnet-only."
             correct: true
             feedback: "Facilitator is a protocol role that a vendor relationship never confers, and the roster of who holds it moves, so this list is a snapshot to re-check at integration time."
+          - id: d
+            label: "Helius is not a facilitator; use Faremeter instead, the hosted mainnet option that also auto-negotiates v1 and v2 for mixed counterparties."
+            correct: false
+            feedback: "The first half lands and the second swaps one category error for another. Faremeter is an open-source framework rather than a hosted facilitator: it negotiates dialects in front of whichever facilitator actually runs /verify and /settle, so you still have to name that one."
         explanation: "The research corrected the charter's guess: Helius is not a facilitator. The real Solana options are Corbits, Dexter (free), PayAI, Solvador, Coinbase's hosted CDP (with KYT/OFAC), and Faremeter as an OSS framework; the x402.org facilitator is devnet/testnet only."
       - id: q4-traffic-windows
         prompt: "Your landing page needs a credibility stat for x402. You have '75.41M transactions / $24.24M in 30 days' (x402.org) and '37M+ transactions, 70% of monthly volume on Solana' (solana.com/x402). How do you present them?"
@@ -92,11 +108,15 @@ blocks:
             correct: true
             feedback: "Different windows and scopes share no denominator, and arithmetic across them manufactures a statistic nobody published; they may overlap, too, which leaves neither one a safe floor."
           - id: b
-            label: "Add them: 75.41M plus 37M gives a 112M+ transaction headline, and both pages are counting x402 transactions anyway."
+            label: "Add them, flagged as approximate: 75.41M plus 37M is roughly a 112M transaction headline, and both pages count x402 transactions."
             correct: false
-            feedback: "Both pages count x402 transactions, but over different windows and on different scopes. Adding a 30-day rolling total to a cumulative-on-Solana snapshot invents a number no source supports."
+            feedback: "Both pages do count x402 transactions, over different windows and different scopes, and calling the sum approximate does not repair it. A 30-day rolling total added to a cumulative-on-Solana snapshot invents a number no source supports, and the hedge only makes the invention sound measured."
           - id: c
-            label: "Use only the bigger one, 75.41M, and drop the Solana figure as redundant."
+            label: "Use only the bigger one, 75.41M, dated to its fetch, and drop the Solana figure as redundant."
             correct: false
-            feedback: "They measure different things: a 30-day rolling total versus a cumulative-on-Solana snapshot with a share claim. Dropping one is not the fix; keeping both attributed is."
+            feedback: "Dating what you keep is the right instinct applied to the wrong survivor. The two measure different things, a 30-day rolling total against a cumulative-on-Solana snapshot with a share claim, so neither makes the other redundant; keeping both attributed is the fix."
+          - id: d
+            label: "Divide one by the other for a Solana share, roughly 49 percent, and label the estimate with both fetch dates."
+            correct: false
+            feedback: "Two dates on a ratio still leave the windows mismatched, and a derived share is exactly the arithmetic the rule forbids: a rolling 30-day denominator under a cumulative numerator yields a percentage neither page measured. Note that solana.com already publishes a share figure, and it is not this one."
         explanation: "The two published numbers use different windows and metrics. The research rule is explicit: cite each with its own source and fetch date, and never combine them into one derived statistic, especially because live dashboard numbers drift daily."

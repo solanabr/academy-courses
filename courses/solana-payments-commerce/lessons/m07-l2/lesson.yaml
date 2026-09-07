@@ -45,9 +45,13 @@ blocks:
             label: "The blockhash expired mid-flight, so the wallet rebuilt the transaction on a fresh one; widen the settlement-cache eviction window past the package's quoted 60-to-90-second lifetime range."
             correct: false
             feedback: "Blockhash expiry makes a transaction fail to land; it does not add instructions to an otherwise-valid payment. The settlement cache is a replay guard, not a verification path. The cause here is wallet-injected guard instructions."
+          - id: d
+            label: "Wallets add guard instructions, so the verifier ignores the instruction list and checks only the transfer amount and the memo."
+            correct: false
+            feedback: "Property-based verification is not the same as looking away. The verifier walks the instructions that were actually signed, checks the transfer, the memo and the fee-payer isolation, and tolerates additions from one allowlisted guard program while rejecting every other one. An allowlist of one is still an allowlist."
         explanation: "Phantom and Solflare inject Lighthouse guard instructions into transactions to protect users, so a naive rebuild-and-compare check fails on legitimate payments. x402's SVM verifier hardcodes an allowlist for the Lighthouse guard program and verifies the transaction that was actually signed. The lesson: verify signed reality, not your idealized rebuild."
       - id: q6-memo-reconcile
-        prompt: "Your paying agent pays three API calls but all three land in the backoffice ledger under the same order, so reconciliation reports one sale. You reused a single extra.memo string across calls. What is the correct fix?"
+        prompt: "Your paying agent settles three API calls, and all three land in the backoffice ledger under one order, so the fulfillment queue shows a single sale. The invoice string you stamped into every challenge was the same one. What repairs this?"
         multiSelect: false
         options:
           - id: a
@@ -59,15 +63,19 @@ blocks:
             correct: true
             feedback: "A reconciliation key must be one-to-one with orders, since reuse collapses rows; unique is not private, though, and the memo is world-readable."
           - id: c
-            label: "Widen the settlement-cache window so all three settlements are treated as one and dedup to a single order."
+            label: "Widen the settlement-cache window so all three settlements are treated as one payment and dedup down to a single order id in the ledger."
             correct: false
             feedback: "The settlement-cache is a replay guard against duplicate SETTLEMENT of one payment, not a reconciliation key. Collapsing three distinct sales into one is the bug, not the fix."
+          - id: d
+            label: "Mint a fresh random invoice id on the server for each 402 challenge, so uniqueness does not depend on the caller."
+            correct: false
+            feedback: "Unique, and unusable. The challenge and the paid retry are two requests, and on the retry the middleware rebuilds the terms and compares them; a server-minted random id differs the second time, the comparison misses, and the agent loops on 402s forever. The one thing both requests share byte for byte is the URL, which is why the caller mints the id and carries it there."
         explanation: "x402's extra.memo invoice id is the same reconciliation idea as a Solana Pay reference key: it must be unique per call so each payment maps to its own order in the shared backoffice ledger. Reusing one memo collapses distinct sales; the fix is a unique memo (within the 256-byte limit) per call."
   - key: check-guard
     type: quiz
     questions:
       - id: q7-spendcontrols
-        prompt: "You ship the paying agent with default spendControls and point it at Wavelength's pressing-price API, whose calls cost $1.50 in USDC. The agent silently pays nothing and your fulfillment queue stays empty. Why?"
+        prompt: "You ship the paying agent with its client defaults untouched and point it at Wavelength's rush quote, which costs $1.50 in USDC. The agent silently pays nothing and your fulfillment queue stays empty. Why?"
         multiSelect: false
         options:
           - id: a
@@ -82,6 +90,10 @@ blocks:
             label: "USDC is not a recognized pegged asset by default, so the agent refuses regardless of amount."
             correct: false
             feedback: "USDC is a recognized pegged asset; that is not the blocker. The blocker is the $1 per-payment cap the default spendControls enforce."
+          - id: d
+            label: "The agent holds no SOL for fees, so signing fails before the payment header is ever built."
+            correct: false
+            feedback: "This agent is designed never to hold SOL: the facilitator named in extra.feePayer sponsors the fee, which is why the wallet carries devnet USDC and nothing else. A gasless buyer is the whole economic point of exact-SVM, so a missing SOL balance is not what stopped this call."
         explanation: "The @x402/core client spendControls default to recognized pegged assets with a $1 USD cap per payment unless overridden. A $1.50 call exceeds that cap, so the pre-flight guard declines it before signing, which reads as a silent no-op unless you log the reason. Raise the cap deliberately or price the call under it."
       - id: q8-facilitator-env
         prompt: "Your x402 labs pass against the x402.org facilitator on devnet. A teammate wants to point the same config at it for the mainnet launch. What is the right call?"
@@ -99,4 +111,8 @@ blocks:
             label: "No; that facilitator is devnet/testnet only, so mainnet needs a production one such as Corbits, PayAI, or CDP."
             correct: true
             feedback: "A reference deployment is scoped to the networks it serves, which makes the URL part of the network binding. Swapping it is the easy half, with trust, KYT, and fee terms riding along."
+          - id: d
+            label: "No; on mainnet the resource server settles for itself, so drop the facilitator URL entirely."
+            correct: false
+            feedback: "Right verdict on the URL, wrong replacement. Your merchant server never touches the chain and never holds a fee-payer key: it learns the sponsor address from a facilitator at boot, which is what initialize() is for. Removing the facilitator removes the account that pays the fee."
         explanation: "The x402.org facilitator is devnet/testnet only, a deliberate reference deployment. A mainnet launch must swap the facilitator URL to a production one (Corbits, Dexter, PayAI, Solvador, or Coinbase CDP), which is a config change plus the trust and KYT considerations that come with picking a facilitator."
