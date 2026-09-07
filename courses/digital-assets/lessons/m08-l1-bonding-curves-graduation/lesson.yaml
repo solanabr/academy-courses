@@ -33,10 +33,6 @@ blocks:
         prompt: "A teammate hardcodes const GRADUATION_SOL = 85 in the launch config. Reviewing it, which statement is correct?"
         multiSelect: false
         options:
-          - id: a
-            label: "85 SOL is a graduation_target field stored in pump's BondingCurve account, read by the migrate instruction at graduation."
-            correct: false
-            feedback: "No such field exists; the curve stores reserves, not a graduation price. The threshold is implied by those reserves, not stored."
           - id: b
             label: "85 SOL is derived from the invariant on the published reserves, and moves when they move."
             correct: true
@@ -45,6 +41,10 @@ blocks:
             label: "85 SOL is the flat 100-bps trading fee accumulated across every buy over the curve's whole lifetime."
             correct: false
             feedback: "That conflates two unrelated quantities, trading fees and graduation liquidity. Fees route to recipients; graduation is about draining the real reserve."
+          - id: a
+            label: "85 SOL is a graduation_target field stored in pump's BondingCurve account, read by the migrate instruction at graduation."
+            correct: false
+            feedback: "No such field exists; the curve stores reserves, not a graduation price. The threshold is implied by those reserves, not stored."
           - id: d
             label: "85 SOL is the SOL equivalent of the market cap at which coins are observed to graduate, backed out from that observation."
             correct: false
@@ -62,23 +62,19 @@ blocks:
             label: "It stays 85 SOL; graduation is fixed by the program regardless of the virtual and real token reserve constants."
             correct: false
             feedback: "The threshold is a function of the constants, not a program-level constant; changing the reserves changes it."
-          - id: c
-            label: "It rises: draining a larger fraction of the token reserve forces the final virtual SOL reserve higher."
-            correct: true
-            feedback: "Run the worked variant: 30 virtual SOL, 1B virtual tokens, 800M real tokens gives 120 SOL. Same formula, a 41% higher bar, no folklore."
           - id: d
             label: "Unchanged unless total supply moves too, since the graduation threshold tracks the share of the token reserve the curve may sell."
             correct: false
             feedback: "Total supply is the one published constant that never enters this arithmetic; it only prices the remainder the curve never offers. The threshold moves on the reserves alone."
+          - id: c
+            label: "It rises: draining a larger fraction of the token reserve forces the final virtual SOL reserve higher."
+            correct: true
+            feedback: "Run the worked variant: 30 virtual SOL, 1B virtual tokens, 800M real tokens gives 120 SOL. Same formula, a 41% higher bar, no folklore."
         explanation: "finalVirtualSol = k / (virtualToken − realToken). A larger realToken shrinks the denominator, so finalVirtualSol grows and the SOL added to graduate rises. This is exactly why a flat opening-price estimate is wrong: the curve steepens as the reserve drains."
       - id: m08l1-q3-migrate-twice
         prompt: "A pump.fun coin's complete flag flips and two bots both call migrate on the same curve. What is the outcome?"
         multiSelect: false
         options:
-          - id: a
-            label: "migrate is permissionless and idempotent, so the second call is simply a no-op."
-            correct: true
-            feedback: "Liquidity is already on PumpSwap with the LP burnt. Permissionless plus idempotent is the pair: either property alone turns the race into dead liquidity or into an exploit."
           - id: b
             label: "The second call double-mints LP and drains whatever the curve still holds into the racer's wallet."
             correct: false
@@ -87,6 +83,10 @@ blocks:
             label: "migrate requires the creator's signature, so the second bot's call reverts for lack of authority."
             correct: false
             feedback: "migrate is permissionless (anyone can call it); that is why it must be idempotent rather than authority-gated."
+          - id: a
+            label: "migrate is permissionless and idempotent, so the second call is simply a no-op."
+            correct: true
+            feedback: "Liquidity is already on PumpSwap with the LP burnt. Permissionless plus idempotent is the pair: either property alone turns the race into dead liquidity or into an exploit."
           - id: d
             label: "The second call lands too and pays the 15,000,001-lamport fee again, since that fee is a program constant."
             correct: false
@@ -104,12 +104,12 @@ blocks:
             label: "The opening price is the cheapest point on the curve; price rises as the token reserve shrinks, so a flat-price sum under-counts."
             correct: true
             feedback: "Pricing 793 million tokens at the opening rate is pricing a flight of stairs at the height of the first step. The curve steepens as it drains, by 14.7 times end to end."
-          - id: c
-            label: "It used lamports where it should have used SOL, so the sum comes out off by a factor of a billion."
-            correct: false
-            feedback: "A unit error would be off by 10^9, not a factor of ~4; the shape of the curve is what's ignored."
           - id: d
             label: "It should have priced the tokens at the average of the opening and graduation prices, which is the mean price actually paid on the curve."
             correct: false
             feedback: "Averaging the endpoints at least admits the curve moves, and it still fails: a constant-product curve is a hyperbola, so the arithmetic mean of its endpoints is not the mean price paid."
+          - id: c
+            label: "It used lamports where it should have used SOL, so the sum comes out off by a factor of a billion."
+            correct: false
+            feedback: "A unit error would be off by 10^9, not a factor of ~4; the shape of the curve is what's ignored."
         explanation: "A constant-product curve steepens as you drain it: each successive token costs more SOL than the last. Pricing all real tokens at the opening price treats the curve as flat and badly under-counts. The invariant integrates that steepening for you, which is the whole point of deriving from k rather than eyeballing a price."

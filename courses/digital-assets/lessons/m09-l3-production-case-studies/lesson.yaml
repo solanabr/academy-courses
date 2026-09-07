@@ -21,6 +21,10 @@ blocks:
         prompt: "You read PYUSD's live mint on-chain. What does 'configured but dormant' mean for its extension set?"
         multiSelect: false
         options:
+          - id: c
+            label: "The mint carries eight TLV extensions, but the behavior-bearing ones read inert: hook programId null, transfer fee 0 bps."
+            correct: true
+            feedback: "Presence tells a user what could happen; the field value tells them what will happen on the next transfer. Those two sentences belong in different parts of your UI."
           - id: a
             label: "PYUSD carries seven extensions, and all seven of them actively enforce on every transfer it makes."
             correct: false
@@ -29,10 +33,6 @@ blocks:
             label: "The extensions are present in the mint's TLV data, but Token-2022 keeps each one disabled until an audit."
             correct: false
             feedback: "Token-2022 doesn't gate a mint's extensions behind an audit. PYUSD's issuer configured the extensions without arming them; that's an issuer choice, not a program lock."
-          - id: c
-            label: "The mint carries eight TLV extensions, but the behavior-bearing ones read inert: hook programId null, transfer fee 0 bps."
-            correct: true
-            feedback: "Presence tells a user what could happen; the field value tells them what will happen on the next transfer. Those two sentences belong in different parts of your UI."
           - id: d
             label: "A dormant extension has a null authority, so none of them can ever fire whatever the issuer decides later."
             correct: false
@@ -42,35 +42,35 @@ blocks:
         prompt: "Which primitive you built maps most directly onto Jito's JTO airdrop?"
         multiSelect: false
         options:
-          - id: a
-            label: "The compost-airdrop's merkle-claim path with claim_locked vesting; JTO ran a merkle distributor with linear vesting."
-            correct: true
-            feedback: "Same program, in fact: mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv is still executable on mainnet, and its claim_locked is the instruction you ported."
-          - id: b
-            label: "The confidential-transfer variant, in which JTO distributed each allocation as an encrypted amount."
-            correct: false
-            feedback: "JTO's distribution was a public merkle drop with vesting, not a confidential-transfer deployment."
           - id: c
             label: "The transfer-hook program, with JTO enforcing its claims through a custom hook on every transfer."
             correct: false
             feedback: "JTO used a merkle distributor, not a transfer hook. The linearly-vesting portion is what maps onto your claim_locked step."
+          - id: a
+            label: "The compost-airdrop's merkle-claim path with claim_locked vesting; JTO ran a merkle distributor with linear vesting."
+            correct: true
+            feedback: "Same program, in fact: mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv is still executable on mainnet, and its claim_locked is the instruction you ported."
           - id: d
             label: "The compressed-token push from the airdrop lab, since JTO went out to every holder without a claim step."
             correct: false
             feedback: "A push writes to each recipient whether or not they show up; JTO was a pull, where recipients brought a proof and opened their own status account."
+          - id: b
+            label: "The confidential-transfer variant, in which JTO distributed each allocation as an encrypted amount."
+            correct: false
+            feedback: "JTO's distribution was a public merkle drop with vesting, not a confidential-transfer deployment."
         explanation: "The JTO drop is the canonical merkle-distributor-with-linear-vesting case study, the very mechanism you reused for the compost-points migration, including the claim_locked vesting step. That's the point of the case study: real deployments run the primitives you built."
       - id: m09l3-q3-frontier-honesty
         prompt: "Writing case-study notes, you cite an official Solana page that says confidential transfers are 'expected EOY 2024,' and you describe Metaplex Agent Registry as a shipping production standard. What's wrong?"
         multiSelect: false
         options:
-          - id: a
-            label: "Nothing is wrong: both are current, verified facts and you can cite each of them as they stand."
-            correct: false
-            feedback: "Both are traps: the 'EOY 2024' line is dead text on a live page, and agent identity is a 2026 frontier beat, not a production standard."
           - id: b
             label: "Both: the date is stale text on a live page, and agent identity is a direction."
             correct: true
             feedback: "Confidential transfers have been on mainnet a while; cite that page for its five-firm audit roster, never for the date. Agent Registry, AgentIdentity and is_agent add up to a direction."
+          - id: a
+            label: "Nothing is wrong: both are current, verified facts and you can cite each of them as they stand."
+            correct: false
+            feedback: "Both are traps: the 'EOY 2024' line is dead text on a live page, and agent identity is a 2026 frontier beat, not a production standard."
           - id: c
             label: "The confidential-transfer date is fine, and only the agent-identity claim is premature."
             correct: false
