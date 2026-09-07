@@ -2,18 +2,34 @@
 
 Last lesson closed on a gap. `hashit` can fingerprint anything: a string, a 4 GB video, a batch of a thousand records folded into one Merkle root. What it cannot do is tell you who made the fingerprint. A digest has no author. Anyone can hash `send 100 to bob`, and every one of them gets the identical 64 characters, which is exactly the property that makes a hash useless for proving *who* authorized a payment.
 
-There is no "create account" button on a blockchain. No signup form, no email confirmation, no support line to reset a password you forgot. You are about to make an identity out of 32 random bytes, prove you own it, and hand the proof to a stranger who can check it without trusting you, your laptop, or anyone who vouches for either. Terminal open. Before any of it gets a name:
+There is no "create account" button on a blockchain. No signup form, no email confirmation, no support line to reset a password you forgot. You are about to make an identity out of 32 random bytes, prove you own it, and hand the proof to a stranger who can check it without trusting you, your laptop, or anyone who vouches for either. Terminal open.
+
+One prerequisite, thirty seconds, and skipping it is the single most common way this lesson dies on a Mac. Ask your `openssl` who it is:
+
+```bash
+openssl version
+```
+
+If that says **OpenSSL 3.x**, you are ready. If it says **LibreSSL**, you are on macOS's built-in `/usr/bin/openssl`, which is a different project that does not implement ed25519 at all — the very first command below fails with `Algorithm ed25519 not found`, and so does everything after it. Install a real OpenSSL (`brew install openssl@3`) and put it first on your `PATH` for this lesson:
+
+```bash
+export PATH="$(brew --prefix openssl@3)/bin:$PATH"
+openssl version      # should now say OpenSSL 3.x
+```
+
+Now, before any of it gets a name:
 
 ```bash
 openssl genpkey -algorithm ed25519 -out /tmp/k.pem
-echo hi | openssl pkeyutl -sign -inkey /tmp/k.pem -rawin | wc -c
+echo hi > /tmp/hi.txt
+openssl pkeyutl -sign -inkey /tmp/k.pem -rawin -in /tmp/hi.txt | wc -c
 ```
 
 ```
 64
 ```
 
-That's it. That's the whole primitive, and you just ran it. The first command minted a fresh identity: an ed25519 key, generated from randomness, no server contacted, no account registered anywhere. The second command used that identity to sign the word `hi` and counted the result: 64 bytes. Not a password, not a login token, not a row in somebody's users table. Sixty-four bytes of proof that whoever holds that key stood behind that exact message. Run it again and you'll get a different keypair and a different signature, because the randomness is fresh every time, but the shape never changes: identity in, message in, 64 bytes of proof out.
+That's it. That's the whole primitive, and you just ran it. And that middle line, writing `hi` to a file instead of piping it, is not fussiness; it is the first real fact about this signature scheme. Ed25519 is a **one-shot** scheme: it hashes the entire message as part of signing, so the signer has to know the whole thing, and its length, before it can start. A pipe cannot promise that — a stream has no length until it ends — so OpenSSL refuses rather than guess, with `Error: unable to determine file size for oneshot operation`. Hand it a file and it knows the size instantly. Every signing command in this lesson takes its message from `-in <file>` for that reason. The first command minted a fresh identity: an ed25519 key, generated from randomness, no server contacted, no account registered anywhere. The second command used that identity to sign the word `hi` and counted the result: 64 bytes. Not a password, not a login token, not a row in somebody's users table. Sixty-four bytes of proof that whoever holds that key stood behind that exact message. Run it again and you'll get a different keypair and a different signature, because the randomness is fresh every time, but the shape never changes: identity in, message in, 64 bytes of proof out.
 
 ## Sign a file, verify it, break it
 
@@ -79,7 +95,13 @@ The asymmetry is the whole product. One key mints proofs, the other only audits 
 
 ## Cross-check it: OpenSSL signs, Python verifies
 
-Here is the property that makes signatures worth building a financial system on, and it is the same one that made hashing trustworthy last lesson: the agreement is mathematical, not social. You signed with OpenSSL. Verify with a completely different toolchain and watch it agree. Python's `cryptography` library shares no code with OpenSSL's command-line tool, was written by different people, and has never spoken to your terminal session. Feed it the public key and the signature OpenSSL produced:
+Here is the property that makes signatures worth building a financial system on, and it is the same one that made hashing trustworthy last lesson: the agreement is mathematical, not social. You signed with OpenSSL. Verify with a completely different toolchain and watch it agree. Python's `cryptography` library shares no code with OpenSSL's command-line tool, was written by different people, and has never spoken to your terminal session. It is a third-party package, so install it first — this is the one dependency this lesson adds:
+
+```bash
+python3 -m pip install cryptography
+```
+
+Now feed it the public key and the signature OpenSSL produced:
 
 ```python
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
@@ -120,7 +142,7 @@ Except it was the second time the idea was invented. Inside GCHQ, the British si
 
 Here is the part worth slowing down for, because it is the bridge the rest of the course walks across. You did not build a toy. You built a wallet.
 
-Strip a crypto wallet down to its core and there is no account inside it, no balance stored in it, no server it logs into. There is a keypair. The private key is the thing you guard, the public key is the thing you share, and the "address" a stranger pastes to pay you is that public key wearing an encoding convention so it fits on a screen. When you "own" coins, no system stored a row that says so under your name; it stored records that only your private key can authorize spending from, and your public key is the name those records point at. Ownership is not a field in a database. It is the ability to produce a signature nobody else can.
+Strip a crypto wallet down to its core and there is no account inside it, no balance stored in it, no server it logs into. There is a keypair. The private key is the thing you guard, the public key is the thing you share, and the "address" a stranger pastes to pay you is derived from that public key. How directly depends on the chain, and the difference is worth knowing now because two lessons from now you will decode one. A Solana address *is* the 32-byte public key, base58-encoded — the key itself, wearing a readable coat. A Bitcoin address is one step further removed: it encodes a *hash* of the public key, which is why a Bitcoin output's type reads `witness_v0_keyhash` and why the key itself only appears on chain when you spend, not when you receive. When you "own" coins, no system stored a row that says so under your name; it stored records that only your private key can authorize spending from, and your public key is the name those records point at. Ownership is not a field in a database. It is the ability to produce a signature nobody else can.
 
 That reframes the whole "no create-account button" problem from the intro. There is no account to create because the account is a mathematical fact about a key you generated yourself, offline, in the time it took `openssl genpkey` to run. Nobody issued it to you. Nobody can revoke it. Nobody even knows it exists until you sign something and show them. Bitcoin and Solana each add conventions on top of exactly this: how to encode the public key into an address, what a "transaction" message looks like before you sign it, which curve and which rules. Conventions, not new physics. The 32-byte identity underneath is what you already made.
 
@@ -183,7 +205,7 @@ if __name__ == "__main__":
 
 The TODO is a few lines, and every flag you need is in the commands you ran by hand. The acceptance test is the same brutal-and-fair standard as `hashit`: a valid signature must return `OK`, and any tampered byte must return `FAIL`. No partial credit, because a verifier that is "pretty sure" is a verifier you cannot build a payment on.
 
-Two footguns wait for you in that verify function, and both are quiet. The first: sign or verify the *file bytes*, never the filename. It is a quiet, common mistake. Pipe `msg.txt` as a string into a sign command and you will cheerfully sign the six characters `m s g . t x t` instead of the message inside the file, get a signature that verifies against the wrong thing, and lose an afternoon before you notice. `-rawin -in msg.txt` reads the file's contents; `printf 'msg.txt' | ...` reads the name. They both "work." Only one signs what you meant. The second footgun is the demo-key trap from the trade-off, now in code: do not leave `key.pem` from a tutorial checked into anything real.
+Two footguns wait for you in that verify function, and both are quiet. The first: sign or verify the *file bytes*, never the filename. `-rawin -in msg.txt` reads the file's contents. Write the string `msg.txt` into a file and sign *that*, and you have signed the seven characters `m s g . t x t` instead of the message, produced a perfectly valid signature over the wrong thing, and lost an afternoon before you notice. Both commands succeed and both print a 64-byte signature; only one signs what you meant. (Piping the filename in — `printf 'msg.txt' | openssl pkeyutl -sign ... -rawin` — does not even get that far: it hits the one-shot length problem from the top of this lesson and errors out. Which is a small mercy, and not one you should rely on.) The second footgun is the demo-key trap from the trade-off, now in code: do not leave `key.pem` from a tutorial checked into anything real.
 
 ## Do it yourself
 
