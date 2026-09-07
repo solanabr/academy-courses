@@ -182,7 +182,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3 @types/node@24
 
 Pins checked against npm on 2026-09-05. The kit `latest` tag is 8.2.0, published 2026-08-29, but latest is not the rule: a workspace pins the kit major its own `@solana-program/*` deps peer against. Here that client is `@solana-program/token-2022@0.15.0`, whose peer range accepts kit `^7.0.0` — everything from 0.16.0 onward peers `^8` — and that decides the rest: kit 7.1.1, the newest release inside the range. These clients ship monthly. Run `npm view @solana-program/token-2022 peerDependencies` before you trust the pair.
 
-Then the environment. Seven values, no secrets in the repo — the last one is a path, and the file it points at is the `treasury.json` you minted in last lesson's step 1b, because the window's `mintTo` must be signed by SPROUT's mint authority and that setup put the authority on exactly this key (if your SPROUT predates that step, re-mint per it first; there is no signing your way around a dead throwaway authority):
+Then the environment. Eight values, no secrets in the repo — the last one is a path, and the file it points at is the `treasury.json` you minted in last lesson's step 1b, because the window's `mintTo` must be signed by SPROUT's mint authority and that setup put the authority on exactly this key (if your SPROUT predates that step, re-mint per it first; there is no signing your way around a dead throwaway authority):
 
 ```bash
 export DAS_RPC_URL="https://<your-das-provider-endpoint>"

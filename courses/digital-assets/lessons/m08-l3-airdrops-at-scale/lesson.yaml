@@ -68,7 +68,7 @@ blocks:
             label: "Compressed tokens automatically vest by epoch."
             correct: false
             feedback: "Compression is a storage optimization; it has no vesting semantics of its own."
-        explanation: "The Jito distributor (the one the JTO drop used) carries both an unlocked portion and a claim_locked path that releases linearly. That is the vesting primitive to reuse; LaunchLab's cliff+duration knobs are the launchpad-side equivalent from the previous lesson."
+        explanation: "The Jito distributor (the one the JTO drop used) carries both an unlocked portion and a claim_locked path that releases linearly. That is the vesting primitive to reuse — with the caveat the lesson attaches to it and this answer inherits: the distributor is an SPL-era program and whether its vault and claim-time transfer CPI can pay out a fee-bearing Token-2022 mint is unverified here, so read its transfer CPI and stand up a devnet distributor before you commit SPROUT to it. LaunchLab's cliff+duration knobs are the launchpad-side equivalent from the previous lesson."
       - id: m08l3-q4-stale-proof
         prompt: "A recipient's compressed-token claim transaction fails shortly after the tree received new writes. What is the most likely structural cause?"
         multiSelect: false
