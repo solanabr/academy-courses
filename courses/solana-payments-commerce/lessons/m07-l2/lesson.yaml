@@ -30,7 +30,7 @@ blocks:
     type: quiz
     questions:
       - id: q5-lighthouse
-        prompt: "Your server-side check rebuilds the expected payment transaction and compares it byte-for-byte to what the agent submitted through Phantom. Legitimate payments start failing the comparison. What is going on, and what does x402's SVM verifier do about it?"
+        prompt: "Your server-side check rebuilds the expected payment transaction and compares it byte-for-byte to what the agent submitted from a mainstream wallet. Legitimate payments start failing the comparison. What is going on, and what does the SVM verifier do about it?"
         multiSelect: false
         options:
           - id: a
