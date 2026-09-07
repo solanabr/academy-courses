@@ -66,9 +66,25 @@ def decor_block(html: str) -> str | None:
     return m.group(0) if m else None
 
 
+def repo_of(path: Path) -> Path | None:
+    """The worktree containing `path` -- not the one containing this script.
+
+    Courses live in per-branch worktrees, so the script is routinely run from one
+    checkout against files in another. Resolving the repo from the script's own
+    location silently compares against the wrong HEAD.
+    """
+    r = run(["git", "-C", str(path.resolve().parent), "rev-parse", "--show-toplevel"])
+    return Path(r.stdout.strip()) if r.returncode == 0 and r.stdout.strip() else None
+
+
 def committed_version(path: Path) -> str | None:
-    repo = Path(__file__).resolve().parent.parent
-    rel = path.resolve().relative_to(repo)
+    repo = repo_of(path)
+    if repo is None:
+        return None
+    try:
+        rel = path.resolve().relative_to(repo.resolve())
+    except ValueError:
+        return None
     r = run(["git", "-C", str(repo), "show", f"HEAD:{rel}"])
     return r.stdout if r.returncode == 0 else None
 
@@ -127,7 +143,7 @@ def list_stale(ref: str) -> int:
     teaches the old model, which is precisely the state six figures have been in
     since round 1. This finds them instead of relying on someone's notes.
     """
-    repo = Path(__file__).resolve().parent.parent
+    repo = repo_of(Path.cwd() / "x") or Path(__file__).resolve().parent.parent
     r = run(["git", "-C", str(repo), "diff", "--name-only", ref, "--", "courses"])
     if r.returncode != 0:
         sys.exit(f"git diff against {ref} failed: {r.stderr.strip()}")
