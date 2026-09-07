@@ -144,7 +144,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
    solana airdrop 2 $(solana-keygen pubkey sponsor.json) --url devnet
    ```
 
-   Pin note: `cargo install kora-cli` resolves to 2.0.5 as of 2026-08-31 (published 2026-03-11; the 2.2.0 betas are pre-release, and `cargo install` ignores them); run `kora --version` and expect the 2.x line. This is the one step in the whole course that needs a Rust toolchain: if `cargo` is not on your machine, `rustup` (rustup.rs) installs it in one command, a five-minute detour — and if you have never touched Rust and would rather meet the toolchain properly than blind-install it, the Rust & TypeScript Fundamentals course stands it up from zero at the top of its module four, about twenty minutes. Keep `sponsor.json` out of git and away from your merchant wallet: the sponsor is a float account you top up, sized so that losing it stings instead of ruins. Checkpoint: the airdrop confirms and `solana balance $(solana-keygen pubkey sponsor.json) --url devnet` prints 2 SOL.
+   Pin note: `cargo install kora-cli` resolves to 2.0.5 as of 2026-08-31 (published 2026-03-11; the 2.2.0 betas are pre-release, and `cargo install` ignores them); run `kora --version` and expect the 2.x line. This is the one step in the whole course that needs a Rust toolchain: if `cargo` is not on your machine, `rustup` (rustup.rs) installs it in one command, a five-minute detour — and if you have never touched Rust and would rather meet the toolchain properly than blind-install it, the Rust & TypeScript Fundamentals course stands it up from zero at the top of its module four, which opens by promising "Within ten minutes you will install the Rust toolchain" and a scaffold besides. Keep `sponsor.json` out of git and away from your merchant wallet: the sponsor is a float account you top up, sized so that losing it stings instead of ruins. Checkpoint: the airdrop confirms and `solana balance $(solana-keygen pubkey sponsor.json) --url devnet` prints 2 SOL.
 
 2. **Configure the node.** Two files at the project root. First `kora.toml`, which is the validation section of the theory made literal (the skeleton is trimmed from the repo's own sample config; every departure from that sample is commented):
 
@@ -376,6 +376,10 @@ What you are assembling, and where it sits in the Wavelength workspace:
    const app = express();
    app.use(express.json());
 
+   // :3200 is also where module 6's ramp-embed session route listens, and that
+   // port is registered in your CDP allowlist, so do not renumber it there.
+   // Stop the ramp server before starting this one, or run this on another
+   // port with PORT=3210 -- nothing here hardcodes 3200 but this default.
    const PORT = Number(process.env.PORT ?? 3200);
 
    const ORDERS = new Map<string, { lines: OrderLine[] }>([
@@ -428,7 +432,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
    MERCHANT_ADDRESS=$(solana address) npx tsx src/server.ts
    ```
 
-   Checkpoint: `gasless-checkout listening on :3200`, and the Kora terminal stays quiet until a POST arrives. The `REFUSED` log line in the catch block is not decoration; it is the denial evidence the challenge and this lesson's gate both ask you to produce.
+   If that exits with `EADDRINUSE`, module 6's ramp-embed session route is still holding the port: stop it (ctrl-C in its terminal), or start this one with `PORT=3210` and set `SERVER_URL` to match in the smoke check below. The ramp route keeps :3200 because that exact origin is registered in your CDP allowlist and changing it means editing a dashboard; this server has no such tie, so it is the one that moves. Checkpoint: `gasless-checkout listening on :3200`, and the Kora terminal stays quiet until a POST arrives. The `REFUSED` log line in the catch block is not decoration; it is the denial evidence the challenge and this lesson's gate both ask you to produce.
 
 6. **Fund the buyer with USDC and nothing else.** The buyer wallet you minted in the scaffold has no SOL, and it stays that way. Give it the record money using your own module 2 kit, from the workspace root:
 

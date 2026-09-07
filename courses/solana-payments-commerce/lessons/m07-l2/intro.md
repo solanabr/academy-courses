@@ -452,6 +452,8 @@ The acceptance bar, matching the lesson gate: an in-policy call returns `willPay
 
 If you finish early, wire it in: call your guard at the top of `payAndRetry` and compare its verdicts with the SDK's throws across the lab's four calls. They should agree on every one, and now you have two independent opinions about every payment your agent makes, which is precisely how much paranoia a wallet-holding bot deserves.
 
+And one drill that collects a debt from module 4, worth ten minutes because it is the only place this course can honestly pay it. Your reconciliation lesson left `tryMatchByReferenceOrMemo` in `backoffice-refunds/src/sweep.ts` with the memo half open, on the promise that module 7's traffic would need it. It does — but only on the unhappy path, so make one: run a paid agent call with your settlement hook disabled (comment out the `ledger.record` in `onAfterSettle`), so real money lands on-chain carrying its `extra.memo` invoice id and your ledger never hears about it. That is a crashed worker, reproduced on purpose. Now run the treasury sweep against your merchant ATA. With the memo half filled it finds the orphaned credit, parses the invoice id out of the memo, and matches it to the open order the reference path could never have found, because an x402 settlement carries no reference key at all. Accept: one recovered row, and the same sweep run twice writes it once. Re-enable the hook afterwards.
+
 ## Checkpoint: three rows and one refusal
 
 Where this usually snags, in the order you would hit it:

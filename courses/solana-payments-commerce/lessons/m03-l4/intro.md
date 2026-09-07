@@ -417,12 +417,19 @@ async function main() {
 main().catch((err) => fail(err instanceof Error ? err.message : String(err)));
 ```
 
-Run the server, then in a second terminal:
+Run the server in one terminal:
 
 ```bash
-MERCHANT_ADDRESS=$(solana address) npx tsx src/server.ts &
+MERCHANT_ADDRESS=$(solana address) npx tsx src/server.ts
+```
+
+Wait for its listening line, then run the smoke check in a second terminal:
+
+```bash
 npx tsx smoke.ts
 ```
+
+Two terminals rather than one backgrounded command, on purpose: `smoke.ts` opens with a `fetch` that does not retry, and `tsx` takes a second or two to compile and bind. Chained behind an `&` the fetch usually loses that race and hands you an `ECONNREFUSED` that has nothing to do with your code.
 
 You should see `SMOKE PASS`. If instead it fails on the POST, your `buildActionPostResponse` still throws its placeholder, which is the lab telling you the completion rung is genuinely yours. Finish it, or work it through the coding challenge first and paste your passing implementation back in.
 
