@@ -53,7 +53,7 @@ blocks:
             correct: false
             feedback: "Async runs fine in any binary with a runtime attached (tokio's main macro is one line), no framework needed. The reason is fit, not possibility."
           - id: d
-            label: "An async client would pull a tokio runtime into pulse-engine itself, and the pure core has to stay runtime-free for the WASM target m07-l2 wants"
+            label: "An async client would pull a tokio runtime into pulse-engine itself, and the pure core generally has to stay runtime-free for the WASM target m07-l2 wants"
             correct: false
             feedback: "The HTTP arm lives in pulse-cli either way, so the engine's purity is bought by crate placement, not by which client you pick. An async fetch would put tokio in the CLI and leave the engine untouched."
         explanation: "Concurrency is the thing async buys, and a sequential, short-lived CLI has none to exploit, a runtime would be pure overhead and a new concept spent on no benefit. The moment the poller wants fifty probes in flight on a schedule (next module's opening problem), the same crate grows the async delta. Choosing the simple tool ON PURPOSE, with the upgrade path named, is the lesson."

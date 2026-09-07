@@ -76,7 +76,7 @@ blocks:
             correct: false
             feedback: "Removing a default feature is treated as a breaking change in ecosystem convention anyway, the hygiene is about compile surface and intent, not semver protection."
           - id: d
-            label: "Graph-wide reach: one defaults-off line at the root turns those defaults off for every crate that pulls the same dep in"
+            label: "Graph-wide reach: one defaults-off line at the root turns those defaults off for each crate that pulls the same dep in"
             correct: false
             feedback: "Features are additive and cargo unifies them, so one other consumer asking for default turns default back on for the shared build. Defaults-off constrains what YOU request, not what the graph resolves to."
         explanation: "Defaults serve the average consumer; a workspace is not average. defaults-off + named features means every capability in the build was chosen on purpose, smaller binaries, faster builds, and a manifest that documents what each dep is actually FOR. The cost is the footgun you met in the lab: a missing feature surfaces as a confusing missing-item error inside the dep, and cargo tree -e features is how you find it."
