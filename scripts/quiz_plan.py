@@ -140,6 +140,35 @@ def multiselect_candidates(qs: list[dict]) -> list[dict]:
     return out
 
 
+
+def assign_targets(qs: list[dict]) -> None:
+    """Choose each key's target length rank so the COURSE comes out flat.
+
+    Per question the reachable ranks are {cur, cur+1} by appending, plus rank 0
+    when the key is short enough to tighten. Choosing independently cannot
+    balance anything -- the choice has to be made against what the rest of the
+    course has already taken. So: hand out the scarcest ranks first, and give
+    each question whichever of its reachable ranks is currently emptiest.
+
+    Deterministic: questions are ordered by a hash of their id, never by
+    iteration order, so the plan is identical on every run.
+    """
+    from collections import Counter
+    filled: Counter = Counter()
+    order = sorted(qs, key=lambda q: hashlib.sha256(
+        f"{q['lesson']}|{q['qid']}|assign".encode()).hexdigest())
+    for q in order:
+        raw = [len(x) for x in q["labels"]]
+        key_i = q["correct"][0] if q["correct"] else 0
+        cur = sorted(range(len(raw)), key=lambda i: (raw[i], i)).index(key_i)
+        k_new = len(raw) + (2 if q.get("_five") else 1)
+        options = {cur, min(cur + 1, k_new - 1)}
+        if cur <= 1:
+            options.add(0)              # reachable only by tightening the key
+        q["_target_rank"] = min(options, key=lambda r: (filled[r], r))
+        filled[q["_target_rank"]] += 1
+
+
 def length_band(q: dict) -> tuple[int, int, bool]:
     """Prescribe the new option's length, targeting only a rank that ADDING an
     option can actually reach.
@@ -169,9 +198,14 @@ def length_band(q: dict) -> tuple[int, int, bool]:
     cur_rank = sorted(range(len(raw)), key=lambda i: (raw[i], i)).index(key_i)
     h = int(hashlib.sha256(f"{q['lesson']}|{q['qid']}|len".encode()).hexdigest()[:8], 16)
 
-    # Reachable target ranks after appending exactly one option.
-    reachable = (cur_rank, cur_rank + 1)
-    target_rank = reachable[h % 2]
+    # The target comes from a COURSE-WIDE assignment (assign_targets). Picking it
+    # per question independently cannot balance the course: if most keys sit at
+    # cur=1 then every reachable set is {1,2}, and a coin flip fills only those
+    # two ranks. Measured on one range, from bands every question honoured:
+    # 23 of 40 keys landed second-longest -- playable at 57%.
+    target_rank = q.get("_target_rank")
+    if target_rank is None:
+        target_rank = (cur_rank, cur_rank + 1)[h % 2]
 
     if target_rank == cur_rank:          # key keeps its rank => new option must be LONGER
         lo, hi = int(key_len) + 1, int(max(lens) * 1.15)
@@ -209,6 +243,9 @@ def main() -> int:
         sys.exit("no quiz questions found")
 
     five = [q for q in qs if q["mean_len"] <= SHORT_LABEL_CHARS]
+    for q in five:
+        q["_five"] = True
+    assign_targets(qs)
     dis_rate, key_rate, need = required_absolutes_rate(qs)
     keys = [q["labels"][q["correct"][0]] for q in qs if len(q["correct"]) == 1]
     dis = [l for q in qs for i, l in enumerate(q["labels"]) if i not in set(q["correct"])]
