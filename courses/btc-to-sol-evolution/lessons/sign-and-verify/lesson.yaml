@@ -16,30 +16,40 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Anyone holding the public key can produce and check signatures — that is why it is called public"
+            label: "Anyone holding the public key can produce and check signatures, which is why it is called public"
             correct: false
-            feedback: "The public key only VERIFIES. If it could also sign, publishing it would hand everyone your spending power. The asymmetry — private key signs, public key checks — is the entire trick."
+            feedback: "The public key only checks. If it could also sign, publishing it would hand every stranger your spending power, and the scheme would be a shared secret again. Private key signs, public key checks, and that split is the entire trick."
           - id: b
             label: "Only the holder of the private key can sign; anyone with the public key can verify"
             correct: true
+            feedback: "Signing needs the secret; checking needs nothing secret at all. That is what lets you prove authorship to strangers without handing them anything, and why thousands of nodes can check signatures made by a key they will never see."
           - id: c
-            label: "Only the key's owner can verify a signature — everyone else must take the owner's word for it"
+            label: "Only the key's owner can verify a signature, and everyone else must take the owner's word for it"
             correct: false
-            feedback: "Backwards: verification is the universal side. Any stranger with your public key can check a signature mathematically; only signing is restricted, to whoever holds the private key."
+            feedback: "Backwards: checking is the universal side. Any stranger holding your public key can run the math for themselves, which is exactly what happened when Python confirmed the signature OpenSSL had produced."
+          - id: d
+            label: "The private key encrypts the message, and anyone with the public key decrypts it"
+            correct: false
+            feedback: "There is nothing to decrypt. With ed25519 the private key does not encrypt a hidden message the public key later opens; it produces 64 bytes that either check out against the message or do not. The message itself travelled in plain sight the whole time."
         explanation: "The asymmetry is the point: signing requires the private key, verifying requires only the public key. That lets you prove authorship to strangers without revealing the secret — the foundation of every blockchain transaction, where thousands of nodes verify signatures produced by one key they will never see."
       - id: q2
-        prompt: "A signature is valid for a given message and public key. What exactly does that prove — and not prove?"
+        prompt: "A signature is valid for a given message and public key. What exactly does that prove, and what does it not prove?"
         multiSelect: false
         options:
           - id: a
             label: "It proves the message was encrypted in transit and nobody else could read it"
             correct: false
-            feedback: "Signatures provide authenticity, not secrecy — the message travels in plaintext. Anyone can read it; what nobody can do is forge the private-key holder's authorization of it."
+            feedback: "Signatures buy authenticity, not secrecy: the message travels as plaintext and anyone can read it. What nobody else can do is forge the key holder's authorization of those bytes."
           - id: b
-            label: "It proves which person legally owns the key — signatures bind keys to real-world identity"
+            label: "It proves which person legally owns the key, since signatures bind keys to real-world identity"
             correct: false
-            feedback: "Nothing in the math names a human. A signature proves 'the private key behind this public key authorized this message'. Attaching a person to that key is a separate, social problem — and on-chain, the key IS the identity."
+            feedback: "Nothing in the math names a human. A signature proves that the private key behind this public key authorized this message; attaching a person to that key is a separate, social problem, and on-chain the key simply is the identity."
           - id: c
             label: "It proves the private-key holder authorized THAT exact message; it does not hide the message or identify a human"
             correct: true
+            feedback: "The signature binds specific bytes to a specific public key, which is why turning send 100 to bob into send 900 to bob destroyed it. No confidentiality, no real-world identity, and those are exactly the properties a public ledger needs."
+          - id: d
+            label: "It proves the exchange was safe from a man in the middle: an attacker cannot swap the public key in transit"
+            correct: false
+            feedback: "That is the one gap a signature leaves wide open. The proof is relative to whichever public key the checker happens to hold, so an attacker who substitutes their own key on the way to the checker presents their own signatures as yours. Getting the right key to the checker is a separate job."
         explanation: "A valid signature binds a specific message to a specific public key: the private-key holder authorized these exact bytes, and any tampering invalidates it. It offers no confidentiality (the message is readable) and no real-world identity (keys are pseudonymous) — precisely the properties a public ledger needs."
