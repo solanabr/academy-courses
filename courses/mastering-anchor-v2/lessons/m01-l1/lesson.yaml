@@ -56,7 +56,7 @@ blocks:
             feedback: "Two numbers moved in the same commit on 2026-08-13, and filing one under each metric is a tidy way to remember them wrongly. Both are before-and-after pairs: bytecode went 95% to 94%, and average CU went 9.9x to 8.8x. Neither figure belongs to the other metric."
         explanation: "The headline dropped 9.9x to 8.8x (and 95% to 94% bytecode) in one honest self-correction; the alpha caveat says values can still move. That is the lesson behind the number: a benchmark multiplier is a snapshot with a date on it, never a promise, and the win scales with how much copying a given program was doing — which is why the Lab has you measure the twins yourself instead of memorizing a figure."
       - id: m01-l1-q3
-        prompt: "A colleague asks you to point them at an authoritative V2 course. What can you actually tell them?"
+        prompt: "A colleague asks you where to learn V2 properly. What can you actually tell them?"
         multiSelect: false
         options:
           - id: a
@@ -72,7 +72,7 @@ blocks:
             correct: true
             feedback: "A negative like this can't be proven, only bounded. The defensible sentence is 'a real search found nothing,' never 'none exists.'"
           - id: d
-            label: "anchor-lang.com typically tracks the RC, so its V2 guide is current"
+            label: "anchor-lang.com typically tracks the RC, so the V2 guide it ships is current"
             correct: false
             feedback: "The project's own site is the reasonable next stop after the Foundation path, and it is the same site whose CPI page still shows the pre-1.0 AccountInfo form. The survey turned up no long-form V2 guide there or anywhere else."
         explanation: "The survey found none (search-budget-bounded, phrased as a finding not an absolute); the corpus's universal version rot is exactly the moat. That gap is why this course exists: it is not competing with the official on-ramp, it is replacing one that stopped breathing."

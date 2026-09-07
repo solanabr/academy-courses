@@ -50,7 +50,7 @@ blocks:
             correct: true
             feedback: "Nothing is unsupported and nothing is compressed — two encoders just answered a question the language leaves open. You'll only notice on a second run, which is what makes it a nasty one to catch."
           - id: d
-            label: "wincode writes a map's length prefix as a u64 where borsh uses a u32"
+            label: "wincode writes a HashMap's length prefix as u64 where borsh uses u32"
             correct: false
             feedback: "Encoders really do disagree about prefix widths, so this is the right family of bug to suspect. wincode's BORSH_CONFIG is byte-identical to borsh on length prefixes and entry encoding; the two documented exceptions are map ordering and NaN."
           - id: e
@@ -100,7 +100,7 @@ blocks:
             correct: false
             feedback: "String isn't Pod, so the struct won't compile at all — and merging the unbounded field into the core struct is precisely the move that forces the split in the first place."
           - id: d
-            label: "Split in two and make both halves borsh, which generally reads simpler"
+            label: "Split it in two and make both halves borsh, which generally reads simpler"
             correct: false
             feedback: "The split is the right half of the answer, and the reason for it is what the other half hangs on: you split so the hot fixed state keeps its byte cast. Make both halves borsh and a handler that only bumps the leaderboard pays a deserialize it never needed, which is the cost the split existed to avoid."
         explanation: "Model fixed and bounded state as Pod for the CU win and isolate the genuinely unbounded part behind the borsh escape hatch. That mixed-tier design is the whole point: borsh where Pod can't reach, Pod everywhere else. The payoff is scoped cost — a handler that only bumps the leaderboard touches the Pod core and never deserializes anything — plus scoped rent, since a borsh account must be sized for the largest string you will ever store and splitting keeps that worst case off the hot account."
