@@ -2,7 +2,7 @@
 
 You just rebuilt the quarter-vault native on pinocchio: a manual single-byte discriminator, `TryFrom` validation, a hand-rolled `invoke_signed`, and it passed the same LiteSVM withdraw gate R2 passed. Lamports left the PDA under program authority, the over-withdraw bounced, and there was no Anchor anywhere in the crate. That was the build half of build-it-twice. This is the reframe half.
 
-Here is the load-bearing claim, stated first so you leave with it even if you read nothing else. The `#[derive(Accounts)]` you deleted last lesson is not magic. It is exactly the load, check, and dispatch you just wrote by hand, plus a duplicate-account walk and a borrow guard you cannot omit by accident. You can opt out of the walk, deliberately, per field, and the spelling makes you say so out loud. Reading the expansion proves that sentence, line by line, against your own code.
+Here is the load-bearing claim, stated first so you leave with it even if you read nothing else. The `#[derive(Accounts)]` you deleted last lesson is exactly the load, check, and dispatch you just wrote by hand, plus a duplicate-account walk and a borrow guard you cannot omit by accident. You can opt out of the walk, deliberately, per field, and the spelling makes you say so out loud. Reading the expansion proves that sentence, line by line, against your own code.
 
 So let us read it. The tool that prints the code a macro generates is `cargo-expand`. Install it once and point it at your framework vault:
 
@@ -169,7 +169,7 @@ There is a detail here that matters more next lesson than it does now, so file i
 
 ### CpiHandle: the borrow that replaced a footgun you had to remember
 
-The second line with no native twin is not a line at all. It is a compile error the framework can produce and your native code cannot.
+The second line with no native twin is not a line at all, but a compile error the framework can produce and your native code cannot.
 
 In the 0.x line, and in v1, you could hold a deserialized account, invoke a CPI that mutated that account's bytes on-chain, and then read your stale in-memory copy as if nothing had changed. The fix was to call `.reload()` after the CPI, and forgetting was a classic way to ship a bug that reasoned about pre-CPI state. Your native vault has the same exposure with the discipline stripped away: you hold raw borrows, and nothing stops you from re-reading a value you captured before the transfer as though it were current.
 
@@ -228,7 +228,7 @@ Which is also why trusting the generated code is reasonable rather than lazy. Th
 
 One number keeps that trust honest. The generated code has a measured, moving cost, and the V2 team measures it in the open. PR #4914, merged 2026-08-13, revised the headline V2 benchmarks down, from 95% to 94% bytecode reduction and from 9.9x to 8.8x CU improvement. A framework that corrects its own marketing downward is a framework you can trust the upward numbers from. The code you are diffing is fast, and it is honestly fast.
 
-So when is native actually the right call, and not just an exercise? The honest answer is narrow but real: a hot path where you have profiled a specific instruction, proven the framework's per-account overhead is your bottleneck, and decided the CU you buy back is worth owning every check by hand forever. That is a rare, measured decision, not a default. And notice the tell in V2's own design: the framework is itself a no_std rewrite on pinocchio, and it offers `asm-v2` for exactly those hot paths, so you can drop to the metal for one instruction without abandoning the guards on all the others. The framework is not the enemy of the CU you want back. It is the way to spend that budget where it matters and keep the seatbelts everywhere else. Reading the expansion is what earns you that judgment. Now you can look at a generated `try_accounts`, see what each line costs and what bug it closes, and decide, with numbers, which lines you would ever want to own yourself. For almost all of them, the answer is no.
+So when is native actually the right call, and not just an exercise? The honest answer is narrow but real: a hot path where you have profiled a specific instruction, proven the framework's per-account overhead is your bottleneck, and decided the CU you buy back is worth owning every check by hand forever. That is a rare, measured decision, not a default. And notice the tell in V2's own design: the framework is itself a no_std rewrite on pinocchio, and it offers `asm-v2` for exactly those hot paths, so you can drop to the metal for one instruction without abandoning the guards on all the others. The framework is not the enemy of the CU you want back; it is the way to spend that budget where it matters and keep the seatbelts everywhere else. Reading the expansion is what earns you that judgment. Now you can look at a generated `try_accounts`, see what each line costs and what bug it closes, and decide, with numbers, which lines you would ever want to own yourself. For almost all of them, the answer is no.
 
 ![A table listing each generated expansion piece, the native step it replaces, the bug class it closes, and whether it fires at compile time or at runtime.](assets/v07-table.png)
 
