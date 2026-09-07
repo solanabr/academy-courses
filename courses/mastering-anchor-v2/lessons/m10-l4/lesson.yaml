@@ -60,19 +60,19 @@ blocks:
         multiSelect: false
         options:
           - id: c
-            label: "Transfer hooks to the Digital Assets course; priority fees and tx-landing to the Client-Side course. This course owns the framework layer."
+            label: "Transfer hooks to the digital-assets boundary; priority fees and tx-landing to the client-side boundary. This course owns the framework layer."
             correct: true
-            feedback: "A handoff names the sibling that owns the topic end to end, which is not at all the same as the topic not mattering. One walks the token standard in full; the other gets transactions landed."
+            feedback: "A handoff names who would own the topic end to end, which is not at all the same as the topic not mattering. One walks the token standard in full; the other gets transactions landed. See the explanation for what those two names are and are not."
           - id: a
             label: "Both are covered here -- m05 walks the Token-2022 transfer-hook interface end to end, and m06 covers priority fees and transaction landing."
             correct: false
-            feedback: "m05 touches Token-2022 only from the program's seat and explicitly hands the transfer-hook interface to the Digital Assets course; there is no priority-fee module at all, because this course refuses client-side tx-landing entirely. Neither topic is owned here."
+            feedback: "m05 touches Token-2022 only from the program's seat and explicitly hands the transfer-hook interface past the digital-assets boundary; there is no priority-fee module at all, because this course refuses client-side tx-landing entirely. Neither topic is owned here."
           - id: d
-            label: "Transfer hooks to the Digital Assets course; priority fees and tx-landing to DeFi and RWA Engineering, which owns the real venue mechanics."
+            label: "Transfer hooks to the digital-assets boundary; priority fees and tx-landing to a DeFi and RWA course, which owns the real venue mechanics."
             correct: false
-            feedback: "Half right, and the half that is wrong costs you the reading list. DeFi and RWA owns protocol and venue design past the toy swap; what gets a transaction confirmed under load (fees, retries, bundles) is the Client-Side course's whole subject."
+            feedback: "Half right, and the half that is wrong costs you the reading list. What gets a transaction confirmed under load (fees, retries, bundles) is the client-side subject, not a venue-design one. And do not wait on that second name: DeFi/AMM sits in the catalog's rejected column, with its reasoning written out, so it is the one topic here that no sibling is scoped to pick up."
           - id: b
-            label: "Nowhere in the catalog -- transfer hooks and priority-fee science fall outside the whole curriculum, so both of them send you to external docs."
+            label: "Nowhere -- transfer hooks and priority-fee science are outside the whole Academy's remit, so this course has no opinion about where they belong."
             correct: false
-            feedback: "They are firmly in the catalog, just not in THIS course: Digital Assets owns the transfer-hook interface and Client-Side Mastery owns tx-landing. The boundary is a handoff to a named sibling, not an omission from the curriculum."
-        explanation: "This course owns the framework layer and refuses two things by design: token/NFT standards depth (the transfer-hook interface belongs to the Digital Assets course, which walks it end to end) and client tx-landing / priority-fee science (the Client-Side Mastery course). The conclusion routes readers to the sibling that owns each -- the boundary map is a set of handoffs, not gaps. Behind the crisp routing sits the fourth misreading from this lesson: a topic this course skipped is not a topic that does not matter. Digital Assets walks the whole Token-2022 standard, and Client-Side Mastery teaches priority fees, Jito bundles, DEX aggregation, and DAS indexing -- each better than a bolted-on chapter here ever could."
+            feedback: "This course has a very specific opinion about where they belong, and states it: the transfer-hook interface sits past the digital-assets boundary and tx-landing past the client-side one. That the courses on the far side of those boundaries have not shipped is a fact about the catalog's progress, not evidence that the topics are unclaimed or that the boundary was arbitrary."
+        explanation: "This course owns the framework layer and refuses two things by design: token/NFT standards depth (the transfer-hook interface, past the digital-assets boundary) and client tx-landing / priority-fee science (past the client-side one). The conclusion routes readers to the boundary that owns each -- the map is a set of handoffs, not gaps. Behind the crisp routing sits the fourth misreading from this lesson: a topic this course skipped is not a topic that does not matter. Someone should walk the whole Token-2022 standard, and someone should teach priority fees, Jito bundles, DEX aggregation and DAS indexing -- each better than a bolted-on chapter here ever could. Be precise about what those two names are, though: they are boundary names for who would own a topic, not shipped courses. Neither has shipped in the Academy catalog, so until one lands the handoff points you at primary docs rather than at a sibling lesson."
