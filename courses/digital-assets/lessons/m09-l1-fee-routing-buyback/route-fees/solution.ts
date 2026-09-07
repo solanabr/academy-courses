@@ -11,7 +11,7 @@
  * @param harvested               withheld fees harvested to the treasury (base units, bigint)
  * @param burnBps                 share of the harvest burned immediately (0..=10000)
  * @param treasurySol             lamports available for the buyback leg (bigint)
- * @param priceLamportsPerToken   DAMM v2 pool price: lamports per SPROUT base unit (bigint)
+ * @param priceLamportsPerToken   buyback price: lamports per SPROUT base unit (bigint)
  */
 function routeFees(
   harvested: bigint,

@@ -42,7 +42,7 @@ supply: 1000000000000000
 
 A hundred basis points, charged all week, and zero of it has reached the mint.
 
-That zero is the whole lesson. Today you turn a fee that exists into money that moves, and then into supply that disappears. The route, in order: where the fees actually sit and what the harvest crank does about it, then the three fee models people constantly conflate and what conflating them costs, then the split that funds a burn without inventing tokens, then the buyback itself, which is a swap on a real venue with a real price you have to pay, and finally the burn, with the stale-read trap that eats its supply assertion.
+That zero is the whole lesson. Today you turn a fee that exists into money that moves, and then into supply that disappears. The route, in order: where the fees actually sit and what the harvest crank does about it, then the three fee models people constantly conflate and what conflating them costs, then the split that funds a burn without inventing tokens, then the buyback itself, which is a purchase at a price somebody charges you, and finally the burn, with the stale-read trap that eats its supply assertion.
 
 The autonomy fade for this lesson, out loud: the harvest leg is worked in full, I write every instruction and you follow along. The fee split and the buyback sizing are a completion problem, TODOs in a file whose surrounding code already runs. The full rail, marketplace fee to harvest to treasury to buyback to burn with a supply assertion at the end, is yours solo.
 
@@ -58,7 +58,7 @@ The stake for you is concrete and it is not abstract accounting: a fee you never
 
 You built the mechanism for walking the floor back in module 2, in the economics-extensions lesson, and you tested it against a single buyer. Today it becomes the first leg of a rail with three more legs bolted onto it.
 
-![A flowchart traces withheld fees from buyer accounts through a permissionless harvest to the mint, an authority-gated withdraw to the treasury PDA, a DAMM v2 buyback, and a supply-dropping burn.](assets/v01-flowchart.png)
+![A flowchart traces withheld fees from buyer accounts through a permissionless harvest to the mint, an authority-gated withdraw to the treasury PDA, a buyback against whichever counterparty you have, and a supply-dropping burn.](assets/v01-flowchart.png)
 
 ### Legs one and two: the harvest crank (consolidate, then collect)
 
@@ -138,7 +138,9 @@ Quick checkpoint on how we got here, because the next part introduces a second a
 
 Now the part that is easy to describe and easy to get wrong emotionally.
 
-A buyback-and-burn is not a protocol feature you enable. It is you, holding SOL, walking onto an open market, buying your own token at whatever the market charges you today, and then destroying what you bought. In this course it is exactly one thing: a client-side swap against SPROUT's own graduation venue, the DAMM v2 pool your Meteora DBC launch migrated into when the curve crossed the `migration_quote_threshold` you configured, followed by a burn. That venue is not a preference, it is the residue of every decision upstream: pump and LaunchLab pin classic SPL at their create instructions and could never hold SPROUT at all, DBC took the Token-2022 mint, and DBC's migration lands on the DAMM family, v2 being the side that carries a Token-2022 base mint. The DAMM v2 program is `cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG`, and on your mainnet fork it is the real thing, forked state and all. One flag from the launchpad lesson also gets settled here, out loud: DBC's Token-2022 base support was filed documented-but-unverified there, and a fee-bearing SPROUT sitting in a live DAMM v2 pool is that verification done with state instead of docs. If your fork has no such pool, the venue module below throws and sends you back to the launch rung rather than pretending.
+A buyback-and-burn is not a protocol feature you enable. It is you, holding SOL, walking onto an open market, buying your own token at whatever the market charges you today, and then destroying what you bought. The venue m08-l2 chose for SPROUT is Meteora DBC graduating into a DAMM v2 pool, and that choice is not a preference, it is the residue of every decision upstream: pump and LaunchLab pin classic SPL at their create instructions and could never hold SPROUT at all, DBC took the Token-2022 mint, and DBC's migration lands on the DAMM family, v2 being the side that carries a Token-2022 base mint. The DAMM v2 program is `cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG`, and on your mainnet fork it is the real thing, forked state and all.
+
+Now the boundary, stated before the lab rather than discovered inside it. **This course never launches SPROUT.** m08-l1 derived a threshold on paper, m08-l2 chose a venue on paper, and neither drove a DBC config to `migration_quote_threshold` or migrated anything, because a launch is a distribution event and this course teaches the token layer. So unless you went and launched SPROUT yourself, your fork carries no SPROUT pool, and leg 3 has no market to trade against. That is not a gap the lab papers over; it is a fork in the road with two honest doors, and step 1c below is where you pick one. It also means the launchpad lesson's documented-but-unverified flag on DBC's Token-2022 base support stays open: nothing in this lesson settles it, and a learner who does launch SPROUT on DBC and reports back is the one who closes it.
 
 The only AMM math this lesson uses is one sentence: the pool's spot price is the ratio of its two vault reserves, so quote reserve divided by base reserve gives you lamports per SPROUT base unit, and that number is what you divide your treasury SOL by to size the buy. DAMM v2 also quotes that same price natively as a square root in fixed point, and the gap between the two views, once concentrated positions open it, belongs to the DeFi course with the rest of the pool math. That is the entire mathematical content, and it is four lines you can run right now:
 
@@ -156,7 +158,9 @@ Pool composition, routing across venues, tick and bin math, LP strategy, and eve
 
 What you *do* need from me is the honest cost list, because a buyback reads like free deflation and it is not.
 
-You pay slippage, because your own buy moves the price against you, so the SPROUT you receive is less than the spot-price arithmetic promised, and on a thin pool with a large treasury order it is meaningfully less. You pay the venue's fee on top of that. You are exposed to MEV: a buyback is a large, predictable, publicly announced market order, which is roughly the ideal shape of a sandwich target, and the client-side landing tactics that mitigate that are the Client-Side Mastery course's territory, not this lesson's. And there is a Token-2022 specific twist that catches everyone the first time: SPROUT charges a transfer fee on *every* transfer, including the one where the pool sends SPROUT to your treasury. Your buyback pays your own fee. The withheld amount lands right back on the treasury's own token account, waiting for the next harvest. It is circular and harmless and it will absolutely make your arithmetic disagree with itself if you compute what you bought instead of measuring it.
+You pay slippage, because your own buy moves the price against you, so the SPROUT you receive is less than the spot-price arithmetic promised, and on a thin pool with a large treasury order it is meaningfully less. You pay the venue's fee on top of that. You are exposed to MEV: a buyback is a large, predictable, publicly announced market order, which is roughly the ideal shape of a sandwich target, and the client-side landing tactics that mitigate that are the Client-Side Mastery course's territory, not this lesson's. And there is a Token-2022 specific twist that catches everyone the first time: SPROUT charges a transfer fee on *every* transfer, including the one where your counterparty sends SPROUT to your treasury. Your buyback pays your own fee. The withheld amount lands right back on the treasury's own token account, waiting for the next harvest. It is circular and harmless and it will absolutely make your arithmetic disagree with itself if you compute what you bought instead of measuring it.
+
+Three of those four costs need a market to exist. The fourth, your own transfer fee, fires on any transfer at all, which is why it is the one component the lab can put in front of you regardless of which door you take.
 
 So measure it. Read the treasury balance before the swap, read it after, and burn the difference. Every other approach is you asserting what the chain should have done.
 
@@ -174,11 +178,11 @@ Three things get called deflationary and only one of them is. A burn destroys to
 
 The footgun is the read, not the write. If you fetch the mint, then burn, then report from the object you fetched earlier, you will report the old supply and your assertion will pass or fail for reasons that have nothing to do with your code. Anything you decoded before a transaction is a photograph, not a live feed. Fetch the mint again after the burn confirms. The Anchor equivalent of this is calling `.reload()` after a CPI that touched your account, and the failure mode is identical in both worlds.
 
-![Six annotated code lines walk from a pre-burn supply fetch through harvest, swap and burn to a required re-fetch and the assertion that supply fell by the burned amount.](assets/v07-annotated-code.png)
+![Six annotated code lines walk from a pre-burn supply fetch through harvest, buy and burn to a required re-fetch and the assertion that supply fell by the burned amount.](assets/v07-annotated-code.png)
 
 ## Lab: wire Overgrowth's fee rail
 
-You are building `sprout-economy`, the rung that turns SPROUT from a token with a fee into a token with an economy. It consumes two things you already own: `sprout-mint` from module 2, which is where the fee config lives, and `sprout-launch` from the launch lessons, whose venue decision is why SPROUT graduates on Meteora DBC into a DAMM v2 pool instead of on a classic-SPL launchpad that cannot hold its mint. Four modules of work converge on one script. One standing assumption on top of the opener's three: SPROUT's DBC migration is behind you and you kept the pool address it printed, because the venue module refuses to guess it.
+You are building `sprout-economy`, the rung that turns SPROUT from a token with a fee into a token with an economy. It consumes two things you already own: `sprout-mint` from module 2, which is where the fee config lives, and `sprout-launch` from the launch lessons, whose venue decision is why SPROUT would graduate on Meteora DBC into a DAMM v2 pool rather than on a classic-SPL launchpad that cannot hold its mint. Four modules of work converge on one script.
 
 Run it against surfpool, forked from mainnet, so the DAMM v2 program and its accounts are real. If surfpool is not already running from the earlier labs, `surfpool start --no-tui --no-studio` in another terminal is the whole ceremony (install: `brew install txtx/taps/surfpool`, or `cargo install surfpool-cli`; verified on 1.2.1).
 
@@ -192,7 +196,9 @@ npm install -D tsx@4.23.12 typescript@5.9.3 @types/node @types/bn.js
 
 Checked against npm on 2026-09-05: kit's `latest` tag is 8.2.0, published 2026-08-29, but the first line pins by peer range, not by latest: `@solana-program/token-2022@0.15.0` is the current minor peering kit `^7.0.0` — the 0.16.0 release jumped to `^8` — so kit sits at 7.1.1, the newest release inside that range, and `@solana-program/system@0.13.0` matches it. Re-run `npm view @solana-program/token-2022@0.15.0 peerDependencies` when you scaffold; this matrix moves monthly.
 
-The second line is the interesting one. `@meteora-ag/cp-amm-sdk` is Meteora's first-party DAMM v2 client and it ships web3.js v1 types, not kit. You are going to run two clients in one script, and that is not a mistake I am hiding from you: it is what integrating with a first-party SDK actually looks like in 2026. Kit does the Token-2022 legs because that is where kit is excellent. Web3.js v1 does the swap leg because that is what the venue's own SDK speaks. The 1.4.6 pin is a 2026-08-21 npm read, the same one the DeFi & RWA Engineering course froze, fitting for the SDK whose deeper machinery that course owns; run `npm view @meteora-ag/cp-amm-sdk version` the day you scaffold. And to name the rule this arrangement rides: Meteora publishes no kit surface for DAMM v2, so the v1 dependency is unavoidable — it stays quarantined to the vendor-facing swap leg of this workspace, and every first-party line you write outside that leg remains kit.
+The second line is the interesting one, and it is only needed if you take door A below. `@meteora-ag/cp-amm-sdk` is Meteora's first-party DAMM v2 client and it ships web3.js v1 types, not kit. You are going to run two clients in one workspace, and that is not a mistake I am hiding from you: it is what integrating with a first-party SDK actually looks like in 2026. Kit does the Token-2022 legs because that is where kit is excellent. Web3.js v1 does the swap leg because that is what the venue's own SDK speaks. The 1.4.6 pin is a 2026-08-21 npm read, the same one the DeFi & RWA Engineering course froze, fitting for the SDK whose deeper machinery that course owns; run `npm view @meteora-ag/cp-amm-sdk version` the day you scaffold.
+
+Name the rule this arrangement rides, because m05-l1 stated it and this lab is where it gets tested: Meteora publishes no kit surface for DAMM v2, so the v1 dependency is unavoidable, and it stays quarantined to **exactly one file**, `venue.ts`. Nothing else in the lab imports web3.js, not even indirectly — `venue.ts` builds its own `Connection`, signs with its own `Keypair`, and hands the rest of the rail plain values. That is the quarantine working: the two stacks meet at the chain, not in a shared import list. If you find yourself reaching for a `PublicKey` in `wire-economy.ts`, the seam has leaked and the fix is to push the leak back inside `venue.ts`.
 
 **1b. Create `treasury.json`, the key the whole rail signs with.** No earlier module made this file, and that is a gap to close now rather than discover at step 6: the m02 scripts parked every authority on throwaway in-memory signers, fine for throwaway mints and useless for a rail whose withdraw leg has to be signable next week. Mint the key once and fund it on the fork:
 
@@ -202,6 +208,28 @@ solana airdrop 100 "$(solana-keygen pubkey labs/m09-l1/treasury.json)" --url htt
 ```
 
 Then make the chain agree that this key holds the powers the rail exercises. Fee authorities are set at mint creation, and the throwaway keys holding them on any older SPROUT died with their process — so this is exactly the standing assumptions' "re-mint per m05-l1's opener" case, with one edit first. Open the composed-SPROUT builder (`labs/m02-l1/verify-economics.ts`, as re-pointed in m02-l4 step 7), load the treasury signer at the top with the same two `createKeyPairSignerFromBytes` lines `wire-economy.ts` uses below, and pass that signer in place of the throwaway one for exactly two roles: the mint authority and the fee config's `withdrawWithheldAuthority`. Re-mint, re-run your marketplace transfers, and the fork now carries a SPROUT whose fee jar this file can open — and whose supply next lesson's conversion window can mint, which is why the mint authority moves onto the same key. One echo from the theory section, so the code cannot contradict it in your head: production wants a PDA in this role, not a JSON file; every place this key signs is a place your program would `invoke_signed`.
+
+**1c. Pick leg 3's door, and stand up its counterparty.** The buyback needs someone to buy from. Two doors, and the rail downstream cannot tell them apart, which is the point.
+
+*Door A, the market.* You launched SPROUT yourself on Meteora DBC, drove the curve past your `migration_quote_threshold`, and kept the DAMM v2 pool address the migration printed. Nothing in this course walks you through that, and I am not going to pretend otherwise. If you have that pool, set `SPROUT_POOL` and leg 3 is a real swap with real slippage against real forked state.
+
+*Door B, the maker.* You do not, because you followed the course. SPROUT has no market, so you stand one up: a single counterparty holding SPROUT, willing to sell at a price you set. This is not a market and the lab will not call it one. What it preserves is every property of the rail that does not depend on price discovery — the harvest, the split's conservation, the fee firing on the payout, measuring instead of computing, and the supply assertion at the end. What it drops is slippage and MEV, which need a book to exist against.
+
+```bash
+solana-keygen new --no-bip39-passphrase -o labs/m09-l1/maker.json
+solana airdrop 10 "$(solana-keygen pubkey labs/m09-l1/maker.json)" --url http://127.0.0.1:8899
+```
+
+Then give the maker something to sell. Your treasury key holds the mint authority after step 1b, so one `spl-token mint` puts inventory on the maker's books; size it well above whatever the treasury will spend, or leg 3 fails on the seller's balance rather than on anything you were trying to learn:
+
+```bash
+spl-token mint "$SPROUT_MINT" 1000 \
+  --recipient-owner "$(solana-keygen pubkey labs/m09-l1/maker.json)" \
+  --mint-authority labs/m09-l1/treasury.json \
+  --fund-recipient --url http://127.0.0.1:8899
+```
+
+Say the quiet part before you run the rail: a buyback price you set yourself is not a market price. On a venue, the number is the reserve ratio and the market hands it to you. Here you are both sides of the trade, so the price is a governance decision wearing a constant's clothes, and every conclusion you draw from a door-B run inherits that. The venue module in step 3 exists so the day SPROUT does have a pool, the only line that changes is which door you opened.
 
 **2. Find the pile.** Create `find-withheld.ts`. This is the account scan, and it is the tool the rest of the rail is built on.
 
@@ -257,12 +285,14 @@ export async function findWithheld(
 
 The `dataSlice: { offset: 0, length: 0 }` matters more than it looks. The scan needs addresses, not data, so you ask the RPC for zero bytes per account and then fetch and decode only what you found. On a public RPC with a large holder set, the version that pulls full account data for every holder is the version that gets you rate limited.
 
-**3. The venue.** Create `venue.ts`. This is the swap leg, and it is small because the SDK is doing the work.
+**3. Door A's venue.** Create `venue.ts`. This is the swap leg, and it is small because the SDK is doing the work. It is also the lab's entire web3.js surface: the `Connection`, the `Keypair`, the `PublicKey`s and the send all live in here and never escape.
 
 ```ts
 // venue.ts: SPROUT's graduation venue, read and traded client-side.
-// web3.js v1 here on purpose: the first-party Meteora SDK ships v1 types.
-import { Connection, PublicKey, TransactionInstruction } from "@solana/web3.js";
+// web3.js v1 here on purpose AND NOWHERE ELSE: the first-party Meteora SDK
+// ships v1 types, so this file is the quarantine. It takes strings and bytes,
+// it returns bigints and strings, and nothing v1-shaped crosses its boundary.
+import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import BN from "bn.js";
 import { CpAmm, CP_AMM_PROGRAM_ID } from "@meteora-ag/cp-amm-sdk";
 
@@ -273,34 +303,36 @@ const TOKEN_2022 = new PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
 const TOKEN_CLASSIC = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 
 export type Venue = {
-  pool: PublicKey;
   /** lamports of quote per one base unit of SPROUT, floored */
   priceLamportsPerToken: bigint;
-  buyIxs: (quoteLamports: bigint, slippagePct: number) => Promise<TransactionInstruction[]>;
+  /** Sends the buy and returns only once it has CONFIRMED. Measuring is the caller's job. */
+  buy: (quoteLamports: bigint, slippagePct: number) => Promise<string>;
 };
 
 /**
- * Open SPROUT's DAMM v2 pool on the fork and expose a client-side buy.
- * Throws if the pool is absent: the DBC migration is the previous rung's job, not this one's.
+ * Open a DAMM v2 pool on the fork and expose a client-side buy.
+ * Throws if the pool is absent, because guessing which pool you meant is not
+ * this module's job: SPROUT only has one if you launched and migrated it.
  */
 export async function openVenue(
-  connection: Connection,
-  baseMint: PublicKey,
-  pool: PublicKey,
-  buyer: PublicKey,
+  rpcUrl: string,
+  baseMint: string,
+  pool: string,
+  buyerSecret: Uint8Array,
 ): Promise<Venue> {
-  if ((await connection.getAccountInfo(pool)) === null) {
-    throw new Error(
-      `no DAMM v2 pool at ${pool.toBase58()} for ${baseMint.toBase58()}: run SPROUT's DBC migration first`,
-    );
+  const connection = new Connection(rpcUrl, "confirmed");
+  const buyer = Keypair.fromSecretKey(buyerSecret);
+  const poolKey = new PublicKey(pool);
+  const baseKey = new PublicKey(baseMint);
+
+  if ((await connection.getAccountInfo(poolKey)) === null) {
+    throw new Error(`no DAMM v2 pool at ${pool} for ${baseMint}: this fork has no market for that mint`);
   }
 
   const cpAmm = new CpAmm(connection);
-  const state = await cpAmm.fetchPoolState(pool);
-  if (!state.tokenAMint.equals(baseMint)) {
-    throw new Error(
-      `pool ${pool.toBase58()} does not carry ${baseMint.toBase58()} as its base mint: wrong pool`,
-    );
+  const state = await cpAmm.fetchPoolState(poolKey);
+  if (!state.tokenAMint.equals(baseKey)) {
+    throw new Error(`pool ${pool} does not carry ${baseMint} as its base mint: wrong pool`);
   }
 
   // The only AMM math this course does: spot price is the vault-reserve ratio.
@@ -309,15 +341,14 @@ export async function openVenue(
   const priceLamportsPerToken = base === 0n ? 0n : quote / base;
 
   return {
-    pool,
     priceLamportsPerToken,
-    buyIxs: async (quoteLamports: bigint, slippagePct: number) => {
+    buy: async (quoteLamports: bigint, slippagePct: number) => {
       // The SDK's slippage dial is minimumAmountOut: the spot-sized fill, shaved by your tolerance.
       const atSpot = priceLamportsPerToken === 0n ? 0n : quoteLamports / priceLamportsPerToken;
       const minOut = (atSpot * BigInt(100 - slippagePct)) / 100n;
       const tx = await cpAmm.swap({
-        payer: buyer,
-        pool,
+        payer: buyer.publicKey,
+        pool: poolKey,
         inputTokenMint: state.tokenBMint, // quote (wSOL) in; the builder handles the wrap
         outputTokenMint: state.tokenAMint, // SPROUT out
         amountIn: new BN(quoteLamports.toString()),
@@ -330,13 +361,96 @@ export async function openVenue(
         tokenBProgram: TOKEN_CLASSIC,
         referralTokenAccount: null,
       });
-      return tx.instructions;
+      // v1's sendTransaction returns at SUBMISSION, not confirmation. Read the
+      // treasury balance before this settles and you measure a pre-swap
+      // photograph (the burn section's stale-read trap, client-side edition),
+      // so the confirm belongs in here rather than in the caller's hopes.
+      const swap = new Transaction().add(...tx.instructions);
+      const signature = await connection.sendTransaction(swap, [buyer], { skipPreflight: false });
+      const latest = await connection.getLatestBlockhash("confirmed");
+      await connection.confirmTransaction({ signature, ...latest }, "confirmed");
+      return signature;
     },
   };
 }
 ```
 
-Check the two assertions at the top of `openVenue`. If the pool is not there, the first throws with a message that tells you exactly whose job the missing piece was. If the pool exists but carries some other base mint, the second throws before you trade somebody else's market. A tool that fails loudly at the boundary of its own responsibility is worth ten that return `undefined` and let the failure surface three functions later.
+Check the two assertions at the top of `openVenue`. If the pool is not there, the first throws instead of guessing. If the pool exists but carries some other base mint, the second throws before you trade somebody else's market. A tool that fails loudly at the boundary of its own responsibility is worth ten that return `undefined` and let the failure surface three functions later. Door-B readers should still prove that boundary is real rather than take my word for it, and it costs one command with no pool required:
+
+```bash
+SPROUT_MINT=<mint> npx tsx -e "import {openVenue} from './venue'; \
+  await openVenue('http://127.0.0.1:8899', process.env.SPROUT_MINT!, '11111111111111111111111111111112', new Uint8Array(64));"
+```
+
+That address is a real account and not a DAMM v2 pool, so you get the first throw, by name, in under a second. The module is inert until SPROUT has a market; it is not broken.
+
+**3b. Door B's counterparty.** Create `maker.ts`. Same interface, no vendor SDK, no web3.js — this one is first-party and therefore kit all the way down.
+
+```ts
+// maker.ts: leg 3's counterparty when the token has no market.
+// The price is a POLICY input, not a reserve ratio. Everything else about the
+// leg is identical to the venue's: SOL out, SPROUT in, the fee fires on the
+// payout, and the caller measures what landed instead of computing it.
+import type { Address, Instruction, TransactionSigner } from "@solana/kit";
+import { getTransferSolInstruction } from "@solana-program/system";
+import {
+  findAssociatedTokenPda,
+  getTransferCheckedInstruction,
+  TOKEN_2022_PROGRAM_ADDRESS,
+} from "@solana-program/token-2022";
+
+export type Maker = {
+  priceLamportsPerToken: bigint;
+  buyIxs: (quoteLamports: bigint) => Instruction[];
+};
+
+export async function openMaker(
+  mint: Address,
+  decimals: number,
+  maker: TransactionSigner,
+  buyer: TransactionSigner,
+  priceLamportsPerToken: bigint,
+): Promise<Maker> {
+  if (priceLamportsPerToken <= 0n) {
+    throw new Error("MAKER_PRICE must be a positive lamport price per base unit");
+  }
+  const [makerAta] = await findAssociatedTokenPda({
+    mint,
+    owner: maker.address,
+    tokenProgram: TOKEN_2022_PROGRAM_ADDRESS,
+  });
+  const [buyerAta] = await findAssociatedTokenPda({
+    mint,
+    owner: buyer.address,
+    tokenProgram: TOKEN_2022_PROGRAM_ADDRESS,
+  });
+
+  return {
+    priceLamportsPerToken,
+    // Both legs of the trade in ONE transaction, so neither side can take the
+    // money and walk. Two signers, one atomic settlement: this is the smallest
+    // honest OTC trade you can write, and it is what an escrow program
+    // automates when the counterparty is a stranger rather than your own key.
+    buyIxs: (quoteLamports: bigint) => [
+      getTransferSolInstruction({
+        source: buyer,
+        destination: maker.address,
+        amount: quoteLamports,
+      }),
+      getTransferCheckedInstruction({
+        source: makerAta,
+        mint,
+        destination: buyerAta,
+        authority: maker,
+        amount: quoteLamports / priceLamportsPerToken,
+        decimals,
+      }),
+    ],
+  };
+}
+```
+
+The floor division in `amount` is the same one `routeFees` does, for the same reason: you cannot buy a fractional base unit. And note what this file does NOT do. It does not compute what the treasury will receive. It transfers `quoteLamports / price` units, the transfer fee comes off that in flight, and what lands is smaller. Nobody here asserts by how much.
 
 **4. The split, and this one is yours.** Create `route-fees.ts` with the signature below. The body has two TODOs and the theory section gave you both answers in plain words.
 
@@ -363,6 +477,7 @@ Keep everything on bigints. The moment a `Number` touches a lamport count above 
 
 ```ts
 // wire-economy.ts: SPROUT's fee rail, end to end, against the mainnet fork.
+// Kit only. The one web3.js dependency in this lab lives behind venue.ts.
 import {
   address,
   appendTransactionMessageInstructions,
@@ -381,28 +496,36 @@ import {
 } from "@solana/kit";
 import {
   fetchMint,
+  fetchToken,
   getBurnCheckedInstruction,
   getHarvestWithheldTokensToMintInstruction,
   getWithdrawWithheldTokensFromMintInstruction,
   findAssociatedTokenPda,
   TOKEN_2022_PROGRAM_ADDRESS,
 } from "@solana-program/token-2022";
-import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { readFileSync } from "node:fs";
 import { findWithheld } from "./find-withheld";
+import { openMaker } from "./maker";
 import { routeFees } from "./route-fees";
 import { openVenue } from "./venue";
 
 const RPC_HTTP = process.env.RPC_HTTP ?? "http://127.0.0.1:8899";
 const RPC_WS = process.env.RPC_WS ?? "ws://127.0.0.1:8900";
 const SPROUT = address(process.env.SPROUT_MINT!);
-const SPROUT_POOL = process.env.SPROUT_POOL!; // the DAMM v2 pool your DBC migration printed
+const SPROUT_DECIMALS = 6;
+const SPROUT_POOL = process.env.SPROUT_POOL; // door A only: a DAMM v2 pool that holds SPROUT
+const MAKER_KEY = process.env.MAKER_KEY; // door B: the counterparty from step 1c
+const MAKER_PRICE = BigInt(process.env.MAKER_PRICE ?? "1000000"); // door B: lamports per base unit
 const BURN_BPS = 2000; // 20% of every harvest burns on arrival
 const SLIPPAGE_PCT = 1;
 
 const rpc = createSolanaRpc(RPC_HTTP);
 const rpcSubscriptions = createSolanaRpcSubscriptions(RPC_WS);
 const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
+
+function loadSecret(path: string): Uint8Array {
+  return new Uint8Array(JSON.parse(readFileSync(path, "utf8")));
+}
 
 async function send(payer: KeyPairSigner, ixs: Instruction[]): Promise<void> {
   const { value: blockhash } = await rpc.getLatestBlockhash().send();
@@ -418,7 +541,7 @@ async function send(payer: KeyPairSigner, ixs: Instruction[]): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const secret = new Uint8Array(JSON.parse(readFileSync(process.env.TREASURY_KEY!, "utf8")));
+  const secret = loadSecret(process.env.TREASURY_KEY!);
   const treasury = await createKeyPairSignerFromBytes(secret);
   const [treasuryAta] = await findAssociatedTokenPda({
     mint: SPROUT,
@@ -441,8 +564,8 @@ async function main(): Promise<void> {
       mint: SPROUT,
       // Fork scale: a handful of dirty accounts fits one transaction, so the
       // whole list rides in one instruction. At fleet scale this is where the
-      // packing problem bites: wrap the list in chunk() from step 2 and send
-      // one harvest per batch.
+      // packing problem bites: wrap the list in the chunk() helper from the
+      // "what the crank costs to run" section and send one harvest per batch.
       sources: dirty.map((d) => d.account),
     }),
     getWithdrawWithheldTokensFromMintInstruction({
@@ -452,14 +575,38 @@ async function main(): Promise<void> {
     }),
   ]);
 
-  // BETWEEN LEGS: open the venue and run the split. The split is arithmetic,
+  // BETWEEN LEGS: get a price, then run the split. The split is arithmetic,
   // not a leg of its own; its output sizes and predicts leg 3.
-  const connection = new Connection(RPC_HTTP, "confirmed");
-  const buyer = Keypair.fromSecretKey(secret);
-  const venue = await openVenue(connection, new PublicKey(SPROUT), new PublicKey(SPROUT_POOL), buyer.publicKey);
+  //
+  // Door A reads the price off a real pool's reserves. Door B is told the
+  // price, because with no market there is nothing to read it from. The rest
+  // of this function cannot tell which one ran, which is the whole design.
+  const treasurySol = (await rpc.getBalance(treasury.address).send()).value / 2n;
+  let priceLamportsPerToken: bigint;
+  let buy: () => Promise<void>;
 
-  const treasurySol = BigInt(await connection.getBalance(buyer.publicKey)) / 2n;
-  const plan = routeFees(harvested, BURN_BPS, treasurySol, venue.priceLamportsPerToken);
+  if (SPROUT_POOL) {
+    const venue = await openVenue(RPC_HTTP, SPROUT, SPROUT_POOL, secret);
+    priceLamportsPerToken = venue.priceLamportsPerToken;
+    buy = async () => {
+      await venue.buy(treasurySol, SLIPPAGE_PCT);
+    };
+    console.log(`door A: DAMM v2 pool ${SPROUT_POOL} at ${priceLamportsPerToken} lamports/unit`);
+  } else {
+    if (!MAKER_KEY) throw new Error("set SPROUT_POOL (door A) or MAKER_KEY (door B); step 1c picks one");
+    const maker = await createKeyPairSignerFromBytes(loadSecret(MAKER_KEY));
+    const otc = await openMaker(SPROUT, SPROUT_DECIMALS, maker, treasury, MAKER_PRICE);
+    priceLamportsPerToken = otc.priceLamportsPerToken;
+    buy = async () => {
+      await send(treasury, otc.buyIxs(treasurySol));
+    };
+    console.log(
+      `door B: no SPROUT market on this fork; buying from maker ${maker.address} ` +
+        `at ${priceLamportsPerToken} lamports/unit (a price you set, not a price you read)`,
+    );
+  }
+
+  const plan = routeFees(harvested, BURN_BPS, treasurySol, priceLamportsPerToken);
   if (plan.toTreasury === 0n || plan.buyback === 0n) {
     throw new Error(
       "route-fees.ts TODOs look unfilled: a zero treasury share or zero-sized buyback plan means the split never ran. Fill them before running the rail.",
@@ -467,32 +614,18 @@ async function main(): Promise<void> {
   }
   console.log(
     `split: burn ${plan.burnedFromFees} + keep ${plan.toTreasury} = ${harvested}; ` +
-      `buyback target ~${plan.buyback} SPROUT at ${venue.priceLamportsPerToken} lamports/unit`,
+      `buyback target ~${plan.buyback} SPROUT at ${priceLamportsPerToken} lamports/unit`,
   );
 
-  // LEG 3: the buyback, a client-side swap on the open venue. You eat the slippage.
-  const balanceBefore = BigInt(
-    (await connection.getTokenAccountBalance(new PublicKey(treasuryAta))).value.amount,
-  );
-  // The swap is sized in SOL (quote input): the venue is told to spend
-  // `treasurySol`. plan.buyback is the floor-division PREDICTION of what that
-  // SOL buys at spot, and the planned-vs-bought line below is leg 3's cost
-  // made visible against it.
-  const buyIxs = await venue.buyIxs(treasurySol, SLIPPAGE_PCT);
-  const swap = new Transaction().add(...buyIxs);
-  // v1's sendTransaction returns at SUBMISSION, not confirmation. Read the
-  // balance before the swap lands and `bought` measures a pre-swap photograph
-  // (the burn section's stale-read trap, client-side edition) - so confirm first.
-  const swapSig = await connection.sendTransaction(swap, [buyer], { skipPreflight: false });
-  const latest = await connection.getLatestBlockhash("confirmed");
-  await connection.confirmTransaction({ signature: swapSig, ...latest }, "confirmed");
-
-  // Re-read the account AFTER the swap confirms. Cached balances are how supply math goes wrong.
-  const balanceAfter = BigInt(
-    (await connection.getTokenAccountBalance(new PublicKey(treasuryAta))).value.amount,
-  );
+  // LEG 3: the buyback. Whichever door opened, it is sized in SOL and it costs
+  // you something. plan.buyback is the floor-division PREDICTION of what that
+  // SOL buys; the planned-vs-bought line below is leg 3's cost made visible.
+  const balanceBefore = (await fetchToken(rpc, treasuryAta)).data.amount;
+  await buy();
+  // Re-read the account AFTER the buy confirms. Cached balances are how supply math goes wrong.
+  const balanceAfter = (await fetchToken(rpc, treasuryAta)).data.amount;
   const bought = balanceAfter - balanceBefore;
-  console.log(`bought ${bought} SPROUT (planned ${plan.buyback}, slippage ate the difference)`);
+  console.log(`bought ${bought} SPROUT (planned ${plan.buyback}, the gap is what leg 3 cost you)`);
 
   // LEG 4: burn exactly what the buyback bought, plus the fee-burn share.
   const toBurn = bought + plan.burnedFromFees;
@@ -519,19 +652,30 @@ main().catch((e) => {
 });
 ```
 
-**6. Run it, with the `route-fees.ts` TODOs filled first.** The rail now refuses to run against the stub (a zero split throws before any lamport moves), so this step assumes step 4 is done. `SPROUT_MINT=<mint> SPROUT_POOL=<pool> TREASURY_KEY=./treasury.json npx tsx wire-economy.ts`. A healthy run says something close to this:
+**6. Run it, with the `route-fees.ts` TODOs filled first.** The rail now refuses to run against the stub (a zero split throws before any lamport moves), so this step assumes step 4 is done. Every command in this step runs from inside `labs/m09-l1/`, which is where steps 1b through 5 put the files; the relative key paths below assume it.
+
+```bash
+cd labs/m09-l1
+# door B, the one the course guarantees
+SPROUT_MINT=<mint> MAKER_KEY=./maker.json TREASURY_KEY=./treasury.json npx tsx wire-economy.ts
+# door A, if you launched SPROUT yourself and have its pool
+SPROUT_MINT=<mint> SPROUT_POOL=<pool> TREASURY_KEY=./treasury.json npx tsx wire-economy.ts
+```
+
+A healthy door-B run says something close to this. The withheld total and the treasury balance are yours, so only the *shape* transfers; the arithmetic between the lines is what you check.
 
 ```text
 dirty accounts: 7, withheld total: 2500000
-split: burn 500000 + keep 2000000 = 2500000; buyback target ~5000 SPROUT at 1000000 lamports/unit
-bought 4932 SPROUT (planned 5000, slippage ate the difference)
-supply 1000000000000000 -> 999999999495068 (down 504932, burned 504932)
+door B: no SPROUT market on this fork; buying from maker 8k2...Uq at 1000000 lamports/unit (a price you set, not a price you read)
+split: burn 500000 + keep 2000000 = 2500000; buyback target ~50000 SPROUT at 1000000 lamports/unit
+bought 49500 SPROUT (planned 50000, the gap is what leg 3 cost you)
+supply 1000000000000000 -> 999999999450500 (down 549500, burned 549500)
 rail closed: harvested, split, bought back, burned
 ```
 
-Look at the third line before you celebrate. You planned 5,000 and you got 4,932. That gap is the lesson's whole honest half: 68 units of it went to slippage, the venue fee, and SPROUT's own transfer fee charged on the pool's payout to you. Nothing failed there. You simply paid the market for the privilege of buying your own token back off it, which is what a buyback has always been once you strip the word of its marketing.
+Read those five lines against each other, because they only agree if the rail worked. The split line sums: 500,000 plus 2,000,000 is 2,500,000, exactly what the scan found. The buyback target is the treasury's spendable half, about 50 SOL after step 1b's airdrop, divided by the price. And the fourth line is the honest one: you planned 50,000 and 49,500 landed, because SPROUT charges its own 100-bps fee on the maker's payout to you and 500 units stayed behind as withheld — on your treasury's own account, waiting for the next harvest, which is the circularity the theory section warned about made visible. On door A that same line would also carry slippage and the venue's fee, and the number would be smaller still. Either way you paid something to buy your own token back, which is what a buyback has always been once you strip the word of its marketing.
 
-![A two-bar chart sets a planned 5,000-unit buyback against the 4,932 units actually received, attributing the 68-unit gap to price impact, venue fee, and the token's own transfer fee.](assets/v08-chart.png)
+![A two-bar chart sets a planned buyback against the smaller quantity actually received, attributing the gap to price impact, venue fee, and the token's own transfer fee.](assets/v08-chart.png)
 
 If the run throws `supply drop != burn`, you almost certainly computed `bought` instead of measuring it, or you re-used the pre-burn mint object. Both are the same mistake wearing different hats.
 
@@ -543,7 +687,9 @@ If the run throws `supply drop != burn`, you almost certainly computed `bought` 
 
 ![A scorecard table lists harvested amount, treasury delta, buyback quantity and post-burn supply delta, each with its source, the claim it proves, and its characteristic failure.](assets/v09-table.png)
 
-**The empirical probe, if you want the real answer to a question this lesson only gestured at.** Run the buyback twice on the same forked pool, once with a small slice of the treasury and once with the whole thing, and record the delivered-versus-planned gap each time. Then look at the treasury's own token account afterward and find the withheld SPROUT sitting on it, fees your own buyback paid to yourself. Write down the size of both effects. That pair of numbers is what fills in the policy table from the theory section with your own values, and the choice between sweeping everything monthly and buying small orders continuously is one no lesson can make for you, because it depends on your pool's depth rather than on your intentions.
+**The empirical probe, if you want the real answer to a question this lesson only gestured at.** Run the buyback twice, once with a small slice of the treasury and once with the whole thing, and record the delivered-versus-planned gap each time. Then look at the treasury's own token account afterward and find the withheld SPROUT sitting on it, fees your own buyback paid to yourself.
+
+On door B the second number is the honest one and the first is a control: the gap will scale exactly with order size, because the only cost in play is a percentage fee with a cap, and watching it *not* misbehave is how you learn what slippage would have looked like if there had been a book. On door A the first number is the one that teaches, because the gap widens super-linearly as your order eats the pool, and that curve is what fills in the policy table from the theory section with your own values. The choice between sweeping everything monthly and buying small orders continuously is one no lesson can make for you, because it depends on your pool's depth rather than on your intentions — and door B, having no depth, cannot answer it at all. Knowing which of those two runs you are holding is the same skill m05-l1 asked for when it separated a predictor from a proof.
 
 ## Checkpoint
 
@@ -551,6 +697,6 @@ You are done when a single script run prints the four numbers and exits zero: ha
 
 One more thing before you close the folder, and it is the part of a fee-rail design that never appears in the launch thread. Name the two signals that would tell you this policy is wrong, and name them now while you have no emotional position on the answer. Signal one: the delivered-versus-planned gap on your buybacks. If it stays small, your order size fits your pool and continuous buying is cheap. If it widens as the treasury grows, you are paying an increasing tax to convert revenue into burn, and at some point routing that SOL to something other than a buyback is the better use of it. Signal two: the ratio between what the crank costs to run and what it collects. A harvest that sweeps less value than the transactions cost to send is not a fee rail, it is a hobby, and the honest response is to sweep less often rather than to pretend the schedule is working. Write both thresholds down with actual numbers from your own runs. A policy nobody can falsify is a slogan.
 
-Two failures I expect. The first is a harvest that reports zero on a mint that clearly charges fees, which almost always means the memcmp filter is matching the wrong offset or the wrong program, since a classic SPL mint and a Token-2022 mint are different owners and the scan is scoped by program. The second is a `withdraw_withheld_tokens_from_mint` that fails on authority, which means you passed an address where the builder wanted a signer. If the numbers still refuse to reconcile after you have checked both, bring your run output and your expected arithmetic to the course discussion, and post the pool's reserves alongside them, because half the time the disagreement is slippage rather than a bug and the reserves are what prove it.
+Three failures I expect. The first is a harvest that reports zero on a mint that clearly charges fees, which almost always means the memcmp filter is matching the wrong offset or the wrong program, since a classic SPL mint and a Token-2022 mint are different owners and the scan is scoped by program. The second is a `withdraw_withheld_tokens_from_mint` that fails on authority, which means you passed an address where the builder wanted a signer. The third is door B's buy failing on the maker's balance, which means step 1c minted less inventory than half your treasury can buy at `MAKER_PRICE`; mint more or raise the price, and note that having to choose is itself the tell that you are the market rather than trading on one. If the numbers still refuse to reconcile after you have checked all three, bring your run output and your expected arithmetic to the course discussion, and on door A post the pool's reserves alongside them, because half the time the disagreement is slippage rather than a bug and the reserves are what prove it.
 
 SPROUT now earns fees into a treasury it controls and burns supply on a schedule you set. What it does not do is care who is holding it. Next: deciding who gets in, and turning the compost points Overgrowth has been tracking off-chain into real SPROUT that people can actually spend.

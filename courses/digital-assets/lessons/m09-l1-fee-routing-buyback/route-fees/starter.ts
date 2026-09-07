@@ -7,7 +7,7 @@
  *   2. A `burnBps` share of that harvest is burned immediately; the rest stays in
  *      the treasury for operations.
  *   3. Separately, the treasury holds `treasurySol` lamports and buys SPROUT back on
- *      its DAMM v2 venue at `priceLamportsPerToken`, then burns what it bought.
+ *      its buyback counterparty at `priceLamportsPerToken`, then burns what it bought.
  *
  * The rail must CONSERVE the harvest: burnedFromFees + toTreasury === harvested.
  * Nothing is created or destroyed by the split itself.
@@ -18,7 +18,7 @@
  * @param harvested               withheld fees harvested to the treasury (base units, bigint)
  * @param burnBps                 share of the harvest burned immediately (0..=10000)
  * @param treasurySol             lamports available for the buyback leg (bigint)
- * @param priceLamportsPerToken   DAMM v2 pool price: lamports per SPROUT base unit (bigint)
+ * @param priceLamportsPerToken   buyback price: lamports per SPROUT base unit (bigint)
  */
 function routeFees(
   harvested: bigint,
