@@ -14,6 +14,10 @@ forge --version      # this lesson was written and run against forge 1.0.0-stabl
 
 Now boot the node. Terminal open.
 
+```bash
+anvil
+```
+
 ```
 Available Accounts
 ==================
