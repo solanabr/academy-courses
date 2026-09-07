@@ -27,15 +27,15 @@ blocks:
         multiSelect: false
         options:
           - id: e
-            label: "Nothing client-side: the harness passes because LiteSVM resolves the hook's accounts for you, so this is a cluster difference"
+            label: "Nothing client-side: the harness passes because LiteSVM resolves the hook's accounts for you, so this is a cluster gap"
             correct: false
             feedback: "The harness is where you placed every account by hand. A wallet on any cluster builds the same four-account transfer, and it dies the same way."
           - id: a
-            label: "Raise the compute budget so the hook has enough CU to run."
+            label: "Raise the compute budget so the hook has enough CU to finish before the transfer gives up"
             correct: false
             feedback: "Compute budget is not the failure here; the transaction is missing accounts, not compute, and it reverts before the hook even runs out of CU."
           - id: d
-            label: "Append the hook program id to the transfer; the runtime resolves the rest"
+            label: "Append the hook program id to the transfer's accounts; the runtime resolves the rest"
             correct: false
             feedback: "Token-2022 hunts for the validation account among the accounts you sent. Missing it, resolution never starts, so there is nothing to forward to the hook program either."
           - id: c
@@ -43,7 +43,7 @@ blocks:
             correct: true
             feedback: "The manifest is the only published statement of what the hook needs, and a client that does not read it hands Token-2022 a transaction with no validation account in it."
           - id: b
-            label: "Sign the transfer with the hook program's authority."
+            label: "Add the hook program's authority as a second signer so it can approve the move"
             correct: false
             feedback: "The hook has no authority over the transfer: its accounts are read-only and non-signer, so there is nothing for it to sign."
         explanation: "A hooked transfer only works if the client resolves the ExtraAccountMetaList off-chain and forwards those extra accounts on the transferring instruction. The harness did this for you; a naive wallet transfer does not, so Token-2022 never finds the validation account and the runtime cannot invoke a hook program it was never handed, so the naive case dies with MissingAccount. Keep the taxonomy straight: 'not enough account keys' is the different, partial-forwarding failure, the diagnostic trap the challenge drills. This forwarding burden is the resolution tax hooks push onto every integrator."
@@ -56,7 +56,7 @@ blocks:
             correct: true
             feedback: "AccountMeta::new_readonly(pubkey, false) is the whole guarantee, and you can read it in the interface crate's own builder: no writability to spend with, no signature to reuse."
           - id: c
-            label: "Hooks execute in a sandboxed VM with no access to the transfer's accounts at all."
+            label: "Hooks execute in a sandboxed VM that is handed only the amount, with no access to the transfer's accounts."
             correct: false
             feedback: "The hook does receive the accounts, since it needs them to make its decision, but they are de-escalated to read-only; there is no separate sandbox VM."
           - id: d
@@ -64,7 +64,7 @@ blocks:
             correct: false
             feedback: "Execute is a CPI inside the same transaction, which is exactly what lets a hook veto a transfer at all. The protection is that the inherited accounts arrive stripped, not that they arrive late."
           - id: b
-            label: "The Token-2022 program snapshots every account balance before the hook runs, then automatically refunds any tokens the hook attempted to move once it returns."
+            label: "The Token-2022 program snapshots every account balance before the hook runs, then refunds any tokens the hook attempted to move once it returns."
             correct: false
             feedback: "There is no snapshot-and-refund mechanism; the guarantee is structural: the hook is never given writable, signed access to the transfer's accounts in the first place."
         explanation: "The interface builds the transfer's accounts as AccountMeta::new_readonly(pubkey, false), read-only AND non-signer, before invoking the hook. So the hook can inspect the transfer but cannot move its funds or ride the sender's signature. (A malicious hook can still move funds ITS OWN PDAs control; the guarantee is only about the transfer's accounts.) That de-escalation, plus arbitrary CU, is the code-level root of why DEXes refuse hooks."
@@ -77,7 +77,7 @@ blocks:
             correct: true
             feedback: "The five it accepts are all passive, and arbitrary per-transfer code with unbounded CU makes a pool impossible to price safely, so creation reverts rather than degrading."
           - id: c
-            label: "It allows the hook only if the mint also carries a PermanentDelegate."
+            label: "It allows the hook only if the mint also carries a PermanentDelegate the pool can claw back with."
             correct: false
             feedback: "PermanentDelegate is itself rejected (Raydium refuses it because a delegate holder could sweep the pool vault), and pairing two rejected extensions does not unlock the pool."
           - id: d

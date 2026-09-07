@@ -28,7 +28,7 @@ blocks:
             correct: false
             feedback: "Size does not name the owner. Token-2022's own length model returns 82 bytes for an empty extension set, so read the owner field to tell the two programs apart."
           - id: b
-            label: "It is a Token-2022 mint whose TLV entries all have zero-length values, so the extension region happens to add nothing to the account size"
+            label: "It is a Token-2022 mint whose TLV entries all carry zero-length values, so the extension region adds nothing to the size"
             correct: false
             feedback: "Any extension pads the base to 165 bytes plus the account-type byte; an 82-byte account cannot carry TLV entries at all."
           - id: a
@@ -36,12 +36,12 @@ blocks:
             correct: true
             feedback: "82 bytes is the whole base with nothing after it, so there is no account-type byte at offset 165 and no TLV region to walk."
           - id: c
-            label: "It is corrupted: every valid mint is at least 165 bytes"
+            label: "It is corrupted: a mint has to reach offset 165 to carry its account-type byte, so a read ending at 82 lost its tail"
             correct: false
-            feedback: "82 bytes is the perfectly valid classic bare-mint size; only extended mints reach 165+1."
+            feedback: "Only extended accounts are padded out to 165 and given the account-type byte; a bare mint stops at 82 with nothing after it, and 82 is a perfectly valid classic size."
         explanation: "The length is the first tell: 82 bytes is exactly the bare classic mint (authority, supply, decimals, init flag, freeze authority) with no account-type discriminator and no TLV region. Extensions force the base to 165 bytes plus a 1-byte type, so an 82-byte read means no extensions, full stop."
       - id: m01-l2-q2
-        prompt: "Parsing the TLV region, you read a type (u16) and a length (u16) of 32, then advance your cursor by 32 to the next entry. Your following entries all decode as garbage. What went wrong?"
+        prompt: "Parsing the TLV region, you read a type (u16) and a length (u16) of 32, then move your cursor 32 bytes forward. Everything after that decodes as garbage. What went wrong?"
         multiSelect: false
         options:
           - id: b
@@ -49,7 +49,7 @@ blocks:
             correct: true
             feedback: "The header costs 4 bytes on top of the value, so a cursor stepped by 32 lands inside the pubkey it just read, and every later type and length parses as plausible garbage."
           - id: c
-            label: "TLV entries are 8-byte aligned, so you must round the length up to a multiple of 8"
+            label: "TLV entries are 8-byte aligned like the base fields, so you round each value length up to a multiple of 8 before the next entry"
             correct: false
             feedback: "Token-2022 TLV entries are not padded to an 8-byte alignment; the miss is the 4-byte type+length header, not alignment."
           - id: d
@@ -57,9 +57,9 @@ blocks:
             correct: false
             feedback: "The 36-byte COption belongs to the base fields; a TLV value is the raw struct, and the walk prices MintCloseAuthority at the 32 bytes its own header declares."
           - id: a
-            label: "u16 values are big-endian, so the length is not really 32"
+            label: "u16 fields in a TLV header are big-endian, so a length that reads as 32 is really 8192 and the cursor stops far too early"
             correct: false
-            feedback: "Endianness would corrupt the length read itself; here the length of 32 is right: the bug is advancing by 32 instead of 36."
+            feedback: "Both u16 fields are little-endian, and endianness would corrupt the length read itself; here the length of 32 is right, and the bug is stepping 32 bytes instead of 36."
         explanation: "A TLV entry is u16 type + u16 length + value, so the header is 4 bytes. Advancing by the value length alone leaves the cursor 4 bytes short, and every subsequent type/length read lands mid-field, cascading into garbage. The fix is to step by 4 + length per entry."
       - id: m01-l2-q3
         prompt: "You need to pre-fund rent for a new Token-2022 mint that will carry TransferFeeConfig and MetadataPointer. How do you get the exact byte size to size the account?"

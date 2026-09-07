@@ -38,15 +38,15 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "In a treasury token account, credited automatically the moment the transfer settles, because you named a withdraw-withheld authority at mint creation."
+            label: "In a treasury token account, credited automatically because you named a withdraw-withheld authority at mint creation."
             correct: false
             feedback: "Nothing auto-routes to a treasury, and the withdraw-withheld authority is a KEY, not an account: it is permission to move fees later, never a destination that gets credited. Fees reach a treasury only when that key runs the harvest and withdraw steps."
           - id: c
-            label: "Burned from supply and re-minted to the fee authority."
+            label: "Burned from the recipient's balance and re-minted to the fee authority's own account in one step."
             correct: false
-            feedback: "No burn or mint happens. The fee is held intact on the recipient account, not destroyed and recreated."
+            feedback: "No burn and no mint happen anywhere in a fee transfer. The fee is held intact in the recipient account's own TransferFeeAmount slot, not destroyed and recreated somewhere else."
           - id: d
-            label: "In the mint's withheldAmount field, from the moment the transfer lands"
+            label: "In the mint's own withheldAmount field, which the transfer instruction credits before it returns"
             correct: false
             feedback: "That field is real, and it fills only after someone runs the permissionless harvest; at confirmation time the fee is still scattered across recipient accounts."
           - id: b

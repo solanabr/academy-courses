@@ -35,7 +35,7 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "Rejected: CP-Swap refuses every Token-2022 mint at pool creation regardless of its extension set; only classic SPL mints and the four MINT_WHITELIST entries can seed a pool."
+            label: "Rejected: CP-Swap refuses every Token-2022 mint at pool creation; only classic SPL and the four MINT_WHITELIST entries can seed a pool."
             correct: false
             feedback: "CP-Swap does support Token-2022; it allowlists five specific extensions rather than refusing the program wholesale."
           - id: d
@@ -77,7 +77,7 @@ blocks:
         multiSelect: false
         options:
           - id: d
-            label: "An Orca-style Token Badge review approved the mint, and CP-Swap honours that approval"
+            label: "An Orca-style Token Badge review approved the mint, and CP-Swap honours badges issued by other venues"
             correct: false
             feedback: "A Token Badge is Orca's mechanism and it stops at Orca. CP-Swap's own doors are a hardcoded array of mint addresses and a mint-association account created through Raydium's admin path."
           - id: c
@@ -89,7 +89,7 @@ blocks:
             correct: true
             feedback: "The doors are per-mint: an address in the source array, or an association account an admin transaction creates. The extension stays refused; the token was approved by name."
           - id: b
-            label: "PermanentDelegate is actually on the five-extension allowlist alongside TransferFeeConfig."
+            label: "PermanentDelegate is actually on the five-extension allowlist, right alongside TransferFeeConfig and metadata."
             correct: false
             feedback: "It is not; the allowlist is fee, metadata, interest, and scaled-UI only, and PermanentDelegate never appears on it."
         explanation: "The check is skipped for classic SPL, for the hardcoded MINT_WHITELIST, and for mints with an initialized mint-association account. That bypass, not an allowlist entry, is how a whitelisted PermanentDelegate stablecoin routes despite the extension being otherwise refused."
@@ -98,7 +98,7 @@ blocks:
         multiSelect: false
         options:
           - id: d
-            label: "It routes: AMM v4 predates the allowlist, so it runs no extension check on any mint"
+            label: "It routes: AMM v4 predates the Token-2022 allowlist, so it runs no extension check on any mint"
             correct: false
             feedback: "Predating Token-2022 is why it refuses, not why it waves you through. The program has no branch for a mint owned by a token program it was never taught about."
           - id: a
@@ -110,7 +110,7 @@ blocks:
             correct: true
             feedback: "One brand, several venues, several rules. Those two programs know only the classic token program, so no extension set makes a Token-2022 mint eligible there."
           - id: c
-            label: "It routes only after you remove MetadataPointer, which AMM v4's stricter check treats as a power extension the way CP-Swap treats TransferHook."
+            label: "It routes after you remove MetadataPointer: AMM v4's stricter check treats it as a power extension, the way CP-Swap treats hooks."
             correct: false
             feedback: "AMM v4 accepts no Token-2022 mint at all, allowlisted or not; dropping an extension will not help."
         explanation: "Routability is per-venue, not per-DEX. Raydium's AMM v4 and Stable AMM predate Token-2022 and accept classic SPL only; Token-2022 support lives in CP-Swap/CLMM (and Farm v6 reward mints). The same brand runs venues with different rules."

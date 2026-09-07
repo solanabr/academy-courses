@@ -18,11 +18,11 @@ blocks:
         multiSelect: false
         options:
           - id: c
-            label: "The amount stays public but the two wallet identities are encrypted."
+            label: "The amount stays public, but both wallet identities are encrypted under the auditor's key."
             correct: false
             feedback: "It's the reverse. Token-2022 confidential transfers encrypt the amount, never the identities: addresses are always visible."
           - id: b
-            label: "Both the amount and the two wallet addresses are hidden from everyone, including validators, who verify the transfer purely against its zero-knowledge proofs."
+            label: "Both the amount and the two wallet addresses are hidden from everyone, including validators, who see only the proofs."
             correct: false
             feedback: "Confidential transfers hide the amount only. The sender and receiver pubkeys, and the fact that a transfer happened, stay fully public. Encrypted is not anonymous."
           - id: a
@@ -43,11 +43,11 @@ blocks:
             correct: false
             feedback: "Two of the three land. The missing one is the equality proof: solvency is never proven directly, it follows from welding the sender's claimed remainder to the real post-debit ciphertext and range-proving that."
           - id: a
-            label: "A signature proof, a Merkle inclusion proof against the account's state root, and a nonce-freshness proof that prevents replay of earlier transfers."
+            label: "A signature proof, a Merkle inclusion proof against the account's state root, and a nonce-freshness proof that blocks replay."
             correct: false
             feedback: "None of those are part of the confidential-transfer flow; that's a mix of unrelated primitives from signatures and state compression."
           - id: c
-            label: "A range proof, a hash-preimage proof, and a stake-weight proof."
+            label: "A range proof, a hash-preimage proof that opens the commitment, and a stake-weight proof."
             correct: false
             feedback: "Only the range proof belongs here; hash-preimage and stake-weight proofs are not part of the confidential-transfer proof set."
           - id: b
@@ -60,9 +60,9 @@ blocks:
         multiSelect: false
         options:
           - id: b
-            label: "Because each confidential transfer must wait a full epoch for the auditor to approve it."
+            label: "Because each confidential transfer must wait a full epoch for the mint's auditor to countersign it on chain."
             correct: false
-            feedback: "There is no per-transfer epoch wait or auditor approval step. The auditor merely receives its own encrypted copy of the amount; it does not gate the transfer."
+            feedback: "There is no per-transfer epoch wait and no auditor countersignature. The auditor merely receives its own encrypted copy of the amount; it does not gate the transfer."
           - id: c
             label: "Because the zero-knowledge proofs are too large to fit alongside the transfer in one transaction; transaction format v1 is meant to relax this but is not activated yet."
             correct: true
