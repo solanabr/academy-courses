@@ -22,34 +22,44 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Your vault is a PDA — an address with no private key. Why does the program STORE the canonical bump in the vault's state account instead of re-deriving it every time?"
+        prompt: "Your vault is a PDA, an address with no private key. Why does the program STORE the canonical bump in the vault's state account instead of re-deriving it every time?"
         multiSelect: false
         options:
           - id: a
-            label: "Because find_program_address is non-deterministic — without a stored bump the program might derive a different address each call"
+            label: "Because find_program_address is non-deterministic: it starts its search at a random bump, so without a stored value the program might land on a different address each call"
             correct: false
-            feedback: "Derivation is fully deterministic — same seeds, same program id, same result every time. What it costs is compute: the 255-downward scan re-runs on every call, which is exactly why you cache the answer once."
+            feedback: "The search is completely deterministic. It counts down from 255 and returns the first bump that lands off the curve, so the same seeds and the same program id give the same answer forever. What repeating it costs is compute, not correctness."
           - id: b
             label: "Because the canonical bump can change when the program is upgraded, so state must pin the value from initialization"
             correct: false
-            feedback: "The bump never changes — it depends only on the seeds and the program id, not on the program's bytecode. The reason to store it is cost: re-scanning for it burns roughly 1,500 CU on every access."
+            feedback: "An upgrade replaces bytecode and leaves the program id untouched, and the bump is a function of the seeds plus that id. Nothing about redeploying moves it, which is why a vault stays reachable across upgrades."
           - id: c
             label: "Re-deriving scans bump candidates from 255 downward and burns compute on every call; storing it once lets the program sign CPIs with the exact bump cheaply"
             correct: true
-        explanation: "find_program_address loops from bump 255 downward until it finds an address off the ed25519 curve — deterministic, but ~1,500 CU per call. Storing the canonical bump at initialization turns every later derivation and PDA-signed CPI into a single cheap create_program_address with known seeds. Same address, a fraction of the compute."
+            feedback: "Roughly 1,500 compute units per access, paid every time, for an answer that cannot change. Writing it into VaultState during initialize turns a search into a field read, and the withdraw handler then feeds that stored byte straight into its signer seeds."
+          - id: d
+            label: "Because the runtime only accepts seeds carrying a bump read from account data, and rejects one the program derived during the same call"
+            correct: false
+            feedback: "The runtime has no idea where your bump came from. It re-runs the derivation over whatever seeds you hand it and checks that they produce this address under your program id, so a freshly computed bump signs exactly as well as a stored one. Storing it is an optimization, not a permission."
+        explanation: "PDAs have no private key, so the runtime signs on the program's behalf when handed the right seeds + bump. find_program_address is deterministic but not free: it searches 255 -> 0 for the first off-curve address, burning compute each call. Storing the canonical bump at initialization turns that search into a single field read and lets every later CPI sign with the stored value."
       - id: q2
         prompt: "The deposit handler does `balance.checked_add(amount).ok_or(VaultError::Overflow)?` instead of `balance += amount`. Why?"
         multiSelect: false
         options:
           - id: a
-            label: "`checked_add` compiles to a single guarded instruction, so it is faster than `+` at runtime"
+            label: "`checked_add` compiles down to one guarded instruction, so it runs faster than a bare `+` and saves compute units on each deposit the vault ever handles"
             correct: false
-            feedback: "It is not about speed — checked arithmetic is marginally slower. It is about control: `+` can wrap or panic on overflow, while checked_add returns None that the handler converts into a clean, named program error."
+            feedback: "It is the more expensive of the two, by a margin nobody cares about. The reason to reach for it is the value it returns on failure, which is a thing your handler can name and a client can catch, rather than any saving on the happy path."
           - id: b
             label: "Unchecked addition can overflow or panic; `checked_add` returns None on overflow, which the handler converts into a clean VaultError instead of a crash"
             correct: true
+            feedback: "Three outcomes are possible and only one is any good: wrap silently, panic opaquely, or return a named error. The last one is the pattern for all program code, and it comes with the rule that no `unwrap()` or `expect()` belongs anywhere near an instruction handler."
           - id: c
             label: "Anchor's IDL cannot encode the `+` operator on u64 fields, so the checked helpers are required"
             correct: false
-            feedback: "The IDL describes accounts and instruction arguments, not Rust expressions — `+` compiles fine. The rule is a safety discipline: balance math must never wrap or panic; it must surface as a typed error the client can read."
-        explanation: "In release builds unchecked `+` silently wraps; with overflow checks on, it panics and aborts the whole transaction with an opaque error. checked_add makes the failure a value — None — which ok_or turns into VaultError::Overflow: an explicit, auditable, client-readable outcome. In money code, arithmetic must fail loudly and by name."
+            feedback: "The IDL describes your program's external interface, its instructions, arguments and accounts, and never sees the arithmetic inside a handler. Checked math is a Rust discipline you adopt, not a constraint the framework imposes."
+          - id: d
+            label: "The scaffold already sets overflow-checks = true, so a bare `+` panics instead of wrapping silently, and the checked call is only there as a style convention"
+            correct: false
+            feedback: "That flag really is in the workspace Cargo.toml and it really does turn a silent wrap into a panic, which is better and still not good enough. A panic aborts the transaction with a failure the client cannot read or branch on, where `checked_add` hands back an error you named yourself."
+        explanation: "In release builds Rust wraps on overflow rather than panicking, so a silent wrap could hand an attacker a tiny balance. Anchor's scaffold enables overflow-checks, which turns that into a panic — better, but still an opaque abort. checked_add returns Option, and ok_or maps None to a named program error the client can catch. Checked arithmetic is mandatory in program code; unwrap() and expect() are not allowed."
