@@ -2,7 +2,10 @@ id: lesson-rtf-m10-l2
 slug: m10-l2
 title: "Conclusion: the map you now own"
 skills:
-  - solana-kit
+  - technical-writing
+  - toolchain-versions
+  - version-pinning
+  - solana-fundamentals
 blocks:
   - key: intro
     type: prose

@@ -2,7 +2,10 @@ id: lesson-rtf-m09-l1
 slug: m09-l1
 title: "Supply chain: the 86-minute attack"
 skills:
-  - solana-fundamentals
+  - supply-chain-security
+  - semver
+  - version-pinning
+  - technical-writing
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

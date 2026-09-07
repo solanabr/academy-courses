@@ -2,7 +2,11 @@ id: lesson-rtf-m04-l3
 slug: m04-l3
 title: "Enums are state machines"
 skills:
-  - solana-programs
+  - rust-enums
+  - rust-structs
+  - rust-traits
+  - automated-testing
+  - ci
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

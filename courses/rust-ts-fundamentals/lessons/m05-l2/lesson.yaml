@@ -2,7 +2,9 @@ id: lesson-rtf-m05-l2
 slug: m05-l2
 title: "cargo mastery: editions, workspaces, features, MSRV"
 skills:
-  - solana-programs
+  - toolchain-versions
+  - version-pinning
+  - rust-modules
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

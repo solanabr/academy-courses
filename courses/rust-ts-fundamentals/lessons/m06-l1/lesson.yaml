@@ -2,8 +2,11 @@ id: lesson-rtf-m06-l1
 slug: m06-l1
 title: "A daemon, not a script: tokio + a /status endpoint"
 skills:
-  - solana-fundamentals
-  - solana-programs
+  - async-concurrency
+  - rust-ownership
+  - rust-borrowing
+  - rust-modules
+  - rust-traits
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

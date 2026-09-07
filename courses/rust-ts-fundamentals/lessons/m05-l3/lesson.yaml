@@ -2,7 +2,10 @@ id: lesson-rtf-m05-l3
 slug: m05-l3
 title: "clap, a real probe arm, and a binary anyone can download"
 skills:
-  - solana-programs
+  - rust-structs
+  - http-fundamentals
+  - ci
+  - deployment
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

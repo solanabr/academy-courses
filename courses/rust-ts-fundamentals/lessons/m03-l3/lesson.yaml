@@ -2,7 +2,8 @@ id: lesson-rtf-m03-l3
 slug: m03-l3
 title: "Vercel: the URL"
 skills:
-  - solana-kit
+  - deployment
+  - debugging
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

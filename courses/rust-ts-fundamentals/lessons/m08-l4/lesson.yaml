@@ -2,11 +2,11 @@ id: lesson-rtf-m08-l4
 slug: m08-l4
 title: "The write path health check: one transfer"
 skills:
-  - solana-fundamentals
-  - solana-kit
-  - rpc-reads
   - transactions
   - keypairs-wallets
+  - signers
+  - confirmation
+  - solana-kit
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

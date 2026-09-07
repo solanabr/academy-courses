@@ -2,8 +2,10 @@ id: lesson-rtf-m07-l2
 slug: m07-l2
 title: "The payoff: Rust on the same edge"
 skills:
-  - solana-kit
-  - solana-programs
+  - edge-runtimes
+  - deployment
+  - api-design
+  - compiler-errors
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

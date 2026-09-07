@@ -2,7 +2,10 @@ id: lesson-rtf-m04-l2
 slug: m04-l2
 title: "Errors are values: Result, ?, and the two-crate canon"
 skills:
-  - solana-programs
+  - rust-result
+  - error-handling
+  - checked-arithmetic
+  - compiler-errors
 versionStamp:
   checkedAt: "2026-09-02"
   packages:

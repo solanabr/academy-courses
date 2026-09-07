@@ -2,7 +2,11 @@ id: lesson-rtf-m10-l1
 slug: m10-l1
 title: "Assembly: the station, whole"
 skills:
-  - solana-kit
+  - technical-writing
+  - observability
+  - deployment
+  - http-fundamentals
+  - rpc-reads
 blocks:
   - key: intro
     type: prose
