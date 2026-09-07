@@ -33,6 +33,11 @@ blocks:
           - id: c
             label: "The on-chain Data holds only { name, symbol, uri, seller_fee_basis_points, creators }; the image and traits live in the off-chain JSON at that uri."
             correct: true
+            feedback: "That is the architecture, and the uri field in their own dump was the answer: five fields on-chain, everything rich one fetch away."
+          - id: d
+            label: "The image and traits sit in the 65-byte account header the decoder skips past, so the Data struct legitimately shows neither."
+            correct: false
+            feedback: "The skipped 65 bytes are a one-byte account key, the 32-byte update authority and the 32-byte mint. No room for a PNG, and no traits either."
         explanation: "A Metaplex on-chain record is a small struct plus a uri pointer. The rich content (image, animation_url, attributes) is a JSON document at that uri, following the Token Metadata JSON standard (whose canonical schema host, schema.metaplex.com, no longer resolves; the lesson's validator script carries the field contract). An empty-looking account is normal; you resolve the uri to see the asset."
       - id: m06-l1-metadata-standards-q2
         prompt: "For SPROUT's Token-2022 mint you set the MetadataPointer to point at a separate account you control. What's the risk versus the usual layout?"
@@ -41,6 +46,7 @@ blocks:
           - id: a
             label: "A pointer to any account other than the mint itself can be aimed at spoofed metadata; the self-referential layout is the anti-spoofing default for exactly this reason."
             correct: true
+            feedback: "Indirection is the surface: whatever the pointer names is what consumers treat as canonical, so the only target nobody else can substitute is the mint itself."
           - id: b
             label: "None: the pointer target is cosmetic and wallets ignore it, reading the TLV directly regardless."
             correct: false
@@ -49,20 +55,29 @@ blocks:
             label: "The mint will fail to initialize, because InitializeMint2 validates that the MetadataPointer target equals the mint address and rejects any configuration aimed at a separate account."
             correct: false
             feedback: "It can legally point elsewhere; that's precisely why it's a risk. The self-referential form is a convention that removes the spoofing surface, not a hard requirement."
+          - id: d
+            label: "A separate account can be closed or repointed later, but wallets typically fall back to the mint's own TLV, so the exposure is a brief display gap."
+            correct: false
+            feedback: "There is no fallback to fall back to: the pointer is how a consumer decides which bytes are canonical, so a bad target is bad metadata, not a gap."
         explanation: "MetadataPointer tells consumers where the canonical metadata is. Pointing it at the mint itself (self-referential) means the metadata is inseparable from the mint and can't be impersonated. Pointing it at an arbitrary account reintroduces the spoofing surface the pointer was designed to close."
       - id: m06-l1-metadata-standards-q3
         prompt: "You're deciding where to host an Almanac asset's JSON so it still resolves in five years. Which framing is honest?"
         multiSelect: false
         options:
           - id: a
-            label: "Any HTTPS URL is fine because the on-chain account guarantees the content is permanent."
+            label: "Any HTTPS URL is fine, because the on-chain account guarantees the content: the uri is stored on-chain under an update authority, and rent keeps that record alive forever."
             correct: false
-            feedback: "The on-chain account stores only the uri, not the content; it guarantees nothing about whether the target still exists."
+            feedback: "Rent keeps the struct alive forever and the struct will point at a 404 just as long. The account stores the uri, never the bytes behind it."
           - id: b
-            label: "The asset is only as durable as the URI it points at; Irys/Arweave are the documented permanent defaults, and a mutable or expiring host means the asset can resolve to nothing."
+            label: "The asset is only as durable as the URI it points at; Irys/Arweave are the documented permanent defaults, and a mutable host can leave it resolving to nothing."
             correct: true
+            feedback: "Permanence is a property of the store, not of the pointer. Irys in front of Arweave is the documented default precisely because the endowment outlives the team."
           - id: c
-            label: "IPFS is the verified market standard and the only correct choice for permanence."
+            label: "IPFS is the verified market standard for permanence: content addressing pins the asset to its hash, so the host behind the gateway stops mattering."
             correct: false
-            feedback: "IPFS pinning is common but its durability depends on someone continuing to pin, and its market reality was not verified this round, so it's not a guaranteed-permanent default."
+            feedback: "Content addressing is a real integrity upgrade, but availability still depends on someone continuing to pin the file, and the health of that pinning market went unverified this round."
+          - id: d
+            label: "Dropping the update authority makes the asset permanent, because a record nobody can rewrite will keep resolving to the same file."
+            correct: false
+            feedback: "Immutability and durability are separate decisions. Freezing the record freezes the pointer, and a frozen pointer at a dead bucket resolves to nothing forever."
         explanation: "On-chain you store a pointer; permanence is a property of the store behind it. Irys is Metaplex CLI's documented default uploader and Arweave URIs are pervasive; IPFS works but relies on continued pinning. The honest rule is 'the URI is permanent only if the store is.'"
