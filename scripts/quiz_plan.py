@@ -140,22 +140,43 @@ def multiselect_candidates(qs: list[dict]) -> list[dict]:
     return out
 
 
-def length_band(q: dict) -> tuple[int, int]:
-    """Prescribe the new option's length so the key's length RANK moves toward
-    uniform instead of drifting wherever the author's prose happens to land."""
+def length_band(q: dict) -> tuple[int, int, bool]:
+    """Prescribe the new option's length, targeting only a rank that ADDING an
+    option can actually reach.
+
+    The arithmetic that the first version got wrong: with the key at rank `cur`
+    of k, appending one option leaves it at `cur` (new option longer) or moves it
+    to `cur+1` (new option shorter). Nothing else is reachable. So a key that is
+    already the longest of three can only end up 3rd or 4th of four -- and a
+    course where most keys start longest can never reach a uniform rank
+    distribution by appending alone. Asking for an unreachable target produced a
+    band that pushed the rank the wrong way, which is exactly what happened on a
+    measured range: [0, 4, 23, 10], chi-square p=3.7e-07.
+
+    Returns (lo, hi, tighten_key). `tighten_key` marks the questions where the
+    only way to reach a lower rank is to shorten the KEY -- a real authoring
+    move (tighten the answer, never weaken a distractor), and the honest signal
+    that appending cannot fix this one.
+    """
     lens = sorted(len(x) for x in q["labels"])
     key_len = len(q["labels"][q["correct"][0]]) if q["correct"] else statistics.mean(lens)
-    h = int(hashlib.sha256(f"{q['lesson']}|{q['qid']}|len".encode()).hexdigest()[:8], 16)
-    target_rank = h % (q["k"] + 1)          # where the key should sit among k+1 options
     cur_rank = sum(1 for l in lens if l < key_len)
-    if target_rank > cur_rank:              # key should be longer-ranked => new option shorter
-        lo, hi = int(min(lens) * 0.85), max(int(key_len) - 1, int(min(lens)))
-    elif target_rank < cur_rank:            # key should be shorter-ranked => new option longer
+    h = int(hashlib.sha256(f"{q['lesson']}|{q['qid']}|len".encode()).hexdigest()[:8], 16)
+
+    # Reachable target ranks after appending exactly one option.
+    reachable = (cur_rank, cur_rank + 1)
+    target_rank = reachable[h % 2]
+
+    if target_rank == cur_rank:          # key keeps its rank => new option must be LONGER
         lo, hi = int(key_len) + 1, int(max(lens) * 1.15)
-    else:                                   # rank already fine => match the pack
-        lo, hi = int(statistics.mean(lens) * 0.85), int(statistics.mean(lens) * 1.15)
+    else:                                # key drops one rank => new option must be SHORTER
+        lo, hi = int(min(lens) * 0.85), max(int(key_len) - 1, int(min(lens) * 0.85) + 15)
+
+    # If the key is the longest of its set, ranks below cur_rank are unreachable
+    # no matter what we append. Flag it rather than pretending otherwise.
+    tighten = cur_rank == len(lens) - 1 and (h % 3 == 0)
     lo, hi = max(20, lo), max(lo + 15, hi)
-    return lo, hi
+    return lo, hi, tighten
 
 
 def main() -> int:
@@ -194,7 +215,8 @@ def main() -> int:
                   "required_rate_in_new_distractors": round(hedge_need, 4)},
         "feedback_strings_to_author": missing_fb,
         "multiselect_candidates": cands,
-        "length_bands": {f"{q['lesson']}/{q['qid']}": list(length_band(q)) for q in qs},
+        "length_bands": {f"{q['lesson']}/{q['qid']}": list(length_band(q)[:2]) for q in qs},
+        "tighten_key": [f"{q['lesson']}/{q['qid']}" for q in qs if length_band(q)[2]],
     }
 
     if args.json:
@@ -219,6 +241,10 @@ def main() -> int:
         print(f"     · {c['lesson']}/{c['qid']}  [{', '.join(c['signals'])}]")
     if len(cands) > 12:
         print(f"     · … +{len(cands) - 12} more (use --json for the full list)")
+    tighten = plan["tighten_key"]
+    print(f"   keys worth TIGHTENING: {len(tighten)} — the key is already the longest of its set,")
+    print("   so appending can only leave it top or second-from-top. Shortening the key is the only")
+    print("   way to reach a lower rank; tighten the answer, never weaken a distractor.")
     print("   per-question length bands: use --json; the new option's length is prescribed,")
     print("   because dilution with a random-length option just moves the tell instead of removing it.")
     return 0
