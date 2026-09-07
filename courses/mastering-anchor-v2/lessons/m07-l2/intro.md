@@ -233,7 +233,7 @@ pub player: Signer,
 
 ### Class 2: UncheckedAccount substitution (the one that survives every framework)
 
-Look back at that `maker` field. It is an `UncheckedAccount`, and on the vuln branch it carries only `mut`. That word `UncheckedAccount` is not decoration. It is the type opting out of every framework check there is: no owner check, no discriminator check, no identity check. You are telling Anchor "I will validate this myself," and then not doing it.
+Look back at that `maker` field. It is an `UncheckedAccount`, and on the vuln branch it carries only `mut`. That word `UncheckedAccount` is the type opting out of every framework check there is: no owner check, no discriminator check, no identity check. You are telling Anchor "I will validate this myself," and then not doing it.
 
 Here is why that is the deepest class in the lesson. The escrow closes to `maker`, returning the rent. On the vuln branch, `maker` is any account the caller passes. So an attacker passes *their own* account as `maker`, and the rent lamports from `close = maker` land in their wallet instead of the operator's. Small money on one escrow, real money across a thousand. And nothing catches it, because there is nothing to catch: the account is valid, it is mutable, it is writable. It is simply not the account the escrow meant.
 
@@ -292,7 +292,7 @@ Notice the shape: the two classes compose. The type that opts out of the framewo
 
 A teammate remembers `init_if_needed` from the v1 line as the feature-gated one, the one you had to explicitly enable because it was dangerous. Correct the record, because V2 changed it and half-remembering the change is its own hazard.
 
-In V2, `init_if_needed` is no longer behind a feature flag. I checked the V2 feature set against the framework's own docs: the release ships six feature flags, `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent`, and `testing`, and `init-if-needed` is not among them. It is ungated. On top of that, `init_if_needed` accounts have been folded into the duplicate-mutable check since the 1.0 line (#4239) and still are under V2, and the reuse branch re-validates the account's space, owner, and discriminator, which closes the crudest reinitialize tricks.
+In V2, `init_if_needed` is no longer behind a feature flag. I checked the V2 feature set against the framework's own docs: the release ships six feature flags, `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent`, and `testing`, and `init-if-needed` is not among them, so it is ungated. On top of that, `init_if_needed` accounts have been folded into the duplicate-mutable check since the 1.0 line (#4239) and still are under V2, and the reuse branch re-validates the account's space, owner, and discriminator, which closes the crudest reinitialize tricks.
 
 The part that survives all of that: The framework can verify the account is the right *shape*. It cannot verify that reinitializing *this* account is the right *thing to do*. If your instruction hits the `init` branch over an account that already holds live state, the reuse-validation passes (space matches, owner matches, discriminator matches) and you cheerfully overwrite a funded escrow back to zeros.
 
