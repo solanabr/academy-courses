@@ -123,7 +123,7 @@ blocks:
             feedback: "Approval is not the mechanism, the plan is: Hobby teams cannot connect org-owned repositories at all, so no amount of goodwill from an org admin opens that door."
         explanation: "Three documented Hobby constraints compose here: no org-owned repos, no team collaboration (the compare table's dash), and non-commercial personal use. The course designed the station's shape around them in M1 so lesson ten's ship needs zero workarounds, that's what a free-tier-honest core path means."
       - id: m03l3-q6
-        prompt: "pulse-board lives at packages/pulse-board inside the workspace. How does Vercel deploy just the dashboard from a repo that also contains the fleet and pulse-core?"
+        prompt: "The board is one of three sibling projects in the station repo, alongside the fleet and the shared engine. How does Vercel deploy just the dashboard?"
         multiSelect: false
         options:
           - id: a
