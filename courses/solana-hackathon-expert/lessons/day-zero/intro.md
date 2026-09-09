@@ -4,22 +4,20 @@ Last lesson you wrote the Colosseum brief: seven factors quoted from the live pa
 
 ## Why this matters
 
-In my last Colosseum edition the month went to code. The presentation I planned near the end, with no month left to improve it, and I had shown the project to too few people outside the team, so the feedback that would have fixed the pitch arrived too late. *The fix is not a better deck in week 4.* It is a sentence on day 0 and a person whose job is to keep rewriting it.
+The losing month has a shape I have watched many times: the month goes to code. The presentation gets planned near the end, with no month left to improve it, and the project was shown to too few people outside the team, so the feedback that would have fixed the pitch arrives too late. *The fix is not a better deck in week 4.* It is a sentence on day 0 and a person whose job is to keep rewriting it.
 
 The one idea: the month is **planned backward from the package**, and the pitch is an artifact from day 0. Open a new file called **team-card.md** and put today's date on the first line. It is due *before the clock starts*, whatever your season is.
 
 ## Do this
 
-1. **Turn the folder** you made for the prize table in the first lesson into the toolkit repo:
+1. **Create the toolkit repo**: make a folder named after your project and initialize git in it.
 
 ```bash
-cd <your-folder>
+mkdir <your-project> && cd <your-project>
 git init
-git add prize-table.md
-git commit -m "prize table, 2026-09-06"
 ```
 
-**Commit team-card.md** there before you close the day.
+**Save team-card.md at its root and commit it** before you close the day, *and every artifact the course produces from here lives in this repo*.
 
 2. **Install the kit**. The course runs on Claude Code with the Solana AI Kit plugin from solanabr/solana-ai-kit, and the install command is the one in the kit's README, read on the day you run it. Read 2026-09-07 the kit's plugin/skills folder carried **three skills**, hackathon, idea-sprint and pitch-deck, at commit 353e9a1 from 2026-08-20. *The kit moves between editions, so the README wins over this lesson.* Open Claude Code inside the repo and ask it to **list the kit's skills**. If those three names come back, the kit is in. If not, the README is the next page.
 

@@ -11,7 +11,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Your prize table still holds Frontier's US$10,000 USDG Superteam Brasil side track, and on 2026-09-06 the World's Fair page is not up yet. A teammate writes US$10,000 on the next-season line. Predict what the plan should hold instead."
+        prompt: "The record you read in lesson 1 holds Frontier's US$10,000 USDG Superteam Brasil side track, and on 2026-09-06 the World's Fair page is not up yet. A teammate writes US$10,000 on the next-season line. Predict what the plan should hold instead."
         multiSelect: false
         options:
           - id: a
@@ -25,7 +25,7 @@ blocks:
           - id: c
             label: "A dated slot with no amount, expected September 14, 2026, filled only when earn.superteam.fun carries it."
             correct: true
-        explanation: "Quoting last season's side track as this season's is the easy footgun, because the old number is already in your prize table. The row moved from US$11,200 on Cypherpunk to US$10,000 USDG on Frontier, and as of 2026-09-06 the World's Fair Superteam Brasil side track was only expected on September 14. So the plan holds a dated slot with no amount until earn.superteam.fun carries the row, and the check date is written next to it."
+        explanation: "Quoting last season's side track as this season's is the easy footgun, because the old number is already in your head. The row moved from US$11,200 on Cypherpunk to US$10,000 USDG on Frontier, and as of 2026-09-06 the World's Fair Superteam Brasil side track was only expected on September 14. So the plan holds a dated slot with no amount until earn.superteam.fun carries the row, and the check date is written next to it."
       - id: q2
         prompt: "You decide to enter a seasonal edition as a rehearsal. A teammate says the package is already exported, so nobody needs to open the edition's page until submission day. Predict what the plan does on the day you decide, and why."
         multiSelect: false

@@ -111,7 +111,7 @@ four questions under every set of judging criteria:  is the problem real / does 
 Colosseum adds two:                 Viability, Traction
 house rules:                        run before naming / pitch from day 0 / check every piece against the page
 
-pieces: 1 prize table                  9 devnet slice, one real transaction
+pieces: 1 the record, read             9 devnet slice, one real transaction
         2 Colosseum brief             10 narrative log + pitch v2
         3 team card + month plan      11 GTM one-pager + partner list
           + pitch v0                  12 deck + final pitch

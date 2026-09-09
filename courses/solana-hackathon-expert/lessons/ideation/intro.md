@@ -10,6 +10,8 @@ So today you generate three ideas problem-first and score them until one survive
 
 ## Run the sprint on Fiado
 
+A reminder before the first step: **Fiado is the course's example project**, nothing more. It is the corner-shop credit notebook from lesson 1, turned into a stablecoin-settled tab, and every lab in this course runs on it first *so you always have a worked example to copy*. You then run the same steps on your own problem.
+
 1. **Ask for the idea-sprint skill** by name, with the Fiado problem as the input, in your own words:
 
 ```text

@@ -26,7 +26,7 @@ blocks:
             label: "In the unchanged column, because prizes never affect factors and the check is a waste of the clock."
             correct: false
             feedback: "The factors have held across three seasons, but they go in the unchanged column only after you read the line itself."
-        explanation: "The footgun that catches good teams is assuming the factors changed because the prizes did. Each line is checked separately, against the page, every season. Across Frontier, Cypherpunk and World's Fair the seven factors, the portal field list and the 15-minute interview read the same on colosseum.com/hackathon, and you know that only because you looked at the line and not at the prize table next to it."
+        explanation: "The footgun that catches good teams is assuming the factors changed because the prizes did. Each line is checked separately, against the page, every season. Across Frontier, Cypherpunk and World's Fair the seven factors, the portal field list and the 15-minute interview read the same on colosseum.com/hackathon, and you know that only because you looked at the line and not at the prizes next to it."
       - id: q2
         prompt: "Your Cypherpunk cold read copies the disqualifiers: the team leader must complete the submission before the deadline. Your team card from day 0 names no leader. Predict the consequence and the fix."
         multiSelect: false
