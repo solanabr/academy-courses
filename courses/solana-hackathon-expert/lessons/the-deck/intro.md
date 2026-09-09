@@ -37,7 +37,7 @@ One decision is made: *the product's name does not show up until the problem has
 
 The problem slide **gets the most time**: three short lines on what happens, for Fiado the notebook by the till, it gets wet or lost or a regular moves away with a balance open, and the owner chases forty small debts herself. Under those lines, one line of numbers: **the three sizing numbers** from competitor-map-sizing.md, each with its source and the date it was read. On the judge deck *the market lives here and nowhere else*.
 
-5. **Fill the demo** and the what-is-new slide. Demo is **one screenshot** of the tab screen from the narrative log, with the devnet transaction signature under it *so a judge can open it*. If the one shop from the surface brief is on the tab by now, its name goes here as the traction line. If not, the slide says devnet and stops. What is new is **the technical novelty in three lines**, the thing the slice does that the notebook and the bank app do not: for Fiado, a tab both sides can read, that settles in a stablecoin, with a reminder the owner does not have to send herself. No architecture diagram here.
+5. **Fill the demo** and the what-is-new slide. Demo is **one screenshot** of the tab screen from the narrative log, with the devnet transaction signature under it *so a judge can open it*. If the one shop from the Colosseum brief is on the tab by now, its name goes here as the traction line. If not, the slide says devnet and stops. What is new is **the technical novelty in three lines**, the thing the slice does that the notebook and the bank app do not: for Fiado, a tab both sides can read, that settles in a stablecoin, with a reminder the owner does not have to send herself. No architecture diagram here.
 
 ![Fiado's judge deck runs cover, problem, demo, novelty, why-Solana, team and next steps, and every number on it points to the sizing file, the narrative log or the one-pager.](assets/v03-table.webp)
 
@@ -84,32 +84,28 @@ changed: nothing; two of three landed; final
 
 I have watched a pitch worse than its product lose, and lose on the pitch, with the better product going home, which is why this course **rewrites the pitch four times** before a judge sees it.
 
-12. **Reflow the same file** into the seasonal export, for the seasonal hackathon you enter as a rehearsal. The Passo Fundo 2026 page, read on 2026-09-06, asks for a **10-slide deck** and names its sections in the page's own words: capa, problema, solucao, arquitetura, mercado with TAM, SAM and SOM, equipe, proximos passos and CTA, next to a demo video of up to 3 minutes and one GitHub repo, private allowed with read access for @hackathon-pf, and *any missing item disqualifies the team*, with finalists allowed to update until day 12.
+12. **Reflow the same file** into the seasonal export, if a rehearsal is on your calendar. A seasonal hackathon or a side track will have its own page with its own deliverables and deadline, so **read that page the day you decide to enter** and reuse the package you already have. Nothing new gets written: **the seven slides reflow** into that page's sections, and the notes keep their words. If the page asks for a market slide, build it from competitor-map-sizing.md only, the three numbers, each with its source and the date it was read. The case for small and clickable over big and unsourced was made in the market-research lesson, and the slide does not reopen it. I would hedge that to most judges, but *the one scoring a market-size factor is asking whether the number is real*.
 
-Eight sections for ten slides means **two sections take two slides each**, and Fiado gives the second slide to the solution, so the demo and what-is-new stay separate, and to next steps, so the unbuilt architecture gets a slide of its own before the CTA. Nothing new gets written: **the seven slides reflow**, the sizing line on the problem slide grows into the mercado slide, and the notes keep their words.
+13. **Now yours**. Fiado's deck, copied into your toolkit repo, is missing the problem slide and the next-steps slide, and you **write both from the narrative log**: the problem slide from the log's first dated screenshot and the decision entry that named the user, the next-steps slide from the decisions that cut scope in week 2, each with its date. Then **your own deck-judge.md**, filled from the interview and the four files, then the notes, the objections, the read to three people, the cover sentence marked final, and the seasonal export from the same file if a rehearsal is on the calendar. If three people is three calendars, *read to one today and two tomorrow and keep the entries*. The round is the entries, not the day.
 
-13. **Build the mercado slide** from competitor-map-sizing.md only: the three numbers, each with its source and the date it was read. The case for small and clickable over big and unsourced was made in the market-research lesson, and the slide does not reopen it. I would hedge that to most judges, but *the one scoring a market-size factor is asking whether the number is real*.
-
-14. **Now yours**. Fiado's deck, copied into your toolkit repo, is missing the problem slide and the next-steps slide, and you **write both from the narrative log**: the problem slide from the log's first dated screenshot and the decision entry that named the user, the next-steps slide from the decisions that cut scope in week 2, each with its date. Then **your own deck-judge.md**, filled from the interview and the four files, then the notes, the objections, the read to three people, the cover sentence marked final, and the seasonal export from the same file. If three people is three calendars, *read to one today and two tomorrow and keep the entries*. The round is the entries, not the day.
-
-![The pitch moves from v0 before the clock through v1 in week 1 and v2 in weeks 2 and 3 to final in week 4, with feedback rounds 1, 2 and 3 attached to the last three versions.](assets/v04-diagram.webp)
+![The pitch moves from v0 before the clock through v1 in week 1 and v2 in weeks 2 and 3 to final in week 4, with feedback rounds 1, 2 and 3 attached to the last three versions.](assets/v04-timeline.webp)
 
 ## Done when
 
 - The judge export has **fewer than eight slides**, each with a note.
-- The seasonal export matches **the 10-slide spec** exactly, section for section.
+- If a rehearsal is on the calendar, its export is **the same file reflowed** to that page's deliverables, section for section.
 - Every number on any slide traces to **the sizing file** or the evidence pack, with the file name written next to it.
 - **Three feedback entries** for round 3 exist with who, what they said and what changed, and the cover sentence is marked final with a date.
 
 ## Watch out
 
 - A title slide that **names the product before the problem**: the most common first slide in a hackathon, and *it spends the only slide a judge reads with fresh eyes*.
-- A market slide with a number that is **not in the sizing file**: the 10-slide spec forces a TAM, SAM and SOM slide a three-minute judge will skim, so *keep it honest rather than big* and put the hour into the problem slide instead.
+- A market slide with a number that is **not in the sizing file**: a three-minute judge skims a market slide, so *keep it honest rather than big* and put the hour into the problem slide instead.
 - A team slide with **three photos and three job titles** and no reason this team: it loses points on a factor with Founder in its name.
 
-## Checkpoint
+## The takeaway
 
-Close the file. Then, no notes, out loud: say the seven headings of the judge deck in order, say which slide carries the market number and which file it comes from, say what a next-steps slide is for, and then say Fiado's problem in one sentence, the way a stranger who saw only slide 2 would say it. *If your sentence is close to what that stranger would say, the deck works*. If you had to reach for slide 3 or 4, the problem slide is not done, so reopen it before the export.
+The judge deck is **a different object from the investor deck**: seven slides built from the problem outwards, a spoken note under each, and every number pointing at a file you already wrote. The cover sentence is the fourth version of the pitch, and it was read to three strangers before it was marked final. *If a stranger who saw only slide 2 can say your problem in one sentence, the deck works.*
 
 ## Next lesson: the first twenty seconds
 

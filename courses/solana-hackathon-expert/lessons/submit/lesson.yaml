@@ -11,37 +11,37 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "An Earn listing prints the deadline 2026-09-08T02:59:59Z. A teammate on a laptop set to Brasília time writes: submit on the morning of the 8th. Predict what the conversion command prints and what that plan costs."
+        prompt: "Your Colosseum brief's deadline line holds the hour the live page prints, written in UTC with a trailing Z. A teammate on a laptop set to Brasília time reads the date in that string and writes: submit on the morning of that date. Predict what the conversion command shows and what that plan costs."
         multiSelect: false
         options:
           - id: a
-            label: "2026-09-07 23:59:59-03:00, so the plan is already a day late, and the line gets a second tool's agreement and the leader's name next to it."
+            label: "A local time three hours earlier, so an early UTC hour lands on the evening before, and the line gets a second tool's agreement and the leader's name next to it."
             correct: true
           - id: b
-            label: "2026-09-08 05:59:59-03:00, so the plan is safe with a few hours in hand once the offset is applied in the direction the listing intended."
+            label: "A local time three hours later, so the plan is safe with hours in hand once the offset is applied in the direction the page intended."
             correct: false
-            feedback: "The offset runs the other way, and a conversion done in your head is the one this lesson tells you never to trust."
+            feedback: "The offset runs the other way, since Brasília is behind UTC, and a conversion done in your head is the one this lesson tells you never to trust."
           - id: c
-            label: "2026-09-08 02:59:59-03:00, so the plan holds, since the trailing Z means the listing already prints the time in local form."
+            label: "The same hour, since the trailing Z means the page already prints the time in the reader's local form."
             correct: false
             feedback: "The trailing Z is UTC written short, and the command spells it out as +00:00 before converting."
-        explanation: "Pasted into the command, the listing prints 2026-09-08 02:59:59+00:00 and, on a laptop set to Brasília time, 2026-09-07 23:59:59-03:00. The listing says the eighth and the calendar says the seventh one second before midnight, so a team planning for the morning of the 8th has already lost with a working product. The line gets converted a second time with a different tool, marked checked only when both agree, and carries the leader's name because the page says the leader completes the submission."
+        explanation: "Pasted into the command, the page's string prints once in UTC and once in the laptop's local time, and Brasília runs three hours behind UTC. An early UTC hour on the page lands on the previous local day, so a team planning for the morning of the printed date has already lost with a working product. The line gets converted a second time with a different tool, marked checked only when both agree, and carries the leader's name because the page says the team leader completes the submission before the deadline."
       - id: q2
-        prompt: "Your submission-package.md has no path on the GTM one-pager line, and the portal's last field asks for go-to-market strategy, demand validation and distribution plans. Predict what today is, and what feeds that field once the rung exists."
+        prompt: "Your submission-package.md has no path on the GTM one-pager line, and the portal's last field asks for go-to-market strategy, demand validation and distribution plans. Predict what today is, and what feeds that field once the piece exists."
         multiSelect: false
         options:
           - id: a
             label: "Submission day regardless, since the last field can be composed at the portal from the deck's team slide and the who-pays line."
             correct: false
-            feedback: "A line with no path means the rung is missing, and today is the day you finish it, not submission day."
+            feedback: "A line with no path means the piece is missing, and today is the day you finish it, not submission day."
           - id: b
-            label: "The day you finish that rung, and the field is then fed by the one-pager, the evidence pack, and a partner named from the partner list."
+            label: "The day you finish that piece, and the field is then fed by the one-pager, the evidence pack, and a partner named from the partner list."
             correct: true
           - id: c
             label: "Submission day, with the field filled from the description's why-Solana paragraph, which already says where the users come from and how they arrive."
             correct: false
             feedback: "Why Solana is a track argument, and the field asks three questions that the one-pager, the evidence pack and the partner list answer."
-        explanation: "If a line in the package file has no path, the rung is missing, and today is the day you finish that rung and not submission day. The last portal field is three questions in one box: go-to-market is the one-pager, demand validation is the evidence pack and whatever traction the month produced, and distribution is the partners named in the partner list. A partner that replied, even with a no, is a better line than a partner category."
+        explanation: "If a line in the package file has no path, the piece is missing, and today is the day you finish that piece and not submission day. The last portal field is three questions in one box: go-to-market is the one-pager, demand validation is the evidence pack and whatever traction the month produced, and distribution is the partners named in the partner list. A partner that replied, even with a no, is a better line than a partner category."
       - id: q3
         prompt: "While the leader submits Fiado, a teammate registers a second account and submits a side experiment under their own name, to be safe. Predict which rule that breaks and who should have pressed any button."
         multiSelect: false

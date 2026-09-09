@@ -37,8 +37,8 @@
 <body>
 <!-- flowchart: Where the regional prize money is written down, and how one command reaches it
      purpose: show that a season's side-track table is a public endpoint the reader queries in one line, and where the regional row sits in the response
-     data: earn.superteam.fun/api/hackathon/<season> -> a list, one entry per side track -> filter for your region -> one row: sponsor, amount, currency Frontier example, pulled 2026-09-06: 54 entries -> total US$439,410 -> row "Side Track Superteam Brasil", US$10,000 USDG Dead end: any link with an /earn/ prefix in the path -> 404 on a plain fetch Working addresses: superteam.fun/earn and earn.superteam.fun/hackathon/all
-     prompt: Horizontal left-to-right flow with four nodes: the endpoint URL with the season as a placeholder, a list node labelled "54 side tracks, US$439,410", a filter node labelled "grep your region", and a final card showing the Superteam Brasil row at US$10,000 USDG. One arrow per hop. Below the main flow, a short detached branch starting from a node labelled "link with /earn/ prefix" and ending at a 404 marker, visibly separate from the working path. A source line under the flow reading "earn.superteam.fun/api/hackathon/frontier, 2026-09-06". Structural layout only; leave styling to the brand system.
+     data: superteam.fun/api/hackathon/<season> -> a list, one entry per side track -> filter for your region -> one row: sponsor, amount, currency Frontier example, pulled 2026-09-06: 54 entries -> total US$439,410 -> row "Side Track Superteam Brasil", US$10,000 USDG Dead end: any link with an /earn/ prefix in the path -> 404 on a plain fetch Working addresses: superteam.fun/earn and earn.superteam.fun/hackathon/all
+     prompt: Horizontal left-to-right flow with four nodes: the endpoint URL with the season as a placeholder, a list node labelled "54 side tracks, US$439,410", a filter node labelled "grep your region", and a final card showing the Superteam Brasil row at US$10,000 USDG. One arrow per hop. Below the main flow, a short detached branch starting from a node labelled "link with /earn/ prefix" and ending at a 404 marker, visibly separate from the working path. A source line under the flow reading "superteam.fun/api/hackathon/frontier, 2026-09-06". Structural layout only; leave styling to the brand system.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -53,7 +53,7 @@
   <div class="stbr-eyebrow">One endpoint, one row</div>
   <h2 class="viz-title">Where the regional prize money is written down, and how one command reaches it</h2>
   <div class="flow">
-    <div class="node"><div class="m">earn.superteam.fun/api/hackathon/&lt;season&gt;</div><div class="s">the season's side-track table, public</div></div>
+    <div class="node"><div class="m">superteam.fun/api/hackathon/&lt;season&gt;</div><div class="s">the season's side-track table, public</div></div>
     <div class="arr"><svg width="48" height="24"><line x1="0" y1="12" x2="36" y2="12" stroke="#1b231d" stroke-width="3"/><polygon points="34,4 48,12 34,20" fill="#1b231d"/></svg></div>
     <div class="node em"><div class="k">54 side tracks, US$439,410</div><div class="s">a list, one entry per side track</div></div>
     <div class="arr"><svg width="48" height="24"><line x1="0" y1="12" x2="36" y2="12" stroke="#1b231d" stroke-width="3"/><polygon points="34,4 48,12 34,20" fill="#1b231d"/></svg></div>
@@ -67,7 +67,7 @@
     <div class="dead"><div class="k">404</div><div class="s">on a plain fetch</div></div>
     <div class="works"><div class="t">Working addresses</div><div class="m">superteam.fun/earn &nbsp;&middot;&nbsp; earn.superteam.fun/hackathon/all</div></div>
   </div>
-  <div class="src">Source: earn.superteam.fun/api/hackathon/frontier, 2026-09-06</div>
+  <div class="src">Source: superteam.fun/api/hackathon/frontier, 2026-09-06</div>
 </div>
 </div>
 </body></html>

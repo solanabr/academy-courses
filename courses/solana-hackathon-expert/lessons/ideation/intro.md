@@ -4,7 +4,7 @@ Last lesson you wrote the team card, the dated month plan and a one-sentence pit
 
 ## Why this matters
 
-Week 1 starts here, and the first thing you do with your idea is **try to kill it**. The good hackathon ideas I watched win came from a problem someone on the team, or someone close to them, had that same week, and the ones that started from "DeFi for X" mostly did not place. That is the split between **problem-first**, a person and a thing they cannot do today, and capability-first, a chain feature looking for someone to do it to. The rubric does not score technology for its own sake, and *a judge reading the written answers can tell when the person was added in week 4*.
+Week 1 starts here, and the first thing you do with your idea is **try to kill it**. The good hackathon ideas I watched win came from a problem someone on the team, or someone close to them, has or had, and the ones that started from "DeFi for X" mostly did not place. That is the split between **problem-first**, a person and a thing they cannot do today, and capability-first, a chain feature looking for someone to do it to. The seven factors do not score technology for its own sake, and *a judge reading the written answers can tell when the person was added in week 4*.
 
 So today you generate three ideas problem-first and score them until one survives. **Open Claude Code** inside the toolkit repo you initialized on day 0, with the kit installed the way lesson 3 did it, and start with step 1.
 
@@ -43,7 +43,7 @@ score out of 15, idea-sprint, github.com/solanabr/solana-ai-kit, read 2026-09-06
 below 6     no-go, a pivot attached
 ```
 
-![On the worked example the credit tab scores 11 of 15 for a go, the supplier log 6 for a conditional, and the loyalty token 3 for a no-go.](assets/v02-comparison.webp)
+![On the worked example the credit tab scores 11 of 15 for a go, the supplier log 6 for a conditional, and the loyalty token 3 for a no-go.](assets/v02-table.webp)
 
 6. **Open the file the skill wrote**:
 
@@ -63,7 +63,7 @@ Read on 2026-09-06, the kit's idea-sprint writes **exactly three candidates** th
 
    Without a PAT: open the **Cypherpunk and Frontier winners posts** on blog.colosseum.com, search each for your candidate's words, and follow the names into the company profiles at colosseum.com/companies. **Read three profiles for each candidate**. The hackathon page itself lists only the grand-prize winners, and the project pages on arena.colosseum.org ask for a Colosseum login before they show anything, read 2026-09-07, so *the blog posts are the open door*. It costs nothing, and *I would guess most teams that place did it the slow way at least once*.
 
-![With a Copilot PAT the search runs through 5,400+ indexed projects, and without one the same gap note is written from the blog's season winners posts and the public company profiles.](assets/v03-diagram.webp)
+![With a Copilot PAT the search runs through 5,400+ indexed projects, and without one the same gap note is written from the blog's season winners posts and the public company profiles.](assets/v03-flowchart.webp)
 
 8. **Write one gap note per candidate**, including the no-go, in a fixed shape: the nearest past project, its season, what it built, what it did not do, and the date you searched. Fiado's note names Yumi Finance, read from the Cypherpunk winners post on 2026-09-07, and *the shape is what you copy*:
 
@@ -94,15 +94,15 @@ The no-go's nearest project is usually the one that tells you why it was a no-go
 
 ## Watch out
 
-- Choosing the idea that shows off **the most technology**, because the rubric does not score technology for its own sake.
+- Choosing the idea that shows off **the most technology**, because the seven factors do not score technology for its own sake.
 - Running the record search **only after the idea is chosen**, because the whole point of three candidates is that the record can reorder them, and it does.
 - Treating a memecoin, or **a clone of last season's winner**, as a gap.
 
 A scored idea memo **kills ideas you love**, and that is its job, because the team that skips the score to protect a favorite does not avoid the scoring, it hands it to the judges in week 3, *who do it in silence and never send the pivot*. If your favorite scored below 6, **argue with the interview** rather than the number, and if the answers were honest the idea stays in the memo as a dated no-go that may come back at a 9 next season.
 
-## Checkpoint
+## The takeaway
 
-Close the memo. Then, no notes, out loud: *name the four moves of the sprint in order*. Say the three lines the score draws and what a conditional has to carry to count as one. Say the gate question in your own words, then Fiado's three candidates and which one passed the gate and why. If your chosen idea's first line is a person and a problem, and its score is 8 or more, you are in week 1 properly. If the first line is a product, or the score is a 7 you are hoping nobody checks, **run the interview again** as the person, not as the builder.
+An idea earns its place by surviving a blunt interview, the crypto-necessity gate and a score next to two rivals, **not by being the one you came in with**. The gate question, what would break with a database and a web app, is your why-Solana line for the month. *A chosen candidate is a person and a problem with a dated gap note beside it, and a score you hoped nobody would check is a score the judges will.*
 
 ## Next
 

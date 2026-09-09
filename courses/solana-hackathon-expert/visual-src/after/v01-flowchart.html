@@ -10,43 +10,44 @@
   .viz { position: relative; width: 100%; }
 </style><style data-authored>
 .card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:30px 52px 24px;overflow:hidden}
-.viz-title{font-size:30px;margin:4px 0 22px}
-.tagrow{height:40px;position:relative}
-.tagrow .tag{position:absolute;left:1140px;top:0;width:96px;text-align:center;background:var(--surface-accent);color:var(--text-on-accent);border-radius:var(--radius-sm);padding:4px 6px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:12px;line-height:1.2}
-.row{display:flex;align-items:stretch}
-.n{width:166px;height:190px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-md);padding:10px 12px;display:flex;flex-direction:column}
-.n .i{font-family:var(--font-display);font-weight:var(--weight-black);font-size:13px;color:var(--stbr-emerald);margin-bottom:5px}
-.n .t{font-family:var(--font-body);font-weight:600;font-size:14.5px;line-height:1.3;color:var(--text-primary);margin-bottom:8px}
-.n .t small{display:block;font-weight:400;font-size:12.5px;color:var(--text-secondary);margin-top:4px}
-.n .lab{margin-top:auto;align-self:flex-start;border:1.5px solid var(--stbr-emerald);color:var(--stbr-emerald);border-radius:var(--radius-sm);padding:3px 8px;font-family:var(--font-mono);font-size:11.5px;font-weight:600;line-height:1.2}
-.n.win{border-color:var(--stbr-emerald);background:var(--surface-paper)}
-.n.acc{background:var(--surface-inverse);color:var(--text-on-dark);border-color:var(--stbr-dark)}
-.n.acc .t{color:var(--text-on-dark)}.n.acc .t small{color:var(--text-on-dark);opacity:.8}
-.g{width:24px;flex:none;display:flex;align-items:center;justify-content:center}
-.g.wide{width:96px}
-.src{margin-top:16px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted)}
+.viz-title{font-size:30px;margin:4px 0 26px}
+.brk{height:52px;position:relative}
+.brk .line{position:absolute;left:85px;width:1180px;top:16px;height:16px;border:2.5px solid var(--stbr-dark);border-bottom:0;border-radius:10px 10px 0 0}
+.brk .lab{position:absolute;left:590px;top:0;background:var(--surface-accent);color:var(--text-on-accent);border-radius:var(--radius-pill);padding:6px 18px;font-family:var(--font-display);font-weight:var(--weight-black);font-size:16px;white-space:nowrap}
+.row{display:flex;align-items:center}
+.n{width:170px;height:150px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.n .i{font-family:var(--font-display);font-weight:var(--weight-black);font-size:13px;color:var(--stbr-emerald);margin-bottom:6px}
+.n .t{font-family:var(--font-body);font-weight:600;font-size:16px;line-height:1.3;color:var(--text-primary)}
+.n.first{background:var(--surface-brand);color:var(--text-on-brand);border-color:var(--stbr-emerald)}
+.n.first .t,.n.first .i{color:var(--text-on-brand)}
+.n.last{background:var(--surface-inverse);border-color:var(--stbr-dark)}
+.n.last .t{color:var(--text-on-dark)}
+.g{width:125px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.g .a{font-family:var(--font-mono);font-weight:600;font-size:12px;line-height:1.25;color:var(--stbr-emerald);text-align:center;width:118px;height:32px;display:flex;align-items:flex-end;justify-content:center}
+.g .a span{display:block}
+.src{margin-top:26px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);line-height:1.4}
 </style></head>
 <body>
-<!-- flowchart: What happens to a Colosseum submission after the portal closes, as of the 2026 World's Fair season
-     purpose: separate the interview from the accelerator so the reader never reads a win as a cheque
-     data: submission deadline -> internal evaluation rounds -> shortlist to the judging panel -> 'an even smaller group of teams' invited to a 15-minute Zoom interview -> winners and the accelerator subset announced roughly one month after the deadline -> winners: interview for the Accelerator guaranteed, admission not guaranteed, joining not required -> accepted startups: US$250,000 invested over eight weeks Sources: colosseum.com/hackathon and colosseum.com/accelerator, read 2026-09-06
-     prompt: Horizontal left-to-right flow with seven nodes in the order given in the data. The interview node carries a small label "15 minutes, live". The announcement node carries the label "roughly one month after the deadline". The last two nodes are drawn as two separate steps with a visible gap between them and a tag on the gap reading "a second decision". A source line under the flow. Structural layout only; leave styling to the brand system.
+<!-- flowchart: From a USDG balance on Superteam Earn to reais in a Brazilian bank account, per the 'Do Earn ao Pix' guide
+     purpose: show the whole rail as five hops with the time it takes, so the team writes it into the plan before the day a grant lands
+     data: Earn account with a USDG balance -> Phantom wallet (withdraw USDG from Earn) -> Jupiter (swap USDG to USDC) -> 4P Finance (sell USDC for Pix) -> reais in the bank Total: about 30 minutes. Source: hackathon.superteam.com.br/h/guias/do-earn-ao-pix, read 2026-09-06; behind the platform login as of 2026-09-07. Tool names to be re-verified against the guide's current version.
+     prompt: Horizontal left-to-right flow with five nodes labelled as in the data, one arrow per hop, each arrow carrying the action in parentheses. A bracket over the whole flow labelled "about 30 minutes". A source line under the flow including the re-verify note. Structural layout only; leave styling to the brand system.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
 <div class="stbr-decor" aria-hidden="true">
-  <div style="position:absolute;width:516px;height:549px;bottom:-290px;right:-290px;border-radius:57% 38% 40% 37% / 49% 55% 50% 65%;background:#306c40;opacity:0.5;"></div>
-  <div style="position:absolute;width:438px;height:388px;left:-248px;top:318px;border-radius:42% 56% 37% 48% / 44% 65% 65% 50%;background:#ffd23f;opacity:0.8;"></div>
+  <div style="position:absolute;width:496px;height:507px;right:-280px;top:107px;border-radius:44% 40% 42% 53% / 47% 62% 63% 37%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:414px;height:569px;bottom:-334px;left:383px;border-radius:48% 39% 36% 58% / 62% 37% 52% 36%;background:#008b4c;opacity:0.5;"></div>
 </div>
 <div class="viz">
 <div class="card">
-<div class="stbr-eyebrow">A win is not a cheque</div>
-<h2 class="viz-title">What happens to a Colosseum submission after the portal closes, as of the 2026 World's Fair season</h2>
-<div class="tagrow"><div class="tag">a second decision</div></div>
-<div class="row"><div class="n "><div class="i">01</div><div class="t">submission deadline</div></div><div class="g"><svg width="24" height="16" viewBox="0 0 24 16"><line x1="0" y1="8" x2="14" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="12,1 24,8 12,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">02</div><div class="t">internal evaluation rounds</div></div><div class="g"><svg width="24" height="16" viewBox="0 0 24 16"><line x1="0" y1="8" x2="14" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="12,1 24,8 12,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">03</div><div class="t">shortlist to the judging panel</div></div><div class="g"><svg width="24" height="16" viewBox="0 0 24 16"><line x1="0" y1="8" x2="14" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="12,1 24,8 12,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">04</div><div class="t">'an even smaller group of teams' invited to a 15-minute Zoom interview</div><div class="lab">15 minutes, live</div></div><div class="g"><svg width="24" height="16" viewBox="0 0 24 16"><line x1="0" y1="8" x2="14" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="12,1 24,8 12,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">05</div><div class="t">winners and the accelerator subset announced</div><div class="lab">roughly one month after the deadline</div></div><div class="g"><svg width="24" height="16" viewBox="0 0 24 16"><line x1="0" y1="8" x2="14" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="12,1 24,8 12,15" fill="#1B231D"/></svg></div><div class="n win"><div class="i">06</div><div class="t">winners<small>interview for the Accelerator guaranteed, admission not guaranteed, joining not required</small></div></div><div class="g wide"><svg width="96" height="16" viewBox="0 0 96 16"><line x1="0" y1="8" x2="84" y2="8" stroke="#1B231D" stroke-width="2.5" stroke-dasharray="6 5"/><polygon points="82,1 96,8 82,15" fill="#1B231D"/></svg></div><div class="n acc"><div class="i">07</div><div class="t">accepted startups<small>US$250,000 invested over eight weeks</small></div></div></div>
-<div class="src">Sources: colosseum.com/hackathon and colosseum.com/accelerator, read 2026-09-06</div>
+<div class="stbr-eyebrow">Five hops, written into the plan before a grant lands</div>
+<h2 class="viz-title">From a USDG balance on Superteam Earn to reais in a Brazilian bank account, per the 'Do Earn ao Pix' guide</h2>
+<div class="brk"><div class="line"></div><div class="lab">about 30 minutes</div></div>
+<div class="row"><div class="n first"><div class="i">01</div><div class="t">Earn account with a USDG balance</div></div><div class="g"><div class="a"><span>withdraw USDG from Earn</span></div><svg width="125" height="16" viewBox="0 0 125 16"><line x1="0" y1="8" x2="113" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="111,1 125,8 111,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">02</div><div class="t">Phantom wallet</div></div><div class="g"><div class="a"><span>swap USDG to USDC</span></div><svg width="125" height="16" viewBox="0 0 125 16"><line x1="0" y1="8" x2="113" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="111,1 125,8 111,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">03</div><div class="t">Jupiter</div></div><div class="g"><div class="a"><span>sell USDC for Pix</span></div><svg width="125" height="16" viewBox="0 0 125 16"><line x1="0" y1="8" x2="113" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="111,1 125,8 111,15" fill="#1B231D"/></svg></div><div class="n "><div class="i">04</div><div class="t">4P Finance</div></div><div class="g"><div class="a"><span>&nbsp;</span></div><svg width="125" height="16" viewBox="0 0 125 16"><line x1="0" y1="8" x2="113" y2="8" stroke="#1B231D" stroke-width="2.5"/><polygon points="111,1 125,8 111,15" fill="#1B231D"/></svg></div><div class="n last"><div class="i">05</div><div class="t">reais in the bank</div></div></div>
+<div class="src">Source: hackathon.superteam.com.br/h/guias/do-earn-ao-pix, read 2026-09-06; behind the platform login as of 2026-09-07. Tool names to be re-verified against the guide's current version.</div>
 </div>
 </div>
 </body></html>

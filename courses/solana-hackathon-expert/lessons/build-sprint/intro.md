@@ -16,7 +16,7 @@ ls -l solana-ai-kit/plugin/skills
 
 ## Do this
 
-![The week runs from the scope card through a plan-mode session and three subagents to a transaction you send and read by hand, then a clean-clone quickstart, with the season window rule underneath.](assets/v01-diagram.webp)
+![The week runs from the scope card through a plan-mode session and three subagents to a transaction you send and read by hand, then a clean-clone quickstart, with the season window rule underneath.](assets/v01-flowchart.webp)
 
 1. **Count the submodule entries** in the first output and the symlinks in the last one. Read on 2026-09-06, at a last commit dated 2026-08-20, the first output had **18 entries**, among them colosseum, which points at ColosseumOrg/colosseum-copilot, solana-new, which points at sendaifun/solana-new, and helius, solana-dev, sendai, metaplex and jupiter. The last output had three, hackathon, idea-sprint and pitch-deck, each a symlink into .claude/skills, where the wrapper skill lives.
 
@@ -107,7 +107,7 @@ On Fiado the by-hand read finds this: step 5 shows 25 owed, the test passes, and
 
 12. **Record Colosseum's weekly update** the day step 4 works. It is optional and strongly recommended, in the page's own words on 2026-09-06, and it is **one minute of video**, and the thing on screen is the transaction confirming, before the polish pass makes the screen prettier, *since a plain screen with a real signature is worth more to a judge than a designed one with a mock*.
 
-![Week 2 runs from an empty repo through the plan, the subagents and the devnet transaction, and week 3 gives steps 5 to 7 and a review block the same size as the build before the final clean-clone run.](assets/v04-flowchart.webp)
+![Week 2 runs from an empty repo through the plan, the subagents and the devnet transaction, and week 3 gives steps 5 to 7 and a review block the same size as the build before the final clean-clone run.](assets/v04-timeline.webp)
 
 13. Now yours: **your own slice** through all seven steps, alone, to devnet. An empty repo dated this week, your scope card in the planning prompt with your own seven steps and non-goals, the three checks before you approve, the same three subagents one step per run, and *the same rule about who keeps the transaction*. If your slice has a program in it, **/build-program and /deploy** are the kit's commands for that, and the polish pass runs the audit.
 
@@ -123,9 +123,9 @@ On Fiado the by-hand read finds this: step 5 shows 25 owed, the test passes, and
 - The upstream skills in ext/solana-new run a **telemetry preamble** at the top of the file, and the damage is silent. Read the skill, skip the block, run the skill.
 - An agent team ships fast and ships **plausible-but-wrong**, so the speed is bought with review time, and the review block belongs on the calendar at the build block's size.
 
-## Checkpoint
+## The takeaway
 
-Close Claude Code. Then, no notes, out loud: say the three layers of the kit and one name from each, what plan mode does and what a subagent does not share, the order you read a transaction on the explorer, and what a not-found result means. Then say what the build week produced, in one sentence, the way you would say it to a judge. If it is close to "*one signature a judge can open and a README a judge can run*", the build week did its job, and the rest is polish. If it came out as a list of features, read the first entry of narrative-log.md again.
+The agent team builds the steps, and you keep the demo path, the one transaction and the clean clone for yourself. What the build week produces is **one signature a judge can open and a README a judge can run**, and the review that catches the plausible-but-wrong step takes as long as the build did. *If the week came out as a list of features, read the first entry of narrative-log.md again.*
 
 ## Next lesson: make it look real
 

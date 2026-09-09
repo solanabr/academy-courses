@@ -82,7 +82,7 @@ Two of the four became decisions in the log **the same afternoon**. The third, t
 
 *Agent-built code can look correct and still carry a security hole*, and finding it is a cost the human pays, not the tool, **about an hour on day 17**. Fiado's answers: the demo signs with a devnet keypair in an environment variable that was, on day 13, briefly in a committed .env file. It was removed, **the key was rotated**, and the log says so with the date, *because a judge that finds it in the history with no note is worse than a judge that finds the note*.
 
-![A slice with a program runs the kit's audit command, a slice without one answers five key-handling questions by hand, and both log their findings on day 17.](assets/v03-comparison.webp)
+![A slice with a program runs the kit's audit command, a slice without one answers five key-handling questions by hand, and both log their findings on day 17.](assets/v03-flowchart.webp)
 
 5. **Rewrite the pitch as v2**, from what the slice does. Pitch v1 was written on day 7 from five conversations, before any code existed, *so it could only say what the team hoped*. The rule for v2 is that **every verb in the product half** names a thing the demo shows on screen.
 
@@ -147,11 +147,9 @@ The artifact is **the narrative log** with six things in it, and it is done when
 
 **Polish time is build time**, so the pass is a checklist and not a redesign: a checklist has four items and a fixed cost, around two hours in total, while a redesign finds a fifth item and a sixth, a new navigation and a color system, and is still open on day 21 when the week-3 update video should be recorded, so that team arrives in week 4 with a nicer screen and no video. **The same trade** lives inside the video: the first take is usually fine, the second usually better, and I would guess *the third is where most teams start losing the week*, call it a hunch.
 
-## Checkpoint
+## The takeaway
 
-Close the log. Then, **no notes, out loud**: say what changed in your slice this week, in one breath, *the way the update video says it*. Say the four items of the pass. Say where the key that signs your demo lives. Then say pitch v2 and point, for each verb in the product half, at the step of the demo that shows it.
-
-If a stranger can watch your 60-second update and *say what changed this week*, your log is deck fuel. If they would describe the product instead, the minute was a pitch, and **the difference is the first sentence**.
+Polish is a checklist with four items and a fixed cost, not a redesign, and the narrative log is written on the days things change. A stranger who watches your 60-second update should be able to *say what changed this week*, and if they would describe the product instead, the minute was a pitch, and **the difference is the first sentence**.
 
 ## Next lesson: how does anyone find this
 

@@ -1,10 +1,10 @@
 # What winning means at Colosseum
 
-Last lesson you pulled the record into a prize table: two seasons of side tracks, and the count of hackathons Unruggable entered before it won one. Keep it open. This lesson writes the file that says *what that table is worth to you*.
+Last lesson you pulled the record into a prize table: two seasons of side tracks, and the four hackathons Unruggable entered before it won one, read off its card on colosseum.com/hackathon. Keep it open. This lesson writes the file that says *what that table is worth to you*.
 
 ## Why this matters
 
-Colosseum reviews your repository, and its hackathon page, as of the 2026 World's Fair season, says in its own words that the review is not looking at your language, your framework, your patterns or your code quality. *Read that twice.* The same page says that Colosseum hackathons are startup competitions. That is the one idea: **the rubric is a spec**, and the thing scored is a company, not the code.
+Colosseum reviews your repository, and its hackathon page, as of the 2026 World's Fair season, says in its own words that the review is not looking at your language, your framework, your patterns or your code quality. *Read that twice.* The same page says that Colosseum hackathons are startup competitions. That is the one idea: **the judging criteria tell you exactly what gets scored**, and what gets scored is a company, not the code.
 
 I won a hackathon in Dubai with an idea I thought too simple to place, and no planned demo. It matched exactly what the organizers were looking for and the pitch sold it, and *none of that was about the code*. Luck is not a plan you can hand to a teammate. The brief is.
 
@@ -41,11 +41,11 @@ looks for:      significant work during the hackathon window
 not looking at: language, framework, patterns, code quality
 ```
 
-Prioritized strategically is the spec for your slice: they want to see that you **left things out on purpose**, and *a commit history shows that more honestly than a deck can*.
+Prioritized strategically tells you exactly what your slice has to show: they want to see that you **left things out on purpose**, and *a commit history shows that more honestly than a deck can*.
 
 4. Record **how the score is produced**. The page, read 2026-09-06, says a submission goes through multiple internal evaluation rounds, a shortlist then goes to the judging panel, a smaller group is invited to a 15-minute Zoom interview, and winners are announced **roughly one month** after the submission deadline. It also says which artifact gets opened early: the presentation video of two to three minutes is, in its words, one of the first resources judges review. Write both in the brief, and *name who stays reachable through the month after the deadline*.
 
-![A Colosseum submission meets judges first through its video, passes internal rounds and a shortlist without the team, then a 15-minute interview, with winners named a month later.](assets/v01-diagram.webp)
+![A Colosseum submission meets judges first through its video, passes internal rounds and a shortlist without the team, then a 15-minute interview, with winners named a month later.](assets/v01-flowchart.webp)
 
 5. **Sort the seven** into the four questions a judge has to decide, and write them under the factors as four lines:
 
@@ -68,7 +68,7 @@ python3 -c "from datetime import datetime; print(datetime.fromisoformat('2026-09
 
 That prints the moment in your machine's time zone with the offset attached. **Python 3.11 or newer** reads the trailing Z on its own, on an older one replace the Z with +00:00, and verify the behaviour against the datetime docs for your version. When the deadline hour appears on the page, paste it in place of that string and store the result with the UTC original beside it, *so a teammate in another zone can redo the sum*.
 
-![The World's Fair season opens at 2026-09-14T11:00Z and runs to October 12, 2026, whose hour must still be re-read and converted, with winners named about a month later.](assets/v03-comparison.webp)
+![The World's Fair season opens at 2026-09-14T11:00Z and runs to October 12, 2026, whose hour must still be re-read and converted, with winners named about a month later.](assets/v03-timeline.webp)
 
 7. **Quote the lines that disqualify**, taken from the page:
 
@@ -81,9 +81,7 @@ misrepresenting the development history, or failing to disclose pre-existing cod
 
 The page adds that a Code of Conduct violation can disqualify as well, a fourth line you copy without commentary. If you build with an agent team and pull in your own older code, **the third line is yours**: write down what existed before the window opened and say so in the submission, *because a commit history that starts the day before the season reads like the thing the page bans*.
 
-8. **Give one other hackathon's page** fifteen minutes and write three lines: what it asks, under which of the four questions, and what it disqualifies. Impact or innovation asks whether the problem is real, technical execution asks whether the thing works, presentation, pitch, deck or video asks whether the story lands, and a rule about who must be present at the final asks whether this team can carry it.
-
-On an Earn listing the rubric is the sponsor's custom eligibility questions, *which say which problem they already decided is real*, and the deadline is a UTC string you convert the same way and **keep the offset**. The shape, where the angle brackets are the only part you replace:
+8. **Give one other hackathon's page** fifteen minutes and write three lines: what it asks, under which of the four questions, and what it disqualifies. A seasonal hackathon or a side track will have its own page with its own deliverables and deadline. Read that page the day you decide to enter, and reuse the package you already have. Whatever that page names, **tag it with one of the four questions**, *because a shorter page never asks a fifth*. The shape, where the angle brackets are the only part you replace:
 
 ```text
 <hackathon>, <url>, read <date>
@@ -107,11 +105,9 @@ disqualifies: <the page's own lines>
 - Dates, prizes and tracks move every season and the factors have only held so far, so re-read the page in the final week: *my guess, from watching teams rather than from any count*, is that a deadline **converted once and never re-read** loses more hackathons than a bad demo.
 - Colosseum's seven cover everything a shorter page asks, but Viability and Traction cost Fiado's solo builder about a week of the month talking to a shop owner, a week a Colosseum season scores twice, under Traction and again under Founder Communication when the story opens the video, and a rehearsal page with no such line **scores it nowhere**, *so choose on purpose and write why*.
 
-## Checkpoint
+## The takeaway
 
-Close the brief. Then, **no notes, out loud**: say the seven Colosseum factor names in any order. Say the single line the code lives in. Say what a judge opens first. Then say the four questions in your own words, not this lesson's.
-
-*If your four read something like "real problem, it works, the story lands, this team"*, you have the spine of the whole course, and every artifact from here on is scored against those four words plus the two evidence lines. If one would not come out, sort the seven glosses again.
+Colosseum scores a company, not the code: the seven factors sort into four questions, **real problem, it works, the story lands, this team**, with Viability and Traction asking two of them with money and evidence attached. The code lives in one line of the seven, and a judge meets your project first through a two-to-three-minute video, without you in the room. *Every piece you build from here is checked against those four questions before it moves on.*
 
 ## Next lesson: a sentence before the clock
 

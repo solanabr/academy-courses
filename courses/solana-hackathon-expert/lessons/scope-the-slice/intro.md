@@ -21,7 +21,7 @@ demo-script.md, v0, <today's date>
 the one transaction:
 ```
 
-Give it **ten minutes**. If a mark stays blank, leave it blank. *A blank mark is information about your scope*, and it is the reason this file exists before the repo does. The kit's hackathon skill puts the bar the file is aiming at in its checklist: **a demo under three minutes** with a real transaction, a public repo with a working quickstart, a devnet link and a program ID, and a deck if the surface requires one. Verify that list against the kit's current README, *since checklists move*.
+Give it **ten minutes**. If a mark stays blank, leave it blank. *A blank mark is information about your scope*, and it is the reason this file exists before the repo does. The kit's hackathon skill puts the bar the file is aiming at in its checklist: **a demo under three minutes** with a real transaction, a public repo with a working quickstart, a devnet link and a program ID, and a deck if the hackathon requires one. Verify that list against the kit's current README, *since checklists move*.
 
 2. **Pick the one job** with two questions: can a judge verify it on screen in three minutes, and which assumption from your evidence pack does it test. Most ideas start too broad, and my position from the MVP worksheet is to *pick one job to validate first*. An MVP is a slice of **4 to 6 weeks**, and a hackathon gives you two, so your slice is smaller than the one the worksheet was written for.
 
@@ -33,7 +33,7 @@ For Fiado the job is that a regular **pays part of his tab** from his own phone,
 
 Fiado's first pass came out at **eleven**. Install, account, shop profile and wallet connection went to the non-goals as whole steps, the regular installing a wallet went with them, and the due date and the reminder came back as steps 6 and 7, the instrument for the claim nobody could test in week 1. That is seven, *with nothing merged*.
 
-![Fiado's eleven-step first pass loses five whole setup steps to the non-goal list and gains the due date and the reminder, landing at seven steps with nothing merged.](assets/v02-comparison.webp)
+![Fiado's eleven-step first pass loses five whole setup steps to the non-goal list and gains the due date and the reminder, landing at seven steps with nothing merged.](assets/v02-flowchart.webp)
 
 4. **Write the scope card** on one page with four fields: the one job, the happy path, the one transaction, and the non-goals. Name the non-goals out loud, *because a non-goal that lives in someone's head gets built in week 3*. Fiado's card, as it goes in the repo next to the evidence pack:
 
@@ -76,7 +76,7 @@ The amounts are the script's own, **40 on the tab and 15 paid**, so that two pho
 
 5. **Give every non-goal a destination**. Each line says not this month, and the better lines also say where the thing goes instead, *since a non-goal with no destination gets argued about again in week 3* by someone that was not in the room when it was cut. The list has **at least three lines**, and the first line is the one the team most wanted to build. If the list feels short and comfortable, go back to your eleven-step path, or whatever the count was, and read what got removed, *because those are your first lines*. Fiado's list sorts into **three destinations**, the next-steps slide, after the season, and back to the idea memo.
 
-![Each of Fiado's seven non-goals has a destination, most of them the next-steps slide, two of them after the season, and one back in the idea memo, with the tab program flagged for the tradeoff.](assets/v03-flowchart.webp)
+![Each of Fiado's seven non-goals has a destination, most of them the next-steps slide, two of them after the season, and one back in the idea memo, with the tab program flagged for the tradeoff.](assets/v03-table.webp)
 
 6. **Name the one transaction** with two questions: is it the money actually moving, in the direction the pitch says, and can the viewer see it confirm. For Fiado that is a **USDC transfer on devnet** from the regular's wallet to the owner's, one token transfer with a memo naming the tab and not a program call, *because it is the lightest integration that still proves the value in the sentence*. The balance both phones show is derived from the transfer history for that tab, so the number the regular reads is one anyone can recompute from the explorer *without trusting the app*.
 
@@ -116,7 +116,7 @@ Notice what each mark removes from the repo: step 2 needs **an amount field and 
 
 A judge scoring Product + Execution reads that slide as a team that chose, the features prioritized strategically that the repo review asks for, *and a judge that finds the gap in the interview instead reads it as a team that hid it*. **Date both files**, commit them next to the evidence pack, and expect a v1 when the build changes them.
 
-![Fiado's demo places the tab at 0:00, the shared balance at 0:30, the devnet transfer at 1:30, the reminder at 2:15 and the closing tab list at 2:45, under the three-minute limit.](assets/v04-table.webp)
+![Fiado's demo places the tab at 0:00, the shared balance at 0:30, the devnet transfer at 1:30, the reminder at 2:15 and the closing tab list at 2:45, under the three-minute limit.](assets/v04-timeline.webp)
 
 ## Done when
 
@@ -132,11 +132,9 @@ A judge scoring Product + Execution reads that slide as a team that chose, the f
 
 The tradeoff: a slice that demos well in three minutes is often **not the architecture you would ship**, and a hackathon month cannot build both, so *I would rather show a transfer that confirms and a slide that says what is next than an architecture nobody can watch*.
 
-## Checkpoint
+## The takeaway
 
-Close both files. Then, no notes, out loud: say Fiado's demo in one breath, its seven steps in order, the one transaction with its direction and where its signature shows, and three non-goals with where each one goes.
-
-If your one breath came out something like *"she opens a tab, he pays part of it, the reminder fires"*, the slice is scoped. If it took two breaths, one step is carrying a second job, and it is **your next non-goal**. Do the same for your own project and write that sentence at the top of your scope card.
+The demo is decided before the code is, and the code is only what the three minutes show. A scoped slice fits in one breath, something like *"she opens a tab, he pays part of it, the reminder fires"*, and if it takes two breaths one step is carrying a second job, and that step is **your next non-goal**. Every non-goal gets a destination, so nobody argues about it again in week 3.
 
 ## Next
 

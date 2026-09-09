@@ -23,7 +23,7 @@ Write yours under it with the result line empty. The steps below fill each line.
 
 1. **Find the riskiest assumption.** Write down every belief your pitch sentence needs to be true, and next to each one write what survives if it is wrong. The one with nothing in that column goes on the assumption line. Fiado's day-0 sentence needs four things: owners extend credit from a notebook, customers can settle in a stablecoin, a reminder reduces late payment, and owners will let a customer's tab live on a phone at all. *Only the last one leaves nothing standing if it is false*, so it goes first.
 
-![Of Fiado's four assumptions, only the belief that owners will let a tab live on a phone leaves nothing standing if false, so it is tested first.](assets/v01-diagram.webp)
+![Of Fiado's four assumptions, only the belief that owners will let a tab live on a phone leaves nothing standing if false, so it is tested first.](assets/v01-table.webp)
 
 2. **Write the kill line** on day 1, before anyone talks to anyone. A disconfirming test is one where at least one possible result would make you drop the idea or a claim inside it, and *if no result could change what you do on Monday, you are rehearsing the pitch in front of an audience*. Fill the kills-it-if line with the result that ends the idea. Fiado's is that most owners who run a notebook today say they would not move the page, which for five owners means **3 or more no**.
 
@@ -41,7 +41,7 @@ Write yours under it with the result line empty. The steps below fill each line.
 
 4. **Run the week in this order.** Days 2 to 4 are the conversations, *because they take calendar time to arrange and each one changes the questions for the next*. Day 5 the fake door goes up if the conversations left a question about pull, and the competitor reading happens the same afternoon. Day 6 you read everything back against the rule from step 2. Day 7 is the memo, the rewritten pitch and the first feedback round.
 
-![The validation week writes the test and the scoring rule on day 1, spends three days on conversations, scores on day 6 and decides on day 7.](assets/v03-comparison.webp)
+![The validation week writes the test and the scoring rule on day 1, spends three days on conversations, scores on day 6 and decides on day 7.](assets/v03-timeline.webp)
 
 5. **Score the results on day 6** with the rule you wrote on day 1, then write the tally line in the file and one sentence on whether the kill line was reached and what the no's have in common.
 
@@ -97,25 +97,9 @@ feedback log, round 1, day 7
 
 ## Where the memo gets read
 
-The Colosseum portal, on the page read 2026-09-06 and as of the 2026 World's Fair season, asks in its own words for the go-to-market strategy, demand validation, and plans for developing distribution, and says the review wants to understand how the opportunity was uncovered and how the team prioritizes. A team that spent the week building answers the **demand-validation field** with a sentence about how confident they feel, and *a team that spent it on the five conversations answers it with the memo*. The rehearsals say the same thing in plainer words, and both listings below were read on 2026-09-06:
+The Colosseum portal, on the page read 2026-09-06 and as of the 2026 World's Fair season, asks in its own words for the go-to-market strategy, demand validation, and plans for developing distribution, and says the review wants to understand how the opportunity was uncovered and how the team prioritizes. A team that spent the week building answers the **demand-validation field** with a sentence about how confident they feel, and *a team that spent it on the five conversations answers it with the memo*.
 
-```text
-Hackathon Universitaria (Superteam Brasil, on Earn)
-  prize:        US$3,000 USDG, split 1500/1000/500
-  teams:        2 to 6
-  deliverable:  a 5-minute idea video
-  states:       'A parte tecnica nao e o centro da avaliacao'
-                (the technical part is not the center of the evaluation)
-
-Vibeathon (Superteam x Replit, on its own listing)
-  format:       5 days online, any team size including solo,
-                no blockchain experience required
-  deliverables: a deck, an MVP on Replit, a social post
-  submitted:    on the Earn listing by Sept 12, 23:59 as the listing
-                prints it, Brasilia time (UTC-3)
-```
-
-A 5-minute idea video with no code behind it is **an evidence pack read out loud**. Treat either one as this lesson compressed: the test block on the first day, the deck written from what survived.
+A seasonal hackathon or a side track will have its own page with its own deliverables and deadline. **Read that page the day you decide to enter**, and reuse the package you already have: the memo is the demand-validation answer wherever it gets read, and *a pitch with no code behind it is an evidence pack read out loud*.
 
 ## Done when
 
@@ -132,11 +116,9 @@ A 5-minute idea video with no code behind it is **an evidence pack read out loud
 
 A week of validation is a week not building and the demo will be smaller for it, but **judges score demand validation by name**, so the trade is usually right, and *the memo records that you made it on purpose*.
 
-## Checkpoint
+## The takeaway
 
-Close the evidence pack. Then, no notes, out loud: say your riskiest assumption in one sentence. Say the kill line. Say which instrument you chose and why the cheaper one could not say no. Say the decision, and then say the evidence that would have killed the idea and why it did not.
-
-If your memo names the evidence that would have killed the idea and says why it did not, *you have done validation, not theater*.
+Validation is a test that was allowed to fail. The **kill line** is written on day 1, before anyone talks to anyone, and the decision memo names the evidence that would have killed the idea and says why it did not. *If your memo carries that line, you have done validation, not theater.*
 
 ## Next lesson: a season you have never seen
 
