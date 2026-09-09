@@ -52,7 +52,7 @@ row  who                              right                          wrong      
 
 The angle brackets are yours to remove. A row that still has one on Friday *is a row the judge will ask about*.
 
-![Fiado's map has the notebook and spreadsheet rows filled from what the team knows, a BNPL row half filled from Pagaleve's dated pages, and POS and stablecoin rows left as dated slots.](assets/v01-diagram.webp)
+![Fiado's map has the notebook and spreadsheet rows filled from what the team knows, a BNPL row half filled from Pagaleve's dated pages, and POS and stablecoin rows left as dated slots.](assets/v01-table.webp)
 
 4. **Read row five off the chain** first, *since it needs no one's permission*. A program on Solana has a page on any explorer, with a transaction count and the time of the last transaction, no login. **Copy three things** into the row: the all-time count, the last-thirty-day count or list where shown, and the time of the most recent transaction, then the URL and the date.
 
@@ -66,7 +66,7 @@ For rows three and four **the read is off-chain**: a store listing shows the las
 
 5. **Write the three numbers as arithmetic** before any value goes in. TAM is the total addressable market, everyone who has the problem. SAM is the part you could actually serve with this product, in this place, on this rail. SOM is the part of that you can reach in the first months, through a channel you can name.
 
-Both surfaces ask for them. Colosseum scores Potential Market Size with the three questions at the top of your file, and Passo Fundo 2026's deck spec, read on 2026-09-06, fixes **10 slides**, capa, problema, solucao, arquitetura, mercado (TAM/SAM/SOM), equipe, proximos passos, CTA, so there the slide is required. The slide gets written in week 4. The arithmetic gets written today, under one rule: **no number without the inputs**, and no input without a URL and a date. Fiado's arithmetic:
+Colosseum scores Potential Market Size with the three questions at the top of your file. A seasonal hackathon or a side track will have its own page with its own deliverables and deadline. **Read that page the day you decide to enter**, and reuse the package you already have. The slide gets written in week 4. The arithmetic gets written today, under one rule: **no number without the inputs**, and no input without a URL and a date. Fiado's arithmetic:
 
 ```text
 sizing, Fiado, 2026-09-06
@@ -106,7 +106,7 @@ The last clause is *next week's work*. The count is today's.
 
 For the second question, direction, **copy the stablecoin adoption page** in D twice, today and on the earliest earlier date the page or an archive shows, and write the two readings side by side. If the page has no earlier reading, write "one reading, no trend" and **do not invent a slope**. The third question, mechanism, wants a sentence, and for Fiado it reads: *every shop that opens a tab brings its regulars onto the rail*, so the adoption count in D grows by the shop's customer count each time E grows by one.
 
-![The file is built by naming the competitor owner, filling five rows from dated pages, writing the sizing formulas with lettered inputs, and naming the month-three channel.](assets/v04-diagram.webp)
+![The file is built by naming the competitor owner, filling five rows from dated pages, writing the sizing formulas with lettered inputs, and naming the month-three channel.](assets/v04-flowchart.webp)
 
 ## Done when
 
@@ -123,9 +123,9 @@ For the second question, direction, **copy the stablecoin adoption page** in D t
 
 A big TAM with no path to the first hundred users scores worse than **a small, reachable one**, since Traction and Viability sit next to Potential Market Size on the list and a month-three SOM feeds all three, so *honesty costs you the dramatic slide and buys you the interview*.
 
-## Checkpoint
+## The takeaway
 
-Close the file. Then, no notes, out loud: say the three questions Colosseum's Potential Market Size factor asks, in your own words. Say the four cells of a competitor row. Say what a wallet count is allowed to prove and what it is not. Then **say your own SOM** as one sentence. If that sentence has the shape "N people, reachable through X, by month three", *the slide in week 4 writes itself from it, and so does the Traction line*. If it came out as a percentage of something, go back to the association's page and copy the member count.
+Potential Market Size asks three questions, and a big number answers only the first. Every number in your file is **a count on a public page with a URL and a date**, a competitor's last activity is read off an explorer or a listing and never off an announcement, and a wallet count is an upper bound on people, never a customer count. *SOM is the smallest number in the file, reachable through a channel with a name, and it is the one the judge remembers.*
 
 ## Next
 

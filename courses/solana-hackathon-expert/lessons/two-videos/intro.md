@@ -57,11 +57,11 @@ presentation-script.md, Fiado, Colosseum World's Fair season, 2026-10-05
 
    The script does not say fast, for the reason last lesson gave. It does not say the market number out loud, since the number is on the slide behind the voice and a judge that wants it will pause. And it says nothing at 0:50 that the demo video will not show, so the two videos **never contradict each other**. If the total does not land between 2:00 and 3:00 without rushing, *the problem is in a later slot, not in the first one*.
 
-![Fiado's presentation script runs six timed slots from the felt problem at 0:00 to the ask at 2:45, each cut from a deck slide, ending inside the two-to-three-minute window.](assets/v01-comparison.webp)
+![Fiado's presentation script runs six timed slots from the felt problem at 0:00 to the ask at 2:45, each cut from a deck slide, ending inside the two-to-three-minute window.](assets/v01-timeline.webp)
 
 ## Do this: the demo video and round 4
 
-6. **Open demo-shots.md** and write the seven steps from your week 2 demo script, each with its start time and the words said over it, if any. *A shot list decides nothing new.* It only says how long each step is on screen and which of them get a sentence. The same Colosseum page asks for 'a product-demo video of no more than three minutes' (colosseum.com/hackathon, 2026-09-06), and the rehearsal surface, Passo Fundo 2026, asks for a demo video **up to 3 minutes** (hackathon.superteam.com.br/h/solana-cursor-passo-fundo-2026, 2026-09-06). Fiado's shot list follows its seven steps one for one:
+6. **Open demo-shots.md** and write the seven steps from your week 2 demo script, each with its start time and the words said over it, if any. *A shot list decides nothing new.* It only says how long each step is on screen and which of them get a sentence. The same Colosseum page asks for 'a product-demo video of no more than three minutes' (colosseum.com/hackathon, 2026-09-06), and that is **the limit the shot list is cut to**. Fiado's shot list follows its seven steps one for one:
 
 ```text
 demo-shots.md, Fiado, 2026-10-05, target 2:40, hard limit 3:00
@@ -79,7 +79,7 @@ shot 7   2:15   the reminder arrives on the regular's phone, then the signature 
 
    The narration rule is short. If it is not on the screen at that second, **do not say it**. The tab program, the fiat rails and the cooperative rollout stay on the next-steps slide and in the presentation video. Shot 7 ends on the signature in the explorer with 25 still due, and the video ends there too, on the proof. The target of **2:40** on the first line is *the room you leave for a slow devnet confirmation*.
 
-![Fiado's demo runs seven shots from the shop's tab list through the silent part-payment and its confirmation to the due date, the reminder and the transaction opened in the explorer, ending on the proof inside three minutes.](assets/v02-timeline.webp)
+![Fiado's demo runs seven shots from the shop's tab list through the silent part-payment and its confirmation to the due date, the reminder and the transaction opened in the explorer, ending on the proof inside three minutes.](assets/v02-flowchart.webp)
 
 8. **Set up the clean machine** before either take. That is a fresh browser profile with no extensions except the wallet, a wallet created for the recording with only the devnet funds the demo needs, notifications off, every tab that is not the demo closed, and the terminal history cleared if a terminal is on screen. The signature that confirms in shot 5 is public by design and *it is fine to show*. A seed phrase, a key file in a folder listing, the balance of the wallet you actually use, or a message from someone that pops in at 1:30 **must not be on screen**.
 
@@ -87,9 +87,9 @@ shot 7   2:15   the reminder arrives on the regular's phone, then the signature 
 
 10. **Caption both videos** and check the captions against the script and the shot list. A captioned demo with the sound off still shows the amount typed in and the transaction confirming, but a caption that says the wrong amount over shot 2 is a mistake in a place a judge is reading. Then check the length **on the exported file**, the one you will upload, not on the recording app's counter, *since exports pick up a second here and there at the edges*.
 
-    One thing rehearsal surfaces sometimes add: the Vibeathon run by Superteam and Replit asked for a public post on X, TikTok or Instagram tagging Superteam Brasil and Replit as **a mandatory deliverable** (hackathon.superteam.com.br/h/vibeathon-superteam-replit, 2026-09-06), and on a surface like that the post is the demo export you already have, with no new footage.
+    One thing to know if a rehearsal is on your calendar: a seasonal hackathon or a side track will have its own page with its own deliverables and deadline, so **read that page the day you decide to enter** and reuse the exports you already have, *with no new footage*.
 
-![The presentation runs two to three minutes and opens on the person, the demo three minutes or less ending on the confirmed transaction, and neither shows a secret.](assets/v03-flowchart.webp)
+![The presentation runs two to three minutes and opens on the person, the demo three minutes or less ending on the confirmed transaction, and neither shows a secret.](assets/v03-table.webp)
 
 11. **Show both videos to three people** who have not seen them, the same three kinds as last round: one who has the problem, one builder, one person that knows nothing about either. Play the presentation and stop it at **0:20**. Ask the person to say what the problem is, in one sentence, and write down the sentence they said. Then play the rest and the demo, and ask **one question only**: what did you see confirm? If the answer is the payment, or the transaction, or the tab going to zero, the demo showed it. *If the answer is a description of the app, the demo narrated it.*
 
@@ -111,7 +111,7 @@ feedback log, round 4, Fiado, 2026-10-08
 
 One of three missed, which the rule does not force a re-record for, and the storyteller re-recorded anyway, *because the miss came with a reason he could act on the same afternoon*. The last entry's lengths, **2:34 and 2:41**, are the numbers the capstone copies without re-measuring. With three calendars, show the videos to **one person today and two tomorrow**, and if the twenty seconds got re-recorded in between, the second viewer watches the new version and it goes in the log as what changed.
 
-![Round 4 stops the presentation at twenty seconds, asks the viewer for the problem and the demo's confirmation, logs the export length, and re-records if two of three miss.](assets/v04-table.webp)
+![Round 4 stops the presentation at twenty seconds, asks the viewer for the problem and the demo's confirmation, logs the export length, and re-records if two of three miss.](assets/v04-flowchart.webp)
 
 ## Done when
 
@@ -126,12 +126,10 @@ One of three missed, which the rule does not force a re-record for, and the stor
 - **Going over the limit** by ten seconds: the portal states the limit and the brief assumes it is enforced, so a 3:08 demo is a demo that may never be watched, and no ten seconds of footage was worth that.
 - Recording the demo on your everyday laptop with **your everyday wallet**: the video is public and it stays public after the season, and a seed phrase or a real balance in the corner cannot be taken back once it is uploaded.
 
-## Checkpoint
+## The takeaway
 
-Close both files. Then, no notes, out loud: say the two length limits and which video each belongs to. Say what is on the screen when the demo video ends. Say what the first twenty seconds of the presentation contain, and what they must not contain. Then say, in one sentence, what the first twenty seconds are for.
-
-If your sentence is close to "so a stranger says that happened to me", *you have it, and the video did the deck's job faster than the deck can*. If the sentence came out as "to introduce the product", play your own twenty seconds again and stop at the first moment a product word appears. That is where the cut goes.
+You are making **two different objects**. The presentation tells the story and opens on a person for twenty seconds before any product word, so that a stranger says that happened to me. The demo shows the slice and ends on the confirmed transaction, narrating only what the screen backs. *Both are timed on the exported file, because a video over the limit may never be watched.*
 
 ## Next: the forms, the deadline, the rules
 
-Next lesson is the one that loses more teams than any rubric, and it has no video in it. You will submit, and then you will submit again, because a submission that exists early can be corrected and a submission that exists at 23:50 cannot. Its first action is **one file that lists every rung** with its path and date, before the portal is opened. *Bring the export lengths, they go on the form.*
+Next lesson is the one that loses more teams than any judging criterion, and it has no video in it. You will submit, and then you will submit again, because a submission that exists early can be corrected and a submission that exists at 23:50 cannot. Its first action is **one file that lists every piece you built** with its path and date, before the portal is opened. *Bring the export lengths, they go on the form.*

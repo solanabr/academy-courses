@@ -27,21 +27,21 @@ blocks:
             feedback: "The decision the seven headings make first is that the name does not show up until the problem has been said."
         explanation: "A title slide that names the product before the problem is the most common first slide in a hackathon, and it spends the only slide a judge reads with fresh eyes. The judge deck is built from the problem outwards, so the cover is the problem in one sentence with the product name small in a corner. That sentence is the one that becomes pitch final at the end of the lesson."
       - id: q2
-        prompt: "You reflow the judge deck into the 10-slide seasonal export and drop the mercado slide because the numbers felt small. Predict the consequence on that surface and the honest fix."
+        prompt: "Your judge deck runs eleven slides: the seven headings plus a pricing table, a roadmap, an architecture diagram and a thank-you slide, and the next-steps slide says only: more features coming. Predict what the kit's shape check says and what the honest fix is."
         multiSelect: false
         options:
           - id: a
-            label: "A lower market score, so the slide returns with one large figure from a report to make up the ground the small dated numbers lost."
+            label: "Fine as it is, since a longer deck reads as a fuller company and the roadmap slide already covers what the next-steps slide would say."
             correct: false
-            feedback: "A number that is not in the sizing file is the watch-out by name, and a judge scoring a market-size factor asks whether the number is real."
+            feedback: "A judge deck is 5 to 7 slides, and a roadmap that says more features coming names nothing a judge can read as a plan."
           - id: b
-            label: "No consequence, since a seasonal banca scores the five-minute pitch out loud and skims whatever is on the market slide."
+            label: "Over length, so the four extra slides are merged into the seven as smaller panels, and the next-steps line stays short because a judge skims the end of a deck."
             correct: false
-            feedback: "The spec names its sections, and on that surface any missing deliverable disqualifies whatever the banca thought of the pitch."
+            feedback: "Merging four slides into seven panels keeps the same eleven ideas in front of the judge, and the next-steps slide is the one place unbuilt work reads as a choice."
           - id: c
-            label: "Disqualification, since a missing item disqualifies on that spec, so the slide returns with three small dated numbers a judge can click."
+            label: "Over length, so the four extras go, and the next-steps slide lists what is not built yet, dated, in the order you would build it."
             correct: true
-        explanation: "The Passo Fundo 2026 spec names capa, problema, solucao, arquitetura, mercado with TAM, SAM and SOM, equipe, proximos passos and CTA, and any missing item disqualifies the team. So the market slide is not optional on that surface, and the honest version is small and dated: three numbers with their sources, each of which traces to the sizing file. Three clickable numbers beat one in the billions a judge cannot check, and the hour goes to the problem slide instead."
+        explanation: "The kit routes a deck for hackathon judges to 5 to 7 slides, one of them a working demo, one the technical novelty and one why-Solana, with 30 to 60 seconds of notes on each. A pricing table and a roadmap belong to the investor deck, which is a different object. The next-steps slide is the honest place for the architecture you did not build: for Fiado the on-chain tab program, the fiat rails, wallet onboarding and the cooperative rollout, dated and in build order, so a judge reads them as a plan and not as something hidden."
       - id: q3
         prompt: "You read the deck to three people for round 3. Only the builder says the problem close to the cover sentence, and the other two describe a category. Predict what happens to the pitch and to the round."
         multiSelect: false

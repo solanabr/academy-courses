@@ -56,7 +56,7 @@ blocks:
             correct: false
             feedback: "The screen would show the same number if the transaction had failed, and the test was written from the same wrong assumption."
           - id: c
-            label: "A screen that lies, and the fix is a second subagent pass over step 5 with a new spec, costing about what the original build did."
+            label: "A screen that lies, and the fix is a second subagent pass over step 5 with new instructions, costing about what the original build did."
             correct: false
             feedback: "The fix is one change, reading the amount from the confirmed transaction, and the expensive part was the by-hand read that found it."
         explanation: "Nothing in the diff looks wrong and the test passes, because the test was written from the same assumption as the screen. The by-hand read of the demo path with the explorer open is what finds it, and the fix is small: the app reads the amount from the confirmed transaction and shows that. AI-written code needs a different and longer review than code a person wrote, and the review block belongs on the calendar at the same size as the build block."

@@ -11,7 +11,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Ana is Fiado's only builder and also its partnerships owner. The card names both roles but says nothing about which weeks partnerships will slip. Predict where the rubric finds the gap."
+        prompt: "Ana is Fiado's only builder and also its partnerships owner. The card names both roles but says nothing about which weeks partnerships will slip. Predict where the judging criteria find the gap."
         multiSelect: false
         options:
           - id: a
@@ -21,7 +21,7 @@ blocks:
           - id: b
             label: "Under Founder + Market Fit, because a doubled role tells the judges this team lacks the skills to carry it."
             correct: false
-            feedback: "Doubling is normal on a two-person team. The rubric finds the missing output, not the doubled role."
+            feedback: "Doubling is normal on a two-person team. The judges find the missing output, not the doubled role."
           - id: c
             label: "In the week 4 GTM one-pager, which has no partner names because nobody dated the calls around the build."
             correct: true
@@ -43,7 +43,7 @@ blocks:
             feedback: "The arithmetic is start plus seven days per phase. That is exactly why it is derived and not typed."
         explanation: "The plan is derived from one date so that a change on the live page costs one edit. Change the date inside the command, run it again, and the five phases move with it. The deadline hour still lives on the brief and the plan points at it, so there is only one place for each number to be wrong."
       - id: q3
-        prompt: "Bruno sends pitch v0 to three people and logs 'cool, I like it' from all three, dated. Against the acceptance bar, is the rung done, and what should the entries hold?"
+        prompt: "Bruno sends pitch v0 to three people and logs 'cool, I like it' from all three, dated. Against the acceptance bar, is the piece done, and what should the entries hold?"
         multiSelect: false
         options:
           - id: a

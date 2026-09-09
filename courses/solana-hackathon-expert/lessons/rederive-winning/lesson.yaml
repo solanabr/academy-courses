@@ -57,7 +57,7 @@ blocks:
           - id: c
             label: "High, because a big TAM answers the size question and the product row shows the chain feature that is the insight."
             correct: false
-            feedback: "The rubric does not score technology for its own sake, and a report said is the answer that ends the conversation."
+            feedback: "The seven factors do not score technology for its own sake, and a report said is the answer that ends the conversation."
         explanation: "A real problem lands on Insight, Founder + Market Fit and Potential Market Size. The chosen row's first line has to be a person and a problem, the same rule as pitch v0, and the sizing rule is no number without its inputs and no input without a URL and a date. Fiado scores a 7 here because five dated conversations with owners who keep the notebook carry both factors. A product-first row and an unsourced TAM carry neither. The same honesty runs the other way in week 1: a 3 on 'it works' and a near-zero Traction stay low and say so, because those numbers are there to move once something is built."
       - id: q4
         prompt: "Rescoring against the portal page's line that the review wants to understand how the opportunity was uncovered, you open your decision memo. The decision says commit, the five conversations are listed, and the 'would have killed it' line is empty. Predict what a judge reads there and what the file does next."

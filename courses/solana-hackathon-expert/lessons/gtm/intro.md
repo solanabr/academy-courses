@@ -26,7 +26,7 @@ If your line names a market and no place, keep it as a record of day one and **w
 
 That last clause is the whole pricing section for a project with one shop. A pricing slide for a product with no users is *a slide about nothing*. The honest line has **three parts**. Fiado's: none yet, the shop would pay, since the shop is the one that loses the notebook, and not before **ten shops** have run a tab for a month.
 
-![Today the regular pays the shop in cash from a notebook, with the tab the regular settles in a stablecoin to the shop's wallet and Fiado takes nothing.](assets/v01-diagram.webp)
+![Today the regular pays the shop in cash from a notebook, with the tab the regular settles in a stablecoin to the shop's wallet and Fiado takes nothing.](assets/v01-flowchart.webp)
 
 Viability is on the live factor list, and this is **where the page answers it**. None yet at the end of a drawn money flow reads as a decision the team made with its eyes open, *and the same words with no flow drawn read as a team that never thought about it*.
 
@@ -58,7 +58,7 @@ The mechanism is **the payment history itself**: each part-payment is a USDC tra
 
 An adjacent project is one **whose users are your users**, or whose product your slice already touches. Each message asks for **one integration or one quote**, with a smaller ask beside it, and says what your product is in the sentence a stranger already understood in the feedback log. A message that asks to partner asks for nothing, *and it gets the same back*. The method is David's: **spend real hours selling the idea** to the projects that could integrate with your slice, because a team that arrives at demo day with a few partners already on its side has an edge, and *it is the one edge I would take over any feature in week 4*.
 
-![The partner list holds one row per adjacent project with the ask, the reply in their words and the date, and only replied rows reach the deck.](assets/v03-flowchart.webp)
+![The partner list holds one row per adjacent project with the ask, the reply in their words and the date, and only replied rows reach the deck.](assets/v03-table.webp)
 
 Ana's two messages go out on **2026-10-05**. The first goes to the coordinator of the cooperative and asks for **ten minutes at the October meeting** so Lucia can show the tab on her own phone, plus one sentence for the deck if the room likes what it sees. The second goes to the wallet the regulars already use and asks for one integration, opening the tab from inside the wallet, with **the fallback in the same message**: failing that, one sentence saying they are interested in the use case.
 
@@ -109,10 +109,10 @@ Team A emailed five logos once, so it has **four names it cannot talk about**, a
 
 **One real reply beats five logos**, and a logged no is still a reply: it tells the judge you asked, learned the reason, and know what has to change before that project says yes, and I would guess that half the teams in the room never asked anyone at all, *a guess I cannot back with a count*.
 
-## Checkpoint
+## The takeaway
 
-Then, **no notes, out loud**: *your first 100 users as a group and the place you reach them*. Who pays whom today and with your product. The thing your slice does that Solana makes easier, and whether it would do the same on the next track over. One project you wrote to and what they said back. If your why-Solana names a thing the slice does and the chain makes easier, and **not a benchmark**, it will survive the interview. If a number came out first, say it again with the number removed. *It is usually still true, and better.*
+Distribution is a claim with evidence: a group of about a hundred people you can point at, the place you already reach them, and a money flow drawn far enough that none yet reads as a decision. Why-Solana names **a thing the slice does and the mechanism on the chain that does it**, never a benchmark, and one reply logged in a partner's own words beats five logos. *If a number came out first, say it again with the number removed. It is usually still true, and better.*
 
 ## Next
 
-Next lesson the pitch becomes a deck, and the first thing you do is **open a new file called deck-judge.md** and write seven headings in it before any slide has content. **Five to seven slides** for a judge, ten for a seasonal banca, and it is the same deck reflowed, because the one-pager, the narrative log and the sizing file are *the deck already, in the wrong shape*. The partner row with a real reply in it is the line a judge will believe first.
+Next lesson the pitch becomes a deck, and the first thing you do is **open a new file called deck-judge.md** and write seven headings in it before any slide has content. **Five to seven slides** for a judge, and a seasonal hackathon or a side track will have its own page with its own deliverables, so you read that page the day you decide to enter and reflow the same deck, because the one-pager, the narrative log and the sizing file are *the deck already, in the wrong shape*. The partner row with a real reply in it is the line a judge will believe first.

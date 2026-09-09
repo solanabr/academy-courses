@@ -29,11 +29,11 @@ git commit -m "prize table, 2026-09-06"
 
 A team of two still names four jobs, *because the four questions on your brief do not shrink when the team does*. Assign the roles **only one person can do** first, then the doubles, and write the weeks a doubled role will be underserved. Alone, you own all four, and *the honest line is which two get an hour a week*. Fiado's roles, with the underserved one marked:
 
-![Fiado's two-person card names an owner for all four roles, doubles two per person, and marks partnerships as underserved in weeks 2 and 3.](assets/v01-diagram.webp)
+![Fiado's two-person card names an owner for all four roles, doubles two per person, and marks partnerships as underserved in weeks 2 and 3.](assets/v01-table.webp)
 
 Then the portal's fields. As of the 2026 World's Fair season, Colosseum's submission asks for every teammate with their background and previous experience, and for the team's location. Every member has to **create an account**. The team leader adds the others during submission and must complete the submission **before the deadline**. *Solo participation is allowed.* So the card carries a background line per person, the location, and **the word leader** next to one name, copied onto the disqualify block of your brief today.
 
-Passo Fundo 2026, read on 2026-09-06, takes **teams of two to four**, everyone 18 or older, each person on one team only, and wants at least one member in the room on the final day or the team is out, *so a solo card keeps an empty second row*. Fiado's full card:
+A seasonal hackathon or a side track will have its own page with its own deliverables and deadline. **Read that page the day you decide to enter**, and reuse the package you already have. Fiado's full card:
 
 ```text
 team-card.md, Fiado, day 0, written 2026-09-06
@@ -78,7 +78,7 @@ date         name, outside the team                              what they did n
 
 **Send your sentence** to your three today. Fiado's three reactions will be in the log by **2026-09-13**, *which is why v1 is due at the end of week 1*.
 
-![A day-0 file is built by copying the deadline and leader from the brief, deriving the phase dates, naming four roles, writing pitch v0 and logging three outside reactions.](assets/v03-comparison.webp)
+![A day-0 file is built by copying the deadline and leader from the brief, deriving the phase dates, naming four roles, writing pitch v0 and logging three outside reactions.](assets/v03-flowchart.webp)
 
 ## Done when
 
@@ -95,9 +95,9 @@ date         name, outside the team                              what they did n
 
 The storyteller **costs you a builder**, a quarter of the building hours on a team of four, *and it is the right trade* because the code shows up in very few of the seven lines on your brief and the storyteller's work in most of the others.
 
-## Checkpoint
+## The takeaway
 
-Close the file. Then, no notes, out loud: *the four roles and the name next to each one, your deadline in your time zone, the four questions in your own words, then your pitch v0 from memory, counting the words on your fingers*. If the sentence **names a person** and the thing they cannot do today, it is a v0. If it names your product first, rewrite it. If you could not say the deadline without the brief, open it, read the converted line twice, and close it.
+The month is planned backward from the package, so **the deadline is the first date on the plan** and every phase is derived from it. Four roles are owned by name even on a team of two, because the four questions on your brief do not shrink when the team does. *The pitch exists from day 0 as one sentence that names a person before the product, and three people outside the team have already told you what they did not get.*
 
 ## Next
 
