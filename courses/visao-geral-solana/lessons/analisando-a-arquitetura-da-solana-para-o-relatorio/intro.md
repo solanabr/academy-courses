@@ -10,7 +10,7 @@
 
 **Conceitos:** Arquitetura da Solana; princípios de design arquitetônico; funções e responsabilidades dos componentes; implicações para usabilidade e desempenho; mapeamento da arquitetura para decisões históricas; limitações e compromissos
 
-**Tempo de leitura:** 35 min
+**Tempo de leitura:** 13 min
 
 ---
 

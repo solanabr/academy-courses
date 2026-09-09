@@ -1,0 +1,959 @@
+locale: en
+course:
+  title: Solana Blockchain Overview
+  description: Introduce learners to the Solana blockchain, covering its foundational history and core
+    architecture. Use analogies and visual aids to make complex concepts accessible to newcomers.
+  modules:
+    origens-e-historia:
+      title: Introduction to Solana's History
+    arquitetura-central:
+      title: Understanding Solana's Core Architecture
+    ecossistema-e-terminologia:
+      title: Exploration of the Solana Ecosystem and Terminology
+    projeto-final:
+      title: 'Capstone: Documenting Solana''s Journey and Architecture'
+lessons:
+  origens-e-historia-da-fundacao:
+    title: Origins and Founding Story
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=40KvouUtgbc
+      quiz:
+        questions:
+          q1:
+            prompt: What was Anatoly Yakovenko's central insight when he conceived Proof of History for
+              Solana?
+            explanation: In the lesson, Anatoly realized that distributed systems spent too much time
+              communicating in order to synchronize clocks. Proof of History solves this by encoding time
+              into a verifiable sequential stream of computation.
+            options:
+              b:
+                label: Encoding the passage of time into a sequential cryptographic stream (SHA-256),
+                  allowing nodes to verify time independently and asynchronously.
+                feedback: Correct! By turning the passage of time into a verifiable cryptographic function,
+                  nodes agree on the ordering of events without needing constant communication.
+              a:
+                label: Increasing the size of data blocks to store more transactions in each time interval.
+                feedback: Increasing block size does not address the need for continuous clock synchronization
+                  across distributed nodes.
+              c:
+                label: Eliminating cryptographic verification of time and trusting each individual node's
+                  local clock measurement.
+                feedback: Local clocks are not reliable in distributed systems; Proof of History was created
+                  precisely to provide a cryptographically verifiable source of time.
+          q2:
+            prompt: How did the founding team's prior experience in systems engineering and telecommunications
+              shape Solana's approach?
+            explanation: The lesson highlights that the founders came from telecommunications and embedded
+              systems, shaping an architecture focused on parallelism, hardware efficiency, and high throughput.
+            options:
+              b:
+                label: It steered the project toward deliberately limiting hardware resource usage, avoiding
+                  parallel execution.
+                feedback: 'On the contrary: the team designed the network to take full advantage of modern
+                  hardware advances and concurrent execution.'
+              a:
+                label: It steered the project toward maximizing the use of modern hardware and parallel
+                  processing, prioritizing high throughput and low latency.
+                feedback: Exactly! Their background in embedded systems and telecommunications led the
+                  team to treat modern hardware and bandwidth as resources the architecture should exploit
+                  to the fullest.
+              c:
+                label: It focused exclusively on strict sequential execution on a single thread to simplify
+                  node logic.
+                feedback: The architecture was designed from the outset for parallel execution and high-concurrency
+                  support.
+          q3:
+            prompt: What is the main distinction in priorities between Solana's design choices and Bitcoin's,
+              as presented in the lesson?
+            explanation: The comparison in the lesson shows that Bitcoin prioritized decentralization
+              with minimal hardware requirements and discrete blocks, while Solana chose to prioritize
+              high throughput and low latency with time-driven execution.
+            options:
+              b:
+                label: Bitcoin prioritizes continuous real-time throughput and parallel execution, while
+                  Solana prioritizes discrete blocks with spaced intervals to reduce hardware requirements.
+                feedback: 'Reversed: it is Bitcoin''s foundations that assume discrete blocks and modest
+                  hardware; continuous throughput is Solana''s priority.'
+              c:
+                label: 'There is no difference in priorities: both share the same goals for throughput,
+                  latency, and hardware requirements, differing only in the hash function used in consensus.'
+                feedback: The lesson contrasts opposing design priorities; the difference does not reduce
+                  to the choice of hash function.
+              a:
+                label: Bitcoin prioritizes validation with minimal hardware requirements and discrete
+                  blocks; Solana prioritizes high throughput and low latency by integrating continuous
+                  time into the execution flow.
+                feedback: Perfect! Bitcoin was designed to maximize auditability with minimal node requirements,
+                  while Solana prioritized maximum throughput and minimal latency with integrated time.
+  desafios-e-obstaculos-iniciais:
+    title: Early Challenges and Hurdles
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=YESI7W5oRy4
+      quiz:
+        questions:
+          q1:
+            prompt: What operational problems arose when Solana moved from the prototype stage to a live
+              production network?
+            explanation: 'The lesson explains that the pursuit of high throughput revealed practical engineering
+              challenges: CPU/memory saturation, scheduling latency, and I/O backpressure during peak
+              moments.'
+            options:
+              b:
+                label: A drastic drop in traffic to near-zero levels, leaving nodes with no messages to
+                  process.
+                feedback: 'The challenge was exactly the opposite: the overload and the intense volume
+                  of messages that saturated the nodes'' resources.'
+              a:
+                label: Resource exhaustion on validator nodes, scheduling latency, and I/O backpressure
+                  under heavy message load.
+                feedback: Correct! The high traffic volume exposed practical limits of memory, processing,
+                  and scheduling on validators under production stress.
+              c:
+                label: The nodes' inability to execute any instruction even without receiving messages
+                  from the network.
+                feedback: The nodes worked normally under standard conditions; the instability stemmed
+                  from the high load and concurrency stress in production.
+          q2:
+            prompt: According to the validator log analysis example presented in the lesson, which event
+              patterns indicate operational instability in a node?
+            explanation: In the lesson's code and explanation, structured 'slot skipped' events, RPC errors,
+              and processing stalls are extracted to diagnose a validator falling out of sync.
+            options:
+              b:
+                label: Regular block confirmation events on schedule and with no error messages on the
+                  RPC channels.
+                feedback: Regular confirmations with no delays indicate healthy operation, not instability.
+              a:
+                label: Frequent 'slot skipped' messages, repeated RPC call failures, and excessive processing
+                  stalls.
+                feedback: Exactly! In the log analysis, skipped slots, RPC call failures, and anomalous
+                  stalls are the main signs that the validator is overloaded.
+              c:
+                label: A complete absence of log records generated by the validators during operation.
+                feedback: Instability is diagnosed by the presence of anomalous events in the logs, not
+                  by the absence of log files.
+          q3:
+            prompt: What is the role of short-term mitigations relative to durable remediations in the
+              incident-response workflow?
+            explanation: The lesson divides the workflow into detection, triage, short-term mitigation
+              (emergency stabilization), and durable remediation (eliminating the root cause).
+            options:
+              b:
+                label: Short-term mitigations make any root-cause investigation or future durable fix
+                  unnecessary.
+                feedback: Mitigations only contain the immediate symptom; without a definitive patch to
+                  the root cause, the failure can recur.
+              c:
+                label: Short-term mitigations should be ignored, applying only final patches directly
+                  during the crisis.
+                feedback: The structured response workflow requires triage and emergency mitigation first
+                  to contain damage before designing definitive solutions.
+              a:
+                label: Short-term mitigations stabilize the network and restore consensus immediately,
+                  while durable remediations fix the architectural root cause.
+                feedback: Perfect! The immediate priority in an incident is to contain the impact and
+                  recover stability; the durable patch to eliminate the root cause is developed afterward.
+  marcos-e-linha-do-tempo-de-adocao:
+    title: Milestones and Adoption Timeline
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=TOi8hqYHepY
+      quiz:
+        questions:
+          q1:
+            prompt: In the mental model presented in the lesson, how are the network's evolutionary phases
+              compared to building a large bridge?
+            explanation: The bridge analogy explains that the network first needs solid foundational supports
+              (consensus and runtime), followed by stress testing on a testnet, controlled opening, and
+              continuous expansion.
+            options:
+              a:
+                label: 'The network evolves in successive stages: laying down foundational supports (consensus/runtime),
+                  stress testing on testnets, public opening, and capacity expansion.'
+                feedback: Correct! Just as a bridge requires solid pillars before it can bear heavy traffic,
+                  the network consolidates its consensus primitives before opening up to the ecosystem.
+              b:
+                label: The network is deployed all at once, in a single public event that already delivers
+                  consensus, runtime, and final capacity, with no testnets or later expansions.
+                feedback: The lesson describes successive phases — foundation, stress testing, public
+                  opening, and expansion — not a single event.
+              c:
+                label: The network stays indefinitely in the foundation phase, perfecting consensus and
+                  runtime in a closed environment, never opening to public use or testing under real load.
+                feedback: The bridge analogy explicitly includes public opening and capacity expansion
+                  as the following phases.
+          q2:
+            prompt: What is the distinction between 'Technical Releases' and 'Ecosystem Events' in the
+              analysis of a blockchain's evolution?
+            explanation: The lesson teaches you to separate protocol milestones (which change technical
+              performance and robustness) from ecosystem milestones (which drive adoption and practical
+              projects).
+            options:
+              a:
+                label: Technical releases change the network's behavior, stability, and capacity; ecosystem
+                  events expand developer activity, use cases, and engagement.
+                feedback: Exactly! Technical releases affect the protocol's operation and performance;
+                  ecosystem events broaden the developer base and the creation of applications.
+              b:
+                label: Technical releases expand only community engagement, while ecosystem events change
+                  the protocol's code.
+                feedback: 'It''s the opposite: technical releases are network software updates; ecosystem
+                  events involve the community and project creators.'
+              c:
+                label: 'There is no distinction in effects: both categories produce exactly the same changes
+                  to the code and the network.'
+                feedback: The lesson emphasizes that each class of milestone has different goals and affects
+                  distinct metrics.
+          q3:
+            prompt: Why does the lesson advise treating historical milestones as 'functional transitions'
+              rather than simple chronological dates?
+            explanation: 'Treating milestones as functional transitions turns the chronology into a practical
+              analytical model: each technical release is tied to the mechanism it exercises and the adoption
+              signal it generates.'
+            options:
+              b:
+                label: Because milestones should be treated only as calendar dates, with no correlation
+                  to technical mechanisms or metrics.
+                feedback: Dates are useful ordering references, but the analytical value lies in the mechanism
+                  exercised and the measurable effect generated.
+              c:
+                label: Because milestones serve solely to record the definitive end of developments on
+                  the network.
+                feedback: Milestones mark transitions and openings into new phases of capacity and adoption,
+                  not the end of development.
+              a:
+                label: Because each milestone exercises a specific technical mechanism and generates measurable
+                  indicators in the network's behavior and adoption.
+                feedback: Perfect! Evaluating milestones as functional transitions lets you link technical
+                  improvements to real changes in network metrics and developer uptake.
+  licoes-aprendidas-e-perspectivas:
+    title: Lessons Learned and Looking Ahead
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=-cD2vJei06I
+      quiz:
+        questions:
+          q1:
+            prompt: In the "architecture as ecosystem" mental model presented in the lesson, what is the
+              purpose of mapping the network's design choices?
+            explanation: The architecture-as-ecosystem model serves to map design choices to the ecology
+              of operators and applications they generate.
+            options:
+              b:
+                label: To calculate the market price of the network's native token.
+                feedback: The lesson does not deal with token pricing; the model is about operators and
+                  applications.
+              a:
+                label: To relate those choices to the ecology of operators and applications that forms
+                  around them.
+                feedback: Correct! The model links technical decisions to the ecosystem of operators and
+                  applications they produce.
+              c:
+                label: To replace the analysis of measurable signals with a purely narrative assessment.
+                feedback: 'On the contrary: the lesson uses the model precisely to test narratives against
+                  measurable evidence.'
+          q2:
+            prompt: According to the lesson, which concrete signals should be observed when assessing
+              the health and trajectory of a network?
+            explanation: The proposed signals are validator diversity, the cadence of emergency patches,
+              application concentration, and governance messages.
+            options:
+              b:
+                label: The total number of transactions processed since launch, taken in isolation as
+                  an indicator of network health.
+                feedback: A cumulative counter does not distinguish concentration, the cadence of fixes,
+                  or operator diversity.
+              a:
+                label: Validator diversity, the cadence of emergency patches, application concentration,
+                  and governance messages.
+                feedback: Correct! These are exactly the four observable signals the lesson proposes.
+              c:
+                label: The official statements published by the founding team, used as the sole source
+                  on the network's trajectory.
+                feedback: The lesson asks you to test narratives against measurable signals, not to accept
+                  official communication as the sole source.
+          q3:
+            prompt: According to the lesson, which of these signals indicates that application concentration
+              on a network is increasing?
+            explanation: Concentration appears when a few programs or infrastructure providers account
+              for most of the activity — for example, a few applications carrying most of the transactions
+              and a few RPC providers serving most of the reads.
+            options:
+              b:
+                label: The number of programming languages supported by the network's official SDKs grows
+                  with each release.
+                feedback: The variety of SDKs concerns the tooling surface, not the concentration of real
+                  activity.
+              c:
+                label: The average value of transaction fees paid by users falls steadily over time.
+                feedback: Lower fees indicate spare capacity or a pricing change, not which applications
+                  the activity is concentrated in.
+              a:
+                label: A few programs and a few RPC providers account for most of the network's transactions
+                  and reads.
+                feedback: Correct! Concentration is measured by the share of total activity held by a
+                  small number of actors.
+  visao-geral-da-arquitetura-da-solana:
+    title: Overview of Solana's Architecture
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=u0oLp2w9Xbc
+      quiz:
+        questions:
+          q1:
+            prompt: In the assembly-line analogy used in the lesson, what is the sequence of stages?
+            explanation: The assembly line runs from ordering to propagation, parallel execution, voting/joining,
+              and finalization.
+            options:
+              a:
+                label: Ordering (stamping) → propagation (conveyors) → parallel execution (workers) →
+                  voting/joining → finalization (packaging).
+                feedback: Correct! That is exactly the assembly-line sequence presented.
+              b:
+                label: Parallel execution (workers) → ordering (stamping) → finalization (packaging) →
+                  propagation (conveyors) → voting/joining.
+                feedback: 'Execution cannot precede ordering: the leader stamps the order before any parallel
+                  work happens.'
+              c:
+                label: Voting/joining → finalization (packaging) → ordering (stamping) → propagation (conveyors)
+                  → parallel execution (workers).
+                feedback: Voting and finalization are the last stages of the assembly line, not the first.
+          q2:
+            prompt: Which architectural goals does the lesson point to as the guides behind its design
+              choices?
+            explanation: Throughput, latency, parallelism, and auditable ordering are the stated goals.
+            options:
+              b:
+                label: Total anonymity, censorship resistance, and a fixed coin issuance.
+                feedback: These are not the architectural goals discussed in this lesson.
+              c:
+                label: Backward compatibility with Bitcoin and proof-of-work mining.
+                feedback: The lesson does not present these as design goals.
+              a:
+                label: Throughput, latency, parallelism, and auditable ordering.
+                feedback: Correct! These are the four goals that guide the design described.
+          q3:
+            prompt: What is the practical implication, for those designing transactions and accounts,
+              of using parallel execution?
+            explanation: Designing transactions and accounts to minimize conflicts is what lets parallel
+              execution produce real throughput.
+            options:
+              a:
+                label: Minimize conflicts between accounts, so that parallelism produces a real throughput
+                  gain.
+                feedback: Correct! Without reducing conflicts, parallel execution does not translate into
+                  throughput.
+              b:
+                label: Concentrate all writes on a single shared account.
+                feedback: That would increase conflicts and cancel out the benefit of parallel execution.
+              c:
+                label: Avoid signing transactions locally before submission.
+                feedback: Local signing is not the factor that limits the gain from parallelism.
+  componentes-centrais-do-runtime-e-papeis-dos-validadores:
+    title: Core Runtime Components and Validator Roles
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=Ju_OrtFPOqw
+      quiz:
+        questions:
+          q1:
+            prompt: According to the component mapping presented in the lesson, what is the responsibility
+              of gossip?
+            explanation: 'In the lesson''s mapping: gossip = membership, propagation = payloads, accounts
+              DB = state, BPF runtime = execution, snapshotter = bootstrapping.'
+            options:
+              b:
+                label: Persistent storage of account state.
+                feedback: That is the responsibility of the accounts DB, not of gossip.
+              c:
+                label: Deterministic execution of programs.
+                feedback: Deterministic execution is the role of the BPF runtime.
+              a:
+                label: Membership — maintaining the view of which nodes are participating in the network.
+                feedback: Correct! Gossip handles membership, while propagation distributes payloads.
+          q2:
+            prompt: What are the phases of a validator's lifecycle described in the lesson?
+            explanation: The cycle is join/bootstrap, follower, leader, and resync, with each phase emphasizing
+              distinct components.
+            options:
+              b:
+                label: compilation, auditing, listing, and archiving.
+                feedback: These are not phases of a validator's lifecycle in this lesson.
+              a:
+                label: join/bootstrap, follower, leader, and resync.
+                feedback: Correct! Each phase emphasizes different runtime components.
+              c:
+                label: mining, halving, fork, and merge.
+                feedback: These terms do not describe the lifecycle presented.
+          q3:
+            prompt: Which message-routing pattern does the lesson associate with targeted data fetches?
+            explanation: Gossip for metadata, propagation for high-volume payloads, and RPC for targeted
+              fetches.
+            options:
+              a:
+                label: RPC.
+                feedback: Correct! RPC serves targeted fetches; gossip carries metadata and propagation
+                  carries high-volume payloads.
+              b:
+                label: Gossip.
+                feedback: Gossip is used for membership metadata, not for targeted fetches.
+              c:
+                label: Snapshotter.
+                feedback: The snapshotter serves fast bootstrapping, not query routing.
+  fluxo-de-transacoes-e-modelo-de-processamento:
+    title: Transaction Flow and Processing Model
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=BuFQYWLVGsU
+      quiz:
+        questions:
+          q1:
+            prompt: What is the sequence of stages a transaction passes through, according to the lesson?
+            explanation: The flow runs from intake and validation to leader ordering, execution, and confirmation.
+            options:
+              b:
+                label: Confirmation, execution, intake, ordering, and validation.
+                feedback: Confirmation is the final stage, not the initial one.
+              a:
+                label: Intake, validation, leader ordering, execution, and confirmation.
+                feedback: Correct! Each stage has an associated responsible component.
+              c:
+                label: Ordering, confirmation, intake, execution, and validation.
+                feedback: Intake precedes ordering, and confirmation closes the flow.
+          q2:
+            prompt: What is the purpose of the signature and preflight checks performed at intake?
+            explanation: Signature and preflight checks at intake prevent unnecessary load on the leaders.
+            options:
+              b:
+                label: To ensure the transaction is included in a slot chosen by the client.
+                feedback: These checks do not determine which slot the transaction enters.
+              c:
+                label: To replace the need for validator voting.
+                feedback: Voting remains part of the flow; the intake checks do not replace it.
+              a:
+                label: To avoid unnecessary load on the leaders by rejecting invalid messages early.
+                feedback: Correct! These checks filter at intake to spare the downstream components.
+          q3:
+            prompt: Which of these is an observable the lesson recommends collecting when debugging a
+              transaction?
+            explanation: 'The lesson lists observables verifiable on the network itself: inclusion in
+              a slot, transaction receipts and logs, validator votes, and queries against finalized blocks.'
+            options:
+              a:
+                label: Inclusion in a slot, transaction receipts and logs, validator votes, and queries
+                  against finalized blocks.
+                feedback: Correct! These are observable signals at each checkpoint of the pipeline.
+              b:
+                label: The address of the physical datacenter where the slot's leader was running at the
+                  moment of submission.
+                feedback: The leader's physical location is not exposed by the pipeline and does not help
+                  locate the failing stage.
+              c:
+                label: The identity document of the wallet holder who signed and submitted the transaction
+                  to the network.
+                feedback: The network validates cryptographic signatures, not civil identities.
+  compromissos-de-projeto-e-caracteristicas-distintivas:
+    title: Design Tradeoffs and Distinctive Features
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=ki-YbGgy7N4
+      quiz:
+        questions:
+          q1:
+            prompt: Which tradeoff does the lesson attach to leader sequencing combined with parallel
+              execution?
+            explanation: Leader sequencing and parallel execution raise TPS at the cost of constraining
+              validator diversity.
+            options:
+              b:
+                label: They reduce throughput but broaden validator diversity.
+                feedback: 'The effect described is the opposite: more throughput, less diversity.'
+              a:
+                label: They increase throughput but constrain validator diversity.
+                feedback: Correct! This is the central tradeoff between scalability and decentralization
+                  discussed.
+              c:
+                label: They affect neither throughput nor validator diversity.
+                feedback: The lesson deals precisely with the impact of these choices on both.
+          q2:
+            prompt: What does the lesson indicate as a consequence of hardware misaligned with the software
+              optimizations?
+            explanation: Software optimizations assume fast networks and storage; misaligned hardware
+              produces backpressure and tail latency.
+            options:
+              a:
+                label: Backpressure and tail latency.
+                feedback: Correct! The optimizations assume fast networks and storage; without them, backpressure
+                  and tail latency emerge.
+              b:
+                label: An automatic increase in the geographic diversity of validators.
+                feedback: That is not the consequence described in the lesson.
+              c:
+                label: Elimination of the need for deterministic scheduling.
+                feedback: Deterministic scheduling is still needed to handle conflicts.
+          q3:
+            prompt: According to the lesson, what is the tradeoff of using fine-grained locks in execution?
+            explanation: Fine-grained locks enable concurrency but require deterministic scheduling and
+              retry management.
+            options:
+              a:
+                label: They allow more concurrency but require deterministic scheduling and retry management.
+                feedback: Correct! You gain concurrency at the cost of deterministic coordination and
+                  retry handling.
+              b:
+                label: They completely eliminate the possibility of conflicts between transactions.
+                feedback: Conflicts still exist and must be managed.
+              c:
+                label: They make scheduling irrelevant to the execution outcome.
+                feedback: Deterministic scheduling is precisely an additional requirement.
+  introducao-ao-ecossistema-solana-e-terminologia:
+    title: Introducing the Solana Ecosystem and Terminology
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=-gUY-M9nE24
+      quiz:
+        questions:
+          q1:
+            prompt: How does the lesson describe the layered organization of the Solana ecosystem?
+            explanation: 'The ecosystem is layered: consensus and validators at the base, runtime and
+              programs in the middle, and developer-facing services at the edges.'
+            options:
+              b:
+                label: Wallets and SDKs at the base, consensus and validators in the middle, and runtime
+                  and programs at the edges of the ecosystem.
+                feedback: 'The layers are inverted: consensus and validators hold up the ecosystem, and
+                  the tooling sits at the edges.'
+              a:
+                label: Consensus and validators at the base, runtime and programs in the middle, and developer-facing
+                  services at the edges.
+                feedback: Correct! That is exactly the layering presented.
+              c:
+                label: A single flat layer in which indexers, accounts, validators, and wallets are interchangeable
+                  components.
+                feedback: The lesson describes layers with distinct roles, not interchangeable components.
+          q2:
+            prompt: What is the distinction between programs and accounts presented in the lesson?
+            explanation: Programs execute without holding state; accounts store persistent data and lamports.
+            options:
+              b:
+                label: Programs store the persistent state and accounts execute the logic.
+                feedback: That is the reverse of what the lesson teaches.
+              a:
+                label: Programs are stateless executors; accounts store persistent data and lamports.
+                feedback: Correct! That is why account layout must account for rent and concurrency.
+              c:
+                label: Programs and accounts are the same object, just with different names.
+                feedback: The lesson explicitly distinguishes them by function.
+          q3:
+            prompt: Which elements does the lesson point to as the developer's touchpoints with the ecosystem?
+            explanation: RPC nodes, indexers, and wallets are the developer's touchpoints.
+            options:
+              b:
+                label: Only the consensus mechanism.
+                feedback: Consensus is the base layer, not the developer's touchpoint.
+              c:
+                label: Only the BPF runtime.
+                feedback: The runtime is an intermediate layer, not the touchpoint described.
+              a:
+                label: RPC nodes, indexers, and wallets.
+                feedback: Correct! The task must be mapped to the right service among these touchpoints.
+  terminologia-essencial-da-solana-em-contexto:
+    title: Key Solana Terminology in Context
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=aG0LdWDx5_w
+      quiz:
+        questions:
+          q1:
+            prompt: According to the lesson, what is the distinction between validators, nodes, and clients?
+            explanation: Validators take part in consensus, nodes are processes and RPC endpoints, and
+              clients submit transactions.
+            options:
+              b:
+                label: Validators are client SDKs; nodes are user wallets; clients are miners that produce
+                  blocks.
+                feedback: 'Every role is swapped: validators take part in consensus and clients merely
+                  submit transactions.'
+              c:
+                label: 'All three terms name exactly the same entity: any machine that runs the Solana
+                  network software.'
+                feedback: The lesson explicitly separates the consensus actor, the running process, and
+                  the software that submits transactions.
+              a:
+                label: Validators are consensus actors; nodes are running processes and RPC endpoints;
+                  clients are SDKs or programs that submit transactions.
+                feedback: Correct! These are three distinct roles that are frequently confused.
+          q2:
+            prompt: What does a transaction declare, according to the lesson?
+            explanation: Programs execute logic, accounts store state and lamports, and transactions declare
+              the accounts that are read or written.
+            options:
+              a:
+                label: Which accounts will be read or written.
+                feedback: Correct! That declaration is what allows execution to be scheduled.
+              b:
+                label: The number of validators that must vote on it.
+                feedback: The number of voters is not declared by the transaction.
+              c:
+                label: The market price of the token at submission time.
+                feedback: The transaction does not declare a market price.
+          q3:
+            prompt: What are lamports according to the lesson?
+            explanation: Lamports are the smallest native unit and show up in fees, rent, and balance
+              differences.
+            options:
+              b:
+                label: A file format used to export the execution logs of an on-chain program.
+                feedback: Program logs are text returned by the runtime; a lamport is a unit of value,
+                  not a file format.
+              a:
+                label: The smallest native unit, which appears in fees, rent, and account balance differences.
+                feedback: Correct! That is why lamports show up in transaction outputs and in pre/post
+                  balances.
+              c:
+                label: The name of the official block explorer used to inspect the network's transactions.
+                feedback: Explorers are read interfaces; a lamport is the smallest native unit of value.
+  mapeando-categorias-de-projetos-no-ecossistema-solana:
+    title: Mapping Project Categories within the Solana Ecosystem
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=ApuugcBvETw
+      quiz:
+        questions:
+          q1:
+            prompt: In the terminology-to-role mapping presented in the lesson, what corresponds to `account`?
+            explanation: 'The mapping is: `program` = on-chain logic, `account` = data/state, RPC/indexer
+              = data access.'
+            options:
+              a:
+                label: Data and state.
+                feedback: Correct! `program` is on-chain logic, `account` is data/state, and RPC/indexer
+                  is data access.
+              b:
+                label: On-chain logic executed by transactions.
+                feedback: That is the definition of `program`, not `account`.
+              c:
+                label: The data access and query layer.
+                feedback: That is the role of RPC nodes and indexers.
+          q2:
+            prompt: How does the lesson suggest classifying a project from its documentation?
+            explanation: The documentation's emphasis (program IDs, RPC metrics, signing flows) indicates
+              the project's category.
+            options:
+              b:
+                label: By the age of the domain and the size of the team listed on the "About" page, which
+                  indicate the category's maturity.
+                feedback: Domain age and team size speak to organizational maturity, not which technical
+                  role the project occupies.
+              a:
+                label: 'By what the documentation emphasizes: program IDs indicate a protocol, RPC metrics
+                  indicate infrastructure, and signing flows indicate wallets/clients.'
+                feedback: Correct! What the documentation highlights reveals the project's category.
+              c:
+                label: By the volume of commits in the public repository, which separates protocols from
+                  infrastructure and from user-facing applications.
+                feedback: Repository activity is a maintenance signal and does not distinguish protocol,
+                  infrastructure, and wallet.
+          q3:
+            prompt: Which health signals does the lesson associate with each project category?
+            explanation: 'Each category has its own signal: on-chain activity for programs, uptime and
+              latency for RPC and indexing infrastructure, and release notes and SDKs for wallets and
+              clients.'
+            options:
+              b:
+                label: Social media engagement serves as a health signal for every category, without distinction.
+                feedback: Social engagement measures neither infrastructure availability nor on-chain
+                  activity.
+              c:
+                label: The price of the native token serves as a health signal for every category, without
+                  distinction.
+                feedback: Price is a market signal and does not differentiate the categories from one
+                  another.
+              a:
+                label: On-chain activity for programs, uptime and latency for infrastructure, and release
+                  notes and SDKs for wallets.
+                feedback: Correct! Each category is judged by the signal that matches its function.
+  navegando-pelos-recursos-da-solana-e-proximos-passos:
+    title: Navigating Solana Resources and Next Steps
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=dToLtI4sDww
+      quiz:
+        questions:
+          q1:
+            prompt: What is the confirmation rule proposed by the lesson's layered-evidence model?
+            explanation: The layers are docs, repository, on-chain, and community, and the rule is to
+              require two signals.
+            options:
+              a:
+                label: Require two signals among docs, repository, on-chain, and community before accepting
+                  a claim.
+                feedback: Correct! Cross-confirmation across two layers is the proposed criterion.
+              b:
+                label: Accept the claim as soon as it appears in the official documentation, treating
+                  it as the single source of truth.
+                feedback: The official documentation is one of the layers, but the rule requires a second,
+                  independent signal.
+              c:
+                label: Discard any claim that has no on-chain record, even when docs and repository agree.
+                feedback: The on-chain record is one of the four layers, not a standalone mandatory requirement.
+          q2:
+            prompt: What kind of artifact does the lesson tell you to prioritize when judging whether
+              a project is maintained?
+            explanation: Release tags and CI are the version artifacts prioritized for judging maintenance.
+            options:
+              a:
+                label: Cryptographic and version artifacts, such as release tags and CI.
+                feedback: Correct! These artifacts are harder to fake than social signals.
+              b:
+                label: The number of messages in the community channel.
+                feedback: Community activity is just one of the layers and not the priority here.
+              c:
+                label: The creation date of the project's website domain.
+                feedback: That is not one of the artifacts prioritized by the lesson.
+          q3:
+            prompt: What does the lesson ask you to record about each project you review?
+            explanation: The record is a concise, per-project comparison row with the verified signals,
+              to support later analysis of incentives and architecture.
+            options:
+              b:
+                label: The full transcript of every message exchanged in the project's community channels.
+                feedback: Raw transcripts are not comparable across projects and do not support architecture
+                  analysis.
+              c:
+                label: Only the project's name and its official website address, for future reference.
+                feedback: Name and site do not record the verified signals and do not allow comparison.
+              a:
+                label: Concise comparison rows with the verified signals, which support analysis of incentives
+                  and architecture.
+                feedback: Correct! The record needs to be short, comparable, and anchored in verified
+                  signals.
+  enquadrando-o-projeto-final-escopo-e-metodo-para-a-historia-da-solana:
+    title: 'Framing the Capstone: Scope and Method for Solana''s Story'
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=RdVpBLK_2Pg
+      quiz:
+        questions:
+          q1:
+            prompt: Which mental model is proposed for framing the capstone?
+            explanation: The model is a timeline plus an architecture map, linking events to system changes.
+            options:
+              a:
+                label: A timeline combined with an architecture map, linking events to system changes.
+                feedback: Correct! The model connects the temporal axis to the architectural axis.
+              b:
+                label: A pure chronology of public events, with no architectural component to link dates
+                  to system changes.
+                feedback: A chronology alone cannot connect an event to a concrete change in architecture.
+              c:
+                label: A contract security risk matrix, used to prioritize audits before the report is
+                  written.
+                feedback: A risk matrix is an audit instrument; the framing asked for combines a timeline
+                  with an architecture map.
+          q2:
+            prompt: What is the sequence of the workflow recommended in the lesson?
+            explanation: The workflow is Research, Source, Structure, and Validate, with exit criteria
+              at each stage.
+            options:
+              b:
+                label: Validate, Structure, Source, Research — validating the conclusions before collecting
+                  the sources that support them.
+                feedback: 'Validating before collecting inverts the flow: there is nothing to validate
+                  without recorded sources.'
+              a:
+                label: Research, Source, Structure, Validate, meeting the exit criteria before moving
+                  on.
+                feedback: Correct! Each stage has exit criteria that must be met.
+              c:
+                label: Structure, Research, Validate, Source — defining the chapters before knowing what
+                  evidence exists.
+                feedback: Structuring before researching fixes the narrative before the evidence, exactly
+                  what the exit criteria prevent.
+          q3:
+            prompt: Why does the lesson ask that diagrams be annotated with primary artifacts and confidence
+              levels?
+            explanation: Annotating primary artifacts and confidence levels makes the claims auditable.
+            options:
+              b:
+                label: To reduce the page count of the final report.
+                feedback: The annotation is not for compression.
+              a:
+                label: So that the report's claims are auditable.
+                feedback: Correct! The annotation makes each claim traceable to its evidence.
+              c:
+                label: To eliminate the need for a bibliography.
+                feedback: A bibliography is still required in the report.
+  sintetizando-a-historia-da-solana:
+    title: Synthesizing Solana History
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=ZCx35L0wP4k
+      quiz:
+        questions:
+          q1:
+            prompt: How many explanatory milestones does the lesson recommend selecting, and with what
+              requirement?
+            explanation: Select five to eight explanatory milestones, each supported by primary evidence
+              or strong secondary evidence.
+            options:
+              b:
+                label: Exactly twenty milestones, listed in chronological order and with no evidence requirement
+                  for each one.
+                feedback: Twenty items with no evidence requirement produce a list, not an explanatory
+                  synthesis.
+              c:
+                label: A single milestone, chosen for the greatest media impact, serving as a summary
+                  of the entire trajectory.
+                feedback: An isolated milestone cannot support a narrative that links events to architectural
+                  choices.
+              a:
+                label: Five to eight milestones, each justified by primary evidence or strong secondary
+                  evidence.
+                feedback: Correct! The range and the evidence requirement are explicit in the lesson.
+          q2:
+            prompt: What are the three elements of the Storyline Scaffold presented in the lesson?
+            explanation: The scaffold has a backbone (milestones), connectors (mechanisms), and evidence
+              panels (citations).
+            options:
+              b:
+                label: Introduction, body, and conclusion, inherited from the classical structure of school-essay
+                  writing.
+                feedback: That is a generic prose structure; the lesson's scaffold is specific to historical
+                  evidence.
+              a:
+                label: Backbone (milestones), connectors (mechanisms), and evidence panels (citations).
+                feedback: Correct! The backbone orders, the connectors explain, and the panels provide
+                  support.
+              c:
+                label: Hypothesis, experiment, and result, inherited from the experimental method of the
+                  natural sciences.
+                feedback: 'The scaffold is not experimental: it organizes milestones, mechanisms, and
+                  citations.'
+          q3:
+            prompt: What is the requirement for the synthesis draft called for in the lesson?
+            explanation: The draft is 500 to 800 words and links at least two events to architectural
+              choices.
+            options:
+              b:
+                label: Exactly 2,000 words, with no requirement to link historical events to architectural
+                  choices.
+                feedback: The length is wrong and the explicit link between event and architecture is
+                  precisely what is asked for.
+              c:
+                label: A single-sentence summary, with no citations and no indication of the evidence
+                  that supports it.
+                feedback: A single sentence cannot hold the two required event-to-architecture links or
+                  the citations.
+              a:
+                label: 500 to 800 words, explicitly linking at least two events to architectural choices.
+                feedback: Correct! And the weaker claims must be annotated for peer review.
+  analisando-a-arquitetura-da-solana-para-o-relatorio:
+    title: Analyzing Solana Architecture for the Report
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=rvTA1bLYqhc
+      quiz:
+        questions:
+          q1:
+            prompt: According to the lesson, how do you turn a historical milestone into an architecture
+              claim?
+            explanation: The architecture claim names a component, states its mechanism, and states its
+              implication.
+            options:
+              a:
+                label: By naming a component, stating its mechanism, and stating its implication.
+                feedback: Correct! Component, mechanism, and implication form the shape of the claim.
+              b:
+                label: By citing the event's date and the name of whoever announced it.
+                feedback: Date and authorship alone do not constitute an architecture claim.
+              c:
+                label: By comparing the token's price before and after the event.
+                feedback: The lesson does not use price as the basis for an architecture claim.
+          q2:
+            prompt: Which components does the lesson ask you to summarize in a table of responsibilities
+              and implications?
+            explanation: The table covers PoH, Turbine, Gulf Stream, Sealevel, and Tower BFT.
+            options:
+              b:
+                label: Wallets, explorers, and indexers, since they are the user's visible points of contact.
+                feedback: Those are ecosystem services, not core components of the protocol architecture.
+              c:
+                label: Only PoH, treating Turbine, Gulf Stream, Sealevel, and Tower BFT as implementation
+                  details.
+                feedback: 'The lesson asks for the full table: each component carries a distinct implication
+                  for the report.'
+              a:
+                label: PoH, Turbine, Gulf Stream, Sealevel, and Tower BFT, with responsibilities and implications.
+                feedback: Correct! Those are the five components the report's table needs to cover.
+          q3:
+            prompt: What kind of evidence does the lesson recommend collecting via RPC to support the
+              report's claims?
+            explanation: Small read-only RPC probes serve as dated evidence for the report.
+            options:
+              b:
+                label: Write transactions that change the state of test accounts.
+                feedback: The lesson asks for read-only probes, not writes.
+              c:
+                label: Screenshots of the founders' social media.
+                feedback: That is not the kind of technical evidence proposed.
+              a:
+                label: Small read-only probes, recorded as dated evidence.
+                feedback: Correct! They are one-off, dated reads with no effect on the network.
+  relatorio-final-redacao-e-polimento-do-relatorio-abrangente-sobre-solana:
+    title: 'Final Report: Drafting and Polishing the Comprehensive Solana Report'
+    blocks:
+      video:
+        url: https://www.youtube.com/watch?v=1GhnZSZrltA
+      quiz:
+        questions:
+          q1:
+            prompt: Which materials should be combined in the final document, according to the lesson?
+            explanation: The final document combines the capstone outline, the historical draft, and the
+              architectural notes.
+            options:
+              a:
+                label: The capstone outline, the historical draft, and the architectural notes.
+                feedback: Correct! The three artifacts produced in the earlier lessons converge into a
+                  single document.
+              b:
+                label: Only the historical draft, discarding the architectural notes.
+                feedback: The architectural notes are part of the final document.
+              c:
+                label: Only the bibliography and the explorer screenshots.
+                feedback: The final document is much broader than that.
+          q2:
+            prompt: What are the acceptance criteria for the final report?
+            explanation: The criteria are a timeline with citations, architecture explanations, explicit
+              linkages between them, and a complete bibliography.
+            options:
+              b:
+                label: A maximum page limit and a cover page formatted according to the template delivered
+                  at the start of the module.
+                feedback: Formatting does not substitute for citations, architecture explanations, and
+                  the explicit links between them.
+              a:
+                label: A timeline with citations, architecture explanations, explicit linkages between
+                  them, and a complete bibliography.
+                feedback: Correct! Those are the four stated acceptance criteria.
+              c:
+                label: The presence of colorful images and diagrams in every section, regardless of the
+                  sources cited.
+                feedback: Diagrams aid reading, but the acceptance criteria are about evidence and argumentative
+                  linkage.
+          q3:
+            prompt: What are the build passes planned before the peer-review packet?
+            explanation: The passes are structural, content, and citation, followed by the checkpoint
+              and the peer-review packet.
+            options:
+              b:
+                label: Compilation, unit tests, and deployment.
+                feedback: Those steps belong to software development, not to writing the report.
+              c:
+                label: Translation, layout, and printing.
+                feedback: Those are not the passes described in the lesson.
+              a:
+                label: Structural, content, and citation.
+                feedback: Correct! After them comes the checkpoint checklist.

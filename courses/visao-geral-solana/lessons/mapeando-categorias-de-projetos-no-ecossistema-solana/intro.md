@@ -10,7 +10,7 @@
 
 **Conceitos:** Principais categorias de projetos na visão geral do ecossistema Solana; Como a terminologia Solana se mapeia para diferentes tipos de projetos; Indicadores de participação ativa de desenvolvedores e saúde do projeto; Onde encontrar recursos autoritativos dentro do ecossistema Solana; Interdependências entre projetos e serviços da plataforma
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 13 min
 
 ---
 

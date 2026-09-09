@@ -10,7 +10,7 @@
 
 **Conceitos:** Definições de validadores, nós e clientes na terminologia Solana; Conceitos de programas, contas e transações em termos Solana; Unidades e taxas conforme descritas na terminologia Solana; Exploradores e referências de recursos comuns à Solana; Como ler glossários e documentação de protocolo relacionados à terminologia Solana
 
-**Tempo de leitura:** 20 min
+**Tempo de leitura:** 13 min
 
 ---
 

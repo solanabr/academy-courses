@@ -10,7 +10,7 @@
 
 **Conceitos:** Estabilidade técnica e preocupações de confiabilidade; Crescimento da rede e restrições operacionais nos estágios iniciais; Incidentes de segurança e esforços de remediação iniciais; Compromissos entre financiamento e alocação de recursos; Canais de feedback da comunidade e respostas iniciais
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 13 min
 
 ---
 

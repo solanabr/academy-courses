@@ -10,7 +10,7 @@
 
 **Conceitos:** Motivações iniciais por trás da criação da Solana; Equipe fundadora e seus papéis; Visão técnica inicial e prioridades; Primeiras fontes de financiamento e mecanismos de apoio; Primeiros marcos públicos e anúncios
 
-**Tempo de leitura:** 25 min
+**Tempo de leitura:** 13 min
 
 ---
 
@@ -20,7 +20,7 @@ A Solana começou como resposta a uma questão prática de engenharia: como esca
 
 Colocamos a história de origem da Solana aqui para que você veja como restrições iniciais diferentes e prioridades dos fundadores produzem visões técnicas distintas. Você acaba de examinar os motivos históricos que levaram ao whitepaper do Bitcoin — instabilidade macroeconômica, falta de confiança em intermediários centralizados e uma solução criptográfica para gasto-duplo — e agora traçará como um conjunto separado de motivos produziu o design da Solana. Comparando os problemas motivadores, a equipe fundadora, o financiamento inicial e os marcos públicos iniciais, você construirá um mapa que liga motivações a prioridades de design concretas, como alta vazão, baixa latência e ergonomia para desenvolvedores.
 
-Nos parágrafos a seguir, introduzimos os conceitos-chave da lição: as motivações iniciais por trás da criação da Solana, a equipe fundadora e seus papéis, a visão técnica e prioridades iniciais, mecanismos iniciais de financiamento e apoio, e os primeiros marcos públicos e anúncios do projeto. Você verá decisões e cronogramas específicos que esclarecem por que a Solana enfatiza ordenação baseada em relógio e concorrência otimista em vez de replicar exatamente o design do Bitcoin. Conhecer esses detalhes tornará as lições técnicas posteriores mais fáceis de decodificar, porque você já reconhecerá quais problemas o design pretendia resolver.
+Nos parágrafos a seguir, desenvolvemos cada um desses conceitos em detalhe. Você verá decisões e cronogramas específicos que esclarecem por que a Solana enfatiza ordenação baseada em relógio e concorrência otimista em vez de replicar exatamente o design do Bitcoin. Conhecer esses detalhes tornará as lições técnicas posteriores mais fáceis de decodificar, porque você já reconhecerá quais problemas o design pretendia resolver.
 
 ---
 

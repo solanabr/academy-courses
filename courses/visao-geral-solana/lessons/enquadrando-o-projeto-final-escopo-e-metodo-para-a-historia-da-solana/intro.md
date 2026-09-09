@@ -10,7 +10,7 @@
 
 **Conceitos:** História da Solana; Arquitetura da Solana; coleta de evidências e fontes; estruturar uma narrativa histórica; organização e seções do relatório; alinhamento de objetivos e critérios de avaliação
 
-**Tempo de leitura:** 20 min
+**Tempo de leitura:** 16 min
 
 ---
 
@@ -47,6 +47,10 @@ Concretamente, quando você coloca um marco como "implementação de uma otimiza
 Esse modelo mental também orienta a priorização. Se você tiver tempo limitado, escolha itens da linha do tempo que conectem a múltiplos nós no mapa arquitetural — esses são eventos de alto impacto que moldaram vários subsistemas. Por outro lado, isole eventos periféricos (por exemplo, pequenas mudanças de tooling documentadas apenas em issues de repositórios) como "candidatos a apêndice" que oferecem profundidade sem distrair a narrativa principal. Pensar em mapas paralelos converte um corpo de evidências potencialmente difuso em um esqueleto narrativo estruturado que você pode rastrear e defender.
 
 ![Modelo Mental: Linha do Tempo vs Mapa](assets/v01-modelo-mental-linha-do-tempo-vs-mapa.webp)
+
+![Nós da Arquitetura Principal](assets/v04-nos-da-arquitetura-principal.webp)
+
+![Metadados e Marcação](assets/v05-metadados-e-marcacao.webp)
 
 ## Fluxo de Trabalho: Pesquisar, Fonte, Estruturar, Validar
 
@@ -92,6 +96,8 @@ Passo 5: Validar e sinalizar ambiguidades. Execute os critérios de saída de va
 Por que isso importa: este exemplo mostra como converter sinais de fonte em uma seção de arquitetura defensável em vez de um texto opinativo. Ao vincular anotações em diagramas a artefatos específicos e rótulos de confiança, você torna a seção útil tanto para engenheiros que querem detalhes técnicos quanto para historiadores que precisam de evidência rastreável. Essa abordagem também prepara você para a próxima lição, onde sintetizaremos os itens de linha do tempo selecionados em uma narrativa integrada com citações explícitas e declarações de corroboração.
 
 ![Das Evidências à Narrativa](assets/v03-das-evidencias-a-narrativa.webp)
+
+![Evento para Resultado Arquitetural](assets/v06-evento-para-resultado-arquitetural.webp)
 
 ## Conclusão & Principais Lições
 

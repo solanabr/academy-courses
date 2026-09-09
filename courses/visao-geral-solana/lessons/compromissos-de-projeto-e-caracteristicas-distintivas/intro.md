@@ -10,7 +10,7 @@
 
 **Conceitos:** trade-offs entre escalabilidade e descentralização; considerações de projeto sobre throughput e latência; implicações da coordenação hardware e software; modos de falha e resiliência em nível de sistema; considerações operacionais e de manutenção
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 11 min
 
 ---
 

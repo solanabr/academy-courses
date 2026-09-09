@@ -10,7 +10,7 @@
 
 **Conceitos:** Componentes da visão geral do ecossistema Solana; Terminologia comum da Solana e definições; Papéis dos participantes dentro do ecossistema Solana; Como projetos e elementos de infraestrutura se encaixam; Pontos de contato para desenvolvedores no ecossistema Solana
 
-**Tempo de leitura:** 25 min
+**Tempo de leitura:** 13 min
 
 ---
 
