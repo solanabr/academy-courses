@@ -5,50 +5,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   content-lint:
     name: content-lint
-    runs-on: ubuntu-latest
-    steps:
-      # fetch-depth: 0 so `git merge-base HEAD origin/<base>` resolves. With a
-      # shallow fetch there is no common ancestor, content-lint degrades to the
-      # base tip and reports the comparison as inexact — which silently weakens
-      # the id- and slot-immutability gates (see packages/content-lint/src/git.ts).
-      - name: Checkout content
-        uses: actions/checkout@v4
-        with:
-          path: content
-          fetch-depth: 0
-
-      # The linter lives in the app repo (public, no token needed).
-      - name: Checkout tooling
-        uses: actions/checkout@v4
-        with:
-          repository: solanabr/superteam-academy
-          ref: main
-          path: tooling
-
-      # The pnpm version comes from `packageManager` in the TOOLING package.json —
-      # this repo has none, which is why the default lookup fails.
-      - uses: pnpm/action-setup@v4
-        with:
-          package_json_file: tooling/package.json
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: pnpm
-          cache-dependency-path: tooling/pnpm-lock.yaml
-
-      # Only content-lint and its workspace deps (content-schema,
-      # challenge-executor, types) — not apps/web, which needs env vars to build.
-      - name: Install tooling
-        working-directory: tooling
-        run: pnpm install --frozen-lockfile --filter "@superteam-lms/content-lint..."
-
-      # GITHUB_BASE_REF is set by GitHub on pull_request events; content-lint
-      # reads it directly and rewrites the bare branch name to `origin/<name>`.
-      # On push it is unset, and the immutability gates are skipped by design.
-      - name: Lint content tree
-        working-directory: tooling
-        run: pnpm --filter @superteam-lms/content-lint exec tsx src/cli.ts "$GITHUB_WORKSPACE/content"
+    uses: solanabr/superteam-academy/.github/workflows/validate-content.yml@main
