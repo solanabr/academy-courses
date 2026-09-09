@@ -4,5 +4,11 @@
     "description": "The program compiles and deploys on the build server",
     "input": "",
     "expectedOutput": "ok"
+  },
+  {
+    "id": "t2",
+    "description": "Compiles ⇒ a function named `ping` exists at module scope",
+    "input": "",
+    "expectedOutput": "true"
   }
 ]
