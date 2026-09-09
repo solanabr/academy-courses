@@ -6,7 +6,7 @@ Last lesson you wrote the next-season plan and named the date the next Colosseum
 
 Open hackathon.superteam.com.br/h and **create a file called rehearsal-plan.md**.
 
-Superteam Brasil put a **US$10,000 USDG side track**, a regional prize attached to the Colosseum season, on Colosseum's Frontier season, the row in your prize table from lesson 1. One season earlier, on Cypherpunk, 299 people registered through Superteam Brasil's funnel, 52 projects were submitted, 7 classified and 2 awarded, per Cointelegraph Brasil, read 2026-09-06. The article does not spell out the 7, *and I read it loosely as the region's own selection*, so **keep the four numbers exact**. One of the two, Cloak (x.com/cloak_ag), **placed third** in the global Stablecoin Track with US$15,000, behind MCPay's first with US$25,000, and as of 2026-09-06 its site says it is backed by a US$250,000 pre-seed through the Colosseum Accelerator. *Third was enough.*
+Superteam Brasil put a **US$10,000 USDG side track**, a regional prize attached to the Colosseum season, on Colosseum's Frontier season, the row you read in lesson 1. One season earlier, on Cypherpunk, 299 people registered through Superteam Brasil's funnel, 52 projects were submitted, 7 classified and 2 awarded, per Cointelegraph Brasil, read 2026-09-06. The article does not spell out the 7, *and I read it loosely as the region's own selection*, so **keep the four numbers exact**. One of the two, Cloak (x.com/cloak_ag), **placed third** in the global Stablecoin Track with US$15,000, behind MCPay's first with US$25,000, and as of 2026-09-06 its site says it is backed by a US$250,000 pre-seed through the Colosseum Accelerator. *Third was enough.*
 
 A rehearsal is any **seasonal hackathon or Earn side track** that takes the package you have and tests how you deliver it, the same package under a smaller spec and a shorter clock. It costs a week of the month and a second set of forms, *so the plan names one and says no to the rest in writing*.
 
@@ -82,7 +82,7 @@ changes        written after the pitch day, from the panel's scores, before the 
 ## Watch out
 
 - **The edition's own criteria** are not the target. Colosseum's seven factors from lesson 2 are, and a criterion the edition scores and Colosseum does not is information about that edition, not a reason to move a slide.
-- **Last season's side-track amount** is not this season's, and it is the easy mistake because the old number is already in your prize table.
+- **Last season's side-track amount** is not this season's, and it is the easy mistake because the old number is already in your head.
 - **Nobody in the room** at an in-person final turns the rehearsal into a form, and that is the mistake that costs the most.
 
 ## The takeaway

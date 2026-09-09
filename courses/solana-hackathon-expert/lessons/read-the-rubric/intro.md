@@ -1,12 +1,12 @@
 # What winning means at Colosseum
 
-Last lesson you pulled the record into a prize table: two seasons of side tracks, and the four hackathons Unruggable entered before it won one, read off its card on colosseum.com/hackathon. Keep it open. This lesson writes the file that says *what that table is worth to you*.
+Last lesson you read the record: two seasons of side tracks, and the four hackathons Unruggable entered before it won one, read off its card on colosseum.com/hackathon. This lesson writes the file that says *what that record is worth to you*.
 
 ## Why this matters
 
 Colosseum reviews your repository, and its hackathon page, as of the 2026 World's Fair season, says in its own words that the review is not looking at your language, your framework, your patterns or your code quality. *Read that twice.* The same page says that Colosseum hackathons are startup competitions. That is the one idea: **the judging criteria tell you exactly what gets scored**, and what gets scored is a company, not the code.
 
-I won a hackathon in Dubai with an idea I thought too simple to place, and no planned demo. It matched exactly what the organizers were looking for and the pitch sold it, and *none of that was about the code*. Luck is not a plan you can hand to a teammate. The brief is.
+I always like giving the example of an in-person hackathon I won in Dubai, with an idea I thought too simple to place and no planned demo. It matched exactly what the organizers were looking for and the pitch sold it, and *none of that was about the code*. Luck is not a plan you can hand to a teammate. The brief is.
 
 ## Do this
 
