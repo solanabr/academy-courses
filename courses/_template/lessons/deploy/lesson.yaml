@@ -15,3 +15,9 @@ blocks:
     tests: program/tests.json
     consumes: [funded-wallet]
     produces: deployed-program
+  # The deploy panel is mounted by this block and nothing else, and Submit only
+  # appears once the panel reports a successful deploy. A deployable block
+  # without it is a lesson nobody can finish.
+  - key: deployed
+    type: deployed-program-card
+    consumes: [deployed-program]
