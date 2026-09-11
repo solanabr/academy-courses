@@ -815,7 +815,7 @@ Read the last four lines as a set. The supply delta equals the minted amount exa
 
 Wire the whole thing yourself, in one run, and make it produce three artifacts of evidence.
 
-First, a gate result per wallet, both verdicts, each from a DAS read. Second, a migrated amount whose supply delta matches to the base unit, through the merkle path rather than a bare mint. Be precise about what that phrase demands, because your `migrateClaim` IS a `getMintToInstruction` at its core and that is fine: the requirement is that the mint fires only after your proof verification and claim-ledger check both pass, so a tampered or replayed leaf never reaches it. You are proving the gate in FRONT of the mint is load-bearing, not that you drove the real distributor, which this lesson explicitly declined to do. Third, a rejected second claim of the same leaf.
+First, a gate result per wallet, both verdicts, each from a DAS read. Second, a migrated amount whose supply delta matches to the base unit, through the merkle path rather than a bare mint. Be precise about what that phrase demands, because your `migrateClaim` IS a `getMintToInstruction` and that is fine: the requirement is that the mint fires only after your proof verification and claim-ledger check both pass, so a tampered or replayed leaf never reaches it. You are proving the gate in FRONT of the mint is load-bearing, not that you drove the real distributor, which this lesson explicitly declined to do. Third, a rejected second claim of the same leaf.
 
 Then push on it, because the interesting part is not the happy path.
 

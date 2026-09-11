@@ -18,13 +18,13 @@ surfpool start --no-tui --no-studio
 
 Leave the surfnet running in that terminal and open a second one. We will fill the folder as we go.
 
-The autonomy fade for this lesson, stated out loud: the mint build is worked in full, I walk every instruction and you type along. The fee constants and the harvest sequence are completion exercises: the file ships with TODOs and the theory tells you exactly what goes in them. And the fee arithmetic itself is solo: the module's coding challenge hands you a broken `transferFee` and a test suite, no scaffolding.
+The autonomy fade for this lesson: the mint build is worked in full, I walk every instruction and you type along. The fee constants and the harvest sequence are completion exercises: the file ships with TODOs and the theory tells you exactly what goes in them. And the fee arithmetic itself is solo: the module's coding challenge hands you a broken `transferFee` and a test suite, no scaffolding.
 
 ## The fee lifecycle
 
 ### One extension that moves money, two that only talk about it
 
-The three extensions in today's set look like siblings and are not. TransferFeeConfig changes what a transfer DOES: tokens actually move differently, someone actually receives less. InterestBearingConfig and ScaledUiAmount change what a balance LOOKS LIKE: they rewrite the number a wallet displays while the raw amount on chain sits untouched. Hold that split firmly, because every footgun in this lesson comes from blurring it.
+The three extensions in this set look like siblings and are not. TransferFeeConfig changes what a transfer DOES: tokens actually move differently, someone actually receives less. InterestBearingConfig and ScaledUiAmount change what a balance LOOKS LIKE: they rewrite the number a wallet displays while the raw amount on chain sits untouched. Hold that split firmly, because every footgun ahead comes from blurring it.
 
 Start with the one that moves money. TransferFeeConfig is mint-level state with two authorities and two fee schedules inside it. The fee itself is two numbers: `transfer_fee_basis_points`, the percentage in hundredths of a percent, and `maximum_fee`, a hard cap in base units. On every transfer the program computes:
 
@@ -56,7 +56,7 @@ The forced slot also has a price tag, and it is paid per holder, not by you. Eve
 
 Why build it this way? Derive it from what you know about the runtime instead of taking it as a quirk. Suppose fees routed inline to a treasury. Then every transfer of the token would need the treasury account in its account list, writable. One hot writable account shared by every transfer means no two transfers of your token can execute in parallel, ever: you would have serialized your entire token economy through a single lock. Worse, the transfer instruction's account shape would change whenever the treasury moved. Withholding on the recipient keeps each transfer touching only the accounts it was already touching, so parallel execution survives, and it converts fee routing into what it honestly is: an asynchronous batch job. The protocol does not do the job for you. It just makes the job possible, and cheap.
 
-That batch job has a name, three names actually, and they are the load-bearing vocabulary of this lesson. `harvest_withheld_tokens_to_mint` sweeps withheld fees from any list of token accounts onto the mint itself, into a `withheld_amount` field inside the mint's own TransferFeeConfig. It is permissionless: anyone may call it, because it only consolidates, it cannot steal. `withdraw_withheld_tokens_from_mint` then moves the consolidated pile from the mint to any destination token account, and THIS one is gated by the `withdraw_withheld_authority`. There is also a direct route, `withdraw_withheld_tokens_from_accounts`, which pulls from token accounts straight to a destination in one authority-gated hop, useful when you want fees out of specific accounts without the mint stopover.
+That batch job has a name, three names actually, and they are the working vocabulary of this lesson. `harvest_withheld_tokens_to_mint` sweeps withheld fees from any list of token accounts onto the mint itself, into a `withheld_amount` field inside the mint's own TransferFeeConfig. It is permissionless: anyone may call it, because it only consolidates, it cannot steal. `withdraw_withheld_tokens_from_mint` then moves the consolidated pile from the mint to any destination token account, and THIS one is gated by the `withdraw_withheld_authority`. There is also a direct route, `withdraw_withheld_tokens_from_accounts`, which pulls from token accounts straight to a destination in one authority-gated hop, useful when you want fees out of specific accounts without the mint stopover.
 
 ![Flowchart of the fee lifecycle: fees withheld on recipient accounts, permissionless harvest to the mint, authority-gated withdraw to a treasury, plus a direct authority-gated accounts-to-destination route.](assets/v05-flowchart.png)
 

@@ -206,7 +206,7 @@ That loop is the paging shape to internalize. DAS pages are one-indexed, the pag
 
 ### Configured is not the same as active
 
-Here is where an index stops being enough, and it is the sharpest idea in this lesson.
+Here is where an index stops being enough.
 
 DAS hands you a token's shape. It does not hand you the token's behavior. Those are different questions, and conflating them produces integrations that display confident nonsense.
 

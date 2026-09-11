@@ -62,7 +62,7 @@ The pricing rule is the oldest one in on-chain markets. The product of the two v
 k = virtualSol x virtualToken
 ```
 
-Buy tokens and the virtual token reserve falls while the virtual SOL reserve rises, in exactly the proportion that keeps `k` where it was. That is the constant-product invariant, and it is worth naming precisely because everything else in this lesson is a consequence of it. The spot price at any moment is just the ratio of the two reserves, SOL per token. At birth that is 30 divided by 1.073 billion, or about 2.796e-8 SOL per token. Cheap on purpose. The first buyer is supposed to feel early.
+Buy tokens and the virtual token reserve falls while the virtual SOL reserve rises, in exactly the proportion that keeps `k` where it was. That is the constant-product invariant, and it is worth naming precisely because everything that follows is a consequence of it. The spot price at any moment is just the ratio of the two reserves, SOL per token. At birth that is 30 divided by 1.073 billion, or about 2.796e-8 SOL per token. Cheap on purpose. The first buyer is supposed to feel early.
 
 If you want to write a constant-product swap yourself rather than read one, the Master Anchor V2 course builds a toy one as a framework pattern. Here we only need the invariant as an accounting fact, not as a program to author.
 
