@@ -75,7 +75,7 @@ So the naive tier collapses, and the requirement sharpens into something narrowe
 
 ### The mechanism: a CpiHandle is a borrow
 
-Here is the load-bearing idea, defined precisely. In V2 you no longer hand a CPI an `AccountInfo` clone. You hand it a `CpiHandle`, which you get with `.cpi_handle()` or `.cpi_handle_mut()`. And a `CpiHandle` is not a copy of anything. It is a live Rust borrow of the account, held for as long as the handle is in scope.
+The idea the whole mechanism rests on: in V2 you no longer hand a CPI an `AccountInfo` clone. You hand it a `CpiHandle`, which you get with `.cpi_handle()` or `.cpi_handle_mut()`. And a `CpiHandle` is not a copy of anything. It is a live Rust borrow of the account, held for as long as the handle is in scope.
 
 That one design choice does all the work. While a `CpiHandle` is alive, the account it points at is borrowed, so the borrow checker will not let you form a second, conflicting borrow to read typed data. The read and the handle cannot coexist.
 

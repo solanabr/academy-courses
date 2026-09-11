@@ -27,7 +27,7 @@ This is the first of two migration deltas. It is a why-not-just-what tour of the
 
 We will walk six changes. For each one: the exact break, the reason the framework made it, and the one edit that fixes it. By the end you should be able to look at a 0.32 snippet and name the 1.0 change it hits from memory. That recognition is the whole point.
 
-A word on how these lessons hand off responsibility. Early in this course I walked you command by command. Here I hand you the toolchain bump and a grep, and you read the compiler yourself. In m10-l2 you get the source and a delta table and drive a small port yourself. By m10-l3 you get a broken repo whose mechanical edits are marked and whose two hardest edits are not, because by then the compiler's own output is the marker. The training wheels come off across the module on purpose, and this lesson is where the first one comes off.
+A word on how these lessons hand off responsibility. Early in this course I walked you command by command. Here I hand you the toolchain bump and a grep, and you read the compiler yourself. In m10-l2 you get the source and a delta table and drive a small port yourself. By m10-l3 you get a broken repo whose mechanical edits are marked and whose two hardest edits are not, because by then the compiler's own output is the marker. The training wheels come off across the module, and this lesson is where the first one comes off.
 
 ## The map of what moved, and why
 
@@ -134,7 +134,7 @@ It also proves something the conclusion of this module (m10-l4) will formalize i
 
 ## Lab: port reconnaissance
 
-No build today. The activity is diagnosis, and it is real work: you are going to make a 0.32 program fail on the 1.x line on purpose, then read every break it produces and map it to the six changes above before you fix a single line. This is the reconnaissance you would do on day one of a real port, and doing it once here is what turns m10-l3 into a checklist.
+Nothing gets built. The activity is diagnosis, and it is real work: you are going to make a 0.32 program fail on the 1.x line on purpose, then read every break it produces and map it to the six changes above before you fix a single line. This is the reconnaissance you would do on day one of a real port, and doing it once here is what turns m10-l3 into a checklist.
 
 Earlier lessons handed you each command with its output. Here you get the moves and you read the compiler yourself. That is the autonomy fade in action: by m10-l3 the only guidance left is the compiler's own error text.
 

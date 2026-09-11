@@ -24,7 +24,7 @@ Start with the question that actually matters, because it is the one that keeps 
 
 The naive answer is "more breaking changes piled up." Tempting, and wrong. If it were only volume, the fix would be the same as last time, only longer: bump the version, grind the errors, ship. That approach fails on the first file, and it fails for a specific reason. 0.3x to 1.0 was the same framework wearing new names. V2 is a different framework that happens to keep most of the names. It is a `no_std` rewrite built on pinocchio, the zero-copy, dependency-light runtime layer. Anchor did not edit its old code to get here. It rebuilt on a new foundation.
 
-That single fact is the generator. Almost every delta in this lesson is a consequence of one of three design decisions baked into that rebuild, and if you carry the three decisions in your head you can predict the deltas instead of memorizing them.
+That single fact is the generator. Almost every delta ahead is a consequence of one of three design decisions baked into that rebuild, and if you carry the three decisions in your head you can predict the deltas instead of memorizing them.
 
 ![A tree showing three root design decisions (no_std rewrite, zero-copy default, borrow-tracked CPI) each branching into the specific syntax changes they cause, plus a cross-cutting group for the compiler-narrated deltas.](assets/v01-diagram.png)
 
@@ -109,7 +109,7 @@ So compared to what? Compared to the alternative of learning the deltas after 2.
 
 ![A decision table separating the cheap choice, learning the deltas and porting a throwaway now, from the expensive one of moving real funds onto an unaudited RC.](assets/v09-comparison.png)
 
-### The tradeoff, stated plainly, and the discipline the RC forces
+### The tradeoff, and the discipline the RC forces
 
 Here is the honest ledger. On the win side, V2 removes bug classes at the type level: the `.reload()` stale-data window, the duplicate-mutable alias, the unsound zero-copy layout, the hand-counted discriminator. Those stop being things you check and become things you cannot express. On the cost side, a 1.x codebase does not upgrade, it gets ported, line by line, against a release candidate on a separate branch. You trade a mechanical version bump for a real rewrite, and you take on RC-era churn: the toolchain, the crate pins, even the serializer version can shift under you between one write and the next.
 

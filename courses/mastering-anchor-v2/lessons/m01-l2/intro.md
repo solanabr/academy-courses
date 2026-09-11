@@ -2,7 +2,7 @@
 
 Last lesson you confirmed two transactions someone else had already landed on devnet, one against the v1 twin and one against the v2 twin, and read the compute-unit delta straight out of the logs. You watched the gap. You built and deployed nothing of your own.
 
-That changes today. But before you earn your first deploy, open a terminal and run this:
+That changes now. But before you earn your first deploy, open a terminal and run this:
 
 ```bash
 anchor --version
@@ -11,11 +11,11 @@ which anchor
 
 Whatever prints back is almost certainly Anchor **1.1.2**, the current stable line, installed by `avm` and living on your PATH. That binary is the wrong tool for this course, and it will not tell you so. It will happily build a V2 lab against V1 semantics and hand you errors that make no sense. So the very first thing you learn about Anchor V2 is not a macro. It is that the version you already have is a trap, and the version you want fights back when you try to install it.
 
-That is the lesson. Not a detour around the friction, the friction itself. Installing a release candidate off a branch, when the official installer has no binary to hand you, is what living on the frontier actually feels like. I want you to feel it once, on purpose, with me narrating every wall so you know it is the tool and not you.
+That is the lesson. Not a detour around the friction, the friction itself. Installing a release candidate off a branch, when the official installer has no binary to hand you, is what living on the frontier actually feels like. I want you to feel it once, with me narrating every wall so you know it is the tool and not you.
 
 ## Summary
 
-Anchor ships on two parallel lines right now: stable **1.1.2**, and **2.0.0-rc.1** riding an unmerged branch called `anchor-next`. This course lives on the second line. Today you install that RC into an isolated toolchain from its documented git channel, learn why `avm install 2.0.0-rc.1` cannot fetch it for you, record the whole thing in a central pins file with freshness dates, and then scaffold, build, and deploy the greeter (R0) to devnet as your first independent deploy. R0 is the scratch program: it sits below the first rung of the Quarters ladder, and you keep extending it for the rest of this module before the real rungs begin.
+Anchor ships on two parallel lines right now: stable **1.1.2**, and **2.0.0-rc.1** riding an unmerged branch called `anchor-next`. This course lives on the second line. You install that RC into an isolated toolchain from its documented git channel, learn why `avm install 2.0.0-rc.1` cannot fetch it for you, record the whole thing in a central pins file with freshness dates, and then scaffold, build, and deploy the greeter (R0) to devnet as your first independent deploy. R0 is the scratch program: it sits below the first rung of the Quarters ladder, and you keep extending it for the rest of this module before the real rungs begin.
 
 The autonomy fade here is deliberate and shallow. This is a toolchain lesson, so the install and the scaffold are **fully worked**: I show every command, you follow exactly, no solo yet. The one step that is yours alone is the final deploy. You run `anchor deploy` against devnet, you read back a program id, and you paste it into the pins file. That is the whole graduation.
 
@@ -253,7 +253,7 @@ pub struct Initialize {
 }
 ```
 
-Note that this is not the empty "hello world" the 0.x templates wrote. V2 scaffolds a small counter: one instruction that creates an account and zeroes it. `declare_id!` states the program's on-chain address. `#[program]` marks the module of instruction handlers. `initialize` opens a `Counter`, sets its count to zero, and stamps the payer as its authority. That is R0: not because it does anything interesting, but because it is the smallest complete thing your toolchain can build, deploy, and prove.
+This is not the empty "hello world" the 0.x templates wrote. V2 scaffolds a small counter: one instruction that creates an account and zeroes it. `declare_id!` states the program's on-chain address. `#[program]` marks the module of instruction handlers. `initialize` opens a `Counter`, sets its count to zero, and stamps the payer as its authority. That is R0: not because it does anything interesting, but because it is the smallest complete thing your toolchain can build, deploy, and prove.
 
 Four details in there will look wrong if you carry 0.x or 1.0 muscle memory, and every one is a real V2 change: the handler takes `&mut Context<T>` rather than a context by value; the accounts struct and its wrappers carry no `<'info>` lifetime; the address type is `Address`, not `Pubkey`, and you read it with `.address()`; and `init` names no `space`, because V2 sizes the account from its type. It is a black box on purpose today: next lesson you crack these macros open and read exactly what they generate.
 
@@ -294,7 +294,7 @@ all possible versions conflict with previously selected packages.
 
 That is #4937's bug class again, live on a fresh resolve as of this writing. The branch tip's `anchor-lang` now demands `solana-address 2.7.0`, which pulls `wincode 0.6`; the `2.0.0-rc.1` crate on the registry — built from the `v2.0.0-rc.1` tag — demands neither, so `wincode 0.5` and `solana-address 2.6.0` hold. Two wincode majors in one graph is a wall of `SchemaRead`/`SchemaWrite` "is not satisfied" errors when it resolves at all, and skipping the direct `wincode` dep means the `#[program]` expansion cannot even name its serializer (`error[E0433]: could not find wincode in the list of imported crates`).
 
-So the split is deliberate, and it is worth stating as a rule rather than a workaround. **The CLI comes from git; the library comes from crates.io.** They are separate dependency graphs — the `anchor` binary in `~/.cargo/bin` was linked once and never participates in your program's resolve — so pinning them to different refs of the same release is not skew, it is precision. And the registry pin is the stronger of the two: crates.io forbids republishing a version, so `2.0.0-rc.1` is bytes that cannot change, while a branch is a name that points wherever someone last pushed. Note that `anchor --version` prints `2.0.0-rc.1` from the branch tip *and* from the tag, so the version string will never tell you which one you are on. The ref is the pin. The version is just a label.
+So the split is deliberate, and it is worth stating as a rule rather than a workaround. **The CLI comes from git; the library comes from crates.io.** They are separate dependency graphs — the `anchor` binary in `~/.cargo/bin` was linked once and never participates in your program's resolve — so pinning them to different refs of the same release is not skew, it is precision. And the registry pin is the stronger of the two: crates.io forbids republishing a version, so `2.0.0-rc.1` is bytes that cannot change, while a branch is a name that points wherever someone last pushed. And `anchor --version` prints `2.0.0-rc.1` from the branch tip *and* from the tag, so the version string will never tell you which one you are on. The ref is the pin. The version is just a label.
 
 Carry all three rows in every program crate you write in this course, and re-verify them the way you re-verify every RC pin: they stop being necessary the day the RC reconciles its own graph.
 
@@ -306,7 +306,7 @@ anchor build
 
 On macOS, if the program build itself hits the same LTO wall, prefix it the same way: `CARGO_PROFILE_RELEASE_LTO=off anchor build`. A clean build writes the compiled program to `target/deploy/greeter.so` and a keypair to `target/deploy/greeter-keypair.json`. Two artifacts, two jobs. The `.so` is your program compiled to the on-chain bytecode format, the actual thing that will run inside the runtime; deploying is nothing more than uploading those bytes to an account and marking it executable. The keypair is your program's on-chain identity: its public key is the address other transactions will call, and its secret key is the authority that lets you upgrade the deployed bytes later. Guard the keypair. Lose it and you can never upgrade this program again, only deploy a fresh one at a new address.
 
-The first `anchor build` on the RC is also the slowest thing you will do in this lesson, because cargo is compiling the entire Anchor framework from source, not pulling a prebuilt crate. That is the cost of the git channel. Subsequent builds are fast; only the first pays the full price.
+The first `anchor build` on the RC is also the slowest step in the setup, because cargo is compiling the entire Anchor framework from source, not pulling a prebuilt crate. That is the cost of the git channel. Subsequent builds are fast; only the first pays the full price.
 
 **6. Point Anchor at devnet and fund a wallet.** Set the CLI to devnet, make sure you have a keypair, and airdrop yourself some devnet SOL to pay for the deploy:
 
@@ -359,6 +359,6 @@ The deeper reason to pin exactly, rather than track a floating "latest," is a su
 
 You installed a release candidate the official installer refuses to touch, you wrote down every wall with a date next to it, and you deployed a program that opens an account on devnet. The install fought you and you won, which is the only way that fight ends once you know the RC lives in its own house.
 
-The greeter is a black box right now. It builds and it deploys, and you have no idea, mechanically, how `declare_id!` and `#[program]` turned a dozen lines of Rust into an executable account on devnet. That is next. In the very next lesson you crack those two macros open and read what they generate, shape by shape, and the greeter stops being magic. You did the hard part today. The toolchain is real, the deploy is real, and the id in your pins file is yours.
+The greeter is a black box right now. It builds and it deploys, and you have no idea, mechanically, how `declare_id!` and `#[program]` turned a dozen lines of Rust into an executable account on devnet. That is next. In the very next lesson you crack those two macros open and read what they generate, shape by shape, and the greeter stops being magic. You did the hard part. The toolchain is real, the deploy is real, and the id in your pins file is yours.
 
 See you next lesson, id in hand. Ship it first.

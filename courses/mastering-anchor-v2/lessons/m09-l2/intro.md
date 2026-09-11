@@ -16,7 +16,7 @@ cargo expand --package quarter-vault > expanded.rs
 
 Open `expanded.rs` and search for `impl` blocks near your `Withdraw` struct. What you are looking at is a `try_accounts` function the derive wrote for you, and it is doing the same load-and-check jobs your native `TryFrom` did, in an order you can now name. That file, beside your native vault, is the whole lesson. Everything below annotates the diff.
 
-One expectation to set before you look, because it will save you from hunting for something that is not there. Every generated block printed in this lesson is a **stylized** version of the real output: the same structure and the same order, with the noise removed. Real expansion is thousands of lines of fully-qualified paths, generated lifetimes, and `#[automatically_derived]` blocks, and reading it verbatim teaches you less than reading it against a sketch. So the sketches are a map, not a transcript, and the identifiers in them are descriptive rather than exact. When the Lab asks you to find something in your own output, it will give you the pattern to grep for rather than a symbol name to match, for exactly this reason.
+One expectation to set before you look, because it will save you from hunting for something that is not there. Every generated block printed below is a **stylized** version of the real output: the same structure and the same order, with the noise removed. Real expansion is thousands of lines of fully-qualified paths, generated lifetimes, and `#[automatically_derived]` blocks, and reading it verbatim teaches you less than reading it against a sketch. So the sketches are a map, not a transcript, and the identifiers in them are descriptive rather than exact. When the Lab asks you to find something in your own output, it will give you the pattern to grep for rather than a symbol name to match, for exactly this reason.
 
 The autonomy fade this lesson: the diff walkthrough is fully worked, done for you piece by piece. The Lab has you run `cargo expand` on your own vault and annotate the real output against your native code. The three-line gate at the end is solo, no scaffolding.
 
@@ -242,7 +242,7 @@ Second, the floor of this course has a trapdoor, and you get exactly one look th
 
 ## Lab: annotate your own expansion
 
-Autonomy fade, stated plainly: steps 1 through 4 are worked, you run the commands and read the output; step 5 you write the annotations yourself against your real file.
+Autonomy fade: steps 1 through 4 are worked, you run the commands and read the output; step 5 you write the annotations yourself against your real file.
 
 1. **Generate the expansion.** From your framework quarter-vault crate, run the two commands from the top of the lesson. If `cargo expand` errors on a macro, do not go looking at your `anchor` binary — `cargo expand` never consults the Anchor CLI at all. Expansion is rustc running the proc macros out of this crate's *dependency graph*, so the only thing that decides which grammar expands is the `anchor-lang` row in `Cargo.toml`. If that row reads a 1.x version, `CpiHandle` and Pod-`Account` code cannot expand no matter which CLI sits on your PATH; pin `anchor-lang = "2.0.0-rc.1"` from crates.io, exactly as m01-l2 showed (`2.0.0-rc.1` as of 2026-08-22; re-check for a newer rc or a stable tag), and re-run. That inversion — the crate pin selects the framework, never the CLI — is the macro lesson wearing tooling clothes, and it comes back as the punchline of m10.
 
