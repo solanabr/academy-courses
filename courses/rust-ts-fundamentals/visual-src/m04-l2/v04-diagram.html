@@ -12,7 +12,7 @@
 <body>
 <!-- diagram: What wrapping does to a lamports total
      purpose: show the silent wrap with the lesson's worked numbers so the corruption is visible
-     data: u64 number line from 0 to u64::MAX (18,446,744,073,709,551,615) start: u64::MAX - 1,000,000 = 18,446,744,073,708,551,615 add: 2,039,280 lamports (one ATA rent deposit) debug build: panic, attempt to add with overflow release build: wraps past the end to 1,039,279 checked_add: returns None, which the engine maps to ProbeError::Overflow note: all values exact, derived from u64::MAX arithmetic
+     data: u64 number line from 0 to u64::MAX (18,446,744,073,709,551,615) start: u64::MAX - 1,000,000 = 18,446,744,073,708,551,615 add: 2,000,000 lamports (one deposit) debug build: panic, attempt to add with overflow release build: wraps past the end to 999,999 checked_add: returns None, which the engine maps to ProbeError::Overflow note: all values exact, derived from u64::MAX arithmetic
      prompt: Horizontal number line with the maximum value at the right edge. A marker sits just short of the edge with an addition arrow that runs off the end and re-enters at the left near zero, landing on a small marker labeled with the wrapped result. Three outcome chips below contrast debug panic, release silent wrap, and checked_add returning None mapped to an Overflow error.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -62,11 +62,11 @@
         <span class="v04-mono" style="font-size:15px;color:var(--text-secondary);">18,446,744,073,708,551,615</span>
       </div>
       <div class="v04-lab" style="left:1128px;top:246px;background:var(--surface-brand);color:var(--text-on-brand);
-                  border-radius:var(--radius-pill);padding:4px 14px;font-size:15px;font-weight:600;">+ 2,039,280 · one ATA rent deposit</div>
+                  border-radius:var(--radius-pill);padding:4px 14px;font-size:15px;font-weight:600;">+ 2,000,000 · one deposit</div>
       <div class="v04-lab" style="left:460px;top:52px;background:var(--surface-accent);color:var(--text-on-accent);
                   border-radius:var(--radius-pill);padding:5px 16px;font-weight:700;">release build: the sum wraps past the end</div>
       <div class="v04-lab" style="left:110px;top:240px;">
-        <span style="font-weight:700;">lands at</span> <span class="v04-mono" style="font-weight:700;">1,039,279</span><br>
+        <span style="font-weight:700;">lands at</span> <span class="v04-mono" style="font-weight:700;">999,999</span><br>
         <span style="font-size:14.5px;color:var(--text-secondary);">the corrupted lamports total</span>
       </div>
     </div>
@@ -77,7 +77,7 @@
       </div>
       <div class="v04-chip" style="background:var(--surface-accent);color:var(--text-on-accent);">
         <div class="v04-ch">release build</div>
-        <div class="v04-cb">wraps silently: the total becomes <span class="v04-mono" style="font-weight:700;">1,039,279</span></div>
+        <div class="v04-cb">wraps silently: the total becomes <span class="v04-mono" style="font-weight:700;">999,999</span></div>
       </div>
       <div class="v04-chip" style="background:var(--surface-brand);color:var(--text-on-brand);">
         <div class="v04-ch">checked_add</div>

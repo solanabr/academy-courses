@@ -98,4 +98,4 @@ blocks:
             label: "Wrong, release builds panic on overflow exactly like debug builds do; the optimization flag only shortens the panic message"
             correct: false
             feedback: "The builds genuinely differ: debug panics, release wraps. That asymmetry is exactly why the bug hides until production."
-        explanation: "Debug builds panic on overflow; release builds wrap silently. With lamports (the lab's worked line uses the 2,039,280-lamport ATA rent figure) a wrapped u64 is a wrong balance nobody notices. checked_add returns Option, and Option feeds the same ? pipeline you just built, overflow becomes an error value like everything else."
+        explanation: "Debug builds panic on overflow; release builds wrap silently. With lamports (the lab's worked line adds a 2,000,000-lamport deposit near the top of the range) a wrapped u64 is a wrong balance nobody notices. checked_add returns Option, and Option feeds the same ? pipeline you just built, overflow becomes an error value like everything else."
