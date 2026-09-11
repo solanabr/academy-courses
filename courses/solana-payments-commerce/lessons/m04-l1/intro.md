@@ -18,7 +18,7 @@ Before we answer in code, look at the raw truth once yourself. Grab a settled de
 ```bash
 curl -s https://api.devnet.solana.com -X POST -H "Content-Type: application/json" -d '{
   "jsonrpc": "2.0", "id": 1, "method": "getTransaction",
-  "params": ["<YOUR_SIGNATURE>", {"encoding": "jsonParsed", "commitment": "confirmed", "maxSupportedTransactionVersion": 0}]
+  "params": ["<YOUR_SIGNATURE>", {"encoding": "jsonParsed", "commitment": "confirmed", "maxSupportedTransactionVersion": 1}]
 }' | head -c 2000
 ```
 
@@ -344,7 +344,7 @@ export function createRpcFetchTransaction(opts: {
       .getTransaction(asSignature(sig), {
         commitment,
         encoding: 'jsonParsed',
-        maxSupportedTransactionVersion: 0,
+        maxSupportedTransactionVersion: 1,
       })
       .send();
 
@@ -367,6 +367,8 @@ export function createRpcFetchTransaction(opts: {
 ```
 
 Look at the `commitment` option and see the policy section again: the $6 tier constructs this adapter with `'confirmed'`, the invoice tier with `'finalized'`, and `processed` is not in the type. The policy became unrepresentable-if-wrong, which is the cheapest kind of enforced.
+
+Look at `maxSupportedTransactionVersion` while you are there, because it is the other option in that object that can fail the verifier outright, and it fails loudly rather than quietly. It is a ceiling, not a preference: the RPC refuses — error `-32015` — to return any transaction whose version is higher than the number you pass. `0` means "I understand legacy and v0", which described every transaction on the network until transaction format v1 shipped, and no longer does. Pass `1` and you read both. Leave it at `0` and on the day a customer pays you with a v1 transaction your verifier does not return the wrong answer, it returns an error, and that payment sits unreconciled until someone notices. This is a wire parameter rather than an SDK capability, so it costs you no version bump: kit 6.10.0, the pin this workspace is on, already types `TransactionVersion` as `'legacy' | 0 | 1`.
 
 **6. The harness.** Save as `verifier/verify-harness.ts`. It runs every fixture through your verifier with an injected fixture-backed fetch, asserts each returns its expected reason, then optionally verifies a live devnet payment twice to prove the dedup. One guard worth pointing at before you save it: an empty `fixtures/` directory fails loudly instead of passing. A harness that finds nothing to test and prints the pass line anyway is the frontend's green check all over again, a claim with no witness behind it:
 

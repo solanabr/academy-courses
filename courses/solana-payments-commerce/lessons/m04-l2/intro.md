@@ -530,7 +530,7 @@ async function resolveOrder(sig: string): Promise<ExpectedOrder | undefined> {
   const tx = await rpc
     .getTransaction(asSignature(sig), {
       encoding: 'jsonParsed',
-      maxSupportedTransactionVersion: 0,
+      maxSupportedTransactionVersion: 1,
       // Match the verifier's commitment: the default here is `finalized`,
       // which would make every fresh payment "not visible yet" for ~10 extra
       // seconds and lean on the retry loop to paper over the lag.

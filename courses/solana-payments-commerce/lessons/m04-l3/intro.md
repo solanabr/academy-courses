@@ -391,7 +391,7 @@ export async function getOriginatingWallet(
   const tx = await rpc
     .getTransaction(originSignature, {
       encoding: 'jsonParsed',
-      maxSupportedTransactionVersion: 0,
+      maxSupportedTransactionVersion: 1,
     })
     .send();
   if (!tx?.meta) throw new Error('origin transaction not found');
