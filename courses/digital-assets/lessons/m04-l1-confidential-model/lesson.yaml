@@ -64,7 +64,7 @@ blocks:
             correct: false
             feedback: "There is no per-transfer epoch wait and no auditor countersignature. The auditor merely receives its own encrypted copy of the amount; it does not gate the transfer."
           - id: c
-            label: "Because the zero-knowledge proofs are too large to fit alongside the transfer in one transaction; transaction format v1 is meant to relax this but is not activated yet."
+            label: "Because the zero-knowledge proofs are too large to fit alongside the transfer in one transaction; transaction format v1 is meant to relax this but is not yet active on mainnet."
             correct: true
             feedback: "The proofs ride in context accounts precisely because they do not fit beside the instruction, and whether v1 has collapsed the dance is a per-cluster question you re-probe rather than assume."
           - id: a
@@ -74,5 +74,5 @@ blocks:
           - id: d
             label: "Because verifying three proofs exceeds one transaction's compute budget, so each proof typically needs a transaction of its own"
             correct: false
-            feedback: "The binding limit the source names is bytes: 1,232 per transaction, which the trio blows past on size alone. That is also why a bigger transaction envelope is the fix rather than a bigger compute cap."
-        explanation: "The proofs exceed what fits beside the transfer in a single transaction, so the flow is split across dependent transactions (create context accounts, verify proofs, apply). Transaction format v1 (SIMD-0296 / SIMD-0385) is designed to collapse this to one transaction; its enable_tx_v1 gate was active on devnet and absent on mainnet when this was last probed on 2026-09-06, so mainnet still splits. Re-probe the gate account yourself at write time, per cluster."
+            feedback: "The binding limit the source names is bytes: 1,232 per v0 transaction, which the trio blows past on size alone. That is also why a bigger transaction envelope is the fix rather than a bigger compute cap."
+        explanation: "The proofs exceed what fits beside the transfer in a single transaction, so the flow is split across dependent transactions (create context accounts, verify proofs, apply). Transaction format v1 (SIMD-0296 / SIMD-0385) raises the envelope to 4,096 bytes and is designed to collapse this to one transaction — though it raises bytes only: 64 accounts, 64 instructions, and no lookup tables, so whether a given transfer fits is arithmetic, not a promise. Probed 2026-09-11, the enable_tx_v1 gate is active on devnet and staged on mainnet for epoch 1035, so mainnet still splits until that boundary passes. Re-probe the gate account yourself at write time, per cluster, and read the owner field: System Program means staged, Feature111... means live."

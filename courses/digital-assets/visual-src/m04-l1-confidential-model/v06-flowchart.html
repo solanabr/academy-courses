@@ -12,8 +12,8 @@
 <body>
 <!-- flowchart: One logical transfer, several transactions on the wire
      purpose: show the context-account dance that exists because the proofs cannot fit beside the transfer in 1,232 bytes
-     data: tx 1..n: submit each proof to the ZK ElGamal Proof Program -> verified -> written into a short-lived context state account (range proof typically alone in its tx) tx n+1: Token-2022 Transfer executes, referencing the equality, validity, and range context accounts tx n+2: close context accounts, reclaim rent constraint: proofs exceed the 1,232-byte transaction envelope future: transaction format v1 (SIMD-0296 line, now carried by SIMD-0385) is designed to collapse this to one transaction; shipped in Agave, and as of 2026-09-06 its `enable_tx_v1` gate (txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL) is ACTIVE ON DEVNET since slot 492,480,000 but still has no account on mainnet, so on mainnet 1,232 bytes remains the law
-     prompt: Horizontal pipeline of three stages: "verify proofs into context accounts" (stack of small account boxes, one per proof), "Transfer references contexts", "close contexts, reclaim rent". A ruler graphic under stage 1 labeled "proofs > 1,232-byte tx envelope". Dashed future lane underneath: "tx format v1: one transaction, gate not active on mainnet yet".
+     data: tx 1..n: submit each proof to the ZK ElGamal Proof Program -> verified -> written into a short-lived context state account (range proof typically alone in its tx) tx n+1: Token-2022 Transfer executes, referencing the equality, validity, and range context accounts tx n+2: close context accounts, reclaim rent constraint: proofs exceed the 1,232-byte v0 transaction envelope future: transaction format v1 (SIMD-0296 line, now carried by SIMD-0385) is designed to collapse this to one transaction; shipped in Agave, and as of 2026-09-06 its `enable_tx_v1` gate (txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL) is ACTIVE ON DEVNET since slot 492,480,000 but still has no account on mainnet, so on mainnet 1,232 bytes remains the law
+     prompt: Horizontal pipeline of three stages: "verify proofs into context accounts" (stack of small account boxes, one per proof), "Transfer references contexts", "close contexts, reclaim rent". A ruler graphic under stage 1 labeled "proofs > 1,232-byte v0 tx envelope". Dashed future lane underneath: "tx format v1: 4,096 bytes, one transaction, gate active on devnet and staged on mainnet for epoch 1035".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -76,7 +76,7 @@
             <line x1="112" y1="2" x2="112" y2="10" stroke="#1B231D" stroke-width="1.5"/>
             <line x1="149" y1="0" x2="149" y2="12" stroke="#1B231D" stroke-width="2"/>
           </svg>
-          why: the proofs exceed the 1,232-byte transaction envelope
+          why: the proofs exceed the 1,232-byte v0 transaction envelope
         </div>
       </div>
     </div>
@@ -99,7 +99,7 @@
   </div>
   <div class="future">
     <span class="future-tag">future lane</span>
-    <span class="future-txt">transaction format v1 (SIMD-0296 line, now carried by SIMD-0385) is designed to collapse this to ONE transaction. Shipped in Agave &mdash; and as of 2026-09-06 its <code>enable_tx_v1</code> gate is active on DEVNET but still has no account on mainnet, so on mainnet 1,232 bytes remains the law.</span>
+    <span class="future-txt">transaction format v1 (SIMD-0296 line, now carried by SIMD-0385) raises the envelope to 4,096 bytes to collapse this to ONE transaction &mdash; bytes only, though: 64 accounts, 64 instructions, no lookup tables. Probed 2026-09-11, its <code>enable_tx_v1</code> gate is ACTIVE on devnet and STAGED on mainnet for epoch 1035, so on mainnet 1,232 bytes remains the law until that boundary.</span>
   </div>
 </div>
 </body></html>

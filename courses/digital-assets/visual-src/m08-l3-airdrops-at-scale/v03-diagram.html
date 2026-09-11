@@ -10,7 +10,7 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- diagram: How fifteen recipients fit in one 1,232-byte transaction
+<!-- diagram: How fifteen recipients fit in one 1,232-byte v0 transaction
      purpose: show that the batch size is a byte-budget outcome, not a knob someone picked
      data: Transaction envelope: 1,232 bytes, hard cap. Without a lookup table: every account address costs 32 bytes inline. The Light system accounts, the token pool, the state tree and the fee payer are all named in full, and the recipient list eats what is left. With the lookup table (mainnet 9NYFyEqPkyXUhkerbGHXUXkvb4qpzeEdHuGpgbgpH1NJ): the static accounts are referenced by 1-byte index into the table, freeing the space for 15 recipients across 3 compress instructions, 5 recipients each (maxAddressesPerInstruction = 5, maxAddressesPerTransaction = 15). Result: one transaction, 15,000 lamports, 15 recipients, 1,000 lamports each.
      prompt: Two stacked horizontal bars, both 1,232 bytes wide and labeled as such. Top bar "no lookup table": large segments for each static account at 32 bytes, leaving a small remainder segment labeled "room for recipients". Bottom bar "with lookup table": the static accounts collapse into one thin segment labeled "table indexes, 1 byte each", and a large segment labeled "15 recipients, 3 compress instructions of 5". Under the bottom bar, a small caption: "15,000 lamports per transaction / 15 recipients = 1,000 lamports each".
@@ -26,7 +26,7 @@
 <div class="viz">
   <div style="background:var(--surface-card);border-radius:24px;padding:34px 60px 28px;">
     <div class="stbr-eyebrow" style="color:var(--stbr-emerald);text-transform:uppercase;font-family:var(--font-display);font-weight:800;">batch size is a byte-budget outcome, not a knob</div>
-    <h2 class="viz-title" style="font-size:36px;margin:6px 0 22px;color:var(--stbr-dark);">How fifteen recipients fit in one 1,232-byte transaction</h2>
+    <h2 class="viz-title" style="font-size:36px;margin:6px 0 22px;color:var(--stbr-dark);">How fifteen recipients fit in one 1,232-byte v0 transaction</h2>
 
     <!-- top bar: no lookup table -->
     <div style="display:flex;justify-content:space-between;align-items:baseline;width:1232px;margin-bottom:6px;">
