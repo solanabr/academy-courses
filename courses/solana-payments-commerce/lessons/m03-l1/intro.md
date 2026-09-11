@@ -16,7 +16,7 @@ npm i -D tsx esbuild
 
 Pins, with their freshness note: `@solana/pay` 1.0.26 is the npm `latest` (published 2026-07-31, re-checked 2026-08-22) and it peers `@solana/kit ^6.9.0`, which keeps you on the same kit v6 line the course has used since module 2; 6.10.0 is the last release of that line. One hard floor to check before you debug anything else: pay 1.0.26 declares `engines.node >= 20`, because it needs Node's Ed25519 support in `crypto.subtle` — the Node 24+ this course has assumed since module 1 clears it with room. `tsx` runs TypeScript files directly, `esbuild` bundles one file for the browser later. npm 7+ auto-installs the rest of pay's peer dependencies for you.
 
-That `npm pkg set type=module` line is not decoration. `npm init -y` writes a CommonJS manifest, and every file in this lesson is an ES module: the server and the smoke test both use `import.meta.url`, which is a syntax error under CommonJS, so without that one line the lab dies on its first run with an error that says nothing about modules. Every workspace this course creates from here on sets it, and each lesson's scaffold block includes the line rather than assuming you remember.
+That `npm pkg set type=module` line is not decoration. `npm init -y` writes a CommonJS manifest, and every file in the workspace is an ES module: the server and the smoke test both use `import.meta.url`, which is a syntax error under CommonJS, so without that one line the lab dies on its first run with an error that says nothing about modules. Every workspace this course creates from here on sets it, and each lesson's scaffold block includes the line rather than assuming you remember.
 
 While that runs, the one-sentence version of where you are on the module's ladder: this lesson is the simplest possible checkout, a URL the customer's wallet turns into a transaction, and its limits are exactly what the next lesson fixes.
 
@@ -32,7 +32,7 @@ What this lesson establishes, one actionable line each:
 - The spec page is roughly 2022-frozen. It still names Phantom, FTX, and Slope. The spec itself is still the live standard; the page is vintage. Message signing is an alpha extension, not part of v1.
 - Shopify announced Solana Pay on 2023-08-23; today's live Shopify path is MoonPay Commerce's plugin.
 
-How the work is split today, stated out loud: the lab is a worked build with every file given, except two deliberate holes. Reference-key generation and the `validateTransfer` expectations ship as TODOs, and filling them is the Challenge's completion rung, with the answers sitting in plain sight in the theory below. The solo rung adds a second record and proves the two sales are distinguishable. You are being handed less than last module, on purpose.
+How the work is split, stated out loud: the lab is a worked build with every file given, except two deliberate holes. Reference-key generation and the `validateTransfer` expectations ship as TODOs, and filling them is the Challenge's completion rung, with the answers sitting in plain sight in the theory below. The solo rung adds a second record and proves the two sales are distinguishable. You are being handed less than last module, on purpose.
 
 ## A URL a wallet can pay
 
