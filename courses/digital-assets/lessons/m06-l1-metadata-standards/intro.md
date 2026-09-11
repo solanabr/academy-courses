@@ -40,7 +40,7 @@ Sit with that output for a minute, because the whole lesson is in it. The on-cha
 
 ## Where an asset actually lives
 
-Here is the collapse that demystifies the entire stack: an on-chain asset record is just a struct with a pointer, and the rich content is a JSON document at that pointer. That is the whole architecture. Everything else in this lesson is naming the struct's fields, naming the JSON's fields, and asking the one question the collapse forces: what happens when the pointer outlives the thing it points at?
+Here is the collapse that demystifies the entire stack: an on-chain asset record is just a struct with a pointer, and the rich content is a JSON document at that pointer. That is the whole architecture. Everything after that collapse is naming the struct's fields, naming the JSON's fields, and asking the one question the collapse forces: what happens when the pointer outlives the thing it points at?
 
 Why build it this way at all? Run the naive alternative into the ground first. Suppose you stored the image on-chain. A PNG of Mad Lad quality runs a few hundred kilobytes; on-chain bytes cost rent per byte, an account is capped at 10 MiB, and every byte of it gets replicated to every validator forever. You would be paying validator-grade storage prices, on thousands of machines, for a picture that changes never and gets read by one wallet at a time. So nobody does that. The chain stores what the chain is good at, small authenticated facts: who made this, what is it called, where is the rest. The rest lives where bulk content lives, behind a URI. Cheap mints, rich content, and one new failure mode we will name honestly before the lab.
 

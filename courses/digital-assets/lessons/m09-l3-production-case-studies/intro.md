@@ -123,7 +123,7 @@ There is real 2026 work on giving autonomous agents an on-chain identity. Metapl
 
 Now the warning. This is a frontier beat, not a production standard. Nothing in your capstone should depend on it. A nullable boolean on a read interface is exactly what an early field looks like: it can be null because most assets have nothing to say, and null tells you the field exists and does not tell you an ecosystem has converged on what it means. If you build a gate on `is_agent` today, you are gating on a field whose semantics can still change under you, which is a different risk class from gating on ownership.
 
-The reason it belongs in this lesson is that it is the same evaluation muscle, one rung earlier in the lifecycle. You just spent a section deciding whether a shipped extension does anything. Deciding whether a frontier field means anything is the same read: who writes it, what does it say today, and what happens to your product if that answer changes. Track it, run a spike if agents are your product, do not put it on the critical path.
+The reason it belongs here is that it is the same evaluation muscle, one rung earlier in the lifecycle. You just spent a section deciding whether a shipped extension does anything. Deciding whether a frontier field means anything is the same read: who writes it, what does it say today, and what happens to your product if that answer changes. Track it, run a spike if agents are your product, do not put it on the critical path.
 
 ### Three sources, three reliabilities
 

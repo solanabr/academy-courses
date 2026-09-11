@@ -6,7 +6,7 @@ Last lesson you resolved a transfer hook's extra accounts from the client side a
 
 Because right now, you can read every byte of a SPROUT transfer: sender, receiver, amount, all in the clear. A payroll token cannot ship like that. The whole company would see every salary. So the question this lesson answers is: how do you put an amount on a public ledger that validators can verify but nobody can read?
 
-Before any term of art, here is the 30-second intuition. You can add two sealed envelopes of cash and know the total is right without opening either one. Hold that picture. It is the whole trick, and everything else in this lesson is machinery built around it.
+Before any term of art, here is the 30-second intuition. You can add two sealed envelopes of cash and know the total is right without opening either one. Hold that picture. It is the whole trick, and everything that follows is machinery built around it.
 
 First, something to run. The machinery has an on-chain verifier, and it is live on mainnet right now. Probe it (curl ships with macOS and every mainstream Linux; on Debian, `apt install curl`):
 
@@ -18,7 +18,7 @@ curl -s https://api.mainnet-beta.solana.com -X POST \
 
 You should get back `"executable": true`, owner `NativeLoader1111111111111111111111111111111`, and 24 bytes of data. That account is the ZK ElGamal Proof Program, the native program that checks every zero-knowledge proof in this lesson. We will decode those 24 bytes in the lab.
 
-The autonomy fade, stated out loud: this is a concept lesson, so the worked example is a derivation, not a program. I walk the model end to end with you, including one confidential SPROUT transfer taken apart field by field. In the lab you produce the artifact yourself: a public-versus-encrypted field table plus the three proofs, each derived from the cheat it closes. The challenge is solo: you attack the model with one proof removed and predict exactly what breaks. No new code ships today. Next lesson configures all of this for real.
+The autonomy fade: this is a concept lesson, so the worked example is a derivation, not a program. I walk the model end to end with you, including one confidential SPROUT transfer taken apart field by field. In the lab you produce the artifact yourself: a public-versus-encrypted field table plus the three proofs, each derived from the cheat it closes. The challenge is solo: you attack the model with one proof removed and predict exactly what breaks. No new code ships today. Next lesson configures all of this for real.
 
 ## Deriving the confidential model
 

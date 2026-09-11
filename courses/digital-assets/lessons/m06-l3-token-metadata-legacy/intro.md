@@ -17,7 +17,7 @@ You should see `owner: auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg | bytes: 1900
 
 ## The royalty machine that blocks nothing
 
-### Legacy, stated plainly
+### Legacy
 
 First, the status call, because this lesson is where the course makes it and the rest of the course points here. Token Metadata is officially legacy; Metaplex Core is the recommended standard for new NFT work (Bubblegum v2 for compressed). pNFTs enforce through Token Auth Rules, deprecated by Metaplex yet still the live enforcement path, and the flagship rule set blocks zero programs, armed but idle; `seller_fee_basis_points` is purely indicative; new-work royalties are Core plugins or Bubblegum-v2 rulesets. TM/pNFT is read and integrated against, never shipped new.
 
@@ -27,7 +27,7 @@ Be precise about the shape of that, though, because "abandoned" is the wrong wor
 
 ![Timeline comparing release activity in which mpl-token-metadata's JS client stopped at v3.4.0 in February 2025 while mpl-core kept cutting releases through to mid 2026.](assets/v01-timeline.png)
 
-Two practical notes before we go deeper, both of which will bite you if you skip them. One: legacy does not mean rare. The majority of NFTs already minted on Solana live on Token Metadata, so an integrator meets this standard constantly; that is exactly why the course teaches it to evaluation depth instead of skipping it. Two: the documentation moved house. Metaplex's docs migrated domains, and the old developers subdomain now permanently redirects to the new docs hub, so links in older tutorials and Stack Exchange answers bounce through a redirect or die outright. When you verify anything in this lesson against the docs, navigate from the current hub rather than trusting a 2023 bookmark.
+Two practical notes before we go deeper, both of which will bite you if you skip them. One: legacy does not mean rare. The majority of NFTs already minted on Solana live on Token Metadata, so an integrator meets this standard constantly; that is exactly why the course teaches it to evaluation depth instead of skipping it. Two: the documentation moved house. Metaplex's docs migrated domains, and the old developers subdomain now permanently redirects to the new docs hub, so links in older tutorials and Stack Exchange answers bounce through a redirect or die outright. When you verify anything below against the docs, navigate from the current hub rather than trusting a 2023 bookmark.
 
 ### What a pNFT actually is
 

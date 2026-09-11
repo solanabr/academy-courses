@@ -137,7 +137,7 @@ Those are my reads on 2026-09-06: 1,855,569 lamports on mainnet, which is exactl
 
 A compressed recipient costs about 10,300 lamports, and m07-l3's cost model already told you why: 5,000 lamports to create the compressed account, plus about 5,300 lamports of state cost for the one write that puts tokens in it. Create once, write once, done.
 
-Nothing else in this lesson is as load-bearing as that ratio, so put it on the page at four scales:
+Nothing else in your airdrop budget matters as much as that ratio, so put it on the page at four scales:
 
 | Recipients | Classic ATAs | Compressed | Saved |
 |---|---|---|---|
@@ -154,7 +154,7 @@ The ratio is flat because both sides are linear. What changes with scale is whet
 
 That quarter of a million dollars is why ZK compression got built. Solana passed 500 million accounts and was adding roughly a million a day around November 2024, which was the framing Helius used in its compression keynote writeup that month. State growth is the bill, and airdrops are the fastest way to run it up.
 
-One honesty note on the classic column, because it flatters compression if you skip it. Rent is a deposit. Close the account and every lamport of it comes back. The compressed 10,300 is spent and never returns. So the correct sentence is not "compression is 200 times cheaper", it is "compression converts a large refundable deposit into a small permanent cost", and whether that is a good trade depends on whether anyone was ever going to close those accounts. In an airdrop, mostly nobody does.
+The classic column deserves an honesty note, because it flatters compression if you skip it. Rent is a deposit. Close the account and every lamport of it comes back. The compressed 10,300 is spent and never returns. So the correct sentence is not "compression is 200 times cheaper", it is "compression converts a large refundable deposit into a small permanent cost", and whether that is a good trade depends on whether anyone was ever going to close those accounts. In an airdrop, mostly nobody does.
 
 ### Four ways to move a token to a stranger
 
