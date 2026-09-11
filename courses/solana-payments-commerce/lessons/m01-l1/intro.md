@@ -11,7 +11,7 @@ Copy this into your terminal and run it. It works on any machine with `curl`, wh
 ```bash
 curl -s -X POST https://api.mainnet-beta.solana.com \
   -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"getTransaction","params":["3qE5iCo5uGGfGXZd4rwfgJryLse6EpTA2SQMtX3X3GbWsS6hDRw8JwcYb4wpj77Aqj5mQBJg52LawnaZyT688kXA",{"encoding":"jsonParsed","maxSupportedTransactionVersion":0}]}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"getTransaction","params":["3qE5iCo5uGGfGXZd4rwfgJryLse6EpTA2SQMtX3X3GbWsS6hDRw8JwcYb4wpj77Aqj5mQBJg52LawnaZyT688kXA",{"encoding":"jsonParsed","maxSupportedTransactionVersion":1}]}'
 ```
 
 That wall of JSON you just got back is a stranger's settled payment. A real one. Someone, somewhere, moved USDC on Solana mainnet, it settled, and you just pulled the full record of it from a public endpoint with a one-line HTTP request. Nobody asked who you are. Nobody could.
@@ -143,7 +143,7 @@ We will decode a transfer properly with a script, generate a Wavelength payment 
    async function decode(signature: string) {
      const tx = await rpc("getTransaction", [
        signature,
-       { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 },
+       { encoding: "jsonParsed", maxSupportedTransactionVersion: 1 },
      ]);
      if (!tx) return null;
      const instructions = tx.transaction.message.instructions;

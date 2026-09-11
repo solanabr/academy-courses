@@ -508,7 +508,7 @@ if (sig !== receipt.signature) {
 
 // 2. Fetch it and confirm it succeeded.
 const tx = await rpc
-  .getTransaction(asSignature(sig), { encoding: 'json', maxSupportedTransactionVersion: 0 })
+  .getTransaction(asSignature(sig), { encoding: 'json', maxSupportedTransactionVersion: 1 })
   .send();
 if (!tx || !tx.meta) throw new Error('transaction not found on devnet');
 if (tx.meta.err) throw new Error(`transaction failed: ${JSON.stringify(tx.meta.err)}`);

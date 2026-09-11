@@ -202,7 +202,7 @@ The lab formalizes your opener experiment into a small tool, reads a real fee of
 
    const tx = await rpc("getTransaction", [
      sig,
-     { maxSupportedTransactionVersion: 0, commitment: "finalized", encoding: "json" },
+     { maxSupportedTransactionVersion: 1, commitment: "finalized", encoding: "json" },
    ]);
 
    const fee = tx.meta.fee;
