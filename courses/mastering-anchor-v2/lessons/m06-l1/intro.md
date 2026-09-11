@@ -37,9 +37,9 @@ You are going to instrument the existing swap, not extend it. No new program log
 
 Three of them are Anchor's own: `anchor test --profile` for flamegraphs, `anchor debugger` for stepping a failing instruction, and `anchor coverage` for finding untested branches. The fourth is `anza-xyz/mollusk`, a third-party crate with no Anchor affiliation, which is where a compute-unit-precise assertion on a single instruction comes from. Three first-party instruments plus one borrowed one, and the borrowed one is the only one that gates. The lab walks all four against the swap as a worked example. Then you re-run each one against your own swap unaided and record two things: the baseline compute-unit cost of one trade, and the name of the hottest frame in the flamegraph.
 
-That split is the autonomy fade for this lesson. I demonstrate the four tools on R4 with you watching. You re-run them on your own program with the wheels off. And the interpretation, reading the flamegraph width and spotting the coverage gap, is yours alone at the end. There is no program code to write in this lesson. The one thing you author is a single constant in a test, and the rest of the doing is measurement.
+That split is the autonomy fade for this lesson. I demonstrate the four tools on R4 with you watching. You re-run them on your own program with the wheels off. And the interpretation, reading the flamegraph width and spotting the coverage gap, is yours alone at the end. There is no program code to write. The one thing you author is a single constant in a test, and the rest of the doing is measurement.
 
-One glossary term up front, because it is on every line below. A compute unit, or CU, is Solana's metering of on-chain work: every instruction runs against a compute budget, and each operation the runtime performs debits some CU from it. "What does a trade cost" means "how many CU does the trade instruction consume." Cheaper means headroom for more work in the same transaction and a smaller fee at landing.
+One glossary term, because it is on every line below. A compute unit, or CU, is Solana's metering of on-chain work: every instruction runs against a compute budget, and each operation the runtime performs debits some CU from it. "What does a trade cost" means "how many CU does the trade instruction consume." Cheaper means headroom for more work in the same transaction and a smaller fee at landing.
 
 ## The four instruments
 
@@ -320,7 +320,7 @@ One grounding number for scale. Helius published V1 CU counts for a trivial coun
 
 You ran the commands alongside me. Now run them cold, without the page open, and produce two facts of your own. The difference is not the keystrokes, it is that nothing here tells you what you are about to see.
 
-Completion first, the one piece of authoring in this lesson. Fill in `TRADE_CU_BASELINE` in `trade_cu_baseline` with the number you measured, and watch the test go from red to green on that one edit.
+Completion first, the only line you author here. Fill in `TRADE_CU_BASELINE` in `trade_cu_baseline` with the number you measured, and watch the test go from red to green on that one edit.
 
 Then the solo run:
 

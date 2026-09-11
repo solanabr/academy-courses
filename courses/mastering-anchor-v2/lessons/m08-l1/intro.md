@@ -22,7 +22,7 @@ You are going to give R4 a caller. Four moves, in dependency order, because each
 
 The fade this lesson runs: steps 1 through 4 of the Lab are fully worked, every command real and every checkpoint checkable. Step 5, the kit send pipe, is a completion problem: you get the whole skeleton with the three load-bearing lines blanked. Then the Challenge is solo, a self-contained file where you resolve the correct kit version to pin from a peer range and assemble the call with no worked answer in front of you.
 
-One honest note up front, because it colors everything: Anchor V2 is a weeks-old release candidate, and the client tooling around it moves faster than the framework. Every version number here carries the date I verified it. When you reach this lesson, re-run the two commands above. The numbers will have moved. The *rule* will not, and the rule is the thing you are here to learn.
+A note that colors everything: Anchor V2 is a weeks-old release candidate, and the client tooling around it moves faster than the framework. Every version number here carries the date I verified it. When you reach this lesson, re-run the two commands above. The numbers will have moved. The *rule* will not, and the rule is the thing you are here to learn.
 
 ## The ship-a-client path
 
@@ -142,7 +142,7 @@ Worth knowing while you are here: the reason the course consumes programs by IDL
 
 ## The Lab
 
-Fade check before you start: steps 1 through 4 are worked, you run them and watch each checkpoint go green. Step 5 is the completion problem, the kit pipe with the three load-bearing lines blanked for you to fill. Then the Challenge is solo.
+Fade check before you start: steps 1 through 4 are worked, you run them and watch each checkpoint go green. Step 5 is the completion problem, the kit pipe with the same three lines blanked for you to fill. Then the Challenge is solo.
 
 Tooling install at first use. You built the Anchor V2 RC from its git channel back in R0, so this is a confirm, not a fresh install. Remember why there is no `avm use` line here: no GitHub Release was cut for the v2 tag, so the prebuilt binary `avm install` downloads is not there and the fetch 404s.
 

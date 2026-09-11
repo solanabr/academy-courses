@@ -262,7 +262,7 @@ One pointer, because you should know where the flagship version of this class li
 
 ### Class 3: the owner-error footgun (why the check you expected does not fire)
 
-Here is a trap that looks like a fix. Say you want a custom error when someone passes a vault owned by the wrong program. The natural spelling is:
+A trap that looks like a fix: say you want a custom error when someone passes a vault owned by the wrong program. The natural spelling is:
 
 ```rust
 #[account(owner = quarter_vault::ID @ EscrowError::WrongVault)]
@@ -286,7 +286,7 @@ pub vault: UncheckedAccount,
 
 That is the framework's own prescription: the doc comment on V2's `Account<T>` alias says, in as many words, that for a custom error you use `UncheckedAccount` with a derive-level `owner = X @ MyErr`. The trade is that you gave up the typed view, so if the handler needs the vault's fields you now load and validate them yourself.
 
-Notice the shape: the two classes compose. The type that opts out of the framework's checks is the same type that lets you write your own. That is not a coincidence, it is the framework being honest about what it does and does not do for you.
+Notice the shape: the two classes compose. The type that opts out of the framework's checks is the same type that lets you write your own. That is not a coincidence, it is the framework telling you what it does and does not do for you.
 
 ### Class 4: init_if_needed reuse (ungated is not the same as safe)
 
@@ -294,7 +294,7 @@ A teammate remembers `init_if_needed` from the v1 line as the feature-gated one,
 
 In V2, `init_if_needed` is no longer behind a feature flag. I checked the V2 feature set against the framework's own docs: the release ships six feature flags, `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent`, and `testing`, and `init-if-needed` is not among them. It is ungated. On top of that, `init_if_needed` accounts have been folded into the duplicate-mutable check since the 1.0 line (#4239) and still are under V2, and the reuse branch re-validates the account's space, owner, and discriminator, which closes the crudest reinitialize tricks.
 
-Here is the part that survives all of that. The framework can verify the account is the right *shape*. It cannot verify that reinitializing *this* account is the right *thing to do*. If your instruction hits the `init` branch over an account that already holds live state, the reuse-validation passes (space matches, owner matches, discriminator matches) and you cheerfully overwrite a funded escrow back to zeros.
+The part that survives all of that: The framework can verify the account is the right *shape*. It cannot verify that reinitializing *this* account is the right *thing to do*. If your instruction hits the `init` branch over an account that already holds live state, the reuse-validation passes (space matches, owner matches, discriminator matches) and you cheerfully overwrite a funded escrow back to zeros.
 
 ![A table splitting init_if_needed reuse-validation into the structural checks V2 performs and the business intent it cannot judge, where a reinit bug survives.](assets/v06-table.png)
 

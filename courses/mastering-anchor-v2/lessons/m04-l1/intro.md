@@ -26,7 +26,7 @@ rustc --version              # any stable rustc; 1.93.1 on my machine
 rustc scratch.rs -o scratch && ./scratch
 ```
 
-A default `rustc` build panics: `attempt to subtract with overflow`. That looks like the safe outcome, and it is the *less* bad one. Build the same file with `rustc -O` and the panic disappears: it prints `new balance: 18446744073709551566`, the subtraction having silently wrapped to a `u64` near its ceiling. On-chain, a debug panic aborts your instruction with a confusing log, and a release wrap hands the caller a vault that now believes it owns eighteen quintillion lamports. Hold that failing line in your head. Every guard in this lesson exists to make sure that subtraction is never reached with `amount > balance`.
+A default `rustc` build panics: `attempt to subtract with overflow`. That looks like the safe outcome, and it is the *less* bad one. Build the same file with `rustc -O` and the panic disappears: it prints `new balance: 18446744073709551566`, the subtraction having silently wrapped to a `u64` near its ceiling. On-chain, a debug panic aborts your instruction with a confusing log, and a release wrap hands the caller a vault that now believes it owns eighteen quintillion lamports. Hold that failing line in your head. Every guard on the withdrawal path exists to make sure that subtraction is never reached with `amount > balance`.
 
 ## Summary
 
@@ -36,7 +36,7 @@ A default `rustc` build panics: `attempt to subtract with overflow`. That looks 
 - The bump you sign with is the **stored** canonical bump, read from account state, never recomputed. Recomputing it each call is both a CU cost and a correctness hazard.
 - The debit is `checked_sub`, and the withdrawal is gated *before* the CPI fires: no zero request, no over-withdraw, and never a drop below the vault's rent-exempt floor.
 
-The autonomy fade for today: in the Lab I write the whole `CpiContext::new` plus `invoke_signed` call with you, every line. In the completion problem you refill just two lines from memory, the signer-seeds array and the checked debit. In the solo problem you implement `resolve_withdrawal`, the pre-CPI guard, from a spec with no scaffold.
+The autonomy fade: in the Lab I write the whole `CpiContext::new` plus `invoke_signed` call with you, every line. In the completion problem you refill just two lines from memory, the signer-seeds array and the checked debit. In the solo problem you implement `resolve_withdrawal`, the pre-CPI guard, from a spec with no scaffold.
 
 ## Signing for an account that has no key
 
@@ -48,7 +48,7 @@ But a vault that can hold funds and never move them is a piggy bank you have to 
 
 ![A wallet signs with its private key, while a PDA is signed for by its owning program through invoke_signed, and another program's forged attempt fails re-derivation.](assets/v01-diagram.png)
 
-The last row of that diagram is the whole security model in one line: a PDA-signed CPI can only ever sign for seeds *this* program owns. You cannot sign for another program's PDA, and no one can sign for yours. Keep that sentence. It is also the exact boundary of what today's withdrawal can and cannot do.
+The last row of that diagram is the whole security model in one line: a PDA-signed CPI can only ever sign for seeds *this* program owns. You cannot sign for another program's PDA, and no one can sign for yours. Keep that sentence. It is also the exact boundary of what the withdrawal can and cannot do.
 
 ### The footgun that decides the whole design
 

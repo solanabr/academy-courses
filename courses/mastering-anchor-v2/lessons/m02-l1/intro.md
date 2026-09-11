@@ -122,7 +122,7 @@ The second: what about accounts that need to grow, a vector that gets longer ove
 
 The third: does this break clients that read the account with Borsh? Not always, and the greeter is the honest counterexample: Borsh encodes a `u64` as eight little-endian bytes, and `PodU64` stores eight little-endian bytes, so for a header of plain integers the two layouts coincide and an old client running `Greeter.deserialize` still reads the correct count. The break comes from everything Borsh could express that a Pod header cannot: a `Vec` with its length prefix, an `Option` with its tag byte, a `String`. Migrating a struct like that to V2 means restructuring it — the dynamic parts move to a declared trailing region — and that restructuring is what moves the bytes out from under a client still decoding the old shape. So the client rule is absolute even when the bytes happen to match today: read the same way the program writes — cast the bytes at known offsets, do not run the old decoder and hope. That is a real migration cost, and pretending otherwise would be dishonest. It is also the same cost the whole ecosystem is paying once, which is why the framework made it the default rather than an opt-in that fragments the client story forever.
 
-### The trade-off, stated plainly
+### The trade-off
 
 Zero-copy erases the serialization cost and lets you mutate fields in place. That is the win, and it is not small. But you inherit C-layout discipline as the price, and this is the honest part that the rest of the module is really about.
 

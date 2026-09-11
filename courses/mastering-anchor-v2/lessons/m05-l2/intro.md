@@ -34,7 +34,7 @@ One scope line before we start. This is a teaching swap, an Anchor pattern, not 
 
 ## The price lives in the reserves
 
-One idea generates everything else in this lesson. A constant-product pool holds two assets and treats the product of their balances as a number it must protect. Call the reserves `x` and `y`. The pool's law is `x * y = k`, and `k` is (almost) sacred: any trade must leave `k` at least as large as it found it.
+One idea generates everything that follows. A constant-product pool holds two assets and treats the product of their balances as a number it must protect. Call the reserves `x` and `y`. The pool's law is `x * y = k`, and `k` is (almost) sacred: any trade must leave `k` at least as large as it found it.
 
 That one rule is the price mechanism. When a trader adds `dx` of the first asset, the pool has to give back enough of the second asset, `dy`, that the product still holds. Solve for `dy` and the rate is not a stored number anywhere. It is whatever keeps the curve intact. The deeper the pool, the less a given trade moves it; the shallower the pool, the more each trade costs. That is not a bug you have to police. It is the geometry doing the policing for you.
 
