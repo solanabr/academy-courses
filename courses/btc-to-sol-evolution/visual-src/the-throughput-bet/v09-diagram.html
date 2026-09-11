@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- diagram: the 1,232-byte wall is a networking limit, not an economic one
-     purpose: certify where the transaction size cap comes from and why it bounds account count
-     data: IPv6 MTU: 1,280 bytes (largest guaranteed unfragmented packet) minus headers: 48 bytes = max Solana tx: 1,232 bytes total every declared account address costs 32 bytes of that budget consequence: a hard limit on how many accounts one tx can name -> Address Lookup Tables
-     prompt: Diagram, dark background, monospace. A horizontal budget bar of 1,280 bytes with a 48-byte segment sliced off ("headers"), leaving a 1,232-byte usable region. Inside it, repeated 32-byte blocks labeled "account address" filling up until full, with an overflow marker "-> use a Lookup Table". No decorative icons.
+     purpose: certify where the v0 transaction size cap comes from and why it bounds account count
+     data: IPv6 MTU: 1,280 bytes (largest guaranteed unfragmented packet) minus headers: 48 bytes = max v0/legacy Solana tx: 1,232 bytes total every declared account address costs 32 bytes of that budget consequence: a hard limit on how many accounts one tx can name -> Address Lookup Tables. Footnote: transaction format v1 (SIMD-0296/SIMD-0385) moves the ceiling to 4,096 bytes, one memory page rather than one packet, and drops lookup tables so every address is inline.
+     prompt: Diagram, dark background, monospace. A horizontal budget bar of 1,280 bytes with a 48-byte segment sliced off ("headers"), leaving a 1,232-byte usable region. Inside it, repeated 32-byte blocks labeled "account address" filling up until full, with an overflow marker "-> use a Lookup Table". A single footnote line beneath the facts row naming the v1 ceiling and its different derivation. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -55,7 +55,7 @@
   .fact.hot { background:rgba(0,139,76,0.08); border-color:rgba(0,139,76,0.34); }
   .fact.hot .n { color:var(--stbr-emerald); }
 </style>
-  <div class="stbr-eyebrow">a networking limit, not an economic one</div>
+  <div class="stbr-eyebrow">a networking limit, not an economic one &mdash; and a v0 one</div>
   <h2 class="viz-title">the 1,232-byte wall</h2>
   <div class="dg">
     <div class="scale"><div class="mtu"><span>0</span><span>IPv6 MTU: 1,280 bytes &mdash; largest guaranteed unfragmented packet</span></div></div>
@@ -71,8 +71,13 @@
     <div class="brace"><div class="b1"></div><div class="b2">1,232 bytes usable</div></div>
     <div class="facts">
       <div class="fact"><div class="n">1,280 &minus; 48</div><div class="d">MTU minus packet headers leaves the usable transaction budget</div></div>
-      <div class="fact hot"><div class="n">= 1,232 B</div><div class="d">the hard cap on one Solana transaction, total</div></div>
+      <div class="fact hot"><div class="n">= 1,232 B</div><div class="d">the cap on one v0 or legacy transaction, total</div></div>
       <div class="fact"><div class="n">32 B each</div><div class="d">every declared account address spends 32 bytes &mdash; so account count is bounded</div></div>
+    </div>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--text-muted);font-family:var(--font-mono);font-size:13px;color:var(--text-muted);line-height:1.55;">
+      transaction format v1 moves the ceiling to <span style="color:var(--stbr-emerald);font-weight:700;">4,096 B</span> &mdash;
+      one memory page, not one packet &mdash; and drops lookup tables, so every address is spelled out inline.
+      A bigger envelope bought by giving the compression back.
     </div>
   </div>
 </div>
