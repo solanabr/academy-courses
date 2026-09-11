@@ -29,7 +29,7 @@ Did you mean 'timeoutMs'?
 
 Plain JavaScript would run this happily and print `waiting undefined ms`. It would lie politely, and you would find out in production, at 3 a.m., when the timeout you thought you set never fired. The compiler caught the bug while you were still typing, and it even guessed the fix. That red squiggle is the thesis of the entire TypeScript half of this course: the machine can prove things about your code before the code exists anywhere but your editor.
 
-Two probes, two minutes, zero installs. Everything else in this lesson is a map.
+Two probes, two minutes, zero installs. Everything that follows is a map.
 
 ## Summary
 

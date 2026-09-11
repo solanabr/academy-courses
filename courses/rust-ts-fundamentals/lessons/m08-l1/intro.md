@@ -236,7 +236,7 @@ Second, the graded `epoch-clock` challenge in the platform hands you an `epochCl
 
 ## Checkpoint
 
-What you can now do, concretely: explain a blockchain to another developer in four sentences without hand-waving, and name where the deeper story lives; read live chain state from TypeScript with kit against the public mainnet RPC; measure a network's real slot time and state the gap from its target with a number; and turn a raw slot count into a wall-clock epoch countdown from one fixed constant. Your `chain-probe.ts` runs, and its second run proved its own arithmetic.
+You can now do four concrete things: explain a blockchain to another developer in four sentences without hand-waving, and name where the deeper story lives; read live chain state from TypeScript with kit against the public mainnet RPC; measure a network's real slot time and state the gap from its target with a number; and turn a raw slot count into a wall-clock epoch countdown from one fixed constant. Your `chain-probe.ts` runs, and its second run proved its own arithmetic.
 
 The 30-second retrieval, out loud before you close the tab: which of the four ideas explains why today cost you nothing? (RPC is the read door; reads never become transactions.) And why did epochs get shorter in August when nobody changed the epoch? (Epochs are 432,000 slots, fixed; slot time is the variable, so wall-clock length moved with it.)
 

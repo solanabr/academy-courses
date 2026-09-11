@@ -6,7 +6,7 @@ m08-l3 gave the Rust poller its chain probes: typed reqwest reads parsed with se
 
 ## The probe that mutates
 
-Before any theory, one command. Today's transfer lands on devnet, so ask devnet directly whether it is even alive, with the same envelope you have POSTed since M7:
+One command first. Today's transfer lands on devnet, so ask devnet directly whether it is even alive, with the same envelope you have POSTed since M7:
 
 ```bash
 curl -s https://api.devnet.solana.com -X POST -H 'content-type: application/json' \

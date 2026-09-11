@@ -16,7 +16,7 @@ Version numbers for both Client and Server mean a runtime is already installed a
 
 Take the release binary CI built for you in m05-l3 and hand it to a friend. If they run a different Linux distro, there is a decent chance it dies on a glibc version older than the one your CI runner linked against, with an error message that names a symbol version and helps nobody. If they are on macOS and CI built for Linux, it does not start at all; wrong executable format, full stop. And even when the binary runs, your poller reads `pulse.config.json` from its working directory and expects port 8080 to be free, assumptions your machine satisfies and theirs might not. "Works on my machine" stops being a joke the moment someone files it as a bug report. The fix the industry converged on is not shipping the binary. It is shipping the machine-shaped box the binary runs in: the filesystem, the libraries, the config, the port expectations, all frozen together so the only thing the target machine contributes is a kernel.
 
-Before any theory, you need the box-runner installed. Do this now.
+First, the box-runner. Install it now.
 
 ### Pick a runtime, run a container
 

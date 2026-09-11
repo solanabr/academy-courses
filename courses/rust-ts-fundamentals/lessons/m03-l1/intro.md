@@ -180,7 +180,7 @@ Meanwhile `@solana/kit`'s latest sits at 8.2.0, two majors ahead of that `^6.9.0
 
 ![A flowchart traces npm checking a requested kit version against an installed peer range and branching into a safe refusal or a risky forced install.](assets/v05-flowchart.webp)
 
-So what do you actually pin? Not the newest everything, and not a digit somebody memorized. The rule, and it is the single most durable sentence in this lesson: **pin what your deps peer against, per workspace.** Read your dependencies' peer ranges, and give each workspace the version those ranges agree on. Per workspace matters because the fleet, the dashboard, and a future bot are separate packages with separate dependency sets; one repo-wide digit is how you manufacture a conflict that no individual package has.
+So what do you actually pin? Not the newest everything, and not a digit somebody memorized. The rule, and it is the single most durable sentence in the course: **pin what your deps peer against, per workspace.** Read your dependencies' peer ranges, and give each workspace the version those ranges agree on. Per workspace matters because the fleet, the dashboard, and a future bot are separate packages with separate dependency sets; one repo-wide digit is how you manufacture a conflict that no individual package has.
 
 Why a rule instead of a number? Because the digits rot on a timescale npm's own timestamps prove: kit shipped 6.10.0 on 2026-06-16, 7.0.0 on 2026-06-30, 8.0.0 on 2026-08-21. Any wiki that froze "use kit 6" was wrong twice before the season changed. The peer ranges in your actual `node_modules` are the only version advice that updates itself. M8 lesson two builds the Solana workspace where this rule becomes the setup step.
 
@@ -212,7 +212,7 @@ The autonomy fade, out loud: step 1 through 4 are fully worked, diffs on screen,
 
    Three notes on the move:
 
-   - `tests` is in the list on purpose: the m02-l4 suite imports `../src/config.js` and reads `./fixtures/`, so it must stay a sibling of `src/` or the checkpoint below runs zero tests.
+   - `tests` is in the list: the m02-l4 suite imports `../src/config.js` and reads `./fixtures/`, so it must stay a sibling of `src/` or the checkpoint below runs zero tests.
    - The three loose `.ts` files are the fleet's root-level scripts. Everything fleet-shaped moves; `status.json` and `.github/` stay at the root on purpose.
    - If a listed file does not exist in your repo, drop it from the command rather than letting `git mv` refuse the whole batch.
 
@@ -338,7 +338,7 @@ The autonomy fade, out loud: step 1 through 4 are fully worked, diffs on screen,
 
 ## Challenge
 
-The semver logic you just used by eye becomes code: implement `satisfiesRange(version, range)` for the four range forms this lesson taught, exact, `>=`, tilde, and caret, including the caret-zero rule where major 0 makes the minor the breaking slot. `parseSemver` and `compare` are provided in the starter, in the coding-challenge panel on this lesson's page; the exact-match arm is done for you. Eleven tests grade it, one of them this lesson's lab in miniature: does `7.0.2` satisfy `^6.9.0`? Your implementation should agree with npm's resolver on that call: it does not. One honest boundary: the drill's caret rule stops at the major-zero floor; the `^0.0.z` sub-rule, where the patch becomes the breaking slot, is not modeled and not tested here, so do not treat the drill as a full reimplementation of npm's matcher. Hints escalate from operator-ordering to the caret-zero branch; spend them in order.
+The semver logic you just used by eye becomes code: implement `satisfiesRange(version, range)` for the four range forms this lesson taught, exact, `>=`, tilde, and caret, including the caret-zero rule where major 0 makes the minor the breaking slot. `parseSemver` and `compare` are provided in the starter, in the coding-challenge panel on this lesson's page; the exact-match arm is done for you. Eleven tests grade it, one of them this lesson's lab in miniature: does `7.0.2` satisfy `^6.9.0`? Your implementation should agree with npm's resolver on that call: it does not. The drill is not all of npm: the caret rule stops at the major-zero floor; the `^0.0.z` sub-rule, where the patch becomes the breaking slot, is not modeled and not tested here, so do not treat the drill as a full reimplementation of npm's matcher. Hints escalate from operator-ordering to the caret-zero branch; spend them in order.
 
 One design note before you start, the first hint in disguise: the ORDER you test operators in is load-bearing. Check for `>=` before anything single-character, or you will slice the wrong prefix and every floor test fails at once, a string bug wearing a logic bug's face. After this challenge, a caret in any manifest is something you compute, not squint at: the difference between reading a peer conflict and being read to by one.
 

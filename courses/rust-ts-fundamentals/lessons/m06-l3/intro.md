@@ -12,13 +12,13 @@ Start with the evidence. Terminal open, before any reading:
 docker images pulse-pollerd
 ```
 
-There it is, the number you wrote down last lesson, still in the gigabytes, for a binary you could attach to an email. And the weight is not a one-time embarrassment sitting on your disk. Every machine that ever pulls this image pays it again: the CI runner on every push, every teammate's first `docker run`, the future you on a new laptop, all of them downloading a full Rust toolchain and your entire build cache to run a few megabytes of compiled poller. Minutes and bandwidth, multiplied by every pull, forever.
+There it is, the number you wrote down last lesson, still in the gigabytes, for a binary you could attach to an email. And the weight is not a one-time embarrassment sitting on your disk. Every machine that ever pulls this image pays it again: the CI runner on every push, a stranger's first `docker run`, the future you on a new laptop, all of them downloading a full Rust toolchain and your entire build cache to run a few megabytes of compiled poller. Minutes and bandwidth, multiplied by every pull, forever.
 
 The fix is one idea, and I want to state it in its smallest form before any Dockerfile syntax. A single-stage Dockerfile cannot tell "needed to build" from "needed to run", so it ships both. A multi-stage Dockerfile is just two boxes in one file: a build box with the whole toolchain, and a runtime box that starts nearly empty. Between them, one instruction, `COPY --from`, carries artifacts forward. And here is the rule that decides everything about what ships: the final image is the final stage's base plus whatever you explicitly `COPY` into it. Nothing else. The build box, gigabytes of it, is left behind on the build machine like scaffolding after the building opens.
 
 ![A heavy build box full of toolchain and cache is discarded while one copied binary lands in a small runtime box that becomes the shipped image.](assets/v01-diagram.webp)
 
-That is the whole idea. Everything else in this lesson is engineering around two follow-up questions: how do you keep the build box fast when you rebuild it fifty times a day, and how small should the runtime box honestly be?
+That is the whole idea. Everything else is engineering around two follow-up questions: how do you keep the build box fast when you rebuild it fifty times a day, and how small should the runtime box honestly be?
 
 ### cargo-chef: stop recompiling the world
 

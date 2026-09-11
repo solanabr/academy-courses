@@ -188,11 +188,11 @@ So what number do you write? There is no correct answer, only a contract you cho
 
 ![A validator application pins its Rust floor at current stable while an indexer library trails sixteen releases behind, each stance trading freedom against reach.](assets/v05-comparison.webp)
 
-For `pulse-rs` you will declare `rust-version = "1.85"` on both crates in the lab. The reasoning is the library stance: nothing in our code needs anything newer than the edition 2024 floor itself, and the engine is a library by construction, so it trails on purpose. One footgun before you write it: `rust-version` is a floor, not a pin. It stops an old toolchain from building you; it does not stop YOU, on a new toolchain, from writing an idiom your declared floor cannot parse. The honest enforcement is a CI job that builds on the MSRV toolchain itself. We are not adding one today, but know that serious libraries do, and that the field without the CI job is a promise without a test.
+For `pulse-rs` you will declare `rust-version = "1.85"` on both crates in the lab. The reasoning is the library stance: nothing in our code needs anything newer than the edition 2024 floor itself, and the engine is a library by construction, so it trails on purpose. One footgun before you write it: `rust-version` is a floor, not a pin. It stops an old toolchain from building you; it does not stop YOU, on a new toolchain, from writing an idiom your declared floor cannot parse. The honest enforcement is a CI job that builds on the MSRV toolchain itself. We are not adding one today; serious libraries do. Without it, the field is a promise without a test.
 
 ### Reading pins like a working dev
 
-Everything so far was writing your own manifest. The dev-lifecycle skill hiding in this lesson is reading other people's, because every dependency line in a real repo is a decision someone made, and pins are where the decisions show. Three live artifacts, all probed from their repos' manifests on 2026-09-02. For each one, the working question: what is this pin telling you?
+Everything so far was writing your own manifest. The dev-lifecycle skill hiding here is reading other people's, because every dependency line in a real repo is a decision someone made, and pins are where the decisions show. Three live artifacts, all probed from their repos' manifests on 2026-09-02. For each one, the working question: what is this pin telling you?
 
 First. agave's root manifest:
 
@@ -308,7 +308,7 @@ The unguided rep, on paper, no compiler to lean on. Three manifest excerpts from
 
 ## Checkpoint
 
-What you can now do, concretely: split a Rust project into the workspace shape the ecosystem actually uses, with dependencies declared once and members subscribing; say what edition 2024 changed and what it did not (async closures are a 1.85 language feature, all editions); declare an MSRV as a chosen contract and explain whose contract it mirrors, agave's or carbon's; and read a stranger's version pin as information instead of noise.
+The new muscles, concretely: split a Rust project into the workspace shape the ecosystem actually uses, with dependencies declared once and members subscribing; say what edition 2024 changed and what it did not (async closures are a 1.85 language feature, all editions); declare an MSRV as a chosen contract and explain whose contract it mirrors, agave's or carbon's; and read a stranger's version pin as information instead of noise.
 
 The 30-second retrieval before you close the tab: what does resolver v3 do that v2 did not, in one sentence? (It considers each dependency's declared rust-version when picking versions, falling back past releases your MSRV cannot build, instead of always grabbing the newest compatible.) If that sentence took you more than one try, reread the flowchart in the MSRV section, it is the one piece of this lesson that shows up in interviews.
 

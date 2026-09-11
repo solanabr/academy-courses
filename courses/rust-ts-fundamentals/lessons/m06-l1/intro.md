@@ -40,7 +40,7 @@ What tokio buys an I/O-bound prober, concretely: a task is a paused function, a 
 
 ![Forty blocked operating system threads on the left compared with one worker thread cycling through forty parked tasks on the right.](assets/v02-diagram.webp)
 
-Notice what is not on that diagram: latency. Async does not make a single request faster. The network takes what the network takes. If your teammate proposes migrating a one-shot CLI to tokio for performance, the honest answer is that a single fetch that blocks once and exits has no fan-out for a runtime to exploit, so the migration buys a dependency and a new annotation and nothing else. m05-l3's blocking call was the right call. It is still the right call for that binary. Async pays at fan-out, and today, for the first time, we have fan-out.
+Notice what is not on that diagram: latency. Async does not make a single request faster. The network takes what the network takes. If a colleague proposes migrating a one-shot CLI to tokio for performance, the honest answer is that a single fetch that blocks once and exits has no fan-out for a runtime to exploit, so the migration buys a dependency and a new annotation and nothing else. m05-l3's blocking call was the right call. It is still the right call for that binary. Async pays at fan-out, and today, for the first time, we have fan-out.
 
 ![A line chart where sequential sweep time climbs past the thirty second interval while concurrent sweep time stays flat near two seconds.](assets/v03-chart.webp)
 
@@ -435,7 +435,7 @@ If you want to know why a monitor bothers counting consecutive failures instead 
 
 ## Checkpoint
 
-What you can now do, concretely: turn a one-shot tool into a daemon and say precisely what tokio bought you over the `thread::sleep` version you wrote first, forty parked waits on one thread instead of a fictional schedule; migrate a blocking reqwest call to async and name the full delta, feature flag out, `.await` in, runtime around it, same crate; and argue both directions of the right-sizing call, because you have now shipped the blocking CLI where async would be overhead and the poller where blocking would be a lie.
+Run the self-check: turn a one-shot tool into a daemon and say precisely what tokio bought you over the `thread::sleep` version you wrote first, forty parked waits on one thread instead of a fictional schedule; migrate a blocking reqwest call to async and name the full delta, feature flag out, `.await` in, runtime around it, same crate; and argue both directions of the right-sizing call, because you have now shipped the blocking CLI where async would be overhead and the poller where blocking would be a lie.
 
 The 30-second retrieval before you close the terminal: what does async buy 40 I/O-bound probes? (One thread holds all 40 waits, parked and resumed on completion; each probe is no faster.) And the lock rule, in seven words? (Lock late, drop early, never across await.)
 

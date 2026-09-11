@@ -26,7 +26,7 @@ blocks:
     type: quiz
     questions:
       - id: m02l3-q1
-        prompt: "The hook's naive `Promise.all(targets.map(probe))` produced a wall of 429s from the rate-limited endpoint. What actually caused it?"
+        prompt: "The hook's naive `Promise.all(targets.map(probe))` produced a wall of 429s from the rate-limited endpoint. What caused the wall?"
         multiSelect: false
         options:
           - id: b
