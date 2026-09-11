@@ -12,7 +12,7 @@ The findings up front:
 - A webhook is a notification, not proof. Every event goes through on-chain verification before the ledger records a sale; the payload's numbers are never inputs to fulfillment.
 - Webhooks have a ceiling, and it is enforced: a webhook failing at 95 percent or more over 7 days gets automatically disabled on paid plans (a 24-hour window on the free plan). Past merchant-ops volume, ingestion moves to Yellowstone gRPC indexing, which belongs to the Client-Side Mastery course.
 
-Before any theory, feel the failure. Save this as `naive.ts` anywhere (it assumes `express` is installed; if you are in a fresh folder, `npm install express@5.1.0` first):
+Feel the failure first. Save this as `naive.ts` anywhere (it assumes `express` is installed; if you are in a fresh folder, `npm install express@5.1.0` first):
 
 ```ts
 // naive.ts - the receiver you must never ship
@@ -43,7 +43,7 @@ for i in 1 2 3; do
 done
 ```
 
-Three shipped orders. One payment. If this receiver ran Wavelength's record-of-the-month club, you just mailed the same customer three copies of a 200-press run and ate the cost of two. Everything in this lesson exists to make that loop print `shipped order 1` and then go quiet.
+Three shipped orders. One payment. If this receiver ran Wavelength's record-of-the-month club, you just mailed the same customer three copies of a 200-press run and ate the cost of two. The pipeline you are about to build exists to make that loop print `shipped order 1` and then go quiet.
 
 ![Pipeline showing a webhook delivery passing auth, a shape filter, and an immediate 200 ack, then a signature claim, order resolution, and on-chain verification before one ledger row.](assets/v01-diagram.png)
 

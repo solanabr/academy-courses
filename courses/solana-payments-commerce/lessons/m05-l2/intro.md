@@ -4,7 +4,7 @@
 
 Last lesson you built the raw club-crank on a single delegate approval and hit its wall: one delegate slot per token account means one live subscription per user, and a second merchant's approval evicts you. Silently. This lesson replaces the raw approval with the Solana Foundation's Subscriptions program, whose entire reason to exist is that eviction.
 
-Before any theory, prove this lesson's version seam to yourself. You have npm from the setup lesson; run this from anywhere:
+Before we name this lesson's version seam, prove it to yourself. You have npm from the setup lesson; run this from anywhere:
 
 ```bash
 npm view @solana/subscriptions@0.5.0 peerDependencies

@@ -480,6 +480,6 @@ Acceptance, straight from this lesson's gate: the POST returns a base64 transact
 
 When both halves pass, notice what you are holding: a store whose prices cannot be tampered with from a URL, and a client that refuses to sign for accounts nobody volunteered. That pair, server control plus wallet skepticism, is the entire trust model of transaction requests, and you built both sides of it. Worth a coffee break.
 
-Before you close the terminal: later lessons assume this endpoint went in clean, so if a step fought you, the TODO ordering, the signers-first slicing, the coupon rounding, flag it to the course community while it is fresh. And if your guard caught the fixture on the first run, take the win out loud; you just wrote the same check the wallet teams ship.
+Before you close the terminal: later lessons assume this endpoint went in clean, so if a step fought you — the TODO ordering, the signers-first slicing, the coupon rounding — flag it to the course community while it is fresh. And if your guard caught the fixture on the first run, take the win out loud; you just wrote the same check the wallet teams ship.
 
 Your endpoint has only ever been driven from a browser tab and a smoke script, though. This endpoint is about to leave the browser entirely and hit a folding table at a weekend record fair. Next lesson you point a real point-of-sale at it, and meet the mobile-hardware reality of taking Solana payments in person.

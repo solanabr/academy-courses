@@ -6,7 +6,7 @@ Last lesson you embedded a headless Coinbase onramp into the storefront and walk
 
 Think of it the way a small label thinks about distribution. Nobody sane signs one worldwide-exclusive distributor for a vinyl pressing. You sign a US distributor who knows the US shops, an EU distributor who knows the EU shops, and a Brazilian distributor who knows Brazil, each on its own terms, each taking its own cut, each paying you on its own schedule. Acceptance processors are territory distributors for money. This lesson compares three of them on numbers, then makes you sign the deals in writing.
 
-Before any of that, do one thing right now. The first fact in this lesson is checkable from your terminal, so check it. `curl` ships preinstalled on macOS and nearly every Linux distro (`brew install curl` if yours is the exception):
+Before any of that, do one thing right now. The first fact of the day is checkable from your terminal, so check it. `curl` ships preinstalled on macOS and nearly every Linux distro (`brew install curl` if yours is the exception):
 
 ```bash
 curl -sIL https://hel.io | grep -i '^location'

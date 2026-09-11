@@ -136,7 +136,7 @@ What you are assembling, and where it sits in the Wavelength workspace:
 
 ![Workspace diagram showing gasless-checkout reusing transfer-kit and checkout-txreq, talking to a local Kora node on port 8080, and exporting buildSponsoredOrder for the capstone.](assets/v08-diagram.png)
 
-1. **Install the paymaster and mint its signer.** The node is a Rust binary; the client SDK you already installed talks to it. Then create the sponsor wallet, the only wallet in this lesson that holds SOL, and fund it on devnet:
+1. **Install the paymaster and mint its signer.** The node is a Rust binary; the client SDK you already installed talks to it. Then create the sponsor wallet, the only wallet in the lab that holds SOL, and fund it on devnet:
 
    ```bash
    cargo install kora-cli

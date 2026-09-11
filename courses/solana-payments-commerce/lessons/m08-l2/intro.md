@@ -11,7 +11,7 @@ Here is what today establishes, up front:
 - The primitive has two scars, and both are load-bearing: the official docs warn it may be deprecated, and a durable-nonce double-processing bug halted Solana mainnet for about 4.5 hours on 2022-06-01. You will build the queue around both.
 - The artifact is `fair-queue`, a new sibling workspace beside pos-stall (the stall itself is not edited today): sales signed offline against a nonce pool, drained when connectivity returns, with a drain step that refuses, structurally, to rebroadcast a spent nonce.
 
-Before any theory, get the workspace standing. `fair-queue` sits next to `checkout-txreq` and `pos-stall` in your Wavelength workspace:
+First, get the workspace standing. `fair-queue` sits next to `checkout-txreq` and `pos-stall` in your Wavelength workspace:
 
 ```bash
 cd ~/wavelength   # the workspace root; last lesson left you inside gasless-checkout
@@ -361,6 +361,6 @@ If the lab fought you, triage in this order. `fetchNonce` throwing account-not-f
 
 I ran my own queue through the full cycle while writing this: two sales signed with wifi off, a coffee's worth of delay, both landed on the first drain, and the second drain reconciled both without sending a byte. The satisfying part is not the landing at all; it is watching the replay refuse to send.
 
-Step back and look at the stall now. Module 3 gave it a QR code and server-side pricing. Last lesson removed the buyer's need to hold SOL. Today removed the need for a network at the moment of sale, and it did so on a primitive you now handle the way its history demands: advance at instruction 0, one nonce per sale, a drawer treated as bearer paper, and a drain that would rather escalate to a human than cash a spent check. The stall can take money with no SOL and no signal.
+Look at what the stall survives now. Module 3 gave it a QR code and server-side pricing. Last lesson removed the buyer's need to hold SOL. Today removed the need for a network at the moment of sale, and it did so on a primitive you now handle the way its history demands: advance at instruction 0, one nonce per sale, a drawer treated as bearer paper, and a drain that would rather escalate to a human than cash a spent check. The stall can take money with no SOL and no signal.
 
 Which means the building is done and the doubt begins. Before Wavelength flips the sign to open, one gate remains: proving this whole stack, checkout to queue, is actually ready for real money. Next lesson is that gate, a production checklist you can fail, run against everything you have built. Bring the artifacts; they are the ones being examined.

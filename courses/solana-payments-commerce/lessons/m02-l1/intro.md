@@ -16,7 +16,7 @@ You get back:
 2009999.9999999998 2009999
 ```
 
-Read that twice. A customer typed $2.01, you multiplied by a million to get USDC's smallest unit, and JavaScript handed you a number that is one unit short. Truncate it, the way half the tutorials on the internet do, and you just underpaid. No error thrown, no warning, nothing in your logs. The two traps nobody warns a product engineer about are both in this lesson: floating-point money math that quietly sends the wrong number of cents, and the fact that the wallet you are paying may not even own a USDC account yet, so the payment fails before it starts. By the end of this lesson both traps are dead, killed by a module you will reuse in every remaining lesson of this course.
+Read that twice. A customer typed $2.01, you multiplied by a million to get USDC's smallest unit, and JavaScript handed you a number that is one unit short. Truncate it, the way half the tutorials on the internet do, and you just underpaid. No error thrown, no warning, nothing in your logs. The two traps nobody warns a product engineer about are exactly what you are about to build past: floating-point money math that quietly sends the wrong number of cents, and the fact that the wallet you are paying may not even own a USDC account yet, so the payment fails before it starts. By the end of this lesson both traps are dead, killed by a module you will reuse in every remaining lesson of this course.
 
 ## Summary
 
