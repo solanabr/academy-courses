@@ -6,7 +6,7 @@ Today ends with a green check on a run you did not start. Check the starting lin
 git --version
 ```
 
-If it prints a version, half of today's toolchain is already on your machine. If it errors, the first section installs it in one command. Either way, keep the terminal open; everything in this lesson happens in it, and by the end a machine you do not own will be probing the internet every half hour on your behalf.
+If it prints a version, half of today's toolchain is already on your machine. If it errors, the first section installs it in one command. Either way, keep the terminal open; everything ahead happens in it, and by the end a machine you do not own will be probing the internet every half hour on your behalf.
 
 ## Summary
 

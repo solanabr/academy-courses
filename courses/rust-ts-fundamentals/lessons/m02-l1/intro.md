@@ -2,7 +2,7 @@
 
 **Summary:** Module 1 shipped the heartbeat: pulse v0 probes a URL with built-in fetch, and the m01-l3 Actions cron runs it on a schedule and commits status.json, a machine that isn't yours, running your code. It also runs your bugs. This lesson is about one bug in particular, the kind that never crashes. You'll forge a malformed probe record, watch v0 publish it as healthy without complaint, and then delete the entire category of that bug by rebuilding the fleet's result type as a discriminated union with an exhaustive switch. By the end, a wrong state won't be caught. It won't be constructible.
 
-Before any theory, do this. Open your pulse repo and drop these four lines at the top of the probe file (top matters: v0's usage guard exits early when no URL is passed), then run it with `npx tsx probe.ts`:
+Measure first. Open your pulse repo and drop these four lines at the top of the probe file (top matters: v0's usage guard exits early when no URL is passed), then run it with `npx tsx probe.ts`:
 
 ```ts
 type ProbeRecord = { status: string; latencyMs?: number };

@@ -6,7 +6,7 @@ m02-l2 put a parser on every boundary: the config is zod'd (typed by `z.infer`, 
 
 ## Concurrency is a budget
 
-Before any theory, cause the problem. Nothing to install today; everything runs on what you already have (Node 24 LTS from m01-l2, `tsx` as the runner, zod from last lesson). Two files, three minutes.
+Cause the problem first. Nothing to install today; everything runs on what you already have (Node 24 LTS from m01-l2, `tsx` as the runner, zod from last lesson). Two files, three minutes.
 
 First, a target you are allowed to hammer. This is a local server that behaves like every rate-limited API you will ever meet: it serves a capped number of requests per window, then answers 429 until the window rolls over. Save it as `src/limited-server.ts`:
 

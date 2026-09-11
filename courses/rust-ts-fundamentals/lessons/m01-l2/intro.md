@@ -10,7 +10,7 @@ So let's check what you're standing on. Open a terminal and run:
 node --version
 ```
 
-If that prints `v24.x.x`, you're already home. If it prints nothing, or something older, the next section fixes it in two minutes. Either way, keep the terminal open. Everything in this lesson happens in it.
+If that prints `v24.x.x`, you're already home. If it prints nothing, or something older, the next section fixes it in two minutes. Either way, keep the terminal open — everything ahead happens in it.
 
 And once the probe runs, we'll talk about something genuinely strange: the compiler you're about to install was itself rewritten in another language for a 10x speedup. The whole thesis of this course, TypeScript for the surfaces and a systems language for the hot paths, is running on your own machine before you've written fifty lines.
 
@@ -224,7 +224,7 @@ One paragraph on module systems, because that's all 2026 owes the topic: for a d
 
 Fully worked tier, and I'll say the quiet part out loud: this is the most hand-holding you will ever get from this course. Every command is printed, the probe is built step by step, and your only blanks are two TODOs. Next module you get skeletons; by the late modules, specs. The multi-URL challenge after the lab is your first small solo step. That fade is deliberate, and it's how you get strong.
 
-The artifact contract, because later lessons will hold you to it: `pulse` v0 is a TypeScript file where `probe(url)` fetches the target with built-in fetch, times it with `performance.now()`, and prints URL, HTTP status, and latency in ms. Deliberately stringly and single-target. That's not a compliment, and it's on purpose: in the TypeScript-types lesson coming up, we'll feed this probe a malformed target, watch it lie politely, and replace its strings with a typed union. Version 0 is supposed to have room to grow.
+The artifact contract, because later lessons will hold you to it: `pulse` v0 is a TypeScript file where `probe(url)` fetches the target with built-in fetch, times it with `performance.now()`, and prints URL, HTTP status, and latency in ms. Deliberately stringly and single-target. That's not a compliment: in the TypeScript-types lesson coming up, we'll feed this probe a malformed target, watch it lie politely, and replace its strings with a typed union. Version 0 is supposed to have room to grow.
 
 **1. Confirm the scaffold.** You should be inside `pulse-station/` with `package.json` (containing `"type": "module"`), `tsconfig.json` (with your two edits), and `node_modules` from the install. Prove it:
 
@@ -360,4 +360,4 @@ If you want a second workout, this lesson's page on the course platform carries 
 
 ![A ladder diagram showing pulse v0 today, its move to scheduled runs, and the later typed rewrite, with one contract held throughout.](assets/v07-diagram.webp)
 
-Before you go: run the probe against a site you actually care about and look at the number. If anything in this lesson fought you, a version mismatch, a flag error you couldn't decode, that's exactly the feedback I want; bring it to the course discussion, worst case it becomes next cohort's troubleshooting box. See you at the first green check.
+Before you go: run the probe against a site you actually care about and look at the number. If anything above fought you — a version mismatch, a flag error you couldn't decode — that's exactly the feedback I want; bring it to the course discussion, worst case it becomes next cohort's troubleshooting box. See you at the first green check.

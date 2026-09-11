@@ -48,7 +48,7 @@ blocks:
             feedback: "assertNever is an ordinary function you wrote, the magic is entirely in narrowing. Any function taking `never` would behave identically."
         explanation: "Exhaustiveness is a feature you opt into: handle every variant and the default arm's value narrows to never, which accepts nothing. Add a variant and the leftover type is no longer never, the compile fails at exactly the sites that must learn about the new case. It is a refactor checklist the compiler writes for you."
       - id: m02l1-q2
-        prompt: "You retype the fetched config from `any` to `unknown`. Nothing about the runtime changed. What actually changed for you, day to day?"
+        prompt: "You retype the fetched config from `any` to `unknown`. Nothing about the runtime changed. What changed for you, day to day?"
         multiSelect: false
         options:
           - id: b

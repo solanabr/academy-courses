@@ -4,7 +4,7 @@
 
 Last lesson you built the bench gauge: `chain-probe.ts` measures slot time against the 300ms target, derives the epoch countdown from the fixed 432,000-slot epoch, and gave you the four-idea client model, with everything deeper handed to the btc-to-sol course by name. It works. It also runs on exactly one machine, yours, in a terminal nobody else will ever see. A gauge nobody can see is a gauge that does not exist.
 
-Today is the course's biggest re-ship, and I want to say the quiet part first: nothing in this lesson is new except the target. The read is one line you already understand. The polling is m03-l2's. The cache is m07-l1's KV. The backoff is m02-l3's. What changes is where it all runs: the same chain read, promoted to every deployed surface the station owns. By the end, the Vercel dashboard renders a live Solana panel and the worker's public JSON carries a cached chain snapshot, both on the URLs you already shipped.
+Today is the course's biggest re-ship, and I want to say the quiet part first: nothing here is new except the target. The read is one line you already understand. The polling is m03-l2's. The cache is m07-l1's KV. The backoff is m02-l3's. What changes is where it all runs: the same chain read, promoted to every deployed surface the station owns. By the end, the Vercel dashboard renders a live Solana panel and the worker's public JSON carries a cached chain snapshot, both on the URLs you already shipped.
 
 Prove the read first. In the station repo, where `@solana/kit@^8` has been installed since last lesson, drop this into `packages/pulse-fleet/balance.ts` next to `chain-probe.ts` and run it from that directory (the bench-script home from last lesson, with the `"type": "module"` and tsx the scripts need):
 
