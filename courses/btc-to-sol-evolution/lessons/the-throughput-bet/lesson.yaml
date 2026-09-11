@@ -54,13 +54,13 @@ blocks:
             feedback: "The figure is flat and does not move with load. That reflex comes from a chain where a last-second builder sorts a global pending set by price; Solana fixes the leader an epoch ahead, so there is no such auction for the base fee to track."
         explanation: "The base fee is 5,000 lamports (0.000005 SOL) per signature — flat, regardless of compute used. Half burns, permanently shrinking supply; half pays the block producer. Optional priority fees, priced per compute unit, sit on top when you want to outbid others for scarce blockspace."
       - id: q3
-        prompt: "A whole Solana transaction is capped at how many bytes, and why that number?"
+        prompt: "A v0 or legacy Solana transaction is capped at how many bytes, and why that number?"
         multiSelect: false
         options:
           - id: b
-            label: "4,096 bytes, one memory page, so a transaction always fits a single page buffer"
+            label: "1,280 bytes: the IPv6 minimum MTU itself, since the headers travel outside the datagram"
             correct: false
-            feedback: "Nothing about the limit is about memory layout. It is chosen so a transaction survives the network without fragmenting, which is a property of the wire rather than of any validator's allocator."
+            feedback: "1,280 is the floor every IPv6 hop must carry, not the budget a transaction gets. The IPv6 and UDP headers ride inside that same packet, so they come out of the 1,280 first. Subtract the 48 and the transaction is left with 1,232."
           - id: a
             label: "1,232 bytes: the IPv6 minimum MTU of 1,280 minus 48 bytes of headers"
             correct: true
@@ -73,4 +73,4 @@ blocks:
             label: "1,232 bytes, the largest payload Gulf Stream will forward to a leader without splitting it"
             correct: false
             feedback: "The number is right and the reason is invented. Gulf Stream is a routing decision, not a size rule: it hands the leader whatever the wire already accepted, and it splits nothing. The ceiling is a packet-size constraint that would hold even if no one were forwarding anything."
-        explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the cap is derived from the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction (checked 2026-09-07). Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables. A larger limit has been proposed and is feature-gated, so treat 1,232 as this cluster's current value, not a permanent one."
+        explanation: "Transactions are sent as single UDP datagrams that must never fragment, so the v0 and legacy cap is derived from the IPv6 minimum MTU: 1,280 bytes minus 48 of headers = 1,232 bytes for the serialized transaction. Signatures, account list, and data all share that budget — the reason large programs deploy in chunks and heavy calls use lookup tables. The ceiling is now format-specific: transaction format v1 (SIMD-0296 for the size, SIMD-0385 for the format) raises it to 4,096 bytes, a figure taken from a memory page rather than from the wire, and drops Address Lookup Tables so every account is spelled out inline. Checked 2026-09-11: v1 is active on devnet and staged on mainnet for epoch 1035. Treat 1,232 as the v0 number, not a permanent one."
