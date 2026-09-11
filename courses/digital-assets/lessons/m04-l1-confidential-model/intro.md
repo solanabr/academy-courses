@@ -114,7 +114,7 @@ The checking, notably, is not done by Token-2022 itself. SIMD-0153 gave the netw
 
 ### Why one transfer is several transactions, and why amounts stop at 2^48
 
-So a confidential transfer is ciphertexts plus three proofs. Now the ugly operational fact: those proofs are big. A range proof alone runs to hundreds of bytes, the trio together blows well past what fits beside a transfer instruction inside Solana's 1,232-byte transaction. The proofs are too large to ride along, so one logical transfer becomes several dependent transactions today.
+So a confidential transfer is ciphertexts plus three proofs. Now the ugly operational fact: those proofs are big. A range proof alone runs to hundreds of bytes, the trio together blows well past what fits beside a transfer instruction inside the 1,232 bytes a v0 or legacy transaction gets. The proofs are too large to ride along, so one logical transfer becomes several dependent transactions today.
 
 The mechanism that makes this workable is the context state account: a short-lived account, owned by the proof program, that records "proof X was verified" so a later transaction can point at it instead of carrying the proof. The dance, in order:
 
@@ -122,18 +122,20 @@ The mechanism that makes this workable is the context state account: a short-liv
 2. Transfer: the actual Token-2022 `Transfer` instruction executes, referencing the three context accounts instead of inline proofs.
 3. Close: the context accounts are closed and their rent reclaimed.
 
-![Flowchart of a confidential transfer split across dependent transactions: proofs verified into context accounts first, then the transfer referencing them, then context-account cleanup, constrained by the 1,232-byte transaction limit.](assets/v06-flowchart.png)
+![Flowchart of a confidential transfer split across dependent transactions: proofs verified into context accounts first, then the transfer referencing them, then context-account cleanup, constrained by the 1,232-byte v0 transaction limit, with a future lane noting transaction format v1's 4,096-byte envelope, active on devnet and staged on mainnet.](assets/v06-flowchart.png)
 
-This is not forever, and it is already moving. Transaction format v1 (the SIMD-0296 line, now carried by SIMD-0385) raises the envelope precisely so flows like this can collapse into a single transaction, and it has shipped in Agave. But shipped is not activated, and activated is per cluster. Agave's feature set names the gate `enable_tx_v1` and declares its address in `feature-set/src/lib.rs`:
+This is not forever, and it is already moving. Transaction format v1 (the SIMD-0296 line, now carried by SIMD-0385) raises the envelope to 4,096 bytes precisely so flows like this can collapse into a single transaction. Do not read that as a guarantee, though, because v1 raises bytes and nothing else: the caps on accounts and on top-level instructions stay at 64 apiece, and v1 drops Address Lookup Tables, so every account a transaction touches is spelled out inline at a full 32 bytes. Whether any particular confidential transfer fits in one v1 transaction is arithmetic you do per flow, not a promise you inherit. And shipped is not activated, and activated is per cluster. Agave's feature set names the gate `enable_tx_v1` and declares its address in `feature-set/src/lib.rs`:
 
 ```bash
 solana account txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL --url mainnet-beta
 solana account txv1aq4pp281K9um3tnPgkfX8UqtFT6wcVW3hNezGLL --url devnet
 ```
 
-On 2026-09-06 mainnet answered `Error: AccountNotFound` — no account, so not activated and not even staged — while devnet returned an account owned by `Feature111111111111111111111111111111111111` whose nine data bytes decode as a `1` tag followed by activation slot 492,480,000. Devnet has it. Mainnet does not. So 1,232 bytes remains the law where your users are, the multi-transaction dance remains the reality you engineer for, and devnet is now a cluster where this particular constraint quietly does not reproduce — which is its own trap if you only ever test there.
+On 2026-09-11 mainnet answered with an account that exists but is not yet live: 0.01 SOL, owner `11111111111111111111111111111111`, and no data at all. That is what a *staged* gate looks like — funded and queued, waiting on an epoch boundary to adopt it. Devnet answered with an account owned by `Feature111111111111111111111111111111111111` whose nine data bytes decode as a `1` tag followed by activation slot 492,480,000: activated. The owner field is the tell, so read it first. Owned by the System Program means staged; owned by `Feature111…` means live, and the data carries the slot it went live at.
 
-Two notes on the probe itself, because the obvious one does not work. `solana feature status` prints only the gates compiled into the CLI you are holding: 76 rows on solana-cli 3.1.10, and this gate is not among them, so both `| grep -i tx_v1` and `solana feature status <that address>` come back empty or `Unknown feature`. Reading the account directly is the probe that cannot go stale, because it asks the chain rather than the binary. And re-check it before you quote this paragraph to anyone: it flipped on one cluster between this lesson's drafting and its last review.
+So devnet has v1 and mainnet has it scheduled, for epoch 1035. Until that boundary passes, 1,232 bytes remains the law where your users are, the multi-transaction dance remains the reality you engineer for, and devnet is already a cluster where this particular constraint quietly does not reproduce — which is its own trap if you only ever test there.
+
+Two notes on the probe itself, because the obvious one does not work. `solana feature status` prints only the gates compiled into the CLI you are holding: 76 rows on solana-cli 3.1.10, and this gate is not among them, so both `| grep -i tx_v1` and `solana feature status <that address>` come back empty or `Unknown feature`. Reading the account directly is the probe that cannot go stale, because it asks the chain rather than the binary. And re-check it before you quote this paragraph to anyone: both clusters have moved since this lesson was drafted — devnet activated, and mainnet went from having no account at all to having a staged one.
 
 The last constraint is the amount cap, and by now you can derive it yourself. Amounts are encrypted in chunks small enough to decrypt (a 16-bit low chunk, a 32-bit high chunk), so a single deposit or transfer is capped below 2^48. The source states it as a constant:
 
