@@ -20,7 +20,7 @@ O recuo desta vez opera sobre julgamento em vez de código, porque o entregável
 
 ## O segundo nível, e por que ele existe
 
-Comece pelo enquadramento honesto, porque é a coisa que a maioria das pessoas erra. A válvula de escape não é uma derrota. O `Pod` não é "o jeito bom" e o borsh "o jeito ruim." São dois níveis de um design deliberado, e a habilidade que esta lição treina é saber a qual nível um campo dado pertence.
+Comece pelo enquadramento honesto, porque é a coisa que a maioria das pessoas erra. A válvula de escape não é uma derrota, e o `Pod` não é "o jeito bom" contra o "jeito ruim" do borsh. São dois níveis de um design deliberado, e a habilidade que esta lição treina é saber a qual nível um campo dado pertence.
 
 Aqui está a pergunta motivadora, a que o erro de `String` força em você. Você tem um campo cujo comprimento você genuinamente não consegue saber em tempo de compilação. Quais são as suas opções?
 
@@ -32,7 +32,7 @@ A segunda resposta ingênua: não guarde o nome de jeito nenhum. Faça hash do n
 
 Então a pergunta real se estreita nisso: como você coloca um valor genuinamente de tamanho variável dentro de uma conta quando um cast fixo é impossível e você não pode se permitir mover os dados para off-chain?
 
-![Uma comparação em duas colunas entre o Pod Account<T> (cast direto, tamanho fixo, disciplina de layout) e o BorshAccount<T> (desserializa na leitura, tamanho variável, paga o imposto de serialização mais dois buracos de wire).](assets/v01-comparison.png)
+![Uma comparação em duas colunas entre o Pod Account<T> (cast direto, tamanho fixo, disciplina de layout) e o BorshAccount<T> (desserializa na leitura, tamanho variável, paga o imposto de serialização mais dois buracos de wire).](assets/v01-comparison.webp)
 
 ## O que o wrapper realmente é
 
@@ -56,7 +56,7 @@ pub struct EditProfile {
 
 Note o que `BorshAccount<CabinetProfile>` está fazendo que `Account<Cabinet>` nunca fez. Quando o seu handler toca `profile.description`, o wrapper não te entrega uma view sobre os bytes crus. Ele lê os dados da conta e *desserializa a coisa inteira* para um valor Rust alocado no heap, `String` e tudo. Quando você escreve, ele serializa o valor inteiro de volta. Essa é exatamente a coisa que o zero-copy foi construído para evitar, e aqui você está escolhendo isso de propósito, porque a alternativa é não ter o campo de jeito nenhum.
 
-![O caminho de leitura Pod faz cast dos bytes da conta direto para uma view tipada, enquanto o caminho borsh acrescenta uma desserialização na leitura e uma serialização na escrita.](assets/v02-diagram.png)
+![O caminho de leitura Pod faz cast dos bytes da conta direto para uma view tipada, enquanto o caminho borsh acrescenta uma desserialização na leitura e uma serialização na escrita.](assets/v02-diagram.webp)
 
 Seja franco sobre *quanto* isso custa, porque a resposta não é um número único, e tratá-la como um é como as pessoas ou se desesperam ou ficam complacentes. Separe o caso médio do pior caso. Numa struct borsh minúscula, um único `Address` e um nome de dez caracteres, a desserialização é barata em termos absolutos; você teria dificuldade de medi-la contra o resto de um handler. Esse é o caso médio, e é por isso que "borsh é lento" é grosseiro demais para ser útil. O pior caso é o que morde: o custo de desserialização escala com o tamanho dos dados, então um `BorshAccount` guardando uma descrição de quatro kilobytes paga uma desserialização de quatro kilobytes em cada instrução que a carrega, e uma reserialização de quatro kilobytes na saída quando ela era gravável. Um cast `Pod` não se importa se a conta tem cinquenta bytes ou quatro kilobytes; ele lê o campo que você pediu e para. Então o enquadramento honesto não é "borsh é lento" mas "o custo do borsh é proporcional ao tamanho inteiro da conta e pago em cada acesso, enquanto o do Pod é constante e quase zero." Essa proporcionalidade é exatamente o motivo pelo qual você isola o campo grande e variável em vez de fundi-lo na conta que você toca constantemente.
 
@@ -66,11 +66,11 @@ Diga o trade-off em voz alta, porque nomeá-lo é a jogada de credibilidade e pu
 
 Antes de a gente ir mais longe, construa a versão mais forte da posição contra a qual acabei de argumentar, porque ela é genuinamente razoável e você vai sentir a atração dela. O argumento vai assim: o `Pod` é um sofrimento. Disciplina de layout, nenhum preenchimento, ordenação de campos do maior para o menor, wrappers `Pod` em cada campo, o imposto inteiro que você passou o módulo 2 aprendendo a pagar. O `BorshAccount` faz tudo isso desaparecer. Ponha uma `String`, um `Vec`, um `Option`, o que você quiser numa struct, derive o serializador, e siga com a sua vida. Por que não simplesmente fazer de cada conta um `BorshAccount` e parar de lutar contra o layout de bytes?
 
-Conceda a parte válida, porque ela é real. Para um programa em que a CU não é o gargalo, em que as contas são tocadas raramente e os dados são genuinamente irregulares, all-borsh *é* mais simples, e código mais simples tem menos bugs. Eu já entreguei a versão all-borsh de um programa. Funciona bem, até deixar de funcionar. Então o argumento não é bobo. É uma troca real, e no eixo da simplicidade o borsh ganha.
+Conceda a parte válida, porque ela é real. Para um programa em que a CU não é o gargalo, em que as contas são tocadas raramente e os dados são genuinamente irregulares, all-borsh *é* mais simples, e código mais simples tem menos bugs. Eu já entreguei a versão all-borsh de um programa. Funciona bem, até deixar de funcionar. Então o argumento se sustenta: é uma troca real, e no eixo da simplicidade o borsh ganha.
 
 Agora refine, porque o eixo que aquele argumento otimiza não é o eixo sobre o qual o V2 foi construído. Comparado a quê? Comparado ao `Account<T>`, cuja razão inteira de existir é que a desserialização default do v1 era, nas palavras do próprio framework na issue #4390, "o caminho lento" e "a reclamação de performance número um dos desenvolvedores do Anchor." Escolher all-borsh é escolher reintroduzir, em cada conta, exatamente o custo que a reescrita inteira se propôs a apagar. Numa conta que você toca uma vez por mês, tanto faz. Na conta quente de um programa que roda milhares de vezes por slot, você acabou de pagar de volta por inteiro a otimização de destaque do framework, sobre dados que na maior parte não precisavam dela. A simplicidade era real; ela também estava precificada em CU, e você não leu o recibo. É isso que "comparado a quê?" te compra: transforma "borsh é mais simples" de um veredito em uma troca com um custo nomeado, e o custo é exatamente a coisa que este curso existe para te ensinar a ver.
 
-![Uma tabela de comparação entre design de conta all-borsh e de níveis mistos ao longo de simplicidade para o desenvolvedor, custo de CU na conta quente, rent, e quando cada um é a escolha certa.](assets/v03-table.png)
+![Uma tabela de comparação entre design de conta all-borsh e de níveis mistos ao longo de simplicidade para o desenvolvedor, custo de CU na conta quente, rent, e quando cada um é a escolha certa.](assets/v03-table.webp)
 
 ## A história do wire: wincode, e dois buracos
 
@@ -88,7 +88,7 @@ O primeiro buraco é a ordenação de campos de `HashMap` e `HashSet`. A causa r
 
 O segundo buraco é a aceitação de NaN em `f32` e `f64`. A causa raiz aqui é que NaN não é um valor só. O padrão de float IEEE-754 define uma faixa inteira de padrões de bits que todos significam "não é um número," e NaN não é nem igual a si mesmo. Então "serialize este float" é ambíguo no momento em que o float pode ser NaN: qual padrão de bits de NaN você escreve, e você aceita algum? Os dois codificadores diferem sobre aceitarem ou não um valor NaN. Se a sua struct carrega um float que pode ser NaN, eles podem discordar sobre se o valor é legal no wire. (Floats no estado on-chain são um sinal de alerta por outros motivos, matemática financeira determinística quer inteiros e ponto fixo, mas se você os tem, essa é uma aresta real.)
 
-![Dois snippets de Rust mostrando as raízes dos buracos de wire: HashMap não tem ordem de iteração garantida, e NaN cobre muitos padrões de bits desiguais a si mesmos.](assets/v04-annotated-code.png)
+![Dois snippets de Rust mostrando as raízes dos buracos de wire: HashMap não tem ordem de iteração garantida, e NaN cobre muitos padrões de bits desiguais a si mesmos.](assets/v04-annotated-code.webp)
 
 Junte os dois e a regra sai limpa. Um cliente que decodifica borsh consegue ler a maioria das contas wincode, *mas não* se você depende da ordenação de map ou set, e *não* se você depende de floats NaN. Se nenhuma das duas é verdade sobre a sua struct, e para a maioria esmagadora das contas nenhuma é, a compatibilidade se mantém e você pode seguir em frente. Se alguma das duas é verdade, você tem de decidir a história de codificação deliberadamente, porque o wire não é mais uma coisa só.
 
@@ -97,7 +97,7 @@ Junte os dois e a regra sai limpa. Um cliente que decodifica borsh consegue ler 
 | ordenação de `HashMap` / `HashSet` | a ordem de iteração em que as entradas serializam | você depende da ordem do map, ou você faz hash/assina sobre os bytes crus da conta |
 | NaN de `f32` / `f64` | se um valor NaN é aceito no wire | a sua struct carrega um float que pode ser NaN |
 
-![O BORSH_CONFIG do wincode se sobrepõe ao borsh quase inteiramente, com apenas duas lacunas não sobrepostas, ordenação de HashMap/HashSet e aceitação de NaN em f32/f64.](assets/v05-diagram.png)
+![O BORSH_CONFIG do wincode se sobrepõe ao borsh quase inteiramente, com apenas duas lacunas não sobrepostas, ordenação de HashMap/HashSet e aceitação de NaN em f32/f64.](assets/v05-diagram.webp)
 
 Uma pergunta que este nível levanta merece uma resposta direta em vez de enrolação, porque errá-la é um bug de estado silencioso: como um `BorshAccount` se comporta através de uma CPI?
 
@@ -107,7 +107,7 @@ Uma nota de nomenclatura antes do protocolo, porque o nome do tipo e a seção a
 
 O contraste com o nível `Pod` vale ser guardado. Para o `Account<T>`, o modelo de borrow do `CpiHandle` do V2 transforma "você esqueceu de recarregar" em um erro de compilação, que você encontra de frente mais tarde no curso. Para o `BorshAccount<T>` a disciplina é um par de chamadas que você faz de propósito. Os dois são melhores que o silêncio do v1, mas só um deles é checado para você, que é mais um pequeno motivo pelo qual a válvula de escape continua sendo uma válvula de escape. Se o seu design desserializa uma conta borsh, invoca uma CPI que a toca, e então lê o valor, escreva mesmo assim o teste LiteSVM que afirma o valor *pós-CPI*: o protocolo está documentado, mas o seu uso dele é a coisa que vale comprovar.
 
-![Uma sequência de quatro passos mostrando release_borrow antes da CPI e reacquire_borrow_mut depois dela, com os casos de reatribuição rejeitados e o método exclusivo de realloc marcados separadamente.](assets/v06-flowchart.png)
+![Uma sequência de quatro passos mostrando release_borrow antes da CPI e reacquire_borrow_mut depois dela, com os casos de reatribuição rejeitados e o método exclusivo de realloc marcados separadamente.](assets/v06-flowchart.webp)
 
 ## Por que os pins não são trabalho inútil
 
@@ -119,7 +119,7 @@ A issue #4937 foi aberta em 2026-08-16 e fechada quatro dias depois, em 2026-08-
 
 A linha de instalação em si não é repetida aqui — o lab desta lição nunca invoca o toolchain. Se você realmente precisar reinstalar, use o bloco exato de m02-l1, `--tag v2.0.0-rc.1` e `--locked`: a tag, nunca a branch.
 
-![Uma linha do tempo de sete passos mostrando o pin wincode 0.5 do anchor-lang e o wincode 0.6 que o solana-address 2.7.0 exige se afastando até o atributo account borsh quebrar, e então a issue #4937 fechando com os pins reconciliados.](assets/v07-timeline.png)
+![Uma linha do tempo de sete passos mostrando o pin wincode 0.5 do anchor-lang e o wincode 0.6 que o solana-address 2.7.0 exige se afastando até o atributo account borsh quebrar, e então a issue #4937 fechando com os pins reconciliados.](assets/v07-timeline.webp)
 
 ## Lab: modele uma conta mista
 
@@ -162,13 +162,13 @@ pub struct EditCabinet {
 }
 ```
 
-![A conta mista dividida em um CabinetCore Pod guardando a chave fixa e o board limitado, e um CabinetDescription borsh separado guardando a única String ilimitada.](assets/v08-annotated-code.png)
+![A conta mista dividida em um CabinetCore Pod guardando a chave fixa e o board limitado, e um CabinetDescription borsh separado guardando a única String ilimitada.](assets/v08-annotated-code.webp)
 
 **Passo 3, leia o custo que você acabou de escolher.** Num handler que só atualiza o leaderboard, você toca `core` e nunca `description`, então você paga custo zero de desserialização: o caminho quente continuou no cast. Só um handler que edita o texto desserializa qualquer coisa. Esse é o retorno de dividir ao longo da fronteira entre os níveis em vez de virar all-borsh: você limitou o escopo do imposto ao único campo que o exigia. Existe um ângulo de rent também, e ele corta do mesmo jeito. Uma conta `Pod` se dimensiona exatamente para o seu layout fixo, mas uma conta borsh tem de ser alocada grande o bastante para a maior string que você vai armazenar algum dia, então você paga rent pelo pior caso. Dividir mantém o rent de pior caso isolado na conta de descrição, em vez de inflar a conta que guarda o seu leaderboard quente.
 
 **Passo 4, faça a checagem de sanidade contra os dois buracos de wire.** Olhe para `CabinetDescription`. É uma única `String`, nenhum `HashMap`, nenhum `HashSet`, nenhum float. Então os dois buracos wincode-vs-borsh são irrelevantes aqui, e um cliente que decodifica borsh a lê sem problema. Essa checagem é o hábito: sempre que um campo vira borsh, pergunte "esta struct carrega um map, um set, ou um float que pode ser NaN?" Se não, a compatibilidade se mantém e você segue em frente. Se sim, você deve uma decisão à codificação.
 
-![Uma árvore de decisão roteando campos de tamanho fixo e limitados para Pod, mandando só campos genuinamente ilimitados para BorshAccount, e então checando por HashMap ou floats NaN.](assets/v09-flowchart.png)
+![Uma árvore de decisão roteando campos de tamanho fixo e limitados para Pod, mandando só campos genuinamente ilimitados para BorshAccount, e então checando por HashMap ou floats NaN.](assets/v09-flowchart.webp)
 
 **Checkpoint.** Você deve agora conseguir apontar para qualquer campo de uma conta e dizer, num só fôlego, a qual nível ele pertence e por quê: fixo vai para `Pod`, limitado-com-máximo-conhecido vai para `Pod`, genuinamente ilimitado vai para `BorshAccount`, e uma conta mista isola a parte ilimitada em vez de rebaixar a coisa inteira. Se você consegue fazer isso para os três campos acima sem hesitar, o lab funcionou.
 
@@ -191,6 +191,6 @@ Escreva o artefato; o prompt vive em [operator-ledger/prompt.md](operator-ledger
 
 ## Onde isso te deixa
 
-Você não aprendeu "borsh é ruim." Você aprendeu onde os dois níveis se encontram, e agora você consegue ficar nessa costura e colocar qualquer campo do lado correto dela: estado fixo e limitado lido por cast direto dos bytes pelo ganho de CU, estado genuinamente ilimitado isolado atrás de `BorshAccount<T>`, e os dois buracos de wire wincode-vs-borsh checados sempre que a válvula de escape entra em cena. Esse é o modelo completo de estado on-chain que este curso precisava que você dominasse antes de poder dar um endereço a esse estado.
+A lição aqui nunca foi "borsh é ruim." Você aprendeu onde os dois níveis se encontram, e agora você consegue ficar nessa costura e colocar qualquer campo do lado correto dela: estado fixo e limitado lido por cast direto dos bytes pelo ganho de CU, estado genuinamente ilimitado isolado atrás de `BorshAccount<T>`, e os dois buracos de wire wincode-vs-borsh checados sempre que a válvula de escape entra em cena. Esse é o modelo completo de estado on-chain que este curso precisava que você dominasse antes de poder dar um endereço a esse estado.
 
 Porque isso é o próximo. Você já consegue modelar qualquer estado, fixo, limitado ou ilimitado, e escolher o nível certo para cada campo. O que você ainda não consegue fazer é *encontrar* esse estado de forma determinística, ou dizer quem é o dono dele. O próximo módulo dá às suas contas um endereço e um dono: endereços derivados de programa, bumps canônicos pré-computados em tempo de expansão de macro, e o catálogo completo de constraints do V2. Ele abre no quarter-vault, a conta de crédito pré-pago cujo endereço ninguém distribui porque o programa a re-deriva, sozinho, a partir da chave do jogador, toda vez.

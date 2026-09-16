@@ -26,7 +26,7 @@ O recuo da ajuda desta lição: o passo a passo da expansão do derive é totalm
 
 Comece pelo status quo e pelo limite dele. Um programa Solana cru recebe um slice plano de contas e um slice plano de bytes. Toda propriedade de segurança que te interessa, que esta conta é um signatário, que esta aqui é de propriedade do seu programa, que esta pubkey é de verdade o PDA que você pensa que é, tem que ser checada na mão, na ordem certa, sem ajuda nenhuma do compilador. Deixe passar uma checagem e você tem uma vulnerabilidade. A razão inteira de `#[derive(Accounts)]` existir é mover essa checklist de algo que você lembra para algo que a macro gera.
 
-Então a pergunta natural é: o que exatamente ele gera, e em que ordem? Porque a ordem não é cosmética. É a diferença entre um constraint que te protege e um constraint que roda tarde demais para importar.
+Então a pergunta natural é: o que exatamente ele gera, e em que ordem? Porque a ordem decide se um constraint te protege ou roda tarde demais para importar.
 
 O derive gera três fases, e elas sempre rodam nesta sequência:
 
@@ -34,7 +34,7 @@ O derive gera três fases, e elas sempre rodam nesta sequência:
 2. **Constraints.** Os atributos `#[account(...)]` disparam como hooks: `mut`, `init`, `seeds` e `bump`, `has_one` (que o V2 deprecia em favor de `address = ...`; ele ainda parseia, com um aviso), `constraint = ...`. Esses rodam depois do carregamento porque a maioria deles precisa dos dados carregados para checar qualquer coisa. Um `has_one = authority` não consegue comparar contra um campo que ele ainda não desserializou.
 3. **Despacho.** Só depois que o carregamento e os constraints passam é que o dispatcher entrega o `ctx.accounts` validado ao seu handler. O corpo do seu handler é a última coisa a rodar, não a primeira.
 
-![Um fluxo de cima para baixo de três fases, carregamento, depois constraints, depois despacho, em que cada fase só roda se a anterior passou e o corpo do handler roda por último.](assets/v01-flowchart.png)
+![Um fluxo de cima para baixo de três fases, carregamento, depois constraints, depois despacho, em que cada fase só roda se a anterior passou e o corpo do handler roda por último.](assets/v01-flowchart.webp)
 
 Essa ordenação é o modelo mental que você carrega pelo resto do curso. Todo constraint que você escrever mora na fase dois, o que quer dizer que ele pode presumir que a conta já carregou como o tipo dela, e ele roda antes da sua lógica, o que quer dizer que um constraint que falha te custa a taxa da transação mas nunca deixa uma conta ruim chegar ao seu handler.
 
@@ -51,11 +51,11 @@ Segure esse comando até o passo 1 do Lab. Agora o seu programa tem uma struct d
 
 Para essa struct, o derive gera uma implementação do trait `TryAccounts` cuja função `try_accounts` é, em essência, as três fases escritas como código em linha reta. Ela roda na ordem de declaração dos campos, que é por isso que a ordem em que você escreve os seus campos é a ordem em que eles carregam:
 
-![Um esboço do dispatcher testando o bitvec de duplicatas percorrido contra a MUT_MASK de LightMarquee, e depois try_accounts carregando e aplicando constraints em cada campo na ordem de declaração antes de o handler rodar.](assets/v02-annotated-code.png)
+![Um esboço do dispatcher testando o bitvec de duplicatas percorrido contra a MUT_MASK de LightMarquee, e depois try_accounts carregando e aplicando constraints em cada campo na ordem de declaração antes de o handler rodar.](assets/v02-annotated-code.webp)
 
 Esse esboço é simplificado de propósito, mas a estrutura é fiel. Três coisas valem ser puxadas dele, porque elas respondem perguntas que a versão abstrata deixa em aberto.
 
-Primeiro, ordem de campo é ordem de carregamento. A macro percorre a sua struct de cima para baixo. Se o constraint de um campo posterior depende de um campo anterior, por exemplo um `address = config.authority` que compara contra uma conta `config` declarada acima dele, o campo anterior tem garantia de ter carregado primeiro. Reordene os seus campos e você pode genuinamente mudar qual checagem roda contra dados carregados versus não carregados. Ordem de declaração não é decoração.
+Primeiro, ordem de campo é ordem de carregamento. A macro percorre a sua struct de cima para baixo. Se o constraint de um campo posterior depende de um campo anterior, por exemplo um `address = config.authority` que compara contra uma conta `config` declarada acima dele, o campo anterior tem garantia de ter carregado primeiro. Reordene os seus campos e você pode genuinamente mudar qual checagem roda contra dados carregados versus não carregados.
 
 Segundo, a trava de duplicate-mutable não está embutida no carregamento de nenhum campo isolado, e ela nem mora em `try_accounts`. O dispatcher primeiro percorre as views de conta que chegam, anota num bitvec qualquer endereço que aparece duas vezes, e faz o AND desse bitvec contra a `MUT_MASK` de tempo de compilação da struct num único teste de quatro palavras, antes de o carregamento tipado começar. Compostos são tratados em tempo de compilação em vez de em tempo de execução: um campo `Nested<Inner>` embute a `MUT_MASK` da própria struct interna, deslocada pelo offset daquele campo, na máscara externa. Então um teste cobre a árvore de contas inteira, e ele pega uma colisão mesmo quando a mesma conta é passada para um campo direto e para um campo enterrado dentro de um composto.
 
@@ -83,7 +83,7 @@ Aqui está a pergunta que importa: *onde* essa colisão é pega? A resposta ing�
 
 Mas o compilador não pode saber os *valores*. Se `first` e `second` guardam o mesmo endereço depende inteiramente do que quem chama manda, e isso só é sabível quando a transação chega. Então o runtime faz a outra metade: o dispatcher percorre as views de conta que chegam, liga um bit para cada slot cujo endereço ele já viu, e faz o AND desse bitvec contra a `MUT_MASK`. Se algum bit sobrevive, dois slots mutáveis carregam o mesmo endereço, e a chamada retorna `ConstraintDuplicateMutableAccount` a partir do dispatcher, em tempo de execução, antes de o seu handler rodar.
 
-![Um diagrama em duas partes da MUT_MASK como uma bitmask fixa de tempo de compilação dos campos mutáveis, testada contra um bitvec de tempo de execução de endereços repetidos, com qualquer bit sobrevivente levantando um erro.](assets/v03-diagram.png)
+![Um diagrama em duas partes da MUT_MASK como uma bitmask fixa de tempo de compilação dos campos mutáveis, testada contra um bitvec de tempo de execução de endereços repetidos, com qualquer bit sobrevivente levantando um erro.](assets/v03-diagram.webp)
 
 Existe uma segunda coisa, separada, que as pessoas confundem com essa, e fixar ela é o ponto inteiro do checkpoint mais adiante. Se você de fato *quer* passar a mesma conta mutável duas vezes, porque o seu handler está escrito para nunca manter referências mutáveis conflitantes, você faz opt-out por campo:
 
@@ -113,7 +113,7 @@ Um discriminator é uma tag de 8 bytes que o Anchor prefixa para que o runtime c
 - uma struct de evento faz hash a partir de `event:<Name>`, por exemplo `sha256("event:MarqueeLit")[..8]`
 - um handler de instrução faz hash a partir de `global:<Name>`, por exemplo `sha256("global:greet")[..8]`
 
-![Uma comparação de três linhas dos namespaces de discriminator mostrando que structs de conta usam account, eventos usam event e handlers de instrução usam global, com o namespace global sinalizado como a armadilha comum.](assets/v04-comparison.png)
+![Uma comparação de três linhas dos namespaces de discriminator mostrando que structs de conta usam account, eventos usam event e handlers de instrução usam global, com o namespace global sinalizado como a armadilha comum.](assets/v04-comparison.webp)
 
 Por que `global:`? História. O Anchor antigo colocava handlers de instrução sob um namespace de estado `global`, um design que foi embora quase todo mas deixou a convenção de preimage atrás. Não existe namespace `instruction:` e nunca existiu. Se você algum dia montar na mão uma tag de instrução a partir de `instruction:<Name>`, os seus bytes não vão bater com os que o programa gerou, e o dispatcher vai rejeitar a chamada como uma instrução desconhecida.
 
@@ -121,7 +121,7 @@ Alguns fatos a mais amarram a superfície, e eles importam no momento em que voc
 
 E existe uma compactação de opt-in. Se 8 bytes na frente de toda instrução parece pesado, o V2 te deixa anotar um handler com `#[discrim = N]`, o que troca o prefixo sha256 de 8 bytes dele por uma tag de inteiro pequeno. É engenharia honesta, mas leia a troca antes de recorrer a ela, porque não é o override por item que você poderia esperar.
 
-![Uma tabela de comparação dos discriminators sha256 de 8 bytes default contra discriminators de instrução compactos, mostrando que o compacto economiza bytes mas é tudo-ou-nada por programa, acrescenta validação de ambiguidade de prefixo, e abre mão da compatibilidade de wire v1 default.](assets/v05-table.png)
+![Uma tabela de comparação dos discriminators sha256 de 8 bytes default contra discriminators de instrução compactos, mostrando que o compacto economiza bytes mas é tudo-ou-nada por programa, acrescenta validação de ambiguidade de prefixo, e abre mão da compatibilidade de wire v1 default.](assets/v05-table.webp)
 
 Repare no formato dessa troca. O default te custa 8 bytes no wire mais as compute units para compará-los, e te compra legibilidade e compatibilidade v1 de graça. A opção compacta economiza os bytes e a computação, mas é tudo-ou-nada por programa, ela tem que ser validada contra ambiguidade de prefixo para que duas tags não possam dar alias, e ela abre mão da compatibilidade v1 default. Compatibilidade e legibilidade versus eficiência bruta. É essa a decisão inteira, e para a maioria dos programas o default ganha, que é exatamente por que o caminho compacto continua uma aresta.
 
@@ -133,7 +133,7 @@ A última peça da superfície é o que um cliente vê quando algo falha. Os có
 
 Todo constraint que o framework impõe retorna um código na banda dele. A que você vai encontrar constantemente é a banda de constraint, que começa em 2000. `ConstraintHasOne`, o erro que um `has_one` violado lança, é 2001. `ConstraintDuplicateMutableAccount`, a trava que a gente acabou de traçar, mora nesse mesmo território do framework. Os seus próprios erros, os que você declara com `#[error_code]`, começam em 6000 e contam para cima a partir daí, indexados a partir de zero por variante.
 
-![Um gráfico em bandas das faixas de códigos de erro do Anchor, indo de erros de instrução em 100 passando por erros de constraint em 2000 até erros customizados começando em 6000.](assets/v06-comparison.png)
+![Um gráfico em bandas das faixas de códigos de erro do Anchor, indo de erros de instrução em 100 passando por erros de constraint em 2000 até erros customizados começando em 6000.](assets/v06-comparison.webp)
 
 Isso te dá uma ferramenta preditiva genuinamente útil. Pegue um programa cujo enum `#[error_code]` customizado tem, digamos, três variantes, e nenhum override de `offset`. A primeira variante é 6000, a segunda 6001, a terceira 6002. Se você sabe a posição base zero de uma variante você sabe o número dela no wire sem rodar nada. O erro clássico é ver os 2000s num erro decodificado e presumir que é ali que os erros customizados moram. Não é. Os 2000s são a banda de constraint do framework. Os seus erros começam em 6000. Quando você quer mover essa base, por exemplo para deixar espaço ou para casar com uma convenção externa, `#[error_code(offset = N)]` desloca ela.
 
@@ -147,7 +147,7 @@ Existe uma variante de evento mais rápida, `#[event(bytemuck)]`, que pula o ser
 
 O que fecha o loop de volta para onde o capítulo inteiro começou, o dispatcher. Trace uma chamada completa e cada namespace aparece no lugar dele. Um cliente monta uma transação, prefixa a tag `global:light_marquee` de 8 bytes aos dados da instrução, e manda. O dispatcher lê aqueles primeiros 8 bytes, casa eles contra o discriminator de instrução de cada handler, e roteia para `light_marquee`. Depois `try_accounts` roda: ele carrega cada `Account<Marquee>` checando o discriminator `account:` dele, roda os constraints, percorre a trava de duplicate-mutable. Só então o corpo do seu handler roda, e quando ele chama `emit!`, sai o discriminator `event:` no log. Três namespaces, uma invocação, cada um fazendo o único trabalho para o qual ele foi hasheado.
 
-![Uma linha do tempo de seis paradas de uma invocação, com o namespace global roteando a instrução, account: validando a conta carregada, e event: etiquetando o log emitido.](assets/v07-timeline.png)
+![Uma linha do tempo de seis paradas de uma invocação, com o namespace global roteando a instrução, account: validando a conta carregada, e event: etiquetando o log emitido.](assets/v07-timeline.webp)
 
 ## Lab: estenda o R0 e observe a superfície
 
@@ -253,7 +253,7 @@ Duas grafias de erro aparecem nesse programa e vale saber por que as duas compil
 
 Note a superfície do V2 que você está olhando direto. Nenhum tempo de vida `<'info>` nas structs de accounts. Handlers recebem `&mut Context<T>`. `LightMarquee` usa `init` sem `space` explícito, porque o V2 infere o tamanho a partir do tipo de conta. Todo campo em todo derive é um carregamento de fase um seguido de constraints de fase dois, exatamente a ordem do diagrama.
 
-![Uma struct de accounts LightMarquee anotada rotulando cada campo com o trabalho de carregamento e de constraint que ele gera, e o corpo do handler como a fase de despacho que roda por último.](assets/v08-annotated-code.png)
+![Uma struct de accounts LightMarquee anotada rotulando cada campo com o trabalho de carregamento e de constraint que ele gera, e o corpo do handler como a fase de despacho que roda por último.](assets/v08-annotated-code.webp)
 
 **Passo 2: veja um discriminator com os seus próprios olhos.** Você não precisa chutar qual tag `init` escreve na frente de uma conta `Marquee`. Compute ela:
 
@@ -328,7 +328,7 @@ anchor test
 
 A chamada a `tally_two` nunca chega ao seu handler. O dispatcher percorre as views de conta, sinaliza o endereço repetido, faz o AND desse bitvec contra a `MUT_MASK`, vê um bit sobrevivente, e retorna `ConstraintDuplicateMutableAccount` em tempo de execução, antes de os dois campos sequer carregarem. A sua lógica de `checked_add` é irrelevante aqui, porque a trava dispara antes do corpo. É esse o checkpoint: uma conta mutável duplicada, passada sem `unsafe(dup)`, é uma rejeição em tempo de execução vinda do dispatcher. Você deve ver o teste passar porque o erro foi lançado, que é a trava fazendo o trabalho dela.
 
-![Um fluxo de invocação da esquerda para a direita em que o dispatcher acha o mesmo endereço duas vezes e rejeita com ConstraintDuplicateMutableAccount, então nem o carregamento de contas nem o corpo do handler rodam.](assets/v09-flowchart.png)
+![Um fluxo de invocação da esquerda para a direita em que o dispatcher acha o mesmo endereço duas vezes e rejeita com ConstraintDuplicateMutableAccount, então nem o carregamento de contas nem o corpo do handler rodam.](assets/v09-flowchart.webp)
 
 Se você quer comprovar o opt-out para você mesmo, acrescente `unsafe(dup)` aos dois campos de `TallyTwo` e rode de novo. Agora a mesma chamada é aceita, as duas escritas apontam para a mesma conta, e o segundo `checked_add` vê o valor que o primeiro escreveu. É esse o aliasing do qual o V2 te protege por padrão, tornado visível sob demanda.
 

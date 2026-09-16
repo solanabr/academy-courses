@@ -36,9 +36,9 @@ Una línea de alcance antes de empezar. Este es un swap de enseñanza, un patró
 
 Una sola idea genera todo lo que sigue. Un pool de producto constante sostiene dos activos y trata el producto de sus balances como un número que tiene que proteger. Llama a las reservas `x` e `y`. La ley del pool es `x * y = k`, y `k` es (casi) sagrado: todo canje tiene que dejar `k` al menos tan grande como lo encontró.
 
-Esa única regla es el mecanismo de precio. Cuando un trader agrega `dx` del primer activo, el pool tiene que devolver suficiente del segundo activo, `dy`, para que el producto siga valiendo. Despeja `dy` y la tasa no es un número guardado en ningún lado. Es lo que sea que mantenga la curva intacta. Cuanto más profundo el pool, menos lo mueve un canje dado; cuanto menos profundo el pool, más cuesta cada canje. Ese no es un bug que tengas que vigilar. Es la geometría vigilando por ti.
+Esa única regla es el mecanismo de precio. Cuando un trader agrega `dx` del primer activo, el pool tiene que devolver suficiente del segundo activo, `dy`, para que el producto siga valiendo. Despeja `dy` y la tasa no es un número guardado en ningún lado: es lo que sea que mantenga la curva intacta. Cuanto más profundo el pool, menos lo mueve un canje dado; cuanto menos profundo el pool, más cuesta cada canje. Es la geometría vigilando por ti.
 
-![Un canje jala los tokens de arcade del trader hacia la reserva del pool, cotiza una salida, la verifica contra min_out, y después empuja tickets de vuelta bajo la firma del PDA del pool.](assets/v01-diagram.png)
+![Un canje jala los tokens de arcade del trader hacia la reserva del pool, cotiza una salida, la verifica contra min_out, y después empuja tickets de vuelta bajo la firma del PDA del pool.](assets/v01-diagram.webp)
 
 ¿Por qué cotizar desde las reservas en vez de desde una tasa que fijas tú? Porque una tasa que fijas tú es una tasa de la que un atacante puede elegir un lado. Imagínate el pool como un sube y baja curvo con un área fija debajo. Cada canje desliza un peso a lo largo de la viga, y la viga tiene que inclinarse para mantener el área constante. Un trader puede empujar el peso, pero no puede cambiar el área, y el área es de donde tendría que robar. La curva no está protegiendo un precio que elegiste. Es el precio, y se repreció en el instante en que aterrizó el último canje. Esa es toda la razón por la que un AMM no necesita oráculo: el pool se cotiza a sí mismo.
 
@@ -61,13 +61,13 @@ El `1000` del denominador está ahí para mantener todo en la misma escala enter
 
 La curva de producto constante como dibujo, porque la forma es la intuición:
 
-![Una cotización lineal ingenua y la curva de producto constante coinciden en canjes chicos pero divergen fuerte a medida que crece el tamaño, con la curva doblándose muy por debajo de la línea.](assets/v02-chart.png)
+![Una cotización lineal ingenua y la curva de producto constante coinciden en canjes chicos pero divergen fuerte a medida que crece el tamaño, con la curva doblándose muy por debajo de la línea.](assets/v02-chart.webp)
 
-Esa brecha entre la línea recta y la curva son los 129 tickets de la intro, a mayor escala. En un canje de 10,000 tokens es chica. En un canje de 500,000 tokens contra una reserva de 1,000,000 la tasa ingenua entregaría 500,000 tickets mientras que la curva da 332,665. Un pool que cotizara la línea recta lo drenaría la primera ballena que hiciera la aritmética. La curva no está siendo tacaña. Se está negando a venderte el pool entero al precio marginal.
+Esa brecha entre la línea recta y la curva son los 129 tickets de la intro, a mayor escala. En un canje de 10,000 tokens es chica. En un canje de 500,000 tokens contra una reserva de 1,000,000 la tasa ingenua entregaría 500,000 tickets mientras que la curva da 332,665. Un pool que cotizara la línea recta lo drenaría la primera ballena que hiciera la aritmética. La curva se está negando a venderte el pool entero al precio marginal.
 
 ### El único lugar donde esto entra en panic: `u64` por `u64`
 
-Mira el numerador: `amount_in_with_fee * reserve_out`. Los dos derivan de valores `u64`. Multiplica dos números cerca del tope de `u64` y el producto necesita hasta 128 bits. Hazlo en `u64` y el programa entra en panic en un canje grande contra un pool profundo, que es exactamente el canje que menos quieres que falle. El arreglo no es ponerle tope a tus reservas. Es promover a `u128`, multiplicar ahí, dividir de vuelta hacia abajo, y hacer cast del resultado a `u64` solo una vez que sabes que entra (y siempre entra, porque la salida nunca puede exceder `reserve_out`, que ya es un `u64`).
+Mira el numerador: `amount_in_with_fee * reserve_out`. Los dos derivan de valores `u64`. Multiplica dos números cerca del tope de `u64` y el producto necesita hasta 128 bits. Hazlo en `u64` y el programa entra en panic en un canje grande contra un pool profundo, que es exactamente el canje que menos quieres que falle. El arreglo no es ponerle tope a tus reservas sino promover a `u128`, multiplicar ahí, dividir de vuelta hacia abajo, y hacer cast del resultado a `u64` solo una vez que sabes que entra (y siempre entra, porque la salida nunca puede exceder `reserve_out`, que ya es un `u64`).
 
 La función de cotización, recorrida línea por línea. Esta es la interfaz de artefacto que va a llamar un lab posterior, así que la firma está congelada: `swap_out(reserve_in, reserve_out, amount_in) -> u64`.
 
@@ -102,11 +102,11 @@ pub fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
 }
 ```
 
-![Las cinco líneas estructurales de swap_out, cada una emparejada con la falla específica que previene: cotización de pool vacío, comisión antes de la curva, overflow de u128 en la multiplicación, división por cero, y truncamiento seguro a favor del pool.](assets/v03-annotated-code.png)
+![Las cinco líneas estructurales de swap_out, cada una emparejada con la falla específica que previene: cotización de pool vacío, comisión antes de la curva, overflow de u128 en la multiplicación, división por cero, y truncamiento seguro a favor del pool.](assets/v03-annotated-code.webp)
 
 Fíjate en la dirección del redondeo. La división entera tira el resto, así que el trader siempre se lleva el redondeo hacia abajo, nunca hacia arriba. Eso es deliberado. El redondeo tiene que favorecer al pool en cada canje, porque un swap corre millones de veces y una fracción redondeada para el lado equivocado, repetida, es una fuga lenta. Que el pool se quede con el polvo es correcto. Que se lo quede el trader es un bug que encontrarías meses después como un faltante que no puedes explicar.
 
-Acá es donde la economía se gana una frase, y solo una, porque esta es una lección de Anchor y no de mercados. La razón por la que un pool puede cotizarse a sí mismo sin oráculo y sin operador es que la curva convierte la liquidez en una función de precio: la profundidad se vuelve estabilidad, y cada canje le paga al pool por el privilegio de moverlo. Eso es una pieza de diseño de mecanismos genuinamente elegante, y es la razón por la que el mismo invariante de dos líneas aparece debajo de Uniswap, debajo de una bonding curve de pump.fun, y debajo del juguete que estás construyendo ahora mismo. No lo estás inventando. Lo estás cableando dentro de Anchor.
+Acá es donde la economía se gana una frase, y solo una, porque esta es una lección de Anchor y no de mercados. La razón por la que un pool puede cotizarse a sí mismo sin oráculo y sin operador es que la curva convierte la liquidez en una función de precio: la profundidad se vuelve estabilidad, y cada canje le paga al pool por el privilegio de moverlo. Eso es una pieza de diseño de mecanismos genuinamente elegante, y es la razón por la que el mismo invariante de dos líneas aparece debajo de Uniswap, debajo de una bonding curve de pump.fun, y debajo del juguete que estás construyendo ahora mismo. No lo estás inventando, solo cableándolo dentro de Anchor.
 
 ### Adónde se fueron los 129 tickets
 
@@ -118,7 +118,7 @@ Ahora vuelve a poner la comisión de 0.3% y la salida cae de 9,900 a 9,871. Esos
 
 Esos mismos 29 tickets de comisión son los que levantan el invariante. Antes del canje, `k = 1,000,000 * 1,000,000 = 1,000,000,000,000`. Después, `reserve_in = 1,010,000` y `reserve_out = 990,129`, así que `k = 1,000,030,290,000`, un pelo por encima de donde empezó. `k` nunca cae. La comisión es lo que lo empuja hacia arriba, y la prueba de invariante de la barrera afirma exactamente eso: `k_after >= k_before`, nunca igualdad.
 
-![Una cascada que baja desde la cotización ingenua de 10,000 tickets, 100 tickets por impacto de precio y 29 por la comisión, y aterriza en el fill real de 9,871 tickets.](assets/v04-chart.png)
+![Una cascada que baja desde la cotización ingenua de 10,000 tickets, 100 tickets por impacto de precio y 29 por la comisión, y aterriza en el fill real de 9,871 tickets.](assets/v04-chart.webp)
 
 ### Mover los tokens: dos transferencias, dos firmantes
 
@@ -130,7 +130,7 @@ La transferencia de salida es el patrón que hace de esto una lección de Anchor
 
 El handler corre una secuencia fija, y el orden no es cosmético: las lecturas tienen que pasar antes de que existan los handles, y la guarda va delante de las dos transferencias. Equivócate en lo primero y el compilador te frena (una lectura después de un handle). Equivócate en lo segundo y — sé preciso acá — la atomicidad igual salva al trader: un `require!` que falla después de las transferencias las revierte las dos, así que un fill malo nunca llega a liquidarse de verdad. Lo que te cuesta una guarda tardía es otra cosa. Gastas dos CPIs completas para enterarte de lo que una sola comparación podía haber dicho de entrada, y escribes un handler donde la única protección del trader se lee como una ocurrencia tardía sobre la que un revisor tiene que razonar hacia atrás. Las guardas van antes del dinero por costo y por legibilidad, no porque el runtime fuera a dejar en pie un fill revertido.
 
-![El handler lee primero las dos reservas, cotiza la salida, revierte si queda por debajo de min_out, y después corre la CPI de pull firmada por el trader y la CPI de push firmada por el PDA del pool, en ese orden fijo.](assets/v05-flowchart.png)
+![El handler lee primero las dos reservas, cotiza la salida, revierte si queda por debajo de min_out, y después corre la CPI de pull firmada por el trader y la CPI de push firmada por el PDA del pool, en ese orden fijo.](assets/v05-flowchart.webp)
 
 Acá está el handler de swap completo. La dirección de token-in está trabajada; la dirección de token-out es el relleno y se muestra acá para que veas el espejo, pero en el lab la vas a tipear tú mismo contra un stub.
 
@@ -277,17 +277,17 @@ Una elección de constraint merece una nota antes de los detalles de V2. Las cua
 
 Unas cuantas cosas de ese código son detalles de Anchor V2 en los que vale la pena detenerse, porque son nuevos desde la línea 0.x que quizá escribiste antes, y este es un curso de framework.
 
-La forma de la CPI cambió. `CpiContext::new` ahora toma el programa como un `&Address`, que sacas de `ctx.accounts.token_program.address()`. En la línea 0.x pasabas un `AccountInfo` (un `.to_account_info()`); en V2 eso es un error de compilación, `expected Address, found AccountInfo`. Las cuentas que pasas al struct `TransferChecked` tampoco son `AccountInfo`s. Son valores `CpiHandle`, producidos por `cpi_handle()` para una cuenta de solo lectura y `cpi_handle_mut()` para una mutable. El handle es el ticket de la cuenta hacia la CPI, y lleva un borrow de Rust sobre el wrapper tipado del que salió.
+La forma de la CPI cambió. `CpiContext::new` ahora toma el programa como un `&Address`, que sacas de `ctx.accounts.token_program.address()`. En la línea 0.x pasabas un `AccountInfo` (un `.to_account_info()`); en V2 eso es un error de compilación, `expected Address, found AccountInfo`. Las cuentas que pasas al struct `TransferChecked` tampoco son `AccountInfo`s, sino valores `CpiHandle`, producidos por `cpi_handle()` para una cuenta de solo lectura y `cpi_handle_mut()` para una mutable. El handle es el ticket de la cuenta hacia la CPI, y lleva un borrow de Rust sobre el wrapper tipado del que salió.
 
 Ese borrow es el punto de la próxima sección, y es la trampa que antes mordía a todo el mundo.
 
-![Lado a lado: en la línea 0.x una cuenta deserializada quedaba obsoleta a menos que llamaras a reload, mientras que en V2 el handle de CPI verificado por el borrow checker convierte esa lectura obsoleta en un error de compilación.](assets/v06-comparison.png)
+![Lado a lado: en la línea 0.x una cuenta deserializada quedaba obsoleta a menos que llamaras a reload, mientras que en V2 el handle de CPI verificado por el borrow checker convierte esa lectura obsoleta en un error de compilación.](assets/v06-comparison.webp)
 
 ### Por qué V2 no te deja leer un balance a mitad de una CPI
 
 En la línea 0.x, este era el bug clásico. Hacías una CPI que movía tokens, después leías `token_account.amount` y actuabas sobre eso, olvidándote de que Anchor deserializó esa cuenta *una sola vez*, arriba de todo de la instrucción. La CPI cambió el balance on-chain, pero tu copia en memoria todavía tenía el número viejo. Tenías que llamar a `.reload()` para refrescarlo, y si te olvidabas, tomabas una decisión sobre datos obsoletos. Era silencioso, era fácil, y se entregaba.
 
-V2 mata la clase. Un `CpiHandle` sostiene un borrow de Rust sobre el wrapper tipado de la cuenta. Mientras ese handle está vivo, el borrow checker no te deja tocar la cuenta tipada, así que `reserve_ticket.amount()` durante un handle en vuelo desde `reserve_ticket` no es una sorpresa de runtime. No compila. El arreglo no es hacer `.reload()`. El arreglo es estructural: lee cada reserva que necesites *antes* de abrir un handle, que es exactamente por qué el paso 1 del handler lee los dos balances arriba de todo, antes de que exista ningún `cpi_handle_mut()`. No hay ninguna lectura a mitad de CPI que puedas equivocar, porque el lenguaje quitó la capacidad de escribir una.
+V2 mata la clase. Un `CpiHandle` sostiene un borrow de Rust sobre el wrapper tipado de la cuenta. Mientras ese handle está vivo, el borrow checker no te deja tocar la cuenta tipada, así que `reserve_ticket.amount()` durante un handle en vuelo desde `reserve_ticket` no es una sorpresa de runtime sino un error de compilación. El arreglo es estructural en vez de un `.reload()`: lee cada reserva que necesites *antes* de abrir un handle, que es exactamente por qué el paso 1 del handler lee los dos balances arriba de todo, antes de que exista ningún `cpi_handle_mut()`. No hay ninguna lectura a mitad de CPI que puedas equivocar, porque el lenguaje quitó la capacidad de escribir una.
 
 Así que no recurras a `.reload()` acá por memoria muscular de 0.x. Si te descubres queriéndolo, estructuraste las lecturas en el orden equivocado. Muévelas más arriba.
 
@@ -297,11 +297,11 @@ Un default más de V2 que vale la pena nombrar, porque un swap es exactamente la
 
 Un swap tiene dos reservas, y la tentación, si estás pensando en el pool como una sola cosa, es rutear las dos direcciones a través de una cuenta. Haz eso y V2 te frena. La reacción equivocada es callar la verificación con `unsafe(dup)`, la salida de emergencia para cuentas genuinamente duplicadas. La reacción correcta es notar que un pool de producto constante tiene dos reservas por definición, así que cada lado es su propia cuenta de token distinta. `reserve_arcade` y `reserve_ticket` son cuentas distintas que sostienen mints distintos. El default de duplicate-mutable se satisface gratis, y nunca tocas `unsafe(dup)`. Recurrir a él acá no sería un opt-out. Sería tapar un diseño donde colapsaste dos reservas en una, que es un bug que la verificación acaba de atrapar por ti.
 
-![El arreglo equivocado colapsa las dos reservas en una sola cuenta callada con unsafe(dup); el diseño correcto mantiene dos cuentas de reserva distintas, así no existe ninguna duplicación ni ningún opt-out.](assets/v07-comparison.png)
+![El arreglo equivocado colapsa las dos reservas en una sola cuenta callada con unsafe(dup); el diseño correcto mantiene dos cuentas de reserva distintas, así no existe ninguna duplicación ni ningún opt-out.](assets/v07-comparison.webp)
 
 El equipo de Anchor no agregó estos defaults por puntos de estilo. Cuando hicieron benchmark de V2 contra Quasar y Pinocchio antes de la conferencia Accelerate a principios de mayo de 2026 (el encuadre está ahí mismo en el issue #4355, donde el esfuerzo entero de V2 se justificó como existencial), los programas que registraron las mayores reducciones de cómputo fueron los programas de la familia AMM, el benchmark `prop-amm` específicamente, con una reducción máxima reportada de 50.4x. Por eso un swap es la pieza de exhibición: el patrón que estás construyendo es el que V2 afinó para hacer barato. No voy a imprimir un número de cómputo para este programa exacto, porque esas cifras se movieron a medida que el proyecto las afinaba y lo honesto es que midas el tuyo, pero la dirección era el pitch entero.
 
-![Una línea de tiempo desde la justificación por benchmark del issue #4355 hasta las corridas previas a Accelerate de principios de mayo de 2026, donde el programa prop-amm registró la mayor reducción reportada.](assets/v08-timeline.png)
+![Una línea de tiempo desde la justificación por benchmark del issue #4355 hasta las corridas previas a Accelerate de principios de mayo de 2026, donde el programa prop-amm registró la mayor reducción reportada.](assets/v08-timeline.webp)
 
 ### La guarda de slippage, y por qué es todo el punto
 
@@ -329,7 +329,7 @@ Si reporta 1.x, vuelve a fijar con el bloque de instalación de m01-l2 — `--ta
 
 2. **Agrega la función de cotización.** Tipea `swap_out` tú mismo a partir de las dos líneas de fórmula de arriba, con la firma congelada; vuelve a la versión trabajada solo después de que compile la tuya. Escribe una prueba unitaria que la llame con `reserve_in = 1_000_000`, `reserve_out = 1_000_000`, `amount_in = 10_000` y afirme que devuelve `9_871`. Si te sale `10_000`, te olvidaste de la comisión. Si entra en panic en un caso de reserva grande, multiplicaste en `u64`. Checkpoint: la prueba unitaria está verde y el 9,871 computado a mano coincide.
 
-3. **Lee las reservas por adelantado.** En el handler del swap, lee `reserve_arcade.amount()` y `reserve_ticket.amount()` hacia locales antes de construir ninguna cuenta de CPI. Esto no es estilo opcional. Es el único lugar donde el compilador te va a dejar leerlas, porque una vez que existe un `cpi_handle_mut()` desde una reserva, el acceso tipado `.amount()` sobre esa reserva no compila. Checkpoint: demuestra esa afirmación en vez de confiar en ella. Mueve las dos lecturas para que queden *entre* el binding `let pull = TransferChecked { .. };` y la llamada a `transfer_checked` que lo consume, que es la única ventana donde el handle está genuinamente vivo, y corre `anchor build`. Deberías sacar un error de borrow que nombra `reserve_arcade`, no una sorpresa de runtime. Ponlas en cambio en cualquier lado después de la llamada a `transfer_checked` y el build se pone verde, porque el handle ya se soltó, lo que también vale la pena ver: la regla es sobre el lifetime del handle, no sobre el número de línea. Muévelas de vuelta arriba y sigue.
+3. **Lee las reservas por adelantado.** En el handler del swap, lee `reserve_arcade.amount()` y `reserve_ticket.amount()` hacia locales antes de construir ninguna cuenta de CPI. Ese es el único lugar donde el compilador te va a dejar leerlas, porque una vez que existe un `cpi_handle_mut()` desde una reserva, el acceso tipado `.amount()` sobre esa reserva no compila. Checkpoint: demuestra esa afirmación en vez de confiar en ella. Mueve las dos lecturas para que queden *entre* el binding `let pull = TransferChecked { .. };` y la llamada a `transfer_checked` que lo consume, que es la única ventana donde el handle está genuinamente vivo, y corre `anchor build`. Deberías sacar un error de borrow que nombra `reserve_arcade`, no una sorpresa de runtime. Ponlas en cambio en cualquier lado después de la llamada a `transfer_checked` y el build se pone verde, porque el handle ya se soltó, lo que también vale la pena ver: la regla es sobre el lifetime del handle, no sobre el número de línea. Muévelas de vuelta arriba y sigue.
 
 4. **Cablea la CPI de token-in (trabajada).** Construye el `TransferChecked` para `trader_arcade -> reserve_arcade` con el trader como autoridad, e invócala con `token_interface::transfer_checked` sobre `CpiContext::new(token_program.address(), pull)`. Acá no va `with_signer`: el trader es un firmante real en la transacción. Checkpoint: después de esta CPI la reserva de arcade del pool creció en `amount_in`.
 

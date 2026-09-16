@@ -8,7 +8,7 @@ Queda una cosa, y no es un lab. Elige un proyecto que de verdad te importe, ahor
 
 Dos jugadas, y una negativa deliberada.
 
-![Un mapa de eje y radios del plan de cierre: encajar los cinco programas en un solo modelo, correr el árbol de decisión de adopción, entregar las capas adyacentes a los cursos hermanos.](assets/v01-diagram.png)
+![Un mapa de eje y radios del plan de cierre: encajar los cinco programas en un solo modelo, correr el árbol de decisión de adopción, entregar las capas adyacentes a los cursos hermanos.](assets/v01-diagram.webp)
 
 Primero, encaja todo lo que construiste en un solo modelo conectado, para que los cinco programas dejen de ser cinco ejercicios y se vuelvan una sola imagen de cómo piensa V2. Segundo, recorre el árbol de decisión de quien migra contra las tensiones reales del proyecto hoy, porque "V2 es mejor" y "deberías poner tu dinero de mainnet en V2 esta tarde" son dos preguntas distintas y solo una de ellas es fácil. La negativa: este curso es dueño de la capa de framework y de nada más, así que el cierre te apunta hacia afuera, hacia los cursos hermanos que son dueños de las capas sobre las que se apoya V2.
 
@@ -26,15 +26,15 @@ Los bumps de PDA te llegan por una struct tipada que la macro construye en tiemp
 
 Y tres clases nombradas de vulnerabilidad ahora son errores de compilación en vez de exploits de runtime. El módulo 7 puso números sobre exactamente cuáles: el type cosplay, el alias de duplicate-mutable, y la lectura obsoleta después de una CPI. Explotaste las tres sobre formas de v1 y después viste a los defaults de V2 negarse a construirlas. Mantén el alcance honesto, porque es el alcance que auditaste tú mismo: tres de las once clases de la taxonomía de la Foundation, no todas, y la sustitución de cuentas a través de una CPI sigue siendo tuya para validar a mano. Tu prize-escrow y tu swap son donde sentiste a esa barandilla empujar de vuelta, y donde encontraste su borde.
 
-![Un mapa conceptual con Anchor V2 en el centro y cuatro radios: cuentas Pod-por-defecto, CPI con borrow rastreado, un const de bump para seeds todas literales encima de la struct tipada que 0.29 ya te dio, y seguridad en tiempo de compilación, cada uno cableado a un programa que construiste.](assets/v02-diagram.png)
+![Un mapa conceptual con Anchor V2 en el centro y cuatro radios: cuentas Pod-por-defecto, CPI con borrow rastreado, un const de bump para seeds todas literales encima de la struct tipada que 0.29 ya te dio, y seguridad en tiempo de compilación, cada uno cableado a un programa que construiste.](assets/v02-diagram.webp)
 
-Fíjate en lo que el mapa te está diciendo de verdad. Estas no son cuatro features atornilladas. Son una sola decisión, aplicada de forma consistente: mover el trabajo que el desarrollador hacía en runtime, y en el que se equivocaba, hacia arriba, al sistema de tipos y a la generación de código. Ese es el hilo conductor de la reescritura entera.
+Fíjate en lo que el mapa te está diciendo de verdad. Estas no son cuatro features atornilladas, sino una sola decisión, aplicada de forma consistente: mover el trabajo que el desarrollador hacía en runtime, y en el que se equivocaba, hacia arriba, al sistema de tipos y a la generación de código. Ese es el hilo conductor de la reescritura entera.
 
 ### El framework que narra su propio por qué
 
 Haz un zoom hacia afuera un clic más y puedes ver la trayectoria que produjo esto. El Anchor temprano que tal vez recuerdes era pesado en macros y hambriento de compute, comprando ergonomía de desarrollador con costo de runtime. La línea 1.0 estabilizó ese trato y lo puso bajo una tutela de verdad. La línea 2.0, el trabajo de anchor-next, volvió y pagó el costo que había asumido, empujando la ergonomía hacia el compilador y los bytes hacia un runtime más flaco.
 
-![Una línea de tiempo de tres paradas: el Anchor temprano pesado en macros, la línea 1.1.2 estabilizada y todavía mantenida, y la línea 2.0 de candidata a release más flaca.](assets/v03-timeline.png)
+![Una línea de tiempo de tres paradas: el Anchor temprano pesado en macros, la línea 1.1.2 estabilizada y todavía mantenida, y la línea 2.0 de candidata a release más flaca.](assets/v03-timeline.webp)
 
 Un framework que revisa sus propios trade-offs en voz alta es raro, y es exactamente el tipo de cosa que quieres debajo de tus programas. Pero esa misma honestidad es la que vuelve difícil la pregunta de adopción, porque la honestidad se extiende a las partes que todavía no están terminadas.
 
@@ -42,17 +42,17 @@ Un framework que revisa sus propios trade-offs en voz alta es raro, y es exactam
 
 Acá es donde muchos textos se ponen alegres y dejan de ser útiles. Déjame no hacer eso.
 
-El mismo release se llama a sí mismo dos cosas contradictorias. La versión es `2.0.0-rc.1`. "rc" quiere decir release candidate, que se lee como "casi listo, solo sacudiendo bugs". Pero el proyecto etiqueta ese mismísimo release como "alpha" en otro lado, que se lee como "temprano, espera movimiento". Las dos etiquetas, un artefacto. Eso no es un typo que tengas permitido redondear. Son los mantenedores diciéndote, en dos palabras, que la cosa está genuinamente en el medio.
+El mismo release se llama a sí mismo dos cosas contradictorias. La versión es `2.0.0-rc.1`. "rc" quiere decir release candidate, que se lee como "casi listo, solo sacudiendo bugs". Pero el proyecto etiqueta ese mismísimo release como "alpha" en otro lado, que se lee como "temprano, espera movimiento". Las dos etiquetas, un artefacto. Eso son los mantenedores diciéndote, en dos palabras, que la cosa está genuinamente en el medio, y no un typo que tengas permitido redondear.
 
 La documentación dice, con sus propias palabras, que V2 no está auditado. No "audit pending," no "audit in progress that we will link." No auditado. Para un framework cuyo pitch entero incluye matar clases de vulnerabilidad, esa es la frase más importante de la página.
 
 No hay fecha comprometida para que la candidata a release se vuelva estable. No "Q4", no "el próximo trimestre". Al momento de escribir esto no hay ninguna fecha así publicada en ningún lado. La ausencia de una fecha no es una fecha corta. Es la ausencia de una promesa, y deberías leerla como exactamente eso y nada más suave.
 
-Y la línea vieja no está quieta. Anchor 1.1.2 es el estable actual, y su línea sigue mantenida y entregando. Esta es la realidad de las dos líneas paralelas: un v1 en movimiento, auditado por el tiempo, probado en producción, al lado de un v2 más rápido, no auditado, sin fecha. No estás eligiendo entre una opción viva y una muerta. Estás eligiendo entre dos opciones vivas con perfiles de riesgo opuestos.
+Y la línea vieja no está quieta. Anchor 1.1.2 es el estable actual, y su línea sigue mantenida y entregando. Esta es la realidad de las dos líneas paralelas: un v1 en movimiento, auditado por el tiempo, probado en producción, al lado de un v2 más rápido, no auditado, sin fecha. No estás eligiendo entre una opción viva y una muerta; estás eligiendo entre dos opciones vivas con perfiles de riesgo opuestos.
 
 Esa distinción importa más de lo que parece, porque cambia lo que te cuesta "esperar". Esperar en 1.1.2 no es lo mismo que estancarse en él. La línea sigue recibiendo arreglos, y sigue siguiéndole el paso al runtime a medida que la red misma cambia debajo de tu programa. Estás estacionado en un camino que todavía se está pavimentando, no varado en uno abandonado, y es exactamente por eso que la rama paciente del árbol es una opción de verdad y no un eufemismo para quedarse atrás.
 
-![Un lado a lado de Anchor 1.1.2, estable y endurecido en producción, contra 2.0.0-rc.1, etiquetado tanto rc como alpha y explícitamente no auditado pero mucho más flaco en bytecode y CU.](assets/v04-comparison.png)
+![Un lado a lado de Anchor 1.1.2, estable y endurecido en producción, contra 2.0.0-rc.1, etiquetado tanto rc como alpha y explícitamente no auditado pero mucho más flaco en bytecode y CU.](assets/v04-comparison.webp)
 
 ### El número que se volvió más honesto
 
@@ -62,7 +62,7 @@ Los propios benchmarks de V2 reportan alrededor de 94% menos bytecode desplegado
 
 Quédate con eso un segundo, porque es la cosa más tranquilizadora de esta lección entera. Un proyecto que revisa sus números de marketing a la baja, a propósito, es un proyecto en el que puedes confiar más, no menos. Es "no confíes, verifica" aplicado por los mantenedores a sí mismos. La trampa es que también te dice que los números todavía pueden moverse, porque la página de benchmark lo dice igual: los valores se corren a medida que cambian la generación de código y el runtime pinocchio subyacente. Así que la forma correcta de cargarlos es como evidencia con reservas, direccional, re-verificable. V2 es dramáticamente más flaco. Esa es la afirmación. Un multiplicador congelado no lo es.
 
-![Dos figuras emparejadas que muestran los benchmarks del titular revisados a la baja, el bytecode de 95% a 94% y el compute de 9.9x a 8.8x, según el PR #4914.](assets/v05-chart.png)
+![Dos figuras emparejadas que muestran los benchmarks del titular revisados a la baja, el bytecode de 95% a 94% y el compute de 9.9x a 8.8x, según el PR #4914.](assets/v05-chart.webp)
 
 Hay un hecho más que vale pesar antes de rutear cualquier cosa, y se apoya en la superficie de confianza y no en el código. Un solo guardián ahora custodia toda la cadena de suministro. OtterSec sostiene el framework, publica sus crates, corre el registry de builds verificados contra el que Anchor chequea los releases, y firmó con GPG el tag v2. Un guardián único, competente y enfocado en seguridad a través de los crates, del registry y de las firmas es un punto de verdad a favor de V2, y la última parte la puedes chequear tú mismo en vez de creerme. Lo vamos a hacer en el lab.
 
@@ -72,7 +72,7 @@ Un registry de builds verificados vale entenderlo, no solo anotarlo, porque te c
 
 Todo lo de arriba alimenta un solo diagrama de flujo. Las entradas son las mismas para cada proyecto: etiquetado de rc-y-alpha, no auditado, ninguna fecha estable comprometida, una línea v1 que todavía se mueve. Lo que cambia es tu proyecto, y eso cambia el ruteo.
 
-![Un árbol de decisión que rutea un proyecto greenfield a sí, un protocolo vivo que sostiene valor a no-hoy, y una base de código v1 grande a mapea-ahora-y-porta-cuando-esté-estable-y-auditado.](assets/v06-flowchart.png)
+![Un árbol de decisión que rutea un proyecto greenfield a sí, un protocolo vivo que sostiene valor a no-hoy, y una base de código v1 grande a mapea-ahora-y-porta-cuando-esté-estable-y-auditado.](assets/v06-flowchart.webp)
 
 Lee cada rama como una frase que le podrías decir a un compañero escéptico.
 
@@ -94,7 +94,7 @@ La tercera es oír "no existe ningún otro curso de V2" como una ley probada del
 
 La cuarta, y la que calladamente cuesta más, es asumir que un tema que este curso se salteó es un tema que no importa. Cada omisión acá fue una entrega, no un veredicto. La interfaz de transfer hook, el aterrizaje de transacciones, el runtime debajo del loader: este curso rechazó cada uno de ellos porque un hermano nombrado es su dueño y lo enseña mejor de lo que jamás podría un capítulo atornillado. Salteado no es lo mismo que sin importancia, y confundir los dos es cómo terminas reconstruyendo, mal, una cosa que alguien ya enseñó bien.
 
-![Una tabla que empareja cada una de las cuatro formas de leer mal el árbol de adopción con por qué está equivocada y la lectura corregida.](assets/v07-table.png)
+![Una tabla que empareja cada una de las cuatro formas de leer mal el árbol de adopción con por qué está equivocada y la lectura corregida.](assets/v07-table.webp)
 
 ## Lab: rutea tres perfiles, y después verifica una firma
 
@@ -136,11 +136,11 @@ Pasas cuando los tres ruteos son correctos y cada justificación nombra las tens
 
 Un momento honesto antes de la puerta. Si el ruteo del protocolo vivo se sintió anticlimático, "la cosa nueva y rápida, y la respuesta es esperar", quédate con por qué no se sintió así al escribirlo. Recomendar paciencia para los fondos de usuario de otra persona, sobre alpha no auditado, es la cosa más optimista-de-builder de este curso, no la menos. Optimista en la tecnología, honesto en el riesgo. Esa es la postura entera.
 
-Acá hay una cosa que vale saber, enmarcada como resultado de relevamiento y no como un absoluto. La ruta de aprendizaje oficial en solana.com/developers/courses ahora hace un redirect 308 hacia un repositorio de contenido para desarrolladores que se archivó y congeló el 2025-01-24. Al 2026-08 fuimos a mirar y no encontramos ningún otro curso de Anchor V2 en ningún lado. Eso no es un alardeo. Es la razón por la que esta conclusión es una rampa de entrada y no un competidor: eres, tan lejos como una búsqueda exhausta puede decir, el que tiene el mapa actual de un lugar que casi nadie escribió todavía.
+Acá hay una cosa que vale saber, enmarcada como resultado de relevamiento y no como un absoluto. La ruta de aprendizaje oficial en solana.com/developers/courses ahora hace un redirect 308 hacia un repositorio de contenido para desarrolladores que se archivó y congeló el 2025-01-24. Al 2026-08 fuimos a mirar y no encontramos ningún otro curso de Anchor V2 en ningún lado. Esa es la razón por la que esta conclusión es una rampa de entrada y no un competidor: eres, tan lejos como una búsqueda exhausta puede decir, el que tiene el mapa actual de un lugar que casi nadie escribió todavía.
 
 Este es el final del curso, así que el gancho hacia adelante apunta hacia afuera en vez de a una próxima lección. La capa de framework es tuya ahora, y es deliberadamente solo la capa de framework. Las cosas que este curso rechazó, las rechazó porque un hermano es su dueño y las enseña como se debe.
 
-![Una tabla de entrega que rutea cada próximo tema al curso hermano que es su dueño: Digital Assets, Client-Side, Low-Level Solana, DeFi y RWA, y Payments y Commerce.](assets/v08-table.png)
+![Una tabla de entrega que rutea cada próximo tema al curso hermano que es su dueño: Digital Assets, Client-Side, Low-Level Solana, DeFi y RWA, y Payments y Commerce.](assets/v08-table.webp)
 
 Cada uno de esos cursos construye exactamente sobre lo que acabas de aprender — la capa de framework es tuya ahora, y ellos se paran sobre ella. El curso de Digital Assets es dueño de los estándares de token que este curso tocó solo desde el asiento del programa, la interfaz de transfer hook incluida. El curso de Client-Side es dueño de hacer que una transacción de verdad aterrice y de leer datos de la blockchain de vuelta hacia afuera — la mitad de cliente entera que este curso nunca abrió ni una vez. Low-Level Solana va debajo del loader sobre el que estuviste parado todo este tiempo, hacia el sBPF y las syscalls, sin framework alguno. DeFi y RWA Engineering es dueño de lo que el diseño de protocolo de verdad y los venues de verdad exigen más allá del swap de juguete que escribiste como patrón de Anchor. Y Payments y Commerce convierte la pila entera en rieles sobre los que un negocio puede correr dinero. Cinco capas, cinco dueños, y uno de esos dueños, el de la capa de framework, ahora eres tú.
 

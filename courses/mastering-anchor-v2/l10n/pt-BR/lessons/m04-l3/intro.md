@@ -58,7 +58,7 @@ Composição é um programa invocando uma instrução em outro e construindo sob
 
 Concretamente, o prêmio nunca fica no escrow. O escrow é um registro: ele diz "50,000,000 lamports para este jogador, liberados sob esta condição, custodiados lá". Os lamports em si moram numa instância de quarter-vault, e o R3 alcança esse vault só por CPI. Essa única seta, o R3 depositando em e depois liberando de um vault do R2, é a razão pela qual esta lição declara que o R3 consome o R2.
 
-![O R3 faz CPI no R2 para depositar os lamports do operador no reserve e, depois de checar chamador e score, para liberar eles no redeem, sem ele mesmo segurar prêmio nenhum.](assets/v01-flowchart.png)
+![O R3 faz CPI no R2 para depositar os lamports do operador no reserve e, depois de checar chamador e score, para liberar eles no redeem, sem ele mesmo segurar prêmio nenhum.](assets/v01-flowchart.webp)
 
 Comparado a quê, porém? O design mais simples e óbvio é deixar o escrow segurar os lamports direto: pular o R2 por completo, creditar a conta do escrow, debitar ela no redeem. Funciona, e para uma coisa de uma vez só é menos código. Mas veja do que você abre mão. Você estaria reimplementando custódia (as movimentações de lamport, a matemática do rent, as checagens de autoridade) dentro do R3, uma segunda cópia de lógica que já mora no R2 e que você já testou. Duas cópias divergem. No dia em que você corrigir um bug de custódia no vault, a cópia privada do escrow ainda vai ter ele. Compor sobre o R2 em vez disso quer dizer que o escrow é dono de exatamente uma coisa, a *decisão* de liberar, e delega o *guardar* ao programa construído para isso. É essa a troca que a lição inteira está defendendo: uma coisa menor sobre a qual você consegue raciocinar, parafusada numa coisa comprovada em que você já confia.
 
@@ -82,7 +82,7 @@ pub maker: UncheckedAccount,
 
 A virada é mais que cosmética. O `has_one` ficava preso a um campo cujo nome batia com o nome da conta. O `address` aceita qualquer expressão, então o `address = escrow.player` em quem faz o resgate diz, sem rodeios, "a conta passada aqui tem que ser a pubkey que este escrow registrou como o jogador". É essa a checagem de chamador para a liberação condicional inteira, e é uma linha.
 
-![has_one = maker vira address = escrow.player; a mesma checagem de igualdade, agora escrita como uma expressão, e o compilador avisa na forma depreciada.](assets/v02-annotated-code.png)
+![has_one = maker vira address = escrow.player; a mesma checagem de igualdade, agora escrita como uma expressão, e o compilador avisa na forma depreciada.](assets/v02-annotated-code.webp)
 
 ### O default de duplicate-mutable: distintas está tudo bem, com alias não
 
@@ -92,7 +92,7 @@ Leia isso com atenção, porque a leitura errada comum é cara. Isso *não* quer
 
 Por que o default não te custa nada em tempo de execução no caso comum? Porque a checagem é dividida em dois lugares. A macro `#[derive(Accounts)]` computa, em tempo de compilação, uma máscara de 256 bits de quais campos são mutáveis: essa é a `MUT_MASK`, uma const associada embutida na sua struct de contas. Depois, à medida que o dispatcher carrega contas para a instrução, ele percorre essa máscara contra um bitvec de tempo de execução de endereços vistos até ali. O *formato* da checagem (quais campos são mutáveis) é decidido quando você compila. Os *valores* (dois quaisquer desses endereços são iguais) são decididos quando a transação roda. Const de tempo de compilação, despacho em tempo de execução. Essa divisão é a razão de ela ser barata e de ela não poder ser enganada.
 
-![A macro de derive emite uma MUT_MASK de 256 bits de tempo de compilação dos campos mutáveis; o dispatcher checa os endereços desses campos contra um bitvec de tempo de execução à medida que carrega contas, falhando num alias.](assets/v03-diagram.png)
+![A macro de derive emite uma MUT_MASK de 256 bits de tempo de compilação dos campos mutáveis; o dispatcher checa os endereços desses campos contra um bitvec de tempo de execução à medida que carrega contas, falhando num alias.](assets/v03-diagram.webp)
 
 Quando você genuinamente quer passar uma conta duas vezes como mutável (uma instrução em batch tocando dois pools de prêmio que por acaso resolvem para o mesmo vault, digamos) você faz opt-out por campo, e o opt-out se escreve de um jeito que te faz sentir ele: `unsafe(dup)`. O `dup` puro sem o wrapper `unsafe` é um erro de compilação no V2, de propósito. A keyword é a luz do cinto de segurança: você está desligando uma checagem de alias, então agora o risco de aliasing é seu e você tem que escrever o handler para que ele nunca segure duas referências mutáveis conflitantes para aquela conta.
 
@@ -111,7 +111,7 @@ Vale descartar as alternativas ingênuas, porque cada uma delas parece boa até 
 
 Então o formato real é forçado: verifique o chamador e a condição, e só então monte a CPI de liberação. No handler, as linhas de `require!` vêm primeiro e a chamada `quarter_vault::cpi::withdraw` vem por último. Nada se move até as travas terem passado.
 
-![O redeem seguro checa o chamador e a condição antes da CPI de withdraw; pagar primeiro e checar depois, ou checar no meio da instrução e confiar na atomicidade, os dois falham.](assets/v04-flowchart.png)
+![O redeem seguro checa o chamador e a condição antes da CPI de withdraw; pagar primeiro e checar depois, ou checar no meio da instrução e confiar na atomicidade, os dois falham.](assets/v04-flowchart.webp)
 
 ### O trade-off que você está comprando
 
@@ -119,9 +119,9 @@ Composição não é de graça, e nomear a conta é a parte honesta. Três custo
 
 Primeiro, a sua superfície de confiança multiplicou. O R3 depende de o R2 estar correto; um bug no withdraw do vault agora é um bug no seu escrow. Segundo, a pilha de CPI é limitada, na altura de pilha de 5 em que m04-l1 já colocou um número e uma ressalva de SIMD pendente. O seu escrow chamando o vault fica na altura 2, nem perto dela, mas um protocolo que compõe cinco níveis de profundidade é um protocolo que um dia vai bater na parede, e esta é a lição em que você começa a gastar esse orçamento. Terceiro, o risco de aliasing: duas contas mutáveis em uma instrução são rejeitadas por padrão, e no dia em que você escrever `unsafe(dup)` você assinou pelas consequências por conta própria.
 
-![A altura de pilha 1 é a instrução de topo e cada CPI soma um a um teto vivo de 5, então a chamada escrow-para-vault desta lição fica na altura 2.](assets/v05-table.png)
+![A altura de pilha 1 é a instrução de topo e cada CPI soma um a um teto vivo de 5, então a chamada escrow-para-vault desta lição fica na altura 2.](assets/v05-table.webp)
 
-Existe uma tese embaixo de tudo isso. A issue manifesto do Anchor que deu início ao V2, número 4390, "Zero-copy account deserialization by default," defendeu exatamente uma ideia: torne o modelo de contas seguro por padrão e deixe o que não é sólido falhar na compilação. Composição com borrow rastreado é essa tese aplicada ao caso mais difícil, um programa construindo sobre o estado de outro. O `CpiHandle` que você enfrentou na lição passada e o default de duplicate-mutable que você acabou de conhecer são o mesmo princípio usando dois chapéus.
+Existe uma tese embaixo de tudo isso. A issue manifesto do Anchor que deu início ao V2, número 4390, "Zero-copy account deserialization by default," defendeu exatamente uma ideia: torne o modelo de contas seguro por padrão e deixe o que não é sólido falhar na compilação. Composição com borrow rastreado é essa tese aplicada ao caso mais difícil, um programa construindo sobre o estado de outro. O `CpiHandle` que você enfrentou na lição passada e o default de duplicate-mutable que você acabou de conhecer são o mesmo princípio imposto em duas costuras diferentes.
 
 ## Lab: construa o R3
 
@@ -189,7 +189,7 @@ Criar um vault para um endereço é inofensivo: custa rent para o funder e dá a
 
 Depois aponte as duas CPIs de `Transfer` para as contas novas: o `from` do `deposit` vira `funder`, e o `to` do `withdraw` vira `destination`. Nada mais muda, e esse é o ponto. Três contas extras em três structs, nenhuma lógica nova de custódia, e o R3 consegue construir sobre o mesmo código em vez de copiar ele.
 
-![A autocustódia mantém cada papel nas mãos do jogador através de contas distintas, já que o default de duplicate-mutable rejeita uma chave com alias em vários slots, enquanto o vault que é do escrow separa os papéis entre PDA de escrow, operador e jogador com a lógica de custódia do R2 inalterada.](assets/v06-comparison.png)
+![A autocustódia mantém cada papel nas mãos do jogador através de contas distintas, já que o default de duplicate-mutable rejeita uma chave com alias em vários slots, enquanto o vault que é do escrow separa os papéis entre PDA de escrow, operador e jogador com a lógica de custódia do R2 inalterada.](assets/v06-comparison.webp)
 
 Repare no único rebaixamento: a `authority` do `Deposit` deixa de ser um `Signer`. Recarregar o vault de alguém nunca precisou da permissão dessa pessoa, só do endereço dela para derivar as seeds, e o PDA de escrow não consegue assinar um deposit de que ele é meramente o dono. A `authority` do `Withdraw` continua um `Signer`, que é exatamente a conta que o PDA de escrow vai satisfazer através do `invoke_signed` no Passo 4.
 
@@ -400,7 +400,7 @@ Checkpoint: o `anchor build` está limpo, nenhum aviso de depreciação de `has_
 
 Dê um passo atrás e olhe a vida inteira de um prêmio. Ele existe em exatamente dois estados, e o modelo de contas torna as transições totais: um escrow está ou aberto (financiado, esperando) ou liberado (condição atendida, lamports foram para o jogador, registro fechado). Todo resgate rejeitado deixa ele aberto, inalterado. Não existe um terceiro estado em que o dinheiro está meio movido, porque a liberação é uma instrução e as travas seguram ela.
 
-![Um escrow está ou ABERTO e financiado no vault ou LIBERADO e fechado, e só o chamador certo com um score que passa faz essa transição.](assets/v07-diagram.png)
+![Um escrow está ou ABERTO e financiado no vault ou LIBERADO e fechado, e só o chamador certo com um score que passa faz essa transição.](assets/v07-diagram.webp)
 
 ### Passo 5: comprove isso com um teste LiteSVM
 

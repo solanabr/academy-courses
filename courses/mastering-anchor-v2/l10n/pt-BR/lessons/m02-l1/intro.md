@@ -52,7 +52,7 @@ Resultado esperado: compila. Agora quebre de propósito. Mude `high_score` para 
 
 ## Por que ler um campo deveria ser um cast, não um decode
 
-Aqui está a frase que começou toda essa reescrita do framework. A issue #4390 do Anchor, intitulada "Zero-copy account deserialization by default," chama o `Account<T>` de hoje de **o caminho lento** e **a reclamação de performance número um dos desenvolvedores de Anchor**. Não é uma queixa de nicho. É a mais comum. O modelo de contas inteiro do V2 é a resposta a essa única issue, então vale desacelerar e derivar por que o caminho antigo é lento antes de comemorar o novo.
+Aqui está a frase que começou toda essa reescrita do framework. A issue #4390 do Anchor, intitulada "Zero-copy account deserialization by default," chama o `Account<T>` de hoje de **o caminho lento** e **a reclamação de performance número um dos desenvolvedores de Anchor**. O modelo de contas inteiro do V2 é a resposta a essa única issue, então vale desacelerar e derivar por que o caminho antigo é lento antes de comemorar o novo.
 
 ### O status quo e a conta dele
 
@@ -62,7 +62,7 @@ Para um `u64` o custo é pequeno. Mas nunca fica em um `u64`. Programas de verda
 
 Divida a conta em partes e fica fácil ver por que ela virou a reclamação número um. Tem o decode em si, uma passada sobre o buffer alocando e populando uma struct nova. Tem o espaço de pilha que essa struct ocupa enquanto o seu handler roda, que o runtime SBF mede. Tem o encode na saída, uma segunda passada completa escrevendo a struct de volta. E tem a cópia que você nunca pediu: um handler que só queria incrementar um contador ainda pagava para reconstruir os catorze campos que ele nunca tocou. Nenhum desses quatro custos está fazendo o trabalho real do seu programa. Eles são o preço da abstração, e a alegação do V2 é que o preço deveria ser zero.
 
-![O V1 decodifica e recodifica a struct inteira em cada load; o V2 faz cast dos bytes uma vez e modifica eles no lugar, sem passo de encode.](assets/v01-comparison.png)
+![O V1 decodifica e recodifica a struct inteira em cada load; o V2 faz cast dos bytes uma vez e modifica eles no lugar, sem passo de encode.](assets/v01-comparison.webp)
 
 ### Descarte as respostas fáceis
 
@@ -84,7 +84,7 @@ Um cast de bytes crus para uma referência tipada só é sólido se todo arranjo
 
 Repare onde isso morde. Um `u64` é Pod: todos os 2^64 padrões de bits são valores `u64` válidos. Um `bool` não é. Um `bool` ocupa um byte mas só dois dos seus 256 padrões são definidos, `0` e `1`; os outros 254 são comportamento indefinido se você tratar eles como um `bool`. Então o `bytemuck` recusa `bool` de saída. A correção é `PodBool`, um wrapper de um byte cujos padrões são todos valores definidos. Mesma história para enums, `Option`, qualquer coisa com estados inválidos.
 
-![bool falha em Pod porque a maioria dos padrões de bytes é indefinida, enquanto PodU64 embrulha um array de bytes com alinhamento 1 para que o cast siga sólido em qualquer offset.](assets/v02-annotated-code.png)
+![bool falha em Pod porque a maioria dos padrões de bytes é indefinida, enquanto PodU64 embrulha um array de bytes com alinhamento 1 para que o cast siga sólido em qualquer offset.](assets/v02-annotated-code.webp)
 
 Aquela nota de alinhamento no card é a metade sutil, e vale ser preciso sobre ela em vez de repetir o folclore. Um `u64` nativo exige um endereço alinhado em 8 bytes, e num *header* ele ganha um: a Solana garante que o buffer de dados da conta é alinhado em 8 bytes, e o V2 coloca o header logo depois do discriminator de 8 bytes, então `data[8..]` também está alinhado em 8. O framework afirma exatamente isso em tempo de compilação, rejeitando qualquer header cujo alinhamento passe da garantia de 8 bytes da Solana. É por isso que a conta `Counter` gerada pelo próprio scaffold escapa com um `pub count: u64` puro, e a sua poderia também.
 
@@ -96,7 +96,7 @@ Agora o mecanismo, dito com exatidão. No V2, `Account<T>` é definido como `Sla
 
 A palavra "view" é estrutural. Uma view não é dona de nada. Ela aponta para os bytes da conta e interpreta eles. É por isso que o passo de saída na comparação acima era um no-op: não existe segunda cópia para escrever de volta, porque você estava editando o buffer real o tempo todo.
 
-![O wrapper Account é um ponteiro para o buffer que pertence ao runtime; cada leitura de campo é um offset dentro dos bytes, e as escritas caem direto no buffer, sem encode separado.](assets/v03-diagram.png)
+![O wrapper Account é um ponteiro para o buffer que pertence ao runtime; cada leitura de campo é um offset dentro dos bytes, e as escritas caem direto no buffer, sem encode separado.](assets/v03-diagram.webp)
 
 ### O discriminator continua na frente
 
@@ -110,7 +110,7 @@ Se você escreveu código zero-copy no V1, você fez isso com `AccountLoader<'in
 
 O V2 inverte o default. O que era o caso exótico do `AccountLoader` agora é o que `Account<T>` faz de fábrica, e o lifetime `<'info>` não pega mais carona no wrapper até a sua struct. Você não opta por entrar no zero-copy; você opta por sair dele, no caso raro em que você realmente precisa de dado de forma livre que nenhum cast consegue descrever — a saída de emergência do borsh com que este módulo fecha. (Uma cauda limitada não é uma saída: o `Slab` que você parafusa na próxima lição continua zero-copy.) A lição geral que vale extrair aqui, porque ela se repete por todo o V2, é que o framework moveu o custo do tempo de execução para o tempo de compilação. O default antigo era permissivo na escrita e caro na execução. O novo default é estrito na escrita e de graça na execução. Todo lugar em que o V2 parece mais exigente de escrever é um lugar em que ele parou de te cobrar quando o programa roda.
 
-![Uma tabela mapeando cada preocupação do modelo de contas do seu comportamento no V1 para o seu default no V2, com o default zero-copy e o bound T Pod marcados como as duas mudanças estruturais.](assets/v04-table.png)
+![Uma tabela mapeando cada preocupação do modelo de contas do seu comportamento no V1 para o seu default no V2, com o default zero-copy e o bound T Pod marcados como as duas mudanças estruturais.](assets/v04-table.webp)
 
 ### As objeções que um leitor afiado levanta
 
@@ -128,7 +128,7 @@ Zero-copy apaga o custo de serialização e deixa você modificar campos no luga
 
 Todo campo precisa ser Pod, então um `bool` puro ou um `Option` ingênuo não compila. Preenchimento é proibido, então você ordena os campos do maior para o menor e o compilador afirma que não há lacunas implícitas entre eles. Alinhamento vira problema seu, que é por que os wrappers Pod existem. Uma ordem de campos em que um dev Rust normal nunca pensa, campo pequeno antes de campo grande, pode abrir em silêncio um byte de preenchimento que quebra o cast. No V2 isso não quebra em silêncio: não compila, que é a versão boa dessa falha. A velocidade é paga em rigor de layout. Você está trocando "o compilador me deixa escrever qualquer struct e eu pago em tempo de execução" por "o compilador me obriga a escrever uma struct legal e eu não pago nada em tempo de execução."
 
-![Um layout com u8 antes de u64 força o compilador a inserir sete bytes de preenchimento não inicializados, o que quebra Pod; ordenar do maior para o menor ou usar wrappers Pod empacota a struct sem lacuna.](assets/v05-diagram.png)
+![Um layout com u8 antes de u64 força o compilador a inserir sete bytes de preenchimento não inicializados, o que quebra Pod; ordenar do maior para o menor ou usar wrappers Pod empacota a struct sem lacuna.](assets/v05-diagram.webp)
 
 ### Quão honesto é 8.8x?
 
@@ -136,7 +136,7 @@ Você vai ouvir um número grudado no V2, e eu quero que você carregue ele dire
 
 Por que a ressalva. O PR #4914, mesclado em 2026-08-13, revisou os números de manchete *para baixo*: de 95% para 94% menos bytecode, de 9.9x para 8.8x de CU média. Isso é raro de se ver em público, um projeto corrigindo a própria figura de marketing para baixo, e é exatamente por isso que este curso nunca congela um multiplicador. O 8.8x é uma *média* sobre uma família de benchmarks, e a própria página do benchmark avisa que os valores da alpha podem mudar conforme o codegen muda. Programas pequenos veem o menor benefício. O seu cabinet-counter pelado, dois campos `u64`, vai mostrar quase nada, porque quase não havia custo de desserialização para apagar. Os ganhos aparecem quando a struct é grande e quente. Então quando um colega de equipe diz que o V2 deixou o contador minúsculo dele 8.8x mais barato, a releitura honesta é: essa é a média aproximada do projeto, já revisada para baixo uma vez e com expectativa de continuar se mexendo, e um contador de dois campos é o pior caso para ela.
 
-![Uma linha do tempo da issue #4390, passando pelos primeiros benchmarks de 95 por cento e 9.9x, até o PR #4914 revisando eles para baixo, para 94 por cento e 8.8x.](assets/v06-timeline.png)
+![Uma linha do tempo da issue #4390, passando pelos primeiros benchmarks de 95 por cento e 9.9x, até o PR #4914 revisando eles para baixo, para 94 por cento e 8.8x.](assets/v06-timeline.webp)
 
 ## Lab: construa o cabinet-counter
 
@@ -271,9 +271,9 @@ pub fn increment(ctx: &mut Context<Increment>, score: u64) -> Result<()> {
 }
 ```
 
-O `checked_add` não é cerimônia. `play_count` é um `u64` que você incrementa a cada jogada, e a regra da casa para aritmética em programa é checar tudo, então um wrap vira um erro limpo em vez de um reset silencioso para zero.
+O `checked_add` está ali por um motivo. `play_count` é um `u64` que você incrementa a cada jogada, e a regra da casa para aritmética em programa é checar tudo, então um wrap vira um erro limpo em vez de um reset silencioso para zero.
 
-![A bancada de teste sobe o LiteSVM, envia init e depois increment, fatia os bytes da conta depois do discriminator, faz cast deles para Cabinet, e afirma que os dois campos fizeram o caminho de ida e volta.](assets/v07-flowchart.png)
+![A bancada de teste sobe o LiteSVM, envia init e depois increment, fatia os bytes da conta depois do discriminator, faz cast deles para Cabinet, e afirma que os dois campos fizeram o caminho de ida e volta.](assets/v07-flowchart.webp)
 
 **Passo 4. Leia os bytes de volta (a sua asserção).** O teste mora ao lado do crate do programa, em `programs/cabinet-counter/tests/cabinet.rs`, que é o que faz o caminho de `include_bytes!` abaixo resolver; ponha ele na raiz do workspace e aquele caminho relativo sai andando para fora do repositório. Ele usa o LiteSVM, a VM Solana em processo que vira a trava de aceitação para todo degrau seguinte deste curso. Você não puxa `litesvm` direto: a dev-dependency `anchor-v2-testing` do scaffold embrulha ele e reexporta as peças que você precisa (`Keypair`, `Signer`, `Message`, `VersionedTransaction`), que é também como o `anchor test --profile` consegue pendurar tracing nos mesmos testes depois. Eu te dou o scaffolding da bancada de teste; as três linhas de assert lá embaixo são suas. Escreva elas a partir do fluxograma acima antes de olhar as que estão impressas abaixo: quanto deve ser `play_count` depois de um `increment`, quanto deve ser `high_score`, e quantos bytes tem a conta inteira?
 
@@ -366,7 +366,7 @@ A sua barra de aceitação, as três precisam valer:
 - Um teste novo incrementa algumas vezes até um high score de verdade, chama `reset`, depois lê `data[8..]` de volta e afirma `play_count == 0` **e** que `high_score` ainda é igual ao score que você definiu.
 - O teste `cabinet_round_trips` existente continua passando.
 
-A parte interessante é a asserção, não o handler. Um `reset` que zera os dois campos sem querer vai passar num teste preguiçoso que só checa `play_count`. Escreva o teste que pegaria esse bug: afirme que o high score sobreviveu. É esse o ponto inteiro do exercício. Tanto o handler quanto o teste vão no seu próprio checkout do R1, ao lado do que você acabou de construir; uma solução de referência fica ao lado desta lição — [reset-play-count/reset.rs](reset-play-count/reset.rs) para o handler e a struct de accounts, [reset-play-count/cabinet_reset.rs](reset-play-count/cabinet_reset.rs) para o teste — para depois de você ter uma rodada verde própria.
+A parte interessante é a asserção, não o handler. Um `reset` que zera os dois campos sem querer vai passar num teste preguiçoso que só checa `play_count`. Escreva o teste que pegaria esse bug: afirme que o high score sobreviveu. É isso que o exercício está testando. Tanto o handler quanto o teste vão no seu próprio checkout do R1, ao lado do que você acabou de construir; uma solução de referência fica ao lado desta lição — [reset-play-count/reset.rs](reset-play-count/reset.rs) para o handler e a struct de accounts, [reset-play-count/cabinet_reset.rs](reset-play-count/cabinet_reset.rs) para o teste — para depois de você ter uma rodada verde própria.
 
 **Momento de feedback.** Antes de seguir em frente, responda isto em uma frase, em voz alta ou num comentário no topo do seu arquivo de teste: quais duas coisas o bound `T: Pod` proíbe na sua struct? Se a sua frase nomear campos não-Pod (o `bool` puro) e preenchimento implícito (a lacuna silenciosa de uma ordem de campos ruim), você tem o modelo. Se ela nomeou só uma, releia a seção do trade-off, porque a segunda é a que morde em silêncio.
 

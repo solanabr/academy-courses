@@ -2,7 +2,7 @@
 
 Acabas de reconstruir el quarter-vault nativo sobre pinocchio: un discriminator manual de un byte, validación con `TryFrom`, un `invoke_signed` hecho a mano, y pasó la misma barrera de withdraw en LiteSVM que pasó R2. Los lamports salieron del PDA bajo autoridad del programa, el over-withdraw fue rechazado, y no había Anchor en ninguna parte del crate. Esa era la mitad de construir de constrúyelo-dos-veces. Esta es la mitad de reencuadrar.
 
-Acá está la afirmación estructural, dicha primero para que te vayas con ella aunque no leas nada más. El `#[derive(Accounts)]` que borraste la lección pasada no es magia. Es exactamente el load, la verificación y el despacho que acabas de escribir a mano, más un recorrido de cuentas duplicadas y una guarda de borrow que no puedes omitir por accidente. Puedes salirte del recorrido, deliberadamente, por campo, y la escritura te hace decirlo en voz alta. Leer la expansión demuestra esa frase, línea por línea, contra tu propio código.
+Acá está la afirmación estructural, dicha primero para que te vayas con ella aunque no leas nada más. El `#[derive(Accounts)]` que borraste la lección pasada es exactamente el load, la verificación y el despacho que acabas de escribir a mano, más un recorrido de cuentas duplicadas y una guarda de borrow que no puedes omitir por accidente. Puedes salirte del recorrido, deliberadamente, por campo, y la escritura te hace decirlo en voz alta. Leer la expansión demuestra esa frase, línea por línea, contra tu propio código.
 
 Así que leámosla. La herramienta que imprime el código que genera una macro es `cargo-expand`. Instálala una vez y apúntala a tu vault de framework:
 
@@ -20,7 +20,7 @@ Una expectativa que ajustar antes de que mires, porque te va a salvar de cazar a
 
 El repliegue de la ayuda de esta lección: el recorrido del diff está completamente trabajado, hecho por ti pieza por pieza. El Lab te hace correr `cargo expand` sobre tu propio vault y anotar la salida de verdad contra tu código nativo. La barrera de tres líneas del final es Solo, sin apoyo.
 
-![Una tabla que empareja cada paso nativo de pinocchio con la pieza de la expansión de V2 que lo reemplaza, terminando con un recorrido de cuentas duplicadas que tu código nativo solo aproxima para un par y una guarda de borrow de la que no tiene ninguna versión.](assets/v01-comparison.png)
+![Una tabla que empareja cada paso nativo de pinocchio con la pieza de la expansión de V2 que lo reemplaza, terminando con un recorrido de cuentas duplicadas que tu código nativo solo aproxima para un par y una guarda de borrow de la que no tiene ninguna versión.](assets/v01-comparison.webp)
 
 ## El diff
 
@@ -100,7 +100,7 @@ Un hecho estructural que la expansión fija, y es el que la gente se equivoca. E
 
 Vuelve eso concreto, porque es el único lugar donde el orden de los campos no es cosmético. El constraint sobre `state` lee el campo `owner` de adentro de la cuenta `state` cargada y lo compara contra el `authority` declarado arriba. Si movieras `state` arriba de `authority` en la struct, el constraint referenciaría un campo que todavía no había cargado, y el derive rechazaría la struct en tiempo de compilación en vez de correr una verificación contra nada. Nativo, el mismo error es un reordenamiento silencioso de dos bloques `if` que ningún compilador marcaría jamás. El framework convirtió una disciplina de orden en una garantía de orden.
 
-![El try_accounts generado carga cada campo con verificaciones de dueño y de discriminator, corre los hooks de constraint, y después recorre buscando cuentas mutables duplicadas, un recorrido que el código nativo no tiene.](assets/v02-annotated-code.png)
+![El try_accounts generado carga cada campo con verificaciones de dueño y de discriminator, corre los hooks de constraint, y después recorre buscando cuentas mutables duplicadas, un recorrido que el código nativo no tiene.](assets/v02-annotated-code.webp)
 
 ### Hooks de constraint: las verificaciones que corren después de que todo carga
 
@@ -108,7 +108,7 @@ La fase de load demuestra que cada cuenta es lo que dice ser. Los hooks de const
 
 Escribiste estas a mano también, solo que fusionadas adentro de tu handler en vez de separadas. Tu withdraw nativo volvía a derivar el PDA y lo comparaba, o confiaba en las seeds que le pasabas a `invoke_signed`; leía `state.owner` y rechazaba a un llamador que no coincidiera. El framework saca esa lógica del handler por completo y la corre como una fase separada, que es por lo que un constraint de V2 nunca puede dispararse "demasiado tarde". Físicamente no puede correr después de tu handler, porque vive en una función que termina antes de que empiece tu handler. Nativo, esa garantía era tu disciplina. Generada, es estructural.
 
-![Una comparación que mapea los constraints de bump, de authority guardada y de seeds a lo que genera cada uno y a la verificación nativa escrita a mano que reemplaza.](assets/v03-comparison.png)
+![Una comparación que mapea los constraints de bump, de authority guardada y de seeds a lo que genera cada uno y a la verificación nativa escrita a mano que reemplaza.](assets/v03-comparison.webp)
 
 ### El dispatcher: tu match de u8, crecido a ocho bytes
 
@@ -151,7 +151,7 @@ pub state: Account<Vault>,
 
 `init` genera la CPI de `CreateAccount`, computa y fondea el mínimo exento de alquiler desde `payer`, y escribe el discriminator en la cuenta nueva, los tres. La única línea que era más probable que olvidaras nativamente, etiquetar el byte cero, es la que el framework nunca va a saltear. Sáltate la etiqueta en tu init hecho a mano y cualquier cuenta propiedad del programa del mismo largo puede después deserializarse como un vault, la clase exacta de type cosplay que la verificación del discriminator del lado del load existe para cerrar. Nativo, la creación y la validación son dos lugares que tienes que mantener de acuerdo a mano. Generado, `init` a la entrada y la verificación del load a la salida son dos mitades de una sola garantía que el derive escribe juntas.
 
-![Una comparación que muestra el constraint init generando la asignación, el fondeo exento de alquiler y la escritura del discriminator, que es la línea nativa que más fácilmente se olvida.](assets/v04-comparison.png)
+![Una comparación que muestra el constraint init generando la asignación, el fondeo exento de alquiler y la escritura del discriminator, que es la línea nativa que más fácilmente se olvida.](assets/v04-comparison.webp)
 
 ### MUT_MASK: la guarda que tu vault nativo no tiene
 
@@ -165,11 +165,11 @@ Te encontraste con `MUT_MASK` en el módulo 1, así que el mecanismo no es nuevo
 
 Hay un detalle acá que importa más la próxima lección de lo que importa ahora, así que archívalo. El recorrido de duplicados no es por struct, es por árbol. El derive emite un trait que reporta las claves mutables que una struct serializa a la salida, y cuando anidas una struct de Accounts adentro de otra, la struct de afuera llama a la implementación de cada struct de adentro y fusiona las claves en un solo conjunto. Así que la guarda agarra una colisión incluso cuando la misma cuenta llega una vez como campo directo y una vez enterrada adentro de un compuesto. Esa es exactamente la forma que tiene el floor-registry del capstone: compone el cabinet-counter, el vault, el escrow y el swap, y una composición ingenua hecha a mano es precisamente donde se esconderá un bug de aliasing de duplicate-mutable. Tu vault nativo nunca tuvo este recorrido en un nivel. Un registry nativo lo necesitaría en cada nivel, fusionado, y lo tendría en ninguno.
 
-![Un diagrama de dos carriles que contrasta el recorrido exhaustivo de la guarda de duplicate-mutable de V2 contra la comparación de un solo par escrita a mano del pinocchio nativo.](assets/v05-diagram.png)
+![Un diagrama de dos carriles que contrasta el recorrido exhaustivo de la guarda de duplicate-mutable de V2 contra la comparación de un solo par escrita a mano del pinocchio nativo.](assets/v05-diagram.webp)
 
 ### CpiHandle: el borrow que reemplazó una trampa que tenías que recordar
 
-La segunda línea sin gemela nativa no es una línea para nada. Es un error de compilación que el framework puede producir y tu código nativo no.
+La segunda línea sin gemela nativa no es una línea para nada, sino un error de compilación que el framework puede producir y tu código nativo no.
 
 En la línea 0.x, y en v1, podías sostener una cuenta deserializada, invocar una CPI que mutaba los bytes de esa cuenta on-chain, y después leer tu copia obsoleta en memoria como si nada hubiera cambiado. El arreglo era llamar `.reload()` después de la CPI, y olvidarse era una forma clásica de entregar un bug que razonaba sobre estado pre-CPI. Tu vault nativo tiene la misma exposición con la disciplina arrancada: sostienes borrows crudos, y nada te detiene de volver a leer un valor que capturaste antes de la transferencia como si fuera actual.
 
@@ -218,7 +218,7 @@ Los dos mueven lamports fuera de un PDA sin clave bajo autoridad del programa. L
 
 Lo que está en juego con esa guarda sube en el momento en que los programas componen, que es el asunto entero de la próxima lección. Un vault de una sola instrucción lee su propio estado, transfiere y retorna; la ventana para una lectura obsoleta es angosta. El floor-registry del capstone le hace CPI al vault, al escrow y al swap, y después de que cada una de esas llamadas retorna, cualquier campo tipado que estuvieras sosteniendo es candidato a la obsolescencia. Esa es precisamente la situación en la que v1 entregaba bugs, porque el reload que debías estaba una llamada más adentro de una composición sobre la que también estabas tratando de razonar. En V2 el modelo de borrow escala con la composición gratis: cada `CpiHandle` que tomas presta exactamente las cuentas que esa llamada toca, por exactamente su alcance, y el compilador los rastrea todos a la vez. Cuanto más profundo compones, más está haciendo la guarda, y más te habría estado pidiendo recordar la versión nativa.
 
-![Dos líneas de tiempo que contrastan la trampa de lectura obsoleta de v1 y del nativo con V2, donde leer a través de un borrow vivo de CpiHandle es un error de compilación en vez de una sorpresa de runtime.](assets/v06-timeline.png)
+![Dos líneas de tiempo que contrastan la trampa de lectura obsoleta de v1 y del nativo con V2, donde leer a través de un borrow vivo de CpiHandle es un error de compilación en vez de una sorpresa de runtime.](assets/v06-timeline.webp)
 
 ### El trade-off: leerlo no es una licencia para hacerlo a mano
 
@@ -228,9 +228,9 @@ Que es también por lo que confiar en el código generado es razonable en vez de
 
 Un número mantiene honesta esa confianza. El código generado tiene un costo medido y en movimiento, y el equipo de V2 lo mide a la vista. El PR #4914, mergeado el 2026-08-13, revisó a la baja los benchmarks del titular de V2, de 95% a 94% de reducción de bytecode y de 9.9x a 8.8x de mejora de CU. Un framework que corrige su propio marketing a la baja es un framework del que puedes confiar en los números hacia arriba. El código que estás diffeando es rápido, y es honestamente rápido.
 
-¿Entonces cuándo es el nativo de verdad la decisión correcta, y no solo un ejercicio? La respuesta honesta es angosta pero real: un camino caliente donde perfilaste una instrucción específica, demostraste que el overhead por cuenta del framework es tu cuello de botella, y decidiste que la CU que compras de vuelta vale poseer cada verificación a mano para siempre. Esa es una decisión rara y medida, no un default. Y nota la pista en el propio diseño de V2: el framework es él mismo una reescritura no_std sobre pinocchio, y ofrece `asm-v2` para exactamente esos caminos calientes, así que puedes bajar al metal por una instrucción sin abandonar las guardas en todas las otras. El framework no es el enemigo de la CU que quieres de vuelta. Es la forma de gastar ese presupuesto donde importa y mantener los cinturones en todo lo demás. Leer la expansión es lo que te gana ese juicio. Ahora puedes mirar un `try_accounts` generado, ver cuánto cuesta cada línea y qué bug cierra, y decidir, con números, qué líneas querrías poseer tú mismo alguna vez. Para casi todas, la respuesta es no.
+¿Entonces cuándo es el nativo de verdad la decisión correcta, y no solo un ejercicio? La respuesta honesta es angosta pero real: un camino caliente donde perfilaste una instrucción específica, demostraste que el overhead por cuenta del framework es tu cuello de botella, y decidiste que la CU que compras de vuelta vale poseer cada verificación a mano para siempre. Esa es una decisión rara y medida, no un default. Y nota la pista en el propio diseño de V2: el framework es él mismo una reescritura no_std sobre pinocchio, y ofrece `asm-v2` para exactamente esos caminos calientes, así que puedes bajar al metal por una instrucción sin abandonar las guardas en todas las otras. El framework no es el enemigo de la CU que quieres de vuelta; es la forma de gastar ese presupuesto donde importa y mantener los cinturones en todo lo demás. Leer la expansión es lo que te gana ese juicio. Ahora puedes mirar un `try_accounts` generado, ver cuánto cuesta cada línea y qué bug cierra, y decidir, con números, qué líneas querrías poseer tú mismo alguna vez. Para casi todas, la respuesta es no.
 
-![Una tabla que lista cada pieza generada de la expansión, el paso nativo que reemplaza, la clase de bug que cierra, y si se dispara en tiempo de compilación o en runtime.](assets/v07-table.png)
+![Una tabla que lista cada pieza generada de la expansión, el paso nativo que reemplaza, la clase de bug que cierra, y si se dispara en tiempo de compilación o en runtime.](assets/v07-table.webp)
 
 ### Un nombre que sobrevive, y un compás debajo del piso
 
@@ -244,7 +244,7 @@ Segunda, el piso de este curso tiene una trampilla, y te toca exactamente una mi
 
 El repliegue de la ayuda: los pasos 1 a 4 están trabajados, corres los comandos y lees la salida; el paso 5 escribes las anotaciones tú mismo contra tu archivo de verdad.
 
-1. **Genera la expansión.** Desde el crate de tu quarter-vault de framework, corre los dos comandos del principio de la lección. Si `cargo expand` da error en una macro, no vayas a mirar tu binario `anchor` — `cargo expand` nunca consulta el CLI de Anchor para nada. La expansión es rustc corriendo las proc macros del *grafo de dependencias* de este crate, así que la única cosa que decide qué gramática expande es la fila `anchor-lang` del `Cargo.toml`. Si esa fila lee una versión 1.x, el código de `CpiHandle` y de `Account` Pod no puede expandir no importa qué CLI esté en tu PATH; fija `anchor-lang = "2.0.0-rc.1"` desde crates.io, exactamente como mostró m01-l2 (`2.0.0-rc.1` al 2026-08-22; vuelve a verificar si hay una rc más nueva o un tag estable), y vuelve a correrlo. Esa inversión — el pin del crate selecciona el framework, nunca el CLI — es la lección de macros vestida con ropa de herramientas, y vuelve como el remate de m10.
+1. **Genera la expansión.** Desde el crate de tu quarter-vault de framework, corre los dos comandos del principio de la lección. Si `cargo expand` da error en una macro, no vayas a mirar tu binario `anchor` — `cargo expand` nunca consulta el CLI de Anchor para nada. La expansión es rustc corriendo las proc macros del *grafo de dependencias* de este crate, así que la única cosa que decide qué gramática expande es la fila `anchor-lang` del `Cargo.toml`. Si esa fila lee una versión 1.x, el código de `CpiHandle` y de `Account` Pod no puede expandir no importa qué CLI esté en tu PATH; fija `anchor-lang = "2.0.0-rc.1"` desde crates.io, exactamente como mostró m01-l2 (`2.0.0-rc.1` al 2026-08-22; vuelve a verificar si hay una rc más nueva o un tag estable), y vuelve a correrlo. Esa inversión — el pin del crate selecciona el framework, nunca el CLI — es la lección de macros reformulada como una regla de herramientas, y vuelve como el remate de m10.
 
 2. **Encuentra la fase de load.** Busca en `expanded.rs` `try_accounts` cerca de `Withdraw`. Marca la línea que carga `state` como un `Account<Vault>`. Abre tu `TryFrom` nativo al lado y traza una línea desde ese único load generado hasta tus dos verificaciones escritas a mano: la verificación de dueño y la verificación del discriminator. Confirma que cargan antes de que corra cualquier constraint.
 
@@ -252,7 +252,7 @@ El repliegue de la ayuda: los pasos 1 a 4 están trabajados, corres los comandos
 
 4. **Encuentra las guardas que faltan.** Grepea la expansión por `MUT_MASK`, que es un const asociado de verdad y va a estar ahí al pie de la letra, y después lee hacia afuera desde ahí para encontrar dónde se lo prueba contra las cuentas que mandó el llamador. No grepees por un nombre de función; los bocetos de arriba nombraron uno por legibilidad y el código emitido de verdad puede inlinearlo o llamarlo de otra forma. Después pon tu barrera 6 nativa al lado y confirma la diferencia de alcance: la tuya compara un par, esta compara cada par que marca la máscara. Después mira tu `invoke_signed` nativo y confirma que no hay ninguna guarda de compilador que impida una lectura obsoleta post-CPI, el trabajo que hace el borrow de `CpiHandle` en V2.
 
-![Una planilla de cinco filas con dos filas trabajadas y tres en blanco, que empareja cada línea generada con el paso nativo que reemplaza y si se dispara en tiempo de compilación o en runtime.](assets/v08-table.png)
+![Una planilla de cinco filas con dos filas trabajadas y tres en blanco, que empareja cada línea generada con el paso nativo que reemplaza y si se dispara en tiempo de compilación o en runtime.](assets/v08-table.webp)
 
 5. **Escribe las anotaciones.** En tus propias palabras, en un comentario al lado de cada una de cinco líneas generadas, nombra el paso nativo que reemplaza y escribe `compile-time` o `runtime` al lado. Checkpoint: deberías poder apuntar a cada línea de tu `TryFrom` y de tu despacho nativos y encontrar su gemela generada, y apuntar a exactamente dos guardas generadas, el recorrido de duplicados y el modelo de borrow, que no tienen gemela ninguna. Si puedes hacer eso, leíste el framework.
 

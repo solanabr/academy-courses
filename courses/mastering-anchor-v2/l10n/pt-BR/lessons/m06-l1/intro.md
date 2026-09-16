@@ -2,7 +2,7 @@
 
 Na lição passada você se sentou na cadeira do framework e viu o que muda quando um mint chega como Token-2022 em vez de SPL simples. Você apontou um leitor pequeno do lado do cliente para um mint fornecido, leu o tamanho real dele e o transfer hook dormente dele direto do wire, e depois saiu caçando um mint cujo hook estivesse vivo. Nenhum código novo de programa foi escrito. O seu programa de swap, o R4 no barcade do Quarters, continua movendo tokens de fliperama para um lado e tickets para o outro. Funciona. E você ainda não mediu quanto custa uma troca só.
 
-Faça a pergunta honesta: quantas unidades de compute uma troca queima? Toda resposta que você consegue dar hoje é um encolher de ombros disfarçado de estimativa. Este módulo inteiro é sobre trocar esse encolher de ombros por um número que você mesmo mediu, usando o ferramental first-party do próprio V2 em vez de um multiplicador de marketing do benchmark de outra pessoa.
+Faça a pergunta honesta: quantas unidades de compute uma troca queima? Toda resposta que você consegue dar hoje é um encolher de ombros com uma estimativa grudada. Este módulo inteiro é sobre trocar esse encolher de ombros por um número que você mesmo mediu, usando o ferramental first-party do próprio V2 em vez de um multiplicador de marketing do benchmark de outra pessoa.
 
 Então, antes de qualquer teoria, faça a coisa. Se você ainda não colocou o V2 nesta máquina, faça o build do release candidate a partir do canal git documentado dele, a mesma instalação que você rodou no m01. Lembre daquela lição: o `avm install` não consegue buscar o RC, porque ele baixa binários pré-compilados das GitHub Releases e nenhum Release foi cortado para a tag v2. O caminho sancionado é um build a partir do código-fonte do lar atual do repositório, otter-sec/anchor (as URLs antigas coral-xyz e solana-foundation redirecionam para lá), fixado na tag `v2.0.0-rc.1`:
 
@@ -45,7 +45,7 @@ Um termo de glossário, porque ele está em cada linha abaixo. Uma unidade de co
 
 Aqui está a forma do toolkit inteiro antes de a gente dirigir ele. Quatro ferramentas, quatro perguntas diferentes, uma fixture de teste compartilhada embaixo. Leia esta tabela uma vez e volte nela durante o lab.
 
-![Um cartão de quatro linhas comparando o profiler, o debugger, a cobertura e o teste do Mollusk pela pergunta que cada um responde, pela saída dele, pelo tipo de build dele e por travar ou não a rodada.](assets/v01-comparison.png)
+![Um cartão de quatro linhas comparando o profiler, o debugger, a cobertura e o teste do Mollusk pela pergunta que cada um responde, pela saída dele, pelo tipo de build dele e por travar ou não a rodada.](assets/v01-comparison.webp)
 
 A coisa para internalizar é a última coluna. Três destes quatro reportam: eles te entregam um artefato e deixam você decidir o que ele quer dizer. Só o teste do Mollusk decide por você, porque um teste é um contrato de passa-ou-falha. Essa diferença é a razão de o número de linha de base com o qual você acaba se comprometendo morar no teste do Mollusk e em nenhum outro lugar.
 
@@ -57,11 +57,11 @@ O `anchor test --profile` roda a sua suíte normal de testes, mas ele compila o 
 
 O artefato capturado é um flamegraph. Um flamegraph é um gráfico de barras empilhadas de onde o tempo de execução, ou aqui o custo em compute, acumulou: cada caixa é uma função, a largura dela é o custo atribuído a ela, e as caixas empilham para mostrar quem chamou quem. Uma nota de orientação, porque ela decide para onde você olha: estes SVGs são desenhados em estilo icicle, com a raiz no topo e os chamados empilhando para baixo, então a caixa da sua instrução fica no topo e tudo o que ela chamou pendura *embaixo* dela. A caixa mais larga embaixo da raiz da sua instrução que seja código seu é, grosso modo, "para onde a CU foi." Um SVG é escrito por teste dentro de `target/anchor-v2-profile/`.
 
-![Um fluxograma de cinco estágios desde a compilação em debug passando pela resolução de frames DWARF até um SVG por teste, avisando que a CU em debug mostra forma relativa em vez de custo em release.](assets/v02-flowchart.png)
+![Um fluxograma de cinco estágios desde a compilação em debug passando pela resolução de frames DWARF até um SVG por teste, avisando que a CU em debug mostra forma relativa em vez de custo em release.](assets/v02-flowchart.webp)
 
 Leia a figura. Aqui está o que um frame de flamegraph está te dizendo e o que ele não está.
 
-![Um flamegraph estilizado onde os frames largos de matemática e de desserialização da instrução de swap são os hotspots de verdade enquanto um frame de montagem de teste igualmente largo aparece acinzentado como ruído de bancada de teste.](assets/v03-annotated-code.png)
+![Um flamegraph estilizado onde os frames largos de matemática e de desserialização da instrução de swap são os hotspots de verdade enquanto um frame de montagem de teste igualmente largo aparece acinzentado como ruído de bancada de teste.](assets/v03-annotated-code.webp)
 
 Esse frame de bancada de teste é a primeira cilada e a mais comum. O seu teste em LiteSVM cunha e financia contas nas transações dele antes de chamar `swap_arcade_for_tickets`, e o profiler rastreia cada instrução da rodada, então essas instruções de montagem ganham as raízes delas no mesmo SVG, muitas vezes mais gordas que a troca. Elas são custo de verdade, mas não são o custo da sua instrução. Persiga uma delas e você vai otimizar a sua fixture de teste enquanto a troca continua exatamente tão cara quanto antes. Tudo com que você se importa pendura embaixo da raiz `swap_arcade_for_tickets` especificamente.
 
@@ -75,7 +75,7 @@ Para trabalho mais profundo ele se liga a um debugger de verdade. Passe `--gdb` 
 
 O `anchor coverage` responde uma pergunta que os outros três não conseguem: o que os seus testes nunca tocaram? Ele reconstrói cobertura de linha e de branch a partir de traces de registradores SBF e emite isso como LCOV, o formato padrão de relatório de cobertura de linha que editores e ferramentas de CI já sabem exibir. Aponte ele para o swap e ele vai te mostrar, por exemplo, que o branch da trava de slippage ou o seu retorno antecipado de valor zero nunca executou em nenhum teste.
 
-Aqui está a cilada, dita sem enfeite para você não ficar esperando por ela: o `anchor coverage` reporta, ele não trava. Ele não vai falhar o seu build quando a cobertura cair. Ele te entrega um arquivo LCOV e vai embora. Se você quer um piso de cobertura imposto, isso é uma política de CI que você escreve em cima do relatório, não uma coisa que a ferramenta faz para você.
+Aqui está a cilada, dita sem enfeite para você não ficar esperando por ela: o `anchor coverage` reporta, ele não trava. Ele te entrega um arquivo LCOV e vai embora, em vez de falhar o seu build quando a cobertura cair. Se você quer um piso de cobertura imposto, isso é uma política de CI que você escreve em cima do relatório, não uma coisa que a ferramenta faz para você.
 
 ### Mollusk: exatamente quantas CU
 
@@ -83,7 +83,7 @@ As três primeiras ferramentas descrevem. O Mollusk faz assert. O Mollusk (`anza
 
 É aqui que o fio de testes do módulo escala. No m02 você escreveu um teste em LiteSVM: rápido, in-process, ótimo para comportamento. O LiteSVM responde "ele fez a coisa certa." O Mollusk responde "ele fez a coisa certa por exatamente esta quantidade de unidades de compute." A mesma velocidade in-process, um degrau mais afiado. Mais tarde, no capstone, o Surfpool entra para integração em localnet de salão inteiro contra estado real do cluster. Para uma asserção precisa em CU sobre uma instrução, hoje, o Mollusk é a ferramenta.
 
-![Um diagrama de cubo e raios onde três instrumentos do Anchor leem a mesma rodada de swap em LiteSVM que já existe, com o teste de CU do Mollusk desenhado à parte como uma segunda fixture própria.](assets/v04-diagram.png)
+![Um diagrama de cubo e raios onde três instrumentos do Anchor leem a mesma rodada de swap em LiteSVM que já existe, com o teste de CU do Mollusk desenhado à parte como uma segunda fixture própria.](assets/v04-diagram.webp)
 
 ### O trade-off, antes de você confiar em qualquer coisa disso
 
@@ -93,7 +93,7 @@ O `--profile` faz o build em DEBUG para pegar aqueles símbolos DWARF. Um build 
 
 Essa honestidade não é só minha. A própria manchete de benchmark do V2 do Anchor ficou mais honesta com o tempo. No PR #4914, mergeado em 2026-08-13, os números de marketing foram revisados para baixo: a afirmação de "95% smaller bytecode" virou 94%, e a de "9.9x average CU reduction" virou 8.8x.
 
-![Uma linha do tempo de dois pontos mostrando o PR #4914 em 2026-08-13 revisando a manchete do V2 do Anchor de 95 por cento para 94 por cento de bytecode e de 9.9x para 8.8x de CU média, motivando medir o seu próprio programa.](assets/v05-timeline.png)
+![Uma linha do tempo de dois pontos mostrando o PR #4914 em 2026-08-13 revisando a manchete do V2 do Anchor de 95 por cento para 94 por cento de bytecode e de 9.9x para 8.8x de CU média, motivando medir o seu próprio programa.](assets/v05-timeline.webp)
 
 Essa é a razão de este curso nunca te entregar um multiplicador para repetir. Uma manchete de benchmark é o programa de outra pessoa em cima da carga de trabalho de outra pessoa. A sua troca é sua. Meça ela.
 
@@ -168,7 +168,7 @@ genhtml target/anchor-v2-coverage/lcov.info -o target/anchor-v2-coverage/html
 open target/anchor-v2-coverage/html/index.html    # xdg-open on Linux
 ```
 
-Agora você tem uma view do código com cada linha colorida pela contagem de acertos. Clique dentro de `lib.rs` e leia quais branches do swap nunca rodaram. Muito provavelmente o seu caminho feliz está verde e um branch de borda, a reversão de slippage ou a trava de saída zero, aparece vermelho. Esse vermelho não é uma falha de build. Lembre: a cobertura reporta, ela não trava. Ela está te dizendo onde um teste futuro deve ir.
+Agora você tem uma view do código com cada linha colorida pela contagem de acertos. Clique dentro de `lib.rs` e leia quais branches do swap nunca rodaram. Muito provavelmente o seu caminho feliz está verde e um branch de borda, a reversão de slippage ou a trava de saída zero, aparece vermelho. Esse vermelho não é uma falha de build. Lembre: a cobertura reporta, ela não trava, e ela está te dizendo onde um teste futuro deve ir.
 
 Se você preferir ficar no seu editor, a maioria das extensões de cobertura lê `lcov.info` direto; aponte uma delas para aquele caminho e pule o `genhtml`.
 
@@ -314,7 +314,7 @@ Resultado esperado: uma linha dizendo `trade consumed <N> CU`, seguida de uma fa
 
 Um número de referência para escala. A Helius publicou contagens de CU do V1 para um programa contador trivial, mais ou menos 5,095 para inicializar e 1,162 para incrementar: sem data, V1, um programa diferente. Use eles para uma coisa só, uma noção de ordem de magnitude. Uma instrução de verdade vive nos milhares de CU, não nas dezenas e não nos milhões. Se a sua leitura estiver muito fora dessa banda, desconfie da sua fixture antes de celebrar.
 
-![Um gráfico de barras de um contador V1 sem data em 5095 e 1162 CU ao lado de uma barra fantasma para a própria troca do leitor, com legenda de só-escala em vez de meta.](assets/v06-chart.png)
+![Um gráfico de barras de um contador V1 sem data em 5095 e 1162 CU ao lado de uma barra fantasma para a própria troca do leitor, com legenda de só-escala em vez de meta.](assets/v06-chart.webp)
 
 ## Challenge: meça a sua própria troca
 
@@ -331,7 +331,7 @@ Depois a rodada solo:
 
 A forma da sua resposta são exatamente duas coisas: um inteiro de CU para uma troca só, e o nome do frame mais quente do flamegraph. Anote eles em algum lugar onde você vai achar eles na próxima lição.
 
-![Um cartão de registro com espaços em branco para a linha de base de CU da troca, o frame mais quente, as ferramentas e os tipos de build usados, o branch sem teste encontrado, e a data da medição.](assets/v07-table.png)
+![Um cartão de registro com espaços em branco para a linha de base de CU da troca, o frame mais quente, as ferramentas e os tipos de build usados, o branch sem teste encontrado, e a data da medição.](assets/v07-table.webp)
 
 A barra para passar é simples e estrita. As quatro ferramentas rodam limpas. O número de linha de base existe e mora numa asserção do Mollusk que passa. E o frame que você nomeou é um que pendura embaixo da raiz da sua instrução, então ele é trabalho de instrução e não trabalho de fixture, qualquer que seja o nome dele no fim.
 

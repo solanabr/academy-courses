@@ -28,7 +28,7 @@ Una nota que colorea todo: Anchor V2 es una candidata a release de semanas de ed
 
 Antes de que manejes la ruta, mira el mapa. Las cuatro jugadas no son independientes. El IDL es la entrada para publicarlo y la entrada para generar el cliente. El cliente generado es la entrada para el send. Sácalas de orden y vas a estar regenerando un cliente contra un IDL que nunca actualizaste, que es la forma más común en que un cliente generado entrega una llamada que ya no coincide con el programa.
 
-![El IDL de anchor idl build alimenta tanto la publicación on-chain como la generación de Codama; el cliente generado fuerza el pin de kit, y el pin vuelve posible el send.](assets/v01-flowchart.png)
+![El IDL de anchor idl build alimenta tanto la publicación on-chain como la generación de Codama; el cliente generado fuerza el pin de kit, y el pin vuelve posible el send.](assets/v01-flowchart.webp)
 
 Nota la forma. Publicar (B) y generar (C) se ramifican los dos desde el IDL, y son independientes entre sí. Puedes generar un cliente sin publicar nunca el IDL on-chain, y puedes publicar sin generar. Hacemos los dos porque sirven a llamadores distintos: publicar sirve a *cualquiera*, generar sirve a *ti*. Mantén esa división en mente, es la respuesta a dos de las preguntas de verificación del final.
 
@@ -44,7 +44,7 @@ Acá está la parte que importa para un curso de framework, porque la expectativ
 
 Si que el discriminator siga estable suena como una nota al pie, acuérdate de lo que hiciste cuando computaste un preimage de discriminator a mano antes en este curso: hasheaste el nombre con namespace de la instrucción y viste los primeros ocho bytes volverse el selector sobre el que rutea el runtime. Esos ocho bytes exactos son lo que el IDL lleva en el array `discriminator` de cada instrucción. Por eso una llamada de la era v1 sigue aterrizando contra un programa v2: el selector no se movió, y tampoco la descripción envuelta a su alrededor. Un cliente generado lee esos bytes directo del IDL, así que nunca vuelves a tipear un discriminator a mano, y nunca te equivocas de dedo con uno dentro de una llamada que calladamente apunta a la instrucción equivocada.
 
-![La spec del IDL es idéntica entre la baseline 1.x y el tag de v2 — discriminators, campos de serialization y de repr todos sin cambios; un generador de cliente que ignora serialization/repr es seguro solo sobre tipos borsh default en cualquiera de las dos líneas.](assets/v02-annotated-code.png)
+![La spec del IDL es idéntica entre la baseline 1.x y el tag de v2 — discriminators, campos de serialization y de repr todos sin cambios; un generador de cliente que ignora serialization/repr es seguro solo sobre tipos borsh default en cualquiera de las dos líneas.](assets/v02-annotated-code.webp)
 
 Así que este es un sondeo de tiempo de escritura, no un hecho que puedas congelar de mí. Antes de que confíes en un cliente generado para un programa que usa serialización no default o un `repr` propio — campos que la spec moderna lleva desde la era 0.30, en las dos líneas — confirma que tu versión de generador los consume. Para el swap que estás entregando, `Pool` es una struct borsh simple y `swap_arcade_for_tickets` toma dos `u64`, así que estás seguramente dentro de lo que maneja cada generador. En el momento en que entregues un programa que no lo está, ese sondeo es tuyo.
 
@@ -54,7 +54,7 @@ Tienes un archivo JSON. Un archivo JSON en tu repositorio ayuda exactamente a la
 
 Piénsalo como una ciudad trata un edificio. Cualquiera puede dibujar un plano, pero el plano que *cuenta*, el que un contratista puede sacar y usar para construir, es el que está archivado en la municipalidad bajo la dirección del edificio, enmendable solo por el propietario de registro. La versión de Solana de ese archivador es el **Program Metadata Program**. Anchor soltó sus propias instrucciones de IDL incorporadas allá en 1.0, y V2 hereda esa remoción: el IDL se guarda a través de este programa, en una dirección determinística derivada del id de tu programa, escribible solo por la autoridad de upgrade del programa. Así que cuando tipees `anchor idl init` en un momento, los verbos son viejos pero la maquinaria no — los comandos de la era 0.x del mismo nombre escribían en las propias cuentas de IDL on-chain de Anchor, el mecanismo que 1.0 sacó, mientras este CLI reusa los nombres de verbo como un front end para el Program Metadata Program, que es por lo que enseñarlos acá no resucita el camino retirado.
 
-![El Program Metadata Program guarda el IDL en un PDA canónico derivado del id del programa; cualquiera puede leerlo, pero solo la autoridad de upgrade puede escribirlo o darle upgrade.](assets/v03-diagram.png)
+![El Program Metadata Program guarda el IDL en un PDA canónico derivado del id del programa; cualquiera puede leerlo, pero solo la autoridad de upgrade puede escribirlo o darle upgrade.](assets/v03-diagram.webp)
 
 Los comandos son el subcomando `idl` del CLI de Anchor. La primera publicación crea la cuenta on-chain; las ediciones posteriores le dan upgrade:
 
@@ -89,7 +89,7 @@ Llévate una disidencia hacia el camino que estamos a punto de tomar, porque apu
 
 Así que el camino de verdad, el que entrega el CLI de Anchor, es **Codama**. Codama es un generador de clientes: lee un IDL y emite un cliente tipado. El CLI de Anchor lo envuelve en dos subcomandos, así que no instalas ni configuras Codama por separado, el CLI fija la versión que usa (`CODAMA_VERSION = 1.6.0` adentro del CLI al 2026-08-22) y lo maneja por ti.
 
-![@anchor-lang/core es la línea de SDK equivocada, hacerlo a mano invita bugs silenciosos de cuentas, y anchor codama generate produce un cliente kit cuyo único costo de verdad es disciplina de regeneración.](assets/v04-comparison.png)
+![@anchor-lang/core es la línea de SDK equivocada, hacerlo a mano invita bugs silenciosos de cuentas, y anchor codama generate produce un cliente kit cuyo único costo de verdad es disciplina de regeneración.](assets/v04-comparison.webp)
 
 Dos comandos. El primero convierte el IDL de Anchor en el propio árbol de IDL de Codama. El segundo corre esa conversión in-process y después renderiza el cliente:
 
@@ -105,13 +105,13 @@ Dos comandos, no uno, y la división es deliberada. `convert` es la mitad honest
 
 Lo que aterriza debajo de `clients/` no es un blob. La flag `-p` nombra un directorio base y el CLI escribe cada lenguaje en `<base>/<language>`, así que `-p clients -l js` renderiza hacia `clients/js/`. Adentro, Codama emite un directorio que puedes leer, una carpeta por tipo de cosa de tu programa:
 
-![El cliente generado es un directorio de instructions, accounts, pdas, types, programs y errors; quien llama usa el builder de instrucción de instructions, el buscador de PDA del pool de pdas, y el decodificador de cuenta de accounts.](assets/v05-diagram.png)
+![El cliente generado es un directorio de instructions, accounts, pdas, types, programs y errors; quien llama usa el builder de instrucción de instructions, el buscador de PDA del pool de pdas, y el decodificador de cuenta de accounts.](assets/v05-diagram.webp)
 
 El builder se nombra según tu instrucción. `swap_arcade_for_tickets` se vuelve `getSwapArcadeForTicketsInstructionAsync`. El sufijo `-Async` es la convención de Codama para la variante que resuelve lo que puede por ti: deriva el PDA de `pool` a partir de sus seeds y llena direcciones de programa default, así que pasas las cuentas que solo tú puedes saber (el trader, los mints, las cuentas de token de reserva y de trader) y él arma el resto. Ese es el punto entero de la generación. El orden de las cuentas, el discriminator, la codificación borsh de `amountIn` y `minOut`, la derivación del PDA, todo sale de tu IDL en vez de salir de tu memoria.
 
 Pon la razón en la página, porque acá es donde hacerlo a mano de verdad muerde. El `#[derive(Accounts)]` del swap lista nueve cuentas en un orden fijo, y el runtime las hace coincidir posicionalmente, por slot, no por nombre. Hazlo a mano y estás retipeando ese orden hacia un array de `AccountMeta` de memoria, donde intercambiar `reserve_arcade` y `reserve_ticket`, o marcar `trader` como solo lectura cuando tiene que firmar, compila limpio y falla solo cuando el canje pega en la cadena. El builder generado lee el orden y las flags de escribible/firmante del IDL y te pide cada cuenta por nombre. Las dos reservas que nunca puedes confundir llegan como `reserveArcade` y `reserveTicket`, etiquetadas, en el único lugar donde un typo de otra forma sería invisible.
 
-![Hacer a mano las nueve cuentas posicionales del swap falla en silencio cuando dos slots de reserva se intercambian, mientras el builder generado toma cuentas por nombre y deriva el PDA del pool él mismo.](assets/v06-comparison.png)
+![Hacer a mano las nueve cuentas posicionales del swap falla en silencio cuando dos slots de reserva se intercambian, mientras el builder generado toma cuentas por nombre y deriva el PDA del pool él mismo.](assets/v06-comparison.webp)
 
 ### El pin de kit: coincide con tus peers, nunca persigas latest
 
@@ -119,7 +119,7 @@ Ahora de vuelta a la trampa que sentiste al principio de esta lección, porque a
 
 Así que el kit más nuevo y el kit que quieren tus dependencias son majors distintos. Esto no es una casualidad de una semana mala, es la textura normal de un SDK que se mueve rápido: la biblioteca central entrega un major nuevo antes que el ecosistema que hace peer sobre ella. Mira la semana en que pasó.
 
-![El 2026-08-21 el web3.js heredado todavía le ganaba a kit 1,882,726 contra 1,738,844 en descargas semanales, y kit entregó 8.0.0 el mismo día, mientras el ecosistema todavía hacía peer sobre kit ^7.](assets/v07-chart.png)
+![El 2026-08-21 el web3.js heredado todavía le ganaba a kit 1,882,726 contra 1,738,844 en descargas semanales, y kit entregó 8.0.0 el mismo día, mientras el ecosistema todavía hacía peer sobre kit ^7.](assets/v07-chart.webp)
 
 Las dos mitades de ese gráfico son verdad en la misma semana: el cruce de descargas dice que kit es hacia donde va el ecosistema, y los rangos de peer dicen que no persigas su número de versión.
 
@@ -223,7 +223,7 @@ Checkpoint: cero errores. Un cliente tipado que no pasa la verificación de tipo
 
 **5. Manda un swap (problema de Completion).** Acá está el tubo de send de kit, y va en `app/send-swap.ts`. Tres líneas estructurales están en blanco. Llénalas: quien paga la tarifa es quien llama, el lifetime es el blockhash reciente, y la única instrucción agregada es la que arma tu cliente generado. Este es el esqueleto exacto que sigue el send.
 
-Antes de que pueda correr, seis de esas direcciones tienen que existir en devnet, y nada hasta ahora las creó. Haz eso primero, con el mismo CLI de `spl-token` que usaste para la lectura de Token-2022 del módulo 5, y después una llamada al propio `init_pool` del swap:
+Antes de que pueda correr, seis de esas direcciones tienen que existir en devnet, y nada hasta ahora las creó. Haz eso primero: el mismo CLI de `spl-token` que usaste para la lectura de Token-2022 del módulo 5, después una llamada al propio `init_pool` del swap, después una lectura de dos líneas para descubrir qué creó `init_pool`, y después dos líneas más de `spl-token` que necesitan lo que la lectura te dijo.
 
 ```bash
 solana config set --url devnet
@@ -240,21 +240,36 @@ spl-token mint <ARCADE_MINT> 1000              # give the trader something to sw
 
 # The pool and its two reserves. `init_pool` is the instruction you wrote in the
 # swap lab; the generated client has a builder for it too, so send it the same way
-# the pipe below sends the swap — same pipe, different builder. It prints nothing:
-# prove it landed by deriving the pool with findPoolPda and decoding it with
-# fetchPool, which is the extra checkpoint at the end of this lab.
+# the pipe below sends the swap — same pipe, different builder. It prints nothing,
+# which is exactly why the next step exists: you cannot fund what you cannot name.
+```
 
+`init_pool` creó dos cuentas de token de reserva y no te dijo ninguna de las dos direcciones, y las próximas dos líneas de shell necesitan las dos. Léelas del registro del pool con la otra mitad del cliente que acabas de generar — `findPoolPda` de `pdas/`, `fetchPool` de `accounts/`, los dos re-exportados desde la raíz del cliente. Sin borsh manual, sin explorer:
+
+```typescript
+// app/read-pool.ts — run this once, right here, before you fund anything.
+import { createSolanaRpc } from '@solana/kit';
+import { fetchPool, findPoolPda } from '../clients/js';
+
+const rpc = createSolanaRpc('https://api.devnet.solana.com');
+const [poolPda] = await findPoolPda();
+const pool = await fetchPool(rpc, poolPda);
+// pool.data.arcadeMint / .ticketMint / .arcadeReserve / .ticketReserve / .bump, all typed
+console.log(pool.data.arcadeReserve, pool.data.ticketReserve);
+```
+
+Esas dos direcciones impresas son el `<POOL_ARCADE_RESERVE>` y el `<POOL_TICKET_RESERVE>` de abajo — el arreglo de auditoría de m07-l3 es lo que hizo que el pool guardara las dos direcciones de reserva al lado de los mints y del bump, y esta es la lección donde lo cobras. El decode dobla como tu prueba de que `init_pool` aterrizó: si `pool.data.bump` se lee de vuelta como el bump canónico guardado y los dos mints coinciden con lo que desplegaste, el registro es real. Es también la mitad de lectura del cliente generado haciendo trabajo de verdad en vez de demo — la necesitaste para avanzar, no para admirarla.
+
+```bash
 # Now fund the reserves, because `init_pool` CREATES the two reserve token accounts
 # and leaves them empty, and R4 has no deposit instruction — you never wrote one.
 # An empty reserve makes swap_out return 0 and the `require!(out > 0, ZeroOutput)`
 # guard reject every trade, so skip these two lines and the swap below cannot land.
 # You are still both mints' authority, so mint straight in by naming the reserve as
-# the recipient: the third argument the line above deliberately left off.
+# the recipient: the third argument the `mint 1000` line above deliberately left off.
 spl-token mint <ARCADE_MINT> 1 <POOL_ARCADE_RESERVE>   # 1.000000 -> 1_000_000 base units
 spl-token mint <TICKET_MINT> 1 <POOL_TICKET_RESERVE>   # the same, so the pool starts balanced
 ```
-
-`<POOL_ARCADE_RESERVE>` y `<POOL_TICKET_RESERVE>` son las dos cuentas de token de reserva que creó `init_pool`, y puedes leer las dos directo de vuelta del registro del pool con `fetchPool` — el arreglo de auditoría de m07-l3 es lo que hizo que el pool guardara las dos direcciones de reserva al lado de los mints y del bump, y ese registro es lo que decodifica el checkpoint del final.
 
 Esas dos líneas de mint dejan al pool sosteniendo 1,000,000 / 1,000,000 unidades base, que es deliberadamente el par de reserva que usó el ejemplo trabajado de m05-l2: un `amountIn` de `10_000` cotiza 9,871 tickets de salida, cómodamente libre del piso de `minOut` de `9_800` del send de abajo. Siembra otra profundidad y recomputa ese piso antes de mandar, o tu propia guarda de slippage te va a rechazar — que es la guarda funcionando, no un bug. También: `secretKey` en la firma de abajo son los 64 bytes de tu archivo de keypair de devnet, que puedes cargar con `new Uint8Array(JSON.parse(fs.readFileSync(process.env.HOME + '/.config/solana/id.json', 'utf8')))`.
 
@@ -312,25 +327,15 @@ async function sendSwap(secretKey: Uint8Array): Promise<string> {
 }
 ```
 
-Los tres rellenos, para que te verifiques una vez que los hayas intentado: `(m) => setTransactionMessageFeePayerSigner(trader, m)`, después `(m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m)`, después `(m) => appendTransactionMessageInstruction(swapIx, m)`. Nota que `amountIn` y `minOut` son `bigint`s, no números, ese sufijo `n` no es decoración, es cómo kit carga un `u64` sin perder precisión por encima de 2^53.
+Los tres rellenos, para que te verifiques una vez que los hayas intentado: `(m) => setTransactionMessageFeePayerSigner(trader, m)`, después `(m) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, m)`, después `(m) => appendTransactionMessageInstruction(swapIx, m)`. Nota que `amountIn` y `minOut` son `bigint`s, no números; ese sufijo `n` es cómo kit carga un `u64` sin perder precisión por encima de 2^53.
 
 Dos especificidades de kit que vale nombrar mientras están adelante. `sendAndConfirmTransactionFactory` toma tanto `rpc` como `rpcSubscriptions`, porque kit confirma escuchando en un websocket por la firma en vez de consultando, que es por lo que creaste un cliente de subscriptions al lado del de RPC. Y `assertIsTransactionWithBlockhashLifetime` no es ceremonia: es una guarda de tipos que se niega a compilar el send a menos que el mensaje de verdad lleve un lifetime de blockhash, así que olvidarse de la línea del lifetime se vuelve un error de tipos en tu escritorio en vez de una transacción caída en devnet. Lograr que el canje *aterrice* de forma confiable bajo carga real es un oficio separado, y le pertenece al curso de Client-Side Mastery. Acá estás demostrando que la llamada es bien formada y confirmable, no afinándola para un líder congestionado.
 
-![Una transacción de kit se arma definiendo quien paga la tarifa, el lifetime de blockhash y la instrucción, y después se firma, se protege, se manda y se confirma, y su firma se lee de vuelta.](assets/v08-flowchart.png)
+![Una transacción de kit se arma definiendo quien paga la tarifa, el lifetime de blockhash y la instrucción, y después se firma, se protege, se manda y se confirma, y su firma se lee de vuelta.](assets/v08-flowchart.webp)
 
 Checkpoint para el lab entero: `sendSwap` devuelve una firma, y esa firma resuelve en un explorador de devnet como un swap confirmado. Eso es un llamador, distinto de ti, moviendo R4. La llave del vault está fuera de tu bolsillo.
 
-Un checkpoint extra que te cuesta dos líneas y demuestra la mitad de lectura. La misma generación te dio `fetchPool` en `accounts/` y `findPoolPda` en `pdas/`, los dos re-exportados desde la raíz del cliente. Deriva la dirección del pool y decodifícala, sin borsh manual:
-
-```typescript
-import { fetchPool, findPoolPda } from '../clients/js';
-
-const [poolPda] = await findPoolPda();
-const pool = await fetchPool(rpc, poolPda);
-// pool.data.arcadeMint / .ticketMint / .arcadeReserve / .ticketReserve / .bump, all typed
-```
-
-Si `pool.data.bump` se lee de vuelta como el bump canónico guardado, los dos mints coinciden con lo que desplegaste, y las dos direcciones de reserva coinciden con las cuentas que acabas de fondear, tu decodificador generado está leyendo los mismos bytes que escribió tu programa. El builder escribe llamadas, el decodificador lee estado, y los dos salieron del único IDL.
+Y la mitad de lectura ya está demostrada, porque no podrías haber llegado hasta acá sin ella: `findPoolPda` derivó el pool y `fetchPool` lo decodificó allá en el paso 5, tipado y sin borsh manual, y las dos direcciones de reserva que te entregó son las cuentas que fondeaste y contra las que acabas de operar. El builder escribe llamadas, el decodificador lee estado, y los dos salieron del único IDL.
 
 ## El Challenge
 

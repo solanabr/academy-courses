@@ -28,7 +28,7 @@ Las cuatro clases:
 
 Tu entregable es concreto: tres errores de compilador nombrados, capturados con el texto de su mensaje, más una corrida verde de `anchor test` una vez que restaures R4. El registro acá es cautela, no celebración. El compilador es un aliado fuerte y una excusa mala.
 
-![Una tabla de cuatro filas que empareja cada clase de vulnerabilidad de Anchor con su riesgo de runtime en v1, su estado sobre los defaults de V2, y el juicio del que el desarrollador sigue siendo dueño.](assets/v01-comparison.png)
+![Una tabla de cuatro filas que empareja cada clase de vulnerabilidad de Anchor con su riesgo de runtime en v1, su estado sobre los defaults de V2, y el juicio del que el desarrollador sigue siendo dueño.](assets/v01-comparison.webp)
 
 ## Las cuatro clases, y por qué tres se vuelven errores de tipo
 
@@ -48,7 +48,7 @@ Descarta los arreglos ingenuos primero, porque son lo que entregó v1. Arreglo i
 
 V2 afila el requisito hacia algo que el compilador puede imponer. Sobre los defaults de V2, `Account<T>` (nota el lifetime que se soltó) es una **vista zero-copy tipada como Pod** de los datos de la cuenta. `T` tiene que implementar `Pod`, que quiere decir que no tiene relleno y tiene un layout completamente determinístico, y los bytes se castean directo a `T` en vez de parsearse campo por campo. Esta es la misma decisión de diseño por la que argumentó la issue #4390 bajo la bandera "zero-copy account deserialization by default", que nombró al viejo `Account<T>` de parseo-en-load como "the slow path" y "the #1 performance complaint". El punto con el que vale quedarse: Pod-por-defecto es una jugada de seguridad tanto como una jugada de velocidad. Un layout determinístico y sin relleno es exactamente lo que vuelve a "estos bytes son un `FeeConfig`" una afirmación que el sistema de tipos puede sostener en vez de una afirmación que re-verificas en runtime.
 
-![Un diagrama que contrasta la verificación del discriminator en runtime de v1, que se puede saltear, con el cast tipado como Pod en tiempo de compilación de V2, donde el tipo de la cuenta está fijo en la struct y lo rastrea el compilador.](assets/v02-diagram.png)
+![Un diagrama que contrasta la verificación del discriminator en runtime de v1, que se puede saltear, con el cast tipado como Pod en tiempo de compilación de V2, donde el tipo de la cuenta está fijo en la struct y lo rastrea el compilador.](assets/v02-diagram.webp)
 
 Así que cuando escribes el cosplay, el desajuste de tipos no tiene dónde esconderse. Una pieza de montaje honesta primero, porque la forma de tu propio programa importa acá: R4 entrega exactamente **un** tipo de cuenta, el `Pool` que escribiste en m05-l2, y el cosplay necesita dos. Así que la rama de exploit agrega un segundo — un `FeeConfig` que tu swap no tiene y no va a hacer crecer. Es un accesorio, y nombrarlo como tal es parte de la lección: lo que demuestra el error de compilación de abajo es un hecho sobre el sistema de tipos, no una afirmación sobre un campo que tu programa de verdad sostenga.
 
@@ -126,7 +126,7 @@ Sobre los defaults de V2, el conjunto de cuentas escribibles que una instrucció
 
 Lee esa trampa con cuidado, porque es la que la gente recuerda mal: la verificación de duplicados en runtime sigue corriendo en el dispatcher. V2 no la borró. Lo que V2 agregó es una barrera de compilador delante de la escritura unsafe, así que llegas a la verificación de runtime solo por el camino que marcaste explícitamente como unsafe. "El build está verde" ahora quiere decir "no apagué esto por un typo".
 
-![Una tarjeta de código anotada que muestra dos slots mutables de cuenta marcados con dup pelado, el error de compilación de V2 rechazándolo, y la escritura unsafe(dup) exigida que el error nombra como el arreglo.](assets/v03-annotated-code.png)
+![Una tarjeta de código anotada que muestra dos slots mutables de cuenta marcados con dup pelado, el error de compilación de V2 rechazándolo, y la escritura unsafe(dup) exigida que el error nombra como el arreglo.](assets/v03-annotated-code.webp)
 
 ### Aliasing de CPI y la muerte de `.reload()`
 
@@ -138,7 +138,7 @@ Descarta las respuestas de v1 por niveles, porque el ecosistema probó todas. Ni
 
 La respuesta de V2 es un borrow, no un recordatorio. Un **`CpiHandle`** es un handle con borrow rastreado hacia las cuentas que una CPI va a tocar. Mientras el handle está vivo, sostiene un borrow de Rust sobre esas cuentas, y el acceso tipado a esos mismos datos no compila hasta que el handle se dropea. Físicamente no puedes leer el campo obsoleto, porque la lectura no compila mientras la CPI está pendiente. La clase entera de obsoleto-después-de-CPI se colapsa dentro del borrow checker, que es la única parte de Rust que nunca se olvida.
 
-![Una línea de tiempo vertical de la ventana de borrow de un CpiHandle, que marca cada lectura tipada de la reserva de ticket adentro de ella como un error de compilación, contra la lectura obsoleta de v1.](assets/v04-diagram.png)
+![Una línea de tiempo vertical de la ventana de borrow de un CpiHandle, que marca cada lectura tipada de la reserva de ticket adentro de ella como un error de compilación, contra la lectura obsoleta de v1.](assets/v04-diagram.webp)
 
 ### Recálculo de bump, el que compila
 
@@ -146,7 +146,7 @@ La cuarta clase es la interesante, porque no produce un error. En v1, un program
 
 Así que cuando recomputas un bump a mano en tu exploit, compila. `Address::find_program_address` es código común. Pero el framework valida y firma contra su propia derivación canónica, así que tu valor recomputado es o idéntico, caso en el que no cambiaste nada, o distinto, caso en el que la validación de PDA lo rechaza en runtime. El ataque compila y no va a ningún lado. Mantén ese resultado cerca, porque es el puente hacia la próxima lección: compilar no es explotar, y hay un conjunto entero de clases donde el código compila *y* drena un escrow.
 
-![Un embudo que muestra cuatro ataques entrando a anchor build, tres saliendo como errores de compilación rechazados, y solo el ataque de bump emergiendo como un binario.](assets/v05-flowchart.png)
+![Un embudo que muestra cuatro ataques entrando a anchor build, tres saliendo como errores de compilación rechazados, y solo el ataque de bump emergiendo como un binario.](assets/v05-flowchart.webp)
 
 Ese conjunto es donde vive la honestidad, así que déjame nombrar la trampa ahora en vez de al final.
 
@@ -154,7 +154,7 @@ Convertir cuatro clases en errores de compilación angosta la superficie de ataq
 
 Hay un riesgo de segundo orden acá que es peor que cualquier bug aislado. Un equipo que internaliza "el compilador agarra nuestros bugs de seguridad" revisa menos, y revisa menos precisamente en la región donde el compilador está callado, que es la región de donde el dinero de verdad se va. Así que la disciplina está invertida respecto de cómo se siente: las clases que el compilador mata son las que menos atención puedes gastarles en la revisión, y las clases que no puede tocar son a donde debería ir el presupuesto entero de auditoría. Las ganancias de tiempo de compilación son una reasignación de dónde miras, no una razón para mirar menos. Vale mantener la división en algún lado donde puedas verla.
 
-![Una tabla de dos bandas que separa las clases que agarran los defaults de V2 de las clases de firmante, de sustitución y de lógica que compilan, corren y siguen siendo trabajo del desarrollador.](assets/v06-table.png)
+![Una tabla de dos bandas que separa las clases que agarran los defaults de V2 de las clases de firmante, de sustitución y de lógica que compilan, corren y siguen siendo trabajo del desarrollador.](assets/v06-table.webp)
 
 Ese changelog vale una mirada, porque modela la postura. El PR #4914, mergeado el 2026-08-13, revisó los benchmarks del titular *a la baja*: el ahorro de bytecode de 95% a 94%, y la ganancia de compute de 9.9x a 8.8x, con la reserva de que "This version is alpha and exact values can move as codegen, pinocchio, and tooling change." Cita el 8.8x como contexto de cuánto más rápido corre el camino Pod, nunca como un número de seguridad. La misma honestidad que revisa un benchmark a la baja es la honestidad que prohíbe tratar cualquier default de V2 como auditado.
 
@@ -271,7 +271,7 @@ anchor test
 
 Checkpoint: `anchor test` está verde. Tu artefacto de evaluación está completo ahora: tres errores de compilación capturados en la rama de exploit (type cosplay, duplicate-mutable, aliasing de CPI) más una corrida verde de pruebas sobre R4 restaurado. El ataque de bump es el cuarto commit registrado que compiló y no hizo nada.
 
-![Una línea de tiempo de commits de cinco nodos: tres ataques fallando al compilar, uno compilando como un no-op de runtime, y un commit final restaurando la suite verde.](assets/v07-timeline.png)
+![Una línea de tiempo de commits de cinco nodos: tres ataques fallando al compilar, uno compilando como un no-op de runtime, y un commit final restaurando la suite verde.](assets/v07-timeline.webp)
 
 ## Challenge
 

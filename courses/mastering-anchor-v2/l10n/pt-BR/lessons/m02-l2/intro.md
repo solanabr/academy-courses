@@ -18,13 +18,13 @@ pub cabinet: Slab<Cabinet, Score>,
 
 Essa é a jogada estrutural inteira desta lição numa linha só. `Account<Cabinet>` sempre foi `Slab<Cabinet, HeaderOnly>` por baixo do capô: um header, depois uma cauda de nada. Você acabou de trocar a cauda vazia por uma sequência de itens `Score`. A conta agora carrega uma lista limitada nos próprios bytes, e ela continua nunca desserializando. O compilador vai reclamar que `Score` ainda não existe e que ninguém dimensiona a cauda. Ótimo. Essas duas reclamações são a lição.
 
-![No v1 todo toque desserializa e re-serializa o Vec<Score> inteiro; no V2 o Slab é uma view de bytes mutada no lugar sem nada para re-serializar.](assets/v01-comparison.png)
+![No v1 todo toque desserializa e re-serializa o Vec<Score> inteiro; no V2 o Slab é uma view de bytes mutada no lugar sem nada para re-serializar.](assets/v01-comparison.webp)
 
 ## A versão curta
 
 Você está transformando o contador do R1 numa tabela de recordes limitada. Três coisas carregam isso. Primeiro, o toolkit de campos Pod: `PodU64`, `PodVec<T, MAX>`, `#[derive(bytemuck::Pod)]` e `Nested<T>`, os wrappers que mantêm uma struct capaz de aceitar cast direto dos bytes. Segundo, `Slab<Header, TailItem>`, a primitiva de lista-dentro-de-conta, em que um header fixo é seguido por uma sequência limitada de itens. Terceiro, a recompensa que m01-l4 te prometeu: `#[event(bytemuck)]`, um evento zero-copy que você emite e lê de volta dos logs da transação.
 
-A pegadinha honesta atravessa tudo isso, então ouça ela uma vez logo de cara: a capacidade de um Slab é fixa em tempo de compilação. Você dimensiona para o pior caso, você paga rent pelos slots vazios, e uma escrita além de `MAX` é um erro duro, nunca um resize automático. Esse limite fixo não é uma verruga. É o preço exato de uma lista que você nunca precisa serializar, e escolher `MAX` é uma decisão de design de verdade.
+A pegadinha honesta atravessa tudo isso, então ouça ela uma vez logo de cara: a capacidade de um Slab é fixa em tempo de compilação. Você dimensiona para o pior caso, você paga rent pelos slots vazios, e uma escrita além de `MAX` é um erro duro, nunca um resize automático. Esse limite fixo é o preço exato de uma lista que você nunca precisa serializar, e escolher `MAX` é uma decisão de design de verdade.
 
 Sobre autonomia: o Lab te entrega o layout do Slab pronto e a struct do evento. Você escreve sozinho a lógica de admitir e despejar e a asserção de ordenação. O challenge solo do fim, o cutoff do leaderboard, você faz sem apoio nenhum. Esta lição é onde as rodinhas do layout de dados saem e ficam fora.
 
@@ -66,7 +66,7 @@ pub struct Score {
 
 `#[derive(bytemuck::Pod)]` (pareado com `bytemuck::Zeroable`) é o que certifica a sua própria struct de tamanho fixo como Pod: ele checa que todo campo é Pod e dá ao tipo a bênção do cast de bytes. Recorra a `#[pod_wrapper]` só num *enum* — o V2 rejeita de saída o atributo numa struct, com uma mensagem te mandando usar o derive em vez disso. Quando um campo Pod é ele mesmo uma struct que você quer aninhar, você embrulha ela em `Nested<T>` para que o alinhamento dela siga definido dentro do pai em vez de abrir um buraco no layout. E quando você quer uma lista limitada como *campo* em vez de como a cauda inteira da conta, isso é `PodVec<T, MAX>`: um vetor com capacidade de tempo de compilação, o comprimento dele guardado inline, sem heap em lugar nenhum.
 
-![Uma tabela mapeando cada wrapper Pod (PodU64, o derive bytemuck::Pod, Nested, PodVec, Slab) para o tipo puro que ele substitui e para quando usar ele.](assets/v02-table.png)
+![Uma tabela mapeando cada wrapper Pod (PodU64, o derive bytemuck::Pod, Nested, PodVec, Slab) para o tipo puro que ele substitui e para quando usar ele.](assets/v02-table.webp)
 
 Por que o framework te fez passar por isso em vez de simplesmente te deixar escrever `Vec<Score>`? Porque não existe almoço grátis no cast de bytes. Um `Vec` é um ponteiro, um comprimento e uma capacidade apontando para memória de heap que não existe dentro de uma conta. Para fazer uma lista aceitar cast você tem que deitar ela plana e fixa, no lugar, e os wrappers são como você faz isso sem escrever aritmética de offset na mão. O que nos leva à primitiva que segura a tabela inteira.
 
@@ -86,7 +86,7 @@ pub struct Score {
 
 Um `u64` nativo quer sentar numa fronteira de 8 bytes. Um `Score` na cauda mora no offset para o qual o header e o campo de comprimento empurram ele, então esse alinhamento não é garantido, e o cast tem que desistir em vez de te entregar uma referência desalinhada, que é comportamento indefinido em Rust. O instinto é recorrer a `#[repr(packed)]` para tirar o preenchimento que o aviso parece culpar. Isso é exatamente ao contrário. `repr(packed)` é o que *cria* o risco de referência desalinhada: tomar uma referência a um campo empacotado é a cilada, não a correção. A jogada certa é o toolkit. `PodU64` guarda o valor como um `[u8; 8]` lido por `.get()` e escrito por uma conversão `From`, então o alinhamento dele é 1 e ele lê corretamente de *qualquer* offset, e `#[derive(bytemuck::Pod)]` (ou `Nested<T>` para um campo de struct aninhada) mantém o alinhamento do registro inteiro definido para que o cast direto de bytes siga sólido.
 
-![Um campo u64 puro causa uma referência desalinhada no cast; repr(packed) piora isso garantindo o desalinhamento; campos PodU64 mais o derive bytemuck::Pod dão alinhamento 1 e um cast sólido.](assets/v03-annotated-code.png)
+![Um campo u64 puro causa uma referência desalinhada no cast; repr(packed) piora isso garantindo o desalinhamento; campos PodU64 mais o derive bytemuck::Pod dão alinhamento 1 e um cast sólido.](assets/v03-annotated-code.webp)
 
 ### Slab: uma lista que mora na conta
 
@@ -147,7 +147,7 @@ Repare que `cabinet.as_mut_slice()` te entrega um `&mut [Score]` puro. Uma vez q
 
 Como o Slab sabe quantos itens `Score` estão vivos contra quantos slots estão alocados-mas-vazios? Ele guarda o próprio comprimento como um `u32` little-endian na conta, bem entre o header e os itens, do mesmo jeito que um `Vec` rastreia comprimento separado da capacidade, só que os dois moram dentro da conta e nenhum deles pode apontar para um heap. `capacity()` é derivado do comprimento de dados da conta: total de bytes, menos o discriminator, menos o header, menos aquele campo de comprimento, dividido por `size_of::<Score>()`. É por isso que o espaço que você aloca no init é o teto até você mudar ele de propósito: `try_push` além da capacidade devolve um erro em vez de crescer, e o único jeito de a conta ficar maior é uma chamada explícita de `resize_to_capacity(n)` que realoca o buffer e acerta a diferença de rent. Nada cresce nas suas costas. Existe uma primitiva irmã que vale nomear aqui para você recorrer à certa: `PodVec<T, MAX>` é a lista limitada *no nível do campo*, a que você coloca dentro de um header quando uma struct precisa de uma listinha inline própria, enquanto `Slab<Header, TailItem>` é a *no nível da conta*, em que a lista é a cauda inteira da conta. Regra de bolso: uma lista limitada que é o ponto da conta é uma cauda de Slab, uma lista limitada pequena pendurada num registro maior é um campo `PodVec`.
 
-![A conta é um discriminator, depois o header Cabinet fixo, depois um campo de comprimento vivo de 4 bytes, depois dez slots Score fixos de 48 bytes; slots não preenchidos continuam alocados e pagam rent.](assets/v04-diagram.png)
+![A conta é um discriminator, depois o header Cabinet fixo, depois um campo de comprimento vivo de 4 bytes, depois dez slots Score fixos de 48 bytes; slots não preenchidos continuam alocados e pagam rent.](assets/v04-diagram.webp)
 
 Esse diagrama é também o tradeoff te encarando de volta. Dez slots a 48 bytes dão 480 bytes de cauda, alocados e com rent pago no instante em que você faz o init da conta, tenha o cabinet um score nele ou dez. Que é a batida honesta em que este design inteiro se apoia.
 
@@ -165,11 +165,11 @@ O que deixa a frase para guardar: um `MAX` fixo é o preço de uma lista sem ser
 
 Percorra isso uma vez de forma concreta, num board minúsculo com `MAX = 3`, e a disciplina de despejo para de ser abstrata. Comece vazio. Um score de `50` entra: o board está abaixo da capacidade, então ele aterrissa, e o cutoff, o menor score vivo, é `50`. Depois `90`: ainda abaixo da capacidade, então admita ele sem comparação nenhuma, e o cutoff continua `50`, porque `50` ainda é o menor de `[90, 50]`. Depois `70`: o board enche para `[90, 70, 50]`, cutoff `50`. Agora o board está cheio e um `60` chega. Ele é estritamente maior que o cutoff `50`, então o `50` é sobrescrito no lugar e o board vira `[90, 70, 60]`, cutoff novo `60`. Em seguida um `60` chega de novo: ele *empata* com o cutoff, então é rejeitado, o board fica inalterado. Por fim um `40`: abaixo do cutoff, rejeitado. Essa sequência, admitir-abaixo-do-cap, despejar-só-se-estritamente-maior, empate-perde, é exatamente a lógica que você escreve na cauda do Slab no Lab e de novo do zero no challenge. Mesmas regras, uma vez que você vê elas se mexerem.
 
-![Vec-com-realloc paga serialização e crescimento manual; Vec borsh re-introduz o imposto de serialização; o Slab de MAX fixo faz cast no lugar mas te faz pagar rent em slots vazios e despejar você mesmo.](assets/v05-comparison.png)
+![Vec-com-realloc paga serialização e crescimento manual; Vec borsh re-introduz o imposto de serialização; o Slab de MAX fixo faz cast no lugar mas te faz pagar rent em slots vazios e despejar você mesmo.](assets/v05-comparison.webp)
 
 Isto não é uma preferência abstrata que o framework inventou no vácuo. Quando o design do V2 estava sendo discutido em público, a nota mais alta da comunidade era exatamente essa fricção. O ChewingGlass disse isso sem rodeios na discussão #3742, a thread "What do you want to see in Anchor V2?": "the default serialization should probably behave more like zero-copy but with better UX (IE not having to try to have perfect byte alignment, etc). Not sure if that's possible. But borsh is kind of terrible." A issue de design #4390 cita esse comentário de volta, nas próprias palavras dela: "As #3742 discussion feedback put it: *the default serialization should probably behave more like zero-copy but with better UX*," e lista a #3742 nas referências dela. Em outro ponto da mesma discussão o mesmo comentarista crava a outra metade da reclamação, sobre ergonomia do lado do cliente: "Boilerplate kills new devs because they don't know the sacred incantations." O Slab e o toolkit Pod são a resposta entregue para a primeira metade: zero-copy por padrão, com wrappers que pagam o imposto de alinhamento de bytes por você em vez de fazer disso problema seu. Voz da comunidade virada estrutura de dados.
 
-![O comentário zero-copy-com-UX-melhor do ChewingGlass na discussão #3742 é citado de volta pela issue de design #4390, que alimentou o empurrão de benchmarks #4355 e foi entregue como o toolkit Pod.](assets/v06-timeline.png)
+![O comentário zero-copy-com-UX-melhor do ChewingGlass na discussão #3742 é citado de volta pela issue de design #4390, que alimentou o empurrão de benchmarks #4355 e foi entregue como o toolkit Pod.](assets/v06-timeline.webp)
 
 ### O dividendo do Pod: eventos zero-copy
 
@@ -196,7 +196,7 @@ Quanto mais barato é tudo isso? O único número que o projeto publica mora no 
 
 Tem uma cilada que vem de brinde com a velocidade, e é do tipo que falha em silêncio em produção. `#[event]` e `#[event(bytemuck)]` escrevem *bytes diferentes* no log. Um é wincode no wire, o outro é um memcpy cru. Os dois saem por `sol_log_data`, então o evento está genuinamente nos logs de um jeito ou de outro. Mas um leitor construído para decodificar a variante borsh vai receber lixo dos bytes bytemuck e vice-versa. Todo consumidor lá na frente tem que decodificar com a mesma variante que o programa emite. Escolha uma, anote, e garanta que o seu indexador recebeu o recado.
 
-![As duas variantes de evento emitem por sol_log_data, mas uma carrega bytes borsh e a outra um memcpy, então um leitor tem que decodificar com a variante que o programa usou.](assets/v07-diagram.png)
+![As duas variantes de evento emitem por sol_log_data, mas uma carrega bytes borsh e a outra um memcpy, então um leitor tem que decodificar com a variante que o programa usou.](assets/v07-diagram.webp)
 
 Esse é o toolkit. Um tipo de entrada Pod, um Slab para segurar uma sequência limitada deles, um `MAX` fixo que você escolheu de propósito, e um evento zero-copy para anunciar mudanças. Hora de ligar isso no R1 e ver rodar.
 
@@ -363,7 +363,7 @@ Agora os passos.
 
    Uma rodada verde comprova a forma que você construiu: o board admitiu mais scores que `MAX`, guardou só os `MAX` do topo em ordem decrescente, despejou o resto, e o evento zero-copy fez o caminho de ida e volta pelos logs com um `cutoff` que concorda com o board. Se a asserção de cauda falhar com entradas fora de ordem, o seu sort rodou antes do insert ou você ordenou de forma crescente. Se `decode_highscore` der panic, ou você emitiu o `#[event]` borsh por engano ou a sua leitura de indexador está procurando o discriminator errado. Os dois são a cilada de "decodifique a variante que você emitiu" aparecendo exatamente onde a teoria disse que apareceria.
 
-![Se o board está abaixo de MAX, faça push; se cheio, admita só acima do cutoff, sobrescrevendo aquele slot; empates são rejeitados, scores admitidos ordenam de forma decrescente, e todo caminho ainda emite o evento.](assets/v08-flowchart.png)
+![Se o board está abaixo de MAX, faça push; se cheio, admita só acima do cutoff, sobrescrevendo aquele slot; empates são rejeitados, scores admitidos ordenam de forma decrescente, e todo caminho ainda emite o evento.](assets/v08-flowchart.webp)
 
 ## Challenge: o cutoff do leaderboard
 

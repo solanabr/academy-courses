@@ -84,7 +84,7 @@ Um **tipo marcador** é uma struct sem campos, `pub struct MinBalanceConstraint;
 
 Um **item associado** é um tipo ou uma constante que pertence a uma implementação de trait em vez de ser passado para dentro. `AccountConstraint` tem um tipo associado `Value`, o tipo do valor à direita do `=`. Para `quarters::min_balance = 100`, `Value` é `u64` e o `100` é esse valor. É genuinamente toda a maquinaria de Rust na qual esta lição se apoia. Trait, tipo marcador, tipo associado. Todo o resto é o argumento de por que eles estão aqui.
 
-![Uma referência de três cartões mapeando o trait AccountConstraint, o tipo marcador sem campos MinBalanceConstraint e o tipo associado Value para a única linha de impl que amarra os três juntos.](assets/v01-diagram.png)
+![Uma referência de três cartões mapeando o trait AccountConstraint, o tipo marcador sem campos MinBalanceConstraint e o tipo associado Value para a única linha de impl que amarra os três juntos.](assets/v01-diagram.webp)
 
 ### O status quo, e o lugar exato em que ele quebra
 
@@ -106,11 +106,11 @@ A terceira, mais sutil: "faça dela um `constraint = <expr>` genérico". O V2 en
 
 Então a pergunta de verdade se estreita para esta: como você deixa um programa acrescentar uma keyword de constraint *nomeada, reusável, visível na IDL* sem tocar no framework e sem fazer um fork dele? Uma vez que a pergunta é tão precisa assim, o mecanismo é quase forçado.
 
-![Uma matriz comparando ifs de handler, fazer um fork do Anchor, expressões de constraint inline e implementar AccountConstraint; só o trait é visível na IDL, imposto pelo tipo em todo call site, livre de fork e reusável de uma vez só.](assets/v02-comparison.png)
+![Uma matriz comparando ifs de handler, fazer um fork do Anchor, expressões de constraint inline e implementar AccountConstraint; só o trait é visível na IDL, imposto pelo tipo em todo call site, livre de fork e reusável de uma vez só.](assets/v02-comparison.webp)
 
 ### O mecanismo: despacho por um trait
 
-A resposta do V2 é parar de tratar a lista de constraints como uma tabela fechada de keywords e começar a tratar ela como um trait aberto. Qualquer constraint com namespace, qualquer coisa no formato `ns::key = value` em que `ns` não é um embutido como `token`, despacha por `AccountConstraint<A>`. Um crate downstream, querendo dizer o seu programa ou qualquer biblioteca da qual você depende, implementa esse trait para um tipo marcador, e a macro de derive roteia a keyword nova para ele. Nada na macro central muda. Isto também não é uma escotilha especial aparafusada para um caso só. É a mesma filosofia que faz de `AnchorAccount`, `Id` e `Discriminator` traits públicos no V2: o framework é deliberadamente aberto nas costuras, para que crates downstream consigam entregar wrappers de conta novos, IDs de programa bem conhecidos novos e esquemas de discriminator novos sem um fork (superfície de extensibilidade do lang-v2 e do docs-v2, verificada em 2.0.0-rc.1). Uma fronteira para manter clara: o namespace `token::*` é a exceção embutida, o único namespace que o derive central trata sozinho, para o bem do `anchor-spl`. Todo *outro* namespace, o seu incluído, despacha pelo trait, e esse despacho aberto é a porta pela qual você está a ponto de passar.
+A resposta do V2 é parar de tratar a lista de constraints como uma tabela fechada de keywords e começar a tratar ela como um trait aberto. Qualquer constraint com namespace, qualquer coisa no formato `ns::key = value` em que `ns` não é um embutido como `token`, despacha por `AccountConstraint<A>`. Um crate downstream, querendo dizer o seu programa ou qualquer biblioteca da qual você depende, implementa esse trait para um tipo marcador, e a macro de derive roteia a keyword nova para ele. Nada na macro central muda. Nada disto é uma escotilha especial aparafusada para um caso só: é a mesma filosofia que faz de `AnchorAccount`, `Id` e `Discriminator` traits públicos no V2: o framework é deliberadamente aberto nas costuras, para que crates downstream consigam entregar wrappers de conta novos, IDs de programa bem conhecidos novos e esquemas de discriminator novos sem um fork (superfície de extensibilidade do lang-v2 e do docs-v2, verificada em 2.0.0-rc.1). Uma fronteira para manter clara: o namespace `token::*` é a exceção embutida, o único namespace que o derive central trata sozinho, para o bem do `anchor-spl`. Todo *outro* namespace, o seu incluído, despacha pelo trait, e esse despacho aberto é a porta pela qual você está a ponto de passar.
 
 Aqui está o trait, verificado contra o fonte do docs-v2 no release candidate 2.0.0-rc.1 (crates.io, publicado em 2026-08-12). Trate o formato exato como um alvo móvel: isto é um release candidate, a superfície de extensibilidade é de alta confiança mas ainda está assentando, então releia ele contra o crate quando você fizer o build:
 
@@ -130,7 +130,7 @@ pub trait AccountConstraint<A> {
 
 O codegen não chama todos os quatro métodos toda vez. Ele chama o que casa com como o constraint foi escrito. Esta é a tabela de roteamento, e ela é o fato estrutural da lição:
 
-![Um mapa de roteamento mostrando que ns::key pelado roteia para check, o prefixado com init roteia para init, init_if_needed bifurca para init e depois check, update(...) roteia para update, e exit dispara em qualquer caminho bem-sucedido.](assets/v03-diagram.png)
+![Um mapa de roteamento mostrando que ns::key pelado roteia para check, o prefixado com init roteia para init, init_if_needed bifurca para init e depois check, update(...) roteia para update, e exit dispara em qualquer caminho bem-sucedido.](assets/v03-diagram.webp)
 
 Agora raciocine sobre onde um piso de min-balance pertence, em voz alta, porque o raciocínio é o ponto e é isso que a avaliação pede que você defenda.
 
@@ -142,7 +142,7 @@ O `update` só dispara dentro de uma cláusula `update(...)` explícita. Ele é 
 
 Sobra o `check`, e o `check` está exatamente certo, não por eliminação, mas por encaixe. O `check` roda na conta carregada, em toda instrução que casa, antes do handler. É essa a definição de uma trava de tempo de leitura: o vault tem que já satisfazer o invariante para a instrução prosseguir, e isso é re-verificado a cada chamada, sem cache, sem ser uma vez só. Um piso de saldo é uma trava de tempo de leitura. Então ele mora no `check`. Quando a avaliação pergunta qual hook e por quê, esta é a resposta inteira: `check`, porque um piso é um invariante na conta carregada que tem que valer antes de o handler rodar e em toda chamada.
 
-![Uma árvore de decisão roteando uma regra para update quando ela muta, check quando ela tem que valer em todo carregamento, init só na criação, ou exit para asserções pós-handler.](assets/v04-flowchart.png)
+![Uma árvore de decisão roteando uma regra para update quando ela muta, check quando ela tem que valer em todo carregamento, init só na criação, ou exit para asserções pós-handler.](assets/v04-flowchart.webp)
 
 ### O trade-off, dito sem enfeite
 
@@ -150,11 +150,11 @@ Um trait de constraint aberto compra uma coisa real para você. O seu invariante
 
 Mas você agora é o autor de código que roda dentro do orçamento de compute de toda instrução que casa. Isto não é de graça, e fingir o contrário é como você entrega um programa lento. Comparado a um `if` de handler que você escreveu uma vez, um hook `check` roda a mesma comparação, então o custo de uma checagem *barata* dá na mesma. O perigo é uma checagem que não é barata. Se um colega escreve um `check` que relê e refaz o hash de um slab grande de dados a cada chamada, isso é compute que você agora paga em toda instrução que casa, num caminho quente, para sempre. E existe um segundo custo, mais silencioso: porque a conta então lê como "válida", uma checagem pesada ou sutilmente errada consegue esconder um bug de lógica atrás de um "passa nos constraints" verde. A regra de bolso é curta. Mantenha os hooks baratos, mantenha eles na fase certa, e nunca deixe um constraint fazer trabalho que pertence ao handler. A extensibilidade te entrega código adjacente ao framework para você ser dono; seja dono dele com cuidado.
 
-![Uma comparação linha a linha mostrando que o hook check ganha em reuso e em visibilidade na IDL, empata no custo de uma comparação barata, e perde feio quando o hook é caro ou sutilmente errado.](assets/v05-comparison.png)
+![Uma comparação linha a linha mostrando que o hook check ganha em reuso e em visibilidade na IDL, empata no custo de uma comparação barata, e perde feio quando o hook é caro ou sutilmente errado.](assets/v05-comparison.webp)
 
 Existe um pedaço de linhagem que vale carregar para dentro do Lab, porque ele explica por que esta porta existe afinal. A pressão não foi acadêmica. Ela veio de construtores. Na discussão #3742, o ChewingGlass colocou o problema de ergonomia do framework sem rodeios, "Boilerplate kills new devs because they don't know the sacred incantations," e, numa sub-thread de Codama daquela mesma discussão, "But borsh is kind of terrible." A issue de design #4390 carrega a mesma pressão nas palavras dela mesma, que "the default serialization should probably behave more like zero-copy but with better UX." Esse é o argumento da comunidade, comprimido, que empurrou o V2 na direção de uma superfície de constraints que você consegue estender em vez de uma lista de keywords que você só consegue aceitar. O trait aberto é como "menos boilerplate" fica quando ele para de ser uma reclamação e vira uma API.
 
-![Uma linha do tempo desde a lista fechada de keywords do v1, passando pela pressão da comunidade para cortar boilerplate, até a reescrita no_std do V2 que fez os constraints despacharem por traits públicos e implementáveis.](assets/v06-timeline.png)
+![Uma linha do tempo desde a lista fechada de keywords do v1, passando pela pressão da comunidade para cortar boilerplate, até a reescrita no_std do V2 que fez os constraints despacharem por traits públicos e implementáveis.](assets/v06-timeline.webp)
 
 ## Lab: entregue `quarters::min_balance` no R2
 
@@ -287,7 +287,7 @@ pub enum VaultError {
 
 `require_gte!(a, b, err)` é a macro do V2 para "a tem que ser maior ou igual a b, senão devolva err". É a forma nativa do framework de escrever o piso inclusivo; ir atrás de um `if` cru com um `return Err(...)` manual também compilaria, mas a macro é o estilo da casa e mantém o caminho de erro uniforme.
 
-![A função check lê o vault carregado somente para leitura, faz deref do piso u64, e usa require_gte para rejeitar qualquer credit abaixo desse piso inclusivo.](assets/v07-annotated-code.png)
+![A função check lê o vault carregado somente para leitura, faz deref do piso u64, e usa require_gte para rejeitar qualquer credit abaixo desse piso inclusivo.](assets/v07-annotated-code.webp)
 
 Esperado depois deste passo: o `anchor build` compila o impl mesmo que nada use o constraint ainda. Um erro de compilação nomeando `AccountConstraint` aqui quer dizer que o formato do trait se moveu debaixo do RC, então releia ele contra o crate antes de ir adiante.
 

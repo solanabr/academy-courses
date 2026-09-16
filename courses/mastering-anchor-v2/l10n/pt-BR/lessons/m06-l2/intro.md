@@ -35,7 +35,7 @@ Uma pausa rápida para desmistificar primeiro, porque duas palavras desta liçã
 
 Agora o método, que é o conteúdo de verdade.
 
-Pense em como você estabeleceria que uma única mudança no design de uma ponte deixou ela mais leve. Você não trocaria o aço, o tabuleiro, e os cabos tudo de uma vez e depois pesaria ela. Você mudaria um elemento, pesaria, e mudaria de volta se ficasse mais pesado. A razão não é frescura. É que um delta só tem significado causal quando exatamente uma variável se moveu. Mude duas e o número que você recebe é uma soma que você não consegue decompor. Esta é a ideia mais antiga do método experimental, e ela é exatamente tão verdadeira para unidades de compute quanto é para qualquer coisa que você consiga pesar.
+Pense em como você estabeleceria que uma única mudança no design de uma ponte deixou ela mais leve. Você não trocaria o aço, o tabuleiro, e os cabos tudo de uma vez e depois pesaria ela. Você mudaria um elemento, pesaria, e mudaria de volta se ficasse mais pesado. A razão é que um delta só tem significado causal quando exatamente uma variável se moveu. Mude duas e o número que você recebe é uma soma que você não consegue decompor. Esta é a ideia mais antiga do método experimental, e ela é exatamente tão verdadeira para unidades de compute quanto é para qualquer coisa que você consiga pesar.
 
 Então o loop tem quatro passos, e o passo dois é estrutural:
 
@@ -44,7 +44,7 @@ Então o loop tem quatro passos, e o passo dois é estrutural:
 3. **Re-meça** a mesma instrução, do mesmo jeito, com a mesma fixture.
 4. **Mantenha ou reverta** com base no delta, e anote qual mudança única causou ele.
 
-![Um loop cíclico de medir, mude exatamente uma coisa, re-medir, e manter-ou-reverter, com a regra de variável única sinalizada como o passo estrutural.](assets/v01-flowchart.png)
+![Um loop cíclico de medir, mude exatamente uma coisa, re-medir, e manter-ou-reverter, com a regra de variável única sinalizada como o passo estrutural.](assets/v01-flowchart.webp)
 
 Por que isto vale uma lição inteira em vez de uma frase? Porque o modo de falha é sedutor. Três mudanças simultâneas e uma queda total de CU parecem progresso. Mas esse total poderia facilmente esconder uma regressão: uma mudança economizou 400 CU, outra custou 200, uma terceira não fez nada, e você entregou a regressão de 200 CU porque a soma ainda caiu. Você carregaria ela para sempre, invisível, porque você nunca isolou ela. O loop é a coisa que faz uma vitória ser real. O delta é a evidência, e evidência exige um experimento controlado.
 
@@ -56,13 +56,13 @@ O `guardrails` é uma feature default-on. Esse "default-on" importa: quer dizer 
 
 Compile com o `guardrails` desligado, num crate onde a virada de fato aterrissa, e duas coisas acontecem. O binário encolhe (a figura do próprio Anchor é aproximadamente 300 bytes, medida no programa de benchmark dele), e a instrução fica mais barata, porque aquelas checagens não estão mais rodando dentro dela. Segure essa expectativa com cuidado, porque o lab está a ponto de violar ela: no R4 a virada aterrissa em nada, o medidor não pisca, e a razão é uma aresta de dependência que você vai ler com os seus próprios olhos.
 
-Aqui está a parte que eu não vou deixar você pular, porque as leituras erradas dela são as tentadoras. O `guardrails` não é um lint. Não é um mimo de tempo de compilação. Não é uma configuração do Mollusk. Ele muda o programa compilado — *quando ele de fato desliga*. O que você estaria trocando fora são as checagens em si, redes de proteção de runtime de verdade, com a CU voltando porque o trabalho saiu. E a precondição que o lab existe para gravar a ferro: uma feature do cargo só está desligada quando *nada em lugar nenhum do seu grafo* liga ela de volta.
+Aqui está a parte que eu não vou deixar você pular, porque as leituras erradas dela são as tentadoras. O `guardrails` não é um lint, um mimo de tempo de compilação, nem uma configuração do Mollusk. Ele muda o programa compilado — *quando ele de fato desliga*. O que você estaria trocando fora são as checagens em si, redes de proteção de runtime de verdade, com a CU voltando porque o trabalho saiu. E a precondição que o lab existe para gravar a ferro: uma feature do cargo só está desligada quando *nada em lugar nenhum do seu grafo* liga ela de volta.
 
 Então o que são as redes, concretamente? Isto importa, porque você não consegue argumentar um invariante que você não consegue nomear. A família guardrails é a classe de checagens defensivas que o framework insere em volta do seu handler para que uma chamada malformada falhe de forma limpa em vez de fazer algo pior. Pense nas garantias em que você vem se apoiando sem escrever: que uma conta entregue a você é de fato de propriedade do programa que você pensa que é dono dela, que um discriminator casa com o tipo de conta com o qual você desserializou ela, que um caminho aritmético que poderia dar wrap é pego em vez de truncar em silêncio, que um limite que você assumiu que vale de fato valeu. Em cada chamada única, aquelas checagens rodam, e cada uma delas debita um pouco de CU. É essa a forma da vitória quando você desliga elas, e é também a forma exata do risco. Você não tornou a chamada malformada impossível. Você fez o framework parar de checar por ela.
 
-Então o veredito honesto sobre guardrails-off é: ele é defensável só para código cujos invariantes você consegue argumentar você mesmo. Se você consegue olhar o handler `swap_arcade_for_tickets` e dizer, em voz alta e corretamente, "as reservas são sempre contas distintas, a escala de taxa é fixa, a saída é limitada por `reserve_out`, e nada aqui pode dar underflow porque a cotação retorna 0 num pool vazio", então você fez o argumento que o framework estava fazendo por você, e você pode tirar as redes. Se você não consegue fazer esse argumento, deixe elas ligadas. Entregar guardrails-off sem nenhum argumento de invariante escrito não é uma otimização. É uma aposta que você não sabia que estava fazendo.
+Então o veredito honesto sobre guardrails-off é: ele é defensável só para código cujos invariantes você consegue argumentar você mesmo. Se você consegue olhar o handler `swap_arcade_for_tickets` e dizer, em voz alta e corretamente, "as reservas são sempre contas distintas, a escala de taxa é fixa, a saída é limitada por `reserve_out`, e nada aqui pode dar underflow porque a cotação retorna 0 num pool vazio", então você fez o argumento que o framework estava fazendo por você, e você pode tirar as redes. Se você não consegue fazer esse argumento, deixe elas ligadas. Entregar guardrails-off sem nenhum argumento de invariante escrito é uma aposta que você não sabia que estava fazendo.
 
-![Uma comparação de guardrails-off, que tira as checagens do caminho quente em troca de CU e 300 bytes mas faz você ser dono dos invariantes, contra const-rent-on, que dobra a constante de rent e pode ficar obsoleta.](assets/v02-comparison.png)
+![Uma comparação de guardrails-off, que tira as checagens do caminho quente em troca de CU e 300 bytes mas faz você ser dono dos invariantes, contra const-rent-on, que dobra a constante de rent e pode ficar obsoleta.](assets/v02-comparison.webp)
 
 ### Alavanca dois: dobrar para dentro o const-rent
 
@@ -70,15 +70,15 @@ O `const-rent` vai para o outro lado. Em vez de remover uma checagem, ele remove
 
 Cada vez que um programa cria uma conta através de uma CPI, ele tem que financiar aquela conta até o mínimo isento de aluguel, ou a conta não consegue sobreviver. Esse mínimo é uma função do tamanho em bytes da conta, e derivar ele quer dizer rodar a fórmula de rent: um custo por byte mais um overhead fixo, multiplicado para o tamanho que você está alocando. O runtime pode computar isso em cada criação de conta, ou, se o tamanho é conhecido em tempo de compilação, a resposta pode ser embutida como um literal. Esse literal embutido é o que o `const-rent` dobra para dentro, então o runtime pula a computação. A economia é aproximadamente 85 a 90 CU por CPI de criação de conta.
 
-Note que eu escrevi uma faixa, não um número único, e eu vou ser teimoso quanto a isso. Esta é a mesma disciplina que fez este curso se recusar a congelar o próprio multiplicador de benchmark do Anchor na lição passada. A economia aparece como cerca de 85 no próprio comentário da feature no `Cargo.toml` do `anchor-lang` e cerca de 90 na entrada de changelog do V2 que introduziu ela, e além disso ela pode divergir, então congelar um dígito seria falsa precisão vestida de rigor. Vá ler as duas antes de citar qualquer uma; elas estão a quatro linhas de distância num repositório que você já tem clonado. A forma honesta é a faixa mais uma nota dizendo re-verifique. Um número de CU é determinístico para um dado programa, entrada, e toolchain, então esta faixa não é ruído de uma rodada para outra. É discordância de fontes mais risco de divergência, o que é uma coisa diferente e mais interessante.
+Note que eu escrevi uma faixa, não um número único, e eu vou ser teimoso quanto a isso. Esta é a mesma disciplina que fez este curso se recusar a congelar o próprio multiplicador de benchmark do Anchor na lição passada. A economia aparece como cerca de 85 no próprio comentário da feature no `Cargo.toml` do `anchor-lang` e cerca de 90 na entrada de changelog do V2 que introduziu ela, e além disso ela pode divergir, então congelar um dígito seria falsa precisão, não rigor. Vá ler as duas antes de citar qualquer uma; elas estão a quatro linhas de distância num repositório que você já tem clonado. A forma honesta é a faixa mais uma nota dizendo re-verifique. Um número de CU é determinístico para um dado programa, entrada, e toolchain, então esta faixa não é ruído de uma rodada para outra, e sim discordância de fontes mais risco de divergência, o que é uma coisa diferente e mais interessante.
 
 E a divergência é a lição de verdade aqui. O `const-rent` dobra a constante de rent, o que só é correto enquanto a fórmula de rent que produziu ela ficar parada. O comentário no próprio Cargo.toml do Anchor diz exatamente isto, e ele cita a SIMD-0194 para dizer. A SIMD-0194 tem o título "Deprecate Rent Exemption Threshold." É uma proposta Core, Accepted, arquivada lá em novembro de 2024, que mudaria como o mínimo isento de aluguel é derivado. Se ela ativar, a constante que você dobrou para dentro fica errada, em silêncio, e a sua criação de conta agora está computando rent contra um número obsoleto.
 
-![Uma linha do tempo a partir do arquivamento da SIMD-0194 em novembro de 2024, mostrando a constante dobrada do const-rent ficando válida só até a fórmula de rent mudar, o que faz da flag um item de re-verificação.](assets/v03-timeline.png)
+![Uma linha do tempo a partir do arquivamento da SIMD-0194 em novembro de 2024, mostrando a constante dobrada do const-rent ficando válida só até a fórmula de rent mudar, o que faz da flag um item de re-verificação.](assets/v03-timeline.webp)
 
 Fique um instante com o quão estranho isso é. Você buscou uma feature flag para raspar menos de cem unidades de compute de uma criação de conta, e as letras miúdas te devolveram uma questão viva de governança de protocolo. Uma edição de uma linha no Cargo colocou no seu build uma dependência do status de ativação de uma SIMD. Essa é genuinamente a coisa mais interessante sobre o `const-rent`, e é por isso que a faixa importa: você não está só citando uma economia, você está citando uma economia com uma data de validade que você não controla.
 
-![Uma barra de faixa cobrindo aproximadamente 85 a 90 CU ao longo de duas citações de fonte, com uma extensão tracejada de divergência mostrando por que um dígito congelado seria falsa precisão.](assets/v04-chart.png)
+![Uma barra de faixa cobrindo aproximadamente 85 a 90 CU ao longo de duas citações de fonte, com uma extensão tracejada de divergência mostrando por que um dígito congelado seria falsa precisão.](assets/v04-chart.webp)
 
 ### Alavanca três: uma refatoração, não uma flag
 
@@ -90,7 +90,7 @@ A cotação que você entregou, o `swap_out`, já promove para `u128` antes de m
 
 É isso que o challenge de código no fim desta lição é: uma cotação generalizada, o `get_amount_out`, com a taxa erguida para um parâmetro, escrita do zero e depois medida. É uma função separada do `swap_out` que você entregou, não uma edição nele, então você pode segurar as duas e comparar. Escreva ela, troque ela para dentro do handler atrás de uma mudança de chamada de uma linha, e re-meça a troca. Se o delta for uma vitória e a função ainda casar com as saídas de referência dela, mantenha ela. Se a sua versão de `checked_mul`-mais-branch chegou mais barata nas suas reservas, é para isso que o loop serve, e o número decide, não a sua intuição sobre qual lê mais rápido.
 
-![Uma comparação lado a lado de uma multiplicação checada com um branch contra promover para u128, mostrando que as duas são seguras e só uma medição em reservas reais decide qual custa menos.](assets/v05-comparison.png)
+![Uma comparação lado a lado de uma multiplicação checada com um branch contra promover para u128, mostrando que as duas são seguras e só uma medição em reservas reais decide qual custa menos.](assets/v05-comparison.webp)
 
 O ponto que generaliza além desta função só: uma alavanca é qualquer coisa que você consegue virar e re-medir em isolamento. Uma feature flag é o tipo mais limpo porque ela não move nada no seu código-fonte. Uma refatoração também é uma alavanca, desde que você faça uma e só uma, e depois meça. O método não muda. Só a coisa que você está mudando muda.
 
@@ -102,17 +102,17 @@ Guardrails-off, onde ele aterrissa, devolve CU e cerca de 300 bytes ao preço da
 
 Const-rent troca uma computação de runtime por uma constante de tempo de compilação que pode divergir se a fórmula de rent mudar. O risco que você assumiu é obsolescência. Ele precisa de uma nota de re-verificação amarrada à SIMD-0194, não de um commit atire-e-esqueça.
 
-E tem um terceiro trade-off que não é sobre nenhuma das duas flags. É sobre para onde você aponta o loop. Otimizar uma instrução fria é esforço desperdiçado. Umas 50 CU medidas raspadas de um caminho que ninguém acessa são ruído, não uma vitória, e pior, são ruído que te custou tempo real e muitas vezes comprou um risco real. Isto é diretamente relevante para as alavancas, porque elas miram em instruções diferentes. Guardrails-off mira no caminho quente da troca, o que roda em cada swap, milhares de vezes — onde ele chega a aterrissar. Const-rent ajuda CPIs de criação de conta, o que neste programa quer dizer o setup do pool, uma instrução que roda uma vez quando você levanta o pool e nunca mais durante a negociação.
+E tem um terceiro trade-off que não tem nada a ver com nenhuma das duas flags: para onde você aponta o loop. Otimizar uma instrução fria é esforço desperdiçado. Umas 50 CU medidas raspadas de um caminho que ninguém acessa são ruído, não uma vitória, e pior, são ruído que te custou tempo real e muitas vezes comprou um risco real. Isto é diretamente relevante para as alavancas, porque elas miram em instruções diferentes. Guardrails-off mira no caminho quente da troca, o que roda em cada swap, milhares de vezes — onde ele chega a aterrissar. Const-rent ajuda CPIs de criação de conta, o que neste programa quer dizer o setup do pool, uma instrução que roda uma vez quando você levanta o pool e nunca mais durante a negociação.
 
 As duas miras são legítimas, mas o peso não é o mesmo. Uma CU economizada no caminho da troca é economizada em cada troca para sempre, então ela compõe com o volume. Uma CU economizada no init de uma vez só é economizada exatamente uma vez. Isso não torna a otimização do init inútil, levantar uma conta mais barato continua sendo mais barato, mas isso quer dizer sim que você não deveria gastar uma tarde raspando o caminho frio enquanto o quente ainda tem um frame gordo que você não tocou. Ordene as alavancas por frequência vezes delta, não por delta sozinho. O instrumento que te diz a frequência não é o flamegraph, é o seu próprio conhecimento de como o programa é de fato chamado.
 
 O que vale dizer sem enfeite contra o que esta lição depois pede que você faça, porque parece uma contradição. O completion abaixo roda o loop no `const-rent`, uma alavanca de caminho frio, enquanto o frame quente continua intocado até o challenge. Essa ordenação é pedagógica, não uma recomendação: o `const-rent` é a segunda volta mais limpa em torno do loop porque o trade-off dele é divergência em vez de corretude, então você consegue praticar o método sem também ter que defender um argumento de invariante — e, depois do zero do lab, é a primeira volta em que o número de fato se move. No seu próprio programa você faria o caminho quente primeiro. Aqui você está aprendendo o loop, e o loop é mais barato de aprender na alavanca que não consegue te machucar.
 
-![Uma comparação de duas colunas pesando o caminho quente da troca contra o caminho frio do pool-init, mostrando que o mesmo delta de CU deveria ser ordenado por frequência vezes delta.](assets/v06-comparison.png)
+![Uma comparação de duas colunas pesando o caminho quente da troca contra o caminho frio do pool-init, mostrando que o mesmo delta de CU deveria ser ordenado por frequência vezes delta.](assets/v06-comparison.webp)
 
 A outra metade de apontar o loop corretamente é isolamento, e é onde o método inteiro vive ou morre.
 
-![Um diagrama de dois painéis contrastando uma mudança atribuível contra três mudanças simultâneas cujo total líquido esconde uma regressão que é entregue invisivelmente porque a soma ainda caiu.](assets/v07-diagram.png)
+![Um diagrama de dois painéis contrastando uma mudança atribuível contra três mudanças simultâneas cujo total líquido esconde uma regressão que é entregue invisivelmente porque a soma ainda caiu.](assets/v07-diagram.webp)
 
 ## Lab: rode um ciclo completo no swap
 
@@ -226,7 +226,7 @@ Aqui está a decisão, e o zero toma ela por você: **reverta**. Tire o `--no-de
 
 A disciplina de invariante que a troca nets-off exige não é desperdiçada, porém — ponha ela na prateleira no ponto onde o zero deixou ela. Num crate que não fica embaixo do `anchor-spl` — um programa de lógica pura com só o `anchor-lang` no grafo dele — essa virada exata aterrissa, o binário encolhe, e a regra se aplica por inteiro: nunca entregue nets-off sem um argumento escrito que defenda cada invariante que as checagens estavam cobrindo. Para este swap o parágrafo seria até escrevível: as duas reservas são contas de token distintas por construção, então não tem aliasing para pegar; a cotação retorna 0 num pool vazio ou de entrada zero e o handler reverte numa saída 0; a escala de taxa é uma constante fixa; e a saída é limitada por `reserve_out`, um `u64`, então o cast final não pode truncar. Escreva ele no dia em que a virada puder aterrissar. Hoje o grafo vetou a troca antes de você poder fazer ela.
 
-![Uma tabela de decisão travando um build guardrails-off em um delta real, um argumento de invariante escrito por inteiro para o handler, e o argumento de fato commitado, caso contrário reverta.](assets/v08-comparison.png)
+![Uma tabela de decisão travando um build guardrails-off em um delta real, um argumento de invariante escrito por inteiro para o handler, e o argumento de fato commitado, caso contrário reverta.](assets/v08-comparison.webp)
 
 ### 5. Codifique o número medido como um teste de regressão
 
@@ -282,7 +282,7 @@ fn cu_swap_regression() {
 }
 ```
 
-![Um painel anotado explicando as quatro linhas estruturais do teste de regressão: o orçamento conquistado mais a folga, a checagem de sucesso primeiro, uma comparação de igual-ou-abaixo, e os dois números impressos na falha.](assets/v09-annotated-code.png)
+![Um painel anotado explicando as quatro linhas estruturais do teste de regressão: o orçamento conquistado mais a folga, a checagem de sucesso primeiro, uma comparação de igual-ou-abaixo, e os dois números impressos na falha.](assets/v09-annotated-code.webp)
 
 Rode ele:
 

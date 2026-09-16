@@ -33,7 +33,7 @@ A forma da coisa é esta:
 
 O recuo desta lição: eu rodo o ciclo completo de build, deploy e verify de ponta a ponta no lab, com o casamento de hash da devnet na tela, e todo comando dele é um que você roda contra o seu próprio id de programa e o seu próprio repo. O degrau solo é o descasamento: mude uma linha, refaça o build, faça deploy de novo, e faça a prova ficar vermelha, depois diga em uma frase o que um resultado verde compra e o que ele não compra para você. Esta lição é um build e um julgamento, sem problema de completion no meio.
 
-![Uma cadeia de quatro caixas mostra o cliente kit confiando no IDL publicado, que confia no programa que recebeu deploy, cujo link de volta para o repo de código-fonte fica sem prova.](assets/v01-flowchart.png)
+![Uma cadeia de quatro caixas mostra o cliente kit confiando no IDL publicado, que confia no programa que recebeu deploy, cujo link de volta para o repo de código-fonte fica sem prova.](assets/v01-flowchart.webp)
 
 ## Do código-fonte para os bytes e de volta
 
@@ -47,7 +47,7 @@ A bala de prata é o Docker. O `solana-verify build` roda a compilação dentro 
 
 O custo é real e eu quero ele na mesa. Um build verificável é mais lento que um nativo, ele precisa do Docker rodando, e o primeiro build baixa uma imagem grande. Você está comprando reprodutibilidade com tempo de build e uma dependência local mais pesada. Para iteração do dia a dia você ainda usa o `cargo build-sbf` nativo e rápido. Você recorre ao build verificável quando você está prestes a fazer deploy de algo em que as pessoas vão confiar.
 
-![Um build normal bifurca um mesmo código-fonte em dois hashes diferentes em duas máquinas; um build Docker fixado afunila o mesmo código-fonte num único hash reproduzível.](assets/v02-flowchart.png)
+![Um build normal bifurca um mesmo código-fonte em dois hashes diferentes em duas máquinas; um build Docker fixado afunila o mesmo código-fonte num único hash reproduzível.](assets/v02-flowchart.webp)
 
 O que traz os pins à tona, e um número que eu quero desarmar antes que ele te engane. Um build verificável grava o toolchain exato que ele usou, e esse toolchain inclui uma versão do Solana. Essa versão é o ambiente de build destes bytes. Ela não é uma afirmação sobre o que "o Solana atual" é. Esses são dois fatos diferentes e confundir os dois é uma cilada de verdade.
 
@@ -82,13 +82,13 @@ solana-verify verify-from-repo -u devnet \
 
 Ele refaz o build do repo dentro da imagem fixada, tira o hash desse binário novo, busca o programa on-chain no cluster que está no `-u`, e tira o hash do que de fato recebeu deploy. Dois hashes, computados de forma independente a partir de duas fontes: o seu código público e o cluster vivo. Se eles forem iguais, os bytes que receberam deploy vieram comprovadamente daquele código-fonte naquele toolchain. Se eles diferem, não vieram. É isso. Não existe intermediário de confiança neste caminho, que é exatamente por que ele funciona na devnet: você é quem roda o rebuild e quem roda a comparação.
 
-![O verify-from-repo tira o hash de um rebuild em Docker do repo e do programa on-chain buscado de forma independente, depois compara os dois hashes localmente para emitir verificado ou descasamento.](assets/v03-diagram.png)
+![O verify-from-repo tira o hash de um rebuild em Docker do repo e do programa on-chain buscado de forma independente, depois compara os dois hashes localmente para emitir verificado ou descasamento.](assets/v03-diagram.webp)
 
-Deixe concreto por um segundo. Digamos que o seu build local dá hash `9f3c...a1` e o `get-program-hash` no seu deploy de devnet retorna o mesmo `9f3c...a1`. O `verify-from-repo` então refaz o build a partir do repo público, computa `9f3c...a1` uma terceira vez, e compara com o valor on-chain. Três computações independentes, um valor, e cada uma delas é uma coisa que um cético consegue reproduzir sem te pedir nada. Agora vire um basis point na taxa, refaça o build, e o hash local vira `2b77...e0` enquanto o repo ainda produz `9f3c...a1`. O descasamento não é um aviso leve. É aritmética: bytes diferentes, sha256 diferente, zero sobreposição.
+Deixe concreto por um segundo. Digamos que o seu build local dá hash `9f3c...a1` e o `get-program-hash` no seu deploy de devnet retorna o mesmo `9f3c...a1`. O `verify-from-repo` então refaz o build a partir do repo público, computa `9f3c...a1` uma terceira vez, e compara com o valor on-chain. Três computações independentes, um valor, e cada uma delas é uma coisa que um cético consegue reproduzir sem te pedir nada. Agora vire um basis point na taxa, refaça o build, e o hash local vira `2b77...e0` enquanto o repo ainda produz `9f3c...a1`. O descasamento é aritmética: bytes diferentes, sha256 diferente, zero sobreposição.
 
 Aqui é onde eu viro e nomeio a parte honesta, porque uma linha verde é sedutora e ela mente por omissão se você deixar. Um casamento comprova que os bytes na devnet foram construídos a partir deste código-fonte neste toolchain. Ele comprova procedência. Ele não comprova que o código-fonte é seguro. Um programa perfeitamente verificável consegue drenar todo vault dentro dele, porque verificação nunca lê a lógica, ela só tira a impressão digital da saída compilada. Procedência e segurança são ortogonais, e a razão de o seu programa ser confiável é a checklist de auditoria e a passada de fuzz que você rodou no módulo de segurança, não este hash. Verificação torna esses resultados portáteis. Ela deixa um estranho confirmar que o código que você auditou é o código que está rodando. Isso é enorme, e é também estritamente menos que "seguro."
 
-![Um build verificado comprova que os bytes vieram deste código-fonte no toolchain fixado e é re-executável sem precisar confiar em ninguém, mas não comprova nada sobre ausência de bugs, segurança para conceder permissões, ou autoridade de upgrade.](assets/v04-comparison.png)
+![Um build verificado comprova que os bytes vieram deste código-fonte no toolchain fixado e é re-executável sem precisar confiar em ninguém, mas não comprova nada sobre ausência de bugs, segurança para conceder permissões, ou autoridade de upgrade.](assets/v04-comparison.webp)
 
 ## O guardião embaixo da cadeia inteira
 
@@ -115,13 +115,13 @@ npm view @anchor-lang/core@1.1.1 repository.url   # the version where it changes
 
 O campo repository do `@anchor-lang/core` aponta para otter-sec a partir da versão 1.1.1, publicada em 2026-06-25. Percorra o histórico e dá para ver a custódia se mover: o campo vai de coral-xyz para solana-foundation para otter-sec, sem anúncio nenhum em lugar nenhum. Duas transferências de custódia silenciosas, gravadas só num campo de metadados que quase ninguém lê. Quando eu rastreei isso pela primeira vez eu fiz exatamente do jeito que você acabou de fazer, um `npm view` de cada vez, porque eu também não acreditei numa afirmação de segunda mão. É essa a emenda que eu quero que você guarde: verifique a procedência da sua ferramenta de procedência.
 
-![O campo repository do npm para @anchor-lang/core caminha de coral-xyz para solana-foundation para otter-sec, com duas transferências não anunciadas e otter-sec assumindo na v1.1.1 em 2026-06-25.](assets/v05-timeline.png)
+![O campo repository do npm para @anchor-lang/core caminha de coral-xyz para solana-foundation para otter-sec, com duas transferências não anunciadas e otter-sec assumindo na v1.1.1 em 2026-06-25.](assets/v05-timeline.webp)
 
-Comparado a quê, porém? É essa a pergunta que mantém isto honesto em vez de alarmista. Comparado a verificação nenhuma, onde você aceita a palavra de um estranho de que o deploy dele casa com o repo dele, um guardião só, bem-conceituado, rodando um pipeline reproduzível é um passo grande para cima. Comparado a uma cadeia de suprimentos totalmente diversificada, várias partes independentes construindo o framework, publicando os crates, e rodando registries concorrentes, é um passo curto. As duas comparações são verdadeiras ao mesmo tempo. A resposta certa não é desconfiar da ferramenta. É saber a forma exata do que você está confiando, para que se a custódia trocar de mãos de novo você repare nisso, do mesmo jeito que você acabou de reparar nas duas últimas transferências.
+Comparado a quê, porém? É essa a pergunta que mantém isto honesto em vez de alarmista. Comparado a verificação nenhuma, onde você aceita a palavra de um estranho de que o deploy dele casa com o repo dele, um guardião só, bem-conceituado, rodando um pipeline reproduzível é um passo grande para cima. Comparado a uma cadeia de suprimentos totalmente diversificada, várias partes independentes construindo o framework, publicando os crates, e rodando registries concorrentes, é um passo curto. As duas comparações são verdadeiras ao mesmo tempo. A resposta certa não é desconfiar da ferramenta, e sim saber a forma exata do que você está confiando, para que se a custódia trocar de mãos de novo você repare nisso, do mesmo jeito que você acabou de reparar nas duas últimas transferências.
 
 Um guardião só faz a custódia do framework, publica os artefatos, roda o registry contra o qual o Anchor verifica, e assina com GPG a tag v2 sob a chave trixter-osec. Isso é um bocado da cadeia de suprimentos apoiado numa parte competente e bem-conceituada. "Bem-conceituada" está fazendo trabalho de verdade nessa frase, e não é a mesma coisa que "dispensar confiança." Um build verificável remove a sua necessidade de confiar em quem constrói o seu programa específico. Ele não remove a sua necessidade de confiar em quem constrói o framework. Os dois fatos são verdade ao mesmo tempo, e um engenheiro de segurança segura os dois sem piscar.
 
-![A OtterSec fica no centro de três raios, construindo o framework, publicando os crates, e rodando o registry de builds verificados, então um guardião só abrange a cadeia de suprimentos inteira.](assets/v06-diagram.png)
+![A OtterSec fica no centro de três raios, construindo o framework, publicando os crates, e rodando o registry de builds verificados, então um guardião só abrange a cadeia de suprimentos inteira.](assets/v06-diagram.webp)
 
 ## Só de mainnet, e só de leitura aqui
 
@@ -133,13 +133,13 @@ Seja preciso sobre o que o job remoto acrescenta, porque ele é uma camada de co
 
 A segunda é o repasse da autoridade de upgrade, e é aqui que verificação encontra governança. A autoridade de upgrade é a conta que tem permissão de substituir os bytes de um programa. Um programa que acabou de receber deploy tem uma, em geral um keypair só, que consegue trocar o executável à vontade. Um build verificado com uma autoridade quente de chave única é um programa que é comprovadamente este código-fonte agora e que pode estar silenciosamente diferente amanhã. O fim de jogo recomendado é mover essa autoridade para um multisig Squads v4, um programa que exige assinaturas de M-de-N membros antes de autorizar uma ação, para que chave nenhuma sozinha consiga empurrar um upgrade por conta própria. **Este fluxo é só de mainnet para este curso; eu estou narrando ele, não rodando ele.** O programa Squads v4 é o `SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf` (re-verifique antes de você algum dia agir em cima dele), e o repasse tem uma ordem específica:
 
-![O repasse só de mainnet do Squads v4 vai de criar o Squad, para escrever um buffer, para transferir a autoridade de upgrade, para uma proposta aprovada até o limiar e executada.](assets/v07-flowchart.png)
+![O repasse só de mainnet do Squads v4 vai de criar o Squad, para escrever um buffer, para transferir a autoridade de upgrade, para uma proposta aprovada até o limiar e executada.](assets/v07-flowchart.webp)
 
 A ordenação não é arbitrária, e fazer ela ao contrário é a cilada clássica. Você escreve os bytes novos num buffer e coloca a autoridade daquele buffer no Squad antes de você entregar a autoridade de upgrade do próprio programa. Se você transferisse a autoridade do programa para o Squad primeiro e só então descobrisse que o buffer era de propriedade da chave errada, você ficaria travado precisando de uma proposta de multisig para corrigir um erro que o multisig ainda não alcança. Buffer primeiro, programa segundo, executar por último. Cada passo te deixa em algum lugar do qual você ainda consegue se recuperar, bem até a aprovação final.
 
 A ressalva honesta empilha de dois jeitos, e os dois pertencem à mesa antes de qualquer pessoa tocar na mainnet. Primeiro, o detentor de autoridade recomendado é ele mesmo não-upgradeable: o programa Squads v4 está imutável desde novembro de 2024, o que é uma feature, o multisig no qual você confia não pode ser trocado por baixo de você, e também um fato que você deveria dizer em voz alta. Segundo, o fim de jogo depois do multisig é colocar a autoridade do programa em `None`, deixando o seu próprio programa imutável. Essa é a garantia mais forte que você consegue oferecer aos usuários e ela é irreversível. Não existe desfazer. Uma movimentação de autoridade que você não consegue tomar de volta é uma troca, não uma vitória de graça. Torne ele imutável depois de você ter verificado ele, nunca antes, porque imutabilidade congela o que quer que esteja ali, seguro ou não.
 
-![A escada de autoridade vai de um keypair só para um multisig Squads v4 para imutável, trocando controle por garantia em cada degrau, com o degrau final irreversível.](assets/v08-comparison.png)
+![A escada de autoridade vai de um keypair só para um multisig Squads v4 para imutável, trocando controle por garantia em cada degrau, com o degrau final irreversível.](assets/v08-comparison.webp)
 
 ## Lab: comprove o swap na devnet
 
@@ -231,7 +231,7 @@ solana-verify verify-from-repo -u devnet \
 
 Checkpoint: ele reporta um casamento, uma linha de "verified" para o programa na devnet. Essa linha única é o alvo da avaliação desta lição. Você comprovou agora, localmente e sem precisar confiar em ninguém, que os bytes na devnet foram construídos a partir do seu código-fonte público no toolchain fixado.
 
-![Uma tabela de checkpoints emparelhando cada passo do lab com a cara que o sucesso tem e a correção específica se der errado, terminando com o verify-from-repo reportando um casamento na devnet.](assets/v09-table.png)
+![Uma tabela de checkpoints emparelhando cada passo do lab com a cara que o sucesso tem e a correção específica se der errado, terminando com o verify-from-repo reportando um casamento na devnet.](assets/v09-table.webp)
 
 ## Challenge: faça a prova ficar vermelha, depois diga o que verde quer dizer
 

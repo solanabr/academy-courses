@@ -30,7 +30,7 @@ Pongamos el toolchain bien primero, porque cada otro delta viene después de él
 
 ¿Te acuerdas de ese `1.1.2` de hace un minuto? Acá está la trampa que arma, y es más sutil que "binario equivocado". El vault entregado compila bien en 1.x, que quiere decir que su `Cargo.toml` fija `anchor-lang` en la línea 1.x — y *ese pin, no el CLI de tu PATH, es lo que selecciona el major del framework*. `anchor build` es un wrapper; debajo, cargo resuelve tu grafo de crates idénticamente sin importar qué anchor-cli lo invocó. Así que si clonas el vault, empiezas a arreglar nombres de tipo, y nunca tocas el manifiesto, no obtienes un artefacto silencioso de v1 — obtienes una falla fuerte: `Address`, `.address()`, `&mut Context` no existen en ninguna parte de los crates 1.x, y el compilador lo dice en cada sitio que acabas de editar. Lo inverso también vale: sube el pin a `2.0.0-rc.1` y hasta el CLI viejo del host saca a la superficie las deprecaciones de V2 y el error de método que falta, porque esos diagnósticos vienen de las macros del grafo de dependencias, no del binario que llamó a cargo. Ya te encontraste con esta inversión dos veces — el reconocimiento de m10-l1 te hizo correr `rg "anchor_version|anchor-lang"` precisamente porque el pin es el hecho que importa, y m10-l2 te dijo que fijaras la versión exacta en `Anchor.toml` y en `Cargo.toml`. La versión que el *build* es, es la versión que dice el *manifiesto*.
 
-Así que la primera jugada no es una edición de handler. Son dos pins, hechos juntos: la fila `anchor-lang = "2.0.0-rc.1"` del `Cargo.toml` del programa, que es la llave que de verdad da vuelta el major, y un CLI V2 aislado, que mantiene cada comportamiento de nivel de wrapper — scaffolds, el banco de pruebas, el manejo de IDL — en la misma línea que los crates, para que `anchor --version` siga siendo una etiqueta veraz del toolchain entero.
+Así que la primera jugada no es una edición de handler, sino dos pins, hechos juntos: la fila `anchor-lang = "2.0.0-rc.1"` del `Cargo.toml` del programa, que es la llave que de verdad da vuelta el major, y un CLI V2 aislado, que mantiene cada comportamiento de nivel de wrapper — scaffolds, el banco de pruebas, el manejo de IDL — en la misma línea que los crates, para que `anchor --version` siga siendo una etiqueta veraz del toolchain entero.
 
 La instalación te pelea un poco, y vale saber por qué. V2 no tiene objeto de GitHub Release. Hay un tag de git, `v2.0.0-rc.1` sobre la rama anchor-next, pero ningún release publicado para ese tag, que quiere decir que `avm install` no puede descargar un binario precompilado para él como lo hace para las versiones estables — la URL del asset simplemente da 404. Los crates de rc.1 sí aterrizaron en crates.io el 2026-08-12, pero la documentación va detrás de esa publicación y el camino documentado es una instalación directa por git (la documentación apunta a la punta de la rama `anchor-next`; este curso fija el tag que está sobre esa rama, por la razón de reproducibilidad que expuso m01-l2):
 
@@ -65,7 +65,7 @@ COPY . .
 CMD ["anchor", "test"]
 ```
 
-![Construir el vault editado contra un Cargo.toml que todavía fija anchor-lang 1.x falla en cada línea editada bajo cualquier CLI; solo un grafo fijado en 2.0.0-rc.1 emite las deprecaciones de V2 y el error de método que falta, y un build V2 de verdad.](assets/v01-flowchart.png)
+![Construir el vault editado contra un Cargo.toml que todavía fija anchor-lang 1.x falla en cada línea editada bajo cualquier CLI; solo un grafo fijado en 2.0.0-rc.1 emite las deprecaciones de V2 y el error de método que falta, y un build V2 de verdad.](assets/v01-flowchart.webp)
 
 Ese es el armado sobre el que se para todo lo demás. Equivócate y cada edición de código de abajo es teatro. Hazlo bien y el compilador empieza a hacer tu trabajo por ti.
 
@@ -91,7 +91,7 @@ Dos filas faltan a propósito, y las dos valen una frase para que tu mapa quede 
 
 `unsafe(dup)` es el más interesante, y el challenge te va a hacer usarlo, así que entiéndelo ahora. V2 no permite cuentas mutables duplicadas por defecto. La razón es una trampa de verdad: si la misma cuenta llega en dos slots mutables, tu handler termina sosteniendo dos referencias `&mut` a una cuenta, y las ediciones a través de una calladamente pisan las ediciones a través de la otra. v1 te dejaba hacer esto y esperaba que supieras lo que hacías. V2 lo rechaza, en la validación, antes de que corra tu handler. Cuando genuinamente quieres que te entreguen una cuenta bajo dos nombres mutables, te vuelves a anotar por campo escribiendo el constraint `unsafe(dup)`. La palabra `unsafe` está haciendo trabajo honesto: es tú diciéndole al compilador que verificaste el invariante que él ya no puede verificar por ti, y asumiendo la obligación de escribir el handler para que nunca sostenga dos referencias mutables en conflicto. Nota lo que *no* necesita el opt-out: dos slots mutables que siempre resuelven a dos direcciones distintas, como hacen las dos reservas de un swap, satisfacen la verificación gratis. Nuestro vault de lab tiene exactamente una cuenta de cada tipo, así que nunca aparece. La barrida de consolidación del challenge sí.
 
-![Una tabla agrupada de antes/después de siete deltas: cinco que el compilador marca como errores de tipo, dos que saca a la superficie como una advertencia de deprecación y un error de método que falta.](assets/v02-comparison.png)
+![Una tabla agrupada de antes/después de siete deltas: cinco que el compilador marca como errores de tipo, dos que saca a la superficie como una advertencia de deprecación y un error de método que falta.](assets/v02-comparison.webp)
 
 ### Por qué `.reload()` desapareció (y por qué eso es bueno)
 
@@ -114,11 +114,11 @@ Derivaste la remoción la lección pasada: las lecturas tipadas obsoletas a trav
 
 Quédate con eso un segundo, porque es una filosofía genuinamente distinta — y mantén dos mecanismos aparte, porque el borrow checker es solo la mitad. El primero es el modelo de cuentas en sí. El `Account<T>` default de V2 es una *vista* zero-copy sobre los bytes de la cuenta, no una copia decodificada una vez arriba de la instrucción, así que no hay una segunda copia que pudiera correrse y quedar desactualizada. La capa borsh que estás a punto de usar acá, `BorshAccount<T>`, sí decodifica en una copia — pero sostiene el borrow de datos de la cuenta por todo el tiempo en que está cargada, y tienes que entregar ese borrow explícitamente antes de que una CPI pueda escribir esos bytes. De cualquier forma, nada cambia debajo de una cuenta tipada cargada sin tu palabra, así que no hay nada que una llamada de re-deserializar pueda re-leer. Por eso el método no existe. El segundo mecanismo es el modelo de borrow, y cubre la ventana que queda: mientras una CPI sostiene un handle a una cuenta, el acceso tipado a *esa* cuenta no va a compilar. v1 te daba una herramienta para evitar una trampa. V2 sacó los lugares donde la trampa podía estar. La clase de bug desapareció, no está guardada.
 
-![En v1 una copia tipada decodificada una vez queda obsoleta a través de una CPI y .reload() la vuelve a leer; en V2 la cuenta tipada cargada sostiene el borrow de datos, así que nada cambia debajo de ella y no hay método de reload al que llamar.](assets/v03-diagram.png)
+![En v1 una copia tipada decodificada una vez queda obsoleta a través de una CPI y .reload() la vuelve a leer; en V2 la cuenta tipada cargada sostiene el borrow de datos, así que nada cambia debajo de ella y no hay método de reload al que llamar.](assets/v03-diagram.webp)
 
-Así que el arreglo no es "encuentra el nombre V2 de reload". No hay ninguno. El arreglo es estructural: no sostengas datos tipados de una cuenta que esta CPI toma a través de la CPI. Lee los escalares que necesitas (el bump, la clave de estado) hacia locales antes de la transferencia, corre la transferencia, y después toma un borrow tipado fresco después de que complete para actualizar tus contadores — y esa lectura post-CPI ya está viva, que es por lo que no queda nada para que haga un `.reload()`. El error no es un obstáculo. Es la instrucción. Eso es dejar que el compilador maneje.
+Así que el arreglo no es "encuentra el nombre V2 de reload". No hay ninguno. El arreglo es estructural: no sostengas datos tipados de una cuenta que esta CPI toma a través de la CPI. Lee los escalares que necesitas (el bump, la clave de estado) hacia locales antes de la transferencia, corre la transferencia, y después toma un borrow tipado fresco después de que complete para actualizar tus contadores — y esa lectura post-CPI ya está viva, que es por lo que no queda nada para que haga un `.reload()`. El error es la instrucción, no un obstáculo. Eso es dejar que el compilador maneje.
 
-![El build de V2 tira exactamente un error sobre el withdraw de v1 copiado, ningún método llamado reload, mientras la lectura tipada una línea más arriba compila porque state no es una cuenta que toque esta transferencia.](assets/v04-annotated-code.png)
+![El build de V2 tira exactamente un error sobre el withdraw de v1 copiado, ningún método llamado reload, mientras la lectura tipada una línea más arriba compila porque state no es una cuenta que toque esta transferencia.](assets/v04-annotated-code.webp)
 
 ### Por qué `has_one` todavía compila pero igual lo arreglas
 
@@ -138,9 +138,9 @@ warning: use of deprecated function `__deprecated_has_one`: `has_one` is
 
 Dos cosas de esa advertencia valen notarse. Primera, nombra el reemplazo exactamente, y te dice dónde ponerlo: en el campo hermano, como `#[account(address = owner.field)]`. Para nuestro vault, eso es `address = state.authority` puesto en la cuenta `authority`, que verifica que la dirección de la authority pasada es igual al campo `authority` guardado en `state`. La misma garantía, escritura nueva. Segunda, y este es el toque de color que quiero que sostengas: ese subrayado no es un accidente. Allá abajo en el parser, `parse.rs` deliberadamente mantiene el span de código de la keyword `has_one` alrededor para que la generación de código pueda emitir una advertencia que apunte derecho de vuelta a esos caracteres exactos. Nadie subraya un token que no planeó deprecar. Las herramientas se construyeron para guiar la migración que crearon. La advertencia es una feature, no ruido.
 
-![La advertencia de deprecación de has_one nombra su propio reemplazo, subraya el token exacto que hay que sacar, y no hace fallar la prueba, lo que la vuelve un ítem de checklist.](assets/v05-annotated-code.png)
+![La advertencia de deprecación de has_one nombra su propio reemplazo, subraya el token exacto que hay que sacar, y no hace fallar la prueba, lo que la vuelve un ítem de checklist.](assets/v05-annotated-code.webp)
 
-Y sobre una RC en movimiento, la sintaxis deprecada es precisamente lo que una versión posterior tiene más probabilidad de sacar. Resolver las deprecaciones hasta cero no es prolijidad. Es cómo mantienes el port compilando contra el tag del mes que viene. La advertencia es un ítem de checklist que el framework te entrega gratis.
+Y sobre una RC en movimiento, la sintaxis deprecada es precisamente lo que una versión posterior tiene más probabilidad de sacar. Resolver las deprecaciones hasta cero es cómo mantienes el port compilando contra el tag del mes que viene. La advertencia es un ítem de checklist que el framework te entrega gratis.
 
 Acá está el antes y el después de ese único constraint:
 
@@ -467,7 +467,7 @@ pub struct Withdraw {
 }
 ```
 
-**8. Corre la barrera.** La prueba de aceptación es la misma forma que usó cada peldaño de este curso: una prueba de LiteSVM que pasa. LiteSVM es la plantilla de prueba default de Anchor, así que `anchor init` hizo scaffold de un banco de Rust debajo de `tests/`. Alcanza LiteSVM como lo alcanzó el resto de este curso, a través del wrapper del scaffold en vez de un pin directo, para que tu banco no pueda correrse fuera de la versión que espera el toolchain (el `anchor-v2-testing` de rc.1 fija `litesvm 0.11`; el latest de litesvm en crates.io es 0.16.0 al 2026-09-07, cuatro minors adelante, que es exactamente por lo que no lo fijas tú mismo):
+**8. Corre la barrera.** La prueba de aceptación es la misma forma que usó cada peldaño de este curso: una prueba de LiteSVM que pasa. LiteSVM es la plantilla de prueba default de Anchor, así que `anchor init` hizo scaffold de un banco de Rust debajo de `tests/`. Alcanza LiteSVM como lo alcanzó el resto de este curso, a través del wrapper del scaffold en vez de un pin directo, para que tu banco no pueda correrse fuera de la versión que espera el toolchain (el `anchor-v2-testing` de rc.1 fija `litesvm 0.11`; el latest de litesvm en crates.io es 0.16.0 al 2026-09-07, cinco minors adelante, que es exactamente por lo que no lo fijas tú mismo):
 
 ```toml
 # programs/quarter_vault/Cargo.toml - dev-dependencies
@@ -557,7 +557,7 @@ docker build -t v2-port verify/ && docker run --rm v2-port
 
 Prueba verde, cero advertencias de deprecación, sobre el toolchain de la RC, reproducido en el contenedor. Ese es el port. Esa es la demostración.
 
-![Un loop de seis pasos: fija el toolchain de la RC, aplica los deltas mecánicos marcados, y después compila y arregla lo que imprima el compilador hasta que anchor test esté verde.](assets/v06-timeline.png)
+![Un loop de seis pasos: fija el toolchain de la RC, aplica los deltas mecánicos marcados, y después compila y arregla lo que imprima el compilador hasta que anchor test esté verde.](assets/v06-timeline.webp)
 
 ## Challenge
 
@@ -571,7 +571,7 @@ Tres cosas lo vuelven más difícil que el lab, y cada una mapea a algo que ahor
 2. Su handler lee un contador, hace la CPI de transferencia, y después lee el contador otra vez con un `.reload()` en el medio. Mata el reload y reestructura las lecturas alrededor de la llamada. El error de método que falta es tu mapa.
 3. El self-sweep entrega **una cuenta a dos slots mutables** (origen y destino). V2 rechaza cuentas mutables duplicadas por defecto, así que esa prueba falla la validación con `ConstraintDuplicateMutableAccount` antes de que corra tu handler. Aplica `unsafe(dup)` a los dos campos de vault, y, porque el nombre dice `unsafe`, escribe una frase en un comentario justificando el aliasing: el handler tiene que computar el movimiento una vez y aplicar una única actualización verificada, para que nunca sostenga dos referencias mutables en conflicto a la única cuenta. Si te encuentras recurriendo a `unsafe(dup)` sobre el contador también, detente: esa es una cuenta en un slot, y el opt-out estaría escondiendo otro bug.
 
-![Una tabla de tres filas que empareja cada obstáculo del challenge con la advertencia, el error de método que falta, o la falla de validación que lo encuentra, más una precaución contra aplicar de más el opt-out de cuenta duplicada.](assets/v07-table.png)
+![Una tabla de tres filas que empareja cada obstáculo del challenge con la advertencia, el error de método que falta, o la falla de validación que lo encuentra, más una precaución contra aplicar de más el opt-out de cuenta duplicada.](assets/v07-table.webp)
 
 Acéptalo cuando `anchor test` pase sobre el toolchain de la RC y `cargo build` emita cero advertencias de deprecación. Sin pistas más allá de tus dos mapas y el compilador. Ese es el punto.
 
