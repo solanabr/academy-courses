@@ -15,58 +15,58 @@ modules:
   - key: token-layer
     title: "The token layer, from raw bytes up"
     lessons:
-      - lesson-date-m01-l1-what-is-this-token
-      - lesson-date-m01-l2-mint-account-anatomy
-      - lesson-date-m01-l3-p-token-switch
-      - lesson-date-m01-l4-decision-framework-conflict-matrix
+      - lesson-da-m01-l1-what-is-this-token
+      - lesson-da-m01-l2-mint-account-anatomy
+      - lesson-da-m01-l3-p-token-switch
+      - lesson-da-m01-l4-decision-framework-conflict-matrix
   - key: extension-catalog
     title: "The extension catalog"
     lessons:
-      - lesson-date-m02-l1-economics-extensions
-      - lesson-date-m02-l2-authority-extensions
-      - lesson-date-m02-l3-holder-protection-extensions
-      - lesson-date-m02-l4-native-metadata
+      - lesson-da-m02-l1-economics-extensions
+      - lesson-da-m02-l2-authority-extensions
+      - lesson-da-m02-l3-holder-protection-extensions
+      - lesson-da-m02-l4-native-metadata
   - key: transfer-hooks
     title: "Transfer hooks"
     lessons:
-      - lesson-date-m03-l1-write-the-hook
-      - lesson-date-m03-l2-resolving-hooks-composability
+      - lesson-da-m03-l1-write-the-hook
+      - lesson-da-m03-l2-resolving-hooks-composability
   - key: confidential-transfers
     title: "Confidential transfers"
     lessons:
-      - lesson-date-m04-l1-confidential-model
-      - lesson-date-m04-l2-issuer-ops
+      - lesson-da-m04-l1-confidential-model
+      - lesson-da-m04-l2-issuer-ops
   - key: compatibility-reality
     title: "The compatibility reality"
     lessons:
-      - lesson-date-m05-l1-dex-allowlist-artifact
-      - lesson-date-m05-l2-designing-routable-token
+      - lesson-da-m05-l1-dex-allowlist-artifact
+      - lesson-da-m05-l2-designing-routable-token
   - key: digital-collectibles
     title: "Digital collectibles: Core-first"
     lessons:
-      - lesson-date-m06-l1-metadata-standards
-      - lesson-date-m06-l2-metaplex-core
-      - lesson-date-m06-l3-token-metadata-legacy
+      - lesson-da-m06-l1-metadata-standards
+      - lesson-da-m06-l2-metaplex-core
+      - lesson-da-m06-l3-token-metadata-legacy
   - key: compression
     title: "Compression: millions of assets"
     lessons:
-      - lesson-date-m07-l1-bubblegum-v2-cnfts
-      - lesson-date-m07-l2-reading-assets-das
-      - lesson-date-m07-l3-zk-compression-frontier
+      - lesson-da-m07-l1-bubblegum-v2-cnfts
+      - lesson-da-m07-l2-reading-assets-das
+      - lesson-da-m07-l3-zk-compression-frontier
   - key: launch-distribution
     title: "Launch & distribution"
     lessons:
-      - lesson-date-m08-l1-bonding-curves-graduation
-      - lesson-date-m08-l2-launchpad-landscape
-      - lesson-date-m08-l3-airdrops-at-scale
+      - lesson-da-m08-l1-bonding-curves-graduation
+      - lesson-da-m08-l2-launchpad-landscape
+      - lesson-da-m08-l3-airdrops-at-scale
   - key: token-economies
     title: "Token economies in production"
     lessons:
-      - lesson-date-m09-l1-fee-routing-buyback
-      - lesson-date-m09-l2-gating-migrations
-      - lesson-date-m09-l3-production-case-studies
+      - lesson-da-m09-l1-fee-routing-buyback
+      - lesson-da-m09-l2-gating-migrations
+      - lesson-da-m09-l3-production-case-studies
   - key: capstone
     title: "Capstone & close"
     lessons:
-      - lesson-date-m10-l1-capstone-choose-primitive
-      - lesson-date-m10-l2-cumulative-checkpoint-close
+      - lesson-da-m10-l1-capstone-choose-primitive
+      - lesson-da-m10-l2-cumulative-checkpoint-close
