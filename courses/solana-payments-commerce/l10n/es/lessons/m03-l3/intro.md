@@ -88,7 +88,7 @@ const link = undefined;
 
 Los mantenedores dejaron la costura ahí a propósito. Cuando `link` es una URL, el POS deja de codificar transfer requests y empieza a codificar transaction requests, `solana:<https-link>`, apuntados a donde sea que `link` apunte. La línea comentada lo apunta a la propia API empaquetada de la app. Tú lo vas a apuntar a checkout-txreq en cambio, porque ya construiste el mejor endpoint: pone el precio del lado del servidor, estampa el memo y la reference, y la prueba de humo de la lección pasada demuestra que devuelve una transacción en base64 para un `{account}` que le llega por POST.
 
-![Fragmento anotado de App.tsx que muestra la bandera connectWallet y el interruptor de link: link en undefined quiere decir que la billetera construye una transferencia, link puesto quiere decir que tu servidor la construye.](assets/v01-annotated-code.png)
+![Fragmento anotado de App.tsx que muestra la bandera connectWallet y el interruptor de link: link en undefined quiere decir que la billetera construye una transferencia, link puesto quiere decir que tu servidor la construye.](assets/v01-annotated-code.webp)
 
 ### Cómo fluye la venta en realidad
 
@@ -96,7 +96,7 @@ Rastrea una venta por el puesto recableado, porque dos de los saltos son nuevos 
 
 Teclas 0.15 en el teclado numérico y le das a generar. El POS toma tu URL de `link` y le agrega la venta como parámetros de consulta antes de codificar nada: el `recipient` configurado, el `amount` tecleado, el `label` de tu puesto, y `reference`, una clave pública fresca de un solo uso que acuña para esta venta con `generateKeyPairSigner` (la misma disciplina de reference base58 de 32 bytes que usas desde la primera lección de QR). Después codifica todo el conjunto con `encodeURL({ link })` y pinta el QR. El cliente escanea. Su billetera hace el paso doble que implementaste la lección pasada: GET a tu endpoint por el label y el icon, y después POST de `{account}` a la misma URL, con query string y todo. Tu servidor construye la transacción, la billetera firma y envía, y el POS le hace polling a `findReference` sobre la reference que acuñó hasta que aparece la firma, y después valida y salta a la pantalla de confirmado.
 
-![Diagrama de flujo de una venta en tres carriles (POS, billetera del cliente, servidor), desde teclear un monto y acuñar una reference hasta firmar, enviar y el POS confirmando vía findReference.](assets/v02-flowchart.png)
+![Diagrama de flujo de una venta en tres carriles (POS, billetera del cliente, servidor), desde teclear un monto y acuñar una reference hasta firmar, enviar y el POS confirmando vía findReference.](assets/v02-flowchart.webp)
 
 Acá está el salto que cambia el trabajo de tu endpoint: el monto llegó en la URL. Dos lecciones de este curso te han taladrado "nunca confíes en un precio que manda el cliente", y ahora el precio vuelve a viajar en un query string. ¿Entonces qué es?
 
@@ -133,7 +133,7 @@ Cablea eso en el handler de POST que construiste la lección pasada como una ram
 
 Un parámetro merece una regla más dura que la validación. El POS también le agrega `recipient` al query, y tu endpoint debería ignorarlo por completo. El beneficiario es configuración en tu servidor, puesta una sola vez, no un valor que llega en cada request; un endpoint que le paga a cualquier destinatario que nombre el query es un open redirect para el dinero, porque cualquiera que alcance la URL https puede poner ahí su propia dirección. La misma historia con `memo` si aparece: tu endpoint estampa su propio memo con su propio id de pedido, y eso sigue siendo cierto en el puesto. Al query se le permite decirte cuánto es esta venta. Nunca se le permite decirte quién cobra ni qué dicen los libros.
 
-![Un desglose etiquetado de la URL que va en el payload del QR: el esquema solana, el link https que la marca como transaction request, el camino /txreq y los parámetros por venta que agrega el POS.](assets/v03-diagram.png)
+![Un desglose etiquetado de la URL que va en el payload del QR: el esquema solana, el link https que la marca como transaction request, el camino /txreq y los parámetros por venta que agrega el POS.](assets/v03-diagram.webp)
 
 ### Qué sabe en realidad la pantalla de confirmado
 
@@ -145,7 +145,7 @@ Dos consecuencias caen de ese diseño, y las dos te van a ahorrar tiempo de depu
 
 Después de que aparece la firma, el POS valida la transacción encontrada antes de dar vuelta la pantalla, comprobando que lo que aterrizó coincida con la venta que codificó. Mantén ese orden en la cabeza: encontrada, después validada, después confirmada-en-pantalla. Que exista una firma no es lo mismo que exista el pago correcto.
 
-![Un diagrama de flujo del loop de confirmación del POS, findReference haciendo polling hasta que aparece una firma y después validando antes de mostrar confirmado, con una lista ordenada de tres sospechosos para diagnosticar una pantalla de pending trabada.](assets/v04-flowchart.png)
+![Un diagrama de flujo del loop de confirmación del POS, findReference haciendo polling hasta que aparece una firma y después validando antes de mostrar confirmado, con una lista ordenada de tres sospechosos para diagnosticar una pantalla de pending trabada.](assets/v04-flowchart.webp)
 
 ### La realidad del hardware: qué existe, qué no
 
@@ -159,17 +159,17 @@ Antes de que leas eso como una degradación, mira a dónde se fueron de verdad l
 
 ¿Y del lado del teléfono? Solana Mobile vende Seeker, un teléfono con Seed Vault, que es custodia de claves en hardware, no una función de pagos, y corre una dApp Store. Productos reales, y la propuesta de comisiones de la dApp Store es genuinamente interesante para la economía de una app. Pero cuidado con los números de la página de inicio: la cifra de "150,000+ users" tiene un referente ambiguo (usuarios de qué, exactamente, no se dice), la línea de "0% platform fees" es una afirmación de precios, y los números de unidades despachadas no están divulgados. Trata todo eso como afirmaciones de página de inicio, no presentes nada de eso como datos de adopción verificados, y fíjate en lo que falta: nada en el stack de Seeker le da pago sin contacto a tu puesto tampoco. Un cliente con Seeker en tu mesa sigue escaneando el mismo código QR que un cliente con iPhone.
 
-![Una matriz de capacidades que marca los transfer y transaction requests por QR y el ejemplo propio de POS como reales, Commerce Kit como beta, y las terminales de pago sin contacto como inexistentes en Solana.](assets/v05-comparison.png)
+![Una matriz de capacidades que marca los transfer y transaction requests por QR y el ejemplo propio de POS como reales, Commerce Kit como beta, y las terminales de pago sin contacto como inexistentes en Solana.](assets/v05-comparison.webp)
 
 La evidencia más filosa de lo delgado que es el nicho en tienda viene de la empresa que lo tenía. Decaf era el niño mimado del POS de festivales de este ecosistema: el nombre que oías cada vez que alguien pagaba comida con USDC en un evento de Solana. Entra a decaf.so hoy (lo volví a comprobar el 2026-08-22) y el POS de Solana ya no está. El producto es un link de pago que creas en dos minutos, pagable con tarjeta, transferencia bancaria o crypto, con retiro en efectivo y desembolsos en más de 180 países, apuntado exactamente al remitente que Stripe y PayPal no van a atender. Misma empresa, mismos rieles por debajo, cliente completamente distinto.
 
 Lee ese giro como dato de mercado, porque es lo que es. La demanda es un actor acá, y votó: el comercio parado frente a una terminal resultó ser un cliente mucho más chico que el trabajador que manda dinero a casa o la empresa que factura del otro lado de una frontera. La demanda de POS de crypto en tienda era más delgada que la demanda de desembolsos, así que el capital y el producto siguieron a los desembolsos. La misma forma aparece en todas las comunidades de builders de América Latina: el pago con crypto que pasa todos y cada uno de los días es el desembolso transfronterizo a un colaborador, no el café comprado con una billetera. Nada de esto quiere decir que tu puesto sea una mala idea. Quiere decir que nadie te va a vender una terminal para él, que no hay catálogo de proveedores en el que apoyarte, y que el ejemplo propio del repo que clonaste es la base sancionada precisamente porque la capa comercial que estaba encima se vació. Construye en consecuencia, y ten claro que el mismo endpoint que le da potencia a tu mesa es la pieza que se traslada a donde vive de verdad la demanda.
 
-![Línea de tiempo de Decaf moviéndose del punto de venta de festivales en Solana, pasando por la demanda delgada en tienda, hasta los links de pago globales y los desembolsos transfronterizos en más de 180 países.](assets/v06-timeline.png)
+![Línea de tiempo de Decaf moviéndose del punto de venta de festivales en Solana, pasando por la demanda delgada en tienda, hasta los links de pago globales y los desembolsos transfronterizos en más de 180 países.](assets/v06-timeline.webp)
 
 Hay una pieza más de honestidad sobre el hardware, y es la que nadie pone en una diapositiva: la red en la feria. Camina el flujo de la venta otra vez y cuenta las conexiones que necesita. Tu laptop tiene que ser alcanzable por el teléfono del cliente (el GET y el POST a tu endpoint) y tiene que alcanzar el RPC de devnet (el poll de confirmación). El teléfono del cliente tiene que tener datos, porque su billetera le envía la transacción firmada a la blockchain misma. Esas son tres dependencias de red para una sola venta, y una feria de discos en un salón parroquial con paredes de concreto y doscientos teléfonos en un solo punto de acceso va a poner a prueba cada una de ellas. Esta no es una debilidad específica de crypto, las terminales de tarjetas también se mueren con mala conectividad, pero un proveedor de terminales de tarjetas lleva veinte años haciendo ingeniería de store-and-forward alrededor de eso, y tú no. Todavía. Más adelante en este curso construyes exactamente eso: una fila offline que firma ventas en la mesa y las drena cuando la red vuelve, sobre una primitiva que se llama durable nonce. Por ahora, las mitigaciones prácticas son aburridas y efectivas: tu propio hotspot para la laptop, un código QR impreso de respaldo para un artículo de precio fijo, y saber cuál falla se parece a cuál en la pantalla de pending.
 
-![Una lista de verificación previa a la feria que cubre el alcance por LAN, el acceso al RPC, los datos del teléfono del cliente, un hotspot, la aceptación del certificado y un código QR impreso de respaldo, más cómo se presenta cada falla de red en el puesto.](assets/v07-table.png)
+![Una lista de verificación previa a la feria que cubre el alcance por LAN, el acceso al RPC, los datos del teléfono del cliente, un hotspot, la aceptación del certificado y un código QR impreso de respaldo, más cómo se presenta cada falla de red en el puesto.](assets/v07-table.webp)
 
 Un último aparte antes del lab. Hay un Commerce Kit en el ecosistema, y está en beta, con la advertencia "APIs may change" de su propia documentación adjunta. Ya sabes lo suficiente para decodificar lo que eso quiere decir para un puesto del que dependes: un sábado de ventas no es el lugar para una superficie de API que se reserva el derecho de moverse debajo de ti. Sabe que existe, míralo madurar, y construye la mesa de hoy sobre el ejemplo propio del repo y tu propio endpoint. Esa es toda la mención.
 
@@ -308,7 +308,7 @@ Peldaño Worked: cada comando de abajo viene dado. Clonas (ya hecho arriba), rec
 
    Corre `npx tsx smoke.ts`. Con los TODOs todavía abiertos falla con `cart is empty; fill the completion TODOs in config.ts first`, que es lo correcto: la prueba de humo que falla es la lista de pendientes de tu peldaño de completion. (Este archivo exacto, con estos pins exactos, pasa el chequeo de tipos bajo `npx tsc --strict --noEmit smoke.ts config.ts` y corre; si a ti no, la extensión del import y la línea `type=module` del paso 5 son los dos sospechosos de siempre.)
 
-![Diagrama de despliegue del puesto: una laptop corriendo el POS y el endpoint detrás de proxies SSL locales, un teléfono de cliente alcanzándolos por la LAN, y devnet liquidando la transacción.](assets/v08-diagram.png)
+![Diagrama de despliegue del puesto: una laptop corriendo el POS y el endpoint detrás de proxies SSL locales, un teléfono de cliente alcanzándolos por la LAN, y devnet liquidando la transacción.](assets/v08-diagram.webp)
 
 ## Challenge
 

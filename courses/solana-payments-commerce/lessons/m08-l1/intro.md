@@ -58,7 +58,7 @@ The findings index, each line actionable:
 
 The division of labor, stated plainly: this is module 8, solo territory. The node config and the sponsored builder are worked because the Kora wiring is this course's last new integration surface. The fee-quote handling and the dual-signature assembly are completion TODOs against acceptance criteria, not walkthroughs. The validation rule that proves your paymaster refuses foreign transactions is entirely yours in the challenge.
 
-![Stacked cost breakdown of a sponsored checkout: a 10,000-lamport base fee for two signatures, an optional priority fee, and a much larger conditional token-account rent deposit.](assets/v01-chart.png)
+![Stacked cost breakdown of a sponsored checkout: a 10,000-lamport base fee for two signatures, an optional priority fee, and a much larger conditional token-account rent deposit.](assets/v01-chart.webp)
 
 ## The fee-payer seat
 
@@ -70,7 +70,7 @@ The course has been circling this seat since module 1. Back then the question "w
 
 One caution from the seam between last lesson and this one, since the two tools are natural neighbors: an x402 facilitator can itself run on Kora, and the official guide for that pairing still imports v1-style `x402` and `x402-express` package names. The live SDK is the scoped `@x402/*` v2 line you built against last lesson. Build v2, and read the guide's bare names as docs drift, not as an instruction.
 
-![One fee-payer seat with three tenants in turn: the buyer in module 1, the x402 facilitator in module 7, and the merchant's Kora paymaster here.](assets/v02-diagram.png)
+![One fee-payer seat with three tenants in turn: the buyer in module 1, the x402 facilitator in module 7, and the merchant's Kora paymaster here.](assets/v02-diagram.webp)
 
 ### Octane died and named its successor
 
@@ -80,7 +80,7 @@ Kora is that successor: a paymaster node from the Solana Foundation, written in 
 
 The TypeScript side is one package, `@solana/kora`, which you already installed: a thin typed client where each method is one JSON-RPC call. No magic, and you will read the responses yourself in the lab.
 
-![Timeline from the Octane era through Kora's 2025 audit and the early-2026 releases of kora-cli 2.0.5 and the @solana/kora 0.2.1 client, ending at Octane's archival on 2026-04-20.](assets/v03-timeline.png)
+![Timeline from the Octane era through Kora's 2025 audit and the early-2026 releases of kora-cli 2.0.5 and the @solana/kora 0.2.1 client, ending at Octane's archival on 2026-04-20.](assets/v03-timeline.webp)
 
 ### The dual-signature round trip
 
@@ -94,7 +94,7 @@ Why `signTransaction` and not `signAndSendTransaction`, when the node offers bot
 
 Order matters in one direction only: Kora signs before the buyer because Kora's signature is computed over the message, and the message must be final (fee payer, instructions, blockhash) before anyone signs. After that, signatures can be attached in any order; they do not cover each other. And the blockhash inside sets your clock: about 150 blocks of validity, roughly 45 seconds at the current 300ms target slot time (SIMD-0525's 300ms stage took force at epoch 1024, 2026-08-28), which is plenty for build, co-sign, and a tap on a phone, and exactly why you build the transaction per request instead of pre-signing a pile of them.
 
-![Sponsored checkout flow: the server builds an unsigned transaction with Kora as fee payer, Kora signs first, then the buyer's wallet signs and submits, and the sponsor is debited.](assets/v04-flowchart.png)
+![Sponsored checkout flow: the server builds an unsigned transaction with Kora as fee payer, Kora signs first, then the buyer's wallet signs and submits, and the sponsor is debited.](assets/v04-flowchart.webp)
 
 ### When the buyer pays the fee in USDC
 
@@ -110,11 +110,11 @@ The visible line is small. The base fee is 5000 lamports per signature, and the 
 
 It does not end there. The expensive event is the associated token account. If your sponsored flow ever creates an ATA for the buyer (their first USDC account, a new mint, a loyalty token), the rent deposit is the rent-exempt minimum for the 165-byte account, and you read it off `getMinimumBalanceForRentExemption(165)` rather than off any page including this one — on devnet on 2026-09-07 that was 1,488,440 lamports, roughly 150 times the fee on the entire dual-signed transaction. Re-read it before you budget, because SIMD-0437 is stepping the per-byte rate down and both clusters have already moved; the ratio is what is durable here, not the lamports. And here is the caveat the brief of every paymaster deployment should carry in bold: that rent is not gone, it is sitting in an account the buyer owns. The buyer can close that token account whenever they like and keep the reclaimed rent. There is no mechanism to return it to you. So treat sponsored rent as spend, priced into the sale like card-processing fees, and never book it as a recoverable loan. Run the napkin yourself for a hundred-buyer fair: a hundred dual-signed checkouts is 0.001 SOL of fees, and a hundred first-time-buyer ATAs is a hundred times whatever that curl just told you — two orders of magnitude apart at any rate the network has charged. The rent line is the budget; the fee line is noise.
 
-![Log-scale bar chart comparing a 10,000-lamport dual-signature base fee against roughly 1.5 million lamports of ATA creation rent, about 150 times larger and reclaimable only by the buyer.](assets/v05-chart.png)
+![Log-scale bar chart comparing a 10,000-lamport dual-signature base fee against roughly 1.5 million lamports of ATA creation rent, about 150 times larger and reclaimable only by the buyer.](assets/v05-chart.webp)
 
 The other honest line: when the buyer already has SOL, sponsorship is pure cost. You pay 10,000 lamports to save someone half a cent they could have paid themselves, and you widen your attack surface doing it. The mature deployment sponsors selectively (first purchase, onboarding flows, wallets with zero SOL) rather than reflexively. The comparison below is the decision in one glance, and it is the trade-off of this whole lesson: gasless removes the buyer's SOL requirement, and you pay for that twice, once in rent you should write off and once in a validation burden that is now mandatory.
 
-![Comparison table of buyer-pays versus sponsored checkout across SOL requirements, signature count, fees, ATA rent, conversion, attack surface, and when each mode wins.](assets/v06-comparison.png)
+![Comparison table of buyer-pays versus sponsored checkout across SOL requirements, signature count, fees, ATA rent, conversion, attack surface, and when each mode wins.](assets/v06-comparison.webp)
 
 ### Validation is the product
 
@@ -124,7 +124,7 @@ Kora's config gives you layered controls, and the lab sets every one of them del
 
 The default posture is the right one: in the current source, every `fee_payer_policy` switch defaults to deny when the block is omitted from the config. The repo's sample config writes the block out explicitly — its switches happen to sit at false today, but a copied sample is one upstream edit away from opting you into powers you never chose. In the lab we omit the block on purpose and let deny-by-default do its job.
 
-![Annotated lab kora.toml: program and token allowlists, signature and lamport caps, durable transactions off, free pricing, and an omitted fee-payer policy block so every power defaults to deny.](assets/v07-annotated-code.png)
+![Annotated lab kora.toml: program and token allowlists, signature and lamport caps, durable transactions off, free pricing, and an omitted fee-payer policy block so every power defaults to deny.](assets/v07-annotated-code.webp)
 
 That is the trust surface, stated without alarm: you are running (or renting) a service that holds a funded key and signs what strangers send it, and the validation rules are the entire difference between a paymaster and a donation. Sober, not scary. Configure it like you mean it and the failure modes above stay theoretical.
 
@@ -134,7 +134,7 @@ The run-or-rent decision itself is ordinary infrastructure math, and worth thirt
 
 What you are assembling, and where it sits in the Wavelength workspace:
 
-![Workspace diagram showing gasless-checkout reusing transfer-kit and checkout-txreq, talking to a local Kora node on port 8080, and exporting buildSponsoredOrder for the capstone.](assets/v08-diagram.png)
+![Workspace diagram showing gasless-checkout reusing transfer-kit and checkout-txreq, talking to a local Kora node on port 8080, and exporting buildSponsoredOrder for the capstone.](assets/v08-diagram.webp)
 
 1. **Install the paymaster and mint its signer.** The node is a Rust binary; the client SDK you already installed talks to it. Then create the sponsor wallet, the only wallet in the lab that holds SOL, and fund it on devnet:
 

@@ -58,7 +58,7 @@ The customer scans, their wallet parses those parameters, builds a `TransferChec
 
 Now the footgun, because it deserves its own paragraph and a side-by-side. You spent all of module 2 converting decimal amounts to base units with `toBaseUnits`, because on-chain transfer instructions speak base units. A Solana Pay URL does not. The spec defines `amount` as a UI quantity, and the wallet multiplies by the mint's decimals for you. The two habits collide head-on:
 
-![Side-by-side of 12.5 USDC as a decimal URL amount versus 12500000 base units in an instruction, warning that base units in a URL charge millions.](assets/v01-comparison.png)
+![Side-by-side of 12.5 USDC as a decimal URL amount versus 12500000 base units in an instruction, warning that base units in a URL charge millions.](assets/v01-comparison.webp)
 
 Both conventions are correct where they live. The URL speaks human, the instruction speaks base units, and the wallet is the translator. Keep `toBaseUnits` out of your URL code entirely.
 
@@ -70,7 +70,7 @@ That handle is the reference: a fresh random 32-byte base58 key you generate per
 
 Worth being precise about the mechanics, since they explain both why this works and why it costs nothing. The wallet appends your reference to the transfer instruction's account list as a non-signer, non-writable key. The account behind that address does not exist and never will; no rent, no creation, no state. It is pure graffiti on the transaction's account list. But Solana indexes transactions by every account they mention, existing or not, which is what `getSignaturesForAddress` queries under the hood. Ask the RPC "what transactions mention `CD9G...rvDh`?" and the answer is your sale and nothing else in the history of the chain. A free, collision-proof, pre-assignable transaction index, built out of an address nobody funded. Compare that with the traditional workaround, a unique deposit address per order with all the key management that drags in, and the reference starts looking like the better idea it is.
 
-![Dataflow of a server-minted reference key traveling through the QR and the wallet onto the transaction, then queried back via getSignaturesForAddress to match the order.](assets/v02-diagram.png)
+![Dataflow of a server-minted reference key traveling through the QR and the wallet onto the transaction, then queried back via getSignaturesForAddress to match the order.](assets/v02-diagram.webp)
 
 If you have integrated Stripe, you have met this shape before: it is your idempotency key and your order id fused into one value, chosen client-side before the charge. Think of it like a coat-check ticket. The ticket is printed before the coat arrives, the number matches exactly one coat, and holding the ticket is how you claim it later. Same discipline here: one checkout, one reference, never reused. Reuse one and two different sales become indistinguishable, which is precisely the failure the solo challenge makes you prove you avoided.
 
@@ -84,7 +84,7 @@ const reference = (await generateKeyPairSigner()).address;
 
 This line is one of the lab's two TODO holes. You have now seen the answer.
 
-![The transfer-request URL split into labeled parts: solana scheme, recipient, decimal amount, spl-token mint, reference key, label and message, and on-chain memo.](assets/v03-diagram.png)
+![The transfer-request URL split into labeled parts: solana scheme, recipient, decimal amount, spl-token mint, reference key, label and message, and on-chain memo.](assets/v03-diagram.webp)
 
 ### Where the library actually lives, and how old the spec page is
 
@@ -92,7 +92,7 @@ Two honest warnings before you read any official material, both of which will ot
 
 First, the repo. The canonical Solana Pay repository is `solana-foundation/pay` (the old `solana-labs/solana-pay` URL redirects there). Open its README and you will not find your checkout library. The headline product is now a CLI for agentic payments, machine-to-machine HTTP flows, and installing `@solana/pay` globally even gives you that CLI's binary. The classic checkout library you just installed lives in a subpackage: `typescript/packages/solana-pay/`. It is not deprecated, not frozen, and very much shipped: 1.0.26 went out on 2026-07-31, rebuilt on kit. The Foundation's payments energy moved to a different front door; the library stayed in the house. Bookmark the subpackage path, not the repo root.
 
-![Tree of the solana-foundation/pay repo showing the root README as the agentic CLI headline and the classic checkout library living at typescript/packages/solana-pay with its five core exports.](assets/v04-diagram.png)
+![Tree of the solana-foundation/pay repo showing the root README as the agentic CLI headline and the classic checkout library living at typescript/packages/solana-pay with its five core exports.](assets/v04-diagram.webp)
 
 Second, the spec. The Solana Pay spec at docs.solanapay.com is still the standard every wallet implements, and the page itself is frozen somewhere in the 2022-2023 era: its copyright line reads 2023, its cast list is pure 2022. Its opening line, verbatim, is "Rough consensus on this spec has been reached, and implementations exist in Phantom, FTX, and Slope." One of those three collapsed spectacularly and another is gone. Read the spec for the protocol, which has aged well, and ignore the cast list, which has not. The repo carries the same text at `typescript/packages/solana-pay/spec/SPEC.md`, alongside two siblings worth knowing by name: `SPEC1.1.md` and `message-signing-spec.md`, both of which open with the line "This spec is currently alpha and subject to change." Message signing is that alpha extension, not part of the live v1 transfer/transaction-request standard, and no checkout in this course leans on it.
 
@@ -151,7 +151,7 @@ The `commitment` option is a policy decision you already have the vocabulary for
 
 WebSocket subscription, in one sentence for anyone who has only ever polled REST APIs: instead of you repeatedly asking "anything yet?", you hold one long-lived connection open and the RPC node pushes the answer to you the moment it exists. Keep `findReference` in your toolbox anyway. A WebSocket that drops during the payment misses the notification, and a poll is how you sweep for anything a subscription missed. The production checkouts in module 4 run both: subscribe for speed, sweep for truth.
 
-![Comparison of findReference as a repeated HTTP polling loop versus watchReference as one WebSocket subscription that pushes the signature when the transfer lands.](assets/v05-comparison.png)
+![Comparison of findReference as a repeated HTTP polling loop versus watchReference as one WebSocket subscription that pushes the signature when the transfer lands.](assets/v05-comparison.webp)
 
 ### Trust arrives last: validateTransfer
 
@@ -182,13 +182,13 @@ If any expectation fails, it throws `ValidateTransferError` and you have not mad
 
 Put together, one sale flows like this:
 
-![Four-lane sale flow where the server mints a reference and arms a watcher, the browser renders the QR, the wallet submits the transfer, and validateTransfer confirms it.](assets/v06-flowchart.png)
+![Four-lane sale flow where the server mints a reference and arms a watcher, the browser renders the QR, the wallet submits the transfer, and validateTransfer confirms it.](assets/v06-flowchart.webp)
 
 ### Who has run this shape at scale
 
 This URL-and-reference pattern is not a classroom toy. On 2023-08-23, Shopify announced Solana Pay as a payment option across its merchant network, with MonkeDAO, Mad Lads, and Helius among the first users. The pitch Shopify's integration lead made was pure merchant economics, the same arithmetic from module 1: no bank fees, no chargebacks, no multi-day holding times on your own revenue. A card sale is a loan the network can claw back for months; a settled stablecoin transfer is final in seconds, and for a merchant running on thin margins that difference is the whole argument. The integration path has since changed hands, as commerce plumbing tends to: today's live route for a Shopify store is MoonPay Commerce's plugin. The spec underneath is the one you are implementing right now.
 
-![Timeline from the 2022 Solana Pay spec through the 2023 Shopify announcement with its three named first users, to the 2026 kit-based library and the MoonPay Commerce path.](assets/v07-timeline.png)
+![Timeline from the 2022 Solana Pay spec through the 2023 Shopify announcement with its three named first users, to the 2026 kit-based library and the MoonPay Commerce path.](assets/v07-timeline.webp)
 
 Now the trade-off, because this lesson's rung has a sharp ceiling and you should feel it before you build. Everything the wallet knows about this sale came from a URL you printed onto a screen, and once it is on the customer's side of the glass you control none of it. The amount, the mint, the reference: all of it is data in the customer's hands before it becomes a transaction. `validateTransfer` means tampering cannot fool you, a doctored payment simply fails validation. But it also cannot express you. No cart totals computed server-side, no coupon logic, no dynamic memo, no order state at all beyond one reference key per page load. A transfer request is dead simple and trustless, and it is exactly one record at one price. That ceiling is the next lesson's opening problem.
 
@@ -358,7 +358,7 @@ Worked build. Every file below goes in the `wavelength-checkout` workspace you c
 
    Also notice what this toy version leaks, because seeing the leak now saves you a debugging session in module 4. Every GET arms a watcher with no abort signal and no expiry. Refresh the page five times and you have five live WebSocket subscriptions, four of them orphans that will sit on the RPC connection until the process dies. Fine for a lab on devnet, a real problem at any traffic. A production checkout has a lifecycle: it opens, it expires after some minutes, its watcher gets aborted, and a periodic `findReference` sweep catches anything that paid after the subscription closed. You built the abort machinery already (`awaitSale` accepts a signal, the smoke test exercises it); this server just does not use it yet. The back-office module gives checkouts that lifecycle properly, alongside the persistence this log line is standing in for.
 
-![Annotated request handler showing the per-checkout sequence: mint a fresh reference, encode the payment URL, arm the watcher, then serve the page.](assets/v08-annotated-code.png)
+![Annotated request handler showing the per-checkout sequence: mint a fresh reference, encode the payment URL, arm the watcher, then serve the page.](assets/v08-annotated-code.webp)
 
 6. **The smoke test.** Create `checkout/smoke.ts`, the module's standard per-lesson verify:
 

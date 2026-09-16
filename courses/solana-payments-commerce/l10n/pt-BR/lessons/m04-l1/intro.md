@@ -32,7 +32,7 @@ Vamos ser precisos sobre o que você já verifica, porque o módulo 3 não era i
 
 A regra de design vale ser dita como regra, porque ela é o módulo inteiro: **o frontend é UI para o comprador, nunca testemunha para você.** Uma flag `paid: true`, um redirect de sucesso, uma signature colada num formulário, tudo isso é entrada controlada pelo cliente. A única coisa que um cliente não consegue forjar é o que o livro-razão diz que uma transação confirmed fez. Então o servidor pergunta para o livro-razão, toda vez, e não cumpre com base em mais nada.
 
-![O navegador manda alegações falsificáveis como paid true e uma signature, enquanto o servidor busca fatos no livro-razão via getTransaction, e só o canal de fatos alimenta a decisão de cumprimento.](assets/v01-diagram.png)
+![O navegador manda alegações falsificáveis como paid true e uma signature, enquanto o servidor busca fatos no livro-razão via getTransaction, e só o canal de fatos alimenta a decisão de cumprimento.](assets/v01-diagram.webp)
 
 Vou confessar de onde esta lição vem. Anos atrás, num projeto web2, eu liguei o cumprimento ao redirect de sucesso de um provedor de pagamento porque o exemplo da documentação fazia assim. Um testador com o devtools aberto reapresentou aquele redirect e conseguiu um pedido de graça em menos de uma hora, e a correção era a API de verificação no servidor do próprio provedor, que eu deveria ter lido antes. O pessoal do Stripe conhece isso como a regra de que você cumpre a partir do webhook mais um PaymentIntent recuperado, nunca a partir da URL de retorno do cliente. Mesma regra aqui, com dentes mais afiados: nos trilhos de cartão o meu erro dava para recuperar com um ticket de suporte. Aqui, a coisa que você despacha contra um pagamento falso simplesmente foi embora.
 
@@ -44,7 +44,7 @@ Os números primeiro, com a procedência declarada com cuidado, porque este é u
 
 Então qual você compra? Precifique como seguro, porque é literalmente isso que é. O prêmio é latência no seu checkout; a indenização é proteção contra um bloco confirmed ser descartado num fork, o que é raro, e quanto mais valor um pagamento carrega, mais esse evento raro importa. Condicionar uma venda de um disco só de US$ 6 a `finalized` é teatro: você cobra de todo cliente 10 segundos encarando um spinner para se segurar contra um risco que, em US$ 6, arredonda para zero. Condicionar uma fatura de atacado de US$ 6,000 a `confirmed` é o erro oposto: um fork-drop real, ainda que raro, agora te custa quatro dígitos sem caminho de reversão, e você economizou oito segundos num pagamento que ninguém estava esperando de pé num balcão. O commitment escala com o que um pagamento descartado te custa. Escreva essa política em números, por faixa de produto, e deixe o verifier impor ela.
 
-![Uma tabela de política de quatro linhas casando valores de pagamento com commitment levels: confirmed para as vendas de seis e de duzentos dólares, finalized para uma fatura de seis mil dólares, processed nunca.](assets/v02-comparison.png)
+![Uma tabela de política de quatro linhas casando valores de pagamento com commitment levels: confirmed para as vendas de seis e de duzentos dólares, finalized para uma fatura de seis mil dólares, processed nunca.](assets/v02-comparison.webp)
 
 Então o comprador fica encarando o quê enquanto o seu servidor espera? É aqui que o `processed` vale o que custa, porque ele é um nível de UI e nada mais. Mostre "pagamento visto" no instante em que a transação aparece em `processed`, abaixo de um segundo, e vire para "pago" só quando o commitment do seu verifier fechar. O comprador recebe retorno instantâneo, o cumprimento recebe a garantia dele, e nenhum dos dois pega emprestado o trabalho do outro. E quando você cumprir errado apesar de tudo, lembre do que o módulo 1 estabeleceu: não existe processo de disputa para encaminhar o erro. Um reembolso nestes trilhos é um push novinho de você para o comprador, construção original, e construir ele direito é uma lição inteira mais adiante neste módulo. O trabalho do verifier é fazer dos reembolsos um caso de atendimento ao cliente em vez de um mecanismo de sobrevivência.
 
@@ -60,7 +60,7 @@ Por que não o mais leve `getSignatureStatuses`, que é efetivamente no que o wa
 
 A resposta é um objeto grande. O seu verifier lê exatamente três partes dela:
 
-![Mapa anotado de uma resposta jsonParsed do getTransaction marcando os saldos de token pre e post, a instrução spl-memo parseada carregando o id do pedido e o campo de erro em meta.](assets/v03-annotated-code.png)
+![Mapa anotado de uma resposta jsonParsed do getTransaction marcando os saldos de token pre e post, a instrução spl-memo parseada carregando o id do pedido e o campo de erro em meta.](assets/v03-annotated-code.webp)
 
 Três hábitos para fixar enquanto a anatomia está na sua frente. Case `preTokenBalances` com `postTokenBalances` por `accountIndex`, e trate uma entrada pre ausente como zero: uma conta de token criada dentro desta mesma transação (a ATA de um comprador de primeira viagem, ou a conta nova em folha de um atacante) tem saldo post e nenhum saldo pre. Faça a subtração em `bigint` sobre as strings de `amount`; a lição dos decimais já te ensinou por que float e dinheiro nunca se encontram, e `uiAmount` é float. E leia o campo `owner`, não só o endereço da conta: as entradas de saldo te dizem quem é dono de cada conta de token tocada, que é como o verifier acha créditos para você sem manter uma lista de toda conta de token que você já teve.
 
@@ -82,7 +82,7 @@ Existe uma signature, a transação deu certo, despache o disco. Dê para ela o 
 
 **Ataque 2: o valor certo no programa errado.** Este é a pedra angular, e o que o `validateTransfer` nunca cobriu. Existem dois programas de token na Solana: o Token clássico em `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` e o Token-2022 em `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`. Qualquer um pode criar um mint Token-2022, dar o nome que quiser, mintar um bilhão de unidades para si mesmo e transferir 30.000000 delas para uma conta de token que pertence a você. On-chain aquilo é uma transação perfeitamente válida cujo `postTokenBalances` mostra o seu endereço creditado com exatamente o valor que você cobra. Um verifier que checa valor e owner mas não `programId` deixa passar, e o seu disco de US$ 30 acabou de ser vendido por confete. A checagem é uma linha, `credit.programId` tem que ser igual ao id do programa Token clássico, e o motivo de ela ter que vir antes da checagem de mint é sutil o bastante para ser dito em voz alta: endereços de mint só querem dizer o que o programa deles diz que eles querem dizer. Comparar strings de mint antes de ter estabelecido qual programa as define é conferir o rótulo de uma garrafa que outra pessoa imprimiu.
 
-![Um atacante credita trinta unidades de um mint Token-2022 sem valor numa conta pertencente ao lojista, passando nas checagens de owner e de valor mas falhando na checagem de id de programa.](assets/v04-diagram.png)
+![Um atacante credita trinta unidades de um mint Token-2022 sem valor numa conta pertencente ao lojista, passando nas checagens de owner e de valor mas falhando na checagem de id de programa.](assets/v04-diagram.webp)
 
 **Ataque 3: um token de verdade que não é o seu token.** Mesmo formato, menos esforço: te pagar 30 USDT quando o preço era 30 USDC. Os dois moram sob o programa Token clássico, então a checagem do ataque 2 passa. Agora a checagem de mint conquista o lugar dela: o `mint` do crédito tem que ser igual ao mint em que você precifica. Na mainnet, USDC quer dizer exatamente `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` e nada mais; na devnet o seu mint esperado é o que a config do seu transfer-kit fixou desde o módulo 2. Nomes, símbolos e logos são metadados que qualquer um copia. O endereço é a identidade.
 
@@ -94,7 +94,7 @@ Uma objeção justa antes do próximo ataque: a gente acabou de declarar o Token
 
 Cinco ataques, cinco checagens, uma ordem. Duplicate, depois programa de token, depois mint, depois valor, depois reference, e só então guarde a signature e diga `verified`:
 
-![Fluxograma do pipeline do verifier rodando as checagens de duplicate, fetch, programa de token, mint, delta de saldo e memo até o cumprimento, cada falha saindo com um único motivo ordenado.](assets/v05-flowchart.png)
+![Fluxograma do pipeline do verifier rodando as checagens de duplicate, fetch, programa de token, mint, delta de saldo e memo até o cumprimento, cada falha saindo com um único motivo ordenado.](assets/v05-flowchart.webp)
 
 Um motivo naquele diagrama não é como os outros. `not-found` é transitório, não um veredito: no commitment `confirmed` a transação pode simplesmente ainda não estar visível quando um webhook rápido dispara, então quem chamou espera e tenta de novo em vez de rejeitar o pedido. Uma transação que aterrissou mas falhou não precisa desse cuidado, e nem de caso especial: `meta.err` não nulo quer dizer que nada se moveu, os deltas dela são zero, e a checagem de underpaid dá conta dela.
 
@@ -102,7 +102,7 @@ Um motivo naquele diagrama não é como os outros. `not-found` é transitório, 
 
 O conjunto de signatures processadas tem um custo que a versão resumida desta lição esconderia, então não vamos esconder. Todo pagamento cumprido adiciona uma entrada, para sempre, e um conjunto que só cresce é estado ilimitado: tranquilo no volume de uma loja de discos, uma fatura de verdade no de um processador de pagamentos. A saída é que as entradas param de valer o que custam. O blockhash de uma transação não pode ter mais de 150 blocos para aterrissar, o que no tempo-alvo de slot atual de 300ms é uma janela de mais ou menos 45 segundos (derive ela do tempo de slot, e derive de novo quando o tempo de slot mudar: os cortes em etapas da SIMD-0525 já moveram esta janela duas vezes, de ~60 segundos nos antigos slots de 400ms para ~53 na etapa de 350ms e para os ~45 de hoje, e mais dois cortes estão represados no código, então uma afirmação hardcoded de "mais ou menos um minuto" já está duas eras atrasada). Passada essa janela, a mesma transação assinada nunca mais consegue aterrissar na blockchain, então o replay on-chain acabou fisicamente. O que sobra é reentrega de webhook vinda da sua própria infraestrutura, que tem o próprio horizonte limitado de retry. Daí a regra de descarte: guarde uma signature pelo tempo de vida do blockhash mais uma margem generosa cobrindo a janela máxima de reentrega do seu provedor de webhook, e depois solte ela. O store em memória do lab varre entradas com mais de dez minutos, um limite deliberadamente preguiçoso que ainda está mais de uma ordem de grandeza além da janela on-chain.
 
-![Linha do tempo mostrando uma signature guardada protegendo contra replay on-chain por mais ou menos quarenta e cinco segundos e contra reentrega de webhook por minutos, e depois sendo descartada aos dez minutos assim que as duas janelas fecham.](assets/v06-timeline.png)
+![Linha do tempo mostrando uma signature guardada protegendo contra replay on-chain por mais ou menos quarenta e cinco segundos e contra reentrega de webhook por minutos, e depois sendo descartada aos dez minutos assim que as duas janelas fecham.](assets/v06-timeline.webp)
 
 Persistência é outro eixo, e vale uma frase honesta: um conjunto em memória esquece no restart, então produção move a mesma interface de dois métodos para o seu banco de pedidos, onde uma linha de pedido cumprido com uma coluna de signature é o conjunto. A interface que você constrói hoje transforma essa troca num argumento de construtor.
 
@@ -461,7 +461,7 @@ main().catch((err) => fail(err instanceof Error ? err.message : String(err)));
 
 **7. Semeie os ataques.** O harness só é tão honesto quanto as transações que você dá para ele, então você mesmo escreve as testemunhas: cinco arquivos em `verifier/fixtures/`, cada um com o formato exato da interface `Fixture` no topo do harness que você acabou de salvar. Todo arquivo carrega um `transaction` com formato de `getTransaction`, o `order` que ele diz pagar e o único motivo que o seu verifier tem que devolver para ele. As fixtures fixam de propósito os endereços de mint reais de mainnet do USDC e do USDT, porque a regra de que o endereço é a identidade é mais fácil de internalizar com as identidades de verdade na página; a rodada ao vivo do passo 8 troca pelo seu mint de devnet através das variáveis de ambiente, e o verifier nunca percebe a diferença. Os prefixos numéricos só mantêm a saída do `readdirSync` na ordem de leitura.
 
-![Os quatro campos de um arquivo de fixture anotados com o jeito que o harness consome eles, a signature chaveando o fetch falso e o motivo esperado guiando a asserção.](assets/v07-annotated-code.png)
+![Os quatro campos de um arquivo de fixture anotados com o jeito que o harness consome eles, a signature chaveando o fetch falso e o motivo esperado guiando a asserção.](assets/v07-annotated-code.webp)
 
 Primeiro, o pagamento que tem que passar. O lado do comprador da transferência pega carona nos arrays de saldo de propósito: o seu código de delta tem que achar a entrada que pertence ao lojista no meio de estranhos, que é o objetivo inteiro de chavear pelo `owner`. O crédito é exatamente 30 USDC, pre 1.000000 e post 31.000000. Salve como `verifier/fixtures/01-correct-payment.json`:
 
@@ -716,7 +716,7 @@ npm run verify:verifier
 
 Com os seus dois TODOs preenchidos corretamente, toda fixture imprime o motivo dela e a linha final é a frase de aprovação completa. Se o harness recusar com `no fixtures`, os seus cinco arquivos do passo 7 não estão onde o `import.meta.dirname` aponta; aquela recusa é deliberada, porque um harness que não testou nada não tem nada que imprimir uma aprovação. Se `wrong-token-program` voltar como `wrong-mint`, as suas checagens estão na ordem errada; se a fixture de underpaid verificar, o seu delta compara floats ou strings em vez de bigints. O conjunto de fixtures cobre exatamente o que a teoria derivou:
 
-![Tabela de cinco fixtures, um pagamento correto e quatro ataques, cada uma emparelhada com o único motivo que o verifier tem que devolver e a propriedade que aquele motivo prova.](assets/v08-table.png)
+![Tabela de cinco fixtures, um pagamento correto e quatro ataques, cada uma emparelhada com o único motivo que o verifier tem que devolver e a propriedade que aquele motivo prova.](assets/v08-table.webp)
 
 Depois a metade ao vivo. Faça um pagamento novo na devnet pelo seu checkout da lição do QR, ou mande um direto com o transfer-kit — de um jeito ou de outro ele tem que vir do cliente de mentira, não do seu keypair de lojista, porque a checagem de valor deste verifier é um delta de saldo na sua própria conta de token e um autopagamento move ele em zero:
 
@@ -753,7 +753,7 @@ O starter já faz `JSON.parse` das duas strings (argumentos 1 e 7) na entrada, e
 
 Mais uma coisa antes de você fechar o editor, porque ela reenquadra tudo o que você acabou de construir. Este verifier sobrevive à lição de hoje:
 
-![Diagrama mostrando a função verify construída hoje sendo consumida pela lição do webhook, pelos degraus de pagamento posteriores e pelo harness de aceitação do capstone, todos afunilando signatures pelas mesmas checagens.](assets/v09-diagram.png)
+![Diagrama mostrando a função verify construída hoje sendo consumida pela lição do webhook, pelos degraus de pagamento posteriores e pelo harness de aceitação do capstone, todos afunilando signatures pelas mesmas checagens.](assets/v09-diagram.webp)
 
 O que quer que você construa para a Wavelength daqui em diante, a verdade sobre pagamentos passa por esta única função. Drift de interface aqui quebra toda lição posterior, que é exatamente por que os tipos congelaram no passo 2.
 

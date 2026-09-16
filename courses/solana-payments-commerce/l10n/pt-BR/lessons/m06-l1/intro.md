@@ -22,7 +22,7 @@ As descobertas logo de cara:
 
 O artefato é o `ramp-embed`, nascido do mesmo workspace `wavelength-checkout`: uma rota de servidor que emite o session token, uma passagem de bastão para o cliente que abre a URL do onramp, e um smoke test que prova que o endereço nunca vaza. Como o trabalho de hoje está dividido: o handler de sessão chega como um esqueleto com dois buracos de TODO bem barulhentos, e a teoria contém as duas respostas na íntegra; o offramp é um passo a passo guiado, porque não dá para automatizar de forma útil o fluxo de KYC hospedado de outra pessoa; e o desafio de código solo te entrega uma integração que funciona mas vaza, para consertar, em vez de um arquivo em branco.
 
-![O checkout existente fica no centro, com um comprador de cartão entrando pelo Coinbase Onramp embutido e um artista saindo pelo Coinbase Offramp hospedado até um banco.](assets/v01-diagram.png)
+![O checkout existente fica no centro, com um comprador de cartão entrando pelo Coinbase Onramp embutido e um artista saindo pelo Coinbase Offramp hospedado até um banco.](assets/v01-diagram.webp)
 
 ## A fronteira fiat
 
@@ -36,7 +36,7 @@ Por que uma loja de discos se importa com isso? Porque a matemática do comprado
 
 E isso deixou de ser hipotético para o consumidor faz um tempo. A onda de trilhos de consumo de abril de 2026 levou o padrão para o mainstream: a Meta começou a pagar criadores em USDC na Solana na Colômbia e nas Filipinas, o MetaMask Card começou a gastar USDC da Solana sobre a Mastercard em terminais comuns, e a Solflare entregou onramps do Coinbase com Apple Pay direto dentro da carteira (as três notícias vêm do resumo de ecossistema de abril de 2026 da Solana Foundation no solana.com, o mesmo resumo que lições posteriores citam; são afirmações datadas, então confira de novo antes de repetir). O encanamento que você está prestes a construir é o mesmo encanamento, uma vitrine menor.
 
-![Uma linha do tempo de três trilhos de consumo de abril de 2026, os payouts de criadores da Meta, os gastos do MetaMask Card e os onramps com Apple Pay da Solflare, com setas apontando para o embed de vitrine desta lição.](assets/v02-timeline.png)
+![Uma linha do tempo de três trilhos de consumo de abril de 2026, os payouts de criadores da Meta, os gastos do MetaMask Card e os onramps com Apple Pay da Solflare, com setas apontando para o embed de vitrine desta lição.](assets/v02-timeline.webp)
 
 ### O session token: vincule no servidor, nunca vaze
 
@@ -54,7 +54,7 @@ Seja preciso sobre o que o token protege e o que ele não protege, porque uma af
 
 A propriedade para guardar: **vincule no servidor, nunca vaze**. O valor sensível mora numa chamada autenticada de servidor para servidor; o cliente carrega uma referência opaca. Se você já usou os PaymentIntents da Stripe, este é o mesmo formato (um intent criado no servidor, um secret do lado do cliente que referencia ele), e essa sobreposição é a resposta padrão para "o cliente quer iniciar um fluxo que o cliente não pode dirigir".
 
-![Um fluxo de quatro saltos em que o cliente pede uma sessão, o seu servidor vincula o endereço dentro de um token da Coinbase, e o cliente abre uma URL em que a adulteração morre num beco sem saída.](assets/v03-flowchart.png)
+![Um fluxo de quatro saltos em que o cliente pede uma sessão, o seu servidor vincula o endereço dentro de um token da Coinbase, e o cliente abre uma URL em que a adulteração morre num beco sem saída.](assets/v03-flowchart.webp)
 
 Os formatos concretos, verificados contra a documentação ao vivo da Coinbase hoje, são pequenos o bastante para decorar. A emissão é um POST para `https://api.developer.coinbase.com/onramp/v1/token` com um JWT Bearer gerado a partir da sua chave de API do CDP, e o corpo que vincula um destino USDC na Solana é exatamente este:
 
@@ -78,11 +78,11 @@ https://pay.coinbase.com/buy/select-asset
 
 Leia essa URL duas vezes e note o que falta: nenhum endereço, nenhum app ID. `defaultNetwork` e `defaultAsset` são presets de experiência de usuário (eles escolhem em qual tela de ativo o widget abre), e `presetFiatAmount` pré-preenche a compra com o preço do disco, para o comprador cair numa tela que já diz o número certo. Nenhum deles é relevante para segurança. O único param estrutural é `sessionToken`, e ele é opaco. Essa assimetria, presets chatos na URL, o vínculo sensível atrás do token, é o design.
 
-![A URL do onramp anotada linha a linha, com o sessionToken marcado como estrutural, quatro presets de exibição marcados como cosméticos, e o endereço de carteira e o app ID ausentes por design.](assets/v04-annotated-code.png)
+![A URL do onramp anotada linha a linha, com o sessionToken marcado como estrutural, quatro presets de exibição marcados como cosméticos, e o endereço de carteira e o app ID ausentes por design.](assets/v04-annotated-code.webp)
 
 Os dois tempos de vida do token também fazem parte da propriedade, não são curiosidade. Uso único quer dizer que uma URL capturada não pode ser repetida para abrir uma segunda sessão de financiamento contra o mesmo vínculo, e a expiração de cinco minutos quer dizer que um link vazado morre antes de conseguir circular. O seu servidor emite por clique, no momento da intenção. Faça cache de um session token do jeito que você faria cache de uma cotação de preço e o melhor caso é um link morto, expirado ou já consumido, servido a um comprador real no momento da compra; o pior caso é um vínculo emitido para um comprador entregue a outro. A emissão custa uma ida e volta autenticada, então não tem nada que valha a pena economizar.
 
-![A vida de um session token, da emissão por clique passando por um único uso e pela expiração de cinco minutos, com tokens repetidos e cacheados mostrados morrendo em becos sem saída fora da linha.](assets/v05-timeline.png)
+![A vida de um session token, da emissão por clique passando por um único uso e pela expiração de cinco minutos, com tokens repetidos e cacheados mostrados morrendo em becos sem saída fora da linha.](assets/v05-timeline.webp)
 
 Uma nota prática sobre o que o comprador recebe. O destino que você vincula é o endereço de carteira do comprador, e a Coinbase entrega USDC na conta de token associada derivada dele, a mesma derivação de ATA que você aprendeu quando a Wavelength recebeu USDC pela primeira vez no módulo 2. O comprador não precisa pré-criar nada. Ele sai do fluxo segurando exatamente o saldo que o seu checkout sabe cobrar. O USDC de mainnet na Solana é o mint `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`; o seu checkout de devnet cobra o mint substituto da devnet, e é por isso que a execução ao vivo do lab é uma sessão em sandbox e não uma de devnet. Onramps são um produto de mainnet. Cartões de verdade compram dólares de verdade.
 
@@ -114,7 +114,7 @@ Dez compras contestadas. Quem senta na cadeira fica no prejuízo dos US$ 125 de 
 
 O instinto aqui é perguntar qual formato ganha, e é um instinto levemente errado. Os dois formatos colocam o provedor na cadeira de merchant-of-record para a compra de cripto; você está escolhendo profundidade de integração e superfície de provedor, não responsabilidade. A comparação honesta:
 
-![O Coinbase Onramp e o onramp da Stripe comparados: os dois fazem do provedor o merchant-of-record e o dono do KYC; eles diferem em formato de integração, status do produto, e em qual dos dois esta lição usa para construir.](assets/v06-comparison.png)
+![O Coinbase Onramp e o onramp da Stripe comparados: os dois fazem do provedor o merchant-of-record e o dono do KYC; eles diferem em formato de integração, status do produto, e em qual dos dois esta lição usa para construir.](assets/v06-comparison.webp)
 
 O padrão generaliza para além destes dois fornecedores, que é por que vale internalizar agora: quem é merchant-of-record é dono da fraude, das disputas e das verificações de identidade, e em troca é dono do mapa de cobertura. Você vai encontrar a mesma troca com um conjunto diferente de fornecedores na próxima lição, e no fim dela, "quem é merchant-of-record aqui?" deveria ser a primeira pergunta que você faz a qualquer fornecedor de pagamentos, logo antes de "e em quais corredores?".
 
@@ -126,7 +126,7 @@ A restrição de integração que molda tudo: **o Offramp é hosted-only.** Não
 
 Por que a Coinbase embutiria o caminho de entrada e hospedaria o caminho de saída? Siga o risco. Fraude de onramp é fraude de cartão, um problema que os provedores conseguem precificar e engolir em escala. O offramp é onde a lavagem de dinheiro sai para o sistema bancário, e o provedor quer esse fluxo inteirinho nas páginas dele, sob a sessão dele, sem nenhuma UI controlada por parceiro em volta. Você perde a UX embutida para a saída; em troca o compliance de payout nunca encosta no seu produto. Como troca, aceite, todas as vezes.
 
-![A caminhada do offramp, em que o seu produto emite um token e redireciona para fora, e depois disso o login, o KYC, o envio do USDC e o payout bancário acontecem todos nas páginas da Coinbase.](assets/v07-flowchart.png)
+![A caminhada do offramp, em que o seu produto emite um token e redireciona para fora, e depois disso o login, o KYC, o envio do USDC e o payout bancário acontecem todos nas páginas da Coinbase.](assets/v07-flowchart.webp)
 
 ### Dois fluxos que parecem iguais e não são
 
@@ -136,7 +136,7 @@ Aqui está a distinção que este módulo não vai deixar você borrar, porque b
 
 A sua superfície de compliance como dev cabe honestamente numa frase: você precisa conseguir dizer, em cada costura do seu produto onde fiat e cripto se tocam, qual ator está movendo dinheiro e quem é merchant-of-record para esse movimento. Isso é um trabalho de descrever, não de operar. Você não toca nenhum dos dois fluxos. E para falar claro, porque este canto do curso encosta em território regulado: esta é uma leitura de engenharia de onde as costuras estão, não aconselhamento jurídico, e um produto de serviços financeiros de verdade sobe com um advogado de verdade.
 
-![Três costuras mapeadas, com a Coinbase como merchant-of-record tanto do onramp quanto do offramp dela, a Stripe do onramp dela, e a Wavelength descrevendo todas as costuras sem operar nenhuma.](assets/v08-diagram.png)
+![Três costuras mapeadas, com a Coinbase como merchant-of-record tanto do onramp quanto do offramp dela, a Stripe do onramp dela, e a Wavelength descrevendo todas as costuras sem operar nenhuma.](assets/v08-diagram.webp)
 
 ### O que eu verifiquei, e no que você não pode confiar em mim
 
@@ -303,7 +303,7 @@ Esse é o CDP SDK da Coinbase (linha 1.x em agosto de 2026; confira o npm antes 
 
    Com os buracos no lugar isso morre com `TODO: buildSessionRequest`, e essa falha exata é o checkpoint da parte guiada. Qualquer outra coisa quer dizer um erro de digitação mais acima: o suspeito de sempre é o caminho relativo de import para `checkout/record.ts`, que precisa subir para fora do `ramp-embed/` com `../`.
 
-![Os três arquivos do ramp-embed, construtores de sessão puros, uma rota de servidor autenticada, e um smoke test provando que o endereço é vinculado no servidor e está ausente da URL do cliente.](assets/v09-diagram.png)
+![Os três arquivos do ramp-embed, construtores de sessão puros, uma rota de servidor autenticada, e um smoke test provando que o endereço é vinculado no servidor e está ausente da URL do cliente.](assets/v09-diagram.webp)
 
 5. **A caminhada da sessão, sandbox por padrão.** Este passo precisa das chaves do CDP, e a caminhada do offramp no passo 6 também, então guarde os dois juntos para quando você tiver credenciais; só a caminhada opcional com cartão real no fim precisa, além disso, da liberação de modo trial do seu app. Se você está offline ou sem chaves hoje, o smoke test sozinho completa a construção da lição, e os passos 5 e 6 esperam. Exporte `CDP_API_KEY_ID` e `CDP_API_KEY_SECRET`, suba a rota com `npx tsx ramp-embed/server.ts`, e depois faça o papel do cliente da vitrine a partir de um segundo terminal:
 

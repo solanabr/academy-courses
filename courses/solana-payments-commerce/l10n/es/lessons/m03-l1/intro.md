@@ -58,7 +58,7 @@ El cliente escanea, su billetera parsea esos parámetros, construye una instrucc
 
 Ahora la trampa, porque merece su propio párrafo y una comparación lado a lado. Te pasaste todo el módulo 2 convirtiendo montos decimales a unidades base con `toBaseUnits`, porque las instrucciones de transferencia on-chain hablan unidades base. Una URL de Solana Pay no. El spec define `amount` como una cantidad de UI, y la billetera multiplica por los decimales del mint por ti. Los dos hábitos chocan de frente:
 
-![Comparación lado a lado de 12.5 USDC como monto decimal en la URL frente a 12500000 unidades base en una instrucción, advirtiendo que las unidades base en una URL cobran millones.](assets/v01-comparison.png)
+![Comparación lado a lado de 12.5 USDC como monto decimal en la URL frente a 12500000 unidades base en una instrucción, advirtiendo que las unidades base en una URL cobran millones.](assets/v01-comparison.webp)
 
 Las dos convenciones son correctas donde viven. La URL habla humano, la instrucción habla unidades base, y la billetera es la traductora. Mantén `toBaseUnits` completamente fuera del código de tu URL.
 
@@ -70,7 +70,7 @@ Ese identificador es la reference: una clave base58 de 32 bytes, aleatoria y nue
 
 Vale la pena ser preciso sobre la mecánica, ya que explica tanto por qué esto funciona como por qué no cuesta nada. La billetera agrega tu reference a la lista de cuentas en la instrucción de transferencia como una clave que no firma ni es escribible. La cuenta detrás de esa dirección no existe y nunca existirá; sin rent, sin creación, sin estado. Es puro grafiti sobre la lista de cuentas de la transacción. Pero Solana indexa las transacciones por cada cuenta que mencionan, exista o no, que es lo que `getSignaturesForAddress` consulta por debajo. Pregúntale al RPC "¿qué transacciones mencionan `CD9G...rvDh`?" y la respuesta es tu venta y nada más en toda la historia de la blockchain. Un índice de transacciones gratis, a prueba de colisiones, preasignable, construido a partir de una dirección que nadie fondeó. Compara eso con el rodeo tradicional, una dirección de depósito única por pedido con toda la gestión de claves que eso arrastra, y la reference empieza a verse como la mejor idea que es.
 
-![Flujo de datos: una clave de reference acuñada por el servidor viaja a través del código QR y la billetera hasta la transacción, y luego se consulta de vuelta vía getSignaturesForAddress para emparejar el pedido.](assets/v02-diagram.png)
+![Flujo de datos: una clave de reference acuñada por el servidor viaja a través del código QR y la billetera hasta la transacción, y luego se consulta de vuelta vía getSignaturesForAddress para emparejar el pedido.](assets/v02-diagram.webp)
 
 Si alguna vez integraste Stripe, ya te encontraste con esta forma: es tu clave de idempotencia y tu id de pedido fusionados en un solo valor, elegido del lado del cliente antes del cobro. Piénsalo como el ticket de un guardarropa. El ticket se imprime antes de que llegue el abrigo, el número corresponde a exactamente un abrigo, y tener el ticket es como lo reclamas después. Misma disciplina aquí: un checkout, una reference, nunca reutilizada. Reutiliza uno y dos ventas distintas se vuelven indistinguibles, que es precisamente la falla que el desafío solo te hace demostrar que evitaste.
 
@@ -84,7 +84,7 @@ const reference = (await generateKeyPairSigner()).address;
 
 Esta línea es uno de los dos huecos TODO del lab. Ya viste la respuesta.
 
-![La URL de transfer-request dividida en partes etiquetadas: esquema solana, destinatario, monto decimal, mint de spl-token, clave de reference, label y message, y memo on-chain.](assets/v03-diagram.png)
+![La URL de transfer-request dividida en partes etiquetadas: esquema solana, destinatario, monto decimal, mint de spl-token, clave de reference, label y message, y memo on-chain.](assets/v03-diagram.webp)
 
 ### Dónde vive la librería en realidad, y qué tan vieja es la página del spec
 
@@ -92,7 +92,7 @@ Dos advertencias honestas antes de que leas cualquier material oficial, que de o
 
 Primero, el repo. El repositorio canónico de Solana Pay es `solana-foundation/pay` (la vieja URL `solana-labs/solana-pay` redirige ahí). Abre su README y no vas a encontrar tu librería de checkout. El producto titular ahora es una CLI para pagos agénticos, flujos HTTP entre máquinas, e instalar `@solana/pay` de forma global hasta te da el binario de esa CLI. La librería clásica de checkout que acabas de instalar vive en un subpaquete: `typescript/packages/solana-pay/`. No está deprecada, no está congelada y sí que está publicada: 1.0.26 salió el 2026-07-31, reconstruida sobre kit. La energía de pagos de la Foundation se mudó a otra puerta de entrada; la librería se quedó en la casa. Marca la ruta del subpaquete, no la raíz del repo.
 
-![Árbol del repo solana-foundation/pay que muestra el README raíz como el titular de la CLI agéntica y la librería clásica de checkout viviendo en typescript/packages/solana-pay con sus cinco exports centrales.](assets/v04-diagram.png)
+![Árbol del repo solana-foundation/pay que muestra el README raíz como el titular de la CLI agéntica y la librería clásica de checkout viviendo en typescript/packages/solana-pay con sus cinco exports centrales.](assets/v04-diagram.webp)
 
 Segundo, el spec. El spec de Solana Pay en docs.solanapay.com sigue siendo el estándar que toda billetera implementa, y la página en sí está congelada en algún punto de la era 2022-2023: su línea de copyright dice 2023, su reparto es puro 2022. Su línea de apertura, textual, es "Rough consensus on this spec has been reached, and implementations exist in Phantom, FTX, and Slope." Uno de esos tres colapsó de forma espectacular y otro ya no existe. Lee el spec por el protocolo, que ha envejecido bien, e ignora el reparto, que no. El repo lleva el mismo texto en `typescript/packages/solana-pay/spec/SPEC.md`, junto a dos hermanos que vale la pena conocer por nombre: `SPEC1.1.md` y `message-signing-spec.md`, los dos abren con la línea "This spec is currently alpha and subject to change." La firma de mensajes es esa extensión alpha, no parte del estándar vivo de transfer/transaction-request v1, y ningún checkout de este curso se apoya en ella.
 
@@ -151,7 +151,7 @@ La opción `commitment` es una decisión de política para la que ya tienes el v
 
 Suscripción WebSocket, en una frase para cualquiera que solo haya hecho polling contra APIs REST: en vez de que preguntes una y otra vez "¿ya llegó algo?", mantienes abierta una sola conexión de larga vida y el nodo RPC te empuja la respuesta en el momento en que existe. Igual mantén `findReference` en tu caja de herramientas. Un WebSocket que se cae durante el pago se pierde la notificación, y un poll es cómo barres lo que se le escapó a una suscripción. Los checkouts de producción del módulo 4 corren los dos: suscríbete por velocidad, barre por verdad.
 
-![Comparación de findReference como un loop de polling HTTP repetido frente a watchReference como una sola suscripción WebSocket que empuja la firma cuando la transferencia aterriza.](assets/v05-comparison.png)
+![Comparación de findReference como un loop de polling HTTP repetido frente a watchReference como una sola suscripción WebSocket que empuja la firma cuando la transferencia aterriza.](assets/v05-comparison.webp)
 
 ### La confianza llega al final: validateTransfer
 
@@ -182,13 +182,13 @@ Si falla cualquier expectativa, lanza `ValidateTransferError` y no hiciste una v
 
 Armado todo junto, una venta fluye así:
 
-![Flujo de venta de cuatro carriles donde el servidor acuña una reference y arma un watcher, el navegador renderiza el código QR, la billetera envía la transferencia y validateTransfer la confirma.](assets/v06-flowchart.png)
+![Flujo de venta de cuatro carriles donde el servidor acuña una reference y arma un watcher, el navegador renderiza el código QR, la billetera envía la transferencia y validateTransfer la confirma.](assets/v06-flowchart.webp)
 
 ### Quién ha corrido esta forma a escala
 
 Este patrón de URL y reference no es un juguete de salón de clases. El 2023-08-23, Shopify anunció Solana Pay como opción de pago en toda su red de comercios, con MonkeDAO, Mad Lads y Helius entre los primeros usuarios. El argumento que hizo quien lidera las integraciones en Shopify fue pura economía de comercio, la misma aritmética del módulo 1: sin comisiones bancarias, sin chargebacks, sin retenciones de varios días sobre tus propios ingresos. Una venta con tarjeta es un préstamo que la red puede revertir durante meses; una transferencia de stablecoin liquidada es final en segundos, y para un comercio que corre con márgenes delgados esa diferencia es todo el argumento. La ruta de integración ha cambiado de manos desde entonces, como suele pasar con la plomería del comercio: la ruta viva de hoy para una tienda de Shopify es el plugin de MoonPay Commerce. El spec de abajo es el que estás implementando ahora mismo.
 
-![Línea de tiempo desde el spec de Solana Pay de 2022 pasando por el anuncio de Shopify de 2023 con sus tres primeros usuarios nombrados, hasta la librería basada en kit de 2026 y la ruta de MoonPay Commerce.](assets/v07-timeline.png)
+![Línea de tiempo desde el spec de Solana Pay de 2022 pasando por el anuncio de Shopify de 2023 con sus tres primeros usuarios nombrados, hasta la librería basada en kit de 2026 y la ruta de MoonPay Commerce.](assets/v07-timeline.webp)
 
 Ahora la contrapartida, porque el peldaño de esta lección tiene un techo afilado y deberías sentirlo antes de construir. Todo lo que la billetera sabe de esta venta vino de una URL que imprimiste en una pantalla, y una vez que está en el lado del vidrio que le toca al cliente no controlas nada de eso. El monto, el mint, la reference: todo eso son datos en las manos del cliente antes de volverse una transacción. `validateTransfer` quiere decir que la manipulación no puede engañarte, un pago alterado simplemente falla la validación. Pero tampoco puede expresarte. Sin totales de carrito calculados del lado del servidor, sin lógica de cupones, sin memo dinámico, sin ningún estado de pedido más allá de una clave de reference por carga de página. Un transfer request es simplísimo y trustless, y es exactamente un disco a un precio. Ese techo es el problema de apertura de la próxima lección.
 
@@ -358,7 +358,7 @@ Construcción guiada. Cada archivo de abajo va en el workspace `wavelength-check
 
    Fíjate también en lo que esta versión de juguete deja escapar, porque ver la fuga ahora te ahorra una sesión de depuración en el módulo 4. Cada GET arma un watcher sin señal de abort y sin expiración. Recarga la página cinco veces y tienes cinco suscripciones WebSocket vivas, cuatro de ellas huérfanas que se van a quedar sentadas sobre la conexión RPC hasta que el proceso muera. Bien para un lab en devnet, un problema real con cualquier tráfico. Un checkout de producción tiene un ciclo de vida: se abre, expira después de algunos minutos, su watcher se aborta, y un barrido periódico de `findReference` atrapa cualquier cosa que haya pagado después de que la suscripción se cerró. Ya construiste la maquinaria de abort (`awaitSale` acepta una señal, la prueba de humo la ejercita); este servidor simplemente no la usa todavía. El módulo del back office les da a los checkouts ese ciclo de vida como se debe, junto con la persistencia que esta línea de log está supliendo.
 
-![Manejador de peticiones anotado que muestra la secuencia por checkout: acuñar una reference nueva, codificar la URL de pago, armar el watcher, luego servir la página.](assets/v08-annotated-code.png)
+![Manejador de peticiones anotado que muestra la secuencia por checkout: acuñar una reference nueva, codificar la URL de pago, armar el watcher, luego servir la página.](assets/v08-annotated-code.webp)
 
 6. **La prueba de humo.** Crea `checkout/smoke.ts`, la verificación estándar por lección del módulo:
 

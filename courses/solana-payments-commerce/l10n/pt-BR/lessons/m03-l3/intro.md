@@ -88,7 +88,7 @@ const link = undefined;
 
 Os mantenedores deixaram a costura ali de propósito. Quando `link` é uma URL, a maquininha para de codificar transfer requests e começa a codificar transaction requests, `solana:<https-link>`, mirando onde quer que `link` aponte. A linha comentada mira ele na API empacotada do próprio app. Você vai mirar no checkout-txreq em vez disso, porque você já construiu o endpoint melhor: ele precifica no servidor, ele carimba o memo e a reference, e o smoke test da lição passada prova que ele devolve uma transação em base64 para um `{account}` postado.
 
-![Trecho anotado do App.tsx mostrando a flag connectWallet e o toggle do link: link undefined quer dizer que a carteira monta uma transferência, link definido quer dizer que o seu servidor monta.](assets/v01-annotated-code.png)
+![Trecho anotado do App.tsx mostrando a flag connectWallet e o toggle do link: link undefined quer dizer que a carteira monta uma transferência, link definido quer dizer que o seu servidor monta.](assets/v01-annotated-code.webp)
 
 ### Como a venda de fato flui
 
@@ -96,7 +96,7 @@ Trace uma venda pela barraca religada, porque dois dos saltos são novos e um de
 
 Você digita 0.15 no teclado numérico e aperta gerar. A maquininha pega a sua URL de `link` e anexa a venda nela como parâmetros de query antes de codificar qualquer coisa: o `recipient` configurado, o `amount` digitado, o `label` da sua barraca, e `reference`, uma chave pública nova de uso único que ela cunha para esta venda com `generateKeyPairSigner` (a mesma disciplina de reference de 32 bytes em base58 que você usa desde a primeira lição de QR). Depois ela codifica a coisa toda com `encodeURL({ link })` e pinta o QR. O cliente escaneia. A carteira dele faz o passo duplo que você implementou na lição passada: GET no seu endpoint atrás de um label e um ícone, depois POST de `{account}` na mesma URL, query string e tudo. O seu servidor monta a transação, a carteira assina e submete, e a maquininha faz polling do `findReference` na reference que ela cunhou até a signature aparecer, e aí valida e vira a tela de confirmed.
 
-![Fluxograma de uma venda em três raias (maquininha, carteira do cliente, servidor), de digitar um valor e cunhar uma reference até assinar, submeter e a maquininha confirmar via findReference.](assets/v02-flowchart.png)
+![Fluxograma de uma venda em três raias (maquininha, carteira do cliente, servidor), de digitar um valor e cunhar uma reference até assinar, submeter e a maquininha confirmar via findReference.](assets/v02-flowchart.webp)
 
 Aqui está o salto que muda o trabalho do seu endpoint: o valor chegou na URL. Duas lições deste curso martelaram "nunca confie num preço mandado pelo cliente", e agora o preço volta a viajar numa query string. Então qual é?
 
@@ -133,7 +133,7 @@ Ligue isso no POST handler que você construiu na lição passada como um ramo: 
 
 Um parâmetro merece uma regra mais dura que validação. A maquininha também anexa `recipient` na query, e o seu endpoint deve ignorar ele completamente. O recebedor é configuração no seu servidor, definida uma vez, não um valor que chega a cada requisição; um endpoint que paga qualquer recipient que a query nomear é um open redirect para dinheiro, porque qualquer um que alcance a URL https consegue botar o próprio endereço nela. Mesma história para `memo` se ele aparecer: o seu endpoint carimba o próprio memo com o próprio order id, e isso continua valendo na barraca. A query tem permissão de te dizer quanto custa esta venda. Ela nunca tem permissão de te dizer quem recebe ou o que dizem os livros.
 
-![Uma decomposição rotulada da URL do payload do QR: o esquema solana, o link https que marca ela como transaction request, o caminho /txreq e os parâmetros por venda que a maquininha anexa.](assets/v03-diagram.png)
+![Uma decomposição rotulada da URL do payload do QR: o esquema solana, o link https que marca ela como transaction request, o caminho /txreq e os parâmetros por venda que a maquininha anexa.](assets/v03-diagram.webp)
 
 ### O que a tela de confirmed de fato sabe
 
@@ -145,7 +145,7 @@ Duas consequências caem desse desenho, e as duas vão te poupar tempo de depura
 
 Depois que a signature aparece, a maquininha valida a transação encontrada antes de virar a tela, checando que o que aterrissou bate com a venda que ela codificou. Guarde essa ordem na cabeça: encontrada, depois validada, depois confirmed na tela. Uma signature existir não é a mesma coisa que o pagamento certo existir.
 
-![Um fluxograma do loop de confirmação da maquininha, o findReference fazendo polling até aparecer uma signature e então validando antes de mostrar confirmed, com um checklist ordenado de três suspeitos para diagnosticar uma tela travada em pending.](assets/v04-flowchart.png)
+![Um fluxograma do loop de confirmação da maquininha, o findReference fazendo polling até aparecer uma signature e então validando antes de mostrar confirmed, com um checklist ordenado de três suspeitos para diagnosticar uma tela travada em pending.](assets/v04-flowchart.webp)
 
 ### A realidade do hardware: o que existe, o que não existe
 
@@ -159,17 +159,17 @@ Antes de ler isso como um rebaixamento, olhe para onde os pagamentos presenciais
 
 E do lado do celular? A Solana Mobile entrega o Seeker, um celular com Seed Vault, que é custódia de chave em hardware, não uma funcionalidade de pagamento, e ele roda uma dApp Store. Produtos reais, e a proposta de taxa da dApp Store é genuinamente interessante para a economia de apps. Mas cuidado com os números da homepage: o número de "150,000+ usuários" tem um referente ambíguo (usuários de quê, exatamente, não está dito), a linha de "0% de taxas de plataforma" é uma afirmação de preço, e os números de unidades vendidas não são divulgados. Trate tudo isso como afirmações de homepage, não apresente nada disso como dado de adoção verificado, e repare no que está ausente: nada na stack do Seeker dá pagamento por aproximação para a sua barraca também. Um cliente de Seeker na sua mesa ainda escaneia o mesmo QR que um cliente de iPhone.
 
-![Uma matriz de capacidades marcando transfer requests e transaction requests por QR e o exemplo de maquininha de primeira parte como reais, o Commerce Kit como beta e terminais de pagamento por aproximação como inexistentes na Solana.](assets/v05-comparison.png)
+![Uma matriz de capacidades marcando transfer requests e transaction requests por QR e o exemplo de maquininha de primeira parte como reais, o Commerce Kit como beta e terminais de pagamento por aproximação como inexistentes na Solana.](assets/v05-comparison.webp)
 
 A evidência mais afiada de quão fino é o nicho de loja física vem da empresa que era dona dele. A Decaf era a queridinha de maquininha de festival deste ecossistema: o nome que você ouvia sempre que alguém pagava comida com USDC num evento Solana. Entre em decaf.so hoje (eu reconferi em 2026-08-22) e a maquininha Solana sumiu. O produto é um link de pagamento que você cria em dois minutos, pagável com cartão, transferência bancária ou cripto, com retirada em dinheiro e repasses em mais de 180 países, mirado exatamente no remetente que a Stripe e o PayPal não vão atender. Mesma empresa, mesmos trilhos por baixo, cliente completamente diferente.
 
 Leia esse pivô como dado de mercado, porque é isso que ele é. A demanda é um ator aqui, e ela votou: o lojista de pé atrás de um terminal acabou sendo um cliente bem menor do que o trabalhador mandando dinheiro para casa ou o negócio faturando do outro lado de uma fronteira. A demanda por maquininha cripto em loja física era mais fina do que a demanda por repasse, então o capital e o produto seguiram os repasses. O mesmo formato aparece nas comunidades de builders da América Latina: o pagamento cripto que acontece todo santo dia é o repasse transfronteiriço para um colaborador, não o café comprado com uma carteira. Nada disso quer dizer que a sua barraca é uma má ideia. Quer dizer que ninguém vai te vender um terminal para ela, não existe catálogo de fornecedores em que se apoiar, e o exemplo de primeira parte que você clonou é a base sancionada precisamente porque a camada comercial acima dele se esvaziou. Construa de acordo, e saiba que o mesmo endpoint que move a sua mesa é a peça que se transfere para onde a demanda de fato mora.
 
-![Linha do tempo da Decaf saindo de ponto de venda de festival na Solana, passando por demanda fina em loja física, até links de pagamento globais e repasses transfronteiriços em mais de 180 países.](assets/v06-timeline.png)
+![Linha do tempo da Decaf saindo de ponto de venda de festival na Solana, passando por demanda fina em loja física, até links de pagamento globais e repasses transfronteiriços em mais de 180 países.](assets/v06-timeline.webp)
 
 Tem mais uma peça de honestidade sobre hardware, e é a que ninguém põe num slide: a rede na feira. Percorra o fluxo da venda de novo e conte as conexões que ele precisa. O seu notebook precisa ser alcançável pelo celular do cliente (o GET e o POST no seu endpoint) e precisa alcançar o RPC da devnet (o polling de confirmação). O celular do cliente precisa ter dados, porque a carteira dele submete a transação assinada para a própria blockchain. São três dependências de rede para uma venda, e uma feira de discos num salão paroquial com paredes de concreto e duzentos celulares num único ponto de acesso vai testar cada uma delas. Isso não é uma fraqueza específica de cripto, maquininhas de cartão também morrem com conectividade ruim, mas um fornecedor de maquininha de cartão passou vinte anos fazendo engenharia de store-and-forward em volta disso, e você não. Ainda. Mais adiante neste curso você constrói exatamente isso: uma fila offline que assina vendas na mesa e escoa elas quando a rede volta, em cima de um primitivo chamado durable nonce. Por enquanto, as mitigações práticas são chatas e eficazes: o seu próprio hotspot para o notebook, um QR de fallback impresso para um item de preço fixo, e saber qual falha se parece com qual na tela de pending.
 
-![Um checklist de pré-feira cobrindo alcance na LAN, acesso ao RPC, dados no celular do cliente, um hotspot, aceitação de certificado e um QR de fallback impresso, além de como cada falha de rede se apresenta na barraca.](assets/v07-table.png)
+![Um checklist de pré-feira cobrindo alcance na LAN, acesso ao RPC, dados no celular do cliente, um hotspot, aceitação de certificado e um QR de fallback impresso, além de como cada falha de rede se apresenta na barraca.](assets/v07-table.webp)
 
 Um último aparte antes do lab. Existe um Commerce Kit no ecossistema, e ele é beta, com o aviso "as APIs podem mudar" da própria documentação grudado nele. Você já sabe o bastante para decodificar o que isso quer dizer para uma barraca da qual você depende: um sábado de vendas não é lugar para uma superfície de API que se reserva o direito de mexer debaixo de você. Saiba que ele existe, acompanhe ele amadurecer, e construa a mesa de hoje em cima do exemplo de primeira parte e do seu próprio endpoint. É essa a menção inteira.
 
@@ -308,7 +308,7 @@ Worked rung: todo comando abaixo é dado. Você clona (já feito acima), religa 
 
    Rode `npx tsx smoke.ts`. Com os TODOs ainda em aberto ele falha com `cart is empty; fill the completion TODOs in config.ts first`, o que está correto: o smoke test falhando é a lista de tarefas do seu degrau de completion. (Este arquivo exato, nestes pins exatos, passa no type-check sob `npx tsc --strict --noEmit smoke.ts config.ts` e roda; se não passar para você, a extensão do import e a linha `type=module` do passo 5 são os dois suspeitos de sempre.)
 
-![Diagrama de deploy da barraca: um notebook rodando a maquininha e o endpoint atrás de proxies SSL locais, um celular de cliente alcançando eles pela LAN, e a devnet liquidando a transação.](assets/v08-diagram.png)
+![Diagrama de deploy da barraca: um notebook rodando a maquininha e o endpoint atrás de proxies SSL locais, um celular de cliente alcançando eles pela LAN, e a devnet liquidando a transação.](assets/v08-diagram.webp)
 
 ## Challenge
 

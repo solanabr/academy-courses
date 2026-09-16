@@ -45,7 +45,7 @@ done
 
 Tres pedidos despachados. Un pago. Si este receptor manejara el club del disco del mes que tiene Wavelength, acabas de mandarle al mismo cliente tres copias de una tirada de 200 prensados y te comiste el costo de dos. El pipeline que estás por construir existe para que ese loop imprima `shipped order 1` y después se quede callado.
 
-![Pipeline que muestra una entrega de webhook pasando auth, un filtro de forma y un ack 200 inmediato, después un claim de la firma, la resolución del pedido y la verificación on-chain antes de una sola fila del libro mayor.](assets/v01-diagram.png)
+![Pipeline que muestra una entrega de webhook pasando auth, un filtro de forma y un ack 200 inmediato, después un claim de la firma, la resolución del pedido y la verificación on-chain antes de una sola fila del libro mayor.](assets/v01-diagram.webp)
 
 ## Notificaciones, no demostraciones
 
@@ -55,7 +55,7 @@ Si ya integraste Stripe, esta lección ya la hiciste una vez. Stripe reintenta l
 
 Vale la pena tomarse ese mapeo en serio y no como un eslogan, porque Stripe ya no es un espectador en esta historia. A 2026, Stripe ocupa una posición de cuatro frentes en los pagos cripto: su logo está en el muro de trusted-by de x402.org, coescribió el Agentic Commerce Protocol con OpenAI, coescribió el esquema de autenticación HTTP "Payment" sobre el que está construido el Machine Payments Protocol, y opera como adquirente de USDC-en-Solana que liquida a los comercios en fiat (x402.org, agenticcommerce.dev, el datatracker del IETF y la propia documentación de Stripe, revisado 2026-08-21). La empresa que escribió el manual de higiene de webhooks ahora está procesando el riel exacto sobre el que estás construyendo. Cuando tu disciplina de webhooks acá coincide con la de ellos, eso es evolución convergente bajo el mismo depredador: el evento duplicado.
 
-![Tabla que mapea cinco hábitos de webhook de Stripe a sus equivalentes en Solana, con la clave de idempotencia pasando a ser la firma de la transacción y la verificación por API pasando a ser una verificación on-chain del pago.](assets/v02-table.png)
+![Tabla que mapea cinco hábitos de webhook de Stripe a sus equivalentes en Solana, con la clave de idempotencia pasando a ser la firma de la transacción y la verificación por API pasando a ser una verificación on-chain del pago.](assets/v02-table.webp)
 
 Una asimetría no se traslada, y sube lo que está en juego en vez de bajarlo. Cuando un integrador de Stripe despacha dos veces, hay una API de reembolsos y, detrás de ella, una red de tarjetas que puede revertir el dinero. Acá, el módulo 1 ya te enseñó la verdad cruda del riel: no hay chargebacks. Un disco despachado dos veces no es un ticket de soporte incómodo, es inventario perdido. La higiene es la misma que la de Stripe; el precio de saltártela es más alto. Que es la versión de buena noticia que le toca al constructor, honestamente. La disciplina que ya conoces alcanza. Solo que de verdad tienes que hacerla.
 
@@ -85,7 +85,7 @@ Campo por campo, porque cada uno es una decisión. `webhookURL` tiene que ser un
 
 Lo que llega a tu endpoint es un **array** de eventos de transacción enhanced, incluso para una sola transacción. Cada elemento lleva `signature`, `type`, `slot`, `timestamp`, `feePayer`, un array `tokenTransfers` con mints y montos, y más. Acá está la parte que debería sentirse rara hasta que hace clic: de todo ese objeto rico, nuestro receptor va a leer exactamente dos campos, `signature` y `type`. Todo lo demás es decorado. No porque los datos estén mal habitualmente, sino porque "habitualmente" no es una política de despacho, y tenemos un verificador cuyo trabajo entero es establecer esos mismos hechos desde la blockchain misma.
 
-![Comparación de los webhooks Enhanced y Raw por forma del payload, latencia, filtrado, postura de confianza y encaje, con Enhanced marcado como el valor por defecto de merchant-ops y los dos costando un crédito por evento.](assets/v03-comparison.png)
+![Comparación de los webhooks Enhanced y Raw por forma del payload, latencia, filtrado, postura de confianza y encaje, con Enhanced marcado como el valor por defecto de merchant-ops y los dos costando un crédito por evento.](assets/v03-comparison.webp)
 
 ### Los duplicados son el contrato
 
@@ -126,7 +126,7 @@ export function release(signature: string): void {
 
 Antes de dejar esta sección, págale al patrón ack-y-después-trabajar honestamente, porque no es gratis y fingir lo contrario sería exactamente el tipo de palabrería que este curso vive jurando dejar. En el momento en que contestas 200 antes de que el trabajo esté hecho, le dijiste a Helius que la entrega salió bien, lo que quiere decir que Helius nunca la va a reintentar, lo que quiere decir que cualquier evento que se muera entre tu ack y tu settle simplemente desapareció desde el punto de vista del sistema de entrega. Un crash de proceso en esa ventana, un deploy que reinicia el servidor a mitad de lote, un rejection no manejado en `processEvent`: el pago aterrizó on-chain, la notificación fue entregada y reconocida, y tu libro mayor no sabe nada. La válvula `release` no te puede salvar acá, porque liberar solo ayuda cuando viene un reintento, y tú firmaste la renuncia al reintento con tu 200. ¿Entonces qué respalda de verdad el hueco? Dos cosas. Dentro de una sola vida de proceso, el registro de claims más release maneja todo lo que falla en voz alta. A través de las muertes de proceso, nada en esta lección lo hace, a propósito: la red de seguridad para el trabajo perdido en silencio es el barrido de conciliación que construyes la próxima lección, que recorre la historia propia de la blockchain contra el libro mayor y saca a la superficie cada pago que nunca recibió una fila. Los sistemas de producción achican más la ventana empujando los eventos aceptados a una fila de mensajes durable antes de hacer el ack, así que la fila sobrevive al crash aunque el intercambio HTTP ya terminó. Para el volumen de merchant-ops, ack-y-después-trabajar más conciliación es el canje honesto y proporcionado: aceptas una ventana chica de pérdida silenciosa que un barrido nocturno repara, a cambio de un endpoint suficientemente rápido como para que la tormenta de reintentos nunca empiece. Solo ten presente que hiciste ese canje, porque la falla que permite es invisible hasta que vas a buscarla.
 
-![Diagrama de flujo que muestra una firma con su claim tomado antes de cualquier trabajo, duplicados que caen en el claim, eventos verificados que se asientan en fulfilled o rejected, y errores transitorios que liberan el claim para el siguiente reintento.](assets/v04-flowchart.png)
+![Diagrama de flujo que muestra una firma con su claim tomado antes de cualquier trabajo, duplicados que caen en el claim, eventos verificados que se asientan en fulfilled o rejected, y errores transitorios que liberan el claim para el siguiente reintento.](assets/v04-flowchart.webp)
 
 ### El libro mayor que lo dice en serio
 
@@ -140,7 +140,7 @@ También está la pregunta silenciosa de qué tan grande se pone este estado, y 
 
 Un hábito más de la lección pasada se traslada: el conjunto de firmas procesadas adentro del verificador sigue existiendo y sigue corriendo. El registro del receptor es la reja rápida de la puerta de entrada; el dedup del verificador es defensa en profundidad detrás de ella. Dos capas indexadas sobre la misma firma cuestan casi nada, y el día en que una de ellas tenga un bug es el día en que aprendes a querer a la otra.
 
-![Una fila JSON anotada del libro mayor con id del pedido, firma, monto en unidades base como string, mint y timestamp, escrita solo después de un claim fresco y una verificación que pasa.](assets/v05-annotated-code.png)
+![Una fila JSON anotada del libro mayor con id del pedido, firma, monto en unidades base como string, mint y timestamp, escrita solo después de un claim fresco y una verificación que pasa.](assets/v05-annotated-code.webp)
 
 ### Las falsificaciones mueren en el verificador
 
@@ -152,7 +152,7 @@ Clase dos, la sutil: un pago real, mal descrito. El atacante manda una transacci
 
 Eso también es por lo que `resolveOrder` en nuestro pipeline funciona como funciona. Mapear una firma a un pedido vía la descripción del payload le entregaría el ruteo Y la decisión al atacante. En cambio el resolver hace lo que hace el verificador: trae la transacción y lee nuestro propio id de pedido del memo on-chain que tu checkout estampó en el módulo 3. La entrada no confiable llega a nominar una firma para inspección. Eso es todo lo que llega a hacer.
 
-![Tres carriles a través de las mismas rejas: una falsificación ficticia muere en la verificación, un pago real mal descrito muere en la comprobación del monto, y solo el pago honesto llega al libro mayor.](assets/v06-diagram.png)
+![Tres carriles a través de las mismas rejas: una falsificación ficticia muere en la verificación, un pago real mal descrito muere en la comprobación del monto, y solo el pago honesto llega al libro mayor.](assets/v06-diagram.webp)
 
 ### El techo, y lo que hay más allá
 
@@ -160,7 +160,7 @@ Los webhooks fallan de una manera que la plataforma nota. Cada entrega que tu en
 
 Haz las cuentas mientras estamos acá, porque deciden la arquitectura más honestamente que el gusto. La entrega cuesta 1 crédito por evento. Una tienda de discos que hace incluso mil ventas al día gasta mil créditos en ingesta, error de redondeo contra tu uso de RPC, y el webhook se dispara solo cuando una cuenta vigilada de verdad se mueve. Este es el régimen para el que están diseñados los webhooks: eventos de baja frecuencia y alto valor donde el precio por evento es despreciable y un minuto de latencia es invisible. Ahora inviértelo. Indexar cada transferencia que toca un programa popular, decenas de millones de eventos, requisitos de frescura por debajo del segundo: el precio de entrega por evento y el overhead de un HTTP por evento dejan los dos de tener sentido, y ninguna cantidad de higiene de reintentos arregla un desajuste de arquitectura. La respuesta equivocada clásica es un loop de polling martillando rangos de getTransaction, que quema créditos para volver a traer estado que casi no cambió y aun así va atrasado. La respuesta correcta es una suscripción de streaming directo desde la manguera del validador: Yellowstone gRPC y sus parientes. Ese mundo, la ingesta por gRPC, la plomería de Geyser, el backfill, el asiento entero de infraestructura de datos, es territorio del curso Client-Side Mastery, y su lección de webhooks retoma exactamente donde esta se detiene. Wavelength no tiene ese problema. Un back office de comercio es precisamente el asiento de merchant-ops, y para él, el humilde webhook más la disciplina que ahora tienes es la ingeniería correcta, no la versión para principiantes de algo más sofisticado.
 
-![Línea de tiempo de un handler de webhook lento acumulando entregas fallidas y reintentos a lo largo de una semana hasta que la tasa de falla de 95 por ciento durante siete días dispara la deshabilitación automática del endpoint.](assets/v07-timeline.png)
+![Línea de tiempo de un handler de webhook lento acumulando entregas fallidas y reintentos a lo largo de una semana hasta que la tasa de falla de 95 por ciento durante siete días dispara la deshabilitación automática del endpoint.](assets/v07-timeline.webp)
 
 ## Lab: construye el backoffice
 
@@ -500,7 +500,7 @@ npx tsx smoke.ts
 
 Con los dos throws de relleno todavía en su lugar, la prueba de humo falla en el conteo de filas del libro mayor (cada throw se atrapa, el bloque catch del receptor lo loguea con su mensaje `Your turn`, y el claim se libera, así que nunca se escribe ninguna fila), que es el lab diciéndote que los peldaños de completion son genuinamente tuyos. Cuando tu `claim` y tu `record` estén bien, imprime la línea de aprobación. Cablea `npm run verify:backoffice` a este script en `package.json` (`"verify:backoffice": "tsx smoke.ts"`), para que el verify de cada peldaño siga siendo ejecutable por nombre — el hábito que paga cuando el harness de journey del capstone sacude el stack ensamblado y necesitas volver a revisar un peldaño aislado.
 
-![Comparación del verificador, el resolver y el libro mayor temporal con stubs de la prueba de humo contra el cableado en vivo de devnet, con el registro de firmas idéntico de los dos lados.](assets/v08-comparison.png)
+![Comparación del verificador, el resolver y el libro mayor temporal con stubs de la prueba de humo contra el cableado en vivo de devnet, con el registro de firmas idéntico de los dos lados.](assets/v08-comparison.webp)
 
 **7. Apúntale un webhook real.** La prueba de humo puso un stub de la blockchain; la corrida en vivo necesita el cableado real, y `createApp` solo construye la app, así que dale un punto de entrada. Crea `backoffice/src/main.ts`:
 

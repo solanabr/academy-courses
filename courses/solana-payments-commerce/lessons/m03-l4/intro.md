@@ -21,7 +21,7 @@ This lesson turns your payment core into a link. Not a link to a store: a link t
 - The tooling is frozen: `@dialectlabs/blinks` 0.22.5 (published 2025-04-04) and `@solana/actions` 1.6.6 (published 2024-11-05) are still the newest versions that exist as of 2026-08-22. This course installs neither; you build against the wire contract via `@solana/actions-spec` 2.4.2, and if you ever adopt the SDKs, pin those exact versions with a staleness note.
 - Where blinks actually render in 2026 is uncertain. X rendering is Chrome-extension-mediated, not native. So the lab gates on spec conformance plus a local client, and your reach claims belong in a verified-at-write box rather than a pitch deck.
 
-![The single transaction-request builder from the checkout lesson feeds three surfaces, the checkout page, the POS stall, and now the drop blink.](assets/v01-diagram.png)
+![The single transaction-request builder from the checkout lesson feeds three surfaces, the checkout page, the POS stall, and now the drop blink.](assets/v01-diagram.webp)
 
 ## The action protocol, up close
 
@@ -35,7 +35,7 @@ The protocol is two verbs on one URL, plus a discovery file:
 2. **POST** `{account}` to the same URL: returns an `ActionPostResponse` carrying a base64-encoded transaction for that specific user to sign. Same contract as your transaction request, and that is not a coincidence: the Actions spec generalizes the Solana Pay transaction-request flow you already implemented.
 3. **`actions.json`** at your domain root: tells clients which paths on your domain are actions, so a bare link to your site can be mapped to its action endpoint.
 
-![Flow from pasting a blink through actions.json discovery, GET metadata, rendered button, POST with account, signed transaction, and the chained links.next thanks step, with CORS and actions.json as failure gates.](assets/v02-flowchart.png)
+![Flow from pasting a blink through actions.json discovery, GET metadata, rendered button, POST with account, signed transaction, and the chained links.next thanks step, with CORS and actions.json as failure gates.](assets/v02-flowchart.webp)
 
 Why does this matter for a record shop? Distribution. Every checkout so far required the customer to come to you: your page, your stall. A blink inverts it. The store travels to wherever the conversation already is. For a 200-copy limited pressing, the difference between "click through to our site" and "buy it right here" is conversion you can feel. That was the 2024 pitch, and the pitch was good. Hold that thought, because the 2026 reality section below is where we price it honestly.
 
@@ -88,7 +88,7 @@ Then there is `disabled`, the field a commerce blink actually exercises. Metadat
 
 The POST side you know. The body is `{account}`, the customer's base58 public key. Transaction-request POST returns a base64-encoded transaction, and the Actions spec wraps that same payload in a named envelope:
 
-![Three JSON shapes of ActionPostResponse, minimal with type and transaction only, one adding message, one adding links.next, annotated with the rule that optional keys are omitted entirely when absent.](assets/v03-annotated-code.png)
+![Three JSON shapes of ActionPostResponse, minimal with type and transaction only, one adding message, one adding links.next, annotated with the rule that optional keys are omitted entirely when absent.](assets/v03-annotated-code.webp)
 
 Two additions on top of your existing endpoint. `message` is an optional human string the wallet can show after signing, your order confirmation in miniature. `links.next` is **action chaining**: a `{ type: 'post', href }` object telling the client "after this transaction confirms, POST here for the next step." The chained POST includes the confirmed signature, which makes it the natural place for a thank-you card, a claim step, or the next action in a multi-step flow. We will use it for a thanks screen that echoes the receipt.
 
@@ -112,7 +112,7 @@ The patterns are globs: `*` matches within one path segment, `**` matches across
 
 Rule two: every action response sends `Access-Control-Allow-Origin: *`. Including, and this is the one everyone misses, on `actions.json` itself. The discovery fetch is cross-origin too. Curl does not enforce CORS, browsers do, which is exactly why the failure signature is an endpoint that tests clean in your terminal and shows nothing in a wallet.
 
-![Comparison table of four hosting failures, missing root actions.json, missing CORS on routes, missing CORS on actions.json, relative icon URL, each fine in curl and broken in a real client.](assets/v04-comparison.png)
+![Comparison table of four hosting failures, missing root actions.json, missing CORS on routes, missing CORS on actions.json, relative icon URL, each fine in curl and broken in a real client.](assets/v04-comparison.webp)
 
 Preflight matters too: clients send OPTIONS before POST, so your CORS middleware answers OPTIONS with the same headers and an empty 204. The spec also defines two informational response headers, `X-Action-Version` (the spec version you implement) and `X-Blockchain-Ids` (a CAIP-2 chain id; CAIP-2 is the cross-chain naming standard of namespace plus reference, here `solana:` plus the genesis hash truncated to 32 characters, so devnet is `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`). Conforming clients read them to decide compatibility; sending them costs two lines.
 
@@ -124,7 +124,7 @@ Blinks launched in mid-2024 with a demo that stuck in everyone's head: a link un
 
 And the tooling record tells its own story. Here is the release timeline, which you can verify on npm in thirty seconds:
 
-![Timeline from the 2024 blinks launch through the last SDK releases, Dialect's pivot to a hosted library, and the 2026 write date with no newer versions shipped.](assets/v05-timeline.png)
+![Timeline from the 2024 blinks launch through the last SDK releases, Dialect's pivot to a hosted library, and the 2026 write date with no newer versions shipped.](assets/v05-timeline.webp)
 
 `@solana/actions` has not shipped since 2024-11-05. `@dialectlabs/blinks` has not shipped since 2025-04-04. Sixteen months of silence from the client SDK is not a maintenance gap you route around, it is a signal about where the vendor's attention went: Dialect pivoted to a hosted Standard Blinks Library, a managed service, rather than the open SDK. So this course builds against the wire contract instead of the frozen SDKs; if a project of yours does adopt them, pin the two frozen versions the summary names exactly, write the staleness note in your package.json comment or README, and treat "wait for the next release" as not a plan.
 
@@ -132,7 +132,7 @@ The hosted Standard Blinks Library can look like the way out of the frozen-SDK p
 
 Then there is the registry. Dialect operates a blinks registry where actions carry a status, and the docs define all three in one breath: **trusted** is "registered by the developer and accepted by the registration committee" and renders fully in participating clients, **none** means "the action has not been registered" and typically renders with warnings or degraded UI, and **blocked** has been "flagged as malicious by the registration community" and does not render. Getting registered is not an API call you make: Dialect's documented route is a submission by email, and the docs say plainly that "currently registration review is a manual process." Reading the registry programmatically is a different story, and partly key-gated: the public list at `registry.dial.to/v1/list` answers anyone, while the per-URL lookup endpoint returns 403 without a Dialect API key (both probed 2026-08-22). You will also read claims about when registry enforcement began or begins; that date is unsourced, so this course does not cite one, and neither should you. Which yields a hard operational fact: you cannot gate a launch, or this lesson, on a third party's manual queue.
 
-![Diagram of the Dialect registry flow: an emailed submission enters manual review, and the trusted, none, and blocked statuses map to full, degraded, and refused rendering.](assets/v06-diagram.png)
+![Diagram of the Dialect registry flow: an emailed submission enters manual review, and the trusted, none, and blocked statuses map to full, degraded, and refused rendering.](assets/v06-diagram.webp)
 
 So what surfaces can you actually count on? Here is the honest box.
 
@@ -452,7 +452,7 @@ curl -s -D - -o /dev/null http://localhost:3000/api/actions/drop | grep -i acces
 
 Paste both outputs into the checklist verbatim. Evidence you can regenerate in ten seconds beats prose assurances every time, and when you redeploy behind a different proxy in the capstone, rerunning two curl lines re-proves the claim.
 
-![Table of the four registry-ready claims (spec conformance, CORS everywhere, root actions.json, submission readiness), each with regenerable evidence and a gate or prep badge.](assets/v07-table.png)
+![Table of the four registry-ready claims (spec conformance, CORS everywhere, root actions.json, submission readiness), each with regenerable evidence and a gate or prep badge.](assets/v07-table.webp)
 
 Accept: GET validates, POST returns a spec-conformant response reusing the transaction-request builder, your client script completes a devnet purchase, and the checklist exists with all four evidence points.
 

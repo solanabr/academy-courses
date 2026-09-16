@@ -27,13 +27,13 @@ A handful of definitions so the JSON stops being noise, and then we will earn th
 - **`spl-token` and `transferChecked`**: `spl-token` is the on-chain program that owns this USDC balance, and most token balances on Solana, the way a ledger service owns balance rows. Most, not all: a second token program called Token-2022 owns its own balances (PYUSD lives there, for one), and module 2 teaches you to check which program a mint belongs to before you decode anything. `transferChecked` is the one instruction of that program this course uses to move tokens; the "checked" part means the caller must also state the mint and its decimal count, and the program refuses if they do not match. In the JSON its `authority` field is the account that authorized the move, which for an ordinary payment is the sender's own wallet. Balances themselves live in **token accounts**, one per owner per currency; the next module builds them properly.
 - **`spl-memo` and the memo**: `spl-memo` is a second, tiny program whose only job is to attach a human-readable note to a transaction. The note in your JSON reads `079cea64791142a59e12a3491a425f90`, some system's internal reference. Later in this course, memos become how a merchant matches a payment to an order. File that away.
 
-![A settled transaction containing a spl-token transferChecked instruction moving 0.036115 USDC and a spl-memo instruction carrying the reference note, packaged under one signature.](assets/v01-diagram.png)
+![A settled transaction containing a spl-token transferChecked instruction moving 0.036115 USDC and a spl-memo instruction carrying the reference note, packaged under one signature.](assets/v01-diagram.webp)
 
 So the transaction you fetched breaks down to: sender `BhFRCUXHVm76PmXkSzus8T4LUGrD2MTW9Au6bocBox5U` moved 0.036115 USDC, with that memo attached, and it settled on 2026-08-22. That is 3.6 cents, and the size is the point rather than an embarrassment: on card rails a 3.6-cent transfer is not a small payment, it is an impossible one, because the fee floor exceeds the amount. Here someone moved it and the economics still worked. We put an exact number on fees next lesson; for now the point is that the record is public, complete, and yours to read.
 
 Notice, too, what is NOT in that record, because the absences are as instructive as the fields. There is no card number, so there is nothing PCI-shaped to vault. There is no CVV, no expiry, no billing address, no field that says "chargeback window closes in 120 days". The sender's address identifies a key, not a person, which is why "who actually paid me" becomes a different question on these rails than it was on cards, and matching payments to customers will lean on that memo field rather than on anything resembling a cardholder name. For now, just register the shape: everything settlement needs is present, and nothing card-fraud liability needs is there at all.
 
-![A terminal sends an unauthenticated HTTPS request to a public RPC endpoint, which reads a settled transaction from the shared ledger and returns the JSON record; the path is read-only.](assets/v02-diagram.png)
+![A terminal sends an unauthenticated HTTPS request to a public RPC endpoint, which reads a settled transaction from the shared ledger and returns the JSON record; the path is read-only.](assets/v02-diagram.webp)
 
 ### The inversion your PSP never offered
 
@@ -41,7 +41,7 @@ Here is the shape of what you integrate today. A card payment travels through an
 
 Solana inverts that. Settlement truth lives on a shared public ledger, and the processor-shaped thing in the middle is optional. Any party to a payment, or any curious third party, can verify settlement directly, over any RPC endpoint, forever. Your future reconciliation code in this course will not ask a provider "please tell me if I got paid". It will read the ledger itself.
 
-![Side-by-side comparison showing card settlement records as private processor rows behind an API key, versus Solana settlement records as public ledger entries anyone can read over any RPC.](assets/v03-comparison.png)
+![Side-by-side comparison showing card settlement records as private processor rows behind an API key, versus Solana settlement records as public ledger entries anyone can read over any RPC.](assets/v03-comparison.webp)
 
 Public by default is the game-changer here, and I want to be precise about why. It is not that public is virtuous. It is that public plus machine-readable collapses whole categories of integration work you currently do: reconciliation APIs, settlement report exports, "contact support to trace this payment". The ledger is the report.
 
@@ -64,7 +64,7 @@ The story behind that binary is worth sixty seconds, because it is the whole eco
 
 Read the move precisely, because it matters: nothing was deleted. Classic Solana Pay, the QR checkout library, survives as a subpackage inside that same monorepo, maintained and shipped, and this course builds a real checkout on it in module 3, the payment-surfaces module. A shifted headline is not a removed product. Learning to read ecosystem moves at that resolution, what actually changed versus what merely stopped being the poster child, is a survival skill on rails this young, and you will get plenty of practice.
 
-![Timeline showing the canonical Solana Pay repo redirecting to the Foundation's pay repo whose headline is an agentic-payments CLI, while the classic QR checkout library continues as a subpackage throughout.](assets/v04-timeline.png)
+![Timeline showing the canonical Solana Pay repo redirecting to the Foundation's pay repo whose headline is an agentic-payments CLI, while the classic QR checkout library continues as a subpackage throughout.](assets/v04-timeline.webp)
 
 ### This is real money, not a demo economy
 
@@ -74,7 +74,7 @@ First, the incumbent: Stripe's "Pay with crypto" accepts USDC on Solana at check
 
 Second, the trajectory. Stablecoin supply on Solana, meaning dollars tokenized and sitting on these rails, went from about $1.5B in December 2023 to $11.7B by February 2025 (per a Helius research article), and stands at roughly $15.87B as of 2026-08-23 (DefiLlama, counting USD-pegged stablecoins only; this number moves daily, so treat any figure you read, including this one, as a dated snapshot). Solana's own payments documentation states the network processed over $1 trillion in stablecoin volume in 2025. Supply is the float; volume is the throughput; both curves point the same way. Money went where settlement was cheap and fast, the way water finds a drain. The float sitting on these rails grew more than tenfold in under three years, and the incumbents followed it in rather than waiting it out.
 
-![Chart of Solana stablecoin supply climbing from 1.5 billion dollars in December 2023 to 11.7 billion in February 2025 and roughly 15.87 billion in August 2026.](assets/v05-chart.png)
+![Chart of Solana stablecoin supply climbing from 1.5 billion dollars in December 2023 to 11.7 billion in February 2025 and roughly 15.87 billion in August 2026.](assets/v05-chart.webp)
 
 ### These rails are moving under you
 
@@ -92,7 +92,7 @@ You have now touched both ends of the arc: you read a settled payment, and you m
 
 We build all of it for one merchant. Meet **Wavelength Records**, an independent vinyl shop that exists only in this course: online store, a market-stall POS, a record-of-the-month subscription club, and eventually an API that quotes pressing prices to other businesses. Every lesson adds a real piece to Wavelength's stack, and by the end you will have built an end-to-end commerce operation on Solana rails, not a pile of disconnected snippets. When you generate a QR in today's lab, it will be denominated like a Wavelength order, because it is one.
 
-![Six-stage course map from payment surfaces through operations, recurring revenue, the fiat edge, machine payments, and production hardening, all anchored to building the Wavelength Records store end to end.](assets/v06-flowchart.png)
+![Six-stage course map from payment surfaces through operations, recurring revenue, the fiat edge, machine payments, and production hardening, all anchored to building the Wavelength Records store end to end.](assets/v06-flowchart.webp)
 
 One more piece of orientation before the lab, about how lessons in this course hand you work. Each lesson fades autonomy in three steps, out loud: the overview you just finished is readable without touching a keyboard; the lab we do together, step by step, with expected output at every checkpoint; the challenge at the end you do alone, and it is the part that makes the lesson stick. Today the lab is deliberately gentle, and notice what it does not do: no wallet until the very end. You have already read mainnet without one, which is the point. The wallet arrives only when you have built something worth scanning.
 
@@ -102,7 +102,7 @@ Steps 1 through 4 are the five minutes promised at the top: toolchain check, fol
 
 We will decode a transfer properly with a script, generate a Wavelength payment QR, and only then set up a wallet and scan our own QR with it. Before the script, one map: the raw JSON your curl returned nests the interesting fields a few levels deep, and the decoder you are about to write is nothing more than a walk to those spots. Here is where each printed field lives.
 
-![An abbreviated getTransaction JSON tree with callout arrows mapping blockTime to settledAt, the spl-token transferChecked instruction to sender, amount, and mint, and the spl-memo instruction to the memo string.](assets/v07-annotated-code.png)
+![An abbreviated getTransaction JSON tree with callout arrows mapping blockTime to settledAt, the spl-token transferChecked instruction to sender, amount, and mint, and the spl-memo instruction to the memo string.](assets/v07-annotated-code.webp)
 
 1. **Check your toolchain.** You need Node 24 or newer, which is what every lab in this course assumes from here on. `node -v` should print v24.x or higher; if it prints something older, upgrade now rather than at the first install that refuses. The scripts below run via `tsx`, a zero-config TypeScript runner; we invoke it through `npx` with a pinned version (`tsx@4.23.12`, npm latest as of 2026-08-23), so `tsx` itself needs no install.
 
@@ -241,7 +241,7 @@ We will decode a transfer properly with a script, generate a Wavelength payment 
 
    Keep the recipient as someone other than yourself for this preview. Pointing a request at your own address is the one case wallets disagree on: Phantom currently renders a self-transfer preview with a warning banner, Solflare refuses outright, and both will separately complain that you have no SOL to cover the network fee. None of that is your bug, it is just three unrelated warnings stacked on one screen, and it obscures the thing you are here to see. **Checkpoint: your own wallet, scanning a QR your own code generated, correctly displays recipient, amount `24 USDC`, and the order memo `WAV-0001`.** You have now stood on both sides of the counter.
 
-![Flow from the qr.ts script through the encoded URL and terminal QR to a phone wallet that parses it and previews a 24 USDC payment without paying.](assets/v08-flowchart.png)
+![Flow from the qr.ts script through the encoded URL and terminal QR to a phone wallet that parses it and previews a 24 USDC payment without paying.](assets/v08-flowchart.webp)
 
 ## Challenge: the card-rail Rosetta
 

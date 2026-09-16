@@ -21,7 +21,7 @@ Esta lição transforma o seu core de pagamento em um link. Não um link para um
 - O ferramental está congelado: `@dialectlabs/blinks` 0.22.5 (publicado em 2025-04-04) e `@solana/actions` 1.6.6 (publicado em 2024-11-05) ainda são as versões mais novas que existem em 2026-08-22. Este curso não instala nenhum dos dois; você constrói contra o contrato de wire via `@solana/actions-spec` 2.4.2, e se um dia você adotar os SDKs, fixe exatamente essas versões com uma nota de obsolescência.
 - Onde os blinks de fato renderizam em 2026 é incerto. A renderização no X é mediada por extensão do Chrome, não nativa. Então o gate do lab é conformidade com a spec mais um client local, e as suas afirmações de alcance pertencem a uma caixa de "verificado na escrita", não a um pitch deck.
 
-![O único builder de transaction request da lição de checkout alimenta três superfícies, a página de checkout, a barraca da maquininha (POS) e agora o blink do drop.](assets/v01-diagram.png)
+![O único builder de transaction request da lição de checkout alimenta três superfícies, a página de checkout, a barraca da maquininha (POS) e agora o blink do drop.](assets/v01-diagram.webp)
 
 ## O protocolo de actions, de perto
 
@@ -35,7 +35,7 @@ O protocolo são dois verbos em uma URL, mais um arquivo de descoberta:
 2. **POST** de `{account}` na mesma URL: devolve um `ActionPostResponse` carregando uma transação codificada em base64 para aquele usuário específico assinar. O mesmo contrato do seu transaction request, e isso não é coincidência: a spec Actions generaliza o fluxo de transaction request do Solana Pay que você já implementou.
 3. **`actions.json`** na raiz do seu domínio: diz aos clients quais caminhos do seu domínio são actions, para que um link puro para o seu site possa ser mapeado até o endpoint de action dele.
 
-![Fluxo desde colar um blink, passando pela descoberta via actions.json, os metadados do GET, o botão renderizado, o POST com account, a transação assinada e o passo de agradecimento encadeado por links.next, com CORS e actions.json como gates de falha.](assets/v02-flowchart.png)
+![Fluxo desde colar um blink, passando pela descoberta via actions.json, os metadados do GET, o botão renderizado, o POST com account, a transação assinada e o passo de agradecimento encadeado por links.next, com CORS e actions.json como gates de falha.](assets/v02-flowchart.webp)
 
 Por que isso importa para uma loja de discos? Distribuição. Todo checkout até aqui exigia que o cliente viesse até você: a sua página, a sua barraca. Um blink inverte isso. A loja viaja para onde a conversa já está. Para uma prensagem limitada de 200 cópias, a diferença entre "clique para o nosso site" e "compre bem aqui" é conversão que dá para sentir. Esse era o pitch de 2024, e o pitch era bom. Segure esse pensamento, porque a seção da realidade de 2026 lá embaixo é onde a gente precifica isso com honestidade.
 
@@ -88,7 +88,7 @@ Aí tem o `disabled`, o campo que um blink de comércio de fato exercita. Os met
 
 O lado do POST você conhece. O body é `{account}`, a chave pública em base58 do cliente. O POST de transaction request devolve uma transação codificada em base64, e a spec Actions embrulha esse mesmo payload em um envelope nomeado:
 
-![Três formatos JSON de ActionPostResponse, o mínimo com apenas type e transaction, um acrescentando message, um acrescentando links.next, anotados com a regra de que chaves opcionais são omitidas por completo quando ausentes.](assets/v03-annotated-code.png)
+![Três formatos JSON de ActionPostResponse, o mínimo com apenas type e transaction, um acrescentando message, um acrescentando links.next, anotados com a regra de que chaves opcionais são omitidas por completo quando ausentes.](assets/v03-annotated-code.webp)
 
 Duas adições em cima do endpoint que você já tem. `message` é uma string humana opcional que a carteira pode mostrar depois de assinar, a sua confirmação de pedido em miniatura. `links.next` é **encadeamento de actions**: um objeto `{ type: 'post', href }` dizendo ao client "depois que esta transação confirmar, dê POST aqui para o próximo passo". O POST encadeado inclui a signature confirmada, o que faz dele o lugar natural para um cartão de agradecimento, um passo de resgate ou a próxima action em um fluxo de vários passos. A gente vai usar ele para uma tela de agradecimento que ecoa o recibo.
 
@@ -112,7 +112,7 @@ Os padrões são globs: `*` casa dentro de um segmento de caminho, `**` casa em 
 
 Regra dois: toda resposta de action manda `Access-Control-Allow-Origin: *`. Inclusive, e essa é a que todo mundo esquece, no próprio `actions.json`. O fetch de descoberta também é cross-origin. O curl não impõe CORS, navegadores impõem, que é exatamente por que a cara da falha é um endpoint que testa limpo no seu terminal e não mostra nada numa carteira.
 
-![Tabela comparativa de quatro falhas de hospedagem, actions.json faltando na raiz, CORS faltando nas rotas, CORS faltando no actions.json, URL de ícone relativa, cada uma funcionando no curl e quebrada em um client de verdade.](assets/v04-comparison.png)
+![Tabela comparativa de quatro falhas de hospedagem, actions.json faltando na raiz, CORS faltando nas rotas, CORS faltando no actions.json, URL de ícone relativa, cada uma funcionando no curl e quebrada em um client de verdade.](assets/v04-comparison.webp)
 
 Preflight também importa: clients mandam OPTIONS antes do POST, então o seu middleware de CORS responde OPTIONS com os mesmos headers e um 204 vazio. A spec também define dois headers informativos de resposta, `X-Action-Version` (a versão da spec que você implementa) e `X-Blockchain-Ids` (um chain id CAIP-2; CAIP-2 é o padrão de nomenclatura cross-chain de namespace mais reference, aqui `solana:` mais o hash de genesis truncado em 32 caracteres, então a devnet é `solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1`). Clients em conformidade leem eles para decidir compatibilidade; mandar eles custa duas linhas.
 
@@ -124,7 +124,7 @@ Blinks foram lançados em meados de 2024 com uma demo que grudou na cabeça de t
 
 E o histórico do ferramental conta a própria história. Esta é a linha do tempo de releases, que você pode verificar no npm em trinta segundos:
 
-![Linha do tempo do lançamento dos blinks em 2024 até os últimos releases dos SDKs, o pivô da Dialect para uma biblioteca hospedada e a data de escrita em 2026 sem nenhuma versão mais nova publicada.](assets/v05-timeline.png)
+![Linha do tempo do lançamento dos blinks em 2024 até os últimos releases dos SDKs, o pivô da Dialect para uma biblioteca hospedada e a data de escrita em 2026 sem nenhuma versão mais nova publicada.](assets/v05-timeline.webp)
 
 O `@solana/actions` não publica desde 2024-11-05. O `@dialectlabs/blinks` não publica desde 2025-04-04. Dezesseis meses de silêncio do SDK de client não são uma lacuna de manutenção que você contorna, são um sinal sobre para onde a atenção do fornecedor foi: a Dialect pivotou para uma Standard Blinks Library hospedada, um serviço gerenciado, em vez do SDK aberto. Então este curso constrói contra o contrato de wire em vez dos SDKs congelados; se algum projeto seu de fato adotar eles, fixe exatamente as duas versões congeladas que o Resumo nomeia, escreva a nota de obsolescência no comentário do seu package.json ou no README, e trate "esperar o próximo release" como não sendo um plano.
 
@@ -132,7 +132,7 @@ A Standard Blinks Library hospedada pode parecer a saída do problema do SDK con
 
 Aí tem o registro. A Dialect opera um registro de blinks onde as actions carregam um status, e a documentação define os três de uma vez só: **trusted** é "registrada pelo desenvolvedor e aceita pelo comitê de registro" e renderiza por completo nos clients participantes, **none** quer dizer que "a action não foi registrada" e normalmente renderiza com avisos ou UI degradada, e **blocked** foi "sinalizada como maliciosa pela comunidade de registro" e não renderiza. Se registrar não é uma chamada de API que você faz: a rota documentada da Dialect é um envio por e-mail, e a documentação diz sem rodeio que "atualmente a revisão de registro é um processo manual". Ler o registro programaticamente é outra história, e em parte com gate por chave: a lista pública em `registry.dial.to/v1/list` responde para qualquer um, enquanto o endpoint de consulta por URL devolve 403 sem uma chave de API da Dialect (os dois sondados em 2026-08-22). Você também vai ler afirmações sobre quando a imposição do registro começou ou começa; essa data não tem fonte, então este curso não cita nenhuma, e você também não deveria. O que produz um fato operacional duro: você não pode pôr o gate de um lançamento, nem desta lição, na fila manual de um terceiro.
 
-![Diagrama do fluxo do registro da Dialect: um envio por e-mail entra em revisão manual, e os status trusted, none e blocked mapeiam para renderização completa, degradada e recusada.](assets/v06-diagram.png)
+![Diagrama do fluxo do registro da Dialect: um envio por e-mail entra em revisão manual, e os status trusted, none e blocked mapeiam para renderização completa, degradada e recusada.](assets/v06-diagram.webp)
 
 Então com quais superfícies você pode de fato contar? Esta é a caixa honesta.
 
@@ -452,7 +452,7 @@ curl -s -D - -o /dev/null http://localhost:3000/api/actions/drop | grep -i acces
 
 Cole as duas saídas no checklist na íntegra. Evidência que você consegue regenerar em dez segundos bate garantias em prosa toda vez, e quando você fizer o redeploy atrás de um proxy diferente no capstone, rodar duas linhas de curl comprova a afirmação de novo.
 
-![Tabela das quatro afirmações de pronto para o registro (conformidade com a spec, CORS em todo lugar, actions.json na raiz, prontidão para envio), cada uma com evidência regenerável e um selo de gate ou de preparação.](assets/v07-table.png)
+![Tabela das quatro afirmações de pronto para o registro (conformidade com a spec, CORS em todo lugar, actions.json na raiz, prontidão para envio), cada uma com evidência regenerável e um selo de gate ou de preparação.](assets/v07-table.webp)
 
 Aceite: o GET valida, o POST devolve uma resposta em conformidade com a spec reusando o builder de transaction request, o seu script de client completa uma compra na devnet, e o checklist existe com todos os quatro pontos de evidência.
 

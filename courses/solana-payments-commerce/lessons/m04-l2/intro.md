@@ -45,7 +45,7 @@ done
 
 Three shipped orders. One payment. If this receiver ran Wavelength's record-of-the-month club, you just mailed the same customer three copies of a 200-press run and ate the cost of two. The pipeline you are about to build exists to make that loop print `shipped order 1` and then go quiet.
 
-![Pipeline showing a webhook delivery passing auth, a shape filter, and an immediate 200 ack, then a signature claim, order resolution, and on-chain verification before one ledger row.](assets/v01-diagram.png)
+![Pipeline showing a webhook delivery passing auth, a shape filter, and an immediate 200 ack, then a signature claim, order resolution, and on-chain verification before one ledger row.](assets/v01-diagram.webp)
 
 ## Notifications, not proof
 
@@ -55,7 +55,7 @@ If you have integrated Stripe, you have already done this lesson once. Stripe re
 
 That mapping is worth taking seriously rather than as a slogan, because Stripe is not a bystander in this story anymore. As of 2026, Stripe holds a four-front position in crypto payments: its logo sits on x402.org's trusted-by wall, it co-authored the Agentic Commerce Protocol with OpenAI, it co-authored the "Payment" HTTP authentication scheme that the Machine Payments Protocol is built on, and it operates as a USDC-on-Solana acquirer that settles merchants in fiat (x402.org, agenticcommerce.dev, the IETF datatracker, and Stripe's own docs, checked 2026-08-21). The company that wrote the webhook hygiene playbook is now processing the exact rail you are building on. When your webhook discipline here matches theirs, that is convergent evolution under the same predator: the duplicate event.
 
-![Table mapping five Stripe webhook habits to their Solana equivalents, with the idempotency key becoming the transaction signature and API verification becoming an on-chain verification of the payment.](assets/v02-table.png)
+![Table mapping five Stripe webhook habits to their Solana equivalents, with the idempotency key becoming the transaction signature and API verification becoming an on-chain verification of the payment.](assets/v02-table.webp)
 
 One asymmetry does not carry over, and it raises the stakes rather than lowering them. When a Stripe integrator double-fulfills, there is a refund API and, behind it, a card network that can claw money back. Here, module 1 already taught you the rail's blunt truth: no chargebacks. A double-shipped record is not an awkward support ticket, it is inventory gone. The hygiene is the same as Stripe's; the price of skipping it is higher. Which is the builder's version of good news, honestly. The discipline you already know is sufficient. You just actually have to do it.
 
@@ -85,7 +85,7 @@ Field by field, because each one is a decision. `webhookURL` must be a URL Heliu
 
 What arrives at your endpoint is an **array** of enhanced transaction events, even for a single transaction. Each element carries `signature`, `type`, `slot`, `timestamp`, `feePayer`, a `tokenTransfers` array with mints and amounts, and more. Here is the part that should feel strange until it clicks: of that whole rich object, our receiver will read exactly two fields, `signature` and `type`. Everything else is scenery. Not because the data is usually wrong, but because "usually" is not a fulfillment policy, and we have a verifier whose entire job is to establish those same facts from the chain itself.
 
-![Comparison of Enhanced and Raw webhooks across payload shape, latency, filtering, trust posture, and fit, with Enhanced badged the merchant-ops default and both costing one credit per event.](assets/v03-comparison.png)
+![Comparison of Enhanced and Raw webhooks across payload shape, latency, filtering, trust posture, and fit, with Enhanced badged the merchant-ops default and both costing one credit per event.](assets/v03-comparison.webp)
 
 ### Duplicates are the contract
 
@@ -126,7 +126,7 @@ Why release instead of reject? Because of what retries then become. If your proc
 
 Before we leave this section, pay for the ack-then-work pattern honestly, because it is not free and pretending otherwise would be exactly the kind of glibness this course keeps swearing off. The moment you answer 200 before the work is done, you have told Helius the delivery succeeded, which means Helius will never retry it, which means any event that dies between your ack and your settle is simply gone from the delivery system's point of view. A process crash in that window, a deploy that restarts the server mid-batch, an unhandled rejection in `processEvent`: the payment landed on-chain, the notification was delivered and acknowledged, and your ledger knows nothing. The `release` valve cannot save you here, since release only helps when a retry is coming, and you signed the retry away with your 200. So what actually backstops the gap? Two things. Inside one process lifetime, the claim registry plus release handles everything that fails loudly. Across process deaths, nothing in this lesson does, on purpose: the safety net for silently lost work is the reconciliation sweep you build next lesson, which walks the chain's own history against the ledger and surfaces every payment that never got a row. Production systems narrow the window further by pushing accepted events into a durable queue before acking, so the queue survives the crash even though the HTTP exchange is over. For merchant-ops volume, ack-then-work plus reconciliation is the honest, proportionate trade: you accept a small window of silent loss that a nightly sweep repairs, in exchange for an endpoint fast enough that the retry storm never starts. Just know you made that trade, because the failure it permits is invisible until you go looking.
 
-![Flowchart showing a signature claimed before any work, duplicates dropping at the claim, verified events settling to fulfilled or rejected, and transient errors releasing the claim for the next retry.](assets/v04-flowchart.png)
+![Flowchart showing a signature claimed before any work, duplicates dropping at the claim, verified events settling to fulfilled or rejected, and transient errors releasing the claim for the next retry.](assets/v04-flowchart.webp)
 
 ### The ledger that means it
 
@@ -140,7 +140,7 @@ There is also the quiet question of how big this state gets, and last lesson alr
 
 One more habit from last lesson carries forward: the processed-signatures set inside the verifier still exists and still runs. The receiver's registry is the fast gate at the front door; the verifier's dedup is defense in depth behind it. Two layers keyed on the same signature cost almost nothing, and the day one of them has a bug is the day you learn to love the other.
 
-![An annotated JSON ledger row with order id, signature, base-unit amount as a string, mint, and timestamp, written only after a fresh claim and a passing verification.](assets/v05-annotated-code.png)
+![An annotated JSON ledger row with order id, signature, base-unit amount as a string, mint, and timestamp, written only after a fresh claim and a passing verification.](assets/v05-annotated-code.webp)
 
 ### Spoofs die at the verifier
 
@@ -152,7 +152,7 @@ Class two, the subtle one: a real payment, misdescribed. The attacker sends a ge
 
 That is also why `resolveOrder` in our pipeline works the way it does. Mapping a signature to an order via the payload's description would hand routing AND deciding to the attacker. Instead the resolver does what the verifier does: fetches the transaction and reads our own order id out of the on-chain memo your checkout stamped in module 3. Untrusted input gets to nominate a signature for inspection. That is all it gets to do.
 
-![Three lanes through the same gates: a fictional spoof dies at verification, a misdescribed real payment dies at the amount check, and only the honest payment reaches the ledger.](assets/v06-diagram.png)
+![Three lanes through the same gates: a fictional spoof dies at verification, a misdescribed real payment dies at the amount check, and only the honest payment reaches the ledger.](assets/v06-diagram.webp)
 
 ### The ceiling, and what lies past it
 
@@ -160,7 +160,7 @@ Webhooks fail in a way the platform notices. Every delivery your endpoint flubs,
 
 Do the economics while we are here, because they decide the architecture more honestly than taste does. Delivery costs 1 credit per event. A record shop doing even a thousand sales a day spends a thousand credits on ingestion, rounding error against your RPC usage, and the webhook fires only when a watched account actually moves. This is the regime webhooks are designed for: low-frequency, high-value events where per-event pricing is negligible and a minute of latency is invisible. Now invert it. Indexing every transfer touching a popular program, tens of millions of events, sub-second freshness requirements: per-event delivery pricing and HTTP-per-event overhead both stop making sense, and no amount of retry hygiene fixes an architecture mismatch. The classic wrong answer is a polling loop hammering getTransaction ranges, which burns credits to re-fetch mostly unchanged state and still lags. The right answer is a streaming subscription straight off the validator firehose: Yellowstone gRPC and its relatives. That world, gRPC ingestion, Geyser plumbing, backfill, the whole data-infrastructure seat, is the Client-Side Mastery course's territory, and its webhook lesson picks up exactly where this one stops. Wavelength does not have that problem. A merchant back office is precisely the merchant-ops seat, and for it, the humble webhook plus the discipline you now have is the correct engineering, not the beginner version of something fancier.
 
-![Timeline of a slow webhook handler accumulating failed deliveries and retries across a week until the 95 percent failure rate over seven days triggers automatic disablement of the endpoint.](assets/v07-timeline.png)
+![Timeline of a slow webhook handler accumulating failed deliveries and retries across a week until the 95 percent failure rate over seven days triggers automatic disablement of the endpoint.](assets/v07-timeline.webp)
 
 ## Lab: build the backoffice
 
@@ -500,7 +500,7 @@ npx tsx smoke.ts
 
 With the two placeholder throws still in place, the smoke fails on the ledger row count (each throw is caught, logged with its `Your turn` message by the receiver's catch block, and the claim released, so no row is ever written), which is the lab telling you the completion rungs are genuinely yours. When your `claim` and `record` are right, it prints the pass line. Wire `npm run verify:backoffice` to this script in `package.json` (`"verify:backoffice": "tsx smoke.ts"`), so every rung's verify stays runnable by name — the habit that pays when the capstone's journey harness shakes the assembled stack and you need to re-check one rung in isolation.
 
-![Comparison of the smoke test's stubbed verifier, resolver, and temp ledger against the live devnet wiring, with the signature registry identical on both sides.](assets/v08-comparison.png)
+![Comparison of the smoke test's stubbed verifier, resolver, and temp ledger against the live devnet wiring, with the signature registry identical on both sides.](assets/v08-comparison.webp)
 
 **7. Point a real webhook at it.** The smoke stubbed the chain; the live run needs the real wiring, and `createApp` only builds the app, so give it an entry point. Create `backoffice/src/main.ts`:
 

@@ -31,7 +31,7 @@ Cómo se reparte el trabajo: esta es una lección de concepto ya avanzado el cur
 
 Primero, una definición que al ecosistema le encanta difuminar, puesta justo a tiempo. Las rampas de la lección pasada mueven el fiat de un comprador hacia cripto que él posee, o la cripto de un comercio hacia fiat que él posee. El cliente de una rampa es quien sea que quiera que se le intercambie el activo. Un **procesador de aceptación** se sienta en otro lugar por completo: su cliente es el comercio, y su trabajo es tomar lo que sea que tenga el comprador y entregar lo que sea que el comercio quiera tener, cobrando una comisión por pararse en el medio. Un **corredor** es el emparejamiento que esta lección no para de puntuar: una geografía de comprador más el riel que llega hasta ella. Y el **activo de liquidación** es lo que de verdad aterriza en tu cuenta al final, fiat o stablecoin, que es la columna más consecuente de la tabla de hoy porque decide si siquiera operas una tesorería cripto.
 
-![Una rampa intercambia activos para quien sea su dueño, mientras un procesador de aceptación se sienta entre comprador y comercio entregando el activo de liquidación del comercio; un corredor empareja geografía con riel.](assets/v01-diagram.png)
+![Una rampa intercambia activos para quien sea su dueño, mientras un procesador de aceptación se sienta entre comprador y comercio entregando el activo de liquidación del comercio; un corredor empareja geografía con riel.](assets/v01-diagram.webp)
 
 ¿Por qué se gana la distinción su propia sección? Porque la mala lectura más común en este mercado es mirar un producto de liquidación en fiat para comercios y describirlo como "la tienda hace off-ramp de sus fondos." No lo hace. Cuando un procesador te liquida en fiat, tu tienda nunca tiene cripto por esa venta, así que no hay nada de lo que hacer off-ramp. El offramp que recorriste la lección pasada y la liquidación en fiat que vas a conocer en un momento son máquinas distintas que dan la casualidad de terminar en la misma moneda, y confundirlas te va a hacer construir infraestructura de tesorería que no necesitas. He visto a equipos hacer exactamente eso. No es un desperdicio pequeño.
 
@@ -41,13 +41,13 @@ Empieza por el territorio que ya sabes pensar, porque integraste Stripe en una v
 
 Las barreras de protección te dicen lo que Stripe piensa del dinero irreversible. Hay un límite de cliente de $10,000 por transacción. Y los reembolsos se devuelven como stablecoins a la billetera de origen, lo que debería sonar fuerte: ese es el pago push inverso que construiste a mano en la lección de conciliación, la misma regla de billetera de origen, la misma geometría sin chargebacks. No llegaste a esa forma por tu cuenta, y sería halagador fingir lo contrario: la lección de conciliación copió el precedente de Stripe a propósito, porque era el único que existía. Lo nuevo aquí es ver la misma regla sostenerse en un riel donde el comercio no toca cripto en absoluto, lo que te dice que la devolución a la billetera de origen es una propiedad del dinero push y no una preferencia de tesorería que heredaste. Toma el tope de $10,000 como la otra mitad del mensaje: cuando Stripe acota un riel así de fuerte, le está poniendo precio a la irreversibilidad que ya sabes que está ahí.
 
-![El USDC del comprador en Solana fluye por Stripe hacia el saldo fiat del comercio bajo un tope por transacción, mientras los reembolsos vuelven como stablecoins enviadas por push a la billetera de origen.](assets/v02-diagram.png)
+![El USDC del comprador en Solana fluye por Stripe hacia el saldo fiat del comercio bajo un tope por transacción, mientras los reembolsos vuelven como stablecoins enviadas por push a la billetera de origen.](assets/v02-diagram.webp)
 
 La economía de este acuerdo es la economía de la comodidad. La liquidación en fiat te ahorra una tesorería cripto, te ahorra la costura del offramp, te ahorra cada pregunta de conciliación sobre tener stablecoins en un balance. A cambio aceptas el tope, el calendario de liquidación del procesador y una huella geográfica que es, según los datos congelados para esta lección, disponibilidad general en EE. UU. Tu comprador de la UE no está en esa frase. Tu comprador brasileño no está ni cerca. Volver a sondear los propios docs de Stripe el 2026-08-22 agrega una arruga viva que vale la pena llevarse al registro sin cambiar la fila: los compradores pueden pagar desde donde sea, es la ubicación del *negocio* la que está restringida, y junto a la disponibilidad general en EE. UU. Stripe lista la UE, Hong Kong, México y Suiza en preview privado. El preview privado es una lista de espera, no un corredor, así que no se gana una celda en una tabla contra la que vas a entregar. Ponlo en tu lista de re-verificación, porque es exactamente el tipo de fila que se da vuelta. Y una cláusula del contrato de distribución importa aquí para la tienda de discos: sigues siendo merchant-of-record de la venta. Stripe es tu adquirente, no el vendedor de tus discos. Sostén eso junto al mapa de costuras de la lección pasada sin pestañear, porque las dos lecciones no se están contradiciendo: allá, el *onramp* de Stripe puso a Stripe en el asiento de merchant-of-record, porque lo que se vendía era la cripto misma; aquí, lo que se vende es tu disco, y la *aceptación pay-with-crypto* de Stripe es un producto distinto en un asiento distinto, adquirente de tu venta. Mismo logo, dos asientos. Nombrar el producto antes de nombrar el asiento es exactamente la disciplina que el mapa de costuras estaba instalando. La queja del comprador por un prensado alabeado es con Wavelength, en este riel y en todos los rieles de la tabla de hoy.
 
 Una cosa más sobre este distribuidor en particular, porque explica el mercado en el que estás operando. Stripe sostiene hoy una posición en cuatro frentes: aparece como logo de trusted-by de x402 (el estándar HTTP-nativo para pagos entre máquinas que conoces el módulo que viene), coescribió ACP, el Agentic Commerce Protocol para checkout de agentes de IA, con OpenAI, coescribió el esquema de autenticación HTTP "Payment" sobre el que está construido MPP (el otro riel de pagos entre máquinas del módulo que viene), y corre este riel de adquirencia USDC-en-Solana que liquida fiat. Una empresa así de paciente te está diciendo hacia dónde cree que van los pagos. Guárdate esa idea hasta el final de esta lección; el frente x402 es justo lo próximo que construyes.
 
-![Stripe sostiene cuatro posiciones a la vez, respaldo de x402, coautor de ACP con OpenAI, coautor del esquema de auth HTTP Payment detrás de MPP, y adquirente USDC-en-Solana que liquida a fiat.](assets/v03-diagram.png)
+![Stripe sostiene cuatro posiciones a la vez, respaldo de x402, coautor de ACP con OpenAI, coautor del esquema de auth HTTP Payment detrás de MPP, y adquirente USDC-en-Solana que liquida a fiat.](assets/v03-diagram.webp)
 
 ### MoonPay Commerce: el checkout con un dial de liquidación
 
@@ -57,7 +57,7 @@ Aquí es donde la disciplina numérica que esta lección no para de predicar con
 
 ¿Qué cuesta el acuerdo que liquida en cripto? Le entregas al procesador la UX del checkout y el esquema de comisiones, y en el tramo card-to-crypto el comprador es por un momento cliente de MoonPay para la conversión, la misma costura que mapeaste en el onramp la lección pasada, antes de que los tokens resultantes paguen tu factura. A cambio consigues un alcance de corredores que no depende de la lista de países que tenga un adquirente, liquidación en un activo que ya sabes conciliar, y pay links que puedes soltar en un DM, lo que para una tienda de discos que hace drops de preventa calza genuinamente bien. Para que quede completo: Transak y Meso también rondan este territorio, y se quedan solo nombrados en este curso porque su cobertura de Solana quedó sin verificar cuando se comprobaron los datos de esta lección. Un distribuidor sin verificar no recibe una fila en la tabla. Dejarlo fuera es lo que hace que el resto de las filas valgan la confianza.
 
-![Tres procesadores comparados lado a lado por activo de liquidación, rieles, cobertura y límites, con Transak y Meso mostrados como excluidos porque su cobertura de Solana quedó sin verificar.](assets/v04-comparison.png)
+![Tres procesadores comparados lado a lado por activo de liquidación, rieles, cobertura y límites, con Transak y Meso mostrados como excluidos porque su cobertura de Solana quedó sin verificar.](assets/v04-comparison.webp)
 
 ### Sphere y el corredor PIX
 
@@ -67,7 +67,7 @@ Sphere es el ancla de Brasil de la investigación. Su propio sitio se presenta m
 
 La contrapartida es el espejo de la fortaleza. Sphere se gana la fila BR porque carga el riel que la aceptación cripto de Stripe no toca, y vale la pena decirlo como la trampa que es, porque he visto la suposición suelta en el mundo: Stripe pay-with-crypto no ofrece PIX. La aceptación cripto de Stripe está basada en redes de stablecoins; PIX es el riel de Sphere en este roster. Mientras tanto nada del roster de Sphere cambia la fila US, donde el comprador quiere un checkout de grado adquirente y cercano a la tarjeta, que era todo el territorio de Stripe. Ningún distribuidor cubre el mapa. Échale la culpa al mapa y no a los proveedores: esa asimetría es exactamente por qué el registro de decisión de corredores existe como tabla por geografía en vez de como una respuesta de una línea.
 
-![Un diagrama de flujo de decisión que rutea a los compradores de EE. UU., la UE y Brasil hacia sus rieles, con cada resultado registrado junto al activo de liquidación, el merchant-of-record y una fecha de verificación.](assets/v05-flowchart.png)
+![Un diagrama de flujo de decisión que rutea a los compradores de EE. UU., la UE y Brasil hacia sus rieles, con cada resultado registrado junto al activo de liquidación, el merchant-of-record y una fecha de verificación.](assets/v05-flowchart.webp)
 
 ### La frontera que no es técnica
 
@@ -105,7 +105,7 @@ No hay ninguno, y ese es el diseño. USDC es un peg a USD, así que el prensado 
 
 Donde el precio de exhibición sí se pone interesante es en el momento en que el activo cobrado flota contra la moneda de la etiqueta: ponerle precio a un disco en SOL, o aceptar un token volátil en el checkout. Ahí necesitas un precio vivo, una regla de obsolescencia, una política de spread y un oráculo que puedas defender, y esa maquinaria es una disciplina genuina con sus propios modos de falla. También es, deliberadamente, no la disciplina de este curso. El precio basado en oráculos — ventanas de obsolescencia, intervalos de confianza, política de spread — es territorio de DeFi and RWA Engineering, y tu registro de corredores va a anotar el traspaso en vez de colar una versión enseñada a medias. Un curso de pagos que te enseñara un cuarto de oráculo no te estaría haciendo ningún favor; el cuarto que te faltaría es el cuarto que pierde dinero.
 
-![Precio de checkout con peg y flotante lado a lado, donde un disco con precio en USD cobra el mismo número de USDC mientras los activos volátiles necesitan un oráculo, reglas de obsolescencia y política de spread.](assets/v06-comparison.png)
+![Precio de checkout con peg y flotante lado a lado, donde un disco con precio en USD cobra el mismo número de USDC mientras los activos volátiles necesitan un oráculo, reglas de obsolescencia y política de spread.](assets/v06-comparison.webp)
 
 ### La contrapartida que nadie esquiva
 
@@ -115,7 +115,7 @@ Por eso mismo el entregable honesto es una tabla y no una recomendación. Y por 
 
 Eso sí, no todo lo que lleva se degrada a la misma velocidad, y ordenar los datos por su reloj es lo primero que te pide el lab.
 
-![Los datos de esta lección ordenados en dos relojes de degradación, cifras de proveedor que necesitan fuente y fecha contra datos estructurales de producto enunciados planos.](assets/v07-table.png)
+![Los datos de esta lección ordenados en dos relojes de degradación, cifras de proveedor que necesitan fuente y fecha contra datos estructurales de producto enunciados planos.](assets/v07-table.webp)
 
 ## Lab: firma los acuerdos de distribución
 
@@ -209,7 +209,7 @@ El silencio es el éxito. Si el compilador objeta, lee el error; la superficie d
 
 **Paso 6: cierra el circuito con las rampas.** Agrega una sección final a `DECISION.md` titulada `Seams with ramp-embed`, y responde en dos o tres frases: ¿en qué corredores sigue importando el onramp de la lección pasada (un corredor que liquida en cripto igual necesita compradores que tengan USDC o un tramo card-to-crypto), y en qué corredor interactúa el offramp del payout de artista con tu elección de activo de liquidación? Si tu fila US liquida fiat vía el procesador, fíjate en lo que nunca haces para esas ventas: off-ramp. Escribir esa frase es la inoculación más barata contra la mala lectura de la liquidación en fiat con la que abrió esta lección.
 
-![El registro de decisión de corredores se sienta entre el embed de la rampa que lo informa y el capstone que él informa, sosteniendo tres filas fechadas que los humanos leen pero que ningún código importa.](assets/v08-diagram.png)
+![El registro de decisión de corredores se sienta entre el embed de la rampa que lo informa y el capstone que él informa, sosteniendo tres filas fechadas que los humanos leen pero que ningún código importa.](assets/v08-diagram.webp)
 
 ## Challenge
 

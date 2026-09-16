@@ -32,7 +32,7 @@ First definition, just in time: a **mint** is the on-chain account that IS a tok
 
 Here is the part that breaks the mental model you brought from card rails. Your customer's wallet address does not hold USDC. It cannot. A wallet holds SOL natively, and that is all it holds. Token balances live in separate accounts, one per owner and mint, and the standard home for a balance is called the **associated token account**, the ATA. (The owner and the mint are the two seeds you will care about today; there is a third, the token program that owns the mint, and it becomes load-bearing next lesson. The code below passes it explicitly, so do not be surprised to see three arguments where the prose says two.) Alice's wallet is one address; Alice's USDC lives at a second address; Alice's USDT would live at a third. When you pay Alice, tokens move between token accounts, and her wallet signs for the one she owns.
 
-![Alice's wallet and the USDC mint each point at a third account, her associated token account, which is derived from that pair and holds the balance.](assets/v01-diagram.png)
+![Alice's wallet and the USDC mint each point at a third account, her associated token account, which is derived from that pair and holds the balance.](assets/v01-diagram.webp)
 
 How do you find Alice's USDC account if she never told you its address? You compute it. An ATA is a program-derived address: deterministic, computed from the owner, the mint, and the mint's token program, owned by a program, no private key, hold that thought for module 5. For today, the practical consequence is the entire point: given any wallet and any mint, your code can derive the exact token account address without asking anyone, no lookup, no RPC round trip, no message to the customer. `resolveAta` will be four lines.
 
@@ -53,7 +53,7 @@ On devnet on 2026-09-07 that answered `1488440` lamports, about 0.0015 SOL; the 
 
 That is the trade-off, and I want it on the table before we build. Integer base units are exact but unforgiving: you now own the decimals bookkeeping the float shortcut used to hide. And paying a brand-new customer can require creating and rent-funding their ATA first, a real cost of roughly a thousandth of a SOL and an extra failure mode on every first-time buyer. Neither cost is hidden anymore. That is the deal on these rails, over and over: the machinery is exposed, and you are the one holding it.
 
-![A flowchart showing derivation, an unconditional idempotent create, and the transfer bracketed as one atomic transaction, with the existence check crossed out.](assets/v02-flowchart.png)
+![A flowchart showing derivation, an unconditional idempotent create, and the transfer bracketed as one atomic transaction, with the existence check crossed out.](assets/v02-flowchart.webp)
 
 ### Money as integers, or the $2.01 bug dissected
 
@@ -61,7 +61,7 @@ The opener's one-liner failed because the chain does not store 2.01. It stores a
 
 JavaScript's ordinary numbers are 64-bit floats, and floats cannot represent most decimal fractions exactly. `2.01` is stored as something a hair under 2.01, multiply it by a million and you get `2009999.9999999998`, truncate and you are short one unit. You might patch it with `Math.round` and your tests will pass, and here is why that patch is a time bomb rather than a fix: floats are only exact for integers up to 2 to the 53rd power, which is 9,007,199,254,740,992. Past that, doubles physically cannot represent every integer, so the rounding error stops being fractional and becomes silent whole-unit drift that no rounding call can recover. At 6 decimals that ceiling sits around nine billion USDC, which sounds unreachable until you remember base units are also how you will sum daily volume, hold treasury balances, and process batch payouts. And for 9-decimal tokens, the ceiling drops to about nine million, well inside one whale's balance. The rule that survives every scale: money math never touches a float, not once, not in the middle. Parse the customer's decimal string directly into a `bigint`.
 
-![Three paths converting 2.01 to base units: float truncation lands one unit short, rounding holds until two to the fifty-third, and exact string parsing stays correct.](assets/v03-annotated-code.png)
+![Three paths converting 2.01 to base units: float truncation lands one unit short, rounding holds until two to the fifty-third, and exact string parsing stays correct.](assets/v03-annotated-code.webp)
 
 One asymmetry completes the money model. Conversion runs in two directions, and only one of them is dangerous. Going inward, customer string to base units, is where payments are made or corrupted, so it gets the paranoid treatment. Going outward, base units to a display string, is honest formatting: `12500000` at 6 decimals renders as `12.5`, done with string slicing on the same no-float principle, and if a UI later chooses to display `12.50` with a trailing zero, that is a presentation choice that touches nothing. The kit ships both directions as a pair, `toBaseUnits` and `fromBaseUnits`, because a system that can only encode money and never audit it back out is half a system, and the verify step at the end of the lab leans on the outward trip to report what actually moved.
 
@@ -71,13 +71,13 @@ Three more pieces and the theory is done. Read them as answers to three product 
 
 Not sending the wrong thing: the token program has two transfer instructions, and your kit uses the strict one. Plain `Transfer` takes a source, a destination, and an integer amount, and trusts you on everything else. **TransferChecked** additionally takes the mint address and the decimals, and the program verifies both against the accounts on-chain, rejecting the transaction on any mismatch. Ship the wrong mint in your config and the transaction is rejected. Let decimals drift between your code and reality and it is rejected again, instead of sending a payment off by orders of magnitude. Plain `Transfer` is also deprecated in the current tooling, so the choice makes itself: an instruction that carries its own sanity check is exactly what money deserves.
 
-![A comparison table showing that TransferChecked verifies the mint and decimals on-chain and rejects mismatches while plain Transfer trusts your configuration, and that Transfer is deprecated in current tooling.](assets/v04-comparison.png)
+![A comparison table showing that TransferChecked verifies the mint and decimals on-chain and rejects mismatches while plain Transfer trusts your configuration, and that Transfer is deprecated in current tooling.](assets/v04-comparison.webp)
 
 Labeling: a **memo** is a tiny instruction from the memo program that attaches a short string to the transaction, permanently and publicly. Order IDs, invoice references, "wavelength-order-0001". Public is the operative word: never put customer names or emails in one, the whole world can read it. Think of it as the reference field on a bank transfer, minus the privacy.
 
 Finding it again: this one is the quiet star of the whole course. A **reference key** is a fresh, unique address, 32 bytes, that you attach to the transfer instruction as an extra account. It signs nothing, receives nothing, does nothing. But every account that appears in a transaction becomes searchable, so a signature lookup on that address returns exactly one payment: yours. Generate a unique reference per payment and you have given every checkout a tracking number the network indexes for free. When your customer says "I paid," you do not scan the ledger hoping to match amounts; you look up the reference. Module 4's entire reconciliation engine stands on this trick, and the QR you scanned last module already carried one.
 
-![A fresh reference address rides the transfer as an inert extra account, the ledger indexes it, and one lookup on that address returns exactly one payment.](assets/v05-diagram.png)
+![A fresh reference address rides the transfer as an inert extra account, the ledger indexes it, and one lookup on that address returns exactly one payment.](assets/v05-diagram.webp)
 
 One piece of history, because this exact trio is older than it looks. When Shopify announced Solana Pay support on 2023-08-23, with MonkeDAO, Mad Lads, and Helius among the first users, the pitch was eliminating bank fees, chargebacks, and holding times, and the payment under the hood was precisely this: a checked stablecoin transfer plus a reference key for matching. The live path today runs through MoonPay Commerce's plugin, but the primitive never changed. You are about to build the same push payment that shipped to Shopify merchants, small enough to fit in one file.
 
@@ -381,11 +381,11 @@ curl -s https://api.devnet.solana.com -X POST -H 'Content-Type: application/json
 
 A null in `result.value[0]` with history search on means it never landed, and only then is rebuilding safe. A status object means you were paid and the retry you were about to send would have charged your customer a second time. Expired plus never-landed: both, every time. The wall-clock figure, about 150 blocks and therefore roughly 45 seconds at the current 300ms target slot time, is useful for sizing a timeout but it is not the check; derive it from slot time rather than memorizing the seconds, because slot time is the number that moves, and it has been moving fast: SIMD-0525 already cut it twice in a week, with two more staged cuts gated in the code. Module 8's offline payment queue sidesteps this deadline altogether — a market stall cannot re-check a blockhash it cannot reach, so it signs against a durable nonce instead; today the kit just refuses to be sneaky about the deadline, and if you ever need the check, the curl above is it.
 
-![Two timelines over the 150-block window: resubmitting the same bytes keeps one signature that lands at most once, while rebuilding creates a second signature and charges the customer twice.](assets/v06-timeline.png)
+![Two timelines over the 150-block window: resubmitting the same bytes keeps one signature that lands at most once, while rebuilding creates a second signature and charges the customer twice.](assets/v06-timeline.webp)
 
 One more pass over the plumbing, because this is your first contact with kit's pipeline and it will repeat in every network-touching file this course writes. The `pipe` chain builds a transaction *message*: a description of what should happen, who pays the fee, and which blockhash anchors its lifetime. Nothing in the message is final; you can keep transforming it. `signTransactionMessageWithSigners` is the one-way door: it walks the message, finds every account that must sign (our payer covers both the fee and the token transfer), signs, and freezes the bytes. After that door, the transaction IS its bytes, which is exactly why the resend rule works: the signature was computed over them, so the bytes and the signature can never drift apart. `sendAndConfirmTransactionFactory` then bundles the two RPC connections you passed in, HTTP for sending and a websocket subscription for hearing back, and blocks until the network reports your requested commitment level. We ask for `confirmed`. Now open `commitment-policy.md` and check that against what you wrote under `Everyday payments`: a $1.25 test payment is squarely that heading, and if your file said `finalized` there, change the string in the code to match your policy rather than changing your policy to match my code. This is a small moment and it is the only time this lesson touches the file, but it is the habit module 4 automates: the commitment level in the code is downstream of a written policy, never a default someone typed once.
 
-![A three-phase pipeline: the mutable message gains a fee payer, blockhash lifetime, and instructions, then signing freezes the bytes, and the immutable transaction is sent and confirmed.](assets/v07-flowchart.png)
+![A three-phase pipeline: the mutable message gains a fee payer, blockhash lifetime, and instructions, then signing freezes the bytes, and the immutable transaction is sent and confirmed.](assets/v07-flowchart.webp)
 
 Tie the exports together in `transfer-kit/src/index.ts`:
 
@@ -546,7 +546,7 @@ amount: 1250000 base units (1.25 USDC)
 
 That is the checkpoint the whole lesson gates on. If the lookup returns nothing, the usual suspect is an RPC that has not caught up; wait a few seconds and rerun. If the amount check throws, read the two numbers in the error, because one of them came from your code and one came from the chain, and the chain is not the one that is wrong.
 
-![Verification flows from the reference key through signature lookup and transaction fetch to a base-unit balance delta, with failure exits for a missing signature, failed transaction, or amount mismatch.](assets/v08-flowchart.png)
+![Verification flows from the reference key through signature lookup and transaction fetch to a base-unit balance delta, with failure exits for a missing signature, failed transaction, or amount mismatch.](assets/v08-flowchart.webp)
 
 ### 9. What that payment actually cost
 
@@ -554,7 +554,7 @@ Close the loop with the cost recap module 1 promised you. Your payment carried o
 
 Zoom out for one paragraph, because the shape here matters more than the sizes. The recurring cost of taking a payment on these rails is flat and tiny at any ticket size, and the one meaningful cost is a one-time, per-customer capital expense that buys a permanent piece of on-chain infrastructure for that relationship. Card rails charge you a percentage forever and give you nothing durable back. Here you pay cents once and every subsequent payment from that customer rides nearly free. For a business with repeat customers, that is not a discount, it is a different cost model — carry it with you to module 6, where cost models like this one get weighed when we choose a rail per corridor.
 
-![Stacked bars compare a first-time customer paying the 5000-lamport base fee plus the one-time ATA rent deposit, roughly a thousandth of a SOL, against a repeat customer paying only that flat fee.](assets/v09-chart.png)
+![Stacked bars compare a first-time customer paying the 5000-lamport base fee plus the one-time ATA rent deposit, roughly a thousandth of a SOL, against a repeat customer paying only that flat fee.](assets/v09-chart.webp)
 
 ## Challenge
 

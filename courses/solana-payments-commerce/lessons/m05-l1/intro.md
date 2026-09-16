@@ -59,7 +59,7 @@ Read that as a sentence: "this address may move at most 60 USDC out of this one 
 
 After this lands, the subscriber's token account carries three facts it did not carry before: a `delegate` address, a `delegatedAmount`, and nothing else. No plan name, no billing cadence, no metadata. The Token program stores a number and an address, and everything a "subscription" means beyond that is your problem, off-chain. Hold that thought; the bill for it comes due at the end of the lesson.
 
-![ApproveChecked writes only a delegate address and a delegatedAmount onto the subscriber's own token account; ownership and balance are untouched, and the crank's power is bounded by those two fields.](assets/v01-diagram.png)
+![ApproveChecked writes only a delegate address and a delegatedAmount onto the subscriber's own token account; ownership and balance are untouched, and the crank's power is bounded by those two fields.](assets/v01-diagram.webp)
 
 The exit is even smaller. `Revoke` takes the source account and the owner's signature, clears both fields, and needs nobody's permission:
 
@@ -75,7 +75,7 @@ Now the constraint. Each token account has exactly one active delegate slot. Not
 
 Play the tape forward. Your subscriber loves the record club. In March they also subscribe to, say, a coffee drop that runs the same raw-delegate design on the same USDC account. The moment their wallet signs the coffee shop's `ApproveChecked`, your crank's approval stops existing. Your April pull fails. Nobody did anything wrong: the subscriber consented to both merchants, both merchants wrote correct code, and the primitive simply cannot hold two live permissions on one token account.
 
-![Before-and-after account states showing that a subscriber approving a second merchant overwrites the first merchant's delegate and remaining allowance with no notification.](assets/v02-comparison.png)
+![Before-and-after account states showing that a subscriber approving a second merchant overwrites the first merchant's delegate and remaining allowance with no notification.](assets/v02-comparison.webp)
 
 This is why the lesson keeps saying "the raw primitive." One live subscription per (user, mint) is a real product ceiling, and no amount of clever backend code lifts it, because the ceiling is in the account layout itself. What backend code CAN do is detect the eviction honestly instead of erroring blindly, and that is your solo challenge today. Lifting the ceiling takes a program that occupies the slot once and multiplexes real billing arrangements behind it, which is precisely next lesson.
 
@@ -85,7 +85,7 @@ The second thing Stripe-trained intuition gets wrong: the approved amount is not
 
 The record club charges 15 USDC per cycle. The subscriber approved 60. So:
 
-![A 60-USDC allowance steps down through 45, 30 and 15 across four successful pulls; the fourth empties it and the Token program clears the delegate in the same instruction, so the fifth pull finds an empty slot, and only a fresh owner-signed approval restores both.](assets/v03-chart.png)
+![A 60-USDC allowance steps down through 45, 30 and 15 across four successful pulls; the fourth empties it and the Token program clears the delegate in the same instruction, so the fifth pull finds an empty slot, and only a fresh owner-signed approval restores both.](assets/v03-chart.webp)
 
 Four pulls and the tank is dry, and the tank takes the tap with it. The Token program decrements `delegatedAmount` inside the delegate-signed transfer, and when that subtraction lands on exactly zero it sets the account's `delegate` back to none in the same instruction, which is the `null` your guard reads next cycle: exhausting an approval also clears it. So the fifth transaction does not fail on an empty allowance; it fails because the account has no delegate any more, which makes the crank's signature just some stranger's signature, and the Token program says so with `OwnerMismatch`, custom program error `0x4`. `InsufficientFunds`, custom program error `0x1`, is the neighboring case: an allowance too small for this pull but not yet zero, say 10 remaining against a 15-USDC charge, where the slot is still yours. Either way the account still holds plenty of USDC; the permission to move it is what is spent. There is nothing the crank can do about it except ask the subscriber to sign again. This reads as an inconvenience and is actually a feature: the subscriber pre-consented to a bounded total, and the bound is doing its job. A 60-USDC approval is four months of the club, a natural re-consent cadence. You could ask for 600 up front and pull for years; some products will, and their churned users will discover a live allowance they forgot. Where you set the ceiling is a product decision the chain will not make for you. The chain only enforces whatever number the owner signed.
 
@@ -114,7 +114,7 @@ Because it is the same instruction shape, everything module 3 and 4 taught keeps
 
 The crank's real job, then, is not the transfer but the paragraph before it: deciding whether pulling is still legitimate. I will confess the mistake so you can skip it: the first crank I wired cached the approval state at signup, because why would it change? A test wallet re-approved a different delegate mid-cycle, my crank submitted anyway, and I spent an evening staring at a custom program error 0x4 in a transaction log before the obvious sank in. The account state is the ledger. Your database is a cache with opinions. So the crank re-reads the token account every single cycle, before every pull, and answers three questions:
 
-![Three pre-pull checks map to outcomes: a missing delegate refuses as delegate-revoked, whether the owner revoked it or an exhausting pull cleared the slot; a foreign delegate refuses the same way; too small an allowance refuses as insufficient-allowance; and only an all-clear proceeds.](assets/v04-table.png)
+![Three pre-pull checks map to outcomes: a missing delegate refuses as delegate-revoked, whether the owner revoked it or an exhausting pull cleared the slot; a foreign delegate refuses the same way; too small an allowance refuses as insufficient-allowance; and only an all-clear proceeds.](assets/v04-table.webp)
 
 Could the crank skip the guard and just submit, letting the chain reject bad pulls? Mechanically yes, and the funds would be exactly as safe: the Token program enforces everything the guard checks. The guard exists because "transaction failed: custom program error 0x4" and "this subscriber revoked us, mark the subscription lapsed" are different facts to a billing system, and only one of them tells your back office what to do next. The chain gives you a no. The guard gives you the reason, before you spend a fee learning it. Those reason strings, `delegate-revoked` and `insufficient-allowance`, are the raw primitive's vocabulary, and the next two lessons keep the two names meaningful one layer down: the official program's guard adds its own reasons on top, and the continuity note in the next lesson's challenge walks the mapping explicitly.
 
@@ -124,7 +124,7 @@ Run the subscriber's worst-case scenario honestly, because a customer will ask, 
 
 Suppose Wavelength turns evil, or more realistically, the crank keypair leaks. What can the holder do? Sign `TransferChecked` against the subscriber's USDC account, up to the remaining allowance. If three pulls already happened, that is at most 15 USDC. What can it do to the subscriber's SOL? Nothing; the delegate is on one token account. Their other SPL balances and their NFTs live in different accounts entirely, each with its own untouched delegate slot. Can it approve itself a bigger allowance? No: `ApproveChecked` requires the owner's signature. Can it block the subscriber from revoking? No: `Revoke` requires only the owner. The blast radius of a fully compromised crank is the unspent allowance on exactly the accounts that approved it, and every one of those owners can zero it out unilaterally the moment the compromise is announced.
 
-![A leaked crank key reaches only the remaining allowance on the one approved USDC account; SOL, other tokens, NFTs, self-approval and revoke-blocking all sit outside that boundary.](assets/v05-diagram.png)
+![A leaked crank key reaches only the remaining allowance on the one approved USDC account; SOL, other tokens, NFTs, self-approval and revoke-blocking all sit outside that boundary.](assets/v05-diagram.webp)
 
 That is the non-custodial promise, stated without romance: not that the merchant is honest, but that the merchant's honesty is not load-bearing. The bound lives in the Token program, the same audited code path that has settled every SPL transfer this course has made. You did not deploy a program today, and that is the point: there is no new contract for a subscriber to audit. The permission they grant is enforced by code they already trust by holding the token at all.
 
@@ -134,7 +134,7 @@ The ecosystem has noticed this shape. When Superteam ran its Solana Native "Subs
 
 The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whole story in four pulls and one refusal. You will play both sides, subscriber and merchant, with two keypairs.
 
-![The subscriber signs one approval, the crank signs and pays the fee for every pull, and the merchant only receives 15 USDC per cycle.](assets/v06-diagram.png)
+![The subscriber signs one approval, the crank signs and pays the fee for every pull, and the merchant only receives 15 USDC per cycle.](assets/v06-diagram.webp)
 
 1. **Keypairs and funding.** In the `club-crank` workspace, mint two identities. The install from the top of the lesson should be done by now.
 
@@ -439,7 +439,7 @@ The club: 15 devnet USDC per cycle, approved at 60, so the ledger tells the whol
 
    You cannot run `pull.ts` to success yet; its guard still throws. That ordering is deliberate. Go fill the TODOs.
 
-![Each crank cycle reads the account fresh, refuses with delegate-revoked or insufficient-allowance, or lets a delegate-signed TransferChecked through, then re-reads to confirm the decremented allowance.](assets/v07-flowchart.png)
+![Each crank cycle reads the account fresh, refuses with delegate-revoked or insufficient-allowance, or lets a delegate-signed TransferChecked through, then re-reads to confirm the decremented allowance.](assets/v07-flowchart.webp)
 
 ## Challenge
 

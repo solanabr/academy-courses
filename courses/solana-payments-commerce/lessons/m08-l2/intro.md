@@ -54,7 +54,7 @@ console.log(`expired after ~${Math.round((Date.now() - start) / 1000)}s`);
 
 Run it with `npx tsx probe.ts`. Mine printed 28 seconds, give or take the 5-second polling grain, and that surprise is itself the lesson: the probe runs against devnet, which runs ahead of mainnet on slot time and therefore burns through its 150-block window faster — measured 2026-09-07, devnet was producing a slot roughly every 165ms against mainnet's ~320ms, on `solana-core` 4.3.0-beta.3. Read 165ms twice, because it is under 200ms, the bottom of the ladder above, and that is not a typo. Devnet has activated all four gates, so its *target* is 200ms; it was running faster than its own target. Mainnet, on the 300ms stage, measured ~320ms — slower than its own target. Neither cluster sits on its stated number, and SIMD-0525 says so itself: the table sets per-slot work, hashes per tick and block limits, and the SIMD notes that none of its timing values "are explicitly in protocol and may deviate from reality." The stage is what the network aims at, not a clock it is held to. Which is the whole argument for the probe: `getRecentPerformanceSamples` returns `numSlots` and `samplePeriodSecs`, and dividing one by the other is your cluster's current slot time, ladder or no ladder. Do not take either number from this page. Whatever it says, devnet's window is tighter than mainnet's ~45 seconds, and both keep shrinking. Whatever your probe prints, that number is the whole problem statement: in the basement, the gap between "buyer signed" and "you have bars again" is measured in hours, and the transaction's patience is measured in seconds. No retry loop fixes this, because rebroadcasting an expired transaction does not extend its life; the hash is simply too old, and the RPC will keep telling you so no matter how politely you ask again.
 
-![Two horizontal timelines: a blockhash transaction dies at about 45 seconds while a durable-nonce transaction stays valid for hours until its nonce is advanced.](assets/v01-timeline.png)
+![Two horizontal timelines: a blockhash transaction dies at about 45 seconds while a durable-nonce transaction stays valid for hours until its nonce is advanced.](assets/v01-timeline.webp)
 
 If you came up through card payments, you have seen this problem solved before. Store-and-forward terminals have taken cards on airplanes and in basements for decades: the terminal records the authorization offline and forwards the batch when it reconnects, and the acquirer sorts out the risk later. The reason Solana needs a dedicated primitive for the same move is that there is no acquirer to absorb ambiguity. Validation is global and mechanical, every node must agree on whether a transaction is fresh, and the freshness rule is that 150-block window. So the chain-native version of store-and-forward cannot just hold bytes and hope; it has to change what "fresh" means for that transaction.
 
@@ -79,7 +79,7 @@ Two fields do the work. `authority` is the nonce authority, the account that mus
 
 Cost, since a merchant should always know it. The rent deposit for 80 bytes was 1,056,640 lamports on devnet and 1,317,264 on mainnet when I read it on 2026-09-07, and both keep falling as SIMD-0437 steps the per-byte rate down — so read yours from `getMinimumBalanceForRentExemption(80)` rather than from this sentence. It is a deposit, not a fee: `WithdrawNonceAccount` returns every lamport to the authority the day you retire a slot, so a four-slot pool ties up about four times that number for as long as you run the stall and costs you nothing to unwind. Per transaction, the durable-nonce path is slightly heavier than a blockhash one, since every sale carries the extra advance instruction and its accounts. For a payments flow that trade is invisible; the base fee math you did in module 1 still dominates.
 
-![An 80-byte nonce account laid out field by field: version, state, the 32-byte authority pubkey mapped to the merchant key, the 32-byte stored nonce value, and the fee rate.](assets/v02-diagram.png)
+![An 80-byte nonce account laid out field by field: version, state, the 32-byte authority pubkey mapped to the merchant key, the 32-byte stored nonce value, and the fee rate.](assets/v02-diagram.webp)
 
 ### Instruction 0 or nothing
 
@@ -87,7 +87,7 @@ How does a validator know a transaction is using a durable nonce and not a stale
 
 The instruction itself is tiny: three accounts (nonce account, the recent-blockhashes sysvar, the authority as signer) and four bytes of data, `[4, 0, 0, 0]`, the System Program's discriminator for AdvanceNonceAccount. Those four bytes are worth memorizing because your lab asserts on them.
 
-![The AdvanceNonceAccount instruction annotated: System Program, the writable nonce account, the recent-blockhashes sysvar, the authority as signer, and data bytes 4,0,0,0, valid only at instruction position zero.](assets/v03-annotated-code.png)
+![The AdvanceNonceAccount instruction annotated: System Program, the writable nonce account, the recent-blockhashes sysvar, the authority as signer, and data bytes 4,0,0,0, valid only at instruction position zero.](assets/v03-annotated-code.webp)
 
 In kit you never hand-build that instruction for your own transactions, because the lifetime helper does it for you. Where last lesson's builder called `setTransactionMessageLifetimeUsingBlockhash`, the fair queue calls its sibling:
 
@@ -114,7 +114,7 @@ The first scar is written directly into the official documentation, and I want y
 
 The second scar is the reason the first one exists. On 2022-06-01, a bug in durable-nonce handling let certain nonce transactions be processed twice. Validators disagreed about the result, consensus stalled, and mainnet halted for about 4.5 hours. The response afterward was drastic: the feature was temporarily disabled network-wide while the runtime logic was fixed. Read that as a merchant, not as a protocol historian. Double-processing a payment transaction means a buyer charged twice, and the failure class was not exotic: transactions that should have been unreplayable got honored again. Note the tense, though — fixed. The 2022 repair separated the durable-nonce and blockhash validation domains, so today a conforming validator deterministically rejects bytes whose nonce has advanced: the stored value no longer matches the transaction's `recentBlockhash`, the exact check you read in the instruction-0 section. So why does your drain still treat a spent nonce as radioactive? Not because rebroadcast can double-charge — the runtime closed that door. Because every rebroadcast of dead bytes is a wasted send and a ledger smudge, and because the double-charge that is still alive belongs entirely to you: re-SIGNING the same sale against a fresh nonce. The drain's spent-nonce rule exists so nobody makes that call at 6 p.m. with a queue file open and no record of what already landed.
 
-![Timeline of the 2022-06-01 Solana mainnet outage: a durable-nonce double-processing bug halts the network for about 4.5 hours, the origin of the drain's spent-nonce rule.](assets/v04-timeline.png)
+![Timeline of the 2022-06-01 Solana mainnet outage: a durable-nonce double-processing bug halts the network for about 4.5 hours, the origin of the drain's spent-nonce rule.](assets/v04-timeline.webp)
 
 One more piece of merchant honesty before the ledger. A queued sale is not a settled sale. The signature in your drawer proves the buyer authorized the payment at noon; it does not prove the payment will land at six, because a drain-time submit can still fail like any other transaction, most plainly when the buyer's balance has been spent elsewhere during the afternoon. Card merchants have lived with exactly this since store-and-forward existed, and the posture is the same: hand over the record at the stall if your margins tolerate the risk, or hold high-value items for pickup after the drain confirms. Either way your ledger needs two states, queued and landed, and only the second one is revenue. The backoffice you built in module 4 already has the landed half; the queue file is the other.
 
@@ -126,7 +126,7 @@ Your share of the work, out loud: this is module 8, solo territory. The worked s
 
 The day has a shape, and the scripts follow it:
 
-![Four-stage cycle: create the nonce pool once online, snapshot nonce values each morning, sign sales offline into a queue during the fair, and drain the queue safely when back online.](assets/v05-flowchart.png)
+![Four-stage cycle: create the nonce pool once online, snapshot nonce values each morning, sign sales offline into a queue during the fair, and drain the queue safely when back online.](assets/v05-flowchart.webp)
 
 1. **Keys and funding.** `merchant.json` must be *the* merchant key, the one checkout-txreq pays out to, because the queue's sales credit that wallet and the drain reconciles against the same ledger. That key is the CLI identity module 2 created, so copy it rather than minting a new one — `solana-keygen new -o merchant.json` would hand you a different wallet, and nothing downstream would tell you: the sales would land, in the wrong shop. The demo buyer, by contrast, is genuinely fresh; it stands in for the customer wallet that would sign at a real stall:
 
@@ -329,7 +329,7 @@ The day has a shape, and the scripts follow it:
 
 6. **The replay attempt.** Run `npx tsx drain.ts` a second time without snapshotting. Every entry it just landed now hits the spent-nonce branch, prints `RECONCILED`, and, this is the assertion that matters, sends nothing. Then close the loop with a harness you write yourself: `verify/fair-queue.smoke.ts`, four asserts long, driving your own scripts end to end. It signs a sale, holds it 90 seconds, drains it, decodes instruction 0 to confirm AdvanceNonceAccount (reuse the step-4 guard), and replays the drain expecting zero resubmissions. Green means fair-queue is real.
 
-![Decision flowchart for draining one entry: matching nonce values submit and confirm, while a spent nonce routes to reconciliation or an unsafe verdict that never resubmits.](assets/v06-flowchart.png)
+![Decision flowchart for draining one entry: matching nonce values submit and confirm, while a spent nonce routes to reconciliation or an unsafe verdict that never resubmits.](assets/v06-flowchart.webp)
 
 ## Challenge
 
@@ -353,7 +353,7 @@ Note the shape before you start: three positional arguments in, and three lists 
 
 The starter and tests are in the nonce-queue-drain coding-challenge widget; the solution passes every case, and the starter fails at least one, so you know the tests bite.
 
-![Three-row comparison of the classifier buckets: submit for fresh entries, expired for out-of-window blockhash entries, and unsafe for spent-nonce entries that must never be resubmitted.](assets/v07-comparison.png)
+![Three-row comparison of the classifier buckets: submit for fresh entries, expired for out-of-window blockhash entries, and unsafe for spent-nonce entries that must never be resubmitted.](assets/v07-comparison.webp)
 
 ## Checkpoint, and the drawer
 

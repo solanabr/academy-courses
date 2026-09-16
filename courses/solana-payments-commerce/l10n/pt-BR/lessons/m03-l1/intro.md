@@ -58,7 +58,7 @@ O cliente escaneia, a carteira dele interpreta esses parâmetros, constrói uma 
 
 Agora a cilada, porque ela merece o próprio parágrafo e um lado a lado. Você passou o módulo 2 inteiro convertendo valores decimais para unidades base com `toBaseUnits`, porque instruções de transferência on-chain falam unidades base. Uma URL do Solana Pay não fala. A spec define `amount` como uma quantidade de UI, e a carteira multiplica pelas casas decimais do mint para você. Os dois hábitos colidem de frente:
 
-![Lado a lado de 12.5 USDC como valor decimal na URL versus 12500000 unidades base em uma instrução, avisando que unidades base em uma URL cobram milhões.](assets/v01-comparison.png)
+![Lado a lado de 12.5 USDC como valor decimal na URL versus 12500000 unidades base em uma instrução, avisando que unidades base em uma URL cobram milhões.](assets/v01-comparison.webp)
 
 As duas convenções estão corretas onde moram. A URL fala humano, a instrução fala unidades base, e a carteira é a tradutora. Mantenha o `toBaseUnits` completamente fora do seu código de URL.
 
@@ -70,7 +70,7 @@ Esse identificador é a reference: uma chave base58 aleatória e nova de 32 byte
 
 Vale ser preciso sobre a mecânica, já que ela explica tanto por que isso funciona quanto por que não custa nada. A carteira acrescenta a sua reference à lista de contas da instrução de transferência como uma chave não signatária e não gravável. A conta por trás daquele endereço não existe e nunca vai existir; sem aluguel, sem criação, sem estado. É pichação pura na lista de contas da transação. Mas a Solana indexa transações por toda conta que elas mencionam, existente ou não, que é o que o `getSignaturesForAddress` consulta por baixo do capô. Pergunte ao RPC "quais transações mencionam `CD9G...rvDh`?" e a resposta é a sua venda e mais nada na história da blockchain. Um índice de transações gratuito, à prova de colisão e pré-atribuível, construído a partir de um endereço que ninguém financiou. Compare isso com a gambiarra tradicional, um endereço de depósito único por pedido com toda a gestão de chaves que isso arrasta junto, e a reference começa a parecer a ideia melhor que ela é.
 
-![Fluxo de dados de uma reference key cunhada pelo servidor viajando pelo QR e pela carteira até a transação, e depois consultada de volta via getSignaturesForAddress para casar o pedido.](assets/v02-diagram.png)
+![Fluxo de dados de uma reference key cunhada pelo servidor viajando pelo QR e pela carteira até a transação, e depois consultada de volta via getSignaturesForAddress para casar o pedido.](assets/v02-diagram.webp)
 
 Se você já integrou o Stripe, você já encontrou este formato antes: é a sua chave de idempotência e o seu id de pedido fundidos em um valor só, escolhido do lado do cliente antes da cobrança. Pense nela como uma ficha de guarda-volumes. A ficha é impressa antes de o casaco chegar, o número corresponde a exatamente um casaco, e segurar a ficha é como você reivindica ele depois. Mesma disciplina aqui: um checkout, uma reference, nunca reutilizada. Reutilize uma e duas vendas diferentes viram indistinguíveis, que é precisamente a falha que o desafio de Solo te faz provar que você evitou.
 
@@ -84,7 +84,7 @@ const reference = (await generateKeyPairSigner()).address;
 
 Esta linha é um dos dois buracos TODO do lab. Você acabou de ver a resposta.
 
-![A URL do transfer request dividida em partes rotuladas: esquema solana, destinatário, valor decimal, mint spl-token, reference key, label e message, e memo on-chain.](assets/v03-diagram.png)
+![A URL do transfer request dividida em partes rotuladas: esquema solana, destinatário, valor decimal, mint spl-token, reference key, label e message, e memo on-chain.](assets/v03-diagram.webp)
 
 ### Onde a biblioteca de fato mora, e quão velha é a página da spec
 
@@ -92,7 +92,7 @@ Dois avisos honestos antes de você ler qualquer material oficial, os dois capaz
 
 Primeiro, o repo. O repositório canônico do Solana Pay é `solana-foundation/pay` (a URL antiga `solana-labs/solana-pay` redireciona para lá). Abra o README dele e você não vai encontrar a sua biblioteca de checkout. O produto de destaque agora é um CLI para agentic payments, fluxos HTTP máquina a máquina, e instalar `@solana/pay` globalmente até te entrega o binário desse CLI. A biblioteca de checkout clássica que você acabou de instalar mora em um subpacote: `typescript/packages/solana-pay/`. Ela não está descontinuada, não está congelada, e está bem publicada: a 1.0.26 saiu em 2026-07-31, reconstruída em cima do kit. A energia de pagamentos da Foundation se moveu para outra porta de entrada; a biblioteca continuou na casa. Salve nos favoritos o caminho do subpacote, não a raiz do repo.
 
-![Árvore do repo solana-foundation/pay mostrando o README da raiz como destaque do CLI agentic e a biblioteca de checkout clássica morando em typescript/packages/solana-pay com os cinco exports principais dela.](assets/v04-diagram.png)
+![Árvore do repo solana-foundation/pay mostrando o README da raiz como destaque do CLI agentic e a biblioteca de checkout clássica morando em typescript/packages/solana-pay com os cinco exports principais dela.](assets/v04-diagram.webp)
 
 Segundo, a spec. A spec do Solana Pay em docs.solanapay.com continua sendo o padrão que toda carteira implementa, e a página em si está congelada em algum ponto da era 2022-2023: a linha de copyright dela diz 2023, o elenco dela é puro 2022. A linha de abertura dela, literalmente, é "Rough consensus on this spec has been reached, and implementations exist in Phantom, FTX, and Slope." Um desses três colapsou espetacularmente e outro sumiu. Leia a spec pelo protocolo, que envelheceu bem, e ignore o elenco, que não envelheceu. O repo carrega o mesmo texto em `typescript/packages/solana-pay/spec/SPEC.md`, ao lado de dois irmãos que vale conhecer pelo nome: `SPEC1.1.md` e `message-signing-spec.md`, que abrem os dois com a linha "This spec is currently alpha and subject to change." Message signing é essa extensão alpha, não parte do padrão v1 vivo de transfer/transaction request, e nenhum checkout deste curso se apoia nela.
 
@@ -151,7 +151,7 @@ A opção `commitment` é uma decisão de política para a qual você já tem o 
 
 Inscrição de WebSocket, em uma frase para quem só conhece polling de APIs REST: em vez de você perguntar repetidamente "já tem alguma coisa?", você mantém uma conexão longeva aberta e o nó RPC te empurra a resposta no momento em que ela existe. Mantenha o `findReference` na sua caixa de ferramentas mesmo assim. Um WebSocket que cai durante o pagamento perde a notificação, e um poll é como você varre atrás de qualquer coisa que uma inscrição tenha perdido. Os checkouts de produção do módulo 4 rodam os dois: inscreva-se pela velocidade, varra pela verdade.
 
-![Comparação do findReference como um loop repetido de polling HTTP versus o watchReference como uma única inscrição de WebSocket que empurra a signature quando a transferência aterrissa.](assets/v05-comparison.png)
+![Comparação do findReference como um loop repetido de polling HTTP versus o watchReference como uma única inscrição de WebSocket que empurra a signature quando a transferência aterrissa.](assets/v05-comparison.webp)
 
 ### A confiança chega por último: validateTransfer
 
@@ -182,13 +182,13 @@ Se qualquer expectativa falhar, ele lança `ValidateTransferError` e você não 
 
 Juntando tudo, uma venda flui assim:
 
-![Fluxo de venda em quatro faixas onde o servidor cunha uma reference e arma um watcher, o navegador renderiza o QR, a carteira submete a transferência, e o validateTransfer confirma ela.](assets/v06-flowchart.png)
+![Fluxo de venda em quatro faixas onde o servidor cunha uma reference e arma um watcher, o navegador renderiza o QR, a carteira submete a transferência, e o validateTransfer confirma ela.](assets/v06-flowchart.webp)
 
 ### Quem já rodou este formato em escala
 
 Este padrão de URL-mais-reference não é brinquedo de sala de aula. Em 2023-08-23, a Shopify anunciou o Solana Pay como opção de pagamento em toda a rede de lojistas dela, com MonkeDAO, Mad Lads e Helius entre os primeiros usuários. O discurso que o líder de integração da Shopify fez era economia de lojista pura, a mesma aritmética do módulo 1: sem taxas bancárias, sem chargebacks, sem prazos de retenção de vários dias em cima da sua própria receita. Uma venda no cartão é um empréstimo que a bandeira consegue reaver por meses; uma transferência de stablecoin liquidada é final em segundos, e para um lojista rodando com margens apertadas essa diferença é o argumento inteiro. O caminho de integração já mudou de mãos desde então, como encanamento de comércio tende a mudar: a rota ativa hoje para uma loja Shopify é o plugin do MoonPay Commerce. A spec por baixo é a que você está implementando agora mesmo.
 
-![Linha do tempo da spec do Solana Pay de 2022, passando pelo anúncio da Shopify em 2023 com os três primeiros usuários nomeados, até a biblioteca baseada em kit de 2026 e o caminho do MoonPay Commerce.](assets/v07-timeline.png)
+![Linha do tempo da spec do Solana Pay de 2022, passando pelo anúncio da Shopify em 2023 com os três primeiros usuários nomeados, até a biblioteca baseada em kit de 2026 e o caminho do MoonPay Commerce.](assets/v07-timeline.webp)
 
 Agora o trade-off, porque o degrau desta lição tem um teto afiado e você deveria sentir ele antes de construir. Tudo que a carteira sabe sobre esta venda veio de uma URL que você imprimiu numa tela, e uma vez que ela está do lado do cliente do vidro você não controla nada disso. O valor, o mint, a reference: tudo isso é dado nas mãos do cliente antes de virar uma transação. `validateTransfer` quer dizer que adulteração não consegue te enganar, um pagamento adulterado simplesmente falha na validação. Mas também não consegue te expressar. Sem totais de carrinho calculados no servidor, sem lógica de cupom, sem memo dinâmico, sem estado de pedido nenhum além de uma reference key por carregamento de página. Um transfer request é simplíssimo e trustless, e é exatamente um disco a um preço. Esse teto é o problema de abertura da próxima lição.
 
@@ -358,7 +358,7 @@ Construção Worked. Todo arquivo abaixo vai no workspace `wavelength-checkout` 
 
    Repare também no que esta versão de brinquedo vaza, porque enxergar o vazamento agora te poupa uma sessão de depuração no módulo 4. Todo GET arma um watcher sem sinal de abort e sem expiração. Atualize a página cinco vezes e você tem cinco inscrições de WebSocket vivas, quatro delas órfãs que vão ficar sentadas na conexão RPC até o processo morrer. Tudo bem para um lab na devnet, um problema de verdade com qualquer tráfego. Um checkout de produção tem um ciclo de vida: ele abre, expira depois de alguns minutos, o watcher dele é abortado, e uma varredura periódica com `findReference` pega qualquer coisa que pagou depois de a inscrição fechar. Você já construiu a maquinaria de abort (`awaitSale` aceita um sinal, o smoke test exercita ele); este servidor só não usa ela ainda. O módulo de back office dá esse ciclo de vida aos checkouts direito, junto com a persistência que esta linha de log está substituindo.
 
-![Handler de requisição anotado mostrando a sequência por checkout: cunhar uma reference nova, codificar a URL de pagamento, armar o watcher, e então servir a página.](assets/v08-annotated-code.png)
+![Handler de requisição anotado mostrando a sequência por checkout: cunhar uma reference nova, codificar a URL de pagamento, armar o watcher, e então servir a página.](assets/v08-annotated-code.webp)
 
 6. **O smoke test.** Crie `checkout/smoke.ts`, o verify padrão por lição do módulo:
 

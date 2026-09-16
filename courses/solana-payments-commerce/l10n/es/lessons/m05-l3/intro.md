@@ -37,7 +37,7 @@ Ahora mira lo que tu crank tiene en realidad: una PDA de delegación que permite
 
 La política honesta invierte el valor por defecto, y aquí es donde importa el dogfooding. Helius corre su propia facturación de suscripciones sobre el programa Subscriptions de la Foundation, y su política para una renovación fallida es que el cargo no se reintenta automáticamente contra la billetera. El pull fallido se vuelve una factura abierta, al suscriptor se le avisa, y el dinero llega cuando recarga y liquida. Retry-never. No retry-with-backoff, no retry-thrice-then-flag. La renovación se convierte de un pull automatizado en una cuenta por cobrar ordinaria, que es algo que tu backoffice ya sabe manejar, porque el módulo 4 le enseñó a emparejar los pagos entrantes contra los pedidos abiertos.
 
-![Los rieles de tarjetas reintentan porque las fallas suelen ser transitorias y el procesador puede volver a presentar, mientras que una billetera vacía sigue vacía hasta que el dueño actúa, así que la renovación se vuelve una factura.](assets/v01-comparison.png)
+![Los rieles de tarjetas reintentan porque las fallas suelen ser transitorias y el procesador puede volver a presentar, mientras que una billetera vacía sigue vacía hasta que el dueño actúa, así que la renovación se vuelve una factura.](assets/v01-comparison.webp)
 
 ### La máquina, y dónde vive
 
@@ -54,7 +54,7 @@ Las transiciones, exhaustivamente, porque lo exhaustivo es el punto de una máqu
 - **open-invoice + settle** reanuda: la factura se liquida, la suscripción vuelve a active, y el próximo ciclo factura normal.
 - **any + explicit cancel** marca cancelled y encola un RevokeAbandoned para que el rent vuelva a casa.
 
-![Tres estados, active, open-invoice y cancelled, con los resultados del pull, la liquidación y el cancel explícito manejando las transiciones; un pull contra open-invoice se rechaza de plano y la cancelación encola la recuperación de rent con RevokeAbandoned.](assets/v02-flowchart.png)
+![Tres estados, active, open-invoice y cancelled, con los resultados del pull, la liquidación y el cancel explícito manejando las transiciones; un pull contra open-invoice se rechaza de plano y la cancelación encola la recuperación de rent con RevokeAbandoned.](assets/v02-flowchart.webp)
 
 ### Qué concede la gracia en realidad
 
@@ -70,7 +70,7 @@ Bueno, una arruga honesta. El pago de liquidación es un pago push simple del su
 
 Y nombra la contrapartida de frente, porque retry-never es honesto pero no es gratis. Una renovación fallida no se cura sola. Los ingresos que los rieles de tarjetas habrían recuperado calladamente en el reintento del martes ahora quedan como una cuenta por cobrar hasta que un humano actúe, así que tu camino de liquidación y tu historia de notificaciones dejan de ser un lujo y se vuelven la diferencia entre un estado de gracia y una máquina silenciosa de churn. Estás canjeando la automatización de recuperación de ingresos por cero custodia y cero cargos sorpresa. Para un club de discos cuyos suscriptores eligieron los rieles cripto a propósito, ese canje se lee bien. Para un negocio cuyo margen depende de la recuperación pasiva, es un costo real, y pretender lo contrario es como esta política se gana mala fama.
 
-![Una factura abierta lleva una reference key fresca; el pago de recarga se encuentra por búsqueda de firma, se verifica, y se concilia en un evento settle que reactiva la suscripción.](assets/v03-diagram.png)
+![Una factura abierta lleva una reference key fresca; el pago de recarga se encuentra por búsqueda de firma, se verifica, y se concilia en un evento settle que reactiva la suscripción.](assets/v03-diagram.webp)
 
 ### Recuperar el rent
 
@@ -80,7 +80,7 @@ Dos detalles de los docs del propio programa son estructurales. Primero, el firm
 
 Lo que saca a la superficie la segunda contrapartida de la lección: reclamar el rent es dinero real de vuelta, pero solo después de que decides que un acuerdo está de verdad muerto, y esa decisión es irreversible de una manera que los lamports no capturan. Una vez revocada, la cuenta de suscripción queda cerrada y un suscriptor que vuelve tiene que suscribirse otra vez desde cero: ceremonia de firma nueva, cuenta nueva, fricción de onboarding nueva. (El programa sí trae un `resumeSubscription` on-chain para una cancelación que el suscriptor agendó y después lamentó antes del revoke, con la guarda del vencimiento que observó al firmar, pero esa es otra puerta, más angosta; no puede resucitar una cuenta cerrada.) Reclama una semana después de un pull fallido y convertiste a un cliente en estado de gracia en un problema de re-adquisición para ahorrar dos millones de lamports. Trata el abandono como una transición explícita y meditada: en la política del club, una factura abierta que envejece más allá de un horizonte declarado, o un cancel explícito, y nada más blando.
 
-![Un pull fallido pasa por la gracia y los recordatorios hasta un horizonte declarado o un cancel explícito, después del cual RevokeAbandoned devuelve el rent; reclamar durante la gracia fuerza un re-subscribe completo.](assets/v04-timeline.png)
+![Un pull fallido pasa por la gracia y los recordatorios hasta un horizonte declarado o un cancel explícito, después del cual RevokeAbandoned devuelve el rent; reclamar durante la gracia fuerza un re-subscribe completo.](assets/v04-timeline.webp)
 
 ### Quién más hace esto
 
@@ -88,13 +88,13 @@ Aleja la cámara del libro mayor de Wavelength hacia el mercado, porque construi
 
 Antes del recorrido, una definición, porque toda la pregunta de construir-o-comprar gira sobre ella. Un merchant of record es la entidad que legalmente le vende al comprador: toma el pago a su propio nombre, es dueña de las obligaciones de reembolso y de disputa, maneja los impuestos donde los impuestos aplican, y te paga a ti después. Cuando tercerizas la facturación recurrente a un proveedor hosteado casi siempre estás comprando algún recorte de ese acuerdo, y el precio del recorte es que alguien se para entre tu cliente y tu dinero. La facturación no custodial es la esquina opuesta: tú eres el merchant of record, los fondos del suscriptor se mueven directo de su billetera a la tuya, y cada obligación que el proveedor habría absorbido, el dunning muy incluido, te toca construirla a ti, que es lo que este módulo ha sido. Ninguna de las dos esquinas es la opción adulta en general. La jugada adulta es saber cuál estás corriendo, porque los modos de falla difieren: un proveedor puede retener o congelar tus payouts, mientras que tus propios rieles pueden fallar una renovación sin nadie más que tú posicionado para notarlo.
 
-![Un merchant of record vende a su propio nombre y es dueño del dunning y de los reembolsos, aceptando retenciones de payouts; la facturación no custodial mueve los fondos de billetera a billetera y te deja cada obligación a ti.](assets/v05-comparison.png)
+![Un merchant of record vende a su propio nombre y es dueño del dunning y de los reembolsos, aceptando retenciones de payouts; la facturación no custodial mueve los fondos de billetera a billetera y te deja cada obligación a ti.](assets/v05-comparison.webp)
 
 **MoonPay Commerce**, la plataforma antes conocida como Helio, vende checkout hosteado: sus pay links soportan suscripciones, así que un comercio puede levantar facturación recurrente sin ninguna integración de programa. El puesto está concurrido; el resumen de solana.com de abril de 2026 reporta a MoonPay Commerce en más de cuarenta millones de dólares en volumen de pagos únicos desde su lanzamiento de octubre de 2025, 88 por ciento de eso sobre Solana. Fíjate qué mide ese número fechado, pagos únicos, lo que te dice que el checkout hosteado es la mitad probada y lo recurrente es el estante más nuevo encima. **Stripe Billing** vende el paquete adyacente a las tarjetas: suscripciones en stablecoin dentro del mismo producto de facturación que corre la mitad de las facturas de SaaS en internet, lo que quiere decir lógica de dunning, prorrateo y manejo de impuestos que no escribes, a cambio de que Stripe se siente entre tú y el riel. Y **Sphere** vende infraestructura de pagos, ramps, OTC, y el corredor PIX para liquidación instantánea sobre riel bancario, y aquí está el resultado negativo que vale más que la mayoría de los positivos: Sphere no tiene ningún producto recurrente. Nada de malo con Sphere; mucho de bueno para flujos de una sola vez. Pero suponer que todo proveedor de pagos ofrece facturación recurrente es precisamente cómo un equipo quema un sprint de integración descubriendo que la funcionalidad que dimensionó no existe. Verifica el soporte de recurrente por proveedor, por escrito, antes de que diseñes la arquitectura alrededor de eso.
 
 La regla de decisión sale limpia. Construye sobre el programa de la Foundation, como hizo este curso, cuando quieres no custodial y on-chain: los fondos del suscriptor nunca se quedan con un intermediario, los límites los hace cumplir el programa, y el ciclo de vida es tuyo, que es exactamente por qué tuviste que escribir tú mismo la máquina de estados de esta lección. Agarra un proveedor cuando quieres un producto hosteado, adyacente a las tarjetas, y estás contento de heredar su política de ciclo de vida junto con sus emails de dunning. Qué mirar, si tomas el camino del proveedor: si el producto recurrente del proveedor es una primitiva de primera clase o un loop de pay links, quién tiene la custodia entre el cargo y la liquidación, y cuál es en realidad su política de renovación fallida, porque ahora sabes que es una política, no física.
 
-![Cuatro opciones de facturación recurrente comparadas: el programa de la Foundation hace cumplir lo recurrente no custodial on-chain, MoonPay Commerce ofrece pay links de suscripción, Stripe Billing factura suscripciones en stablecoin, y Sphere no ofrece ninguna.](assets/v06-table.png)
+![Cuatro opciones de facturación recurrente comparadas: el programa de la Foundation hace cumplir lo recurrente no custodial on-chain, MoonPay Commerce ofrece pay links de suscripción, Stripe Billing factura suscripciones en stablecoin, y Sphere no ofrece ninguna.](assets/v06-table.webp)
 
 ## Lab: construye dunning-loop
 
@@ -440,7 +440,7 @@ Los términos del plan son inmutables una vez que alguien se suscribe (los campo
 
 Aceptación: una traza del libro mayor que muestre dos ciclos pagados, una factura abierta sin intentos automáticos de reintento contra la billetera, un liquida-y-reanuda, y un cancel cuya firma de recuperación de rent puedas pegar. Esa traza, los cinco momentos completos, es el artefacto.
 
-![La traza de aceptación corre cinco momentos: dos ciclos pagados, una falla de ATA drenada aterrizando como una factura abierta con cero reintentos, una liquidación con reference key, y una cancelación reclamando rent.](assets/v07-diagram.png)
+![La traza de aceptación corre cinco momentos: dos ciclos pagados, una falla de ATA drenada aterrizando como una factura abierta con cero reintentos, una liquidación con reference key, y una cancelación reclamando rent.](assets/v07-diagram.webp)
 
 ## Checkpoint, y lo que el club por fin puede sobrevivir
 

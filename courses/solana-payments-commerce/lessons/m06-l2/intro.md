@@ -31,7 +31,7 @@ How the work is shared out: this is a concept lesson late in the course, so the 
 
 First, a definition the ecosystem loves to blur, placed just in time. Last lesson's ramps move a buyer's fiat into crypto they own, or a merchant's crypto into fiat they own. The customer of a ramp is whoever wants the asset swapped. An **acceptance processor** sits somewhere else entirely: its customer is the merchant, and its job is to take whatever the buyer has and deliver whatever the merchant wants to hold, taking a fee for standing in the middle. A **corridor** is the pairing this lesson keeps scoring: a buyer geography plus the rail that reaches it. And the **settlement asset** is the thing that actually lands in your account at the end, fiat or stablecoin, which is the single most consequential column in today's table because it decides whether you run a crypto treasury at all.
 
-![A ramp swaps assets for whoever owns them, while an acceptance processor sits between buyer and merchant delivering the merchant's settlement asset; a corridor pairs geography with a rail.](assets/v01-diagram.png)
+![A ramp swaps assets for whoever owns them, while an acceptance processor sits between buyer and merchant delivering the merchant's settlement asset; a corridor pairs geography with a rail.](assets/v01-diagram.webp)
 
 Why does the distinction earn its own section? Because the most common misread in this market is looking at a merchant fiat-settlement product and describing it as "the store off-ramps its funds." It does not. When a processor settles you in fiat, your store never holds crypto for that sale, so there is nothing to off-ramp. The offramp you walked last lesson and the fiat settlement you will meet in a moment are different machines that happen to end in the same currency, and confusing them will make you build treasury infrastructure you do not need. I have watched teams do exactly that. It is not a small waste.
 
@@ -41,13 +41,13 @@ Start with the territory you already know how to think about, because you integr
 
 The guardrails tell you what Stripe thinks of irreversible money. There is a $10,000 per-transaction customer limit. And refunds are returned as stablecoins to the originating wallet, which should ring loudly: that is the reverse push payment you constructed by hand in the reconciliation lesson, the same originating-wallet rule, the same no-chargeback geometry. You did not arrive at that shape independently, and it would be flattering to pretend otherwise: the reconciliation lesson copied Stripe's precedent on purpose, because it was the only one that existed. What is new here is watching the same rule hold on a rail where the merchant never touches crypto at all, which tells you the originating-wallet return is a property of push money rather than a treasury preference you inherited. Take the $10,000 cap as the other half of the message: when Stripe bounds a rail that tightly, it is pricing the irreversibility you already know is there.
 
-![Buyer USDC on Solana flows through Stripe into the merchant's fiat balance under a per-transaction cap, while refunds return as stablecoins pushed to the originating wallet.](assets/v02-diagram.png)
+![Buyer USDC on Solana flows through Stripe into the merchant's fiat balance under a per-transaction cap, while refunds return as stablecoins pushed to the originating wallet.](assets/v02-diagram.webp)
 
 The economics of this deal are the economics of comfort. Fiat settlement spares you a crypto treasury, spares you the offramp seam, spares you every reconciliation question about holding stablecoins on a balance sheet. In exchange you accept the cap, the processor's settlement schedule, and a geographic footprint that is, per the facts frozen for this lesson, US general availability. Your EU buyer is not in that sentence. Your Brazilian buyer is nowhere near it. Re-probing Stripe's own docs on 2026-08-22 adds one live wrinkle worth carrying into your record without changing the row: buyers can pay from anywhere, it is the *business* location that is gated, and alongside US general availability Stripe lists the EU, Hong Kong, Mexico, and Switzerland in private preview. Private preview is a waiting list, not a corridor, so it does not earn a cell in a table you are going to ship against. Put it in your re-verify list instead, because it is exactly the kind of row that flips. And one distributor-contract clause matters here for the record shop: you remain merchant-of-record for the sale. Stripe is your acquirer, not the seller of your records. Hold that next to last lesson's seam map without flinching, because the two lessons are not disagreeing: there, Stripe's *onramp* put Stripe in the merchant-of-record seat, because the thing being sold was the crypto itself; here, the thing being sold is your record, and Stripe's *pay-with-crypto acceptance* is a different product in a different seat, acquirer for your sale. Same logo, two seats. Naming the product before naming the seat is exactly the discipline the seam map was installing. The buyer's beef about a warped pressing is with Wavelength, on this rail and on every rail in today's table.
 
 One more thing about this particular distributor, because it explains the market you are operating in. Stripe currently holds a four-front position: it appears as a trusted-by logo for x402 (the HTTP-native standard for machine-to-machine payments you meet next module), it co-authored ACP, the Agentic Commerce Protocol for AI-agent checkout, with OpenAI, it co-authored the "Payment" HTTP authentication scheme that MPP is built on (the other machine-payments rail from next module), and it runs this USDC-on-Solana acquiring rail that settles fiat. A company that patient is telling you where it thinks payments are going. Hold that thought until the end of this lesson; the x402 front is the very next thing you build.
 
-![Stripe holds four positions at once, x402 backer, ACP co-author with OpenAI, co-author of the Payment HTTP auth scheme behind MPP, and USDC-on-Solana acquirer settling to fiat.](assets/v03-diagram.png)
+![Stripe holds four positions at once, x402 backer, ACP co-author with OpenAI, co-author of the Payment HTTP auth scheme behind MPP, and USDC-on-Solana acquirer settling to fiat.](assets/v03-diagram.webp)
 
 ### MoonPay Commerce: the checkout with a settlement dial
 
@@ -57,7 +57,7 @@ Here is where the numbers discipline this lesson keeps preaching gets its test c
 
 What does the crypto-settling deal cost? You hand the checkout UX and the fee schedule to the processor, and on the card-to-crypto leg the buyer is momentarily MoonPay's customer for the conversion, the same seam you mapped on the onramp last lesson, before the resulting tokens pay your invoice. In exchange you get corridor reach that does not depend on an acquirer's country list, settlement into an asset you already know how to reconcile, and pay links you can drop into a DM, which for a record shop doing preorder drops is a genuinely good fit. For completeness: Transak and Meso also circle this territory, and they stay named-only in this course because their Solana coverage went unverified when this lesson's facts were checked. An unverified distributor does not get a row in the table. Leaving it out is what makes the rest of the rows worth trusting.
 
-![Three processors compared side by side on settlement asset, rails, coverage, and limits, with Transak and Meso shown excluded because their Solana coverage went unverified.](assets/v04-comparison.png)
+![Three processors compared side by side on settlement asset, rails, coverage, and limits, with Transak and Meso shown excluded because their Solana coverage went unverified.](assets/v04-comparison.webp)
 
 ### Sphere and the PIX corridor
 
@@ -67,7 +67,7 @@ Sphere is the research's Brazil anchor. Its own site pitches far wider than one 
 
 The trade-off is the mirror of the strength. Sphere earns the BR row because it carries the rail Stripe's crypto acceptance does not touch, and that is worth stating as the footgun it is, because I have seen the assumption in the wild: Stripe pay-with-crypto does not offer PIX. Stripe's crypto acceptance is stablecoin-network-based; PIX is Sphere's rail in this roster. Meanwhile nothing in Sphere's roster changes the US row, where the buyer wants acquirer-grade card-adjacent checkout, which was Stripe's whole territory. No distributor covers the map. Blame the map rather than the vendors: that asymmetry is exactly why the corridor decision record exists as a per-geography table instead of a one-line answer.
 
-![A decision flowchart routing US, EU, and Brazilian buyers to their rails, with every outcome recorded alongside settlement asset, merchant-of-record, and a verification date.](assets/v05-flowchart.png)
+![A decision flowchart routing US, EU, and Brazilian buyers to their rails, with every outcome recorded alongside settlement asset, merchant-of-record, and a verification date.](assets/v05-flowchart.webp)
 
 ### The boundary that is not technical
 
@@ -105,7 +105,7 @@ There isn't one, and that is the design. USDC is a USD peg, so the $30 August pr
 
 Where display pricing does get interesting is the moment the charged asset floats against the sticker currency: pricing a record in SOL, or accepting a volatile token at checkout. Then you need a live price, a staleness rule, a spread policy, and an oracle you can defend, and that machinery is a genuine discipline with its own failure modes. It is also, deliberately, not this course's discipline. Oracle-based pricing — staleness windows, confidence intervals, spread policy — is DeFi and RWA Engineering territory, and your corridor record will note the handoff rather than smuggle in a half-taught version. A payments course that taught you a quarter of an oracle would be doing you no favor; the quarter you'd be missing is the quarter that loses money.
 
-![Pegged and floating checkout pricing side by side, where a USD-priced record charges the same number of USDC while volatile assets need an oracle, staleness rules, and spread policy.](assets/v06-comparison.png)
+![Pegged and floating checkout pricing side by side, where a USD-priced record charges the same number of USDC while volatile assets need an oracle, staleness rules, and spread policy.](assets/v06-comparison.webp)
 
 ### The trade-off nobody escapes
 
@@ -115,7 +115,7 @@ Which is why the honest deliverable is a table and not a recommendation. And why
 
 Not everything in it decays at the same speed, though, and sorting the facts by their clock is what the lab asks you to do first.
 
-![This lesson's facts sorted into two decay clocks, vendor figures needing source and date against structural product facts stated flat.](assets/v07-table.png)
+![This lesson's facts sorted into two decay clocks, vendor figures needing source and date against structural product facts stated flat.](assets/v07-table.webp)
 
 ## Lab: sign the distribution deals
 
@@ -209,7 +209,7 @@ Silence is success. If the compiler objects, read the error; the type surface is
 
 **Step 6: close the loop with the ramps.** Add a final section to `DECISION.md` titled `Seams with ramp-embed`, and answer in two or three sentences: on which corridors does last lesson's onramp still matter (a crypto-settling corridor still needs buyers who hold USDC or a card-to-crypto leg), and on which corridor does the artist-payout offramp interact with your settlement asset choice? If your US row settles fiat via the processor, notice what you never do for those sales: off-ramp. Writing that sentence down is the cheapest inoculation against the fiat-settlement misread this lesson opened with.
 
-![The corridor decision record sits between the ramp embed that informs it and the capstone it informs, holding three dated rows that humans read but no code imports.](assets/v08-diagram.png)
+![The corridor decision record sits between the ramp embed that informs it and the capstone it informs, holding three dated rows that humans read but no code imports.](assets/v08-diagram.webp)
 
 ## Challenge
 

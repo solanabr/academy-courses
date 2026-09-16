@@ -37,7 +37,7 @@ Now look at what your crank actually holds: a delegation PDA that permits a boun
 
 The honest policy inverts the default, and this is where the dogfooding matters. Helius runs its own subscription billing on the Foundation Subscriptions program, and its policy for a failed renewal is that the charge is not retried automatically against the wallet. The failed pull becomes an open invoice, the subscriber gets told, and the money arrives when they top up and settle. Retry-never. Not retry-with-backoff, not retry-thrice-then-flag. The renewal converts from an automated pull into an ordinary receivable, which is a thing your backoffice already knows how to handle, because module 4 taught it to match inbound payments against open orders.
 
-![Card rails retry because failures are often transient and the processor can re-present, while an empty wallet stays empty until the owner acts, so the renewal becomes an invoice.](assets/v01-comparison.png)
+![Card rails retry because failures are often transient and the processor can re-present, while an empty wallet stays empty until the owner acts, so the renewal becomes an invoice.](assets/v01-comparison.webp)
 
 ### The machine, and where it lives
 
@@ -54,7 +54,7 @@ The transitions, exhaustively, because exhaustive is the point of a state machin
 - **open-invoice + settle** resumes: the invoice settles, the subscription returns to active, and the next cycle bills normally.
 - **any + explicit cancel** marks cancelled and enqueues a RevokeAbandoned so the rent comes home.
 
-![Three states, active, open-invoice, and cancelled, with pull outcomes, settlement, and explicit cancel driving the transitions; a pull against open-invoice is refused outright and cancellation enqueues RevokeAbandoned rent recovery.](assets/v02-flowchart.png)
+![Three states, active, open-invoice, and cancelled, with pull outcomes, settlement, and explicit cancel driving the transitions; a pull against open-invoice is refused outright and cancellation enqueues RevokeAbandoned rent recovery.](assets/v02-flowchart.webp)
 
 ### What grace actually grants
 
@@ -70,7 +70,7 @@ Well, one honest wrinkle. The settle payment is a plain push payment from the su
 
 And name the trade-off squarely, because retry-never is honest but not free. A failed renewal does not self-heal. Revenue that card rails would have quietly recovered on the Tuesday retry now sits as a receivable until a human acts, so your settle path and your notification story stop being nice-to-haves and become the difference between a grace state and a silent churn machine. You are trading recovered-revenue automation for zero custody and zero surprise charges. For a record club whose subscribers chose crypto rails on purpose, that trade reads well. For a business whose margin depends on passive recovery, it is a real cost, and pretending otherwise is how this policy gets a bad name.
 
-![An open invoice carries a fresh reference key; the top-up payment is found by signature search, verified, and reconciled into a settle event that reactivates the subscription.](assets/v03-diagram.png)
+![An open invoice carries a fresh reference key; the top-up payment is found by signature search, verified, and reconciled into a settle event that reactivates the subscription.](assets/v03-diagram.webp)
 
 ### Getting the rent back
 
@@ -80,7 +80,7 @@ Two details from the program's own docs are load-bearing. First, the signer is t
 
 Which surfaces the second trade-off of the lesson: reclaiming rent is real money back, but only after you decide an arrangement is truly dead, and that decision is irreversible in a way the lamports do not capture. Once revoked, the subscription account is closed and a returning subscriber must subscribe again from scratch: new signature ceremony, new account, new onboarding friction. (The program does ship an on-chain `resumeSubscription` for a cancellation the subscriber scheduled and then regretted before revoke, guarded by the expiry they observed at signing, but that is a different, narrower door; it cannot resurrect a closed account.) Reclaim a week after a failed pull and you have converted a grace-state customer into a re-acquisition problem to save two million lamports. Treat abandonment as an explicit, considered transition: in the club's policy, an open invoice that ages past a stated horizon, or an explicit cancel, and nothing softer.
 
-![A failed pull moves through grace and reminders to a stated horizon or explicit cancel, after which RevokeAbandoned returns rent; reclaiming during grace forces a full re-subscribe.](assets/v04-timeline.png)
+![A failed pull moves through grace and reminders to a stated horizon or explicit cancel, after which RevokeAbandoned returns rent; reclaiming during grace forces a full re-subscribe.](assets/v04-timeline.webp)
 
 ### Who else does this
 
@@ -88,13 +88,13 @@ Zoom out from Wavelength's ledger to the market, because build-or-buy is a real 
 
 Before the walk, one definition, because the whole build-or-buy question turns on it. A merchant of record is the entity legally selling to the buyer: it takes the payment in its own name, owns the refund and dispute obligations, handles tax where tax applies, and pays you out afterward. When you outsource recurring billing to a hosted provider you are usually buying some slice of that arrangement, and the price of the slice is standing between your customer and your money. Non-custodial billing is the opposite corner: you are the merchant of record, the subscriber's funds move straight from their wallet to yours, and every obligation the provider would have absorbed, dunning very much included, is yours to build, which is what this module has been. Neither corner is the grown-up choice in general. The grown-up move is knowing which one you are running, because the failure modes differ: a provider can hold or freeze your payouts, while your own rails can fail a renewal with nobody but you positioned to notice.
 
-![A merchant of record sells in its own name and owns dunning and refunds, accepting payout holds; non-custodial billing moves funds wallet to wallet and leaves every obligation with you.](assets/v05-comparison.png)
+![A merchant of record sells in its own name and owns dunning and refunds, accepting payout holds; non-custodial billing moves funds wallet to wallet and leaves every obligation with you.](assets/v05-comparison.webp)
 
 **MoonPay Commerce**, the platform formerly known as Helio, sells hosted checkout: its pay links support subscriptions, so a merchant can stand up recurring billing with no program integration at all. The counter is busy; solana.com's April 2026 roundup reports MoonPay Commerce at forty million dollars plus in single-payment volume since its October 2025 launch, 88 percent of it on Solana. Note what that dated number measures, single payments, which tells you hosted checkout is the proven half and recurring is the newer shelf on it. **Stripe Billing** sells the card-adjacent bundle: stablecoin subscriptions inside the same billing product that runs half the internet's SaaS invoices, which means dunning logic, proration, and tax handling you do not write, in exchange for Stripe sitting between you and the rail. And **Sphere** sells payments infrastructure, ramps, OTC, and the PIX corridor for instant bank-rail settlement, and here is the negative result worth more than most positive ones: Sphere has no recurring product at all. Nothing wrong with Sphere; plenty right with it for one-off flows. But assuming every payments provider offers recurring billing is precisely how a team burns an integration sprint discovering the feature they scoped does not exist. Verify recurring support per vendor, in writing, before you architect around it.
 
 The decision rule falls out cleanly. Build on the Foundation program, as this course has, when you want non-custodial and on-chain: the subscriber's funds never sit with an intermediary, the limits are program-enforced, and the lifecycle is yours, which is exactly why you had to write this lesson's state machine yourself. Reach for a provider when you want a hosted, card-adjacent product and are content to inherit their lifecycle policy along with their dunning emails. What to watch, if you take the provider road: whether the vendor's recurring product is a first-class primitive or a pay-link loop, who holds custody between charge and settlement, and what their failed-renewal policy actually is, because now you know it is a policy, not physics.
 
-![Four recurring-billing options compared: the Foundation program enforces non-custodial recurring on-chain, MoonPay Commerce offers subscription pay links, Stripe Billing bills stablecoin subscriptions, and Sphere offers none.](assets/v06-table.png)
+![Four recurring-billing options compared: the Foundation program enforces non-custodial recurring on-chain, MoonPay Commerce offers subscription pay links, Stripe Billing bills stablecoin subscriptions, and Sphere offers none.](assets/v06-table.webp)
 
 ## Lab: build dunning-loop
 
@@ -440,7 +440,7 @@ Plan terms are immutable once subscribed (the `expected*` fields you signed pinn
 
 Accept: a ledger trace showing two paid cycles, one open invoice with no automatic wallet-retry attempts, one settle-and-resume, and one cancel whose rent-recovery signature you can paste. That trace, all five beats of it, is the artifact.
 
-![The accept trace runs five beats: two paid cycles, a drained-ATA failure landing as an open invoice with zero retries, a reference-keyed settlement, and a cancellation reclaiming rent.](assets/v07-diagram.png)
+![The accept trace runs five beats: two paid cycles, a drained-ATA failure landing as an open invoice with zero retries, a reference-keyed settlement, and a cancellation reclaiming rent.](assets/v07-diagram.webp)
 
 ## Checkpoint, and what the club can finally survive
 

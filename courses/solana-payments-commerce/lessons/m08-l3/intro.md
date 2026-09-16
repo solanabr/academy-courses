@@ -30,7 +30,7 @@ Two of those eight sit outside the gate's audit on purpose, so say it before the
 
 And the stakes are not hypothetical. Solana processed over one trillion dollars in stablecoin volume in 2025, the figure solana.com's payments documentation leads with (fetched 2026-08-23, same claim the opening lesson dated). That is the pool your little record store is wiring itself into. Money at that scale does not care that your demo worked; it finds the webhook you never monitored and the commitment level you never thought about, and it finds them at the worst possible hour. The harsh reality is: a go-live checklist is only worth writing if it can fail, and yours will fail today, at least once, on your first run. That is the point.
 
-![Diagram of six course artifacts feeding the prod-gate auditor, which emits a scored report that gates entry to the module 9 capstone.](assets/v01-diagram.png)
+![Diagram of six course artifacts feeding the prod-gate auditor, which emits a scored report that gates entry to the module 9 capstone.](assets/v01-diagram.webp)
 
 The gate's rows cluster into four families: settlement truth, silent failure, money handling, and what happens when it breaks anyway. Walk them in order; each family ends with the question its rows will ask.
 
@@ -42,7 +42,7 @@ The policy comes straight from official guidance, and it scales commitment to va
 
 Concretely, for Wavelength: the $12 record sale gates on confirmed, because making every buyer wait for finality to save yourself from a reversion that essentially never happens is latency spent on nothing. The $9,000 wholesale order gates on finalized, because at that size the extra seconds are cheaper than the conversation with your accountant. You pick the threshold; the gate only demands that a threshold exists and that code enforces it.
 
-![Comparison of processed, confirmed, and finalized: processed is UI-only and droppable in forks, confirmed is the sub-second gate for most payments, finalized the slower gate for high-value orders.](assets/v02-comparison.png)
+![Comparison of processed, confirmed, and finalized: processed is UI-only and droppable in forks, confirmed is the sub-second gate for most payments, finalized the slower gate for high-value orders.](assets/v02-comparison.webp)
 
 One stack-wide subtlety this family also catches: your fair-queue drain from last lesson settles transactions that were signed hours earlier. The buyer left the fair long ago. If any of those sales cross your high-value threshold, the drain must hold them to finalized before marking the order fulfilled, because there is no buyer standing in front of you to re-run the card. Write the row so it forces you to grep every commitment argument in the codebase, not just the ones you remember writing.
 
@@ -54,13 +54,13 @@ The webhook is the classic. Your back office fulfills orders off Helius webhook 
 
 I will admit this one is personal: I once learned a fulfillment queue was down from a customer DM, not from any dashboard, and the gap had been growing for two days. Refunding your way out of that is exactly as fun as it sounds. The fix is one alert on the webhook failure rate, tested by firing it on purpose, plus a fallback poll (you built the polling verifier in module 4; it is your backstop here) so a disabled webhook degrades to slow fulfillment instead of none.
 
-![Flowchart showing webhook worker failures accumulating until Helius auto-disables the webhook, after which payments still succeed but fulfillment silently stops, with two mitigations marked, a failure-rate alert and fallback polling.](assets/v03-flowchart.png)
+![Flowchart showing webhook worker failures accumulating until Helius auto-disables the webhook, after which payments still succeed but fulfillment silently stops, with two mitigations marked, a failure-rate alert and fallback polling.](assets/v03-flowchart.webp)
 
 The same family covers retries and idempotency, because a retry storm is silent failure's twin: everything looks fine while you double-fulfill. Before writing the row, get one distinction straight, since it decides what "safe to retry" means in every path you own. Rebroadcasting the same signed transaction is harmless: the signature is the deduplication key, and the network will not process identical bytes twice while the blockhash lives. Building and signing a new transaction for the same purchase is a fresh authorization, and nothing on chain knows it is "the same" sale. That second case is the one your defenses exist for, and you already built them. The orders ledger keys idempotency on the transaction signature, so a replayed webhook event lands on an existing row and does nothing. The reference key on each checkout means a buyer retrying a stalled payment cannot pay twice for one order, because the second transaction carries the same reference and the verifier matches it to an already-settled record. And the fair-queue drain classifier routes any spent nonce to `unsafe`, never resubmitting it — not because the network would accept the old bytes (a spent nonce is deterministically rejected, and has been since the 2022 fix), but because an advanced nonce means that sale may already have settled once, and the only retry left is the fresh-signature kind: the exact new-authorization double-charge this whole family of defenses exists to stop.
 
 The gate rows for this family do not ask whether you built these. They ask you to prove them, now, by replaying a real recorded event and pasting the single resulting order row into the evidence field. A defense you have never fired is a hypothesis.
 
-![Two-case comparison: rebroadcasting the same signed bytes is deduplicated by signature and safe, while signing a second transaction for that sale is a fresh authorization the defenses must catch.](assets/v04-comparison.png)
+![Two-case comparison: rebroadcasting the same signed bytes is deduplicated by signature and safe, while signing a second transaction for that sale is a fresh authorization the defenses must catch.](assets/v04-comparison.webp)
 
 ### Money handling: keys and the fee budget
 
@@ -110,7 +110,7 @@ export async function paymentFeeInstructions(writableAccounts: string[]) {
 
 Install note for the one package new to this workspace: `npm i @solana-program/compute-budget@0.16.0` in checkout-txreq, the workspace whose builder assembles every payment transaction these instructions ride on — the same 0.16.0 the gasless workspace pinned earlier this module, one compute-budget number for the whole repo. The pin is doing real work. This workspace runs kit ^6.10, and 0.16.0 is the last compute-budget minor whose peer range accepts a v6 kit (verified against npm 2026-08-31: 0.16.0 peers kit ^6.4.0, 0.17.0 jumped to ^7 and the current 0.18.0 to ^8, so grabbing latest here breaks the install). Freshness rule as always: re-check the peer range the day you build.
 
-![Annotated version of the fee recipe code labeling the CU limit, the floor, the cap, and the recent-fees market read, with the output being two compute-budget instructions per payment transaction.](assets/v05-annotated-code.png)
+![Annotated version of the fee recipe code labeling the CU limit, the floor, the cap, and the recent-fees market read, with the output being two compute-budget instructions per payment transaction.](assets/v05-annotated-code.webp)
 
 One forward note on that `microLamports` field, because it is the part of this recipe that does not survive the format change. A v0 priority fee is a *price*: micro-lamports per compute unit, billed against the units you actually consume. Transaction format v1 replaces it with a *total*: absolute lamports for the whole transaction, carried in the message's own config rather than in a ComputeBudget instruction. Those are different dimensions, so any fee series that averages across both without converting is meaningless — multiply a v0 price by the CU limit and divide by 1,000,000 to put it in v1's units. Two things travel with that change. In v1 the compute-budget instructions above become no-ops, accepted and ignored while still costing an instruction slot and roughly 150 CU. And v1 ships no default resource limits, so a transaction that omits them lands and then fails, where v0 would have fallen back to 200,000 CU. None of this makes the recipe on this page wrong: it builds v0 transactions and is correct for them. It tells you what you will have to re-derive rather than copy when you move.
 
@@ -122,7 +122,7 @@ Last family. Everything above reduces the odds of an incident; nothing reduces t
 
 An incident playbook for a store this size fits on one page, and the gate row checks four things exist in it. A freeze switch: one command or flag that stops accepting new payments while still recording the on-chain ones already in flight, because the worst incidents are the ones you keep selling into. A severity ladder: what you do when fulfillment lags (fall back to polling), versus when the paymaster is draining (freeze sponsorship, keep normal checkout), versus when you suspect a key leak (freeze everything, rotate, sweep). A comms line: the sentence you post to buyers, pre-written, because you will not write a calm sentence during the incident. And an owner: whose phone rings. If the answer to any of these currently lives in your head, it does not exist.
 
-![Incident-playbook decision tree: lagging fulfillment routes to a polling fallback, a draining paymaster to a sponsorship freeze, a suspected key leak to rotation and buyer comms, each ending in postmortem.](assets/v06-flowchart.png)
+![Incident-playbook decision tree: lagging fulfillment routes to a polling fallback, a draining paymaster to a sponsorship freeze, a suspected key leak to rotation and buyer comms, each ending in postmortem.](assets/v06-flowchart.webp)
 
 And then the row I cannot make green for you, because the ecosystem cannot. When your store is live, someone eventually has to close the books: match every on-chain settlement to an order, a refund, a subscription tick, and hand an accountant something they recognize. Go looking for a Solana-native merchant accounting and reporting SaaS to do this and, as of this build date, 2026-08-31, you will not find a purpose-built one. That is an observed market gap, stated with its date because young markets move: general crypto tax tooling exists, exchange dashboards exist, Stripe's dashboard covers the sales that settled on Stripe's own rails and nothing else. Your on-chain Solana Pay and x402 ledger is yours to reconcile.
 
@@ -272,7 +272,7 @@ Checkpoint: you should see the scored report in the terminal and in `gate/report
 
 7. Close the loop. Work the fix-tasks (the two above are an afternoon: one alert rule, one server edit you already wired in step 4), re-audit only the failed rows, and re-run until GREEN. Keep every dated `report.md`; the capstone opens by reading your latest one.
 
-![Comparison of prod-gate verdict states: pass keeps evidence, fail forces a named fix-task, a skipped row makes the runner throw, and only an all-green gate opens the capstone.](assets/v07-comparison.png)
+![Comparison of prod-gate verdict states: pass keeps evidence, fail forces a named fix-task, a skipped row makes the runner throw, and only an all-green gate opens the capstone.](assets/v07-comparison.webp)
 
 ## Challenge
 

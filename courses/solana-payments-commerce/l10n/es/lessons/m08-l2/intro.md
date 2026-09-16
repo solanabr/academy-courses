@@ -54,7 +54,7 @@ console.log(`expired after ~${Math.round((Date.now() - start) / 1000)}s`);
 
 Córrelo con `npx tsx probe.ts`. El mío imprimió 28 segundos, más o menos la granularidad de 5 segundos del polling, y esa sorpresa es la lección misma: la sonda corre contra devnet, que va adelante de mainnet en tiempo de slot y por lo tanto quema su ventana de 150 bloques más rápido — medido el 2026-09-07, devnet estaba produciendo un slot aproximadamente cada 165ms contra los ~320ms de mainnet, en `solana-core` 4.3.0-beta.3. Lee 165ms dos veces, porque está por debajo de 200ms, el fondo de la escalera de arriba, y no es un typo. Devnet tiene activados los cuatro feature gates, así que su *objetivo* es 200ms; estaba corriendo más rápido que su propio objetivo. Mainnet, en la etapa de 300ms, midió ~320ms — más lento que su propio objetivo. Ninguno de los dos clusters se sienta en su número declarado, y SIMD-0525 lo dice él mismo: la tabla fija el trabajo por slot, los hashes por tick y los límites de bloque, y la SIMD anota que ninguno de sus valores de tiempo "are explicitly in protocol and may deviate from reality." La etapa es a lo que la red apunta, no un reloj al que se la sostiene. Que es el argumento entero a favor de la sonda: `getRecentPerformanceSamples` devuelve `numSlots` y `samplePeriodSecs`, y dividir uno entre el otro es el tiempo de slot actual de tu cluster, con escalera o sin escalera. No tomes ninguno de los dos números de esta página. Diga lo que diga, la ventana de devnet es más apretada que los ~45 segundos de mainnet, y las dos siguen encogiéndose. Diga lo que diga tu sonda, ese número es el planteo entero del problema: en el sótano, la brecha entre "el comprador firmó" y "vuelves a tener barras" se mide en horas, y la paciencia de la transacción se mide en segundos. Ningún loop de reintentos arregla esto, porque retransmitir una transacción vencida no le extiende la vida; el hash simplemente es demasiado viejo, y el RPC te lo va a seguir diciendo no importa con qué amabilidad preguntes otra vez.
 
-![Dos líneas de tiempo horizontales: una transacción con blockhash muere a los 45 segundos aproximadamente mientras una transacción con nonce durable sigue siendo válida por horas hasta que su nonce se avanza.](assets/v01-timeline.png)
+![Dos líneas de tiempo horizontales: una transacción con blockhash muere a los 45 segundos aproximadamente mientras una transacción con nonce durable sigue siendo válida por horas hasta que su nonce se avanza.](assets/v01-timeline.webp)
 
 Si vienes de los pagos con tarjeta, ya has visto este problema resuelto antes. Las terminales store-and-forward han tomado tarjetas en aviones y en sótanos por décadas: la terminal registra la autorización offline y reenvía el lote cuando se reconecta, y el adquirente resuelve el riesgo después. La razón de que Solana necesite una primitiva dedicada para la misma jugada es que no hay adquirente que absorba la ambigüedad. La validación es global y mecánica, cada nodo tiene que estar de acuerdo sobre si una transacción está fresca, y la regla de frescura es esa ventana de 150 bloques. Así que la versión nativa de la blockchain del store-and-forward no puede solo guardar bytes y esperar; tiene que cambiar lo que "fresco" quiere decir para esa transacción.
 
@@ -79,7 +79,7 @@ Dos campos hacen el trabajo. `authority` es la autoridad del nonce, la cuenta qu
 
 El costo, dado que un comercio siempre debería conocerlo. El depósito de rent para 80 bytes era de 1,056,640 lamports en devnet y 1,317,264 en mainnet cuando lo leí el 2026-09-07, y los dos siguen bajando a medida que SIMD-0437 escalona la tasa por byte hacia abajo — así que lee el tuyo de `getMinimumBalanceForRentExemption(80)` y no de esta oración. Es un depósito, no una comisión: `WithdrawNonceAccount` le devuelve cada lamport a la autoridad el día en que retires un slot, así que un pool de cuatro slots amarra alrededor de cuatro veces ese número por todo el tiempo que corras el puesto y no te cuesta nada deshacerlo. Por transacción, el camino del nonce durable es un poco más pesado que uno con blockhash, dado que cada venta lleva la instrucción extra de advance y sus cuentas. Para un flujo de pagos ese canje es invisible; la matemática de la comisión base que hiciste en el módulo 1 sigue dominando.
 
-![Una cuenta de nonce de 80 bytes desplegada campo por campo: version, state, la pubkey de authority de 32 bytes mapeada a la llave del comercio, el valor de nonce guardado de 32 bytes, y la tasa de comisión.](assets/v02-diagram.png)
+![Una cuenta de nonce de 80 bytes desplegada campo por campo: version, state, la pubkey de authority de 32 bytes mapeada a la llave del comercio, el valor de nonce guardado de 32 bytes, y la tasa de comisión.](assets/v02-diagram.webp)
 
 ### Instrucción 0 o nada
 
@@ -87,7 +87,7 @@ El costo, dado que un comercio siempre debería conocerlo. El depósito de rent 
 
 La instrucción misma es minúscula: tres cuentas (la cuenta de nonce, el sysvar de recent-blockhashes, la autoridad como firmante) y cuatro bytes de datos, `[4, 0, 0, 0]`, el discriminador del System Program para AdvanceNonceAccount. Esos cuatro bytes vale memorizarlos porque tu lab hace asserts sobre ellos.
 
-![La instrucción AdvanceNonceAccount anotada: System Program, la cuenta de nonce escribible, el sysvar de recent-blockhashes, la autoridad como firmante, y los bytes de datos 4,0,0,0, válida solo en la posición cero de instrucción.](assets/v03-annotated-code.png)
+![La instrucción AdvanceNonceAccount anotada: System Program, la cuenta de nonce escribible, el sysvar de recent-blockhashes, la autoridad como firmante, y los bytes de datos 4,0,0,0, válida solo en la posición cero de instrucción.](assets/v03-annotated-code.webp)
 
 En kit nunca construyes a mano esa instrucción para tus propias transacciones, porque el helper de lifetime lo hace por ti. Donde el builder de la lección pasada llamaba a `setTransactionMessageLifetimeUsingBlockhash`, la fila de la feria llama a su hermano:
 
@@ -114,7 +114,7 @@ La primera cicatriz está escrita directamente en la documentación oficial, y q
 
 La segunda cicatriz es la razón de que exista la primera. El 2022-06-01, un bug en el manejo de nonces durables dejó que ciertas transacciones de nonce se procesaran dos veces. Los validadores no se pusieron de acuerdo sobre el resultado, el consenso se estancó, y mainnet se detuvo por unas 4.5 horas. La respuesta después fue drástica: la feature se desactivó temporalmente en toda la red mientras se arreglaba la lógica del runtime. Lee eso como comercio, no como historiador de protocolos. Procesar dos veces una transacción de pago quiere decir un comprador cobrado dos veces, y la clase de falla no era exótica: transacciones que deberían haber sido irrepetibles se honraron otra vez. Fíjate en el tiempo verbal, eso sí — arreglada. La reparación de 2022 separó los dominios de validación de nonce durable y de blockhash, así que hoy un validador conforme rechaza determinísticamente los bytes cuyo nonce ha avanzado: el valor guardado ya no coincide con el `recentBlockhash` de la transacción, la comprobación exacta que leíste en la sección de la instrucción 0. ¿Así que por qué tu drain sigue tratando un nonce gastado como radioactivo? No porque la retransmisión pueda hacer un cargo doble — el runtime cerró esa puerta. Porque cada retransmisión de bytes muertos es un envío desperdiciado y un borrón en el libro mayor, y porque el cargo doble que sigue vivo te pertenece a ti por completo: RE-FIRMAR la misma venta contra un nonce fresco. La regla del nonce gastado del drain existe para que nadie tome esa decisión a las 6 p.m. con un archivo de fila abierto y sin registro de lo que ya aterrizó.
 
-![Línea de tiempo del apagón de mainnet de Solana del 2022-06-01: un bug de doble procesamiento de nonce durable detiene la red por unas 4.5 horas, el origen de la regla del nonce gastado del drain.](assets/v04-timeline.png)
+![Línea de tiempo del apagón de mainnet de Solana del 2022-06-01: un bug de doble procesamiento de nonce durable detiene la red por unas 4.5 horas, el origen de la regla del nonce gastado del drain.](assets/v04-timeline.webp)
 
 Una pieza más de honestidad comercial antes del libro mayor. Una venta en fila no es una venta liquidada. La firma en tu cajón demuestra que el comprador autorizó el pago al mediodía; no demuestra que el pago vaya a aterrizar a las seis, porque un envío al momento del drain todavía puede fallar como cualquier otra transacción, más llanamente cuando el saldo del comprador se gastó en otra parte durante la tarde. Los comercios con tarjeta han vivido con exactamente esto desde que existe el store-and-forward, y la postura es la misma: entrega el disco en el puesto si tus márgenes toleran el riesgo, o guarda los artículos de alto valor para recoger después de que el drain confirme. De cualquier modo tu libro mayor necesita dos estados, en fila y aterrizada, y solo el segundo es ingreso. El back office que construiste en el módulo 4 ya tiene la mitad de aterrizada; el archivo de fila es la otra.
 
@@ -126,7 +126,7 @@ Tu parte del trabajo, en voz alta: este es el módulo 8, territorio en solitario
 
 El día tiene una forma, y los scripts la siguen:
 
-![Ciclo de cuatro etapas: crea el pool de nonces una vez estando online, captura los valores de los nonces cada mañana, firma ventas offline hacia una fila durante la feria, y drena la fila de forma segura cuando vuelvas a estar online.](assets/v05-flowchart.png)
+![Ciclo de cuatro etapas: crea el pool de nonces una vez estando online, captura los valores de los nonces cada mañana, firma ventas offline hacia una fila durante la feria, y drena la fila de forma segura cuando vuelvas a estar online.](assets/v05-flowchart.webp)
 
 1. **Llaves y fondeo.** `merchant.json` tiene que ser *la* llave del comercio, la que checkout-txreq le paga, porque las ventas de la fila acreditan esa billetera y el drain concilia contra el mismo libro mayor. Esa llave es la identidad de la CLI que creó el módulo 2, así que cópiala en vez de acuñar una nueva — `solana-keygen new -o merchant.json` te entregaría otra billetera, y nada río abajo te lo diría: las ventas aterrizarían, en la tienda equivocada. El comprador de demo, en cambio, es genuinamente fresco; hace de suplente de la billetera del cliente que firmaría en un puesto real:
 
@@ -329,7 +329,7 @@ El día tiene una forma, y los scripts la siguen:
 
 6. **El intento de repetición.** Corre `npx tsx drain.ts` una segunda vez sin capturar. Cada entrada que acaba de aterrizar ahora pega en la rama del nonce gastado, imprime `RECONCILED`, y, esta es la aserción que importa, no envía nada. Después cierra el loop con un harness que escribes tú: `verify/fair-queue.smoke.ts`, de cuatro asserts de largo, manejando tus propios scripts de punta a punta. Firma una venta, la sostiene 90 segundos, la drena, decodifica la instrucción 0 para confirmar AdvanceNonceAccount (reusa la guarda del paso 4), y repite el drain esperando cero reenvíos. Verde quiere decir que fair-queue es real.
 
-![Diagrama de flujo de decisión para drenar una entrada: los valores de nonce que coinciden envían y confirman, mientras que un nonce gastado se rutea a conciliación o a un veredicto inseguro que nunca reenvía.](assets/v06-flowchart.png)
+![Diagrama de flujo de decisión para drenar una entrada: los valores de nonce que coinciden envían y confirman, mientras que un nonce gastado se rutea a conciliación o a un veredicto inseguro que nunca reenvía.](assets/v06-flowchart.webp)
 
 ## Challenge
 
@@ -353,7 +353,7 @@ Fíjate en la forma antes de empezar: tres argumentos posicionales de entrada, y
 
 El starter y los tests están en el widget de desafío de código de nonce-queue-drain; la solución pasa cada caso, y el starter falla al menos uno, así que sabes que los tests muerden.
 
-![Comparación de tres filas de los grupos del clasificador: submit para las entradas frescas, expired para las entradas con blockhash fuera de ventana, y unsafe para las entradas con nonce gastado que nunca deben reenviarse.](assets/v07-comparison.png)
+![Comparación de tres filas de los grupos del clasificador: submit para las entradas frescas, expired para las entradas con blockhash fuera de ventana, y unsafe para las entradas con nonce gastado que nunca deben reenviarse.](assets/v07-comparison.webp)
 
 ## Checkpoint, y el cajón
 
