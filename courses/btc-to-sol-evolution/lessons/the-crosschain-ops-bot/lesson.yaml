@@ -5,6 +5,8 @@ versionStamp:
   checkedAt: "2026-09-07"
   packages:
     "@solana/kit": "8.2.0"
+    # Upstream tags this release v31.1 (two-part); zero-padded here because
+    # the stamp gate requires exact x.y.z semver.
     bitcoin-core: "31.1.0"
 skills:
   - solana-kit
