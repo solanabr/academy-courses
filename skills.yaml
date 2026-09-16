@@ -92,3 +92,73 @@
   label: Merkle Proofs
 - slug: das-api
   label: Digital Asset Standard API
+
+# Added for courses/rust-ts-fundamentals (2026-09-07). That course teaches the
+# two languages and the shipping toolchain, not the chain, so most of its tags
+# have no equivalent above.
+#
+# The first group is the registry migration sanctioned by courses/CATALOG.md §5
+# policy 3 — vocabulary already approved, just never written down because no
+# course had used it yet. The second group is genuinely new: nothing in that
+# list covers containers, edge runtimes, boundary schemas or supply-chain
+# hygiene. Every entry in both groups lands on >= 2 lessons, per policy 4.
+#
+# Deliberately NOT added here, though this course's lessons reference them:
+# error-handling, version-pinning, checked-arithmetic, signers, confirmation.
+# The solana-payments-commerce branch adds all five; re-adding them would be a
+# duplicate entry on merge, so gate-19a flags them as unresolved on this branch
+# until that one lands — the same trade PRs #44 and #49 already made.
+
+# --- §5 policy 3 registry migration ---
+- slug: rust-ownership
+  label: Rust Ownership
+- slug: rust-borrowing
+  label: Rust Borrowing
+- slug: rust-enums
+  label: Rust Enums
+- slug: rust-structs
+  label: Rust Structs
+- slug: rust-traits
+  label: Rust Traits
+- slug: rust-result
+  label: Rust Result
+- slug: rust-modules
+  label: Rust Modules & Visibility
+- slug: compiler-errors
+  label: Reading Compiler Errors
+- slug: toolchain-versions
+  label: Toolchain Versions
+- slug: semver
+  label: Semantic Versioning
+- slug: npm-publishing
+  label: npm Publishing
+- slug: api-design
+  label: API Design
+- slug: ci
+  label: Continuous Integration
+- slug: deployment
+  label: Deployment
+- slug: debugging
+  label: Debugging
+- slug: technical-writing
+  label: Technical Writing
+
+# --- new vocabulary, no equivalent in the migration list ---
+- slug: http-fundamentals
+  label: HTTP, Fetch & CORS
+- slug: typescript-types
+  label: TypeScript Type System
+- slug: schema-validation
+  label: Schema Validation
+- slug: async-concurrency
+  label: Async & Concurrency
+- slug: automated-testing
+  label: Automated Testing
+- slug: containers
+  label: Containers & Docker
+- slug: edge-runtimes
+  label: Edge Runtimes
+- slug: observability
+  label: Logging & Observability
+- slug: supply-chain-security
+  label: Supply Chain Security
