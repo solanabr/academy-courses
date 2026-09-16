@@ -3,6 +3,10 @@ slug: m06-l1
 title: "Onramps, and the way back out"
 skills:
   - payment-model-selection
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    "@coinbase/cdp-sdk": "1.55.0"
 blocks:
   - key: intro
     type: prose

@@ -151,10 +151,10 @@ That box is also the lesson's trade-off stated honestly, so let me not bury it: 
 Numbered build, in the `wavelength-checkout` workspace you created in module 3. `ramp-embed/` is a folder inside `wavelength-checkout`, not a new workspace: it goes in beside the `checkout/` folder module 3 built there, which is what lets it import the record's price directly; the ops and billing workspaces from modules 4 and 5 sit elsewhere in the repo and are not involved today. The session handler ships with two TODO holes, and the build runs to a named failure with them in place; the Challenge closes them. One new dependency, needed only by the server route (the smoke test runs clean without it):
 
 ```bash
-npm install @coinbase/cdp-sdk
+npm install @coinbase/cdp-sdk@1.55.0
 ```
 
-That is Coinbase's CDP SDK (1.x line as of August 2026; check npm before pinning), used here for exactly one thing: generating the short-lived JWT that authenticates your server to the token endpoint. Signing those yourself is possible and not worth it.
+That is Coinbase's CDP SDK (1.x line as of August 2026), used here for exactly one thing: generating the short-lived JWT that authenticates your server to the token endpoint. Signing those yourself is possible and not worth it.
 
 1. **The session module, with both holes.** Create `ramp-embed/session.ts`. Pure functions, no I/O, which is what makes the smoke test possible:
 

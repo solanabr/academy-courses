@@ -7,7 +7,7 @@ La lección pasada cerró el loop de ventas a máquinas: la API de precios de pr
 Antes de cualquier teoría, demuestra que todavía tienes la herramienta de la que depende esta lección. La instalaste en la primerísima lección de este curso, cuando parecía una curiosidad:
 
 ```bash
-npm i -g @solana/pay   # the opening lesson installed it locally; go global so `pay` is on your PATH
+npm i -g @solana/pay@1.0.26   # the opening lesson installed it locally; go global so `pay` is on your PATH
 pay --version
 ```
 
