@@ -22,6 +22,12 @@ const fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
     amount_in * reserve_out / reserve_in
 }
 
+// The test vectors call through this thin runtime wrapper; the quote itself
+// stays in the `const fn` above so the harness below can prove it at build time.
+fn run_quote(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
+    swap_out(reserve_in, reserve_out, amount_in)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
 // Compile-time assertions. Because `swap_out` is a `const fn`, the compiler

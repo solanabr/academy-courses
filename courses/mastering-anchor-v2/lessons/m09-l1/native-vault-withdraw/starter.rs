@@ -21,6 +21,12 @@ const fn vault_withdraw(balance: u64, amount: u64) -> i128 {
     (balance as i128) - (amount as i128)
 }
 
+// The test vectors call through this thin runtime wrapper; the guard itself
+// stays in the `const fn` above so the harness below can prove it at build time.
+fn run_withdraw(balance: u64, amount: u64) -> i128 {
+    vault_withdraw(balance, amount)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
 // Compile-time assertions. Because `vault_withdraw` is a `const fn`, the
