@@ -19,9 +19,11 @@ buildType standard — the submission is a file of free functions. tests.json ro
 are {id, input, expectedOutput} where `input` is a verbatim Rust argument list
 (`vec![100, 50], 75, 3` / `"a", "b"` / `[7u8; 32]`). The harness appends a
 generated main() that pastes that list into a call to the entry function once per
-test and prints TEST:<id>:<value>. The entry function is the LAST-defined
-column-0 fn (helpers precede the graded fn by convention); a file with no column-0
-fn is reported as NOT GRADED rather than guessed at. String expectedOutput values
+test and prints TEST:<id>:<value>. The entry function is detected with the
+production grader's own regex — a bare column-0 `fn`; `pub fn` and `const fn` are
+invisible to the grader and therefore to this script. A file in which that regex
+matches nothing is reported as a violation naming the likely cause, never guessed
+at. String expectedOutput values
 carry their own surrounding quotes; they are stripped before comparison, matching
 Display-formatted output.
 
@@ -57,7 +59,18 @@ KNOWN_CRATES = {
     "thiserror": "1",
 }
 
-FN_RE = re.compile(r"^(?:pub\s+)?(?:const\s+)?fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M)
+# The production grader's entry-point detector, copied verbatim: /^fn\s+(\w+)\s*\(/gm.
+# It matches a BARE column-0 `fn` only — `pub fn` and `const fn` are invisible to it.
+# Keep this character-for-character identical to the grader's regex: anything accepted
+# here that the grader cannot see is a challenge no learner submission can ever pass,
+# which is exactly the defect this script exists to catch. Do not loosen it.
+FN_RE = re.compile(r"^fn\s+(\w+)\s*\(", re.M)
+# Column-0 fns carrying qualifiers the grader does not parse (pub/const/async/...).
+# Matched only to explain a no-entry-point verdict — never to grade.
+QUALIFIED_FN_RE = re.compile(
+    r"^((?:(?:pub(?:\([^)]*\))?|const|async|unsafe|extern(?:\s+\"[^\"]*\")?)\s+)+fn\s+\w+)\s*\(",
+    re.M,
+)
 # Indented fns exist only to explain a NOT-GRADED verdict. They are deliberately
 # not candidates: the generated main() calls the entry fn by bare name, so a fn
 # inside a mod or an impl would not resolve even if we picked it.
@@ -67,9 +80,37 @@ NESTED_FN_RE = re.compile(
 
 
 def pick_entry_fn(src: str):
-    """Last-defined column-0 fn that isn't main — the only kind the call harness can reach."""
+    """Last-defined grader-visible fn that isn't main — the only kind the call harness can reach."""
     names = [m.group(1) for m in FN_RE.finditer(src) if m.group(1) != "main"]
     return names[-1] if names else None
+
+
+def no_entry_point_msg(src: str) -> str:
+    """Why the grader's regex matched nothing, naming the likely authoring mistake."""
+    qualified = [" ".join(m.group(1).split()) for m in QUALIFIED_FN_RE.finditer(src)]
+    nested = sorted(set(NESTED_FN_RE.findall(src)))
+    msg = (
+        "NOT GRADED — the production grader finds the entry point with "
+        "/^fn\\s+(\\w+)\\s*\\(/ and this file matches it nowhere. "
+    )
+    if qualified:
+        return msg + (
+            f"Likely cause: the fn(s) it defines are qualified "
+            f"({'; '.join(f'`{q}`' for q in qualified)}) — the grader only sees a bare "
+            f"column-0 `fn name(`, so drop the `pub`/`const` from the graded entry fn."
+        )
+    if FN_RE.search(src):
+        return msg + (
+            "Its only bare fn is `main`, which the call harness cannot target — the "
+            "harness appends its own main() that calls a distinct entry fn."
+        )
+    if nested:
+        return msg + (
+            f"Likely cause: every fn here ({', '.join(nested)}) is nested/indented and "
+            f"unreachable from the generated main(). If the block is a whole crate, mark "
+            f"it buildType: buildable so it is compiled instead of called."
+        )
+    return msg + "The file defines no fn at all."
 
 
 def build_rust_harness(src: str, tests: list, debug_fmt: bool):
@@ -219,14 +260,8 @@ def verify_buildable_rust(key, tag, sol_src, start_src, tests, work, subject_pin
 
 def verify_standard_rust(key, tag, sol_src, start_src, tests, work, subject_pins, violations):
     if pick_entry_fn(sol_src) is None:
-        nested = sorted(set(NESTED_FN_RE.findall(sol_src)))
-        print(f"  {key}: NOT GRADED — no column-0 fn for the call harness")
-        violations.append(
-            f"{key}: NOT GRADED — the call harness needs a column-0 free fn and this file has "
-            f"none; the fn(s) it does define ({', '.join(nested) or 'none'}) are nested and "
-            f"unreachable from the generated main(). If the block is a whole crate, mark it "
-            f"buildType: buildable so it is compiled instead of called."
-        )
+        print(f"  {key}: NOT GRADED — no entry point the grader's regex can see")
+        violations.append(f"{key}: SOLUTION {no_entry_point_msg(sol_src)}")
         return
     compiled, results, err = run_rust_submission(work, f"{tag}-sol", sol_src, tests, subject_pins)
     if not compiled:
