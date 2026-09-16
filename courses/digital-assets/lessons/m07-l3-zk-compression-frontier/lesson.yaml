@@ -6,6 +6,11 @@ skills:
   - account-model
   - rpc-reads
   - version-pinning
+versionStamp:
+  checkedAt: "2026-09-05"
+  packages:
+    tsx: "^4.20.0"
+    typescript: "^5.9.0"
 blocks:
   - key: intro
     type: prose

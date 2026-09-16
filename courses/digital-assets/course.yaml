@@ -8,6 +8,7 @@ duration: 35
 xpPerLesson: 20
 xpReward: 560
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
+creatorRewardXp: 30
 trackId: 0
 trackLevel: 0
 thumbnail: assets/banner.webp
