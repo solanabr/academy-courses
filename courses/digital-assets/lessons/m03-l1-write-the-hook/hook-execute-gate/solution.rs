@@ -9,7 +9,7 @@
 /// Return value convention (so the grader can compare a single value):
 ///   allowed  -> the transferred `amount` cast to i64
 ///   rejected -> a negative error code (`-1` allowlist, `-2` paused)
-pub fn hook_execute(destination_allowed: bool, is_paused: bool, amount: u64) -> i64 {
+fn hook_execute(destination_allowed: bool, is_paused: bool, amount: u64) -> i64 {
     // Pause is the global kill-switch: it beats the allowlist.
     if is_paused {
         return -2;
