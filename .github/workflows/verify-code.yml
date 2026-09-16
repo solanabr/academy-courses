@@ -1,0 +1,75 @@
+name: verify-code
+
+# Closes content-lint gate 6's deferral: Rust (and future buildable-TS) graded
+# blocks are compiled and run against tests.json here, instead of waiting for
+# runtime grading to discover a broken challenge. Solution must pass every
+# test; starter must fail at least one (failing to compile counts as failing).
+
+on:
+  pull_request:
+    paths:
+      - "courses/**"
+  workflow_dispatch: {}
+
+jobs:
+  verify-deferred-blocks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed courses
+        id: changed
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || 'origin/main' }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CHANGED=$(ls -d courses/*/)
+          else
+            # git runs on its own line so that a git failure (unfetched base SHA,
+            # shallow clone, bad ref) FAILS this job. When it sat at the head of
+            # the filter pipeline below, any git error collapsed into an empty
+            # dirs output — and since every later step is gated on that output
+            # being non-empty, the job skipped everything and reported green
+            # having verified nothing. Only a genuinely empty change set may skip.
+            if ! CHANGED=$(git diff --name-only "$BASE"...HEAD -- courses/); then
+              echo "::error::git diff against ${BASE} failed — cannot tell which courses changed; failing instead of skipping verification"
+              exit 1
+            fi
+          fi
+          # The [^/_] class below is a deliberate policy, not an accident: it drops
+          # underscore-prefixed dirs (courses/_draft/, courses/_template/), which are
+          # scaffolding that never ships and whose exercise blocks are placeholders.
+          # It applies to both event paths, since workflow_dispatch feeds `ls` output
+          # through the same filter. An empty DIRS after this line is the one
+          # legitimate skip: no shipped course changed.
+          DIRS=$(printf '%s\n' "$CHANGED" | grep -oE '^courses/[^/_][^/]*/' | sort -u || true)
+          # Only course dirs that actually contain graded rust / buildable blocks.
+          KEEP=""
+          for d in $DIRS; do
+            [ -f "$d/course.yaml" ] || continue
+            if grep -rlq "language: rust\|buildType: buildable" "$d"/lessons/*/lesson.yaml 2>/dev/null; then
+              KEEP="$KEEP $d"
+            fi
+          done
+          echo "dirs=$(echo $KEEP | xargs)" >> "$GITHUB_OUTPUT"
+          echo "Changed courses with deferred blocks: ${KEEP:-none}"
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.changed.outputs.dirs != ''
+        with:
+          toolchain: "1.89"
+
+      - uses: Swatinem/rust-cache@v2
+        if: steps.changed.outputs.dirs != ''
+        with:
+          shared-key: verify-code-blocks
+
+      - name: Install pyyaml
+        if: steps.changed.outputs.dirs != ''
+        run: pip install --quiet pyyaml
+
+      - name: Verify deferred code blocks
+        if: steps.changed.outputs.dirs != ''
+        run: |
+          python3 scripts/verify_code_blocks.py ${{ steps.changed.outputs.dirs }} --work "$RUNNER_TEMP/vb"
