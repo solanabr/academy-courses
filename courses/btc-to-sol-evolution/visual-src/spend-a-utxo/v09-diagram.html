@@ -12,8 +12,8 @@
 <body>
 <!-- diagram: coin selection forced to pick both
      purpose: certify the solo exercise, a 45 BTC payment cannot be funded by one output, so two are consumed
-     data: available UTXOs: A = 10.00000000 B = 39.99997640 target payment: 45.00000000 A alone (10) < 45 -> insufficient B alone (39.99997640) < 45 -> insufficient A + B = 49.99997640 >= 45 + fee -> BOTH selected, vin length = 2 result: payment 45.00000000 + change ~4.9999xxxx (minus the fee gap)
-     prompt: Diagram, dark background, monospace. Two coin boxes A (10) and B (39.99997640) on the left, each with a red "< 45" tag when shown alone, then a combined box "A + B = 49.99997640" with a green ">= 45" tag, an arrow into a transaction node emitting "payment 45" and "change ~5". Caption: "no single UTXO covers 45". No decorative icons.
+     data: available UTXOs: A = 10.00000000 B = 39.99997180 target payment: 45.00000000 A alone (10) < 45 -> insufficient B alone (39.99997180) < 45 -> insufficient A + B = 49.99997180 >= 45 + fee -> BOTH selected, vin length = 2 result: payment 45.00000000 + change ~4.9999xxxx (minus the fee gap)
+     prompt: Diagram, dark background, monospace. Two coin boxes A (10) and B (39.99997180) on the left, each with a red "< 45" tag when shown alone, then a combined box "A + B = 49.99997180" with a green ">= 45" tag, an arrow into a transaction node emitting "payment 45" and "change ~5". Caption: "no single UTXO covers 45". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -56,9 +56,9 @@
   <div class="dg">
     <div class="stack">
       <div class="coin"><span class="id">A</span><span class="amt">10.00000000</span><span class="lt">&lt; 45</span></div>
-      <div class="coin"><span class="id">B</span><span class="amt">39.99997640</span><span class="lt">&lt; 45</span></div>
+      <div class="coin"><span class="id">B</span><span class="amt">39.99997180</span><span class="lt">&lt; 45</span></div>
       <div class="plus">A + B</div>
-      <div class="sum"><span class="id">A + B</span><span class="amt">49.99997640</span><span class="ge">&ge; 45 + fee</span></div>
+      <div class="sum"><span class="id">A + B</span><span class="amt">49.99997180</span><span class="ge">&ge; 45 + fee</span></div>
     </div>
     <div class="arr">&rarr;</div>
     <div class="txn">

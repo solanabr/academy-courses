@@ -50,28 +50,28 @@
     <div class="hc eth">Ethereum &mdash; account map</div>
 
     <div class="ax">global state</div>
-    <div class="cell">a <b>set of unspent outputs</b></div>
-    <div class="cell">a <b>map</b> of address &rarr; 4-field account</div>
+    <div class="cell"><span>a <b>set of unspent outputs</b></span></div>
+    <div class="cell"><span>a <b>map</b> of address &rarr; 4-field account</span></div>
 
     <div class="ax">the unit</div>
-    <div class="cell">a UTXO is <b>spend-once</b>, consumed whole</div>
-    <div class="cell">a storage slot is <b>mutable</b>, rewritten in place</div>
+    <div class="cell"><span>a UTXO is <b>spend-once</b>, consumed whole</span></div>
+    <div class="cell"><span>a storage slot is <b>mutable</b>, rewritten in place</span></div>
 
     <div class="ax">after execution</div>
-    <div class="cell">script authorizes a spend, then the output is <b>gone</b></div>
-    <div class="cell">contract code runs, then <span class="mono">SSTORE</span>s a slot that <b>persists</b></div>
+    <div class="cell"><span>script authorizes a spend, then the output is <b>gone</b></span></div>
+    <div class="cell"><span>contract code runs, then <span class="mono">SSTORE</span>s a slot that <b>persists</b></span></div>
 
     <div class="ax">storage shape</div>
     <div class="cell">no key-value store attached to a script</div>
-    <div class="cell">per-contract 256&rarr;256 map under <span class="mono">storageRoot</span></div>
+    <div class="cell"><span>per-contract 256&rarr;256 map under <span class="mono">storageRoot</span></span></div>
 
     <div class="ax">balance of X</div>
-    <div class="cell"><b>scan and sum</b> outputs</div>
-    <div class="cell">one <span class="mono">SLOAD</span> of a slot</div>
+    <div class="cell"><span><b>scan and sum</b> outputs</span></div>
+    <div class="cell"><span>one <span class="mono">SLOAD</span> of a slot</span></div>
 
     <div class="ax">persistent per-address state</div>
-    <div class="cell amber"><b>cannot</b> hold a token balance</div>
-    <div class="cell green"><b>can</b> hold arbitrary persistent state</div>
+    <div class="cell amber"><span><b>cannot</b> hold a token balance</span></div>
+    <div class="cell green"><span><b>can</b> hold arbitrary persistent state</span></div>
   </div>
 </div>
 </body></html>
