@@ -1,6 +1,11 @@
 id: lesson-b2s-the-crosschain-ops-bot
 slug: the-crosschain-ops-bot
 title: "Pull the plug: the cross-chain operator that wakes up where it left off"
+versionStamp:
+  checkedAt: "2026-09-07"
+  packages:
+    "@solana/kit": "8.2.0"
+    bitcoin-core: "31.1.0"
 skills:
   - solana-kit
 blocks:

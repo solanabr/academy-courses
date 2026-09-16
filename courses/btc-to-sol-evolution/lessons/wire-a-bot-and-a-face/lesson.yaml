@@ -1,6 +1,11 @@
 id: lesson-b2s-wire-a-bot-and-a-face
 slug: wire-a-bot-and-a-face
 title: "Sign it yourself: a bot for the vault, then a button"
+versionStamp:
+  checkedAt: "2026-09-07"
+  packages:
+    anchor-lang: "1.1.2"
+    "@solana/kit": "8.2.0"
 skills:
   - anchor
   - solana-kit
