@@ -77,7 +77,7 @@ I want to be honest about what the probe did and did not prove, because this is 
 
 Think of it as a franchise, because the analogy holds all the way down and I am going to keep using it. One kitchen, one fryer, one supplier contract. The franchisee picks the sign over the door, the prices on the board, and who gets the till at closing. What the franchisee cannot change is the fryer. And that is exactly the trade the Platform PDA offers: total control of branding and fee split, zero control of mechanics.
 
-![A hub-and-spoke diagram of the Raydium LaunchLab program with Platform PDA spokes for Raydium, LetsBonk, and third parties, sharing one curve and graduation rule while each configures brand and fees.](assets/v01-diagram.png)
+![A hub-and-spoke diagram of the Raydium LaunchLab program with Platform PDA spokes for Raydium, LetsBonk, and third parties, sharing one curve and graduation rule while each configures brand and fees.](assets/v01-diagram.webp)
 
 ### What a launchpad actually is
 
@@ -93,7 +93,7 @@ Strip the branding and a launchpad is four decisions bundled together and sold a
 
 Notice what is not on that list: the token standard. Every one of these venues will happily mint you an SPL token. Only some of them will carry a Token-2022 mint with power extensions all the way through migration, and none of them will tell you at mint time. The failure surfaces at the last instruction.
 
-![A four-column comparison of pump.fun, Raydium LaunchLab, Meteora DBC, and Metaplex Genesis across eight launch axes, with Meteora DBC the only venue documented to support transfer-hook configs.](assets/v02-comparison.png)
+![A four-column comparison of pump.fun, Raydium LaunchLab, Meteora DBC, and Metaplex Genesis across eight launch axes, with Meteora DBC the only venue documented to support transfer-hook configs.](assets/v02-comparison.webp)
 
 ### pump.fun: the venue with no knobs
 
@@ -103,7 +103,7 @@ The 2025-09-01 flag day is the part worth carrying into this lesson. Overnight, 
 
 The upside of no knobs is real and gets undersold by people who like knobs: you cannot misconfigure it. Every launch is the same launch, so liquidity, bots, front ends, and dashboards all know the shape in advance, and the integration surface is enormous because it never changes. Zero configuration is a feature when the alternative is you, at 3am, choosing a cliff duration you do not understand.
 
-![A grouped bar chart of fee rates read on 2026-08-22, with pump.fun's 1.00% marked historic and superseded by dynamic tiers, Genesis's curve mode stacked at 1.10% and 0.86%, and two venues left as placeholder bars marked not sourced.](assets/v03-chart.png)
+![A grouped bar chart of fee rates read on 2026-08-22, with pump.fun's 1.00% marked historic and superseded by dynamic tiers, Genesis's curve mode stacked at 1.10% and 0.86%, and two venues left as placeholder bars marked not sourced.](assets/v03-chart.webp)
 
 ### LaunchLab: knobs, a franchise agreement, and an NFT that collects rent
 
@@ -160,7 +160,7 @@ The BASE side, the side SPROUT would live on, rests on a separate documentation 
 
 Cost side, because a venue this flexible is not free. Every segment is a distribution decision you now have to defend, and a piecewise curve gives you many more ways to be wrong than a fixed one does. The pool math and the LP strategy that would let you shape those segments intelligently are genuinely out of scope here, and I am not going to fake them: the planned DeFi and RWA Engineering course teaches liquidity provision at real depth, and that is where curve shaping stops being a menu and becomes a discipline. This lesson takes you exactly as far as choosing the venue and knowing what its knobs are.
 
-![An annotated excerpt of Meteora's Dynamic Bonding Curve source showing MAX_CURVE_POINT at 16 and MAX_CURVE_POINT_CONFIG at 20, with callouts naming the failure each number causes if trusted alone.](assets/v04-annotated-code.png)
+![An annotated excerpt of Meteora's Dynamic Bonding Curve source showing MAX_CURVE_POINT at 16 and MAX_CURVE_POINT_CONFIG at 20, with callouts naming the failure each number causes if trusted alone.](assets/v04-annotated-code.webp)
 
 ### Genesis: when a curve is the wrong shape entirely
 
@@ -170,7 +170,7 @@ Genesis offers a **uniform-price auction** instead. Bids come in during a window
 
 What it costs you is the thing curves are actually good at. An auction needs demand to show up inside a window, and a window is a coordination problem: you have to market it, and if the window closes thin, you have discovered your demand curve in public. A bonding curve never has that failure mode, because it is always open and always quoting. Pick the auction when the launch has enough gravity to fill a room on a schedule. Pick a curve when it does not.
 
-![A dataflow diagram of Metaplex Genesis routing participant SOL through inflow buckets, an end behavior, and outflow buckets, with a parallel lane allocating tokens to winners at one clearing price.](assets/v05-diagram.png)
+![A dataflow diagram of Metaplex Genesis routing participant SOL through inflow buckets, an end behavior, and outflow buckets, with a parallel lane allocating tokens to winners at one clearing price.](assets/v05-diagram.webp)
 
 ### Four defenses against the same contested window
 
@@ -186,7 +186,7 @@ Every anti-snipe mechanism in this space is attacking the same window. From the 
 
 There is a fifth option people forget: no defense. That is what a plain pump launch is, and it is a coherent choice if the token is small, the launch is quiet, and the cost of a bot getting a good fill is genuinely lower than the cost of asking your community to learn a deposit window. Naming it as a choice is different from stumbling into it.
 
-![A launch timeline with the sniper-contested first slots after trading opens, and four defenses positioned around that zone: deposit window, fee-free first buy, decaying fee, and uniform-price auction.](assets/v06-timeline.png)
+![A launch timeline with the sniper-contested first slots after trading opens, and four defenses positioned around that zone: deposit window, fee-free first buy, decaying fee, and uniform-price auction.](assets/v06-timeline.webp)
 
 ### What graduation actually seeds
 
@@ -200,7 +200,7 @@ Here is the part every launchpad does for you silently, which is why almost nobo
 
 Now the counterfactual, which is the only way to feel what you are getting. Without a launchpad you would create the pool account and pay its rent yourself, fund both sides from a wallet you control, pick an opening price by judgment instead of by mechanism, receive LP tokens into that same wallet, and then solve the trust problem by hand: burn them and prove it, or lock them somewhere and prove that. You would also own the whole anti-snipe problem alone, because a fresh pool with no defense is a pool that gets sniped in its first slot by definition. That is four jobs and a trust proof, in exchange for control of every one of them.
 
-![A three-column table listing the five things a launchpad seeds at graduation, who decides each, and the manual equivalent from pool creation through anti-snipe coverage.](assets/v07-table.png)
+![A three-column table listing the five things a launchpad seeds at graduation, who decides each, and the manual equivalent from pool creation through anti-snipe coverage.](assets/v07-table.webp)
 
 ### The extension set votes first
 
@@ -210,7 +210,7 @@ Read the comparison table again with that in your hand and the venue field narro
 
 So the ordering is fixed, and it is the opposite of how most launches are planned. The extension set decides which graduation AMMs are legal. The legal AMMs decide which venues are available. The available venues offer you a defense menu. You pick from that menu. Anyone who picks the venue first is going to end up changing their token to fit it, which is a fine outcome as long as it was a decision instead of a discovery.
 
-![A four-stage flowchart running from extension set to legal AMMs to available venues to defense choice, with a reverse arrow marking the common backwards plan and a migration-revert callout.](assets/v08-flowchart.png)
+![A four-stage flowchart running from extension set to legal AMMs to available venues to defense choice, with a reverse arrow marking the common backwards plan and a migration-revert callout.](assets/v08-flowchart.webp)
 
 ## Lab: choose SPROUT's venue and write the decision
 
@@ -508,7 +508,7 @@ Notice that this answer is not last lesson's answer, and the difference is the w
 
 Now make it fail three ways, because a checkpoint that cannot fail was never a checkpoint. Add `"TransferHook"` to `extensions` and note the DBC row survives while the other three rejections stand. Set `wantsAntiSnipe: false` and notice pump and LaunchLab do NOT come back into the eligible set; the base-program gate rejected them before the defense gate ever ran, and no preference flag can conjure a Token-2022 mint onto a classic-SPL venue. To watch the defense gate actually bite, flip the whole profile to a plain classic token (`baseTokenProgram: "spl"`, empty `extensions`, `wantsAntiSnipe: true`) and see pump and LaunchLab get rejected on defense alone. Finally set `extensions` to `["PermanentDelegate"]` with the Token-2022 profile and watch the throw: no venue survives, every rejection printed, no default returned. Put SPROUT's real values back when you are done.
 
-![A flowchart of choose-venue.ts passing each venue through an extension gate and a preference gate, with rejections collected aside, a tie-break, and an exit gate for defenseless choices.](assets/v09-flowchart.png)
+![A flowchart of choose-venue.ts passing each venue through an extension gate and a preference gate, with rejections collected aside, a tie-break, and an exit gate for defenseless choices.](assets/v09-flowchart.webp)
 
 ## Challenge
 

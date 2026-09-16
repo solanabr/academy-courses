@@ -150,7 +150,7 @@ Coluna clássica aos 6,333 lamports/byte da mainnet, lidos em 2026-09-06. Multip
 
 A razão é plana porque os dois lados são lineares. O que muda com a escala é se o número é sobrevivível. Com mil destinatários ninguém liga. Com um milhão, a coluna clássica passa de 1,800 SOL, e a um preço de SOL de $150 isso é quase $300,000 de rent para distribuir um token. Um milhão de contas custa uma casa, e custava uma casa um pouco maior mês passado.
 
-![Gráfico de barras agrupadas em eixo logarítmico comparando o custo de airdrop clássico e comprimido de 1k a 1M de destinatários, com a coluna clássica perto de dois mil SOL contra 10.3 SOL do comprimido.](assets/v01-chart.png)
+![Gráfico de barras agrupadas em eixo logarítmico comparando o custo de airdrop clássico e comprimido de 1k a 1M de destinatários, com a coluna clássica perto de dois mil SOL contra 10.3 SOL do comprimido.](assets/v01-chart.webp)
 
 Esse quarto de milhão de dólares é a razão de a compressão ZK ter sido construída. A Solana passou de 500 milhões de contas e estava somando cerca de um milhão por dia por volta de novembro de 2024, que foi o enquadramento que a Helius usou no texto da keynote de compressão dela naquele mês. O crescimento de estado é o custo, e airdrops são o jeito mais rápido de inflá-lo.
 
@@ -175,7 +175,7 @@ helius-airship --help
 
 O eixo que ninguém coloca na página de marketing é quem paga.
 
-![Tabela comparativa das quatro linhas do modelo de custo sobre custo do remetente, custo do claimant, reembolsabilidade e necessidades de RPC, notando que a linha do AirShip é uma fatia de escopo em cima do push comprimido e que o Light Claim está sem preço.](assets/v02-comparison.png)
+![Tabela comparativa das quatro linhas do modelo de custo sobre custo do remetente, custo do claimant, reembolsabilidade e necessidades de RPC, notando que a linha do AirShip é uma fatia de escopo em cima do push comprimido e que o Light Claim está sem preço.](assets/v02-comparison.webp)
 
 Leia essa tabela duas vezes. Um claim de Merkle não é barato, ele é *deslocado*. Os lamports não sumiram, eles passaram para a pessoa que recebe os tokens, e isso é uma decisão de produto tanto quanto uma decisão de custo: todo mundo que não faz claim não te custa nada, e todo mundo que faz claim paga cerca de 1.2 milhão de lamports para isso à taxa de rent atual da mainnet, a maior parte recuperável só se o caminho de fechamento do ClaimStatus deixar um claimant reaver o rent, uma cancela que esta lição sinaliza abaixo como algo que ela não rodou. Para um drop em que você espera que metade da lista te ignore, isso é uma dádiva. Para um drop a usuários que nunca tiveram SOL, é um muro.
 
@@ -205,7 +205,7 @@ Esse é o método inteiro. Quando um valor de fornecedor e uma derivação de pr
 
 Tem uma segunda coisa escondida naquele arquivo de constantes, e ela é a razão de o 15 existir. Uma transação tem teto de 1,232 bytes e cada conta que ela nomeia custa 32 deles, então juntar quinze destinatários mais as contas de sistema da Light, a pool de token e a árvore de estado numa transação só não cabe se você escrever cada endereço por extenso. O AirShip não escreve. Ele já vem com uma address lookup table, `9NYFyEqPkyXUhkerbGHXUXkvb4qpzeEdHuGpgbgpH1NJ` na mainnet e outra separada na devnet, guardando as contas estáticas de que toda transação de drop precisa, para que elas custem um byte de índice cada em vez de 32. O tamanho do lote não é uma preferência de ajuste, é o que o orçamento de bytes permite quando as contas fixas estão numa tabela.
 
-![Duas barras de orçamento de bytes para uma transação de 1,232 bytes mostrando que trocar endereços de conta estáticos completos de 32 bytes por índices de lookup table de um byte deixa espaço para quinze destinatários em uma transação do AirShip.](assets/v03-diagram.png)
+![Duas barras de orçamento de bytes para uma transação de 1,232 bytes mostrando que trocar endereços de conta estáticos completos de 32 bytes por índices de lookup table de um byte deixa espaço para quinze destinatários em uma transação do AirShip.](assets/v03-diagram.webp)
 
 ### O caminho de claim, e por que o SPROUT tem que pegar ele
 
@@ -215,7 +215,7 @@ O conjunto de lançamento do SPROUT vindo da R6 são três extensões: `Transfer
 
 Então duas das três extensões do SPROUT pegariam carona numa boa, e a terceira mata o drop inteiro, porque allowlisting também não é aditivo aqui, a mesma lição que a allowlist do CP-Swap te ensinou na R6, num trilho diferente. A cobertura de Token-2022 do programa de token comprimido segue mais ou menos a mesma linha, e não é arbitrário: uma taxa que precisa ser retida num slot por conta não tem para onde ir quando a conta é um hash numa árvore.
 
-![Tabela separando as extensões Token-2022 por suporte a airdrop comprimido, com o par de metadados do SPROUT na coluna das suportadas e o TransferFeeConfig dele não suportado, desqualificando o caminho de compressão.](assets/v04-table.png)
+![Tabela separando as extensões Token-2022 por suporte a airdrop comprimido, com o par de metadados do SPROUT na coluna das suportadas e o TransferFeeConfig dele não suportado, desqualificando o caminho de compressão.](assets/v04-table.webp)
 
 Então a coluna mais barata da sua tabela está indisponível para o seu próprio token. E uma reconciliação que você merece, porque a m07-l3 te avaliou pela conclusão oposta: o memo que aquela lição aceitou nomeou o compost drop como a única carga de trabalho da Overgrowth que genuinamente deveria comprimir, e nos eixos de custo que aquele memo argumentou, contagem de escritas e formato de acesso, ele estava certo. O que aquele memo assumiu em silêncio é que a cancela de extensões passa, e esta lição é onde a suposição finalmente é checada e falha especificamente para o SPROUT. O veredicto vira pela legalidade, não pela aritmética; o seu memo estava certo sobre a carga de trabalho e cego para o token, que é precisamente por que a ordenação desqualificadores-antes-da-aritmética que você codificou lá precisava de mais um desqualificador que ela ainda não conhecia. Leve isso como a lição em vez de uma derrota: o modelo de custo escolhe entre métodos que são legais para o token, e a legalidade vem do conjunto de extensões que você escolheu lá no módulo 2. Se você quer a coluna comprimida, você projeta para isso antes de cunhar.
 
@@ -227,7 +227,7 @@ E uma segunda ressalva, a que o método deste módulo exige antes de você aceit
 
 O distribuidor também tem uma resposta para a parte da sua lista que nunca aparece, e vale projetar para isso antes de lançar em vez de depois. O estado dele carrega um `clawback_start_ts`, um `clawback_receiver`, e uma flag `clawed_back`. Antes daquele timestamp uma tentativa de clawback falha com `ClawbackBeforeStart`. Depois dele, qualquer um pode disparar a varredura, e é seguro deixar assim porque o destino está fixado: os tokens só podem aterrissar no `clawback_receiver` com que o distribuidor foi criado. Uma vez varrido, todo claim restante falha com `ClaimExpired`. Então a janela é uma política que você define no setup e não pode renegociar. Curta demais e você pune as pessoas que estavam de férias; longa demais e a sua tesouraria fica sentada em cima de tokens que ela não consegue planejar. Escolha deliberadamente, publique, e coloque a data no mesmo lugar em que você publica a árvore.
 
-![Linha do tempo de um distribuidor de Merkle do setup, passando pela janela de vesting linear, até o ponto de clawback, depois do qual alocações sem claim são varridas e claims posteriores revertem.](assets/v05-timeline.png)
+![Linha do tempo de um distribuidor de Merkle do setup, passando pela janela de vesting linear, até o ponto de clawback, depois do qual alocações sem claim são varridas e claims posteriores revertem.](assets/v05-timeline.webp)
 
 ### O que o claim_locked de fato faz
 
@@ -235,7 +235,7 @@ Um **distribuidor de Merkle** é uma conta que guarda uma raiz, um vault e conta
 
 O layout da folha vale mostrar exatamente, porque um erro de ordem de bytes aqui produz uma prova que falha sem nenhum erro útil:
 
-![Diagrama da pré-imagem da folha do distribuidor, fazendo o hash de uma pubkey de claimant de 32 bytes e de dois valores u64 little-endian em um nó, depois separando por domínio folhas e pais com bytes de prefixo.](assets/v06-annotated-code.png)
+![Diagrama da pré-imagem da folha do distribuidor, fazendo o hash de uma pubkey de claimant de 32 bytes e de dois valores u64 little-endian em um nó, depois separando por domínio folhas e pais com bytes de prefixo.](assets/v06-annotated-code.webp)
 
 Duas coisas decorrem dessa figura.
 
@@ -254,11 +254,11 @@ withdrawable = vested - locked_amount_withdrawn
 
 Divisão inteira trunca, o que arredonda para baixo, o que favorece o vault em no máximo uma unidade base. Isso é de propósito e é o tipo de detalhe que vale copiar em vez de melhorar.
 
-![Um gráfico de vesting onde uma linha reta acumula 900 milhões de unidades base ao longo de 90 dias enquanto uma escada de chamadas de claim_locked nos dias 30, 45 e 90 vai alcançando.](assets/v07-chart.png)
+![Um gráfico de vesting onde uma linha reta acumula 900 milhões de unidades base ao longo de 90 dias enquanto uma escada de chamadas de claim_locked nos dias 30, 45 e 90 vai alcançando.](assets/v07-chart.webp)
 
 Duas propriedades desse design merecem ser nomeadas. É um pull, então alocações sem claim ficam paradas no vault sem te custar nada. E é idempotente por claimant, porque a conta de status é um PDA derivado com seeds do claimant e do distribuidor: uma segunda tentativa de abrir ela falha na criação da conta, não numa checagem escrita à mão. É aí que os botões de vesting da lição de launchpad também pousam. O LaunchLab expressava bloqueios como um cliff mais uma duração pelo lado do launchpad; o distribuidor os expressa como `start_ts` e `end_ts` pelo lado da distribuição. Mesma ideia, cadeira diferente.
 
-![Fluxograma de duas faixas com o operador publicando uma raiz de Merkle de 32 bytes uma vez enquanto cada claimant busca uma prova, chama new_claim, e depois chama claim_locked repetidamente conforme o vesting acumula.](assets/v08-flowchart.png)
+![Fluxograma de duas faixas com o operador publicando uma raiz de Merkle de 32 bytes uma vez enquanto cada claimant busca uma prova, chama new_claim, e depois chama claim_locked repetidamente conforme o vesting acumula.](assets/v08-flowchart.webp)
 
 ### O trade-off, nomeado
 
@@ -850,7 +850,7 @@ Três extensões, em ordem crescente de quanto elas vão te ensinar.
 
 **Dois.** Prove a falha de prova obsoleta de ponta a ponta em vez de como um booleano, e tem duas ciladas embutidas nas quais uma leitura literal entra direto. Primeiro, o seu `newClaim` verifica contra `distributor.root`, que ainda guarda a raiz ANTIGA, então uma prova antiga verifica numa boa contra ela; para encenar a falha você precisa fazer o distribuidor carregar a raiz da árvore crescida, ou construindo um segundo distribuidor a partir da árvore reconstruída, ou setando explicitamente `distributor.root = grown.root` e dizendo isso num comentário. Segundo, use um destinatário que ainda NÃO fez claim, porque a checagem de ClaimStatus-existe dispara antes da verificação da prova e mascararia a falha que você está tentando ver. Com os dois resolvidos: gere uma prova, reconstrua a árvore com mais uma alocação, aponte o distribuidor para a raiz nova, tente `newClaim` com a prova antiga, e capture `InvalidProof`. Escreva uma frase num comentário explicando por que rebuscar a prova imediatamente antes de enviar é a única correção confiável.
 
-![Um fluxo de cinco passos das checagens do newClaim onde o teste de ClaimStatus-existente no passo dois rejeita claimants repetidos antes de a prova no passo três chegar a ser verificada.](assets/v09-flowchart.png)
+![Um fluxo de cinco passos das checagens do newClaim onde o teste de ClaimStatus-existente no passo dois rejeita claimants repetidos antes de a prova no passo três chegar a ser verificada.](assets/v09-flowchart.webp)
 
 **Três.** Estenda a tabela de custo com uma coluna `total_cost_of_ownership`: para cada método, o custo do remetente mais o custo do claimant menos o que for reembolsável, a 100,000 destinatários. Depois responda, no arquivo, qual método você entregaria para o SPROUT e por quê, dado que o SPROUT carrega uma taxa de transferência. A resposta não é a linha mais barata e o seu comentário deveria dizer isso.
 

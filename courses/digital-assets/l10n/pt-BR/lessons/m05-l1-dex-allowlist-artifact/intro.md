@@ -42,7 +42,7 @@ As cinco que passam, na ordem do próprio programa: `TransferFeeConfig`, `Metada
 
 Olhe o que essas cinco têm em comum antes de olhar o que está faltando. Uma taxa de transferência move valor, mas move por uma regra declarada no TLV do próprio mint, a uma alíquota que uma pool consegue ler e precificar em volta. A referência de Token-2022 da Raydium é explícita sobre como ela lida com isso: a matemática da pool subtrai a taxa de entrada, e o programa Token-2022 cuida da de saída. Interest-bearing é ainda mais mansa, já que a pool contabiliza em valores de principal e o multiplicador de UI é só decorativo. Scaled UI é exibição e nada mais. Metadata pointer e token metadata são strings e um endereço. Nenhuma das cinco consegue rodar código, ter uma chave sobre o saldo de outra pessoa, ou tornar um número ilegível.
 
-![Comparação das cinco extensões Token-2022 que o CP-Swap da Raydium aceita contra as seis que ele recusa, cada recusa carregando a justificativa publicada pela própria Raydium.](assets/v01-comparison.png)
+![Comparação das cinco extensões Token-2022 que o CP-Swap da Raydium aceita contra as seis que ele recusa, cada recusa carregando a justificativa publicada pela própria Raydium.](assets/v01-comparison.webp)
 
 Agora ponha isso contra o modelo ingênuo que a maioria das pessoas carrega, o que eu carreguei por mais tempo do que eu gostaria de admitir: "tokens Token-2022 não são negociados." Esse modelo está errado nas duas direções ao mesmo tempo. Cinco extensões roteiam tranquilo, então um mint Token-2022 que leva taxa, que carrega metadados e que acumula juros é um ativo de pool perfeitamente comum. E um mint com uma única extensão fora da lista não é negociado um pouco pior, ele não cria a pool de jeito nenhum. A falha é binária e acontece na criação, não na hora do swap.
 
@@ -64,7 +64,7 @@ Comece pelo que uma pool é, mecanicamente. Uma pool do CP-Swap é um programa q
 
 Rode as regras candidatas ingênuas contra isso e veja elas falharem. Regra um: recuse qualquer coisa que mude os valores. Errado, porque TransferFeeConfig muda valores e passa; a pool consegue computar em volta de uma alíquota declarada. Regra dois: recuse qualquer coisa que toque nos números que uma UI mostra. Também errado, já que interest-bearing e scaled UI reescrevem os dois o número exibido e passam os dois; a pool lê valores crus por baixo e trata o multiplicador como decoração. Regra três: recuse qualquer coisa não auditada. Essa está mais perto, e é literalmente a razão declarada para os ponteiros de group e de member ("não revisados"), mas ela não explica por que um programa de hook bem auditado continua recusado.
 
-![Três regras candidatas de allowlist, cada uma riscada pela extensão que a refuta, descendo até a regra sobrevivente baseada em capacidade em contraste total.](assets/v02-comparison.png)
+![Três regras candidatas de allowlist, cada uma riscada pela extensão que a refuta, descendo até a regra sobrevivente baseada em capacidade em contraste total.](assets/v02-comparison.webp)
 
 O que sobrevive é mais estreito, e é a frase para a qual este curso inteiro vem caminhando. Uma DEX admite extensões que só mudam exibição ou raspam uma taxa declarada, e recusa extensões que deixam alguém rodar código arbitrário dentro da transferência ou mover tokens que a pool está guardando.
 
@@ -72,7 +72,7 @@ Leia as três recusas emblemáticas com essa regra na mão. `PermanentDelegate` 
 
 Essa última merece uma pausa, porque é a que as pessoas entendem ao contrário. O hook não consegue roubar da pool. Você sabe disso do módulo 3: toda conta da transferência original é rebaixada para somente-leitura dentro do hook, então o programa de hook não consegue mover fundos, e o próprio guia de desenvolvedor da Solana diz isso. A recusa não é sobre roubo. É sobre custo e sobre encanamento. Todo programa que move um token com hook tem que resolver a lista de contas extras do mint e encaminhar essas contas em cada instrução de transferência, e o hook então queima um número ilimitado de compute units dentro do orçamento do swap. Uma pool que admite um mint com hook se voluntariou para carregar a resolução de contas de um estranho e o custo de compute de um estranho em todo swap, para sempre, sem pin de versão e sem limite superior. Recusar é um orçamento de compute com um nome nele.
 
-![Diagrama mapeando seis extensões Token-2022 em três invariantes de pool, mostrando qual invariante cada extensão recusada quebra e por que as admitidas não quebram.](assets/v03-diagram.png)
+![Diagrama mapeando seis extensões Token-2022 em três invariantes de pool, mostrando qual invariante cada extensão recusada quebra e por que as admitidas não quebram.](assets/v03-diagram.webp)
 
 Duas objeções valem resposta aqui, porque qualquer engenheiro que já entregou uma AMM levanta as duas.
 
@@ -98,7 +98,7 @@ A terceira é uma conta de associação de mint, e como ela é estrutural no flu
 
 Então a enunciação honesta da regra é uma coisa de dois branches, e é exatamente isso que o seu preditor tem que codificar. Primeiro pergunte se algum bypass se aplica. Só se nenhum se aplicar, pergunte se toda extensão está na lista de cinco. Erre essa ordem e você vai prever rejeição com toda a confiança para um token que está sendo negociado na sua frente.
 
-![Fluxograma da checagem de criação de pool do CP-Swap da Raydium mostrando três branches de bypass para SPL clássico, mints na whitelist e mints com associação de mint, antes do teste de allowlist de cinco extensões e do caminho de rejeição.](assets/v04-flowchart.png)
+![Fluxograma da checagem de criação de pool do CP-Swap da Raydium mostrando três branches de bypass para SPL clássico, mints na whitelist e mints com associação de mint, antes do teste de allowlist de cinco extensões e do caminho de rejeição.](assets/v04-flowchart.webp)
 
 O valor de ensino daquela whitelist não são os quatro endereços, é o que a existência deles te diz sobre como a admissão em venue funciona de verdade. Alguns tokens entram porque o conjunto de extensões deles é chato. Outros entram porque alguém no venue tomou uma decisão sobre eles pelo nome. Se o seu plano de produto é "a gente vai levar um delegado permanente para compliance e entrar na whitelist como as stablecoins entraram," esse é um plano de desenvolvimento de negócios em vez de um de engenharia, e você deveria custeá-lo como tal.
 
@@ -110,7 +110,7 @@ Ela roda uma vez. A caminhada pelas extensões acontece na criação da pool, e 
 
 E ela lê tipos, não configurações. A caminhada casa variantes de extensão: ela pergunta se uma entrada `TransferFeeConfig` está presente, não se a taxa é zero ou cinco por cento. Siga isso até o fim e você chega em um resultado que as pessoas acham surpreendente na primeira vez. Um mint levando uma entrada `TransferHook` cujo program id é null, um slot de hook que não chama nada, ainda falha na caminhada, porque a entrada TLV está lá e a entrada é o que é casado. Dormente não é ausente. Essa é a imagem espelhada do design do PYUSD ao qual eu vou chegar em um instante, e é por isso que "a gente configurou a extensão mas deixou desligada" te compra boa vontade com um auditor e exatamente nada com um programa.
 
-![Linha do tempo mostrando que a checagem de extensões da Raydium roda só na criação da pool, enquanto mudanças posteriores de tabela de taxa, ações de autoridade e um upgrade contrafactual de hook não disparam nenhuma re-checagem.](assets/v05-timeline.png)
+![Linha do tempo mostrando que a checagem de extensões da Raydium roda só na criação da pool, enquanto mudanças posteriores de tabela de taxa, ações de autoridade e um upgrade contrafactual de hook não disparam nenhuma re-checagem.](assets/v05-timeline.webp)
 
 ### Por venue, nunca por DEX
 
@@ -126,7 +126,7 @@ A Meteora é o contraponto que mantém isso honesto. A Dynamic Bonding Curve del
 
 E a Jupiter, para onde a maior parte do fluxo de varejo de fato roteia: eu não consegui encontrar uma política publicada de roteamento de Token-2022 nos docs de desenvolvedor dela em 2026-08-21. Não ter página de política não é o mesmo que não ter política. É um desconhecido, e vai para a sua lista de verificação com a data anexada. Agregação como disciplina de cliente pertence ao curso planejado Client-Side Mastery; o que pertence a você aqui é saber que a pergunta existe e que ninguém a respondeu para você por escrito.
 
-![Tabela comparando seis venues de negociação em suporte a Token-2022 e aceitação de mint com hook, com duas células marcadas explicitamente como não resolvidas ou desconhecidas e cada linha carregando a fonte e a data de leitura dela.](assets/v06-table.png)
+![Tabela comparando seis venues de negociação em suporte a Token-2022 e aceitação de mint com hook, com duas células marcadas explicitamente como não resolvidas ou desconhecidas e cada linha carregando a fonte e a data de leitura dela.](assets/v06-table.webp)
 
 O que me traz ao trade-off que eu te devo, e ele corta contra a lição que você está lendo. Ler a allowlist de uma DEX te diz a verdade para aquele um venue naquele um commit. Não é uma spec portável. A revisão de badge da Orca, a política de roteamento da Jupiter e o comportamento de exibição de cada carteira são regras separadas que você tem que checar você mesmo, e congelar as cinco da Raydium como "a regra do ecossistema" é precisamente o erro que esta lição existe para matar. A lista também se mexe. É por isso que o preditor que você está a ponto de construir carrega o commit de origem dele em um comentário de header, e por que reler `token.rs` no seu commit fixado é o passo zero de todo lançamento, não uma tarefa de uma vez só.
 
@@ -189,7 +189,7 @@ Você deve ver `SPROUT true` e `SPROUT+hook false`. Preencha os quatro endereço
 
 Enquanto os dois arquivos estão na sua frente, faça a comparação que faz isso colar: ponha a sua saída de `sed` ao lado da transcrição e marque o que a minha versão jogou fora. A função real recebe um mint decodificado e itera variantes reais de `ExtensionType`, então ela também carrega o desempacotamento, o encanamento de erro, e quem chama e transforma um `false` em uma instrução que falhou. O que sobrevive à redução é a decisão em si, e a decisão tem quatro linhas.
 
-![Walkthrough anotado da checagem de suporte de criação de pool do CP-Swap da Raydium, mapeando o bypass da whitelist dela, o casamento de cinco extensões e o retorno false antecipado nas três partes do preditor em TypeScript construído nesta lição.](assets/v07-annotated-code.png)
+![Walkthrough anotado da checagem de suporte de criação de pool do CP-Swap da Raydium, mapeando o bypass da whitelist dela, o casamento de cinco extensões e o retorno false antecipado nas três partes do preditor em TypeScript construído nesta lição.](assets/v07-annotated-code.webp)
 
 3. **Escreva o preditor, com dois buracos.** Crie `predict-routability.ts`. Este é o problema de completion: o tipo e a forma da função estão dados, o conteúdo da allowlist e os branches de bypass são seus.
 
@@ -337,7 +337,7 @@ npx tsx profile-from-mint.ts 2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo
 
 Esperado para as duas primeiras: os mesmos veredictos do passo 4, SPROUT ROUTABLE e a variante com hook REJECTED, só que agora julgados a partir de bytes TLV ao vivo em vez de um perfil digitado à mão. Uma divergência é esperada e inofensiva: a variante com hook ao vivo imprime uma lista de extensões de uma entrada, só `TransferHook`, onde o perfil `SPROUT_HOOKED` do passo 4 modelou a variante projetada de quatro extensões. O m03 cunhou a variante mínima de propósito, e o veredicto não se importa, porque uma única entrada fora da lista contamina o mint qualquer que seja o conjunto em volta dela. O terceiro veredicto é o que você está segurando para o passo 7.
 
-![Fluxograma de pipeline de um endereço de mint passando pelo preditor de roteabilidade até um veredicto, com três artefatos anteriores alimentando-o e uma tentativa de criação de pool em fork de mainnet fornecendo a verdade de campo.](assets/v08-flowchart.png)
+![Fluxograma de pipeline de um endereço de mint passando pelo preditor de roteabilidade até um veredicto, com três artefatos anteriores alimentando-o e uma tentativa de criação de pool em fork de mainnet fornecendo a verdade de campo.](assets/v08-flowchart.webp)
 
 6. **Agora a parte que pode provar que você está errado.** Tudo até aqui é o seu modelo do programa. A verdade de campo é o programa. No seu fork de surfnet, o deployment do CP-Swap e as contas de config dele são os de mainnet de verdade, então uma tentativa de criação de pool é um teste genuíno. A Raydium fornece um repositório de demonstração cuja seção CPMM monta exatamente essa chamada com `raydium.cpmm.createPool({ programId: CREATE_CPMM_POOL_PROGRAM, poolFeeAccount: CREATE_CPMM_POOL_FEE_ACC, mintA, mintB... })`. Clone em uma pasta separada: o SDK da Raydium é código de terceiro que roda em cima do web3.js v1 e não vem com nenhuma superfície kit, então a dependência de v1 é inevitável aqui. A regra que este curso segue, enunciada com precisão suficiente para você conferir um lab posterior contra ela: **ponha um SDK de terceiro em quarentena na menor unidade que ainda compila, e deixe as duas pilhas se encontrarem na chain em vez de em um import compartilhado.** Às vezes essa unidade é um workspace inteiro, como aqui e no lab do Light em m08-l3, onde todo arquivo da pasta fala v1 porque o fornecedor fala e misturar um segundo SDK em uma pasta só seria pior. Às vezes é um único arquivo, como em m09-l1, onde `venue.ts` guarda o único import de web3.js do lab e entrega valores simples para código kit dos dois lados. O que a regra nunca permite é um arquivo de primeira parte importando os dois clients para se poupar de uma conversão:
 
@@ -414,7 +414,7 @@ Três dicas, na ordem em que você vai precisar delas. A allowlist é exatamente
 
 Depois uma extensão do challenge que nenhum teste consegue avaliar, e é a que importa na hora do lançamento. Escolha qualquer mint Token-2022 ao vivo que NÃO seja seu, leia-o com `profile-from-mint.ts`, e anote o veredicto dele mais a única frase que torna o veredicto acionável para o emissor dele. Se a sua frase nomear uma extensão específica e um venue específico, você está fazendo o trabalho. Se ela disser "suporte a Token-2022 é complicado," você está citando um ticket de suporte.
 
-![Comparação de três cancelas por que um token tem que passar, legalidade de inicialização imposta pelo Token-2022, admissão em venue imposta por DEX, e exibição na carteira imposta por ninguém, cada uma com o modo de falha dela.](assets/v09-comparison.png)
+![Comparação de três cancelas por que um token tem que passar, legalidade de inicialização imposta pelo Token-2022, admissão em venue imposta por DEX, e exibição na carteira imposta por ninguém, cada uma com o modo de falha dela.](assets/v09-comparison.webp)
 
 ## Checkpoint
 

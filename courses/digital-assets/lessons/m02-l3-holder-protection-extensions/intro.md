@@ -33,7 +33,7 @@ Here is the cleanest way I know to hold the Token-2022 catalog in your head: eve
 
 The distinction is physical, not rhetorical. You saw in m01-l2 that a mint and a token account are both a 165-byte base plus a type byte plus a TLV walk. Mint-side extensions live in the mint's TLV; account-side protections live in the holder account's TLV. When your `decode-mint` inspector walks PYUSD it prints mint entries. When you point it at your own ATA later in the lab, you will see account entries. Same bytes, same walk, opposite politics.
 
-![Two boxes contrast mint-side power extensions with account-side refusal extensions, with one arrow showing NonTransferable on the mint forcing NonTransferableAccount and ImmutableOwner into holder accounts.](assets/v01-diagram.png)
+![Two boxes contrast mint-side power extensions with account-side refusal extensions, with one arrow showing NonTransferable on the mint forcing NonTransferableAccount and ImmutableOwner into holder accounts.](assets/v01-diagram.webp)
 
 One footnote, and a short one since m02-l1 already told the archive story: the account-side protections you are wiring today are 2026-era mechanics the frozen canonical courses never reached. The docs that do exist describe each extension in isolation; what they do not teach is the part that bites, the forced pairings and the integration taxes. So that is where we will spend our time.
 
@@ -47,7 +47,7 @@ Now derive the part the docs state but never explain. Suppose the program only b
 
 Which is why the pairing is forced. When you initialize a token account for a NonTransferable mint, Token-2022 refuses to create it unless the account carries ImmutableOwner, and it stamps the account with a marker extension, NonTransferableAccount (type 13), recording that this account holds soulbound tokens. The pair [NonTransferableAccount, ImmutableOwner] appears on every holder account, always, or the account cannot exist. Close the transfer door and you must weld the ownership door too, or the first door was decoration. That is not a convention you follow. The program enforces it, and in the lab you will read both entries out of your own account's TLV.
 
-![Flowchart showing a non-transferable mint blocking transfers with error 0x25 and, via the forced NonTransferableAccount plus ImmutableOwner pair, also blocking owner reassignment with error 0x22, closing the account-sale loophole.](assets/v02-flowchart.png)
+![Flowchart showing a non-transferable mint blocking transfers with error 0x25 and, via the forced NonTransferableAccount plus ImmutableOwner pair, also blocking owner reassignment with error 0x22, closing the account-sale loophole.](assets/v02-flowchart.webp)
 
 The shape has a name worth carrying: soulbound-fungible. Not an NFT with supply 1 and a metadata standard bolted on, which is where module 6 goes. An ordinary fungible mint, decimals 0, whatever supply you like, whose units are welded to whoever received them. A badge here is just a number that cannot move.
 
@@ -65,7 +65,7 @@ The extension does one job: it locks the account's owner authority so SetAuthori
 
 So the ATA program closed it: every associated token account ships ImmutableOwner by default. On Token-2022 it is a real TLV entry doing real enforcement. And here is a detail I genuinely love: the classic SPL Token program cannot store extensions at all, so when the ATA program sends it InitializeImmutableOwner, classic token accepts the instruction as a no-op and logs "Please upgrade to SPL Token 2022 for immutable owner support". A polite shrug, preserved in every classic ATA creation you have ever simulated. The derived-address invariant matters so much that one program enforces it and the other at least gestures at it. As silent defaults go, this one is a godsend.
 
-![Many senders compute the same derived ATA address, so reassigning its owner would redirect future deposits, and ImmutableOwner makes that reassignment revert with error 0x22.](assets/v03-diagram.png)
+![Many senders compute the same derived ATA address, so reassigning its owner would redirect future deposits, and ImmutableOwner makes that reassignment revert with error 0x22.](assets/v03-diagram.webp)
 
 The refusal it buys you is concrete, and you will trigger it in the lab: SetAuthority with authority type AccountOwner against an ImmutableOwner account reverts with custom program error 0x22 (decimal 34). On such an account, owner reassignment is gone rather than merely restricted.
 
@@ -77,7 +77,7 @@ The mechanics: MemoTransfer (type 8) is an account extension, enabled by the acc
 
 But look at who pays. Not you: you flipped one instruction and got runtime-enforced bookkeeping. The cost lands on every sender, forever. A partner integrating your treasury writes a normal, correct transfer, tests it against normal accounts, ships it, and it reverts in production against yours. Nothing in the transfer API warned them; the requirement lives in YOUR account's TLV, and their code never looked. This is not hypothetical. Meteora's Token-2022 integration checklist tells integrators, verbatim, to "ensure destinations accept memo-required", which is a DEX documenting your account configuration as a hazard its partners must code around. When a live venue's checklist names your extension, believe the checklist.
 
-![Two transaction lanes show a memo-less transfer reverting with error 0x24 at the destination's memo gate while an identical transfer preceded by a memo instruction lands.](assets/v04-flowchart.png)
+![Two transaction lanes show a memo-less transfer reverting with error 0x24 at the destination's memo gate while an identical transfer preceded by a memo instruction lands.](assets/v04-flowchart.webp)
 
 Pre-empting the question you should be asking: can the owner turn it off? Yes. MemoTransfer is symmetric, enable and disable both exist, both owner-signed. It is the holder's veto in the purest sense: opt in, opt out, and while it is on, the runtime does your paperwork enforcement for you.
 
@@ -89,7 +89,7 @@ The threat it targets: you sign a transaction for some program, a game, a market
 
 The honest caveat, and it stays load-bearing from l2: CpiGuard defends the account's own authority surface. A PermanentDelegate on the mint is not the account's authority. It is a mint-level power the account never consented to, and it walks past the guard every time, which you proved yourself with your own two transactions last lesson. So place CpiGuard correctly in your mental model: real protection against programs misusing authorities you delegated, zero protection against powers the mint reserved above you. A guard on your front door, on a house where the landlord kept a master key. If the footgun list says "assuming CpiGuard is a complete defense", the fix is to hold both facts at once, and never let a wallet-safety claim rest on the guard alone.
 
-![Diagram of CpiGuard as a shield blocking CPI-invoked authority operations while owner-signed top-level actions pass through a gate and a mint-level PermanentDelegate move passes over the shield untouched.](assets/v05-diagram.png)
+![Diagram of CpiGuard as a shield blocking CPI-invoked authority operations while owner-signed top-level actions pass through a gate and a mint-level PermanentDelegate move passes over the shield untouched.](assets/v05-diagram.webp)
 
 ### What these protections cost
 
@@ -99,7 +99,7 @@ NonTransferable kills secondary markets by design; for a badge that is the point
 
 So here is the decision rule, as bluntly as I can put it. Reach for NonTransferable only when tradability is the threat rather than the feature, because you cannot undo it after `initializeMint`. Reach for MemoTransfer only when you control both ends of the wire, or when the counterparties are few enough that you can warn each one by hand. CpiGuard is close to free on accounts you control and a bad thing to assume on accounts you do not. ImmutableOwner you already have and did not choose. If you cannot name the exact operation you want refused and the exact person who will be inconvenienced by the refusal, you are not choosing a protection. You are decorating a mint.
 
-![Comparison table of NonTransferable, ImmutableOwner, MemoTransfer, and CpiGuard showing where each lives, what it refuses, its observed error code, and who bears the cost.](assets/v06-comparison.png)
+![Comparison table of NonTransferable, ImmutableOwner, MemoTransfer, and CpiGuard showing where each lives, what it refuses, its observed error code, and who bears the cost.](assets/v06-comparison.webp)
 
 Notice the theme: all four make things impossible rather than possible, selectively, and the engineering discipline they demand is proving the impossibility instead of asserting it. Which is precisely what the lab does.
 
@@ -107,7 +107,7 @@ Notice the theme: all four make things impossible rather than possible, selectiv
 
 The artifact this lesson adds to the Overgrowth toolkit is `sprout-mint-protections`: a soulbound badge mint with its forced account pair, and a memo-required treasury that rejects unlabeled deposits, all proven by a gate script where the assertions are reverts. It builds beside your m02-l2 authority mints; you are stacking a second layer, not replacing the first. I ran this exact gate four times while writing this lesson, on a fresh simnet each time: same three refusals, same error codes, every run. Yours should be just as boring.
 
-![Pipeline of the lab's eight steps from funding through soulbound mint creation, the forced-pair assertion, three expected reverts, the memo deposit, and CpiGuard, ending in a green gate.](assets/v07-flowchart.png)
+![Pipeline of the lab's eight steps from funding through soulbound mint creation, the forced-pair assertion, three expected reverts, the memo deposit, and CpiGuard, ending in a green gate.](assets/v07-flowchart.webp)
 
 1. **Workspace and pins.** Work at the workspace root, the layout m02-l2 established (shared deps in the root `package.json`, lesson code under `labs/`), with the simnet from the opener still running. The pins are the m02-l1 set plus one newcomer, memo, and the same rule from that lesson's pin paragraph decides every version here: current minor that peers kit ^7, re-verify when you read this.
 
@@ -283,7 +283,7 @@ The artifact this lesson adds to the Overgrowth toolkit is `sprout-mint-protecti
 
    You never asked for either extension. You initialized a NonTransferable mint and an ordinary ATA, and the program put both entries there because the account could not legally exist without them. For a second opinion straight from the bytes, point your own inspector at the account (`npx tsx decode-mint.ts <aliceBadge address> http://127.0.0.1:8899`): the TLV walk you wrote in m01-l2 reads token accounts exactly like mints, and it will print type 7 and type 13 next to the names.
 
-![Annotated inspector output of the badge holder account showing a 165-byte base, account type byte 2, and two zero-length forced TLV entries, ImmutableOwner type 7 and NonTransferableAccount type 13.](assets/v08-annotated-code.png)
+![Annotated inspector output of the badge holder account showing a 165-byte base, account type byte 2, and two zero-length forced TLV entries, ImmutableOwner type 7 and NonTransferableAccount type 13.](assets/v08-annotated-code.webp)
 
 5. **Two refusals, proven.** Now make the theory falsifiable. Alice, the legitimate owner, signs a transfer of her own badge to bob: it must revert. Then she tries to hand the account itself to bob via SetAuthority: it must revert. Both go through `expectRevert`, so if either succeeds, the gate dies loudly.
 

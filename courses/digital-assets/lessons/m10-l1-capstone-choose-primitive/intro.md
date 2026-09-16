@@ -41,7 +41,7 @@ Product briefs do not say "use Token-2022 with a permanent delegate." They say t
 
 Answer those four in writing, in your memo, before you touch a recipe. I have watched people (myself included, on a hackathon weekend I would rather not re-litigate) mint first and answer second, and the result is always the same: a mint with the wrong extension set and a re-mint on Sunday morning.
 
-![A decision flowchart where divisibility picks fungible versus NFT, tradeability constrains the extension set, quantity picks Core versus compressed NFTs, and a fourth question on post-ship powers spans all outcomes.](assets/v01-flowchart.png)
+![A decision flowchart where divisibility picks fungible versus NFT, tradeability constrains the extension set, quantity picks Core versus compressed NFTs, and a fourth question on post-ship powers spans all outcomes.](assets/v01-flowchart.webp)
 
 ### The matrix refuses you before the market does
 
@@ -65,7 +65,7 @@ Which is why the CP-Swap allowlist contains exactly five extensions, and why the
 
 So the thesis, in one line you can hand to a product manager: fee, display, and accounting extensions get whitelisted, power extensions get refused. Notice the word that one-liner must NEVER contain: compliance. The compliance-shaped extensions, PermanentDelegate and DefaultAccountState, are exactly the powers the allowlist refuses, and a PM who walks away saying "compliance gets in" ships the wrong rule. Anything else you want, you either enforce off the venue, or you buy your way onto a static whitelist the way regulated issuers do.
 
-![A comparison table scoring classic SPL, Token-2022, Metaplex Core and Bubblegum v2 cNFTs on divisibility, per-unit cost, available post-ship powers, DEX routability, and what a reader needs to resolve them.](assets/v02-comparison.png)
+![A comparison table scoring classic SPL, Token-2022, Metaplex Core and Bubblegum v2 cNFTs on divisibility, per-unit cost, available post-ship powers, DEX routability, and what a reader needs to resolve them.](assets/v02-comparison.webp)
 
 ### The cost axis is where the mass-mint brief gets decided
 
@@ -81,7 +81,7 @@ A million devices at Core prices is about 3,000 SOL. A million devices in one tr
 
 The bill comes due on the read side, and it is the fourth footgun of the course. A cNFT's on-chain footprint is a leaf hash. The asset itself is reconstructed by DAS indexers from data stores the RPC manages. Point a verification script at an RPC without DAS support and `getAsset` returns nothing, for an asset that minted perfectly, and you will spend twenty minutes suspecting your asset id. You cannot refactor that cost away later. It is a dependency you accept at design time, and it belongs in the memo right next to the tree's rent line.
 
-![A log-scale bar chart comparing the per-asset cost of a Metaplex Core mint against compressed NFT leaves in two tree sizes, showing gaps of two and nearly three orders of magnitude.](assets/v03-chart.png)
+![A log-scale bar chart comparing the per-asset cost of a Metaplex Core mint against compressed NFT leaves in two tree sizes, showing gaps of two and nearly three orders of magnitude.](assets/v03-chart.webp)
 
 ### The NFT briefs have exactly one ship-path
 
@@ -93,7 +93,7 @@ So the musician's drop resolves to a Core collection with the Royalties plugin c
 
 The device badge resolves the other way, to a Bubblegum v2 tree with soulbound leaves, and its memo section is about tree capacity and read dependency rather than about royalties at all.
 
-![A flowchart resolving NFT briefs to a Core collection with Royalties and Edition plugins or a soulbound Bubblegum v2 tree, with the deprecated pNFT path as a dead end.](assets/v04-flowchart.png)
+![A flowchart resolving NFT briefs to a Core collection with Royalties and Edition plugins or a soulbound Bubblegum v2 tree, with the deprecated pNFT path as a dead end.](assets/v04-flowchart.webp)
 
 ### PYUSD is the regulated brief, already solved
 
@@ -107,7 +107,7 @@ That is a deliberate strategy and you should name it as one if you copy it. Conf
 
 The cost is exactly what the thesis predicts: a mint carrying a permanent delegate is refused by a permissionless pool program no matter how dormant that delegate is, because the allowlist reads the extension type, not your intentions. PYUSD trades anyway. It got there through the path a course token does not have, which is the honest thing to write in your memo if you take this brief: your compliance set is defensible, and your route to a venue is a business conversation, not a transaction.
 
-![An annotated read of PYUSD's mint showing eight configured extensions, four of them dormant, under the rule that configuring is permanent while activating is reversible.](assets/v05-annotated-code.png)
+![An annotated read of PYUSD's mint showing eight configured extensions, four of them dormant, under the rule that configuring is permanent while activating is reversible.](assets/v05-annotated-code.webp)
 
 ### The venue section derives its own number
 
@@ -117,7 +117,7 @@ The number in question is 85 SOL, the graduation threshold everyone quotes for a
 
 Which is the whole point. The threshold is a consequence of a curve someone else configured, not a constant of nature, and the same function returns 120 SOL for the alternative curve you tried in module 8: 30 virtual SOL, 1,000,000,000 virtual tokens, 800,000,000 real tokens. Change either token-side constant and the number moves. Your memo does not assert 85. It runs the function and prints what today's constants produce, so that when the constants change your memo is wrong loudly instead of quietly.
 
-![A derivation table taking pump's three published curve constants through the constant-product invariant to a final virtual SOL reserve of 115.005 and a graduation threshold of 85.005 SOL.](assets/v06-table.png)
+![A derivation table taking pump's three published curve constants through the constant-product invariant to a final virtual SOL reserve of 115.005 and a graduation threshold of 85.005 SOL.](assets/v06-table.webp)
 
 The venue section also does a job that has nothing to do with curves: it asks whether the venue can hold the token you chose at all. `checkGraduationVenue` refuses pump's path for any Token-2022 mint, because the `create` instruction pins the classic token program, and it accepts CP-Swap only when every extension in your set is on the five-item allowlist. Run it against your own declared set and paste the output. A venue verdict computed from your set is worth more than three paragraphs of prose about routability, and it takes one command.
 
@@ -131,7 +131,7 @@ Most briefs have an obvious fit. The cafe's owner wanting a cut of peer transfer
 
 The reason it is one and not three is not workload. It is proof. A rail counts only when a script prints a before and an after, and three half-wired rails produce zero of those while one finished rail produces a receipt. Pick the rail whose before-and-after you can actually make visible in a terminal, and wire that one properly.
 
-![A comparison table of the four taught economy rails, listing what each one moves, the proof a script must print, and the product brief each fits best.](assets/v07-comparison.png)
+![A comparison table of the four taught economy rails, listing what each one moves, the proof a script must print, and the product brief each fits best.](assets/v07-comparison.webp)
 
 ### Naming the trade you accepted is the memo
 
@@ -141,7 +141,7 @@ Every primitive choice trades power for compatibility. A Token-2022 mint with a 
 
 There is no free position on that curve. The memo is not where you claim you found one. It is where you write, in one paragraph, which power you gave up and what you got for it, so that the person who inherits your token in eighteen months can tell the difference between a constraint and an accident.
 
-![A hub diagram with the capstone at the center, fed by nine labeled earlier course artifacts, and marked terminal with no downstream consumer.](assets/v08-diagram.png)
+![A hub diagram with the capstone at the center, fed by nine labeled earlier course artifacts, and marked terminal with no downstream consumer.](assets/v08-diagram.webp)
 
 ## Lab: memo, asset, rail, proof
 
@@ -517,7 +517,7 @@ The `token_program` comparison is cheap insurance against the most embarrassing 
 
 And the Core branch throws rather than passing when the endpoint returns no `plugins` object. A verification that cannot see the thing it is verifying must fail loudly. A silent pass on an unread field is worse than no verification at all, because you will believe it.
 
-![A four-gate vertical flowchart for the verification script, from address check through DAS resolution and interface match to set comparison, with per-family branches on the last two gates.](assets/v09-flowchart.png)
+![A four-gate vertical flowchart for the verification script, from address check through DAS resolution and interface match to set comparison, with per-family branches on the last two gates.](assets/v09-flowchart.webp)
 
 **8. Run the gate.** Point `DAS_RPC_URL` at a DAS-supporting endpoint (`RPC_URL` can stay on devnet for the mint read) and run it:
 

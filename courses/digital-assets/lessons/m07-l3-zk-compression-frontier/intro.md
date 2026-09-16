@@ -38,7 +38,7 @@ ZK compression does not send the path. It sends a validity proof: a Groth16 proo
 
 Compare it to paperwork. The Merkle proof is the full chain of receipts, and a longer history means a thicker folder. The validity proof is a notarized statement that the folder checks out, and the notary's stamp is the same size for a folder of ten pages or ten thousand. Where the analogy breaks, and it matters: the notary here is a prover, off chain, and somebody has to run it and hand you the stamp per transaction. Constant size is not the same thing as free.
 
-![Comparison of Bubblegum's Merkle proof, which grows with tree depth and is shortened by an on-chain canopy, against ZK compression's constant 128-byte Groth16 validity proof over generalized accounts.](assets/v01-comparison.png)
+![Comparison of Bubblegum's Merkle proof, which grows with tree depth and is shortened by an on-chain canopy, against ZK compression's constant 128-byte Groth16 validity proof over generalized accounts.](assets/v01-comparison.webp)
 
 ### What a compressed account actually is
 
@@ -50,7 +50,7 @@ A cToken is that machinery applied to a token balance: a compressed account whos
 
 The part people skip, and the part that makes the two rails genuinely different systems rather than two settings of one system: ZK compression is not built on account compression in either flavor, not SPL's original and not the mpl fork Bubblegum v2 runs on. Different program, different tree machinery, different hash function than the one Bubblegum's trees use. Knowing Bubblegum does not mean you know this. It means you have the intuition and none of the interfaces.
 
-![A compressed token balance is split across an on-chain state tree root, contents in the ledger, and a Photon indexer serving reads and the 128-byte validity proof per write.](assets/v02-diagram.png)
+![A compressed token balance is split across an on-chain state tree root, contents in the ledger, and a Photon indexer serving reads and the 128-byte validity proof per write.](assets/v02-diagram.webp)
 
 ### The bill, itemized
 
@@ -71,7 +71,7 @@ Set the two lamport columns equal and you get the number the one-liner printed: 
 
 There is a sharper version of that argument. The classic account's 1,855,569 lamports is rent, and rent is a deposit: close the account and you get it back. The compressed account's 5,300 lamports per write is spent. So the honest break-even is earlier than 349, and the reason to still quote 349 is that most people never close their token accounts and so never feel the refund. The guidance you will see quoted in the ecosystem is roughly a thousand lifetime writes as the line where compression stops paying. Our arithmetic crosses well before that. Treat a thousand as a generous ceiling, not a target.
 
-![Line chart where the compressed path rises at 5,300 lamports per write from a 5,000-lamport start and crosses the flat 1,855,569-lamport classic rent line at 349 writes.](assets/v03-chart.png)
+![Line chart where the compressed path rises at 5,300 lamports per write from a 5,000-lamport start and crosses the flat 1,855,569-lamport classic rent line at 349 writes.](assets/v03-chart.webp)
 
 ### The naive answers, ruled out in tiers
 
@@ -99,7 +99,7 @@ From those two variables, three concrete failure shapes:
 
 And the shape that wins, stated as clearly: state created once, written once or twice, held by an enormous number of distinct owners. Airdrops. Distributions. Claim rights. One-shot artifacts. Which is exactly the shape of the compost drop Overgrowth runs in module 8 (a mass distribution of compost points to every player, its first appearance here as a preview), and exactly why that module uses this rail rather than paying about 186 SOL to create token accounts for people who may never touch them.
 
-![Decision table of four workloads showing that only the one-write-per-account airdrop compresses, while the write-heavy ledger, the same-block pool state, and the four-kilobyte recipe blob all stay as classic accounts.](assets/v04-table.png)
+![Decision table of four workloads showing that only the one-write-per-account airdrop compresses, while the write-heavy ledger, the same-block pool state, and the four-kilobyte recipe blob all stay as classic accounts.](assets/v04-table.webp)
 
 ### Decompression is a door
 
@@ -107,7 +107,7 @@ None of this makes compressed tokens a roach motel. Decompression is first class
 
 Read the round trip as a design pattern rather than an escape hatch. Cheap distribution to many wallets, most of which stay idle, and the minority who act pay a one-time decompression to enter normal token life. The cost lands on the users who actually showed up instead of on you at drop time, per recipient, in advance. That reallocation is the point of the whole rail.
 
-![Flowchart of the compressed-token round trip where idle holders cost nothing further and active holders decompress into a regular SPL token account before swapping on Jupiter.](assets/v05-flowchart.png)
+![Flowchart of the compressed-token round trip where idle holders cost nothing further and active holders decompress into a regular SPL token account before swapping on Jupiter.](assets/v05-flowchart.webp)
 
 ### Photon, and the read tax you already know
 
@@ -119,7 +119,7 @@ Provider plumbing at scale, backfills, gRPC firehoses, running your own index, t
 
 And that dependency has a clock on it, which is where the same-block disqualifier comes from mechanically rather than as a rule I asked you to memorize. A proof is a statement about a particular tree root. Any write that touches the tree moves the root, and every proof fetched against the previous root is now describing a tree that no longer exists. In the common case this is a non-issue, because you fetch, build, and land inside a window where nothing else touched your subtree. In the AMM case it is fatal, because the account is being written several times per block by people who are not you, and your proof was stale before your transaction reached the leader. The lamport arithmetic never gets a chance to matter there. Notice that this is the same failure Bubblegum's changelog buffer absorbs but does not remove (the canopy only shortens proofs on the wire; the buffer is the concurrency knob, per m07-l1), which is why concurrent-write pressure is a property of the compression family as a whole and not of one implementation.
 
-![Diagram of the compressed write path where a quiet subtree keeps the same root and lands, while competing same-block writers move the root and leave the fetched proof stale.](assets/v06-diagram.png)
+![Diagram of the compressed write path where a quiet subtree keeps the same root and lands, while competing same-block writers move the root and leave the fetched proof stale.](assets/v06-diagram.webp)
 
 ### The Light Token Program: a direction, not a default
 
@@ -139,7 +139,7 @@ And here is the durable half, which survives the docs moving under both of us. T
 
 One more thing, and this is a confession rather than a fact. An early draft of this lesson carried a compute-unit figure for the Light Token hot path. It came from my memory, it read beautifully, and it did not survive review, because it appears in no published source. There is no published CU number for that path. Do not quote one, not from me, not from a blog post, not from an assistant that sounds confident. On a program this young, a number with no source is a number someone made up.
 
-![Timeline showing compressed tokens moving from the 2024 airdrop headline to a briefly-legacy-labelled 2026 docs page, alongside a devnet-only Light Token Program with no published compute figure.](assets/v07-timeline.png)
+![Timeline showing compressed tokens moving from the 2024 airdrop headline to a briefly-legacy-labelled 2026 docs page, alongside a devnet-only Light Token Program with no published compute figure.](assets/v07-timeline.webp)
 
 ### The trade-off, named
 
@@ -275,7 +275,7 @@ You will encode the reasoning above as a small program, because a verdict you ca
 
     Order matters here, and it is the one design decision in the file. Both disqualifiers run before the arithmetic, because a workload can be cheaper on lamports and still be the wrong shape. Row 4 of the decision table is exactly that case.
 
-![Gate diagram of the decide function where same-block updates and oversized accesses are rejected before the lamport break-even test, with the crafting-recipe blob rejected despite being cheaper.](assets/v08-annotated-code.png)
+![Gate diagram of the decide function where same-block updates and oversized accesses are rejected before the lamport break-even test, with the crafting-recipe blob rejected despite being cheaper.](assets/v08-annotated-code.webp)
 
 4. **The fills.** These are the answer key for step 3's two TODOs, and on a rendered page nothing physically stands between the prompt and this block, so the gate is behavioral and it is yours: if you scrolled here without writing your two rules first, go back, write them, then diff. The lesson only knows what your hands did. Disqualifier 1:
 

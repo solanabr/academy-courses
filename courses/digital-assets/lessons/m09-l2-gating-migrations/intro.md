@@ -72,7 +72,7 @@ It can send you its **cached token list**, the one the wallet adapter keeps in t
 
 Or you can **read the holding yourself**, from a source the applicant does not control. That is the only one that counts. For a fungible balance you can hit the chain directly. For a Harvest crate you cannot, because a compressed NFT has no account of its own: cNFT reads require a DAS-supporting RPC, which is the constraint you met when you built the reader, and it is the reason the gate for a cNFT badge is a DAS call and not a `getAccountInfo`.
 
-![Three evidence cards compare a signed message, a client-cached token list, and a DAS read, with only the DAS read proving current ownership, under an indexer-lag caveat.](assets/v01-comparison.png)
+![Three evidence cards compare a signed message, a client-cached token list, and a DAS read, with only the DAS read proving current ownership, under an indexer-lag caveat.](assets/v01-comparison.webp)
 
 So the rule is short. A gate decides on a read that the applicant cannot write to. Everything else is a user-experience nicety you may show in the UI and must never branch on.
 
@@ -90,7 +90,7 @@ You have three ways to pay that bill, and they cost different amounts.
 
 **Gate on something that cannot move.** This is my favourite and almost nobody reaches for it. If the badge is soulbound, the transfer case that makes staleness dangerous does not exist. Bubblegum v2 ships `set_non_transferable_v2`, so the Founding-Farmer crate can be minted unable to leave the wallet it was awarded to, which flatly contradicts the 2024-era folklore that compressed NFTs cannot be soulbound. You already minted one that way in module 7. A soulbound badge does not make the index instant, it removes the transfer from the threat model, which is a different and better kind of fix.
 
-![A timeline shows a cNFT transfer landing on chain, the DAS index lagging, and a gate check inside that gap wrongly passing a former holder, with remedies aligned beneath.](assets/v02-timeline.png)
+![A timeline shows a cNFT transfer landing on chain, the DAS index lagging, and a gate check inside that gap wrongly passing a former holder, with remedies aligned beneath.](assets/v02-timeline.webp)
 
 There is a fourth answer that people reach for and I want to name it so you skip it: streaming the state yourself so you always have the freshest view. That is a real technique and it is a real project. Building indexers, Geyser plugins, and gRPC pipelines is the planned Client-Side Mastery course's material, and if your gate genuinely needs sub-second freshness on compressed assets, that is where to go. For a members' door, it is a data platform you now own so a stranger cannot read your alpha channel for eleven seconds.
 
@@ -112,7 +112,7 @@ Watch the ratio do its work with round numbers. Say Overgrowth has 100,000 compo
 
 Set the ratio at 1 base unit per point instead and the same 100,000 points become 100,000 base units, roughly 1% of supply, and your loyal grinders feel cheated. Set it at 100 and your existing holders get diluted by half. The mechanism you are about to build is identical in all three cases. The mechanism is free. The ratio is not.
 
-![A grouped bar chart converts the same 100,000 compost points at three ratios against a fixed 9,000,000 existing supply, giving points holders anywhere from about one to fifty-three percent.](assets/v03-chart.png)
+![A grouped bar chart converts the same 100,000 compost points at three ratios against a fixed 9,000,000 existing supply, giving points holders anywhere from about one to fifty-three percent.](assets/v03-chart.webp)
 
 Which brings up the case study, and an honest gap in it. Kamino ran a points-to-token migration into KMNO, and it is the obvious thing to point at because it is one of the larger ones this ecosystem has done. What I could not do is verify the conversion tokenomics. The numbers that would let you say "they converted at X per point" are not published anywhere I could confirm, so I am not going to put a ratio in your head that I cannot source. Take the mechanism from it, a merkle-claim migration from an off-chain points ledger into an on-chain token, and take the ratio from your own supply math. That is the correct use of a case study whose numbers are private, and it is the same rule this course has applied to every disputed figure: measure it or cite it, never split the difference.
 
@@ -124,7 +124,7 @@ Because the person doing the minting pays for the accounts. You costed this exac
 
 A claim changes who is holding the invoice. The distributor puts one root on chain. Each recipient who wants their tokens sends their own transaction, pays their own account rent, and gets their own tokens. And the tail that never claims never costs you anything, which matters more than it sounds: in every large drop, a meaningful share of the allocation simply never gets collected. Under a push model you paid rent to create accounts for people who were never coming back.
 
-![A three-column comparison of classic-account pushes, compressed-account pushes, and a merkle claim shows that the claim shifts cost to recipients and never mints the unclaimed tail.](assets/v04-comparison.png)
+![A three-column comparison of classic-account pushes, compressed-account pushes, and a merkle claim shows that the claim shifts cost to recipients and never mints the unclaimed tail.](assets/v04-comparison.webp)
 
 There is a second reason, and it is the one the JTO drop is famous for. A distributor can hold two amounts per recipient: a slice that unlocks immediately, and a slice that releases over time. Jito distributed its airdrop through an open-source merkle distributor with linear vesting that ran to 2024-12-07, and the program that did it, `mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv`, is still the reference implementation for this pattern. The instruction that releases the vesting slice is `claim_locked`, and you already met it in the airdrop lesson. Migration wants that split more than an airdrop does: a points program rewards people who showed up early, and handing every one of them fully liquid tokens on day one is a design choice with a very predictable chart attached.
 
@@ -136,7 +136,7 @@ The distributor stores one 32-byte root. A claimant's entry is hashed twice. Fir
 
 Those two prefix bytes are not decoration. Without them, a 64-byte "leaf" could be crafted to look like a pair of internal nodes, and a claimant could prove membership of a leaf that was never in the tree. That is the second-preimage attack, and the fix is one byte per hash. It shows up in almost every serious merkle implementation for exactly this reason, and the fact that the fix is that cheap is why there is no excuse for skipping it.
 
-![An annotated breakdown of the distributor leaf shows claimant and amounts hashed into a node, zero and one byte prefixes on leaves and internal nodes, explained as second-preimage protection.](assets/v05-annotated-code.png)
+![An annotated breakdown of the distributor leaf shows claimant and amounts hashed into a node, zero and one byte prefixes on leaves and internal nodes, explained as second-preimage protection.](assets/v05-annotated-code.webp)
 
 The payoff of knowing this precisely is that you can compute the root locally, in TypeScript, and get the same 32 bytes the on-chain verifier will compute. That is how you check a distribution before you publish it, and how you debug the one claim that fails while the other nine thousand work.
 
@@ -150,7 +150,7 @@ Notice what makes that trustworthy: your client cannot write it. The guard is no
 
 Which tells you what a client-side ledger is worth. In today's lab you will keep a small JSON file of who has claimed, and that file will correctly stop your script from paying the same wallet twice. It is a rehearsal, not a boundary. If the actual mint authority is a key in your script and the only thing between a wallet and a second grant is a file on your laptop, then a second grant is one lost file away. Say that out loud when you write it, because the shape of the code will look reassuringly like the real thing.
 
-![Two flows compare a client-side JSON ledger, where the guard sits outside the mint transaction, with the on-chain ClaimStatus PDA, where guard and transfer happen in one atomic transaction.](assets/v06-flowchart.png)
+![Two flows compare a client-side JSON ledger, where the guard sits outside the mint transaction, with the on-chain ClaimStatus PDA, where guard and transfer happen in one atomic transaction.](assets/v06-flowchart.webp)
 
 ### The trade-off, named
 
@@ -164,7 +164,7 @@ The migration mechanism is portable, the tokenomics are not. You can copy the cl
 
 And a claim guard that lives in your process instead of in the transaction is not a guard, it is a habit that happens to work until the first time two copies of your script run at once.
 
-![A four-row summary pairs each accepted trade-off with what bounds it, from indexer lag through recipient-paid claims to the client-side ledger's race window.](assets/v07-comparison.png)
+![A four-row summary pairs each accepted trade-off with what bounds it, from indexer lag through recipient-paid claims to the client-side ledger's race window.](assets/v07-comparison.webp)
 
 ## Lab: gate-and-migrate.ts
 
@@ -329,7 +329,7 @@ export function describe(result: GateResult): string {
 
 Four decisions in there are worth their words. The `ownership.owner` re-check looks redundant against a by-owner query and is not: you will eventually pass this function an asset list you got somewhere else, and the day you do, that line is the difference between a gate and a suggestion. `classifyAsset` is doing real work rather than decoration, because it is what keeps a fungible position in the same collection from satisfying a badge rule. `readAt` exists so that when somebody complains about being denied, you can answer with a timestamp instead of a shrug. And `confirmBalanceOnChain` is the freshness remedy, deliberately separate, deliberately not called by default. Turn it on for the gate that guards something expensive, leave it off for a chat role.
 
-![A flowchart traces checkGate from an owner address through a paged DAS read and three sequential checks, exiting to a pass with evidence or a denial, every result timestamped.](assets/v08-flowchart.png)
+![A flowchart traces checkGate from an owner address through a paged DAS read and three sequential checks, exiting to a pass with evidence or a denial, every result timestamped.](assets/v08-flowchart.webp)
 
 **3. Run the door.**
 
@@ -809,7 +809,7 @@ rejected: 7xK…9fQ already claimed this distribution
 
 Read the last four lines as a set. The supply delta equals the minted amount exactly, so nothing leaked. The locked remainder is stated rather than minted, so your supply chart matches your promise. And the second claim was refused by a check that ran before any transaction was built, which is where refusals belong.
 
-![Five prior artifacts converge into gate-and-migrate.ts, whose two internal lanes emit gate verdicts, minted SPROUT with a supply delta, and a rejected second claim.](assets/v09-diagram.png)
+![Five prior artifacts converge into gate-and-migrate.ts, whose two internal lanes emit gate verdicts, minted SPROUT with a supply delta, and a rejected second claim.](assets/v09-diagram.webp)
 
 ## Challenge
 

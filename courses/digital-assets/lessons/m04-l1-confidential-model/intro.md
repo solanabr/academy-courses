@@ -28,7 +28,7 @@ Imagine a notary who settles debts between people who refuse to reveal their sal
 
 That property has a name: a homomorphic commitment. "Commitment" because the envelope locks you to a value you cannot later change. "Homomorphic" because operations on the sealed envelopes correspond to operations on the hidden values: add the ciphertexts, and you have added the amounts inside.
 
-![A notary stacks two sealed envelopes and verifies the combined envelope holds the sum without opening any, mapping envelopes to ciphertexts and stacking to ciphertext addition.](assets/v01-diagram.png)
+![A notary stacks two sealed envelopes and verifies the combined envelope holds the sum without opening any, mapping envelopes to ciphertexts and stacking to ciphertext addition.](assets/v01-diagram.webp)
 
 Token-2022's confidential transfer extension is this notary, industrialized. Every confidential balance on chain is a sealed envelope. Every confidential transfer is the validator stacking envelopes: subtract this ciphertext from the sender's balance, add that one to the receiver's pending pile. The chain does arithmetic on numbers it never sees.
 
@@ -74,7 +74,7 @@ The `available_balance` is the mint's copy: a Twisted ElGamal ciphertext the cha
 
 One balance, two envelopes, two audiences. The ElGamal ciphertext is the truth the chain enforces. The AES ciphertext is a convenience cache for its owner. If they ever drift apart, the chain's copy wins, and the wallet must fall back to opening the ElGamal envelope the hard way. Property 3 should make you flinch at that sentence, and rightly: a discrete-log search over the full 64-bit range is not practical. The escape hatch is that the search is bounded by what the balance can plausibly be, works in the same small chunks the rest of the extension enforces, and can be precomputed and resumed offline, so recovery is slow-but-finite for realistic balances rather than instant. Treat the AES cache as load-bearing, not decorative, and treat losing the AES key as an incident.
 
-![Diagram splitting one hidden balance into two stored ciphertexts, an ElGamal copy the chain computes on but owners decrypt slowly, and an AES copy owners read instantly.](assets/v02-diagram.png)
+![Diagram splitting one hidden balance into two stored ciphertexts, an ElGamal copy the chain computes on but owners decrypt slowly, and an AES copy owners read instantly.](assets/v02-diagram.webp)
 
 ### Pending versus available: why incoming money sits in a waiting room
 
@@ -86,7 +86,7 @@ Worse: if incoming transfers landed directly in `available_balance`, they would 
 
 So the extension gives every account a waiting room. Incoming confidential credits land in `pending_balance`, and only the owner moves them into `available_balance` by signing an `ApplyPendingBalance` instruction, which also hands the program a freshly re-encrypted AES cache. The `pending_balance_credit_counter` counts deposits since the last apply, and `maximum_pending_balance_credit_counter` caps how many can pile up (65,536 by default) before the account stops accepting credits until the owner sweeps. The split into a `lo` and a `hi` ciphertext exists for the reason you already hold: decryption is a discrete-log search, so every encrypted chunk must stay small enough for its owner to open. Be precise about which split is which, because they differ. An incoming transfer's amount arrives as a 16-bit low chunk plus a 32-bit high chunk (that 16 + 32 shape is exactly where the sub-2^48 transfer cap later in this lesson comes from), and each chunk is added into its own pending bucket. The buckets themselves carry positional weight, `lo` for the balance's low 16 bits and `hi` for the 48 bits above them, and they are deliberately roomier than any single transfer so that up to 65,536 credits can accumulate between applies while both buckets stay within a searchable decryption range.
 
-![Flowchart of an incoming confidential credit landing in the pending balance, waiting for the owner's ApplyPendingBalance to fold it into the available balance and refresh the AES cache.](assets/v03-flowchart.png)
+![Flowchart of an incoming confidential credit landing in the pending balance, waiting for the owner's ApplyPendingBalance to fold it into the available balance and refresh the AES cache.](assets/v03-flowchart.webp)
 
 If you have used a bank that shows "processing" deposits separately from your spendable balance, you already have the shape of it. The difference is the reason: the bank is running fraud checks, while this account is waiting for the only person alive who can re-seal the readable envelope.
 
@@ -100,7 +100,7 @@ Fine. But why THREE proofs? Why not one proof that says "this transfer is honest
 
 Cheat one: range-prove a fabricated remainder. Here is the subtlety that makes this cheat possible at all. The chain's homomorphic subtraction produces your new balance as a ciphertext, but a range proof (cheat three's refutation) does not run on that ciphertext directly: it proves statements about commitments the SENDER supplies, including one for the balance the sender claims to have left after the debit. The chain cannot open its own post-subtraction ciphertext to check the claim, so nothing so far ties the claimed remainder to reality. I could hold 3 SPROUT, send you 5, and hand the verifier a beautifully well-formed, comfortably in-range "remaining balance" of 10 that I invented for the occasion, while my true balance wrapped negative underneath. The refutation is an equality proof, `CiphertextCommitmentEqualityProof` in the source: it certifies that your new available-balance ciphertext, the one produced by the on-chain subtraction, commits to the same value as the remainder commitment the rest of the proof bundle is testifying about. The claimed remainder IS the real remainder, so every guarantee the other proofs give attaches to the actual books, not to a story about them.
 
-![The equality proof welds the sender's claimed remainder commitment to the chain's post-debit balance ciphertext, closing the fabricated-remainder cheat.](assets/v04-diagram.png)
+![The equality proof welds the sender's claimed remainder commitment to the chain's post-debit balance ciphertext, closing the fabricated-remainder cheat.](assets/v04-diagram.webp)
 
 Cheat two: send garbage. ElGamal ciphertexts are just curve points; nothing about the bytes forces them to be a well-formed encryption of anything under anyone's key. I could hand you a "ciphertext" that decrypts to nonsense under your key, or worse, encrypt the real amount for you but attach mangled bytes for the auditor, so compliance sees noise while the transfer sails through. The refutation is a grouped-ciphertext validity proof, `BatchedGroupedCiphertext3HandlesValidityProof`: the amount is correctly encrypted, as one grouped ciphertext with three handles, under the sender's key, the receiver's key, AND the mint's optional auditor key. Same number, three readers, provably. This is the proof that makes the auditor seat in `ConfidentialTransferMint` mean anything; we configure that seat next lesson.
 
@@ -108,7 +108,7 @@ Cheat three: go negative. Ciphertext arithmetic is arithmetic modulo a group ord
 
 Three lies, three proofs, and the assignment is exact. Drop any one and its cheat reopens; you will demonstrate that yourself in the challenge.
 
-![Mapping diagram pairing each of the three sender cheats with the zero-knowledge proof that closes it and the guarantee each provides, all verified by the ZK ElGamal Proof Program.](assets/v05-diagram.png)
+![Mapping diagram pairing each of the three sender cheats with the zero-knowledge proof that closes it and the guarantee each provides, all verified by the ZK ElGamal Proof Program.](assets/v05-diagram.webp)
 
 The checking, notably, is not done by Token-2022 itself. SIMD-0153 gave the network a dedicated native program for this, the ZK ElGamal Proof Program you probed in the summary, live at `ZkE1Gama1Proof11111111111111111111111111111`. Token-2022 confirms each proof was verified by that program and then does the envelope arithmetic. Division of labor: one program that knows cryptography, one program that knows tokens.
 
@@ -122,7 +122,7 @@ The mechanism that makes this workable is the context state account: a short-liv
 2. Transfer: the actual Token-2022 `Transfer` instruction executes, referencing the three context accounts instead of inline proofs.
 3. Close: the context accounts are closed and their rent reclaimed.
 
-![Flowchart of a confidential transfer split across dependent transactions: proofs verified into context accounts first, then the transfer referencing them, then context-account cleanup, constrained by the 1,232-byte v0 transaction limit, with a future lane noting transaction format v1's 4,096-byte envelope, active on devnet and staged on mainnet.](assets/v06-flowchart.png)
+![Flowchart of a confidential transfer split across dependent transactions: proofs verified into context accounts first, then the transfer referencing them, then context-account cleanup, constrained by the 1,232-byte v0 transaction limit, with a future lane noting transaction format v1's 4,096-byte envelope, active on devnet and staged on mainnet.](assets/v06-flowchart.webp)
 
 This is not forever, and it is already moving. Transaction format v1 (the SIMD-0296 line, now carried by SIMD-0385) raises the envelope to 4,096 bytes precisely so flows like this can collapse into a single transaction. Do not read that as a guarantee, though, because v1 raises bytes and nothing else: the caps on accounts and on top-level instructions stay at 64 apiece, and v1 drops Address Lookup Tables, so every account a transaction touches is spelled out inline at a full 32 bytes. Whether any particular confidential transfer fits in one v1 transaction is arithmetic you do per flow, not a promise you inherit. And shipped is not activated, and activated is per cluster. Agave's feature set names the gate `enable_tx_v1` and declares its address in `feature-set/src/lib.rs`:
 
@@ -165,7 +165,7 @@ Now assemble the whole model by dissecting one transfer. Say I send you 5 SPROUT
 
 Notice what the public column adds up to: both identities, the token, the timing, the transaction fee paid in visible SOL. Confidentiality here is exactly one property, hidden amounts, and nothing else. An analyst can still draw your entire payment graph; they just cannot weight the edges. If your threat model needs hidden participants, this extension does not provide it, full stop, and pretending otherwise is how compliance teams get unpleasant surprises.
 
-![Side-by-side comparison of a plain and a confidential SPROUT transfer, where identity and mint fields stay public and only amount and balance fields move to encrypted form with three proofs.](assets/v07-comparison.png)
+![Side-by-side comparison of a plain and a confidential SPROUT transfer, where identity and mint fields stay public and only amount and balance fields move to encrypted form with three proofs.](assets/v07-comparison.webp)
 
 ### What confidentiality costs
 
@@ -192,7 +192,7 @@ curl -s https://api.mainnet-beta.solana.com -X POST \
 
 On 2026-08-22 that returned `"solana-core": "4.2.0"`, the Agave line. Two major versions past the promise, the promise is still on the page. The same page is still useful as the citation for the five audit firms that reviewed the extension program (Halborn, Zellic, Trail of Bits, NCC Group, OtterSec). And official Solana education froze mid-plot: the solana-foundation/developer-content repo was archived read-only on 2025-01-24, so every official course predates this suite's current shape. Which is roughly why this lesson exists. You are learning material whose documentation trail stopped moving before the machinery did.
 
-![Two-panel trade-off card listing what confidential transfers provide, hidden verifiable amounts, against costs like lost DEX composability, multi-transaction settlement, and the amount cap, ending in a decision rule.](assets/v08-comparison.png)
+![Two-panel trade-off card listing what confidential transfers provide, hidden verifiable amounts, against costs like lost DEX composability, multi-transaction settlement, and the amount cap, ending in a decision rule.](assets/v08-comparison.webp)
 
 ## Lab: probe the machinery, then derive the model on paper
 

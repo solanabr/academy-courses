@@ -56,7 +56,7 @@ A Metaplex Core asset is also an account. One account, base fields plus plugins,
 
 A compressed NFT is not an account. The Bubblegum program hashes the asset's data into a leaf, and the tree's root is what the chain actually stores. Verifying a crate means replaying a Merkle proof against that root. Reading a crate means asking someone who was watching when the mint transaction landed and who wrote the leaf's contents down. That someone is an indexer.
 
-![Three lanes show SPROUT and the Core asset returning account bytes from any RPC while the compressed NFT returns no account, and all three converging on one DAS getAsset call.](assets/v01-flowchart.png)
+![Three lanes show SPROUT and the Core asset returning account bytes from any RPC while the compressed NFT returns no account, and all three converging on one DAS getAsset call.](assets/v01-flowchart.webp)
 
 ### What DAS actually is
 
@@ -73,7 +73,7 @@ There are more (`getAssetsByGroup`, `getAssetsByAuthority`, `getAssetsByCreator`
 
 Here is the honest framing, and it matters more than the method list. DAS is not the chain. DAS is a **rented index**: a database that some provider populated by watching the chain, and your read is only as fresh and as complete as that database. For SPROUT and the Almanac you have a choice, because the account is right there. For the Harvest crate you have no choice at all.
 
-![Three layers show the chain, a provider-run indexer database, and your app calling DAS methods, with a dashed getAccountInfo path that bypasses the index for accounts only.](assets/v02-diagram.png)
+![Three layers show the chain, a provider-run indexer database, and your app calling DAS methods, with a dashed getAccountInfo path that bypasses the index for accounts only.](assets/v02-diagram.webp)
 
 ### The interface enum, walked
 
@@ -102,7 +102,7 @@ First, `MplCoreAsset` and `MplBubblegumV2` are recent additions. Alchemy's DAS v
 
 Second, and this is the footgun: **`is_agent` is not an interface variant.** It is a nullable boolean field that rides along on `MplCoreAsset` rows when the asset carries an AgentIdentity external plugin, a newer Core plugin that marks an asset as an on-chain agent's identity, and providers omit the field entirely when it is false. Two sibling fields travel with it, `asset_signer` (the agent's signing address) and `agent_token` (its associated token); this course never mints an agent asset, but your reader will meet them in real wallets. Switch on `interface` for type. Read `is_agent` as an attribute. Treating it as a type is the kind of bug that works in every test you write and breaks on the first real agent asset a user holds.
 
-![Four category cards map DAS interface values into nft, compressed-nft, fungible, and other, with only compressed-nft requiring a DAS RPC because the compression flag decides.](assets/v03-comparison.png)
+![Four category cards map DAS interface values into nft, compressed-nft, fungible, and other, with only compressed-nft requiring a DAS RPC because the compression flag decides.](assets/v03-comparison.webp)
 
 Notice what the table says about `compressed-nft`. The interface name gets you close, but the field that actually decides is `compression.compressed`. Every DAS asset carries a `compression` object, and on a regular NFT it comes back with `compressed: false` and empty hash strings. Branch on the boolean, not on the name, and your classifier survives the next enum addition without an edit. That is the whole design instinct behind the challenge at the end of this lesson.
 
@@ -202,7 +202,7 @@ main().catch((err: unknown) => {
 
 That loop is the paging shape to internalize. DAS pages are one-indexed, the page size is capped by the provider (1000 is the common ceiling), and the termination condition is a short page rather than a total you trust. I have seen `total` lag the items on a busy index, and a loop that trusts it either stops early or spins. A short page is a fact about the response in your hand.
 
-![Two tracks branch from a compressed asset id: a short read path through getAsset to rendering, and a write path through getAssetProof whose proof goes stale on any tree modification.](assets/v04-flowchart.png)
+![Two tracks branch from a compressed asset id: a short read path through getAsset to rendering, and a write path through getAssetProof whose proof goes stale on any tree modification.](assets/v04-flowchart.webp)
 
 ### Configured is not the same as active
 
@@ -218,7 +218,7 @@ The canonical worked example is PYUSD, and you have already read its mint once i
 
 The mechanical detail that trips people: **DAS and the raw account disagree about how to say "unset."** A DAS response nulls out the transfer hook's program id. The generated Token-2022 client, decoding the same bytes, gives you the all-zeros system-program address, because that is literally what is in the account. Same fact, two representations. Your flagger has to know which one it is looking at, and in the lab you will read the raw mint for exactly this reason: the flagger is a chain read, not an index read.
 
-![Side-by-side panels compare the DAS index view, where a dormant transfer hook program id is null, with the decoded account view, where the same field is the all-zeros address.](assets/v05-annotated-code.png)
+![Side-by-side panels compare the DAS index view, where a dormant transfer hook program id is null, with the decoded account view, where the same field is the all-zeros address.](assets/v05-annotated-code.webp)
 
 ### Choosing a provider is part of the read
 
@@ -234,7 +234,7 @@ The current roster worth evaluating: **Helius**, **QuickNode**, **Alchemy** (who
 
 They are not drop-in interchangeable, and Alchemy's v2 is the cleanest illustration. Migrating to it requires suffixing every method name with `_v2` (`getAsset` becomes `getAsset_v2`), renaming three methods outright, renaming the response-shaping parameter object from `displayOptions` to `options`, changing how you read the proof-batch response because it comes back keyed by asset id instead of ordered, and handling a new `last_indexed_slot` field on every success. None of that is unreasonable. All of it is work you do not discover until you try to switch. Write your transport so the method name and the endpoint are the only things a swap touches, which is exactly what `das.ts` does in the lab.
 
-![A timeline runs from SimpleHash as the default NFT API through its March 2025 shutdown to today's roster of DAS providers plus Photon for ZK compression.](assets/v06-timeline.png)
+![A timeline runs from SimpleHash as the default NFT API through its March 2025 shutdown to today's roster of DAS providers plus Photon for ZK compression.](assets/v06-timeline.webp)
 
 That middle marker deserves a sentence of its own. `solana-foundation/developer-content`, the repository behind the official Solana courses, was archived on **2025-01-24**. Every official course therefore predates Bubblegum v2 and predates the interface values you are about to switch on. If you have been cross-checking this course against the official docs and finding gaps, that is the gap, and it is a date rather than a conspiracy.
 
@@ -244,7 +244,7 @@ Does the provider support DAS on the network you deploy to, devnet included? Sev
 
 The last one deserves your paranoia. An index that answers "no assets" when it means "I do not implement this method" will pass every test you write and lie to your users in production. Test it deliberately: point your reader at a plain public RPC and confirm it throws.
 
-![A table lists seven provider-selection axes with why each changes your code and a self-test for it, footed by the roster of DAS providers plus Photon for ZK compression.](assets/v07-table.png)
+![A table lists seven provider-selection axes with why each changes your code and a self-test for it, footed by the roster of DAS providers plus Photon for ZK compression.](assets/v07-table.webp)
 
 ### The trade-off, named
 
@@ -254,7 +254,7 @@ What you give up, concretely. Freshness is the indexer's, not the chain's, so a 
 
 So when should you not use it? Three cases, and they are all cases where the index is strictly worse than the thing it copies. When you are about to sign a transaction whose correctness depends on current state, read the account: a frozen flag, a paused mint, a delegate, a supply you are about to divide by. When you need a field DAS does not model, read the account: your own TLV entries, custom program state, anything the indexer had no schema for. And when you have just written and want to confirm, read the account, because your own transaction is confirmed on chain before it is anywhere in a database. The rule of thumb that survives: DAS answers "what does this user have", the chain answers "what is true right now". Your reader used both today on purpose, DAS for the three assets and a direct `fetchMint` for the extension state, and that split is the design, not a shortcut.
 
-![A decision flow routes signing-critical, unmodeled, and just-written reads to the raw account while every other read stays on DAS.](assets/v08-flowchart.png)
+![A decision flow routes signing-critical, unmodeled, and just-written reads to the raw account while every other read stays on DAS.](assets/v08-flowchart.webp)
 
 That last clause about pipelines is a real boundary, not modesty. Building the pipeline (Geyser plugins, Yellowstone gRPC, webhook ingestion, replaying history into your own store) is a serious discipline and it belongs to the planned Client-Side Mastery course, which treats DAS as one rented index inside a much larger data discipline. This lesson is consumption. You are the client of an index, and your job is to be a well-behaved one: fail loudly on a missing method, default missing prices to null, and never assume the index knows something the chain has not confirmed.
 
@@ -607,11 +607,11 @@ OWNER     <n> assets, almanac present=true
 
 Read that block as a set of assertions rather than as decoration. The `das-rpc` column is true exactly once. The category column has three different values. The probe line has a number in it. If any of those three statements is false, the gate is not met, whatever the script exits with.
 
-![The passing output is annotated line by line: three categories, a das-rpc column true only for the compressed NFT, a live probe price, and extension state from the raw mint.](assets/v09-annotated-code.png)
+![The passing output is annotated line by line: three categories, a das-rpc column true only for the compressed NFT, a live probe price, and extension state from the raw mint.](assets/v09-annotated-code.webp)
 
 Wire `search.ts` into the same workspace while you are here. It is not part of the gate, but a per-category count over a whole wallet is the query a real integration opens with, and running it against your own owner address is the fastest way to see whether your provider's paging behaves the way the loop assumes.
 
-![A component diagram shows three prior artifacts feeding the asset-reader, whose modules emit classifications, a price, and an extension report, with streaming and backfill marked outside the boundary.](assets/v10-diagram.png)
+![A component diagram shows three prior artifacts feeding the asset-reader, whose modules emit classifications, a price, and an extension report, with streaming and backfill marked outside the boundary.](assets/v10-diagram.webp)
 
 ## Challenge
 

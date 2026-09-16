@@ -48,7 +48,7 @@ Sente na cadeira da pool por um minuto. Uma pool é uma pilha de dois tokens mai
 
 A DEX poderia revisar tokens caso a caso? Esse é um design de verdade, e a Orca o entrega. Um Token Badge é uma aprovação por mint que o time da Orca concede depois de realmente olhar o seu mint, que é como um token carregando algo como PermanentDelegate consegue ser negociado lá afinal: não passando por uma lista publicada, mas passando por uma pessoa. Precifique esse design honestamente, porque ele não é estritamente pior que uma lista. Um revisor vê coisas que um match statement nunca vai ver: quem é o emissor, se a chave do delegate é uma multisig ou um laptop só, se a autoridade da taxa já foi revogada. O que um revisor não consegue fazer é escalar, responder em um tempo limitado, ou te dizer o veredicto antes de você ter se comprometido com um design e cunhado. E uma fábrica de pools sem permissão não consegue usar um de jeito nenhum. A criação de pool ali é uma transação que qualquer pessoa pode enviar em qualquer slot sem nenhum humano no caminho, então para o CP-Swap a regra de aceitação tem que ser código. Código não consegue ler um whitepaper ou um parecer jurídico. Ele só consegue ler o mint.
 
-![Tabela de sete eixos comparando a revisão humana do Token Badge da Orca com a allowlist compilada da Raydium, com a linha da fábrica sem permissão marcada como a razão pela qual a regra do CP-Swap precisa ser código.](assets/v01-table.png)
+![Tabela de sete eixos comparando a revisão humana do Token Badge da Orca com a allowlist compilada da Raydium, com a linha da fábrica sem permissão marcada como a razão pela qual a regra do CP-Swap precisa ser código.](assets/v01-table.webp)
 
 Bom, então a pool poderia simplesmente aceitar tudo e lidar com as consequências? Caminhe pela lista refused e as consequências não são gerenciáveis. Um TransferHook significa que um programa que a DEX nunca auditou roda dentro de todo swap, com o compute que ele quiser; os docs da Raydium o recusam exatamente nessas palavras, um programa customizado invocado em toda transferência com consumo arbitrário de CU. Um PermanentDelegate significa que alguma chave por aí pode mover tokens de qualquer conta, e o vault da pool é uma conta; a Raydium de novo, literalmente: um detentor do delegate pode varrer qualquer conta de token, incluindo o vault da pool. DefaultAccountState congelado significa que o emissor decide se as próprias contas da pool podem transacionar afinal. ConfidentialTransfer significa que os valores são encriptados, e você não consegue rodar uma invariante sobre ciphertext. Cada recusa protege uma suposição estrutural diferente, mas todas são do mesmo gênero: a extensão dá a alguém de fora da pool autoridade sobre o que acontece dentro dela.
 
@@ -58,7 +58,7 @@ Vale fechar mais uma saída de emergência, porque é a próxima para a qual um 
 
 Agora olhe o lado aceito com os mesmos olhos. Uma taxa de transferência é poder do emissor também, tecnicamente, mas ela é declarada, limitada por teto e legível no mint, então a pool consegue precificá-la, e a interface te entrega o `calculate_fee`, o helper de matemática de taxa no estado do TransferFeeConfig cuja fórmula você espelhou em TypeScript como `transferFee` lá no m02-l1, para fazer exatamente isso. Metadados mudam o que humanos veem, nunca o que o token faz. InterestBearingConfig e ScaledUiAmount são aritmética de exibição pura; os valores brutos que a pool contabiliza nunca se movem. O padrão não é "extensões inofensivas passam". O padrão é: qualquer coisa que a pool consiga precificar por completo a partir de dados on-chain passa, qualquer coisa que reserve discricionariedade para o emissor falha. Esse é um juízo de valor sobre quem tem o direito de rodar código em toda transferência, codificado como um match statement em Rust, e eu genuinamente acho isso mais honesto que um formulário de listagem. O código não pode ser lobbyado.
 
-![Diagrama de duas colunas separando as cinco extensões de exibição e taxa na whitelist das quatro extensões de poder refused, divididas por se a pool consegue computar a sua invariante sem confiar no emissor.](assets/v02-diagram.png)
+![Diagrama de duas colunas separando as cinco extensões de exibição e taxa na whitelist das quatro extensões de poder refused, divididas por se a pool consegue computar a sua invariante sem confiar no emissor.](assets/v02-diagram.webp)
 
 Mais uma volta na manivela, porque a tese tem um corolário afiado que você encontrou na lição passada. Peça ao seu próprio preditor para enunciá-lo, na mesma pasta de antes:
 
@@ -96,7 +96,7 @@ Só o primeiro caso volta roteável. Cinco extensões na allowlist mais uma refu
 
 Deixa eu dizer o trade-off em voz alta, porque este curso prometeu que sempre diria: o conjunto roteável é o conjunto chato. Projetar para negociabilidade máxima significa desistir de tudo de interessante que você construiu ou pesou desde o catálogo de autoridade do módulo dois em diante. Nenhuma lógica em transferência no mint que as pessoas negociam. Nenhum permanent delegate, nenhum onboarding congelado por padrão, os dois poderes do m02 que o SPROUT considerou e nunca vestiu. Nenhum valor escondido. Se o seu produto genuinamente precisa de uma extensão de poder, essa necessidade é real e esta lição não está te dizendo para abandoná-la. Está te dizendo para precificá-la: um hook significa território Meteora DBC em vez de CP-Swap, ou uma revisão de Token Badge na Orca que pode ou não dar certo para você, ou uma arquitetura de dois mints em que a variante com poder nunca toca uma pool. Escolher uma superfície menor de venues é um design legítimo. Descobrir uma superfície menor de venues no lançamento é um incidente.
 
-![Fluxograma caminhando com cada extensão candidata por necessidade, pertencimento à allowlist, e colocação emissor-versus-detentor, terminando em descartar, manter, mover para uma variante de emissor, ou aceitar conscientemente uma superfície menor de venues.](assets/v03-flowchart.png)
+![Fluxograma caminhando com cada extensão candidata por necessidade, pertencimento à allowlist, e colocação emissor-versus-detentor, terminando em descartar, manter, mover para uma variante de emissor, ou aceitar conscientemente uma superfície menor de venues.](assets/v03-flowchart.webp)
 
 ### Montando o conjunto do SPROUT
 
@@ -104,7 +104,7 @@ Aplique o procedimento à auditoria que você rodou no topo. TransferFeeConfig: 
 
 O hook é o adeus difícil. Você o escreveu você mesmo no m03, ele funciona, e ele é exatamente o código-arbitrário-em-toda-transferência que uma pool não consegue carregar. Ele sai do mint negociável. Se logar o harvest ainda importa para o produto, o hook vive em uma variante de emissor separada e não colocada em pool, o mesmo padrão da ramificação confidencial que você arquivou no m04: mints com poder para fluxos do emissor, um mint chato para o mercado. E aqui está um detalhe que faz a divisão em dois mints ser menos irritante do que parece: a matriz de combinações que você construiu no m01-l4 teria lutado contra um merge de qualquer jeito. Dobre o ConfidentialTransferMint dentro do mint de taxa e a regra 2 do `check-combo` exige o ConfidentialTransferFeeConfig em cima, o que arrasta o aparato confidencial de taxa inteiro. O próprio sistema de extensões fica empurrando poder e comércio para lados opostos. Eu lutei contra esse empurrão por um tempo nos meus próprios designs antes de aceitar que ele era estrutural.
 
-![Comparação de três colunas do SPROUT de taxa-mais-metadados que está lançando (roteável, verificado em fork) contra a variante com transfer hook (rejeitada, só para o emissor) e a ramificação confidencial arquivada (impossível de colocar em pool por construção).](assets/v04-comparison.png)
+![Comparação de três colunas do SPROUT de taxa-mais-metadados que está lançando (roteável, verificado em fork) contra a variante com transfer hook (rejeitada, só para o emissor) e a ramificação confidencial arquivada (impossível de colocar em pool por construção).](assets/v04-comparison.webp)
 
 ### As duas extensões da allowlist que o SPROUT ainda não está levando
 
@@ -118,7 +118,7 @@ Então a regra de design generaliza para além da roteabilidade, e esta é a ver
 
 Você não precisa aceitar o padrão de dois trilhos de um token de curso. Leia-o no emblemático cuja história fechou a lição passada, e desta vez conte: o mint do PYUSD carrega oito extensões TLV, mintCloseAuthority, permanentDelegate, transferFeeConfig, o par confidentialTransfer, transferHook, metadataPointer, tokenMetadata. Configurado mas dormente: eu reli o mint da mainnet enquanto redigia isto em 2026-08-23 e o `programId` do hook é null e a taxa está em 0 basis points, máximo 0 — toda opção de poder comprada, toda uma desligada. Como um mint com permanent delegate é negociado no CP-Swap afinal você já sabe: o bypass da whitelist, e você consegue resolver isso em cinco segundos porque o endereço do mint do PYUSD é uma das quatro strings em `MINT_WHITELIST` no `token.rs` L18-23, ali mesmo na saída do `sed` que você já imprimiu. Entregue as extensões com forma de compliance, mantenha as de poder inativas, e mesmo então a roteabilidade veio de uma porta especial, não da regra geral.
 
-![Diagrama das oito extensões TLV do PYUSD como lidas ao vivo em 2026-08-23, com a taxa de transferência em zero basis points e o program ID do transfer hook null, ilustrando extensões de poder configuradas-mas-dormentes.](assets/v05-diagram.png)
+![Diagrama das oito extensões TLV do PYUSD como lidas ao vivo em 2026-08-23, com a taxa de transferência em zero basis points e o program ID do transfer hook null, ilustrando extensões de poder configuradas-mas-dormentes.](assets/v05-diagram.webp)
 
 ### A roteabilidade é por venue, e a maior parte do mapa está sem luz
 
@@ -126,11 +126,11 @@ Tudo até aqui é a lei de um venue. Segure esse limite com firmeza, porque no m
 
 As carteiras são ainda mais escuras. Se a Phantom mostra um aviso de taxa, se a Backpack renderiza o metadata pointer, se a Solflare sinaliza um hook: não verificado, nada disso, em todas as passagens de pesquisa atrás deste curso. Eu poderia colar uma matriz de compatibilidade plausível aqui e você acreditaria nela, e é precisamente por isso que eu não vou. Uma matriz congelada de afirmações não medidas é pior que nenhuma matriz, porque ela falha em silêncio no único lugar em que você parou de checar.
 
-![Comparação de cinco venues, da allowlist em código do CP-Swap da Raydium e da regra de SPL clássico do AMM v4 até a revisão de Token Badge da Orca, a política ausente da Jupiter, e o suporte a hook da Meteora, sinalizando as linhas de verifique-você-mesmo.](assets/v06-comparison.png)
+![Comparação de cinco venues, da allowlist em código do CP-Swap da Raydium e da regra de SPL clássico do AMM v4 até a revisão de Token Badge da Orca, a política ausente da Jupiter, e o suporte a hook da Meteora, sinalizando as linhas de verifique-você-mesmo.](assets/v06-comparison.webp)
 
 Por que tanta escuridão em um ecossistema que está amadurecendo? Em parte porque o terreno de fato se move, e em parte porque as pessoas que costumavam mapeá-lo pararam. O repositório developer-content da Solana Foundation, a fonte por trás de anos de material oficial de curso, foi arquivado em 2025-01-24. Todo curso oficial congelou antes de as regras de venue contra as quais você está projetando existirem. Não existe matriz canônica porque ninguém é pago para manter uma verdadeira, e os terceiros que publicam uma estão congelando os mesmos fatos em movimento que você. Isso não é motivo para desespero; é a restrição de design em volta da qual o seu relatório é construído. O entregável durável é uma matriz mais o método datado para re-derivar cada célula.
 
-![Linha do tempo do lançamento do PYUSD em maio de 2024, passando pelo arquivamento da educação oficial da Solana em janeiro de 2025, até as leituras datadas de 2026 desta lição, terminando em uma flecha de reverificar-no-lançamento.](assets/v07-timeline.png)
+![Linha do tempo do lançamento do PYUSD em maio de 2024, passando pelo arquivamento da educação oficial da Solana em janeiro de 2025, até as leituras datadas de 2026 desta lição, terminando em uma flecha de reverificar-no-lançamento.](assets/v07-timeline.webp)
 
 ### O que um item de verificação deve ao leitor
 
@@ -140,7 +140,7 @@ Tire qualquer uma das partes e veja o item apodrecer de um jeito previsível. Al
 
 Existe uma regra correspondente para as afirmações que você verificou, e é a mais curta: date-as. Uma afirmação verificada precisa de uma data para poder apodrecer de forma visível; uma afirmação não verificada precisa de um método para que alguém possa resolvê-la. Toda afirmação datada nesta lição segue a primeira regra, inclusive as que eu li da mainnet hoje de manhã.
 
-![Tabela contrastando versões decorativas e utilizáveis de um item de verificação em alvo, afirmação e procedimento, com a regra de que afirmações verificadas carregam uma data e afirmações não verificadas um método.](assets/v08-table.png)
+![Tabela contrastando versões decorativas e utilizáveis de um item de verificação em alvo, afirmação e procedimento, com a regra de que afirmações verificadas carregam uma data e afirmações não verificadas um método.](assets/v08-table.webp)
 
 Essa forma de três partes não é uma convenção de escrita, é uma estrutura de dados, e no lab que você está a ponto de construir ela se torna uma interface TypeScript com exatamente três campos. O que é a coisa boa de codificar honestidade em um programa: um encolher de ombros não passa na checagem de tipos.
 
@@ -343,7 +343,7 @@ npx tsx routability-report.ts
 
    Você deve ver as quatro seções em ordem, `Combo matrix: valid`, `CP-Swap predictor verdict: ROUTABLE`, três entradas de verifique-você-mesmo, e a linha final `All gates pass` com código de saída 0. Depois prove que os gates são reais: adicione `"DefaultAccountState"` ao `LAUNCH_SET`, rode de novo, e veja o mesmo script se recusar a entregar o próprio relatório: uma linha marcada refused, gate fail, exit 1. Um checkpoint que não pode falhar nunca foi um checkpoint. Tire a extensão de volta.
 
-![Fluxograma do script de relatório consumindo o preditor e o verificador de combinações, emitindo quatro seções, e depois falhando o próprio build em uma extensão refused, combinação inválida, conjunto rejeitado, ou lista de verifique-você-mesmo vazia.](assets/v09-flowchart.png)
+![Fluxograma do script de relatório consumindo o preditor e o verificador de combinações, emitindo quatro seções, e depois falhando o próprio build em uma extensão refused, combinação inválida, conjunto rejeitado, ou lista de verifique-você-mesmo vazia.](assets/v09-flowchart.webp)
 
 ## Challenge
 

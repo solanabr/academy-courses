@@ -66,7 +66,7 @@ Volte ao seu trabalho no SPROUT. Toda capacidade que você adicionou àquele min
 
 A resposta de design do Core é a que você já conhece do Token-2022, aplicada a NFTs: uma conta, com capacidades tipadas anexadas dentro dela. O ativo base guarda o dono, a autoridade de atualização, um nome e uma URI. Todo o resto, royalties, comportamento de congelamento, numeração de edição, atributos, é um plugin serializado depois dos dados base naquela mesma conta. Versão a partir dos primeiros princípios: o estado de um NFT é pequeno e as capacidades dele são enumeráveis, então pagar overhead de criação de conta por capacidade é desperdício puro; a única coisa que contas separadas te compram é propriedade independente, e os plugins de um ativo pertencem todos ao ativo de qualquer jeito.
 
-![Comparação de uma cunhagem de NFT, o Token Metadata criando quatro a cinco contas a ~0.022 SOL e ~205,000 CU publicados pelo fornecedor, enquanto o Core cria uma conta a ~0.003 SOL e ~17,000 CU.](assets/v01-comparison.png)
+![Comparação de uma cunhagem de NFT, o Token Metadata criando quatro a cinco contas a ~0.022 SOL e ~205,000 CU publicados pelo fornecedor, enquanto o Core cria uma conta a ~0.003 SOL e ~17,000 CU.](assets/v01-comparison.webp)
 
 A sua própria rodada do `first-mint.ts` acabou de te mostrar que o componente de rent varia com os comprimentos das strings, que é exatamente o motivo pelo qual a abertura marcou os números de manchete como publicados pelo fornecedor: cite o fornecedor, mostre a sua própria conta. Ainda é uma grande história.
 
@@ -76,7 +76,7 @@ O ativo base é deliberadamente minúsculo. Um discriminador de um byte (o Core 
 
 Leia isso de novo, porque isso silenciosamente apaga um ritual inteiro do Token Metadata. No Token Metadata, o pertencimento a uma coleção é um campo no PDA de metadados mais um booleano `verified` separado que uma instrução assinada pela autoridade da coleção vira; pertencimento não verificado é um estado intermediário real (e perigoso): um ativo pode ALEGAR uma coleção antes de qualquer autoridade de coleção ter atestado isso, a mesma lacuna entre alegação e atestação que você encontrou no m06-l1 no flag `verified` dos creators, agora no nível da coleção. No Core não existe booleano. O pertencimento É o braço de autoridade de atualização, e ele só pode ser escrito quando a autoridade da coleção assina o mint. A verificação não ficou mais fácil; ela foi colapsada numa assinatura que tem que estar ali de qualquer jeito.
 
-![Layout de uma única conta de ativo Core, campos base incluindo o enum updateAuthority de três braços, depois um registro de plugins guardando entradas Royalties, Edition, PermanentFreezeDelegate e Attributes na mesma conta.](assets/v02-diagram.png)
+![Layout de uma única conta de ativo Core, campos base incluindo o enum updateAuthority de três braços, depois um registro de plugins guardando entradas Royalties, Edition, PermanentFreezeDelegate e Attributes na mesma conta.](assets/v02-diagram.webp)
 
 ### As coleções vêm primeiro
 
@@ -84,7 +84,7 @@ A consequência de ordenação cai direto desse design: a coleção tem que exis
 
 Essa ordenação não é uma preferência de estilo neste curso; é infraestrutura estrutural. O Bubblegum v2, a abertura do módulo 7, cunha NFTs comprimidos DENTRO de uma coleção Core. Sem coleção Core, sem drop de cNFT. A coleção Almanac que você cria no lab é o valor literal que as chamadas de mint daquela lição recebem, reconstruída em qualquer cluster contra o qual ela rode. Pegue o hábito agora, enquanto o modo de falha é barato.
 
-![Fluxograma contrastando o fluxo coleção-primeiro, onde o pertencimento é escrito no mint e alimenta o Bubblegum v2 no módulo 7, com o fluxo mint-primeiro, que produz ativos órfãos e leituras de pertencimento vazias.](assets/v03-flowchart.png)
+![Fluxograma contrastando o fluxo coleção-primeiro, onde o pertencimento é escrito no mint e alimenta o Bubblegum v2 no módulo 7, com o fluxo mint-primeiro, que produz ativos órfãos e leituras de pertencimento vazias.](assets/v03-flowchart.webp)
 
 ### O catálogo de plugins
 
@@ -107,7 +107,7 @@ Antes de você digitar qualquer um desses, um fato estrutural que te economiza u
 
 O catálogo se divide nessa linha. Os plugins gerenciados pelo dono, os delegados de Transfer, Freeze e Burn, existem para deixar o DONO emprestar uma capacidade: você delega direitos de transferência para um escrow, direitos de congelamento para um programa de staking, e a delegação fica por padrão na sua própria chave até você atribuí-la a outro. Os plugins gerenciados pela autoridade, Royalties, Attributes, UpdateDelegate, pertencem ao lado do criador e ficam por padrão na autoridade de atualização, que para um membro de coleção resolve através da coleção. E a família permanente joga com uma regra mais dura: `PermanentFreezeDelegate`, `PermanentTransferDelegate` e `PermanentBurnDelegate` só podem ser anexados na hora do mint. Você não consegue enfiar um congelamento permanente num ativo que alguém já possui, que é exatamente a propriedade que faz ser dono de um ativo Core seguro, e exatamente o motivo pelo qual o badge Founding-Farmer tem que nascer soulbound em vez de ser convertido depois.
 
-![Diagrama separando as três chaves de controle de um ativo Core, o dono, a autoridade de atualização e o enum de autoridade de quatro braços de cada plugin, com as classes de plugin agrupadas como gerenciados pelo dono, gerenciados pela autoridade e plugins permanentes só na hora do mint.](assets/v04-diagram.png)
+![Diagrama separando as três chaves de controle de um ativo Core, o dono, a autoridade de atualização e o enum de autoridade de quatro braços de cada plugin, com as classes de plugin agrupadas como gerenciados pelo dono, gerenciados pela autoridade e plugins permanentes só na hora do mint.](assets/v04-diagram.webp)
 
 Segure o braço `None`. Na maior parte do tempo você atribui uma autoridade de plugin para que alguém possa agir. Definir ela como `None` é a jogada inversa, e ela morde: solda o estado atual do plugin no lugar, permanentemente, porque não existe chave que pudesse mudá-lo algum dia. Um `PermanentFreezeDelegate` com `frozen: true` e autoridade `None` não é "congelado até alguém importante dizer o contrário". É congelado do jeito que um número é par.
 
@@ -115,13 +115,13 @@ Três entradas do catálogo merecem um olhar mais de perto antes de você digit�
 
 **Royalties** carrega três campos e o programa impõe o formato deles no mint. `basisPoints` é um inteiro 0..10000 (500 significa 5%). `creators` é uma lista de entradas de endereço mais porcentagem cujas porcentagens têm que somar exatamente 100, e um endereço de creator duplicado é rejeitado. `ruleSet` decide quem pode mover o ativo: `None` não coloca nenhuma restrição de programa nas transferências, `ProgramAllowList` permite que só programas listados estejam envolvidos, `ProgramDenyList` bloqueia os programas listados. Note o que `None` significa para a palavra "royalty": o split fica registrado on-chain, legível por todo mundo, imposto por ninguém em particular. Se alguém de fato paga é uma decisão de marketplace, e essa frase incômoda é o assunto inteiro do m06-l3. Eu já errei o dedo num split de creator antes, 60/50 entre duas carteiras porque editei um lado e não o outro, e o mint reverte na hora. Bom. Melhor um revert no mint do que um marketplace dividindo 110%.
 
-![Config anotada do plugin Royalties mostrando basisPoints limitado de 0 a 10000, porcentagens de creator que têm que somar exatamente 100 sem endereços duplicados, e as três variantes de ruleSet.](assets/v05-annotated-code.png)
+![Config anotada do plugin Royalties mostrando basisPoints limitado de 0 a 10000, porcentagens de creator que têm que somar exatamente 100 sem endereços duplicados, e as três variantes de ruleSet.](assets/v05-annotated-code.webp)
 
 **PermanentFreezeDelegate** é o irmão de mão única do FreezeDelegate reversível. Anexe-o com `frozen: true` e uma autoridade de `None` e você tem um ativo que nenhuma chave na terra consegue descongelar ou mover. Isso não é um bug para contornar; é o mecanismo soulbound. Um badge de associação, uma credencial, um comprovante de presença: coisas que deveriam ser sem sentido para vender são exatamente as coisas que você congela permanentemente. O outro lado da moeda é a cilada de que o nome está te avisando. Permanente significa permanente. Não existe voto de governança depois, nem ticket de suporte, nem autoridade que consiga descongelar o badge Founding-Farmer depois que você o cunha desse jeito. Se um farmer perde a carteira, ele precisa de um badge novo, não de uma transferência. Recorra ao FreezeDelegate reversível sempre que você conseguir imaginar uma movimentação futura legítima.
 
 **Edition e MasterEdition** dividem um trabalho entre os dois tipos de conta. A coleção carrega o `MasterEdition` com um `maxSupply` e overrides opcionais de nome/URI; cada ativo impresso carrega o `Edition` com o `number` dele. As leituras compõem exatamente do jeito que você esperaria: busque a coleção para pegar o teto, busque qualquer impressão para pegar o número dela.
 
-![Diagrama de uma tiragem onde a coleção guarda um plugin MasterEdition com maxSupply 100 e cada ativo membro carrega um plugin Edition com o próprio número de impressão dele.](assets/v06-diagram.png)
+![Diagrama de uma tiragem onde a coleção guarda um plugin MasterEdition com maxSupply 100 e cada ativo membro carrega um plugin Edition com o próprio número de impressão dele.](assets/v06-diagram.webp)
 
 ### Delegados, e o que uma transferência apaga
 
@@ -157,7 +157,7 @@ Essa única frase tem três consequências que valem ser guardadas separadamente
 
 A versão a partir dos primeiros princípios, se você quer que a regra seja memorável em vez de memorizada: uma delegação é uma declaração sobre a intenção do dono atual, então ela não deve sobreviver a esse dono. Um royalty é uma declaração sobre os termos do criador, então ele deve. O Core codifica a diferença na classe do plugin em vez de pedir que todo integrador lembre qual é qual.
 
-![Tabela das classes de plugin do Core, plugins gerenciados pelo dono cuja autoridade se auto-revoga na transferência, plugins gerenciados pela autoridade como o Royalties que persistem, e a família permanente que se anexa só no mint.](assets/v07-table.png)
+![Tabela das classes de plugin do Core, plugins gerenciados pelo dono cuja autoridade se auto-revoga na transferência, plugins gerenciados pela autoridade como o Royalties que persistem, e a família permanente que se anexa só no mint.](assets/v07-table.webp)
 
 ### Attributes: traits que um programa on-chain consegue de fato ler
 
@@ -211,7 +211,7 @@ As travas se compõem em grupos nomeados, que é como uma máquina roda todo um 
 
 Duas coisas para levar adiante e uma para nunca fazer. Leve adiante: o par anti-snipe que você acabou de conhecer, `botTax` e `allowList`, é a espinha dorsal de um mint justo, e o mesmo problema de defender-o-lançamento volta no módulo 8 em volta de bonding curves. E o Core Candy Machine cunha SOMENTE ativos Core. O nunca: a linha legada do Candy Machine V3 cunha NFTs do Token Metadata e está deprecada junto com o padrão que ela serve; se um tutorial te entregar o V3, você está lendo história.
 
-![Pipeline de uma transação de comprador passando pelas travas startDate, allowList, mintLimit e solPayment para dentro de um mint que deposita o ativo numa coleção Core, com as checagens que falham roteadas para o botTax.](assets/v08-flowchart.png)
+![Pipeline de uma transação de comprador passando pelas travas startDate, allowList, mintLimit e solPayment para dentro de um mint que deposita o ativo numa coleção Core, com as checagens que falham roteadas para o botTax.](assets/v08-flowchart.webp)
 
 ### O trade-off, nomeado
 
@@ -219,7 +219,7 @@ O modelo de conta única do Core é o motivo pelo qual o mint é uns 87% mais ba
 
 Você consegue ler a passagem de bastão só nos trens de release, sem precisar de anúncio. O pacote JS `mpl-token-metadata` parou na v3.4.0 em fevereiro de 2025 e não entrega uma feature desde então. Enquanto isso o programa Core cortou da 0.13.0 até a 0.15.1 ao longo de maio e junho de 2026, o crate cliente em Rust dele chegou na 0.12.1 em 2026-06-16, e o SDK JS do Core chegou na 1.10.0 em abril de 2026. Uma linha ficou quieta; as outras três mantiveram uma cadência constante. É assim que uma migração de padrão se parece do lado do changelog.
 
-![Linha do tempo mostrando a linha JS do mpl-token-metadata parando na v3.4.0 em fevereiro de 2025 enquanto o Metaplex Core entregou a JS 1.10.0 e as versões de programa 0.13.0 até 0.15.1 ao longo de 2026.](assets/v09-timeline.png)
+![Linha do tempo mostrando a linha JS do mpl-token-metadata parando na v3.4.0 em fevereiro de 2025 enquanto o Metaplex Core entregou a JS 1.10.0 e as versões de programa 0.13.0 até 0.15.1 ao longo de 2026.](assets/v09-timeline.webp)
 
 ## Lab: cunhe o Almanac
 
@@ -482,6 +482,6 @@ O critério: `npx tsx verify-almanac.ts` imprime as seis linhas OK dele. Collect
 
 Os erros que eu espero. Primeiro, ordenação: se a sua asserção de pertencimento falhar com `updateAuthority.type === "Address"`, você cunhou sem passar a coleção, e nenhuma quantidade de re-fetch resolve isso; cunhe de novo, coleção-primeiro. Segundo, o revert de royalties: um split que não soma 100 ou um basisPoints fora de 0..10000 falha na hora do mint com um erro do Core, que é a spec do seu validador escrita como stack trace. Terceiro, se a transferência do badge TIVER SUCESSO na sua prova do challenge, confira qual ativo você congelou; mais de um estudante já congelou permanentemente o Vol. 1 dele e deixou o badge líquido, e num surfnet descartável isso é uma lição de graça sobre exatamente por que o PermanentFreeze merece respeito na mainnet.
 
-![Diagrama de hub do artefato R7 completo, a coleção Almanac com ativo de royalty, impressão numerada e badge congelado, consumido pelo Bubblegum v2, pela lição de DAS, pelo módulo 8 e pelo capstone.](assets/v10-diagram.png)
+![Diagrama de hub do artefato R7 completo, a coleção Almanac com ativo de royalty, impressão numerada e badge congelado, consumido pelo Bubblegum v2, pela lição de DAS, pelo módulo 8 e pelo capstone.](assets/v10-diagram.webp)
 
 Você cunhou uma coleção, três tipos de membro, e provou toda propriedade com leituras diretas. Custo total no seu surfnet: trocados, e o mesmo fluxo na mainnet fica nos milésimos de um SOL por ativo, pelos números do próprio fornecedor. Mas olhe de volta para o que você de fato entregou naquele plugin Royalties. Você o anexou, você definiu 500 basis points, você verificou que ele lê de volta. Alguém de fato o impõe? Você entregou `ruleSet("None")`, e eu deixei. A próxima lição é a realidade dos royalties que ninguém anuncia: que imposição realmente existe, o que os pNFTs e o Token Auth Rules realmente fazem, e por que o padrão contra o qual metade do ecossistema ainda integra é oficialmente legado. Traga um estômago forte para a palavra "consultivo".

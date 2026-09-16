@@ -39,11 +39,11 @@ Leve as explicações ingênuas até o fim primeiro, porque cada fracasso afia a
 
 **Resposta ingênua três: o programa foi atualizado no lugar, do jeito normal.** Mais quente, mas ainda errado de um jeito instrutivo. Programas atualizáveis comuns recebem código novo pela autoridade de upgrade deles. O programa de token clássico é o programa mais estrutural que existe na Solana; entregar a um único detentor de chave o poder de trocá-lo a quente seria uma história de segurança, não de eficiência. O que quer que o tenha substituído precisava de algo mais forte que uma chave de upgrade: consenso.
 
-![Três explicações fracassadas para a queda de CU, cada uma riscada ao lado da evidência que a refuta, afunilando até a única pergunta que sobrevive à eliminação.](assets/v01-comparison.png)
+![Três explicações fracassadas para a queda de CU, cada uma riscada ao lado da evidência que a refuta, afunilando até a única pergunta que sobrevive à eliminação.](assets/v01-comparison.webp)
 
 Então a pergunta de verdade é mais estreita que "por que está barato agora." Ela é: **que mecanismo consegue substituir o código por trás de um endereço, com a concordância da rede inteira, sem quebrar um único chamador?** Essa pergunta tem exatamente uma resposta na Solana, e você acabou de sondá-la.
 
-![Clientes chamam o mesmo endereço TokenkegQ e a mesma interface congelada, mas por trás dele o motor spl-token original foi substituído pelo p-token da Anza na epoch 971 via um feature gate.](assets/v02-diagram.png)
+![Clientes chamam o mesmo endereço TokenkegQ e a mesma interface congelada, mas por trás dele o motor spl-token original foi substituído pelo p-token da Anza na epoch 971 via um feature gate.](assets/v02-diagram.webp)
 
 ### O mecanismo: um feature gate sobre uma interface congelada
 
@@ -53,7 +53,7 @@ Para sentir por que esse design é notável, coloque-o contra as alternativas co
 
 A proposta por trás da troca é o **SIMD-0266**. Ele foi mergeado em 2026-03-13. Diga mergeado, e não "aceito" ou "aprovado," e aqui vai um hábito de precisão que vale construir: mergeado é um fato do Git que você pode verificar (o PR entrou, com data), enquanto aceito e aprovado são alegações de governança, e o status no próprio front-matter do documento ainda diz "Review" hoje, então o rastro de papel não sustenta nenhum dos dois. O header é um rótulo atrasado. O que de fato governa a ativação é o gate on-chain que você acabou de sondar, e esse gate está ativo. Um colega de time que lê "Review" e conclui que o p-token ainda não está no ar confiou no header de um documento acima do estado da chain, o que na Solana é sempre a ordem errada.
 
-![Linha do tempo desde o merge do SIMD-0266 em 2026-03-13, passando pela ativação do gate no slot 419,472,000 (primeiro slot da epoch 971), até a re-sondagem ao vivo do gate em 2026-08-22.](assets/v03-timeline.png)
+![Linha do tempo desde o merge do SIMD-0266 em 2026-03-13, passando pela ativação do gate no slot 419,472,000 (primeiro slot da epoch 971), até a re-sondagem ao vivo do gate em 2026-08-22.](assets/v03-timeline.webp)
 
 O que o gate ativou é o **p-token**: uma reescrita do zero do programa SPL Token clássico feita pela Anza, escrita em Pinocchio, um framework de programas zero-dependência e zero-copy construído exatamente para esse tipo de trabalho de caminho quente. O contrato da reescrita com o ecossistema era brutal e simples: idêntico byte a byte em layouts de conta, discriminadores de instrução e códigos de erro. Instrução por instrução e erro por erro. Todo offset por onde seu inspetor `decode-mint` caminha, todo discriminador que uma carteira manda, todo código de erro em que uma integração casa: idêntico. Essa superfície idêntica é a **interface**. O código que a honra é a **implementação**. O SIMD-0266 substituiu a implementação e congelou a interface, e essa separação é o truque inteiro.
 
@@ -63,7 +63,7 @@ Segunda objeção, e ela merece uma resposta direta: mecanicamente, nada impede 
 
 É aqui que o modelo mental antigo é corrigido em vez de descartado. O endereço nunca identificou o código. Ele identificou o *contrato*: os layouts de bytes e comportamentos com que qualquer um que chama aquele endereço pode contar. O código é só o inquilino atual honrando esse contrato. Existe um velho experimento mental sobre um navio cujas tábuas são trocadas uma a uma até não restar nada da madeira original, e filósofos discutem se ele ainda é o mesmo navio. A resposta da Solana é sem sentimentalismo: se cada tábua da interface é idêntica byte a byte, é o mesmo programa, seja quem for que escreveu a madeira. A analogia quebra em um ponto que vale sinalizar, porém: as tábuas de Teseu foram trocadas gradualmente e por acidente de manutenção. Essa troca aconteceu na rede inteira em um único slot, por design, com o substituto testado contra o comportamento exato do original antes de o gate sequer virar. Identidade deliberada, não identidade à deriva.
 
-![Uma divisão em duas colunas mostrando a interface congelada (endereço, layouts, discriminadores, erros, comportamento) contra a implementação substituída (código do motor, custos de CU, binário), mais três instruções adicionadas.](assets/v04-comparison.png)
+![Uma divisão em duas colunas mostrando a interface congelada (endereço, layouts, discriminadores, erros, comportamento) contra a implementação substituída (código do motor, custos de CU, binário), mais três instruções adicionadas.](assets/v04-comparison.webp)
 
 ### O retorno, medido
 
@@ -71,7 +71,7 @@ Agora os números podem significar alguma coisa. Um Transfer clássico custava 4
 
 Pare um instante no que essa recuperação de fato é, porque o enquadramento importa. Blocos não ficaram maiores, e nenhum parâmetro de consenso se moveu. O mesmo orçamento de CU por bloco simplesmente parou de se gastar em overhead de transferência de token: trabalho que cobrava 4,645 unidades por transferência agora cobra 76, e a diferença é capacidade que toda outra transação da chain passa a usar. É o tipo raro de ganho de escala que não custa nada ao resto do sistema. A porcentagem em si é um número de uma era medida, porém, não uma constante: ela reflete quanto do tráfego da chain era transferência de token quando a Anza mediu, então cite-a como o número deles, com a data, do jeito que eu acabei de fazer.
 
-![Gráfico de barras mostrando Transfer caindo de 4,645 para 76 CU e TransferChecked de 6,200 para 105 CU depois da troca do p-token, recuperando cerca de 12 a 13 por cento do espaço de bloco.](assets/v05-chart.png)
+![Gráfico de barras mostrando Transfer caindo de 4,645 para 76 CU e TransferChecked de 6,200 para 105 CU depois da troca do p-token, recuperando cerca de 12 a 13 por cento do espaço de bloco.](assets/v05-chart.webp)
 
 Cuidado com a atribuição, porque essa é a cilada que vai te fazer passar vergonha num code review. A queda é obra do motor, não sua. Se você fez benchmark de uma transferência no ano passado em 4,645 CU e faz benchmark do mesmo código de cliente hoje em 76, seu código não melhorou. Nada de que você faz deploy, nenhuma flag que você seta, nenhum upgrade de SDK que você entrega reivindica qualquer crédito por esses números. O motor mudou por baixo de você. O que corta para o outro lado também, e esta é a ressalva honesta: o 76 é uma medição dependente do motor, não uma constante da natureza. Congele "uma transferência custa 76 CU" em um config ou num doc e você vai citar errado na próxima vez que o motor ou o modelo de custo do runtime se mover. Cite como "76 CU a partir do motor p-token, epoch 971," e meça de novo quando importar. O número que o motor antigo ensinou todo mundo a decorar acabou de virar exemplo do que não fazer; não crie o próximo.
 
@@ -81,7 +81,7 @@ Uma fronteira a respeitar, e ela é deliberada. Esta lição ensina a queda de C
 
 A palavra que a Anza usa para o SPL clássico agora é **feature-complete**, e a tradução prática é: congelado. Nenhuma funcionalidade nova de token está planejada para o programa clássico, nunca. A reescrita p-token de fato adicionou três instruções novas, `batch`, `withdraw_excess_lamports` e `unwrap_lamports`, o que soa como contradição até você reparar que tipo de instruções elas são: conveniências operacionais que se encaixam na superfície existente sem perturbar um único byte existente. Fazer em lote o que você já podia fazer um de cada vez não é uma capacidade nova; é encanamento. A regra que importa para você como designer é esta: **comportamento de token genuinamente novo aterrissa só no Token-2022.** Transfer hooks, saldos confidenciais, metadados nativos, taxas de transferência, tudo isso, território de extensão. O SPL clássico em 2026 é um contrato congelado com um inquilino muito rápido, e se você se pegar esperando o SPL clássico ganhar uma feature, você está esperando um trem que foi formalmente cancelado.
 
-![Fluxo de decisão: se o SPL clássico já faz o que você precisa, use como está; as únicas adições dele são três instruções de encanamento do p-token; toda capacidade genuinamente nova é roteada para o Token-2022.](assets/v06-flowchart.png)
+![Fluxo de decisão: se o SPL clássico já faz o que você precisa, use como está; as únicas adições dele são três instruções de encanamento do p-token; toda capacidade genuinamente nova é roteada para o Token-2022.](assets/v06-flowchart.webp)
 
 Esse reenquadramento também te entrega um filtro para todo conteúdo de Solana escrito antes de 2026, e você vai precisar dele, porque a internet não carimba data nos modelos mentais dela. Quando um tutorial mais antigo, uma nota de auditoria ou uma resposta de fórum faz uma afirmação sobre "o programa de token," passe a afirmação por uma pergunta: isso é uma afirmação sobre a interface, ou sobre a implementação? Afirmações de interface envelheceram perfeitamente. O layout de mint de 82 bytes, o conjunto de instruções, os discriminadores, os códigos de erro: tudo ainda verdadeiro, byte por byte, porque congelá-los era o acordo inteiro. Afirmações de implementação envelheceram mal da noite para o dia. Qualquer coisa sobre a estrutura interna do programa, suas características de performance, seus custos de CU por instrução: esse conteúdo agora descreve um programa que não roda mais em lugar nenhum. As afirmações estavam certas quando foram escritas. O inquilino mudou. Uma pergunta, dois baldes, e você consegue salvar seis anos de escrita do ecossistema em vez de desconfiar de tudo.
 
@@ -111,7 +111,7 @@ Quatro sondagens, todas guiadas, nada para preencher. Você não está construin
 
    Checkpoint: o owner é `Feature111111111111111111111111111111111111`, o comprimento é 9 bytes, e o hex dump diz `01 80 a2 00 19 00 00 00 00`.
 
-![Hex dump anotado da conta de feature de 9 bytes: uma tag Some de 1 byte seguida do slot de ativação u64 little-endian 419,472,000, o primeiro slot da epoch 971.](assets/v07-annotated-code.png)
+![Hex dump anotado da conta de feature de 9 bytes: uma tag Some de 1 byte seguida do slot de ativação u64 little-endian 419,472,000, o primeiro slot da epoch 971.](assets/v07-annotated-code.webp)
 
 3. **Decodifique programaticamente, no estilo kit.** Mesma leitura, mas pela stack sobre a qual você construiu o `decode-mint`, para a habilidade se acumular. Trabalhe dentro de `labs/m01-l2`, o workspace que você montou na lição passada: kit 7.1.1 e tsx 4.20.5 já estão fixados lá, versões exatas conforme a regra de peer-range daquela lição, e o `package.json` dele carrega o `type=module` de que o top-level await deste script precisa. Nessa pasta, crie `read-gate.ts`:
 

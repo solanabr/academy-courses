@@ -28,7 +28,7 @@ Imagine um tabelião que liquida dívidas entre pessoas que se recusam a revelar
 
 Essa propriedade tem um nome: um compromisso homomórfico. "Compromisso" porque o envelope prende você a um valor que você não pode mudar depois. "Homomórfico" porque operações sobre os envelopes lacrados correspondem a operações sobre os valores escondidos: some os ciphertexts, e você somou os valores lá dentro.
 
-![Um tabelião empilha dois envelopes lacrados e verifica que o envelope combinado contém a soma sem abrir nenhum, mapeando envelopes para ciphertexts e o empilhamento para a adição de ciphertext.](assets/v01-diagram.png)
+![Um tabelião empilha dois envelopes lacrados e verifica que o envelope combinado contém a soma sem abrir nenhum, mapeando envelopes para ciphertexts e o empilhamento para a adição de ciphertext.](assets/v01-diagram.webp)
 
 A extensão de transferência confidencial do Token-2022 é esse tabelião, industrializado. Todo saldo confidencial on-chain é um envelope lacrado. Toda transferência confidencial é o validador empilhando envelopes: subtraia este ciphertext do saldo do remetente, some aquele à pilha pendente do destinatário. A chain faz aritmética sobre números que ela nunca vê.
 
@@ -74,7 +74,7 @@ O `available_balance` é a cópia do mint: um ciphertext Twisted ElGamal sobre o
 
 Um saldo, dois envelopes, duas plateias. O ciphertext ElGamal é a verdade que a chain impõe. O ciphertext AES é um cache de conveniência para o dono dele. Se os dois um dia se descolarem, a cópia da chain ganha, e a carteira tem que recorrer a abrir o envelope ElGamal do jeito difícil. A propriedade 3 deveria te fazer estremecer nessa frase, e com razão: uma busca de logaritmo discreto sobre o intervalo inteiro de 64 bits não é prática. A saída de emergência é que a busca é limitada pelo que o saldo plausivelmente pode ser, funciona nos mesmos chunks pequenos que o resto da extensão impõe, e pode ser pré-computada e retomada offline, então a recuperação é lenta-mas-finita para saldos realistas em vez de instantânea. Trate o cache AES como estrutural, não decorativo, e trate perder a chave AES como um incidente.
 
-![Diagrama dividindo um saldo escondido em dois ciphertexts armazenados, uma cópia ElGamal sobre a qual a chain computa mas que os donos decriptam devagar, e uma cópia AES que os donos leem instantaneamente.](assets/v02-diagram.png)
+![Diagrama dividindo um saldo escondido em dois ciphertexts armazenados, uma cópia ElGamal sobre a qual a chain computa mas que os donos decriptam devagar, e uma cópia AES que os donos leem instantaneamente.](assets/v02-diagram.webp)
 
 ### Pendente versus disponível: por que o dinheiro que entra fica numa sala de espera
 
@@ -86,7 +86,7 @@ Pior: se as transferências que entram aterrissassem direto no `available_balanc
 
 Então a extensão dá a toda conta uma sala de espera. Os créditos confidenciais que entram aterrissam no `pending_balance`, e só o dono os move para o `available_balance` assinando uma instrução `ApplyPendingBalance`, que também entrega ao programa um cache AES recém re-encriptado. O `pending_balance_credit_counter` conta os depósitos desde o último apply, e o `maximum_pending_balance_credit_counter` limita quantos podem se acumular (65,536 por padrão) antes de a conta parar de aceitar créditos até o dono varrer a pilha. A divisão em um ciphertext `lo` e um `hi` existe pelo motivo que você já tem: a decriptação é uma busca de logaritmo discreto, então todo chunk encriptado precisa continuar pequeno o suficiente para o dono dele abrir. Seja preciso sobre qual divisão é qual, porque elas diferem. O valor de uma transferência que entra chega como um chunk baixo de 16 bits mais um chunk alto de 32 bits (esse formato 16 + 32 é exatamente de onde vem o teto de transferência abaixo de 2^48 mais adiante nesta lição), e cada chunk é somado ao seu próprio balde pendente. Os baldes em si carregam peso posicional, `lo` para os 16 bits baixos do saldo e `hi` para os 48 bits acima deles, e eles são deliberadamente mais folgados que qualquer transferência isolada para que até 65,536 créditos possam se acumular entre os applies enquanto os dois baldes ficam dentro de um intervalo de decriptação pesquisável.
 
-![Fluxograma de um crédito confidencial que entra aterrissando no saldo pendente, esperando o ApplyPendingBalance do dono incorporá-lo ao saldo disponível e atualizar o cache AES.](assets/v03-flowchart.png)
+![Fluxograma de um crédito confidencial que entra aterrissando no saldo pendente, esperando o ApplyPendingBalance do dono incorporá-lo ao saldo disponível e atualizar o cache AES.](assets/v03-flowchart.webp)
 
 Se você já usou um banco que mostra depósitos "em processamento" separados do seu saldo gastável, você já tem o formato disso. A diferença é o motivo: o banco está rodando checagens de fraude, enquanto esta conta está esperando a única pessoa viva que consegue re-lacrar o envelope legível.
 
@@ -100,7 +100,7 @@ Beleza. Mas por que TRÊS provas? Por que não uma prova só que diz "esta trans
 
 Trapaça um: provar o intervalo de um restante fabricado. Aqui está a sutileza que torna esta trapaça possível, para começar. A subtração homomórfica da chain produz o seu saldo novo como um ciphertext, mas uma prova de intervalo (a refutação da trapaça três) não roda sobre esse ciphertext diretamente: ela prova afirmações sobre compromissos que o REMETENTE fornece, incluindo um para o saldo que o remetente alega ter sobrado depois do débito. A chain não consegue abrir o próprio ciphertext pós-subtração para conferir a alegação, então nada até aqui amarra o restante alegado à realidade. Eu poderia ter 3 SPROUT, te mandar 5, e entregar ao verificador um "saldo restante" de 10 lindamente bem formado e confortavelmente dentro do intervalo que eu inventei para a ocasião, enquanto o meu saldo verdadeiro dava a volta para negativo por baixo. A refutação é uma prova de igualdade, `CiphertextCommitmentEqualityProof` na fonte: ela certifica que o seu ciphertext novo de saldo disponível, aquele produzido pela subtração on-chain, se compromete com o mesmo valor que o compromisso de restante sobre o qual o resto do pacote de provas está testemunhando. O restante alegado É o restante real, então toda garantia que as outras provas dão se prende aos livros de verdade, não a uma história sobre eles.
 
-![A prova de igualdade solda o compromisso de restante alegado do remetente ao ciphertext de saldo pós-débito da chain, fechando a trapaça do restante fabricado.](assets/v04-diagram.png)
+![A prova de igualdade solda o compromisso de restante alegado do remetente ao ciphertext de saldo pós-débito da chain, fechando a trapaça do restante fabricado.](assets/v04-diagram.webp)
 
 Trapaça dois: mandar lixo. Ciphertexts ElGamal são só pontos de curva; nada nos bytes os obriga a ser uma encriptação bem formada de qualquer coisa sob a chave de quem quer que seja. Eu poderia te entregar um "ciphertext" que decripta para besteira sob a sua chave, ou pior, encriptar o valor real para você mas anexar bytes deformados para o auditor, então o compliance vê ruído enquanto a transferência passa batido. A refutação é uma prova de validade de ciphertext agrupado, `BatchedGroupedCiphertext3HandlesValidityProof`: o valor está corretamente encriptado, como um único ciphertext agrupado com três handles, sob a chave do remetente, a chave do destinatário E a auditor key opcional do mint. Mesmo número, três leitores, comprovadamente. Esta é a prova que faz o assento de auditor no `ConfidentialTransferMint` significar alguma coisa; a gente configura esse assento na próxima lição.
 
@@ -108,7 +108,7 @@ Trapaça três: ficar negativo. A aritmética de ciphertext é aritmética módu
 
 Três mentiras, três provas, e a atribuição é exata. Remova qualquer uma e a trapaça dela reabre; você vai demonstrar isso você mesmo no challenge.
 
-![Diagrama de mapeamento pareando cada uma das três trapaças do remetente com a prova de conhecimento zero que a fecha e a garantia que cada uma dá, todas verificadas pelo ZK ElGamal Proof Program.](assets/v05-diagram.png)
+![Diagrama de mapeamento pareando cada uma das três trapaças do remetente com a prova de conhecimento zero que a fecha e a garantia que cada uma dá, todas verificadas pelo ZK ElGamal Proof Program.](assets/v05-diagram.webp)
 
 A conferência, notavelmente, não é feita pelo próprio Token-2022. O SIMD-0153 deu à rede um programa nativo dedicado para isso, o ZK ElGamal Proof Program que você sondou no resumo, no ar em `ZkE1Gama1Proof11111111111111111111111111111`. O Token-2022 confirma que cada prova foi verificada por esse programa e então faz a aritmética de envelopes. Divisão de trabalho: um programa que sabe criptografia, um programa que sabe tokens.
 
@@ -122,7 +122,7 @@ O mecanismo que torna isso viável é a conta de estado de contexto: uma conta d
 2. Transferir: a instrução `Transfer` do Token-2022 de fato executa, referenciando as três contas de contexto em vez de provas inline.
 3. Fechar: as contas de contexto são fechadas e o rent delas recuperado.
 
-![Fluxograma de uma transferência confidencial dividida em transações dependentes: provas verificadas em contas de contexto primeiro, depois a transferência referenciando elas, depois a limpeza das contas de contexto, restringida pelo limite de transação de 1,232 bytes.](assets/v06-flowchart.png)
+![Fluxograma de uma transferência confidencial dividida em transações dependentes: provas verificadas em contas de contexto primeiro, depois a transferência referenciando elas, depois a limpeza das contas de contexto, restringida pelo limite de transação de 1,232 bytes.](assets/v06-flowchart.webp)
 
 Isso não é para sempre, e já está em movimento. O formato de transação v1 (a linha do SIMD-0296, agora carregada pelo SIMD-0385) aumenta o envelope precisamente para que fluxos como este possam colapsar em uma única transação, e ele já foi entregue no Agave. Mas entregue não é ativado, e ativado é por cluster. O feature set do Agave nomeia o gate `enable_tx_v1` e declara o endereço dele em `feature-set/src/lib.rs`:
 
@@ -163,7 +163,7 @@ Agora monte o modelo inteiro dissecando uma transferência. Digamos que eu te ma
 
 Repare no que a coluna pública soma: as duas identidades, o token, o tempo, a taxa da transação paga em SOL visível. Confidencialidade aqui é exatamente uma propriedade, valores escondidos, e nada mais. Um analista ainda consegue desenhar o seu grafo de pagamentos inteiro; ele só não consegue pesar as arestas. Se o seu modelo de ameaça precisa de participantes escondidos, esta extensão não fornece isso, ponto final, e fingir o contrário é como times de compliance levam surpresas desagradáveis.
 
-![Comparação lado a lado de uma transferência de SPROUT comum e de uma confidencial, em que os campos de identidade e de mint continuam públicos e só os campos de valor e de saldo passam para a forma encriptada com três provas.](assets/v07-comparison.png)
+![Comparação lado a lado de uma transferência de SPROUT comum e de uma confidencial, em que os campos de identidade e de mint continuam públicos e só os campos de valor e de saldo passam para a forma encriptada com três provas.](assets/v07-comparison.webp)
 
 ### O que a confidencialidade custa
 
@@ -190,7 +190,7 @@ curl -s https://api.mainnet-beta.solana.com -X POST \
 
 Em 2026-08-22 isso devolveu `"solana-core": "4.2.0"`, a linha Agave. Duas versões maiores depois da promessa, a promessa ainda está na página. A mesma página continua útil como a citação para as cinco firmas de auditoria que revisaram o programa da extensão (Halborn, Zellic, Trail of Bits, NCC Group, OtterSec). E a educação oficial da Solana congelou no meio do enredo: o repositório solana-foundation/developer-content foi arquivado como somente leitura em 2025-01-24, então todo curso oficial é anterior ao formato atual desta suíte. O que é mais ou menos por que esta lição existe. Você está aprendendo um material cuja trilha de documentação parou de andar antes da maquinaria.
 
-![Card de trade-off de dois painéis listando o que as transferências confidenciais entregam, valores verificáveis escondidos, contra custos como a composabilidade em DEX perdida, a liquidação em múltiplas transações e o teto de valor, terminando em uma regra de decisão.](assets/v08-comparison.png)
+![Card de trade-off de dois painéis listando o que as transferências confidenciais entregam, valores verificáveis escondidos, contra custos como a composabilidade em DEX perdida, a liquidação em múltiplas transações e o teto de valor, terminando em uma regra de decisão.](assets/v08-comparison.webp)
 
 ## Lab: sonde a maquinaria, depois derive o modelo no papel
 

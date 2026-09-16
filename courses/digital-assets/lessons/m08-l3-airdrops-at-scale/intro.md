@@ -150,7 +150,7 @@ Classic column at mainnet's 6,333 lamports/byte, read 2026-09-06. Multiply by yo
 
 The ratio is flat because both sides are linear. What changes with scale is whether the number is survivable. At a thousand recipients nobody cares. At a million, the classic column is over 1,800 SOL, and at a SOL price of $150 that is most of $300,000 of rent to hand out a token. A million accounts costs a house, and it cost a slightly bigger house last month.
 
-![Grouped bar chart on a log axis comparing classic and compressed airdrop cost from 1k to 1M recipients, with the classic column near two thousand SOL against compressed 10.3 SOL.](assets/v01-chart.png)
+![Grouped bar chart on a log axis comparing classic and compressed airdrop cost from 1k to 1M recipients, with the classic column near two thousand SOL against compressed 10.3 SOL.](assets/v01-chart.webp)
 
 That quarter of a million dollars is why ZK compression got built. Solana passed 500 million accounts and was adding roughly a million a day around November 2024, which was the framing Helius used in its compression keynote writeup that month. State growth is the bill, and airdrops are the fastest way to run it up.
 
@@ -175,7 +175,7 @@ helius-airship --help
 
 The axis nobody puts on the marketing page is who pays.
 
-![Comparison table of the cost model's four rows across sender cost, claimant cost, refundability, and RPC needs, noting the AirShip row is a scope slice atop compressed push and Light Claim is unpriced.](assets/v02-comparison.png)
+![Comparison table of the cost model's four rows across sender cost, claimant cost, refundability, and RPC needs, noting the AirShip row is a scope slice atop compressed push and Light Claim is unpriced.](assets/v02-comparison.webp)
 
 Read that table twice. A merkle claim is not cheap, it is *shifted*. The lamports did not disappear, they moved onto the person receiving the tokens, and that is a product decision as much as a cost decision: everyone who does not claim costs you nothing, and everyone who does claim pays about 1.2 million lamports to do it at mainnet's current rent rate, most of it recoverable only if the ClaimStatus close path lets a claimant reclaim rent, a gate this lesson flags below as something it has not run. For a drop where you expect half the list to ignore you, that is a godsend. For a drop to users who have never held SOL, it is a wall.
 
@@ -207,7 +207,7 @@ There is a second thing hiding in that constants file, and it is the reason the 
 
 Note what 15 is a fact *about*, though, because the ground is moving under it: it is a v0 number, and it is a v0 number specifically because lookup tables exist. Transaction format v1 raises the envelope to 4,096 bytes and removes lookup tables in the same breath, so porting this batch is not a matter of scaling 15 up by the ratio of the envelopes. You get 2,864 more bytes and you lose the compression that was turning the fixed accounts from 32 bytes into one — and for a drop transaction, whose account set is mostly those same fixed accounts every time, that compression was doing the heavy lifting. Re-derive the batch size against the format you are actually sending; do not scale the old one. The method is the durable part here, not the 15.
 
-![Two byte-budget bars for a 1,232-byte v0 transaction showing that replacing full 32-byte static account addresses with one-byte lookup-table indexes leaves room for fifteen recipients in one AirShip transaction.](assets/v03-diagram.png)
+![Two byte-budget bars for a 1,232-byte v0 transaction showing that replacing full 32-byte static account addresses with one-byte lookup-table indexes leaves room for fifteen recipients in one AirShip transaction.](assets/v03-diagram.webp)
 
 ### The claim path, and why SPROUT has to take it
 
@@ -217,7 +217,7 @@ SPROUT's launch set from R6 is three extensions: `TransferFeeConfig`, `MetadataP
 
 So two of SPROUT's three extensions would ride along fine, and the third kills the whole drop, because allowlisting is not additive here either, the same lesson the CP-Swap allowlist taught you in R6, on a different rail. The compressed-token program's Token-2022 coverage tracks roughly the same line, and it is not arbitrary: a fee that must be withheld into a per-account slot has nowhere to go when the account is a hash in a tree.
 
-![Table splitting Token-2022 extensions by compressed-airdrop support, with SPROUT's metadata pair in the supported column and its TransferFeeConfig unsupported, disqualifying the compression path.](assets/v04-table.png)
+![Table splitting Token-2022 extensions by compressed-airdrop support, with SPROUT's metadata pair in the supported column and its TransferFeeConfig unsupported, disqualifying the compression path.](assets/v04-table.webp)
 
 So the cheapest column in your table is unavailable to your own token. And one reconciliation you are owed, because m07-l3 graded you on the opposite conclusion: the memo that lesson accepted named the compost drop as the one Overgrowth workload that genuinely should compress, and on the cost axes that memo argued, write count and access shape, it was right. What that memo silently assumed is that the extension gate passes, and this lesson is where the assumption finally gets checked and fails for SPROUT specifically. The verdict flips on legality, not on arithmetic; your memo was correct about the workload and blind to the token, which is precisely why the disqualifiers-before-arithmetic ordering you coded there needed one more disqualifier it did not yet know about. Take that as the lesson rather than a defeat: the cost model chooses between methods that are legal for the token, and legality comes from the extension set you chose back in module 2. If you want the compressed column, you design for it before you mint.
 
@@ -229,7 +229,7 @@ And a second caveat, the one this module's own method demands before you accept 
 
 The distributor also has an answer for the part of your list that never shows up, and it is worth designing for before you launch rather than after. Its state carries a `clawback_start_ts`, a `clawback_receiver`, and a `clawed_back` flag. Before that timestamp a clawback attempt fails with `ClawbackBeforeStart`. After it, anyone can trigger the sweep, and it is safe to leave it that way because the destination is pinned: the tokens can only land in the `clawback_receiver` the distributor was created with. Once swept, every remaining claim fails with `ClaimExpired`. So the window is a policy you set at setup and cannot renegotiate. Too short and you punish the people who were on holiday; too long and your treasury sits on tokens it cannot plan around. Pick it deliberately, publish it, and put the date in the same place you publish the tree.
 
-![Timeline of a merkle distributor from setup through the linear vesting window to the clawback point, after which unclaimed allocations are swept and further claims revert.](assets/v05-timeline.png)
+![Timeline of a merkle distributor from setup through the linear vesting window to the clawback point, after which unclaimed allocations are swept and further claims revert.](assets/v05-timeline.webp)
 
 ### What claim_locked actually does
 
@@ -237,7 +237,7 @@ A **merkle distributor** is one account holding a root, a vault, and counters, p
 
 The leaf layout is worth showing exactly, because a byte order mistake here produces a proof that fails with no useful error:
 
-![Diagram of the distributor leaf preimage, hashing a 32-byte claimant pubkey and two little-endian u64 amounts into a node, then domain-separating leaves and parents with prefix bytes.](assets/v06-annotated-code.png)
+![Diagram of the distributor leaf preimage, hashing a 32-byte claimant pubkey and two little-endian u64 amounts into a node, then domain-separating leaves and parents with prefix bytes.](assets/v06-annotated-code.webp)
 
 Two things follow from that picture.
 
@@ -256,11 +256,11 @@ withdrawable = vested - locked_amount_withdrawn
 
 Integer division truncates, which rounds down, which favours the vault by at most one base unit. That is deliberate and it is the sort of detail worth copying rather than improving.
 
-![A vesting chart where a straight line accrues 900 million base units over 90 days while a staircase of claim_locked calls at days 30, 45, and 90 catches up.](assets/v07-chart.png)
+![A vesting chart where a straight line accrues 900 million base units over 90 days while a staircase of claim_locked calls at days 30, 45, and 90 catches up.](assets/v07-chart.webp)
 
 Two properties of that design deserve naming. It is a pull, so unclaimed allocations sit in the vault costing you nothing. And it is idempotent per claimant, because the status account is a PDA seeded on the claimant and the distributor: a second attempt to open it fails at account creation, not at a hand-written check. That is where the vesting knobs from the launchpad lesson land, too. LaunchLab expressed lockups as a cliff plus a duration on the launchpad side; the distributor expresses them as `start_ts` and `end_ts` on the distribution side. Same idea, different seat.
 
-![Two-lane flowchart of the operator publishing a 32-byte merkle root once while each claimant fetches a proof, calls new_claim, then repeatedly calls claim_locked as vesting accrues.](assets/v08-flowchart.png)
+![Two-lane flowchart of the operator publishing a 32-byte merkle root once while each claimant fetches a proof, calls new_claim, then repeatedly calls claim_locked as vesting accrues.](assets/v08-flowchart.webp)
 
 ### The trade-off, named
 
@@ -852,7 +852,7 @@ Three extensions, in increasing order of how much they will teach you.
 
 **Two.** Prove the stale-proof failure end to end rather than as a boolean, and two traps are baked in that a literal reading walks straight into. First, your `newClaim` verifies against `distributor.root`, which still holds the OLD root, so an old proof verifies just fine against it; to stage the failure you must make the distributor carry the grown tree's root, either by constructing a second distributor from the rebuilt tree or by explicitly setting `distributor.root = grown.root` and saying so in a comment. Second, use a recipient who has NOT already claimed, because the ClaimStatus-exists check fires before proof verification and would mask the failure you are trying to see. With both handled: generate a proof, rebuild the tree with one more allocation, point the distributor at the new root, attempt `newClaim` with the old proof, and catch `InvalidProof`. Write one sentence in a comment explaining why re-fetching the proof immediately before submitting is the only reliable fix.
 
-![A five-step flow of newClaim's checks where the existing-ClaimStatus test at step two rejects repeat claimants before the proof at step three is ever verified.](assets/v09-flowchart.png)
+![A five-step flow of newClaim's checks where the existing-ClaimStatus test at step two rejects repeat claimants before the proof at step three is ever verified.](assets/v09-flowchart.webp)
 
 **Three.** Extend the cost table with a `total_cost_of_ownership` column: for each method, the sender cost plus the claimant cost minus whatever is refundable, at 100,000 recipients. Then answer, in the file, which method you would ship for SPROUT and why, given that SPROUT carries a transfer fee. The answer is not the cheapest row and your comment should say so.
 

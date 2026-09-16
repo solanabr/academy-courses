@@ -37,7 +37,7 @@ Empieza por la restricción que aprieta todo el diseño. Token-2022 tiene que in
 
 Las tres instrucciones se dividen limpiamente por quién las llama:
 
-![Comparación de las tres instrucciones que forman la interfaz de transfer hook, mostrando cuál llama Token-2022 en cada transferencia y cuáles dos llama el emisor.](assets/v01-comparison.png)
+![Comparación de las tres instrucciones que forman la interfaz de transfer hook, mostrando cuál llama Token-2022 en cada transferencia y cuáles dos llama el emisor.](assets/v01-comparison.webp)
 
 Fíjate en la asimetría. Dos de las tres instrucciones son llamadas de gestión comunes que un emisor corre desde un script, en un buen día dos veces en la vida de un mint. La tercera corre en el camino caliente de cada transferencia que llegue a tocar el token, y es la única cuyo costo paga alguien más. Esa asimetría es todo el argumento ético sobre los hooks, y vamos a volver a ella con números.
 
@@ -45,7 +45,7 @@ Fíjate en la asimetría. Dos de las tres instrucciones son llamadas de gestión
 
 Vale la pena ser preciso sobre qué quiere decir registro aquí, porque es menos de lo que la gente espera. No hay un registro global de hooks. Token-2022 no lleva una tabla de programas aprobados, no hay ninguna allowlist a la que entrar, y nada valida que el program id en la extensión TransferHook de un mint sea siquiera un programa. La extensión del propio mint nombrando tu program id es todo el cableado. Lo cual también quiere decir que el modo de falla cuando tu programa no responde a la interfaz no es un error útil: Token-2022 le pasa a tu programa ocho bytes que no reconoce, el dispatch se cae por el final de tu match, y te llevas un error de fallback de un programa que parece que nunca llegó a ser llamado. Si alguna vez ves una transferencia con hook morir dentro de tu propio programa sin nada en el log más que una queja de fallback, tienes un problema de discriminador, no un problema de lógica.
 
-![La tabla de dispatch de un programa, con tres discriminadores del namespace de Anchor y tres del namespace de la interfaz, y los prefijos sin coincidencia cayendo a un error de fallback.](assets/v02-diagram.png)
+![La tabla de dispatch de un programa, con tres discriminadores del namespace de Anchor y tres del namespace de la interfaz, y los prefijos sin coincidencia cayendo a un error de fallback.](assets/v02-diagram.webp)
 
 ### La cuenta de validación vive en TU programa
 
@@ -53,7 +53,7 @@ Aquí está la pieza que hace tropezar a casi todo el mundo la primera vez, incl
 
 Esa cuenta es el `ExtraAccountMetaList`, vive en una PDA sembrada con el literal `extra-account-metas` y el mint, y es propiedad de TU programa de hook. No del mint. No de Token-2022.
 
-![La extensión TransferHook del mint apunta al programa del hook, y la PDA de validación cuelga de ese programa del hook y no del mint ni de Token-2022.](assets/v03-diagram.png)
+![La extensión TransferHook del mint apunta al programa del hook, y la PDA de validación cuelga de ese programa del hook y no del mint ni de Token-2022.](assets/v03-diagram.webp)
 
 La implementación de referencia te da la derivación como una función, `get_extra_account_metas_address(&mint, &program_id)`, y el argumento `program_id` es el que la gente rellena mal. Pasa Token-2022 ahí y te sale una dirección perfectamente válida que ninguna cuenta va a ocupar jamás, así que cada transferencia falla en la resolución con un error que no dice nada del error real. Si te llevas una sola regla de derivación de esta lección, llévate esta: el manifiesto pertenece al programa que necesita las cuentas, porque es la única parte que sabe cuáles son.
 
@@ -65,7 +65,7 @@ Cada entrada de esa lista es un `ExtraAccountMeta`, un struct fijo de 35 bytes. 
 
 El caso interesante es el que usa tu hook. Las dos cuentas que necesita `harvest-hook` son PDAs del programa del hook derivadas del mint, y el mint no se conoce cuando escribes la lista, se conoce cuando ocurre la transferencia. Así que en vez de una dirección, la entrada guarda una receta: un seed literal, y después "la key de la cuenta en el índice 1 de la lista de cuentas de Execute," que es el mint.
 
-![Las dos entradas de account-meta del hook codifican una receta de PDA, un seed literal más la key de la cuenta de Execute en el índice 1, el mint, con la entrada de tesorería como writable.](assets/v04-annotated-code.png)
+![Las dos entradas de account-meta del hook codifican una receta de PDA, un seed literal más la key de la cuenta de Execute en el índice 1, el mint, con la entrada de tesorería como writable.](assets/v04-annotated-code.webp)
 
 Dos consecuencias se siguen de los seeds basados en índice, y las dos muerden en producción. Primero, la resolución es posicional: si un cliente resuelve la lista fuera de orden o se salta una entrada, cada seed posterior basado en índice deriva una dirección distinta, en silencio, y la transferencia revierte con un desajuste que no apunta a nada útil. Segundo, el flag writable de la entrada es propio de la entrada, no heredado de la transferencia, que es la razón por la que se puede escribir en tu log de tesorería aunque todo lo que llega de la transferencia sea de solo lectura. Esa afirmación de solo lectura la demostramos en la próxima lección, sacada del constructor de instrucciones que trae el propio crate de la interfaz; hoy, tómala como la razón por la que el diseño es lo bastante seguro como para entregarlo siquiera.
 
@@ -79,13 +79,13 @@ El canje, entonces, es filoso y vale la pena ponerle precio antes de que escriba
 
 La primera es el cómputo. Medí este harness por los dos caminos. Un `TransferChecked` simple de Token-2022 sobre un mint sin extensiones quemó 1,790 CU. La misma transferencia a través del mint con hook quedó entre unos 23,000 y 35,000 CU de una corrida a otra, con el propio `Execute` del hook dando cuenta de unos 9,400 a 13,500 de eso. Diez a veinte veces el costo de la transferencia que protege, para un hook cuya lógica entera es un escaneo booleano de un array de ocho entradas.
 
-![Un TransferChecked simple cuesta 1,790 unidades de cómputo contra 23,108 a 35,292 el que lleva hook, de las cuales Execute son 9,448 a 13,448.](assets/v05-chart.png)
+![Un TransferChecked simple cuesta 1,790 unidades de cómputo contra 23,108 a 35,292 el que lleva hook, de las cuales Execute son 9,448 a 13,448.](assets/v05-chart.webp)
 
 Vale la pena pausar en ese rango, porque es una lección en sí. La varianza no es el escaneo de la allowlist, que no cuesta nada. Es `find_program_address`: cada constraint de seeds que no lleva un bump guardado recorre la búsqueda, y cada iteración cuesta cómputo real. Guardar los bumps canónicos es el arreglo estándar y el curso Master Anchor V2 lo cubre como un patrón del framework. Estoy dejando un bump sin guardar en este programa a propósito para que la varianza aparezca en tus propios logs.
 
 La segunda moneda es la coordinación, y es la cara. Como las cuentas extra tienen que estar en la transacción antes de que se envíe, cada billetera, cada DEX, cada integración de pagos que llegue a tocar tu token tiene que buscar tu cuenta de validación, decodificar esas entradas de 35 bytes, resolver cada una y agregarlas en orden. Para siempre. Un hook no solo gasta el cómputo del emisor; le empuja una obligación permanente de reenvío a extraños que nunca la aceptaron. Ese es el hecho con el que abre la próxima lección, y es por lo que una porción seria del ecosistema simplemente rechaza los tokens con hook.
 
-![Antes de cada transferencia de un token con hook un cliente debe buscar la cuenta de validación, decodificar sus entradas, resolver cada una y agregarlas en orden.](assets/v06-flowchart.png)
+![Antes de cada transferencia de un token con hook un cliente debe buscar la cuenta de validación, decodificar sus entradas, resolver cada una y agregarlas en orden.](assets/v06-flowchart.webp)
 
 Dos recibos para ubicar la funcionalidad en el mundo real antes de construir. PYUSD, el lanzamiento emblemático de Token-2022 en Solana en mayo de 2024 de PayPal y Paxos, trae un conjunto de ocho extensiones TLV con forma de compliance, y una de ellas es un transferHook cuyo `programId` es null. Configurado, dormido, reservado. Los emisores recurren a este slot en el momento en que compliance está sobre la mesa, incluso cuando no están listos para usarlo. Y el estado del material oficial, para que sepas qué existe antes de construir: solana.com aloja una guía de transfer hooks — un tutorial de Anchor con build, deploy y tests — más una guía de integración para el camino de envío del cliente, solana-program.com documenta la interfaz al lado de una implementación de referencia, y solana-developers/program-examples trae ejemplos de transfer hook. Existen tutoriales para copiar, en otras palabras. Lo que agrega esta lección es la parte que copiar no te da: versiones fijadas, cómputo medido, un hook cableado en el token SPROUT que has cargado durante dos módulos, y un gate que escribes tú mismo y defiendes contra una suite de pruebas en rojo.
 
@@ -680,7 +680,7 @@ fn stranger_transfer_fails_the_hook() {
 
 `hooked_transfer` es donde el harness te está mintiendo con discreción, y vale la pena nombrarlo ahora para que la próxima lección aterrice. Esas cuatro cuentas agregadas al final, los dos extras en el orden de la lista, después el programa del hook, después la cuenta de validación, son exactamente lo que un cliente debe aportar, en exactamente ese orden. Aquí las escribí a mano porque conozco mi propio hook. Una billetera no. Esa brecha es el tema entero de la próxima lección.
 
-![Una transferencia con hook corre a través de Token-2022 hacia el Execute del hook a profundidad dos, con un borde de falla antes de que corra tu lógica y otro dentro del gate mismo.](assets/v07-flowchart.png)
+![Una transferencia con hook corre a través de Token-2022 hacia el Execute del hook a profundidad dos, con un borde de falla antes de que corra tu lógica y otro dentro del gate mismo.](assets/v07-flowchart.webp)
 
 **9. Córrelo, y lee el rojo.** Primero construye el programa a bytecode SBF, porque el harness carga el `.so` compilado:
 
@@ -752,7 +752,7 @@ Verde en las dos pruebas, con `harvest-hook: allowed` en el log que pasa y `Erro
 
 Cuatro formas en que este build sale mal, juntas en un solo lugar porque son las que cuestan horas en vez de minutos:
 
-![Cuatro trampas de hooks emparejadas con causa y arreglo: program id equivocado en la PDA, cuentas de tenedor sin dimensionar, esperar que Execute mueva fondos, y retroadaptar una extensión de creación.](assets/v08-comparison.png)
+![Cuatro trampas de hooks emparejadas con causa y arreglo: program id equivocado en la PDA, cuentas de tenedor sin dimensionar, esperar que Execute mueva fondos, y retroadaptar una extensión de creación.](assets/v08-comparison.webp)
 
 Dos fallas que espero durante la corrida misma, para que puedas autodiagnosticarte en vez de bisecar.
 
@@ -760,7 +760,7 @@ Si la transferencia revierte antes de que `Execute` llegue a loguear algo, está
 
 Si `cargo build-sbf` tiene éxito pero el harness no encuentra el programa, revisa `SO_PATH`. `cargo test` corre con la raíz del paquete como directorio de trabajo, así que `target/deploy/harvest_hook.so` es correcto para el layout de arriba y está mal si anidaste el crate dentro de un workspace con un directorio target compartido. Si lo anidaste, apunta `SO_PATH` al target del workspace en su lugar.
 
-![La escalera de artefactos va de decode-mint al mint SPROUT terminado al harvest-hook de esta lección, y después al resolvedor del cliente, la enrutabilidad y el enrutamiento de comisiones.](assets/v09-timeline.png)
+![La escalera de artefactos va de decode-mint al mint SPROUT terminado al harvest-hook de esta lección, y después al resolvedor del cliente, la enrutabilidad y el enrutamiento de comisiones.](assets/v09-timeline.webp)
 
 Tómate el hito. Has escrito un programa de Solana que el software de otras personas ahora está obligado a llamar, y lo demostraste contra un programa de token real con una transferencia real. Ese es un tipo de artefacto distinto de todo lo demás en este curso: SPROUT es una configuración, `harvest-hook` es código con una dirección, y la diferencia es que el código puede decir que no.
 

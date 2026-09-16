@@ -39,11 +39,11 @@ Run the naive explanations into the ground first, because each failure sharpens 
 
 **Naive answer three: the program was upgraded in place, the normal way.** Warmer, but still wrong in an instructive way. Ordinary upgradeable programs get new code through their upgrade authority. The classic token program is the single most load-bearing program on Solana; handing one keyholder the power to hot-swap it would be a security story, not an efficiency story. Whatever replaced it needed something stronger than an upgrade key: consensus.
 
-![Three failed explanations for the CU drop, each crossed out beside its refuting evidence, funneling down to the one question that survives elimination.](assets/v01-comparison.png)
+![Three failed explanations for the CU drop, each crossed out beside its refuting evidence, funneling down to the one question that survives elimination.](assets/v01-comparison.webp)
 
 So the real question is narrower than "why is it cheap now." It is: **what mechanism can replace the code behind an address, with the entire network's agreement, without breaking a single caller?** That question has exactly one answer on Solana, and you just probed it.
 
-![Clients call the same TokenkegQ address and frozen interface, but behind it the original spl-token engine was replaced by Anza's p-token at epoch 971 via a feature gate.](assets/v02-diagram.png)
+![Clients call the same TokenkegQ address and frozen interface, but behind it the original spl-token engine was replaced by Anza's p-token at epoch 971 via a feature gate.](assets/v02-diagram.webp)
 
 ### The mechanism: a feature gate over a frozen interface
 
@@ -53,7 +53,7 @@ To feel why that design is remarkable, hold it against the alternatives other ec
 
 The proposal behind the swap is **SIMD-0266**. It was merged on 2026-03-13. Say merged, and not "accepted" or "approved," and here is a precision habit worth building: merged is a Git fact you can verify (the PR landed, dated), while accepted and approved are governance claims, and the document's own front-matter status still reads "Review" today, so the paper trail supports neither. The header is a lagging label. What actually governs activation is the on-chain gate you just probed, and that gate is active. A teammate who reads "Review" and concludes p-token is not live yet has trusted a document header over chain state, which on Solana is always the wrong order.
 
-![Timeline from the SIMD-0266 merge on 2026-03-13, through gate activation at slot 419,472,000 (first slot of epoch 971), to the live re-probe of the gate on 2026-08-22.](assets/v03-timeline.png)
+![Timeline from the SIMD-0266 merge on 2026-03-13, through gate activation at slot 419,472,000 (first slot of epoch 971), to the live re-probe of the gate on 2026-08-22.](assets/v03-timeline.webp)
 
 What the gate activated is **p-token**: a ground-up rewrite of the classic SPL Token program by Anza, written in Pinocchio, a zero-dependency, zero-copy program framework built for exactly this kind of hot-path work. The rewrite's contract with the ecosystem was brutal and simple: byte-for-byte identical in account layouts, instruction discriminators, and error codes. Instruction by instruction and error by error. Every offset your `decode-mint` inspector walks, every discriminator a wallet sends, every error code an integration matches on: identical. That identical surface is the **interface**. The code that honors it is the **implementation**. SIMD-0266 replaced the implementation and froze the interface, and that separation is the entire trick.
 
@@ -63,7 +63,7 @@ Second objection, and it deserves a straight answer: mechanically, nothing stops
 
 Here is where the old mental model gets corrected rather than discarded. The address never identified the code. It identified the *contract*: the byte layouts and behaviors that anyone calling that address can rely on. The code is just the current tenant honoring that contract. There is an old thought experiment about a ship whose planks are replaced one by one until none of the original wood remains, and philosophers argue about whether it is still the same ship. Solana's answer is unsentimental: if every plank of the interface is byte-identical, it is the same program, whoever wrote the wood. The analogy breaks in one place worth flagging, though: Theseus's planks were swapped gradually and by accident of maintenance. This swap happened network-wide in a single slot, by design, with the replacement tested against the original's exact behavior before the gate ever flipped. Deliberate identity, not drifted identity.
 
-![A two-column split showing the frozen interface (address, layouts, discriminators, errors, behavior) versus the replaced implementation (engine code, CU costs, binary), plus three added instructions.](assets/v04-comparison.png)
+![A two-column split showing the frozen interface (address, layouts, discriminators, errors, behavior) versus the replaced implementation (engine code, CU costs, binary), plus three added instructions.](assets/v04-comparison.webp)
 
 ### The payoff, measured
 
@@ -71,7 +71,7 @@ Now the numbers can mean something. A classic Transfer cost 4,645 CU under the o
 
 Pause on what that recovery actually is, because the framing matters. Blocks did not get bigger, and no consensus parameter moved. The same block CU budget simply stopped spending itself on token-transfer overhead: work that used to bill 4,645 units per transfer now bills 76, and the difference is capacity every other transaction on the chain gets to use. It is the rare kind of scaling win that costs the rest of the system nothing. The percentage itself is a measured-era figure, though, not a constant: it reflects how much of the chain's traffic was token transfers when Anza measured it, so quote it as their number, with the date, the way I just did.
 
-![Bar chart showing Transfer falling from 4,645 to 76 CU and TransferChecked from 6,200 to 105 CU after the p-token swap, recovering roughly 12 to 13 percent of block space.](assets/v05-chart.png)
+![Bar chart showing Transfer falling from 4,645 to 76 CU and TransferChecked from 6,200 to 105 CU after the p-token swap, recovering roughly 12 to 13 percent of block space.](assets/v05-chart.webp)
 
 Be careful with the attribution, because this is the footgun that will make you look silly in a code review. The drop is the engine's doing, not yours. If you benchmarked a transfer last year at 4,645 CU and benchmark the same client code today at 76, your code did not get better. Nothing you deploy, no flag you set, no SDK upgrade you ship claims any credit for those numbers. The engine changed underneath you. Which cuts the other way too, and this is the honest caveat: the 76 is an engine-dependent measurement, not a constant of nature. Freeze "a transfer costs 76 CU" into a config or a doc and you will misquote it the next time the engine or the runtime's cost model moves. Quote it as "76 CU as of the p-token engine, epoch 971," and re-measure when it matters. The number the old engine taught everyone to memorize just became a cautionary tale; do not create the next one.
 
@@ -81,7 +81,7 @@ One boundary to respect, and it is a deliberate one. This lesson teaches the CU 
 
 The word Anza uses for classic SPL now is **feature-complete**, and the working translation is: frozen. No new token functionality is planned for the classic program, ever. The p-token rewrite did add three new instructions, `batch`, `withdraw_excess_lamports`, and `unwrap_lamports`, which sounds like a contradiction until you notice what kind of instructions they are: operational conveniences that bolt onto the existing surface without disturbing a single existing byte. Batching what you could already do one at a time is not a new capability; it is plumbing. The rule that matters for you as a designer is this: **genuinely new token behavior lands only in Token-2022.** Transfer hooks, confidential balances, native metadata, transfer fees, all of it, extension territory. Classic SPL in 2026 is a frozen contract with a very fast tenant, and if you catch yourself waiting for classic SPL to grow a feature, you are waiting for a train that has been formally cancelled.
 
-![Decision flow: if classic SPL already does what you need, use it as is; its only additions are three p-token plumbing instructions; every genuinely new capability routes to Token-2022.](assets/v06-flowchart.png)
+![Decision flow: if classic SPL already does what you need, use it as is; its only additions are three p-token plumbing instructions; every genuinely new capability routes to Token-2022.](assets/v06-flowchart.webp)
 
 This reframing also hands you a filter for every piece of Solana content written before 2026, and you will need it, because the internet does not date-stamp its mental models. When an older tutorial, audit note, or forum answer makes a claim about "the token program," run it through one question: is this a claim about the interface, or about the implementation? Interface claims aged perfectly. The 82-byte mint layout, the instruction set, the discriminators, the error codes: all still true, byte for byte, because freezing them was the whole deal. Implementation claims aged badly overnight. Anything about the program's internal structure, its performance characteristics, its CU costs per instruction: that content now describes a program that no longer runs anywhere. The claims were fine when written. The tenant changed. One question, two buckets, and you can salvage six years of ecosystem writing instead of distrusting all of it.
 
@@ -111,7 +111,7 @@ Four probes, all guided, nothing to fill in. You are not building today; you are
 
    Checkpoint: owner is `Feature111111111111111111111111111111111111`, length is 9 bytes, and the hex dump reads `01 80 a2 00 19 00 00 00 00`.
 
-![Annotated hex dump of the 9-byte feature account: a 1-byte Some tag followed by the little-endian u64 activation slot 419,472,000, the first slot of epoch 971.](assets/v07-annotated-code.png)
+![Annotated hex dump of the 9-byte feature account: a 1-byte Some tag followed by the little-endian u64 activation slot 419,472,000, the first slot of epoch 971.](assets/v07-annotated-code.webp)
 
 3. **Decode it programmatically, kit-style.** Same read, but through the stack you built `decode-mint` on, so the skill compounds. Work inside `labs/m01-l2`, the workspace you scaffolded last lesson: kit 7.1.1 and tsx 4.20.5 are already pinned there, exact versions per that lesson's peer-range rule, and its `package.json` carries the `type=module` this script's top-level await needs. In that folder, create `read-gate.ts`:
 

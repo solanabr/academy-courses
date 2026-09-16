@@ -54,7 +54,7 @@ Convierte a tokens enteros y los números se vuelven más amables: 1.073 mil mil
 
 Clava la vista en la primera y en la última un segundo. La curva declara 1.073 mil millones de tokens en reserva. El mint solo llega a crear 1 mil millones. Una reserva que sostiene más que todo el supply no es un saldo, y esa es la señal: las reservas virtuales no son custodia, son los dos números que una fórmula de precios necesita. Una reserva real es lo que el programa de verdad te va a entregar, mientras que una reserva virtual es solo el lugar donde el programa finge pararse en la curva de precios, y la brecha entre las dos es una decisión de diseño más que un accidente, la decisión que fija tu precio de apertura y por lo tanto toda la forma del viaje que sigue.
 
-![La reserva virtual de token de 1.073 mil millones se extiende más allá de la línea de supply de 1 mil millones mientras que la reserva real de 793.1 millones queda dentro de ella, marcando las reservas virtuales como coordenadas de precio.](assets/v01-diagram.png)
+![La reserva virtual de token de 1.073 mil millones se extiende más allá de la línea de supply de 1 mil millones mientras que la reserva real de 793.1 millones queda dentro de ella, marcando las reservas virtuales como coordenadas de precio.](assets/v01-diagram.webp)
 
 La regla de precios es la más vieja de los mercados on-chain. El producto de las dos reservas virtuales se mantiene constante en cada canje:
 
@@ -113,7 +113,7 @@ graduationSol = 115.005 - 30 = 85.005 SOL
 
 Ahí está. El número que la gente repite como una ley del universo es la aritmética de `30 x 1073 / (1073 - 793.1) - 30`, y no está guardado en ninguna parte porque no necesita estarlo. Está implícito en tres de las cuatro constantes publicadas, SOL virtual, token virtual y token real, del mismo modo que la cuota de una hipoteca está implícita en una tasa y un plazo; la cuarta constante, total supply, nunca entra en esta aritmética y solo importa para la nota sobre el sobrante de más abajo.
 
-![Una curva de precios de producto constante que sube 14.7 veces de la apertura a la graduación, con el área verdadera debajo de ella marcada 85.005 SOL contra un rectángulo de precio plano mucho más chico marcado 22.174 SOL.](assets/v02-chart.png)
+![Una curva de precios de producto constante que sube 14.7 veces de la apertura a la graduación, con el área verdadera debajo de ella marcada 85.005 SOL contra un rectángulo de precio plano mucho más chico marcado 22.174 SOL.](assets/v02-chart.webp)
 
 Vale la pena llevarse dos consecuencias de esta sección, porque son lo que vuelve la derivación una herramienta y no un truco.
 
@@ -152,7 +152,7 @@ Veinticinco cuentas, y exactamente una de ellas firma. El único signer es `user
 
 Sin-permiso-más-idempotente es el diseño correcto aquí y vale la pena entenderlo como un patrón, no solo como trivia. Un paso que cualquiera podría correr a disparar, en un momento impredecible, no puede depender de que una parte específica esté despierta. Los bots vigilan la flag y disparan migraciones gratis. Si el paso estuviera restringido a una autoridad en cambio, una moneda graduada cuyo creador se desconectó quedaría con liquidez muerta hasta que el creador volviera. Si fuera sin permiso pero no idempotente, la carrera misma sería el exploit. Quieres las dos propiedades o ninguna.
 
-![Un flujo vertical de cinco etapas desde la creación de la curva pasando por el umbral derivado de 85.005 SOL hasta la flag complete y un migrate sin permiso e idempotente que quema el LP en PumpSwap.](assets/v03-flowchart.png)
+![Un flujo vertical de cinco etapas desde la creación de la curva pasando por el umbral derivado de 85.005 SOL hasta la flag complete y un migrate sin permiso e idempotente que quema el LP en PumpSwap.](assets/v03-flowchart.webp)
 
 ### La curva es una política, y la política cambió debajo de todos
 
@@ -171,11 +171,11 @@ Lee esa estructura con cuidado, porque dice más de lo que dijo el anuncio. La c
 
 Esto es lo que está en juego para ti, y no es abstracto. Si estás modelando un lanzamiento, la comisión que pagas a 10 SOL de capitalización de mercado y la comisión que pagas a 300 SOL pueden caer en tiers distintos, y una planilla construida sobre la era de los 100 bps planos va a poner mal los dos precios. Peor aún, los va a poner mal en una dirección que no puedes predecir desde afuera, porque los límites de los tiers son dato.
 
-![Un diagrama de flujo que rastrea la comisión de un canje desde la derivación de la capitalización de mercado pasando por la selección de tier en el FeeConfig editable hasta una división en tres partes enrutada a ocho destinatarios rotativos.](assets/v04-flowchart.png)
+![Un diagrama de flujo que rastrea la comisión de un canje desde la derivación de la capitalización de mercado pasando por la selección de tier en el FeeConfig editable hasta una división en tres partes enrutada a ocho destinatarios rotativos.](assets/v04-flowchart.webp)
 
 Ese mismo día del cambio trajo las monedas Cashback, donde las comisiones del creador se enrutan de vuelta a los traders en vez de al creador, contabilizadas a través de PDAs acumuladoras de volumen por usuario que la instrucción de compra toca en cada canje. Ese es un objeto económico genuinamente distinto detrás de la misma interfaz: matemática de curva idéntica, incentivo opuesto para quien la esté negociando. Y la recaudación de comisiones misma rota entre ocho direcciones de destinatario, un `fee_recipient` más un array `fee_recipients` de siete entradas, lo que es un detalle operativo hasta el día en que estés indexando flujos de comisiones y te preguntes por qué se dispersan.
 
-![Una línea de tiempo que marca 2025-09-01 20:00 UTC, con una comisión plana de 100 basis point antes y comisiones por tier de capitalización de mercado después, sobre una banda que señala que el invariante no cambió.](assets/v05-timeline.png)
+![Una línea de tiempo que marca 2025-09-01 20:00 UTC, con una comisión plana de 100 basis point antes y comisiones por tier de capitalización de mercado después, sobre una banda que señala que el invariante no cambió.](assets/v05-timeline.webp)
 
 Así que nombra el canje con honestidad, porque esta es la parte de la que de verdad depende una decisión de lanzamiento. Una bonding curve te compra descubrimiento de precio instantáneo y sin permiso, sin contraparte con la que negociar, y un pool garantizado al final con el LP quemado para que nadie pueda sacarlo. Lo que pagas es la pérdida total de control sobre la política económica. La forma de la curva la fijan constantes que no pones tú, el esquema de comisión es una cuenta que otra persona puede editar, la plataforma de graduación la elige el programa, y la abrumadora mayoría de las monedas lanzadas así nunca llega al umbral. He visto que se citan tasas de graduación de un solo dígito, seguido alrededor del uno o el dos por ciento, y yo no armaría un plan sobre ninguna cifra que no hubiera medido yo mismo en una ventana que elegí yo, porque ese número se mueve con cada ciclo de mercado. La dirección no está en duda, eso sí: la mayoría de las curvas se estanca, y las que se estancan no son un bug en el mecanismo. Son el mecanismo funcionando, ordenando la demanda.
 
@@ -185,7 +185,7 @@ Antes de la pregunta de la plataforma, un checkpoint, porque la derivación tuvo
 
 Eso te da una herramienta portátil, así que vuélvela portátil en voz alta. Cuando te encuentres con cualquier curva, en cualquier launchpad, hazle tres preguntas. ¿Cuáles son sus cuatro constantes, y dónde viven, en código o en una cuenta que alguien puede editar? ¿Qué condición termina la curva, y esa condición está sobre un saldo real o sobre uno implícito? ¿Y quién tiene permitido disparar la transición, con qué comisión pegada? Responde esas tres y puedes ponerle precio a cualquier bonding curve que te encuentres en una tarde, incluidas las que todavía no se construyeron. No las hagas y estás de vuelta repitiendo un número que leíste en alguna parte, que es donde empezó esta lección.
 
-![Una tabla de cuatro filas que ordena los números de protocolo en derivados, guardados, fijados en código y meramente repetidos, con los 85 SOL del folclore archivados bajo repetidos.](assets/v06-table.png)
+![Una tabla de cuatro filas que ordena los números de protocolo en derivados, guardados, fijados en código y meramente repetidos, con los 85 SOL del folclore archivados bajo repetidos.](assets/v06-table.webp)
 
 Lo que nos trae a SPROUT.
 
@@ -213,7 +213,7 @@ Ese es un veto de plataforma, y llega antes que cualquier parte de la matemátic
 
 Así que la config de lanzamiento que estás por construir tiene dos trabajos, y el segundo es el que te salva la semana: derivar el umbral a partir de las constantes que publique cualquier plataforma, y rechazar cualquier plataforma cuyo camino de lanzamiento no pueda representar el token que ya construiste.
 
-![Una comparación de dos columnas que muestra a pump.fun rechazando SPROUT porque su instrucción create fija el programa SPL Token clásico, contra Raydium CP-Swap aceptando las tres extensiones de SPROUT desde su allowlist de cinco entradas.](assets/v07-comparison.png)
+![Una comparación de dos columnas que muestra a pump.fun rechazando SPROUT porque su instrucción create fija el programa SPL Token clásico, contra Raydium CP-Swap aceptando las tres extensiones de SPROUT desde su allowlist de cinco entradas.](assets/v07-comparison.webp)
 
 ## Lab: deriva el umbral de SPROUT y fija su plataforma
 
@@ -487,7 +487,7 @@ All gates pass: threshold derived, venue selected.
 
    Después demuestra que la revisión de plataforma es real: quita `"TransferFeeConfig"` de la `extensionAllowlist` de CP-Swap y corre otra vez. Ahora las dos plataformas rechazan, ningún candidato queda seleccionado, y el script sale con código distinto de cero en vez de entregar un plan de lanzamiento para un token que nadie va a poner en un pool. Vuelve a ponerlo.
 
-![La derivación de cuatro líneas anotada línea por línea, llevando una k de 32.19 mil millones a través de una reserva final de token de 279.9 millones hasta el umbral de graduación de 85.005 SOL.](assets/v08-annotated-code.png)
+![La derivación de cuatro líneas anotada línea por línea, llevando una k de 32.19 mil millones a través de una reserva final de token de 279.9 millones hasta el umbral de graduación de 85.005 SOL.](assets/v08-annotated-code.webp)
 
 ## Challenge
 
@@ -497,7 +497,7 @@ Abre el coding challenge de esta lección y vas a encontrar un starter que model
 
 Cuatro pruebas, y la tercera es la que hay que pensar. Las constantes de referencia de pump tienen que devolver unos 85.005 SOL. Una curva alterada en 30 / 1000 / 800 tiene que devolver 120. Una curva que arranca con una reserva de SOL más profunda, 85 / 1073 / 793.1, tiene que devolver unos 240.848, mismas reservas de token, misma forma, y el costo escala exactamente por el factor por el que escaló la reserva de SOL, 85/30, porque `graduationSol` es lineal en la reserva de SOL inicial. Esa es la prueba que un modelo de precio plano falla por el margen más ancho. Y una curva con reserva real cero tiene que devolver 0, que el modelo ingenuo también pasa, así que no demuestra nada por su cuenta y está ahí como ancla de cordura. Si te encuentras escribiendo un loop que recorre la curva en pasos chicos y acumula, detente: eso va a pasar las cuatro pruebas y quiere decir que estás integrando numéricamente algo que el invariante ya resolvió en forma cerrada.
 
-![Una tabla con los cuatro casos de prueba del challenge que empareja cada umbral de graduación esperado con la respuesta equivocada de precio plano, desde la curva de referencia de 85.005 hasta el ancla de cordura de reserva cero.](assets/v09-table.png)
+![Una tabla con los cuatro casos de prueba del challenge que empareja cada umbral de graduación esperado con la respuesta equivocada de precio plano, desde la curva de referencia de 85.005 hasta el ancla de cordura de reserva cero.](assets/v09-table.webp)
 
 Después una pieza de juicio que ninguna prueba puede calificar, y es el entregable que este módulo de verdad quiere. Escribe tres oraciones sobre el lanzamiento de SPROUT. Oración uno: el umbral de graduación que modelarías para SPROUT, y las constantes de las que se deriva, dado que SPROUT no se está lanzando en pump. Oración dos: por qué pump no está disponible para SPROUT, nombrando el mecanismo específico y no la vibra. Oración tres: a qué tendrías que renunciar de SPROUT para que pump esté disponible, y si lo harías. Si tu tercera oración concluye que quitar la comisión de transferencia para caber en la plataforma está bien, vuelve a tu informe de R6 y lee qué está financiando la comisión antes de comprometerte. Esa es una decisión de tesorería, y la restricción de tooling es solo lo que la destapó.
 

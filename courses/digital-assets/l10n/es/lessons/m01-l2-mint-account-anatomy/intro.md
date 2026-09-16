@@ -61,7 +61,7 @@ Los datos de una cuenta son apenas un array de bytes. El programa dueño de la c
 
 Un mint SPL clásico es exactamente 82 bytes, y los dos programas de token usan los mismos cinco campos en el mismo orden. Aquí está el mapa, offsets incluidos, porque estás a punto de escribir código contra ellos:
 
-![Un mapa horizontal de bytes que muestra el layout del mint de 82 bytes: una autoridad de mint opcional de 36 bytes, un supply little-endian de 8 bytes, un byte de decimales, un byte de inicializado y una autoridad de congelamiento opcional de 36 bytes.](assets/v01-diagram.png)
+![Un mapa horizontal de bytes que muestra el layout del mint de 82 bytes: una autoridad de mint opcional de 36 bytes, un supply little-endian de 8 bytes, un byte de decimales, un byte de inicializado y una autoridad de congelamiento opcional de 36 bytes.](assets/v01-diagram.webp)
 
 Dos de estos campos merecen una mirada más de cerca porque hacen tropezar a la gente.
 
@@ -69,7 +69,7 @@ Dos de estos campos merecen una mirada más de cerca porque hacen tropezar a la 
 
 **El supply es un u64, y un u64 no cabe en un number de JavaScript.** `Number.MAX_SAFE_INTEGER` es 2^53 menos 1, unos 9.0 mil billones; un u64 llega como máximo a unos 18.4 trillones, tres órdenes de magnitud más arriba. Esta no es una preocupación teórica que puedas postergar. Cuando decodifiqué hoy el mint del USDC clásico su supply marcó 7,923,463,957,481,104 unidades base, que es cerca del 88 por ciento del camino hacia el entero más grande que JavaScript puede representar con exactitud. Un orden de magnitud más en el crecimiento de stablecoins, o cualquier token de 9 decimales con un supply grande, y `Number(supply)` redondea en silencio. En silencio es la palabra clave: sin excepción, sin advertencia, apenas un saldo equivocado en producción. Así que la regla de este curso es absoluta y aburrida: **el supply y los montos u64 son BigInt de punta a punta**, leídos con `DataView.getBigUint64`, impresos con la `n` todavía conceptualmente pegada, nunca rebotados por `Number`. He entregado la otra versión de esta decisión, hace años, en un dashboard que mostraba supplies de tokens. Funcionaba en todas las pruebas, porque los supplies de prueba son chicos. Ese es exactamente el tipo de bug que es.
 
-![Una comparación que muestra el supply de PYUSD en el 7.6 por ciento del límite de enteros seguros que tiene JavaScript, el de USDC en el 88 por ciento, y el máximo de u64 mucho más allá, terminando con la regla de mantener todo en BigInt.](assets/v02-comparison.png)
+![Una comparación que muestra el supply de PYUSD en el 7.6 por ciento del límite de enteros seguros que tiene JavaScript, el de USDC en el 88 por ciento, y el máximo de u64 mucho más allá, terminando con la regla de mantener todo en BigInt.](assets/v02-comparison.webp)
 
 Esa es la base. En un mint clásico pelado, ese también es el final: el byte 82 es el borde de la cuenta. La longitud misma es tu primera bifurcación de parser, y es una respuesta completa por sí sola. Una cuenta que mide exactamente 82 bytes es un mint pelado sin extensiones, sin discriminador, sin región TLV, punto final. Nada más que revisar.
 
@@ -85,7 +85,7 @@ El costo de este diseño es sincero y visible: un mint extendido gasta 83 bytes 
 
 Esto también resuelve una pregunta práctica sobre las cuentas de token que usas a diario. Tus ATAs, las cuentas de token asociadas que guardan tus saldos, son cuentas de token de 165 bytes en el programa clásico. Una cuenta de token de Token-2022 con cualquier extensión recibe el mismo trato que un mint: se rellena (ya está en 165), y después el byte 165 lleva un 2 en vez de un 1. Mismo slot de discriminador, valor distinto. Un byte, y los mints y las cuentas de token nunca más pueden confundirse sin importar lo que las extensiones le hagan a sus longitudes.
 
-![Dos barras de bytes que comparan un mint pelado de 82 bytes con el mint de 866 bytes de PYUSD, cuya base idéntica va seguida de relleno, el discriminador de tipo de cuenta y una región TLV de 700 bytes.](assets/v03-diagram.png)
+![Dos barras de bytes que comparan un mint pelado de 82 bytes con el mint de 866 bytes de PYUSD, cuya base idéntica va seguida de relleno, el discriminador de tipo de cuenta y una región TLV de 700 bytes.](assets/v03-diagram.webp)
 
 ### El recorrido TLV
 
@@ -93,13 +93,13 @@ Todo lo que va del byte 166 al final de la cuenta es una secuencia de **entradas
 
 La salida de tu `peek.ts` ya contenía un ejemplo completo y resuelto. Los cuatro bytes en 166 eran `3 0 32 0`. Léelos como dos u16 little-endian: tipo = 3, longitud = 32. El tipo 3 es MintCloseAuthority, y su valor es una pubkey de 32 bytes. Así que los bytes 170 a 201 son esa autoridad, y el header de la siguiente entrada empieza en 166 + 4 + 32 = 202. En 202 encontrarías `12 0 32 0`: PermanentDelegate, otra pubkey de 32 bytes, siguiente header en 238. Y así sucesivamente, ocho veces, hasta que la última entrada termina exactamente en el byte 866, el borde de la cuenta. Cuando tu cursor cae justo en el límite de la cuenta sin que sobre nada, esa es la verificación de reconciliación que prueba que tu recorrido leyó cada byte.
 
-![Una tabla que recorre las ocho entradas TLV de PYUSD del byte 166 al 866, mostrando el tipo, el nombre, la longitud de cada entrada, y la aritmética de cursor que cae exactamente en el límite de la cuenta.](assets/v04-annotated-code.png)
+![Una tabla que recorre las ocho entradas TLV de PYUSD del byte 166 al 866, mostrando el tipo, el nombre, la longitud de cada entrada, y la aritmética de cursor que cae exactamente en el límite de la cuenta.](assets/v04-annotated-code.webp)
 
 Recorre con la vista la columna de tipo un segundo, porque mata calladamente una suposición tentadora. Los códigos van 3, 12, 1, 4, 16, 14, 18, 19. Sin ordenar. Las entradas TLV aparecen en el orden en que el emisor las inicializó, no en orden de tipo, así que tu parser nunca debe hacer búsqueda binaria ni suponer la posición. Recorres, siempre.
 
 Ahora la trampa que le gana a esta lección su lugar en el curso, la que ni el brief ni yo vamos a dejar que aprendas en producción. Cuando terminas de leer una entrada, avanzas el cursor hasta el siguiente header. El valor mide `length` bytes, pero la entrada mide `4 + length` bytes, porque los campos de tipo y longitud se llevan dos bytes cada uno. Avanza solo por `length` y tu cursor queda 4 bytes corto, en el medio del valor que acabas de leer. El siguiente "tipo" que leas son dos bytes de la pubkey de alguna autoridad. La siguiente "longitud" son dos más. Los dos parsean bien, porque dos bytes cualesquiera parsean como un u16. De ahí en adelante, cada entrada que decodificas es basura que parece datos, y nada lanza un error. Una constante equivocada, una lectura corrupta en silencio de cada entrada siguiente. Este es el impuesto de fragilidad del parseo a mano, y por eso existe el script de asserts.
 
-![Dos recorridos sobre los mismos bytes TLV, uno avanzando por cuatro más longitud hasta el siguiente header, el otro quedando cuatro bytes corto, así que cada lectura posterior está mal en silencio.](assets/v05-diagram.png)
+![Dos recorridos sobre los mismos bytes TLV, uno avanzando por cuatro más longitud hasta el siguiente header, el otro quedando cuatro bytes corto, así que cada lectura posterior está mal en silencio.](assets/v05-diagram.webp)
 
 Las longitudes mismas ya te están diciendo qué vive dentro de cada valor, incluso antes de que estudiemos los mecanismos. Las dos entradas de 32 bytes, MintCloseAuthority y PermanentDelegate, son, cada una, una sola pubkey: una autoridad, nada más. TransferHook y MetadataPointer leen 64 las dos, y las dos son un par de pubkeys: una autoridad con permiso para actualizar la entrada, más la dirección a la que apunta (un programa de hook en un caso, una cuenta de metadatos en el otro). El 65 raro de ConfidentialTransferMint son dos pubkeys más un único byte de política de aprobación en el medio. Y el 174 de TokenMetadata es la única entrada de longitud variable del conjunto: guarda cadenas de verdad (nombre, símbolo, URI), así que su longitud difiere por mint mientras que la longitud de cada otra entrada está fijada por su struct. Todavía no puedes decodificar los valores, y esta lección deliberadamente no lo hace: los layouts de valor son conocimiento por extensión, y el módulo 2 los toma un mecanismo a la vez. Pero ya puedes hacer un análisis forense sorprendentemente afilado con `{name, type, length}` solo, que es exactamente la interfaz que exporta tu inspector.
 
@@ -113,7 +113,7 @@ Ahora puedes leer cualquier mint existente. Crear uno plantea el problema invers
 
 Los números resultantes son agradablemente no redondos, y cada uno detalla su propio costo. Un mint con solo NonTransferable, una extensión marcadora cuyo valor es de cero bytes, es de 165 + 1 + 4 + 0 = 170 bytes. Un mint con solo TransferFeeConfig, cuyo valor es de 108 bytes de autoridades, montos retenidos, y dos calendarios de comisiones, es de 165 + 1 + 4 + 108 = 278. Esas dos cifras salen directamente de los ejemplos token-2022 de program-examples de solana-developers, y ahora también salen de tu propia aritmética. Cada extensión se paga a sí misma en rent de cuenta, y la longitud sola te dice la factura. El lab calcula estos con el espejo del mismo modelo que tiene el cliente JS, así que nunca los memorizas, los regeneras.
 
-![Un gráfico de barras con los tamaños de mint: 82 bytes pelado, 170 con NonTransferable, 278 con una config de comisión de transferencia, y 866 para PYUSD, contra el piso de 166 bytes de la base extendida.](assets/v06-chart.png)
+![Un gráfico de barras con los tamaños de mint: 82 bytes pelado, 170 con NonTransferable, 278 con una config de comisión de transferencia, y 866 para PYUSD, contra el piso de 166 bytes de la base extendida.](assets/v06-chart.webp)
 
 Aquí está el trade-off honesto de toda esta lección, dicho una vez antes de que construyas. Leer bytes crudos te da una verdad de base que ninguna UI de billetera, ningún parser de RPC y ningún SDK pueden ocultarte. También es frágil por naturaleza: los offsets se corren a medida que se agregan extensiones, los códigos de tipo tienen que mapear bien, y ya viste cómo un avance de cursor equivocado corrompe en silencio todo lo que viene después. El parseo a mano es la jugada correcta para enseñar y la jugada equivocada para producción. Los clientes publicados existen precisamente para que rara vez hagas esto a mano, y el paso 6 del lab usa uno para revisar tu trabajo. Pero cuando una billetera muestra una cosa y un explorador muestra otra, los bytes son el desempate, y después de hoy estás calificado para consultarlos. Ese es el punto: no reemplazar las herramientas, sino dejar de ser rehén de ellas.
 
@@ -139,7 +139,7 @@ Los pins merecen un párrafo, porque aquí tuve que tomar una decisión de verda
 
 **2. Escribe el inspector, primero la parte resuelta.** Antes del código, sostén una vez todo el flujo de decisión en tu cabeza. Es corto, y cada rama es algo que la teoría acaba de enseñar:
 
-![Un diagrama de flujo para el inspector de mints: trae los bytes, parsea la base, reporta pelado en exactamente 82 bytes, si no revisa el byte 165 y recorre la región TLV desde el byte 166.](assets/v07-flowchart.png)
+![Un diagrama de flujo para el inspector de mints: trae los bytes, parsea la base, reporta pelado en exactamente 82 bytes, si no revisa el byte 165 y recorre la región TLV desde el byte 166.](assets/v07-flowchart.webp)
 
 Ahora crea `decode-mint.ts`. Todo aquí se muestra completo excepto una región: el slice base y el chequeo de si es extendido son tuyos para copiar, y el loop TLV es tuyo para escribir.
 

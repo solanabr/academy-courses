@@ -48,7 +48,7 @@ Sit in the pool's chair for a minute. A pool is a pile of two tokens plus an inv
 
 Could the DEX review tokens case by case? That is a real design, and Orca ships it. A Token Badge is a per-mint approval Orca's team grants after actually looking at your mint, which is how a token carrying something like PermanentDelegate can trade there at all: not by clearing a published list, but by clearing a person. Price that design honestly, because it is not strictly worse than a list. A reviewer sees things a match statement never will: who the issuer is, whether the delegate key is a multisig or one laptop, whether the fee authority was already revoked. What a reviewer cannot do is scale, answer in a bounded amount of time, or tell you the verdict before you have committed to a design and minted it. And a permissionless pool factory cannot use one at all. Pool creation there is a transaction anyone can send at any slot with no human anywhere in the path, so for CP-Swap the acceptance rule has to be code. Code cannot read a whitepaper or a legal opinion. It can only read the mint.
 
-![Seven-axis table comparing Orca's human Token Badge review against Raydium's compiled allowlist, with the permissionless-factory row marked as the reason CP-Swap's rule must be code.](assets/v01-table.png)
+![Seven-axis table comparing Orca's human Token Badge review against Raydium's compiled allowlist, with the permissionless-factory row marked as the reason CP-Swap's rule must be code.](assets/v01-table.webp)
 
 Fine, then could the pool just accept everything and handle the consequences? Walk the refused list and the consequences are not handleable. A TransferHook means a program the DEX never audited runs inside every swap, with whatever compute it likes; Raydium's docs refuse it in exactly those words, a custom program invoked on every transfer with arbitrary CU consumption. A PermanentDelegate means some key out there can move tokens out of any account, and the pool vault is an account; Raydium again, verbatim: a holder of the delegate can sweep any token account, including the pool vault. DefaultAccountState frozen means the issuer decides whether the pool's own accounts may transact at all. ConfidentialTransfer means the amounts are encrypted, and you cannot run an invariant over ciphertext. Each refusal protects a different load-bearing assumption, but they are all the same genus: the extension gives someone outside the pool authority over what happens inside it.
 
@@ -58,7 +58,7 @@ One more escape hatch is worth closing, because it is the one a good engineer re
 
 Now look at the accepted side with the same eyes. A transfer fee is issuer power too, technically, but it is declared, capped, and readable on the mint, so the pool can price it, and the interface hands you `calculate_fee`, the fee-math helper on the TransferFeeConfig state whose formula you mirrored in TypeScript as `transferFee` back in m02-l1, to do exactly that. Metadata changes what humans see, never what the token does. InterestBearingConfig and ScaledUiAmount are pure display arithmetic; the raw amounts the pool accounts for never move. The pattern is not "harmless extensions pass." The pattern is: anything the pool can fully price from on-chain data passes, anything that reserves discretion for the issuer fails. That is a value judgment about who gets to run code on every transfer, encoded as a Rust match statement, and I genuinely find that more honest than a listing form. The code cannot be lobbied.
 
-![Two-column diagram splitting the five whitelisted display-and-fee extensions from the four refused power extensions, divided by whether the pool can compute its invariant without trusting the issuer.](assets/v02-diagram.png)
+![Two-column diagram splitting the five whitelisted display-and-fee extensions from the four refused power extensions, divided by whether the pool can compute its invariant without trusting the issuer.](assets/v02-diagram.webp)
 
 One more turn of the crank, because the thesis has a sharp corollary you met last lesson. Ask your own predictor to state it, in the same folder as before:
 
@@ -96,7 +96,7 @@ Only the first case comes back routable. Five allowlisted extensions plus one re
 
 Let me say the trade-off out loud, because this course promised it always would: the routable set is the boring set. Designing for maximum tradeability means giving up everything interesting you built or weighed from module two's authority catalog onward. No on-transfer logic on the mint people trade. No permanent delegate, no default-frozen onboarding, the two m02 powers SPROUT considered and never wore. No hidden amounts. If your product genuinely needs a power extension, that need is real and this lesson is not telling you to abandon it. It is telling you to price it: a hook means Meteora DBC territory instead of CP-Swap, or a Token Badge review on Orca that may or may not go your way, or a two-mint architecture where the powered variant never touches a pool. Choosing a smaller venue surface is a legitimate design. Discovering a smaller venue surface at launch is an incident.
 
-![Flowchart walking each candidate extension through need, allowlist membership, and issuer-versus-holder placement, ending in drop, keep, move to an issuer variant, or knowingly accept a smaller venue surface.](assets/v03-flowchart.png)
+![Flowchart walking each candidate extension through need, allowlist membership, and issuer-versus-holder placement, ending in drop, keep, move to an issuer variant, or knowingly accept a smaller venue surface.](assets/v03-flowchart.webp)
 
 ### Assembling SPROUT's set
 
@@ -104,7 +104,7 @@ Apply the procedure to the audit you ran at the top. TransferFeeConfig: the fee 
 
 The hook is the hard goodbye. You wrote it yourself in m03, it works, and it is exactly the arbitrary-code-on-every-transfer a pool cannot carry. It comes off the tradeable mint. If harvest logging still matters to the product, the hook lives on a separate non-pooled issuer variant, same pattern as the confidential branch you shelved in m04: powered mints for issuer workflows, a boring mint for the market. And here is a detail that makes the two-mint split less annoying than it sounds: the combo matrix you built in m01-l4 would have fought a merge anyway. Fold ConfidentialTransferMint into the fee mint and rule 2 of `check-combo` demands ConfidentialTransferFeeConfig on top, which drags in the whole confidential fee apparatus. The extension system itself keeps nudging power and commerce apart. I fought that nudge for a while on my own designs before accepting it was load-bearing.
 
-![Three-column comparison of the launching fee-plus-metadata SPROUT (routable, fork-verified) against the transfer-hook variant (rejected, issuer-only) and the shelved confidential branch (unpoolable by construction).](assets/v04-comparison.png)
+![Three-column comparison of the launching fee-plus-metadata SPROUT (routable, fork-verified) against the transfer-hook variant (rejected, issuer-only) and the shelved confidential branch (unpoolable by construction).](assets/v04-comparison.webp)
 
 ### The two allowlisted extensions SPROUT is still not taking
 
@@ -118,7 +118,7 @@ So the design rule generalizes past routability, and this is the version worth k
 
 You do not have to take the two-track pattern from a course token. Read it off the flagship whose story closed last lesson, and this time count: PYUSD's mint carries eight TLV extensions, mintCloseAuthority, permanentDelegate, transferFeeConfig, the confidentialTransfer pair, transferHook, metadataPointer, tokenMetadata. Configured but dormant: I re-read the mint from mainnet while drafting this on 2026-08-23 and the hook's `programId` is null and the fee sits at 0 basis points, max 0 — every power option bought, every one switched off. How a permanent-delegate mint trades on CP-Swap at all you already know: the whitelist bypass, and you can settle it in five seconds because PYUSD's mint address is one of the four strings in `MINT_WHITELIST` at `token.rs` L18-23, right there in the `sed` output you already printed. Ship the compliance-shaped extensions, keep the power ones idle, and even then routability came from a special door, not the general rule.
 
-![Diagram of PYUSD's eight TLV extensions as read live on 2026-08-23, with the transfer fee at zero basis points and the transfer hook program ID null, illustrating configured-but-dormant power extensions.](assets/v05-diagram.png)
+![Diagram of PYUSD's eight TLV extensions as read live on 2026-08-23, with the transfer fee at zero basis points and the transfer hook program ID null, illustrating configured-but-dormant power extensions.](assets/v05-diagram.webp)
 
 ### Routability is per-venue, and most of the map is unlit
 
@@ -126,11 +126,11 @@ Everything so far is one venue's law. Hold that limit tight, because the moment 
 
 Wallets are darker still. Whether Phantom shows a fee warning, whether Backpack renders the metadata pointer, whether Solflare flags a hook: unverified, all of it, across every research pass behind this course. I could paste a plausible compatibility matrix here and you would believe it, and that is precisely why I will not. A frozen matrix of unmeasured claims is worse than no matrix, because it fails silently in the one place you stopped checking.
 
-![Comparison of five venues, from Raydium CP-Swap's code allowlist and AMM v4's classic-SPL rule to Orca's Token Badge review, Jupiter's absent policy, and Meteora's hook support, flagging the verify-yourself rows.](assets/v06-comparison.png)
+![Comparison of five venues, from Raydium CP-Swap's code allowlist and AMM v4's classic-SPL rule to Orca's Token Badge review, Jupiter's absent policy, and Meteora's hook support, flagging the verify-yourself rows.](assets/v06-comparison.webp)
 
 Why so much darkness in a maturing ecosystem? Partly because the ground truly moves, and partly because the people who used to map it stopped. The Solana Foundation's developer-content repo, the source behind years of official course material, was archived on 2025-01-24. Every official course froze before the venue rules you are designing against existed. There is no canonical matrix because nobody is paid to keep one true, and the third parties who publish one are freezing the same churning facts you are. That is not a reason for despair; it is the design constraint your report is built around. The durable deliverable is a matrix plus the dated method for re-deriving every cell.
 
-![Timeline from PYUSD's May 2024 launch through the January 2025 archiving of official Solana education to this lesson's dated 2026 reads, ending in a re-verify-at-launch arrow.](assets/v07-timeline.png)
+![Timeline from PYUSD's May 2024 launch through the January 2025 archiving of official Solana education to this lesson's dated 2026 reads, ending in a re-verify-at-launch arrow.](assets/v07-timeline.webp)
 
 ### What a verify item owes the reader
 
@@ -140,7 +140,7 @@ Drop any one part and watch the item rot in a predictable way. Target missing, a
 
 There is a matching rule for the claims you did verify, and it is the shorter one: date them. A verified claim needs a date so it can rot visibly; an unverified claim needs a method so someone can settle it. Every dated claim in this lesson follows the first rule, including the ones I read off mainnet this morning.
 
-![Table contrasting decorative and usable versions of a verify item across target, claim, and procedure, with the rule that verified claims carry a date and unverified claims a method.](assets/v08-table.png)
+![Table contrasting decorative and usable versions of a verify item across target, claim, and procedure, with the rule that verified claims carry a date and unverified claims a method.](assets/v08-table.webp)
 
 That three-part shape is not a writing convention, it is a data structure, and in the lab you are about to build it becomes a TypeScript interface with exactly three fields. Which is the nice thing about encoding honesty in a program: a shrug does not typecheck.
 
@@ -343,7 +343,7 @@ npx tsx routability-report.ts
 
    You should see the four sections in order, `Combo matrix: valid`, `CP-Swap predictor verdict: ROUTABLE`, three verify-yourself entries, and the closing `All gates pass` line with exit code 0. Then prove the gates are real: add `"DefaultAccountState"` to `LAUNCH_SET`, run again, and watch the same script refuse to ship its own report: a row tagged refused, gate fail, exit 1. A checkpoint that cannot fail was never a checkpoint. Take the extension back out.
 
-![Flowchart of the report script consuming the predictor and combo checker, emitting four sections, then failing its build on a refused extension, invalid combo, rejected set, or empty verify-yourself list.](assets/v09-flowchart.png)
+![Flowchart of the report script consuming the predictor and combo checker, emitting four sections, then failing its build on a refused extension, invalid combo, rejected set, or empty verify-yourself list.](assets/v09-flowchart.webp)
 
 ## Challenge
 

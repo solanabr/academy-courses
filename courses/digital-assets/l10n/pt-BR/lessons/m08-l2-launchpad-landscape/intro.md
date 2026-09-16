@@ -77,7 +77,7 @@ Eu quero ser honesto sobre o que a sondagem provou e o que ela não provou, porq
 
 Pense nisso como uma franquia, porque a analogia se sustenta até o fim e eu vou continuar usando ela. Uma cozinha, uma fritadeira, um contrato de fornecedor. O franqueado escolhe a placa em cima da porta, os preços no quadro, e quem fica com o caixa no fechamento. O que o franqueado não consegue mudar é a fritadeira. E essa é exatamente a troca que o Platform PDA oferece: controle total de marca e de divisão de taxa, zero controle da mecânica.
 
-![Um diagrama de cubo e raios do programa Raydium LaunchLab com raios de Platform PDA para Raydium, LetsBonk e terceiros, compartilhando uma curva e uma regra de graduação enquanto cada um configura marca e taxas.](assets/v01-diagram.png)
+![Um diagrama de cubo e raios do programa Raydium LaunchLab com raios de Platform PDA para Raydium, LetsBonk e terceiros, compartilhando uma curva e uma regra de graduação enquanto cada um configura marca e taxas.](assets/v01-diagram.webp)
 
 ### O que um launchpad é de verdade
 
@@ -93,7 +93,7 @@ Tire a marca e um launchpad é quatro decisões empacotadas juntas e vendidas co
 
 Repare no que não está nessa lista: o padrão de token. Qualquer um desses venues vai cunhar um token SPL para você sem reclamar. Só alguns deles vão carregar um mint Token-2022 com extensões de poder até o fim da migração, e nenhum deles vai te avisar na hora do mint. A falha aparece na última instrução.
 
-![Uma comparação de quatro colunas entre pump.fun, Raydium LaunchLab, Meteora DBC e Metaplex Genesis em oito eixos de lançamento, com a Meteora DBC sendo o único venue documentado como suportando configs de transfer hook.](assets/v02-comparison.png)
+![Uma comparação de quatro colunas entre pump.fun, Raydium LaunchLab, Meteora DBC e Metaplex Genesis em oito eixos de lançamento, com a Meteora DBC sendo o único venue documentado como suportando configs de transfer hook.](assets/v02-comparison.webp)
 
 ### pump.fun: o venue sem botões
 
@@ -103,7 +103,7 @@ O dia da virada em 2025-09-01 é a parte que vale carregar para dentro desta li�
 
 A vantagem de não ter botões é real e é subestimada por quem gosta de botões: você não consegue configurar errado. Todo lançamento é o mesmo lançamento, então liquidez, bots, front ends e dashboards sabem a forma de antemão, e a superfície de integração é enorme porque ela nunca muda. Configuração zero é uma feature quando a alternativa é você, às 3 da manhã, escolhendo uma duração de cliff que você não entende.
 
-![Um gráfico de barras agrupadas de taxas lidas em 2026-08-22, com o 1.00% da pump.fun marcado como histórico e substituído por faixas dinâmicas, o modo de curva do Genesis empilhado em 1.10% e 0.86%, e dois venues deixados como barras de espaço reservado marcadas como sem fonte.](assets/v03-chart.png)
+![Um gráfico de barras agrupadas de taxas lidas em 2026-08-22, com o 1.00% da pump.fun marcado como histórico e substituído por faixas dinâmicas, o modo de curva do Genesis empilhado em 1.10% e 0.86%, e dois venues deixados como barras de espaço reservado marcadas como sem fonte.](assets/v03-chart.webp)
 
 ### LaunchLab: botões, um contrato de franquia e um NFT que cobra aluguel
 
@@ -160,7 +160,7 @@ O `migration_quote_threshold` é o gatilho de graduação, em unidades do token 
 
 Lado do custo, porque um venue tão flexível não é de graça. Todo segmento é uma decisão de distribuição que você agora tem de defender, e uma curva por partes te dá muito mais jeitos de errar do que uma fixa. A matemática de pool e a estratégia de LP que te deixariam modelar esses segmentos com inteligência estão genuinamente fora de escopo aqui, e eu não vou fingir que não: o curso planejado DeFi and RWA Engineering ensina provisão de liquidez com profundidade de verdade, e é ali que modelar curva deixa de ser um cardápio e vira uma disciplina. Esta lição te leva exatamente até escolher o venue e saber quais são os botões dele.
 
-![Um trecho anotado da fonte da Dynamic Bonding Curve da Meteora mostrando MAX_CURVE_POINT em 16 e MAX_CURVE_POINT_CONFIG em 20, com chamadas nomeando a falha que cada número causa se for o único em que você confia.](assets/v04-annotated-code.png)
+![Um trecho anotado da fonte da Dynamic Bonding Curve da Meteora mostrando MAX_CURVE_POINT em 16 e MAX_CURVE_POINT_CONFIG em 20, com chamadas nomeando a falha que cada número causa se for o único em que você confia.](assets/v04-annotated-code.webp)
 
 ### Genesis: quando uma curva é a forma completamente errada
 
@@ -170,7 +170,7 @@ O Genesis oferece um **leilão de preço uniforme** no lugar. Os lances entram d
 
 O que ele te custa é justamente aquilo em que curvas são boas. Um leilão precisa que a demanda apareça dentro de uma janela, e uma janela é um problema de coordenação: você tem de fazer marketing dela, e se a janela fechar magra, você descobriu a sua curva de demanda em público. Uma bonding curve nunca tem esse modo de falha, porque ela está sempre aberta e sempre cotando. Escolha o leilão quando o lançamento tem gravidade suficiente para encher uma sala em um horário marcado. Escolha uma curva quando não tem.
 
-![Um diagrama de fluxo de dados do Metaplex Genesis roteando o SOL dos participantes através de buckets de entrada, um comportamento de fim e buckets de saída, com uma pista paralela alocando tokens para os vencedores a um único preço de fechamento.](assets/v05-diagram.png)
+![Um diagrama de fluxo de dados do Metaplex Genesis roteando o SOL dos participantes através de buckets de entrada, um comportamento de fim e buckets de saída, com uma pista paralela alocando tokens para os vencedores a um único preço de fechamento.](assets/v05-diagram.webp)
 
 ### Quatro defesas contra a mesma janela disputada
 
@@ -186,7 +186,7 @@ Todo mecanismo anti-snipe neste espaço está atacando a mesma janela. Do slot e
 
 Existe uma quinta opção que as pessoas esquecem: nenhuma defesa. É isso que um lançamento simples na pump é, e é uma escolha coerente se o token é pequeno, o lançamento é silencioso, e o custo de um bot conseguir um bom fill é genuinamente menor que o custo de pedir para a sua comunidade aprender uma janela de depósito. Nomear isso como escolha é diferente de tropeçar nisso.
 
-![Uma linha do tempo de lançamento com os primeiros slots disputados por snipers depois de a negociação abrir, e quatro defesas posicionadas em volta dessa zona: janela de depósito, primeira compra sem taxa, taxa decrescente e leilão de preço uniforme.](assets/v06-timeline.png)
+![Uma linha do tempo de lançamento com os primeiros slots disputados por snipers depois de a negociação abrir, e quatro defesas posicionadas em volta dessa zona: janela de depósito, primeira compra sem taxa, taxa decrescente e leilão de preço uniforme.](assets/v06-timeline.webp)
 
 ### O que a graduação de fato semeia
 
@@ -200,7 +200,7 @@ Aqui está a parte que todo launchpad faz por você em silêncio, e é por isso 
 
 Agora o contrafactual, que é o único jeito de sentir o que você está ganhando. Sem um launchpad você criaria a conta de pool e pagaria o rent dela você mesmo, financiaria os dois lados a partir de uma carteira que você controla, escolheria um preço de abertura por julgamento em vez de por mecanismo, receberia os tokens LP naquela mesma carteira, e aí resolveria o problema de confiança na mão: queimar eles e provar isso, ou travar eles em algum lugar e provar aquilo. Você também seria dono do problema anti-snipe inteiro sozinho, porque uma pool nova sem defesa é uma pool que é snipada no primeiro slot dela por definição. Isso são quatro trabalhos e uma prova de confiança, em troca do controle de cada um deles.
 
-![Uma tabela de três colunas listando as cinco coisas que um launchpad semeia na graduação, quem decide cada uma, e o equivalente manual desde a criação da pool até a cobertura anti-snipe.](assets/v07-table.png)
+![Uma tabela de três colunas listando as cinco coisas que um launchpad semeia na graduação, quem decide cada uma, e o equivalente manual desde a criação da pool até a cobertura anti-snipe.](assets/v07-table.webp)
 
 ### O conjunto de extensões vota primeiro
 
@@ -210,7 +210,7 @@ Leia a tabela de comparação de novo com isso na mão e o campo de venues estre
 
 Então a ordem é fixa, e é o oposto de como a maioria dos lançamentos é planejada. O conjunto de extensões decide quais AMMs de graduação são legais. Os AMMs legais decidem quais venues estão disponíveis. Os venues disponíveis te oferecem um cardápio de defesas. Você escolhe desse cardápio. Quem escolhe o venue primeiro vai acabar mudando o token para caber nele, o que é um resultado ótimo desde que tenha sido uma decisão em vez de uma descoberta.
 
-![Um fluxograma de quatro estágios indo do conjunto de extensões para os AMMs legais, para os venues disponíveis, para a escolha de defesa, com uma seta invertida marcando o plano de trás para a frente mais comum e uma chamada de reversão na migração.](assets/v08-flowchart.png)
+![Um fluxograma de quatro estágios indo do conjunto de extensões para os AMMs legais, para os venues disponíveis, para a escolha de defesa, com uma seta invertida marcando o plano de trás para a frente mais comum e uma chamada de reversão na migração.](assets/v08-flowchart.webp)
 
 ## Lab: escolha o venue do SPROUT e escreva a decisão
 
@@ -508,7 +508,7 @@ Repare que esta resposta não é a resposta da lição passada, e a diferença �
 
 Agora faça falhar de três jeitos, porque um checkpoint que não pode falhar nunca foi um checkpoint. Adicione `"TransferHook"` a `extensions` e repare que a linha da DBC sobrevive enquanto as outras três rejeições continuam de pé. Defina `wantsAntiSnipe: false` e repare que a pump e o LaunchLab NÃO voltam para o conjunto elegível; a cancela do programa base rejeitou os dois antes de a cancela de defesa sequer rodar, e nenhuma flag de preferência consegue conjurar um mint Token-2022 em um venue de SPL clássico. Para ver a cancela de defesa morder de verdade, vire o perfil inteiro para um token clássico simples (`baseTokenProgram: "spl"`, `extensions` vazio, `wantsAntiSnipe: true`) e veja a pump e o LaunchLab serem rejeitados só pela defesa. Por fim defina `extensions` como `["PermanentDelegate"]` com o perfil Token-2022 e observe o throw: nenhum venue sobrevive, toda rejeição impressa, nenhum default retornado. Devolva os valores reais do SPROUT quando terminar.
 
-![Um fluxograma do choose-venue.ts passando cada venue por uma cancela de extensão e uma cancela de preferência, com as rejeições coletadas à parte, um desempate, e uma cancela de saída para escolhas sem defesa.](assets/v09-flowchart.png)
+![Um fluxograma do choose-venue.ts passando cada venue por uma cancela de extensão e uma cancela de preferência, com as rejeições coletadas à parte, um desempate, e uma cancela de saída para escolhas sem defesa.](assets/v09-flowchart.webp)
 
 ## Challenge
 

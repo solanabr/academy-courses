@@ -58,7 +58,7 @@ The stake for you is concrete and it is not abstract accounting: a fee you never
 
 You built the mechanism for walking the floor back in module 2, in the economics-extensions lesson, and you tested it against a single buyer. Today it becomes the first leg of a rail with three more legs bolted onto it.
 
-![A flowchart traces withheld fees from buyer accounts through a permissionless harvest to the mint, an authority-gated withdraw to the treasury PDA, a buyback against whichever counterparty you have, and a supply-dropping burn.](assets/v01-flowchart.png)
+![A flowchart traces withheld fees from buyer accounts through a permissionless harvest to the mint, an authority-gated withdraw to the treasury PDA, a buyback against whichever counterparty you have, and a supply-dropping burn.](assets/v01-flowchart.webp)
 
 ### Legs one and two: the harvest crank (consolidate, then collect)
 
@@ -100,7 +100,7 @@ export function chunk<T>(items: T[], size: number): T[][] {
 
 And finding the dirty accounts is your problem too. A token account puts its mint at byte offset 0, so one `getProgramAccounts` call with a memcmp filter gives you every holder of SPROUT, and then you read each one's `TransferFeeAmount` and keep the nonzero ones. On a fork with a few dozen holders that is a two-second scan. At Jupiter-sized holder counts it is an indexing job, `getProgramAccounts` over a large program is exactly the query public RPCs throttle hardest, and the honest answer is that you rent it, the same way the asset-reading lesson had you rent a DAS provider rather than run your own indexer.
 
-![A table compares the four costs of running a withheld-fee harvest crank, from cheap compute through packing limits and heavy account scans to the operational ownership that causes most failures.](assets/v02-comparison.png)
+![A table compares the four costs of running a withheld-fee harvest crank, from cheap compute through packing limits and heavy account scans to the operational ownership that causes most failures.](assets/v02-comparison.webp)
 
 ### Three fee models, and the week you lose by confusing them
 
@@ -112,11 +112,11 @@ The rest of pump's fee machinery is worth knowing precisely, because it is the c
 
 Read what the flag day means rather than just filing the date. Before it, a creator launching on pump knew the number: 100 basis points, the same for everyone, the same next month. After it, the fee a coin pays is a function of where that coin trades, which is a variable the creator does not set and cannot freeze. That is not a criticism of pump, whose schedule is published and whose reasoning is defensible. It is the general shape of launching on someone else's rail: you inherit their economic policy, including the version of it they ship after you launch. Your own Token-2022 fee is the opposite trade. You own the rate, you can make it permanent by nulling the config authority, and in exchange you own the harvesting, the indexing, the cron, and every integration that breaks because amount sent no longer equals amount received. Neither side of that trade is free. Pick the one whose costs you would rather be responsible for.
 
-![A timeline moves pump.fun fees from a flat 100 basis point era to the market-cap-scaled schedule of 2025-09-01 and on to Cashback redirects, with standing vault mechanics throughout.](assets/v03-timeline.png)
+![A timeline moves pump.fun fees from a flat 100 basis point era to the market-cap-scaled schedule of 2025-09-01 and on to Cashback redirects, with standing vault mechanics throughout.](assets/v03-timeline.webp)
 
 Now the counter-example, which is my favorite object in this entire course. In May 2024, PayPal and Paxos shipped PYUSD as the flagship compliance-shaped Token-2022 mint. It carries a transfer fee config. That config is set to 0 basis points, and it has never fired. The most institutionally serious fee-capable token on Solana collects nothing, on purpose, because what its issuers wanted was the *option*, armed and dormant, available the day a regulator or a business model asks for it. Configured is not the same as active. You have already read that same distinction off a live mint with `decode-mint`, and this is the highest-stakes example of it.
 
-![A comparison table separates Token-2022 withheld transfer fees, pump.fun's program-side creator_vault fees, and PYUSD's dormant zero-bps fee config across accrual point, mover, rate, and twists.](assets/v04-comparison.png)
+![A comparison table separates Token-2022 withheld transfer fees, pump.fun's program-side creator_vault fees, and PYUSD's dormant zero-bps fee config across accrual point, mover, rate, and twists.](assets/v04-comparison.webp)
 
 The practical rule: before you write a single line of collection code, read the mint's extensions and find out which machine you are looking at. If `TransferFeeConfig` is present with nonzero bps, harvesting applies. If the fees are program-side, go find the program's vault and its claim instruction. Wrong model, wrong week.
 
@@ -130,7 +130,7 @@ The buyback is a completely separate leg and it is funded by a different asset. 
 
 The trap I want you to name out loud before you write the function: the fee-burn and the buyback-burn do not have to be equal, and nothing is wrong when they are not. They are two independent flows into the same furnace. One is denominated in SPROUT you already had, the other in SOL you converted. Conservation applies inside the split, not across the two legs.
 
-![A diagram splits a 1,000,000-unit harvest into a 200,000 burn and an 800,000 treasury share beside a separate SOL-funded buyback, with both flows converging on one burn.](assets/v05-diagram.png)
+![A diagram splits a 1,000,000-unit harvest into a 200,000 burn and an 800,000 treasury share beside a separate SOL-funded buyback, with both flows converging on one burn.](assets/v05-diagram.webp)
 
 ### Leg three: the buyback is a swap, and swaps cost money
 
@@ -166,7 +166,7 @@ So measure it. Read the treasury balance before the swap, read it after, and bur
 
 Which is also why the buyback is a policy question rather than a switch you flip. How much, how often, and how predictably are three dials, and moving any of them trades one cost for another.
 
-![A decision table weighs monthly-large, continuous-small, and opportunistic buyback policies against price impact, crank cost, and predictability to MEV.](assets/v06-table.png)
+![A decision table weighs monthly-large, continuous-small, and opportunistic buyback policies against price impact, crank cost, and predictability to MEV.](assets/v06-table.webp)
 
 There is a prior question hiding here, and you already answered it. A venue only accepts your token if your extension set is one it tolerates, which is the routability work you did in the designing-a-routable-token lesson. A permanent delegate or a transfer hook that the pool's allowlist rejects means there is no venue and therefore no buyback. The extension decisions you made in module 5 are what make module 9 possible.
 
@@ -178,7 +178,7 @@ Three things get called deflationary and only one of them is. A burn destroys to
 
 The footgun is the read, not the write. If you fetch the mint, then burn, then report from the object you fetched earlier, you will report the old supply and your assertion will pass or fail for reasons that have nothing to do with your code. Anything you decoded before a transaction is a photograph, not a live feed. Fetch the mint again after the burn confirms. The Anchor equivalent of this is calling `.reload()` after a CPI that touched your account, and the failure mode is identical in both worlds.
 
-![Six annotated code lines walk from a pre-burn supply fetch through harvest, buy and burn to a required re-fetch and the assertion that supply fell by the burned amount.](assets/v07-annotated-code.png)
+![Six annotated code lines walk from a pre-burn supply fetch through harvest, buy and burn to a required re-fetch and the assertion that supply fell by the burned amount.](assets/v07-annotated-code.webp)
 
 ## Lab: wire Overgrowth's fee rail
 
@@ -690,7 +690,7 @@ rail closed: harvested, split, bought back, burned
 
 Read those five lines against each other, because they only agree if the rail worked. The split line sums: 500,000 plus 2,000,000 is 2,500,000, exactly what the scan found. The buyback target is the treasury's spendable half, about 50 SOL after step 1b's airdrop, divided by the price. And the fourth line is the honest one: you planned 50,000 and 49,500 landed, because SPROUT charges its own 100-bps fee on the maker's payout to you and 500 units stayed behind as withheld — on your treasury's own account, waiting for the next harvest, which is the circularity the theory section warned about made visible. On door A that same line would also carry slippage and the venue's fee, and the number would be smaller still. Either way you paid something to buy your own token back, which is what a buyback has always been once you strip the word of its marketing.
 
-![A two-bar chart sets a planned buyback against the smaller quantity actually received, attributing the gap to price impact, venue fee, and the token's own transfer fee.](assets/v08-chart.png)
+![A two-bar chart sets a planned buyback against the smaller quantity actually received, attributing the gap to price impact, venue fee, and the token's own transfer fee.](assets/v08-chart.webp)
 
 If the run throws `supply drop != burn`, you almost certainly computed `bought` instead of measuring it, or you re-used the pre-burn mint object. Both are the same mistake.
 
@@ -700,7 +700,7 @@ If the run throws `supply drop != burn`, you almost certainly computed `bought` 
 
 **Solo.** Wire the whole rail yourself against the fork and prove it. Generate marketplace volume first, at least a dozen transfers across several buyers so the scan finds real work to do, then run `wire-economy.ts` end to end and produce four numbers: the harvested amount, the treasury delta, the buyback quantity actually received, and the post-burn supply delta. The gate is the assertion already in the script: supply fell by exactly what you burned, no more and no less.
 
-![A scorecard table lists harvested amount, treasury delta, buyback quantity and post-burn supply delta, each with its source, the claim it proves, and its characteristic failure.](assets/v09-table.png)
+![A scorecard table lists harvested amount, treasury delta, buyback quantity and post-burn supply delta, each with its source, the claim it proves, and its characteristic failure.](assets/v09-table.webp)
 
 **The empirical probe, if you want the real answer to a question this lesson only gestured at.** Run the buyback twice, once with a small slice of the treasury and once with the whole thing, and record the delivered-versus-planned gap each time. Then look at the treasury's own token account afterward and find the withheld SPROUT sitting on it, fees your own buyback paid to yourself.
 

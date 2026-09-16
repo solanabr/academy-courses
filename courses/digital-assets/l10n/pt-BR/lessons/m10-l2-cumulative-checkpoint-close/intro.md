@@ -12,7 +12,7 @@ Então feche as anotações. Abas do navegador incluídas. Aqui estão os três 
 
 **Brief três, a cota da co-op.** Uma co-op de alimentos tokeniza cotas de membros, uma emissão por membro, umas 900 delas, divisíveis porque a divisão anual de sobras cai em frações. O conselho precisa conseguir congelar uma cota quando um membro é expulso, e a cota nunca pode ser negociada em um venue público.
 
-![Uma tabela de decisão de seis colunas em branco com uma linha por brief a frio e células vazias para família de primitiva, conjunto de extensões, veredicto de compatibilidade, trilho de economia e defesa.](assets/v01-table.png)
+![Uma tabela de decisão de seis colunas em branco com uma linha por brief a frio e células vazias para família de primitiva, conjunto de extensões, veredicto de compatibilidade, trilho de economia e defesa.](assets/v01-table.webp)
 
 Agora preencha quatro células para cada brief, em um arquivo de texto, na mão: a família de primitiva, o conjunto de extensões ou plugins, o veredicto de compatibilidade, o único trilho de economia. Uma frase de defesa por linha. Sem pesquisar, sem rolar para trás. Dê quinze minutos e aceite o que sair, com brancos e tudo.
 
@@ -32,7 +32,7 @@ A **matriz de conflitos** do módulo um responde "este mint vai sequer inicializ
 
 A **tese de compatibilidade** do módulo cinco responde uma pergunta mais fria: "alguém vai conseguir negociar isso?" A allowlist do CP-Swap da Raydium é exatamente cinco extensões Token-2022, e você provou o formato da regra com o seu próprio preditor. É `every`, não `some`. Cinco extensões na allowlist mais uma extensão recusada continua recusado, porque a exposição da pool a um delegado permanente não encolhe quando uma config de taxa senta do lado. A Raydium escreveu o motivo em linguagem simples: um holder do delegado pode varrer qualquer conta de token, incluindo o vault da pool. A saída de emergência é uma `MINT_WHITELIST` hardcoded de quatro entradas, que não é uma coisa que você solicita numa terça-feira.
 
-![Uma comparação em dois painéis da matriz de conflitos, que pergunta se um mint inicializa, contra a tese de compatibilidade, que pergunta se um venue precifica ele, checadas nessa ordem.](assets/v02-comparison.png)
+![Uma comparação em dois painéis da matriz de conflitos, que pergunta se um mint inicializa, contra a tese de compatibilidade, que pergunta se um venue precifica ele, checadas nessa ordem.](assets/v02-comparison.webp)
 
 ### Linha um, checada
 
@@ -50,7 +50,7 @@ Barato em um milhão é o trabalho da compressão e de mais nada. O Metaplex Cor
 
 Não vendável é a metade que costumava quebrar isso. O folclore de 2024 diz que NFTs comprimidos não podem ser congelados nem tornados soulbound, o que era verdade então e é simplesmente falso agora. O Bubblegum v2 já vem com `set_non_transferable_v2`, e um NFT comprimido pode ser soulbound na cunhagem. Então a linha é um cNFT sob a coleção do clube, tornado não transferível, com uma cancela como trilho, e a célula de veredicto diz não aplicável porque um badge soulbound nunca ia para uma pool.
 
-![Um gráfico de barras em escala logarítmica comparando o custo de um milhão de posições entre ativos Core, contas de token SPL clássicas e uma única árvore Bubblegum v2, que é mais barata por mais de duas ordens de magnitude.](assets/v03-chart.png)
+![Um gráfico de barras em escala logarítmica comparando o custo de um milhão de posições entre ativos Core, contas de token SPL clássicas e uma única árvore Bubblegum v2, que é mais barata por mais de duas ordens de magnitude.](assets/v03-chart.webp)
 
 ### Linha três, checada
 
@@ -287,7 +287,7 @@ Você deve ver três linhas FAIL e `0/3 rows survive the rules` no exit 1. A lin
 
 **5.** Rode de novo e leia cada linha de problema como um ponteiro em vez de um veredicto. Uma linha que falha em `must stay tradeable` te manda para o módulo cinco. Uma linha falhando em custo te manda para a lição de compressão. Uma linha sem trilho te manda para o módulo nove. Linhas que passam não são prova de que você está certo, são prova de que você não está se contradizendo, que é uma barra mais baixa e mais honesta do que parece.
 
-![Um fluxograma das oito checagens em score-table.ts, da matriz de conflitos passando por fungibilidade e roteabilidade até o custo derivado, alimentando uma lista problems compartilhada que decide PASS ou FAIL.](assets/v04-flowchart.png)
+![Um fluxograma das oito checagens em score-table.ts, da matriz de conflitos passando por fungibilidade e roteabilidade até o custo derivado, alimentando uma lista problems compartilhada que decide PASS ou FAIL.](assets/v04-flowchart.webp)
 
 ## Challenge
 
@@ -330,7 +330,7 @@ Quando eu rodei isso em 2026-08-22 ele imprimiu `ACTIVE at slot 419472000`, o pr
 
 **DAS como o unificador.** Uma interface de leitura sobre um mint fungível com extensões, um ativo Core, e uma folha comprimida. Quando alguém te entregar um endereço daqui a dois anos e perguntar o que ele é, você tem um script para isso.
 
-![Um diagrama radial centrado em um endereço desconhecido, com quatro raios para as quatro ideias duráveis do curso, cada um rotulado com a sua pergunta e o seu artefato de prova.](assets/v05-diagram.png)
+![Um diagrama radial centrado em um endereço desconhecido, com quatro raios para as quatro ideias duráveis do curso, cada um rotulado com a sua pergunta e o seu artefato de prova.](assets/v05-diagram.webp)
 
 ### O que este curso não sabe
 
@@ -348,7 +348,7 @@ O curso **Master Anchor V2** é o framework em si. Macros, constraints, mecânic
 
 A educação oficial de Solana congelou no meio da trama. O repositório `solana-foundation/developer-content` virou somente leitura em 2025-01-24, e todo curso oficial sentado atrás daqueles links é anterior a `ScaledUiAmount`, `Pausable`, `ConfidentialMintBurn`, Bubblegum v2, Genesis e p-token. Isso não é uma reclamação sobre as pessoas que escreveram eles. É o melhor argumento que existe para o hábito que este checkpoint estava treinando: re-derivar, re-sondar, reler a fonte, porque o próprio texto canônico do ecossistema pode parar de atualizar e parou, enquanto a chain continuava se movendo.
 
-![Uma linha do tempo de 2024 até agosto de 2026 marcando o lançamento do PYUSD, o arquivamento do conteúdo oficial para desenvolvedores, o desligamento do SimpleHash, o merge do SIMD-0266, e a ativação do gate do p-token.](assets/v06-timeline.png)
+![Uma linha do tempo de 2024 até agosto de 2026 marcando o lançamento do PYUSD, o arquivamento do conteúdo oficial para desenvolvedores, o desligamento do SimpleHash, o merge do SIMD-0266, e a ativação do gate do p-token.](assets/v06-timeline.webp)
 
 Agora o favor, e ele é de verdade. Todo número neste curso é datado e a maioria deles vai derivar: os compute units, o conteúdo da allowlist, os custos por ativo, as versões das ferramentas, as constantes de graduação. Se você rodar de novo uma sondagem de qualquer lição e a sua saída discordar da minha, poste a lição, o comando exato, e o que você obteve no canal de feedback do curso. Isso não é um report de bug por cortesia. É o mecanismo de manutenção de verdade do curso, e um aprendiz que pega um número velho é o hábito funcionando em voz alta na frente de todo mundo.
 

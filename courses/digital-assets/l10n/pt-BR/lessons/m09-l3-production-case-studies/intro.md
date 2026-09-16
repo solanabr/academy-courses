@@ -34,7 +34,7 @@ O `transferFeeConfig` lê 0 basis points, taxa máxima 0, tanto na entrada de ta
 
 Mais duas que leem como inertes assim que você olha além do rótulo. O `confidentialTransferMint` tem `autoApproveNewAccounts: false` e nenhuma auditor key, o que significa que nenhuma conta ganha saldos confidenciais até o emissor aprovar aquela conta específica. Os trilhos existem. A catraca está travada. E o `confidentialTransferFeeConfig` carrega um ciphertext retido só de zeros, que é exatamente o que você esperaria de uma tabela de taxa que nunca cobrou nada.
 
-![Uma leitura JSON reduzida do mint do PYUSD traz chamadas no programId do hook, na entrada de taxa, nas flags de transferência confidencial e no delegado permanente, quatro valores inertes e um poder vivo.](assets/v01-annotated-code.png)
+![Uma leitura JSON reduzida do mint do PYUSD traz chamadas no programId do hook, na entrada de taxa, nas flags de transferência confidencial e no delegado permanente, quatro valores inertes e um poder vivo.](assets/v01-annotated-code.webp)
 
 Agora o campo que não é nada inerte. O `permanentDelegate.delegate` nomeia um endereço, e o mesmo vale para o `mintCloseAuthority.closeAuthority`, o `metadataPointer.metadataAddress` e o corpo do `tokenMetadata` que resolve para "PayPal USD". Esses quatro fazem alguma coisa hoje. Um delegado permanente pode mover ou queimar PYUSD de qualquer conta sem o dono assinar, que é a forma on-chain de uma ordem judicial, e ele está ligado agora mesmo.
 
@@ -54,7 +54,7 @@ A pergunta três é aquela para a qual esta lição existe. O processador de tra
 
 Isso te dá três veredictos em vez de dois, e você consegue derivar os três a partir de dados que você já buscou.
 
-![Um fluxo de decisão de três perguntas transforma presença de extensão, valor de campo e autoridade em um de três veredictos, separando as oito extensões do PYUSD em quatro ativas e quatro dormentes.](assets/v02-flowchart.png)
+![Um fluxo de decisão de três perguntas transforma presença de extensão, valor de campo e autoridade em um de três veredictos, separando as oito extensões do PYUSD em quatro ativas e quatro dormentes.](assets/v02-flowchart.webp)
 
 Dormente não é sinônimo de inofensiva. Quer dizer armada, e a diferença entre armada e disparando é uma assinatura de uma chave que você consegue nomear.
 
@@ -75,7 +75,7 @@ Dois dos slots dormentes do PYUSD têm timing de exercício muito diferente, o q
 
 Essa assimetria é uma decisão de design dos autores do Token-2022 e você deveria sentir isso. A extensão que pega o seu dinheiro te dá três dias. A extensão que consegue rejeitar a sua transferência de cara não te dá nenhum.
 
-![Uma chave de autoridade conecta a oito slots de extensão no mint do PYUSD, quatro deles vivos e quatro armados, com o hook exercível imediatamente e a taxa só depois de duas epochs.](assets/v03-diagram.png)
+![Uma chave de autoridade conecta a oito slots de extensão no mint do PYUSD, quatro deles vivos e quatro armados, com o hook exercível imediatamente e a taxa só depois de duas epochs.](assets/v03-diagram.webp)
 
 ### Por que armar um slot que você nunca pretende disparar
 
@@ -85,7 +85,7 @@ Por causa de uma restrição que você carrega desde o módulo um. Extensões s�
 
 Agora precifique os dois caminhos com honestidade. Armar oito slots na criação custa um pouco de rent extra em uma conta, para sempre, e um fardo permanente de explicação com integradores. Migrar um dólar regulado com centenas de milhões em supply custa coordenação com toda exchange, todo custodiante e toda carteira que encostou nele, mais a cauda de valor encalhada em contratos que ninguém atualiza. Essas duas coisas não são da mesma ordem de grandeza, e não chegam perto.
 
-![Uma comparação de dois caminhos mostra que armar extensões na criação do mint custa bytes extras e escrutínio de integradores, enquanto a alternativa é uma migração completa de token depois.](assets/v04-comparison.png)
+![Uma comparação de dois caminhos mostra que armar extensões na criação do mint custa bytes extras e escrutínio de integradores, enquanto a alternativa é uma migração completa de token depois.](assets/v04-comparison.webp)
 
 Então um emissor com formato de compliance arma tudo o que um regulador poderia plausivelmente exigir e não dispara nada disso. Isso não é indecisão. É o jeito mais barato de manter uma promessa que você ainda não consegue descrever: se chegar uma regra que exija uma taxa, um hook de allowlist, ou saldos privados com uma auditor key, a resposta é uma instrução em vez de uma migração. O brief do seu capstone vai te passar a mesma decisão numa escala menor, e a versão honesta dela é uma frase num memorando: este slot está armado, esta chave o segura, isto é o que nos faria usá-lo.
 
@@ -101,7 +101,7 @@ Leia o código da sua própria lição de airdrop ao lado disso. Você construiu
 
 Esta é a parte do estudo de caso que eu quero que você realmente leve: as primitivas não são escalonadas por porte. Não existe um mecanismo de airdrop "de verdade" para o qual você se gradua. Existe uma raiz de Merkle, uma prova, um marcador de claim, e um relógio de vesting opcional, e a razão de as pessoas ainda errarem airdrops nunca é o mecanismo. São a lista de folhas, o marcador de claim duplo, e a tokenomics que ninguém publicou.
 
-![Uma tabela mapeia cinco primitivas do curso para as contrapartes entregues delas, incluindo o conjunto de extensões do PYUSD, o slot de hook dormente dele, o distribuidor de Merkle do JTO e o campo is_agent do DAS.](assets/v05-table.png)
+![Uma tabela mapeia cinco primitivas do curso para as contrapartes entregues delas, incluindo o conjunto de extensões do PYUSD, o slot de hook dormente dele, o distribuidor de Merkle do JTO e o campo is_agent do DAS.](assets/v05-table.webp)
 
 ### Os trilhos sobre os quais todo o resto anda
 
@@ -111,7 +111,7 @@ Em 2026-09-01 existem cerca de $16.05B de stablecoins atreladas ao dólar circul
 
 A direção é mais fácil de defender do que qualquer número isolado. A Stripe comprou a Bridge por $1.1B, com fechamento em fevereiro de 2025, com mais ou menos $1.5B de volume total de pagamentos mensal na época, como reportado no panorama de stablecoins da Helius, e a SpaceX vem agregando receita da Starlink em stablecoins. Quando uma empresa de pagamentos paga um bilhão de dólares por infraestrutura de stablecoin em vez de construí-la, isso é um mercado te dizendo que os trilhos já foram escolhidos.
 
-![Uma linha do tempo vai do lançamento do PYUSD em maio de 2024, passando pelo fim do vesting do JTO e pelo fechamento da Bridge pela Stripe, até a fronteira de identidade de agente de 2026 e a leitura ao vivo do mint de hoje.](assets/v06-timeline.png)
+![Uma linha do tempo vai do lançamento do PYUSD em maio de 2024, passando pelo fim do vesting do JTO e pelo fechamento da Bridge pela Stripe, até a fronteira de identidade de agente de 2026 e a leitura ao vivo do mint de hoje.](assets/v06-timeline.webp)
 
 Essa é a razão honesta de valer a pena fazer o seu capstone. Não que tokens sejam empolgantes. Que o encanamento que você vem construindo é o encanamento que um processador de pagamentos acabou de pagar. O curso Solana Payments and Commerce lê este exato mint do PYUSD pelo lado da integração, e os trilhos de compliance que ficam acima destas primitivas, o Token ACL entre eles, deliberadamente não são ensinados aqui; eles são território do curso planejado DeFi and RWA Engineering.
 
@@ -133,7 +133,7 @@ A própria página de soluções de Token Extensions da Solana ainda diz que tra
 
 E uma segunda dobra na direção oposta: o Token-2022 continua sendo um programa atualizável. O HEAD do repo pode carregar uma extensão ou uma correção que o deployment na mainnet ainda não tem. Então o código que você lê no GitHub é um teto, não uma descrição do que vai executar no próximo bloco.
 
-![Uma comparação de três vias classifica a conta de mint ao vivo, as páginas oficiais de documentação e o repositório do programa pelo que dá para confiar em cada um e onde cada um falha.](assets/v07-comparison.png)
+![Uma comparação de três vias classifica a conta de mint ao vivo, as páginas oficiais de documentação e o repositório do programa pelo que dá para confiar em cada um e onde cada um falha.](assets/v07-comparison.webp)
 
 ### O trade-off, nomeado
 

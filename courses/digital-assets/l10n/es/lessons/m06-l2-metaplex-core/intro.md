@@ -66,7 +66,7 @@ Piensa de vuelta en tu trabajo con SPROUT. Cada capacidad que le agregaste a ese
 
 La respuesta de diseño de Core es la que ya conoces de Token-2022, aplicada a los NFT: una cuenta, con capacidades tipadas anexadas dentro de ella. El activo base guarda el owner, la autoridad de actualización, un name y un URI. Todo lo demás, regalías, comportamiento de congelamiento, numeración de ediciones, atributos, es un plugin serializado después de los datos base en esa misma cuenta. Versión desde primeros principios: el estado de un NFT es chico y sus capacidades son enumerables, así que pagar el overhead de creación de cuentas por capacidad es desperdicio puro; lo único que te compran las cuentas separadas es propiedad independiente, y de todas formas los plugins de un activo pertenecen todos al activo.
 
-![Comparación de un mint de NFT, Token Metadata creando de cuatro a cinco cuentas a ~0.022 SOL y ~205,000 CU publicados por el proveedor mientras Core crea una cuenta a ~0.003 SOL y ~17,000 CU.](assets/v01-comparison.png)
+![Comparación de un mint de NFT, Token Metadata creando de cuatro a cinco cuentas a ~0.022 SOL y ~205,000 CU publicados por el proveedor mientras Core crea una cuenta a ~0.003 SOL y ~17,000 CU.](assets/v01-comparison.webp)
 
 Tu propia corrida de `first-mint.ts` te acaba de mostrar que el componente de rent varía con los largos de los strings, que es exactamente por qué la apertura etiquetó las cifras de titular como publicadas por el proveedor: cita al proveedor, muestra tu propia cuenta. Sigue siendo una gran historia.
 
@@ -76,7 +76,7 @@ El activo base es deliberadamente diminuto. Un discriminador de un byte (Core us
 
 Lee eso otra vez, porque borra en silencio todo un ritual de Token Metadata. En Token Metadata, la membresía de colección es un campo en la PDA de metadatos más un booleano `verified` aparte que voltea una instrucción firmada por la autoridad de la colección; la membresía no verificada es un estado intermedio real (y peligroso): un activo puede AFIRMAR una colección antes de que alguna autoridad de colección lo haya atestiguado, la misma brecha entre afirmación y atestiguación que conociste en m06-l1 con la flag `verified` de creators, ahora a nivel de colección. En Core no hay booleano. La membresía ES la variante de autoridad de actualización, y solo se puede escribir cuando la autoridad de la colección firma el mint. La verificación no se volvió más fácil; se colapsó en una firma que tiene que estar ahí de todas formas.
 
-![Layout de una sola cuenta de activo Core, los campos base incluyendo el enum updateAuthority de tres variantes, luego un registro de plugins que sostiene entradas Royalties, Edition, PermanentFreezeDelegate y Attributes en la misma cuenta.](assets/v02-diagram.png)
+![Layout de una sola cuenta de activo Core, los campos base incluyendo el enum updateAuthority de tres variantes, luego un registro de plugins que sostiene entradas Royalties, Edition, PermanentFreezeDelegate y Attributes en la misma cuenta.](assets/v02-diagram.webp)
 
 ### Las Collections van primero
 
@@ -84,7 +84,7 @@ La consecuencia de ordenamiento se desprende directamente de ese diseño: la col
 
 Este ordenamiento no es una preferencia de estilo en este curso; es infraestructura estructural. Bubblegum v2, la apertura del módulo 7, acuña NFT comprimidos DENTRO de una colección Core. Sin colección Core, sin drop de cNFT. La colección Almanac que creas en el lab es el valor literal que toman las llamadas de mint de esa lección, reconstruida sobre el cluster contra el que corra. Adquiere el hábito ahora, mientras el modo de falla es barato.
 
-![Diagrama de flujo que contrasta el flujo colección-primero, donde la membresía se escribe al momento del mint y alimenta a Bubblegum v2 en el módulo 7, con el flujo mint-primero que produce activos huérfanos y lecturas de membresía vacías.](assets/v03-flowchart.png)
+![Diagrama de flujo que contrasta el flujo colección-primero, donde la membresía se escribe al momento del mint y alimenta a Bubblegum v2 en el módulo 7, con el flujo mint-primero que produce activos huérfanos y lecturas de membresía vacías.](assets/v03-flowchart.webp)
 
 ### El catálogo de plugins
 
@@ -107,7 +107,7 @@ Antes de que escribas cualquiera de estos, un hecho estructural que te ahorra un
 
 El catálogo se divide a lo largo de esa línea. Los plugins gestionados por el dueño, los delegados de Transfer, Freeze y Burn, existen para que el DUEÑO preste una capacidad: delegas derechos de transferencia a un escrow, derechos de congelamiento a un programa de staking, y la delegación por defecto queda en tu propia clave hasta que la asignes a otro. Los plugins gestionados por la autoridad, Royalties, Attributes, UpdateDelegate, pertenecen al lado del creador y por defecto quedan en la autoridad de actualización, que para un miembro de colección se resuelve a través de la colección. Y la familia permanente juega con una regla más dura: `PermanentFreezeDelegate`, `PermanentTransferDelegate` y `PermanentBurnDelegate` solo se pueden adjuntar al momento del mint. No puedes colarle un congelamiento permanente a un activo que alguien ya tiene, que es exactamente la propiedad que hace seguro ser dueño de un activo Core, y exactamente por qué el badge Founding-Farmer tiene que nacer soulbound en vez de convertirse después.
 
-![Diagrama que separa las tres claves de control de un activo Core, el owner, la autoridad de actualización, y el enum de autoridad de cada plugin con sus cuatro variantes, con las clases de plugin agrupadas como gestionados por el dueño, gestionados por la autoridad, y plugins permanentes solo-al-momento-del-mint.](assets/v04-diagram.png)
+![Diagrama que separa las tres claves de control de un activo Core, el owner, la autoridad de actualización, y el enum de autoridad de cada plugin con sus cuatro variantes, con las clases de plugin agrupadas como gestionados por el dueño, gestionados por la autoridad, y plugins permanentes solo-al-momento-del-mint.](assets/v04-diagram.webp)
 
 Quédate con la variante `None`. La mayor parte del tiempo asignas una autoridad de plugin para que alguien pueda actuar. Ponerla en `None` es la jugada inversa, y muerde: suelda el estado actual del plugin en su lugar, permanentemente, porque no existe ninguna clave que pudiera cambiarlo alguna vez. Un `PermanentFreezeDelegate` con `frozen: true` y autoridad `None` no es "congelado hasta que alguien importante diga lo contrario". Está congelado del modo en que un número es par.
 
@@ -115,13 +115,13 @@ Tres entradas del catálogo merecen una mirada más de cerca antes de que las es
 
 **Royalties** lleva tres campos y el programa impone su forma al momento del mint. `basisPoints` es un entero 0..10000 (500 significa 5%). `creators` es una lista de entradas de dirección más porcentaje cuyos porcentajes tienen que sumar exactamente 100, y una dirección de creador duplicada se rechaza. `ruleSet` decide quién puede mover el activo: `None` no pone restricciones de programa sobre las transferencias, `ProgramAllowList` permite que solo los programas listados estén involucrados, `ProgramDenyList` bloquea los programas listados. Fíjate en lo que `None` quiere decir para la palabra "regalía": el reparto queda registrado on-chain, legible por todos, impuesto por nadie en particular. Si alguien la paga de verdad es una decisión del marketplace, y esa oración incómoda es el tema entero de m06-l3. Ya me equivoqué al teclear un reparto de creadores, 60/50 entre dos billeteras porque edité un lado y no el otro, y el mint se revierte en el momento. Bien. Mejor una reversión al momento del mint que un marketplace repartiendo 110%.
 
-![Config anotada del plugin Royalties que muestra basisPoints acotado de 0 a 10000, porcentajes de creador que tienen que sumar exactamente 100 sin direcciones duplicadas, y las tres variantes de ruleSet.](assets/v05-annotated-code.png)
+![Config anotada del plugin Royalties que muestra basisPoints acotado de 0 a 10000, porcentajes de creador que tienen que sumar exactamente 100 sin direcciones duplicadas, y las tres variantes de ruleSet.](assets/v05-annotated-code.webp)
 
 **PermanentFreezeDelegate** es el hermano sin vuelta del FreezeDelegate reversible. Adjúntalo con `frozen: true` y una autoridad de `None` y tienes un activo que ninguna clave en la tierra puede descongelar ni mover. Eso no es un bug que haya que esquivar; es el mecanismo soulbound. Un badge de membresía, una credencial, una prueba de asistencia: las cosas que deberían no tener sentido a la venta son exactamente las cosas que congelas permanentemente. La contracara es la trampa de la que te avisa el nombre. Permanente significa permanente. No hay voto de gobernanza posterior, no hay ticket de soporte, no hay autoridad que pueda descongelar el badge Founding-Farmer una vez que lo acuñas así. Si un granjero pierde su billetera, necesita un badge nuevo, no una transferencia. Echa mano del FreezeDelegate reversible cada vez que puedas imaginar un movimiento futuro legítimo.
 
 **Edition y MasterEdition** dividen un trabajo entre los dos tipos de cuenta. La colección lleva `MasterEdition` con un `maxSupply` y overrides opcionales de name/URI; cada activo impreso lleva `Edition` con su `number`. Las lecturas se componen exactamente como esperarías: trae la colección por el tope, trae cualquier impresión por su número.
 
-![Diagrama de una tirada de impresiones donde la colección sostiene un plugin MasterEdition con maxSupply 100 y cada activo miembro lleva un plugin Edition con su propio número de impresión.](assets/v06-diagram.png)
+![Diagrama de una tirada de impresiones donde la colección sostiene un plugin MasterEdition con maxSupply 100 y cada activo miembro lleva un plugin Edition con su propio número de impresión.](assets/v06-diagram.webp)
 
 ### Delegados, y qué borra una transferencia
 
@@ -157,7 +157,7 @@ Esa sola oración tiene tres consecuencias que vale sostener por separado. Un co
 
 La versión desde primeros principios, si quieres que la regla sea memorable en vez de memorizada: una delegación es una declaración sobre la intención del dueño actual, así que no tiene que sobrevivir a ese dueño. Una regalía es una declaración sobre los términos del creador, así que sí. Core codifica la diferencia en la clase del plugin en vez de pedirle a cada integrador que recuerde cuál es cuál.
 
-![Tabla de las clases de plugin en Core, los plugins gestionados por el dueño cuya autoridad se auto-revoca en la transferencia, los plugins gestionados por la autoridad como Royalties que persisten, y la familia permanente que se adjunta solo al momento del mint.](assets/v07-table.png)
+![Tabla de las clases de plugin en Core, los plugins gestionados por el dueño cuya autoridad se auto-revoca en la transferencia, los plugins gestionados por la autoridad como Royalties que persisten, y la familia permanente que se adjunta solo al momento del mint.](assets/v07-table.webp)
 
 ### Attributes: traits que un programa on-chain puede leer de verdad
 
@@ -211,7 +211,7 @@ Las guardas se componen en grupos con nombre, que es cómo una sola máquina cor
 
 Dos cosas para llevarte y una para nunca hacer. Para llevarte: el par anti-snipe que acabas de conocer, `botTax` y `allowList`, es la columna vertebral de un mint justo, y el mismo problema de defender-el-lanzamiento vuelve en el módulo 8 alrededor de las bonding curves. Y Core Candy Machine acuña activos Core ÚNICAMENTE. El nunca: la línea legada Candy Machine V3 acuña NFT de Token Metadata y está deprecada junto con el estándar al que sirve; si un tutorial te pone V3 delante, estás leyendo historia.
 
-![Pipeline de una transacción de comprador que pasa las guardas startDate, allowList, mintLimit y solPayment hacia un mint que coloca el activo en una colección Core, con las verificaciones que fallan enrutadas a botTax.](assets/v08-flowchart.png)
+![Pipeline de una transacción de comprador que pasa las guardas startDate, allowList, mintLimit y solPayment hacia un mint que coloca el activo en una colección Core, con las verificaciones que fallan enrutadas a botTax.](assets/v08-flowchart.webp)
 
 ### El trade-off, nombrado
 
@@ -219,7 +219,7 @@ El modelo de una sola cuenta de Core es la razón por la que el mint es alrededo
 
 Puedes leer el traspaso en los trenes de release solos, sin anuncio necesario. El paquete de JS `mpl-token-metadata` se detuvo en v3.4.0 en febrero de 2025 y no ha entregado una función desde entonces. Mientras tanto el programa Core cortó de 0.13.0 a 0.15.1 a lo largo de mayo y junio de 2026, su crate cliente de Rust llegó a 0.12.1 el 2026-06-16, y el SDK de JS de Core llegó a 1.10.0 en abril de 2026. Una línea se quedó callada; las otras tres mantuvieron una cadencia estable. Así se ve una migración de estándar desde el lado del changelog.
 
-![Línea de tiempo que muestra la línea de JS de mpl-token-metadata deteniéndose en v3.4.0 en febrero de 2025 mientras Metaplex Core entregó JS 1.10.0 y las versiones de programa 0.13.0 a 0.15.1 a lo largo de 2026.](assets/v09-timeline.png)
+![Línea de tiempo que muestra la línea de JS de mpl-token-metadata deteniéndose en v3.4.0 en febrero de 2025 mientras Metaplex Core entregó JS 1.10.0 y las versiones de programa 0.13.0 a 0.15.1 a lo largo de 2026.](assets/v09-timeline.webp)
 
 ## Lab: acuña el Almanac
 
@@ -482,6 +482,6 @@ La barrera: `npx tsx verify-almanac.ts` imprime sus seis líneas OK. Collection 
 
 Los fallos que espero. Primero, el ordenamiento: si tu assertion de membresía falla con `updateAuthority.type === "Address"`, acuñaste sin pasar la colección, y ninguna cantidad de re-fetching lo arregla; acuña otra vez, colección-primero. Segundo, la reversión de las regalías: un reparto que no suma 100 o un basisPoints fuera de 0..10000 falla al momento del mint con un error de Core, que es la spec de tu validador escrita como un stack trace. Tercero, si la transferencia del badge TIENE ÉXITO en la demostración de tu challenge, revisa cuál activo congelaste; más de un estudiante ha congelado permanentemente su Vol. 1 y dejado el badge líquido, y en un surfnet desechable eso es una lección gratis sobre exactamente por qué PermanentFreeze merece respeto en mainnet.
 
-![Diagrama de hub del artefacto R7 completado, la colección Almanac con el activo con regalía, la impresión numerada y el badge congelado, consumido por Bubblegum v2, la lección de DAS, el módulo 8 y el capstone.](assets/v10-diagram.png)
+![Diagrama de hub del artefacto R7 completado, la colección Almanac con el activo con regalía, la impresión numerada y el badge congelado, consumido por Bubblegum v2, la lección de DAS, el módulo 8 y el capstone.](assets/v10-diagram.webp)
 
 Acuñaste una colección, tres tipos de miembro, y demostraste cada propiedad con lecturas directas. Costo total en tu surfnet: centavos, y el mismo flujo en mainnet se queda en las milésimas de un SOL por activo según los números del propio proveedor. Pero mira otra vez lo que realmente entregaste en ese plugin Royalties. Lo adjuntaste, pusiste 500 basis points, verificaste que se lee de vuelta. ¿Alguien la impone de verdad? Entregaste `ruleSet("None")`, y te dejé. La siguiente lección es la realidad de las regalías que nadie anuncia: qué imposición existe de verdad, qué hacen realmente los pNFT y Token Auth Rules, y por qué el estándar contra el que la mitad del ecosistema todavía integra es oficialmente legado. Trae estómago fuerte para la palabra "indicativo".

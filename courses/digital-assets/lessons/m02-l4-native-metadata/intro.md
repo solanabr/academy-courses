@@ -35,7 +35,7 @@ The autonomy fade, stated out loud: the wiring of the pointer and the TokenMetad
 
 Think about what a wallet does when it renders your balance. It has a mint address and nothing else. Somewhere it must resolve that address into "SPROUT, 6 decimals, this logo." For the entire classic-SPL era, the answer lived outside the token program: a separate metadata account, owned by a separate program (Metaplex's Token Metadata), at an address derived from the mint. The token program knew nothing about names. Two programs, two accounts, one identity, glued by convention.
 
-![A wallet resolves a Token-2022 mint in one account read, walking the TLV to the self-referential pointer and metadata entry, unlike the legacy two-account Metaplex path.](assets/v01-flowchart.png)
+![A wallet resolves a Token-2022 mint in one account read, walking the TLV to the self-referential pointer and metadata entry, unlike the legacy two-account Metaplex path.](assets/v01-flowchart.webp)
 
 Token-2022 collapses that. Two of the 29 production extensions in the ExtensionType enum exist for exactly this job:
 
@@ -44,7 +44,7 @@ Token-2022 collapses that. Two of the 29 production extensions in the ExtensionT
 
 The design is two pieces instead of one on purpose. The pointer is the indirection: metadata COULD live in some other account, maintained by some other program implementing the metadata interface. But the pattern this course teaches, the pattern PYUSD ships, is the degenerate case: point the mint at itself and store the TLV inline. One account, one program, one read.
 
-![The Metaplex model uses a separate metadata PDA owned by another program, while the Token-2022 native model stores pointer and metadata inside the mint itself.](assets/v02-diagram.png)
+![The Metaplex model uses a separate metadata PDA owned by another program, while the Token-2022 native model stores pointer and metadata inside the mint itself.](assets/v02-diagram.webp)
 
 Why does the pointer exist at all, if the answer is "point at yourself"? Because the interface is bigger than the inline case. `spl_token_metadata_interface` is a specification any program can implement, and a mint created before the metadata extensions existed can still aim its pointer at an external metadata account. The pointer is the published, on-chain answer to "which account is canonical." Which brings us to the attack it was designed against.
 
@@ -56,7 +56,7 @@ The pointer inverts the direction of trust. The mint says which account speaks f
 
 This is also exactly the footgun to avoid when you wire it: point the MetadataPointer at some arbitrary account you happen to control and you have reintroduced the indirection the attack lives in. Unless you are deliberately implementing an external metadata program (you are not, and almost nobody is), self-referential is the only value you should ever write.
 
-![Without a pointer any account can claim to be a mint's metadata, while a self-referential pointer means readers follow only the mint's outbound reference, leaving forgeries unreachable.](assets/v03-diagram.png)
+![Without a pointer any account can claim to be a mint's metadata, while a self-referential pointer means readers follow only the mint's outbound reference, leaving forgeries unreachable.](assets/v03-diagram.webp)
 
 ### What is actually in the TLV, and what is not
 
@@ -78,7 +78,7 @@ Two misconceptions to kill while the struct is in front of you. First: name and 
 
 That leaves the other end of the URI unaccounted for, and Token-2022 has nothing to say about it. The program stores a string and never fetches it. There is no on-chain schema, no validator, no content check, no enforcement of any kind. What exists instead is a convention: the off-chain JSON shape Metaplex popularized (`name`, `symbol`, `description`, `image`, and an `attributes` array), which wallets learned to parse years before native metadata existed and which native-metadata tokens inherited by default. It is what a wallet tries first when it fetches your URI. Two practical consequences follow. Your on-chain `name` and the JSON's `name` can disagree, and nothing on chain will stop them, so keep them in sync deliberately. And whatever host serves that URI is now a dependency of your token's appearance, which is one concrete argument for keeping the update authority alive rather than burning it on day one. Module 6 opens on that JSON standard properly, including which fields marketplaces actually read.
 
-![The mint's TLV holds the enforced identity fields while the URI points at conventional off-chain JSON that nothing on chain validates or keeps in sync.](assets/v04-diagram.png)
+![The mint's TLV holds the enforced identity fields while the URI points at conventional off-chain JSON that nothing on chain validates or keeps in sync.](assets/v04-diagram.webp)
 
 `additional_metadata` is the extensible part: arbitrary key-value string pairs, on-chain, editable by the update authority. Overgrowth will use it in the lab for a `harvest_season` field, and it is the mechanism behind every "trait on a fungible token" scheme you will meet in the wild.
 
@@ -90,7 +90,7 @@ You built a TLV walker in m01-l2, so nothing about the storage should stay abstr
 
 Run the arithmetic once for SPROUT and the account size stops being magic: 64 + (4 + 6) for `name = "SPROUT"`, (4 + 4) for `SPRT`, (4 + 38) for the URI, (4 + 18 + 10) for one `harvest_season = "spring"` pair. That is 156 bytes of value, 160 with its TLV header. Hold onto that 160, because the next section prices the whole account with it: a pointer-only SPROUT mint sits at 234 bytes, and 234 + 160 = 394 is the size the lab funds. Derived here, asserted there.
 
-![Byte-level layout of the TokenMetadata TLV entry, two 32-byte pubkeys plus Borsh length-prefixed strings totaling 160 bytes, which brings the 234-byte mint to the 394 bytes the lab funds.](assets/v05-annotated-code.png)
+![Byte-level layout of the TokenMetadata TLV entry, two 32-byte pubkeys plus Borsh length-prefixed strings totaling 160 bytes, which brings the 234-byte mint to the 394 bytes the lab funds.](assets/v05-annotated-code.webp)
 
 One more instruction rounds out the interface, and it exists for the case SPROUT never hits: `Emit`. A reader that wants metadata without knowing where the pointer leads can ask the metadata-owning program to serialize the struct into return data and read it from a simulation. For a self-referential mint it is redundant, `fetchMint` reads the TLV directly off the account with one `getAccountInfo`, no indexer in sight. But when the pointer aims at an external metadata program, `Emit` is the uniform read path that keeps every implementation of the interface readable by the same client code.
 
@@ -112,7 +112,7 @@ So you allocate space for 234 and deposit lamports for 394. The client library m
 
 And the dance does not end at creation, which is the part people discover in production. Six months from now you swap the URI for a longer string, or add a second `additional_metadata` pair, and that write reallocs the mint again. The account has to be rent-exempt at its NEW size, and the update instruction will not conjure the difference out of nowhere. So a metadata update is really two operations: the interface call, and a lamport transfer to the mint that covers the growth. Shrinking runs the other way and simply leaves the mint overfunded, since nobody refunds you the slack. Budget for this the way you would budget for a schema migration, because underneath the vocabulary that is exactly what it is.
 
-![Five-instruction flowchart, allocate 234 bytes funded for 394, initialize the self-referential pointer, initialize the mint, then the post-init metadata instruction reallocs and writes the fields.](assets/v06-flowchart.png)
+![Five-instruction flowchart, allocate 234 bytes funded for 394, initialize the self-referential pointer, initialize the mint, then the post-init metadata instruction reallocs and writes the fields.](assets/v06-flowchart.webp)
 
 Why tolerate this complexity instead of just making metadata a create-time extension too? Trade-off, named plainly. Native metadata keeps identity on the mint: no extra account to create, no external program to trust, no PDA derivation for wallets to know, and the spoofing surface closed by construction. The costs come in three flavors.
 
@@ -128,7 +128,7 @@ The probe you ran at the top was not a toy. PayPal and Paxos launched PYUSD on S
 
 You have now personally configured five of those eight on SPROUT variants, and the m01 discipline applies to the whole list: presence tells you nothing, values do. On the read of 2026-08-22, PYUSD's transfer hook was configured with a null program and its fee config sat at 0 basis points with a 0 maximum, on both the older and newer schedules. Dormant switches, installed for a future their compliance team can flip on. But the two you are wiring today are configured AND live: the pointer resolves to the mint itself, and the TLV reads back `PayPal USD / PYUSD` with a URI into `token-metadata.paxos.com`. When a wallet shows the PayPal logo next to a balance, this TLV entry, read straight off the mint, is where that render starts. The native pattern is not the experimental option. It is what a top-tier regulated issuer ships. (If you want the other side of this glass, the Solana Payments & Commerce course reads PYUSD's mint live as an integration exercise, checking what a merchant must handle before accepting it. Here you are the issuer, writing the bytes that course reads.)
 
-![Comparison of PYUSD's eight TLV extensions, six configured but dormant against the two live metadata extensions holding the PayPal USD name and self-referential pointer.](assets/v07-comparison.png)
+![Comparison of PYUSD's eight TLV extensions, six configured but dormant against the two live metadata extensions holding the PayPal USD name and self-referential pointer.](assets/v07-comparison.webp)
 
 One more piece of context, briefly, since you have met the 2025-01-24 archive of the official curriculum twice already: its metadata material predates the mature native pattern and still teaches the separate-account world as the default. You are learning this one from the interface and the bytes because that is currently the only place it fully lives.
 
@@ -402,7 +402,7 @@ The build: re-create SPROUT with the pointer in its extension set, write the TLV
 
 8. **Close the loop with R1.** Point your `decode-mint` inspector from m01-l2 at the composed mint. Two new rows appear in its extension walk: type 18 (MetadataPointer, 64 bytes of TLV value) and type 19 (TokenMetadata, variable length). The strings you just wrote are sitting inside bytes your own decoder has been able to walk since module 1; `fetchMint` is a convenience over exactly that walk, nothing more. And run `check-combo` on the full set for the ritual's sake: MetadataPointer conflicts with nothing in the matrix.
 
-![Hub flowchart of the completed SPROUT mint's economics and metadata layers, with proofs on companion mints and downstream consumers in the hook, routability, and fee-routing modules.](assets/v08-flowchart.png)
+![Hub flowchart of the completed SPROUT mint's economics and metadata layers, with proofs on companion mints and downstream consumers in the hook, routability, and fee-routing modules.](assets/v08-flowchart.webp)
 
 ## Challenge
 
