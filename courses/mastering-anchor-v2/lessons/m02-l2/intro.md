@@ -18,7 +18,7 @@ pub cabinet: Slab<Cabinet, Score>,
 
 That is the entire structural move of this lesson in one line. `Account<Cabinet>` was always `Slab<Cabinet, HeaderOnly>` under the hood: a header, then a tail of nothing. You just swapped the empty tail for a run of `Score` items. The account now carries a bounded list in its own bytes, and it still never deserializes. The compiler will complain that `Score` does not exist yet and that nobody sizes the tail. Good. Those two complaints are the lesson.
 
-![In v1 every touch deserializes and re-serializes the whole Vec<Score>; in V2 the Slab is a byte view mutated in place with nothing to re-serialize.](assets/v01-comparison.png)
+![In v1 every touch deserializes and re-serializes the whole Vec<Score>; in V2 the Slab is a byte view mutated in place with nothing to re-serialize.](assets/v01-comparison.webp)
 
 ## The short version
 
@@ -66,7 +66,7 @@ pub struct Score {
 
 `#[derive(bytemuck::Pod)]` (paired with `bytemuck::Zeroable`) is what certifies your own fixed struct as Pod: it checks every field is Pod and gives the type the byte-cast blessing. Reach for `#[pod_wrapper]` only on an *enum* — V2 rejects the attribute on a struct outright, with a message telling you to use the derive instead. When one Pod field is itself a struct you want to nest, you wrap it in `Nested<T>` so its alignment stays defined inside the parent rather than punching a hole in the layout. And when you want a bounded list as a *field* rather than as the account's whole tail, that is `PodVec<T, MAX>`: a vector with a compile-time capacity, its length stored inline, no heap anywhere.
 
-![A table mapping each Pod wrapper (PodU64, the bytemuck::Pod derive, Nested, PodVec, Slab) to the plain type it replaces and when to use it.](assets/v02-table.png)
+![A table mapping each Pod wrapper (PodU64, the bytemuck::Pod derive, Nested, PodVec, Slab) to the plain type it replaces and when to use it.](assets/v02-table.webp)
 
 Why did the framework put you through this instead of just letting you write `Vec<Score>`? Because there is no free lunch in the byte cast. A `Vec` is a pointer, a length, and a capacity pointing at heap memory that does not exist inside an account. To make a list castable you have to lay it out flat and fixed, in place, and the wrappers are how you do that without hand-writing offset arithmetic. Which brings us to the primitive that holds the whole table.
 
@@ -86,7 +86,7 @@ pub struct Score {
 
 A native `u64` wants to sit on an 8-byte boundary. A `Score` in the tail lives at whatever offset the header and the length field push it to, so that alignment is not guaranteed, and the cast has to bail rather than hand you a misaligned reference, which is undefined behavior in Rust. The instinct is to reach for `#[repr(packed)]` to remove the padding the warning seems to blame. That is exactly backwards. `repr(packed)` is what *creates* the misaligned-reference hazard: taking a reference to a packed field is the footgun, not the fix. The right move is the toolkit. `PodU64` stores the value as a `[u8; 8]` read through `.get()` and written through a `From` conversion, so its alignment is 1 and it reads correctly from *any* offset, and `#[derive(bytemuck::Pod)]` (or `Nested<T>` for a nested struct field) keeps the whole record's alignment defined so the direct byte cast stays sound.
 
-![A bare u64 field causes a misaligned reference on cast; repr(packed) makes it worse by guaranteeing misalignment; PodU64 fields plus the bytemuck::Pod derive give alignment 1 and a sound cast.](assets/v03-annotated-code.png)
+![A bare u64 field causes a misaligned reference on cast; repr(packed) makes it worse by guaranteeing misalignment; PodU64 fields plus the bytemuck::Pod derive give alignment 1 and a sound cast.](assets/v03-annotated-code.webp)
 
 ### Slab: a list that lives in the account
 
@@ -147,7 +147,7 @@ Notice `cabinet.as_mut_slice()` hands you a plain `&mut [Score]`. Once you have 
 
 How does the Slab know how many `Score` items are live versus how many slots are allocated-but-empty? It keeps its own length as a little-endian `u32` in the account, right between the header and the items, the same way a `Vec` tracks length separately from capacity, except both live inside the account and neither can point at a heap. `capacity()` is derived from the account's data length: total bytes, minus the discriminator, minus the header, minus that length field, divided by `size_of::<Score>()`. That is why the space you allocate at init is the ceiling until you deliberately change it: `try_push` past capacity returns an error rather than growing, and the only way the account gets bigger is an explicit `resize_to_capacity(n)` call that reallocs the buffer and settles the rent difference. Nothing grows behind your back. There is a sibling primitive worth naming here so you reach for the right one: `PodVec<T, MAX>` is the *field-level* bounded list, the one you drop inside a header when a struct needs a small inline list of its own, while `Slab<Header, TailItem>` is the *account-level* one, where the list is the account's entire tail. Rule of thumb: one bounded list that is the point of the account is a Slab tail, a small bounded list hanging off a larger record is a `PodVec` field.
 
-![The account is a discriminator, then the fixed Cabinet header, then a 4-byte live-length field, then ten fixed 48-byte Score slots; unfilled slots are still allocated and pay rent.](assets/v04-diagram.png)
+![The account is a discriminator, then the fixed Cabinet header, then a 4-byte live-length field, then ten fixed 48-byte Score slots; unfilled slots are still allocated and pay rent.](assets/v04-diagram.webp)
 
 That diagram is also the tradeoff staring back at you. Ten slots at 48 bytes is 480 bytes of tail, allocated and rent-paid the moment you init the account, whether the cabinet has one score on it or ten. Which is the honest beat this whole design turns on.
 
@@ -165,11 +165,11 @@ Which lands the sentence to keep: a fixed `MAX` is the price of a serialization-
 
 Walk it once concretely, on a tiny board with `MAX = 3`, and the eviction discipline stops being abstract. Start empty. A score of `50` comes in: the board is under capacity, so it lands, and the cutoff, the lowest live score, is `50`. Then `90`: still under capacity, so admit it with no comparison, and the cutoff stays `50`, because `50` is still the smallest of `[90, 50]`. Then `70`: the board fills to `[90, 70, 50]`, cutoff `50`. Now the board is full and a `60` arrives. It is strictly greater than the cutoff `50`, so `50` gets overwritten in place and the board becomes `[90, 70, 60]`, new cutoff `60`. Next a `60` arrives again: it *ties* the cutoff, so it is rejected, the board is unchanged. Finally a `40`: below the cutoff, rejected. That sequence, admit-under-cap, evict-only-if-strictly-greater, ties-lose, is exactly the logic you write on the Slab tail in the Lab and again from scratch in the challenge. Same rules, once you see them move.
 
-![Vec-with-realloc pays serialization and manual growth; borsh Vec re-introduces the serialization tax; the fixed-MAX Slab casts in place but makes you pay rent on empty slots and evict yourself.](assets/v05-comparison.png)
+![Vec-with-realloc pays serialization and manual growth; borsh Vec re-introduces the serialization tax; the fixed-MAX Slab casts in place but makes you pay rent on empty slots and evict yourself.](assets/v05-comparison.webp)
 
 This is not an abstract preference the framework invented in a vacuum. When the V2 design was being argued in the open, the loudest community note was exactly this friction. ChewingGlass put it bluntly in discussion #3742, the "What do you want to see in Anchor V2?" thread: "the default serialization should probably behave more like zero-copy but with better UX (IE not having to try to have perfect byte alignment, etc). Not sure if that's possible. But borsh is kind of terrible." Design issue #4390 quotes that comment back, in its own words: "As #3742 discussion feedback put it: *the default serialization should probably behave more like zero-copy but with better UX*," and lists #3742 in its references. Elsewhere in the same discussion the same commenter lands the other half of the complaint, about client-side ergonomics: "Boilerplate kills new devs because they don't know the sacred incantations." The Slab and the Pod toolkit are the shipped answer to the first half: zero-copy by default, with wrappers that pay the byte-alignment tax for you instead of making it your problem. Community voice turned into a data structure.
 
-![ChewingGlass's zero-copy-with-better-UX comment in discussion #3742 is quoted back by design issue #4390, which fed the #4355 benchmark push and shipped as the Pod toolkit.](assets/v06-timeline.png)
+![ChewingGlass's zero-copy-with-better-UX comment in discussion #3742 is quoted back by design issue #4390, which fed the #4355 benchmark push and shipped as the Pod toolkit.](assets/v06-timeline.webp)
 
 ### The Pod dividend: zero-copy events
 
@@ -196,7 +196,7 @@ How much cheaper is all this? The one number the project publishes lives in its 
 
 There is one footgun that comes free with the speed, and it is the kind that fails silently in production. `#[event]` and `#[event(bytemuck)]` write *different bytes* to the log. One is wincode-wire, one is a raw memcpy. Both go out through `sol_log_data`, so the event is genuinely in the logs either way. But a reader built to decode the borsh variant will get garbage from the bytemuck bytes and vice versa. Every consumer downstream has to decode with the same variant the program emits. Pick one, write it down, and make sure your indexer got the memo.
 
-![Both event variants emit through sol_log_data, but one carries borsh bytes and one a memcpy, so a reader must decode with the variant the program used.](assets/v07-diagram.png)
+![Both event variants emit through sol_log_data, but one carries borsh bytes and one a memcpy, so a reader must decode with the variant the program used.](assets/v07-diagram.webp)
 
 That is the toolkit. A Pod entry type, a Slab to hold a bounded run of them, a fixed `MAX` you chose on purpose, and a zero-copy event to announce changes. Time to wire it into R1 and watch it run.
 
@@ -363,7 +363,7 @@ Now the steps.
 
    A green run proves the shape you built: the board admitted more scores than `MAX`, kept only the top `MAX` in descending order, evicted the rest, and the zero-copy event round-tripped through the logs with a `cutoff` that agrees with the board. If the tail assertion fails with entries out of order, your sort ran before the insert or you sorted ascending. If `decode_highscore` panics, you either emitted the borsh `#[event]` by mistake or your indexer read is looking for the wrong discriminator. Both are the "decode the variant you emitted" footgun showing up exactly where the theory said it would.
 
-![If the board is under MAX, push; if full, admit only above the cutoff, overwriting that slot; ties are rejected, admitted scores sort descending, and every path still emits the event.](assets/v08-flowchart.png)
+![If the board is under MAX, push; if full, admit only above the cutoff, overwriting that slot; ties are rejected, admitted scores sort descending, and every path still emits the event.](assets/v08-flowchart.webp)
 
 ## Challenge: the leaderboard cutoff
 

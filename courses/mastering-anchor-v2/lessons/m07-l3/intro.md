@@ -14,7 +14,7 @@ If the line you reached for is a `token::authority = pool` constraint, look agai
 
 This lesson turns security from a feeling into a two-part procedure. Part one is a checklist you run by hand, row by row, against the swap: it makes your review repeatable and forces you to name the line that satisfies each guarantee. Part two is `anchor fuzz`, which runs the attack for you. You point it at the swap, walk away, and come back to a crash artifact for an input you would never have typed. The reframe that carries the whole lesson: a clean fuzz run is not reassurance, it is silence. A crash is the win, because a crash you found is a bug the attacker did not.
 
-![A two-column card comparing what the manual audit checklist catches, misses, and costs against the same three rows for automated anchor fuzz runs.](assets/v01-comparison.png)
+![A two-column card comparing what the manual audit checklist catches, misses, and costs against the same three rows for automated anchor fuzz runs.](assets/v01-comparison.webp)
 
 Here is what I hand you and what I do not. I run the full checklist with you and stand up the first fuzz loop step by step, including seeding a bug on purpose so you can watch the fuzzer catch it. The invariant assertion at the center of the harness, you finish yourself from a scaffold with a hole in it. Then seeding a brand-new bug, predicting whether the fuzzer will find it, and replaying the crash to confirm is entirely yours. The deliverable at the end is a filled-in checklist, a crash artifact and its replay, a patch, and a clean re-fuzz with a coverage report.
 
@@ -34,13 +34,13 @@ A code review that lives in your head is not repeatable, and it is not reviewabl
 | 6 | Canonical bumps stored | PDA bumps are read from stored state, never re-found on each call | ? |
 | 7 | Discriminators sane | Account discriminators are distinct and non-trivial so type confusion is impossible | ? |
 
-![A worked checklist row citing swap.rs line 41, beside the passing UncheckedAccount pinned by an address constraint and the failing version that pins nothing.](assets/v02-annotated-code.png)
+![A worked checklist row citing swap.rs line 41, beside the passing UncheckedAccount pinned by an address constraint and the failing version that pins nothing.](assets/v02-annotated-code.webp)
 
 The point of writing the line number is that it defends against the most common self-deception in review, which is assuming the framework did something it did not. Anchor V2 does kill several of these at compile time. `Account<T>` requires `T: Pod` with a no-padding layout, so a type-confusion read fails to compile instead of silently misreading bytes. Duplicate mutable accounts are rejected during account validation unless you opt in with the deliberately ugly `unsafe(dup)`. Those are real guarantees you can cite. But row 2 is exactly the one the framework will not save you on: the V2 docs are blunt that `UncheckedAccount` still does no validation, and you must pair it with `address`, `owner`, or a `constraint` yourself. The checklist exists to make you look at that line and confirm it is there.
 
 A few rows deserve a specific look in the swap, because they are the ones people wave through. Row 3, CPI targets: the swap moves tokens through a CPI, and the token program it invokes must be a typed `Interface` or `Program`, never a bare address the caller passed in, or an attacker hands you a look-alike program and your "transfer" runs their code. Row 5, close-and-zero: if the pool can be torn down, closing it must zero the data as well as reclaim the lamports, otherwise a revival attack reinitializes stale bytes into a new account with old balances. Row 6, canonical bumps: you stored the pool bump in state back when you built the pool; row 6 confirms the `swap` handler reads that stored bump rather than calling `find_program_address` again, which is both a CU cost and a subtle correctness trap if the seeds ever change. Write the line, or write `FAIL`. A row you "are pretty sure about" is a `FAIL` you have not admitted yet.
 
-![A table marking which of the seven audit rows the V2 compiler assists and which remain entirely the developer's responsibility.](assets/v03-comparison.png)
+![A table marking which of the seven audit rows the V2 compiler assists and which remain entirely the developer's responsibility.](assets/v03-comparison.webp)
 
 ### Why the fuzzer catches what your review cannot
 
@@ -50,13 +50,13 @@ The first naive answer is "write more tests." It fails for the same reason the c
 
 The tool that survives all three failures is coverage-guided, stateful fuzzing, and each word is load-bearing. Stateful, so the world persists across a chain of actions and deep states become reachable at all. Coverage-guided, so the fuzzer is not wandering: it watches which branches of your compiled program each input reached and steers toward inputs that reach new ones, turning a random walk into a directed search. That combination is what `anchor fuzz` gives you, and it is why a machine finds inputs you never would.
 
-![A comparison ruling out more tests, random inputs, and random sequences in turn, leaving coverage-guided stateful fuzzing as the surviving tool.](assets/v04-comparison.png)
+![A comparison ruling out more tests, random inputs, and random sequences in turn, leaving coverage-guided stateful fuzzing as the surviving tool.](assets/v04-comparison.webp)
 
 ### What actually runs when you type `anchor fuzz`
 
 Before you trust a tool with your program's security, know what it is. `anchor fuzz` is not a thin wrapper around random bytes. It runs Crucible, a coverage-guided fuzzer built by Asymmetric Research and wired into the Anchor CLI as a subcommand. Under Crucible sits a LibAFL fuzzing engine driving a LiteSVM in-process runtime, with sBPF edge coverage feeding back into input selection. That last part is the difference between a fuzzer that flails and one that learns: edge coverage means the fuzzer sees which branches of your compiled program each input reached, and it steers toward inputs that reach new branches. Random becomes directed.
 
-![A stack diagram placing anchor fuzz over Crucible, a LibAFL engine, and a LiteSVM runtime, with sBPF edge coverage feeding back into mutation.](assets/v05-diagram.png)
+![A stack diagram placing anchor fuzz over Crucible, a LibAFL engine, and a LiteSVM runtime, with sBPF edge coverage feeding back into mutation.](assets/v05-diagram.webp)
 
 The engine has one job that a unit test cannot do: it generates action sequences, not single inputs. You describe the actions your program supports (deposit, swap, withdraw) and the properties that must always hold (the invariants), and the fuzzer chooses which actions to fire, in which order, with which arguments, then checks every invariant after each action. A bug that needs three specific calls in a specific order to appear is a bug your hand-written tests almost never reach, because you would have to imagine it first to write it.
 
@@ -66,7 +66,7 @@ Crucible's default is *stateless*, and the name is more precise than it sounds. 
 
 So the real question is narrower than "does the input break it." It is: does any reachable *state* break it, including states that only exist deep down a chain of otherwise-valid calls? A drained-then-refilled pool, a partially-initialized position, a rounding residue that accumulates over forty trades. That is what `--stateful` turns on. In stateful mode Crucible keeps a coverage-indexed pool of live program states (`--pool-size`, default 256,000) and applies one mutated action per iteration to a state it picked out of that pool, so progress compounds instead of resetting: chains grow to `--max-depth` (default 15) and the deep states become reachable at all. Asymmetric Research reports roughly an order-of-magnitude throughput gain for it, paid for in memory as the pool grows with coverage.
 
-![A comparison of stateless fuzzing, which discards its snapshot each iteration, against stateful fuzzing, which keeps a pool of live states and extends them.](assets/v06-comparison.png)
+![A comparison of stateless fuzzing, which discards its snapshot each iteration, against stateful fuzzing, which keeps a pool of live states and extends them.](assets/v06-comparison.webp)
 
 Forgetting `--stateful` is the quiet failure mode. Your run comes back clean, you feel safe, and the deep half of the state space was never in budget. Clean without `--stateful` means "no bug found within eight actions of a fresh pool," which is a much smaller claim than the one you think you are making.
 
@@ -169,7 +169,7 @@ Freshness note: `0.2.1` is the current stable of both `crucible-fuzzer` and `cru
 
 Scaffolding also unlocks the rest of the `anchor fuzz` command family, and it is worth seeing the whole map now so you know what each one is for when you need it later in the loop.
 
-![A table of the anchor fuzz subcommands (init, run, list, show, cmin, tmin) with their flags, noting anchor coverage as a separate readout.](assets/v07-table.png)
+![A table of the anchor fuzz subcommands (init, run, list, show, cmin, tmin) with their flags, noting anchor coverage as a separate readout.](assets/v07-table.webp)
 
 ### 4. Seed a known overflow so you can watch the fuzzer earn its keep
 
@@ -220,7 +220,7 @@ One build detail decides whether this wraps or panics, and it is the same one fr
 
 Checkpoint: `anchor build` succeeds and your existing swap tests still pass, because they all trade against a 1,000,000 / 1,000,000 pool where nothing gets near `u64::MAX`. That is the unsettling part and the reason you seeded it: the bug is in, the suite is green, and nothing you already wrote noticed. If the build fails instead, you also changed the casts on the lines around it, and the seeded bug needs to be exactly one line.
 
-![An annotated code card showing a raw u64 reserve multiply wrapping in release, collapsing the constant product, next to the checked u128 fix.](assets/v08-annotated-code.png)
+![An annotated code card showing a raw u64 reserve multiply wrapping in release, collapsing the constant product, next to the checked u128 fix.](assets/v08-annotated-code.webp)
 
 ### 5. Complete the invariant and run it (the fade starts here)
 
@@ -294,7 +294,7 @@ anchor fuzz run token_ticket_swap constant_product_holds --release --stateful
 
 You are watching for the run to stop and report a crash. With the seeded `u64` multiply in place, it will, and fast, because the fuzzer is coverage-guided toward the branch where reserves get large enough to wrap. It hands you a crash artifact: a concrete, minimized, replayable input sequence that violated your invariant.
 
-![A flowchart of the crash-then-clean loop from seed and invariant through crash artifact, replay, patch, and clean re-fuzz with LCOV export.](assets/v09-flowchart.png)
+![A flowchart of the crash-then-clean loop from seed and invariant through crash artifact, replay, patch, and clean re-fuzz with LCOV export.](assets/v09-flowchart.webp)
 
 ### 6. Replay the crash, patch, and re-fuzz to clean
 
@@ -337,13 +337,13 @@ Accept when: a crash artifact is produced and replayed for your seeded bug, the 
 
 You are done with this lesson when you can show four things: a green checklist, a replayed crash artifact, a clean re-fuzz, and an LCOV report. If your run never crashed on the seeded bug, the usual cause is a missing `--stateful` or an invariant that does not actually assert anything (an `assert!(true)` in disguise). If it crashes and you cannot replay, you patched before you saved the artifact. Fix the order: crash, replay, patch, re-fuzz.
 
-![A four-row checklist pairing each required artifact with the mistake that explains its absence, under a strip fixing the order as crash, replay, patch, then re-fuzz.](assets/v10-table.png)
+![A four-row checklist pairing each required artifact with the mistake that explains its absence, under a strip fixing the order as crash, replay, patch, then re-fuzz.](assets/v10-table.webp)
 
 Now the part that keeps you honest, because it is easy to walk away from a green run feeling finished. Fuzzing and a checklist raise your confidence. They never prove the absence of bugs. A clean run means "not found yet," which is a real, useful claim, and a strictly weaker one than "safe." It is worth being precise about the gap. A clean fuzz run is an average-case statement: over the inputs and sequences the fuzzer happened to explore in the time you gave it, no invariant broke. The bug that ruins you is usually a worst-case object, a single narrow input in a corner the search did not reach before you called it a day. Coverage-guided fuzzing narrows that gap by steering toward unexplored branches, but it does not close it, and there is no run length that turns "average-case clean" into "worst-case safe."
 
 The strongest argument for that humility comes from the framework you are standing on. Anchor's own test suite carries Miri witnesses, which check for undefined behavior in unsafe code, and Kani configs, which model-check specific properties. And fuzzing found four correctness bugs in Anchor itself, tracked as issue #4431. The framework is fuzzed and undefined-behavior-checked as hard as it asks you to check your program, and it *still* found four things. If that is true of code written and reviewed by the people who built the framework, assume it is true of yours.
 
-![A vertical layered diagram of the trust surface, running from your program down through Anchor's Miri and Kani checks and OtterSec's stewardship to a review caveat this course supplies on its own authority, because the pinned tag ships none.](assets/v11-timeline.png)
+![A vertical layered diagram of the trust surface, running from your program down through Anchor's Miri and Kani checks and OtterSec's stewardship to a review caveat this course supplies on its own authority, because the pinned tag ships none.](assets/v11-timeline.webp)
 
 That single steward is itself a fact worth sitting with. OtterSec custodies the framework, publishes the crates, runs the verified-builds registry that `anchor verify` checks against, and signs the v2 tag with a GPG key (trixter-osec). One organization holds a lot of the supply chain, which is efficient and also a concentration you should know about. It pairs with a caveat this course has to supply on its own authority, because the project does not: go looking in the pinned tag and you will find no hedging page at all — the lang-v2 README says "v2 is secure by default for users" and stops. So take the sentence from the audit you just ran rather than from a quote: the defaults are not a substitute for review, fuzzing, and production-specific threat modeling. One steward, an unaudited release candidate, and four fuzzer-found bugs in the framework itself are the whole argument, and they are enough.
 

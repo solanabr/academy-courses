@@ -32,7 +32,7 @@ What does not change is more than you would guess, so take that first. A Token-2
 
 That append is the thing to internalize. Everything Token-2022 adds lives in a TLV section glued onto the tail of the account: type, length, value, repeated. A mint that opts into a transfer fee, a metadata pointer, and a transfer hook carries three TLV entries after its base. A mint that opts into nothing carries none and reads exactly like a classic mint.
 
-![Base layouts and the transfer_checked primitive carry over from classic SPL; total account length and the need for extra transfer accounts must be observed live on Token-2022.](assets/v01-comparison.png)
+![Base layouts and the transfer_checked primitive carry over from classic SPL; total account length and the need for extra transfer accounts must be observed live on Token-2022.](assets/v01-comparison.webp)
 
 ### Consequence one: size is data now, not a constant
 
@@ -40,7 +40,7 @@ One number makes it concrete. A classic SPL mint is 82 bytes. Full stop, always,
 
 Now the live read you are about to run yourself: the mainnet PYUSD mint, a real Token-2022 mint, occupies 866 bytes right now. Same base, same 82 bytes at the front, plus a TLV tail carrying its extensions. That is more than ten times the classic size, and it is not a magic number I want you to memorize. It is a number you *read*, because a different Token-2022 mint carries a different set of extensions and lands at a different length.
 
-![A classic SPL mint is 82 bytes and a classic token account 165 bytes, both fixed, while the live PYUSD Token-2022 mint is 866 bytes because of its extension tail.](assets/v02-chart.png)
+![A classic SPL mint is 82 bytes and a classic token account 165 bytes, both fixed, while the live PYUSD Token-2022 mint is 866 bytes because of its extension tail.](assets/v02-chart.webp)
 
 Why did the standard do it this way, appending a self-describing tail instead of just widening the struct? Because you cannot renumber a binary format that the entire ecosystem is already parsing. The base fields sit at fixed offsets that thousands of clients depend on. So new features could not go *inside* the old layout, they had to go *after* it, each one announcing its own type and its own length so a reader can walk the tail without a schema baked in ahead of time. The elegance is real. The cost is equally real and it lands on you: length is now a value carried in the data, not a constant you can trust from the header. Read it.
 
@@ -48,7 +48,7 @@ This is also exactly why I told you not to answer the opening question from memo
 
 The framework does help here, and it helps more than the classic path did. In your swap, the mint and vaults are typed as `anchor_spl::token_interface::InterfaceAccount<Mint>` and `InterfaceAccount<TokenAccount>`. That type accepts an account owned by *either* the classic Token program or Token-2022, and it deserializes the base fields correctly across both. When you reach past the base into the extension tail, the second layer is `anchor_spl::extensions`, which parses the supported fixed-size TLV extension structs off the account. Two layers, one for the base and one for the tail.
 
-![A Token-2022 mint keeps the classic 82-byte layout, pads to 165 bytes, marks the account type at byte 165, then carries a TLV extension tail.](assets/v03-annotated-code.png)
+![A Token-2022 mint keeps the classic 82-byte layout, pads to 165 bytes, marks the account type at byte 165, then carries a TLV extension tail.](assets/v03-annotated-code.webp)
 
 One detail in that diagram surprises people, so name it before it bites: the tail does not start at byte 82. An extended mint is padded out to 165 bytes, the classic *token account* size, and byte 165 carries a one-byte account-type tag, `1` for a mint. Only then does the TLV run, from byte 166 to the end. The padding exists so a reader can never confuse an extended mint with a token account by length alone: a bare 82-byte mint was never ambiguous, but an 82-byte base plus a TLV tail could land at exactly 165 bytes — a token account's length — and that is the collision the padding plus the type tag rule out. On PYUSD that leaves 700 bytes of tail under the 866.
 
@@ -78,21 +78,21 @@ Unset is a specific thing here, not a hand-wave. On the wire that field is an op
 
 That dormant case is not a corner I invented to be thorough. The live PYUSD mint carries a TransferHook extension right now, and its `programId` is the all-zero default. Eight extensions present, hook among them, and yet a plain `transfer_checked` against it needs no extra accounts, because the hook is armed and idle rather than active. This is why "does it have the extension" is the wrong question and "is the `programId` set" is the right one. You will see exactly that in a minute when you run the reader.
 
-![A yes/no branch: a mint with no hook, or a hook programId left at the default all-zero address, transfers normally; a real programId requires resolving extra accounts first.](assets/v04-flowchart.png)
+![A yes/no branch: a mint with no hook, or a hook programId left at the default all-zero address, transfers normally; a real programId requires resolving extra accounts first.](assets/v04-flowchart.webp)
 
 Two layers, again, and it is worth naming them together because they are the shape of Anchor's whole Token-2022 story.
 
-![Anchor gives you both-program compatibility for free through InterfaceAccount and transfer_checked, but reading the extension tail for length and transfer-hook state is work your program must do.](assets/v05-diagram.png)
+![Anchor gives you both-program compatibility for free through InterfaceAccount and transfer_checked, but reading the extension tail for length and transfer-hook state is work your program must do.](assets/v05-diagram.webp)
 
 That seam label is the trade-off, said plainly. `token_interface` buys you both-program compatibility for free, at the type level, and it is genuinely a relief compared to hardcoding a program id and branching. But Token-2022 shifts real work onto you in exchange: you cannot assume a fixed size, and a hooked mint means a transfer that *looks* complete can fail unless you forward the hook's accounts. The framework hands you the seat. It does not hand you the standard.
 
 One more read-don't-assume trap belongs right next to the hook, because the player's mint in the opening carried both. A mint can also declare a transfer fee, and when it does, the amount that actually lands in the destination is smaller than the amount you handed `transfer_checked`. For a plain wallet-to-wallet send that is a rounding annoyance. For your swap it is a correctness bug: your constant-product math assumes the vault received exactly what you sent it, and a fee quietly voids that assumption, so your invariant drifts and your pricing goes wrong. The mechanic is identical to everything else here, read the mint, do not assume the amount. The fee's own math, how the basis points and the maximum cap actually compute, is the extension catalog, and that catalog is the Digital Assets course's. Noticing that net-received can differ from amount-sent is the part that is yours.
 
-![A fee-bearing Token-2022 mint delivers less than the amount sent, so the swap's invariant is computed on the wrong reserve and the vault's stored balance overstates real custody.](assets/v06-diagram.png)
+![A fee-bearing Token-2022 mint delivers less than the amount sent, so the swap's invariant is computed on the wrong reserve and the vault's stored balance overstates real custody.](assets/v06-diagram.webp)
 
 And that is the line we do not cross. Designing an extension, writing a transfer-hook program, wiring its account-resolution interface end to end, that is standards depth, and it lives in one place by design. The Digital Assets course walks the transfer-hook interface end to end and teaches extension-standards depth. Here, from the framework's seat, your job stops at noticing the hook exists and knowing you would have to forward its accounts. Noticing is mechanics. Authoring is the standard. Different course, on purpose.
 
-![This lesson teaches reading extension-aware length, detecting a transfer hook, and reasoning about extra accounts; designing extensions and authoring the transfer-hook interface belong to the Digital Assets course.](assets/v07-comparison.png)
+![This lesson teaches reading extension-aware length, detecting a transfer hook, and reasoning about extra accounts; designing extensions and authoring the transfer-hook interface belong to the Digital Assets course.](assets/v07-comparison.webp)
 
 You might be tempted to file all of this under "edge case I will handle when someone complains." Resist that. The Token-2022 mints in the wild are disproportionately the ones you least want to fail against. The regulated stablecoins and the higher-value assets reach for permanent delegates, transfer fees, and hooks precisely because real money and real compliance are riding on them. The throwaway memecoin will never exercise this path. The mint your treasury actually cares about will. That asymmetry is the whole argument: a read-don't-assume habit is cheap insurance, and a hardcoded size is a time bomb with your biggest counterparty's name written on it.
 

@@ -47,7 +47,7 @@ The moment you delete `initialize`, the workspace stops compiling, and it is wor
 
 One thing that log line does *not* do is print the player's address, and the reason is a genuine V2 constraint worth meeting early rather than as a mystery compile error. `Address` only implements `Display` and `Debug` when the `solana-address` crate's `decode` feature is on, because base58 encoding is exactly the kind of weight a `no_std` framework refuses to carry by default, and anchor-lang does not enable it. So `msg!("gm, {}", ctx.accounts.player.address())` does not compile in a stock V2 program. Be precise about what is missing there: `msg!` formats fine, and `msg!("lit at {} plays", plays)` on a `u64` is ordinary V2 code you will write next lesson. The hole is `Display` on `Address` specifically, so it is addresses you cannot interpolate, not values in general. If you genuinely need a base58 address in a log, you turn that feature on deliberately (anchor-lang's `compat` feature pulls it in, along with a `debug!` macro) and you pay for it in binary size and compute units. The default is silence about addresses, and the default is the point.
 
-![A four-row table showing that literals and u64 values format fine in msg! while an Address does not, until the compat feature is deliberately enabled at a size and compute cost.](assets/v01-table.png)
+![A four-row table showing that literals and u64 values format fine in msg! while an Address does not, until the compat feature is deliberately enabled at a size and compute cost.](assets/v01-table.webp)
 
 Last lesson named the surface changes in passing and promised you would crack them open here. This is that. Three of them are visible in the eleven lines above: `&mut Context`, not `Context`. `Signer`, not `Signer<'info>`. And no `Pubkey` anywhere. The fourth rode along on the scaffold line you are replacing, `ctx.accounts.counter.authority = *ctx.accounts.payer.address();`: `.address()`, not `.key()`. Naming them was last lesson's job. Deriving why each one is shaped that way, and what the macro generates around it, is this one's. Take them one at a time.
 
@@ -77,7 +77,7 @@ The id check is the very first thing the generated entrypoint does on every call
 
 In v1 a handler took its context *by value*: `pub fn greet(ctx: Context<Greet>)`. In V2 it takes a *mutable reference*: `pub fn greet(ctx: &mut Context<Greet>)`. Every handler, uniformly, even one like `greet` that only reads. The framework builds the `Context`, hands you a `&mut` to it, and reuses it through the exit routine that persists your account changes. You do not construct it and you do not return it. You borrow it, mutate through it, return `Ok(())`.
 
-![The same greet instruction in v1 and V2, marking four changes: a mutable Context reference.address() replacing .key(), Address replacing Pubkey, and the dropped info lifetimes.](assets/v02-annotated-code.png)
+![The same greet instruction in v1 and V2, marking four changes: a mutable Context reference.address() replacing .key(), Address replacing Pubkey, and the dropped info lifetimes.](assets/v02-annotated-code.webp)
 
 Why `&mut` at all, if `greet` never writes? The honest answer is that the by-value context was a small cost paid on every instruction: the framework moved a context into your function, you did your work, it moved account state back out. A reference removes the move and lets the same context carry through validation, your handler, and the exit routine as one borrowed thing. It is a small ergonomic and cost win, and it is of a piece with V2's whole thesis from lesson one: stop copying what you can borrow or cast in place. You do not have to love the syntax. You do have to recognize it, because a handler written `Context<T>` by value will not compile against the RC, and the error message points at the signature, not the cause.
 
@@ -89,7 +89,7 @@ This is a straight rename of two things you use constantly, which is exactly why
 
 The rename is not cosmetic churn, and it is worth understanding where it comes from so it stops feeling arbitrary. V2 is a no_std rewrite built on pinocchio, and pinocchio brings its own address type through the `solana-address` crate rather than the older `solana-program::Pubkey`. So when Anchor V2 sits on that foundation, the type it hands you up top is the one the foundation speaks: `Address`. The `.key()` to `.address()` change is the accessor following the type. Read it that way and the pattern generalizes: most of what looks new in a V2 signature is the pinocchio foundation surfacing through the framework instead of being papered over. That is the same thesis from lesson one, seen from the type side rather than the compute side.
 
-![A five-row table mapping v1 to V2, covering the handler signature, Pubkey to Address, .key() to .address(), the dropped account-wrapper lifetime, and the bump read that is identical on both sides because the string map died in 0.29.](assets/v03-comparison.png)
+![A five-row table mapping v1 to V2, covering the handler signature, Pubkey to Address, .key() to .address(), the dropped account-wrapper lifetime, and the bump read that is identical on both sides because the string map died in 0.29.](assets/v03-comparison.webp)
 
 ### The <'info> lifetimes are gone from the wrappers
 
@@ -105,7 +105,7 @@ You have read the pieces. Now watch them run, because "the macro generates an en
 
 First, the entrypoint checks that the declared program id (from `declare_id!`) matches the program id it was actually invoked as, and errors out if not. Second, it reads the front of the instruction data and matches it against each handler's discriminator, the small tag that says "this call is for `greet`, not some other handler." Third, the matched handler's wrapper deserializes the accounts named in the transaction into your `Greet` struct, running every constraint and check as it goes, and builds the `Context`. Fourth, it calls the code you actually wrote, `greet`, with a `&mut` to that context, and afterward runs an exit routine that persists any account changes back.
 
-![A six-step flow from entrypoint to exit: program-id check, discriminator match, account deserialization into a Context, the greet handler body, then the exit routine that persists changes.](assets/v04-flowchart.png)
+![A six-step flow from entrypoint to exit: program-id check, discriminator match, account deserialization into a Context, the greet handler body, then the exit routine that persists changes.](assets/v04-flowchart.webp)
 
 Everything but the handler body is generated: the id check, the dispatch, the deserialization, and the exit routine that persists changes. The only code you wrote is the body of `greet`. That is the whole trade of a framework: it writes the dispatch, the deserialization, the constraint checks, and the persistence, and in exchange it hides wiring you must still be able to reason about when something goes wrong. Reading the expansion is how you keep the reasoning even though the macro keeps the typing.
 
@@ -119,11 +119,11 @@ One scoping note, so you are not waiting for a shoe that does not drop. Invoking
 
 Quick aside on why the default test is Rust and not TypeScript, since you have been staring at it. `anchor init` in V2 offers five test templates: Mocha, Jest, Rust, Mollusk, and Litesvm. Litesvm is the `#[default]`. So the scaffold hands you a Rust integration test that loads your compiled `.so` into an in-process VM and invokes it, with no TypeScript authored and no local validator started.
 
-![A table of the five anchor init test templates, splitting the TypeScript-against-a-validator options from the Rust in-process ones, with Litesvm marked as the default.](assets/v05-comparison.png)
+![A table of the five anchor init test templates, splitting the TypeScript-against-a-validator options from the Rust in-process ones, with Litesvm marked as the default.](assets/v05-comparison.webp)
 
 Why that default, and not a TypeScript one like every v1 tutorial you have read? Because in V2 the Rust surface is the primary client, and there is no official V2 TypeScript package to reach for yet. But the choice is also a bet, and Jacob Creech named it in his unification memo: "I expect Anchor V2 to unify tools around using Litesvm, using the solana-verify standard, potentially surfpool, Gill." The LiteSVM-default invoke loop you are about to run is that memo shipping. It rhymes with the dated Anchor 1.0 increments you narrated last lesson, the same wave of decisions that renamed the TypeScript package and swapped the default validator.
 
-![Five Anchor 1.0 increments shown as one set: the package rename, CpiContext taking a Pubkey, transfer_checked, LiteSVM as the default test template, and Surfpool as the default validator.](assets/v06-timeline.png)
+![Five Anchor 1.0 increments shown as one set: the package rename, CpiContext taking a Pubkey, transfer_checked, LiteSVM as the default test template, and Surfpool as the default validator.](assets/v06-timeline.webp)
 
 It is also why this whole module closes the deploy-and-invoke loop in Rust rather than handing you a TypeScript harness that does not exist yet.
 
@@ -169,7 +169,7 @@ One thing in that import block deserves a note before you read the body, because
 
 Now read what the test does against the dispatch flow you just traced. `anchor_v2_testing::svm()` stands up the in-process VM. `add_program` inserts your built `.so` at its program id. `greeter::instruction::Greet {}.data()` produces the instruction bytes, discriminator included, that step two matches on. `greeter::accounts::Greet { ... }.to_account_metas(None)` produces the account metas the wrapper deserializes in step three. These `instruction::` and `accounts::` modules are generated from your program by the same macros; the test does not read an IDL at runtime, it uses the typed builders directly.
 
-![One greeter.so built from lib.rs feeds two proofs, a local in-process LiteSVM run of the handler and a devnet account that resolves as executable.](assets/v07-diagram.png)
+![One greeter.so built from lib.rs feeds two proofs, a local in-process LiteSVM run of the handler and a devnet account that resolves as executable.](assets/v07-diagram.webp)
 
 **Step 2. Build and run, and expect red.** From the workspace root:
 

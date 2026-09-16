@@ -46,7 +46,7 @@ Start from the model you already have. A normal Solana account is a keypair: who
 
 But a vault that can hold funds and never move them is a piggy bank you have to smash. So the runtime offers a trade. When your program calls `invoke_signed` and hands over the exact seeds plus the canonical bump used to derive one of the accounts in the call, the runtime re-derives the address from those seeds and your program's ID. If it matches, the runtime marks that account as a signer for the duration of the call. No cryptography happens. It is a permission the runtime grants because only the program that owns those seeds could have presented them. The PDA "signs" the way a manager signs for a company account: not with their own identity, but by proving they are authorized to act for it.
 
-![A wallet signs with its private key, while a PDA is signed for by its owning program through invoke_signed, and another program's forged attempt fails re-derivation.](assets/v01-diagram.png)
+![A wallet signs with its private key, while a PDA is signed for by its owning program through invoke_signed, and another program's forged attempt fails re-derivation.](assets/v01-diagram.webp)
 
 The last row of that diagram is the whole security model in one line: a PDA-signed CPI can only ever sign for seeds *this* program owns. You cannot sign for another program's PDA, and no one can sign for yours. Keep that sentence. It is also the exact boundary of what the withdrawal can and cannot do.
 
@@ -58,7 +58,7 @@ The System Program will only move lamports out of an account that the System Pro
 
 There are two correct ways to move lamports, and which one you use depends entirely on who owns the source account:
 
-![A program-owned data PDA cannot be a System transfer source and must move lamports directly, while a zero-data System-owned PDA can, signed via invoke_signed.](assets/v02-comparison.png)
+![A program-owned data PDA cannot be a System transfer source and must move lamports directly, while a zero-data System-owned PDA can, signed via invoke_signed.](assets/v02-comparison.webp)
 
 Read the takeaway row, because it forces our architecture. This lesson is about signing a CPI as a PDA. That mechanism, `invoke_signed` into the System Program, only exists for the System-owned case. So R2 cannot keep its lamports inside the data vault. It needs a second PDA: a zero-data `SystemAccount` that holds the actual SOL, one the program can sign a System transfer for. The data vault stays the ledger; the new SOL vault holds the money. That split is not incidental complexity, it is the custody decision the module has been building toward, and it is why the vault could not simply "pay out" until now.
 
@@ -66,7 +66,7 @@ Read the takeaway row, because it forces our architecture. This lesson is about 
 
 So the quarter-vault after today is two accounts under each player, derived from the same owner but different seeds:
 
-![R2 gives each player a program-owned state PDA holding the ledger and a System-owned zero-data SOL PDA holding the lamports the program signs to move.](assets/v03-diagram.png)
+![R2 gives each player a program-owned state PDA holding the ledger and a System-owned zero-data SOL PDA holding the lamports the program signs to move.](assets/v03-diagram.webp)
 
 Two seeds, `b"vault"` and `b"sol"`, keep the addresses distinct so one player has both. The state PDA stores two bumps now: its own `bump` (unchanged from earlier lessons) and `sol_bump`, the canonical bump of the SOL vault, which we capture once at initialization and reuse forever. Why store the SOL vault's bump in the state account and not recompute it in `withdraw`? That is the next section, and it is where the CU numbers come in.
 
@@ -74,7 +74,7 @@ Two seeds, `b"vault"` and `b"sol"`, keep the addresses distinct so one player ha
 
 The V2 CPI is the shape you will type all lesson, so let us name every part of it before wiring it into a handler. Anchor V2 rebuilt this surface. Two things moved from the pre-1.0 form and the 1.0 line both: the program argument is now a `&Address`, not an `AccountInfo` and not a by-value `Pubkey`, and the accounts are passed as `CpiHandle` borrow-tracked handles rather than plain typed structs. You obtain those handles with `.cpi_handle()` for a read and `.cpi_handle_mut()` for a write. The PDA signer rides along through `.with_signer(signer_seeds)`, which is the ergonomic wrapper over the raw `invoke_signed` syscall.
 
-![An annotated V2 transfer call labelling address(), the signer seeds with the stored bump, the &Address program argument, the cpi_handle_mut handles, and with_signer.](assets/v04-annotated-code.png)
+![An annotated V2 transfer call labelling address(), the signer seeds with the stored bump, the &Address program argument, the cpi_handle_mut handles, and with_signer.](assets/v04-annotated-code.webp)
 
 One caveat on that block, the same one the earlier lessons carried: this is a release candidate, `2.0.0-rc.1` on crates.io as of this writing. The CPI ergonomics are high-confidence but still settling, so treat the exact token shapes as a moving target and re-read them against the crate when you build. The concepts under them, a `&Address` program, `CpiHandle` accounts, and `with_signer` for the PDA, are the stable part.
 
@@ -84,7 +84,7 @@ There are two ways to make a CPI, and the difference is one thing: whose signatu
 
 R2's two money handlers land on opposite sides of that fork, which is why building both in one lesson is worth the extra handler. A `deposit` moves lamports from the player *into* the SOL vault. The player owns the source and already signed the transaction, so the System transfer needs no extra signature: plain `invoke`, a `CpiContext::new` with nothing attached. A `withdraw` moves lamports *out* of the SOL vault, whose source is a keyless PDA that signed nothing, so the program must supply the seeds and let the runtime grant the PDA its synthetic signature: `invoke_signed`, expressed as `.with_signer(signer_seeds)`.
 
-![Deposit uses invoke because the player already signed, while withdraw uses invoke_signed because its source is a keyless PDA the program signs for with seeds.](assets/v05-comparison.png)
+![Deposit uses invoke because the player already signed, while withdraw uses invoke_signed because its source is a keyless PDA the program signs for with seeds.](assets/v05-comparison.webp)
 
 There is a privilege rule worth internalizing while you are here, because it is the runtime guardrail that makes PDA signing safe to expose. A CPI can never escalate privileges: if the caller did not have an account as writable or signer, the callee cannot invent that privilege. The one sanctioned exception is exactly PDA signing: the runtime will add a PDA to the signer set, but only when the calling program presents seeds that re-derive to that PDA under the calling program's own ID. That is the whole reason a keyless account is safe to give spending power. The authority is not a secret that can leak, it is a derivation only the owning program can produce.
 
@@ -96,7 +96,7 @@ A canonical bump is found by `find_program_address`, which starts at bump `255` 
 
 That last point is not hand-waving, and it is why this course cites CU savings as ranges and never freezes them. The Anchor V2 benchmarks got more honest over time:
 
-![A timeline showing Anchor V2's headline 95 percent and 9.9x claims revised down to 94 percent and 8.8x by PR 4914 on 2026-08-13.](assets/v06-timeline.png)
+![A timeline showing Anchor V2's headline 95 percent and 9.9x claims revised down to 94 percent and 8.8x by PR 4914 on 2026-08-13.](assets/v06-timeline.webp)
 
 The lesson from PR #4914 is not that Anchor got slower. It is that a headline number a maintainer corrected once will get corrected again, so the honest way to talk about a CU win is as a range you re-measure on your own program, not a trophy you quote. Storing the bump is unambiguously cheaper than recomputing it; the exact delta is yours to profile.
 
@@ -108,7 +108,7 @@ PDA signing makes the program the authority over the vault's money. That is exac
 
 One property is working in your favor here, and it is worth naming so you rely on it correctly. An instruction is atomic: if the handler returns an error at any point, every change it made, including a CPI that already ran, is rolled back. So the ordering in `withdraw`, transfer first and then debit the ledger, is safe even though it looks risky. If the `checked_sub` on the ledger somehow fails after the transfer succeeded, the whole instruction aborts and the transfer unwinds with it. You never end up in the half-state where the lamports left but the ledger did not record it. What atomicity does *not* do is save you from an *unchecked* debit that wraps instead of erroring: a silent wrap is not a failure, so nothing rolls back, and the vault is left believing a lie. Atomicity protects you from errors, not from bugs that never raise one. That is the whole case for `checked_sub` over `-` in three words: make the bug an error.
 
-![checked_sub raises an error so the whole instruction rolls back and the vault stays correct, while plain subtraction, on a build with overflow-checks off, wraps silently and leaves the transfer committed.](assets/v07-comparison.png)
+![checked_sub raises an error so the whole instruction rolls back and the vault stays correct, while plain subtraction, on a build with overflow-checks off, wraps silently and leaves the transfer committed.](assets/v07-comparison.webp)
 
 Two hard limits ride along, and both are constraints you take as given rather than fight. First, the seeds boundary from the opening diagram: a PDA-signed CPI can only sign for seeds this program owns, so `withdraw` can move the SOL vault's lamports and nothing else. Second, CPI depth. The maximum instruction stack height is 5, meaning a program can nest CPIs up to 4 levels deep. SIMD-0268 (status Accepted) raises the nesting limit from 4 to 8, a stack height of 9, but its feature gate `6TkHkRmP7JZy1fdM6fg5uXn76wChQBWGokHBJzrLB3mj` still has no account on mainnet as of 2026-08-22, so treat 5 as the law and re-probe the gate at build time rather than trusting a status you cached. Our withdrawal is one CPI deep, nowhere near the ceiling, but the number matters the moment your program calls a program that calls a program.
 
@@ -118,7 +118,7 @@ It is worth zooming out for one beat before we build, because this instruction i
 
 You are extending R2, the `quarter_vault` program, with a `withdraw` instruction that signs a System transfer as the SOL vault PDA and debits the ledger with checked math. When you finish, `anchor test` is green: a PDA-signed withdrawal moves lamports from the SOL vault to the player and debits `credit`, and an over-withdraw returns an error instead of panicking. Here is the shape of the handler you are building, so the steps have somewhere to land:
 
-![A withdraw flowchart where the guard rejects zero, over-withdraw, and below-rent-floor requests before the PDA-signed transfer CPI runs and the ledger is debited.](assets/v08-flowchart.png)
+![A withdraw flowchart where the guard rejects zero, over-withdraw, and below-rent-floor requests before the PDA-signed transfer CPI runs and the ledger is debited.](assets/v08-flowchart.webp)
 
 **1. Pin the V2 toolchain.** The V2 release candidate does not come down through `avm install`: that command downloads a prebuilt binary from the tag's GitHub Release, no Release was cut for the v2 tag, and the fetch 404s, exactly as the toolchain lesson (m01-l2) showed. The documented channel is a cargo git install, pinned to the `v2.0.0-rc.1` tag rather than the `anchor-next` branch tip it sits on. If you did this module's earlier lessons you already have it; if not, install and confirm. Do not build V2 content on a V1 `anchor` binary:
 
@@ -513,7 +513,7 @@ One rung you refill from memory, one you build cold.
 
 **Solo.** Extract the guard into a standalone, testable function, `resolve_withdrawal`, and prove it in pure Rust before wiring it back into the handler. This is the pre-CPI guard, distilled so it can be unit-tested with no framework at all:
 
-![A decision flowchart returning minus one for a zero request, minus two for an over-withdraw, minus three below the rent floor, and the requested amount otherwise.](assets/v09-flowchart.png)
+![A decision flowchart returning minus one for a zero request, minus two for an over-withdraw, minus three below the rent floor, and the requested amount otherwise.](assets/v09-flowchart.webp)
 
 The starter, solution, and test vectors live in `lessons/m04-l1/resolve-withdrawal/`, alongside the other challenges in this course. The starter ignores every guard and hands back `requested` unconditionally — and because the function is a `const fn` with compile-time assertions under it (the m03-l3 device, which is what compile-only grading actually enforces), the unguarded version does not even build: the first error names the zero-request case. One deliberate wart to notice rather than copy: the signature returns `i64` sentinels because a pure function with no framework in scope has no `VaultError` to return, and the vectors stay small enough that the `as i64` cast is exact. In the handler it becomes a `Result` with the typed errors from step 4, and if you ever find yourself shipping sentinel codes out of real program code, that is the smell the typed-error section of module 1 was about. Acceptance: the check cases pass in order, the over-withdraw returns `-2` instead of underflowing, the rent floor is *inclusive* so a withdrawal leaving exactly `rent_exempt_min` is allowed and one lamport less is `-3`, an over-withdraw that would also breach the floor is still `-2` because the balance check is reached first, and — the part that matters — your subtraction is `checked_sub` rather than a bare `-`, exactly as in the handler — even though the guard above it already proved `requested <= balance`, because that proof is one refactor away from being wrong and a bare `-` either aborts the transaction or, on a build with overflow-checks off, wraps silently. Then swap the three `require!`s in `withdraw` for a call to your resolved amount and confirm `anchor test` is still green. One thing worth watching: `resolve_withdrawal` guards the *lamport* movement against the SOL vault's balance, while the `checked_sub` guards the *ledger*. They are two different balances doing two different jobs, and a real custody bug is letting them drift apart.
 

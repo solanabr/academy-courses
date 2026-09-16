@@ -71,7 +71,7 @@ The autonomy fade, said out loud so you know what is yours. The R1 counter CPI i
 
 Start with the picture, because the registry is easiest to hold as a hub. It owns almost no state of its own. What it owns is the decisions about *when* to call each rung and *in what order*, and it delegates every actual state change to the program built for it. That is the entire argument for composition: the registry is a small thing you can reason about, bolted onto four proven things you already trust.
 
-![The floor-registry sits at the center with a CPI arrow into each of the four rungs, plus a second arrow showing prize settlement as a two-hop call.](assets/v01-diagram.png)
+![The floor-registry sits at the center with a CPI arrow into each of the four rungs, plus a second arrow showing prize settlement as a two-hop call.](assets/v01-diagram.webp)
 
 ### Why one program and four CPIs, not one big program
 
@@ -87,7 +87,7 @@ There is nothing new to learn about how one program calls another. You did it in
 
 Worth pausing on the contrast, because it is the difference between the line you deleted and the line you kept.
 
-![A three-column table comparing each piece of a CPI call across Anchor lines, stressing that stale-after-CPI reads became a compile error in V2.](assets/v02-comparison.png)
+![A three-column table comparing each piece of a CPI call across Anchor lines, stressing that stale-after-CPI reads became a compile error in V2.](assets/v02-comparison.webp)
 
 The one habit that carries straight into the capstone: read any state you need *before* you open a handle. Once `.cpi_handle_mut()` borrows an account, you cannot touch that account through its typed view until the call consumes the `CpiContext` and the handle drops. That is not a rule you follow anymore. It is a rule the compiler follows for you, and it is exactly why the vault's swap read its reserves up front, once, before quoting. Keep doing that and the borrow checker will keep catching your stale reads before a validator ever sees them.
 
@@ -97,7 +97,7 @@ Composition is powerful, but name the trade honestly, because it is the point of
 
 Two costs are concrete. The first is invocation depth. The Solana runtime caps how deep a chain of CPIs can nest: the maximum invocation stack height is **5**, which is your top-level instruction plus four nested CPIs. A raise is specified, SIMD-0268, "Raise CPI Nesting Limit", status Accepted, which would take nesting from 4 to 8, but its feature gate, `6TkHkRmP7JZy1fdM6fg5uXn76wChQBWGokHBJzrLB3mj`, had no mainnet account when this lesson was written (probed 2026-08-22), so 5 is the number in force. Re-probe the gate at build time rather than trusting this sentence forever; a pending gate is exactly the kind of fact that flips between a course being written and a course being read. It matters here because `settle_prize` is a three-hop call: the registry CPIs the escrow, the escrow CPIs the vault, and the vault CPIs the token program. Count it: your top-level instruction plus three nested calls is stack height 4, so you have exactly one nested call of headroom left. That is the kind of number you could not compute at all when every program lived alone.
 
-![A vertical stack showing settle_prize nesting through floor-registry, prize-escrow, quarter-vault, and the token program, reaching stack height 4 of the maximum 5.](assets/v03-diagram.png)
+![A vertical stack showing settle_prize nesting through floor-registry, prize-escrow, quarter-vault, and the token program, reaching stack height 4 of the maximum 5.](assets/v03-diagram.webp)
 
 The second cost is the borrow discipline itself, but that one is a gift disguised as a cost: the compiler making you sequence your reads is the reason a two-hop settle does not silently pay out against a stale balance. You pay in a little rigidity up front and it buys you a class of 2am incident you will never have.
 
@@ -189,7 +189,7 @@ The player signs the outer transaction, and that signer privilege extends down t
 
 Expected result: `anchor build` compiles the registry with one instruction and no warnings about unresolved `counter_cpi` paths. A "no method named `cpi_handle_mut`" error means you are on the machine-default V1 CLI, not the RC from Step 0; an unresolved `cabinet_counter::cpi` means the `declare_program!` line or its `idls/cabinet_counter.json` is missing. One naming rule to keep in your pocket for the solo edges: the generated CPI accounts structs are named after the **instruction** (`accounts::PostScore` for `post_score`), not after whatever the callee called its own context type — the IDL carries instruction names, and on the rungs the two happen to coincide. Which is also why a rename you made two modules ago reaches you here: an `unresolved import counter_cpi::accounts::Increment` is a stale *name*, not a stale harvest, and re-running the harvest will not fix it.
 
-![An annotated code card isolating the three reusable parts of a V2 CPI, with the rule to read typed state before opening a handle.](assets/v04-annotated-code.png)
+![An annotated code card isolating the three reusable parts of a V2 CPI, with the rule to read typed state before opening a handle.](assets/v04-annotated-code.webp)
 
 **Step 3. Wire R2, R4, and R3 (solo).** These are the capstone. Each is the same three-part grammar pointed at a different rung. Build them one at a time and let `anchor build` tell you which handles are missing.
 
@@ -247,7 +247,7 @@ You are not chasing full coverage in a capstone, only proving the harness runs a
 
 **Step 7. CU profile plus one optimization.** Profile the heaviest edge, `settle_prize`, because three hops burn the most. Read the compute units off the Mollusk test you wrote in Step 4 and record your number — for scale, the course's own verification rig measures its stub-handler registry-to-escrow-to-vault chain in the mid-thousands of CU, and your real handlers land higher; the number is yours, the thousands-not-tens shape is the sanity check. Then rebuild, make one measured change, and record it again. A concrete change that pays: if your handler reads an account both before and after a CPI, and the second read only needs a lamport or byte value rather than the typed view, drop the redundant typed read. Do not fabricate the gain; measure it. The rule is the same one this course has held since module 1: report the number you saw, not the number you hoped for.
 
-![An eight-stage pipeline running from anchor build through the unit suite, fuzz, harden, CU profile, Surfpool localnet, devnet deploy, and local verify-from-repo.](assets/v05-flowchart.png)
+![An eight-stage pipeline running from anchor build through the unit suite, fuzz, harden, CU profile, Surfpool localnet, devnet deploy, and local verify-from-repo.](assets/v05-flowchart.webp)
 
 **Step 8. The Surfpool localnet integration run.** This is the step that catches what every unit test above cannot. Your LiteSVM tests prove each rung works alone. They never stand the whole floor up together, so a CPI that passes the wrong account, or a seed that derives one vault in the test and another on the floor, sails through unit tests and fails only when the programs actually compose. `anchor test` in V2 spins up a Surfpool localnet by default, deploys the whole workspace, and runs your tests against the whole five-program floor running together, before a single byte touches devnet. Surfpool is a separate binary that `anchor test` drives; if you took Digital Assets, this is the same Surfpool you have driven since its module 2 — there it forked mainnet state under your tests, here it stands up your five-program localnet floor. Install it once so the default validator is on your PATH:
 
@@ -309,7 +309,7 @@ solana-verify verify-from-repo -u devnet \
 
 When the two hashes match, you have proven your public source reproduces the exact bytecode running on devnet. That is a real proof, and it is worth being precise about what it is and is not.
 
-![A two-track timeline separating the local reproducibility proof against devnet from the mainnet-only distribution and authority steps, which are demonstrated but never run here.](assets/v06-timeline.png)
+![A two-track timeline separating the local reproducibility proof against devnet from the mainnet-only distribution and authority steps, which are demonstrated but never run here.](assets/v06-timeline.webp)
 
 The remote OtterSec job (the `--remote` flag) submits your build to a public registry, and remote verification only runs against mainnet. Squads v4 executing an upgrade under a multisig is the authority flow for a real launch. Both are demonstrated in this course and labelled mainnet-only, because they are beyond this course's cluster. Neither is the verification *proof*. The proof is the local rebuild matching the on-chain hash, and you just ran it against devnet. Reproducibility is reproducibility on whatever cluster you point it at.
 
@@ -321,7 +321,7 @@ No new scaffold. The gate is the whole thing, assembled by you.
 
 Build the three remaining registry instructions (`route_credit`, `settle_prize`, `quote_swap`) using the grammar from Step 2, then run the floor through every stage. Accept it as done when all of the following hold:
 
-![A two-column done-ledger table listing each capstone stage and its concrete passing signal, from the green unit suite through the Surfpool localnet run, the devnet deploy, and the matching verify-from-repo.](assets/v07-comparison.png)
+![A two-column done-ledger table listing each capstone stage and its concrete passing signal, from the green unit suite through the Surfpool localnet run, the devnet deploy, and the matching verify-from-repo.](assets/v07-comparison.webp)
 
 You will know you have it when three things are simultaneously true: `anchor test` prints `floor-registry ... passing`, the program is live at a devnet address you can look up, and `solana-verify verify-from-repo` against that address matches your local build. If the localnet run fails but every unit test passed, do not reach for devnet. The failure is a composition bug, which is exactly what Step 8 exists to catch, and it is cheaper to fix on your machine than to debug across a cluster. If the verify mismatches, your deployed artifact and your source have drifted; rebuild with `solana-verify build`, redeploy that exact `.so`, and verify again.
 

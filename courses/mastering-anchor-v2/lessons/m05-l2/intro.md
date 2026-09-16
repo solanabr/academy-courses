@@ -38,7 +38,7 @@ One idea generates everything that follows. A constant-product pool holds two as
 
 That one rule is the price mechanism. When a trader adds `dx` of the first asset, the pool has to give back enough of the second asset, `dy`, that the product still holds. Solve for `dy` and the rate is not a stored number anywhere: it is whatever keeps the curve intact. The deeper the pool, the less a given trade moves it; the shallower the pool, the more each trade costs. That is the geometry doing the policing for you.
 
-![A trade pulls the trader's arcade tokens into the pool's reserve, quotes an output, checks it against min_out, then pushes tickets back under the pool PDA's signature.](assets/v01-diagram.png)
+![A trade pulls the trader's arcade tokens into the pool's reserve, quotes an output, checks it against min_out, then pushes tickets back under the pool PDA's signature.](assets/v01-diagram.webp)
 
 Why quote from reserves instead of a rate you set? Because a rate you set is a rate an attacker can pick a side of. Picture the pool as a curved seesaw with a fixed area underneath it. Every trade slides a weight along the beam, and the beam has to tilt to keep the area constant. A trader can push the weight, but they cannot change the area, and the area is what they would need to steal from. The curve is not protecting a price you chose. It is the price, and it repriced itself the instant the last trade landed. That is the whole reason an AMM needs no oracle: the pool quotes itself.
 
@@ -61,7 +61,7 @@ The `1000` on the denominator is there to keep everything in the same integer sc
 
 The constant-product curve as a picture, because the shape is the intuition:
 
-![A naive linear quote and the constant-product curve agree on tiny trades but diverge sharply as size grows, the curve bending far below the line.](assets/v02-chart.png)
+![A naive linear quote and the constant-product curve agree on tiny trades but diverge sharply as size grows, the curve bending far below the line.](assets/v02-chart.webp)
 
 That gap between the straight line and the curve is the 129 tickets from the intro, scaled up. On a 10,000-token trade it is small. On a 500,000-token trade against a 1,000,000 reserve the naive rate would hand over 500,000 tickets while the curve gives 332,665. A pool that quoted the straight line would be drained by the first whale who did the arithmetic. The curve is refusing to sell you the whole pool at the marginal price.
 
@@ -102,7 +102,7 @@ pub fn swap_out(reserve_in: u64, reserve_out: u64, amount_in: u64) -> u64 {
 }
 ```
 
-![The five load-bearing lines of swap_out, each paired with the specific failure it prevents: empty-pool quote, fee-before-curve, u128 overflow on the multiply, divide-by-zero, and safe truncation in the pool's favor.](assets/v03-annotated-code.png)
+![The five load-bearing lines of swap_out, each paired with the specific failure it prevents: empty-pool quote, fee-before-curve, u128 overflow on the multiply, divide-by-zero, and safe truncation in the pool's favor.](assets/v03-annotated-code.webp)
 
 Notice the rounding direction. Integer division throws away the remainder, so the trader always gets floor, never ceil. That is deliberate. Rounding must favor the pool on every trade, because a swap runs millions of times and a fraction rounded the wrong way, repeated, is a slow leak. The pool keeping the dust is correct. The trader keeping it is a bug you would find months later as a shortfall you cannot explain.
 
@@ -118,7 +118,7 @@ Now put the 0.3% fee back and the output drops from 9,900 to 9,871. That last 29
 
 Those same 29 fee tickets are what lift the invariant. Before the trade, `k = 1,000,000 * 1,000,000 = 1,000,000,000,000`. After it, `reserve_in = 1,010,000` and `reserve_out = 990,129`, so `k = 1,000,030,290,000`, a hair above where it started. `k` never drops. The fee is the thing that nudges it up, and the gate's invariant test asserts exactly that: `k_after >= k_before`, never equality.
 
-![A waterfall from the naive 10,000-ticket quote down 100 tickets for price impact and 29 for the fee, landing on the real 9,871-ticket fill.](assets/v04-chart.png)
+![A waterfall from the naive 10,000-ticket quote down 100 tickets for price impact and 29 for the fee, landing on the real 9,871-ticket fill.](assets/v04-chart.webp)
 
 ### Moving the tokens: two transfers, two signers
 
@@ -130,7 +130,7 @@ The output transfer is the pattern that makes this an Anchor lesson. The tickets
 
 The handler runs a fixed sequence, and the order is not cosmetic: the reads have to happen before the handles exist, and the guard belongs in front of both transfers. Get the first wrong and the compiler stops you (a read after a handle). Get the second wrong and — be precise here — atomicity still saves the trader: a failed `require!` after the transfers reverts them both, so a bad fill never actually settles. What a late guard costs you is different. You spend two full CPIs to learn what one comparison could have said up front, and you write a handler where the trader's only protection reads like an afterthought a reviewer has to reason backwards about. Guards go before the money for cost and legibility, not because the runtime would let a reverted fill stand.
 
-![The handler reads both reserves first, quotes the output, reverts if it is below min_out, then runs the trader-signed pull CPI and the pool-PDA-signed push CPI, in that fixed order.](assets/v05-flowchart.png)
+![The handler reads both reserves first, quotes the output, reverts if it is below min_out, then runs the trader-signed pull CPI and the pool-PDA-signed push CPI, in that fixed order.](assets/v05-flowchart.webp)
 
 Here is the full swap handler. The token-in direction is worked; the token-out direction is the fill-in and is shown here so you can see the mirror, but in the lab you will type it yourself against a stub.
 
@@ -281,7 +281,7 @@ The CPI shape changed. `CpiContext::new` now takes the program as an `&Address`,
 
 That borrow is the point of the next section, and it is the footgun that used to bite everyone.
 
-![Side by side: in the 0.x line a deserialized account went stale unless you called reload, while V2's borrow-checked CPI handle turns that stale read into a compile error.](assets/v06-comparison.png)
+![Side by side: in the 0.x line a deserialized account went stale unless you called reload, while V2's borrow-checked CPI handle turns that stale read into a compile error.](assets/v06-comparison.webp)
 
 ### Why V2 will not let you read a balance mid-CPI
 
@@ -297,11 +297,11 @@ One more V2 default worth naming, because a swap is exactly the shape that trips
 
 A swap has two reserves, and the temptation, if you are thinking of the pool as one thing, is to route both directions through one account. Do that and V2 stops you. The wrong reaction is to silence the check with `unsafe(dup)`, the escape hatch for genuinely duplicated accounts. The right reaction is to notice that a constant-product pool has two reserves by definition, so each side is its own distinct token account. `reserve_arcade` and `reserve_ticket` are different accounts holding different mints. The duplicate-mutable default is satisfied for free, and you never touch `unsafe(dup)`. Reaching for it here would not be an opt-out. It would be papering over a design where you collapsed two reserves into one, which is a bug the check just caught for you.
 
-![The wrong fix collapses both reserves into one account silenced by unsafe(dup); the right design keeps two distinct reserve accounts, so no duplication and no opt-out exist.](assets/v07-comparison.png)
+![The wrong fix collapses both reserves into one account silenced by unsafe(dup); the right design keeps two distinct reserve accounts, so no duplication and no opt-out exist.](assets/v07-comparison.webp)
 
 Anchor's team did not add these defaults for style points. When they benchmarked V2 against Quasar and Pinocchio ahead of the Accelerate conference in early May 2026 (the framing is right there in issue #4355, where the whole V2 effort was justified as existential), the programs that posted the biggest compute reductions were the AMM-family programs, the `prop-amm` benchmark specifically, with a largest reported reduction of 50.4x. That is why a swap is the showpiece: the pattern you are building is the one V2 was tuned to make cheap. I will not print a compute number for this exact program, because those figures moved as the project tuned them and the honest thing is to measure your own, but the direction was the entire pitch.
 
-![A timeline from issue #4355's benchmark justification to the pre-Accelerate runs of early May 2026, where the prop-amm program posted the largest reported reduction.](assets/v08-timeline.png)
+![A timeline from issue #4355's benchmark justification to the pre-Accelerate runs of early May 2026, where the prop-amm program posted the largest reported reduction.](assets/v08-timeline.webp)
 
 ### The slippage guard, and why it is the whole point
 

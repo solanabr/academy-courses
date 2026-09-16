@@ -47,7 +47,7 @@ let remaining = ctx.accounts.vault.amount;
 
 One line. Cheap. And catastrophic to omit, because omitting it produced no error, no warning, no panic. Just a program that quietly read the past.
 
-![Anchor deserializes the vault at 100, a transfer CPI drops the real balance to 40, and only .reload() refreshes the stale copy before the code decides.](assets/v01-flowchart.png)
+![Anchor deserializes the vault at 100, a transfer CPI drops the real balance to 40, and only .reload() refreshes the stale copy before the code decides.](assets/v01-flowchart.webp)
 
 Sit with why this was so dangerous. It was not that the fix was hard. It was that the failure was invisible. A missing `checked_sub` panics and you see it in the logs. A missing `.reload()` succeeds, and the only witness is a value that is subtly wrong on a code path a test rarely exercises. Silent-and-wrong is strictly worse than loud-and-broken, because loud gets fixed on Tuesday and silent gets fixed after an incident.
 
@@ -61,7 +61,7 @@ So here is the question the V2 authors actually had to answer. How do you make t
 
 That is a higher bar than it sounds, and the obvious ways to clear it all fail. Watch them fail, because ruling them out is what makes the real answer feel inevitable instead of arbitrary.
 
-![Four ways to catch a post-CPI staleness bug, where docs never catch it, a lint is silenceable, auto-refresh costs runtime work, and the borrow rule catches it at compile time.](assets/v02-comparison.png)
+![Four ways to catch a post-CPI staleness bug, where docs never catch it, a lint is silenceable, auto-refresh costs runtime work, and the borrow rule catches it at compile time.](assets/v02-comparison.webp)
 
 ### The naive fixes, ruled out in tiers
 
@@ -79,13 +79,13 @@ The idea the whole mechanism rests on: in V2 you no longer hand a CPI an `Accoun
 
 That one design choice does all the work. While a `CpiHandle` is alive, the account it points at is borrowed, so the borrow checker will not let you form a second, conflicting borrow to read typed data. The read and the handle cannot coexist.
 
-![A code panel showing that two mutable handles on two disjoint fields are legal, and that the CpiContext keeps exactly those two per-field borrows alive until the CPI call consumes it.](assets/v03-annotated-code.png)
+![A code panel showing that two mutable handles on two disjoint fields are legal, and that the CpiContext keeps exactly those two per-field borrows alive until the CPI call consumes it.](assets/v03-annotated-code.webp)
 
 Be exact about *what* is borrowed, because exactness is the design. `cpi_handle_mut()` borrows a single field: `ctx.accounts.sol_vault` and `ctx.accounts.authority` are disjoint paths, and Rust has always allowed two mutable borrows of two different fields of one struct. There is no framework magic underneath that sentence, either — `Context` declares `accounts` as a plain field and your accounts struct is a plain struct, so the ordinary field-borrow rules are the whole story. That is why the pair inside the `Transfer { from, to }` literal is fine. And moving both handles into a `CpiContext` widens nothing: the context now carries those two borrows — of `sol_vault` and of `authority`, and of nothing else — and keeps them alive until the CPI call consumes it. From the moment `cpi` exists to the moment `transfer(cpi, ...)` eats it, those two accounts are locked and every other field of `ctx.accounts` is as readable as it ever was. That is what the green build at the top of this lesson was telling you: `state` never went into the CPI, so reading `state.credit` conflicts with nothing. Call it borrow-checker exclusion, and state it precisely: a live handle *excludes* conflicting access to the account it borrows, for exactly as long as it lives — a mutable handle excludes your reads, and any handle excludes your writes.
 
 If it helps, think of each handle as checking one specific book out of a library. While a book is checked out to the CPI, nobody else can read that book — but the rest of the library stays open — and the moment the book comes back, what you pull is the current edition, not a photocopy you made last week. The analogy carries the important part, that the checkout is exclusive and time-bounded, and it breaks in one place worth flagging: a library book is one physical object, while the borrow here is enforced entirely at compile time, before a single instruction runs. Nothing is locked at runtime. The compiler simply refuses to emit a program in which the two overlap, so the "conflict" is never a race, it is a build failure. Keep the exclusivity from the analogy and drop the physicality.
 
-![A one-instruction timeline where the CPI'd account's typed data is readable, then excluded for the span its mutable CpiHandle is live, then readable again once the handle drops — while accounts outside the CPI stay readable throughout.](assets/v04-diagram.png)
+![A one-instruction timeline where the CPI'd account's typed data is readable, then excluded for the span its mutable CpiHandle is live, then readable again once the handle drops — while accounts outside the CPI stay readable throughout.](assets/v04-diagram.webp)
 
 Now look back at last lesson with new eyes. Remember the very first thing the withdraw handler did? It copied values *out* of `ctx.accounts` before building any handle:
 
@@ -108,7 +108,7 @@ No — and working out why sharpens the whole model. Ask what the wider lock wou
 
 And notice what V2 did *not* have to build to get that precision. A framework that invented its own "which accounts can this CPI reach" analysis would have to follow every account through every alias, every helper, every branch — and a missed alias would be a leak, a stale read waved through with a green checkmark. V2 sidesteps the entire problem by not inventing an analysis at all. `Context` declares `accounts` as a plain field; your accounts struct is a plain struct; a `CpiHandle` is a plain borrow of one field. The "analysis" is Rust's own per-place borrow checking, the same rules that govern every struct in every Rust program, hardened by a decade of the entire ecosystem leaning on them. The framework gets exactness *and* leak-freedom in one move, by arranging its types so the language does the enforcement.
 
-![The borrow lock lands only on the accounts inside the CpiContext: the vault under a mutable handle rejects reads, while the disjoint state account and the shared-handle mint stay readable.](assets/v05-comparison.png)
+![The borrow lock lands only on the accounts inside the CpiContext: the vault under a mutable handle rejects reads, while the disjoint state account and the shared-handle mint stay readable.](assets/v05-comparison.webp)
 
 This is a recurring V2 instinct, so it is worth naming as a rule you can carry: do not hand-build a guarantee the type system will give you for free. A bespoke lock — coarse or clever — is framework code somebody has to get right and keep right forever. A borrow is a language rule the compiler already gets right on every build. When you design your own APIs the same move is available: shape your types so the invariant falls out of ordinary borrow rules, and the compiler does the enforcement.
 
@@ -118,7 +118,7 @@ This is where a lazy explanation would tell you the compiler now handles account
 
 The compiler guards *typed account access*, on the accounts a live handle borrows. That is it. If you go around the typed layer and read raw `AccountInfo` lamports directly, or pull bytes out of an account's data buffer by hand, the borrow model does not protect you. Those reads are yours to reason about, exactly as they were in v1. A teammate who tells you the borrow checker means you never think about freshness again is wrong on both counts: it does not refresh anything, and it does not cover raw reads.
 
-![A typed read of an account handed to the CPI is excluded while that account's handle is live, a typed read of an account outside the CPI has nothing to guard against, and raw AccountInfo lamports or manual byte reads stay the programmer's responsibility exactly as in v1.](assets/v06-comparison.png)
+![A typed read of an account handed to the CPI is excluded while that account's handle is live, a typed read of an account outside the CPI has nothing to guard against, and raw AccountInfo lamports or manual byte reads stay the programmer's responsibility exactly as in v1.](assets/v06-comparison.webp)
 
 And name the trade-off honestly, because there is one. The borrow model buys compile-time safety with a little flexibility. A handful of ergonomic v1 patterns — the ones that read an account partway through setting up the very CPI that takes it — now need restructuring: you drop the handle, then you read. The cost is a mechanical refactor, usually moving one line down a few lines. That is the whole bill. You trade "I can write the code in any order" for "the order I am allowed to write cannot be the wrong one." On a path that moves other people's money, that is a trade I take every single time. Cheap insurance against a silent bug is the best kind.
 
@@ -128,7 +128,7 @@ The doubt that usually follows is fair: what if I genuinely need a value mid-CPI
 
 Zoom out for a second, because this is a worldview rather than one clever trick. The #4390 manifesto argued that `Account<T>` being the slow path was not a performance footnote, it was the central flaw: the safe thing and the fast thing had drifted apart, so people paid a tax for safety and some of them stopped paying it. V2's answer was to make the safe path the fast path and the fast path the default. The borrow model is that same thesis carried one level up, into composition. Instead of making a safe post-CPI read cheap, it makes an unsafe one impossible. Same instinct, different lever: turn a whole class of bug into a compile error rather than a lint or a line in the docs.
 
-![A timeline running from the issue 4390 manifesto through Anchor 1.0.0 to the borrow model that removes .reload() and the fuzzing that found four framework bugs.](assets/v07-timeline.png)
+![A timeline running from the issue 4390 manifesto through Anchor 1.0.0 to the borrow model that removes .reload() and the fuzzing that found four framework bugs.](assets/v07-timeline.webp)
 
 That last beat is worth more than a footnote. A framework that hands you compile-time guarantees ought to earn them itself, and this one did the work. The V2 changelog credits fuzzing with finding four correctness bugs in the framework's own code, tracked in #4431, and the test suite ships Miri witnesses and Kani configs. Miri catches undefined behavior in unsafe code; Kani proves properties hold across all inputs, not just the ones a test author thought of. The framework subjects itself to the same "prove it, do not hope it" discipline it now imposes on your program. When a tool tells you to trust the type system, that is the receipt you want to see behind it.
 
@@ -278,7 +278,7 @@ For more information about this error, try `rustc --explain E0502`.
 
 Read what it is telling you, because it is telling you the truth, and notice the first line before anything else: the compiler names `ctx.accounts.vault_ta` — the account, not the struct. Line 14 is where `cpi_handle_mut()` took the mutable borrow of the vault. Line 24 is where `transfer_checked` consumes `cpi`, so the borrow must stay alive until there. Your read at line 22 asks for a shared borrow of the same account in the gap between. Two conflicting borrows of one account, one span, no build. And see what it did *not* complain about: the very same expression shape on `mint` — `ctx.accounts.mint.decimals()` on line 24 — sails through, because the mint went into the CPI through a shared `cpi_handle()` and shared borrows tolerate reads. The compiler is not guessing that your read might be stale. It has made the read-during-mutation structurally unexpressible, for exactly the account being mutated.
 
-![The failing read of vault_ta.amount() sits above the transfer_checked call, and moving it below, where the handle drops, compiles and reads the live account.](assets/v08-annotated-code.png)
+![The failing read of vault_ta.amount() sits above the transfer_checked call, and moving it below, where the handle drops, compiles and reads the live account.](assets/v08-annotated-code.webp)
 
 **Step 5. Fix it and prove it.** Move the read below the `transfer_checked` line, exactly as the AFTER panel shows. Rebuild:
 
@@ -370,7 +370,7 @@ Acceptance criteria the review checks directly:
 - no `.reload()` appears anywhere (it does not exist in V2, and reaching for it is the muscle-memory footgun)
 - your one-sentence answer names the eliminated class: a silent, post-CPI stale read, where the program reads an account's pre-CPI copy after a cross-program call and acts on a value the chain has already changed, the class v1 required you to remember `.reload()` to avoid.
 
-![If a CpiHandle for the account is still in scope you cannot read it yet, so drop it by consuming the CpiContext, then read the field directly since .reload() is gone.](assets/v09-flowchart.png)
+![If a CpiHandle for the account is still in scope you cannot read it yet, so drop it by consuming the CpiContext, then read the field directly since .reload() is gone.](assets/v09-flowchart.webp)
 
 If you can state the class in a sentence and your reorder builds, you own the concept, not just the fix. Which leaves the second rung, the graded one. It is a `settle` handler cut down to plain Rust: hand-rolled stand-ins for the account, the handle and the `CpiContext`, small enough to compile with no framework in the picture and borrowing exactly the way the real ones do. It owes a receipt — the vault's balance *before* the transfer and its balance *after*, both read off the account rather than worked out from the arguments. The starter parks both reads in the forbidden span, so it does not build, and the scaffold enforces the "read, not derived" rule the same way: right after the accounts are built it shadows `vault_start`, `recipient_start` and `amount` into unit values, so a receipt written from arithmetic on the arguments is a type error too. Grading for Rust is compile-only, and the shadowing does most of that work: a misplaced read is an `E0502`, and a receipt derived from `vault_start`, `recipient_start` or `amount` is a type error. Be honest about the gap it leaves, because a fence you think is closed is worse than one you know is open — `transfer_amount` survives the shadowing as a live `u64`, so `opening - transfer_amount` compiles clean and even returns the right pair. Nothing stops you writing it except knowing why the read is the thing being taught. Compile-only grading fences the shapes it can see, and this is a good lesson in which shapes those are.
 

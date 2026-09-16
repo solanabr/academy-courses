@@ -65,7 +65,7 @@ COPY . .
 CMD ["anchor", "test"]
 ```
 
-![Building the edited vault against a Cargo.toml that still pins anchor-lang 1.x fails at every edited line under any CLI; only a graph pinned to 2.0.0-rc.1 emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.png)
+![Building the edited vault against a Cargo.toml that still pins anchor-lang 1.x fails at every edited line under any CLI; only a graph pinned to 2.0.0-rc.1 emits the V2 deprecations and the missing-method error, and a real V2 build.](assets/v01-flowchart.webp)
 
 That is the setup everything else stands on. Get it wrong and every code edit below is theater. Get it right and the compiler starts doing your job for you.
 
@@ -91,7 +91,7 @@ Two rows are missing on purpose, and both are worth a sentence so your map is co
 
 `unsafe(dup)` is the more interesting one, and the challenge will make you use it, so understand it now. V2 disallows duplicate mutable accounts by default. The reason is a real footgun: if the same account arrives in two mutable slots, your handler ends up holding two `&mut` references to one account, and edits through one silently clobber edits through the other. v1 let you do this and hoped you knew what you were doing. V2 rejects it, at validation, before your handler runs. When you genuinely mean to be handed one account under two mutable names, you opt back in per field by spelling the constraint `unsafe(dup)`. The word `unsafe` is doing honest work: it is you telling the compiler you have checked the invariant it can no longer check for you, and taking on the obligation to write the handler so it never holds two conflicting mutable references. Note what does *not* need the opt-out: two mutable slots that always resolve to two different addresses, the way a swap's two reserves do, satisfy the check for free. Our lab vault has exactly one account of each type, so it never comes up. The challenge's consolidating sweep does.
 
-![A grouped before/after table of seven deltas: five the compiler flags as type errors, two it surfaces as a deprecation warning and a missing-method error.](assets/v02-comparison.png)
+![A grouped before/after table of seven deltas: five the compiler flags as type errors, two it surfaces as a deprecation warning and a missing-method error.](assets/v02-comparison.webp)
 
 ### Why `.reload()` is gone (and why that is good)
 
@@ -114,11 +114,11 @@ You derived the removal last lesson: stale typed reads across a CPI boundary wer
 
 Sit with that for a second, because it is a genuinely different philosophy — and keep two mechanisms apart, because the borrow checker is only half of it. The first is the account model itself. V2's default `Account<T>` is a zero-copy *view* over the account's bytes, not a copy decoded once at the top of the instruction, so there is no second copy that could drift out of date. The borsh tier you are about to use here, `BorshAccount<T>`, does still decode into a copy — but it holds the account's data borrow for as long as it is loaded, and you have to hand that borrow over explicitly before a CPI can write those bytes. Either way, nothing changes underneath a loaded typed account without your say-so, so there is nothing for a re-deserialize call to re-read. That is why the method does not exist. The second mechanism is the borrow model, and it covers the remaining window: while a CPI holds a handle to an account, typed access to *that* account will not compile. v1 gave you a tool to avoid a footgun. V2 removed the places the footgun could sit. The bug class is gone, not guarded.
 
-![In v1 a typed copy decoded once goes stale across a CPI and .reload() re-reads it; in V2 the loaded typed account holds the data borrow, so nothing changes underneath it and there is no reload method to call.](assets/v03-diagram.png)
+![In v1 a typed copy decoded once goes stale across a CPI and .reload() re-reads it; in V2 the loaded typed account holds the data borrow, so nothing changes underneath it and there is no reload method to call.](assets/v03-diagram.webp)
 
 So the fix is not "find the V2 name for reload." There is none. The fix is structural: do not hold typed data of an account this CPI takes across the CPI. Read the scalars you need (the bump, the state key) into locals before the transfer, run the transfer, then take a fresh typed borrow after it completes to update your counters — and that post-CPI read is already live, which is why there is nothing left for a `.reload()` to do. The error is the instruction, not an obstacle. That is letting the compiler drive.
 
-![The V2 build throws exactly one error on the copied v1 withdraw, no method named reload, while the typed read a line above it compiles because state is not an account this transfer touches.](assets/v04-annotated-code.png)
+![The V2 build throws exactly one error on the copied v1 withdraw, no method named reload, while the typed read a line above it compiles because state is not an account this transfer touches.](assets/v04-annotated-code.webp)
 
 ### Why `has_one` still compiles but you fix it anyway
 
@@ -138,7 +138,7 @@ warning: use of deprecated function `__deprecated_has_one`: `has_one` is
 
 Two things about that warning are worth noticing. First, it names the replacement exactly, and it tells you where to put it: on the sibling field, as `#[account(address = owner.field)]`. For our vault, that is `address = state.authority` placed on the `authority` account, which checks that the passed authority's address equals the `authority` field stored in `state`. Same guarantee, new spelling. Second, and this is the color beat I want you to hold: that underline is not an accident. Down in the parser, `parse.rs` deliberately keeps the `has_one` keyword's source span around so that codegen can emit a warning pointing right back at those exact characters. Nobody underlines a token they did not plan to deprecate. The toolchain was built to guide the migration it created. The warning is a feature, not noise.
 
-![The has_one deprecation warning names its own replacement, underlines the exact token to remove, and does not fail the test, making it a checklist item.](assets/v05-annotated-code.png)
+![The has_one deprecation warning names its own replacement, underlines the exact token to remove, and does not fail the test, making it a checklist item.](assets/v05-annotated-code.webp)
 
 And on a moving RC, deprecated syntax is precisely what a later version is most likely to remove. Resolving deprecations to zero is how you keep the port building against next month's tag. The warning is a checklist item that the framework hands you for free.
 
@@ -557,7 +557,7 @@ docker build -t v2-port verify/ && docker run --rm v2-port
 
 Green test, zero deprecation warnings, on the RC toolchain, reproduced in the container. That is the port. That is the proof.
 
-![A six-step loop: pin the RC toolchain, apply the marked mechanical deltas, then build and fix whatever the compiler prints until anchor test is green.](assets/v06-timeline.png)
+![A six-step loop: pin the RC toolchain, apply the marked mechanical deltas, then build and fix whatever the compiler prints until anchor test is green.](assets/v06-timeline.webp)
 
 ## Challenge
 
@@ -571,7 +571,7 @@ Three things make it harder than the lab, and each maps to something you now kno
 2. Its handler reads a counter, does the transfer CPI, then reads the counter again with a `.reload()` in between. Kill the reload and restructure the reads around the call. The missing-method error is your map.
 3. The self-sweep hands **one account into two mutable slots** (source and destination). V2 rejects duplicate mutable accounts by default, so that test fails validation with `ConstraintDuplicateMutableAccount` before your handler runs. Apply `unsafe(dup)` to the two vault fields, and, because the name says `unsafe`, write one sentence in a comment justifying the aliasing: the handler must compute the move once and apply a single checked update, so it never holds two conflicting mutable references to the one account. If you find yourself reaching for `unsafe(dup)` on the counter as well, stop: that is one account in one slot, and the opt-out would be hiding a different bug.
 
-![A three-row table pairing each challenge obstacle with the warning, missing-method error, or validation failure that finds it, plus a caution against over-applying the duplicate-account opt-out.](assets/v07-table.png)
+![A three-row table pairing each challenge obstacle with the warning, missing-method error, or validation failure that finds it, plus a caution against over-applying the duplicate-account opt-out.](assets/v07-table.webp)
 
 Accept when `anchor test` passes on the RC toolchain and `cargo build` emits zero deprecation warnings. No hints beyond your two maps and the compiler. That is the point.
 

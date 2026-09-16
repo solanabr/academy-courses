@@ -41,7 +41,7 @@ So the rename is old news. It has had most of a year to propagate. Here is the m
 
 The naive answer is yes, of course, the docs say use the new one. That answer will quietly break your migration. Because "canonical" and "what you will actually read" have diverged, and diverged hard.
 
-![The old @coral-xyz/anchor package pulled about 602k weekly downloads against the new @anchor-lang/core's roughly 15k, a gap near forty to one.](assets/v01-chart.png)
+![The old @coral-xyz/anchor package pulled about 602k weekly downloads against the new @anchor-lang/core's roughly 15k, a gap near forty to one.](assets/v01-chart.webp)
 
 Roughly eight months after the rename, the old name still out-downloads the new one by something close to forty to one. The exact number does not matter and it churns weekly. The shape of it is what you carry: the package you are told to import is not the package the ecosystem is importing. Most example code you copy from a blog, most Stack Overflow answers, most half-migrated repos you inherit, still reach for `@coral-xyz/anchor`.
 
@@ -60,7 +60,7 @@ There is a small, grim piece of color that makes this concrete. The ecosystem's 
 
 Here is a break that stops the build, not just the linter. In 0.32 you built a cross-program call by handing `CpiContext::new` the program as an `AccountInfo`:
 
-![In 0.32 CpiContext::new took the token program as an AccountInfo and used Transfer; in 1.0 it takes a Pubkey via .key() and uses TransferChecked with decimals.](assets/v02-annotated-code.png)
+![In 0.32 CpiContext::new took the token program as an AccountInfo and used Transfer; in 1.0 it takes a Pubkey via .key() and uses TransferChecked with decimals.](assets/v02-annotated-code.webp)
 
 Anchor 1.0 changed `CpiContext::new` to take the program as a `Pubkey` (PR #2762). Pass a `.to_account_info()` there now and it fails to compile with a flat type mismatch: expected `Pubkey`, found `AccountInfo`.
 
@@ -76,7 +76,7 @@ One caution so you do not conflate two deltas that look alike. The `CpiHandle` b
 
 In 0.32, half the `init` blocks in the ecosystem carried a hand-rolled space calculation that started with a magic `8`:
 
-![The 0.32 hand-counted space literal 8 plus field sizes becomes the derived expression DISCRIMINATOR.len() plus INIT_SPACE in 1.0.](assets/v03-annotated-code.png)
+![The 0.32 hand-counted space literal 8 plus field sizes becomes the derived expression DISCRIMINATOR.len() plus INIT_SPACE in 1.0.](assets/v03-annotated-code.webp)
 
 The `8` was the account discriminator, and everything after it was you, counting field bytes by hand and hoping you got padding right. The motivating limit is obvious once you have shipped a bug from it: a hand-counted literal drifts. Add a `u64` to the struct, forget to bump the literal, and you get a runtime failure that has nothing to do with the code you just changed.
 
@@ -94,7 +94,7 @@ This is the break in the hook. In 0.32, an SPL interface instruction, the classi
 
 What replaced it, and why? The reason is unification. Every ordinary Anchor instruction is already dispatched by matching its discriminator, the leading bytes of the instruction data. Interface instructions needed the *same* thing, dispatch by a specific, externally-defined discriminator, but they had a bespoke macro to do it. 1.0 collapses the special case into the general one. A transfer hook's `execute` is now declared like any other instruction, except you tell Anchor which discriminator to match:
 
-![The 0.32 interface macro on a transfer hook becomes a 1.0 instruction attribute carrying an explicit SPL discriminator slice, using ordinary discriminator dispatch.](assets/v04-annotated-code.png)
+![The 0.32 interface macro on a transfer hook becomes a 1.0 instruction attribute carrying an explicit SPL discriminator slice, using ordinary discriminator dispatch.](assets/v04-annotated-code.webp)
 
 The discriminator comes from the SPL interface itself, exposed as an `SPL_DISCRIMINATOR_SLICE` constant, so you are matching the exact bytes the interface defines rather than trusting a macro to know them for you. The fix: delete the `#[interface]` attribute and declare the instruction normally with `#[instruction(discriminator = ...SPL_DISCRIMINATOR_SLICE)]`.
 
@@ -106,7 +106,7 @@ The first five changes are things you edit in source. The sixth is not a code ed
 
 Start with the ambush. Your 0.32 program compiles on 1.x after you fix the source, you point it at devnet, you deploy, and the *deploy* errors on the on-chain IDL. Nothing in your Rust is wrong. The problem is a stale account from the old world.
 
-![A 1.x build passes but the deploy trips on a legacy on-chain IDL account; closing it once with the 0.32.1 CLI clears the path.](assets/v05-flowchart.png)
+![A 1.x build passes but the deploy trips on a legacy on-chain IDL account; closing it once with the 0.32.1 CLI clears the path.](assets/v05-flowchart.webp)
 
 1.0 removed the legacy on-chain IDL instructions (PR #3798). IDLs now go on-chain through the Program Metadata Program instead. But a program you inherited was likely deployed with an IDL account created the old way, and the 1.x deploy path does not know how to step around it. The fix is precise and it is a one-time move: switch to the 0.32.1 CLI, close the legacy IDL account with `anchor idl close`, switch back to 1.x, and deploy. You use the old CLI exactly once, for exactly this. It is not a downgrade and it is not permanent. 1.x writes IDLs perfectly well, just through a different program.
 
@@ -118,19 +118,19 @@ While we are down here, several other pieces of the toolchain shifted shape, and
 - **The CLI decoupled from an external solana CLI** (PR #4099). The Anchor toolchain bundles what it needs now instead of shelling out to a separately-installed solana binary, which is why the 1.x installer no longer nags you to match a specific solana version first. Note the direction of this carefully, because it changes how you read a version number. The Anchor CLI version and your installed Agave CLI version are now independent facts, so a pin like "Solana CLI 3.1.10" sitting in a project's toolchain block is a statement about that project's continuous-integration environment, never a claim about what the current Solana release is. Read it as a local pin, not a headline.
 - **`declare_program!` moved its generated helpers** from `utils` to `parsers`. `declare_program!` is how a program consumes another program's on-chain IDL to generate a CPI and client module, and in 0.32 the generated account parsers lived under a `utils` submodule. 1.0 moved them to `parsers`, which reads as a cosmetic path change until you realize it is the kind of break the compiler catches instantly and a grep catches faster. If your inherited code consumes another program via `declare_program!` and reaches into the generated `utils` module, update the path to `parsers` and move on.
 
-![A side-by-side of six toolchain concerns showing the 0.3x tool and its 1.0 replacement, from IDL publishing through declare_program! module paths.](assets/v06-comparison.png)
+![A side-by-side of six toolchain concerns showing the 0.3x tool and its 1.0 replacement, from IDL publishing through declare_program! module paths.](assets/v06-comparison.webp)
 
 ### The delta as evidence, not trivia
 
 Step back from the six items and ask what they add up to. Each break traces to a limit the old shape was hitting: a fat CPI handle where a key would do, a hand-counted literal that drifts, colliding error codes, a bespoke macro duplicating dispatch that already existed, an IDL flow that outgrew a registry. None of them is arbitrary. That is the reading that makes a migration decision legible instead of frightening.
 
-![A six-row reference table mapping each 0.32-to-1.0 break to its motivating reason and its exact fix, covering the rename, CpiContext, space calc, error-code enum, interface removal, and legacy IDL.](assets/v07-table.png)
+![A six-row reference table mapping each 0.32-to-1.0 break to its motivating reason and its exact fix, covering the rename, CpiContext, space calc, error-code enum, interface removal, and legacy IDL.](assets/v07-table.webp)
 
 It is worth tying this back to the trajectory we set up in m01-l2, because that is what lets a migrator and a reader brand new to Anchor share one story instead of two. Back there the framework's whole arc was framed as a slow tightening: each version trades a little of the old looseness for a compiler that catches more of your mistakes before they reach a validator. The 0.32-to-1.0 delta is that same arc, seen from inside the one jump where the tightening happened to break source. A reader who never wrote a 0.32 line still benefits from reading it this way, because the *reasons* are the design principles of the framework they are learning, not migration trivia they can forget. The migrator gets the same principles plus a port plan. One narrative, two audiences.
 
 It also proves something the conclusion of this module (m10-l4) will formalize into a decision tree: breaking changes cost real hours. You just counted the hours. A migrator hits every one of these on a nontrivial program, and the datum that the old package name still out-downloads the new one by forty to one proves the audience for this work is real and large. People are running 0.32 code in production right now and will be porting it long after this lesson is old. The point of holding the *why* for each change is that when you port in m10-l3, the compiler's flat "this broke" becomes your "right, that is change three, here is the edit," without a detour through documentation that may itself be a tombstone.
 
-![A timeline from the new package's npm creation on 2025-12-19, through the 1.0.0 release on 2026-04-02, ending where the old name still leads about forty to one.](assets/v08-timeline.png)
+![A timeline from the new package's npm creation on 2025-12-19, through the 1.0.0 release on 2026-04-02, ending where the old name still leads about forty to one.](assets/v08-timeline.webp)
 
 ## Lab: port reconnaissance
 

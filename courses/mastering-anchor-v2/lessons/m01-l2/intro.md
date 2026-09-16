@@ -27,7 +27,7 @@ Start from the thing you can already see. There are two Anchor lines, and they r
 
 The stable line is **1.1.2**. It is what `avm` installs, what crates.io serves as `anchor-lang`, and what most of the ecosystem builds against today. The frontier line is **2.0.0-rc.1**. It does not live on a published, blessed release the way 1.1.2 does. It lives on a development branch named `anchor-next`, and the only documented way to get a working CLI from it is to build that branch yourself with cargo.
 
-![A side-by-side of stable Anchor 1.1.2 (avm/crates, already installed) versus the frontier 2.0.0-rc.1 (built from the anchor-next git branch, and labeled both "rc" and "alpha").](assets/v01-comparison.png)
+![A side-by-side of stable Anchor 1.1.2 (avm/crates, already installed) versus the frontier 2.0.0-rc.1 (built from the anchor-next git branch, and labeled both "rc" and "alpha").](assets/v01-comparison.webp)
 
 Here is the why underneath the what, because it is worth deriving once. A release candidate on an unmerged branch is not a promise, it is a work in progress that happens to have a version number. If you let it overwrite the 1.1.2 on your PATH, you now have exactly one Anchor, and it is the churning one. The moment `anchor-next` breaks (and RCs break, that is their job), every project on your machine breaks with it. Isolation here is practical rather than fussy: a stable tool for your stable work and a frontier tool for your frontier work, side by side, each honest about what it is.
 
@@ -64,7 +64,7 @@ That is not a policy rejection. `avm` parses `2.0.0-rc.1` perfectly well; it has
 
 Note what is *not* happening here, because it is a story you will hear told wrong. `avm` does not verify a cryptographic attestation for the release, and it never has: there is no attestation code in it. The wall is a missing file, not a failed signature check. Worth knowing precisely, because a security check you cannot satisfy and a build artifact nobody uploaded call for completely different responses.
 
-![avm install fetches a prebuilt binary from the v2 tag's release assets, hits a 404 because no Release was ever cut, and aborts, so the documented cargo git install takes over.](assets/v02-flowchart.png)
+![avm install fetches a prebuilt binary from the v2 tag's release assets, hits a 404 because no Release was ever cut, and aborts, so the documented cargo git install takes over.](assets/v02-flowchart.webp)
 
 For completeness: `avm install` does carry a `--from-source` flag, which skips the download and hands the job to `cargo install --git https://github.com/otter-sec/anchor --tag v2.0.0-rc.1` — the same build you are about to run by hand, with the channel chosen for you.
 
@@ -101,7 +101,7 @@ The RC's first real war story makes the point concrete. Issue #4937, filed 2026-
 
 One more piece of context, and this one is for every reader regardless of which Anchor you have touched before. To understand why V2 changed things, you need the map of what Anchor **1.0** already changed. These are the increments that landed with Anchor 1.0.0 on **2026-04-02**, and later lessons will call back to this list every time we say "V2 kept this" or "V2 went further."
 
-![A timeline marking Anchor 1.0.0 on 2026-04-02 with its five increments (the package rename, CpiContext taking a Pubkey, transfer_checked as default, LiteSVM, Surfpool) and the 2.0.0-rc.1 crates.io publish on 2026-08-12.](assets/v03-timeline.png)
+![A timeline marking Anchor 1.0.0 on 2026-04-02 with its five increments (the package rename, CpiContext taking a Pubkey, transfer_checked as default, LiteSVM, Surfpool) and the 2.0.0-rc.1 crates.io publish on 2026-08-12.](assets/v03-timeline.webp)
 
 Walk them once, slowly, because each one is a callback waiting to happen.
 
@@ -123,7 +123,7 @@ None of these five 1.0 changes are things you touch in the lab below. Your scaff
 
 Before you open a terminal, hold the failure modes in view. The frontier has exactly four walls that catch almost everyone, and every one of them is a case of a tool being honest while you were expecting a different tool. None of them is your code.
 
-![A runbook table pairing each of the four frontier install walls, plus the avm naming trap, with the single corrective line that clears it.](assets/v04-table.png)
+![A runbook table pairing each of the four frontier install walls, plus the avm naming trap, with the single corrective line that clears it.](assets/v04-table.webp)
 
 Keep that table close during the lab. When something breaks, and on the frontier something usually does, match the symptom to a row before you assume you did anything wrong.
 
@@ -191,7 +191,7 @@ cargo install --git https://github.com/otter-sec/anchor.git \
 
 On Linux the `CARGO_PROFILE_RELEASE_LTO=off` prefix is harmless, so leaving it in keeps one command that works everywhere. On macOS it is mandatory: without it the RC build reliably dies during **LTO** (link-time optimization, the final cross-crate optimization pass), and the failure looks like a linker crash rather than an Anchor problem. Setting the cargo release-profile env var turns that pass off and the build completes. That single line belongs in your `PINS.md`, which is exactly why it is already in the table above. Note the name: it is `CARGO_PROFILE_RELEASE_LTO`, a standard cargo profile variable, not some `ANCHOR_LTO` invention.
 
-![The RC install command split into its parts, with every flag glossed: the LTO env var, --git and --branch anchor-next, --locked, and --force.](assets/v05-annotated-code.png)
+![The RC install command split into its parts, with every flag glossed: the LTO env var, --git and --branch anchor-next, --locked, and --force.](assets/v05-annotated-code.webp)
 
 When it finishes, verify you got the RC and not your old binary:
 
@@ -210,7 +210,7 @@ cd greeter
 
 That one command writes a whole project. Here is what lands, so the tree is not a black box:
 
-![The generated greeter workspace tree, with programs/greeter/src/lib.rs highlighted as the actual program, a generated Rust LiteSVM test beside it, and app/ and migrations/ marked as scaffolding not used yet.](assets/v06-diagram.png)
+![The generated greeter workspace tree, with programs/greeter/src/lib.rs highlighted as the actual program, a generated Rust LiteSVM test beside it, and app/ and migrations/ marked as scaffolding not used yet.](assets/v06-diagram.webp)
 
 Open `programs/greeter/src/lib.rs`. Here is what the V2 template actually writes, verbatim apart from your generated program id:
 
@@ -331,7 +331,7 @@ anchor keys sync
 anchor deploy --provider.cluster devnet
 ```
 
-![The build emits the .so, keys sync aligns the program ids, deploy prints a Program Id, and a devnet explorer confirms it resolves as executable.](assets/v07-flowchart.png)
+![The build emits the .so, keys sync aligns the program ids, deploy prints a Program Id, and a devnet explorer confirms it resolves as executable.](assets/v07-flowchart.webp)
 
 Success looks like the words **Deploy success** and a line reading `Program Id:` followed by a base58 string. That string is your greeter's address on devnet. Copy it into the `R0 greeter program id` row of `PINS.md`, with today's date in the verified column. Then paste it into any devnet explorer and confirm the account resolves as an executable program. That resolution is your checkpoint. If the explorer shows an executable program at your id, R0 is live and your isolated RC toolchain works end to end.
 
@@ -349,7 +349,7 @@ Your gate is simple to state and it either passes or it does not.
 
 One thing to sit with while it builds. You are now tracking two Anchor lines at once, 1.1.2 and `anchor-next`, and the frontier one will drift out from under your pins. That drift is the deal you made, not a bug in your setup. The convenience you gave up, one blessed `avm install` that just works, you traded for being weeks early on V2. The price of that trade is the `verified` column, and you pay it by re-running `anchor --version` and re-reading your pins on a schedule instead of trusting them forever.
 
-![Two triggers feed an observe-then-stamp loop that rewrites the verified date in PINS.md every time a human re-checks the moving RC.](assets/v08-flowchart.png)
+![Two triggers feed an observe-then-stamp loop that rewrites the verified date in PINS.md every time a human re-checks the moving RC.](assets/v08-flowchart.webp)
 
 Make that schedule real, because a vague intention to "check sometimes" is how a pins file rots. A workable cadence on an RC: re-run `anchor --version` at the start of any session where a build suddenly behaves differently than it did yesterday, and re-build the RC from `anchor-next` when the project's release notes or a broken build tell you the branch moved. When you re-verify, you do not trust the date already in the file. You re-observe the value and stamp today's date, even if the value did not change, because a fresh date on an unchanged value is itself information: it says someone looked. Issue #4937, the `wincode` versus `solana-address` mismatch that broke `#[account(borsh)]` and closed on 2026-08-20, is the whole argument in one bug. A dependency two levels down moved, and the only defense was `--locked` plus a human who re-checked. On stable you can be lazy about this. On the frontier the re-check is the job.
 

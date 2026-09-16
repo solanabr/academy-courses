@@ -43,7 +43,7 @@ The first phase is **`load`**. For each `Account<T>` field, the framework reads 
 
 Glossary, because it pays off in thirty seconds: the **constraint hook** is the enforcement step for a single constraint, run after `load`. Keep that ordering in your head. Almost every sharp edge in this catalog is a consequence of it.
 
-![The derive struct validates in two phases: load checks owner and discriminator and can exit with built-in errors, then the constraint hooks run before the handler, which is why an owner constraint carrying a custom error only fires on an unchecked account.](assets/v01-flowchart.png)
+![The derive struct validates in two phases: load checks owner and discriminator and can exit with built-in errors, then the constraint hooks run before the handler, which is why an owner constraint carrying a custom error only fires on an unchecked account.](assets/v01-flowchart.webp)
 
 ### address = parent.field: the authority gate, and why has_one lost its job
 
@@ -60,7 +60,7 @@ That is the whole fix. If the signer's address is not `config.authority`, the ma
 
 It is not gone, though, and the way it lingers is a nice piece of framework archaeology. `has_one` still parses in V2. It just emits a deprecation warning. The parser stores the keyword's source span specifically so codegen can underline it for you (lang-v2 `derive/src/parse.rs`, as of 2026-08). Somebody deliberately kept the location around just to draw a squiggly line under it. So migrations do not break, old code compiles, and the compiler nags you toward `address =` one warning at a time.
 
-![has_one compares a stored key field against a same-named account and is deprecated, while address = expr compares the account key against any expression and is the form V2 standardizes on.](assets/v02-comparison.png)
+![has_one compares a stored key field against a same-named account and is deprecated, while address = expr compares the account key against any expression and is the form V2 standardizes on.](assets/v02-comparison.webp)
 
 ### owner: the footgun that hides in plain sight
 
@@ -92,7 +92,7 @@ pub registry: UncheckedAccount,
 
 The honest tradeoff: `Account<T>` pinning the owner to your program during `load` is a *feature* ninety-nine times out of a hundred. It means you almost never write owner checks by hand, and the one you did write and forgot is not a bug because the framework did it for you. The footgun is only the edge case where you want a *custom message* on that automatic check. Do not go replacing every `Account<T>` with `UncheckedAccount` to get pretty errors. You would be turning off the seatbelt to change its color.
 
-![An owner constraint with a custom error on Account<T> runs during load and yields IllegalOwner, while the same assertion on UncheckedAccount runs in the hook phase and surfaces WrongOwner.](assets/v03-comparison.png)
+![An owner constraint with a custom error on Account<T> runs during load and yields IllegalOwner, while the same assertion on UncheckedAccount runs in the hook phase and surfaces WrongOwner.](assets/v03-comparison.webp)
 
 ### close = destination: giving the rent back
 
@@ -112,7 +112,7 @@ pub vault: Account<Vault>,
 
 Three things happen atomically when this instruction succeeds. The account's entire lamport balance, rent-exempt reserve included, moves to `player`. The account's data is zeroed and its discriminator is wiped so it can never be silently revived and mistaken for a live vault. And all of it is visible in the IDL, so an indexer or a client knows this instruction closes an account without reading your handler body. In fact the handler body can be empty, because the constraint carries the whole operation on its own. Compare that to the hand-rolled version, where you would manually debit lamports, zero the data, and hope you did not leave a revival path, and the real difference is not terseness: the constraint form cannot forget a step and the hand-rolled one can.
 
-![Before close the vault holds its rent reserve; the close constraint moves every lamport to the player, zeroes the data, and wipes the discriminator so the account cannot be revived.](assets/v04-diagram.png)
+![Before close the vault holds its rent reserve; the close constraint moves every lamport to the player, zeroes the data, and wipes the discriminator so the account cannot be revived.](assets/v04-diagram.webp)
 
 ### realloc_payer and realloc_zero: the same idea, a new spelling
 
@@ -138,7 +138,7 @@ In v1, this keyword was feature-gated and came wrapped in warnings, because it i
 
 Here is the part you must not misread. V2's reuse-validation re-checks the account's **structure** when it already exists: the space is right, the owner is your program, the discriminator matches `Vault`. That is worth having. What it does *not* do, what it *cannot* do, is know your invariants. It has no idea that `credit` is a live balance a player funded. So the reinitialization attack survives, in exactly one narrowed form: reuse-validation guards the *shape*, and the *state* is yours to guard.
 
-![Reuse-validation covers space, owner and discriminator on an existing init_if_needed account but not live business state; the guard is branching on whether the vault is fresh before resetting any field.](assets/v05-diagram.png)
+![Reuse-validation covers space, owner and discriminator on an existing init_if_needed account but not live business state; the guard is branching on whether the vault is fresh before resetting any field.](assets/v05-diagram.webp)
 
 The guard is a single branch. On a freshly created account every byte is zero, so `owner == Address::default()` tells you it is new. Initialize only in that case, and only ever *add* to the balance, never set it:
 
@@ -227,7 +227,7 @@ pub struct AdminSetCredit {
 
 The handler body does not change from the naive one. That is the message worth pausing on: the security moved *out* of the handler and *into* the derive struct, where it cannot be forgotten and where the IDL advertises it.
 
-![The AdminSetCredit struct gates the authority signer with address = config.authority, re-derives the read-only config from its stored bump, and re-derives the mutable target vault the same way.](assets/v06-annotated-code.png)
+![The AdminSetCredit struct gates the authority signer with address = config.authority, re-derives the read-only config from its stored bump, and re-derives the mutable target vault the same way.](assets/v06-annotated-code.webp)
 
 Expected after this step: the build does *not* compile yet, and the error is worth reading rather than fearing. The constraint names `VaultError::Unauthorized`, an enum that does not exist until step 4, so `anchor build` stops with an E0433 `failed to resolve` on `VaultError`. Leave it red through step 3; step 4 pays it off. Once the enum lands, the generated IDL for `admin_set_credit` will list a `config` account it did not list a minute ago. That new account in the interface *is* the gate, visible to anyone reading the IDL without reading your Rust.
 
@@ -426,7 +426,7 @@ Two rungs again, and this time the second one has no code on the page at all.
 
 **Solo.** Build the `top_up_or_open` path with `init_if_needed`, using the guarded handler from the theory section, and then write the test that proves your reuse branch cannot clobber a live balance. The shape: init a vault, top it up to some non-zero credit, then call `top_up_or_open` *again* with a second amount and assert the final credit is the *sum*, not the second amount alone. That single assertion is the proof that your `if vault.owner == Address::default()` guard held and the reinitialization risk did not bite. Acceptance: the reuse call preserves and adds to the existing balance, a fresh call initializes cleanly, and neither path resets `credit` unconditionally. If your test sees the balance equal to just the last top-up, your guard is missing or inverted, and you have written the exact vulnerability the section warned about, which is a genuinely useful thing to have seen fail once, on purpose, in a test.
 
-![A timeline from v1's feature-gated init_if_needed, through the rewrite that designed in reuse-validation, to V2 shipping it ungated while your business-state invariants stay your own guard.](assets/v07-timeline.png)
+![A timeline from v1's feature-gated init_if_needed, through the rewrite that designed in reuse-validation, to V2 shipping it ungated while your business-state invariants stay your own guard.](assets/v07-timeline.webp)
 
 When both rungs pass, sit with what the vault became. A wrong signer bounces off the derive macro before your code runs. A player gets their rent back with an empty handler and no revival path. A create-or-reuse instruction exists and does *not* let anyone overwrite a funded balance, because you wrote the one `if` no keyword will write for you. Every one of those guarantees is now visible in the IDL, which means the next person to read your program sees the rules without reading the logic. That is the trade the catalog offered, and you took the good side of it: validation you cannot forget, minus two sharp edges you now know by name.
 

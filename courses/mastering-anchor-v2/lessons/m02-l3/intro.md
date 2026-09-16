@@ -32,7 +32,7 @@ The second naive answer: don't store it at all. Hash the name, keep the 32-byte 
 
 So the real question narrows to this: how do you put a genuinely variable-length value inside an account when a fixed cast is impossible and you cannot afford to move the data off-chain?
 
-![A two-column comparison of Pod Account<T> (direct cast, fixed size, layout discipline) versus BorshAccount<T> (deserialize on read, variable length, pays the serialization tax plus two wire holes).](assets/v01-comparison.png)
+![A two-column comparison of Pod Account<T> (direct cast, fixed size, layout discipline) versus BorshAccount<T> (deserialize on read, variable length, pays the serialization tax plus two wire holes).](assets/v01-comparison.webp)
 
 ## What the wrapper actually is
 
@@ -56,7 +56,7 @@ pub struct EditProfile {
 
 Notice what `BorshAccount<CabinetProfile>` is doing that `Account<Cabinet>` never did. When your handler touches `profile.description`, the wrapper does not hand you a view over the raw bytes. It reads the account's data and *deserializes the whole thing* into a heap-allocated Rust value, `String` and all. When you write, it re-serializes the whole value back. That is the precise thing zero-copy was built to avoid, and here you are choosing it on purpose, because the alternative is not having the field at all.
 
-![The Pod read path casts account bytes straight to a typed view, while the borsh path adds a deserialize on read and a serialize on write.](assets/v02-diagram.png)
+![The Pod read path casts account bytes straight to a typed view, while the borsh path adds a deserialize on read and a serialize on write.](assets/v02-diagram.webp)
 
 Be honest about *how much* it costs, because the answer is not a single number, and treating it as one is how people either panic or get complacent. Separate the average case from the worst case. On a tiny borsh struct, a single `Address` and a ten-character name, the deserialize is cheap in absolute terms; you would struggle to measure it against the rest of a handler. That is the average case, and it is why "borsh is slow" is too blunt to be useful. The worst case is the one that bites: the deserialize cost scales with the size of the data, so a `BorshAccount` holding a four-kilobyte description pays a four-kilobyte deserialize in every instruction that loads it, and a four-kilobyte re-serialize on exit when it was writable. A `Pod` cast does not care whether the account is fifty bytes or four kilobytes; it reads the field you asked for and stops. So the honest framing is not "borsh is slow" but "borsh's cost is proportional to the whole account's size and paid on every access, while Pod's is flat and near-zero." That proportionality is exactly why you isolate the big variable field instead of merging it into the account you touch constantly.
 
@@ -70,7 +70,7 @@ Grant the valid part, because it is real. For a program where CU is not the bott
 
 Now refine it, because the axis that argument optimizes is not the axis V2 was built on. Compared to what? Compared to `Account<T>`, whose entire reason for existing is that the v1 default deserialize was, in the framework's own words from issue #4390, "the slow path" and "the number-one performance complaint from Anchor developers." Choosing all-borsh is choosing to reintroduce, on every account, the exact cost the whole rewrite set out to erase. On an account you touch once a month, who cares. On the hot account in a program that runs thousands of times a slot, you just paid the framework's marquee optimization back in full, on data that mostly did not need it. The simplicity was real; it was also priced in CU, and you did not read the receipt. That is what "compared to what?" buys you: it turns "borsh is simpler" from a verdict into a trade with a named cost, and the cost is exactly the thing this course exists to teach you to see.
 
-![A comparison table of all-borsh versus mixed-tier account design across developer simplicity, CU cost on the hot account, rent, and when each is the right call.](assets/v03-table.png)
+![A comparison table of all-borsh versus mixed-tier account design across developer simplicity, CU cost on the hot account, rent, and when each is the right call.](assets/v03-table.webp)
 
 ## The wire story: wincode, and two holes
 
@@ -88,7 +88,7 @@ The first hole is `HashMap` and `HashSet` field ordering. Here is the root cause
 
 The second hole is `f32` and `f64` NaN acceptance. The root cause here is that NaN is not one value. The IEEE-754 float standard defines a whole range of bit patterns that all mean "not a number," and NaN is not even equal to itself. So "serialize this float" is ambiguous the moment the float can be NaN: which NaN bit pattern do you write, and do you even accept one? The two encoders differ on whether they accept a NaN value at all. If your struct carries a float that can be NaN, they can disagree about whether the value is legal on the wire. (Floats in on-chain state are a smell for other reasons, deterministic financial math wants integers and fixed-point, but if you have them, this is a real edge.)
 
-![Two Rust snippets showing the roots of the wire holes: HashMap has no guaranteed iteration order, and NaN spans many bit patterns unequal to themselves.](assets/v04-annotated-code.png)
+![Two Rust snippets showing the roots of the wire holes: HashMap has no guaranteed iteration order, and NaN spans many bit patterns unequal to themselves.](assets/v04-annotated-code.webp)
 
 Put the two together and the rule falls out cleanly. A borsh-decoding client can read most wincode accounts, *but not* if you rely on map or set ordering, and *not* if you rely on NaN floats. If neither is true of your struct, and for the overwhelming majority of accounts neither is, the compatibility holds and you can move on. If either is true, you have to decide the encoding story deliberately, because the wire is no longer one thing.
 
@@ -97,7 +97,7 @@ Put the two together and the rule falls out cleanly. A borsh-decoding client can
 | `HashMap` / `HashSet` ordering | iteration order the entries serialize in | you depend on map order, or you hash/sign over the raw account bytes |
 | `f32` / `f64` NaN | whether a NaN value is accepted on the wire | your struct carries a float that can be NaN |
 
-![wincode's BORSH_CONFIG overlaps borsh almost entirely, with only two non-overlapping gaps, HashMap/HashSet ordering and f32/f64 NaN acceptance.](assets/v05-diagram.png)
+![wincode's BORSH_CONFIG overlaps borsh almost entirely, with only two non-overlapping gaps, HashMap/HashSet ordering and f32/f64 NaN acceptance.](assets/v05-diagram.webp)
 
 One question this tier raises deserves a straight answer rather than a hand-wave, because getting it wrong is a silent-state bug: how does a `BorshAccount` behave across a CPI?
 
@@ -107,7 +107,7 @@ One naming note before the protocol, because the type name and the section above
 
 The contrast with the `Pod` tier is worth holding. For `Account<T>`, V2's `CpiHandle` borrow model turns "you forgot to reload" into a compile error, which you meet head-on later in the course. For `BorshAccount<T>` the discipline is a pair of calls you make on purpose. Both are better than v1's silence, but only one of them is checked for you, which is one more small reason the escape hatch stays an escape hatch. If your design deserializes a borsh account, invokes a CPI that touches it, and then reads the value, still write the LiteSVM test that asserts the *post-CPI* value: the protocol is documented, but your use of it is the thing worth proving.
 
-![A four-step sequence showing release_borrow before the CPI and reacquire_borrow_mut after it, with the rejected reassignment cases and the realloc-only method marked separately.](assets/v06-flowchart.png)
+![A four-step sequence showing release_borrow before the CPI and reacquire_borrow_mut after it, with the rejected reassignment cases and the realloc-only method marked separately.](assets/v06-flowchart.webp)
 
 ## Why the pins are not busywork
 
@@ -119,7 +119,7 @@ This is why you started `PINS.md` back in m01-l2, one table with a `verified` co
 
 The install line itself is not repeated here — this lesson's lab never invokes the toolchain. If you do need to reinstall, use m02-l1's exact block, `--tag v2.0.0-rc.1` and `--locked`: the tag, never the branch.
 
-![A seven-step timeline showing anchor-lang's wincode 0.5 pin and the wincode 0.6 that solana-address 2.7.0 requires drifting apart until the account borsh attribute broke, then issue #4937 closing with the pins reconciled.](assets/v07-timeline.png)
+![A seven-step timeline showing anchor-lang's wincode 0.5 pin and the wincode 0.6 that solana-address 2.7.0 requires drifting apart until the account borsh attribute broke, then issue #4937 closing with the pins reconciled.](assets/v07-timeline.webp)
 
 ## Lab: model a mixed account
 
@@ -162,13 +162,13 @@ pub struct EditCabinet {
 }
 ```
 
-![The mixed account split into a Pod CabinetCore holding the fixed key and bounded board, and a separate borsh CabinetDescription holding the one unbounded String.](assets/v08-annotated-code.png)
+![The mixed account split into a Pod CabinetCore holding the fixed key and bounded board, and a separate borsh CabinetDescription holding the one unbounded String.](assets/v08-annotated-code.webp)
 
 **Step 3, read the cost you just chose.** In a handler that only bumps the leaderboard, you touch `core` and never `description`, so you pay zero deserialize cost: the hot path stayed on the cast. Only a handler that edits the text deserializes anything. That is the payoff of splitting along the tier boundary instead of going all-borsh: you scoped the tax to the one field that demanded it. There is a rent angle too, and it cuts the same way. A `Pod` account sizes to its fixed layout exactly, but a borsh account has to be allocated big enough for the largest string you will ever store, so you rent for the worst case. Splitting keeps the worst-case rent isolated to the description account, instead of inflating the account that holds your hot leaderboard.
 
 **Step 4, sanity-check against the two wire holes.** Look at `CabinetDescription`. It is a single `String`, no `HashMap`, no `HashSet`, no float. So both wincode-vs-borsh holes are irrelevant here, and a borsh-decoding client reads it cleanly. That check is the habit: whenever a field goes borsh, ask "does this struct carry a map, a set, or a NaN-able float?" If no, the compatibility holds and you move on. If yes, you owe the encoding a decision.
 
-![A decision tree routing fixed-length and bounded fields to Pod, sending only genuinely unbounded fields to BorshAccount, then checking for HashMap or NaN floats.](assets/v09-flowchart.png)
+![A decision tree routing fixed-length and bounded fields to Pod, sending only genuinely unbounded fields to BorshAccount, then checking for HashMap or NaN floats.](assets/v09-flowchart.webp)
 
 **Checkpoint.** You should now be able to point at any field in an account and say, in one breath, which tier it belongs to and why: fixed goes `Pod`, bounded-with-a-known-max goes `Pod`, genuinely unbounded goes `BorshAccount`, and a mixed account isolates the unbounded part instead of demoting the whole thing. If you can do that for the three fields above without hesitating, the lab landed.
 

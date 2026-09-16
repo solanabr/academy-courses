@@ -45,7 +45,7 @@ One glossary term, because it is on every line below. A compute unit, or CU, is 
 
 Here is the shape of the whole toolkit before we drive it. Four tools, four different questions, one shared test fixture underneath. Read this table once and refer back to it during the lab.
 
-![A four-row card comparing the profiler, debugger, coverage and Mollusk test by the question each answers, its output, its build type, and whether it gates the run.](assets/v01-comparison.png)
+![A four-row card comparing the profiler, debugger, coverage and Mollusk test by the question each answers, its output, its build type, and whether it gates the run.](assets/v01-comparison.webp)
 
 The thing to internalize is the last column. Three of these four report: they hand you an artifact and let you decide what it means. Only the Mollusk test decides for you, because a test is a pass-or-fail contract. That difference is why the baseline number you eventually commit to lives in the Mollusk test and nowhere else.
 
@@ -57,11 +57,11 @@ Now each instrument, in the order you will actually reach for them.
 
 The captured artifact is a flamegraph. A flamegraph is a stacked bar chart of where execution time, or here compute cost, accumulated: each box is a function, its width is the cost attributed to it, and boxes stack to show who called whom. One orientation note, because it decides where you look: these SVGs are drawn icicle-style, root at the top with callees stacking downward, so your instruction's box sits at the top and everything it called hangs *beneath* it. The widest box beneath your instruction's root that is your own code is, roughly, "where the CU went." One SVG is written per test under `target/anchor-v2-profile/`.
 
-![A five-stage flowchart from the debug compile through DWARF frame resolution to one SVG per test, warning that debug CU shows relative shape rather than release cost.](assets/v02-flowchart.png)
+![A five-stage flowchart from the debug compile through DWARF frame resolution to one SVG per test, warning that debug CU shows relative shape rather than release cost.](assets/v02-flowchart.webp)
 
 Read the picture. Here is what a flamegraph frame is telling you and what it is not.
 
-![A stylized flamegraph where the swap instruction's wide math and deserialization frames are the real hotspots while an equally wide test-setup frame is greyed out as harness noise.](assets/v03-annotated-code.png)
+![A stylized flamegraph where the swap instruction's wide math and deserialization frames are the real hotspots while an equally wide test-setup frame is greyed out as harness noise.](assets/v03-annotated-code.webp)
 
 That harness frame is the first footgun and the most common one. Your LiteSVM test mints and funds accounts in its own transactions before it calls `swap_arcade_for_tickets`, and the profiler traces every instruction in the run, so those setup instructions get their own roots in the same SVG, often fatter than the trade. They are real cost, but they are not your instruction's cost. Chase one and you will optimize your test fixture while the trade stays exactly as expensive as before. Everything you care about hangs beneath the `swap_arcade_for_tickets` root specifically.
 
@@ -83,7 +83,7 @@ The first three tools describe. Mollusk asserts. Mollusk (`anza-xyz/mollusk`) is
 
 This is where the module's testing thread escalates. In m02 you wrote a LiteSVM test: fast, in-process, great for behavior. LiteSVM answers "did it do the right thing." Mollusk answers "did it do the right thing for exactly this many compute units." Same in-process speed, one rung sharper. Later, at the capstone, Surfpool comes in for full-floor localnet integration against real cluster state. For a CU-precise assertion on one instruction, today, Mollusk is the tool.
 
-![A hub-and-spoke diagram where three Anchor instruments read the same existing LiteSVM swap run, with the Mollusk CU test drawn apart as a second fixture of its own.](assets/v04-diagram.png)
+![A hub-and-spoke diagram where three Anchor instruments read the same existing LiteSVM swap run, with the Mollusk CU test drawn apart as a second fixture of its own.](assets/v04-diagram.webp)
 
 ### The trade-off, before you trust any of it
 
@@ -93,7 +93,7 @@ Instrumentation is not free and it is not the truth. Name the costs now so no nu
 
 That honesty is not just mine. Anchor's own V2 benchmark headline got more honest over time. In PR #4914, merged 2026-08-13, the marketing numbers were revised down: the "95% smaller bytecode" claim became 94%, and the "9.9x average CU reduction" became 8.8x.
 
-![A two-point timeline showing PR #4914 on 2026-08-13 revising Anchor's V2 headline from 95 percent to 94 percent bytecode and 9.9x to 8.8x average CU, motivating measuring your own program.](assets/v05-timeline.png)
+![A two-point timeline showing PR #4914 on 2026-08-13 revising Anchor's V2 headline from 95 percent to 94 percent bytecode and 9.9x to 8.8x average CU, motivating measuring your own program.](assets/v05-timeline.webp)
 
 That is the reason this course never hands you a multiplier to repeat. A benchmark headline is someone else's program on someone else's workload. Your trade is yours. Measure it.
 
@@ -314,7 +314,7 @@ Expected result: a line reading `trade consumed <N> CU`, followed by a failure o
 
 One grounding number for scale. Helius published V1 CU counts for a trivial counter program, roughly 5,095 to initialize and 1,162 to increment: undated, V1, a different program. Use them for one thing only, a sense of order of magnitude. A real instruction lives in the thousands of CU, not the tens and not the millions. If your reading is far outside that band, suspect your fixture before you celebrate.
 
-![A bar chart of an undated V1 counter at 5095 and 1162 CU beside a ghosted bar for the reader's own trade, captioned as scale-only rather than a target.](assets/v06-chart.png)
+![A bar chart of an undated V1 counter at 5095 and 1162 CU beside a ghosted bar for the reader's own trade, captioned as scale-only rather than a target.](assets/v06-chart.webp)
 
 ## Challenge: measure your own trade
 
@@ -331,7 +331,7 @@ Then the solo run:
 
 Your answer shape is exactly two things: one CU integer for a single trade, and the name of the hottest flamegraph frame. Write them down somewhere you will find them next lesson.
 
-![A record card with blanks for the trade CU baseline, the hottest frame, the tools and build types used, the untested branch found, and the date measured.](assets/v07-table.png)
+![A record card with blanks for the trade CU baseline, the hottest frame, the tools and build types used, the untested branch found, and the date measured.](assets/v07-table.webp)
 
 The pass bar is simple and strict. The four tools run clean. The baseline number exists and lives in a passing Mollusk assertion. And the frame you named is one that hangs beneath your instruction's root, so it is instruction work rather than fixture work, whatever it turns out to be called.
 

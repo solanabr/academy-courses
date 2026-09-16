@@ -28,7 +28,7 @@ A note that colors everything: Anchor V2 is a weeks-old release candidate, and t
 
 Before you drive the route, look at the map. The four moves are not independent. The IDL is the input to publishing it and the input to generating the client. The generated client is the input to the send. Get them out of order and you will be regenerating a client against an IDL you never refreshed, which is the single most common way a generated client ships a call that no longer matches the program.
 
-![The IDL from anchor idl build feeds both on-chain publishing and Codama generation; the generated client forces the kit pin, and the pin makes the send possible.](assets/v01-flowchart.png)
+![The IDL from anchor idl build feeds both on-chain publishing and Codama generation; the generated client forces the kit pin, and the pin makes the send possible.](assets/v01-flowchart.webp)
 
 Notice the shape. Publishing (B) and generating (C) both branch off the IDL, and they are independent of each other. You can generate a client without ever publishing the IDL on-chain, and you can publish without generating. We do both because they serve different callers: publishing serves *anyone*, generating serves *you*. Keep that split in mind, it is the answer to two of the check questions at the end.
 
@@ -44,7 +44,7 @@ Here is the part that matters for a framework course, because the expectation ru
 
 If the discriminator staying stable sounds like a footnote, remember what you did when you computed a discriminator preimage by hand earlier in this course: you hashed the instruction's namespaced name and watched the first eight bytes become the selector the runtime routes on. Those exact eight bytes are what the IDL carries in every instruction's `discriminator` array. That is why a v1-era call still lands against a v2 program: the selector did not move, and neither did the description wrapped around it. A generated client reads those bytes straight out of the IDL, so you never hand-type a discriminator again, and you never fat-finger one into a call that silently targets the wrong instruction.
 
-![The IDL spec is identical between the 1.x baseline and the v2 tag — discriminators, serialization and repr fields all unchanged; a client generator that ignores serialization/repr is only safe on default borsh types on either line.](assets/v02-annotated-code.png)
+![The IDL spec is identical between the 1.x baseline and the v2 tag — discriminators, serialization and repr fields all unchanged; a client generator that ignores serialization/repr is only safe on default borsh types on either line.](assets/v02-annotated-code.webp)
 
 So this is a write-time probe, not a fact you can freeze from me. Before you trust a generated client for a program that uses non-default serialization or a custom `repr` — fields the modern spec has carried since the 0.30 era, on both lines — confirm your generator version consumes them. For the swap you are shipping, `Pool` is a plain borsh struct and `swap_arcade_for_tickets` takes two `u64`s, so you are safely inside what every generator handles. The moment you ship a program that is not, that probe is on you.
 
@@ -54,7 +54,7 @@ You have a JSON file. A JSON file in your repo helps exactly the people who have
 
 Think of it the way a city handles a building. Anyone can draw a blueprint, but the blueprint that *counts*, the one a contractor can pull and build against, is the one filed with the city under the building's address, amendable only by the owner of record. Solana's version of that filing cabinet is the **Program Metadata Program**. Anchor dropped its own built-in IDL instructions back in 1.0, and V2 inherits that removal: the IDL is stored through this program, at a deterministic address derived from your program id, writable only by the program's upgrade authority. So when you type `anchor idl init` in a moment, the verbs are old but the machinery is not — the 0.x-era commands of the same name wrote to Anchor's own on-chain IDL accounts, the mechanism 1.0 removed, while this CLI reuses the verb names as a front end for the Program Metadata Program, which is why teaching them here does not resurrect the retired path.
 
-![The Program Metadata Program stores the IDL at a canonical PDA derived from the program id; anyone can read it, but only the upgrade authority may write or upgrade it.](assets/v03-diagram.png)
+![The Program Metadata Program stores the IDL at a canonical PDA derived from the program id; anyone can read it, but only the upgrade authority may write or upgrade it.](assets/v03-diagram.webp)
 
 The commands are the `idl` subcommand of the Anchor CLI. First publish creates the on-chain account; later edits upgrade it:
 
@@ -89,7 +89,7 @@ Carry one dissent with you into the path we are about to take, because it is aim
 
 So the real path, the one the Anchor CLI ships, is **Codama**. Codama is a client generator: it reads an IDL and emits a typed client. Anchor's CLI wraps it in two subcommands, so you do not install or configure Codama separately, the CLI pins the version it uses (`CODAMA_VERSION = 1.6.0` inside the CLI as of 2026-08-22) and drives it for you.
 
-![@anchor-lang/core is the wrong SDK line, hand-rolling invites silent account bugs, and anchor codama generate produces a kit client whose only real cost is regeneration discipline.](assets/v04-comparison.png)
+![@anchor-lang/core is the wrong SDK line, hand-rolling invites silent account bugs, and anchor codama generate produces a kit client whose only real cost is regeneration discipline.](assets/v04-comparison.webp)
 
 Two commands. The first converts the Anchor IDL into Codama's own IDL tree. The second runs that conversion in-process and then renders the client:
 
@@ -105,13 +105,13 @@ Two commands, not one, and the split is deliberate. `convert` is the honest half
 
 What lands under `clients/` is not a blob. The `-p` flag names a base directory and the CLI writes each language to `<base>/<language>`, so `-p clients -l js` renders into `clients/js/`. Inside it, Codama emits a directory you can read, one folder per kind of thing in your program:
 
-![The generated client is a directory of instructions, accounts, pdas, types, programs, and errors; the caller uses the instruction builder from instructions, the pool PDA finder from pdas, and the account decoder from accounts.](assets/v05-diagram.png)
+![The generated client is a directory of instructions, accounts, pdas, types, programs, and errors; the caller uses the instruction builder from instructions, the pool PDA finder from pdas, and the account decoder from accounts.](assets/v05-diagram.webp)
 
 The builder is named after your instruction. `swap_arcade_for_tickets` becomes `getSwapArcadeForTicketsInstructionAsync`. The `-Async` suffix is Codama's convention for the variant that resolves what it can for you: it derives the `pool` PDA from its seeds and fills default program addresses, so you pass the accounts only you can know (the trader, the mints, the reserve and trader token accounts) and it assembles the rest. That is the whole point of generation. The account order, the discriminator, the borsh encoding of `amountIn` and `minOut`, the PDA derivation, all of it comes out of your IDL instead of out of your memory.
 
 Put the reason on the page, because this is where hand-rolling actually bites. The swap's `#[derive(Accounts)]` lists nine accounts in a fixed order, and the runtime matches them positionally, by slot, not by name. Hand-roll the call and you are retyping that order into an `AccountMeta` array from memory, where swapping `reserve_arcade` and `reserve_ticket`, or marking `trader` read-only when it must sign, compiles clean and fails only when the trade hits the chain. The generated builder reads the order and the writable/signer flags out of the IDL and asks you for each account by name. The two reserves you must never confuse arrive as `reserveArcade` and `reserveTicket`, labeled, in the one place a typo would otherwise be invisible.
 
-![Hand-rolling the swap's nine positional accounts fails silently when two reserve slots are swapped, while the generated builder takes accounts by name and derives the pool PDA itself.](assets/v06-comparison.png)
+![Hand-rolling the swap's nine positional accounts fails silently when two reserve slots are swapped, while the generated builder takes accounts by name and derives the pool PDA itself.](assets/v06-comparison.webp)
 
 ### The kit pin: match your peers, never chase latest
 
@@ -119,7 +119,7 @@ Now back to the trap you felt at the top of this lesson, because now you have th
 
 So the newest kit and the kit your dependencies want are different majors. This is not a fluke of one bad week, it is the normal texture of a fast-moving SDK: the core library ships a new major ahead of the ecosystem that peers on it. Look at the week it happened.
 
-![On 2026-08-21 legacy web3.js still edged kit 1,882,726 to 1,738,844 in weekly downloads, and kit shipped 8.0.0 the same day, while the ecosystem still peered on kit ^7.](assets/v07-chart.png)
+![On 2026-08-21 legacy web3.js still edged kit 1,882,726 to 1,738,844 in weekly downloads, and kit shipped 8.0.0 the same day, while the ecosystem still peered on kit ^7.](assets/v07-chart.webp)
 
 Both halves of that chart are true in the same week: the download crossover says kit is where the ecosystem is going, and the peer ranges say do not chase its version number.
 
@@ -331,7 +331,7 @@ The three fills, so you can check yourself once you have tried them: `(m) => set
 
 Two kit specifics worth naming while they are in front of you. `sendAndConfirmTransactionFactory` takes both `rpc` and `rpcSubscriptions`, because kit confirms by listening on a websocket for the signature rather than polling, which is why you created a subscriptions client next to the RPC one. And `assertIsTransactionWithBlockhashLifetime` is not ceremony: it is a type guard that refuses to compile the send unless the message actually carries a blockhash lifetime, so forgetting the lifetime line becomes a type error at your desk instead of a dropped transaction on devnet. Getting the trade to *land* reliably under real load is a separate craft, and it belongs to the Client-Side Mastery course. Here you are proving the call is well-formed and confirmable, not tuning it for a congested leader.
 
-![A kit transaction is built by setting the fee payer, the blockhash lifetime, and the instruction, then signed, guarded, sent and confirmed, and its signature read back.](assets/v08-flowchart.png)
+![A kit transaction is built by setting the fee payer, the blockhash lifetime, and the instruction, then signed, guarded, sent and confirmed, and its signature read back.](assets/v08-flowchart.webp)
 
 Checkpoint for the whole lab: `sendSwap` returns a signature, and that signature resolves on a devnet explorer as a confirmed swap. That is a caller, other than you, moving R4. The vault key is out of your pocket.
 

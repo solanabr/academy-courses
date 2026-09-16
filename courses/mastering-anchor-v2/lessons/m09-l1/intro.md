@@ -62,7 +62,7 @@ Every attribute on that struct is a check the macro turns into runtime code befo
 
 (Two V2 spellings worth re-noticing, because they are exactly the ones the migration module maps: the wrappers dropped their `<'info>` lifetimes, and `.key()` became `.address()`. The stored-key check itself used to be the `has_one = authority` keyword; V2 deprecates it in favor of the expression forms `address = ...` and `constraint = ...` you met in module 3; the keyword still parses, with a warning.)
 
-![A table mapping each Anchor account attribute to the explicit pinocchio check that replaces it and the specific bug that appears if you omit that check.](assets/v01-comparison.png)
+![A table mapping each Anchor account attribute to the explicit pinocchio check that replaces it and the specific bug that appears if you omit that check.](assets/v01-comparison.webp)
 
 Read the right column once more, because those are not hypotheticals: each one is a class of exploit that has drained real programs, and each one is a single `if` that Anchor wrote and you did not. Now you write them.
 
@@ -75,7 +75,7 @@ Here is the constraint that forces it. The System Program will only move lamport
 - The **config** PDA, seeds `[b"config", authority]`, owned by your program. It stores `[discriminator][authority][vault_bump]`. This is your `Account<Vault>` analogue, the thing you validate.
 - The **vault** PDA, seeds `[b"vault", authority]`, owned by the System Program, holding the custodied SOL. Your program never writes its data (there is none). It signs to move its lamports.
 
-![A diagram of two PDAs from one authority: a program-owned config holding state and a System-owned vault holding SOL, withdrawn by signing with invoke_signed.](assets/v02-diagram.png)
+![A diagram of two PDAs from one authority: a program-owned config holding state and a System-owned vault holding SOL, withdrawn by signing with invoke_signed.](assets/v02-diagram.webp)
 
 If you are picturing R2 as a single `Account<Vault>` that both stored the bump and held lamports, it was doing the direct-lamport trick: debiting its own account balance because the program owned it. That works, but it is not a signed transfer, and it is not what we want to teach here. The invoke_signed path, where a PDA presents its seeds to authorize a real System transfer, is the pattern you will reach for constantly (token vaults, escrows, anything where the PDA must be a CPI signer). So we build the version that signs.
 
@@ -83,7 +83,7 @@ If you are picturing R2 as a single `Account<Vault>` that both stored the bump a
 
 Anchor spends 8 bytes on an account discriminator, the SHA-256-derived tag that says "this is a `Vault`, not a `Config` or a `Pool`." Native, you can spend one. A single `u8` gives you 255 account types, which is plenty, and the layout is dead simple: byte 0 is the tag, the rest is data.
 
-![A 34-byte layout strip for the config account: byte 0 discriminator, bytes 1 through 32 the authority pubkey, byte 33 the stored vault bump.](assets/v03-annotated-code.png)
+![A 34-byte layout strip for the config account: byte 0 discriminator, bytes 1 through 32 the authority pubkey, byte 33 the stored vault bump.](assets/v03-annotated-code.webp)
 
 The house rule matters here and it is not optional: read and write these fields as byte-array slices with accessor logic, never by casting the raw buffer to a packed struct with an unaligned pointer. A `&*(ptr as *const Config)` on a `#[repr(C, packed)]` struct produces unaligned references, which is undefined behavior in Rust and one of the sharpest footguns in the whole native ecosystem. Slices with `copy_from_slice` and `from_le_bytes` are safe, obvious, and only a hair slower, so that is what we will use throughout.
 
@@ -95,7 +95,7 @@ A PDA has no private key. It "signs" a CPI by presenting, at call time, the exac
 
 Native, you assemble the signer yourself. And you use the **stored** canonical bump, the one you saved at init, not a freshly derived one. Re-running `find_program_address` inside every instruction burns roughly 1500 compute units per call, because it grinds through bump candidates from 255 downward looking for the one that is off-curve. You paid for that once at init. Store it, reuse it. Anchor stores it in the account and reads it back through `bump = vault.bump`; you do the same by hand.
 
-![A flowchart showing the withdraw reading the stored bump, building seeds, calling invoke_signed, the runtime re-deriving the address, and executing the transfer only if it matches the vault key.](assets/v04-flowchart.png)
+![A flowchart showing the withdraw reading the stored bump, building seeds, calling invoke_signed, the runtime re-deriving the address, and executing the transfer only if it matches the vault key.](assets/v04-flowchart.webp)
 
 ### The check V2 added: no duplicate mutables
 
@@ -227,7 +227,7 @@ impl<'a> TryFrom<(&'a [u8], &'a [AccountInfo])> for Withdraw<'a> {
 
 Six checks. The first five line up one for one with the comparison table above, and the sixth is the duplicate-mutable guard V2 turns on by default, added here to the same gauntlet. The `let [authority, config, vault..] = accounts else` pattern is your account ordering, the thing `#[derive(Accounts)]` enforced by struct field order. Get the order wrong here and everything downstream reads the wrong account, which is itself a footgun the framework removed.
 
-![A fail-fast flowchart of six TryFrom gates, each labelled with the error it returns and the exploit it blocks, converging on a validated Withdraw struct.](assets/v05-flowchart.png)
+![A fail-fast flowchart of six TryFrom gates, each labelled with the error it returns and the exploit it blocks, converging on a validated Withdraw struct.](assets/v05-flowchart.webp)
 
 Notice what TryFrom buys you: by the time `process()` runs, validation is done and the business logic never re-checks. That separation, validate-then-act, is exactly what Anchor gives you by splitting the accounts struct from the instruction body, and you just built it by hand.
 
@@ -454,11 +454,11 @@ test withdraw_signed ... ok
 
 That is the same gate. Lamports left the PDA under program authority, and the over-withdraw was rejected. Your native vault does exactly what the framework vault did. Sit with that for a second: no `#[account]`, no `#[program]`, no `declare_id!` magic beyond a const, and the acceptance test does not know the difference.
 
-![A timeline running from the #4390 zero-copy complaint, to pinocchio as a lean foundation, to Anchor V2's no_std rewrite, to this lesson's hand rebuild.](assets/v06-timeline.png)
+![A timeline running from the #4390 zero-copy complaint, to pinocchio as a lean foundation, to Anchor V2's no_std rewrite, to this lesson's hand rebuild.](assets/v06-timeline.webp)
 
 Before you leave the Lab, look back at the trade-off in the account model. Two PDAs and about eighty lines bought you what six Anchor attributes gave for free, plus the compute you saved by not deserializing through `Account<T>`. That is the deal native offers, and it is a real deal, not a scold. The next visual is the one to screenshot, because it is the answer to "when is this worth it."
 
-![A decision table comparing Anchor V2 and native pinocchio across checks, compute, auditability, failure mode, and when to choose each.](assets/v07-table.png)
+![A decision table comparing Anchor V2 and native pinocchio across checks, compute, auditability, failure mode, and when to choose each.](assets/v07-table.webp)
 
 ## Challenge: the native vault's withdraw guard
 

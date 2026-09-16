@@ -62,7 +62,7 @@ For one `u64` the cost is small. But it never stays one `u64`. Real programs hol
 
 Break the bill into its parts and it is easy to see why it grew into the number-one complaint. There is the decode itself, one pass over the buffer allocating and populating a fresh struct. There is the stack space that struct occupies while your handler runs, which the SBF runtime meters. There is the encode on exit, a second full pass writing the struct back. And there is the copy you never asked for: a handler that only wanted to bump one counter still paid to reconstruct the fourteen fields it never touched. None of those four costs is doing your program's actual work. They are the price of the abstraction, and V2's claim is that the price should be zero.
 
-![V1 decodes and re-encodes the entire struct on every load; V2 casts the bytes once and mutates them in place with no encode step.](assets/v01-comparison.png)
+![V1 decodes and re-encodes the entire struct on every load; V2 casts the bytes once and mutates them in place with no encode step.](assets/v01-comparison.webp)
 
 ### Rule out the easy answers
 
@@ -84,7 +84,7 @@ A cast from raw bytes to a typed reference is only sound if every possible arran
 
 Watch where that bites. A `u64` is Pod: all 2^64 bit patterns are valid `u64` values. A `bool` is not. A `bool` occupies one byte but only two of its 256 patterns are defined, `0` and `1`; the other 254 are undefined behavior if you treat them as a `bool`. So `bytemuck` refuses `bool` outright. The fix is `PodBool`, a one-byte wrapper whose every pattern is a defined value. Same story for enums, `Option`, anything with invalid states.
 
-![bool fails Pod because most byte patterns are undefined, while PodU64 wraps a byte array at alignment 1 so the cast stays sound at any offset.](assets/v02-annotated-code.png)
+![bool fails Pod because most byte patterns are undefined, while PodU64 wraps a byte array at alignment 1 so the cast stays sound at any offset.](assets/v02-annotated-code.webp)
 
 That alignment note in the card is the subtle half, and it is worth being precise about it rather than repeating the folklore. A native `u64` demands an 8-byte-aligned address, and in a *header* it gets one: Solana guarantees the account data buffer is 8-byte aligned, and V2 places the header immediately after the 8-byte discriminator, so `data[8..]` is 8-aligned too. The framework asserts exactly this at compile time, rejecting any header whose alignment exceeds Solana's 8-byte guarantee. That is why the scaffold's own generated `Counter` account gets away with a bare `pub count: u64`, and yours could too.
 
@@ -96,7 +96,7 @@ Now the mechanism, stated exactly. In V2, `Account<T>` is defined as `Slab<T, He
 
 The word "view" is load-bearing. A view owns nothing. It points at the account's bytes and interprets them. That is why the exit step in the comparison above was a no-op: there is no second copy to write back, because you were editing the real buffer the whole time.
 
-![The Account wrapper is a pointer to the runtime-owned buffer; each field read is an offset into the bytes, and writes land directly in the buffer with no separate encode.](assets/v03-diagram.png)
+![The Account wrapper is a pointer to the runtime-owned buffer; each field read is an offset into the bytes, and writes land directly in the buffer with no separate encode.](assets/v03-diagram.webp)
 
 ### The discriminator still sits in front
 
@@ -110,7 +110,7 @@ If you wrote zero-copy code in V1, you did it with `AccountLoader<'info, T>`: an
 
 V2 inverts the default. What was the exotic `AccountLoader` case is now what `Account<T>` does out of the box, and the `<'info>` lifetime no longer rides the wrapper into your struct. You do not opt into zero-copy; you opt out of it, in the rare case you truly need free-form data no cast can describe — the borsh escape hatch this module closes with. (A bounded tail is not an opt-out: the `Slab` you bolt on next lesson stays zero-copy.) The general lesson worth extracting here, because it recurs across V2, is that the framework moved the cost from runtime to compile time. The old default was permissive at authoring and expensive at execution. The new default is strict at authoring and free at execution. Every place V2 feels more demanding to write is a place it stopped charging you when the program runs.
 
-![A table mapping each account-model concern from its V1 behavior to its V2 default, with the zero-copy default and the T Pod bound flagged as the two load-bearing changes.](assets/v04-table.png)
+![A table mapping each account-model concern from its V1 behavior to its V2 default, with the zero-copy default and the T Pod bound flagged as the two load-bearing changes.](assets/v04-table.webp)
 
 ### The objections a sharp reader raises
 
@@ -128,7 +128,7 @@ Zero-copy erases the serialization cost and lets you mutate fields in place. Tha
 
 Every field must be Pod, so a bare `bool` or a naive `Option` will not compile. Padding is forbidden, so you order fields largest-to-smallest and the compiler asserts there are no implicit gaps between them. Alignment becomes your concern, which is why the Pod wrappers exist. A field order that a normal Rust developer never thinks about, small field before big field, can silently open a padding byte that breaks the cast. In V2 it does not silently break: it fails to compile, which is the good version of that failure. The speed is paid for in layout rigor. You are trading "the compiler lets me write any struct and I pay at runtime" for "the compiler makes me write a legal struct and I pay nothing at runtime."
 
-![A u8-before-u64 layout forces the compiler to insert seven uninitialized padding bytes, which breaks Pod; ordering largest-to-smallest or using Pod wrappers packs the struct with no gap.](assets/v05-diagram.png)
+![A u8-before-u64 layout forces the compiler to insert seven uninitialized padding bytes, which breaks Pod; ordering largest-to-smallest or using Pod wrappers packs the struct with no gap.](assets/v05-diagram.webp)
 
 ### How honest is 8.8x?
 
@@ -136,7 +136,7 @@ You will hear a number attached to V2, and I want you to carry it correctly, bec
 
 Why the hedge. PR #4914, merged 2026-08-13, revised the headline numbers *down*: from 95% to 94% less bytecode, from 9.9x to 8.8x average CU. That is a rare thing to see in public, a project correcting its own marketing figure downward, and it is exactly why this course never freezes a multiplier. The 8.8x is an *average* across a benchmark family, and the benchmark page itself warns the alpha values can shift as codegen changes. Small programs see the least benefit. Your bare cabinet-counter, two `u64` fields, will show almost nothing, because there was barely any deserialize cost to erase in the first place. The gains show up when the struct is big and hot. So when a teammate says V2 made their tiny counter 8.8x cheaper, the honest reframe is: that is the project's approximate average, revised down once already and expected to keep moving, and a two-field counter is the worst case for it.
 
-![A timeline from issue #4390 through the early 95 percent and 9.9x benchmarks to PR #4914 revising them down to 94 percent and 8.8x.](assets/v06-timeline.png)
+![A timeline from issue #4390 through the early 95 percent and 9.9x benchmarks to PR #4914 revising them down to 94 percent and 8.8x.](assets/v06-timeline.webp)
 
 ## Lab: build the cabinet-counter
 
@@ -273,7 +273,7 @@ pub fn increment(ctx: &mut Context<Increment>, score: u64) -> Result<()> {
 
 The `checked_add` is there for a reason. `play_count` is a `u64` you increment on every play, and the house rule for program arithmetic is checked-everything, so a wrap becomes a clean error instead of a silent reset to zero.
 
-![The harness starts LiteSVM, sends init then increment, slices the account bytes past the discriminator, casts them to Cabinet, and asserts both fields round-tripped.](assets/v07-flowchart.png)
+![The harness starts LiteSVM, sends init then increment, slices the account bytes past the discriminator, casts them to Cabinet, and asserts both fields round-tripped.](assets/v07-flowchart.webp)
 
 **Step 4. Read the bytes back (your assertion).** The test lives beside the program crate, at `programs/cabinet-counter/tests/cabinet.rs`, which is what makes the `include_bytes!` path below resolve; put it at the workspace root instead and that relative path walks out of the repo. It uses LiteSVM, the in-process Solana VM that becomes the acceptance gate for every later rung in this course. You do not pull `litesvm` in directly: the scaffold's `anchor-v2-testing` dev-dependency wraps it and re-exports the pieces you need (`Keypair`, `Signer`, `Message`, `VersionedTransaction`), which is also how `anchor test --profile` gets to hang tracing off the same tests later. I give you the harness scaffolding; the three assert lines at the bottom are yours. Write them from the flowchart above before you look at the ones printed below: what should `play_count` be after one `increment`, what should `high_score` be, and how many bytes long is the whole account?
 

@@ -41,11 +41,11 @@ A program-derived address is the deliberate opposite. You take some **seeds** (a
 
 The seeds are the input you design. The program ID scopes the derivation to your program (another program with different code cannot derive into your namespace). The output is a 32-byte address that is a pure function of those inputs.
 
-![A three-row comparison showing that per-vault keypairs leak, a registry account adds rent and migration cost, and PDA derivation stores nothing because the mapping is the computation.](assets/v01-comparison.png)
+![A three-row comparison showing that per-vault keypairs leak, a registry account adds rent and migration cost, and PDA derivation stores nothing because the mapping is the computation.](assets/v01-comparison.webp)
 
 Contrast that with the two things a program could do instead, because the comparison is what makes PDAs click. It could generate a keypair per vault and stash the secret somewhere, which means the program is now the custodian of thousands of secrets and a single leak drains everyone at once. Or it could keep a registry account mapping each player to their vault's address, which means one more account to allocate, pay rent on, keep consistent under concurrency, and migrate every time the schema shifts. The PDA collapses both of those problems into arithmetic. There is no secret to leak because there is no secret, and there is no registry to corrupt because the mapping *is* the derivation. The program re-computes any vault's address on demand from inputs it already holds.
 
-![Seeds, program ID and a bump byte are hashed; an on-curve result is rejected and the bump decrements; an off-curve result becomes the PDA, and no keypair is ever generated.](assets/v02-diagram.png)
+![Seeds, program ID and a bump byte are hashed; an on-curve result is rejected and the bump decrements; an off-curve result becomes the PDA, and no keypair is ever generated.](assets/v02-diagram.webp)
 
 ### The bump, and why only one of them counts
 
@@ -55,7 +55,7 @@ It helps to picture what "off the curve" actually means. Ed25519 is a specific e
 
 Why does "only one counts" matter so much? Because other bumps further down the list might *also* produce off-curve addresses. Those are real, derivable PDAs for the same seeds. If your program accepts any bump the caller hands it, an attacker can present a *different*, non-canonical PDA for the same logical vault, seed it with their own state, and slip it past a check that only verified "is this a valid PDA for these seeds." That is the account-substitution family of bugs. The defense is dead simple: always use the canonical bump, and never trust a bump that arrived as untrusted input.
 
-![The derivation tries bump 255 downward; the first bump that yields an off-curve address is canonical, and any lower off-curve bump is a non-canonical PDA an attacker could substitute.](assets/v03-table.png)
+![The derivation tries bump 255 downward; the first bump that yields an off-curve address is canonical, and any lower off-curve bump is a non-canonical PDA an attacker could substitute.](assets/v03-table.webp)
 
 ### The typed `bumps` struct — a recap, and the delta V2 actually adds
 
@@ -67,11 +67,11 @@ What V2 *does* add sits underneath, and it is worth being precise because this i
 
 If you are porting a 1.x program, the bump line is the one that *doesn't* change: `let bump = ctx.bumps.vault;` reads identically on both sides. The mechanical rewrite lives elsewhere, and it is worth doing by hand once so it lodges in muscle memory. Every seed constraint that read `player.key().as_ref()` becomes `player.address().as_ref()`, since `Pubkey` is now `Address` and `.key()` is now `.address()`. The handler signature loses its `<'info>` lifetime and gains a `&mut`, so `pub fn init(ctx: Context<Init>)` becomes `pub fn init(ctx: &mut Context<Init>)`. The account types shed their lifetimes too, so `Account<'info, Vault>` collapses to `Account<Vault>`. None of that is cosmetic; each edit hands the compiler a guarantee it did not have before. (If the snippet you inherit is truly ancient — 0.28-era, string map and all — then `ctx.bumps.get("vault").unwrap()` does become `ctx.bumps.vault`, but that is a 0.29 migration you are back-paying, not a V2 one.)
 
-![Pre-0.29 Anchor read the bump through a fallible runtime string lookup that could panic; 0.29 onward, V2 included, reads a typed struct field whose wiring is resolved at macro-expansion time, so typos fail to compile, while a runtime-seeded derivation still runs during validation on every line.](assets/v04-comparison.png)
+![Pre-0.29 Anchor read the bump through a fallible runtime string lookup that could panic; 0.29 onward, V2 included, reads a typed struct field whose wiring is resolved at macro-expansion time, so typos fail to compile, while a runtime-seeded derivation still runs during validation on every line.](assets/v04-comparison.webp)
 
 There is a second saving hiding under the same rewrite, and it is worth naming precisely because it is easy to overstate. For an account your *own program owns*, V2 skips the on-curve check that a general address verification would run. The Anchor V2 changelog reports this as roughly 1,000 CU saved per verify. Treat that as a project-reported figure, not a law of nature: measure it against your own build, and re-check it when you bump the RC, because compute numbers drift between release candidates. The reasoning behind the skip is clean, which is why it is safe. If the address was derived by your program from seeds and a bump, and you are treating it as program-owned, then whether it happens to sit on the curve is information you do not need. You already know it is yours. Paying compute to re-answer a question you have already answered is the kind of waste a ground-up rewrite exists to delete.
 
-![A before/after bar shows that skipping the on-curve check on a program-owned PDA saves roughly 1,000 CU per verify, labeled as a project-reported figure to re-measure.](assets/v05-chart.png)
+![A before/after bar shows that skipping the on-curve check on a program-owned PDA saves roughly 1,000 CU per verify, labeled as a project-reported figure to re-measure.](assets/v05-chart.webp)
 
 Where did this come from? It is not a one-off optimization someone bolted on. Anchor V2 is a ground-up `no_std` rewrite built on pinocchio, the minimal zero-dependency account framework, described that way in the lang-v2 crate itself as of 2026-08. The same rewrite that made const-folded bumps possible is the one flagged in the `#4390` "zero-copy by default" manifesto (otter-sec/anchor#4390), which reframes the old borsh-deserialized `Account<T>` as *the slow path* and pushes zero-copy to the default. Const bumps and on-curve skips are only on the table because someone tore the framework down to the studs. That is the color worth carrying into the Lab: the Pod struct you built in module 2 is not a special case anymore. In V2 it is the grain of the wood.
 
@@ -81,7 +81,7 @@ One scoping note before code, because it will bite you later if it stays implici
 
 And the trade-off, stated plainly because it is the honest part. PDAs give you deterministic addressing with no keypair to guard and no lookup table to maintain. What you pay for that is *seed-design responsibility, forever*. The seed scheme is not a naming convention, it is the namespace and the access-control boundary at once. Get it right and every player has an isolated, re-derivable vault. Get it lazy, and you have a collision bug that no amount of later code can paper over.
 
-![With only the seed b"vault" every player derives one shared PDA, but adding the player address gives each player a distinct, re-derivable vault.](assets/v06-diagram.png)
+![With only the seed b"vault" every player derives one shared PDA, but adding the player address gives each player a distinct, re-derivable vault.](assets/v06-diagram.webp)
 
 Three ways this bites, named now so you recognize them before they cost you anything. First, re-deriving the bump at runtime. If a later handler calls `find_program_address` to "get a fresh bump," you have reintroduced the exact search a stored bump was built to delete, and you pay for it on every single call. Put a number on it: Solana's constants reference prices one PDA derivation syscall at **1,500 CU** (`create_program_address_units`). Validating against a stored bump costs exactly one of those. `find_program_address` pays one *per bump it tries* before it lands off-curve, walking 255 downward, so the bill is 1,500 CU times however many candidates the seeds happen to need. Re-measure on your own build, but the direction is not in question: every avoided attempt is another 1,500 CU you keep, which is why you persist the bump. Second, a player-controlled or under-specified seed. Anything a caller can influence in the seed set is a lever they can pull to steer a derivation onto an account that is not theirs, or onto a shared account that should have been isolated per player. The fix is to bind identity into the seeds, which is exactly what the player address does. Third, and this is the subtle one, treating the on-curve-skip saving as a fixed number you can budget against. It is a project-reported figure from a release candidate. Design as if it might read 800 CU or 1,200 next month, because it might.
 
@@ -139,7 +139,7 @@ That `_pad` field is module 2's discipline arriving on a real account, so do not
 
 One V2 detail rides along in the `space` line you are about to write. V1 taught you to add a magic `8` for the account discriminator, the tag Anchor writes at the front of every account so it can tell a `Vault` from a `Config` when it reads raw bytes. V2 stops you hardcoding that: you write `Vault::DISCRIMINATOR.len() + Vault::INIT_SPACE`, and if the discriminator scheme ever changes under you, your space math changes with it instead of silently going wrong. (V2 will even infer the whole `space` line from the wrapper's `INIT_SPACE` if you omit it; an explicit `space =` is still accepted, and writing it out once is worth the practice of seeing where the number comes from.) It is the same instinct as the bump moving to a const. Stop hand-carrying numbers the framework is willing to hand you.
 
-![The init constraint pairs a seeds array of b"vault" plus the player address with a bare bump, so the macro derives and stores the canonical bump.](assets/v07-annotated-code.png)
+![The init constraint pairs a seeds array of b"vault" plus the player address with a bare bump, so the macro derives and stores the canonical bump.](assets/v07-annotated-code.webp)
 
 **3. Write the derive struct and the init handler.** V2 handlers take `&mut Context<T>` and the accounts struct carries no `<'info>` lifetime. Both are consequences of the pinocchio rewrite. Add this to `lib.rs`:
 
@@ -193,7 +193,7 @@ Expected after this step: `anchor build` compiles both handlers and both derive 
 
 Look hard at the difference between the two `bump` lines, because it is the point of the whole build. In `InitVault` you write bare `bump`, which tells the macro to find the canonical bump and hand it to you through `ctx.bumps.vault`. In `ReadVault` you write `bump = vault.bump`, which tells the macro to skip the search entirely and validate against the value you already stored. The first is compute you pay once. The second is compute you never pay again.
 
-![The client derives the PDA and sends init_vault; the macro re-derives it, supplies the canonical bump, creates and funds the account, then the handler stores owner, bump and credit.](assets/v08-flowchart.png)
+![The client derives the PDA and sends init_vault; the macro re-derives it, supplies the canonical bump, creates and funds the account, then the handler stores owner, bump and credit.](assets/v08-flowchart.webp)
 
 **4. Write the LiteSVM test.** LiteSVM runs the program in-process, no validator, so the loop is fast. You reach it through `anchor-v2-testing`, the harness the V2 scaffold generates against, and **not** through a direct `litesvm` dependency:
 
@@ -302,7 +302,7 @@ Two rungs, and the scaffold thins out on each.
 
 **Solo.** Give a single player more than one vault. Add a `slot: u8` argument to a new `init_vault_slot` handler and thread it into the seeds so the PDA becomes `[b"vault", player.address().as_ref(), &[slot]]`. You will need `#[instruction(slot: u8)]` on the derive struct so the constraint can see the argument. Prove two things in a LiteSVM test: slot `0` and slot `1` for the same player produce two *distinct* addresses, and calling each a second time re-derives the *same* address it did the first time (so both are stable, re-derivable, and their stored bumps match the value the client derives). Acceptance: both vaults init, both re-derive on a second call, and neither handler re-derives a bump at runtime. One extra credit worth chasing: try to `init_vault` twice for the same seeds and watch the second call fail. That failure is the account-already-exists guard doing its job, and it is the reason a vault cannot be silently re-initialized out from under a player.
 
-![A timeline from pre-0.29 string-keyed bumps, through Anchor 0.29's typed bumps struct, the #4390 zero-copy-by-default manifesto and the V2 no_std pinocchio rewrite, to today's literal-seed macro-time bump consts and the on-curve skip for program-owned PDAs.](assets/v09-timeline.png)
+![A timeline from pre-0.29 string-keyed bumps, through Anchor 0.29's typed bumps struct, the #4390 zero-copy-by-default manifesto and the V2 no_std pinocchio rewrite, to today's literal-seed macro-time bump consts and the on-curve skip for program-owned PDAs.](assets/v09-timeline.webp)
 
 When both rungs pass, sit with what you actually proved. Two players get two isolated vaults, one player gets as many slots as they want, every address re-derives to the same 32 bytes forever, and not one of them needed a keypair or a lookup table. You wrote the seed scheme, and the seed scheme *is* the custody model. That is the weight the honest part warned about, and you carried it correctly.
 
