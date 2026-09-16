@@ -144,7 +144,7 @@ Vas a construir `predict-routability.ts`, el primer borrador de R6, conectarlo a
 
 ```bash
 npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
-npm install -D tsx typescript
+npm install -D tsx@4.23.12 typescript@5.9.3
 ```
 
 2. **Lee la regla, después córrela.** Clonaste el repo cuando leíste el código fuente. Ahora compila la regla en aislamiento para poder picarla. Guarda esto como `allowlist.rs` al lado de tu lab (es una transcripción de la forma, no una copia del programa: la función real recorre un `StateWithExtensions<Mint>` y hace match con variantes de `ExtensionType`, esta toma los nombres ya decodificados así que se compila con `rustc` a secas y sin árbol de dependencias):

@@ -254,7 +254,7 @@ pub struct CloseVault {
 
 La línea de `seeds` está haciendo control de acceso en silencio: solo el jugador cuya clave deriva este vault exacto puede pasar la verificación de seed, así que nadie puede cerrar un vault que no es suyo. No necesitaste un constraint de propiedad aparte, el esquema de seeds ya es uno.
 
-**4. Agrega el enum de errores.** Anchor permite exactamente un enum `#[error_code]` por programa, así que todo vive acá:
+**4. Agrega el enum de errores.** Mantén un único enum `#[error_code]` por programa — un segundo compila en verde, pero ambos numeran sus variantes desde la misma base 6000 y colisionan en silencio — así que todo vive acá:
 
 ```rust
 #[error_code]

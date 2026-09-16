@@ -454,6 +454,8 @@ The draft syllabi invented ~130 distinct tags across 57 lessons, mostly singleto
 5. **No tag may be so broad it carries no signal.** `typescript`, `react` and `program-basics` are dropped as review keys (they may stay as catalog-page facets).
 6. **Interleaving pairs the queue must be able to build**, and which therefore must share vocabulary: `pdas` ↔ `account-model` (PDA vs ATA vs wallet), `cpi` ↔ `signers` (who signs what), `anchor` ↔ `program-security` (which constraint blocks which attack), `checked-arithmetic` ↔ `rust-result` (fail how), `compute-budget` ↔ `transaction-fees` (requested vs consumed).
 
+**Registry amendments (2026-09-16).** The merged course wave grew `skills.yaml` beyond the policy-3 migration list through policy 1's own mechanism — reviewed registry PRs — and this note is the paper trail: `token-metadata`, `state-compression`, `merkle-proofs`, `das-api` (digital-assets); `http-fundamentals`, `typescript-types`, `schema-validation`, `async-concurrency`, `automated-testing`, `containers`, `edge-runtimes`, `observability`, `supply-chain-security` (rust-ts-fundamentals). Every entry sits on ≥2 lessons per policy 4. On `typescript-types` vs policy 5's retirement of `typescript`: the retired slug was a catalog-wide facet too broad to key review items; `typescript-types` keys the type-system lessons specifically and stays.
+
 ---
 
 ## 6. Technical Currency Ruling
