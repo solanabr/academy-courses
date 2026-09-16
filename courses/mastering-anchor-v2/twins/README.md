@@ -37,6 +37,7 @@ Whenever `solana confirm -v <sig> --url devnet` stops resolving, run
 ## Key hygiene
 
 No keypair ever enters this repo. `redeploy.sh` works in a `mktemp -d` copy;
-the deployer and counter keys are throwaways you fund, use, and delete. The
-`.gitignore` additionally refuses `twins/**/target/` and `twins/**/*.json` in
-case someone builds in place.
+the deployer and counter keys are throwaways you fund, use, and delete — and
+every key it creates is named `*-keypair.json`, so the repo-level `.gitignore`
+(which refuses `target/` and `*-keypair.json` everywhere) still catches them
+if someone builds in place.

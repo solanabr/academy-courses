@@ -16,7 +16,7 @@ echo "workdir: $WORK (keys + builds live here, not in the repo)"
 cp -R "$SRC/counter-v1-twin" "$SRC/counter-v2-twin" "$WORK/"
 
 # 1. Deployer wallet (fresh). Fund it from another shell while this loop waits.
-DEPLOYER="$WORK/deployer.json"
+DEPLOYER="$WORK/deployer-keypair.json"
 solana-keygen new --no-bip39-passphrase -s -o "$DEPLOYER" >/dev/null
 DEP_PK=$(solana-keygen pubkey "$DEPLOYER")
 echo "deployer: $DEP_PK"
@@ -78,17 +78,17 @@ land() { # $1 = crate dir, $2 = mode, $3 = counter keypair; prints signature
 
 echo "== v1 twin (anchor-lang 1.1.2) =="
 V1_ID=$(deploy_twin counter-v1-twin counter_v1_twin)
-solana-keygen new --no-bip39-passphrase -s -o "$WORK/counter-v1.json" >/dev/null
-land counter-v1-twin init "$WORK/counter-v1.json" >/dev/null
+solana-keygen new --no-bip39-passphrase -s -o "$WORK/counter-v1-keypair.json" >/dev/null
+land counter-v1-twin init "$WORK/counter-v1-keypair.json" >/dev/null
 sleep 20
-V1_SIG=$(land counter-v1-twin increment "$WORK/counter-v1.json")
+V1_SIG=$(land counter-v1-twin increment "$WORK/counter-v1-keypair.json")
 
 echo "== v2 twin (anchor-lang 2.0.0-rc.1) =="
 V2_ID=$(deploy_twin counter-v2-twin counter_v2_twin)
-solana-keygen new --no-bip39-passphrase -s -o "$WORK/counter-v2.json" >/dev/null
-land counter-v2-twin init "$WORK/counter-v2.json" >/dev/null
+solana-keygen new --no-bip39-passphrase -s -o "$WORK/counter-v2-keypair.json" >/dev/null
+land counter-v2-twin init "$WORK/counter-v2-keypair.json" >/dev/null
 sleep 20
-V2_SIG=$(land counter-v2-twin increment "$WORK/counter-v2.json")
+V2_SIG=$(land counter-v2-twin increment "$WORK/counter-v2-keypair.json")
 
 sleep 20
 echo
