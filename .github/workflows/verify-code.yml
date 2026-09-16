@@ -24,11 +24,26 @@ jobs:
         run: |
           BASE="${{ github.event.pull_request.base.sha || 'origin/main' }}"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            DIRS=$(ls -d courses/*/ | grep -v '_draft\|_template')
+            CHANGED=$(ls -d courses/*/)
           else
-            DIRS=$(git diff --name-only "$BASE"...HEAD -- courses/ \
-              | grep -oE '^courses/[^/_][^/]*/' | sort -u || true)
+            # git runs on its own line so that a git failure (unfetched base SHA,
+            # shallow clone, bad ref) FAILS this job. When it sat at the head of
+            # the filter pipeline below, any git error collapsed into an empty
+            # dirs output — and since every later step is gated on that output
+            # being non-empty, the job skipped everything and reported green
+            # having verified nothing. Only a genuinely empty change set may skip.
+            if ! CHANGED=$(git diff --name-only "$BASE"...HEAD -- courses/); then
+              echo "::error::git diff against ${BASE} failed — cannot tell which courses changed; failing instead of skipping verification"
+              exit 1
+            fi
           fi
+          # The [^/_] class below is a deliberate policy, not an accident: it drops
+          # underscore-prefixed dirs (courses/_draft/, courses/_template/), which are
+          # scaffolding that never ships and whose exercise blocks are placeholders.
+          # It applies to both event paths, since workflow_dispatch feeds `ls` output
+          # through the same filter. An empty DIRS after this line is the one
+          # legitimate skip: no shipped course changed.
+          DIRS=$(printf '%s\n' "$CHANGED" | grep -oE '^courses/[^/_][^/]*/' | sort -u || true)
           # Only course dirs that actually contain graded rust / buildable blocks.
           KEEP=""
           for d in $DIRS; do
