@@ -268,7 +268,7 @@ pub enum VaultError {
 }
 ```
 
-Expected after this step: `anchor build` is clean. If it is not, the usual cause is a second `#[error_code]` enum left over somewhere: V2 allows exactly one per program, so every variant the program will ever raise has to land in this one.
+Expected after this step: `anchor build` is clean. Watch for a leftover second `#[error_code]` enum, though: it compiles green, and both enums number their variants from the same 6000 base, colliding silently at runtime. Every variant the program will ever raise has to land in this one.
 
 **5. Prove the gate with a wrong-authority test.** This is the assessment gate: the rejection must come from the *constraint*, not from a handler branch. Append this to the `tests/quarter_vault.rs` you wrote last lesson, keeping that file's existing test and dropping the duplicate `use` lines rather than pasting them twice:
 
