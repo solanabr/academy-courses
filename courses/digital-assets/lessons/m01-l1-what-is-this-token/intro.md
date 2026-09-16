@@ -121,7 +121,7 @@ A **mint account** is the account that defines the token itself: its supply, its
 
 Now the field that should have stopped you: `owner program: TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`. That is not the token program you know. The classic SPL Token program lives at `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`. PYUSD's mint is owned by a different program at a different address: Token-2022, also called Token Extensions. Same job, different rulebook, and the two do not mix. A classic-token instruction pointed at a Token-2022 mint fails, and vice versa.
 
-![Two separate token programs, classic SPL Token owning the 82-byte USDC mint and Token-2022 owning the 866-byte PYUSD mint with eight extensions, with instructions unable to cross between them.](assets/v01-diagram.png)
+![Two separate token programs, classic SPL Token owning the 82-byte USDC mint and Token-2022 owning the 866-byte PYUSD mint with eight extensions, with instructions unable to cross between them.](assets/v01-diagram.webp)
 
 This is footgun number one for this entire course, so I will say it plainly: **"SPL token" is not one thing.** I spent an embarrassing stretch of my early Solana work saying "SPL token" like it named a single standard, and I shipped integrations on that assumption. Guilty, big time. It cost me a weekend of debugging the first time a Token-2022 mint hit code that hardcoded `Tokenkeg`. The two programs coexist on mainnet, forever, and every wallet, DEX, and indexer has to handle both.
 
@@ -131,7 +131,7 @@ Size is the fastest way to feel the difference. A classic SPL mint is exactly 82
 
 They went into **extensions**: optional packets of extra state and behavior that Token-2022 lets an issuer attach to a mint (or to individual token accounts) at creation time. Each extension is laid down in the account's data using a scheme called **TLV**, for type-length-value: a small tag saying which extension this is, a length saying how many bytes it occupies, then the value bytes themselves. One after another, like labeled boxes in a row. A decoder walks the row: read a tag, read a length, jump ahead, repeat. That walk is exactly what the RPC's parser did for you today, and exactly what you will implement yourself next lesson.
 
-![A classic mint is five fixed fields totaling 82 bytes, while PYUSD's mint has the same base fields followed by eight type-length-value extension entries, totaling 866 bytes.](assets/v02-diagram.png)
+![A classic mint is five fixed fields totaling 82 bytes, while PYUSD's mint has the same base fields followed by eight type-length-value extension entries, totaling 866 bytes.](assets/v02-diagram.webp)
 
 Read PYUSD's eight entries again, this time as a story. The full set is mintCloseAuthority, permanentDelegate, transferFeeConfig, confidentialTransferMint, confidentialTransferFeeConfig, transferHook, metadataPointer, and tokenMetadata. That is a compliance-shaped loadout. A permanent delegate means Paxos, the regulated issuer, can move or burn PYUSD from any account: seizure powers, the thing a court order demands. The confidential transfer pair is privacy rails. The metadata pair puts the token's name and symbol on-chain in the mint itself instead of in a separate ecosystem's account. And two of the entries are loaded but not firing: the transfer fee is configured at 0 basis points with a maximum of 0, and the transfer hook, the extension that would let a program run on every single transfer, has `programId: null`.
 
@@ -145,7 +145,7 @@ Now, the reason this lesson exists on day one, before any building: everything y
 
 On Solana in 2026 that menu has four serious entries. A classic SPL mint: 82 bytes, no extensions, boring on purpose, supported by literally everything. A Token-2022 mint with a chosen extension set: programmable behavior at the cost of venue-by-venue compatibility questions. A Metaplex Core asset: the current recommended standard for NFT work, a different program family entirely. And a compressed NFT: state that lives in a Merkle tree instead of its own account, a thousand-fold cost reduction with its own read-path consequences.
 
-![A four-way comparison of classic SPL mints, Token-2022 mints with extensions, Metaplex Core assets, and compressed NFTs, each summarized by on-chain shape, reputation, and course coverage.](assets/v03-comparison.png)
+![A four-way comparison of classic SPL mints, Token-2022 mints with extensions, Metaplex Core assets, and compressed NFTs, each summarized by on-chain shape, reputation, and course coverage.](assets/v03-comparison.webp)
 
 Here is the thesis, and it is the closest thing to philosophy you get today. Each of those four is not a product tier; it is a different answer to the question "what should the chain enforce about this asset?" A classic mint answers "almost nothing beyond supply and freeze." PYUSD's extension set answers "seizure, fees, privacy, and metadata, some of it pre-wired and dormant." A decision like that is only real if you can verify what was actually decided, and the only place the decision is written down is the bytes you read today. Whitepapers describe intentions. Mints are the law. You cannot choose an asset primitive you cannot read, and until this morning you could not read one. That is why decoding came before everything, including the toolchain.
 
@@ -155,7 +155,7 @@ There is a fair objection lurking here, and it is the one I would have raised a 
 
 Meanwhile the official education about all this froze mid-plot. The solana-foundation developer-content repository, the source behind a whole generation of official courses, was archived on January 24, 2025. Every course built from it predates ScaledUiAmount, Pausable, ConfidentialMintBurn, and the p-token engine swap. Think about what that means for one beat: the tokens you decode today are newer than the tutorials that were supposed to explain them.
 
-![A timeline from PYUSD's May 2024 launch through the January 2025 archiving of official developer content to the 2026 features no tutorial covers, ending with the reader decoding the mint.](assets/v04-timeline.png)
+![A timeline from PYUSD's May 2024 launch through the January 2025 archiving of official developer content to the 2026 features no tutorial covers, ending with the reader decoding the mint.](assets/v04-timeline.webp)
 
 That archive date is why this course has a testing-thread discipline you will meet over and over: **measure, do not memorize.** Numbers about a live system rot. Which brings me to the second number I promised you, the one you will produce yourself in the lab. A plain transfer on the classic SPL Token program, the boring 82-byte-mint kind, currently costs 76 compute units. **Compute units**, CU, are Solana's meter for on-chain work: every instruction runs against a budget (200,000 by default, and you will see that exact figure in a log line shortly), and what it consumes is reported by the runtime itself. For years that same transfer cost 4,645 CU. In 2026 the implementation behind the classic token program was swapped out from under the interface, and the price collapsed. Same program address, same instruction bytes, a sixty-fold drop. How that swap was even possible without anyone's wallet breaking is lesson three of this module, and it is one of the better systems stories on Solana. Today you just measure the aftermath, and you refuse to memorize it, because a number that dropped sixty-fold once can move again.
 
@@ -165,7 +165,7 @@ Everything in this course builds one thing. **Overgrowth** is a co-op farming an
 
 This module is the on-ramp, and it runs deliberately backwards: concrete first, foundations second. Today you borrowed a decoder and felt two numbers you cannot explain. Next lesson you stop borrowing: you build the decoder yourself, starting from the 82-byte bare mint and working up through the TLV walk, and that inspector becomes the first real tool in the Overgrowth kit, the one later lessons call on. Lesson three explains the 76. Lesson four turns the extension catalog into a choosing framework and closes the module with SPROUT as its worked example; the actual spec-and-size decision for SPROUT opens the next module's design conversation, with the framework in your hands.
 
-![A four-step module map showing today's two unexplained measurements resolved by the inspector build in lesson two, the engine swap in lesson three, and the choice framework in lesson four.](assets/v05-flowchart.png)
+![A four-step module map showing today's two unexplained measurements resolved by the inspector build in lesson two, the engine swap in lesson three, and the choice framework in lesson four.](assets/v05-flowchart.webp)
 
 Enough theory. Go measure the second number.
 
@@ -331,7 +331,7 @@ There it is, from the runtime's own mouth: `consumed 76 of 200000 compute units`
 
 **6. Checkpoint.** You are done with the lab when you can point at four things in your own terminal output: the two owner programs (`Tokenz...` and `Tokenkeg...`), the 866-vs-82 size gap, the `null` hook on an extension that exists, and the line where the runtime reports 76 CU. If any of the scripts failed instead, the overwhelmingly likely causes are Node below 20 (no `fetch`) or the public RPC rate-limiting you; wait thirty seconds and re-run, or swap in any RPC endpoint you already use.
 
-![A bar chart showing Transfer dropping from 4,645 to 76 CU and TransferChecked from 6,200 to 105 after the engine swap, with current figures measured live and historical figures cited.](assets/v06-chart.png)
+![A bar chart showing Transfer dropping from 4,645 to 76 CU and TransferChecked from 6,200 to 105 after the engine swap, with current figures measured live and historical figures cited.](assets/v06-chart.webp)
 
 ## Challenge
 

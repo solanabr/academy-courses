@@ -33,7 +33,7 @@ Esta es la forma más limpia que conozco de tener el catálogo de Token-2022 en 
 
 La distinción es física, no retórica. Viste en m01-l2 que un mint y una cuenta de token son los dos una base de 165 bytes más un byte de tipo más un recorrido TLV. Las extensiones del lado del mint viven en el TLV del mint; las protecciones del lado de la cuenta viven en el TLV de la cuenta del tenedor. Cuando tu inspector `decode-mint` recorre PYUSD imprime entradas de mint. Cuando lo apuntas a tu propia ATA más adelante en el lab, vas a ver entradas de cuenta. Mismos bytes, mismo recorrido, políticas opuestas.
 
-![Dos cajas contrastan las extensiones de poder del lado del mint con las extensiones de rechazo del lado de la cuenta, con una flecha que muestra NonTransferable en el mint forzando NonTransferableAccount e ImmutableOwner dentro de las cuentas de los tenedores.](assets/v01-diagram.png)
+![Dos cajas contrastan las extensiones de poder del lado del mint con las extensiones de rechazo del lado de la cuenta, con una flecha que muestra NonTransferable en el mint forzando NonTransferableAccount e ImmutableOwner dentro de las cuentas de los tenedores.](assets/v01-diagram.webp)
 
 Una nota al pie, y corta, ya que m02-l1 contó la historia del archivo: las protecciones del lado de la cuenta que estás conectando hoy son mecánicas de la era 2026 que los cursos canónicos congelados nunca alcanzaron. Los docs que sí existen describen cada extensión por separado; lo que no enseñan es la parte que muerde, los emparejamientos forzados y los impuestos de integración. Así que ahí es donde vamos a gastar nuestro tiempo.
 
@@ -47,7 +47,7 @@ Ahora deriva la parte que los docs enuncian pero nunca explican. Supón que el p
 
 Por eso el emparejamiento es forzado. Cuando inicializas una cuenta de token para un mint NonTransferable, Token-2022 se niega a crearla salvo que la cuenta lleve ImmutableOwner, y le estampa a la cuenta una extensión marcadora, NonTransferableAccount (tipo 13), que deja registrado que esta cuenta guarda tokens soulbound. El par [NonTransferableAccount, ImmutableOwner] aparece en cada cuenta de tenedor, siempre, o la cuenta no puede existir. Cierra la puerta de la transferencia y tienes que soldar también la puerta de la propiedad, o la primera puerta era decoración. Eso no es una convención que sigas. El programa lo hace cumplir, y en el lab vas a leer las dos entradas sacándolas del TLV de tu propia cuenta.
 
-![Diagrama de flujo que muestra un mint no transferible bloqueando transferencias con el error 0x25 y, mediante el par forzado de NonTransferableAccount más ImmutableOwner, bloqueando también la reasignación de dueño con el error 0x22, y cerrando así el resquicio de la venta de la cuenta.](assets/v02-flowchart.png)
+![Diagrama de flujo que muestra un mint no transferible bloqueando transferencias con el error 0x25 y, mediante el par forzado de NonTransferableAccount más ImmutableOwner, bloqueando también la reasignación de dueño con el error 0x22, y cerrando así el resquicio de la venta de la cuenta.](assets/v02-flowchart.webp)
 
 La forma tiene un nombre que vale la pena cargar: soulbound-fungible. No un NFT con supply 1 y un estándar de metadatos atornillado encima, que es adonde va el módulo 6. Un mint fungible ordinario, decimals 0, el supply que quieras, cuyas unidades están soldadas a quien sea que las recibió. Una insignia aquí es solo un número que no se puede mover.
 
@@ -65,7 +65,7 @@ La extensión hace un solo trabajo: bloquea la autoridad de dueño de la cuenta 
 
 Así que el programa de ATA lo cerró: cada cuenta de token asociada ya viene con ImmutableOwner por defecto. En Token-2022 es una entrada TLV real que hace cumplir de verdad. Y aquí hay un detalle que de verdad me encanta: el programa SPL Token clásico no puede almacenar extensiones en absoluto, así que cuando el programa de ATA le manda InitializeImmutableOwner, el token clásico acepta la instrucción como un no-op y registra "Please upgrade to SPL Token 2022 for immutable owner support". Un encogimiento de hombros cortés, preservado en cada creación de ATA clásica que hayas simulado alguna vez. La invariante de dirección derivada importa tanto que un programa la hace cumplir y el otro al menos hace el gesto. Entre los defectos silenciosos, este es una bendición.
 
-![Muchos remitentes computan la misma dirección de ATA derivada, así que reasignar su dueño redirigiría los depósitos futuros, y ImmutableOwner hace que esa reasignación revierta con el error 0x22.](assets/v03-diagram.png)
+![Muchos remitentes computan la misma dirección de ATA derivada, así que reasignar su dueño redirigiría los depósitos futuros, y ImmutableOwner hace que esa reasignación revierta con el error 0x22.](assets/v03-diagram.webp)
 
 El rechazo que te compra es concreto, y lo vas a disparar en el lab: un SetAuthority con tipo de autoridad AccountOwner contra una cuenta con ImmutableOwner revierte con el error de programa personalizado 0x22 (decimal 34). En una cuenta así, la reasignación de dueño desapareció en vez de quedar meramente restringida.
 
@@ -77,7 +77,7 @@ La mecánica: MemoTransfer (tipo 8) es una extensión de cuenta, activada por el
 
 Pero mira quién paga. Tú no: activaste una instrucción y te quedaste con contabilidad impuesta por el runtime. El costo cae sobre cada remitente, para siempre. Un socio que integra tu tesorería escribe una transferencia normal y correcta, la prueba contra cuentas normales, la entrega, y revierte en producción contra la tuya. Nada en la API de transferencia les avisó; el requisito vive en el TLV de TU cuenta, y su código nunca miró. Esto no es hipotético. La checklist de integración de Token-2022 de Meteora les dice a los integradores, textualmente, que "ensure destinations accept memo-required", que es un DEX documentando la configuración de tu cuenta como un peligro que sus socios tienen que sortear en código. Cuando la checklist de una plataforma viva nombra tu extensión, créele a la checklist.
 
-![Dos carriles de transacción muestran una transferencia sin memo revirtiendo con el error 0x24 en la barrera de memo del destino, mientras que una transferencia idéntica precedida por una instrucción de memo sí llega.](assets/v04-flowchart.png)
+![Dos carriles de transacción muestran una transferencia sin memo revirtiendo con el error 0x24 en la barrera de memo del destino, mientras que una transferencia idéntica precedida por una instrucción de memo sí llega.](assets/v04-flowchart.webp)
 
 Anticipando la pregunta que deberías estarte haciendo: ¿puede el dueño apagarlo? Sí. MemoTransfer es simétrica, activar y desactivar existen las dos, las dos firmadas por el dueño. Es el veto del tenedor en el sentido más puro: entras, sales, y mientras está encendida, el runtime te hace cumplir el papeleo por ti.
 
@@ -89,7 +89,7 @@ La amenaza a la que apunta: firmas una transacción para algún programa, un jue
 
 La advertencia honesta, y sigue siendo estructural desde l2: CpiGuard defiende la superficie de autoridad de la cuenta misma. Un PermanentDelegate en el mint no es la autoridad de la cuenta. Es un poder a nivel de mint que la cuenta nunca consintió, y pasa de largo por la guarda todas las veces, cosa que comprobaste tú mismo con tus propias dos transacciones la lección pasada. Así que ubica CpiGuard correctamente en tu modelo mental: protección real contra programas que hacen mal uso de autoridades que tú delegaste, cero protección contra poderes que el mint se reservó por encima de ti. Una guarda en tu puerta de entrada, en una casa donde el casero se quedó una llave maestra. Si la lista de trampas dice "suponer que CpiGuard es una defensa completa", el arreglo es sostener los dos hechos a la vez, y nunca dejar que una afirmación de seguridad de billetera se apoye solo en la guarda.
 
-![Diagrama de CpiGuard como un escudo que bloquea las operaciones de autoridad invocadas por CPI mientras que las acciones de nivel superior firmadas por el dueño pasan por una barrera y un movimiento de PermanentDelegate a nivel de mint pasa por encima del escudo sin ser tocado.](assets/v05-diagram.png)
+![Diagrama de CpiGuard como un escudo que bloquea las operaciones de autoridad invocadas por CPI mientras que las acciones de nivel superior firmadas por el dueño pasan por una barrera y un movimiento de PermanentDelegate a nivel de mint pasa por encima del escudo sin ser tocado.](assets/v05-diagram.webp)
 
 ### Lo que cuestan estas protecciones
 
@@ -99,7 +99,7 @@ NonTransferable mata los mercados secundarios por diseño; para una insignia ese
 
 Así que aquí está la regla de decisión, tan sin rodeos como la puedo poner. Echa mano de NonTransferable solo cuando la negociabilidad sea la amenaza y no la función, porque no puedes deshacerla después de `initializeMint`. Echa mano de MemoTransfer solo cuando controlas los dos extremos del cable, o cuando las contrapartes son tan pocas que puedes avisarle a cada una a mano. CpiGuard es casi gratis en cuentas que controlas y una mala cosa de suponer en cuentas que no. ImmutableOwner ya la tienes y no la elegiste. Si no puedes nombrar la operación exacta que quieres que se rechace y la persona exacta a la que el rechazo va a incomodar, no estás eligiendo una protección. Estás decorando un mint.
 
-![Tabla comparativa de NonTransferable, ImmutableOwner, MemoTransfer y CpiGuard que muestra dónde vive cada una, qué rechaza, su código de error observado, y quién carga con el costo.](assets/v06-comparison.png)
+![Tabla comparativa de NonTransferable, ImmutableOwner, MemoTransfer y CpiGuard que muestra dónde vive cada una, qué rechaza, su código de error observado, y quién carga con el costo.](assets/v06-comparison.webp)
 
 Fíjate en el tema: las cuatro vuelven cosas imposibles en vez de posibles, de forma selectiva, y la disciplina de ingeniería que exigen es comprobar la imposibilidad en vez de afirmarla. Que es precisamente lo que hace el lab.
 
@@ -107,7 +107,7 @@ Fíjate en el tema: las cuatro vuelven cosas imposibles en vez de posibles, de f
 
 El artefacto que esta lección le agrega al toolkit de Overgrowth es `sprout-mint-protections`: un mint de insignia soulbound con su par de cuenta forzado, y una tesorería con memo obligatorio que rechaza los depósitos sin etiquetar, todo comprobado por un script de criterio donde las afirmaciones son reversiones. Se construye al lado de tus mints de autoridad de m02-l2; estás apilando una segunda capa, no reemplazando la primera. Corrí este mismo criterio cuatro veces mientras escribía esta lección, sobre un simnet fresco cada vez: los mismos tres rechazos, los mismos códigos de error, en cada corrida. La tuya debería ser igual de aburrida.
 
-![Pipeline de los ocho pasos del lab, desde el fondeo pasando por la creación del mint soulbound, la afirmación del par forzado, tres reversiones esperadas, el depósito con memo y CpiGuard, terminando en un criterio en verde.](assets/v07-flowchart.png)
+![Pipeline de los ocho pasos del lab, desde el fondeo pasando por la creación del mint soulbound, la afirmación del par forzado, tres reversiones esperadas, el depósito con memo y CpiGuard, terminando en un criterio en verde.](assets/v07-flowchart.webp)
 
 1. **Workspace y pins.** Trabaja en la raíz del workspace, el layout que estableció m02-l2 (deps compartidas en el `package.json` raíz, código de lección bajo `labs/`), con el simnet del inicio todavía corriendo. Los pins son el set de m02-l1 más un recién llegado, memo, y la misma regla del párrafo de pins de esa lección decide cada versión aquí: el minor actual que hace peer con kit ^7, vuelve a verificar cuando leas esto.
 
@@ -283,7 +283,7 @@ El artefacto que esta lección le agrega al toolkit de Overgrowth es `sprout-min
 
    Nunca pediste ninguna de las dos extensiones. Inicializaste un mint NonTransferable y una ATA ordinaria, y el programa puso las dos entradas ahí porque la cuenta no podía existir legalmente sin ellas. Para una segunda opinión directo de los bytes, apunta tu propio inspector a la cuenta (`npx tsx decode-mint.ts <aliceBadge address> http://127.0.0.1:8899`): el recorrido TLV que escribiste en m01-l2 lee las cuentas de token exactamente igual que los mints, y va a imprimir el tipo 7 y el tipo 13 junto a los nombres.
 
-![Salida anotada del inspector para la cuenta del tenedor de la insignia, que muestra una base de 165 bytes, el byte de tipo de cuenta 2, y dos entradas TLV forzadas de longitud cero, ImmutableOwner tipo 7 y NonTransferableAccount tipo 13.](assets/v08-annotated-code.png)
+![Salida anotada del inspector para la cuenta del tenedor de la insignia, que muestra una base de 165 bytes, el byte de tipo de cuenta 2, y dos entradas TLV forzadas de longitud cero, ImmutableOwner tipo 7 y NonTransferableAccount tipo 13.](assets/v08-annotated-code.webp)
 
 5. **Dos rechazos, comprobados.** Ahora vuelve falsable la teoría. Alice, la dueña legítima, firma una transferencia de su propia insignia hacia bob: tiene que revertir. Después intenta pasarle la cuenta misma a bob vía SetAuthority: tiene que revertir. Las dos pasan por `expectRevert`, así que si cualquiera tiene éxito, el criterio muere ruidosamente.
 

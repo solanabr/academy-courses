@@ -12,7 +12,7 @@ So close the notes. Browser tabs included. Here are the three briefs.
 
 **Brief three, the co-op share.** A food co-op tokenizes member shares, one issuance per member, about 900 of them, divisible because the annual patronage split lands as fractions. The board must be able to freeze a share when a member is expelled, and the share must never trade on a public venue.
 
-![A blank six-column decision table with one row per cold brief and empty cells for primitive family, extension set, compatibility verdict, economy rail, and defense.](assets/v01-table.png)
+![A blank six-column decision table with one row per cold brief and empty cells for primitive family, extension set, compatibility verdict, economy rail, and defense.](assets/v01-table.webp)
 
 Now fill four cells for each brief, in a text file, by hand: the primitive family, the extension or plugin set, the compatibility verdict, the one economy rail. One sentence of defense per row. No searching, no scrolling back. Give it fifteen minutes and accept whatever comes out, blanks and all.
 
@@ -32,7 +32,7 @@ The **conflict matrix** from module one answers "will this mint even initialize?
 
 The **compatibility thesis** from module five answers a colder question: "will anyone be able to trade it?" Raydium's CP-Swap allowlist is exactly five Token-2022 extensions, and you proved the shape of the rule with your own predictor. It is `every`, not `some`. Five allowlisted extensions plus one refused extension is still refused, because the pool's exposure to a permanent delegate does not shrink when a fee config sits next to it. Raydium wrote the reason down in plain language: a holder of the delegate can sweep any token account, including the pool vault. The escape hatch is a hardcoded four-entry `MINT_WHITELIST`, which is not a thing you apply for on a Tuesday.
 
-![A two-panel comparison of the conflict matrix, which asks whether a mint initializes, against the compatibility thesis, which asks whether a venue prices it, checked in that order.](assets/v02-comparison.png)
+![A two-panel comparison of the conflict matrix, which asks whether a mint initializes, against the compatibility thesis, which asks whether a venue prices it, checked in that order.](assets/v02-comparison.webp)
 
 ### Row one, checked
 
@@ -50,7 +50,7 @@ Cheap at a million is compression's job and nothing else's. Metaplex Core is gen
 
 Not sellable is the half that used to break this. Folklore from 2024 says compressed NFTs cannot be frozen or made soulbound, which was true then and is simply false now. Bubblegum v2 ships `set_non_transferable_v2`, and a compressed NFT can be soulbound at mint. So the row is a cNFT under the club's collection, made non-transferable, with a gate as its rail, and the verdict cell reads not applicable because a soulbound badge was never going to a pool.
 
-![A log-scale bar chart comparing the cost of one million holdings across Core assets, classic SPL token accounts, and a single Bubblegum v2 tree, which is cheaper by more than two orders of magnitude.](assets/v03-chart.png)
+![A log-scale bar chart comparing the cost of one million holdings across Core assets, classic SPL token accounts, and a single Bubblegum v2 tree, which is cheaper by more than two orders of magnitude.](assets/v03-chart.webp)
 
 ### Row three, checked
 
@@ -287,7 +287,7 @@ You should see three FAIL lines and `0/3 rows survive the rules` at exit 1. The 
 
 **5.** Run it again and read every problem line as a pointer rather than a verdict. A row that fails on `must stay tradeable` sends you to module five. A row failing on cost sends you to the compression lesson. A row with no rail sends you to module nine. Rows that pass are not proof you are right, they are proof you are not contradicting yourself, which is a lower and more honest bar than it sounds.
 
-![A flowchart of the eight checks in score-table.ts, from the conflict matrix through fungibility and routability to derived cost, feeding a shared problems list that decides PASS or FAIL.](assets/v04-flowchart.png)
+![A flowchart of the eight checks in score-table.ts, from the conflict matrix through fungibility and routability to derived cost, feeding a shared problems list that decides PASS or FAIL.](assets/v04-flowchart.webp)
 
 ## Challenge
 
@@ -330,7 +330,7 @@ When I ran that on 2026-08-22 it printed `ACTIVE at slot 419472000`, the first s
 
 **DAS as the unifier.** One read interface over a fungible mint with extensions, a Core asset, and a compressed leaf. When somebody hands you an address in two years and asks what it is, you have a script for that.
 
-![A radial diagram centered on an unknown address, with four spokes for the course's four durable ideas, each labeled with its question and its proving artifact.](assets/v05-diagram.png)
+![A radial diagram centered on an unknown address, with four spokes for the course's four durable ideas, each labeled with its question and its proving artifact.](assets/v05-diagram.webp)
 
 ### What this course does not know
 
@@ -348,7 +348,7 @@ The **Master Anchor V2** course is the framework itself. Macros, constraints, CP
 
 Official Solana education froze mid-plot. The `solana-foundation/developer-content` repository went read-only on 2025-01-24, and every official course sitting behind those links predates `ScaledUiAmount`, `Pausable`, `ConfidentialMintBurn`, Bubblegum v2, Genesis, and p-token. That is not a complaint about the people who wrote them. It is the single best argument for the habit this checkpoint was training: re-derive, re-probe, re-read the source, because the ecosystem's own canonical text can and did stop updating while the chain kept moving.
 
-![A timeline from 2024 to August 2026 marking PYUSD's launch, the archiving of official developer content, SimpleHash's shutdown, the SIMD-0266 merge, and the p-token gate activation.](assets/v06-timeline.png)
+![A timeline from 2024 to August 2026 marking PYUSD's launch, the archiving of official developer content, SimpleHash's shutdown, the SIMD-0266 merge, and the p-token gate activation.](assets/v06-timeline.webp)
 
 Now the favor, and it is a real one. Every number in this course is dated and most of them will drift: the compute units, the allowlist contents, the per-asset costs, the tool versions, the graduation constants. If you re-run a probe from any lesson and your output disagrees with mine, post the lesson, the exact command, and what you got in the course feedback channel. That is not a bug report as a courtesy. It is the course's actual maintenance mechanism, and a learner who catches a stale number is the habit working out loud in front of everybody else.
 

@@ -38,7 +38,7 @@ A compressão ZK não manda o caminho. Ela manda uma prova de validade: uma prov
 
 Compare com papelada. A prova de Merkle é a cadeia inteira de recibos, e um histórico mais longo significa uma pasta mais grossa. A prova de validade é uma declaração reconhecida em cartório de que a pasta confere, e o carimbo do cartório tem o mesmo tamanho para uma pasta de dez páginas ou de dez mil. Onde a analogia quebra, e isso importa: o cartório aqui é um prover, off-chain, e alguém tem que rodá-lo e te entregar o carimbo a cada transação. Tamanho constante não é a mesma coisa que de graça.
 
-![Comparação entre a prova de Merkle do Bubblegum, que cresce com a profundidade da árvore e é encurtada por um canopy on-chain, e a prova de validade Groth16 de 128 bytes constantes da compressão ZK sobre contas generalizadas.](assets/v01-comparison.png)
+![Comparação entre a prova de Merkle do Bubblegum, que cresce com a profundidade da árvore e é encurtada por um canopy on-chain, e a prova de validade Groth16 de 128 bytes constantes da compressão ZK sobre contas generalizadas.](assets/v01-comparison.webp)
 
 ### O que uma conta comprimida é de fato
 
@@ -50,7 +50,7 @@ Um cToken é essa maquinaria aplicada a um saldo de token: uma conta comprimida 
 
 A parte que as pessoas pulam, e a parte que faz dos dois trilhos sistemas genuinamente diferentes em vez de duas configurações de um sistema só: a compressão ZK não é construída sobre account compression em nenhum dos dois sabores, nem a original da SPL nem o fork mpl em que o Bubblegum v2 roda. Programa diferente, maquinaria de árvore diferente, função de hash diferente da que as árvores do Bubblegum usam. Conhecer o Bubblegum não quer dizer que você conhece isto. Quer dizer que você tem a intuição e nenhuma das interfaces.
 
-![Um saldo de token comprimido é repartido entre uma raiz de árvore de estado on-chain, o conteúdo no ledger e um indexador Photon que serve as leituras e a prova de validade de 128 bytes por escrita.](assets/v02-diagram.png)
+![Um saldo de token comprimido é repartido entre uma raiz de árvore de estado on-chain, o conteúdo no ledger e um indexador Photon que serve as leituras e a prova de validade de 128 bytes por escrita.](assets/v02-diagram.webp)
 
 ### O custo, item por item
 
@@ -71,7 +71,7 @@ Iguale as duas colunas de lamports e você chega no número que o comando de uma
 
 Existe uma versão mais afiada desse argumento. Os 1,855,569 lamports da conta clássica são rent, e rent é um depósito: feche a conta e você recebe de volta. Os 5,300 lamports por escrita da conta comprimida são gastos. Então o break-even honesto é mais cedo que 349, e o motivo para ainda citar 349 é que a maioria das pessoas nunca fecha as contas de token e por isso nunca sente o reembolso. A orientação que você vai ver citada no ecossistema é de mais ou menos mil escritas ao longo da vida como a linha onde a compressão para de compensar. Nossa aritmética cruza bem antes disso. Trate mil como um teto generoso, não como um alvo.
 
-![Gráfico de linhas onde o caminho comprimido sobe a 5,300 lamports por escrita a partir de um início de 5,000 lamports e cruza a linha plana de 1,855,569 lamports de rent clássico em 349 escritas.](assets/v03-chart.png)
+![Gráfico de linhas onde o caminho comprimido sobe a 5,300 lamports por escrita a partir de um início de 5,000 lamports e cruza a linha plana de 1,855,569 lamports de rent clássico em 349 escritas.](assets/v03-chart.webp)
 
 ### As respostas ingênuas, descartadas em níveis
 
@@ -99,7 +99,7 @@ A partir dessas duas variáveis, três formatos concretos de falha:
 
 E o formato que ganha, dito com a mesma clareza: estado criado uma vez, escrito uma ou duas vezes, mantido por um número enorme de donos distintos. Airdrops. Distribuições. Direitos de claim. Artefatos de uso único. Que é exatamente o formato do compost drop que a Overgrowth roda no módulo 8 (uma distribuição em massa de pontos de compost para todo jogador, primeira aparição dele aqui como prévia), e exatamente por que aquele módulo usa este trilho em vez de pagar cerca de 186 SOL para criar contas de token para pessoas que talvez nunca as toquem.
 
-![Tabela de decisão com quatro cargas de trabalho mostrando que só o airdrop de uma escrita por conta comprime, enquanto o livro-razão com muita escrita, o estado de pool no mesmo bloco e o blob de receita de quatro kilobytes continuam todos como contas clássicas.](assets/v04-table.png)
+![Tabela de decisão com quatro cargas de trabalho mostrando que só o airdrop de uma escrita por conta comprime, enquanto o livro-razão com muita escrita, o estado de pool no mesmo bloco e o blob de receita de quatro kilobytes continuam todos como contas clássicas.](assets/v04-table.webp)
 
 ### A descompressão é uma porta
 
@@ -107,7 +107,7 @@ Nada disso faz dos tokens comprimidos um beco sem saída. A descompressão é de
 
 Leia a ida e volta como um padrão de design em vez de uma saída de emergência. Distribuição barata para muitas carteiras, a maioria das quais fica parada, e a minoria que age paga uma descompressão única para entrar na vida normal de token. O custo cai sobre os usuários que de fato apareceram em vez de cair sobre você na hora do drop, por destinatário, adiantado. Essa realocação é o ponto do trilho inteiro.
 
-![Fluxograma da ida e volta do token comprimido onde holders parados não custam mais nada e holders ativos descomprimem para uma conta de token SPL normal antes de fazer swap na Jupiter.](assets/v05-flowchart.png)
+![Fluxograma da ida e volta do token comprimido onde holders parados não custam mais nada e holders ativos descomprimem para uma conta de token SPL normal antes de fazer swap na Jupiter.](assets/v05-flowchart.webp)
 
 ### O Photon, e o imposto de leitura que você já conhece
 
@@ -119,7 +119,7 @@ Encanamento de provedor em escala, backfills, firehoses gRPC, rodar seu próprio
 
 E essa dependência tem um relógio em cima dela, que é de onde o desqualificador do mesmo bloco vem mecanicamente, e não como uma regra que eu pedi para você decorar. Uma prova é uma declaração sobre uma raiz de árvore específica. Qualquer escrita que toca a árvore move a raiz, e toda prova buscada contra a raiz anterior agora descreve uma árvore que não existe mais. No caso comum isso não é problema, porque você busca, monta e confirma dentro de uma janela em que nada mais tocou a sua subárvore. No caso do AMM é fatal, porque a conta está sendo escrita várias vezes por bloco por gente que não é você, e a sua prova já estava velha antes de a sua transação chegar no leader. A aritmética de lamports nunca tem chance de importar ali. Note que essa é a mesma falha que o changelog buffer do Bubblegum absorve mas não remove (o canopy só encurta as provas que vão na rede; o buffer é o botão de concorrência, conforme a m07-l1), e é por isso que a pressão de escrita concorrente é uma propriedade da família de compressão como um todo e não de uma implementação.
 
-![Diagrama do caminho de escrita comprimido onde uma subárvore quieta mantém a mesma raiz e confirma, enquanto escritores concorrentes no mesmo bloco movem a raiz e deixam velha a prova já buscada.](assets/v06-diagram.png)
+![Diagrama do caminho de escrita comprimido onde uma subárvore quieta mantém a mesma raiz e confirma, enquanto escritores concorrentes no mesmo bloco movem a raiz e deixam velha a prova já buscada.](assets/v06-diagram.webp)
 
 ### O Light Token Program: uma direção, não um default
 
@@ -139,7 +139,7 @@ E aqui está a metade durável, que sobrevive à documentação se mexendo debai
 
 Mais uma coisa, e esta é uma confissão, não um fato. Um rascunho inicial desta lição trazia um número de compute units para o caminho quente do Light Token. Ele veio da minha memória, lia lindamente, e não sobreviveu à revisão, porque não aparece em nenhuma fonte publicada. Não existe número de CU publicado para esse caminho. Não cite nenhum, nem de mim, nem de um post de blog, nem de um assistente que soa confiante. Em um programa tão novo, um número sem fonte é um número que alguém inventou.
 
-![Linha do tempo mostrando os tokens comprimidos indo da manchete de airdrop de 2024 até uma página de documentação de 2026 rotulada brevemente como legacy, ao lado de um Light Token Program só de devnet e sem número de compute publicado.](assets/v07-timeline.png)
+![Linha do tempo mostrando os tokens comprimidos indo da manchete de airdrop de 2024 até uma página de documentação de 2026 rotulada brevemente como legacy, ao lado de um Light Token Program só de devnet e sem número de compute publicado.](assets/v07-timeline.webp)
 
 ### O trade-off, nomeado
 
@@ -275,7 +275,7 @@ Você vai codificar o raciocínio acima como um programa pequeno, porque um vere
 
     A ordem importa aqui, e é a única decisão de design do arquivo. Os dois desqualificadores rodam antes da aritmética, porque uma carga de trabalho pode ser mais barata em lamports e ainda assim ter o formato errado. A linha 4 da tabela de decisão é exatamente esse caso.
 
-![Diagrama das cancelas da função decide onde atualizações no mesmo bloco e acessos grandes demais são rejeitados antes do teste de break-even em lamports, com o blob de crafting-recipe rejeitado apesar de ser mais barato.](assets/v08-annotated-code.png)
+![Diagrama das cancelas da função decide onde atualizações no mesmo bloco e acessos grandes demais são rejeitados antes do teste de break-even em lamports, com o blob de crafting-recipe rejeitado apesar de ser mais barato.](assets/v08-annotated-code.webp)
 
 4. **Os preenchimentos.** Este é o gabarito dos dois TODOs do passo 3, e em uma página renderizada nada fica fisicamente entre o enunciado e este bloco, então a cancela é comportamental e é sua: se você rolou até aqui sem escrever as suas duas regras antes, volte, escreva-as, depois faça o diff. A lição só sabe o que as suas mãos fizeram. Desqualificador 1:
 

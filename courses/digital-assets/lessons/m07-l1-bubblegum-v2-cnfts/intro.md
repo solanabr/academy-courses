@@ -84,7 +84,7 @@ That number is not a hypothetical anyone invented for a course. Solana had alrea
 
 So, the reframe. You do not actually need a million accounts. You need to be able to *prove*, for any one crate, that it exists and who owns it. Those are different requirements, and only the second one is load-bearing.
 
-![A two-column comparison of a million classic token accounts costing roughly two thousand SOL in rent against one Bubblegum v2 tree of the same capacity costing single-digit SOL, with DAS-only reads and proof-carrying writes.](assets/v01-comparison.png)
+![A two-column comparison of a million classic token accounts costing roughly two thousand SOL in rent against one Bubblegum v2 tree of the same capacity costing single-digit SOL, with DAS-only reads and proof-carrying writes.](assets/v01-comparison.webp)
 
 ### What a leaf actually is
 
@@ -96,7 +96,7 @@ If you have used git, you already have the intuition. A commit hash does not con
 
 That proof is the whole bargain. You stopped paying for storage and started paying for proofs.
 
-![One highlighted path climbs a twenty-level Merkle tree from a leaf to the on-chain root, with the twenty shaded sibling hashes forming a 640-byte proof.](assets/v02-diagram.png)
+![One highlighted path climbs a twenty-level Merkle tree from a leaf to the on-chain root, with the twenty shaded sibling hashes forming a 640-byte proof.](assets/v02-diagram.webp)
 
 It is worth being precise about what that swap actually costs, because the asymmetry is the entire reason compression is viable rather than merely clever. Storing one asset as an account is O(1) to read and O(n) in rent across n assets, and rent is the expensive resource because it is validator memory held forever. Storing one asset as a leaf is O(1) in rent across n assets, because the tree account is a fixed size regardless of how full it is, and O(log n) per write, because a proof is one sibling hash per level. Doubling your supply from a million to two million does not double the rent. It adds one level, which adds one sibling hash to every proof and thirty-two bytes to every write. That is the trade the design makes: it converts a linear storage cost into a logarithmic bandwidth cost. Bandwidth you can batch, cache, and shorten with a canopy. Rent you can only pay.
 
@@ -106,7 +106,7 @@ One name in the next visual needs its introduction before you meet it there: the
 
 The **asset id** falls out of the same design. A cNFT has no account, so it needs some canonical address to be referred to by, and Bubblegum derives it: the asset id is `PDA(tree, leaf index)`. Deterministic, derivable offline, stable forever. You will derive one in the lab with `findLeafAssetIdPda` and then watch a DAS provider hand you back the same string.
 
-![One tree account holds the root, canopy, changelog buffer, and leaf slots beside a separate DAS index of readable metadata, with the nonexistent per-asset account struck through.](assets/v03-diagram.png)
+![One tree account holds the root, canopy, changelog buffer, and leaf slots beside a separate DAS index of readable metadata, with the nonexistent per-asset account struck through.](assets/v03-diagram.webp)
 
 ### The changelog buffer, and why proofs go stale
 
@@ -118,7 +118,7 @@ That is what `max_buffer_size` is for. The tree account keeps a **changelog buff
 
 The footgun stated plainly: **re-fetch the proof immediately before every write.** Not at the top of your script. Not once per batch. Immediately before. The helper you will use in the challenge, `getAssetWithProof`, does a fresh DAS round trip every call for exactly this reason, and if you cache its result across a batch of transfers you will get a stream of hashing-mismatch errors that look like a bug in your code and are not.
 
-![A three-lane flowchart contrasting a proof that verifies directly, one replayed forward from the changelog buffer after concurrent writes, and one rejected because the root aged out of the buffer.](assets/v04-flowchart.png)
+![A three-lane flowchart contrasting a proof that verifies directly, one replayed forward from the changelog buffer after concurrent writes, and one rejected because the root aged out of the buffer.](assets/v04-flowchart.webp)
 
 ### The canopy is the money
 
@@ -306,7 +306,7 @@ Read that table twice, because it is the single most useful thing in this lesson
 
 My own bias, for what it is worth: I have watched more projects get burned by an undersized canopy than by an oversized one, because rent is a number you see on day zero and a blown transaction size is a number you see on drop day. If you are unsure, buy the canopy.
 
-![A dual-axis chart where a million-leaf tree grows sevenfold in account bytes as canopy deepens from 0 to 14, while proof nodes per write fall from 20 to 6.](assets/v05-chart.png)
+![A dual-axis chart where a million-leaf tree grows sevenfold in account bytes as canopy deepens from 0 to 14, while proof nodes per write fall from 20 to 6.](assets/v05-chart.webp)
 
 ### Sizing is a one-way door
 
@@ -327,7 +327,7 @@ So the guidance almost writes itself: be generous with depth, be deliberate with
 
 Not every depth and buffer pairing is legal, incidentally, and this is the reason `tree-size.ts` carries that pair table rather than two independent lists of allowed values. The on-chain account layout is generated for a fixed set of combinations: depth 14 accepts buffer 64, 256, 1024 or 2048 and nothing else, depth 26 starts at 512, and buffer 128 is not a legal size at any depth at all. Checking the two fields separately would wave through half a dozen pairings the program will refuse. A bad pairing does not fail gracefully at runtime either, it fails as an unhelpful account-size error after you have already paid the rent, so let the guard throw before you spend.
 
-![A four-row table in account bytes where raising tree depth from 16 thousand to 16 million leaves adds only 20,800 bytes, locating the real cost of a compressed tree in the canopy.](assets/v06-table.png)
+![A four-row table in account bytes where raising tree depth from 16 thousand to 16 million leaves adds only 20,800 bytes, locating the real cost of a compressed tree in the canopy.](assets/v06-table.webp)
 
 ### What changed in v2
 
@@ -369,7 +369,7 @@ One thing v2 kept from V1, and it deserves a sentence because it is the piece pe
 
 The collection row is the one that reaches back into last lesson's work. `MetadataArgsV2` carries `collection` as a bare `Option<PublicKey>`, with the client library's own comment stating that in V2 it "is just a `Pubkey` and is always considered verified." No verify step, no unverified limbo. The Almanac collection account you created in m06-l2 is the literal value you pass, and the mint fails if the collection authority does not sign. Collection first, then members, one level down. Same rule you learned on Core assets.
 
-![A four-stop timeline from Bubblegum V1 in 2023 to Bubblegum v2 in 2026, where the claim that cNFTs cannot be soulbound is finally struck through.](assets/v07-timeline.png)
+![A four-stop timeline from Bubblegum V1 in 2023 to Bubblegum v2 in 2026, where the claim that cNFTs cannot be soulbound is finally struck through.](assets/v07-timeline.webp)
 
 ### The trade-off, named
 
@@ -612,7 +612,7 @@ export DAS_RPC_URL="https://devnet.helius-rpc.com/?api-key=YOUR_KEY"
 
     The CLI reports that the account does not exist. Your crate is real, it is in a verified collection, DAS just described it to you in full, and there is no account. Sit with that for a second, because next lesson is built on exactly this gap.
 
-![A six-step flowchart tracing a Harvest crate from the mintV2 call through leaf hashing, the Noop log, leaf-index parsing, offline asset-id derivation, and finally DAS indexing where getAsset resolves it.](assets/v08-flowchart.png)
+![A six-step flowchart tracing a Harvest crate from the mintV2 call through leaf hashing, the Noop log, leaf-index parsing, offline asset-id derivation, and finally DAS indexing where getAsset resolves it.](assets/v08-flowchart.webp)
 
 7. **Read what the index gave you.** Print the raw `getAsset` response once, just to see the shape:
 
@@ -683,6 +683,6 @@ Three answers you should be able to give without looking anything up. Where does
 
 If your challenge run is red right now, the fix is almost always one of two things. Hashing mismatch means a stale proof: re-fetch immediately before the write, every write, no exceptions. An authority error on `set_non_transferable_v2` means the signer is not a permanent freeze delegate on the Core collection, which means step 2 created your collection without the plugin and you need a fresh one.
 
-![A hub diagram with harvest-crates at the center, fed by the Almanac Core collection and feeding the DAS reader lesson, the compression frontier lesson, and the capstone.](assets/v09-diagram.png)
+![A hub diagram with harvest-crates at the center, fed by the Almanac Core collection and feeding the DAS reader lesson, the compression frontier lesson, and the capstone.](assets/v09-diagram.webp)
 
 You now have SPROUT, Almanac Core assets, and Harvest-crate cNFTs scattered across three different on-chain shapes, and one of them you cannot even fetch with `getAccountInfo`. Next lesson, one script reads all three.

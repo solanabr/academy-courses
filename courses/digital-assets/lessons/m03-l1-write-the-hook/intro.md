@@ -37,7 +37,7 @@ Start from the constraint the whole design is squeezed by. Token-2022 has to inv
 
 The three instructions split cleanly by who calls them:
 
-![Comparison of the three transfer-hook interface instructions, showing which one Token-2022 calls on every transfer and which two the issuer calls.](assets/v01-comparison.png)
+![Comparison of the three transfer-hook interface instructions, showing which one Token-2022 calls on every transfer and which two the issuer calls.](assets/v01-comparison.webp)
 
 Notice the asymmetry. Two of the three instructions are ordinary management calls that an issuer runs from a script, on a good day twice in the life of a mint. The third one runs on the hot path of every transfer that will ever touch the token, and it is the only one whose cost anybody else pays. That asymmetry is the whole ethical argument about hooks, and we will come back to it with numbers.
 
@@ -45,7 +45,7 @@ Notice the asymmetry. Two of the three instructions are ordinary management call
 
 Worth being precise about what registration means here, because it is less than people expect. There is no global registry of hooks. Token-2022 does not keep a table of approved programs, there is no allowlist to get onto, and nothing validates that the program id in a mint's TransferHook extension is even a program. The mint's own extension naming your program id is the entire wiring. Which also means the failure mode when your program does not answer the interface is not a helpful error: Token-2022 hands your program eight bytes it does not recognize, dispatch falls off the end of your match, and you get a fallback error from a program that looks like it was never called at all. If you ever see a hooked transfer die inside your own program with nothing in the log but a fallback complaint, you have a discriminator problem, not a logic problem.
 
-![One program's dispatch table holding three Anchor-namespace discriminators and three interface-namespace ones, with unmatched prefixes falling through to a fallback error.](assets/v02-diagram.png)
+![One program's dispatch table holding three Anchor-namespace discriminators and three interface-namespace ones, with unmatched prefixes falling through to a fallback error.](assets/v02-diagram.webp)
 
 ### The validation account lives on YOUR program
 
@@ -53,7 +53,7 @@ Here is the piece that trips almost everyone the first time, including me the fi
 
 That account is the `ExtraAccountMetaList`, it sits at a PDA seeded by the literal `extra-account-metas` and the mint, and it is owned by YOUR hook program. Not by the mint. Not by Token-2022.
 
-![The mint's TransferHook extension points at the hook program, and the validation PDA hangs off that hook program rather than off the mint or Token-2022.](assets/v03-diagram.png)
+![The mint's TransferHook extension points at the hook program, and the validation PDA hangs off that hook program rather than off the mint or Token-2022.](assets/v03-diagram.webp)
 
 The reference implementation gives you the derivation as a function, `get_extra_account_metas_address(&mint, &program_id)`, and the `program_id` argument is the one people fill in wrong. Pass Token-2022 there and you get a perfectly valid address that no account will ever occupy, so every transfer fails at resolution with an error that says nothing about the real mistake. If you take one derivation rule out of this lesson, take this one: the manifest belongs to the program that needs the accounts, because it is the only party that knows what they are.
 
@@ -65,7 +65,7 @@ Each entry in that list is an `ExtraAccountMeta`, a fixed 35-byte struct. Fixed 
 
 The interesting case is the one your hook uses. Both of the accounts `harvest-hook` needs are PDAs of the hook program derived from the mint, and the mint is not known when you write the list, it is known when the transfer happens. So instead of an address, the entry stores a recipe: a literal seed, then "the key of the account at index 1 of the Execute account list," which is the mint.
 
-![Both of the hook's account-meta entries encode a PDA recipe, a literal seed plus the key of Execute account index 1, the mint, with the treasury entry writable.](assets/v04-annotated-code.png)
+![Both of the hook's account-meta entries encode a PDA recipe, a literal seed plus the key of Execute account index 1, the mint, with the treasury entry writable.](assets/v04-annotated-code.webp)
 
 Two consequences follow from index-based seeds, and both bite in production. First, resolution is positional: if a client resolves the list out of order or drops an entry, every later index-based seed derives a different address, silently, and the transfer reverts with a mismatch that points nowhere useful. Second, the writable flag in the entry is the entry's own, not inherited from the transfer, which is why your treasury log can be written even though everything arriving from the transfer is read-only. We prove that read-only claim in the next lesson, out of the interface crate's own instruction builder; today, take it as the reason the design is safe enough to ship at all.
 
@@ -79,13 +79,13 @@ The trade, then, is sharp and worth pricing before you write a line. What the is
 
 The first is compute. I measured this harness on both paths. A plain Token-2022 `TransferChecked` on a mint with no extensions burned 1,790 CU. The same transfer through the hooked mint landed between roughly 23,000 and 35,000 CU across runs, with the hook's own `Execute` accounting for about 9,400 to 13,500 of that. Ten to twenty times the cost of the transfer it is guarding, for a hook whose entire logic is one boolean scan of an eight-entry array.
 
-![A plain TransferChecked costs 1,790 compute units against 23,108 to 35,292 for the hooked one, of which Execute is 9,448 to 13,448.](assets/v05-chart.png)
+![A plain TransferChecked costs 1,790 compute units against 23,108 to 35,292 for the hooked one, of which Execute is 9,448 to 13,448.](assets/v05-chart.webp)
 
 Worth pausing on that spread, because it is a lesson in itself. The variance is not the allowlist scan, which costs nothing. It is `find_program_address`: every seeds constraint that does not carry a stored bump walks the search, and each iteration costs real compute. Storing canonical bumps is the standard fix and the Master Anchor V2 course covers it as a framework pattern. I am leaving one un-stored bump in this program on purpose so the variance shows up in your own logs.
 
 The second currency is coordination, and it is the expensive one. Because the extra accounts must be in the transaction before it is sent, every wallet, every DEX, every payment integration that ever touches your token has to fetch your validation account, decode those 35-byte entries, resolve each one, and append them in order. Forever. A hook does not just spend the issuer's compute; it pushes a permanent forwarding obligation onto strangers who never agreed to it. That is the fact the next lesson opens on, and it is why a serious slice of the ecosystem simply refuses hooked tokens.
 
-![Before every transfer of a hooked token a client must fetch the validation account, decode its entries, resolve each one, and append them in order.](assets/v06-flowchart.png)
+![Before every transfer of a hooked token a client must fetch the validation account, decode its entries, resolve each one, and append them in order.](assets/v06-flowchart.webp)
 
 Two receipts to place the feature in the real world before we build. PYUSD, the flagship Token-2022 launch on Solana in May 2024 from PayPal and Paxos, ships a compliance-shaped set of eight TLV extensions, and one of them is a transferHook whose `programId` is null. Configured, dormant, reserved. Issuers reach for this slot the moment compliance is on the table, even when they are not ready to use it. And the state of the official material, so you know what exists before we build: solana.com hosts a transfer-hook guide — an Anchor walkthrough with build, deploy and tests — plus an integration guide for the client send path, solana-program.com documents the interface beside a reference implementation, and solana-developers/program-examples carries transfer-hook examples. Walkthroughs to copy exist, in other words. What this lesson adds is the part copying does not give you: pinned versions, measured compute, a hook wired into the SPROUT token you have carried for two modules, and a gate you write yourself and defend against a red test suite.
 
@@ -680,7 +680,7 @@ fn stranger_transfer_fails_the_hook() {
 
 `hooked_transfer` is where the harness is quietly lying to you, and it is worth naming now so the next lesson lands. Those four appended accounts, the two extras in list order, then the hook program, then the validation account, are exactly what a client must supply, in exactly that order. Here I typed them in by hand because I know my own hook. A wallet does not. That gap is the whole subject of the next lesson.
 
-![A hooked transfer runs through Token-2022 into the hook's Execute at depth two, with one failure edge before your logic runs and one inside the gate itself.](assets/v07-flowchart.png)
+![A hooked transfer runs through Token-2022 into the hook's Execute at depth two, with one failure edge before your logic runs and one inside the gate itself.](assets/v07-flowchart.webp)
 
 **9. Run it, and read the red.** Build the program to SBF bytecode first, because the harness loads the compiled `.so`:
 
@@ -752,7 +752,7 @@ Green on both tests, with `harvest-hook: allowed` in the passing log and `Error 
 
 Four ways this build goes wrong, collected in one place because they are the ones that cost hours rather than minutes:
 
-![Four hook footguns paired with cause and fix: wrong PDA program id, unsized holder accounts, expecting Execute to move funds, and retrofitting a create-time extension.](assets/v08-comparison.png)
+![Four hook footguns paired with cause and fix: wrong PDA program id, unsized holder accounts, expecting Execute to move funds, and retrofitting a create-time extension.](assets/v08-comparison.webp)
 
 Two failures I expect during the run itself, so you can self-diagnose instead of bisecting.
 
@@ -760,7 +760,7 @@ If the transfer reverts before `Execute` ever logs anything, you are in failure 
 
 If `cargo build-sbf` succeeds but the harness cannot find the program, check `SO_PATH`. `cargo test` runs with the package root as the working directory, so `target/deploy/harvest_hook.so` is correct for the layout above and wrong if you nested the crate inside a workspace with a shared target directory. If you did nest it, point `SO_PATH` at the workspace's target instead.
 
-![The artifact ladder runs from decode-mint to the finished SPROUT mint to this lesson's harvest-hook, then on to the client resolver, routability, and fee routing.](assets/v09-timeline.png)
+![The artifact ladder runs from decode-mint to the finished SPROUT mint to this lesson's harvest-hook, then on to the client resolver, routability, and fee routing.](assets/v09-timeline.webp)
 
 Take the milestone. You have written a Solana program that other people's software is now obliged to call, and you proved it against a real token program with a real transfer. That is a different kind of artifact from everything else in this course: SPROUT is a configuration, `harvest-hook` is code with an address, and the difference is that code can say no.
 

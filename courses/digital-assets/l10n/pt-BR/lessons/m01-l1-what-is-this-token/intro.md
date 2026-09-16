@@ -121,7 +121,7 @@ Uma **conta de mint** é a conta que define o próprio token: o supply dele, os 
 
 Agora o campo que deveria ter te parado: `owner program: TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`. Esse não é o programa de token que você conhece. O programa SPL Token clássico vive em `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`. O mint do PYUSD pertence a um programa diferente em um endereço diferente: Token-2022, também chamado de Token Extensions. Mesmo trabalho, regulamento diferente, e os dois não se misturam. Uma instrução de token clássico apontada para um mint Token-2022 falha, e vice-versa.
 
-![Dois programas de token separados, o SPL Token clássico sendo dono do mint de 82 bytes do USDC e o Token-2022 sendo dono do mint de 866 bytes do PYUSD com oito extensões, com as instruções incapazes de cruzar entre eles.](assets/v01-diagram.png)
+![Dois programas de token separados, o SPL Token clássico sendo dono do mint de 82 bytes do USDC e o Token-2022 sendo dono do mint de 866 bytes do PYUSD com oito extensões, com as instruções incapazes de cruzar entre eles.](assets/v01-diagram.webp)
 
 Esta é a cilada número um deste curso inteiro, então eu vou dizer sem rodeios: **"SPL token" não é uma coisa só.** Passei um trecho constrangedor do começo do meu trabalho com Solana dizendo "SPL token" como se aquilo nomeasse um padrão único, e entreguei integrações em cima dessa suposição. Culpado, com folga. Me custou um fim de semana de debug na primeira vez que um mint Token-2022 bateu em código que tinha `Tokenkeg` hardcoded. Os dois programas coexistem na mainnet, para sempre, e toda carteira, DEX e indexador tem que lidar com os dois.
 
@@ -131,7 +131,7 @@ Tamanho é o jeito mais rápido de sentir a diferença. Um mint SPL clássico te
 
 Eles foram para as **extensões**: pacotes opcionais de estado e comportamento extra que o Token-2022 deixa um emissor anexar a um mint (ou a contas de token individuais) no momento da criação. Cada extensão é depositada nos dados da conta usando um esquema chamado **TLV**, de tipo-comprimento-valor: uma tag pequena dizendo qual extensão é essa, um comprimento dizendo quantos bytes ela ocupa, e então os bytes de valor em si. Uma depois da outra, como caixas etiquetadas numa fileira. Um decodificador percorre a fileira: lê uma tag, lê um comprimento, pula à frente, repete. Essa caminhada é exatamente o que o parser do RPC fez por você hoje, e exatamente o que você vai implementar sozinho na próxima lição.
 
-![Um mint clássico são cinco campos fixos totalizando 82 bytes, enquanto o mint do PYUSD tem os mesmos campos base seguidos por oito entradas de extensão tipo-comprimento-valor, totalizando 866 bytes.](assets/v02-diagram.png)
+![Um mint clássico são cinco campos fixos totalizando 82 bytes, enquanto o mint do PYUSD tem os mesmos campos base seguidos por oito entradas de extensão tipo-comprimento-valor, totalizando 866 bytes.](assets/v02-diagram.webp)
 
 Leia as oito entradas do PYUSD de novo, desta vez como uma história. O conjunto completo é mintCloseAuthority, permanentDelegate, transferFeeConfig, confidentialTransferMint, confidentialTransferFeeConfig, transferHook, metadataPointer e tokenMetadata. Isso é um loadout com formato de compliance. Um delegado permanente significa que a Paxos, a emissora regulada, pode mover ou queimar PYUSD de qualquer conta: poderes de apreensão, a coisa que uma ordem judicial exige. O par de transferências confidenciais são trilhos de privacidade. O par de metadados coloca o nome e o símbolo do token on-chain no próprio mint em vez de na conta de um ecossistema separado. E duas das entradas estão carregadas mas não disparando: a taxa de transferência está configurada em 0 basis points com um máximo de 0, e o transfer hook, a extensão que deixaria um programa rodar em cada transferência, tem `programId: null`.
 
@@ -145,7 +145,7 @@ Agora, o motivo de esta lição existir no dia um, antes de qualquer construçã
 
 Na Solana em 2026 esse cardápio tem quatro entradas sérias. Um mint SPL clássico: 82 bytes, nenhuma extensão, chato de propósito, suportado por literalmente tudo. Um mint Token-2022 com um conjunto de extensões escolhido: comportamento programável ao custo de perguntas de compatibilidade venue por venue. Um ativo Metaplex Core: o padrão recomendado atualmente para trabalho com NFT, uma família de programas completamente diferente. E um NFT comprimido: estado que vive numa árvore de Merkle em vez de na própria conta, uma redução de custo de mil vezes com as próprias consequências no caminho de leitura.
 
-![Uma comparação de quatro vias entre mints SPL clássicos, mints Token-2022 com extensões, ativos Metaplex Core e NFTs comprimidos, cada um resumido por formato on-chain, reputação e cobertura no curso.](assets/v03-comparison.png)
+![Uma comparação de quatro vias entre mints SPL clássicos, mints Token-2022 com extensões, ativos Metaplex Core e NFTs comprimidos, cada um resumido por formato on-chain, reputação e cobertura no curso.](assets/v03-comparison.webp)
 
 Aqui está a tese, e é a coisa mais próxima de filosofia que você ganha hoje. Cada um desses quatro não é um nível de produto; é uma resposta diferente para a pergunta "o que a chain deveria impor sobre este ativo?" Um mint clássico responde "quase nada além de supply e freeze". O conjunto de extensões do PYUSD responde "apreensão, taxas, privacidade e metadados, parte disso pré-instalada e dormente". Uma decisão dessas só é real se você consegue verificar o que foi de fato decidido, e o único lugar onde a decisão está escrita são os bytes que você leu hoje. Whitepapers descrevem intenções. Mints são a lei. Você não pode escolher uma primitiva de ativo que não consegue ler, e até esta manhã você não conseguia ler nenhuma. É por isso que a decodificação veio antes de tudo, incluindo o toolchain.
 
@@ -155,7 +155,7 @@ Existe uma objeção justa rondando por aqui, e é a que eu teria levantado algu
 
 Enquanto isso a educação oficial sobre tudo isso congelou no meio da trama. O repositório solana-foundation developer-content, a fonte por trás de uma geração inteira de cursos oficiais, foi arquivado em 24 de janeiro de 2025. Todo curso construído a partir dele é anterior a ScaledUiAmount, Pausable, ConfidentialMintBurn e à troca de motor do p-token. Pense no que isso significa por um instante: os tokens que você decodifica hoje são mais novos que os tutoriais que deveriam explicá-los.
 
-![Uma linha do tempo que vai do lançamento do PYUSD em maio de 2024, passando pelo arquivamento do conteúdo oficial de desenvolvedor em janeiro de 2025, até as features de 2026 que nenhum tutorial cobre, terminando com o leitor decodificando o mint.](assets/v04-timeline.png)
+![Uma linha do tempo que vai do lançamento do PYUSD em maio de 2024, passando pelo arquivamento do conteúdo oficial de desenvolvedor em janeiro de 2025, até as features de 2026 que nenhum tutorial cobre, terminando com o leitor decodificando o mint.](assets/v04-timeline.webp)
 
 Essa data de arquivamento é o motivo de este curso ter uma disciplina de linha de testes que você vai encontrar muitas e muitas vezes: **meça, não memorize.** Números sobre um sistema vivo apodrecem. O que me traz ao segundo número que eu te prometi, o que você mesmo vai produzir no lab. Uma transferência simples no programa SPL Token clássico, do tipo chato de mint de 82 bytes, custa hoje 76 unidades de computação. **Unidades de computação**, CU, são o medidor da Solana para trabalho on-chain: toda instrução roda contra um orçamento (200,000 por padrão, e você vai ver esse número exato em uma linha de log daqui a pouco), e o que ela consome é reportado pelo próprio runtime. Durante anos essa mesma transferência custou 4,645 CU. Em 2026 a implementação por trás do programa de token clássico foi trocada por baixo da interface, e o preço despencou. Mesmo endereço de programa, mesmos bytes de instrução, uma queda de sessenta vezes. Como essa troca foi possível sem quebrar a carteira de ninguém é a lição três deste módulo, e é uma das melhores histórias de sistemas da Solana. Hoje você só mede as consequências, e se recusa a memorizá-las, porque um número que caiu sessenta vezes uma vez pode se mover de novo.
 
@@ -165,7 +165,7 @@ Tudo neste curso constrói uma coisa só. **Overgrowth** é um jogo co-op de far
 
 Este módulo é a rampa de entrada, e ele roda de trás para frente de propósito: concreto primeiro, fundamentos depois. Hoje você pegou um decodificador emprestado e sentiu dois números que não consegue explicar. Na próxima lição você para de pegar emprestado: você constrói o decodificador sozinho, começando do mint pelado de 82 bytes e subindo pela caminhada do TLV, e esse inspetor vira a primeira ferramenta de verdade do kit Overgrowth, aquela que as lições seguintes chamam. A lição três explica o 76. A lição quatro transforma o catálogo de extensões em um framework de escolha e fecha o módulo com SPROUT como exemplo trabalhado; a decisão de fato sobre spec e tamanho do SPROUT abre a conversa de design do próximo módulo, com o framework nas suas mãos.
 
-![Um mapa de módulo em quatro passos mostrando as duas medições sem explicação de hoje resolvidas pela construção do inspetor na lição dois, pela troca de motor na lição três e pelo framework de escolha na lição quatro.](assets/v05-flowchart.png)
+![Um mapa de módulo em quatro passos mostrando as duas medições sem explicação de hoje resolvidas pela construção do inspetor na lição dois, pela troca de motor na lição três e pelo framework de escolha na lição quatro.](assets/v05-flowchart.webp)
 
 Chega de teoria. Vá medir o segundo número.
 
@@ -331,7 +331,7 @@ Lá está, da boca do próprio runtime: `consumed 76 of 200000 compute units`. N
 
 **6. Checkpoint.** Você termina o lab quando consegue apontar para quatro coisas na saída do seu próprio terminal: os dois owner programs (`Tokenz...` e `Tokenkeg...`), a diferença de tamanho 866 contra 82, o hook `null` em uma extensão que existe, e a linha onde o runtime reporta 76 CU. Se em vez disso algum dos scripts falhou, as causas esmagadoramente prováveis são Node abaixo do 20 (sem `fetch`) ou o RPC público te limitando por taxa; espere trinta segundos e rode de novo, ou troque por qualquer endpoint de RPC que você já use.
 
-![Um gráfico de barras mostrando Transfer caindo de 4,645 para 76 CU e TransferChecked de 6,200 para 105 depois da troca de motor, com os números atuais medidos ao vivo e os números históricos citados.](assets/v06-chart.png)
+![Um gráfico de barras mostrando Transfer caindo de 4,645 para 76 CU e TransferChecked de 6,200 para 105 depois da troca de motor, com os números atuais medidos ao vivo e os números históricos citados.](assets/v06-chart.webp)
 
 ## Challenge
 

@@ -41,7 +41,7 @@ Los briefs de producto no dicen "usa Token-2022 con un delegado permanente." Dic
 
 Responde esas cuatro por escrito, en tu memo, antes de tocar una receta. He visto gente (yo incluido, en un fin de semana de hackathon que preferiría no volver a litigar) acuñar primero y responder después, y el resultado siempre es el mismo: un mint con el conjunto de extensiones equivocado y una reacuñación el domingo por la mañana.
 
-![Un diagrama de flujo de decisión donde la divisibilidad elige fungible versus NFT, la negociabilidad restringe el conjunto de extensiones, la cantidad elige Core versus NFT comprimidos, y una cuarta pregunta sobre los poderes posteriores a la entrega abarca todos los resultados.](assets/v01-flowchart.png)
+![Un diagrama de flujo de decisión donde la divisibilidad elige fungible versus NFT, la negociabilidad restringe el conjunto de extensiones, la cantidad elige Core versus NFT comprimidos, y una cuarta pregunta sobre los poderes posteriores a la entrega abarca todos los resultados.](assets/v01-flowchart.webp)
 
 ### La matriz te rechaza antes que el mercado
 
@@ -65,7 +65,7 @@ Por eso la allowlist de CP-Swap contiene exactamente cinco extensiones, y por es
 
 Así que la tesis, en una línea que le puedes entregar a un product manager: las extensiones de comisión, de visualización y de contabilidad entran en la allowlist, las extensiones de poder quedan rechazadas. Fíjate en la palabra que esa línea NUNCA debe contener: compliance. Las extensiones con forma de compliance, PermanentDelegate y DefaultAccountState, son exactamente los poderes que la allowlist rechaza, y un PM que se va diciendo "compliance entra" entrega la regla equivocada. Cualquier otra cosa que quieras, o la impones fuera de la plataforma, o te compras la entrada a una whitelist estática como hacen los emisores regulados.
 
-![Una tabla comparativa que puntúa SPL clásico, Token-2022, Metaplex Core y los cNFT de Bubblegum v2 en divisibilidad, costo por unidad, poderes posteriores a la entrega disponibles, enrutabilidad en DEX, y qué necesita un lector para resolverlos.](assets/v02-comparison.png)
+![Una tabla comparativa que puntúa SPL clásico, Token-2022, Metaplex Core y los cNFT de Bubblegum v2 en divisibilidad, costo por unidad, poderes posteriores a la entrega disponibles, enrutabilidad en DEX, y qué necesita un lector para resolverlos.](assets/v02-comparison.webp)
 
 ### El eje de costo es donde se decide el brief de acuñación masiva
 
@@ -81,7 +81,7 @@ Un millón de dispositivos a precios de Core son unos 3,000 SOL. Un millón de d
 
 La factura llega del lado de la lectura, y es la cuarta trampa del curso. La huella on-chain de un cNFT es un hash de hoja. El activo en sí lo reconstruyen los indexadores DAS a partir de almacenes de datos que administra el RPC. Apunta un script de verificación a un RPC sin soporte DAS y `getAsset` no devuelve nada, para un activo que se acuñó perfecto, y vas a pasar veinte minutos sospechando del id de tu activo. Ese costo no lo puedes refactorizar después. Es una dependencia que aceptas en tiempo de diseño, y va en el memo justo al lado de la línea de rent del árbol.
 
-![Un gráfico de barras en escala logarítmica que compara el costo por activo de un mint de Metaplex Core contra hojas de NFT comprimidos en dos tamaños de árbol, mostrando brechas de dos y casi tres órdenes de magnitud.](assets/v03-chart.png)
+![Un gráfico de barras en escala logarítmica que compara el costo por activo de un mint de Metaplex Core contra hojas de NFT comprimidos en dos tamaños de árbol, mostrando brechas de dos y casi tres órdenes de magnitud.](assets/v03-chart.webp)
 
 ### Los briefs de NFT tienen exactamente una ruta de entrega
 
@@ -93,7 +93,7 @@ Así que el drop del músico se resuelve en una colección Core con el plugin Ro
 
 El badge de dispositivo se resuelve para el otro lado, en un árbol de Bubblegum v2 con hojas soulbound, y su sección del memo trata de capacidad de árbol y dependencia de lectura, no de regalías en absoluto.
 
-![Un diagrama de flujo que resuelve los briefs de NFT hacia una colección Core con los plugins Royalties y Edition o hacia un árbol soulbound de Bubblegum v2, con la ruta deprecada del pNFT como callejón sin salida.](assets/v04-flowchart.png)
+![Un diagrama de flujo que resuelve los briefs de NFT hacia una colección Core con los plugins Royalties y Edition o hacia un árbol soulbound de Bubblegum v2, con la ruta deprecada del pNFT como callejón sin salida.](assets/v04-flowchart.webp)
 
 ### PYUSD es el brief regulado, ya resuelto
 
@@ -107,7 +107,7 @@ Esa es una estrategia deliberada y deberías nombrarla como tal si la copias. Co
 
 El costo es exactamente lo que predice la tesis: un mint que lleva un delegado permanente queda rechazado por un programa de pool sin permiso por dormido que esté ese delegado, porque la allowlist lee el tipo de extensión, no tus intenciones. PYUSD se negocia igual. Llegó ahí por el camino que un token de curso no tiene, que es lo honesto para escribir en tu memo si tomas este brief: tu conjunto de compliance es defendible, y tu ruta a una plataforma es una conversación de negocios, no una transacción.
 
-![Una lectura anotada del mint de PYUSD que muestra ocho extensiones configuradas, cuatro de ellas dormidas, bajo la regla de que configurar es permanente mientras que activar es reversible.](assets/v05-annotated-code.png)
+![Una lectura anotada del mint de PYUSD que muestra ocho extensiones configuradas, cuatro de ellas dormidas, bajo la regla de que configurar es permanente mientras que activar es reversible.](assets/v05-annotated-code.webp)
 
 ### La sección de plataforma deriva su propio número
 
@@ -117,7 +117,7 @@ El número en cuestión es 85 SOL, el umbral de graduación que todo el mundo ci
 
 Que es todo el punto. El umbral es consecuencia de una curva que configuró otra persona, no una constante de la naturaleza, y la misma función devuelve 120 SOL para la curva alternativa que probaste en el módulo 8: 30 SOL virtuales, 1,000,000,000 tokens virtuales, 800,000,000 tokens reales. Cambia cualquiera de las dos constantes del lado del token y el número se mueve. Tu memo no afirma 85. Corre la función e imprime lo que producen las constantes de hoy, para que cuando las constantes cambien tu memo esté equivocado de forma ruidosa y no de forma callada.
 
-![Una tabla de derivación que lleva las tres constantes de curva publicadas por pump por la invariante de producto constante hasta una reserva final de SOL virtuales de 115.005 y un umbral de graduación de 85.005 SOL.](assets/v06-table.png)
+![Una tabla de derivación que lleva las tres constantes de curva publicadas por pump por la invariante de producto constante hasta una reserva final de SOL virtuales de 115.005 y un umbral de graduación de 85.005 SOL.](assets/v06-table.webp)
 
 La sección de plataforma también hace un trabajo que no tiene nada que ver con curvas: pregunta si la plataforma puede sostener siquiera el token que elegiste. `checkGraduationVenue` rechaza el camino de pump para cualquier mint de Token-2022, porque la instrucción `create` fija el token program clásico, y acepta CP-Swap solo cuando cada extensión de tu conjunto está en la allowlist de cinco ítems. Córrela contra tu propio conjunto declarado y pega la salida. Un veredicto de plataforma calculado a partir de tu conjunto vale más que tres párrafos de prosa sobre enrutabilidad, y toma un solo comando.
 
@@ -131,7 +131,7 @@ La mayoría de los briefs tiene un encaje obvio. Que el dueño de la cafetería 
 
 La razón de que sea uno y no tres no es la carga de trabajo. Es la demostración. Un riel cuenta solo cuando un script imprime un antes y un después, y tres rieles conectados a medias producen cero de esos mientras que un riel terminado produce un recibo. Elige el riel cuyo antes-y-después de verdad puedas hacer visible en una terminal, y conecta ese como se debe.
 
-![Una tabla comparativa de los cuatro rieles de economía enseñados, que lista qué mueve cada uno, la demostración que un script debe imprimir, y el brief de producto al que mejor le calza cada uno.](assets/v07-comparison.png)
+![Una tabla comparativa de los cuatro rieles de economía enseñados, que lista qué mueve cada uno, la demostración que un script debe imprimir, y el brief de producto al que mejor le calza cada uno.](assets/v07-comparison.webp)
 
 ### Nombrar el canje que aceptaste es el memo
 
@@ -141,7 +141,7 @@ Cada elección de primitiva cambia poder por compatibilidad. Un mint de Token-20
 
 No hay posición gratis en esa curva. El memo no es donde afirmas que encontraste una. Es donde escribes, en un párrafo, a qué poder renunciaste y qué conseguiste a cambio, para que la persona que herede tu token en dieciocho meses pueda distinguir entre una restricción y un accidente.
 
-![Un diagrama radial con el capstone en el centro, alimentado por nueve artefactos etiquetados de lecciones anteriores del curso, y marcado como terminal, sin consumidor aguas abajo.](assets/v08-diagram.png)
+![Un diagrama radial con el capstone en el centro, alimentado por nueve artefactos etiquetados de lecciones anteriores del curso, y marcado como terminal, sin consumidor aguas abajo.](assets/v08-diagram.webp)
 
 ## Lab: memo, activo, riel, demostración
 
@@ -517,7 +517,7 @@ La comparación de `token_program` es un seguro barato contra el error más verg
 
 Y la rama de Core lanza un error en vez de pasar cuando el endpoint no devuelve ningún objeto `plugins`. Una verificación que no puede ver lo que está verificando tiene que fallar ruidosamente. Un pase silencioso sobre un campo no leído es peor que no verificar nada, porque le vas a creer.
 
-![Un diagrama de flujo vertical de cuatro barreras para el script de verificación, desde la revisión de la dirección pasando por la resolución en DAS y la coincidencia de interfaz hasta la comparación de conjuntos, con ramas por familia en las dos últimas barreras.](assets/v09-flowchart.png)
+![Un diagrama de flujo vertical de cuatro barreras para el script de verificación, desde la revisión de la dirección pasando por la resolución en DAS y la coincidencia de interfaz hasta la comparación de conjuntos, con ramas por familia en las dos últimas barreras.](assets/v09-flowchart.webp)
 
 **8. Corre la barrera.** Apunta `DAS_RPC_URL` a un endpoint con soporte DAS (`RPC_URL` puede quedarse en devnet para la lectura del mint) y córrelo:
 

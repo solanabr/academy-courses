@@ -58,7 +58,7 @@ O que está em jogo para você é concreto e não é contabilidade abstrata: uma
 
 Você construiu o mecanismo de percorrer o salão lá no módulo 2, na lição economics-extensions, e testou ele contra um único comprador. Hoje ele vira a primeira perna de um trilho com mais três pernas aparafusadas nele.
 
-![Um fluxograma traça as taxas retidas desde as contas dos compradores, passando por um harvest sem permissão até o mint, um withdraw restrito à autoridade até o PDA da tesouraria, um buyback contra qualquer contraparte que você tenha, e uma queima que derruba o supply.](assets/v01-flowchart.png)
+![Um fluxograma traça as taxas retidas desde as contas dos compradores, passando por um harvest sem permissão até o mint, um withdraw restrito à autoridade até o PDA da tesouraria, um buyback contra qualquer contraparte que você tenha, e uma queima que derruba o supply.](assets/v01-flowchart.webp)
 
 ### Pernas um e dois: o crank de harvest (consolidar, depois arrecadar)
 
@@ -100,7 +100,7 @@ export function chunk<T>(items: T[], size: number): T[][] {
 
 E achar as contas sujas também é problema seu. Uma conta de token coloca o mint dela no byte offset 0, então uma chamada de `getProgramAccounts` com um filtro memcmp te dá todo holder de SPROUT, e aí você lê o `TransferFeeAmount` de cada uma e fica com as diferentes de zero. Num fork com algumas dezenas de holders isso é uma varredura de dois segundos. Em contagens de holders do tamanho da Jupiter é um trabalho de indexação, `getProgramAccounts` sobre um programa grande é exatamente a query que os RPCs públicos mais estrangulam, e a resposta honesta é que você aluga isso, do mesmo jeito que a lição de leitura de assets te fez alugar um provedor de DAS em vez de rodar o seu próprio indexador.
 
-![Uma tabela compara os quatro custos de rodar um crank de harvest de taxas retidas, do compute barato passando por limites de empacotamento e varreduras pesadas de contas até a propriedade operacional que causa a maioria das falhas.](assets/v02-comparison.png)
+![Uma tabela compara os quatro custos de rodar um crank de harvest de taxas retidas, do compute barato passando por limites de empacotamento e varreduras pesadas de contas até a propriedade operacional que causa a maioria das falhas.](assets/v02-comparison.webp)
 
 ### Três modelos de taxa, e a semana que você perde confundindo eles
 
@@ -112,11 +112,11 @@ O resto da maquinaria de taxas da pump vale conhecer com precisão, porque é a 
 
 Leia o que o dia da virada significa em vez de só arquivar a data. Antes dele, um criador lançando na pump sabia o número: 100 basis points, o mesmo para todo mundo, o mesmo no mês seguinte. Depois dele, a taxa que uma moeda paga é função de onde aquela moeda é negociada, o que é uma variável que o criador não define e não consegue congelar. Isso não é uma crítica à pump, cuja tabela é publicada e cujo raciocínio é defensável. É o formato geral de lançar no trilho de outra pessoa: você herda a política econômica dela, incluindo a versão dela que ela entrega depois que você lança. A sua própria taxa de Token-2022 é a troca oposta. Você é dono da alíquota, pode torná-la permanente anulando a autoridade de config, e em troca você é dono do harvest, da indexação, do cron e de toda integração que quebra porque valor enviado não é mais igual a valor recebido. Nenhum dos dois lados dessa troca é de graça. Escolha aquele por cujos custos você prefere ser responsável.
 
-![Uma linha do tempo move as taxas da pump.fun de uma era fixa de 100 basis points para a tabela escalonada por market cap de 2025-09-01 e de lá para os redirecionamentos de Cashback, com a mecânica de vault permanente ao longo de todo o caminho.](assets/v03-timeline.png)
+![Uma linha do tempo move as taxas da pump.fun de uma era fixa de 100 basis points para a tabela escalonada por market cap de 2025-09-01 e de lá para os redirecionamentos de Cashback, com a mecânica de vault permanente ao longo de todo o caminho.](assets/v03-timeline.webp)
 
 Agora o contraexemplo, que é o meu objeto favorito deste curso inteiro. Em maio de 2024, a PayPal e a Paxos entregaram o PYUSD como o mint Token-2022 emblemático em formato de compliance. Ele carrega uma config de taxa de transferência. Essa config está definida em 0 basis points, e ela nunca disparou. O token com capacidade de taxa mais institucionalmente sério da Solana não arrecada nada, de propósito, porque o que os emissores dele queriam era a *opção*, armada e dormente, disponível no dia em que um regulador ou um modelo de negócio pedir. Configurado não é a mesma coisa que ativo. Você já leu essa mesma distinção de um mint ao vivo com `decode-mint`, e este é o exemplo de maior aposta disso.
 
-![Uma tabela comparativa separa as taxas de transferência retidas do Token-2022, as taxas de creator_vault do lado do programa da pump.fun e a config de taxa dormente de zero bps do PYUSD por ponto de acúmulo, quem move, alíquota e pegadinhas.](assets/v04-comparison.png)
+![Uma tabela comparativa separa as taxas de transferência retidas do Token-2022, as taxas de creator_vault do lado do programa da pump.fun e a config de taxa dormente de zero bps do PYUSD por ponto de acúmulo, quem move, alíquota e pegadinhas.](assets/v04-comparison.webp)
 
 A regra prática: antes de escrever uma única linha de código de arrecadação, leia as extensões do mint e descubra qual máquina você está olhando. Se `TransferFeeConfig` estiver presente com bps diferente de zero, harvest se aplica. Se as taxas forem do lado do programa, vá achar o vault do programa e a instrução de claim dele. Modelo errado, semana errada.
 
@@ -130,7 +130,7 @@ O buyback é uma perna completamente separada e é financiado por um ativo difer
 
 A cilada que eu quero que você nomeie em voz alta antes de escrever a função: a queima de taxa e a queima de buyback não precisam ser iguais, e nada está errado quando não são. São dois fluxos independentes para a mesma fornalha. Um é denominado em SPROUT que você já tinha, o outro em SOL que você converteu. Conservação vale dentro do split, não entre as duas pernas.
 
-![Um diagrama divide um harvest de 1,000,000 unidades em uma queima de 200,000 e uma fatia de 800,000 para a tesouraria ao lado de um buyback separado financiado em SOL, com os dois fluxos convergindo para uma única queima.](assets/v05-diagram.png)
+![Um diagrama divide um harvest de 1,000,000 unidades em uma queima de 200,000 e uma fatia de 800,000 para a tesouraria ao lado de um buyback separado financiado em SOL, com os dois fluxos convergindo para uma única queima.](assets/v05-diagram.webp)
 
 ### Perna três: o buyback é um swap, e swaps custam dinheiro
 
@@ -166,7 +166,7 @@ Então meça. Leia o saldo da tesouraria antes do swap, leia depois, e queime a 
 
 O que também é por que o buyback é uma questão de política e não uma chave que você aciona. Quanto, com que frequência e com que previsibilidade são três botões, e mexer em qualquer um deles troca um custo por outro.
 
-![Uma tabela de decisão pesa políticas de buyback mensal-grande, contínuo-pequeno e oportunista contra impacto no preço, custo do crank e previsibilidade para MEV.](assets/v06-table.png)
+![Uma tabela de decisão pesa políticas de buyback mensal-grande, contínuo-pequeno e oportunista contra impacto no preço, custo do crank e previsibilidade para MEV.](assets/v06-table.webp)
 
 Existe uma pergunta anterior escondida aqui, e você já a respondeu. Um venue só aceita o seu token se o seu conjunto de extensões for um que ele tolera, que é o trabalho de roteabilidade que você fez na lição designing-a-routable-token. Um delegado permanente ou um transfer hook que a allowlist da pool rejeita significa que não há venue e portanto não há buyback. As decisões de extensão que você tomou no módulo 5 são o que torna o módulo 9 possível.
 
@@ -178,7 +178,7 @@ Três coisas são chamadas de deflacionárias e só uma delas é. Uma queima des
 
 A cilada é a leitura, não a escrita. Se você buscar o mint, depois queimar, e depois reportar a partir do objeto que buscou antes, você vai reportar o supply antigo e a sua asserção vai passar ou falhar por motivos que não têm nada a ver com o seu código. Qualquer coisa que você decodificou antes de uma transação é uma fotografia, não um feed ao vivo. Busque o mint de novo depois que a queima confirmar. O equivalente disso em Anchor é chamar `.reload()` depois de uma CPI que tocou a sua conta, e o modo de falha é idêntico nos dois mundos.
 
-![Seis linhas de código anotadas caminham de uma busca de supply pré-queima, passando por harvest, compra e queima, até uma rebusca obrigatória e a asserção de que o supply caiu exatamente o valor queimado.](assets/v07-annotated-code.png)
+![Seis linhas de código anotadas caminham de uma busca de supply pré-queima, passando por harvest, compra e queima, até uma rebusca obrigatória e a asserção de que o supply caiu exatamente o valor queimado.](assets/v07-annotated-code.webp)
 
 ## Lab: ligue o trilho de taxas da Overgrowth
 
@@ -690,7 +690,7 @@ rail closed: harvested, split, bought back, burned
 
 Leia essas cinco linhas umas contra as outras, porque elas só concordam se o trilho funcionou. A linha do split soma: 500,000 mais 2,000,000 é 2,500,000, exatamente o que a varredura encontrou. O alvo do buyback é a metade gastável da tesouraria, cerca de 50 SOL depois do airdrop do passo 1b, dividida pelo preço. E a quarta linha é a honesta: você planejou 50,000 e 49,500 chegaram, porque o SPROUT cobra a própria taxa de 100-bps no pagamento do maker para você e 500 unidades ficaram para trás como retidas — na própria conta da sua tesouraria, esperando o próximo harvest, que é a circularidade sobre a qual a seção de teoria avisou, tornada visível. Na porta A aquela mesma linha carregaria também o slippage e a taxa do venue, e o número seria menor ainda. De um jeito ou de outro você pagou alguma coisa para comprar o seu próprio token de volta, que é o que um buyback sempre foi depois que você tira do termo o marketing dele.
 
-![Um gráfico de duas barras coloca um buyback planejado contra a quantidade menor efetivamente recebida, atribuindo a diferença a impacto no preço, taxa do venue e a própria taxa de transferência do token.](assets/v08-chart.png)
+![Um gráfico de duas barras coloca um buyback planejado contra a quantidade menor efetivamente recebida, atribuindo a diferença a impacto no preço, taxa do venue e a própria taxa de transferência do token.](assets/v08-chart.webp)
 
 Se a rodada lançar `supply drop != burn`, você quase certamente calculou `bought` em vez de medir, ou reusou o objeto de mint pré-queima. Os dois são o mesmo erro.
 
@@ -700,7 +700,7 @@ Se a rodada lançar `supply drop != burn`, você quase certamente calculou `boug
 
 **Solo.** Ligue o trilho inteiro você mesmo contra o fork e prove. Gere volume de marketplace primeiro, pelo menos uma dúzia de transferências entre vários compradores para a varredura achar trabalho de verdade, depois rode `wire-economy.ts` de ponta a ponta e produza quatro números: o valor com harvest feito, o delta da tesouraria, a quantidade de buyback efetivamente recebida, e o delta de supply pós-queima. O critério é a asserção que já está no script: o supply caiu exatamente o que você queimou, nem mais nem menos.
 
-![Uma tabela de placar lista o valor com harvest feito, o delta da tesouraria, a quantidade de buyback e o delta de supply pós-queima, cada um com a sua fonte, a afirmação que ele prova e a falha característica dele.](assets/v09-table.png)
+![Uma tabela de placar lista o valor com harvest feito, o delta da tesouraria, a quantidade de buyback e o delta de supply pós-queima, cada um com a sua fonte, a afirmação que ele prova e a falha característica dele.](assets/v09-table.webp)
 
 **A sondagem empírica, se você quiser a resposta de verdade para uma pergunta que esta lição só apontou de longe.** Rode o buyback duas vezes, uma com uma fatia pequena da tesouraria e uma com ela inteira, e registre a diferença entre entregue e planejado em cada vez. Depois olhe a própria conta de token da tesouraria e ache o SPROUT retido sentado nela, taxas que o seu próprio buyback pagou para você mesmo.
 

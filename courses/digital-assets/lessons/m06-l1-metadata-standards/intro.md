@@ -44,7 +44,7 @@ Here is the collapse that demystifies the entire stack: an on-chain asset record
 
 Why build it this way at all? Run the naive alternative into the ground first. Suppose you stored the image on-chain. A PNG of Mad Lad quality runs a few hundred kilobytes; on-chain bytes cost rent per byte, an account is capped at 10 MiB, and every byte of it gets replicated to every validator forever. You would be paying validator-grade storage prices, on thousands of machines, for a picture that changes never and gets read by one wallet at a time. So nobody does that. The chain stores what the chain is good at, small authenticated facts: who made this, what is it called, where is the rest. The rest lives where bulk content lives, behind a URI. Cheap mints, rich content, and one new failure mode we will name honestly before the lab.
 
-![Three-layer map of a Solana asset numbered one to three, the off-chain JSON, the on-chain Data struct whose uri points at it, and the Token-2022 native TLV.](assets/v01-diagram.png)
+![Three-layer map of a Solana asset numbered one to three, the off-chain JSON, the on-chain Data struct whose uri points at it, and the Token-2022 native TLV.](assets/v01-diagram.webp)
 
 ### Layer 1: the off-chain JSON the wallet renders from
 
@@ -65,7 +65,7 @@ Two things you saw in the real document deserve suspicion. First, `seller_fee_ba
 
 That dead URL is not an isolated accident, and it is worth thirty seconds of history because it explains why so much of what you half-remember about NFT metadata is a generation behind. Official Solana education froze mid-plot: the solana-foundation/developer-content repository, the source behind the official courses, was archived read-only on 2025-01-24. Every official course predates the current NFT stack. Metaplex's own docs moved domains, and the old developers.metaplex.com now 308-redirects to metaplex.com/docs, stranding years of tutorial links one redirect from their content. The standard you are learning today is stable; the URLs around it are not. Re-verify any metadata citation before you trust it, including, in five years, this one.
 
-![Timeline from the 2021 Token Metadata standard through the 2025-01-24 archiving of official Solana education to 2026, when the canonical schema host is dead and Token Metadata itself is legacy.](assets/v02-timeline.png)
+![Timeline from the 2021 Token Metadata standard through the 2025-01-24 archiving of official Solana education to 2026, when the canonical schema host is dead and Token Metadata itself is legacy.](assets/v02-timeline.webp)
 
 ### Layer 2: the on-chain Data struct, five fields and a pointer
 
@@ -87,7 +87,7 @@ Each field earns a sentence of respect. `name` and `symbol` are the on-chain-aut
 
 And `seller_fee_basis_points`, the field that disagreed with the JSON. On-chain says 420, and on-chain wins. But now that you trust the right copy, here is the deeper footgun: do not read even the winning copy as a guaranteed royalty. It is a declared preference, indicative only, and nothing in the token program enforces a fee at transfer time. How enforcement was bolted on afterwards, and how thoroughly it failed, is m06-l3's story, proven rather than asserted. For today, calibrate: this u16 is what marketplaces choose to honor, not what they must.
 
-![Annotated side-by-side of Mad Lads #8420's on-chain Data struct and off-chain JSON, where image and traits exist only off-chain and the royalty reads 420 on-chain but 500 off-chain.](assets/v03-annotated-code.png)
+![Annotated side-by-side of Mad Lads #8420's on-chain Data struct and off-chain JSON, where image and traits exist only off-chain and the royalty reads 420 on-chain but 500 off-chain.](assets/v03-annotated-code.webp)
 
 ### Layer 3: the Token-2022 native path you already built
 
@@ -95,7 +95,7 @@ You did not just learn a third metadata system in m02-l4. You built one. SPROUT'
 
 The comparison against the Metaplex layout is where the design earns its seat. In the legacy model, identity lives in a separate account that a different program owns, and a reader must derive the PDA to find it. In the native model there is nothing to derive and nothing separate to fetch: one `getAccountInfo` on the mint returns identity, supply, and every extension in a single read. And the m02-l4 anti-spoofing argument slots into today's vocabulary cleanly: a MetadataPointer aimed anywhere other than the mint itself reintroduces indirection an attacker can aim at someone else's metadata account, which is why self-referential is the layout you wired and the only one you should ship. The trade-offs run the other way too, and naming them is the point of a map. Native TLV metadata lives in the mint, so every field you add grows the account and its rent, and the whole mechanism exists only on Token-2022 mints. Classic SPL mints, meaning the majority of assets already in the wild, cannot carry it, which is why the Metaplex layers are not going anywhere and why you need all three columns of the table you are about to fill.
 
-![Comparison of the Metaplex separate-metadata-account model and the Token-2022 in-mint TLV model across identity location, read count, spoofing surface, rent growth, program availability, and the shared off-chain JSON standard.](assets/v04-comparison.png)
+![Comparison of the Metaplex separate-metadata-account model and the Token-2022 in-mint TLV model across identity location, read count, spoofing surface, rent growth, program availability, and the shared off-chain JSON standard.](assets/v04-comparison.webp)
 
 ### The pointer is the weak joint: storage reality
 
@@ -107,7 +107,7 @@ The permanence-first alternative is the Arweave family. Arweave's model is pay o
 
 There is a second norm decision hiding next to storage: mutability. The metadata PDA has an update authority, and TokenMetadata TLV has one too; either can rewrite `uri` or the fields tomorrow unless that authority is dropped. Mutable metadata is how a rug swaps art after mint, and it is also how a legitimate game evolves an item, fixes a typo, or migrates hosts. Immutable-plus-permanent is the collector-grade posture; mutable-plus-rented is the live-service posture. Neither is a default. It is a choice you will make explicitly, per asset class, when Overgrowth mints the Almanac next lesson.
 
-![Flowchart from mint address through on-chain record, uri, JSON document, and image, with break points at the uri host, mutable JSON, and image link the chain never detects.](assets/v05-flowchart.png)
+![Flowchart from mint address through on-chain record, uri, JSON document, and image, with break points at the uri host, mutable JSON, and image link the chain never detects.](assets/v05-flowchart.webp)
 
 ## Lab: locate every field of a real asset
 
@@ -290,7 +290,7 @@ Guided runs plus one deliverable you fill in yourself. You will run the fetch sc
 
    A pass with a fossil warning, which is exactly what a healthy nine-figure collection with 2023-era tooling looks like.
 
-![Spectrum of uri storage options from rented mutable web hosting through pinned IPFS to endowment-funded Arweave via Irys, with metadata mutability via update authority as an orthogonal decision.](assets/v06-diagram.png)
+![Spectrum of uri storage options from rented mutable web hosting through pinned IPFS to endowment-funded Arweave via Irys, with metadata mutability via update authority as an orthogonal decision.](assets/v06-diagram.webp)
 
 ## Challenge
 

@@ -44,7 +44,7 @@ Aqui está o colapso que desmistifica a pilha inteira: um registro de ativo on-c
 
 Por que construir assim, afinal? Leve a alternativa ingênua até o fim primeiro. Suponha que você guardasse a imagem on-chain. Um PNG da qualidade do Mad Lad ocupa algumas centenas de kilobytes; bytes on-chain custam rent por byte, uma conta tem teto de 10 MiB, e cada byte dela é replicado para todo validador para sempre. Você estaria pagando preços de armazenamento de nível validador, em milhares de máquinas, por uma figura que nunca muda e é lida por uma carteira de cada vez. Então ninguém faz isso. A chain guarda o que a chain faz bem, fatos pequenos e autenticados: quem fez isto, como se chama, onde está o resto. O resto vive onde conteúdo volumoso vive, atrás de uma URI. Cunhagens baratas, conteúdo rico, e um novo modo de falha que vamos nomear honestamente antes do lab.
 
-![Mapa de três camadas de um ativo Solana numeradas de um a três, o JSON off-chain, a struct Data on-chain cuja uri aponta para ele, e o TLV nativo do Token-2022.](assets/v01-diagram.png)
+![Mapa de três camadas de um ativo Solana numeradas de um a três, o JSON off-chain, a struct Data on-chain cuja uri aponta para ele, e o TLV nativo do Token-2022.](assets/v01-diagram.webp)
 
 ### Camada 1: o JSON off-chain a partir do qual a carteira renderiza
 
@@ -65,7 +65,7 @@ Duas coisas que você viu no documento real merecem suspeita. Primeiro, `seller_
 
 Essa URL morta não é um acidente isolado, e vale trinta segundos de história porque explica por que tanto do que você meio lembra sobre metadados de NFT está uma geração atrás. A educação oficial da Solana congelou no meio da trama: o repositório solana-foundation/developer-content, a fonte por trás dos cursos oficiais, foi arquivado como somente leitura em 2025-01-24. Todo curso oficial antecede a pilha de NFT atual. Os próprios docs da Metaplex mudaram de domínio, e o antigo developers.metaplex.com agora faz 308-redirect para metaplex.com/docs, deixando anos de links de tutorial a um redirect de distância do conteúdo deles. O padrão que você está aprendendo hoje é estável; as URLs em volta dele não são. Reverifique qualquer citação de metadados antes de confiar nela, inclusive, em cinco anos, nesta.
 
-![Linha do tempo do padrão Token Metadata de 2021, passando pelo arquivamento da educação oficial da Solana em 2025-01-24, até 2026, quando o host canônico do schema está morto e o próprio Token Metadata é legado.](assets/v02-timeline.png)
+![Linha do tempo do padrão Token Metadata de 2021, passando pelo arquivamento da educação oficial da Solana em 2025-01-24, até 2026, quando o host canônico do schema está morto e o próprio Token Metadata é legado.](assets/v02-timeline.webp)
 
 ### Camada 2: a struct Data on-chain, cinco campos e um ponteiro
 
@@ -87,7 +87,7 @@ Cada campo merece uma frase de respeito. `name` e `symbol` são as cópias on-ch
 
 E `seller_fee_basis_points`, o campo que discordou do JSON. On-chain diz 420, e on-chain ganha. Mas agora que você confia na cópia certa, aqui está a cilada mais profunda: não leia nem a cópia vencedora como um royalty garantido. É uma preferência declarada, indicativa apenas, e nada no token program impõe uma taxa na hora da transferência. Como a imposição foi enxertada depois, e com que profundidade ela falhou, é a história do m06-l3, provada em vez de afirmada. Por hoje, calibre: este u16 é o que os marketplaces escolhem honrar, não o que eles têm que honrar.
 
-![Comparação anotada lado a lado da struct Data on-chain do Mad Lads #8420 e do JSON off-chain, em que image e traits existem só off-chain e o royalty lê 420 on-chain mas 500 off-chain.](assets/v03-annotated-code.png)
+![Comparação anotada lado a lado da struct Data on-chain do Mad Lads #8420 e do JSON off-chain, em que image e traits existem só off-chain e o royalty lê 420 on-chain mas 500 off-chain.](assets/v03-annotated-code.webp)
 
 ### Camada 3: o caminho nativo do Token-2022 que você já construiu
 
@@ -95,7 +95,7 @@ Você não acabou de aprender um terceiro sistema de metadados no m02-l4. Você 
 
 A comparação contra o layout da Metaplex é onde o design ganha o seu lugar. No modelo legado, a identidade vive em uma conta separada que um programa diferente possui, e um leitor precisa derivar o PDA para encontrá-la. No modelo nativo não há nada para derivar e nada separado para buscar: um `getAccountInfo` no mint devolve identidade, supply e toda extensão em uma leitura só. E o argumento anti-spoofing do m02-l4 encaixa no vocabulário de hoje de forma limpa: um MetadataPointer apontado para qualquer lugar que não seja o próprio mint reintroduz uma indireção que um atacante pode apontar para a conta de metadados de outra pessoa, que é por que autorreferencial é o layout que você ligou e o único que você deveria entregar. Os trade-offs correm para o outro lado também, e nomeá-los é o ponto de um mapa. Metadados TLV nativos vivem no mint, então cada campo que você adiciona faz a conta e o rent dela crescerem, e o mecanismo inteiro existe só em mints Token-2022. Mints SPL clássicos, ou seja a maioria dos ativos já soltos por aí, não podem carregá-lo, que é por que as camadas da Metaplex não vão a lugar nenhum e por que você precisa de todas as três colunas da tabela que você está a ponto de preencher.
 
-![Comparação do modelo de conta de metadados separada da Metaplex e do modelo TLV dentro do mint do Token-2022 em localização da identidade, número de leituras, superfície de spoofing, crescimento do rent, disponibilidade por programa, e o padrão JSON off-chain compartilhado.](assets/v04-comparison.png)
+![Comparação do modelo de conta de metadados separada da Metaplex e do modelo TLV dentro do mint do Token-2022 em localização da identidade, número de leituras, superfície de spoofing, crescimento do rent, disponibilidade por programa, e o padrão JSON off-chain compartilhado.](assets/v04-comparison.webp)
 
 ### O ponteiro é a junta fraca: a realidade do armazenamento
 
@@ -107,7 +107,7 @@ A alternativa que põe permanência em primeiro lugar é a família Arweave. O m
 
 Há uma segunda decisão de norma escondida ao lado do armazenamento: a mutabilidade. O PDA de metadados tem uma autoridade de atualização, e o TLV TokenMetadata tem uma também; qualquer uma pode reescrever a `uri` ou os campos amanhã, a menos que essa autoridade seja abandonada. Metadados mutáveis são como um rug troca a arte depois da cunhagem, e são também como um jogo legítimo evolui um item, corrige um typo, ou migra de host. Imutável-mais-permanente é a postura de nível colecionador; mutável-mais-alugado é a postura de serviço ao vivo. Nenhuma das duas é um default. É uma escolha que você vai fazer explicitamente, por classe de ativo, quando o Overgrowth cunhar o Almanac na próxima lição.
 
-![Fluxograma do endereço do mint passando pelo registro on-chain, uri, documento JSON e imagem, com pontos de ruptura no host da uri, no JSON mutável, e no link da imagem que a chain nunca detecta.](assets/v05-flowchart.png)
+![Fluxograma do endereço do mint passando pelo registro on-chain, uri, documento JSON e imagem, com pontos de ruptura no host da uri, no JSON mutável, e no link da imagem que a chain nunca detecta.](assets/v05-flowchart.webp)
 
 ## Lab: localize todo campo de um ativo real
 
@@ -290,7 +290,7 @@ Rodadas guiadas mais um entregável que você mesmo preenche. Você vai rodar o 
 
    Um pass com um aviso de fóssil, que é exatamente a aparência de uma coleção saudável de nove dígitos com ferramental da era de 2023.
 
-![Espectro de opções de armazenamento de uri, de hospedagem web alugada e mutável, passando por IPFS pinado, até o Arweave financiado por dotação via Irys, com a mutabilidade dos metadados via autoridade de atualização como uma decisão ortogonal.](assets/v06-diagram.png)
+![Espectro de opções de armazenamento de uri, de hospedagem web alugada e mutável, passando por IPFS pinado, até o Arweave financiado por dotação via Irys, com a mutabilidade dos metadados via autoridade de atualização como uma decisão ortogonal.](assets/v06-diagram.webp)
 
 ## Challenge
 

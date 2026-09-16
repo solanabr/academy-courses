@@ -84,7 +84,7 @@ Esse número não é uma hipótese que alguém inventou para um curso. A Solana 
 
 Então, a reformulação. Você não precisa mesmo de um milhão de contas. Você precisa conseguir *provar*, para qualquer crate, que ele existe e quem é o dono dele. Esses são requisitos diferentes, e só o segundo é estrutural.
 
-![Uma comparação em duas colunas entre um milhão de contas de token clássicas custando mais ou menos dois mil SOL de rent e uma árvore Bubblegum v2 da mesma capacidade custando SOL de um dígito, com leituras só por DAS e escritas que carregam prova.](assets/v01-comparison.png)
+![Uma comparação em duas colunas entre um milhão de contas de token clássicas custando mais ou menos dois mil SOL de rent e uma árvore Bubblegum v2 da mesma capacidade custando SOL de um dígito, com leituras só por DAS e escritas que carregam prova.](assets/v01-comparison.webp)
 
 ### O que uma folha é de fato
 
@@ -96,7 +96,7 @@ Se você já usou git, você já tem a intuição. Um hash de commit não conté
 
 Essa prova é a barganha inteira. Você parou de pagar por armazenamento e começou a pagar por provas.
 
-![Um caminho destacado sobe uma árvore de Merkle de vinte níveis, de uma folha até a raiz on-chain, com os vinte hashes irmãos sombreados formando uma prova de 640 bytes.](assets/v02-diagram.png)
+![Um caminho destacado sobe uma árvore de Merkle de vinte níveis, de uma folha até a raiz on-chain, com os vinte hashes irmãos sombreados formando uma prova de 640 bytes.](assets/v02-diagram.webp)
 
 Vale ser preciso sobre o que essa troca custa de fato, porque a assimetria é a razão inteira de a compressão ser viável e não só esperta. Guardar um ativo como conta é O(1) para ler e O(n) em rent ao longo de n ativos, e o rent é o recurso caro porque é memória de validador segurada para sempre. Guardar um ativo como folha é O(1) em rent ao longo de n ativos, porque a conta da árvore tem tamanho fixo independente de quão cheia ela está, e O(log n) por escrita, porque uma prova é um hash irmão por nível. Dobrar o seu supply de um milhão para dois milhões não dobra o rent. Adiciona um nível, que adiciona um hash irmão a toda prova e trinta e dois bytes a toda escrita. Essa é a troca que o design faz: ele converte um custo linear de armazenamento num custo logarítmico de banda. Banda você consegue agrupar em lote, cachear e encurtar com um canopy. Rent você só consegue pagar.
 
@@ -106,7 +106,7 @@ Um nome no próximo visual precisa ser apresentado antes de você encontrar ele 
 
 O **asset id** cai do mesmo design. Um cNFT não tem conta, então precisa de algum endereço canônico pelo qual ser referido, e o Bubblegum deriva ele: o asset id é `PDA(tree, leaf index)`. Determinístico, derivável offline, estável para sempre. Você vai derivar um no lab com `findLeafAssetIdPda` e depois ver um provedor de DAS te devolver a mesma string.
 
-![Uma conta de árvore guarda a raiz, o canopy, o changelog buffer e os slots de folha ao lado de um índice DAS separado de metadados legíveis, com a conta por ativo inexistente riscada.](assets/v03-diagram.png)
+![Uma conta de árvore guarda a raiz, o canopy, o changelog buffer e os slots de folha ao lado de um índice DAS separado de metadados legíveis, com a conta por ativo inexistente riscada.](assets/v03-diagram.webp)
 
 ### O changelog buffer, e por que as provas ficam desatualizadas
 
@@ -118,7 +118,7 @@ Uma prova de Merkle é um retrato. Ela diz: *dada esta raiz, a minha folha faz h
 
 A cilada dita sem rodeios: **busque a prova de novo imediatamente antes de toda escrita.** Não no topo do seu script. Não uma vez por lote. Imediatamente antes. O helper que você vai usar no challenge, `getAssetWithProof`, faz uma ida e volta nova ao DAS a cada chamada exatamente por essa razão, e se você cachear o resultado dele ao longo de um lote de transferências você vai receber uma enxurrada de erros de hashing-mismatch que parecem um bug no seu código e não são.
 
-![Um fluxograma de três faixas contrastando uma prova que verifica direto, uma reproduzida para a frente a partir do changelog buffer depois de escritas concorrentes, e uma rejeitada porque a raiz envelheceu e saiu do buffer.](assets/v04-flowchart.png)
+![Um fluxograma de três faixas contrastando uma prova que verifica direto, uma reproduzida para a frente a partir do changelog buffer depois de escritas concorrentes, e uma rejeitada porque a raiz envelheceu e saiu do buffer.](assets/v04-flowchart.webp)
 
 ### O canopy é o dinheiro
 
@@ -306,7 +306,7 @@ Leia essa tabela duas vezes, porque é a coisa mais útil desta lição, e leia 
 
 O meu próprio viés, pelo que vale: eu já vi mais projetos se queimarem por um canopy subdimensionado do que por um superdimensionado, porque rent é um número que você vê no dia zero e um tamanho de transação estourado é um número que você vê no dia do drop. Se você estiver em dúvida, compre o canopy.
 
-![Um gráfico de eixo duplo em que uma árvore de um milhão de folhas cresce sete vezes em bytes de conta conforme o canopy se aprofunda de 0 a 14, enquanto os nós de prova por escrita caem de 20 para 6.](assets/v05-chart.png)
+![Um gráfico de eixo duplo em que uma árvore de um milhão de folhas cresce sete vezes em bytes de conta conforme o canopy se aprofunda de 0 a 14, enquanto os nós de prova por escrita caem de 20 para 6.](assets/v05-chart.webp)
 
 ### Dimensionar não tem volta
 
@@ -327,7 +327,7 @@ Então a orientação quase se escreve sozinha: seja generoso com profundidade, 
 
 Nem todo par de profundidade e buffer é legal, aliás, e essa é a razão de o `tree-size.ts` carregar aquela tabela de pares em vez de duas listas independentes de valores permitidos. O layout de conta on-chain é gerado para um conjunto fixo de combinações: profundidade 14 aceita buffer 64, 256, 1024 ou 2048 e nada mais, profundidade 26 começa em 512, e buffer 128 não é um tamanho legal em profundidade nenhuma. Checar os dois campos separadamente deixaria passar meia dúzia de pares que o programa vai recusar. Um par ruim também não falha com elegância em runtime, ele falha como um erro de tamanho de conta pouco útil depois de você já ter pago o rent, então deixe a trava lançar o erro antes de você gastar.
 
-![Uma tabela de quatro linhas em bytes de conta em que subir a profundidade da árvore de 16 mil para 16 milhões de folhas adiciona só 20,800 bytes, localizando o custo real de uma árvore comprimida no canopy.](assets/v06-table.png)
+![Uma tabela de quatro linhas em bytes de conta em que subir a profundidade da árvore de 16 mil para 16 milhões de folhas adiciona só 20,800 bytes, localizando o custo real de uma árvore comprimida no canopy.](assets/v06-table.webp)
 
 ### O que mudou na v2
 
@@ -369,7 +369,7 @@ Uma coisa que a v2 manteve da V1, e que merece uma frase porque é a peça que a
 
 A linha da coleção é a que alcança de volta o trabalho da lição passada. O `MetadataArgsV2` carrega `collection` como um `Option<PublicKey>` simples, com o comentário da própria biblioteca cliente afirmando que na V2 ele "é só uma `Pubkey` e é sempre considerado verificado." Sem passo de verify, sem limbo de não verificado. A conta de coleção do Almanac que você criou na m06-l2 é o valor literal que você passa, e o mint falha se a autoridade da coleção não assinar. Coleção primeiro, depois os membros, um nível abaixo. Mesma regra que você aprendeu nos ativos Core.
 
-![Uma linha do tempo de quatro paradas, do Bubblegum V1 em 2023 ao Bubblegum v2 em 2026, em que a alegação de que cNFTs não podem ser soulbound é finalmente riscada.](assets/v07-timeline.png)
+![Uma linha do tempo de quatro paradas, do Bubblegum V1 em 2023 ao Bubblegum v2 em 2026, em que a alegação de que cNFTs não podem ser soulbound é finalmente riscada.](assets/v07-timeline.webp)
 
 ### O trade-off, nomeado
 
@@ -612,7 +612,7 @@ export DAS_RPC_URL="https://devnet.helius-rpc.com/?api-key=YOUR_KEY"
 
     A CLI reporta que a conta não existe. O seu crate é real, ele está numa coleção verificada, o DAS acabou de descrever ele para você por inteiro, e não tem conta. Sente com isso por um segundo, porque a próxima lição é construída exatamente em cima dessa lacuna.
 
-![Um fluxograma de seis passos traçando um crate Harvest da chamada mintV2 pelo hashing da folha, o log do Noop, o parsing do índice da folha, a derivação offline do asset id, e finalmente a indexação DAS onde getAsset resolve ele.](assets/v08-flowchart.png)
+![Um fluxograma de seis passos traçando um crate Harvest da chamada mintV2 pelo hashing da folha, o log do Noop, o parsing do índice da folha, a derivação offline do asset id, e finalmente a indexação DAS onde getAsset resolve ele.](assets/v08-flowchart.webp)
 
 7. **Leia o que o índice te deu.** Imprima a resposta bruta do `getAsset` uma vez, só para ver o formato:
 
@@ -683,6 +683,6 @@ Três respostas que você deveria conseguir dar sem consultar nada. Onde os meta
 
 Se a sua rodada do challenge está vermelha agora, a correção é quase sempre uma de duas coisas. Hashing mismatch quer dizer prova desatualizada: busque de novo imediatamente antes da escrita, toda escrita, sem exceção. Um erro de autoridade no `set_non_transferable_v2` quer dizer que o signer não é um delegado de congelamento permanente na coleção Core, o que quer dizer que o passo 2 criou a sua coleção sem o plugin e você precisa de uma nova.
 
-![Um diagrama de hub com harvest-crates no centro, alimentado pela coleção Core do Almanac e alimentando a lição do leitor de DAS, a lição da fronteira da compressão, e o capstone.](assets/v09-diagram.png)
+![Um diagrama de hub com harvest-crates no centro, alimentado pela coleção Core do Almanac e alimentando a lição do leitor de DAS, a lição da fronteira da compressão, e o capstone.](assets/v09-diagram.webp)
 
 Você agora tem SPROUT, ativos Core do Almanac e cNFTs de crate Harvest espalhados por três formatos on-chain diferentes, e um deles você nem consegue buscar com `getAccountInfo`. Próxima lição, um script lê os três.

@@ -66,7 +66,7 @@ Think back to your SPROUT work. Every capability you added to that mint lived in
 
 Core's design answer is the one you already know from Token-2022, applied to NFTs: one account, with typed capabilities appended inside it. The base asset stores the owner, the update authority, a name, and a URI. Everything else, royalties, freeze behavior, edition numbering, attributes, is a plugin serialized after the base data in that same account. First-principles version: an NFT's state is small and its capabilities are enumerable, so paying account-creation overhead per capability is pure waste; the only thing separate accounts buy you is independent ownership, and an asset's plugins all belong to the asset anyway.
 
-![Comparison of one NFT mint, Token Metadata creating four to five accounts at vendor-published ~0.022 SOL and ~205,000 CU while Core creates one account at ~0.003 SOL and ~17,000 CU.](assets/v01-comparison.png)
+![Comparison of one NFT mint, Token Metadata creating four to five accounts at vendor-published ~0.022 SOL and ~205,000 CU while Core creates one account at ~0.003 SOL and ~17,000 CU.](assets/v01-comparison.webp)
 
 Your own `first-mint.ts` run just showed you the rent component varies with string lengths, which is exactly why the opener tagged the headline figures as vendor-published: cite the vendor, show your own account. Still a great story.
 
@@ -76,7 +76,7 @@ The base asset is deliberately tiny. A one-byte discriminator (Core uses its own
 
 Read that again, because it quietly deletes an entire Token Metadata ritual. In Token Metadata, collection membership is a field on the metadata PDA plus a separate `verified` boolean that a collection-authority-signed instruction flips; unverified membership is a real (and dangerous) intermediate state: an asset can CLAIM a collection before any collection authority has attested to it, the same claim-versus-attestation gap you met in m06-l1 on the creators `verified` flag, now at the collection level. In Core there is no boolean. Membership IS the update authority arm, and it can only be written when the collection's authority signs the mint. Verification did not get easier; it got collapsed into a signature that has to be there anyway.
 
-![Layout of a single Core asset account, base fields including the three-armed updateAuthority enum, then a plugin registry holding Royalties, Edition, PermanentFreezeDelegate, and Attributes entries in the same account.](assets/v02-diagram.png)
+![Layout of a single Core asset account, base fields including the three-armed updateAuthority enum, then a plugin registry holding Royalties, Edition, PermanentFreezeDelegate, and Attributes entries in the same account.](assets/v02-diagram.webp)
 
 ### Collections come first
 
@@ -84,7 +84,7 @@ The ordering consequence falls straight out of that design: the collection must 
 
 This ordering is not a style preference in this course; it is load-bearing infrastructure. Bubblegum v2, module 7's opener, mints compressed NFTs INTO a Core collection. No Core collection, no cNFT drop. The Almanac collection you create in the lab is the literal value that lesson's mint calls take, rebuilt on whatever cluster it runs against. Get the habit now, while the failure mode is cheap.
 
-![Flowchart contrasting the collection-first flow, where membership is written at mint and feeds Bubblegum v2 in module 7, with the mint-first flow that produces orphaned assets and empty membership reads.](assets/v03-flowchart.png)
+![Flowchart contrasting the collection-first flow, where membership is written at mint and feeds Bubblegum v2 in module 7, with the mint-first flow that produces orphaned assets and empty membership reads.](assets/v03-flowchart.webp)
 
 ### The plugin catalog
 
@@ -107,7 +107,7 @@ Before you type any of these, one structural fact that saves you an afternoon of
 
 The catalog splits along that line. Owner-managed plugins, the Transfer, Freeze, and Burn delegates, exist to let the OWNER lend a capability out: you delegate transfer rights to an escrow, freeze rights to a staking program, and the delegation defaults to your own key until you assign it away. Authority-managed plugins, Royalties, Attributes, UpdateDelegate, belong to the creator side and default to the update authority, which for a collection member resolves through the collection. And the permanent family plays by a harder rule: `PermanentFreezeDelegate`, `PermanentTransferDelegate`, and `PermanentBurnDelegate` can only be attached at mint time. You cannot sneak a permanent freeze onto an asset someone already owns, which is exactly the property that makes owning a Core asset safe, and exactly why the Founding-Farmer badge must be born soulbound rather than converted later.
 
-![Diagram separating a Core asset's three control keys, the owner, the update authority, and each plugin's four-arm authority enum, with plugin classes grouped as owner-managed, authority-managed, and mint-time-only permanent plugins.](assets/v04-diagram.png)
+![Diagram separating a Core asset's three control keys, the owner, the update authority, and each plugin's four-arm authority enum, with plugin classes grouped as owner-managed, authority-managed, and mint-time-only permanent plugins.](assets/v04-diagram.webp)
 
 Hold onto the `None` arm. Most of the time you assign a plugin authority so someone can act. Setting it to `None` is the inverse move, and it bites: it welds the plugin's current state in place, permanently, because no key exists that could ever change it. A `PermanentFreezeDelegate` with `frozen: true` and authority `None` is not "frozen until someone important says otherwise". It is frozen the way a number is even.
 
@@ -115,13 +115,13 @@ Three catalog entries deserve a closer look before you type them.
 
 **Royalties** carries three fields and the program enforces their shape at mint. `basisPoints` is an integer 0..10000 (500 means 5%). `creators` is a list of address-plus-percentage entries whose percentages must sum to exactly 100, and a duplicated creator address is rejected. `ruleSet` decides who may move the asset: `None` puts no program restrictions on transfers, `ProgramAllowList` permits only listed programs to be involved, `ProgramDenyList` blocks listed programs. Note what `None` means for the word "royalty": the split is recorded on-chain, readable by everyone, enforced by nobody in particular. Whether anyone actually pays it is a marketplace decision, and that uncomfortable sentence is the entire subject of m06-l3. I have fat-fingered a creator split before, 60/50 across two wallets because I edited one side and not the other, and the mint reverts on the spot. Good. Better a revert at mint than a marketplace splitting 110%.
 
-![Annotated Royalties plugin config showing basisPoints bounded 0 to 10000, creator percentages that must sum to exactly 100 with no duplicate addresses, and the three ruleSet variants.](assets/v05-annotated-code.png)
+![Annotated Royalties plugin config showing basisPoints bounded 0 to 10000, creator percentages that must sum to exactly 100 with no duplicate addresses, and the three ruleSet variants.](assets/v05-annotated-code.webp)
 
 **PermanentFreezeDelegate** is the reversible FreezeDelegate's one-way sibling. Attach it with `frozen: true` and an authority of `None` and you have an asset no key on earth can thaw or move. That is not a bug to route around; it is the soulbound mechanism. A membership badge, a credential, a proof-of-attendance: things that should be meaningless to sell are exactly the things you freeze permanently. The flip side is the footgun the name is warning you about. Permanent means permanent. There is no later governance vote, no support ticket, no authority that can un-freeze the Founding-Farmer badge once you mint it this way. If a farmer loses their wallet, they need a new badge, not a transfer. Reach for the reversible FreezeDelegate any time you can imagine a legitimate future move.
 
 **Edition and MasterEdition** split one job across the two account types. The collection carries `MasterEdition` with a `maxSupply` and optional name/URI overrides; each printed asset carries `Edition` with its `number`. Reads compose exactly the way you would hope: fetch the collection for the cap, fetch any print for its number.
 
-![Diagram of a print run where the collection holds a MasterEdition plugin with maxSupply 100 and each member asset carries an Edition plugin with its own print number.](assets/v06-diagram.png)
+![Diagram of a print run where the collection holds a MasterEdition plugin with maxSupply 100 and each member asset carries an Edition plugin with its own print number.](assets/v06-diagram.webp)
 
 ### Delegates, and what a transfer erases
 
@@ -157,7 +157,7 @@ That single sentence has three consequences worth holding separately. A buyer ne
 
 The first-principles version, if you want the rule to be memorable instead of memorized: a delegation is a statement about the current owner's intent, so it must not outlive that owner. A royalty is a statement about the creator's terms, so it must. Core encodes the difference in the plugin's class rather than asking every integrator to remember which is which.
 
-![Table of Core's plugin classes, owner-managed plugins whose authority auto-revokes on transfer, authority-managed plugins like Royalties that persist, and the permanent family that attaches only at mint.](assets/v07-table.png)
+![Table of Core's plugin classes, owner-managed plugins whose authority auto-revokes on transfer, authority-managed plugins like Royalties that persist, and the permanent family that attaches only at mint.](assets/v07-table.webp)
 
 ### Attributes: traits an on-chain program can actually read
 
@@ -211,7 +211,7 @@ Guards compose into named groups, which is how one machine runs a whole drop sch
 
 Two things to carry forward and one to never do. Carry forward: the anti-snipe pair you just met, `botTax` and `allowList`, is the backbone of a fair mint, and the same defend-the-launch problem returns in module 8 around bonding curves. And Core Candy Machine mints Core assets ONLY. The never: the legacy Candy Machine V3 line mints Token Metadata NFTs and is deprecated alongside the standard it serves; if a tutorial hands you V3, you are reading history.
 
-![Pipeline of a buyer transaction passing the startDate, allowList, mintLimit, and solPayment guards into a mint that lands the asset in a Core collection, with failed checks routed to botTax.](assets/v08-flowchart.png)
+![Pipeline of a buyer transaction passing the startDate, allowList, mintLimit, and solPayment guards into a mint that lands the asset in a Core collection, with failed checks routed to botTax.](assets/v08-flowchart.webp)
 
 ### The trade-off, named
 
@@ -219,7 +219,7 @@ Core's single-account model is the reason the mint is roughly 87% cheaper and th
 
 You can read the hand-off in the release trains alone, no announcement needed. The `mpl-token-metadata` JS package stopped at v3.4.0 in February 2025 and has not shipped a feature since. Meanwhile the Core program cut 0.13.0 through 0.15.1 across May and June 2026, its Rust client crate reached 0.12.1 on 2026-06-16, and the Core JS SDK reached 1.10.0 in April 2026. One line went quiet; the other three kept a steady cadence. That is what a standard migration looks like from the changelog side.
 
-![Timeline showing mpl-token-metadata's JS line stopping at v3.4.0 in February 2025 while Metaplex Core shipped JS 1.10.0 and program versions 0.13.0 through 0.15.1 across 2026.](assets/v09-timeline.png)
+![Timeline showing mpl-token-metadata's JS line stopping at v3.4.0 in February 2025 while Metaplex Core shipped JS 1.10.0 and program versions 0.13.0 through 0.15.1 across 2026.](assets/v09-timeline.webp)
 
 ## Lab: mint the Almanac
 
@@ -482,6 +482,6 @@ The gate: `npx tsx verify-almanac.ts` prints its six OK lines. Collection with i
 
 The misses I expect. First, ordering: if your membership assertion fails with `updateAuthority.type === "Address"`, you minted without passing the collection, and no amount of re-fetching fixes it; mint again, collection-first. Second, the royalties revert: a split that does not sum to 100 or a basisPoints outside 0..10000 fails at mint time with a Core error, which is your validator's spec written as a stack trace. Third, if the badge transfer SUCCEEDS in your challenge proof, check which asset you froze; more than one student has permanently frozen their Vol. 1 and left the badge liquid, and on a throwaway surfnet that is a free lesson about exactly why PermanentFreeze deserves respect on mainnet.
 
-![Hub diagram of the completed R7 artifact, the Almanac collection with royalty asset, numbered print, and frozen badge, consumed by Bubblegum v2, the DAS lesson, module 8, and the capstone.](assets/v10-diagram.png)
+![Hub diagram of the completed R7 artifact, the Almanac collection with royalty asset, numbered print, and frozen badge, consumed by Bubblegum v2, the DAS lesson, module 8, and the capstone.](assets/v10-diagram.webp)
 
 You minted a collection, three kinds of member, and proved every property with direct reads. Total cost on your surfnet: pocket change, and the same flow on mainnet stays in the thousandths of a SOL per asset by the vendor's own numbers. But look back at what you actually shipped in that Royalties plugin. You attached it, you set 500 basis points, you verified it reads back. Does anyone actually enforce it? You shipped `ruleSet("None")`, and I let you. Next lesson is the royalty reality nobody advertises: what enforcement actually exists, what pNFTs and Token Auth Rules really do, and why the standard half the ecosystem still integrates against is officially legacy. Bring a strong stomach for the word "advisory".

@@ -77,7 +77,7 @@ Quiero ser honesto sobre lo que el sondeo demostró y lo que no, porque esta es 
 
 Piénsalo como una franquicia, porque la analogía aguanta hasta el fondo y la voy a seguir usando. Una cocina, una freidora, un contrato con el proveedor. El franquiciado elige el cartel sobre la puerta, los precios en la pizarra y quién se queda con la caja al cerrar. Lo que el franquiciado no puede cambiar es la freidora. Y ese es exactamente el canje que ofrece la Platform PDA: control total de marca y reparto de comisiones, cero control de mecánica.
 
-![Un diagrama de centro y radios del programa Raydium LaunchLab con radios de Platform PDA para Raydium, LetsBonk y terceros, que comparten una sola curva y una sola regla de graduación mientras cada uno configura marca y comisiones.](assets/v01-diagram.png)
+![Un diagrama de centro y radios del programa Raydium LaunchLab con radios de Platform PDA para Raydium, LetsBonk y terceros, que comparten una sola curva y una sola regla de graduación mientras cada uno configura marca y comisiones.](assets/v01-diagram.webp)
 
 ### Qué es en realidad un launchpad
 
@@ -93,7 +93,7 @@ Quítale la marca y un launchpad son cuatro decisiones empaquetadas juntas y ven
 
 Fíjate en lo que no está en esa lista: el estándar del token. Cada una de estas plataformas te va a acuñar con gusto un token SPL. Solo algunas van a llevar un mint de Token-2022 con extensiones de poder hasta el final de la migración, y ninguna te lo va a decir en el momento de acuñar. La falla aparece en la última instrucción.
 
-![Una comparación de cuatro columnas de pump.fun, Raydium LaunchLab, Meteora DBC y Metaplex Genesis a lo largo de ocho ejes de lanzamiento, con Meteora DBC como la única plataforma documentada para soportar configuraciones de transfer hook.](assets/v02-comparison.png)
+![Una comparación de cuatro columnas de pump.fun, Raydium LaunchLab, Meteora DBC y Metaplex Genesis a lo largo de ocho ejes de lanzamiento, con Meteora DBC como la única plataforma documentada para soportar configuraciones de transfer hook.](assets/v02-comparison.webp)
 
 ### pump.fun: la plataforma sin perillas
 
@@ -103,7 +103,7 @@ El día de bandera del 2025-09-01 es la parte que vale la pena traer a esta lecc
 
 La ventaja de no tener perillas es real y la subestima la gente a la que le gustan las perillas: no la puedes configurar mal. Cada lanzamiento es el mismo lanzamiento, así que la liquidez, los bots, los frontends y los dashboards conocen la forma de antemano, y la superficie de integración es enorme porque nunca cambia. Cero configuración es una feature cuando la alternativa eres tú, a las 3am, eligiendo una duración de cliff que no entiendes.
 
-![Un gráfico de barras agrupadas con las tasas de comisión leídas el 2026-08-22, con el 1.00% de pump.fun marcado como histórico y reemplazado por niveles dinámicos, el modo curva de Genesis apilado en 1.10% y 0.86%, y dos plataformas dejadas como barras de marcador de posición marcadas como sin fuente.](assets/v03-chart.png)
+![Un gráfico de barras agrupadas con las tasas de comisión leídas el 2026-08-22, con el 1.00% de pump.fun marcado como histórico y reemplazado por niveles dinámicos, el modo curva de Genesis apilado en 1.10% y 0.86%, y dos plataformas dejadas como barras de marcador de posición marcadas como sin fuente.](assets/v03-chart.webp)
 
 ### LaunchLab: perillas, un contrato de franquicia y un NFT que recauda renta
 
@@ -160,7 +160,7 @@ El lado BASE, el lado donde viviría SPROUT, se apoya en una afirmación de docu
 
 El lado del costo, porque una plataforma así de flexible no es gratis. Cada segmento es una decisión de distribución que ahora tienes que defender, y una curva por tramos te da muchas más formas de equivocarte que una fija. La matemática del pool y la estrategia de LP que te dejarían moldear esos segmentos con inteligencia están de verdad fuera de alcance aquí, y no las voy a fingir: el curso planificado DeFi and RWA Engineering enseña provisión de liquidez a profundidad real, y ahí es donde moldear curvas deja de ser un menú y se vuelve una disciplina. Esta lección te lleva exactamente hasta elegir la plataforma y saber cuáles son sus perillas.
 
-![Un extracto anotado del código fuente de la Dynamic Bonding Curve de Meteora que muestra MAX_CURVE_POINT en 16 y MAX_CURVE_POINT_CONFIG en 20, con llamadas que nombran la falla que causa cada número si se confía solo en él.](assets/v04-annotated-code.png)
+![Un extracto anotado del código fuente de la Dynamic Bonding Curve de Meteora que muestra MAX_CURVE_POINT en 16 y MAX_CURVE_POINT_CONFIG en 20, con llamadas que nombran la falla que causa cada número si se confía solo en él.](assets/v04-annotated-code.webp)
 
 ### Genesis: cuando una curva es la forma equivocada por completo
 
@@ -170,7 +170,7 @@ Genesis ofrece en cambio una **subasta a precio uniforme**. Las pujas entran dur
 
 Lo que te cuesta es aquello en lo que las curvas son de verdad buenas. Una subasta necesita que la demanda aparezca dentro de una ventana, y una ventana es un problema de coordinación: tienes que promocionarla, y si la ventana cierra floja, descubriste tu curva de demanda en público. Una bonding curve nunca tiene ese modo de falla, porque siempre está abierta y siempre está cotizando. Elige la subasta cuando el lanzamiento tenga suficiente peso para llenar una sala en una fecha fija. Elige una curva cuando no lo tenga.
 
-![Un diagrama de flujo de datos que muestra a Metaplex Genesis enrutando el SOL de los participantes a través de buckets de entrada, un comportamiento de cierre y buckets de salida, con un carril paralelo que asigna tokens a los ganadores a un solo precio de corte.](assets/v05-diagram.png)
+![Un diagrama de flujo de datos que muestra a Metaplex Genesis enrutando el SOL de los participantes a través de buckets de entrada, un comportamiento de cierre y buckets de salida, con un carril paralelo que asigna tokens a los ganadores a un solo precio de corte.](assets/v05-diagram.webp)
 
 ### Cuatro defensas contra la misma ventana disputada
 
@@ -186,7 +186,7 @@ Todo mecanismo anti-snipe en este espacio ataca la misma ventana. Desde el slot 
 
 Hay una quinta opción que la gente olvida: ninguna defensa. Eso es lo que es un lanzamiento de pump a secas, y es una elección coherente si el token es pequeño, el lanzamiento es silencioso, y el costo de que un bot consiga una buena ejecución es de verdad menor que el costo de pedirle a tu comunidad que aprenda una ventana de depósito. Nombrarla como una elección es distinto de tropezarse con ella.
 
-![Una línea de tiempo de lanzamiento con los primeros slots disputados por snipers tras la apertura del trading, y cuatro defensas posicionadas alrededor de esa zona: ventana de depósito, primera compra sin comisión, comisión decreciente y subasta a precio uniforme.](assets/v06-timeline.png)
+![Una línea de tiempo de lanzamiento con los primeros slots disputados por snipers tras la apertura del trading, y cuatro defensas posicionadas alrededor de esa zona: ventana de depósito, primera compra sin comisión, comisión decreciente y subasta a precio uniforme.](assets/v06-timeline.webp)
 
 ### Qué siembra en realidad la graduación
 
@@ -200,7 +200,7 @@ Aquí está la parte que todo launchpad hace por ti en silencio, que es por lo q
 
 Ahora el contrafáctico, que es la única forma de sentir lo que estás consiguiendo. Sin un launchpad crearías la cuenta de pool y pagarías su rent tú mismo, fondearías los dos lados desde una billetera que controlas, elegirías un precio de apertura por juicio propio en vez de por mecanismo, recibirías tokens LP en esa misma billetera, y después resolverías el problema de confianza a mano: quemarlos y demostrarlo, o bloquearlos en algún lado y demostrar eso. También serías dueño de todo el problema anti-snipe tú solo, porque un pool nuevo sin defensa es un pool al que le hacen snipe en su primer slot, por definición. Eso son cuatro trabajos y una demostración de confianza, a cambio del control sobre cada uno de ellos.
 
-![Una tabla de tres columnas que enumera las cinco cosas que un launchpad siembra en la graduación, quién decide cada una, y el equivalente manual desde la creación del pool hasta la cobertura anti-snipe.](assets/v07-table.png)
+![Una tabla de tres columnas que enumera las cinco cosas que un launchpad siembra en la graduación, quién decide cada una, y el equivalente manual desde la creación del pool hasta la cobertura anti-snipe.](assets/v07-table.webp)
 
 ### El conjunto de extensiones vota primero
 
@@ -210,7 +210,7 @@ Vuelve a leer la tabla de comparación con eso en la mano y el campo de platafor
 
 Así que el orden es fijo, y es lo contrario de cómo se planifican la mayoría de los lanzamientos. El conjunto de extensiones decide qué AMMs de graduación son legales. Los AMMs legales deciden qué plataformas están disponibles. Las plataformas disponibles te ofrecen un menú de defensas. Tú eliges de ese menú. Quien elige primero la plataforma va a terminar cambiando su token para que le calce, que es un buen resultado mientras haya sido una decisión y no un descubrimiento.
 
-![Un diagrama de flujo de cuatro etapas que va del conjunto de extensiones a los AMMs legales, a las plataformas disponibles, a la elección de defensa, con una flecha inversa que marca el plan al revés habitual y una llamada sobre la reversión en la migración.](assets/v08-flowchart.png)
+![Un diagrama de flujo de cuatro etapas que va del conjunto de extensiones a los AMMs legales, a las plataformas disponibles, a la elección de defensa, con una flecha inversa que marca el plan al revés habitual y una llamada sobre la reversión en la migración.](assets/v08-flowchart.webp)
 
 ## Lab: elige la plataforma de SPROUT y escribe la decisión
 
@@ -508,7 +508,7 @@ Fíjate en que esta respuesta no es la respuesta de la lección pasada, y la dif
 
 Ahora hazlo fallar de tres formas, porque un checkpoint que no puede fallar nunca fue un checkpoint. Agrega `"TransferHook"` a `extensions` y nota que la fila de DBC sobrevive mientras los otros tres rechazos siguen en pie. Pon `wantsAntiSnipe: false` y fíjate en que pump y LaunchLab NO vuelven al conjunto elegible; la barrera del programa base los rechazó antes de que la barrera de defensa llegara a correr, y ninguna bandera de preferencia puede conjurar un mint de Token-2022 sobre una plataforma de SPL clásico. Para ver la barrera de defensa morder de verdad, voltea el perfil entero a un token clásico simple (`baseTokenProgram: "spl"`, `extensions` vacío, `wantsAntiSnipe: true`) y mira cómo pump y LaunchLab quedan rechazados solo por la defensa. Por último pon `extensions` en `["PermanentDelegate"]` con el perfil de Token-2022 y mira el throw: ninguna plataforma sobrevive, cada rechazo impreso, ningún valor por defecto devuelto. Vuelve a poner los valores reales de SPROUT cuando termines.
 
-![Un diagrama de flujo de choose-venue.ts que pasa cada plataforma por una barrera de extensiones y una barrera de preferencia, con los rechazos recogidos aparte, un desempate y una barrera de salida para las elecciones sin defensa.](assets/v09-flowchart.png)
+![Un diagrama de flujo de choose-venue.ts que pasa cada plataforma por una barrera de extensiones y una barrera de preferencia, con los rechazos recogidos aparte, un desempate y una barrera de salida para las elecciones sin defensa.](assets/v09-flowchart.webp)
 
 ## Challenge
 

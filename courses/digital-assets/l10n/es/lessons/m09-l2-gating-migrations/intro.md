@@ -72,7 +72,7 @@ Puede mandarte su **lista de tokens en caché**, la que el wallet adapter guarda
 
 O puedes **leer la tenencia tú mismo**, desde una fuente que el solicitante no controla. Esa es la única que cuenta. Para un saldo fungible puedes ir directo a la blockchain. Para un Harvest crate no puedes, porque un NFT comprimido no tiene cuenta propia: las lecturas de cNFT requieren un RPC con soporte de DAS, que es la restricción con la que te topaste cuando construiste el lector, y es la razón por la que la barrera para un badge de cNFT es una llamada a DAS y no un `getAccountInfo`.
 
-![Tres tarjetas de evidencia comparan un mensaje firmado, una lista de tokens en caché del cliente y una lectura de DAS, y solo la lectura de DAS demuestra la tenencia actual, bajo la advertencia del retraso del indexador.](assets/v01-comparison.png)
+![Tres tarjetas de evidencia comparan un mensaje firmado, una lista de tokens en caché del cliente y una lectura de DAS, y solo la lectura de DAS demuestra la tenencia actual, bajo la advertencia del retraso del indexador.](assets/v01-comparison.webp)
 
 Así que la regla es corta. Una barrera decide con una lectura en la que el solicitante no puede escribir. Todo lo demás es un detalle de experiencia de usuario que puedes mostrar en la UI y sobre el que nunca debes ramificar.
 
@@ -90,7 +90,7 @@ Tienes tres formas de pagar esa factura, y cuestan cantidades distintas.
 
 **Condiciona el acceso a algo que no se pueda mover.** Esta es mi favorita y casi nadie la elige. Si el badge es soulbound, el caso de transferencia que hace peligroso el desfase no existe. Bubblegum v2 ya viene con `set_non_transferable_v2`, así que el Founding-Farmer crate se puede acuñar sin poder salir de la billetera a la que se otorgó, lo cual contradice de plano el folclore de la era 2024 de que los NFT comprimidos no pueden ser soulbound. Ya acuñaste uno así en el módulo 7. Un badge soulbound no hace instantáneo el índice, saca la transferencia del modelo de amenazas, que es un tipo de arreglo distinto y mejor.
 
-![Una línea de tiempo muestra una transferencia de cNFT aterrizando on-chain, el índice de DAS quedándose atrás, y una comprobación de la barrera dentro de ese hueco dejando pasar por error a un antiguo tenedor, con los remedios alineados debajo.](assets/v02-timeline.png)
+![Una línea de tiempo muestra una transferencia de cNFT aterrizando on-chain, el índice de DAS quedándose atrás, y una comprobación de la barrera dentro de ese hueco dejando pasar por error a un antiguo tenedor, con los remedios alineados debajo.](assets/v02-timeline.webp)
 
 Hay una cuarta respuesta que la gente elige y quiero nombrarla para que la saltes: hacer streaming del estado tú mismo para tener siempre la vista más fresca. Esa es una técnica real y es un proyecto real. Construir indexadores, plugins de Geyser y pipelines de gRPC es el material del curso planificado Client-Side Mastery, y si tu barrera de verdad necesita frescura por debajo del segundo sobre activos comprimidos, ahí es a donde ir. Para una puerta de miembros, es una plataforma de datos de la que ahora eres dueño para que un desconocido no pueda leer tu canal alfa durante once segundos.
 
@@ -112,7 +112,7 @@ Mira cómo el ratio hace su trabajo con números redondos. Digamos que Overgrowt
 
 Pon el ratio en 1 unidad base por punto y los mismos 100,000 puntos se vuelven 100,000 unidades base, alrededor del 1% del supply, y tus grinders leales se sienten estafados. Ponlo en 100 y tus tenedores actuales se diluyen a la mitad. El mecanismo que estás por construir es idéntico en los tres casos. El mecanismo es gratis. El ratio no.
 
-![Un gráfico de barras agrupadas convierte los mismos 100,000 puntos de compost a tres ratios contra un supply existente fijo de 9,000,000, y les da a los tenedores de puntos entre alrededor de uno y cincuenta y tres por ciento.](assets/v03-chart.png)
+![Un gráfico de barras agrupadas convierte los mismos 100,000 puntos de compost a tres ratios contra un supply existente fijo de 9,000,000, y les da a los tenedores de puntos entre alrededor de uno y cincuenta y tres por ciento.](assets/v03-chart.webp)
 
 Lo cual trae el caso de estudio, y un hueco honesto dentro de él. Kamino corrió una migración de puntos a token hacia KMNO, y es lo obvio a lo que apuntar porque es una de las más grandes que ha hecho este ecosistema. Lo que no pude hacer es verificar la tokenomics de la conversión. Los números que te dejarían decir "convirtieron a X por punto" no están publicados en ningún lado que yo pudiera confirmar, así que no voy a meterte en la cabeza un ratio que no puedo citar. Toma de ahí el mecanismo, una migración con reclamo por merkle desde un libro mayor de puntos off-chain hacia un token on-chain, y toma el ratio de tu propia matemática de supply. Ese es el uso correcto de un caso de estudio cuyos números son privados, y es la misma regla que este curso ha aplicado a cada cifra en disputa: mídela o cítala, nunca partas la diferencia.
 
@@ -124,7 +124,7 @@ Porque quien acuña paga las cuentas. Costeaste exactamente esto cuando construi
 
 Un reclamo cambia quién tiene la factura en la mano. El distributor pone una sola raíz on-chain. Cada destinatario que quiere sus tokens manda su propia transacción, paga el rent de su propia cuenta, y recibe sus propios tokens. Y la cola que nunca reclama nunca te cuesta nada, lo cual importa más de lo que suena: en todo drop grande, una parte significativa de la asignación simplemente nunca se recauda. Bajo un modelo de push pagabas rent para crear cuentas de gente que nunca iba a volver.
 
-![Una comparación de tres columnas entre pushes a cuentas clásicas, pushes a cuentas comprimidas y un reclamo por merkle muestra que el reclamo traslada el costo a los destinatarios y nunca acuña la cola no reclamada.](assets/v04-comparison.png)
+![Una comparación de tres columnas entre pushes a cuentas clásicas, pushes a cuentas comprimidas y un reclamo por merkle muestra que el reclamo traslada el costo a los destinatarios y nunca acuña la cola no reclamada.](assets/v04-comparison.webp)
 
 Hay una segunda razón, y es por la que el drop de JTO es famoso. Un distributor puede tener dos montos por destinatario: una porción que se desbloquea de inmediato, y una porción que se libera con el tiempo. Jito distribuyó su airdrop mediante un distributor merkle de código abierto con vesting lineal que corrió hasta el 2024-12-07, y el programa que lo hizo, `mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv`, sigue siendo la implementación de referencia de este patrón. La instrucción que libera la porción de vesting es `claim_locked`, y ya te topaste con ella en la lección del airdrop. La migración quiere esa división más que un airdrop: un programa de puntos premia a la gente que apareció temprano, y entregarles a todos ellos tokens totalmente líquidos el día uno es una decisión de diseño con un gráfico muy predecible pegado.
 
@@ -136,7 +136,7 @@ El distributor guarda una sola raíz de 32 bytes. La entrada de un reclamante se
 
 Esos dos bytes de prefijo no son decoración. Sin ellos, una "hoja" de 64 bytes podría fabricarse para parecer un par de nodos internos, y un reclamante podría demostrar la pertenencia de una hoja que nunca estuvo en el árbol. Ese es el ataque de segunda preimagen, y el arreglo es un byte por hash. Aparece en casi toda implementación seria de merkle exactamente por esta razón, y que el arreglo sea así de barato es por lo que no hay excusa para saltárselo.
 
-![Un desglose anotado de la hoja del distributor muestra al reclamante y los montos hasheados en un nodo, prefijos de byte cero y uno en hojas y nodos internos, explicados como protección de segunda preimagen.](assets/v05-annotated-code.png)
+![Un desglose anotado de la hoja del distributor muestra al reclamante y los montos hasheados en un nodo, prefijos de byte cero y uno en hojas y nodos internos, explicados como protección de segunda preimagen.](assets/v05-annotated-code.webp)
 
 La recompensa de saber esto con precisión es que puedes calcular la raíz localmente, en TypeScript, y sacar los mismos 32 bytes que calculará el verificador on-chain. Así es como revisas una distribución antes de publicarla, y como depuras el único reclamo que falla mientras los otros nueve mil funcionan.
 
@@ -150,7 +150,7 @@ Fíjate en qué la hace confiable: tu cliente no puede escribirla. La guarda no 
 
 Lo cual te dice cuánto vale un libro mayor del lado del cliente. En el lab de hoy vas a mantener un archivo JSON chico de quién ha reclamado, y ese archivo va a impedir correctamente que tu script le pague dos veces a la misma billetera. Es un ensayo, no una frontera. Si la autoridad de mint de verdad es una clave dentro de tu script y lo único entre una billetera y una segunda entrega es un archivo en tu laptop, entonces una segunda entrega está a un archivo perdido de distancia. Dilo en voz alta cuando lo escribas, porque la forma del código se va a parecer tranquilizadoramente a la cosa real.
 
-![Dos flujos comparan un libro mayor JSON del lado del cliente, donde la guarda queda fuera de la transacción de acuñación, con la PDA ClaimStatus on-chain, donde guarda y transferencia ocurren en una sola transacción atómica.](assets/v06-flowchart.png)
+![Dos flujos comparan un libro mayor JSON del lado del cliente, donde la guarda queda fuera de la transacción de acuñación, con la PDA ClaimStatus on-chain, donde guarda y transferencia ocurren en una sola transacción atómica.](assets/v06-flowchart.webp)
 
 ### El trade-off, nombrado
 
@@ -164,7 +164,7 @@ El mecanismo de migración es portable, la tokenomics no. Puedes copiar la ruta 
 
 Y una guarda de reclamo que vive en tu proceso en vez de en la transacción no es una guarda, es una costumbre que funciona de casualidad hasta la primera vez que dos copias de tu script corren a la vez.
 
-![Un resumen de cuatro filas empareja cada trade-off aceptado con lo que lo acota, desde el retraso del indexador pasando por los reclamos pagados por el destinatario hasta la ventana de carrera en el libro mayor del lado del cliente.](assets/v07-comparison.png)
+![Un resumen de cuatro filas empareja cada trade-off aceptado con lo que lo acota, desde el retraso del indexador pasando por los reclamos pagados por el destinatario hasta la ventana de carrera en el libro mayor del lado del cliente.](assets/v07-comparison.webp)
 
 ## Lab: gate-and-migrate.ts
 
@@ -329,7 +329,7 @@ export function describe(result: GateResult): string {
 
 Cuatro decisiones de ahí valen sus palabras. La reverificación de `ownership.owner` parece redundante contra una consulta por dueño y no lo es: tarde o temprano le vas a pasar a esta función una lista de activos que sacaste de otro lado, y el día que lo hagas, esa línea es la diferencia entre una barrera y una sugerencia. `classifyAsset` está haciendo trabajo real y no decoración, porque es lo que impide que una posición fungible en la misma colección satisfaga una regla de badge. `readAt` existe para que cuando alguien se queje de que le negaron la entrada, puedas responder con un timestamp en vez de un encogimiento de hombros. Y `confirmBalanceOnChain` es el remedio de frescura, deliberadamente separado, deliberadamente no llamado por defecto. Préndelo para la barrera que protege algo caro, déjalo apagado para un rol de chat.
 
-![Un diagrama de flujo traza checkGate desde una dirección de dueño, pasando por una lectura paginada de DAS y tres comprobaciones secuenciales, hasta salir a una aprobación con evidencia o a una negación, con cada resultado marcado con timestamp.](assets/v08-flowchart.png)
+![Un diagrama de flujo traza checkGate desde una dirección de dueño, pasando por una lectura paginada de DAS y tres comprobaciones secuenciales, hasta salir a una aprobación con evidencia o a una negación, con cada resultado marcado con timestamp.](assets/v08-flowchart.webp)
 
 **3. Corre la puerta.**
 
@@ -809,7 +809,7 @@ rejected: 7xK…9fQ already claimed this distribution
 
 Lee las últimas cuatro líneas como un conjunto. El delta de supply iguala exactamente el monto acuñado, así que no se fugó nada. El resto bloqueado se declara en vez de acuñarse, así que tu gráfico de supply coincide con tu promesa. Y el segundo reclamo lo rechazó una comprobación que corrió antes de que se construyera ninguna transacción, que es donde corresponden los rechazos.
 
-![Cinco artefactos previos convergen en gate-and-migrate.ts, cuyos dos carriles internos emiten veredictos de la barrera, SPROUT acuñado con un delta de supply, y un segundo reclamo rechazado.](assets/v09-diagram.png)
+![Cinco artefactos previos convergen en gate-and-migrate.ts, cuyos dos carriles internos emiten veredictos de la barrera, SPROUT acuñado con un delta de supply, y un segundo reclamo rechazado.](assets/v09-diagram.webp)
 
 ## Challenge
 

@@ -61,7 +61,7 @@ An account's data is just a byte array. The program that owns the account decide
 
 A classic SPL mint is exactly 82 bytes, and both token programs use the same five fields in the same order. Here is the map, offsets included, because you are about to write code against them:
 
-![A horizontal byte map of the 82-byte mint layout: a 36-byte optional mint authority, an 8-byte little-endian supply, one decimals byte, one initialized byte, and a 36-byte optional freeze authority.](assets/v01-diagram.png)
+![A horizontal byte map of the 82-byte mint layout: a 36-byte optional mint authority, an 8-byte little-endian supply, one decimals byte, one initialized byte, and a 36-byte optional freeze authority.](assets/v01-diagram.webp)
 
 Two of these fields deserve a closer look because they trip people.
 
@@ -69,7 +69,7 @@ Two of these fields deserve a closer look because they trip people.
 
 **Supply is a u64, and u64 does not fit in a JavaScript number.** `Number.MAX_SAFE_INTEGER` is 2^53 minus 1, about 9.0 quadrillion; a u64 tops out around 18.4 quintillion, three orders of magnitude higher. This is not a theoretical concern you can defer. When I decoded classic USDC's mint today its supply read 7,923,463,957,481,104 base units, which is about 88 percent of the way to the largest integer JavaScript can represent exactly. One more order of magnitude of stablecoin growth, or any 9-decimals token with a large supply, and `Number(supply)` silently rounds. Silently is the operative word: no exception, no warning, just a wrong balance in production. So the rule in this course is absolute and boring: **u64 supply and amounts are BigInt end to end**, read with `DataView.getBigUint64`, printed with the `n` still conceptually attached, never bounced through `Number`. I have shipped the other version of this decision, years ago, in a dashboard that displayed token supplies. It worked in every test, because test supplies are small. That is exactly the kind of bug this is.
 
-![A comparison showing PYUSD's supply at 7.6 percent of JavaScript's safe-integer limit, USDC's at 88 percent, and the u64 maximum far past it, ending with the keep-everything-BigInt rule.](assets/v02-comparison.png)
+![A comparison showing PYUSD's supply at 7.6 percent of JavaScript's safe-integer limit, USDC's at 88 percent, and the u64 maximum far past it, ending with the keep-everything-BigInt rule.](assets/v02-comparison.webp)
 
 That is the base. On a bare classic mint, that is also the end: byte 82 is the edge of the account. The length itself is your first parser branch, and it is a complete answer on its own. An account that is exactly 82 bytes is a bare mint with no extensions, no discriminator, no TLV region, full stop. Nothing else to check.
 
@@ -85,7 +85,7 @@ The cost of this design is honest and visible: an extended mint spends 83 bytes 
 
 This also settles a practical question about the token accounts you use daily. Your ATAs, the associated token accounts holding your balances, are 165-byte token accounts in the classic program. A Token-2022 token account with any extension gets the same treatment as a mint: padded (it is already at 165), then byte 165 carries a 2 instead of a 1. Same discriminator slot, different value. One byte, and mints and token accounts can never be confused again no matter what extensions do to their lengths.
 
-![Two byte bars comparing a bare 82-byte mint with PYUSD's 866-byte mint, whose identical base is followed by padding, the account-type discriminator, and a 700-byte TLV region.](assets/v03-diagram.png)
+![Two byte bars comparing a bare 82-byte mint with PYUSD's 866-byte mint, whose identical base is followed by padding, the account-type discriminator, and a 700-byte TLV region.](assets/v03-diagram.webp)
 
 ### The TLV walk
 
@@ -93,13 +93,13 @@ Everything from byte 166 to the end of the account is a sequence of **TLV entrie
 
 Your `peek.ts` output already contained a complete worked example. The four bytes at 166 were `3 0 32 0`. Read them as two little-endian u16s: type = 3, length = 32. Type 3 is MintCloseAuthority, and its value is a 32-byte pubkey. So bytes 170 through 201 are that authority, and the next entry's header begins at 166 + 4 + 32 = 202. At 202 you would find `12 0 32 0`: PermanentDelegate, another 32-byte pubkey, next header at 238. And so on, eight times, until the last entry ends exactly at byte 866, the edge of the account. When your cursor lands precisely on the account boundary with nothing left over, that is the reconciliation check that proves your walk read every byte.
 
-![A table walking PYUSD's eight TLV entries from byte 166 to 866, showing each entry's type, name, length, and the cursor arithmetic that lands exactly on the account boundary.](assets/v04-annotated-code.png)
+![A table walking PYUSD's eight TLV entries from byte 166 to 866, showing each entry's type, name, length, and the cursor arithmetic that lands exactly on the account boundary.](assets/v04-annotated-code.webp)
 
 Look down the type column for a second, because it quietly kills a tempting assumption. The codes run 3, 12, 1, 4, 16, 14, 18, 19. Not sorted. TLV entries appear in the order the issuer initialized them, not in type order, so your parser must never binary-search or assume position. You walk, always.
 
 Now the footgun that earns this lesson its place in the course, the one the brief and I both refuse to let you learn in production. When you finish reading an entry, you advance the cursor to the next header. The value is `length` bytes long, but the entry is `4 + length` bytes long, because the type and length fields themselves take two bytes each. Advance by `length` alone and your cursor lands 4 bytes short, in the middle of the value you just read. The next "type" you read is two bytes of some authority's pubkey. The next "length" is two more. Both parse fine, because any two bytes parse as a u16. From that point on, every entry you decode is garbage that looks like data, and nothing throws. One wrong constant, a silently corrupted read of every following entry. This is the brittleness tax of hand-parsing, and it is why the assert-script exists.
 
-![Two walks over the same TLV bytes, one advancing by four plus length onto the next header, the other landing four bytes short, so every later read is silently wrong.](assets/v05-diagram.png)
+![Two walks over the same TLV bytes, one advancing by four plus length onto the next header, the other landing four bytes short, so every later read is silently wrong.](assets/v05-diagram.webp)
 
 The lengths themselves are already telling you what lives inside each value, even before we study the mechanisms. The two 32-byte entries, MintCloseAuthority and PermanentDelegate, are each a single pubkey: one authority, nothing more. TransferHook and MetadataPointer both read 64, and both are a pair of pubkeys: an authority allowed to update the entry, plus the address it points at (a hook program in one case, a metadata account in the other). ConfidentialTransferMint's odd 65 is two pubkeys plus a single approve-policy byte in the middle. And TokenMetadata's 174 is the one variable-length entry in the set: it holds actual strings (name, symbol, URI), so its length differs per mint while every other entry's length is fixed by its struct. You cannot decode the values yet, and this lesson deliberately does not: value layouts are per-extension knowledge, and module 2 takes them one mechanism at a time. But you can already do surprisingly sharp forensics with `{name, type, length}` alone, which is exactly the interface your inspector exports.
 
@@ -113,7 +113,7 @@ You can now read any existing mint. Creating one poses the inverse problem: befo
 
 The resulting numbers are pleasingly un-round, and each one itemizes its own cost. A mint with only NonTransferable, a marker extension whose value is zero bytes, is 165 + 1 + 4 + 0 = 170 bytes. A mint with only TransferFeeConfig, whose value is 108 bytes of authorities, withheld amounts, and two fee schedules, is 165 + 1 + 4 + 108 = 278. Those two figures come straight out of the solana-developers program-examples token-2022 samples, and now they also come out of your own arithmetic. Every extension pays for itself in account rent, and the length alone tells you the bill. The lab computes these with the JS client's mirror of the same model, so you never memorize them, you regenerate them.
 
-![A bar chart of mint sizes: 82 bytes bare, 170 with NonTransferable, 278 with a transfer-fee config, and 866 for PYUSD, against the 166-byte extended-base floor.](assets/v06-chart.png)
+![A bar chart of mint sizes: 82 bytes bare, 170 with NonTransferable, 278 with a transfer-fee config, and 866 for PYUSD, against the 166-byte extended-base floor.](assets/v06-chart.webp)
 
 Here is the honest trade-off of this whole lesson, stated once before you build. Reading raw bytes gives you ground truth no wallet UI, no RPC parser, and no SDK can hide from you. It is also brittle by nature: offsets shift as extensions are added, type codes must map correctly, and you have now seen how one wrong cursor advance corrupts everything after it silently. Hand-parsing is the right teaching move and the wrong production move. The shipped clients exist precisely so you rarely do this by hand, and step 6 of the lab uses one to check your work. But when a wallet shows one thing and an explorer shows another, the bytes are the tiebreaker, and after today you are qualified to consult them. That is the point: not to replace the tools, but to stop being hostage to them.
 
@@ -139,7 +139,7 @@ The pins deserve a paragraph, because I had to make a real decision here and you
 
 **2. Write the inspector, worked part first.** Before the code, hold the whole decision flow in your head once. It is short, and every branch is something the theory just taught:
 
-![A flowchart of the mint inspector: fetch the bytes, parse the base, report bare on exactly 82 bytes, otherwise check byte 165 and walk the TLV region from byte 166.](assets/v07-flowchart.png)
+![A flowchart of the mint inspector: fetch the bytes, parse the base, report bare on exactly 82 bytes, otherwise check byte 165 and walk the TLV region from byte 166.](assets/v07-flowchart.webp)
 
 Now create `decode-mint.ts`. Everything here is shown complete except one region: the base slice and the is-extended check are yours to copy, and the TLV loop is yours to write.
 

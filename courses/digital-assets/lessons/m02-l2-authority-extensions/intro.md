@@ -24,7 +24,7 @@ What comes back is a hex dump, not a friendly listing, and the tell is on the he
 
 Start with the mental model, because it is the thing most tutorials never draw. A token account has an owner, and your instinct says the owner is sovereign over that account. For plain SPL, that instinct is roughly right. Token-2022 breaks it on purpose. Several extensions install authorities at the *mint* level, and a mint-level authority acts on accounts the holder never consented to hand over. The account owner did not sign the mint's configuration. They opted into holding the token, and holding the token meant inheriting whatever powers the issuer baked into the mint. That asymmetry is the whole subject of this lesson.
 
-![A two-tier diagram with mint-level authorities on top reaching down into holder accounts, showing that account-level guards defend only the account layer and cannot override a mint-level permanent delegate.](assets/v01-diagram.png)
+![A two-tier diagram with mint-level authorities on top reaching down into holder accounts, showing that account-level guards defend only the account layer and cannot override a mint-level permanent delegate.](assets/v01-diagram.webp)
 
 One operational fact before the catalog, because it shapes every issuance decision you will make with these tools. All five of these extensions are pre-initialization extensions: their config instruction must run after the mint account is created and before `initializeMint`, on an account already sized for the TLV entry. You cannot bolt an authority onto a mint that is already live. There is no "add a permanent delegate later, once compliance asks for one." The authority set is decided the day the mint is born, under uncertainty, and you live with it for the token's whole life. Issuers who skip this analysis do not get a second pass at it.
 
@@ -34,13 +34,13 @@ A **permanent delegate** is a single address, set once on the mint, that may sig
 
 Do not confuse it with the delegate you already know from classic SPL. A regular delegate is holder-granted: the owner signs an `approve` on their own account, caps it at an amount, and can `revoke` it whenever they like. Its scope is one account, its budget is finite, and it exists only as long as the owner tolerates it. The permanent delegate inverts every one of those properties. The issuer sets it at mint creation, no holder ever signs anything, there is no amount cap, there is no revoke available to the holder, and its scope is every account of the mint that will ever exist. Same word, different species. One is a permission the holder extends. The other is a power the holder inherits by choosing to hold the token.
 
-![Two-column contrast of the owner-granted, capped, revocable approve-delegate against the issuer-set permanent delegate, which is mint-wide, uncapped, irrevocable, and always bypasses CpiGuard.](assets/v02-comparison.png)
+![Two-column contrast of the owner-granted, capped, revocable approve-delegate against the issuer-set permanent delegate, which is mint-wide, uncapped, irrevocable, and always bypasses CpiGuard.](assets/v02-comparison.webp)
 
 Now the reveal, and this is the beat worth slowing down for. You would think CpiGuard stops this. CpiGuard is the account-level extension that a holder turns on to say "no program may move funds out of my account through a cross-program invocation without my direct top-level signature." It exists precisely to kill the delegate-and-close tricks that malicious programs pull. So a careful holder enables CpiGuard and assumes a permanent-delegate sweep is now blocked like any other sneaky CPI move.
 
 It is not. And here the question is worth deriving rather than asserting, so read what the guard actually promises. The extension's own specification does not say "no funds leave during a CPI." It states a rule about *who must be signing*:
 
-![Rule panel showing CpiGuard blocks an owner-signed CPI transfer with CpiGuardTransferBlocked while the permanent delegate may always transfer or burn, bypassing the guard.](assets/v03-annotated-code.png)
+![Rule panel showing CpiGuard blocks an owner-signed CPI transfer with CpiGuardTransferBlocked while the permanent delegate may always transfer or burn, bypassing the guard.](assets/v03-annotated-code.webp)
 
 Read the rule and the answer falls out. The guard does not ask "is this a CPI move I dislike." It asks "is the signer a delegate." That inverts the naive reading: the one authority the guard refuses during a CPI is the *owner*, because an owner signature is exactly what a malicious program harvests when it gets you to sign an opaque instruction. Delegation is visible and bounded, so the guard insists on it. The owner's own blanket authority is the thing being socially engineered, so the guard revokes it inside a CPI.
 
@@ -56,7 +56,7 @@ And yet PYUSD ships one anyway, which tells you the trade is deliberate, not car
 
 **Pausable** installs a global halt. When the pause authority flips it, every transfer, mint, and burn for that mint reverts at once, chain-wide, until someone resumes. The footgun here is a category error: developers reach for Pausable expecting a per-account freeze, a way to quarantine one bad holder. It is not that. It is a kill switch for the whole token. Flip it and you have frozen every holder simultaneously, including your own liquidity, your own treasury, every honest user mid-transaction. In the processor, a paused mint makes the burn and transfer paths return `MintPaused` unconditionally. There is no "pause account X" argument, because the pause lives on the mint, not the account.
 
-![Flipping Pausable on the mint halts every transfer, mint, and burn for all holders simultaneously until the same authority resumes, unlike a freeze which targets a single account.](assets/v04-diagram.png)
+![Flipping Pausable on the mint halts every transfer, mint, and burn for all holders simultaneously until the same authority resumes, unlike a freeze which targets a single account.](assets/v04-diagram.webp)
 
 Use it for what it is: an emergency brake for the entire token, an incident-response tool, a way to stop the bleeding during an exploit. Never as targeted enforcement. If you need to stop one account, that is a freeze, which is the account-level state DefaultAccountState governs. Reach for the account tool for an account problem.
 
@@ -66,7 +66,7 @@ The switch is symmetric, which is its own operational burden. The same pause aut
 
 **DefaultAccountState** set to `Frozen` is the cleanest primitive for a specific compliance shape: every new account opens frozen and stays frozen until a freeze authority thaws it. This is the "no holder transacts until KYC clears" pattern, and it is genuinely elegant, because it inverts the default. Normally an account is usable the instant it exists and you have to catch bad actors after the fact. With DefaultAccountState(Frozen), the account is inert at birth and a holder becomes active only through a deliberate thaw. Onboarding is opt-in by the issuer, not opt-out.
 
-![A holder's account opens frozen, transfers revert with AccountFrozen until the freeze authority thaws that specific account after checks, after which normal transfers work.](assets/v05-flowchart.png)
+![A holder's account opens frozen, transfers revert with AccountFrozen until the freeze authority thaws that specific account after checks, after which normal transfers work.](assets/v05-flowchart.webp)
 
 The contrast with Pausable is the thing to lock in, because a quiz will absolutely try to swap them on you. Pausable is a global halt you flip for the whole mint. DefaultAccountState(Frozen) is a per-account gate you clear one holder at a time with a thaw. One is a kill switch. The other is a turnstile. They feel adjacent and they are completely different tools.
 
@@ -86,7 +86,7 @@ Here is the trap, and it is a documentation trap, not a code trap. In m01-l4 you
 
 The footgun is subtle and it bites in production. When you close an account, its lamports drain and its data is zeroed, but the *address* does not vanish. Anyone can send lamports back to that address and recreate an account there. A closed-then-revived account can be mistaken for fresh, trusted state by code that assumes "this address existed before, so it is legitimate." The defense is mark-closed hygiene: write a sentinel byte into the account before closing so a revived account is recognizable as a corpse, not a newborn. If your system reads an account's mere existence as proof of provenance, a revival attack turns that assumption into a hole.
 
-![After a mint closes, its address can be re-funded into a new account that naive code trusts, so a sentinel byte written before closing marks revivals as reused.](assets/v06-flowchart.png)
+![After a mint closes, its address can be re-funded into a new account that naive code trusts, so a sentinel byte written before closing marks revivals as reused.](assets/v06-flowchart.webp)
 
 ### The trade-off, named honestly
 
@@ -94,7 +94,7 @@ Every one of these authorities buys you the same currency: control. Freeze, paus
 
 If you want the decision procedure rather than the vibe, you already built it: these five slot straight into the conflict matrix from m01-l4. The question set is short. Who must be able to act against a holder, under what legal trigger, and which venues does the token need to live in? A payroll stablecoin answering to a regulator lands on PermanentDelegate plus DefaultAccountState(Frozen) and eats the listing restrictions, because its holders are counterparties before they are users. A community token that needs Raydium liquidity cannot carry a permanent delegate at all, whatever the lawyers would prefer. Write the venue list first. Then pick only the authorities that list allows, and document the ones you deliberately left off, because "we could have taken this power and chose not to" is itself a trust signal auditors read.
 
-![A comparison table of the five authority extensions listing what each controls, its named footgun, and how a DEX or auditor reads it as risk.](assets/v07-comparison.png)
+![A comparison table of the five authority extensions listing what each controls, its named footgun, and how a DEX or auditor reads it as risk.](assets/v07-comparison.webp)
 
 That is the design lens. You are not choosing features, you are choosing a trust posture and, with it, the set of places your token can live. Now build them.
 
@@ -517,7 +517,7 @@ npm install -D tsx@4.23.12 typescript@5.9.3
 
    Checkpoint, and this is the gate: `ownerBlocked === true` and `delegatePassed === true`. The owner's own CPI transfer is stopped by the guard it enabled, and the permanent delegate's identical transfer walks straight through the same guard. On my run the blocked one came back with custom program error 0x2a (decimal 42), `CpiGuardTransferBlocked`, and the program log `CPI Guard is enabled, and a program attempted to transfer user funds via CPI without using a delegate`, the same string the rule panel above quotes; the delegate's move confirmed. Worth running the control too: send the owner's transfer WITHOUT the padding wrapper and it succeeds, because the guard is inert outside a CPI.
 
-![The same CpiGuard-protected account blocks Alice's own wrapped CPI transfer but allows the permanent delegate's identical wrapped transfer, because the guard demands a delegate signer and the permanent delegate is carved out by name.](assets/v08-diagram.png)
+![The same CpiGuard-protected account blocks Alice's own wrapped CPI transfer but allows the permanent delegate's identical wrapped transfer, because the guard demands a delegate signer and the permanent delegate is carved out by name.](assets/v08-diagram.webp)
 
 7. **Wire it into the gate.** The five demonstrations already live in one file, `labs/m02-l2/verify-authorities.ts`; now finish it into a gate: create each throwaway mint, decode it with your m01-l2 inspector to assert its extension TLV is actually present, then run the behavioral proofs: the Pausable transfer reverting, the DefaultAccountState freeze-then-thaw, and the guard-versus-delegate pair. The PermissionedBurn proof is conditional, because of the step-5 simnet caveat — and the probe already exists: step 5's worked code leaves `permissionedMint` null on a build that predates the extension and prints the `SKIPPED: PermissionedBurn (simnet build predates the extension; prove it on devnet with this step's re-run)` line for you. Branch on it: when `permissionedMint` is non-null, run the dead-standard-burn and live-co-signed-burn assertions against it; when it is null, the printed skip has already told the truth. A skip that names its reason keeps the gate honest on every cluster this course runs against. This file is the artifact the lesson adds to SPROUT's toolkit, `sprout-mint-authorities`, and it consumes both things you already shipped: the mint-creation plumbing from the economics lab and the `decode-mint` inspector. The assertion tail for the flagship looks like this:
 

@@ -54,7 +54,7 @@ Converta para tokens inteiros e os números ficam mais amigáveis: 1.073 bilhão
 
 Olhe fixo para a primeira e para a última por um segundo. A curva alega 1.073 bilhão de tokens em reserva. O mint só cria 1 bilhão. Uma reserva que guarda mais que o supply inteiro não é um saldo, e esse é o sinal: reservas virtuais não são custódia, são os dois números de que uma fórmula de precificação precisa. Uma reserva real é o que o programa vai de fato te entregar, enquanto uma reserva virtual é só onde o programa finge estar na curva de preço, e o vão entre as duas é uma escolha de design em vez de um acidente, a escolha que define seu preço de abertura e, portanto, toda a forma do passeio que vem depois.
 
-![A reserva virtual de token de 1.073 bilhão se estende além da linha de supply de 1 bilhão enquanto a reserva real de 793.1 milhões fica dentro dela, marcando as reservas virtuais como coordenadas de precificação.](assets/v01-diagram.png)
+![A reserva virtual de token de 1.073 bilhão se estende além da linha de supply de 1 bilhão enquanto a reserva real de 793.1 milhões fica dentro dela, marcando as reservas virtuais como coordenadas de precificação.](assets/v01-diagram.webp)
 
 A regra de precificação é a mais antiga dos mercados on-chain. O produto das duas reservas virtuais fica constante em toda troca:
 
@@ -113,7 +113,7 @@ graduationSol = 115.005 - 30 = 85.005 SOL
 
 Aí está. O número que as pessoas repetem como lei do universo é a aritmética de `30 x 1073 / (1073 - 793.1) - 30`, e ele não está armazenado em lugar nenhum porque não precisa estar. Ele está implícito em três das quatro constantes publicadas, SOL virtual, token virtual e token real, do mesmo jeito que a prestação de um financiamento está implícita numa taxa e num prazo; a quarta constante, o total supply, nunca entra nesta aritmética e só importa para o adendo do resto lá embaixo.
 
-![Uma curva de preço de produto constante subindo 14.7 vezes da abertura até a graduação, com a área verdadeira embaixo dela marcada 85.005 SOL contra um retângulo de preço fixo bem menor marcado 22.174 SOL.](assets/v02-chart.png)
+![Uma curva de preço de produto constante subindo 14.7 vezes da abertura até a graduação, com a área verdadeira embaixo dela marcada 85.005 SOL contra um retângulo de preço fixo bem menor marcado 22.174 SOL.](assets/v02-chart.webp)
 
 Vale levar duas consequências desta seção, porque são elas que fazem da derivação uma ferramenta em vez de um truque.
 
@@ -152,7 +152,7 @@ Vinte e cinco contas, e exatamente uma delas assina. O único signer é `user`, 
 
 Sem permissão mais idempotente é o design certo aqui e vale entender como padrão, não só como curiosidade. Um passo que qualquer um pode correr para disparar, num momento imprevisível, não pode depender de uma parte específica estar acordada. Bots ficam de olho na flag e disparam migrações de graça. Se em vez disso o passo fosse restrito a uma autoridade, uma moeda graduada cujo criador saísse do ar ficaria com liquidez morta até o criador voltar. Se fosse sem permissão mas não idempotente, a corrida em si seria o exploit. Você quer as duas propriedades ou nenhuma.
 
-![Um fluxo vertical de cinco estágios da criação da curva, passando pelo limiar derivado de 85.005 SOL, até a flag complete e um migrate sem permissão e idempotente que queima o LP na PumpSwap.](assets/v03-flowchart.png)
+![Um fluxo vertical de cinco estágios da criação da curva, passando pelo limiar derivado de 85.005 SOL, até a flag complete e um migrate sem permissão e idempotente que queima o LP na PumpSwap.](assets/v03-flowchart.webp)
 
 ### A curva é uma política, e a política mudou debaixo de todo mundo
 
@@ -171,11 +171,11 @@ Leia aquela estrutura com atenção, porque ela diz mais do que o anúncio disse
 
 Aqui está o que está em jogo para você, e não é abstrato. Se você está modelando um lançamento, a taxa que você paga a 10 SOL de market cap e a taxa que você paga a 300 SOL podem cair em faixas diferentes, e uma planilha construída na era dos 100 bps fixos vai errar o preço das duas. Pior, vai errar numa direção que você não consegue prever de fora, porque os limites das faixas são dados.
 
-![Um fluxograma traçando a taxa de uma troca desde a derivação do market cap, passando pela seleção de faixa no FeeConfig editável, até uma divisão em três vias roteada por oito destinatários rotativos.](assets/v04-flowchart.png)
+![Um fluxograma traçando a taxa de uma troca desde a derivação do market cap, passando pela seleção de faixa no FeeConfig editável, até uma divisão em três vias roteada por oito destinatários rotativos.](assets/v04-flowchart.webp)
 
 O mesmo dia da virada trouxe as moedas Cashback, em que as taxas de criador voltam para os traders em vez de ir para o criador, contabilizadas por PDAs de acumulador de volume por usuário que a instrução de compra toca em toda troca. Isso é um objeto econômico genuinamente diferente atrás da mesma interface: matemática de curva idêntica, incentivo oposto para quem está negociando. E a arrecadação de taxa em si rotaciona por oito endereços destinatários, um `fee_recipient` mais um array `fee_recipients` de sete entradas, que é um detalhe operacional até o dia em que você está indexando fluxos de taxa e se perguntando por que eles se espalham.
 
-![Uma linha do tempo marcando 2025-09-01 20:00 UTC, com uma taxa fixa de 100 basis points antes dela e taxas escalonadas por market cap depois, acima de uma tarja notando que a invariante não mudou.](assets/v05-timeline.png)
+![Uma linha do tempo marcando 2025-09-01 20:00 UTC, com uma taxa fixa de 100 basis points antes dela e taxas escalonadas por market cap depois, acima de uma tarja notando que a invariante não mudou.](assets/v05-timeline.webp)
 
 Então nomeie o trade-off com honestidade, porque é nesta parte que uma decisão de lançamento de fato gira. Uma bonding curve te compra descoberta de preço instantânea e sem permissão, sem contraparte com quem negociar, e uma pool garantida no fim com o LP queimado para que ninguém possa puxá-la. O que você paga é perda total de controle sobre a política econômica. A forma da curva é fixada por constantes que você não define, a tabela de taxa é uma conta que outra pessoa pode editar, o venue de graduação é escolhido pelo programa, e a maioria esmagadora das moedas lançadas desse jeito nunca chega ao limiar. Já vi taxas de graduação de um dígito sendo citadas, muitas vezes em torno de um ou dois por cento, e eu não construiria um plano sobre nenhum número que eu mesmo não tivesse medido numa janela escolhida por mim, porque esse número se move com cada ciclo de mercado. A direção não está em dúvida, no entanto: a maioria das curvas empaca, e as que empacam não são um bug no mecanismo. Elas são o mecanismo funcionando, ordenando demanda.
 
@@ -185,7 +185,7 @@ Antes da questão do venue, um checkpoint, porque a derivação tinha várias pa
 
 Isso te dá uma ferramenta portátil, então torne-a portátil em voz alta. Quando você encontrar qualquer curva, em qualquer launchpad, faça três perguntas a ela. Quais são as quatro constantes dela, e onde elas vivem, no código ou numa conta que alguém pode editar? Qual condição encerra a curva, e essa condição é sobre um saldo real ou um implicado? E quem tem permissão de disparar a transição, com qual taxa atrelada? Responda essas três e você consegue precificar qualquer bonding curve que encontrar numa tarde, incluindo as que ainda não foram construídas. Deixe de perguntá-las e você está de volta a repetir um número que leu em algum lugar, que é onde esta lição começou.
 
-![Uma tabela de quatro linhas separando números de protocolo em derivados, armazenados, fixados no código e meramente repetidos, com os 85 SOL do folclore arquivados em repetidos.](assets/v06-table.png)
+![Uma tabela de quatro linhas separando números de protocolo em derivados, armazenados, fixados no código e meramente repetidos, com os 85 SOL do folclore arquivados em repetidos.](assets/v06-table.webp)
 
 O que nos traz ao SPROUT.
 
@@ -213,7 +213,7 @@ Esse é um veto de venue, e ele cai antes de qualquer conta. Você pode derivar 
 
 Então a config de lançamento que você está a ponto de construir tem dois trabalhos, e o segundo é o que salva sua semana: derivar o limiar a partir de quaisquer constantes que um venue publique, e recusar qualquer venue cujo caminho de lançamento não consiga representar o token que você já construiu.
 
-![Uma comparação em duas colunas mostrando a pump.fun recusando o SPROUT porque a instrução create dela fixa o programa SPL Token clássico, contra o Raydium CP-Swap aceitando todas as três extensões do SPROUT a partir da allowlist de cinco entradas dele.](assets/v07-comparison.png)
+![Uma comparação em duas colunas mostrando a pump.fun recusando o SPROUT porque a instrução create dela fixa o programa SPL Token clássico, contra o Raydium CP-Swap aceitando todas as três extensões do SPROUT a partir da allowlist de cinco entradas dele.](assets/v07-comparison.webp)
 
 ## Lab: derive o limiar do SPROUT e fixe o venue dele
 
@@ -487,7 +487,7 @@ All gates pass: threshold derived, venue selected.
 
    Depois prove que a checagem de venue é real: remova `"TransferFeeConfig"` da `extensionAllowlist` do CP-Swap e rode de novo. Agora os dois venues recusam, nenhum candidato é selecionado, e o script sai com código diferente de zero em vez de entregar um plano de lançamento para um token que ninguém vai colocar em pool. Coloque de volta.
 
-![A derivação de quatro linhas anotada linha por linha, levando um k de 32.19 bilhões por uma reserva final de token de 279.9 milhões até o limiar de graduação de 85.005 SOL.](assets/v08-annotated-code.png)
+![A derivação de quatro linhas anotada linha por linha, levando um k de 32.19 bilhões por uma reserva final de token de 279.9 milhões até o limiar de graduação de 85.005 SOL.](assets/v08-annotated-code.webp)
 
 ## Challenge
 
@@ -497,7 +497,7 @@ Abra o coding challenge desta lição e você vai encontrar um starter que model
 
 Quatro testes, e o terceiro é o que dá o que pensar. As constantes de referência da pump têm que retornar cerca de 85.005 SOL. Uma curva alterada em 30 / 1000 / 800 tem que retornar 120. Uma curva que começa com uma reserva de SOL mais funda, 85 / 1073 / 793.1, tem que retornar cerca de 240.848, mesmas reservas de token, mesma forma, e o custo escala exatamente pelo fator que a reserva de SOL escalou, 85/30, porque `graduationSol` é linear na reserva inicial de SOL. Esse é o teste que um modelo de preço fixo erra pela margem mais larga. E uma curva com reserva real zero tem que retornar 0, o que o modelo ingênuo também passa, então ele não prova nada sozinho e está ali como âncora de sanidade. Se você se pegar escrevendo um loop que caminha a curva em passos pequenos e acumula, pare: isso vai passar todos os quatro testes e significa que você está integrando numericamente algo que a invariante já resolveu em forma fechada.
 
-![Uma tabela dos quatro casos de teste do challenge pareando cada limiar de graduação esperado com a resposta errada de preço fixo, da curva de referência de 85.005 até a âncora de sanidade de reserva zero.](assets/v09-table.png)
+![Uma tabela dos quatro casos de teste do challenge pareando cada limiar de graduação esperado com a resposta errada de preço fixo, da curva de referência de 85.005 até a âncora de sanidade de reserva zero.](assets/v09-table.webp)
 
 Depois uma peça de julgamento que nenhum teste consegue avaliar, e é o entregável que este módulo de fato quer. Escreva três frases sobre o lançamento do SPROUT. Frase um: o limiar de graduação que você modelaria para o SPROUT, e as constantes de que ele deriva, dado que o SPROUT não vai lançar na pump. Frase dois: por que a pump está indisponível para o SPROUT, nomeando o mecanismo específico em vez da vibe. Frase três: do que você teria que abrir mão no SPROUT para deixar a pump disponível, e se você abriria. Se a sua terceira frase concluir que derrubar a taxa de transferência para caber no venue está tudo bem, volte ao seu relatório do R6 e leia o que a taxa está financiando antes de se comprometer. Essa é uma decisão de tesouraria, e a restrição de ferramental é só o que a trouxe à superfície.
 

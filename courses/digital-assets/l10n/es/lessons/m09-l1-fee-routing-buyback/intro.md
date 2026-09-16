@@ -58,7 +58,7 @@ Lo que está en juego para ti es concreto y no es contabilidad abstracta: una co
 
 Construiste el mecanismo para recorrer el salón allá en el módulo 2, en la lección de economics-extensions, y lo probaste contra un solo comprador. Hoy se convierte en el primer tramo de un riel con otros tres tramos atornillados encima.
 
-![Un diagrama de flujo traza las comisiones retenidas desde las cuentas de los compradores, pasando por un harvest sin permiso hacia el mint, un withdraw condicionado a la autoridad hacia la PDA de tesorería, un buyback contra la contraparte que tengas, y una quema que baja el supply.](assets/v01-flowchart.png)
+![Un diagrama de flujo traza las comisiones retenidas desde las cuentas de los compradores, pasando por un harvest sin permiso hacia el mint, un withdraw condicionado a la autoridad hacia la PDA de tesorería, un buyback contra la contraparte que tengas, y una quema que baja el supply.](assets/v01-flowchart.webp)
 
 ### Tramos uno y dos: el crank de harvest (consolidar, después recaudar)
 
@@ -100,7 +100,7 @@ export function chunk<T>(items: T[], size: number): T[][] {
 
 Y encontrar las cuentas sucias también es problema tuyo. Una cuenta de token pone su mint en el offset de byte 0, así que una sola llamada a `getProgramAccounts` con un filtro memcmp te da cada tenedor de SPROUT, y después lees el `TransferFeeAmount` de cada una y te quedas con las distintas de cero. En un fork con unas pocas docenas de tenedores eso es un escaneo de dos segundos. Con el conteo de tenedores que maneja Jupiter es un trabajo de indexación, `getProgramAccounts` sobre un programa grande es exactamente la consulta que los RPC públicos estrangulan más fuerte, y la respuesta sincera es que lo alquilas, igual que la lección de lectura de activos te hacía alquilar un proveedor de DAS en vez de correr tu propio indexador.
 
-![Una tabla compara los cuatro costos de correr un crank de harvest sobre comisiones retenidas, desde cómputo barato pasando por límites de empaquetado y escaneos pesados de cuentas hasta la propiedad operativa que causa la mayoría de las fallas.](assets/v02-comparison.png)
+![Una tabla compara los cuatro costos de correr un crank de harvest sobre comisiones retenidas, desde cómputo barato pasando por límites de empaquetado y escaneos pesados de cuentas hasta la propiedad operativa que causa la mayoría de las fallas.](assets/v02-comparison.webp)
 
 ### Tres modelos de comisión, y la semana que pierdes por confundirlos
 
@@ -112,11 +112,11 @@ Vale la pena conocer con precisión el resto de la maquinaria de comisiones que 
 
 Lee lo que quiere decir ese día del cambio en vez de solo archivar la fecha. Antes, un creador que lanzaba en pump conocía el número: 100 basis points, el mismo para todos, el mismo el mes siguiente. Después, la comisión que paga una moneda es función de dónde se negocia esa moneda, que es una variable que el creador no fija ni puede congelar. Eso no es una crítica a pump, cuyo esquema está publicado y cuyo razonamiento es defendible. Es la forma general de lanzar sobre el riel de otro: heredas su política económica, incluida la versión de ella que entregan después de que tú lances. Tu propia comisión Token-2022 es el canje opuesto. Tú eres dueño de la tasa, puedes hacerla permanente anulando la config authority, y a cambio eres dueño del harvest, de la indexación, del cron, y de cada integración que se rompe porque el monto enviado ya no es igual al monto recibido. Ningún lado de ese canje es gratis. Elige aquel por cuyos costos preferirías ser responsable.
 
-![Una línea de tiempo mueve las comisiones de pump.fun desde una era plana de 100 basis points hasta el esquema escalado por capitalización de mercado del 2025-09-01 y de ahí a los redireccionamientos Cashback, con mecánicas de vault constantes a lo largo de todo.](assets/v03-timeline.png)
+![Una línea de tiempo mueve las comisiones de pump.fun desde una era plana de 100 basis points hasta el esquema escalado por capitalización de mercado del 2025-09-01 y de ahí a los redireccionamientos Cashback, con mecánicas de vault constantes a lo largo de todo.](assets/v03-timeline.webp)
 
 Ahora el contraejemplo, que es mi objeto favorito de todo este curso. En mayo de 2024, PayPal y Paxos entregaron PYUSD como el mint Token-2022 emblemático con forma de compliance. Lleva una transfer fee config. Esa config está en 0 basis points, y nunca se ha disparado. De todos los tokens de Solana capaces de cobrar comisión, el más serio institucionalmente no recauda nada, a propósito, porque lo que sus emisores querían era la *opción*, armada y dormida, disponible el día que un regulador o un modelo de negocio la pidan. Configurado no es lo mismo que activo. Ya leíste esa misma distinción de un mint en vivo con `decode-mint`, y este es el ejemplo con más en juego.
 
-![Una tabla comparativa separa las comisiones de transferencia retenidas de Token-2022, las comisiones creator_vault del lado del programa en pump.fun, y la config de comisión dormida a cero bps en PYUSD, según punto de acumulación, quién la mueve, tasa y giros.](assets/v04-comparison.png)
+![Una tabla comparativa separa las comisiones de transferencia retenidas de Token-2022, las comisiones creator_vault del lado del programa en pump.fun, y la config de comisión dormida a cero bps en PYUSD, según punto de acumulación, quién la mueve, tasa y giros.](assets/v04-comparison.webp)
 
 La regla práctica: antes de escribir una sola línea de código de recaudación, lee las extensiones del mint y averigua qué máquina tienes enfrente. Si `TransferFeeConfig` está presente con bps distinto de cero, aplica el harvest. Si las comisiones son del lado del programa, ve a buscar el vault del programa y su instrucción de reclamo. Modelo equivocado, semana equivocada.
 
@@ -130,7 +130,7 @@ El buyback es un tramo completamente aparte y lo financia un activo distinto. La
 
 La trampa que quiero que nombres en voz alta antes de escribir la función: la quema de comisiones y la quema del buyback no tienen por qué ser iguales, y nada está mal cuando no lo son. Son dos flujos independientes hacia el mismo horno. Uno está denominado en SPROUT que ya tenías, el otro en SOL que convertiste. La conservación aplica dentro del reparto, no entre los dos tramos.
 
-![Un diagrama divide un harvest de 1,000,000 de unidades en una quema de 200,000 y una parte de 800,000 para la tesorería, junto a un buyback aparte financiado con SOL, con ambos flujos convergiendo en una sola quema.](assets/v05-diagram.png)
+![Un diagrama divide un harvest de 1,000,000 de unidades en una quema de 200,000 y una parte de 800,000 para la tesorería, junto a un buyback aparte financiado con SOL, con ambos flujos convergiendo en una sola quema.](assets/v05-diagram.webp)
 
 ### Tramo tres: el buyback es un swap, y los swaps cuestan dinero
 
@@ -166,7 +166,7 @@ Así que mídelo. Lee el saldo de la tesorería antes del swap, léelo después,
 
 Lo cual es también la razón por la que el buyback es una pregunta de política y no un interruptor que accionas. Cuánto, cada cuánto y con cuánta previsibilidad son tres perillas, y mover cualquiera de ellas cambia un costo por otro.
 
-![Una tabla de decisión pesa políticas de buyback mensuales-grandes, continuas-pequeñas y oportunistas frente al impacto en el precio, el costo del crank y la previsibilidad ante el MEV.](assets/v06-table.png)
+![Una tabla de decisión pesa políticas de buyback mensuales-grandes, continuas-pequeñas y oportunistas frente al impacto en el precio, el costo del crank y la previsibilidad ante el MEV.](assets/v06-table.webp)
 
 Hay una pregunta previa escondida aquí, y ya la respondiste. Una plataforma solo acepta tu token si tu conjunto de extensiones es uno que tolera, que es el trabajo de enrutabilidad que hiciste en la lección de designing-a-routable-token. Un delegado permanente o un transfer hook que la allowlist del pool rechaza quiere decir que no hay plataforma y por lo tanto no hay buyback. Las decisiones de extensiones que tomaste en el módulo 5 son las que hacen posible el módulo 9.
 
@@ -178,7 +178,7 @@ A tres cosas se les llama deflacionarias y solo una lo es. Una quema destruye to
 
 La trampa está en la lectura, no en la escritura. Si haces fetch del mint, después quemas, y después reportas desde el objeto que trajiste antes, vas a reportar el supply viejo y tu assertion va a pasar o fallar por razones que no tienen nada que ver con tu código. Cualquier cosa que decodificaste antes de una transacción es una fotografía, no un feed en vivo. Vuelve a hacer fetch del mint después de que la quema confirme. El equivalente en Anchor de esto es llamar a `.reload()` después de una CPI que tocó tu cuenta, y el modo de falla es idéntico en los dos mundos.
 
-![Seis líneas de código anotadas recorren desde un fetch de supply previo a la quema, pasando por harvest, compra y quema, hasta un re-fetch obligatorio y la assertion de que el supply bajó en el monto quemado.](assets/v07-annotated-code.png)
+![Seis líneas de código anotadas recorren desde un fetch de supply previo a la quema, pasando por harvest, compra y quema, hasta un re-fetch obligatorio y la assertion de que el supply bajó en el monto quemado.](assets/v07-annotated-code.webp)
 
 ## Lab: arma el riel de comisiones de Overgrowth
 
@@ -690,7 +690,7 @@ rail closed: harvested, split, bought back, burned
 
 Lee esas cinco líneas unas contra otras, porque solo concuerdan si el riel funcionó. La línea del reparto suma: 500,000 más 2,000,000 es 2,500,000, exactamente lo que encontró el escaneo. El objetivo del buyback es la mitad gastable de la tesorería, alrededor de 50 SOL después del airdrop del paso 1b, dividida por el precio. Y la cuarta línea es la sincera: planeaste 50,000 y llegaron 49,500, porque SPROUT cobra su propia comisión de 100 bps sobre el pago que el maker te hace y 500 unidades se quedaron atrás como retenidas — en la cuenta de tu propia tesorería, esperando el próximo harvest, que es la circularidad de la que advirtió la sección de teoría hecha visible. En la puerta A esa misma línea también llevaría slippage y la comisión de la plataforma, y el número sería todavía más chico. De cualquier manera pagaste algo por recomprar tu propio token, que es lo que un buyback siempre ha sido una vez que le quitas al término su marketing.
 
-![Un gráfico de dos barras enfrenta un buyback planeado con la cantidad menor realmente recibida, atribuyendo la brecha al impacto en el precio, la comisión de la plataforma y la propia comisión de transferencia del token.](assets/v08-chart.png)
+![Un gráfico de dos barras enfrenta un buyback planeado con la cantidad menor realmente recibida, atribuyendo la brecha al impacto en el precio, la comisión de la plataforma y la propia comisión de transferencia del token.](assets/v08-chart.webp)
 
 Si la corrida lanza `supply drop != burn`, casi seguro calculaste `bought` en vez de medirlo, o reusaste el objeto del mint previo a la quema. Los dos son el mismo error.
 
@@ -700,7 +700,7 @@ Si la corrida lanza `supply drop != burn`, casi seguro calculaste `bought` en ve
 
 **Solo.** Arma el riel completo tú mismo contra el fork y demuéstralo. Genera volumen en el marketplace primero, al menos una docena de transferencias entre varios compradores para que el escaneo encuentre trabajo real que hacer, después corre `wire-economy.ts` de punta a punta y produce cuatro números: el monto del harvest, el delta de la tesorería, la cantidad de buyback realmente recibida, y el delta de supply después de la quema. El criterio es la assertion que ya está en el script: el supply bajó exactamente lo que quemaste, ni más ni menos.
 
-![Una tabla de puntuación lista el monto del harvest, el delta de la tesorería, la cantidad de buyback y el delta de supply después de la quema, cada uno con su fuente, la afirmación que demuestra y su falla característica.](assets/v09-table.png)
+![Una tabla de puntuación lista el monto del harvest, el delta de la tesorería, la cantidad de buyback y el delta de supply después de la quema, cada uno con su fuente, la afirmación que demuestra y su falla característica.](assets/v09-table.webp)
 
 **El sondeo empírico, si quieres la respuesta real a una pregunta que esta lección solo insinuó.** Corre el buyback dos veces, una con una tajada pequeña de la tesorería y otra con todo, y registra la brecha entre lo entregado y lo planeado cada vez. Después mira la cuenta de token de la propia tesorería y encuentra el SPROUT retenido que está sentado en ella, comisiones que tu propio buyback se pagó a sí mismo.
 

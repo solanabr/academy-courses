@@ -35,7 +35,7 @@ O recuo da ajuda, dito em voz alta: a ligação do ponteiro e do TLV do TokenMet
 
 Pense no que uma carteira faz quando ela renderiza o seu saldo. Ela tem um endereço de mint e nada mais. Em algum lugar ela precisa resolver esse endereço em "SPROUT, 6 decimals, este logo." Durante toda a era do SPL clássico, a resposta morava fora do programa de token: uma conta de metadados separada, de propriedade de um programa separado (o Token Metadata da Metaplex), num endereço derivado do mint. O programa de token não sabia nada sobre nomes. Dois programas, duas contas, uma identidade, colados por convenção.
 
-![Uma carteira resolve um mint Token-2022 em uma leitura de conta, caminhando pelo TLV até o ponteiro autorreferencial e a entrada de metadados, diferente do caminho legado de duas contas da Metaplex.](assets/v01-flowchart.png)
+![Uma carteira resolve um mint Token-2022 em uma leitura de conta, caminhando pelo TLV até o ponteiro autorreferencial e a entrada de metadados, diferente do caminho legado de duas contas da Metaplex.](assets/v01-flowchart.webp)
 
 O Token-2022 colapsa isso. Duas das 29 extensões de produção no enum ExtensionType existem exatamente para esse trabalho:
 
@@ -44,7 +44,7 @@ O Token-2022 colapsa isso. Duas das 29 extensões de produção no enum Extensio
 
 O design é de duas peças em vez de uma de propósito. O ponteiro é a indireção: os metadados PODERIAM morar em alguma outra conta, mantida por algum outro programa que implementa a interface de metadados. Mas o padrão que este curso ensina, o padrão que o PYUSD entrega, é o caso degenerado: aponte o mint para ele mesmo e guarde o TLV inline. Uma conta, um programa, uma leitura.
 
-![O modelo da Metaplex usa um PDA de metadados separado de propriedade de outro programa, enquanto o modelo nativo do Token-2022 guarda ponteiro e metadados dentro do próprio mint.](assets/v02-diagram.png)
+![O modelo da Metaplex usa um PDA de metadados separado de propriedade de outro programa, enquanto o modelo nativo do Token-2022 guarda ponteiro e metadados dentro do próprio mint.](assets/v02-diagram.webp)
 
 Por que o ponteiro existe afinal, se a resposta é "aponte para você mesmo"? Porque a interface é maior que o caso inline. A `spl_token_metadata_interface` é uma especificação que qualquer programa pode implementar, e um mint criado antes de as extensões de metadados existirem ainda pode apontar o ponteiro dele para uma conta de metadados externa. O ponteiro é a resposta publicada, on-chain, para "qual conta é a canônica." O que nos leva ao ataque contra o qual ele foi projetado.
 
@@ -56,7 +56,7 @@ O ponteiro inverte a direção da confiança. O mint diz qual conta fala por ele
 
 Esta é também exatamente a cilada a evitar quando você liga isso: aponte o MetadataPointer para alguma conta arbitrária que você por acaso controla e você reintroduziu a indireção onde o ataque mora. A não ser que você esteja deliberadamente implementando um programa de metadados externo (você não está, e quase ninguém está), autorreferencial é o único valor que você deveria escrever.
 
-![Sem um ponteiro qualquer conta pode alegar ser os metadados de um mint, enquanto um ponteiro autorreferencial significa que os leitores seguem só a referência de saída do mint, deixando as falsificações inalcançáveis.](assets/v03-diagram.png)
+![Sem um ponteiro qualquer conta pode alegar ser os metadados de um mint, enquanto um ponteiro autorreferencial significa que os leitores seguem só a referência de saída do mint, deixando as falsificações inalcançáveis.](assets/v03-diagram.webp)
 
 ### O que está de fato no TLV, e o que não está
 
@@ -78,7 +78,7 @@ Dois equívocos para matar enquanto a struct está na sua frente. Primeiro: nome
 
 Isso deixa a outra ponta da URI sem explicação, e o Token-2022 não tem nada a dizer sobre ela. O programa armazena uma string e nunca faz fetch dela. Não existe schema on-chain, nem validador, nem checagem de conteúdo, nem imposição de nenhum tipo. O que existe no lugar é uma convenção: o formato de JSON off-chain que a Metaplex popularizou (`name`, `symbol`, `description`, `image`, e um array `attributes`), que as carteiras aprenderam a parsear anos antes de os metadados nativos existirem e que os tokens de metadados nativos herdaram por padrão. É o que uma carteira tenta primeiro quando faz fetch da sua URI. Duas consequências práticas decorrem daí. O seu `name` on-chain e o `name` do JSON podem divergir, e nada na chain vai impedir isso, então mantenha os dois em sincronia deliberadamente. E qualquer host que sirva essa URI agora é uma dependência da aparência do seu token, o que é um argumento concreto para manter a autoridade de atualização viva em vez de queimá-la no primeiro dia. O módulo 6 abre nesse padrão de JSON como se deve, incluindo quais campos os marketplaces de fato leem.
 
-![O TLV do mint guarda os campos de identidade impostos enquanto a URI aponta para um JSON off-chain convencional que nada na chain valida nem mantém em sincronia.](assets/v04-diagram.png)
+![O TLV do mint guarda os campos de identidade impostos enquanto a URI aponta para um JSON off-chain convencional que nada na chain valida nem mantém em sincronia.](assets/v04-diagram.webp)
 
 `additional_metadata` é a parte extensível: pares arbitrários de string chave-valor, on-chain, editáveis pela autoridade de atualização. O Overgrowth vai usar isso no lab para um campo `harvest_season`, e é o mecanismo atrás de todo esquema de "trait em um token fungível" que você vai encontrar na natureza.
 
@@ -90,7 +90,7 @@ Você construiu um caminhador de TLV em m01-l2, então nada sobre o armazenament
 
 Rode a aritmética uma vez para o SPROUT e o tamanho da conta para de ser mágico: 64 + (4 + 6) para `name = "SPROUT"`, (4 + 4) para `SPRT`, (4 + 38) para a URI, (4 + 18 + 10) para um par `harvest_season = "spring"`. São 156 bytes de valor, 160 com o header TLV dele. Segure esse 160, porque a próxima seção precifica a conta inteira com ele: um mint SPROUT só com ponteiro fica em 234 bytes, e 234 + 160 = 394 é o tamanho que o lab financia. Derivado aqui, com assert lá.
 
-![Layout em nível de bytes da entrada TLV do TokenMetadata, duas pubkeys de 32 bytes mais strings com prefixo de comprimento Borsh totalizando 160 bytes, o que leva o mint de 234 bytes aos 394 bytes que o lab financia.](assets/v05-annotated-code.png)
+![Layout em nível de bytes da entrada TLV do TokenMetadata, duas pubkeys de 32 bytes mais strings com prefixo de comprimento Borsh totalizando 160 bytes, o que leva o mint de 234 bytes aos 394 bytes que o lab financia.](assets/v05-annotated-code.webp)
 
 Mais uma instrução completa a interface, e ela existe para o caso que o SPROUT nunca encontra: `Emit`. Um leitor que quer metadados sem saber para onde o ponteiro leva pode pedir ao programa dono dos metadados para serializar a struct em return data e ler isso de uma simulação. Para um mint autorreferencial ela é redundante, o `fetchMint` lê o TLV direto da conta com um `getAccountInfo`, nenhum indexador à vista. Mas quando o ponteiro aponta para um programa de metadados externo, o `Emit` é o caminho de leitura uniforme que mantém toda implementação da interface legível pelo mesmo código de cliente.
 
@@ -112,7 +112,7 @@ Então você aloca espaço para 234 e deposita lamports para 394. A biblioteca c
 
 E a dança não termina na criação, que é a parte que as pessoas descobrem em produção. Seis meses a partir de agora você troca a URI por uma string mais longa, ou adiciona um segundo par `additional_metadata`, e essa escrita realoca o mint de novo. A conta tem que estar isenta de aluguel no NOVO tamanho dela, e a instrução de update não vai conjurar a diferença do nada. Então uma atualização de metadados são de verdade duas operações: a chamada da interface, e uma transferência de lamports para o mint que cobre o crescimento. Encolher funciona no sentido contrário e simplesmente deixa o mint superfinanciado, já que ninguém te devolve a sobra. Faça orçamento para isso do jeito que você faria para uma migração de schema, porque debaixo do vocabulário é exatamente o que é.
 
-![Fluxograma de cinco instruções, aloque 234 bytes financiados para 394, inicialize o ponteiro autorreferencial, inicialize o mint, e então a instrução de metadados pós-init realoca e escreve os campos.](assets/v06-flowchart.png)
+![Fluxograma de cinco instruções, aloque 234 bytes financiados para 394, inicialize o ponteiro autorreferencial, inicialize o mint, e então a instrução de metadados pós-init realoca e escreve os campos.](assets/v06-flowchart.webp)
 
 Por que tolerar essa complexidade em vez de simplesmente fazer dos metadados uma extensão de tempo de criação também? Trade-off, nomeado sem rodeios. Metadados nativos mantêm a identidade no mint: nenhuma conta extra para criar, nenhum programa externo para confiar, nenhuma derivação de PDA para as carteiras saberem, e a superfície de falsificação fechada por construção. Os custos vêm em três sabores.
 
@@ -128,7 +128,7 @@ A sondagem que você rodou lá em cima não era um brinquedo. A PayPal e a Paxos
 
 Você já configurou pessoalmente cinco daquelas oito em variantes do SPROUT, e a disciplina de m01 se aplica à lista inteira: presença não te diz nada, valores dizem. Na leitura de 2026-08-22, o transfer hook do PYUSD estava configurado com um programa nulo e a config de taxa dele ficava em 0 basis points com um máximo de 0, tanto na tabela de taxa mais velha quanto na mais nova. Chaves dormentes, instaladas para um futuro que o time de compliance deles pode ligar. Mas as duas que você está ligando hoje estão configuradas E vivas: o ponteiro resolve para o próprio mint, e o TLV relê `PayPal USD / PYUSD` com uma URI para `token-metadata.paxos.com`. Quando uma carteira mostra o logo da PayPal ao lado de um saldo, esta entrada TLV, lida direto do mint, é onde aquele render começa. O padrão nativo não é a opção experimental. É o que um emissor regulado de primeira linha entrega. (Se você quer o outro lado deste vidro, o curso Solana Payments & Commerce lê o mint do PYUSD ao vivo como um exercício de integração, checando o que um comerciante precisa lidar antes de aceitar ele. Aqui você é o emissor, escrevendo os bytes que aquele curso lê.)
 
-![Comparação das oito extensões TLV do PYUSD, seis configuradas mas dormentes contra as duas extensões de metadados vivas que guardam o nome PayPal USD e o ponteiro autorreferencial.](assets/v07-comparison.png)
+![Comparação das oito extensões TLV do PYUSD, seis configuradas mas dormentes contra as duas extensões de metadados vivas que guardam o nome PayPal USD e o ponteiro autorreferencial.](assets/v07-comparison.webp)
 
 Mais um pedaço de contexto, rapidamente, já que você já encontrou o arquivo de 2025-01-24 do currículo oficial duas vezes: o material de metadados dele antecede o padrão nativo maduro e ainda ensina o mundo da conta separada como o default. Você está aprendendo este aqui pela interface e pelos bytes porque esse é atualmente o único lugar onde ele mora por completo.
 
@@ -402,7 +402,7 @@ O build: recrie o SPROUT com o ponteiro no conjunto de extensões dele, escreva 
 
 8. **Feche o loop com o R1.** Aponte o seu inspetor `decode-mint` de m01-l2 para o mint composto. Duas linhas novas aparecem na caminhada de extensões dele: tipo 18 (MetadataPointer, 64 bytes de valor TLV) e tipo 19 (TokenMetadata, comprimento variável). As strings que você acabou de escrever estão sentadas dentro de bytes pelos quais o seu próprio decodificador consegue caminhar desde o módulo 1; o `fetchMint` é uma conveniência sobre exatamente essa caminhada, nada mais. E rode o `check-combo` no conjunto completo pelo bem do ritual: o MetadataPointer não conflita com nada na matriz.
 
-![Fluxograma em hub das camadas de economia e de metadados do mint SPROUT completo, com provas em mints companheiros e consumidores a jusante nos módulos de hook, roteabilidade e roteamento de taxas.](assets/v08-flowchart.png)
+![Fluxograma em hub das camadas de economia e de metadados do mint SPROUT completo, com provas em mints companheiros e consumidores a jusante nos módulos de hook, roteabilidade e roteamento de taxas.](assets/v08-flowchart.webp)
 
 ## Challenge
 

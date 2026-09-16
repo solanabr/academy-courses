@@ -48,7 +48,7 @@ Siéntate en la silla del pool un minuto. Un pool es una pila de dos tokens más
 
 ¿Podría el DEX revisar tokens caso por caso? Ese es un diseño real, y Orca lo entrega. Un Token Badge es una aprobación por mint que el equipo de Orca concede después de mirar de verdad tu mint, que es cómo un token que lleva algo como PermanentDelegate puede negociarse ahí siquiera: no pasando una lista publicada, sino pasando una persona. Ponle precio a ese diseño con honestidad, porque no es estrictamente peor que una lista. Un revisor ve cosas que un match statement nunca va a ver: quién es el emisor, si la clave del delegate es una multisig o una sola laptop, si la autoridad de la comisión ya fue revocada. Lo que un revisor no puede hacer es escalar, responder en un tiempo acotado, o decirte el veredicto antes de que te hayas comprometido con un diseño y lo hayas acuñado. Y una fábrica de pools sin permiso no puede usar uno para nada. La creación de pool ahí es una transacción que cualquiera puede enviar en cualquier slot sin ningún humano en el camino, así que para CP-Swap la regla de aceptación tiene que ser código. El código no puede leer un whitepaper ni un dictamen legal. Solo puede leer el mint.
 
-![Tabla de siete ejes que compara la revisión humana del Token Badge de Orca contra la allowlist compilada de Raydium, con la fila de la fábrica sin permiso marcada como la razón por la que la regla de CP-Swap tiene que ser código.](assets/v01-table.png)
+![Tabla de siete ejes que compara la revisión humana del Token Badge de Orca contra la allowlist compilada de Raydium, con la fila de la fábrica sin permiso marcada como la razón por la que la regla de CP-Swap tiene que ser código.](assets/v01-table.webp)
 
 Bien, ¿entonces el pool podría aceptar todo y manejar las consecuencias? Recorre la lista refused y las consecuencias no son manejables. Un TransferHook significa que un programa que el DEX nunca auditó corre dentro de cada swap, con el compute que se le antoje; los docs de Raydium lo rechazan exactamente con esas palabras, un programa personalizado invocado en cada transferencia con consumo arbitrario de CU. Un PermanentDelegate significa que alguna clave por ahí puede mover tokens de cualquier cuenta, y el vault del pool es una cuenta; Raydium otra vez, literalmente: un tenedor del delegate puede barrer cualquier cuenta de token, incluido el vault del pool. DefaultAccountState congelado significa que el emisor decide si las propias cuentas del pool pueden transaccionar siquiera. ConfidentialTransfer significa que los montos están encriptados, y no puedes correr una invariante sobre ciphertext. Cada rechazo protege una suposición estructural distinta, pero todos son del mismo género: la extensión le da a alguien de afuera del pool autoridad sobre lo que pasa adentro.
 
@@ -58,7 +58,7 @@ Vale cerrar una escapatoria más, porque es la siguiente a la que va a recurrir 
 
 Ahora mira el lado aceptado con los mismos ojos. Una comisión de transferencia es poder del emisor también, técnicamente, pero está declarada, tiene techo y se lee en el mint, así que el pool puede ponerle precio, y la interfaz te entrega `calculate_fee`, el helper de matemática de comisión en el estado de TransferFeeConfig cuya fórmula espejaste en TypeScript como `transferFee` allá en m02-l1, para hacer exactamente eso. Los metadatos cambian lo que ven los humanos, nunca lo que hace el token. InterestBearingConfig y ScaledUiAmount son aritmética de visualización pura; los montos crudos que el pool contabiliza nunca se mueven. El patrón no es "las extensiones inofensivas pasan". El patrón es: cualquier cosa a la que el pool le pueda poner precio por completo desde datos on-chain pasa, cualquier cosa que le reserve discrecionalidad al emisor falla. Ese es un juicio de valor sobre quién tiene derecho a correr código en cada transferencia, codificado como un match statement de Rust, y genuinamente me parece más honesto que un formulario de listado. Al código no se le puede hacer lobby.
 
-![Diagrama de dos columnas que separa las cinco extensiones de visualización y comisión de la whitelist de las cuatro extensiones de poder refused, divididas por si el pool puede computar su invariante sin confiar en el emisor.](assets/v02-diagram.png)
+![Diagrama de dos columnas que separa las cinco extensiones de visualización y comisión de la whitelist de las cuatro extensiones de poder refused, divididas por si el pool puede computar su invariante sin confiar en el emisor.](assets/v02-diagram.webp)
 
 Una vuelta más a la manivela, porque la tesis tiene un corolario filoso que conociste la lección pasada. Pídele a tu propio predictor que lo enuncie, en la misma carpeta que antes:
 
@@ -96,7 +96,7 @@ Solo el primer caso vuelve enrutable. Cinco extensiones de la allowlist más una
 
 Déjame decir el trade-off en voz alta, porque este curso prometió que siempre lo haría: el conjunto enrutable es el conjunto aburrido. Diseñar para negociabilidad máxima significa renunciar a todo lo interesante que construiste o pesaste desde el catálogo de autoridad del módulo dos en adelante. Nada de lógica en transferencia en el mint que la gente negocia. Nada de permanent delegate, nada de onboarding congelado por defecto, los dos poderes de m02 que el SPROUT consideró y nunca se puso. Nada de montos ocultos. Si tu producto genuinamente necesita una extensión de poder, esa necesidad es real y esta lección no te está diciendo que la abandones. Te está diciendo que le pongas precio: un hook significa territorio de Meteora DBC en vez de CP-Swap, o una revisión de Token Badge en Orca que puede salirte bien o no, o una arquitectura de dos mints donde la variante con poder nunca toca un pool. Elegir una superficie de plataformas más chica es un diseño legítimo. Descubrir una superficie de plataformas más chica en el lanzamiento es un incidente.
 
-![Diagrama de flujo que recorre cada extensión candidata por necesidad, pertenencia a la allowlist, y ubicación emisor-versus-tenedor, terminando en descartar, quedarse, mover a una variante de emisor, o aceptar a sabiendas una superficie de plataformas más chica.](assets/v03-flowchart.png)
+![Diagrama de flujo que recorre cada extensión candidata por necesidad, pertenencia a la allowlist, y ubicación emisor-versus-tenedor, terminando en descartar, quedarse, mover a una variante de emisor, o aceptar a sabiendas una superficie de plataformas más chica.](assets/v03-flowchart.webp)
 
 ### Armando el conjunto del SPROUT
 
@@ -104,7 +104,7 @@ Aplica el procedimiento a la auditoría que corriste arriba. TransferFeeConfig: 
 
 El hook es el adiós difícil. Lo escribiste tú mismo en m03, funciona, y es exactamente el código-arbitrario-en-cada-transferencia que un pool no puede cargar. Sale del mint negociable. Si loguear el harvest todavía le importa al producto, el hook vive en una variante de emisor separada y sin pool, el mismo patrón que la rama confidencial que archivaste en m04: mints con poder para flujos del emisor, un mint aburrido para el mercado. Y aquí hay un detalle que hace que la división en dos mints sea menos molesta de lo que suena: la matriz de combinaciones que construiste en m01-l4 habría pelado contra una fusión de todos modos. Mete ConfidentialTransferMint dentro del mint de comisión y la regla 2 de `check-combo` exige ConfidentialTransferFeeConfig encima, lo que arrastra todo el aparato confidencial de comisiones. El sistema de extensiones mismo sigue empujando el poder y el comercio a lados opuestos. Peleé contra ese empujón un rato en mis propios diseños antes de aceptar que era estructural.
 
-![Comparación de tres columnas del SPROUT de comisión-más-metadatos que está lanzando (enrutable, verificado en fork) contra la variante con transfer hook (rechazada, solo para el emisor) y la rama confidencial archivada (imposible de poner en pool por construcción).](assets/v04-comparison.png)
+![Comparación de tres columnas del SPROUT de comisión-más-metadatos que está lanzando (enrutable, verificado en fork) contra la variante con transfer hook (rechazada, solo para el emisor) y la rama confidencial archivada (imposible de poner en pool por construcción).](assets/v04-comparison.webp)
 
 ### Las dos extensiones de la allowlist que el SPROUT todavía no se lleva
 
@@ -118,7 +118,7 @@ Así que la regla de diseño se generaliza más allá de la enrutabilidad, y est
 
 No tienes que aceptar el patrón de dos carriles de un token de curso. Léelo del emblemático cuya historia cerró la lección pasada, y esta vez cuenta: el mint de PYUSD lleva ocho extensiones TLV, mintCloseAuthority, permanentDelegate, transferFeeConfig, el par confidentialTransfer, transferHook, metadataPointer, tokenMetadata. Configurado pero dormido: releí el mint desde mainnet mientras redactaba esto el 2026-08-23 y el `programId` del hook es null y la comisión está en 0 basis points, máximo 0 — cada opción de poder comprada, cada una apagada. Cómo se negocia en CP-Swap siquiera un mint con permanent delegate ya lo sabes: el bypass de la whitelist, y lo puedes resolver en cinco segundos porque la dirección del mint de PYUSD es uno de los cuatro strings en `MINT_WHITELIST` en `token.rs` L18-23, ahí mismo en la salida de `sed` que ya imprimiste. Entrega las extensiones con forma de compliance, mantén las de poder inactivas, y aun así la enrutabilidad vino de una puerta especial, no de la regla general.
 
-![Diagrama de las ocho extensiones TLV de PYUSD leídas en vivo el 2026-08-23, con la comisión de transferencia en cero basis points y el program ID del transfer hook null, ilustrando extensiones de poder configuradas-pero-dormidas.](assets/v05-diagram.png)
+![Diagrama de las ocho extensiones TLV de PYUSD leídas en vivo el 2026-08-23, con la comisión de transferencia en cero basis points y el program ID del transfer hook null, ilustrando extensiones de poder configuradas-pero-dormidas.](assets/v05-diagram.webp)
 
 ### La enrutabilidad es por plataforma, y la mayor parte del mapa está sin luz
 
@@ -126,11 +126,11 @@ Todo lo anterior es la ley de una plataforma. Sostén ese límite con firmeza, p
 
 Las billeteras son más oscuras todavía. Si Phantom muestra una advertencia de comisión, si Backpack renderiza el metadata pointer, si Solflare marca un hook: sin verificar, todo eso, en cada pasada de investigación detrás de este curso. Yo podría pegar una matriz de compatibilidad plausible aquí y le creerías, y precisamente por eso no lo voy a hacer. Una matriz congelada de afirmaciones no medidas es peor que ninguna matriz, porque falla en silencio en el único lugar donde dejaste de revisar.
 
-![Comparación de cinco plataformas, desde la allowlist en código de CP-Swap de Raydium y la regla de SPL clásico de AMM v4 hasta la revisión de Token Badge de Orca, la política ausente de Jupiter, y el soporte de hook de Meteora, marcando las filas de verifícalo-tú-mismo.](assets/v06-comparison.png)
+![Comparación de cinco plataformas, desde la allowlist en código de CP-Swap de Raydium y la regla de SPL clásico de AMM v4 hasta la revisión de Token Badge de Orca, la política ausente de Jupiter, y el soporte de hook de Meteora, marcando las filas de verifícalo-tú-mismo.](assets/v06-comparison.webp)
 
 ¿Por qué tanta oscuridad en un ecosistema que está madurando? En parte porque el terreno de verdad se mueve, y en parte porque la gente que solía mapearlo dejó de hacerlo. El repositorio developer-content de la Solana Foundation, la fuente detrás de años de material oficial de curso, se archivó el 2025-01-24. Cada curso oficial se congeló antes de que existieran las reglas de plataforma contra las que estás diseñando. No hay matriz canónica porque a nadie le pagan por mantener una verdadera, y los terceros que publican una están congelando los mismos hechos en movimiento que tú. Eso no es razón para la desesperación; es la restricción de diseño alrededor de la cual se construye tu informe. El entregable durable es una matriz más el método fechado para re-derivar cada celda.
 
-![Línea de tiempo desde el lanzamiento de PYUSD en mayo de 2024, pasando por el archivado de la educación oficial de Solana en enero de 2025, hasta las lecturas fechadas de 2026 de esta lección, terminando en una flecha de reverificar-en-el-lanzamiento.](assets/v07-timeline.png)
+![Línea de tiempo desde el lanzamiento de PYUSD en mayo de 2024, pasando por el archivado de la educación oficial de Solana en enero de 2025, hasta las lecturas fechadas de 2026 de esta lección, terminando en una flecha de reverificar-en-el-lanzamiento.](assets/v07-timeline.webp)
 
 ### Qué le debe al lector un ítem de verificación
 
@@ -140,7 +140,7 @@ Quita cualquiera de las partes y mira al ítem podrirse de un modo predecible. O
 
 Hay una regla que hace juego para las afirmaciones que sí verificaste, y es la más corta: féchalas. Una afirmación verificada necesita una fecha para poder podrirse a la vista; una afirmación sin verificar necesita un método para que alguien la pueda resolver. Cada afirmación fechada de esta lección sigue la primera regla, incluidas las que leí de mainnet esta mañana.
 
-![Tabla que contrasta versiones decorativas y usables de un ítem de verificación en objetivo, afirmación y procedimiento, con la regla de que las afirmaciones verificadas llevan una fecha y las no verificadas un método.](assets/v08-table.png)
+![Tabla que contrasta versiones decorativas y usables de un ítem de verificación en objetivo, afirmación y procedimiento, con la regla de que las afirmaciones verificadas llevan una fecha y las no verificadas un método.](assets/v08-table.webp)
 
 Esa forma de tres partes no es una convención de escritura, es una estructura de datos, y en el lab que estás a punto de construir se convierte en una interfaz de TypeScript con exactamente tres campos. Que es lo lindo de codificar la honestidad en un programa: un encogerse de hombros no pasa la revisión de tipos.
 
@@ -343,7 +343,7 @@ npx tsx routability-report.ts
 
    Deberías ver las cuatro secciones en orden, `Combo matrix: valid`, `CP-Swap predictor verdict: ROUTABLE`, tres entradas de verifica-tú-mismo, y la línea final `All gates pass` con código de salida 0. Después prueba que los gates son reales: agrega `"DefaultAccountState"` al `LAUNCH_SET`, corre otra vez, y mira al mismo script negarse a entregar su propio informe: una fila etiquetada refused, gate fail, exit 1. Un checkpoint que no puede fallar nunca fue un checkpoint. Saca la extensión de vuelta.
 
-![Diagrama de flujo del script de informe consumiendo el predictor y el revisor de combinaciones, emitiendo cuatro secciones, y después fallando su propio build por una extensión refused, una combinación inválida, un conjunto rechazado, o una lista de verifica-tú-mismo vacía.](assets/v09-flowchart.png)
+![Diagrama de flujo del script de informe consumiendo el predictor y el revisor de combinaciones, emitiendo cuatro secciones, y después fallando su propio build por una extensión refused, una combinación inválida, un conjunto rechazado, o una lista de verifica-tú-mismo vacía.](assets/v09-flowchart.webp)
 
 ## Challenge
 

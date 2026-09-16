@@ -38,7 +38,7 @@ La compresión ZK no manda el camino. Manda una prueba de validez: una prueba Gr
 
 Compáralo con el papeleo. La prueba de Merkle es la cadena completa de recibos, y una historia más larga significa una carpeta más gruesa. La prueba de validez es una declaración notariada de que la carpeta está en regla, y el sello del notario es del mismo tamaño para una carpeta de diez páginas o de diez mil. Donde la analogía se rompe, y esto importa: el notario aquí es un prover, off-chain, y alguien tiene que correrlo y entregarte el sello por transacción. El tamaño constante no es lo mismo que gratis.
 
-![La prueba de Merkle de Bubblegum, que crece con la profundidad del árbol y se acorta con un canopy on-chain, comparada contra la prueba de validez Groth16 de 128 bytes, constante, que usa la compresión ZK sobre cuentas generalizadas.](assets/v01-comparison.png)
+![La prueba de Merkle de Bubblegum, que crece con la profundidad del árbol y se acorta con un canopy on-chain, comparada contra la prueba de validez Groth16 de 128 bytes, constante, que usa la compresión ZK sobre cuentas generalizadas.](assets/v01-comparison.webp)
 
 ### Qué es realmente una cuenta comprimida
 
@@ -50,7 +50,7 @@ Un cToken es esa maquinaria aplicada a un balance de token: una cuenta comprimid
 
 La parte que la gente se salta, y la parte que hace que los dos rieles sean sistemas genuinamente distintos en vez de dos ajustes de un mismo sistema: la compresión ZK no está construida sobre account compression en ninguno de sus dos sabores, ni el original de SPL ni el fork de mpl sobre el que corre Bubblegum v2. Programa distinto, maquinaria de árbol distinta, función de hash distinta de la que usan los árboles de Bubblegum. Saber Bubblegum no quiere decir que sepas esto. Quiere decir que tienes la intuición y ninguna de las interfaces.
 
-![Un balance de token comprimido se reparte entre una raíz de árbol de estado on-chain, los contenidos en el ledger, y un indexador Photon que sirve las lecturas y la prueba de validez de 128 bytes por escritura.](assets/v02-diagram.png)
+![Un balance de token comprimido se reparte entre una raíz de árbol de estado on-chain, los contenidos en el ledger, y un indexador Photon que sirve las lecturas y la prueba de validez de 128 bytes por escritura.](assets/v02-diagram.webp)
 
 ### La factura, desglosada
 
@@ -71,7 +71,7 @@ Iguala las dos columnas de lamports y te sale el número que imprimió el one-li
 
 Hay una versión más afilada de ese argumento. Los 1,855,569 lamports de la cuenta clásica son rent, y el rent es un depósito: cierras la cuenta y te lo devuelven. Los 5,300 lamports por escritura de la cuenta comprimida están gastados. Así que el break-even honesto es más temprano que 349, y la razón para seguir citando 349 es que la mayoría de la gente nunca cierra sus cuentas de token y por eso nunca siente el reembolso. La guía que vas a ver citada en el ecosistema es de unas mil escrituras de por vida como la línea donde la compresión deja de convenir. Nuestra aritmética cruza bastante antes. Trata las mil como un techo generoso, no como una meta.
 
-![Gráfico de líneas donde el camino comprimido sube a 5,300 lamports por escritura desde un arranque de 5,000 lamports y cruza la línea plana de 1,855,569 lamports de rent clásico en 349 escrituras.](assets/v03-chart.png)
+![Gráfico de líneas donde el camino comprimido sube a 5,300 lamports por escritura desde un arranque de 5,000 lamports y cruza la línea plana de 1,855,569 lamports de rent clásico en 349 escrituras.](assets/v03-chart.webp)
 
 ### Las respuestas ingenuas, descartadas por niveles
 
@@ -99,7 +99,7 @@ De esas dos variables salen tres formas concretas de falla:
 
 Y la forma que gana, dicha con la misma claridad: estado creado una vez, escrito una o dos veces, en manos de una cantidad enorme de dueños distintos. Airdrops. Distribuciones. Derechos de reclamo. Artefactos de un solo uso. Que es exactamente la forma del compost drop que Overgrowth corre en el módulo 8 (una distribución masiva de puntos de compost a cada jugador, su primera aparición aquí como adelanto), y exactamente por qué ese módulo usa este riel en vez de pagar unos 186 SOL para crear cuentas de token para gente que quizá nunca las toque.
 
-![Tabla de decisión con cuatro cargas de trabajo que muestra que solo el airdrop de una escritura por cuenta se comprime, mientras que el libro mayor con escritura pesada, el estado del pool en el mismo bloque y el blob de receta de cuatro kilobytes se quedan todos como cuentas clásicas.](assets/v04-table.png)
+![Tabla de decisión con cuatro cargas de trabajo que muestra que solo el airdrop de una escritura por cuenta se comprime, mientras que el libro mayor con escritura pesada, el estado del pool en el mismo bloque y el blob de receta de cuatro kilobytes se quedan todos como cuentas clásicas.](assets/v04-table.webp)
 
 ### La descompresión es una puerta
 
@@ -107,7 +107,7 @@ Nada de esto convierte a los tokens comprimidos en un callejón sin salida. La d
 
 Lee el viaje de ida y vuelta como un patrón de diseño y no como una escotilla de escape. Distribución barata a muchas billeteras, la mayoría de las cuales se queda inactiva, y la minoría que actúa paga una descompresión única para entrar a la vida normal de token. El costo cae sobre los usuarios que de verdad aparecieron en vez de sobre ti al momento del drop, por destinatario, por adelantado. Esa reasignación es el punto del riel entero.
 
-![Diagrama de flujo del token comprimido en su viaje de ida y vuelta, donde los tenedores inactivos no cuestan nada más y los tenedores activos descomprimen a una cuenta de token SPL normal antes de hacer swap en Jupiter.](assets/v05-flowchart.png)
+![Diagrama de flujo del token comprimido en su viaje de ida y vuelta, donde los tenedores inactivos no cuestan nada más y los tenedores activos descomprimen a una cuenta de token SPL normal antes de hacer swap en Jupiter.](assets/v05-flowchart.webp)
 
 ### Photon, y el impuesto de lectura que ya conoces
 
@@ -119,7 +119,7 @@ La plomería de proveedores a escala, los backfills, los firehoses de gRPC, corr
 
 Y esa dependencia tiene un reloj encima, que es de donde sale el descalificador de mismo bloque mecánicamente y no como una regla que te pedí memorizar. Una prueba es una afirmación sobre una raíz de árbol en particular. Cualquier escritura que toca el árbol mueve la raíz, y toda prueba traída contra la raíz anterior está ahora describiendo un árbol que ya no existe. En el caso común esto no es problema, porque traes, construyes y aterrizas dentro de una ventana donde nada más tocó tu subárbol. En el caso del AMM es fatal, porque la cuenta la están escribiendo varias veces por bloque personas que no eres tú, y tu prueba ya estaba vieja antes de que tu transacción llegara al leader. La aritmética de lamports nunca tiene ocasión de importar ahí. Fíjate que esta es la misma falla que el changelog buffer de Bubblegum absorbe pero no elimina (el canopy solo acorta las pruebas en la red; el buffer es la perilla de concurrencia, según m07-l1), y por eso la presión de escrituras concurrentes es una propiedad de la familia de la compresión entera y no de una implementación.
 
-![Diagrama del camino de escritura comprimido donde un subárbol tranquilo mantiene la misma raíz y aterriza, mientras que escritores competidores del mismo bloque mueven la raíz y dejan vieja la prueba ya traída.](assets/v06-diagram.png)
+![Diagrama del camino de escritura comprimido donde un subárbol tranquilo mantiene la misma raíz y aterriza, mientras que escritores competidores del mismo bloque mueven la raíz y dejan vieja la prueba ya traída.](assets/v06-diagram.webp)
 
 ### El Light Token Program: una dirección, no un default
 
@@ -139,7 +139,7 @@ Y aquí está la mitad duradera, la que sobrevive a que los docs se muevan debaj
 
 Una cosa más, y esto es una confesión más que un hecho. Un borrador temprano de esta lección llevaba una cifra de unidades de cómputo para el hot path de Light Token. Salió de mi memoria, se leía hermoso, y no sobrevivió a la revisión, porque no aparece en ninguna fuente publicada. No hay ningún número de CU publicado para ese camino. No cites uno, ni de mí, ni de un post de blog, ni de un asistente que suena seguro. En un programa así de joven, un número sin fuente es un número que alguien se inventó.
 
-![Línea de tiempo que muestra los tokens comprimidos pasando del titular de airdrops de 2024 a una página de docs de 2026 etiquetada brevemente como legacy, junto a un Light Token Program solo en devnet y sin cifra de cómputo publicada.](assets/v07-timeline.png)
+![Línea de tiempo que muestra los tokens comprimidos pasando del titular de airdrops de 2024 a una página de docs de 2026 etiquetada brevemente como legacy, junto a un Light Token Program solo en devnet y sin cifra de cómputo publicada.](assets/v07-timeline.webp)
 
 ### El trade-off, nombrado
 
@@ -275,7 +275,7 @@ Vas a codificar el razonamiento de arriba como un programa pequeño, porque un v
 
     El orden importa aquí, y es la única decisión de diseño del archivo. Los dos descalificadores corren antes de la aritmética, porque una carga de trabajo puede ser más barata en lamports y aun así tener la forma equivocada. La fila 4 de la tabla de decisión es exactamente ese caso.
 
-![Diagrama de barreras de la función decide donde las actualizaciones en el mismo bloque y los accesos sobredimensionados se rechazan antes de la prueba del break-even en lamports, con el blob de receta de crafteo rechazado a pesar de ser más barato.](assets/v08-annotated-code.png)
+![Diagrama de barreras de la función decide donde las actualizaciones en el mismo bloque y los accesos sobredimensionados se rechazan antes de la prueba del break-even en lamports, con el blob de receta de crafteo rechazado a pesar de ser más barato.](assets/v08-annotated-code.webp)
 
 4. **Los rellenos.** Esta es la clave de respuestas para los dos TODOs del paso 3, y en una página renderizada nada se interpone físicamente entre la consigna y este bloque, así que la barrera es conductual y es tuya: si te desplazaste hasta aquí sin escribir tus dos reglas primero, vuelve atrás, escríbelas, después haz el diff. La lección solo sabe lo que hicieron tus manos. Descalificador 1:
 

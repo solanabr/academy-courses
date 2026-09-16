@@ -54,7 +54,7 @@ Convert to whole tokens and the numbers get friendlier: 1.073 billion virtual to
 
 Stare at the first and the last for a second. The curve claims 1.073 billion tokens in reserve. The mint only ever creates 1 billion. A reserve holding more than the entire supply is not a balance, and that is the tell: virtual reserves are not custody, they are the two numbers a pricing formula needs. A real reserve is what the program will actually hand you, while a virtual reserve is only where the program pretends to stand on the price curve, and the gap between the two is a design choice rather than an accident, the choice that sets your opening price and therefore the entire shape of the ride that follows.
 
-![The virtual token reserve of 1.073 billion extends past the 1 billion supply line while the real reserve of 793.1 million sits inside it, marking virtual reserves as pricing coordinates.](assets/v01-diagram.png)
+![The virtual token reserve of 1.073 billion extends past the 1 billion supply line while the real reserve of 793.1 million sits inside it, marking virtual reserves as pricing coordinates.](assets/v01-diagram.webp)
 
 The pricing rule is the oldest one in on-chain markets. The product of the two virtual reserves stays constant across every trade:
 
@@ -113,7 +113,7 @@ graduationSol = 115.005 - 30 = 85.005 SOL
 
 There it is. The number people repeat as a rule of the universe is the arithmetic of `30 x 1073 / (1073 - 793.1) - 30`, and it is not stored anywhere because it does not need to be. It is implied by three of the four published constants, virtual SOL, virtual token, and real token, the same way a mortgage payment is implied by a rate and a term; the fourth constant, total supply, never enters this arithmetic and only matters for the remainder aside below.
 
-![A constant-product price curve rising 14.7 times from open to graduation, with the true area under it marked 85.005 SOL against a much smaller flat-price rectangle marked 22.174 SOL.](assets/v02-chart.png)
+![A constant-product price curve rising 14.7 times from open to graduation, with the true area under it marked 85.005 SOL against a much smaller flat-price rectangle marked 22.174 SOL.](assets/v02-chart.webp)
 
 Two consequences are worth carrying out of this section, because they are what make the derivation a tool rather than a trick.
 
@@ -152,7 +152,7 @@ Twenty-five accounts, and exactly one of them signs. The only signer is `user`, 
 
 Permissionless-plus-idempotent is the right design here and it is worth understanding as a pattern, not just as trivia. A step that anyone might race to trigger, at an unpredictable moment, cannot depend on a specific party being awake. Bots watch for the flag and fire migrations for free. If the step were authority-gated instead, a graduated coin whose creator went offline would sit with dead liquidity until the creator came back. If it were permissionless but not idempotent, the race itself would be the exploit. You want both properties or neither.
 
-![A five-stage vertical flow from curve creation through the derived 85.005 SOL threshold to the complete flag and a permissionless, idempotent migrate that burns the LP on PumpSwap.](assets/v03-flowchart.png)
+![A five-stage vertical flow from curve creation through the derived 85.005 SOL threshold to the complete flag and a permissionless, idempotent migrate that burns the LP on PumpSwap.](assets/v03-flowchart.webp)
 
 ### The curve is a policy, and the policy changed under everyone
 
@@ -171,11 +171,11 @@ Read that structure carefully, because it says more than the announcement did. T
 
 Here is the stake for you, and it is not abstract. If you are modelling a launch, the fee you pay at 10 SOL of market cap and the fee you pay at 300 SOL may sit in different tiers, and a spreadsheet built on the flat 100 bps era will misprice both. Worse, it will misprice them in a direction you cannot predict from the outside, because the tier boundaries are data.
 
-![A flowchart tracing a trade's fee from market-cap derivation through tier selection in the editable FeeConfig to a three-way split routed across eight rotating recipients.](assets/v04-flowchart.png)
+![A flowchart tracing a trade's fee from market-cap derivation through tier selection in the editable FeeConfig to a three-way split routed across eight rotating recipients.](assets/v04-flowchart.webp)
 
 The same flag day brought Cashback coins, where creator fees route back to traders instead of to the creator, accounted through per-user volume-accumulator PDAs that the buy instruction touches on every trade. That is a genuinely different economic object behind the same interface: identical curve math, opposite incentive for whoever is trading it. And fee collection itself rotates across eight recipient addresses, one `fee_recipient` plus a seven-entry `fee_recipients` array, which is an operational detail until the day you are indexing fee flows and wondering why they scatter.
 
-![A timeline marking 2025-09-01 20:00 UTC, with a flat 100 basis point fee before it and market-cap-tiered fees after, above a band noting the invariant did not change.](assets/v05-timeline.png)
+![A timeline marking 2025-09-01 20:00 UTC, with a flat 100 basis point fee before it and market-cap-tiered fees after, above a band noting the invariant did not change.](assets/v05-timeline.webp)
 
 So name the trade honestly, because this is the part a launch decision actually turns on. A bonding curve buys you instant, permissionless price discovery with no counterparty to negotiate with, and a guaranteed pool at the end with the LP burnt so nobody can pull it. What you pay is total loss of control over the economic policy. The curve shape is fixed by constants you do not set, the fee schedule is an account someone else can edit, the graduation venue is chosen by the program, and the overwhelming majority of coins launched this way never reach the threshold at all. I have seen single-digit graduation rates quoted, often around one or two percent, and I would not build a plan on any figure I had not measured myself over a window I chose, because that number moves with every market cycle. The direction is not in doubt, though: most curves stall, and the ones that stall are not a bug in the mechanism. They are the mechanism working, sorting demand.
 
@@ -185,7 +185,7 @@ Before the venue question, a checkpoint, because the derivation had several movi
 
 That gives you a portable tool, so make it portable out loud. When you meet any curve, on any launchpad, ask it three questions. What are its four constants, and where do they live, in code or in an account someone can edit? What condition ends the curve, and is that condition on a real balance or an implied one? And who is allowed to trigger the transition, with what fee attached? Answer those three and you can price any bonding curve you meet in an afternoon, including ones that have not been built yet. Fail to ask them and you are back to repeating a number you read somewhere, which is where this lesson started.
 
-![A four-row table sorting protocol numbers into derived, stored, pinned in code, and merely repeated, with the folklore 85 SOL filed under repeated.](assets/v06-table.png)
+![A four-row table sorting protocol numbers into derived, stored, pinned in code, and merely repeated, with the folklore 85 SOL filed under repeated.](assets/v06-table.webp)
 
 Which brings us to SPROUT.
 
@@ -213,7 +213,7 @@ That is a venue veto, and it lands before any of the math. You can derive pump's
 
 So the launch config you are about to build has two jobs, and the second one is the one that saves your week: derive the threshold from whatever constants a venue publishes, and refuse any venue whose launch path cannot represent the token you already built.
 
-![A two-column comparison showing pump.fun refusing SPROUT because its create instruction pins the classic SPL Token program, against Raydium CP-Swap accepting all three of SPROUT's extensions from its five-entry allowlist.](assets/v07-comparison.png)
+![A two-column comparison showing pump.fun refusing SPROUT because its create instruction pins the classic SPL Token program, against Raydium CP-Swap accepting all three of SPROUT's extensions from its five-entry allowlist.](assets/v07-comparison.webp)
 
 ## Lab: derive SPROUT's threshold and pin its venue
 
@@ -487,7 +487,7 @@ All gates pass: threshold derived, venue selected.
 
    Then prove the venue check is real: remove `"TransferFeeConfig"` from CP-Swap's `extensionAllowlist` and run again. Both venues now refuse, no candidate is selected, and the script exits non-zero rather than shipping a launch plan for a token nobody will pool. Put it back.
 
-![The four-line derivation annotated line by line, carrying k of 32.19 billion through a 279.9 million final token reserve to the 85.005 SOL graduation threshold.](assets/v08-annotated-code.png)
+![The four-line derivation annotated line by line, carrying k of 32.19 billion through a 279.9 million final token reserve to the 85.005 SOL graduation threshold.](assets/v08-annotated-code.webp)
 
 ## Challenge
 
@@ -497,7 +497,7 @@ Open the coding challenge for this lesson and you will find a starter that model
 
 Four tests, and the third is the one to think about. pump's reference constants must return roughly 85.005 SOL. An altered curve at 30 / 1000 / 800 must return 120. A curve that starts with a deeper SOL reserve, 85 / 1073 / 793.1, must return about 240.848, same token reserves, same shape, and the cost scales by exactly the factor the SOL reserve did, 85/30, because `graduationSol` is linear in the starting SOL reserve. That is the test a flat-price model fails by the widest margin. And a curve with a zero real reserve must return 0, which the naive model also passes, so it proves nothing on its own and is there as a sanity anchor. If you find yourself writing a loop that walks the curve in small steps and accumulates, stop: that will pass all four tests and it means you are numerically integrating something the invariant already solved in closed form.
 
-![A table of the challenge's four test cases pairing each expected graduation threshold with the wrong flat-price answer, from the 85.005 reference curve to the zero-reserve sanity anchor.](assets/v09-table.png)
+![A table of the challenge's four test cases pairing each expected graduation threshold with the wrong flat-price answer, from the 85.005 reference curve to the zero-reserve sanity anchor.](assets/v09-table.webp)
 
 Then a piece of judgment that no test can grade, and it is the deliverable this module actually wants. Write three sentences about SPROUT's launch. Sentence one: the graduation threshold you would model for SPROUT, and the constants it derives from, given that SPROUT is not launching on pump. Sentence two: why pump is unavailable to SPROUT, naming the specific mechanism rather than the vibe. Sentence three: what you would have to give up about SPROUT to make pump available, and whether you would. If your third sentence concludes that dropping the transfer fee to fit the venue is fine, go back to your R6 report and read what the fee is funding before you commit. That is a treasury decision, and the tooling constraint is only what surfaced it.
 

@@ -72,7 +72,7 @@ Ele pode te mandar a **lista de tokens em cache** dele, aquela que o wallet adap
 
 Ou você pode **ler a posse você mesmo**, de uma fonte que o candidato não controla. Essa é a única que conta. Para um saldo fungível você consegue bater na chain direto. Para um crate Harvest você não consegue, porque um NFT comprimido não tem conta própria: leituras de cNFT exigem um RPC com suporte a DAS, que é a restrição que você encontrou quando construiu o leitor, e é o motivo de a cancela para um badge de cNFT ser uma chamada DAS e não um `getAccountInfo`.
 
-![Três cartões de evidência comparam uma mensagem assinada, uma lista de tokens em cache no cliente, e uma leitura DAS, com só a leitura DAS provando posse atual, sob uma ressalva de atraso de indexador.](assets/v01-comparison.png)
+![Três cartões de evidência comparam uma mensagem assinada, uma lista de tokens em cache no cliente, e uma leitura DAS, com só a leitura DAS provando posse atual, sob uma ressalva de atraso de indexador.](assets/v01-comparison.webp)
 
 Então a regra é curta. Uma cancela decide com base em uma leitura na qual o candidato não consegue escrever. Todo o resto é um mimo de experiência de usuário que você pode mostrar na UI e nunca deve usar para bifurcar.
 
@@ -90,7 +90,7 @@ Você tem três jeitos de pagar esse custo, e eles custam valores diferentes.
 
 **Ponha a cancela em cima de algo que não pode se mover.** Essa é a minha favorita e quase ninguém recorre a ela. Se o badge é soulbound, o caso de transferência que torna a desatualização perigosa não existe. O Bubblegum v2 já vem com `set_non_transferable_v2`, então o crate Founding-Farmer pode ser cunhado sem conseguir sair da carteira para a qual foi concedido, o que contradiz frontalmente o folclore da era 2024 de que NFTs comprimidos não podem ser soulbound. Você já cunhou um assim no módulo 7. Um badge soulbound não torna o índice instantâneo, ele tira a transferência do modelo de ameaça, que é um tipo de correção diferente e melhor.
 
-![Uma linha do tempo mostra uma transferência de cNFT caindo na blockchain, o índice DAS atrasando, e uma checagem de cancela dentro dessa lacuna passando erroneamente um ex-holder, com os remédios alinhados embaixo.](assets/v02-timeline.png)
+![Uma linha do tempo mostra uma transferência de cNFT caindo na blockchain, o índice DAS atrasando, e uma checagem de cancela dentro dessa lacuna passando erroneamente um ex-holder, com os remédios alinhados embaixo.](assets/v02-timeline.webp)
 
 Existe uma quarta resposta para a qual as pessoas correm e eu quero nomear ela para você pular: fazer streaming do estado você mesmo para sempre ter a visão mais atual. Isso é uma técnica real e é um projeto real. Construir indexadores, plugins Geyser e pipelines gRPC é o material do curso planejado Client-Side Mastery, e se a sua cancela genuinamente precisa de atualidade abaixo de um segundo em ativos comprimidos, é para lá que se vai. Para uma porta de membros, é uma plataforma de dados que você agora possui para que um estranho não consiga ler o seu canal alpha por onze segundos.
 
@@ -112,7 +112,7 @@ Veja a razão fazer o trabalho dela com números redondos. Digamos que a Overgro
 
 Coloque a razão em 1 unidade base por ponto e os mesmos 100,000 pontos viram 100,000 unidades base, uns 1% do supply, e os seus grinders fiéis se sentem passados para trás. Coloque em 100 e os seus holders existentes são diluídos pela metade. O mecanismo que você está prestes a construir é idêntico nos três casos. O mecanismo é de graça. A razão não é.
 
-![Um gráfico de barras agrupadas converte os mesmos 100,000 pontos de compost em três razões contra um supply existente fixo de 9,000,000, dando aos holders de pontos de cerca de um a cinquenta e três por cento.](assets/v03-chart.png)
+![Um gráfico de barras agrupadas converte os mesmos 100,000 pontos de compost em três razões contra um supply existente fixo de 9,000,000, dando aos holders de pontos de cerca de um a cinquenta e três por cento.](assets/v03-chart.webp)
 
 O que traz à tona o estudo de caso, e uma lacuna honesta nele. A Kamino rodou uma migração de pontos para token no KMNO, e é a coisa óbvia para apontar porque é uma das maiores que este ecossistema já fez. O que eu não consegui fazer foi verificar a tokenomics da conversão. Os números que te deixariam dizer "eles converteram a X por ponto" não estão publicados em lugar nenhum que eu pudesse confirmar, então eu não vou colocar na sua cabeça uma razão que eu não consigo referenciar. Pegue o mecanismo dele, uma migração por claim de Merkle de um ledger de pontos off-chain para um token on-chain, e pegue a razão da sua própria matemática de supply. Esse é o uso correto de um estudo de caso cujos números são privados, e é a mesma regra que este curso aplicou a toda figura disputada: meça ou cite, nunca divida a diferença.
 
@@ -124,7 +124,7 @@ Porque quem faz a cunhagem paga pelas contas. Você custeou exatamente isso quan
 
 Um claim muda quem está segurando a fatura. O distribuidor põe uma raiz na chain. Cada destinatário que quer os tokens dele manda a própria transação, paga o próprio rent de conta, e recebe os próprios tokens. E a cauda que nunca faz claim nunca te custa nada, o que importa mais do que parece: em todo drop grande, uma parcela significativa da alocação simplesmente nunca é arrecadada. Sob um modelo de push, você pagava rent para criar contas para pessoas que nunca iam voltar.
 
-![Uma comparação de três colunas entre pushes de conta clássica, pushes de conta comprimida, e um claim de Merkle mostra que o claim transfere o custo para os destinatários e nunca cunha a cauda sem claim.](assets/v04-comparison.png)
+![Uma comparação de três colunas entre pushes de conta clássica, pushes de conta comprimida, e um claim de Merkle mostra que o claim transfere o custo para os destinatários e nunca cunha a cauda sem claim.](assets/v04-comparison.webp)
 
 Existe um segundo motivo, e é aquele pelo qual o drop do JTO é famoso. Um distribuidor consegue segurar dois valores por destinatário: uma parcela que desbloqueia na hora, e uma parcela que é liberada ao longo do tempo. A Jito distribuiu o airdrop dela por um distribuidor de Merkle open-source com vesting linear que rodou até 2024-12-07, e o programa que fez isso, `mERKcfxMC5SqJn4Ld4BUris3WKZZ1ojjWJ3A3J5CKxv`, ainda é a implementação de referência para esse padrão. A instrução que libera a parcela de vesting é `claim_locked`, e você já encontrou ela na lição de airdrop. A migração quer essa divisão mais do que um airdrop quer: um programa de pontos recompensa quem apareceu cedo, e entregar a cada um deles tokens totalmente líquidos no dia um é uma escolha de design com um gráfico muito previsível anexado.
 
@@ -136,7 +136,7 @@ O distribuidor guarda uma raiz de 32 bytes. A entrada de um claimant é hasheada
 
 Esses dois bytes de prefixo não são decoração. Sem eles, uma "folha" de 64 bytes poderia ser forjada para parecer um par de nós internos, e um claimant conseguiria provar a participação de uma folha que nunca esteve na árvore. Esse é o ataque de segunda pré-imagem, e a correção é um byte por hash. Ela aparece em quase toda implementação séria de Merkle exatamente por esse motivo, e o fato de a correção ser tão barata é o motivo de não haver desculpa para pular ela.
 
-![Um detalhamento anotado da folha do distribuidor mostra o claimant e os valores hasheados em um nó, prefixos de byte zero e um em folhas e nós internos, explicados como proteção de segunda pré-imagem.](assets/v05-annotated-code.png)
+![Um detalhamento anotado da folha do distribuidor mostra o claimant e os valores hasheados em um nó, prefixos de byte zero e um em folhas e nós internos, explicados como proteção de segunda pré-imagem.](assets/v05-annotated-code.webp)
 
 O retorno de saber isso com precisão é que você consegue computar a raiz localmente, em TypeScript, e obter os mesmos 32 bytes que o verificador on-chain vai computar. É assim que você confere uma distribuição antes de publicar ela, e como você debuga o único claim que falha enquanto os outros nove mil funcionam.
 
@@ -150,7 +150,7 @@ Repare no que torna isso confiável: o seu cliente não consegue escrever nela. 
 
 O que te diz quanto vale um ledger client-side. No lab de hoje você vai manter um arquivinho JSON de quem já fez claim, e esse arquivo vai corretamente impedir o seu script de pagar a mesma carteira duas vezes. É um ensaio, não uma fronteira. Se a autoridade de mint de verdade é uma chave no seu script e a única coisa entre uma carteira e uma segunda concessão é um arquivo no seu laptop, então uma segunda concessão está a um arquivo perdido de distância. Diga isso em voz alta quando escrever, porque a forma do código vai parecer tranquilizadoramente com a coisa real.
 
-![Dois fluxos comparam um ledger JSON client-side, onde a trava fica fora da transação de mint, com o PDA ClaimStatus on-chain, onde trava e transferência acontecem em uma transação atômica só.](assets/v06-flowchart.png)
+![Dois fluxos comparam um ledger JSON client-side, onde a trava fica fora da transação de mint, com o PDA ClaimStatus on-chain, onde trava e transferência acontecem em uma transação atômica só.](assets/v06-flowchart.webp)
 
 ### O trade-off, nomeado
 
@@ -164,7 +164,7 @@ O mecanismo de migração é portátil, a tokenomics não é. Você consegue cop
 
 E uma trava de claim que mora no seu processo em vez de na transação não é uma trava, é um hábito que por acaso funciona até a primeira vez em que duas cópias do seu script rodam ao mesmo tempo.
 
-![Um resumo de quatro linhas emparelha cada trade-off aceito com o que o limita, do atraso de indexador passando por claims pagos pelo destinatário até a janela de corrida do ledger client-side.](assets/v07-comparison.png)
+![Um resumo de quatro linhas emparelha cada trade-off aceito com o que o limita, do atraso de indexador passando por claims pagos pelo destinatário até a janela de corrida do ledger client-side.](assets/v07-comparison.webp)
 
 ## Lab: gate-and-migrate.ts
 
@@ -329,7 +329,7 @@ export function describe(result: GateResult): string {
 
 Quatro decisões aí dentro valem as palavras delas. A re-checagem de `ownership.owner` parece redundante contra uma query por dono e não é: em algum momento você vai passar para essa função uma lista de ativos que você pegou em outro lugar, e no dia em que fizer isso, aquela linha é a diferença entre uma cancela e uma sugestão. O `classifyAsset` está fazendo trabalho de verdade em vez de decoração, porque é ele que impede uma posição fungível na mesma coleção de satisfazer uma regra de badge. O `readAt` existe para que, quando alguém reclamar de ter sido negado, você consiga responder com um timestamp em vez de um dar de ombros. E o `confirmBalanceOnChain` é o remédio de atualidade, deliberadamente separado, deliberadamente não chamado por padrão. Ligue ele para a cancela que protege algo caro, deixe desligado para um cargo de chat.
 
-![Um fluxograma traça o checkGate de um endereço de dono passando por uma leitura DAS paginada e três checagens sequenciais, saindo para uma aprovação com evidência ou uma negação, com todo resultado carimbado com timestamp.](assets/v08-flowchart.png)
+![Um fluxograma traça o checkGate de um endereço de dono passando por uma leitura DAS paginada e três checagens sequenciais, saindo para uma aprovação com evidência ou uma negação, com todo resultado carimbado com timestamp.](assets/v08-flowchart.webp)
 
 **3. Rode a porta.**
 
@@ -809,7 +809,7 @@ rejected: 7xK…9fQ already claimed this distribution
 
 Leia as últimas quatro linhas como um conjunto. O delta de supply é igual exatamente ao valor cunhado, então nada vazou. O resto bloqueado é declarado em vez de cunhado, então o seu gráfico de supply bate com a sua promessa. E o segundo claim foi recusado por uma checagem que rodou antes de qualquer transação ser construída, que é onde as recusas pertencem.
 
-![Cinco artefatos anteriores convergem para o gate-and-migrate.ts, cujas duas pistas internas emitem veredictos de cancela, SPROUT cunhado com um delta de supply, e um segundo claim rejeitado.](assets/v09-diagram.png)
+![Cinco artefatos anteriores convergem para o gate-and-migrate.ts, cujas duas pistas internas emitem veredictos de cancela, SPROUT cunhado com um delta de supply, e um segundo claim rejeitado.](assets/v09-diagram.webp)
 
 ## Challenge
 

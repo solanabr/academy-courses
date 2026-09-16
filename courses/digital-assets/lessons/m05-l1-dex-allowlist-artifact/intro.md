@@ -42,7 +42,7 @@ The five that pass, in the program's own order: `TransferFeeConfig`, `MetadataPo
 
 Look at what those five have in common before you look at what is missing. A transfer fee moves value, but it moves it by a rule declared in the mint's own TLV, at a rate a pool can read and price around. Raydium's Token-2022 reference is explicit about how it copes: pool math subtracts the inbound fee, and the Token-2022 program handles the outbound one. Interest-bearing is even tamer, since the pool accounts in principal amounts and the UI multiplier is decorator-only. Scaled UI is display and nothing else. Metadata pointer and token metadata are strings and an address. Not one of the five can run code, hold a key over somebody else's balance, or make a number unreadable.
 
-![Comparison of the five Token-2022 extensions Raydium CP-Swap accepts against the six it refuses, each refusal carrying Raydium's own published rationale.](assets/v01-comparison.png)
+![Comparison of the five Token-2022 extensions Raydium CP-Swap accepts against the six it refuses, each refusal carrying Raydium's own published rationale.](assets/v01-comparison.webp)
 
 Now hold that against the naive model most people carry, the one I carried for longer than I would like to admit: "Token-2022 tokens do not trade." That model is wrong in both directions at once. Five extensions route fine, so a fee-bearing, metadata-carrying, interest-accruing Token-2022 mint is a perfectly ordinary pool asset. And a mint with a single off-list extension does not trade a little worse, it does not create the pool at all. The failure is binary and it happens at creation, not at swap time.
 
@@ -64,7 +64,7 @@ Start from what a pool is, mechanically. A CP-Swap pool is a program that custod
 
 Run the naive candidate rules against that and watch them fail. Rule one: refuse anything that changes the amounts. Wrong, because TransferFeeConfig changes amounts and passes; the pool can compute around a declared rate. Rule two: refuse anything that touches the numbers a UI shows. Also wrong, since interest-bearing and scaled UI both rewrite the displayed number and both pass; the pool reads raw amounts underneath and treats the multiplier as decoration. Rule three: refuse anything unaudited. That is closer, and it is literally the stated reason for the group and member pointers ("unreviewed"), but it does not explain why a well-audited hook program is still refused.
 
-![Three candidate allowlist rules each struck through by the extension that disproves it, leading down to the surviving capability-based rule at full contrast.](assets/v02-comparison.png)
+![Three candidate allowlist rules each struck through by the extension that disproves it, leading down to the surviving capability-based rule at full contrast.](assets/v02-comparison.webp)
 
 What survives is narrower, and it is the sentence this whole course has been walking toward. A DEX admits extensions that only reshape display or skim a declared fee, and refuses extensions that let somebody run arbitrary code inside the transfer or move tokens the pool is holding.
 
@@ -72,7 +72,7 @@ Read the three flagship refusals with that rule in hand. `PermanentDelegate` is 
 
 That last one deserves a beat, because it is the one people get backwards. The hook cannot steal from the pool. You know this from module 3: every account from the original transfer is de-escalated to read-only inside the hook, so the hook program cannot move funds, and Solana's own developer guide says so. The refusal is not about theft. It is about cost and about plumbing. Every program that moves a hooked token has to resolve the mint's extra-account list and forward those accounts on every single transferring instruction, and the hook then burns an unbounded number of compute units inside the swap's budget. A pool that admits one hooked mint has volunteered to carry a stranger's account resolution and a stranger's compute bill on every swap, forever, with no version pin and no upper bound. Refusing is a compute budget with a name on it.
 
-![Diagram mapping six Token-2022 extensions onto three pool invariants, showing which invariant each refused extension breaks and why the admitted ones do not.](assets/v03-diagram.png)
+![Diagram mapping six Token-2022 extensions onto three pool invariants, showing which invariant each refused extension breaks and why the admitted ones do not.](assets/v03-diagram.webp)
 
 Two objections are worth answering here, because any engineer who has shipped an AMM raises both.
 
@@ -98,7 +98,7 @@ The third is a mint-association account, and since it load-bears in the flowchar
 
 So the honest statement of the rule is a two-branch thing, and this is exactly what your predictor has to encode. First ask whether any bypass applies. Only if none does, ask whether every extension is on the list of five. Get that ordering wrong and you will confidently predict rejection for a token that is trading in front of you.
 
-![Flowchart of Raydium CP-Swap's pool-creation check showing three bypass branches for classic SPL, whitelisted mints, and mint-association mints, before the five-extension allowlist test and the reject path.](assets/v04-flowchart.png)
+![Flowchart of Raydium CP-Swap's pool-creation check showing three bypass branches for classic SPL, whitelisted mints, and mint-association mints, before the five-extension allowlist test and the reject path.](assets/v04-flowchart.webp)
 
 The teaching value of that whitelist is not the four addresses, it is what their existence tells you about how venue admission really works. Some tokens get in because their extension set is boring. Others get in because somebody at the venue made a decision about them by name. If your product plan is "we will carry a permanent delegate for compliance and get whitelisted like the stablecoins did," that is a business-development plan rather than an engineering one, and you should cost it as one.
 
@@ -110,7 +110,7 @@ It runs once. The extension walk happens at pool creation, and after that the po
 
 And it reads types, not settings. The walk matches extension variants: it asks whether a `TransferFeeConfig` entry is present, not whether the fee is zero or five percent. Follow that through and you get a result people find surprising the first time. A mint carrying a `TransferHook` entry whose program id is null, a hook slot that calls nothing at all, still fails the walk, because the TLV entry is there and the entry is what gets matched. Dormant is not absent. That is the mirror image of the PYUSD design I will get to in a moment, and it is why "we configured the extension but left it switched off" buys you goodwill with an auditor and exactly nothing with a program.
 
-![Timeline showing that Raydium's extension check runs only at pool creation, while later fee-schedule changes, authority actions, and a counterfactual hook upgrade trigger no re-check.](assets/v05-timeline.png)
+![Timeline showing that Raydium's extension check runs only at pool creation, while later fee-schedule changes, authority actions, and a counterfactual hook upgrade trigger no re-check.](assets/v05-timeline.webp)
 
 ### Per venue, never per DEX
 
@@ -126,7 +126,7 @@ Meteora is the counterpoint that keeps this honest. Its Dynamic Bonding Curve ex
 
 And Jupiter, where most retail flow actually routes: I could not find a published Token-2022 routing policy in its developer docs on 2026-08-21. No policy page is not the same as no policy. It is an unknown, and it goes on your verify list with its date attached. Aggregation as a client discipline belongs to the planned Client-Side Mastery course; what belongs to you here is knowing that the question exists and that nobody has answered it for you in writing.
 
-![Table comparing six trading venues on Token-2022 support and hooked-mint acceptance, with two cells explicitly marked unresolved or unknown and every row carrying its source and read date.](assets/v06-table.png)
+![Table comparing six trading venues on Token-2022 support and hooked-mint acceptance, with two cells explicitly marked unresolved or unknown and every row carrying its source and read date.](assets/v06-table.webp)
 
 Which brings me to the trade-off I owe you, and it cuts against the lesson you are reading. Reading one DEX's allowlist tells you the truth for that one venue at that one commit. It is not a portable spec. Orca's badge review, Jupiter's routing policy and every wallet's display behavior are separate rules that you have to check yourself, and freezing Raydium's five as "the ecosystem rule" is precisely the mistake this lesson exists to kill. The list also moves. That is why the predictor you are about to build carries its source commit in a header comment, and why re-reading `token.rs` at your pinned commit is step zero of every launch, not a one-time chore.
 
@@ -189,7 +189,7 @@ You should see `SPROUT true` and `SPROUT+hook false`. Fill in the four whitelist
 
 While both files are in front of you, do the comparison that makes this stick: put your `sed` output beside the transcription and mark what my version dropped. The real function receives a decoded mint and iterates real `ExtensionType` variants, so it also carries the unpacking, the error plumbing, and the caller that turns a `false` into a failed instruction. What survives the reduction is the decision itself, and the decision is four lines long.
 
-![Annotated walkthrough of Raydium CP-Swap's pool-creation support check, mapping its whitelist bypass, five-extension match and early false return onto the three parts of the TypeScript predictor built in this lesson.](assets/v07-annotated-code.png)
+![Annotated walkthrough of Raydium CP-Swap's pool-creation support check, mapping its whitelist bypass, five-extension match and early false return onto the three parts of the TypeScript predictor built in this lesson.](assets/v07-annotated-code.webp)
 
 3. **Write the predictor, with two holes.** Create `predict-routability.ts`. This is the completion problem: the type and the function shape are given, the allowlist contents and the bypass branches are yours.
 
@@ -337,7 +337,7 @@ npx tsx profile-from-mint.ts 2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo
 
 Expected for the first two: the same verdicts as step 4, SPROUT ROUTABLE and the hooked variant REJECTED, only now judged from live TLV bytes instead of a hand-typed profile. One mismatch is expected and harmless: the live hooked variant prints a one-entry extension list, `TransferHook` alone, where step 4's `SPROUT_HOOKED` profile modeled the designed four-extension variant. m03 minted the variant minimal on purpose, and the verdict does not care, because a single off-list entry taints the mint whichever set surrounds it. The third verdict is the one you are holding for step 7.
 
-![Pipeline flowchart from a mint address through the routability predictor to a verdict, with three earlier artifacts feeding in and a mainnet-fork pool-create attempt supplying the ground truth.](assets/v08-flowchart.png)
+![Pipeline flowchart from a mint address through the routability predictor to a verdict, with three earlier artifacts feeding in and a mainnet-fork pool-create attempt supplying the ground truth.](assets/v08-flowchart.webp)
 
 6. **Now the part that can prove you wrong.** Everything so far is your model of the program. The ground truth is the program. On your surfnet fork, the CP-Swap deployment and its config accounts are the real mainnet ones, so a pool-create attempt is a genuine test. Raydium ships a demo repository whose CPMM section builds exactly this call with `raydium.cpmm.createPool({ programId: CREATE_CPMM_POOL_PROGRAM, poolFeeAccount: CREATE_CPMM_POOL_FEE_ACC, mintA, mintB... })`. Clone it in a separate folder: Raydium's SDK is vendor code that rides web3.js v1 and ships no kit surface, so the v1 dependency is unavoidable here. The rule this course follows, stated precisely enough that you can check a later lab against it: **quarantine a vendor SDK to the smallest unit that still compiles, and let the two stacks meet at the chain rather than in a shared import.** Sometimes that unit is a whole workspace, as here and in m08-l3's Light lab, where every file in the folder speaks v1 because the vendor does and mixing a second SDK into one folder would be worse. Sometimes it is a single file, as in m09-l1, where `venue.ts` holds the only web3.js import in the lab and hands plain values to kit code on either side. What the rule never permits is a first-party file importing both clients to save itself a conversion:
 
@@ -414,7 +414,7 @@ Three hints, in the order you will need them. The allowlist is exactly five name
 
 Then one extension of the challenge that no test can grade, and it is the one that matters at launch time. Pick any live Token-2022 mint that is NOT yours, read it with `profile-from-mint.ts`, and write down its verdict plus the one sentence that makes the verdict actionable for its issuer. If your sentence names a specific extension and a specific venue, you are doing the job. If it says "Token-2022 support is complicated," you are quoting a support ticket.
 
-![Comparison of three gates a token must pass, initialization legality enforced by Token-2022, venue admission enforced per DEX, and wallet display enforced by nobody, each with its failure mode.](assets/v09-comparison.png)
+![Comparison of three gates a token must pass, initialization legality enforced by Token-2022, venue admission enforced per DEX, and wallet display enforced by nobody, each with its failure mode.](assets/v09-comparison.webp)
 
 ## Checkpoint
 

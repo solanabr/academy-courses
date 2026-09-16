@@ -56,7 +56,7 @@ Un activo de Metaplex Core también es una cuenta. Una sola cuenta, campos base 
 
 Un NFT comprimido no es una cuenta. El programa Bubblegum hashea los datos del activo dentro de una hoja, y la raíz del árbol es lo que la blockchain guarda de verdad. Verificar un crate significa volver a reproducir una prueba de Merkle contra esa raíz. Leer un crate significa preguntarle a alguien que estaba mirando cuando aterrizó la transacción de mint y que anotó el contenido de la hoja. Ese alguien es un indexador.
 
-![Tres carriles muestran a SPROUT y al activo Core devolviendo bytes de cuenta desde cualquier RPC mientras el NFT comprimido no devuelve ninguna cuenta, y los tres convergen en una sola llamada getAsset de DAS.](assets/v01-flowchart.png)
+![Tres carriles muestran a SPROUT y al activo Core devolviendo bytes de cuenta desde cualquier RPC mientras el NFT comprimido no devuelve ninguna cuenta, y los tres convergen en una sola llamada getAsset de DAS.](assets/v01-flowchart.webp)
 
 ### Qué es DAS en realidad
 
@@ -73,7 +73,7 @@ Hay más (`getAssetsByGroup`, `getAssetsByAuthority`, `getAssetsByCreator`, `get
 
 Aquí está el encuadre honesto, y importa más que la lista de métodos. DAS no es la blockchain. DAS es un **índice alquilado**: una base de datos que algún proveedor llenó mirando la blockchain, y tu lectura es tan fresca y tan completa como esa base de datos, nada más. Para SPROUT y el Almanac tienes opción, porque la cuenta está ahí mismo. Para el crate Harvest no tienes ninguna opción.
 
-![Tres capas muestran la blockchain, una base de datos de indexador operada por un proveedor, y tu app llamando métodos de DAS, con un camino punteado de getAccountInfo que esquiva el índice solo para las cuentas.](assets/v02-diagram.png)
+![Tres capas muestran la blockchain, una base de datos de indexador operada por un proveedor, y tu app llamando métodos de DAS, con un camino punteado de getAccountInfo que esquiva el índice solo para las cuentas.](assets/v02-diagram.webp)
 
 ### El enum de interface, recorrido
 
@@ -102,7 +102,7 @@ Primero, `MplCoreAsset` y `MplBubblegumV2` son agregados recientes. La documenta
 
 Segundo, y esta es la trampa: **`is_agent` no es una variante de interface.** Es un campo booleano nullable que viaja junto a las filas `MplCoreAsset` cuando el activo lleva un plugin externo AgentIdentity, un plugin de Core más nuevo que marca un activo como la identidad de un agente on-chain, y los proveedores omiten el campo por completo cuando es false. Dos campos hermanos viajan con él, `asset_signer` (la dirección de firma del agente) y `agent_token` (su token asociado); este curso nunca acuña un activo de agente, pero tu lector se los va a encontrar en billeteras reales. Haz switch sobre `interface` para el tipo. Lee `is_agent` como un atributo. Tratarlo como un tipo es la clase de bug que funciona en cada prueba que escribas y se rompe con el primer activo de agente real que tenga un usuario.
 
-![Cuatro tarjetas de categoría mapean los valores de interface de DAS a nft, compressed-nft, fungible y other, y solo compressed-nft requiere un RPC de DAS porque decide el flag de compresión.](assets/v03-comparison.png)
+![Cuatro tarjetas de categoría mapean los valores de interface de DAS a nft, compressed-nft, fungible y other, y solo compressed-nft requiere un RPC de DAS porque decide el flag de compresión.](assets/v03-comparison.webp)
 
 Fíjate en lo que dice la tabla sobre `compressed-nft`. El nombre de la interface te acerca, pero el campo que de verdad decide es `compression.compressed`. Cada activo de DAS lleva un objeto `compression`, y en un NFT normal vuelve con `compressed: false` y cadenas de hash vacías. Ramifica sobre el booleano, no sobre el nombre, y tu clasificador sobrevive el próximo agregado al enum sin una edición. Ese es todo el instinto de diseño detrás del challenge al final de esta lección.
 
@@ -202,7 +202,7 @@ main().catch((err: unknown) => {
 
 Ese loop es la forma de paginación que hay que internalizar. Las páginas de DAS empiezan en uno, el tamaño de página lo limita el proveedor (1000 es el techo común), y la condición de terminación es una página corta y no un total en el que confías. He visto a `total` quedarse atrás de los items en un índice ocupado, y un loop que le cree o para antes de tiempo o gira en falso. Una página corta es un hecho sobre la respuesta que tienes en la mano.
 
-![Dos vías se ramifican desde el id de un activo comprimido: un camino de lectura corto por getAsset hasta el renderizado, y un camino de escritura por getAssetProof cuya prueba queda vieja con cualquier modificación del árbol.](assets/v04-flowchart.png)
+![Dos vías se ramifican desde el id de un activo comprimido: un camino de lectura corto por getAsset hasta el renderizado, y un camino de escritura por getAssetProof cuya prueba queda vieja con cualquier modificación del árbol.](assets/v04-flowchart.webp)
 
 ### Configurado no es lo mismo que activo
 
@@ -218,7 +218,7 @@ El ejemplo canónico resuelto es PYUSD, y ya leíste su mint una vez en este cur
 
 El detalle mecánico con el que la gente tropieza: **DAS y la cuenta cruda no se ponen de acuerdo sobre cómo decir "sin definir."** Una respuesta de DAS anula el program id del transfer hook. El cliente generado de Token-2022, decodificando esos mismos bytes, te da la dirección de todos ceros del system program, porque eso es literalmente lo que hay en la cuenta. El mismo hecho, dos representaciones. Tu marcador tiene que saber cuál de las dos está mirando, y en el lab vas a leer el mint crudo exactamente por esta razón: el marcador es una lectura de la blockchain, no del índice.
 
-![Paneles lado a lado comparan la vista del índice de DAS, donde el program id de un transfer hook dormido es null, con la vista de la cuenta decodificada, donde el mismo campo es la dirección de todos ceros.](assets/v05-annotated-code.png)
+![Paneles lado a lado comparan la vista del índice de DAS, donde el program id de un transfer hook dormido es null, con la vista de la cuenta decodificada, donde el mismo campo es la dirección de todos ceros.](assets/v05-annotated-code.webp)
 
 ### Elegir proveedor es parte de la lectura
 
@@ -234,7 +234,7 @@ La lista actual que vale la pena evaluar: **Helius**, **QuickNode**, **Alchemy**
 
 No son intercambiables sin más, y el v2 de Alchemy es la ilustración más limpia. Migrar a él exige sufijar cada nombre de método con `_v2` (`getAsset` pasa a ser `getAsset_v2`), renombrar tres métodos de plano, renombrar de `displayOptions` a `options` el objeto de parámetros que le da forma a la respuesta, cambiar cómo lees la respuesta de proof-batch porque vuelve indexada por asset id en vez de ordenada, y manejar un campo `last_indexed_slot` nuevo en cada éxito. Nada de eso es irrazonable. Todo eso es trabajo que no descubres hasta que intentas cambiar. Escribe tu transporte de modo que el nombre del método y el endpoint sean lo único que toca un cambio, que es exactamente lo que hace `das.ts` en el lab.
 
-![Una línea de tiempo va desde SimpleHash como la API de NFT por defecto, pasando por su cierre en marzo de 2025, hasta la lista actual de proveedores de DAS más Photon para la compresión ZK.](assets/v06-timeline.png)
+![Una línea de tiempo va desde SimpleHash como la API de NFT por defecto, pasando por su cierre en marzo de 2025, hasta la lista actual de proveedores de DAS más Photon para la compresión ZK.](assets/v06-timeline.webp)
 
 Ese hito del medio merece una frase propia. `solana-foundation/developer-content`, el repositorio detrás de los cursos oficiales de Solana, fue archivado el **2025-01-24**. Por lo tanto, cada curso oficial es anterior a Bubblegum v2 y anterior a los valores de interface sobre los que estás a punto de hacer switch. Si has estado contrastando este curso contra la documentación oficial y encontrando huecos, ese es el hueco, y es una fecha y no una conspiración.
 
@@ -244,7 +244,7 @@ Ese hito del medio merece una frase propia. `solana-foundation/developer-content
 
 La última merece tu paranoia. Un índice que responde "no hay activos" cuando quiere decir "no implemento este método" va a pasar cada prueba que escribas y les va a mentir a tus usuarios en producción. Pruébalo a propósito: apunta tu lector a un RPC público común y confirma que tira error.
 
-![Una tabla lista siete ejes de selección de proveedor con por qué cada uno cambia tu código y una auto-revisión para él, y al pie la lista de proveedores de DAS más Photon para la compresión ZK.](assets/v07-table.png)
+![Una tabla lista siete ejes de selección de proveedor con por qué cada uno cambia tu código y una auto-revisión para él, y al pie la lista de proveedores de DAS más Photon para la compresión ZK.](assets/v07-table.webp)
 
 ### El trade-off, nombrado
 
@@ -254,7 +254,7 @@ A qué renuncias, en concreto. La frescura es la del indexador, no la de la bloc
 
 ¿Entonces cuándo no deberías usarlo? Tres casos, y todos son casos donde el índice es estrictamente peor que la cosa que copia. Cuando estás a punto de firmar una transacción cuya corrección depende del estado actual, lee la cuenta: un flag de congelado, un mint pausado, un delegado, un supply por el que estás a punto de dividir. Cuando necesitas un campo que DAS no modela, lee la cuenta: tus propias entradas TLV, estado de programa propio, cualquier cosa para la que el indexador no tenía esquema. Y cuando acabas de escribir y quieres confirmar, lee la cuenta, porque tu propia transacción está confirmada on-chain antes de estar en ninguna base de datos. La regla práctica que sobrevive: DAS responde "qué tiene este usuario", la blockchain responde "qué es verdad ahora mismo". Tu lector usó las dos hoy a propósito, DAS para los tres activos y un `fetchMint` directo para el estado de las extensiones, y esa división es el diseño, no un atajo.
 
-![Un flujo de decisión rutea las lecturas críticas para firmar, las no modeladas y las recién escritas a la cuenta cruda mientras cualquier otra lectura se queda en DAS.](assets/v08-flowchart.png)
+![Un flujo de decisión rutea las lecturas críticas para firmar, las no modeladas y las recién escritas a la cuenta cruda mientras cualquier otra lectura se queda en DAS.](assets/v08-flowchart.webp)
 
 Esa última cláusula sobre pipelines es un límite real, no modestia. Construir el pipeline (plugins de Geyser, gRPC de Yellowstone, ingestión por webhook, reproducir la historia hacia tu propio almacén) es una disciplina seria y le pertenece al curso planificado Client-Side Mastery, que trata DAS como un índice alquilado dentro de una disciplina de datos mucho más grande. Esta lección es consumo. Eres el cliente de un índice, y tu trabajo es ser uno bien portado: falla ruidosamente ante un método que falta, pon en null por defecto los precios que faltan, y nunca supongas que el índice sabe algo que la blockchain no ha confirmado.
 
@@ -607,11 +607,11 @@ OWNER     <n> assets, almanac present=true
 
 Lee ese bloque como un conjunto de assertions y no como decoración. La columna `das-rpc` es true exactamente una vez. La columna de categoría tiene tres valores distintos. La línea de la sonda tiene un número adentro. Si alguna de esas tres afirmaciones es falsa, el criterio no se cumple, sea cual sea el código con el que salga el script.
 
-![La salida que pasa está anotada línea por línea: tres categorías, una columna das-rpc verdadera solo para el NFT comprimido, un precio en vivo de la sonda, y el estado de las extensiones desde el mint crudo.](assets/v09-annotated-code.png)
+![La salida que pasa está anotada línea por línea: tres categorías, una columna das-rpc verdadera solo para el NFT comprimido, un precio en vivo de la sonda, y el estado de las extensiones desde el mint crudo.](assets/v09-annotated-code.webp)
 
 Cablea `search.ts` dentro del mismo workspace ya que estás aquí. No es parte del criterio, pero un conteo por categoría sobre una billetera entera es la consulta con la que abre una integración de verdad, y correrlo contra tu propia dirección de owner es la forma más rápida de ver si la paginación de tu proveedor se porta como el loop supone.
 
-![Un diagrama de componentes muestra tres artefactos previos alimentando al lector de activos, cuyos módulos emiten clasificaciones, un precio y un reporte de extensiones, con el streaming y el backfill marcados fuera del límite.](assets/v10-diagram.png)
+![Un diagrama de componentes muestra tres artefactos previos alimentando al lector de activos, cuyos módulos emiten clasificaciones, un precio y un reporte de extensiones, con el streaming y el backfill marcados fuera del límite.](assets/v10-diagram.webp)
 
 ## Challenge
 

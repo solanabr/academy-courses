@@ -34,7 +34,7 @@ Presence is cheap to read. Behavior is not, and the four fields that carry behav
 
 Two more that read as inert once you look past the label. `confidentialTransferMint` has `autoApproveNewAccounts: false` and no auditor key, which means no account gets confidential balances until the issuer approves that specific account. The rails exist. The turnstile is locked. And `confidentialTransferFeeConfig` carries a withheld ciphertext of all zeros, which is exactly what you would expect for a fee schedule that has never charged anything.
 
-![A trimmed JSON read of PYUSD's mint carries call-outs on the hook programId, fee entry, confidential-transfer flags and permanent delegate, four inert values and one live power.](assets/v01-annotated-code.png)
+![A trimmed JSON read of PYUSD's mint carries call-outs on the hook programId, fee entry, confidential-transfer flags and permanent delegate, four inert values and one live power.](assets/v01-annotated-code.webp)
 
 Now the field that is not inert at all. `permanentDelegate.delegate` names an address, and so do `mintCloseAuthority.closeAuthority`, `metadataPointer.metadataAddress` and the `tokenMetadata` body that resolves to "PayPal USD". Those four do something today. A permanent delegate can move or burn PYUSD out of any account without the owner signing, which is the on-chain shape of a court order, and it is switched on right now.
 
@@ -54,7 +54,7 @@ Question three is the one this lesson exists for. Token-2022's transfer-hook pro
 
 That gives you three verdicts instead of two, and you can derive all three from data you already fetched.
 
-![A three-question decision flow turns extension presence, field value and authority into one of three verdicts, sorting PYUSD's eight extensions into four active and four dormant.](assets/v02-flowchart.png)
+![A three-question decision flow turns extension presence, field value and authority into one of three verdicts, sorting PYUSD's eight extensions into four active and four dormant.](assets/v02-flowchart.webp)
 
 Dormant is not a synonym for harmless. It means armed, and the difference between armed and firing is one signature from a key you can name.
 
@@ -75,7 +75,7 @@ Two of PYUSD's dormant slots have very different exercise timing, which matters 
 
 That asymmetry is a design decision by the Token-2022 authors and you should feel it. The extension that takes your money gives you three days. The extension that can reject your transfer outright gives you none.
 
-![One authority key connects to eight extension slots on PYUSD's mint, four of them live and four armed, with the hook exercisable immediately and the fee only after two epochs.](assets/v03-diagram.png)
+![One authority key connects to eight extension slots on PYUSD's mint, four of them live and four armed, with the hook exercisable immediately and the fee only after two epochs.](assets/v03-diagram.webp)
 
 ### Why arm a slot you never intend to fire
 
@@ -85,7 +85,7 @@ Because of a constraint you have carried since module one. Extensions are creati
 
 Now price the two paths honestly. Arming eight slots at creation costs some extra rent on one account, forever, and a permanent explanation burden with integrators. Migrating a regulated dollar with hundreds of millions in supply costs coordination with every exchange, custodian and wallet that touched it, plus the tail of value stranded in contracts nobody updates. Those are not the same order of magnitude, and they are not close.
 
-![A two-path comparison shows that arming extensions at mint creation costs extra bytes and integrator scrutiny, while the alternative is a full token migration later.](assets/v04-comparison.png)
+![A two-path comparison shows that arming extensions at mint creation costs extra bytes and integrator scrutiny, while the alternative is a full token migration later.](assets/v04-comparison.webp)
 
 So a compliance-shaped issuer arms everything a regulator might plausibly demand and fires none of it. That is not indecision. It is the cheapest way to keep a promise you cannot yet describe: if a rule arrives that requires a fee, an allowlist hook, or private balances with an auditor key, the answer is one instruction rather than one migration. Your capstone brief will hand you the same decision at a smaller scale, and the honest version of it is a sentence in a memo: this slot is armed, this key holds it, this is what would make us use it.
 
@@ -101,7 +101,7 @@ Read your own airdrop lesson's code next to that. You built a merkle tree of rec
 
 This is the part of the case study I want you to actually take: the primitives are not scale-tiered. There is no "real" airdrop mechanism you graduate to. There is a merkle root, a proof, a claim marker, and an optional vesting clock, and the reason people still get airdrops wrong is never the mechanism. It is the leaf list, the double-claim marker, and the tokenomics nobody published.
 
-![A table maps five course primitives to their shipped counterparts, including PYUSD's extension set, its dormant hook slot, the JTO merkle distributor and the DAS is_agent field.](assets/v05-table.png)
+![A table maps five course primitives to their shipped counterparts, including PYUSD's extension set, its dormant hook slot, the JTO merkle distributor and the DAS is_agent field.](assets/v05-table.webp)
 
 ### The rails everything else rides on
 
@@ -111,7 +111,7 @@ As of 2026-09-01 there is about $16.05B of USD-pegged stablecoins circulating on
 
 The direction is easier to defend than any single number. Stripe bought Bridge for $1.1B, closing in February 2025, with roughly $1.5B in monthly total payment volume at the time as reported in Helius's stablecoin landscape write-up, and SpaceX has been aggregating Starlink revenue in stablecoins. When a payments company pays a billion dollars for stablecoin infrastructure rather than building it, that is a market telling you the rails have already been chosen.
 
-![A timeline runs from PYUSD's May 2024 launch through JTO's vesting end and Stripe's Bridge close to the 2026 agent-identity frontier and today's live mint read.](assets/v06-timeline.png)
+![A timeline runs from PYUSD's May 2024 launch through JTO's vesting end and Stripe's Bridge close to the 2026 agent-identity frontier and today's live mint read.](assets/v06-timeline.webp)
 
 That is the honest reason your capstone is worth doing. Not that tokens are exciting. That the plumbing you have been building is the plumbing a payments processor just paid for. The Solana Payments and Commerce course reads this exact PYUSD mint from the integration side, and the compliance rails that sit above these primitives, Token ACL among them, are deliberately not taught here; they are the planned DeFi and RWA Engineering course's territory.
 
@@ -133,7 +133,7 @@ Solana's own Token Extensions solutions page still says confidential transfers a
 
 And a second wrinkle in the other direction: Token-2022 is still an upgradable program. The repo's HEAD can carry an extension or a fix that the mainnet deployment does not have yet. So the code you read on GitHub is a ceiling, not a description of what will execute in the next block.
 
-![A three-way comparison ranks the live mint account, official docs pages and the program repository by what each can be trusted for and where each fails.](assets/v07-comparison.png)
+![A three-way comparison ranks the live mint account, official docs pages and the program repository by what each can be trusted for and where each fails.](assets/v07-comparison.webp)
 
 ### The trade-off, named
 
