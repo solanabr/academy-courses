@@ -11,7 +11,7 @@
 </style></head>
 <body>
 <!-- flowchart: how SSTORE and SLOAD move a number in and out of the trie
-     purpose: certify that the value persists because SSTORE commits slot 0 to the chain, not to any running process
+     purpose: [render check: both lanes' final cards must have readable contrast - a cream/on-brand subtitle must never land on a white card] certify that the value persists because SSTORE commits slot 0 to the chain, not to any running process
      data: cast send increment() (transaction #1) -> EVM runs SSTORE on slot 0 (write durable state) -> storageRoot re-committed to the account -> transaction confirms -> slot 0 now lives in the trie, on-chain (not in any process) ... time passes, shell closed, nothing held locally ... cast call number() (read only) -> EVM runs SLOAD on slot 0 -> returns 2 <- read straight back out of the committed trie
      prompt: Top-to-bottom flowchart, dark background, monospace. A green "write" lane (cast send -> SSTORE -> storageRoot re-commit -> confirmed) and a blue "read" lane (cast call -> SLOAD -> returns 2). A dashed gap between the lanes labeled "process dies, state stays". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
@@ -47,6 +47,11 @@
   .lane.read .down { color:var(--stbr-cream); }
   .box.final { background:var(--surface-brand); border-color:var(--surface-brand); color:var(--text-on-brand); font-weight:800; }
   .lane.read .box.final { background:var(--stbr-yellow); border-color:var(--stbr-yellow); color:var(--text-on-accent); font-weight:900; font-size:22px; }
+  /* .lane.<x> .box (0,3,0) outranks .box.final (0,2,0), so the final card needs a
+     matching-specificity rule per lane or its cream text lands on a white card. */
+  .lane.write .box.final { background:var(--surface-brand); border-color:var(--surface-brand); color:var(--text-on-brand); font-weight:800; }
+  .lane.write .box.final .sub, .lane.write .box.final .op { color:var(--text-on-brand); }
+  .lane.read .box.final .sub, .lane.read .box.final .op { color:var(--text-on-accent); }
   .gap { flex:0 0 176px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .gap .dline { flex:1; width:0; border-left:3px dashed var(--stbr-yellow-700); }
   .gap .glab { font-family:var(--font-body); font-weight:800; font-size:14px; text-align:center;

@@ -62,11 +62,11 @@
 
       <div class="attr rb rr">mechanism</div>
       <div class="cell p rb rr">loop forever: ask on a timer, scan each answer</div>
-      <div class="cell s rb">subscribe once, the node <b>pushes</b> new bytes</div>
+      <div class="cell s rb"><span>subscribe once, the node <b>pushes</b> new bytes</span></div>
 
       <div class="attr rb rr">who initiates</div>
-      <div class="cell p rb rr"><span class="who">YOU</span>&nbsp;ask, every tick</div>
-      <div class="cell s rb">the&nbsp;<span class="who">CHAIN</span>&nbsp;tells you</div>
+      <div class="cell p rb rr"><span><span class="who">YOU</span>&nbsp;ask, every tick</span></div>
+      <div class="cell s rb"><span>the&nbsp;<span class="who">CHAIN</span>&nbsp;tells you</span></div>
 
       <div class="attr rb rr">latency</div>
       <div class="cell p rb rr">your poll interval</div>
@@ -78,12 +78,12 @@
 
       <div class="attr rr">teardown</div>
       <div class="cell p rr">stops when your loop stops</div>
-      <div class="cell s">stops when the&nbsp;<code>abortSignal</code>&nbsp;fires</div>
+      <div class="cell s"><span>stops when the&nbsp;<code>abortSignal</code>&nbsp;fires</span></div>
     </div>
   </div>
   <div class="shared">
     <div class="sk">shared shape</div>
-    <div class="sv">both react to on-chain state the client cares about, and both&nbsp;<b>decode bytes into a typed balance</b>&nbsp;&mdash; the difference is ask-versus-be-told.</div>
+    <div class="sv"><span>both react to on-chain state the client cares about, and both&nbsp;<b>decode bytes into a typed balance</b>&nbsp;&mdash; the difference is ask-versus-be-told.</span></div>
   </div>
   <div class="verdict">It is the module-2 watcher with the polling loop deleted: <b>subscribe once, be told</b>.</div>
 </div>
