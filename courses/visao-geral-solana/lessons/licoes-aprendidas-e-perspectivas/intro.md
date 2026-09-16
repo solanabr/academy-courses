@@ -10,7 +10,7 @@
 
 **Conceitos:** Temas recorrentes do desenvolvimento inicial; Trade-offs que moldaram decisões estratégicas; Como a história inicial informa o comportamento posterior da rede; Sinais a observar no progresso futuro da rede; Formas de avaliar criticamente narrativas históricas
 
-**Tempo de leitura:** 20 min
+**Tempo de leitura:** 13 min
 
 ---
 

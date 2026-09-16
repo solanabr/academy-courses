@@ -10,7 +10,7 @@
 
 **Conceitos:** história da Solana; linha do tempo de desenvolvimento e marcos; fundação e primeiros desenvolvimentos; avaliação de evidências para alegações históricas; técnicas de síntese narrativa; ligação de eventos históricos a temas arquiteturais
 
-**Tempo de leitura:** 30 min
+**Tempo de leitura:** 14 min
 
 ---
 
@@ -54,6 +54,10 @@ Quando você converter a tabela em prosa, siga a ordem cronológica e use o rót
 Por fim, priorize a concisão: uma seção histórica do capstone não é uma história abrangente. Escolha os marcos que são mais explicativos para sua narrativa arquitetural e omita eventos periféricos, a menos que iluminem um tema técnico específico. Se você mantiver mais de oito eventos candidatos, crie uma lista curta de "também notáveis" em suas notas, mas não force cada item no resumo de 500–800 palavras.
 
 ![Linha do Tempo: Afirmações e Evidências](assets/v01-linha-do-tempo-afirmacoes-e-evidencias.webp)
+
+![Do Marco à Afirmação](assets/v04-do-marco-a-afirmacao.webp)
+
+![Campos Mínimos por Marco](assets/v05-campos-minimos-por-marco.webp)
 
 ## Como Isso Se Manifesta na Prática: Uma Síntese Trabalhada
 
