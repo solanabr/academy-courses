@@ -254,7 +254,7 @@ pub struct CloseVault {
 
 The `seeds` line is doing quiet access control: only the player whose key derives this exact vault can pass the seed check, so no one can close a vault that is not theirs. You did not need a separate ownership constraint, the seed scheme already is one.
 
-**4. Add the error enum.** Anchor allows exactly one `#[error_code]` enum per program, so everything lives here:
+**4. Add the error enum.** Keep one `#[error_code]` enum per program — a second one compiles green, but both number their variants from the same 6000 base and collide silently — so everything lives here:
 
 ```rust
 #[error_code]
