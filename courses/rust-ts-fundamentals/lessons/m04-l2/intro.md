@@ -141,9 +141,10 @@ Target state, so you know when you are done: `pulse-rs` split into an engine mod
    /// A latency past this is a corrupted fixture line, not a slow probe.
    pub const MAX_SANE_LATENCY_MS: u64 = 60_000;
 
-   /// Worked-example constant for the checked-math path. The number is real;
-   /// what an ATA actually is belongs to the Digital Assets course.
-   pub const ATA_RENT_LAMPORTS: u64 = 2_039_280;
+   /// Worked-example constant for the checked-math path. The number is a
+   /// round synthetic stand-in, not the live rent rate; what an ATA
+   /// actually is belongs to the Digital Assets course.
+   pub const ATA_RENT_LAMPORTS: u64 = 2_000_000;
 
    #[derive(Debug, Error)]
    pub enum ProbeError {
@@ -318,7 +319,7 @@ Target state, so you know when you are done: `pulse-rs` split into an engine mod
        #[test]
        fn what_release_mode_would_have_done() {
            let nearly_full: u64 = u64::MAX - 1_000_000;
-           assert_eq!(nearly_full.wrapping_add(ATA_RENT_LAMPORTS), 1_039_279);
+           assert_eq!(nearly_full.wrapping_add(ATA_RENT_LAMPORTS), 999_999);
        }
 
        #[test]
@@ -367,7 +368,7 @@ Target state, so you know when you are done: `pulse-rs` split into an engine mod
      no answer in 3000ms -> Down
      HTTP 429 -> Degraded
    4 clean probes, 2 rejected, 2833ms total latency
-   station funding needed: 3089280 lamports
+   station funding needed: 3050000 lamports
    ```
 
    Hold that against the opener. Same class of garbage in the input, and instead of two lines and a corpse you get the whole report: verdicts for the four clean probes, a typed, printed reason for each of the two rejects (the debug form AND the `#[error]` rendering side by side), and honest totals. The opener's panic is gone, and one grep proves how gone:

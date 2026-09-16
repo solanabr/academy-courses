@@ -404,7 +404,7 @@ Add `StationInstruction` and `describe_instruction` from the theory section to t
 ```rust
     let queue = vec![
         StationInstruction::Transfer {
-            lamports: 2_039_280,
+            lamports: 2_000_000,
             to: [7u8; 32],
         },
         StationInstruction::Delegate {
@@ -417,7 +417,7 @@ Add `StationInstruction` and `describe_instruction` from the theory section to t
     }
 ```
 
-That lamports figure is last lesson's rent number doing one more shift as a worked value, nothing else. Small honesty note: if you add the enum without using every variant and field, `-D warnings` will fail the build on dead-code lints in step 5. That is clippy-grade strictness from rustc itself, and it is why the queue above constructs all three variants. Dead code in a binary is a warning; behind the deny flag, warnings are the law.
+That lamports figure is last lesson's rent stand-in doing one more shift as a worked value, nothing else. Small honesty note: if you add the enum without using every variant and field, `-D warnings` will fail the build on dead-code lints in step 5. That is clippy-grade strictness from rustc itself, and it is why the queue above constructs all three variants. Dead code in a binary is a warning; behind the deny flag, warnings are the law.
 
 ### 5. Gate #3: the pipeline learns Rust
 
