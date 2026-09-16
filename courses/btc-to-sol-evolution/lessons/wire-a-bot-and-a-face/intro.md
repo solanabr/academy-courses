@@ -1,6 +1,6 @@
 # Sign it yourself: a bot for the vault, then a button
 
-You closed the last module with a vault deployed and green under `anchor test`: a real PDA vault whose only caller, so far, has been your own test file. That was the point of the exercise, and it is also the problem. Your vault is deployed and it does nothing. The only thing that has ever called it is a test file, and test files don't ship. A real deposit needs something to build the transaction, sign it, and put it on the wire, and right now that something does not exist, so the vault just sits there holding zero.
+You closed the last lesson with a vault deployed and green under `anchor test`: a real PDA vault whose only caller, so far, has been your own test file. That was the point of the exercise, and it is also the problem. Your vault is deployed and it does nothing. The only thing that has ever called it is a test file, and test files don't ship. A real deposit needs something to build the transaction, sign it, and put it on the wire, and right now that something does not exist, so the vault just sits there holding zero.
 
 So build the something. Everything happens inside the `toolkit/vault` workspace you already have, because that is where the compiler left your program's interface. Four short steps, and then you run a bot.
 
@@ -13,7 +13,7 @@ npm install @solana/kit
 npm install -D tsx typescript @types/node codama @codama/nodes-from-anchor @codama/renderers-js@^1
 ```
 
-Two pins in that line are load-bearing. `type=module` is what lets these files use top-level `await`, which every one of them does. And `@codama/renderers-js@^1` is deliberate: the 2.x line renders a whole publishable npm package instead of a plain folder, which moves every generated file down two directories and breaks the `./generated` import below. Pin the major or read a `Cannot find module` error for twenty minutes.
+Two choices in that block are load-bearing. `type=module` is what lets these files use top-level `await`, which every one of them does. And `@codama/renderers-js@^1` is deliberate: the 2.x line renders a whole publishable npm package instead of a plain folder, which moves every generated file down two directories and breaks the `./generated` import below. Pin the major or read a `Cannot find module` error for twenty minutes.
 
 **Two: point TypeScript at the folder.** Save this as `tsconfig.json` next to `package.json`:
 
@@ -173,7 +173,7 @@ You ran the thing before you read it. Now read it, top to bottom, because every 
 
 **A 30-second sidebar for absolute beginners: how to read TypeScript.** You do not need to know TypeScript to follow this bot; read it the way you read a recipe. An `import` line at the top pulls a named tool in from another file, the way you would fetch a whisk from a drawer before you start cooking. A line like `const name = value` gives a value a name so you can call it back later. Any line that starts with `await` is a step that talks to the network, so the word just means "wait right here until the chain answers before running the next line." The bits with a colon are labels that tell your editor what shape a value should be, so it can underline a typo in red before you ever hit the network; they do nothing when the code actually runs. That is the entire vocabulary you need here. You are reading these lines, not inventing them: you pasted every one of them a page ago.
 
-The client never wrote itself, and it never hand-wrote your program's shape either. It was generated, by the `codama.mjs` from step three. Last module `anchor build` emitted a file to `target/idl/vault.json`, the **IDL** (Interface Description Language: the generated contract Anchor writes down). It lists every instruction your program exposes, every argument each one takes, and every account each one touches. `rootNodeFromAnchor` parses that JSON into Codama's own description of a program, and `renderVisitor` walks that description and writes TypeScript out of it.
+The client never wrote itself, and it never hand-wrote your program's shape either. It was generated, by the `codama.mjs` from step three. Last lesson `anchor build` emitted a file to `target/idl/vault.json`, the **IDL** (Interface Description Language: the generated contract Anchor writes down). It lists every instruction your program exposes, every argument each one takes, and every account each one touches. `rootNodeFromAnchor` parses that JSON into Codama's own description of a program, and `renderVisitor` walks that description and writes TypeScript out of it.
 
 That is why `node codama.mjs` made a `bot/generated/` folder appear, holding a typed function for every instruction, a decoder for every account, and a helper for every PDA. `codama` reads the IDL and writes the client so you never do. Change the program, rebuild, regenerate, and the client rewrites itself. That is why you never hand-write an ABI here (the Application Binary Interface an Ethereum client has to maintain by hand, and keep in sync by hand, and get subtly wrong by hand). The build step is the source of truth, and the generated client is a reader of it, not a second author who can disagree.
 
