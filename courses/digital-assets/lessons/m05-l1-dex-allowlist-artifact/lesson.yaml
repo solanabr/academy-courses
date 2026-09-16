@@ -13,6 +13,8 @@ versionStamp:
     "@solana-program/token-2022": "0.15.0"
     "@solana-program/system": "0.13.0"
     surfpool: "1.2.1"
+    tsx: "4.23.12"
+    typescript: "5.9.3"
 blocks:
   - key: intro
     type: prose

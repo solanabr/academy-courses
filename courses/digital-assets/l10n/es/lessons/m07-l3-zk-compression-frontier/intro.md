@@ -153,15 +153,15 @@ El riel más nuevo compra elegancia al costo de ser hoy solo de devnet. Eso tamb
 
 Vas a codificar el razonamiento de arriba como un programa pequeño, porque un veredicto que puedes volver a correr sobre una carga de trabajo nueva vale más que un veredicto que recuerdas. Sin red, sin SDK, sin billetera. Solo el modelo de costos, cuatro cargas de trabajo y una salida honesta.
 
-1. **Prepara todo.** Un directorio, una dependencia de dev, ningún paquete de Solana.
+1. **Prepara todo.** Un directorio, dos dependencias de dev, ningún paquete de Solana.
 
     ```bash
     mkdir -p labs/m07-l3 && cd labs/m07-l3
     npm init -y
-    npm install -D tsx@^4.20.0 typescript@^5.9.0
+    npm install -D tsx@4.23.12 typescript@5.9.3
     ```
 
-    Pins revisados contra npm la semana de escritura (2026-08); vuelve a revisar antes de fijar cualquier cosa de larga vida. `tsx` corre un archivo TypeScript directamente, que es todo lo que necesitamos aquí.
+    Pins exactos, los mismos del versionStamp de esta lección (re-verificados el 2026-09-05); vuelve a revisar antes de fijar cualquier cosa de larga vida. `tsx` corre un archivo TypeScript directamente, que es todo lo que necesitamos aquí.
 
 2. **El modelo de costos (trabajado de punta a punta).** Cada constante de este archivo es o una cifra congelada del curso o un valor leído de una fuente pública en una fecha declarada, y cada comentario dice cuál es el caso. Los valores derivados salen directo de ellas. Nada aquí es una adivinanza.
 
