@@ -7,7 +7,7 @@ Last lesson closed the machine-sales loop: Wavelength's pressing-price API sits 
 Before any theory, prove you still have the tool this lesson turns on. You installed it in the very first lesson of this course, back when it looked like a curiosity:
 
 ```bash
-npm i -g @solana/pay   # the opening lesson installed it locally; go global so `pay` is on your PATH
+npm i -g @solana/pay@1.0.26   # the opening lesson installed it locally; go global so `pay` is on your PATH
 pay --version
 ```
 

@@ -151,10 +151,10 @@ Essa caixa também é a troca da lição declarada honestamente, então não vou
 Construção numerada, no workspace `wavelength-checkout` que você criou no módulo 3. `ramp-embed/` é uma pasta dentro do `wavelength-checkout`, não um workspace novo: ela entra ao lado da pasta `checkout/` que o módulo 3 construiu ali, que é o que deixa ela importar o preço do disco direto; os workspaces de ops e de billing dos módulos 4 e 5 ficam em outro lugar do repositório e não entram na história hoje. O handler de sessão chega com dois buracos de TODO, e a construção roda até uma falha nomeada com eles no lugar; o Challenge fecha eles. Uma dependência nova, necessária só para a rota de servidor (o smoke test roda limpo sem ela):
 
 ```bash
-npm install @coinbase/cdp-sdk
+npm install @coinbase/cdp-sdk@1.55.0
 ```
 
-Esse é o CDP SDK da Coinbase (linha 1.x em agosto de 2026; confira o npm antes de fixar), usado aqui para exatamente uma coisa: gerar o JWT de vida curta que autentica o seu servidor no endpoint do token. Assinar eles na mão é possível e não vale a pena.
+Esse é o CDP SDK da Coinbase (linha 1.x em agosto de 2026), usado aqui para exatamente uma coisa: gerar o JWT de vida curta que autentica o seu servidor no endpoint do token. Assinar eles na mão é possível e não vale a pena.
 
 1. **O módulo de sessão, com os dois buracos.** Crie o `ramp-embed/session.ts`. Funções puras, sem I/O, que é o que torna o smoke test possível:
 
