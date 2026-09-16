@@ -21,9 +21,11 @@ are {id, input, expectedOutput} where `input` is a verbatim Rust argument list
 generated main() that pastes that list into a call to the entry function once per
 test and prints TEST:<id>:<value>. The entry function is detected with the
 production grader's own regex — a bare column-0 `fn`; `pub fn` and `const fn` are
-invisible to the grader and therefore to this script. A file in which that regex
-matches nothing is reported as a violation naming the likely cause, never guessed
-at. String expectedOutput values
+invisible to the grader and therefore to this script. A graded file must expose
+exactly ONE such fn (helpers are `const fn` or nested, both invisible), so it can
+never matter whether an executor picks the first or the last match. A file in
+which the regex matches nothing, or more than once, is reported as a violation
+naming the cause, never guessed at. String expectedOutput values
 carry their own surrounding quotes; they are stripped before comparison, matching
 Display-formatted output.
 
@@ -79,10 +81,17 @@ NESTED_FN_RE = re.compile(
 )
 
 
+def grader_visible_fns(src: str):
+    """Every fn the production grader's regex would match, in file order."""
+    return [m.group(1) for m in FN_RE.finditer(src)]
+
+
 def pick_entry_fn(src: str):
-    """Last-defined grader-visible fn that isn't main — the only kind the call harness can reach."""
-    names = [m.group(1) for m in FN_RE.finditer(src) if m.group(1) != "main"]
-    return names[-1] if names else None
+    """The file's single grader-visible fn (and never main) — the only entry the call
+    harness may target. Callers enforce the one-fn rule with a real error message;
+    requiring exactly one match here keeps the harness honest regardless."""
+    names = grader_visible_fns(src)
+    return names[0] if len(names) == 1 and names[0] != "main" else None
 
 
 def no_entry_point_msg(src: str) -> str:
@@ -118,7 +127,7 @@ def build_rust_harness(src: str, tests: list, debug_fmt: bool):
     `"a", "b"`, `[7u8; 32], ...`) — paste it directly into the call."""
     name = pick_entry_fn(src)
     if name is None:
-        raise ValueError("no callable top-level fn found")
+        raise ValueError("no single grader-visible fn to call (one-fn rule)")
     fmt = "{:?}" if debug_fmt else "{}"
     calls = [
         f'    println!("TEST:{t["id"]}:{fmt}", {name}({t.get("input", "")}));'
@@ -259,6 +268,24 @@ def verify_buildable_rust(key, tag, sol_src, start_src, tests, work, subject_pin
 
 
 def verify_standard_rust(key, tag, sol_src, start_src, tests, work, subject_pins, violations):
+    # House standard: a graded file exposes EXACTLY ONE fn to the grader's regex.
+    # Executors disagree on tie-breaking between several matches — this script used
+    # to take the last, at least one sibling executor in the app repo takes the
+    # first, and the production Rust executor is not readable from this repo. Rather
+    # than guess, forbid the tie so first-vs-last can never matter: helpers stay
+    # invisible to the grader (`const fn`, or nested inside a mod/impl) and the one
+    # bare column-0 `fn` is the entry — already the de-facto house pattern (see
+    # courses/_template/lessons/exercise/rs/solution.rs, a lone bare `fn add`).
+    sol_fns = grader_visible_fns(sol_src)
+    if len(sol_fns) > 1:
+        print(f"  {key}: AMBIGUOUS — {len(sol_fns)} grader-visible fns")
+        violations.append(
+            f"{key}: SOLUTION defines {len(sol_fns)} bare column-0 fns "
+            f"({', '.join(sol_fns)}) — a graded Rust file must define exactly one so "
+            f"entry-point selection can never be ambiguous; make helpers `const fn` or "
+            f"nest them inside a mod"
+        )
+        return
     if pick_entry_fn(sol_src) is None:
         print(f"  {key}: NOT GRADED — no entry point the grader's regex can see")
         violations.append(f"{key}: SOLUTION {no_entry_point_msg(sol_src)}")
@@ -271,6 +298,17 @@ def verify_standard_rust(key, tag, sol_src, start_src, tests, work, subject_pins
         if failed:
             violations.append(f"{key}: SOLUTION fails tests {failed} (err tail: {err[:200]})")
         print(f"  {key}: solution {len(passed)}/{len(tests)}")
+    # Same one-fn rule for the starter: learners edit this file, and the grader must
+    # find one unambiguous entry in what they submit. No grader-visible fn at all is
+    # fine (defining it IS the exercise) — that submission just fails.
+    start_fns = grader_visible_fns(start_src)
+    if len(start_fns) > 1:
+        violations.append(
+            f"{key}: STARTER defines {len(start_fns)} bare column-0 fns "
+            f"({', '.join(start_fns)}) — a graded Rust file must define exactly one; "
+            f"make helpers `const fn` or nest them inside a mod"
+        )
+        return
     if pick_entry_fn(start_src) is None:
         print(f"  {key}: starter does not define the entry fn yet (accepted as failing)")
         return
