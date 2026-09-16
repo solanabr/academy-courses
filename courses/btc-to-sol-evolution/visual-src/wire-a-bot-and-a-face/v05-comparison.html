@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- comparison: kit v6 vs v7, and why you pin v6
-     purpose: pin the real install constraint so the reader does not reach for the newest and break the build
-     data: @solana/kit v7 (latest) | shipped: 2026-06-30 | newest primitives | but: the generated-client packages do not support it yet | install it and npm refuses (peer conflict) @solana/kit v6 (^6.10.0) | one line back | what the generated client + @solana/react both require | install this: the whole toolchain agrees the rule | pin @solana/kit@^6.10.0 for any project with a codama-generated client | move to v7 only once @solana-program + @solana/react publish v7 lines
-     prompt: Two-row comparison card, dark theme, monospace. Top row "v7 (latest, do not use yet)" tinted faint red, bottom row "v6 (^6.10.0, use this)" tinted faint green. A bottom band: "the generated client sets the version, not the newest release". No logos.
+<!-- comparison: which codama renderer major to pin
+     purpose: pin the real install constraint (the renderer layout, not the kit major) so the bot's ./generated import resolves
+     data: @codama/renderers-js 2.x (latest) | renders a publishable npm PACKAGE | writes bot/generated/package.json + moves sources to src/generated/ | its main entry points at a file it never writes | import ... from "./generated" fails to resolve @codama/renderers-js ^1 | renders a plain FOLDER | bot/generated/index.ts + instructions/ + accounts/ + pdas/ | import ... from "./generated" resolves | the rule | pin the RENDERER major, leave @solana/kit unpinned | ask npm before you install: npm view <pkg> peerDependencies | checked 2026-09-07: kit 8.2.0, renderers-js 2.4.0, @solana/react 8.2.0 all co-install
+     prompt: Two-row comparison card, dark theme, monospace. Top row "renderers-js 2.x (latest, breaks the import)" tinted faint red, bottom row "renderers-js ^1 (pin this)" tinted faint green. A bottom band: "pin the renderer, not kit - and read peerDependencies before you install". Do NOT claim @solana/kit v7 is uninstallable or that generated clients require kit v6; that window closed. No logos. [render check: each row holds two stacked lines of prose and the first one wraps -- both lines must be fully legible with clear air between them, never overprinting each other]
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -32,24 +32,31 @@
   .cmp .tag { align-self:flex-start; margin-top:12px; font-family:var(--font-body); font-weight:800; font-size:14px; padding:6px 14px; border-radius:var(--radius-pill); }
   .cmp .bad .tag { background:#c0392b; color:#fff; }
   .cmp .good .tag { background:var(--stbr-emerald); color:var(--text-on-brand); }
-  .cmp .detail { flex:1; padding:26px 32px; display:flex; flex-direction:column; justify-content:center; gap:10px; font-size:20px; color:var(--text-secondary); line-height:1.4; }
+  /* Block layout, deliberately, not `display:flex; flex-direction:column`. As a
+     column flex container this box laid its two spans out on top of each other the
+     moment the first one wrapped -- line 2 of the first printed straight through
+     the second -- and flex:0 0 auto on the items did not help. Stacked blocks with
+     a margin do exactly what is wanted and cannot overlap. */
+  .cmp .detail { flex:1; padding:26px 32px; font-size:20px; color:var(--text-secondary); line-height:1.4; }
+  .cmp .detail > span { display:block; }
+  .cmp .detail > span + span { margin-top:10px; }
   .cmp .detail b { color:var(--text-primary); }
   .cmp .detail code { font-family:var(--font-mono); color:var(--stbr-emerald); font-weight:700; }
   .verdict { margin-top:26px; background:var(--surface-brand); color:var(--text-on-brand); border-radius:var(--radius-lg); padding:24px 32px; font-size:21px; font-weight:600; line-height:1.4; }
   .verdict code { font-family:var(--font-mono); color:var(--stbr-yellow); font-weight:800; }
 </style>
-  <div class="stbr-eyebrow">the version you must pin</div>
-  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">kit v6, not v7</h2>
+  <div class="stbr-eyebrow">the pin that actually matters</div>
+  <h2 style="font-size:56px;font-weight:var(--weight-black);line-height:1.02;letter-spacing:-0.015em;margin:8px 0 0;">pin the renderer, not kit</h2>
   <div class="cmp">
     <div class="row bad">
-      <div class="lead"><div class="ver">@solana/kit v7</div><span class="tag">do not use yet</span></div>
-      <div class="detail"><span>shipped 2026-06-30, the newest primitives</span><span><b>but</b> the generated-client packages do not support it, so <b>npm refuses to install</b> (peer conflict)</span></div>
+      <div class="lead"><div class="ver">renderers-js 2.x</div><span class="tag">breaks the import</span></div>
+      <div class="detail"><span>renders a publishable npm <b>package</b>: <code>bot/generated/package.json</code> plus sources moved into <code>src/generated/</code></span><span><b>its main entry names a file it never writes</b>, so <code>import &hellip; from "./generated"</code> fails to resolve</span></div>
     </div>
     <div class="row good">
-      <div class="lead"><div class="ver">@solana/kit v6</div><span class="tag">use this</span></div>
-      <div class="detail"><span>one line back, <code>^6.10.0</code></span><span>what the generated client <b>and</b> @solana/react both require; the whole toolchain agrees</span></div>
+      <div class="lead"><div class="ver">renderers-js ^1</div><span class="tag">pin this</span></div>
+      <div class="detail"><span>renders a plain <b>folder</b>: <code>bot/generated/index.ts</code> beside <code>instructions/</code>, <code>accounts/</code>, <code>pdas/</code></span><span>the layout both bots import; <code>@solana/kit</code> can stay unpinned at its current major</span></div>
     </div>
   </div>
-  <div class="verdict">Pin <code>@solana/kit@^6.10.0</code> for any project with a codama-generated client. The generated client sets the version, not the newest release.</div>
+  <div class="verdict">Pin <code>@codama/renderers-js@^1</code>, leave <code>@solana/kit</code> unpinned, and ask before you install: <code>npm view &lt;pkg&gt; peerDependencies</code>. Checked 2026-09-07.</div>
 </div>
 </body></html>

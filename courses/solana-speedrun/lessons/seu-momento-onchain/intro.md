@@ -25,4 +25,6 @@ E os líderes de cada categoria estão a um toque, rodando agora na mesma mainne
 
 Uma nota honesta antes de você sair correndo: rendimento em DeFi é variável, ninguém garante juro fixo, e todo protocolo tem risco. Comece pequeno, entenda o que está fazendo, e cresça no seu ritmo.
 
+Quer ir além de usar e **construir** nesse mundo? O próximo passo é o curso "From Bitcoin to Solana" (btc-to-sol-evolution): do primeiro hash ao seu próprio programa rodando na Solana (por enquanto, em inglês).
+
 Passa no stand de onramp e ativa em 2 minutos. Bem-vindo ao mundo onchain. 🚀

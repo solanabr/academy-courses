@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- annotated-code: what the deploy command actually did
-     purpose: show that you never named an address, the keypair supplied it, and doubles as the upgrade authority
-     data: $ solana program deploy ./target/deploy/first_program.so # ^ uploads this sBPF bytecode, in chunks # CLI silently reads target/deploy/first_program-keypair.json # -> takes its PUBLIC KEY -> that IS the program ID Program Id: <PROGRAM_ID> # <- copy this; it is the keypair's pubkey # the SAME keypair is also the upgrade authority (guard the file)
-     prompt: Monospace annotated-code panel, dark background. The deploy command on top, the printed Program Id at the bottom, and three annotation comments in a warm accent connecting the keypair file to both "program ID" and "upgrade authority". No icons.
+     purpose: show that you never named an address -- the build keypair supplied it -- and that the upgrade authority is a SEPARATE key, the CLI wallet
+     data: $ solana program deploy ./target/deploy/first_program.so # ^ uploads this sBPF bytecode, in chunks # CLI silently reads target/deploy/first_program-keypair.json # -> takes its PUBLIC KEY -> that IS the program ID Program Id: <PROGRAM_ID> # <- copy this; it is the keypair's pubkey # upgrade authority = a DIFFERENT key: the CLI wallet ~/.config/solana/id.json (guard THAT one)
+     prompt: Monospace annotated-code panel, dark background. The deploy command on top, the printed Program Id at the bottom, and annotation comments in a warm accent connecting the keypair file to the program ID only, plus a closing note naming the CLI wallet ~/.config/solana/id.json as the separate upgrade authority. Do NOT say or imply the program keypair is the upgrade authority -- `solana program deploy` sets it to the CLI's configured wallet, and the prose at intro.md says so. No icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -49,7 +49,7 @@
     <div class="rule"></div>
     <div class="out">Program Id: <span class="pid">&lt;PROGRAM_ID&gt;</span></div>
     <div class="callout" style="margin-top:20px"><div class="bar"></div><div class="txt"><b>copy this</b> &mdash; it is the keypair's public key, the address strangers will invoke</div></div>
-    <div class="callout"><div class="bar"></div><div class="txt">the <b>same keypair</b> is also the <b>upgrade authority</b> &mdash; guard the file, lose it and the program freezes</div></div>
+    <div class="callout"><div class="bar"></div><div class="txt">the <b>upgrade authority</b> is a <b>different key</b> &mdash; <b>~/.config/solana/id.json</b>, the CLI wallet deploy was configured with. Lose the build keypair and you lose nothing but that address; lose the <b>wallet</b> and the program freezes forever</div></div>
   </div>
 </div>
 </body></html>

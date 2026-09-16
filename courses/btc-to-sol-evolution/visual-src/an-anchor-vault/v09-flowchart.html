@@ -11,9 +11,9 @@
 </style></head>
 <body>
 <!-- flowchart: the three ways a withdraw can end
-     purpose: certify that a balance in the rent-exempt gap is a silent failure, not a caught error
-     data: withdraw runs -> what balance does it leave in the vault? leaves it comfortably ABOVE the rent-exempt floor -> safe, vault survives closes the account to EXACTLY zero, returns every lamport (rent included) -> safe, vault gone on purpose leaves it ABOVE zero but BELOW the floor (the gap) -> passes every test now... -> next epoch boundary: runtime sweeps, finds it under-funded, purges it -> whatever was left is reclaimed; owner's money gone; no error logged
-     prompt: Top-down flowchart, dark theme, monospace. One decision node ("resulting vault balance?") branching to three outcomes: two green ("above floor", "exactly zero"), one red ("in the gap") that flows down through an "epoch sweep -> purge -> money gone" chain. Callout on the red path: "green tests, silent loss". No decorative icons.
+     purpose: certify that a balance in the rent-exempt gap is rejected by BOTH machines, and that the cost is an error in the runtime's vocabulary rather than the program's
+     data: withdraw runs -> what balance does it leave in the vault? leaves it comfortably ABOVE the rent-exempt floor -> safe, vault survives closes the account to EXACTLY zero, returns every lamport (rent included) -> safe, vault gone on purpose leaves it ABOVE zero but BELOW the floor (the gap) -> LiteSVM: REJECTED, InsufficientFundsForRent (litesvm/src/utils/rent.rs is a direct port of Agave's rent_calculator.rs; check_accounts_rent re-walks every writable account post-execution, and RentExempt -> RentPaying is not an allowed transition) -> real cluster: rejected the same way -> both machines agree; what you lose is the wording: "Transaction results in an account (1) with insufficient funds for rent" names a slot index and never names your program; nothing is ever swept, because rent collection is off cluster-wide
+     prompt: Top-down flowchart, dark theme, monospace. One decision node ("resulting vault balance?") branching to three outcomes: two green ("above floor", "exactly zero"), one red ("in the gap") that flows down through a "LiteSVM rejects -> the cluster rejects identically -> the message names an account index, not your program" chain. Callout on the red path: "both machines agree - in the runtime's words, not yours". Do NOT claim LiteSVM passes, is green, or misses this check: it ports Agave's rent_calculator verbatim and enforces the same RentExempt -> RentPaying rejection, which was verified against litesvm 0.16.0 source and its own test_rent_check_still_fails_successful_transaction. Do NOT depict an epoch sweep or a purge: rent collection is disabled cluster-wide and nothing is ever swept. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -56,7 +56,7 @@
     font-weight:900; font-size:22px; }
 </style>
   <div class="stbr-eyebrow">the three ways a withdraw can end</div>
-  <h2 class="viz-title">a balance in the gap is a silent loss</h2>
+  <h2 class="viz-title">a balance in the gap fails on both machines</h2>
   <div class="fc">
     <div class="decwrap"><div class="decide"><span class="k">withdraw runs</span><span class="q">what balance does it leave in the vault?</span></div></div>
     <div class="fork"><span>&darr;</span><span>&darr;</span><span>&darr;</span></div>
@@ -65,17 +65,17 @@
       <div class="out safe"><div class="cond">closes the account to <b>EXACTLY zero</b>, returns every lamport (rent included)</div><div class="verdict">safe &mdash; vault gone on purpose</div></div>
       <div class="out bad">
         <div class="cond">leaves it <b>ABOVE zero but BELOW the floor</b> &mdash; the gap</div>
-        <div class="verdict">passes every test now&hellip;</div>
+        <div class="verdict">rejected &mdash; on both machines</div>
         <div class="chain">
-          <div class="link"><span class="step">then &rarr;</span> next epoch boundary: runtime sweeps</div>
+          <div class="link"><span class="step">litesvm &rarr;</span> <b>InsufficientFundsForRent</b></div>
           <div class="dnr">&darr;</div>
-          <div class="link"><span class="step">finds &rarr;</span> the account under-funded, purges it</div>
+          <div class="link"><span class="step">cluster &rarr;</span> the same ported rule, the same rejection</div>
           <div class="dnr">&darr;</div>
-          <div class="link final"><span class="step">result &rarr;</span> whatever was left is reclaimed; <b>owner's money gone; no error logged</b></div>
+          <div class="link final"><span class="step">result &rarr;</span> <b>&ldquo;an account (1)&hellip;&rdquo; &mdash; a slot index, never your program</b></div>
         </div>
       </div>
     </div>
-    <div class="callout">green tests, silent loss</div>
+    <div class="callout">it fails anyway &mdash; guard it so it fails in your words</div>
   </div>
 </div>
 </body></html>
