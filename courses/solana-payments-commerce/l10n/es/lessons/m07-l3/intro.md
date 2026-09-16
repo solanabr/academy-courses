@@ -28,7 +28,7 @@ En 1948, Columbia Records introdujo el disco de larga duración de 33⅓ rpm. Un
 
 Guarda ese tocadiscos en la cabeza durante la próxima media hora. Los pagos agénticos en 2026 son una guerra de las velocidades: más de cuatro estándares, cada uno respaldado por alguien enorme, cada uno girando a sus propias rpm. Tu trabajo como integrador de Wavelength no es elegir la velocidad ganadora sino entregar el tocadiscos multivelocidad. Lo que está en juego es concreto: adivinas mal y reescribes tu integración de pagos cuando el mercado se mueva; te niegas a elegir y le sirves a cada agente que aparezca mientras tus competidores siguen leyendo borradores de specs. Así que esta es la ruta: primero el desafiante nativo de Solana de cerca, después los dos actores establecidos que van primero por tarjetas, después la única fila de la comparación que decide todo (quién es merchant-of-record), después la apuesta.
 
-![Línea de tiempo de dos carriles que separa el esquema base de MPP registrado en la IETF, con su presentación y su vencimiento, de la spec del método de Solana rastreada en git, sobre una banda de marcadores de x402, AP2, ACP y desafiantes.](assets/v01-timeline.png)
+![Línea de tiempo de dos carriles que separa el esquema base de MPP registrado en la IETF, con su presentación y su vencimiento, de la spec del método de Solana rastreada en git, sobre una banda de marcadores de x402, AP2, ACP y desafiantes.](assets/v01-timeline.webp)
 
 ### MPP: el pago como credencial HTTP
 
@@ -38,7 +38,7 @@ Lo que esa spec de método *no* es, es un Internet-Draft de la IETF. Busca `draf
 
 Mecánicamente, MPP hace algo que x402 deliberadamente no hizo: mueve el pago hacia la maquinaria de autenticación nativa de HTTP en vez de a headers propios. El flujo se lee como Basic Auth con dinero adentro. Tu servidor rechaza una petición sin pagar con un desafío `WWW-Authenticate: Payment` que describe lo que quiere. El cliente responde reintentando con un header `Authorization` que lleva un charge intent de Solana firmado como su credencial. Cuando el pago aterriza, la respuesta del servidor incluye un header `Payment-Receipt`, la prueba que el cliente archiva. Desafío, credencial, comprobante. Cualquier librería HTTP que entienda flujos de auth ya entiende la forma de este baile, y esa es la apuesta de diseño: hacer que los pagos entre máquinas sean aburridos para cada proxy, caché y stack de middleware que ha manejado `WWW-Authenticate` durante treinta años.
 
-![Diagrama de secuencia de una llamada MPP en modo pull, desde el desafío Payment pasando por el charge intent firmado del agente hasta el broadcast co-firmado del servidor y el header de comprobante.](assets/v02-flowchart.png)
+![Diagrama de secuencia de una llamada MPP en modo pull, desde el desafío Payment pasando por el charge intent firmado del agente hasta el broadcast co-firmado del servidor y el header de comprobante.](assets/v02-flowchart.webp)
 
 Dos modos, y el default importa. En **modo pull**, el cliente firma el charge intent y lo entrega; el servidor puede co-firmar como fee payer y hacer el broadcast de la transacción él mismo. En **modo push**, el cliente lleva la transacción a la blockchain por su cuenta y presenta el resultado. Pull es el default, y fíjate en lo que la cláusula de co-firma mete de contrabando: el patrocinio de comisiones viene incorporado en el camino feliz del protocolo. Aquí, que el servidor pague la comisión de red de su propio cliente es la postura por defecto. Guarda esa idea una lección más; está a punto de volverse el tema entero del módulo 8.
 
@@ -52,7 +52,7 @@ Ahora el otro lado de la tienda. AP2 es el Agent Payments Protocol de Google, en
 
 ACP es el Agentic Commerce Protocol, co-escrito por Stripe y OpenAI, liberado bajo Apache-2.0, con ChatGPT como su primera plataforma desplegada. Su jugada característica es el Shared Payment Token: una credencial acotada que representa el método de pago del comprador, que la plataforma le pasa al comercio para que el comercio, y esta es la cláusula estructural, **siga siendo merchant-of-record**. El cliente compra dentro de ChatGPT, pero el vendedor del disco sigue siendo Wavelength: tu nombre en el estado de cuenta, tu política de reembolsos, tus obligaciones fiscales, tu relación con el cliente. Para cualquiera que haya corrido una tienda a través de un procesador de tarjetas, ACP es el menos ajeno de los cuatro estándares a propósito.
 
-![Diagrama de dos carriles que contrasta los mandatos firmados por humanos de AP2, presentados como credenciales verificables, con el Shared Payment Token de ACP, que deja al comercio cobrando como merchant-of-record.](assets/v03-diagram.png)
+![Diagrama de dos carriles que contrasta los mandatos firmados por humanos de AP2, presentados como credenciales verificables, con el Shared Payment Token de ACP, que deja al comercio cobrando como merchant-of-record.](assets/v03-diagram.webp)
 
 Vale la pena detenerse en quién está parado dónde, porque uno de esos nombres está parado en un lugar que puede que no hayas registrado. Mapeaste la cobertura en cuatro frentes de Stripe hace dos lecciones: el muro de trusted-by de x402, ACP co-escrito con OpenAI, el adquirente de USDC que liquida en fiat de la lección del corredor, y el esquema de autenticación HTTP "Payment". Ese cuarto frente es el borrador base que acabas de leer. Stripe co-escribió `draft-httpauth-payment-00`, lo que la pone en cada riel de esta lección, incluido el que suele describirse como la respuesta nativa de Solana. Cuando la empresa de infraestructura de pagos más grande del campo se niega a elegir un único ganador, eso te dice algo sobre lo resuelta que está esta guerra.
 
@@ -62,7 +62,7 @@ Y es una guerra de verdad, no una de diapositivas. OKX entregó un estándar com
 
 Quítale la criptografía y cada estándar es una respuesta a una sola pregunta comercial: cuando un agente compra un disco, ¿quién lo vendió? Conociste merchant-of-record en las lecciones de fiat de este curso; es la entidad que vende legalmente, el nombre en la disputa, la parte que carga con las obligaciones de reembolso y de compliance. Pon a los cuatro en fila sobre esa fila y la guerra se vuelve mucho más fácil de leer.
 
-![Matriz que compara x402, MPP, AP2 y ACP en merchant-of-record, transporte y liquidación, separando el par nativo de cripto del par que va primero por tarjetas, con la columna de MPP marcada como una spec de método bajo el borrador base en vez de un documento de la IETF por derecho propio.](assets/v04-comparison.png)
+![Matriz que compara x402, MPP, AP2 y ACP en merchant-of-record, transporte y liquidación, separando el par nativo de cripto del par que va primero por tarjetas, con la columna de MPP marcada como una spec de método bajo el borrador base en vez de un documento de la IETF por derecho propio.](assets/v04-comparison.webp)
 
 Lee las columnas y los bandos se ordenan solos. Bajo x402 y MPP estás vendiendo directamente: el agente le paga a tu dirección en stablecoins, y la pregunta interesante es a quién le confías el medio (un facilitador para x402; a nadie más que a tu propio servidor co-firmante en el modo pull por defecto de MPP). El borrador de MPP ni se molesta en replantear merchant-of-record, porque la autenticación-de-pago-sobre-HTTP no cambia quién es el vendedor. Bajo AP2, tu relación con el procesador persiste y la contribución del protocolo es evidencia de autorización; Google no está entrando como el vendedor de tus discos. Bajo ACP, mantenerte como merchant-of-record no es un accidente del diseño, es el titular: Stripe y OpenAI construyeron la maquinaria de credenciales específicamente para que las plataformas puedan alojar el checkout sin absorber el rol legal del comercio.
 
@@ -80,7 +80,7 @@ El tl;dr es: apostarle a un solo estándar en agosto de 2026 es prematuro, y no 
 
 Nombra el costo, eso sí, porque la cobertura no es gratis. Estás tomando una dependencia de la CLI de pay: esta lección está escrita contra el build fijado en npm 0.26.0, y el repo ya había etiquetado `pay-v0.28.0` para el 2026-08-26 (comprobado el 2026-09-07). Su feed de releases muestra versiones menores aterrizando con días de diferencia a lo largo de junio, julio y agosto, y va a seguir cambiando sin parar — lee tu propio `pay --version` y la página de releases del repo en vez de esta oración. Así que no incrustes el subcomando en tu aplicación: mantén `pay gate` en la capa de despliegue, un proceso que lanzan tus scripts de ops, nunca un string al que tu lógica de negocio le haga shell out. Si un release futuro renombra o reforma el gate, tu radio de impacto es un archivo de config y una unidad de systemd, y en el peor caso esta lección se degrada con elegancia: el demo del lado del cliente de `pay curl` todavía funciona contra el middleware de x402 pelado que entregaste la lección pasada. Esa es la diferencia entre depender de una herramienta que se mueve y ser estructural sobre ella.
 
-![Mapa de decisión que pesa las apuestas exclusivas a MPP, x402, AP2 o ACP contra ponerle gate una sola vez con la CLI de pay, cada nodo cargando su propio modo de falla o costo.](assets/v05-diagram.png)
+![Mapa de decisión que pesa las apuestas exclusivas a MPP, x402, AP2 o ACP contra ponerle gate una sola vez con la CLI de pay, cada nodo cargando su propio modo de falla o costo.](assets/v05-diagram.webp)
 
 ## Lab: pon el gate una vez, responde a los dos
 
@@ -204,7 +204,7 @@ Content-Length: 2
 
 La línea `WWW-Authenticate` es el desafío de MPP, en el header de auth que esta lección acaba de introducir. La línea `PAYMENT-REQUIRED` es el desafío de x402 v2 que ya sabes decodificar de la lección pasada, y viaja en un header por la razón que dio la lección pasada. Así que aquí tampoco vayas a buscar un array `accepts` en el cuerpo. El cuerpo es `{}`, exactamente como lo era contra tu propio middleware. Un solo rechazo, dos protocolos, dos headers, los dos anunciando el mismo precio. Ese doble discurso es el producto entero de esta lección.
 
-![Topología que muestra agentes de x402, clientes de MPP y llamadores sin pagar pegándole todos a un solo pay gate en el puerto 4021, que reenvía solo las llamadas liquidadas a la API pelada de precios de prensado en el puerto 3000.](assets/v06-diagram.png)
+![Topología que muestra agentes de x402, clientes de MPP y llamadores sin pagar pegándole todos a un solo pay gate en el puerto 4021, que reenvía solo las llamadas liquidadas a la API pelada de precios de prensado en el puerto 3000.](assets/v06-diagram.webp)
 
 **6. Deja que la CLI negocie.** Ahora la llamada pagada, con el lado del cliente de la misma herramienta:
 
@@ -231,7 +231,7 @@ Tercero, acuérdate de la ausencia que nombró el paso 3: el camino del gate no 
 
 Fíjate en lo que no le pasó a tu escalera mientras hacías eso. Ningún artefacto nuevo nació hoy.
 
-![La API de precios de prensado como un solo peldaño de artefacto en dos capas: el middleware de pago que todavía es dueño de la conciliación por memo, y el pay gate de hoy respondiendo los dos protocolos.](assets/v07-diagram.png)
+![La API de precios de prensado como un solo peldaño de artefacto en dos capas: el middleware de pago que todavía es dueño de la conciliación por memo, y el pay gate de hoy respondiendo los dos protocolos.](assets/v07-diagram.webp)
 
 ## Challenge
 

@@ -28,7 +28,7 @@ In 1948, Columbia Records introduced the 33⅓ rpm long-playing record. A year l
 
 Keep that turntable in your head for the next half hour. Agentic payments in 2026 is a war of the speeds: four-plus standards, each backed by someone enormous, each spinning at its own rpm. Your job as Wavelength's integrator is not to pick the winning speed but to ship the multi-speed turntable. The stake is concrete: guess wrong and you rewrite your payment integration when the market moves; refuse to choose and you serve every agent that shows up while your competitors are still reading spec drafts. So here is the route: first the Solana-native challenger up close, then the two cards-first incumbents, then the one row of the comparison that decides everything (who is merchant-of-record), then the bet.
 
-![Two-lane timeline separating MPP's IETF-registered base scheme, with its submission and expiry, from the git-tracked Solana method spec, above a band of x402, AP2, ACP, and challenger markers.](assets/v01-timeline.png)
+![Two-lane timeline separating MPP's IETF-registered base scheme, with its submission and expiry, from the git-tracked Solana method spec, above a band of x402, AP2, ACP, and challenger markers.](assets/v01-timeline.webp)
 
 ### MPP: payment as an HTTP credential
 
@@ -38,7 +38,7 @@ What that method spec is *not* is an IETF Internet-Draft. Search the datatracker
 
 Mechanically, MPP does something x402 deliberately did not: it moves the payment into HTTP's native authentication machinery instead of custom headers. The flow reads like Basic Auth with money in it. Your server rejects an unpaid request with a `WWW-Authenticate: Payment` challenge describing what it wants. The client answers by retrying with an `Authorization` header carrying a signed Solana charge intent as its credential. When the payment lands, the server's response includes a `Payment-Receipt` header, the proof the client files away. Challenge, credential, receipt. Any HTTP library that understands auth flows already understands the shape of this dance, and that is the design bet: make machine payments boring to every proxy, cache, and middleware stack that has handled `WWW-Authenticate` for thirty years.
 
-![Sequence diagram of an MPP pull-mode call, from the Payment challenge through the agent's signed charge intent to the server's co-signed broadcast and receipt header.](assets/v02-flowchart.png)
+![Sequence diagram of an MPP pull-mode call, from the Payment challenge through the agent's signed charge intent to the server's co-signed broadcast and receipt header.](assets/v02-flowchart.webp)
 
 Two modes, and the default matters. In **pull mode**, the client signs the charge intent and hands it over; the server may co-sign as fee payer and broadcast the transaction itself. In **push mode**, the client takes the transaction to the chain on its own and presents the result. Pull is the default, and notice what the co-sign clause smuggles in: fee sponsorship is built into the protocol's happy path. Here, the server paying the network fee for its own customer is the default posture. Hold that thought for one more lesson; it is about to become the entire subject of module 8.
 
@@ -52,7 +52,7 @@ Now the other side of the store. AP2 is Google's Agent Payments Protocol, at v0.
 
 ACP is the Agentic Commerce Protocol, co-authored by Stripe and OpenAI, released Apache-2.0, with ChatGPT as its first deployed platform. Its signature move is the Shared Payment Token: a scoped credential representing the buyer's payment method, which the platform passes to the merchant so that the merchant, and this is the load-bearing clause, **stays merchant-of-record**. The customer buys inside ChatGPT, but the seller of the record is still Wavelength: your name on the statement, your refund policy, your tax obligations, your customer relationship. For anyone who has run a store through a card processor, ACP is the least alien of the four standards on purpose.
 
-![Two-lane diagram contrasting AP2's human-signed mandates, presented as verifiable credentials, with ACP's Shared Payment Token, which leaves the merchant charging as merchant-of-record.](assets/v03-diagram.png)
+![Two-lane diagram contrasting AP2's human-signed mandates, presented as verifiable credentials, with ACP's Shared Payment Token, which leaves the merchant charging as merchant-of-record.](assets/v03-diagram.webp)
 
 Worth pausing on who is standing where, because one of those names is standing somewhere you may not have registered. You mapped Stripe's four-front hedge two lessons ago: the x402 trusted-by wall, ACP co-authored with OpenAI, the fiat-settling USDC acquirer from the corridor lesson, and the "Payment" HTTP authentication scheme. That fourth front is the base draft you just read. Stripe co-authored `draft-httpauth-payment-00`, which puts it on every rail in this lesson, including the one usually described as the Solana-native answer. When the largest payments infrastructure company on the field refuses to pick a single winner, that tells you something about how settled this war is.
 
@@ -62,7 +62,7 @@ And it is a real war, not a slideware one. OKX shipped a competing standard it c
 
 Strip away the cryptography and each standard is an answer to one commercial question: when an agent buys a record, who sold it? You met merchant-of-record in this course's fiat lessons; it is the entity legally selling, the name on the dispute, the party holding refund and compliance obligations. Line the four up on that row and the war gets much easier to read.
 
-![Matrix comparing x402, MPP, AP2, and ACP on merchant-of-record, transport, and settlement, separating the crypto-native pair from the cards-first pair, with MPP's column badged as a method spec under the base draft rather than an IETF document of its own.](assets/v04-comparison.png)
+![Matrix comparing x402, MPP, AP2, and ACP on merchant-of-record, transport, and settlement, separating the crypto-native pair from the cards-first pair, with MPP's column badged as a method spec under the base draft rather than an IETF document of its own.](assets/v04-comparison.webp)
 
 Read the columns and the camps sort themselves. Under x402 and MPP you are selling directly: the agent pays your address in stablecoins, and the interesting question is who you trust in the middle (a facilitator for x402; nobody but your own co-signing server in MPP's default pull mode). MPP's draft does not even bother reframing merchant-of-record, because payment-authentication-over-HTTP does not change who the seller is. Under AP2, your processor relationship persists and the protocol's contribution is authorization evidence; Google is not stepping in as the seller of your records. Under ACP, keeping you merchant-of-record is not an accident of the design, it is the headline: Stripe and OpenAI built the credential machinery specifically so platforms can host checkout without absorbing the merchant's legal role.
 
@@ -80,7 +80,7 @@ The tl;dr is: betting on one standard in August 2026 is premature, and you do no
 
 Name the cost, though, because the hedge is not free. You are taking a dependency on the pay CLI: this lesson is written against the npm-pinned build 0.26.0, and the repo had already tagged `pay-v0.28.0` by 2026-08-26 (checked 2026-09-07). Its release feed shows minor versions landing days apart through June, July, and August, and it will keep churning — read your own `pay --version` and the repo's releases page rather than this sentence. So do not hard-wire the subcommand into your application: keep `pay gate` at the deployment layer, a process your ops scripts launch, never a string your business logic shells out to. If a future release renames or reshapes the gate, your blast radius is one config file and one systemd unit, and in the worst case this lesson degrades gracefully: the `pay curl` client-side demo still works against the plain x402 middleware you shipped last lesson. That is the difference between depending on a moving tool and being load-bearing on it.
 
-![Decision map weighing exclusive bets on MPP, x402, AP2, or ACP against gating once with the pay CLI, each node carrying its own failure mode or cost.](assets/v05-diagram.png)
+![Decision map weighing exclusive bets on MPP, x402, AP2, or ACP against gating once with the pay CLI, each node carrying its own failure mode or cost.](assets/v05-diagram.webp)
 
 ## Lab: gate once, answer both
 
@@ -204,7 +204,7 @@ Content-Length: 2
 
 The `WWW-Authenticate` line is MPP's challenge, in the auth header this lesson just introduced. The `PAYMENT-REQUIRED` line is the x402 v2 challenge you already know how to decode from last lesson, and it rides in a header for the reason last lesson gave. So do not go looking for an `accepts` array in the body here either. The body is `{}`, exactly as it was against your own middleware. One rejection, two protocols, two headers, both advertising the same price. That double-speak is the entire product of this lesson.
 
-![Topology showing x402 agents, MPP clients, and unpaid callers all hitting one pay gate on port 4021, which forwards only settled calls to the bare pressing-price API on port 3000.](assets/v06-diagram.png)
+![Topology showing x402 agents, MPP clients, and unpaid callers all hitting one pay gate on port 4021, which forwards only settled calls to the bare pressing-price API on port 3000.](assets/v06-diagram.webp)
 
 **6. Let the CLI negotiate.** Now the paid call, with the client side of the same tool:
 
@@ -231,7 +231,7 @@ Third, remember the absence step 3 named: the gate path writes no ledger row, so
 
 Notice what did not happen to your ladder while you did that. No new artifact was born today.
 
-![The pressing-price API as one artifact rung in two layers: the payment middleware that still owns memo reconciliation, and today's pay gate answering both protocols.](assets/v07-diagram.png)
+![The pressing-price API as one artifact rung in two layers: the payment middleware that still owns memo reconciliation, and today's pay gate answering both protocols.](assets/v07-diagram.webp)
 
 ## Challenge
 

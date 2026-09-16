@@ -23,7 +23,7 @@ As descobertas logo de cara:
 
 Pense em hoje à noite como a noite de estreia de uma casa de shows. Todo instrumento chegou no próprio case e passou no próprio teste de bancada. A passagem de som não é sobre nenhum instrumento; é sobre se a sala funciona quando tudo toca junto. Aqui é igual: montagem é uma disciplina própria, com modos de falha próprios, e nenhum deles mora dentro de um único degrau.
 
-![Diagrama de arquitetura de três processos: um servidor montando as superfícies de transaction-request, gasless, blink e x402, um worker de webhook e um crank de subscriptions isolado como a ilha kit-7, todos compartilhando o transfer-kit e um único livro-razão de pedidos.](assets/v01-diagram.png)
+![Diagrama de arquitetura de três processos: um servidor montando as superfícies de transaction-request, gasless, blink e x402, um worker de webhook e um crank de subscriptions isolado como a ilha kit-7, todos compartilhando o transfer-kit e um único livro-razão de pedidos.](assets/v01-diagram.webp)
 
 ### A jornada do comprador é a spec
 
@@ -39,7 +39,7 @@ As pernas, na ordem em que o script roda elas. Um comprador, roteirizado, na dev
 6. **O agente paga a API três vezes.** Um agente pagante bate no endpoint pressing-price, engole o 402, liquida e faz isso mais duas vezes. Três ids de fatura em memo conciliam no livro-razão.
 7. **Um reembolso.** Um pagamento de push reverso pelo transfer-kit, registrado contra a signature de origem.
 
-![Fluxograma das sete pernas da jornada, do stub do ramp até o reembolso, cada uma alimentando o verificador compartilhado do lado do servidor que checa programa de token, mint, delta de saldo e memo antes de imprimir PASS.](assets/v02-flowchart.png)
+![Fluxograma das sete pernas da jornada, do stub do ramp até o reembolso, cada uma alimentando o verificador compartilhado do lado do servidor que checa programa de token, mint, delta de saldo e memo antes de imprimir PASS.](assets/v02-flowchart.webp)
 
 A jornada não é um passeio pela UI, e nenhuma perna jamais confia num toast de carteira, num payload de webhook ou numa resposta 200 como prova. O curso tem uma única bancada de aceitação, o verificador do m04, e a jornada chama ela uma vez por perna: buscar de novo a transação com `getTransaction`, checar o programa de token, depois o mint, depois o delta de saldo na conta de token PERTENCENTE ao lojista (chaveada no dono, do jeito que o verificador chaveia desde o m04 — essa escolha é o que pega a fixture de mint errado), depois o memo. Uma transação patrocinada recebe o mesmo tratamento que uma comum. A Kora co-assinar muda quem pagou a taxa; não muda nada sobre o que merece ser acreditado.
 
@@ -51,7 +51,7 @@ Seja exato sobre o que mantém os dois separados, no entanto, porque a lição d
 
 Esses peer ranges foram reverificados contra o npm na lição de assinaturas em 2026-08-22; rode `npm view @solana/subscriptions@0.5.0 peerDependencies` você mesmo antes de instalar qualquer coisa hoje, porque este canto do npm se mexeu duas vezes neste trimestre e nunca, em lugar nenhum, fixe em `latest`.
 
-![Diagrama do monorepo listando as quinze pastas de workspace com o workspace subscriptions isolado como a única ilha kit-7 e o novo workspace stack destacado no lado kit-6.](assets/v03-diagram.png)
+![Diagrama do monorepo listando as quinze pastas de workspace com o workspace subscriptions isolado como a única ilha kit-7 e o novo workspace stack destacado no lado kit-6.](assets/v03-diagram.webp)
 
 Nem todo degrau ganhou a própria pasta, e vale dizer isso em voz alta: o embed de ramp mora dentro do workspace wavelength-checkout porque nasceu daquele servidor, o gate MPP é um arquivo de config parado na frente do workspace x402 em vez de uma base de código própria, e o registro de decisão de corredor é um documento, não um processo. Degraus são capacidades, não diretórios. O seu elenco pode diferir do meu nos nomes; o array workspaces é a fonte da verdade, e ele precisa listar o que você de fato construiu.
 
@@ -65,7 +65,7 @@ Aqui está o acúmulo, mostrado em vez de afirmado, porque uma alegação tipo "
 
 **Três protocolos, um livro-razão.** Um checkout por QR, um pull de assinatura e uma chamada de agente x402 são portas de entrada radicalmente diferentes, e cada uma delas aterrissa como uma linha no mesmo livro-razão de pedidos do back office, chaveada do mesmo jeito. Os ids de fatura do `extra.memo` da perna de x402 (256 bytes no máximo, da spec do x402 v2) conciliam pelo mesmo caminho que um memo de checkout. Uma história de conciliação para o negócio inteiro.
 
-![Linha do tempo mostrando artefatos dos módulos dois a oito, cada um alimentando a montagem final da wavelength-stack, do transfer-kit como núcleo compartilhado até o checklist de prod-gate no fim.](assets/v04-timeline.png)
+![Linha do tempo mostrando artefatos dos módulos dois a oito, cada um alimentando a montagem final da wavelength-stack, do transfer-kit como núcleo compartilhado até o checklist de prod-gate no fim.](assets/v04-timeline.webp)
 
 ### A bancada é enxuta de propósito
 
@@ -91,7 +91,7 @@ Mais uma escolha deliberada: a jornada nunca reusa ids de pedido entre execuçõ
 
 Quatro modos de falha respondem pela maior parte da dor neste lab, e eu estou te entregando eles logo de cara porque, na minha experiência com semanas de integração, isso muda o debug de horas para minutos.
 
-![Tabela ligando quatro ciladas de montagem, contaminação cruzada de kit, guarda de idempotência ausente, fair queue não drenada e rate limits da devnet, aos sintomas observáveis e às correções delas.](assets/v05-comparison.png)
+![Tabela ligando quatro ciladas de montagem, contaminação cruzada de kit, guarda de idempotência ausente, fair queue não drenada e rate limits da devnet, aos sintomas observáveis e às correções delas.](assets/v05-comparison.webp)
 
 A última linha merece uma frase extra, porque é a que engana as pessoas sob pressão de demo: o RPC público da devnet vai te dar rate limit no meio da jornada, e uma leitura que dá timeout parece exatamente uma perna que falhou. A distinção que importa é *qual lado disse não*. Um timeout é a infraestrutura de leitura dando de ombros; você dá retry nele. Uma rejeição do verificador é a sua bancada de aceitação falando; nessa você nunca dá retry, você investiga.
 
@@ -99,7 +99,7 @@ A última linha merece uma frase extra, porque é a que engana as pessoas sob pr
 
 Nomeie o trade-off antes do lab, como sempre. O monorepo montado roda todo serviço numa árvore de processos numa máquina só contra a devnet, e isso é exatamente certo para um capstone de ensino e errado para produção. Um deployment de verdade separa o worker, o crank e a API com paywall em serviços de vida longa distintos, com monitoramento próprio e políticas de restart próprias, e nunca compartilha um signer entre todos eles: o raio de impacto de uma chave vazada deveria ser um serviço, não a sua loja inteira. O capstone prova a fiação e a disciplina de verificar do lado do servidor. Ele não prova uma postura de ops, e as disciplinas mais fundas de aterrissagem e indexação que uma versão de alto volume precisa são território do curso Client-Side Mastery, como têm sido toda vez que este curso encostou nelas.
 
-![Comparação da stack de ensino com um deployment de produção em processos, signers, monitoramento e rede, terminando com os invariantes que se transferem, verificação do lado do servidor, idempotência, um livro-razão e pins por workspace.](assets/v06-comparison.png)
+![Comparação da stack de ensino com um deployment de produção em processos, signers, monitoramento e rede, terminando com os invariantes que se transferem, verificação do lado do servidor, idempotência, um livro-razão e pins por workspace.](assets/v06-comparison.webp)
 
 Alguma coisa disso é real fora de um repositório de curso? É sim, e com números. A Helius roda a própria cobrança no mesmo programa oficial de Subscriptions que você integrou, programa `De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44` (o prefixo vanity `De1eg` nomeia o programa Delegation on-chain sobre o qual o produto Subscriptions roda, a mesma nomenclatura que os códigos de erro do client dele usam), e declara a política de dunning dela nas mesmas palavras que a sua máquina de estados codifica: uma renovação que falha não é repetida contra a carteira, ela vira uma fatura em aberto (o blog de engenharia deles, buscado em 2026-08-21). A sua perna de falha forçada afirma exatamente o comportamento em que uma empresa de infraestrutura de verdade aposta a receita dela. E a perna de agente também não é especulativa: o dashboard do x402.org, a mesma janela móvel de 30 dias que você leu na lição de x402, reportou 75.41 milhões de transações e 24.24 milhões de dólares em volume quando eu puxei ele em 2026-08-21. Os trilhos em que você está passando o som hoje à noite estão carregando peso de verdade no mundo real, na escala que está em jogo, agora mesmo.
 
@@ -216,7 +216,7 @@ Montar na raiz importa para uma superfície em particular: o `actions.json` do b
 
 Um pré-requisito que a superfície de gasless carrega e as outras não: ela conversa com um nó Kora. O builder dela cota e co-assina contra `http://localhost:8080`, então esse nó tem que estar rodando antes de a jornada começar, exatamente como estava na lição de gasless. Ele não é um dos três filhos do boot.ts abaixo, porque é um binário externo em vez de um processo que você inicia, ao lado do pay gate nesse aspecto.
 
-![Mapa de rotas do servidor único na porta 3000 ramificando para health check, transaction request, a rota gasless da Kora montada, as actions de blink montadas na raiz e a rota de pagamento x402 (o gate MPP roda como um processo separado e não é montado aqui).](assets/v07-diagram.png)
+![Mapa de rotas do servidor único na porta 3000 ramificando para health check, transaction request, a rota gasless da Kora montada, as actions de blink montadas na raiz e a rota de pagamento x402 (o gate MPP roda como um processo separado e não é montado aqui).](assets/v07-diagram.webp)
 
 Uma palavra sobre a superfície mais quieta do módulo de protocolos, porque é fácil lembrar errado dela como já cabeada. O caminho de desafio MPP NÃO anda dentro do app x402: no módulo 7 o desafio `WWW-Authenticate: Payment` era servido pelo processo `pay gate` separado, dirigido pelo `paywall.yml` e fazendo proxy de um upstream sem pagamento, e nada hoje à noite muda essa arquitetura — exatamente o "arquivo de config parado na frente do workspace x402" da nota sobre o elenco lá em cima. O boot.ts spawna três processos, servidor, worker e crank, e um pay gate não é um deles, então a stack montada fala só x402. Se você quiser o lado MPP no ar, é mais um terminal, não código novo: exponha uma rota pressing-price pelada para o gate fazer proxy (a rota montada no x402 não pode ser o upstream dele, já que o gate exige uma sem pagamento), aponte o `paywall.yml` para ela e rode o gate na :4021 exatamente como no módulo 7. Você construiu para o trilho que tem tráfego; o que está chegando fica a um comando documentado de distância, que é a postura honesta para uma spec de método de pagamento que ainda se mexe no repositório dela em vez de ficar no relógio de algum órgão de padronização.
 
@@ -486,11 +486,11 @@ if (!result.ok) throw new Error(result.reason);
 
 Doze e meio USDC de devnet — o preço de catálogo do pressing, inalterado desde que a lição de transaction-request fixou ele — em unidades base, contra o mint de devnet que a config do seu transfer-kit fixa desde o módulo 2. Para a perna de gasless, adicione as duas leituras específicas de patrocínio na mesma transação buscada: o fee payer precisa ser igual ao signer da Kora e não pode ser igual ao comprador, e o delta de lamports do comprador precisa ser exatamente zero. Para a metade de dunning da perna 4, a afirmação não é sobre uma transação de jeito nenhum; é uma leitura de livro-razão provando que a falha forçada virou uma fatura em aberto e que nenhuma transação de nova tentativa contra a carteira do comprador existe.
 
-![Fluxograma de uma renovação forçada a falhar em que o caminho que passa registra uma fatura em aberto sem nova tentativa contra a carteira, enquanto uma nova tentativa contra a carteira ou um revoke de autoridade reprovam.](assets/v08-flowchart.png)
+![Fluxograma de uma renovação forçada a falhar em que o caminho que passa registra uma fatura em aberto sem nova tentativa contra a carteira, enquanto uma nova tentativa contra a carteira ou um revoke de autoridade reprovam.](assets/v08-flowchart.webp)
 
 Para a perna de agente, lembre que a afirmação tem três lados: a chamada não paga precisa voltar 402, as três chamadas pagas precisam liquidar na devnet, e os três ids de fatura do `extra.memo` precisam aparecer no livro-razão do back office. Dinheiro que aterrissa mas nunca concilia reprova a perna. Isso é deliberado, e é a mesma lição que o livro-razão vem ensinando desde o módulo 4: no comércio, um pagamento não conciliado é um passivo vestido de fantasia de sucesso.
 
-![Fluxo de um agente recebendo um 402, pagando com o header de signature de pagamento, depois lendo uma resposta de pagamento cujo id de fatura em memo concilia no livro-razão, repetido três vezes.](assets/v09-flowchart.png)
+![Fluxo de um agente recebendo um 402, pagando com o header de signature de pagamento, depois lendo uma resposta de pagamento cujo id de fatura em memo concilia no livro-razão, repetido três vezes.](assets/v09-flowchart.webp)
 
 É esse o lab inteiro, e dizer isso é o movimento pedagógico final da lição: seis passos, dois arquivos novos, zero código de pagamento novo. Todo o resto que você vai escrever hoje à noite são corpos de perna da jornada chamando interfaces que você já é dono.
 

@@ -32,7 +32,7 @@ Let's be precise about what you already verify, because module 3 was not naive. 
 
 The design rule is worth saying as a rule, because it is the whole module: **the frontend is a UI for the buyer, never a witness for you.** A `paid: true` flag, a success redirect, a signature pasted into a form, all of it is client-controlled input. The one thing a client cannot forge is what the ledger says a confirmed transaction did. So the server asks the ledger, every time, and fulfills on nothing else.
 
-![The browser sends spoofable claims like paid true and a signature, while the server fetches facts from the ledger via getTransaction, and only the fact channel feeds the fulfillment decision.](assets/v01-diagram.png)
+![The browser sends spoofable claims like paid true and a signature, while the server fetches facts from the ledger via getTransaction, and only the fact channel feeds the fulfillment decision.](assets/v01-diagram.webp)
 
 I will confess where this lesson comes from. Years ago, on a web2 project, I wired fulfillment to a payment provider's success redirect because the docs example did. A tester with devtools open replayed that redirect and got a free order in under an hour, and the fix was the provider's server-side verification API, which I should have read first. Stripe people know this as the rule that you fulfill from the webhook plus a retrieved PaymentIntent, never from the client's return URL. Same rule here, sharper teeth: on card rails my mistake was recoverable with a support ticket. Here, the thing you ship against a fake payment is just gone.
 
@@ -44,7 +44,7 @@ The numbers first, with their provenance stated carefully because this is a plac
 
 So which do you buy? Price it like insurance, because that is literally what it is. The premium is latency at your checkout; the payout is protection against a confirmed block being dropped in a fork, which is rare, and the more value a payment carries, the more that rare event matters. Gating a $6 single-record sale on `finalized` is theater: you charge every customer 10 seconds of staring at a spinner to insure against a risk that, at $6, rounds to zero. Gating a $6,000 wholesale invoice on `confirmed` is the opposite mistake: a real, if rare, fork-drop now costs you four figures with no reversal path, and you saved eight seconds on a payment nobody was waiting at a counter for. Commitment scales with what a dropped payment costs you. Write that policy down as numbers, per product tier, and let the verifier enforce it.
 
-![A four-row policy table pairing payment values with commitment levels: confirmed for the six and two hundred dollar sales, finalized for a six thousand dollar invoice, processed never.](assets/v02-comparison.png)
+![A four-row policy table pairing payment values with commitment levels: confirmed for the six and two hundred dollar sales, finalized for a six thousand dollar invoice, processed never.](assets/v02-comparison.webp)
 
 So what does the buyer stare at while your server waits? This is where `processed` earns its keep, because it is a UI level and nothing more. Show "payment seen" the moment the transaction appears at `processed`, sub-second, and flip to "paid" only when your verifier's commitment clears. The buyer gets instant feedback, fulfillment gets its guarantee, and neither borrows the other's job. And when you fulfill wrong despite everything, remember what module 1 established: there is no dispute process to route the mistake through. A refund on these rails is a brand-new push from you to the buyer, original construction, and building it properly is its own lesson later in this module. The verifier's job is to make refunds a customer-service story instead of a survival mechanism.
 
@@ -60,7 +60,7 @@ Why not the lighter `getSignatureStatuses`, which is effectively what your modul
 
 The response is a big object. Your verifier reads exactly three parts of it:
 
-![Annotated map of a jsonParsed getTransaction response marking the pre and post token balances, the parsed spl-memo instruction carrying the order id, and the meta error field.](assets/v03-annotated-code.png)
+![Annotated map of a jsonParsed getTransaction response marking the pre and post token balances, the parsed spl-memo instruction carrying the order id, and the meta error field.](assets/v03-annotated-code.webp)
 
 Three habits to fix while the anatomy is in front of you. Pair `preTokenBalances` to `postTokenBalances` by `accountIndex`, and treat a missing pre-entry as zero: a token account created inside this very transaction (a first-time buyer's ATA, or an attacker's fresh account) has a post-balance and no pre-balance. Do the subtraction in `bigint` on the `amount` strings; the decimals lesson already taught you why floats and money never meet, and `uiAmount` is a float. And read the `owner` field, not just the account address: the balance entries tell you who owns each touched token account, which is how the verifier finds credits to you without maintaining a list of every token account you have ever owned.
 
@@ -82,7 +82,7 @@ A signature exists, the transaction succeeded, ship the record. Feed it the hook
 
 **Attack 2: the right amount in the wrong program.** This one is the keystone, and the one `validateTransfer` never covered. There are two token programs on Solana: classic Token at `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` and Token-2022 at `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`. Anyone can create a Token-2022 mint, name it whatever they like, mint themselves a billion units, and transfer 30.000000 of them into a token account owned by you. On chain that is a perfectly valid transaction whose `postTokenBalances` shows your address credited with the exact amount you charge. A verifier that checks amount and owner but not `programId` waves it through, and your $30 record just sold for confetti. The check is one line, `credit.programId` must equal the classic Token program id, and the reason it must come before the mint check is subtle enough to say out loud: mint addresses only mean what their program says they mean. Comparing mint strings before you have established which program defines them is checking the label on a bottle someone else printed.
 
-![An attacker credits thirty units of a worthless Token-2022 mint to a merchant-owned account, passing the owner and amount checks but failing the program id check.](assets/v04-diagram.png)
+![An attacker credits thirty units of a worthless Token-2022 mint to a merchant-owned account, passing the owner and amount checks but failing the program id check.](assets/v04-diagram.webp)
 
 **Attack 3: a real token that is not your token.** Same shape, less effort: pay you 30 USDT when the price was 30 USDC. Both live under the classic Token program, so attack 2's check passes. Now the mint check earns its place: the credit's `mint` must equal the mint you price in. On mainnet, USDC means exactly `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` and nothing else; on devnet your expected mint is whatever your transfer-kit config has pinned since module 2. Names, symbols, and logos are metadata anyone can copy. The address is the identity.
 
@@ -94,7 +94,7 @@ A fair objection before the next attack: did we just declare Token-2022 the vill
 
 Five attacks, five checks, one order. Duplicate, then token program, then mint, then amount, then reference, then and only then store the signature and say `verified`:
 
-![Flowchart of the verifier pipeline running duplicate, fetch, token program, mint, balance delta, and memo checks through to fulfillment, each failure exiting with one ordered reason.](assets/v05-flowchart.png)
+![Flowchart of the verifier pipeline running duplicate, fetch, token program, mint, balance delta, and memo checks through to fulfillment, each failure exiting with one ordered reason.](assets/v05-flowchart.webp)
 
 One reason in that chart is not like the others. `not-found` is transient, not a verdict: at `confirmed` commitment the transaction may simply not be visible yet when a fast webhook fires, so the caller waits and retries rather than rejecting the order. A landed-but-failed transaction needs no such care, and no special case either: `meta.err` non-null means nothing moved, its deltas are zero, and the underpaid check disposes of it.
 
@@ -102,7 +102,7 @@ One reason in that chart is not like the others. `not-found` is transient, not a
 
 The processed-signatures set has a cost the brief-sized version of this lesson would hide, so let's not. Every fulfilled payment adds an entry, forever, and a set that only grows is unbounded state: fine at a record shop's volume, a real bill at a payment processor's. The escape is that entries stop earning their keep. A transaction's blockhash must be no older than 150 blocks to land, which at the current 300ms target slot time is a window of roughly 45 seconds (derive it from slot time, and re-derive when slot time changes: SIMD-0525's staged cuts have already moved this window twice, from ~60 seconds at the old 400ms slots to ~53 at the 350ms stage to today's ~45, and two more cuts are gated in the code, so a hardcoded "about a minute" claim is now two eras stale). Past that window, the same signed transaction can never land again on chain, so on-chain replay is physically over. What remains is webhook redelivery from your own infrastructure, which has its own bounded retry horizon. So the eviction rule: keep a signature for the blockhash lifetime plus a generous margin covering your webhook provider's maximum redelivery window, then let it go. The lab's in-memory store sweeps entries older than ten minutes, a deliberately lazy bound that is still more than an order of magnitude past the on-chain window.
 
-![Timeline showing a stored signature protecting against on-chain replay for about forty five seconds and webhook redelivery for minutes, then being evicted at ten minutes once both windows have closed.](assets/v06-timeline.png)
+![Timeline showing a stored signature protecting against on-chain replay for about forty five seconds and webhook redelivery for minutes, then being evicted at ten minutes once both windows have closed.](assets/v06-timeline.webp)
 
 Persistence is a different axis, and worth one honest sentence: an in-memory set forgets on restart, so production moves the same two-method interface onto your orders database, where a fulfilled order row with a signature column is the set. The interface you build today makes that swap a constructor argument.
 
@@ -461,7 +461,7 @@ main().catch((err) => fail(err instanceof Error ? err.message : String(err)));
 
 **7. Seed the attacks.** The harness is only as honest as the transactions you feed it, so you author the witnesses yourself: five files in `verifier/fixtures/`, each one shaped exactly like the `Fixture` interface at the top of the harness you just saved. Every file carries a `getTransaction`-shaped `transaction`, the `order` it claims to pay, and the one reason your verifier must return for it. The fixtures pin the real mainnet USDC and USDT mint addresses on purpose, because the address-is-the-identity rule is easiest to internalize with the real identities on the page; the live run in step 8 swaps in your devnet mint through the env vars, and the verifier never knows the difference. The numeric prefixes just keep `readdirSync`'s output in reading order.
 
-![A fixture file's four fields annotated with how the harness consumes them, the signature keying the fake fetch and the expected reason driving the assertion.](assets/v07-annotated-code.png)
+![A fixture file's four fields annotated with how the harness consumes them, the signature keying the fake fetch and the expected reason driving the assertion.](assets/v07-annotated-code.webp)
 
 First, the payment that must pass. The buyer's side of the transfer rides along in the balance arrays deliberately: your delta code has to find the merchant-owned entry among strangers, which is the whole point of keying on `owner`. The credit is exactly 30 USDC, pre 1.000000 and post 31.000000. Save as `verifier/fixtures/01-correct-payment.json`:
 
@@ -716,7 +716,7 @@ npm run verify:verifier
 
 With your two TODOs filled correctly, every fixture prints its reason and the final line is the full pass sentence. If the harness refuses with `no fixtures`, your five files from step 7 are not where `import.meta.dirname` points; that refusal is deliberate, because a harness that tested nothing has no business printing a pass. If `wrong-token-program` comes back as `wrong-mint`, your checks are in the wrong order; if the underpaid fixture verifies, your delta compares floats or strings instead of bigints. The fixture set covers exactly what the theory derived:
 
-![Table of five fixtures, a correct payment and four attacks, each paired with the single reason the verifier must return and the property that reason proves.](assets/v08-table.png)
+![Table of five fixtures, a correct payment and four attacks, each paired with the single reason the verifier must return and the property that reason proves.](assets/v08-table.webp)
 
 Then the live half. Make a fresh devnet payment through your checkout from the QR lesson, or send one directly with transfer-kit — either way it has to come from the pretend customer, not from your merchant keypair, because this verifier's amount check is a balance delta on your own token account and a self-payment moves it by zero:
 
@@ -753,7 +753,7 @@ The starter already `JSON.parse`s both strings (arguments 1 and 7) on entry, so 
 
 One more thing before you close the editor, because it reframes everything you just built. This verifier outlives today's lesson:
 
-![Diagram showing the verify function built today consumed by the webhook lesson, later payment rungs, and the capstone acceptance harness, all funneling signatures through the same checks.](assets/v09-diagram.png)
+![Diagram showing the verify function built today consumed by the webhook lesson, later payment rungs, and the capstone acceptance harness, all funneling signatures through the same checks.](assets/v09-diagram.webp)
 
 Whatever you build for Wavelength from here on, payment truth flows through this one function. Interface drift here breaks every later lesson, which is exactly why the types froze in step 2.
 

@@ -32,7 +32,7 @@ O comércio agêntico quebra essa premissa. Quando quem chama é um programa, um
 
 A governança por trás da spec vale trinta segundos, porque ela te diz que isto é infraestrutura, não o SDK de uma startup. O x402 nasceu dentro da Coinbase, incubado pelo time de Development Platform dela, e desde então se mudou para uma x402 Foundation que opera sob a Linux Foundation. A Solana Foundation entrou nela. Essa trajetória, de experimento de uma empresa a tutela em casa neutra, é o caminho padrão para protocolos que pretendem sobreviver aos próprios criadores.
 
-![Linha do tempo traçando o HTTP 402 desde a sua reserva não usada dos anos 1990, passando pela incubação do x402 na Coinbase, até uma casa na Linux Foundation e a superfície v2 estável de hoje.](assets/v01-timeline.png)
+![Linha do tempo traçando o HTTP 402 desde a sua reserva não usada dos anos 1990, passando pela incubação do x402 na Coinbase, até uma casa na Linux Foundation e a superfície v2 estável de hoje.](assets/v01-timeline.webp)
 
 Um aviso de data antes da mecânica, já que você vai esbarrar em números de versão imediatamente: a spec v2 é a que ensinamos aqui porque a superfície dela é estável, mas a data de lançamento dela em mainnet não está publicada até o momento em que isto é escrito (2026-08-22), e a v1 continua viva por aí. Você está aprendendo a spec atual enquanto o mundo deployado se equilibra entre duas versões. Segure esse pensamento; ele vira uma cilada de interoperabilidade de verdade mais abaixo.
 
@@ -55,7 +55,7 @@ Acima do formato do fio ficam dois eixos de variedade. Primeiro, quatro esquemas
 
 Segundo, três transportes, que respondem "que protocolo carrega o desafio": **http** puro, que é o que você vem imaginando esse tempo todo; **mcp**, o Model Context Protocol que frameworks de agentes usam para chamadas de ferramenta; e **a2a**, mensageria agente-a-agente. A grade de esquemas-vezes-transportes é por que a spec parece maior do que ela é na prática. A sua cadeira de lojista se importa com uma célula só hoje: o esquema exact sobre http, mirando a SVM. A spec chama essa combinação de exact-SVM.
 
-![Cartão de referência dando a cada um dos três headers v2 a sua direção, o seu trabalho e a sua origem na v1, sob uma faixa de regra que diz leia o header, nunca o corpo, ao lado do formato de rede CAIP-2 e de uma grade de quatro esquemas por três transportes com exact sobre HTTP destacado.](assets/v02-comparison.png)
+![Cartão de referência dando a cada um dos três headers v2 a sua direção, o seu trabalho e a sua origem na v1, sob uma faixa de regra que diz leia o header, nunca o corpo, ao lado do formato de rede CAIP-2 e de uma grade de quatro esquemas por três transportes com exact sobre HTTP destacado.](assets/v02-comparison.webp)
 
 ### Uma requisição, de ponta a ponta: o fluxo exact-SVM
 
@@ -71,11 +71,11 @@ Embaixo deles fica `accepts`, um array de um ou mais objetos PaymentRequirements
 
 **Tempo quatro, o recibo.** Liquidação confirmada, o servidor finalmente faz o que o bot pediu lá no começo: responde 200 com a cotação, mais um header PAYMENT-RESPONSE carregando os detalhes da liquidação. O bot pegou os dados dele, o lojista recebeu, e a troca inteira coube dentro de uma única requisição HTTP repetida. Sem criação de conta, sem emissão de chave de API, sem cartão cadastrado. Do ponto de vista do seu log, um 402 seguido milissegundos depois por um 200.
 
-![Diagrama de sequência seguindo uma chamada medida desde um 402 de corpo vazio carregando o desafio dele no header PAYMENT-REQUIRED, passando pela signature parcial do agente, até os passos de verify e settle do facilitador e o header de recibo.](assets/v03-flowchart.png)
+![Diagrama de sequência seguindo uma chamada medida desde um 402 de corpo vazio carregando o desafio dele no header PAYMENT-REQUIRED, passando pela signature parcial do agente, até os passos de verify e settle do facilitador e o header de recibo.](assets/v03-flowchart.webp)
 
 A coreografia de signatures é a parte que as pessoas erram na primeira leitura, então fixe ela. O cliente assina como dono e nunca como fee payer. `/verify` nunca submete: ele preenche o slot do fee payer numa cópia de rascunho puramente para simular, e uma simulação não consegue mover dinheiro. `/settle` é a única transmissão: signature de fee payer posta, transação para fora. Se você consegue recitar essa frase, consegue depurar metade das threads confusas sobre x402 que você vai ler na vida.
 
-![Diagrama de quem assina, mostrando o agente preenchendo o slot de dono, o verify assinando uma cópia de rascunho puramente para simular, e o facilitador preenchendo o slot do fee payer para transmissão só no settle, enquanto o lojista não assina nada.](assets/v04-diagram.png)
+![Diagrama de quem assina, mostrando o agente preenchendo o slot de dono, o verify assinando uma cópia de rascunho puramente para simular, e o facilitador preenchendo o slot do fee payer para transmissão só no settle, enquanto o lojista não assina nada.](assets/v04-diagram.webp)
 
 Um número que você não vai encontrar aqui, de propósito. A spec obriga a transação de settle a carregar instruções de limite do ComputeBudget, e ela limita o preço da compute unit, mas não declara contagem nenhuma de compute units para uma liquidação, nenhuma. Uma cifra de "mais ou menos 20,000 CU por settle" circula assim mesmo, e quando fomos atrás dela pesquisando para este curso ela desmontou a favor do leitor: os 20,000 são reais, mas não são um custo. São o `DEFAULT_COMPUTE_UNIT_LIMIT` no SDK de referência (`@x402/svm` 2.23.0, lido em 2026-08-22), o teto que o cliente pede quando prefixa a instrução SetComputeUnitLimit, que é um orçamento que você pede, não uma fatura que você paga. Citar isso como consumo é como citar o limite do seu cartão como o seu aluguel. Então esta lição não imprime custo nenhum de CU para a transação de settle, e a sua documentação de API também não deveria. Se um número importa para você, meça nas suas próprias transações liquidadas e date a medição. Qualquer absoluto que você imprime precisa de uma fonte independente e datada, ou não deveria ser impresso. Essa regra está prestes a trabalhar bem mais pesado na seção de tráfego.
 
@@ -93,7 +93,7 @@ Então quais são as opções de facilitador de verdade na Solana? Aqui está o 
 - **Faremeter**: não é um facilitador hospedado e sim um framework open-source, e é notável por negociar v1 e v2 automaticamente, mais o MPP (o Machine Payments Protocol, a família de pagamento sobre HTTP-auth cuja spec de método Solana a Foundation escreve, e que você vai pôr no mesmo gate do x402 daqui a duas lições). Lembra do mundo de dois dialetos lá de cima? O Faremeter é o adaptador para viver nele.
 - **O facilitador do x402.org**: só devnet e testnet. Perfeito para o lab que você está prestes a rodar, e uma cilada se você ligar produção nele.
 
-![Tabela-lista das opções de facilitador x402 na Solana com as ressalvas de confiança e de rede de cada uma, mais uma linha corrigida anotando que a Helius não é facilitadora.](assets/v05-comparison.png)
+![Tabela-lista das opções de facilitador x402 na Solana com as ressalvas de confiança e de rede de cada uma, mais uma linha corrigida anotando que a Helius não é facilitadora.](assets/v05-comparison.webp)
 
 Como escolher? Do mesmo jeito que você escolheu corredores na lição passada: nomeie a restrição que domina. Liquidação com triagem de compliance obrigatória, CDP. Orçamento zero e mainnet, a cadeira de graça, Dexter, depois da sua própria diligência sobre ele. Contrapartes misturadas de v1 e v2, Faremeter na frente de qualquer facilitador que liquide. Bancada de teste, a do x402.org, e nada mais. Não existe um vencedor geral, o que é o sinal mais saudável possível para um cenário tão jovem.
 
@@ -107,13 +107,13 @@ Cifra dois, da página do x402 no solana.com: 37 milhões ou mais de transaçõe
 
 Agora a disciplina, dita como uma regra que você consegue aplicar numa revisão de documentação. Cite cada cifra com a fonte dela e a data dela, e nunca combine as duas. Não some as duas; 75.41M mais 37M dá um número que nenhuma fonte na Terra sustenta. Não divida uma pela outra para derivar uma participação; as janelas não batem. E date tudo, porque as duas são números de painel ao vivo que variam diariamente; as cifras acima eram verdade em 2026-08-21 e já estão velhas enquanto você lê isto. Se dois números não foram medidos na mesma janela pela mesma fonte, eles não pertencem à mesma aritmética. Essa frase é a regra inteira.
 
-![Dois cartões de fonte mantendo separados os totais de 30 dias do x402.org e as cifras acumuladas na Solana do solana.com, com um painel proibindo qualquer aritmética entre os dois.](assets/v06-comparison.png)
+![Dois cartões de fonte mantendo separados os totais de 30 dias do x402.org e as cifras acumuladas na Solana do solana.com, com um painel proibindo qualquer aritmética entre os dois.](assets/v06-comparison.webp)
 
 Quem está por trás desse tráfego importa tanto quanto o tamanho dele. A lista de parceiros do x402.org inclui AWS, Cloudflare, Stripe e Vercel, que é o establishment de infraestrutura, não uma torcida cripto-nativa. Histórias de migração já começaram: a atxp.ai mudou a stack dela para x402 mais MPP na Solana. E a concorrência chegou na forma mais lisonjeira possível, com a OKX lançando um protocolo rival de pagamentos entre máquinas que ela chama de APP. Padrões que ninguém usa não ganham concorrentes.
 
 A Stripe merece um tempo só dela, porque a posição dela é o sinal mais claro que existe de onde as incumbentes acham que isso vai dar. Conte as frentes dela. Ela está na lista de trusted-by do x402.org. Ela coassinou a ACP, a spec de checkout agêntico, com a OpenAI. Como você viu no trabalho de corredores do módulo 6, ela opera um adquirente de USDC na Solana que liquida para lojistas em fiat. E com a Tempo Labs ela coassinou o `draft-httpauth-payment-00`, o esquema de autenticação HTTP "Payment" sobre o qual o MPP é construído, que você conhece daqui a duas lições. Uma incumbente, quatro cadeiras em quatro mesas diferentes do comércio nativo de máquinas. A Stripe não está apostando num vencedor; está comprando todos os páreos. Para a Wavelength a leitura é mais simples e mais útil: os trilhos que você está aprendendo neste módulo são os mesmos trilhos em torno dos quais a maior incumbente de pagamentos do planeta está se posicionando, e a sua API de preço de prensagem vai falar a versão em protocolo aberto deles na próxima lição.
 
-![Diagrama de hub posicionando o x402 entre os parceiros dele na Linux Foundation, com um destaque para as quatro frentes da Stripe, sendo a quarta o esquema base de auth HTTP Payment por trás do MPP, e setas nas bordas para os desafiantes.](assets/v07-diagram.png)
+![Diagrama de hub posicionando o x402 entre os parceiros dele na Linux Foundation, com um destaque para as quatro frentes da Stripe, sendo a quarta o esquema base de auth HTTP Payment por trás do MPP, e setas nas bordas para os desafiantes.](assets/v07-diagram.webp)
 
 ## Lab: anote um 402 como se a spec estivesse olhando
 

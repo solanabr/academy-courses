@@ -37,7 +37,7 @@ Agora olhe o que o seu crank de fato tem na mão: um PDA de delegação que perm
 
 A política honesta inverte o padrão, e é aqui que o dogfooding importa. A Helius roda a própria cobrança de assinaturas no programa Subscriptions da Foundation, e a política dela para uma renovação que falhou é que a cobrança não é tentada de novo automaticamente contra a carteira. O pull que falhou vira uma fatura em aberto, o assinante é avisado, e o dinheiro chega quando ele coloca saldo e liquida. Retry-never. Não retry-with-backoff, não retry-thrice-then-flag. A renovação se converte de um pull automatizado em um recebível comum, que é uma coisa com a qual o seu back office já sabe lidar, porque o módulo 4 ensinou ele a casar pagamentos que entram com pedidos em aberto.
 
-![Os trilhos de cartão tentam de novo porque as falhas costumam ser transitórias e o processador consegue reapresentar, enquanto uma carteira vazia continua vazia até o dono agir, então a renovação vira uma fatura.](assets/v01-comparison.png)
+![Os trilhos de cartão tentam de novo porque as falhas costumam ser transitórias e o processador consegue reapresentar, enquanto uma carteira vazia continua vazia até o dono agir, então a renovação vira uma fatura.](assets/v01-comparison.webp)
 
 ### A máquina, e onde ela mora
 
@@ -54,7 +54,7 @@ As transições, exaustivamente, porque ser exaustiva é o ponto de uma máquina
 - **open-invoice + settle** retoma: a fatura liquida, a assinatura volta para active, e o próximo ciclo cobra normalmente.
 - **any + explicit cancel** marca cancelled e enfileira um RevokeAbandoned para o rent voltar para casa.
 
-![Três estados, active, open-invoice e cancelled, com desfechos de pull, liquidação e cancel explícito dirigindo as transições; um pull contra open-invoice é recusado de cara e o cancelamento enfileira a recuperação de rent do RevokeAbandoned.](assets/v02-flowchart.png)
+![Três estados, active, open-invoice e cancelled, com desfechos de pull, liquidação e cancel explícito dirigindo as transições; um pull contra open-invoice é recusado de cara e o cancelamento enfileira a recuperação de rent do RevokeAbandoned.](assets/v02-flowchart.webp)
 
 ### O que a carência de fato concede
 
@@ -70,7 +70,7 @@ Bom, uma ruga honesta. O pagamento de liquidação é um pagamento push comum do
 
 E nomeie o trade-off de frente, porque retry-never é honesto mas não é de graça. Uma renovação que falhou não se cura sozinha. Receita que os trilhos de cartão teriam recuperado em silêncio na retentativa de terça agora fica parada como recebível até um humano agir, então o seu caminho de liquidação e a sua história de notificação deixam de ser bom-ter e viram a diferença entre um estado de carência e uma máquina de churn silencioso. Você está trocando automação de recuperação de receita por custódia zero e cobranças-surpresa zero. Para um clube do disco cujos assinantes escolheram trilhos cripto de propósito, essa troca soa bem. Para um negócio cuja margem depende de recuperação passiva, é um custo real, e fingir o contrário é como esta política ganha má fama.
 
-![Uma fatura em aberto carrega uma reference key nova; o pagamento de recarga é achado por busca de signature, verificado e conciliado num evento settle que reativa a assinatura.](assets/v03-diagram.png)
+![Uma fatura em aberto carrega uma reference key nova; o pagamento de recarga é achado por busca de signature, verificado e conciliado num evento settle que reativa a assinatura.](assets/v03-diagram.webp)
 
 ### Recuperando o rent
 
@@ -80,7 +80,7 @@ Dois detalhes dos próprios docs do programa são estruturais. Primeiro, quem as
 
 O que traz à tona o segundo trade-off da lição: recuperar rent é dinheiro de verdade de volta, mas só depois de você decidir que um arranjo está realmente morto, e essa decisão é irreversível de um jeito que os lamports não capturam. Uma vez revogada, a conta da assinatura é fechada e um assinante que volta tem que assinar de novo do zero: cerimônia de signature nova, conta nova, atrito de onboarding novo. (O programa entrega sim um `resumeSubscription` on-chain para um cancelamento que o assinante agendou e depois se arrependeu antes do revoke, guardado pela expiração que ele observou na hora de assinar, mas essa é uma porta diferente e mais estreita; ela não consegue ressuscitar uma conta fechada.) Recupere uma semana depois de um pull que falhou e você converteu um cliente em estado de carência num problema de reaquisição para economizar dois milhões de lamports. Trate o abandono como uma transição explícita e considerada: na política do clube, uma fatura em aberto que envelhece além de um horizonte declarado, ou um cancel explícito, e nada mais brando.
 
-![Um pull que falhou passa por carência e lembretes até um horizonte declarado ou um cancel explícito, depois do qual o RevokeAbandoned devolve o rent; recuperar durante a carência força uma reassinatura completa.](assets/v04-timeline.png)
+![Um pull que falhou passa por carência e lembretes até um horizonte declarado ou um cancel explícito, depois do qual o RevokeAbandoned devolve o rent; recuperar durante a carência força uma reassinatura completa.](assets/v04-timeline.webp)
 
 ### Quem mais faz isso
 
@@ -88,13 +88,13 @@ Afaste o zoom do livro-razão da Wavelength para o mercado, porque construir-ou-
 
 Antes da caminhada, uma definição, porque a pergunta inteira de construir-ou-comprar gira em torno dela. Um merchant of record é a entidade que legalmente vende para o comprador: ela recebe o pagamento em nome próprio, assume as obrigações de reembolso e de disputa, cuida do imposto onde imposto se aplica, e te repassa depois. Quando você terceiriza a cobrança recorrente para um provedor hospedado, normalmente você está comprando alguma fatia desse arranjo, e o preço da fatia é ele ficar entre o seu cliente e o seu dinheiro. Cobrança não custodial é o canto oposto: você é o merchant of record, os fundos do assinante vão direto da carteira dele para a sua, e toda obrigação que o provedor teria absorvido, dunning bem incluído, é sua para construir, que é o que este módulo tem sido. Nenhum dos dois cantos é a escolha adulta em geral. O movimento adulto é saber qual dos dois você está rodando, porque os modos de falha diferem: um provedor pode segurar ou congelar os seus repasses, enquanto os seus próprios trilhos podem falhar uma renovação sem ninguém além de você em posição de perceber.
 
-![Um merchant of record vende em nome próprio e assume dunning e reembolsos, aceitando retenções de repasse; a cobrança não custodial move fundos de carteira para carteira e deixa toda obrigação com você.](assets/v05-comparison.png)
+![Um merchant of record vende em nome próprio e assume dunning e reembolsos, aceitando retenções de repasse; a cobrança não custodial move fundos de carteira para carteira e deixa toda obrigação com você.](assets/v05-comparison.webp)
 
 **MoonPay Commerce**, a plataforma antes conhecida como Helio, vende checkout hospedado: os pay links dela suportam assinaturas, então um lojista consegue levantar cobrança recorrente sem nenhuma integração com programa. A banca está movimentada; o apanhado de abril de 2026 do solana.com reporta a MoonPay Commerce com mais de quarenta milhões de dólares em volume de pagamento único desde o lançamento dela em outubro de 2025, 88 por cento disso na Solana. Repare no que esse número datado mede, pagamentos únicos, o que te diz que checkout hospedado é a metade provada e recorrente é a prateleira mais nova em cima dela. O **Stripe Billing** vende o pacote adjacente ao cartão: assinaturas em stablecoin dentro do mesmo produto de cobrança que roda metade das faturas de SaaS da internet, o que quer dizer lógica de dunning, pró-rata e tratamento de imposto que você não escreve, em troca de o Stripe ficar entre você e o trilho. E a **Sphere** vende infraestrutura de pagamentos, ramps, OTC e o corredor do PIX para liquidação instantânea em trilho bancário, e aqui está o resultado negativo que vale mais que a maioria dos positivos: a Sphere não tem produto recorrente nenhum. Nada de errado com a Sphere; muito de certo nela para fluxos avulsos. Mas supor que todo provedor de pagamentos oferece cobrança recorrente é precisamente como um time queima uma sprint de integração descobrindo que a feature que ele escopou não existe. Verifique o suporte a recorrente por fornecedor, por escrito, antes de arquitetar em torno dele.
 
 A regra de decisão cai limpa. Construa em cima do programa da Foundation, como este curso fez, quando você quer não custodial e on-chain: os fundos do assinante nunca ficam com um intermediário, os limites são impostos pelo programa, e o ciclo de vida é seu, que é exatamente por que você teve que escrever a máquina de estados desta lição você mesmo. Recorra a um provedor quando você quer um produto hospedado e adjacente ao cartão e está contente em herdar a política de ciclo de vida dele junto com os e-mails de dunning dele. O que observar, se você pegar a estrada do provedor: se o produto recorrente do fornecedor é uma primitiva de primeira classe ou um loop de pay link, quem detém a custódia entre a cobrança e a liquidação, e qual é de fato a política dele para renovação que falha, porque agora você sabe que é uma política, não física.
 
-![Quatro opções de cobrança recorrente comparadas: o programa da Foundation impõe recorrência não custodial on-chain, a MoonPay Commerce oferece pay links de assinatura, o Stripe Billing cobra assinaturas em stablecoin, e a Sphere não oferece nenhuma.](assets/v06-table.png)
+![Quatro opções de cobrança recorrente comparadas: o programa da Foundation impõe recorrência não custodial on-chain, a MoonPay Commerce oferece pay links de assinatura, o Stripe Billing cobra assinaturas em stablecoin, e a Sphere não oferece nenhuma.](assets/v06-table.webp)
 
 ## Lab: construa o dunning-loop
 
@@ -440,7 +440,7 @@ Os termos do plano são imutáveis uma vez que alguém assina (os campos `expect
 
 Aceite: um rastro do livro-razão mostrando dois ciclos pagos, uma fatura em aberto sem nenhuma retentativa automática contra a carteira, um settle-e-retoma, e um cancel cuja signature de recuperação de rent você consegue colar. Esse rastro, todas as cinco batidas dele, é o artefato.
 
-![O rastro de aceite corre cinco batidas: dois ciclos pagos, uma falha de ATA esvaziada aterrissando como fatura em aberto com zero retentativas, uma liquidação chaveada por reference, e um cancelamento recuperando rent.](assets/v07-diagram.png)
+![O rastro de aceite corre cinco batidas: dois ciclos pagos, uma falha de ATA esvaziada aterrissando como fatura em aberto com zero retentativas, uma liquidação chaveada por reference, e um cancelamento recuperando rent.](assets/v07-diagram.webp)
 
 ## Checkpoint, e o que o clube finalmente aguenta
 

@@ -23,7 +23,7 @@ The findings up front:
 
 Think of tonight as a venue's opening night. Every instrument arrived in its own case and passed its own bench test. The soundcheck is not about any instrument; it is about whether the room works when everything plays at once. Same here: assembly is a discipline of its own, with its own failure modes, and none of them live inside a single rung.
 
-![Architecture diagram of three processes: a server mounting the transaction-request, gasless, blink, and x402 surfaces, a webhook worker, and a subscriptions crank isolated as the kit-7 island, all sharing transfer-kit and one orders ledger.](assets/v01-diagram.png)
+![Architecture diagram of three processes: a server mounting the transaction-request, gasless, blink, and x402 surfaces, a webhook worker, and a subscriptions crank isolated as the kit-7 island, all sharing transfer-kit and one orders ledger.](assets/v01-diagram.webp)
 
 ### The buyer journey is the spec
 
@@ -39,7 +39,7 @@ The legs, in the order the script runs them. One buyer, scripted, on devnet:
 6. **The agent pays the API three times.** A paying agent hits the pressing-price endpoint, eats the 402, settles, and does it twice more. Three memo invoice ids reconcile in the ledger.
 7. **One refund.** A reverse push payment through transfer-kit, recorded against the origin signature.
 
-![Flowchart of seven journey legs from ramp stub through refund, each feeding the shared server-side verifier that checks token program, mint, balance delta, and memo before printing PASS.](assets/v02-flowchart.png)
+![Flowchart of seven journey legs from ramp stub through refund, each feeding the shared server-side verifier that checks token program, mint, balance delta, and memo before printing PASS.](assets/v02-flowchart.webp)
 
 The journey is not a UI walkthrough, and no leg ever trusts a wallet toast, a webhook payload, or a 200 response as proof. The course has one acceptance harness, the m04 verifier, and the journey calls it once per leg: re-fetch the transaction with `getTransaction`, check the token program, then the mint, then the balance delta on the merchant-OWNED token account (keyed on owner, the way the verifier has keyed it since m04 — that choice is what catches the wrong-mint fixture), then the memo. A sponsored transaction gets the same treatment as a plain one. Kora co-signing changes who paid the fee; it changes nothing about what deserves to be believed.
 
@@ -51,7 +51,7 @@ Be exact about what keeps them apart, though, because the subscriptions lesson w
 
 Those peer ranges were re-verified against npm in the subscriptions lesson on 2026-08-22; run `npm view @solana/subscriptions@0.5.0 peerDependencies` yourself before you install anything today, because this corner of npm has moved twice this quarter, and never, anywhere, pin to `latest`.
 
-![Monorepo diagram listing all fifteen workspace folders with the subscriptions workspace isolated as the only kit-7 island and the new stack workspace highlighted on the kit-6 side.](assets/v03-diagram.png)
+![Monorepo diagram listing all fifteen workspace folders with the subscriptions workspace isolated as the only kit-7 island and the new stack workspace highlighted on the kit-6 side.](assets/v03-diagram.webp)
 
 Not every rung got its own folder, and that is worth saying out loud: the ramp embed lives inside the wavelength-checkout workspace because it grew out of that server, the MPP gate is a config file standing in front of the x402 workspace rather than a codebase of its own, and the corridor decision record is a document, not a process. Rungs are capabilities, not directories. Your roster may differ from mine in names; the workspaces array is the source of truth, and it must list what you actually built.
 
@@ -65,7 +65,7 @@ Here is the accretion, shown rather than asserted, because a claim like "it all 
 
 **Three protocols, one ledger.** A QR checkout, a subscription pull, and an x402 agent call are wildly different front doors, and every one of them lands as a row in the same backoffice orders ledger, keyed the same way. The x402 leg's `extra.memo` invoice ids (256 bytes maximum, from the x402 v2 spec) reconcile through the same path a checkout memo does. One reconciliation story for the whole business.
 
-![Timeline showing artifacts from modules two through eight each feeding the final wavelength-stack assembly, from transfer-kit as the shared core to the prod-gate checklist at the end.](assets/v04-timeline.png)
+![Timeline showing artifacts from modules two through eight each feeding the final wavelength-stack assembly, from transfer-kit as the shared core to the prod-gate checklist at the end.](assets/v04-timeline.webp)
 
 ### The harness is thin on purpose
 
@@ -91,7 +91,7 @@ One more deliberate choice: the journey never reuses order ids across runs. Ever
 
 Four failure modes account for most of the pain in this lab, and I am handing them to you up front because in my experience with integration weeks, that changes debugging from hours to minutes.
 
-![Table matching four assembly footguns, kit cross-contamination, missing idempotency guard, undrained fair queue, and devnet rate limits, to their observable symptoms and fixes.](assets/v05-comparison.png)
+![Table matching four assembly footguns, kit cross-contamination, missing idempotency guard, undrained fair queue, and devnet rate limits, to their observable symptoms and fixes.](assets/v05-comparison.webp)
 
 The last row deserves one extra sentence, because it is the one that fools people under demo pressure: devnet's public RPC will rate-limit you mid-journey, and a read that times out looks exactly like a leg that failed. The distinction that matters is *which side said no*. A timeout is the read infrastructure shrugging; you retry it. A verifier rejection is your acceptance harness speaking; you never retry that, you investigate.
 
@@ -99,7 +99,7 @@ The last row deserves one extra sentence, because it is the one that fools peopl
 
 Name the trade-off before the lab, as always. The assembled monorepo runs every service in one process tree on one machine against devnet, and that is exactly right for a teaching capstone and wrong for production. A real deployment splits the worker, the crank, and the paywalled API into separate long-lived services with their own monitoring and their own restart policies, and it never shares one signer across all of them: the blast radius of a leaked key should be one service, not your whole store. The capstone proves the wiring and the verify-server-side discipline. It does not prove an ops posture, and the deeper landing-and-indexing disciplines a high-volume version needs are the Client-Side Mastery course's territory, as they have been every time this course touched them.
 
-![Comparison of the teaching stack against a production deployment across processes, signers, monitoring, and network, ending with the invariants that carry over, server-side verification, idempotency, one ledger, and per-workspace pins.](assets/v06-comparison.png)
+![Comparison of the teaching stack against a production deployment across processes, signers, monitoring, and network, ending with the invariants that carry over, server-side verification, idempotency, one ledger, and per-workspace pins.](assets/v06-comparison.webp)
 
 Is any of this real outside a course repo? Yup, and with numbers. Helius runs its own billing on the same official Subscriptions program you integrated, program `De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44` (the `De1eg` vanity prefix names the on-chain Delegation program the Subscriptions product runs on, the same naming its client's error codes use), and states its dunning policy in the same words your state machine encodes: a failed renewal is not retried against the wallet, it becomes an open invoice (their engineering blog, fetched 2026-08-21). Your forced-failure leg asserts the exact behavior a real infrastructure company bets its revenue on. And the agent leg is not speculative either: the x402.org dashboard, the same rolling 30-day window you read in the x402 lesson, reported 75.41M transactions and 24.24 million dollars in volume when I pulled it on 2026-08-21. The rails you are soundchecking tonight are carrying real weight in the wild, at play scale, right now.
 
@@ -216,7 +216,7 @@ Mounting at the root matters for one surface in particular: the blink's `actions
 
 One prerequisite the gasless surface carries that the others do not: it talks to a Kora node. Its builder quotes and co-signs against `http://localhost:8080`, so that node has to be running before the journey starts, exactly as it was in the gasless lesson. It is not one of boot.ts's three children below, because it is an external binary rather than a process you start, alongside the pay gate in that respect.
 
-![Route map of the single server on port 3000 branching to health check, transaction request, the mounted gasless Kora route, root-mounted blink actions, and the x402 payment route (the MPP gate runs as a separate process and is not mounted here).](assets/v07-diagram.png)
+![Route map of the single server on port 3000 branching to health check, transaction request, the mounted gasless Kora route, root-mounted blink actions, and the x402 payment route (the MPP gate runs as a separate process and is not mounted here).](assets/v07-diagram.webp)
 
 A word on the quietest surface from the protocols module, because it is easy to misremember it as already wired in. The MPP challenge path does NOT ride inside the x402 app: in module 7 the `WWW-Authenticate: Payment` challenge was served by the separate `pay gate` process, driven by `paywall.yml` and proxying a payment-free upstream, and nothing tonight changes that architecture — exactly the "config file standing in front of the x402 workspace" from the roster note above. boot.ts spawns three processes, server, worker, crank, and a pay gate is not one of them, so the assembled stack speaks x402 only. If you want the MPP side live it is one more terminal, not new code: expose a bare pressing-price route for the gate to proxy (the x402-mounted route cannot be its upstream, since the gate requires a payment-free one), point `paywall.yml` at it, and run the gate on :4021 exactly as in module 7. You built for the rail that has traffic; the one that is coming stays a documented command away, which is the honest posture for a payment-method spec that still moves in its own repo rather than sitting on any standards body's clock.
 
@@ -486,11 +486,11 @@ if (!result.ok) throw new Error(result.reason);
 
 Twelve and a half devnet USDC — the pressing's catalog price, unchanged since the transaction-request lesson set it — in base units, against the devnet mint your transfer-kit config has pinned since module 2. For the gasless leg, add the two sponsored-specific reads on the same fetched transaction: the fee payer must equal the Kora signer and must not equal the buyer, and the buyer's lamport delta must be exactly zero. For the dunning half of leg 4, the assertion is not about a transaction at all; it is a ledger read proving the forced failure became an open invoice and that no retry transaction against the buyer's wallet exists.
 
-![Flowchart of a forced renewal failure where the passing path records an open invoice with no wallet retry, while a wallet retry or an authority revoke fail.](assets/v08-flowchart.png)
+![Flowchart of a forced renewal failure where the passing path records an open invoice with no wallet retry, while a wallet retry or an authority revoke fail.](assets/v08-flowchart.webp)
 
 For the agent leg, remember the assertion is three-sided: the unpaid call must come back 402, the three paid calls must settle on devnet, and the three invoice ids from `extra.memo` must appear in the backoffice ledger. Money that lands but never reconciles fails the leg. That is deliberate, and it is the same lesson the ledger has been teaching since module 4: in commerce, an unreconciled payment is a liability wearing a success costume.
 
-![Flow of an agent receiving a 402, paying with the payment signature header, then reading a payment response whose memo invoice id reconciles in the ledger, repeated three times.](assets/v09-flowchart.png)
+![Flow of an agent receiving a 402, paying with the payment signature header, then reading a payment response whose memo invoice id reconciles in the ledger, repeated three times.](assets/v09-flowchart.webp)
 
 That is the whole lab, and saying so is the lesson's final teaching move: six steps, two new files, zero new payment code. Everything else you will write tonight is journey-leg bodies calling interfaces you already own.
 

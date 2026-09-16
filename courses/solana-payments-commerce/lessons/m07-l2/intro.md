@@ -55,7 +55,7 @@ Each field is a decision you already have the vocabulary for. `scheme: 'exact'` 
 
 And `extra.memo` is the field this lesson orbits: a string of at most 256 bytes that the paying agent must embed in the payment transaction as a memo instruction, verified byte-for-byte by the facilitator. It is your invoice id, riding the payment itself. Note the ceiling is measured in UTF-8 bytes, not characters; an invoice id with multibyte characters spends the budget faster than its length suggests, which is why the challenge makes you measure it properly.
 
-![Field-by-field mapping from the merchant's route config to the PaymentRequirements the agent decodes out of the PAYMENT-REQUIRED header, with the asset in base units, a maxTimeoutSeconds the SDK defaults to 300, a fee payer supplied by the facilitator, and a footer marking maxAmountRequired and amount as a v1-to-v2 boundary.](assets/v01-comparison.png)
+![Field-by-field mapping from the merchant's route config to the PaymentRequirements the agent decodes out of the PAYMENT-REQUIRED header, with the asset in base units, a maxTimeoutSeconds the SDK defaults to 300, a fee payer supplied by the facilitator, and a footer marking maxAmountRequired and amount as a v1-to-v2 boundary.](assets/v01-comparison.webp)
 
 One thing to absorb before it costs you an afternoon, and absorb it as a version boundary rather than a drift: the amount field is called `maxAmountRequired` in v1 and `amount` in v2. That is not the spec disagreeing with the SDK. Open `@x402/core` 2.23.0 and both schemas are sitting in the same build, `PaymentRequirementsV1Schema` with `maxAmountRequired` and `PaymentRequirementsV2Schema` with `amount`, because the package speaks both dialects on purpose. So the field name is itself a version signal: if you are looking at `maxAmountRequired`, you are looking at v1 terms, and everything else about that challenge, including the fact that it arrived in a response body rather than a header, follows from that.
 
@@ -79,7 +79,7 @@ That URL deserves its own sentence in bold in your deployment notes. The x402.or
 
 This is also the moment last lesson's challenge gets cashed in. You drafted a five-line facilitator decision record: a dominant constraint, a primary pick, a compliance alternative, a CI setting, and a named trust acceptance. Open it. The CI line of that record is what `FACILITATOR_URL` implements today, and if your record says anything other than the x402.org facilitator for CI, this lab is your chance to argue with your own past self. The primary-pick line, Corbits, Dexter, PayAI, or Solvador, or Coinbase's CDP if screened settlement is your constraint, is the one-string swap you make at go-live. Going live is a URL swap plus the trust decision that URL represents, and the trust half is the hard half, which is why you wrote it down before you had code to be attached to. One more clause belongs in that decision: last lesson's version caution still applies at the swap, so before go-live, confirm with your chosen facilitator that it settles v2 on mainnet today, or that it negotiates v1 for you, because the deployed world still straddles both versions.
 
-![Sequence diagram of one paid call, from the 402 carrying an invoice memo through facilitator settlement to the ledger write that precedes the 200 receipt.](assets/v02-flowchart.png)
+![Sequence diagram of one paid call, from the 402 carrying an invoice memo through facilitator settlement to the ledger write that precedes the 200 receipt.](assets/v02-flowchart.webp)
 
 ### One memo per call, or reconciliation collapses
 
@@ -131,7 +131,7 @@ Before you object that a buyer-minted invoice id must be a security hole, play t
 
 You have seen this reconciliation idea before under a different name. Solana Pay reference keys and x402 memo invoice ids are the same idea: a per-payment marker that rides the transaction so the merchant can match money to orders without issuing a unique deposit address per sale. Module 3 stamped the reference key into your checkout transactions; x402 standardizes where the marker rides for machine payments. Two rails, one reconciliation pattern.
 
-![Diagram contrasting a memo derived from the shared query string, which survives the retry, against a server-minted random memo and a reused static one.](assets/v03-diagram.png)
+![Diagram contrasting a memo derived from the shared query string, which survives the retry, against a server-minted random memo and a reused static one.](assets/v03-diagram.webp)
 
 ### Same ledger, new customer
 
@@ -166,7 +166,7 @@ Read the shape being passed and notice it is the `ExpectedOrder` you froze in mo
 
 I will confess where my own first version of this hook went wrong: I recorded from `ctx.paymentPayload`, the thing the client sent, instead of `ctx.requirements`, the thing the server demanded and the facilitator verified. Same data on the happy path, wrong trust direction. The habit from module 4 transfers verbatim: fulfillment records what was verified, never what was claimed.
 
-![Two sales paths, a human checkout reference key and a machine x402 memo invoice id, converging on one backoffice ledger row shape.](assets/v04-diagram.png)
+![Two sales paths, a human checkout reference key and a machine x402 memo invoice id, converging on one backoffice ledger row shape.](assets/v04-diagram.webp)
 
 ### The agent, its loop, and its allowance
 
@@ -262,7 +262,7 @@ try {
 
 Hold the whole decision path in one picture before the lab, because the position of the spendControls gate, inside payment creation and before any signature, is the fact the debugging section will keep sending you back to.
 
-![Flowchart of the agent handling a 402, where the spendControls check inside payment creation either clears the call for signing or throws before any signature.](assets/v05-flowchart.png)
+![Flowchart of the agent handling a 402, where the spendControls check inside payment creation either clears the call for signing or throws before any signature.](assets/v05-flowchart.webp)
 
 ### Verify what was actually signed
 
@@ -274,11 +274,11 @@ The x402 SVM verifier carries the scar tissue in its source: `mechanisms/svm/src
 
 The principle is bigger than the incident, so pin it: verify what was actually signed, never the idealized transaction you would have built. Your module 4 verifier already lives by this rule without you naming it, it reads the transaction from the chain and checks properties, owner, mint, delta, memo, rather than demanding byte equality with a template. Property checks tolerate benign additions; byte comparisons declare war on every wallet safety feature ever shipped. When you write verification code anywhere in your stack, you are choosing between those two postures, and this incident is the argument for the first one.
 
-![Comparison of naive byte-for-byte matching against x402's property-based verification of the signed transaction, with its allowlist for wallet-injected Lighthouse guard instructions.](assets/v06-comparison.png)
+![Comparison of naive byte-for-byte matching against x402's property-based verification of the signed transaction, with its allowlist for wallet-injected Lighthouse guard instructions.](assets/v06-comparison.webp)
 
 The same package hides a second guard worth knowing because you built its cousin in module 4. The facilitator side keeps a settlement cache: an in-memory table of transactions currently being settled, so a duplicate /settle call for the same payment gets rejected as a `duplicate_settlement` instead of racing the first submission. Entries evict on a timer the package ties to the blockhash lifetime, its docs call that window roughly 60 to 90 seconds and evict at 120, about twice the lifetime, on the reasoning that once a payment's blockhash can no longer land, a replayed settle of it can no longer succeed, so remembering it is pointless. If that sentence gave you deja vu, it should: it is the same eviction arithmetic as your module 4 processed-signatures store, which forgets a signature once its transaction could not possibly be confused for a fresh one. Your store guards fulfillment against replayed webhooks; the settlement cache guards submission against replayed settles. Same shape, different door. And the module 4 habit of deriving the wall-clock from the current slot time applies to both: at the 300ms target slot time — staged by SIMD-0525 as this is written, with epoch 1024 (2026-08-28) set to lock it in days later — the 150-block window runs about 45 seconds, well short of the round 60 people quote, and SIMD-0525's remaining staged cuts will shrink it further, which is exactly why the cache's margin is generous, and why this course keeps saying derive it, never memorize it.
 
-![Timeline of one payment from partial signing through blockhash expiry to settlement-cache eviction, set beside module 4's processed-signatures store on the same horizon.](assets/v07-timeline.png)
+![Timeline of one payment from partial signing through blockhash expiry to settlement-cache eviction, set beside module 4's processed-signatures store on the same horizon.](assets/v07-timeline.webp)
 
 ### The toll collector you rent
 
@@ -288,7 +288,7 @@ The second honest limit is economic, and it is the machine-commerce version of a
 
 And the third limit you are living with all lesson: the `@x402/*` line is pinned at 2.23.0 here (published 2026-08-18), and it has already moved twice since — 2.24.0 on 2026-08-27, 2.25.0 on 2026-09-04, checked 2026-09-07 — which is the point rather than an embarrassment: nothing about this ecosystem suggests it will sit still. Every wire fact in this lesson was read off that exact build rather than off a document: the header transport, `amount` rather than `maxAmountRequired` in the v2 requirement, and the `maxTimeoutSeconds` the resource server fills in for you. The version straddling is what makes that discipline non-optional, because one package ships both dialects' schemas side by side, so "which shape am I holding" stays a live question at every bump instead of a settled one. Re-verify at every touch, the way this lesson did, not the way a bookmark does.
 
-![Three-column card of the metering trade: the facilitator trust boundary, the per-call settlement economics, and the fast-moving package pin to re-verify.](assets/v08-comparison.png)
+![Three-column card of the metering trade: the facilitator trust boundary, the per-call settlement economics, and the fast-moving package pin to re-verify.](assets/v08-comparison.webp)
 
 ## Lab: gate it, pay it, reconcile it
 

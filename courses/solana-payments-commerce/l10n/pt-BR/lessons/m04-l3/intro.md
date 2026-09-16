@@ -47,7 +47,7 @@ Os trilhos que você vem usando desde a lição do transfer-kit já carregam a r
 
 Aqui está a parte que vale pausar. No módulo 7 você vai conhecer o x402, o protocolo de pagamento nativo de HTTP, e as faturas dele carregam um campo `extra.memo` guardando um id de fatura. Trilho diferente, spec diferente, exatamente a mesma ideia: um identificador de pedido enfiado num slot pesquisável do próprio pagamento, para o lojista precisar de uma conta e uma consulta em vez de uma fábrica de endereços. A convergência não é coincidência. Qualquer trilho de push sem endereços de depósito tem que resolver o casamento, e um id de pedido pesquisável é a solução mínima. O que quer dizer que o conciliador que você escreve hoje é o padrão geral, e não encanamento do Solana Pay, e o módulo 7 vai plugar a metade do x402 nele sem reescrita. (Crédito a quem merece: a spec de reference do Solana Pay e o helper `findReference` dela entregaram este padrão primeiro; a gente constrói o nosso direto em cima do kit para um conciliador servir os dois trilhos.)
 
-![As reference keys do Solana Pay e os ids de fatura no memo do x402 carregam, cada um, um id de pedido num campo pesquisável, então um conciliador casa qualquer um dos trilhos com o livro-razão de pedidos.](assets/v01-diagram.png)
+![As reference keys do Solana Pay e os ids de fatura no memo do x402 carregam, cada um, um id de pedido num campo pesquisável, então um conciliador casa qualquer um dos trilhos com o livro-razão de pedidos.](assets/v01-diagram.webp)
 
 ### Da reference ao pedido
 
@@ -55,7 +55,7 @@ Mecanicamente, a conciliação é uma caminhada de três passos. Pegue a referen
 
 A saída do conciliador é deliberadamente mais rica do que pago-ou-não. O verificador computa o delta de saldo real na sua ATA em unidades base, e comparar esse delta com o preço do pedido divide o mundo em quatro estados honestos: **paid** (exato), **underpaid**, **overpaid** e **unmatched** (nada verificável encontrado). O livro-razão da lição passada só registrava o caminho feliz, porque o fulfillment travava na verificação exata. Hoje os outros três estados deixam de ser erros e viram entradas para política.
 
-![A conciliação caminha da reference key de um pedido pela busca de signature e pelo verificador até uma comparação em unidades base que sai como paid, underpaid, overpaid ou unmatched.](assets/v02-flowchart.png)
+![A conciliação caminha da reference key de um pedido pela busca de signature e pelo verificador até uma comparação em unidades base que sai como paid, underpaid, overpaid ou unmatched.](assets/v02-flowchart.webp)
 
 ### O trilho do memo, e o dinheiro sem história
 
@@ -93,11 +93,11 @@ Então o que é um reembolso, estruturalmente? É um pagamento. Essa é a sacada
 
 Isso não é a gente improvisando no vácuo. A Stripe atravessou essa ponte primeiro para o fluxo de pagar-com-cripto dela, e o comportamento documentado dela é o precedente que a gente espelha: reembolsos são devolvidos como stablecoins para a carteira de origem. Não para um endereço que o comprador te manda por e-mail, não para quem pedir com jeitinho num ticket de suporte convincente. A carteira de origem, lida da blockchain. Essa regra sozinha apaga uma classe inteira de fraude em que "o comprador" que pede o reembolso não é a carteira que pagou. Vale reparar com que cuidado os grandes delimitaram este território: o mesmo trilho da Stripe limita os clientes a 10,000 USD por transação. Quando a empresa de pagamentos mais experiente do planeta põe guarda-corpos tão apertados em volta de dinheiro irreversível, aceite a dica sobre quanto respeito a direção contrária merece.
 
-![Comparação entre trilhos de cartão e trilhos de push: cartões entregam uma máquina de chargeback documentada, enquanto trilhos de push não entregam primitivo de reversão nenhum, então o lojista constrói o reembolso como um pagamento novo.](assets/v03-comparison.png)
+![Comparação entre trilhos de cartão e trilhos de push: cartões entregam uma máquina de chargeback documentada, enquanto trilhos de push não entregam primitivo de reversão nenhum, então o lojista constrói o reembolso como um pagamento novo.](assets/v03-comparison.webp)
 
 A assimetria corta dos dois lados, e é aqui que ela morde você, e não o comprador. Nenhum chargeback protege o lojista também. No primeiro reembolso que eu enfileirei nestes trilhos, eu conferi o destino três vezes como se estivesse desarmando alguma coisa. Bom instinto, alvo errado: o endereço estava certo, o problema era que o pagamento de origem tinha segundos de vida. Pense no que isso quer dizer. Um pagamento no commitment `confirmed` pode, raramente, estar sentado num fork que acaba descartado. Se você reembolsa ele e o fork morre, o "pagamento" evapora enquanto o seu reembolso, uma transação totalmente independente, aterrissa e finaliza mesmo assim. Você acabou de pagar dinheiro de verdade para reverter um pagamento que nunca aconteceu, e não existe alavanca para enfiar a mão de volta, porque você construiu no trilho que não tem uma. A guarda é uma chamada de RPC: a signature de origem tem que reportar `finalized`, o commitment que a rede não vai desfazer, antes de o builder de reembolso assinar qualquer coisa. A finalização custa uns dez segundos estimados pelo ecossistema, os mesmos ~10s que a lição de abertura deste módulo derivou no alvo de slot de 300ms. Um reembolso nunca é tão urgente que não possa esperar dez segundos; a lição de abertura do módulo 4 já fez exatamente este argumento por valor para o fulfillment, e o caso do reembolso é mais forte, porque agora o pagador é você.
 
-![Um pedido de reembolso passa por checagens no livro-razão e por uma trava de finality na signature de origem antes de stablecoins serem empurradas para a carteira de origem; uma origem não finalizada é recusada.](assets/v04-flowchart.png)
+![Um pedido de reembolso passa por checagens no livro-razão e por uma trava de finality na signature de origem antes de stablecoins serem empurradas para a carteira de origem; uma origem não finalizada é recusada.](assets/v04-flowchart.webp)
 
 ### Política, não padrões
 
@@ -111,7 +111,7 @@ Um **pagamento parcial** é pagar a menos com um nome mais respeitável, e ele m
 
 O tl;dr é: nenhuma dessas respostas é correta, e esse é o ponto. O que é correto é que o seu livro-razão consiga mostrar, para todo pagamento não exato, qual política declarada encaminhou ele e quando. Essa auditabilidade é o que uma disputa parece em trilhos sem máquina de disputas.
 
-![Tabela dos três estados de pagamento não exato, a armadilha de padrão silencioso de cada um, e duas políticas defensáveis por estado com o custo que cada política carrega.](assets/v05-table.png)
+![Tabela dos três estados de pagamento não exato, a armadilha de padrão silencioso de cada um, e duas políticas defensáveis por estado com o custo que cada política carrega.](assets/v05-table.webp)
 
 ## Lab: construa o backoffice-refunds
 
@@ -300,7 +300,7 @@ export type RefundRow = {
 
 A signature de origem é o design inteiro. Uma linha de reembolso que não consegue nomear o pagamento que ela reverte é dinheiro saindo sem história, não auditável por você e indistinguível de roubo para qualquer outra pessoa lendo os seus livros. Uma verruga prática que merece o parêntese: `bigint` não sobrevive ao `JSON.stringify`, então unidades base vivem como strings no disco e revivem nas bordas. Você encontrou exatamente esta verruga na lição do transfer-kit pela outra direção; a mesma regra, string exata para dentro, bigint exato para fora.
 
-![A linha de reembolso do livro-razão guarda a signature do pagamento de origem e a própria, e o memo da transação de reembolso repete a origem, então um auditor consegue caminhar pelo link nos dois sentidos.](assets/v06-diagram.png)
+![A linha de reembolso do livro-razão guarda a signature do pagamento de origem e a própria, e o memo da transação de reembolso repete a origem, então um auditor consegue caminhar pelo link nos dois sentidos.](assets/v06-diagram.webp)
 
 **Passo 4: o builder de reembolso.** Este é o arquivo que não existia em nenhuma documentação que você pudesse ter copiado. Abra `refund.ts`:
 
@@ -411,7 +411,7 @@ export async function getOriginatingWallet(
 
 Os mesmos saldos de token pre e post que o verificador lê para o delta do seu lado, percorridos pela outra ponta: a conta que foi debitada nomeia o dono dela, e esse dono é o destino do reembolso. Isto é a regra da carteira de origem da Stripe feita estrutural em vez de procedimental; não existe caminho de código em que um e-mail persuasivo mude para onde o dinheiro vai.
 
-![O destino do reembolso é lido da própria transação de origem: a conta de token debitada para o mint do pagamento nomeia o dono dela, e esse dono é a carteira de origem.](assets/v07-diagram.png)
+![O destino do reembolso é lido da própria transação de origem: a conta de token debitada para o mint do pagamento nomeia o dono dela, e esse dono é a carteira de origem.](assets/v07-diagram.webp)
 
 De volta ao builder em si. A checagem de `already refunded` importa mais do que parece: pedidos de reembolso vão chegar de ferramental de suporte, e ferramental de suporte tenta de novo, então idempotência-por-signature-de-origem aqui é a mesma disciplina que idempotência-por-signature no handler de webhook. E o memo torna a reversão legível on-chain, não só no seu banco de dados. O reembolso carrega a própria reference key nova, cunhada aqui e entregue ao transfer-kit exatamente do jeito que a reference de toda venda vem sendo entregue desde o módulo 2, o que quer dizer que um reembolso é localizável por uma busca de signature exatamente como um pagamento é. Dinheiro saindo anda nos mesmos trilhos pesquisáveis que dinheiro entrando, de graça, porque você compôs em vez de escrever um segundo sistema. Essa composição é o retorno silencioso de toda a escada de artefatos até aqui.
 
@@ -600,7 +600,7 @@ Segundo, o memorando de política. Escolha a sua política de pagamento a menor 
 
 Aceite: um reembolso aparece no livro-razão amarrado à signature do pagamento original, carrega a origem no memo on-chain dele, e resolve a partir da própria reference key numa busca de signature; a tentativa de reembolso duplo lança; um pedido underpaid é encaminhado para a sua política declarada, não para fulfillment silencioso; o memorando de política existe e nomeia o trade-off dele.
 
-![Linha do tempo de um pedido de 30 USDC pago a 12: o conciliador marca ele como underpaid, uma janela de 60 minutos para completar o pagamento se abre, e o pedido ou se completa ou é encaminhado para um reembolso protegido.](assets/v08-timeline.png)
+![Linha do tempo de um pedido de 30 USDC pago a 12: o conciliador marca ele como underpaid, uma janela de 60 minutos para completar o pagamento se abre, e o pedido ou se completa ou é encaminhado para um reembolso protegido.](assets/v08-timeline.webp)
 
 ## Checkpoint: o back office, completo
 

@@ -47,7 +47,7 @@ The rails you have been using since the transfer-kit lesson already carry the be
 
 Here is the part worth pausing on. In module 7 you will meet x402, the HTTP-native payment protocol, and its invoices carry an `extra.memo` field holding an invoice id. Different rail, different spec, same exact idea: an order identifier stashed in a searchable slot of the payment itself, so the merchant needs one account and one query instead of an address factory. The convergence is not a coincidence. Any push-payment rail without deposit addresses has to solve matching, and a searchable order id is the minimal solution. Which means the reconciler you write today is the general pattern rather than Solana Pay plumbing, and module 7 will plug the x402 half into it without a rewrite. (Credit where due: the Solana Pay reference spec and its `findReference` helper shipped this pattern first; we build ours on the kit directly so one reconciler serves both rails.)
 
-![Solana Pay reference keys and x402 memo invoice ids each carry an order id in a searchable field, so one reconciler matches either rail to the orders ledger.](assets/v01-diagram.png)
+![Solana Pay reference keys and x402 memo invoice ids each carry an order id in a searchable field, so one reconciler matches either rail to the orders ledger.](assets/v01-diagram.webp)
 
 ### From reference to order
 
@@ -55,7 +55,7 @@ Mechanically, reconciliation is a three-step walk. Take the order's reference ke
 
 The reconciler's output is deliberately richer than paid-or-not. The verifier computes the actual balance delta on your ATA in base units, and comparing that delta to the order's price splits the world into four honest states: **paid** (exact), **underpaid**, **overpaid**, and **unmatched** (nothing verifiable found). Last lesson's ledger only ever recorded the happy path, because fulfillment gated on exact verification. Today the other three states stop being errors and become inputs to policy.
 
-![Reconciliation walks from an order's reference key through signature search and the verifier to a base-units comparison exiting as paid, underpaid, overpaid, or unmatched.](assets/v02-flowchart.png)
+![Reconciliation walks from an order's reference key through signature search and the verifier to a base-units comparison exiting as paid, underpaid, overpaid, or unmatched.](assets/v02-flowchart.webp)
 
 ### The memo rail, and the money with no story
 
@@ -93,11 +93,11 @@ So what is a refund, structurally? It is a payment. That is the whole insight. Y
 
 This is not us improvising in a vacuum. Stripe crossed this bridge first for its pay-with-crypto flow, and its documented behavior is the precedent we mirror: refunds are returned as stablecoins to the originating wallet. Not to an address the buyer emails you, not to whoever asks nicely with a convincing support ticket. The originating wallet, read from the chain. That single rule deletes an entire fraud class where "the buyer" requesting the refund is not the wallet that paid. Worth noting how carefully the big players bound this territory: the same Stripe rail caps customers at 10,000 USD per transaction. When the most experienced payments company on earth puts guardrails that tight around irreversible money, take the hint about how much respect the reverse direction deserves.
 
-![Comparison of card and push rails: cards ship a documented chargeback machine, while push rails ship no reversal primitive, so the merchant builds the refund as a new payment.](assets/v03-comparison.png)
+![Comparison of card and push rails: cards ship a documented chargeback machine, while push rails ship no reversal primitive, so the merchant builds the refund as a new payment.](assets/v03-comparison.webp)
 
 The asymmetry cuts both ways, and here is where it bites you rather than the buyer. No chargeback protects the merchant either. The first refund I queued on these rails, I triple-checked the destination like I was defusing something. Good instinct, wrong target: the address was fine, the problem was that the origin payment was seconds old. Think about what that means. A payment at `confirmed` commitment can, rarely, sit on a fork that gets dropped. If you refund it and the fork dies, the "payment" evaporates while your refund, a fully independent transaction, lands and finalizes anyway. You have now paid real money to reverse a payment that never happened, and there is no lever to reach back with, because you built on the rail that doesn't have one. The guard is one RPC call: the origin signature must report `finalized`, the commitment the network will not roll back, before the refund builder will sign anything. Finalization costs an ecosystem-estimated ten seconds or so, the same ~10s this module's opening lesson derived at the 300ms slot target. A refund is never so urgent that it cannot wait ten seconds; module 4's opening lesson already made this exact per-value argument for fulfillment, and the refund case is stronger, because now you are the payer.
 
-![A refund request passes ledger checks and a finality gate on the origin signature before stablecoins are pushed to the originating wallet; an unfinalized origin is refused.](assets/v04-flowchart.png)
+![A refund request passes ledger checks and a finality gate on the origin signature before stablecoins are pushed to the originating wallet; an unfinalized origin is refused.](assets/v04-flowchart.webp)
 
 ### Policy, not defaults
 
@@ -111,7 +111,7 @@ A **partial fill** is underpay by a more respectable name, and it deserves its o
 
 The tl;dr is: none of these answers is correct, and that is the point. What is correct is that your ledger can show, for every non-exact payment, which stated policy routed it and when. That auditability is what a dispute looks like on rails without a dispute machine.
 
-![Table of the three non-exact payment states, the silent-default trap for each, and two defensible policies per state with the cost each policy carries.](assets/v05-table.png)
+![Table of the three non-exact payment states, the silent-default trap for each, and two defensible policies per state with the cost each policy carries.](assets/v05-table.webp)
 
 ## Lab: build backoffice-refunds
 
@@ -300,7 +300,7 @@ export type RefundRow = {
 
 The origin signature is the whole design. A refund row that cannot name the payment it reverses is money leaving with no story, unauditable by you and indistinguishable from theft by anyone else reading your books. One practical wart worth the parenthetical: `bigint` does not survive `JSON.stringify`, so base units live as strings on disk and revive at the edges. You met this exact wart in the transfer-kit lesson from the other direction; same rule, exact string in, exact bigint out.
 
-![The ledger's refund row stores the origin payment's signature and its own, and the refund transaction's memo repeats the origin, so an auditor can walk the link both ways.](assets/v06-diagram.png)
+![The ledger's refund row stores the origin payment's signature and its own, and the refund transaction's memo repeats the origin, so an auditor can walk the link both ways.](assets/v06-diagram.webp)
 
 **Step 4: the refund builder.** This is the file that did not exist in any doc you could have copied. Open `refund.ts`:
 
@@ -411,7 +411,7 @@ export async function getOriginatingWallet(
 
 Same pre and post token balances the verifier reads for your side's delta, walked from the other end: the account that got debited names its owner, and that owner is the refund destination. This is Stripe's originating-wallet rule made structural rather than procedural; there is no code path where a persuasive email changes where the money goes.
 
-![The refund destination is read from the origin transaction itself: the token account debited for the payment mint names its owner, and that owner is the originating wallet.](assets/v07-diagram.png)
+![The refund destination is read from the origin transaction itself: the token account debited for the payment mint names its owner, and that owner is the originating wallet.](assets/v07-diagram.webp)
 
 Back to the builder itself. The `already refunded` check matters more than it looks: refund requests will arrive from support tooling, and support tooling retries, so idempotency-by-origin-signature here is the same discipline as idempotency-by-signature in the webhook handler. And the memo makes the reversal legible on-chain, not just in your database. The refund carries its own fresh reference key, minted here and handed to transfer-kit exactly the way every sale's reference has been since module 2, which means a refund is locatable by one signature search exactly like a payment is. Money out rides the same searchable rails as money in, for free, because you composed instead of writing a second system. That composition is the quiet payoff of the whole artifact ladder so far.
 
@@ -600,7 +600,7 @@ Second, the policy memo. Choose your underpay and partial-fill policy, encode it
 
 Accept: a refund appears in the ledger tied to the original payment's signature, carries the origin in its on-chain memo, and resolves from its own reference key in one signature search; the double-refund attempt throws; an underpaid order routes to your stated policy, not to silent fulfillment; the policy memo exists and names its trade-off.
 
-![Timeline of a 30 USDC order paid at 12: the reconciler flags it underpaid, a 60-minute top-up window opens, and the order either completes or routes to a guarded refund.](assets/v08-timeline.png)
+![Timeline of a 30 USDC order paid at 12: the reconciler flags it underpaid, a 60-minute top-up window opens, and the order either completes or routes to a guarded refund.](assets/v08-timeline.webp)
 
 ## Checkpoint: the back office, complete
 

@@ -55,7 +55,7 @@ Cada campo es una decisión para la que ya tienes el vocabulario. `scheme: 'exac
 
 Y `extra.memo` es el campo alrededor del cual orbita esta lección: un string de a lo sumo 256 bytes que el agente que paga tiene que incrustar en la transacción de pago como instrucción de memo, verificado byte por byte por el facilitador. Es tu id de factura, viajando sobre el pago mismo. Fíjate en que el techo se mide en bytes UTF-8, no en caracteres; un id de factura con caracteres multibyte gasta el presupuesto más rápido de lo que su largo sugiere, y por eso el Challenge te hace medirlo como se debe.
 
-![Mapeo campo por campo desde la config de rutas del comercio hasta las PaymentRequirements que el agente decodifica del header PAYMENT-REQUIRED, con el activo en unidades base, un maxTimeoutSeconds al que el SDK le pone 300 por defecto, un fee payer que aporta el facilitador, y un pie que marca maxAmountRequired y amount como frontera de v1 a v2.](assets/v01-comparison.png)
+![Mapeo campo por campo desde la config de rutas del comercio hasta las PaymentRequirements que el agente decodifica del header PAYMENT-REQUIRED, con el activo en unidades base, un maxTimeoutSeconds al que el SDK le pone 300 por defecto, un fee payer que aporta el facilitador, y un pie que marca maxAmountRequired y amount como frontera de v1 a v2.](assets/v01-comparison.webp)
 
 Una cosa para absorber antes de que te cueste una tarde, y absórbela como una frontera de versión y no como una deriva: el campo del monto se llama `maxAmountRequired` en v1 y `amount` en v2. Eso no es la spec en desacuerdo con el SDK. Abre `@x402/core` 2.23.0 y los dos esquemas están sentados en el mismo build, `PaymentRequirementsV1Schema` con `maxAmountRequired` y `PaymentRequirementsV2Schema` con `amount`, porque el paquete habla los dos dialectos a propósito. Así que el nombre del campo es en sí mismo una señal de versión: si estás mirando `maxAmountRequired`, estás mirando términos de v1, y todo lo demás sobre ese desafío, incluido el hecho de que llegó en un cuerpo de respuesta y no en un header, se desprende de eso.
 
@@ -79,7 +79,7 @@ Esa URL merece su propia oración en negrita en tus notas de despliegue. El faci
 
 Este es también el momento en que se cobra el Challenge de la lección pasada. Redactaste un registro de decisión de facilitador de cinco líneas: una restricción dominante, una elección primaria, una alternativa de compliance, un ajuste de CI y una aceptación de confianza nombrada. Ábrelo. La línea de CI de ese registro es lo que `FACILITATOR_URL` implementa hoy, y si tu registro dice cualquier otra cosa que no sea el facilitador de x402.org para CI, este lab es tu oportunidad de discutir con tu propio yo pasado. La línea de la elección primaria, Corbits, Dexter, PayAI o Solvador, o el CDP de Coinbase si la liquidación con screening es tu restricción, es el cambio de un solo string que haces al salir al aire. Salir al aire es cambiar una URL más la decisión de confianza que esa URL representa, y la mitad de confianza es la mitad difícil, y por eso lo escribiste antes de tener código al que apegarte. Una cláusula más le corresponde a esa decisión: la precaución de versión de la lección pasada sigue aplicando en el cambio, así que antes de salir al aire, confirma con el facilitador que elegiste que hoy liquida v2 en mainnet, o que negocia v1 por ti, porque el mundo desplegado sigue parado a horcajadas sobre las dos versiones.
 
-![Diagrama de secuencia de una llamada pagada, desde el 402 que lleva un memo de factura, pasando por la liquidación del facilitador, hasta la escritura en el libro mayor que precede al comprobante 200.](assets/v02-flowchart.png)
+![Diagrama de secuencia de una llamada pagada, desde el 402 que lleva un memo de factura, pasando por la liquidación del facilitador, hasta la escritura en el libro mayor que precede al comprobante 200.](assets/v02-flowchart.webp)
 
 ### Un memo por llamada, o la conciliación colapsa
 
@@ -131,7 +131,7 @@ Antes de que objetes que un id de factura acuñado por el comprador tiene que se
 
 Ya viste esta idea de conciliación antes bajo otro nombre. Las reference keys de Solana Pay y los ids de factura del memo de x402 son la misma idea: un marcador por pago que viaja sobre la transacción para que el comercio pueda emparejar dinero con pedidos sin emitir una dirección de depósito única por venta. El módulo 3 estampó la reference key en tus transacciones de checkout; x402 estandariza dónde viaja el marcador para los pagos entre máquinas. Dos rieles, un patrón de conciliación.
 
-![Diagrama que contrasta un memo derivado del query string compartido, que sobrevive al reintento, contra un memo aleatorio acuñado en el servidor y uno estático reusado.](assets/v03-diagram.png)
+![Diagrama que contrasta un memo derivado del query string compartido, que sobrevive al reintento, contra un memo aleatorio acuñado en el servidor y uno estático reusado.](assets/v03-diagram.webp)
 
 ### El mismo libro mayor, un cliente nuevo
 
@@ -166,7 +166,7 @@ Lee la forma que se está pasando y fíjate en que es el `ExpectedOrder` que con
 
 Voy a confesar dónde se equivocó mi propia primera versión de este hook: registré desde `ctx.paymentPayload`, lo que mandó el cliente, en vez de `ctx.requirements`, lo que exigió el servidor y verificó el facilitador. Los mismos datos en el camino feliz, la dirección de confianza equivocada. El hábito del módulo 4 se transfiere textual: el despacho registra lo que se verificó, nunca lo que se afirmó.
 
-![Dos caminos de venta, una reference key de checkout humano y un id de factura de memo x402 de máquina, convergiendo en una sola forma de fila del libro mayor de backoffice.](assets/v04-diagram.png)
+![Dos caminos de venta, una reference key de checkout humano y un id de factura de memo x402 de máquina, convergiendo en una sola forma de fila del libro mayor de backoffice.](assets/v04-diagram.webp)
 
 ### El agente, su loop y su límite
 
@@ -262,7 +262,7 @@ try {
 
 Sostén el camino de decisión entero en una sola imagen antes del lab, porque la posición de la barrera de spendControls, dentro de la creación del pago y antes de cualquier firma, es el hecho al que la sección de debugging te va a seguir mandando de vuelta.
 
-![Diagrama de flujo del agente manejando un 402, donde la comprobación de spendControls dentro de la creación del pago o bien habilita la llamada para firmarse o bien lanza antes de cualquier firma.](assets/v05-flowchart.png)
+![Diagrama de flujo del agente manejando un 402, donde la comprobación de spendControls dentro de la creación del pago o bien habilita la llamada para firmarse o bien lanza antes de cualquier firma.](assets/v05-flowchart.webp)
 
 ### Verifica lo que de verdad se firmó
 
@@ -274,11 +274,11 @@ El verificador de SVM de x402 lleva el tejido cicatricial en su código fuente: 
 
 El principio es más grande que el incidente, así que fíjalo: verifica lo que de verdad se firmó, nunca la transacción idealizada que habrías construido. Tu verificador del módulo 4 ya vive según esta regla sin que tú la nombres, lee la transacción desde la blockchain y comprueba propiedades, dueño, mint, delta, memo, en vez de exigir igualdad byte a byte con una plantilla. Las comprobaciones de propiedades toleran adiciones benignas; las comparaciones byte a byte le declaran la guerra a cada función de seguridad de billetera que se haya entregado alguna vez. Cuando escribas código de verificación en cualquier parte de tu stack, estás eligiendo entre esas dos posturas, y este incidente es el argumento a favor de la primera.
 
-![Comparación entre el emparejamiento ingenuo byte por byte y la verificación basada en propiedades que x402 hace de la transacción firmada, con su allowlist para las instrucciones de guarda de Lighthouse inyectadas por la billetera.](assets/v06-comparison.png)
+![Comparación entre el emparejamiento ingenuo byte por byte y la verificación basada en propiedades que x402 hace de la transacción firmada, con su allowlist para las instrucciones de guarda de Lighthouse inyectadas por la billetera.](assets/v06-comparison.webp)
 
 El mismo paquete esconde una segunda guarda que vale la pena conocer porque construiste a su prima en el módulo 4. El lado del facilitador mantiene una caché de liquidación: una tabla en memoria de las transacciones que se están liquidando en ese momento, para que una llamada /settle duplicada para el mismo pago sea rechazada como `duplicate_settlement` en vez de competirle al primer envío. Las entradas se desalojan con un temporizador que el paquete ata al tiempo de vida del blockhash; sus docs llaman a esa ventana de 60 a 90 segundos más o menos y desalojan a los 120, cerca del doble del tiempo de vida, con el razonamiento de que, una vez que el blockhash de un pago ya no puede aterrizar, un settle repetido de ese pago ya no puede tener éxito, así que recordarlo no sirve de nada. Si esa oración te dio déjà vu, debería: es la misma aritmética de desalojo que la de tu store de firmas procesadas del módulo 4, que olvida una firma una vez que su transacción no podría confundirse de ninguna manera con una fresca. Tu store resguarda el despacho contra webhooks repetidos; la caché de liquidación resguarda el envío contra settles repetidos. La misma forma, otra puerta. Y el hábito del módulo 4 de derivar el reloj de pared a partir del tiempo de slot actual aplica a los dos: con el tiempo de slot objetivo de 300ms — puesto por etapas por SIMD-0525 mientras se escribe esto, con la epoch 1024 (2026-08-28) fijada para cerrarlo días después — la ventana de 150 bloques corre unos 45 segundos, bastante por debajo del redondo 60 que la gente cita, y los cortes por etapas que le quedan a SIMD-0525 la van a encoger todavía más, que es exactamente por qué el margen de la caché es generoso, y por qué este curso sigue diciendo derívalo, nunca lo memorices.
 
-![Línea de tiempo de un pago, desde la firma parcial pasando por el vencimiento del blockhash hasta el desalojo de la caché de liquidación, puesta al lado del store de firmas procesadas del módulo 4 en el mismo horizonte.](assets/v07-timeline.png)
+![Línea de tiempo de un pago, desde la firma parcial pasando por el vencimiento del blockhash hasta el desalojo de la caché de liquidación, puesta al lado del store de firmas procesadas del módulo 4 en el mismo horizonte.](assets/v07-timeline.webp)
 
 ### El cobrador de peaje que alquilas
 
@@ -288,7 +288,7 @@ El segundo límite honesto es económico, y es la versión de comercio entre má
 
 Y el tercer límite con el que convives toda la lección: la línea `@x402/*` está fijada en 2.23.0 aquí (publicada el 2026-08-18), y ya se movió dos veces desde entonces — 2.24.0 el 2026-08-27, 2.25.0 el 2026-09-04, comprobado el 2026-09-07 — que es justamente el punto y no una vergüenza: nada de este ecosistema sugiere que se vaya a quedar quieto. Cada hecho de cable de esta lección se leyó de ese build exacto y no de un documento: el transporte por headers, `amount` en vez de `maxAmountRequired` en el requirement de v2, y el `maxTimeoutSeconds` que el servidor de recursos llena por ti. El estar a horcajadas entre versiones es lo que hace que esa disciplina no sea opcional, porque un solo paquete trae los esquemas de los dos dialectos uno al lado del otro, así que "qué forma estoy sosteniendo" sigue siendo una pregunta viva en cada bump en vez de una cerrada. Vuelve a verificar en cada toque, como lo hizo esta lección, no como lo hace un bookmark.
 
-![Tarjeta de tres columnas del canje de la medición de consumo: la frontera de confianza del facilitador, la economía de la liquidación por llamada, y el pin de paquete que se mueve rápido y hay que volver a verificar.](assets/v08-comparison.png)
+![Tarjeta de tres columnas del canje de la medición de consumo: la frontera de confianza del facilitador, la economía de la liquidación por llamada, y el pin de paquete que se mueve rápido y hay que volver a verificar.](assets/v08-comparison.webp)
 
 ## Lab: ponle la cancela, págala, concíliala
 

@@ -29,7 +29,7 @@ A program-derived address (PDA) is an address computed from a program's own addr
 
 Read that again with your Stripe brain on, because this is the click the whole lesson turns on. When Wavelength's crank held the delegate slot directly last lesson, a keypair YOU controlled had pull rights, and the subscriber had to trust your ops. If a PDA holds the delegate slot instead, there is no merchant key to leak, no employee to go rogue, no server breach of yours that yields pull rights. One honest residue: the program's upgrade authority is still a key someone holds, so the trust moved off your ops and onto the program's owner rather than vanishing — a smaller, auditable surface, and the caveat to volunteer in a security review before someone else does. Past that residue, the only path to the subscriber's funds is the program's own logic, and the program's logic only moves funds inside limits the subscriber explicitly signed. That is what non-custodial billing means, and it rests on something concrete: the absence of a merchant-side private key.
 
-![A merchant keypair holding the delegate slot forces trust in everyone who can sign, while a Subscription Authority PDA has no private key, so only program logic can pull.](assets/v01-diagram.png)
+![A merchant keypair holding the delegate slot forces trust in everyone who can sign, while a Subscription Authority PDA has no private key, so only program logic can pull.](assets/v01-diagram.webp)
 
 ### One unlimited approval, many bounded delegations
 
@@ -41,7 +41,7 @@ If the unlimited number still itches, map it onto something you have already shi
 
 The real limits live one layer down, in **delegation PDAs** created under that authority. Each delegation is a separate account carrying its own enforced terms, and the program refuses any pull that violates them. Three models ship in v0.5.0:
 
-![Three delegation models sit side by side: fixed with a total cap and optional expiry, recurring with a resetting per-period cap in seconds, and plans published in hours.](assets/v02-table.png)
+![Three delegation models sit side by side: fixed with a total cap and optional expiry, recurring with a resetting per-period cap in seconds, and plans published in hours.](assets/v02-table.webp)
 
 A quick tour of when each model earns its keep, because the lab uses only the third and the other two will show up in your product conversations within a week. **Fixed** is a bounded tab: pull up to 50 USDC before Friday, then the delegation is spent. It fits one-off authorizations with a ceiling, a trial that must not silently convert, a preorder that charges when the pressing ships. **Recurring** is an allowance that renews: up to 20 USDC per week, indefinitely or until expiry, with `amountPulledInPeriod` resetting each period. It fits usage-based billing where the amount varies but the cap must not, an API metered in dollars, a top-up wallet that refills itself. The **plan** model is the merchant-shaped one: terms published once on-chain, every subscriber accepts those exact terms, pulls land once per billing period into destinations the plan declared up front. Wavelength wants identical terms for every member and a public catalog it can point at, so the club is a plan. And if you ever catch yourself minting hundreds of near-identical plans to encode per-customer bespoke terms, stop; that is the job recurring delegations exist for.
 
@@ -49,7 +49,7 @@ Notice what this dissolves. Last lesson's wall was that approvals overwrite each
 
 The plan model, which the lab uses, splits state across two accounts. The merchant creates a `Plan` PDA (seeded by merchant address plus a plan id) holding the terms: amount, `periodHours`, the mint, allowed pull destinations, a whitelist of pullers. The subscriber's acceptance creates a `SubscriptionDelegation` PDA (seeded by plan plus subscriber) tracking their individual state: `currentPeriodStartTs`, `amountPulledInPeriod`, `expiresAtTs`. Merchant state and subscriber state never share an account, which is why one plan scales to any number of subscribers without anyone rewriting anything.
 
-![One merchant Plan account publishes the terms while each subscriber gets a separate SubscriptionDelegation account, so a plan scales to any subscriber count without rewriting state.](assets/v03-diagram.png)
+![One merchant Plan account publishes the terms while each subscriber gets a separate SubscriptionDelegation account, so a plan scales to any subscriber count without rewriting state.](assets/v03-diagram.webp)
 
 And the enforcement is not advisory. Try to pull twice in a period and the program refuses with a period-not-elapsed error before a token moves. Try to pull to an address the plan never declared and you get an unauthorized-destination refusal. The limits you will implement in this lesson's crank guard are a courtesy layer that saves you fees and log noise; the program is the layer that saves the subscriber.
 
@@ -59,7 +59,7 @@ Non-custodial billing is only honest if leaving is as unilateral as joining. It 
 
 The trade-off, named, because last lesson's design had a virtue this one quietly retires. The raw 60 USDC approval ran dry after four pulls, and that exhaustion forced a natural re-consent conversation every four months. The SA's u64::MAX approval never runs dry. The subscriber's protection is no longer a shrinking number; it is the per-plan limits plus that unilateral exit. Mechanically that is a strictly better protection, and it still deserves this paragraph, because the dwindling allowance was doing quiet UX work in the raw design that nothing automatic replaces here: nobody gets re-asked by default. Surface active subscriptions in your product UI and make cancel one tap; the chain will not nag on your behalf.
 
-![A subscription runs from authority initialization through periodic pulls; a lapsed one persists on-chain, stopped only by the expiry check, until the subscriber unsubscribes or revokes.](assets/v04-timeline.png)
+![A subscription runs from authority initialization through periodic pulls; a lapsed one persists on-chain, stopped only by the expiry check, until the subscriber unsubscribes or revokes.](assets/v04-timeline.webp)
 
 ### Who built it, and who already bets on it
 
@@ -81,7 +81,7 @@ Now the footguns, because this program's two documented integration bugs are bot
 
 **Bug two: nothing expires by itself.** Subscription and delegation accounts persist on-chain until an explicit revoke instruction closes them. A plan whose term ended last week still has a live delegation account sitting there, and if your crank only checks "does the delegation exist," it will keep dispatching pulls for that lapsed subscriber. Same division of labor as bug one: the program enforces the time-bound — a pull against a lapsed delegation is refused with its subscription-cancelled error before a token moves, so nobody gets charged — and what the existence-only crank buys itself is the same tax, a base fee and a log line per refused tick, forever. `expiresAtTs` against chain time is the check your guard mirrors on every tick, so the refusal happens in your process for free instead of on-chain for a fee. And its zero case bites in the other direction: `expiresAtTs` of 0 means "never expires," so a guard that naively compares `now >= expiresAtTs` treats every no-expiry subscription as expired at the epoch and refuses to bill anyone. Handle zero first, then compare.
 
-![Two documented billing bugs sit side by side: reading periodHours as seconds dispatches pulls roughly 3600 times too often, and skipping expiresAtTs keeps dispatching pulls for lapsed subscribers; the program refuses both, at a base fee per refusal.](assets/v05-comparison.png)
+![Two documented billing bugs sit side by side: reading periodHours as seconds dispatches pulls roughly 3600 times too often, and skipping expiresAtTs keeps dispatching pulls for lapsed subscribers; the program refuses both, at a base fee per refusal.](assets/v05-comparison.webp)
 
 ### The kit seam: v6 checkout, v7 billing
 
@@ -91,7 +91,7 @@ The facts, re-verified against npm on 2026-08-22: kit's `latest` dist-tag points
 
 The unlock? A folder that deliberately stays OUT of the workspace roster. Registered npm workspaces are not isolation — they are the opposite: npm hoists every registered package into one shared root resolution, which is exactly the tree where kit 6 and kit 7 would meet and fight. So step 1 below creates `subscriptions/` as a standalone package and never adds it to the root `workspaces` array — a deliberate break from the register-everything habit module 4 taught you. It alone pins kit ^7 plus `@solana/subscriptions` 0.5.0, runs its own `npm install`, resolves from its own `node_modules`, and the peer ranges never meet. (Register it at the root and npm's resolver will try to reconcile both kit majors in one tree and refuse; the capstone walks into that exact ERESOLVE on purpose and shows you the escape hatch.) And if v7 friction shows up that you cannot clear, the documented fallback is a two-line pin edit in that one folder: `@solana/subscriptions` 0.4.0 with kit ^6.4. No structural change, no rewrite, one folder's `package.json`.
 
-![Checkout and ops workspaces stay pinned to kit 6 packages while the subscriptions folder, deliberately left out of the root workspaces array, pins kit 7, with the documented fallback to subscriptions 0.4.0 on kit 6.4.](assets/v06-diagram.png)
+![Checkout and ops workspaces stay pinned to kit 6 packages while the subscriptions folder, deliberately left out of the root workspaces array, pins kit 7, with the documented fallback to subscriptions 0.4.0 on kit 6.4.](assets/v06-diagram.webp)
 
 Is this annoying? Mildly. Is it unusual? Not even slightly: any Node shop that survived the ESM migration, or a React major, has run this exact play. SDK ecosystems move front-to-back, the flagship packages jump first, integrations lag, and the boundary lives in your lockfiles for a quarter or two. You are not working around a mistake; you are watching an ecosystem mid-stride, and the per-workspace pin is what competence looks like while it lands. Nor is it a rule this course invented: the Rust & TypeScript Fundamentals course drills it in its peer-ranges lesson and Master Anchor V2 drills it against a generated client's declared peers in its module eight — three courses, one rule.
 
@@ -349,7 +349,7 @@ main().catch((e) => {
 
 Those `expected*` fields deserve the pause. The subscriber signs the exact terms they read, and the program compares them to the plan at execution time. A merchant who edits the price between the subscriber's click and the transaction landing gets a refusal, not a windfall. Web2 subscription systems enforce this with lawyers and screenshots; here it is a struct comparison in the transaction. Run it with `MERCHANT=<merchant pubkey> CLUB_MINT=<mint> npx tsx 03-subscribe.ts`.
 
-![On each billing tick the crank reads subscription state, decidePull filters canceled, expired and too-early pulls before any fee is spent, and a due pull lands once in the ledger.](assets/v07-flowchart.png)
+![On each billing tick the crank reads subscription state, decidePull filters canceled, expired and too-early pulls before any fee is spent, and a due pull lands once in the ledger.](assets/v07-flowchart.webp)
 
 **6. Pull one billing period, and land it in the ledger.** One import below does not exist yet: `./decide-pull`. Save the Challenge starter from the end of this lesson as `subscriptions/decide-pull.ts` now, bugs and all, so the lab runs in order; repairing those two bugs is the solo work waiting for you there. This is the accretion step, and the reason this lesson consumes two earlier artifacts instead of one. The pull itself replaces the raw crank's `TransferChecked`; the ledger write is what turns a token movement into a business event. `04-pull.ts`:
 
@@ -516,7 +516,7 @@ Look at what just happened to your back office. The ledger that recorded webhook
 
 One wrinkle worth pre-empting, because your infrastructure is now good enough to create it: the pull is a token transfer, so the Helius webhook you registered in the backoffice lesson will ALSO deliver it to your receiver as a TRANSFER event. The receiver will try to resolve it to an order by memo, find none, and reject it. That is correct behavior, not a bug to fix. Checkout truth enters the ledger through the webhook pipeline, billing truth enters through the crank, and the signature key keeps the two paths from ever writing the same payment twice. If the reject logs annoy you, filter pulls out by your treasury ATA; what you must not do is let the webhook path write invoices. One writer per revenue stream.
 
-![Checkout events arrive by verified webhook and subscription pulls arrive by the billing crank, converging as signature-keyed, exactly-once rows in the single backoffice orders ledger.](assets/v08-diagram.png)
+![Checkout events arrive by verified webhook and subscription pulls arrive by the billing crank, converging as signature-keyed, exactly-once rows in the single backoffice orders ledger.](assets/v08-diagram.webp)
 
 **8. Put the crank back in charge.** Everything so far ran as one-off scripts, but the artifact this lesson ships is club-billing, and what makes it a billing system rather than a demo is last lesson's crank loop driving the pull path on a clock. The refactor takes two minutes, and one line of it is load-bearing in a way that is easy to miss. In `04-pull.ts`, lift the body of `main` into an exported `pullOnce(subscriber: Address)` and drop the module-scope `SUBSCRIBER` env read, since the subscriber is a parameter now. You still want the one-off script to work, so keep the `main` that reads the env var and calls `pullOnce` — but it must now only run when the file is executed directly, because `05-crank.ts` is about to *import* this file, and a module-level `main().catch(() => process.exit(1))` would fire on import and kill the crank before its first tick:
 
@@ -666,7 +666,7 @@ Order matters: canceled first, then expiry, then the window. Ask yourself why be
 
 One continuity note, because last lesson froze two reason strings, `delegate-revoked` and `insufficient-allowance`, and promised the rest of this module would keep them meaningful. They survive, one layer down. `delegate-revoked` now names a rarer and more deliberate event: the subscriber revoked their Subscription Authority, the slot is vacant, and every plan under it is dead with it. `insufficient-allowance` collapses into its one remaining cause, an ATA that cannot cover the pull, because the SA's approval itself never runs low. `decidePull`'s three reasons join that vocabulary rather than replace it: your guard speaks before a transaction exists, the transfer layer speaks when a pull fails anyway, and next lesson's dunning machine consumes both sets as input states.
 
-![decidePull checks canceled first, then expiry where expiresAtTs zero means never, then a period window converted from hours to seconds, with a refusal reason on each exit.](assets/v09-flowchart.png)
+![decidePull checks canceled first, then expiry where expiresAtTs zero means never, then a period window converted from hours to seconds, with a refusal reason on each exit.](assets/v09-flowchart.webp)
 
 Accept, on devnet, the full gate: plan created, user subscribed, one pull reconciled as an invoice row in the orders ledger, and the guard refusing both an over-frequent pull (`too-early`) and an expired subscription (`expired`). Your evidence is a plan address, a subscribe signature, one pull signature whose invoice id appears in the ledger, and the two refusal reasons printed by your tests.
 

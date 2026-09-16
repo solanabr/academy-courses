@@ -58,7 +58,7 @@ O índice de achados, cada linha acionável:
 
 A divisão de trabalho, dita sem rodeio: este é o módulo 8, território solo. A config do nó e o builder patrocinado vêm resolvidos porque a fiação do Kora é a última superfície de integração nova deste curso. O tratamento da cotação de taxa e a montagem da dupla signature são TODOs de completion contra critérios de aceitação, não passo a passo. A regra de validação que prova que o seu paymaster recusa transações estranhas é inteiramente sua no challenge.
 
-![Detalhamento de custos empilhados de um checkout patrocinado: uma taxa base de 10,000 lamports por duas signatures, uma taxa de prioridade opcional e um depósito de rent de conta de token condicional, muito maior.](assets/v01-chart.png)
+![Detalhamento de custos empilhados de um checkout patrocinado: uma taxa base de 10,000 lamports por duas signatures, uma taxa de prioridade opcional e um depósito de rent de conta de token condicional, muito maior.](assets/v01-chart.webp)
 
 ## O assento do fee payer
 
@@ -70,7 +70,7 @@ O curso vem rondando esse assento desde o módulo 1. Lá atrás a pergunta "quem
 
 Um cuidado vindo da costura entre a lição passada e esta, já que as duas ferramentas são vizinhas naturais: um facilitador x402 pode ele mesmo rodar em cima do Kora, e o guia oficial desse par ainda importa os nomes de pacote `x402` e `x402-express` no estilo v1. O SDK vivo é a linha v2 com escopo `@x402/*` contra a qual você construiu na lição passada. Construa v2, e leia os nomes pelados do guia como deriva de documentação, não como instrução.
 
-![Um assento de fee payer com três inquilinos em sequência: o comprador no módulo 1, o facilitador x402 no módulo 7 e o paymaster Kora do lojista aqui.](assets/v02-diagram.png)
+![Um assento de fee payer com três inquilinos em sequência: o comprador no módulo 1, o facilitador x402 no módulo 7 e o paymaster Kora do lojista aqui.](assets/v02-diagram.webp)
 
 ### O Octane morreu e nomeou o sucessor
 
@@ -80,7 +80,7 @@ O Kora é esse sucessor: um nó paymaster da Solana Foundation, escrito em Rust,
 
 O lado TypeScript é um pacote só, o `@solana/kora`, que você já instalou: um client tipado e fino em que cada método é uma chamada JSON-RPC. Sem mágica, e você vai ler as respostas você mesmo no lab.
 
-![Linha do tempo da era Octane até a auditoria do Kora em 2025 e os lançamentos do começo de 2026 do kora-cli 2.0.5 e do client @solana/kora 0.2.1, terminando no arquivamento do Octane em 2026-04-20.](assets/v03-timeline.png)
+![Linha do tempo da era Octane até a auditoria do Kora em 2025 e os lançamentos do começo de 2026 do kora-cli 2.0.5 e do client @solana/kora 0.2.1, terminando no arquivamento do Octane em 2026-04-20.](assets/v03-timeline.webp)
 
 ### O ida e volta da dupla signature
 
@@ -94,7 +94,7 @@ Por que `signTransaction` e não `signAndSendTransaction`, se o nó oferece os d
 
 A ordem importa numa direção só: o Kora assina antes do comprador porque a signature do Kora é computada sobre a message, e a message precisa estar final (fee payer, instruções, blockhash) antes de alguém assinar. Depois disso, as signatures podem ser anexadas em qualquer ordem; elas não cobrem umas às outras. E o blockhash lá dentro acerta o seu relógio: cerca de 150 blocos de validade, uns 45 segundos no tempo de slot alvo atual de 300ms (o estágio de 300ms do SIMD-0525 entrou em vigor na epoch 1024, em 2026-08-28), o que sobra para construir, co-assinar e um toque num celular, e é exatamente por que você constrói a transação por requisição em vez de pré-assinar uma pilha delas.
 
-![Fluxo de checkout patrocinado: o servidor constrói uma transação não assinada com o Kora como fee payer, o Kora assina primeiro, depois a carteira do comprador assina e envia, e o patrocinador é debitado.](assets/v04-flowchart.png)
+![Fluxo de checkout patrocinado: o servidor constrói uma transação não assinada com o Kora como fee payer, o Kora assina primeiro, depois a carteira do comprador assina e envia, e o patrocinador é debitado.](assets/v04-flowchart.webp)
 
 ### Quando o comprador paga a taxa em USDC
 
@@ -110,11 +110,11 @@ A linha visível é pequena. A taxa base é de 5000 lamports por signature, e o 
 
 Não acaba aí. O evento caro é a conta de token associada. Se o seu fluxo patrocinado alguma vez criar uma ATA para o comprador (a primeira conta de USDC dele, um mint novo, um token de fidelidade), o depósito de rent é o mínimo isento de aluguel para a conta de 165 bytes, e você lê ele do `getMinimumBalanceForRentExemption(165)` em vez de ler de qualquer página, incluindo esta — na devnet em 2026-09-07 isso deu 1,488,440 lamports, mais ou menos 150 vezes a taxa da transação de dupla signature inteira. Leia de novo antes de orçar, porque o SIMD-0437 está descendo a alíquota por byte em degraus e os dois clusters já se mexeram; o que é durável aqui é a razão, não os lamports. E aqui está a ressalva que o briefing de todo deploy de paymaster deveria carregar em negrito: esse rent não sumiu, ele está parado numa conta que o comprador é dono. O comprador pode fechar aquela conta de token quando quiser e ficar com o rent reavido. Não existe mecanismo para devolver ele para você. Então trate o rent patrocinado como gasto, precificado na venda como as taxas de processamento de cartão, e nunca lance ele como um empréstimo recuperável. Faça a conta de guardanapo você mesmo para uma feira de cem compradores: cem checkouts de dupla signature são 0.001 SOL de taxas, e cem ATAs de comprador de primeira viagem são cem vezes o que aquele curl acabou de te dizer — duas ordens de grandeza de distância em qualquer alíquota que a rede já tenha cobrado. A linha de rent é o orçamento; a linha de taxa é ruído.
 
-![Gráfico de barras em escala logarítmica comparando uma taxa base de 10,000 lamports de dupla signature contra mais ou menos 1.5 milhão de lamports de rent de criação de ATA, cerca de 150 vezes maior e reavível só pelo comprador.](assets/v05-chart.png)
+![Gráfico de barras em escala logarítmica comparando uma taxa base de 10,000 lamports de dupla signature contra mais ou menos 1.5 milhão de lamports de rent de criação de ATA, cerca de 150 vezes maior e reavível só pelo comprador.](assets/v05-chart.webp)
 
 A outra linha honesta: quando o comprador já tem SOL, o patrocínio é custo puro. Você paga 10,000 lamports para poupar meio centavo de alguém que ele mesmo poderia ter pago, e alarga a sua superfície de ataque fazendo isso. O deploy maduro patrocina seletivamente (primeira compra, fluxos de onboarding, carteiras com zero SOL) em vez de por reflexo. A comparação abaixo é a decisão numa olhada, e é o trade-off desta lição inteira: gasless tira a exigência de SOL do comprador, e você paga por isso duas vezes, uma em rent que você deveria dar por perdido e uma numa carga de validação que agora é obrigatória.
 
-![Tabela comparando o checkout pago-pelo-comprador contra o patrocinado em exigência de SOL, contagem de signatures, taxas, rent de ATA, conversão, superfície de ataque e quando cada modo ganha.](assets/v06-comparison.png)
+![Tabela comparando o checkout pago-pelo-comprador contra o patrocinado em exigência de SOL, contagem de signatures, taxas, rent de ATA, conversão, superfície de ataque e quando cada modo ganha.](assets/v06-comparison.webp)
 
 ### A validação é o produto
 
@@ -124,7 +124,7 @@ A config do Kora te dá controles em camadas, e o lab define cada um deles de pr
 
 A postura padrão é a certa: no código atual, toda chave do `fee_payer_policy` assume negar quando o bloco é omitido da config. A config de exemplo do repo escreve o bloco explicitamente — as chaves dela por acaso estão em false hoje, mas um exemplo copiado está a uma edição upstream de te inscrever em poderes que você nunca escolheu. No lab a gente omite o bloco de propósito e deixa o negar-por-padrão fazer o trabalho dele.
 
-![kora.toml do lab anotado: allowlists de programa e de token, tetos de signature e de lamports, transações duráveis desligadas, precificação free e um bloco de política de fee payer omitido para que todo poder assuma negar.](assets/v07-annotated-code.png)
+![kora.toml do lab anotado: allowlists de programa e de token, tetos de signature e de lamports, transações duráveis desligadas, precificação free e um bloco de política de fee payer omitido para que todo poder assuma negar.](assets/v07-annotated-code.webp)
 
 Essa é a superfície de confiança, dita sem alarde: você está rodando (ou alugando) um serviço que segura uma chave cheia de dinheiro e assina o que estranhos mandam para ele, e as regras de validação são a diferença inteira entre um paymaster e uma doação. Sóbrio, não assustador. Configure como quem fala sério e os modos de falha acima continuam teóricos.
 
@@ -134,7 +134,7 @@ A decisão de rodar-ou-alugar em si é conta de infraestrutura comum, e vale tri
 
 O que você está montando, e onde isso fica no workspace da Wavelength:
 
-![Diagrama do workspace mostrando o gasless-checkout reusando transfer-kit e checkout-txreq, conversando com um nó Kora local na porta 8080, e exportando buildSponsoredOrder para o capstone.](assets/v08-diagram.png)
+![Diagrama do workspace mostrando o gasless-checkout reusando transfer-kit e checkout-txreq, conversando com um nó Kora local na porta 8080, e exportando buildSponsoredOrder para o capstone.](assets/v08-diagram.webp)
 
 1. **Instale o paymaster e gere o signatário dele.** O nó é um binário Rust; o SDK de client que você já instalou conversa com ele. Depois crie a carteira de patrocínio, a única carteira do lab que segura SOL, e abasteça ela na devnet:
 

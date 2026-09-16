@@ -32,7 +32,7 @@ Agentic commerce breaks that assumption. When the caller is a program, a checkou
 
 The governance behind the spec is worth thirty seconds, because it tells you this is infrastructure, not a startup's SDK. x402 originated inside Coinbase, incubated by its Development Platform team, and has since moved into an x402 Foundation that operates under the Linux Foundation. The Solana Foundation joined it. That trajectory, from one company's experiment to neutral-home stewardship, is the standard path for protocols that intend to outlive their creators.
 
-![Timeline tracing HTTP 402 from its unused 1990s reservation through x402's incubation at Coinbase to a Linux Foundation home and today's stable v2 surface.](assets/v01-timeline.png)
+![Timeline tracing HTTP 402 from its unused 1990s reservation through x402's incubation at Coinbase to a Linux Foundation home and today's stable v2 surface.](assets/v01-timeline.webp)
 
 One dating caution before the mechanics, since you will meet version numbers immediately: the v2 spec is what we teach here because its surface is stable, but its mainnet ship date is unpublished as of this writing (2026-08-22), and v1 is still live in the wild. You are learning the current spec while the deployed world straddles two versions. Hold that thought; it becomes a real interop footgun below.
 
@@ -55,7 +55,7 @@ Above the wire format sit two axes of variety. First, four payment schemes, whic
 
 Second, three transports, which answer "what protocol carries the challenge": plain **http**, which you have been picturing all along; **mcp**, the Model Context Protocol that agent frameworks use for tool calls; and **a2a**, agent-to-agent messaging. The scheme-times-transport grid is why the spec reads bigger than it feels. Your merchant seat cares about one cell today: the exact scheme over http, targeting the SVM. The spec calls that combination exact-SVM.
 
-![Reference card giving each of the three v2 headers its direction, its job, and its v1 origin, under a rule strip reading the header never the body, beside the CAIP-2 network format and a four-schemes-by-three-transports grid with exact over HTTP highlighted.](assets/v02-comparison.png)
+![Reference card giving each of the three v2 headers its direction, its job, and its v1 origin, under a rule strip reading the header never the body, beside the CAIP-2 network format and a four-schemes-by-three-transports grid with exact over HTTP highlighted.](assets/v02-comparison.webp)
 
 ### One request, end to end: the exact-SVM flow
 
@@ -71,11 +71,11 @@ Under those sits `accepts`, an array of one or more PaymentRequirements objects,
 
 **Beat four, the receipt.** Settlement confirmed, the server finally does what the bot asked for in the first place: it answers 200 with the quote, plus a PAYMENT-RESPONSE header carrying the settlement details. The bot got its data, the merchant got paid, and the whole exchange fit inside one retried HTTP request. No account creation, no API key issuance, no card on file. From your log's point of view, a 402 followed milliseconds later by a 200.
 
-![Sequence diagram following one metered call from an empty-bodied 402 carrying its challenge in the PAYMENT-REQUIRED header, through the agent's partial signature, to the facilitator's verify and settle steps and the receipt header.](assets/v03-flowchart.png)
+![Sequence diagram following one metered call from an empty-bodied 402 carrying its challenge in the PAYMENT-REQUIRED header, through the agent's partial signature, to the facilitator's verify and settle steps and the receipt header.](assets/v03-flowchart.webp)
 
 The signature choreography is the part people get wrong on first read, so pin it down. The client signs as owner and never as fee payer. `/verify` never submits: it fills the fee-payer slot on a scratch copy purely to simulate, and a simulation cannot move money. `/settle` is the only broadcast: fee-payer signature on, transaction out. If you can recite that sentence, you can debug half of the confused x402 threads you will ever read.
 
-![Signing diagram showing the agent filling the owner slot, verify signing a scratch copy purely to simulate, and the facilitator filling the fee-payer slot for broadcast only at settle, while the merchant signs nothing.](assets/v04-diagram.png)
+![Signing diagram showing the agent filling the owner slot, verify signing a scratch copy purely to simulate, and the facilitator filling the fee-payer slot for broadcast only at settle, while the merchant signs nothing.](assets/v04-diagram.webp)
 
 One number you will not find here, on purpose. The spec mandates that the settle transaction carry ComputeBudget limit instructions, and it bounds the compute-unit price, but it states no compute-unit count for a settlement, none. A "roughly 20,000 CU per settle" figure circulates anyway, and when we chased it while researching this course it came apart in the reader's favor: the 20,000 is real but it is not a cost. It is `DEFAULT_COMPUTE_UNIT_LIMIT` in the reference SDK (`@x402/svm` 2.23.0, read 2026-08-22), the ceiling the client requests when it prepends the SetComputeUnitLimit instruction, which is a budget you ask for, not a bill you pay. Quoting it as consumption is like quoting your credit limit as your rent. So this lesson prints no CU cost for the settle transaction, and neither should your API docs. If a number matters to you, measure it on your own settled transactions and date the measurement. Any absolute you print needs an independent, dated source, or it should not be printed. That rule is about to do heavier lifting in the traffic section.
 
@@ -93,7 +93,7 @@ So who are the actual facilitator options on Solana? Here is the landscape, and 
 - **Faremeter**: not a hosted facilitator but an open-source framework, and notable for auto-negotiating v1 and v2, plus MPP (the Machine Payments Protocol, the HTTP-auth payment family whose Solana method spec the Foundation authors, which you will gate alongside x402 in two lessons). Remember the two-dialect world from earlier? Faremeter is the adapter for living in it.
 - **The x402.org facilitator**: devnet and testnet only. Perfect for the lab you are about to run, and a trap if you wire production against it.
 
-![Roster table of the Solana x402 facilitator options with their trust and network caveats, plus a corrected row noting Helius is not a facilitator.](assets/v05-comparison.png)
+![Roster table of the Solana x402 facilitator options with their trust and network caveats, plus a corrected row noting Helius is not a facilitator.](assets/v05-comparison.webp)
 
 How do you choose? The same way you chose corridors last lesson: name the constraint that dominates. Compliance-screened settlement required, CDP. Zero budget and mainnet, the free seat, Dexter, after your own diligence on it. Mixed v1 and v2 counterparties, Faremeter in front of whichever facilitator settles. Test rig, x402.org's, and nothing else. There is no all-around winner, which is the healthiest possible sign for a landscape this young.
 
@@ -107,13 +107,13 @@ Figure two, from solana.com's x402 page: 37 million or more transactions on Sola
 
 Now the discipline, stated as a rule you can enforce in a doc review. Quote each figure with its own source and its own date, and never combine them. Do not add them; 75.41M plus 37M equals a number no source on earth supports. Do not divide one by the other to derive a share; the windows do not match. And date everything, because both are live dashboard numbers that drift daily; the figures above were true on 2026-08-21 and are already stale as you read this. If two numbers were not measured in the same window by the same source, they do not belong in the same arithmetic. That sentence is the whole rule.
 
-![Two source cards holding x402.org's 30-day totals and solana.com's cumulative Solana figures apart, with a panel forbidding any arithmetic across them.](assets/v06-comparison.png)
+![Two source cards holding x402.org's 30-day totals and solana.com's cumulative Solana figures apart, with a panel forbidding any arithmetic across them.](assets/v06-comparison.webp)
 
 Who is standing behind this traffic matters as much as its size. The x402.org partner roster includes AWS, Cloudflare, Stripe, and Vercel, which is the infrastructure establishment, not a crypto-native cheering section. Migration stories have started: atxp.ai moved its stack to x402 plus MPP on Solana. And competition has arrived in the most flattering form, with OKX shipping a rival machine-payments protocol it calls APP. Standards that nobody uses do not get competitors.
 
 Stripe deserves its own beat, because its position is the clearest signal anywhere of where incumbents think this goes. Count its fronts. It is on the x402.org trusted-by roster. It co-authored ACP, the agentic checkout spec, with OpenAI. As you saw in module 6's corridor work, it operates a USDC-on-Solana acquirer that settles merchants in fiat. And with Tempo Labs it co-authored `draft-httpauth-payment-00`, the "Payment" HTTP authentication scheme that MPP is built on, which you meet in two lessons. One incumbent, four seats at four different tables of machine-native commerce. Stripe is not betting on a winner; it is buying the whole race card. For Wavelength the reading is simpler and more useful: the rails you are learning this module are the same rails the largest payments incumbent on earth is positioning around, and your pressing-price API will speak the open-protocol version of them next lesson.
 
-![Hub diagram placing x402 among its Linux Foundation partners, with a callout for Stripe's four fronts, the fourth being the base HTTP Payment auth scheme behind MPP, and edge arrows for the challengers.](assets/v07-diagram.png)
+![Hub diagram placing x402 among its Linux Foundation partners, with a callout for Stripe's four fronts, the fourth being the base HTTP Payment auth scheme behind MPP, and edge arrows for the challengers.](assets/v07-diagram.webp)
 
 ## Lab: annotate a 402 like the spec is watching
 

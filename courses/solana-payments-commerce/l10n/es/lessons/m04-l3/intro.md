@@ -47,7 +47,7 @@ Los rieles que vienes usando desde la lección de transfer-kit ya llevan la mejo
 
 Esta es la parte donde vale la pena detenerse. En el módulo 7 vas a conocer x402, el protocolo de pagos nativo de HTTP, y sus facturas llevan un campo `extra.memo` con un id de factura adentro. Riel distinto, spec distinto, exactamente la misma idea: un identificador de pedido guardado en una ranura buscable del pago mismo, así el comercio necesita una cuenta y una consulta en vez de una fábrica de direcciones. La convergencia no es una coincidencia. Cualquier riel de pago push sin direcciones de depósito tiene que resolver el emparejamiento, y un id de pedido buscable es la solución mínima. Lo que quiere decir que el conciliador que escribes hoy es el patrón general y no plomería de Solana Pay, y el módulo 7 le va a enchufar la mitad de x402 sin una reescritura. (Crédito a quien corresponde: el spec de reference de Solana Pay y su helper `findReference` entregaron este patrón primero; nosotros construimos el nuestro directamente sobre el kit para que un solo conciliador sirva a los dos rieles.)
 
-![Las reference keys de Solana Pay y los ids de factura del memo x402 llevan cada uno un id de pedido en un campo buscable, así un solo conciliador empareja cualquiera de los dos rieles con el libro mayor de pedidos.](assets/v01-diagram.png)
+![Las reference keys de Solana Pay y los ids de factura del memo x402 llevan cada uno un id de pedido en un campo buscable, así un solo conciliador empareja cualquiera de los dos rieles con el libro mayor de pedidos.](assets/v01-diagram.webp)
 
 ### De la reference al pedido
 
@@ -55,7 +55,7 @@ Mecánicamente, la conciliación es un recorrido de tres pasos. Toma la referenc
 
 La salida del conciliador es deliberadamente más rica que pagado-o-no. El verificador calcula el delta de saldo real en tu ATA en unidades base, y comparar ese delta con el precio del pedido parte el mundo en cuatro estados honestos: **paid** (exacto), **underpaid**, **overpaid** y **unmatched** (no se encontró nada verificable). El libro mayor de la lección pasada nunca registró más que el camino feliz, porque el despacho estaba condicionado a la verificación exacta. Hoy los otros tres estados dejan de ser errores y pasan a ser insumos de la política.
 
-![La conciliación recorre desde la reference key de un pedido, pasando por la búsqueda de firmas y el verificador, hasta una comparación en unidades base que sale como paid, underpaid, overpaid o unmatched.](assets/v02-flowchart.png)
+![La conciliación recorre desde la reference key de un pedido, pasando por la búsqueda de firmas y el verificador, hasta una comparación en unidades base que sale como paid, underpaid, overpaid o unmatched.](assets/v02-flowchart.webp)
 
 ### El riel del memo, y el dinero sin historia
 
@@ -93,11 +93,11 @@ Entonces, ¿qué es un reembolso, estructuralmente? Es un pago. Esa es toda la i
 
 Esto no es nosotros improvisando en el vacío. Stripe cruzó este puente primero para su flujo de pago con cripto, y su comportamiento documentado es el precedente que reflejamos: los reembolsos se devuelven como stablecoins a la billetera de origen. No a una dirección que el comprador te manda por correo, no a quien pida amablemente con un ticket de soporte convincente. La billetera de origen, leída desde la blockchain. Esa sola regla borra una clase entera de fraude donde "el comprador" que pide el reembolso no es la billetera que pagó. Vale la pena notar con cuánto cuidado los grandes acotaron este territorio: el mismo riel de Stripe limita a los clientes a 10,000 USD por transacción. Cuando la empresa de pagos con más experiencia del planeta pone barreras de protección así de ajustadas alrededor de dinero irreversible, capta la indirecta sobre cuánto respeto merece la dirección inversa.
 
-![Comparación entre los rieles de tarjeta y los rieles push: las tarjetas traen una máquina de chargebacks documentada, mientras que los rieles push no traen ninguna primitiva de reversión, así que el comercio construye el reembolso como un pago nuevo.](assets/v03-comparison.png)
+![Comparación entre los rieles de tarjeta y los rieles push: las tarjetas traen una máquina de chargebacks documentada, mientras que los rieles push no traen ninguna primitiva de reversión, así que el comercio construye el reembolso como un pago nuevo.](assets/v03-comparison.webp)
 
 La asimetría corta para los dos lados, y aquí es donde te muerde a ti y no al comprador. Ningún chargeback protege al comercio tampoco. El primer reembolso que puse en fila en estos rieles, comprobé el destino tres veces como si estuviera desactivando algo. Buen instinto, blanco equivocado: la dirección estaba bien, el problema era que el pago de origen tenía segundos de vida. Piensa en lo que eso quiere decir. Un pago con commitment `confirmed` puede, rara vez, quedar en un fork que después se descarta. Si lo reembolsas y el fork muere, el "pago" se evapora mientras tu reembolso, una transacción totalmente independiente, aterriza y alcanza finality igual. Acabas de pagar dinero de verdad para revertir un pago que nunca pasó, y no hay palanca con la que meter la mano de vuelta, porque construiste sobre el riel que no tiene una. La guarda es una sola llamada RPC: la firma de origen tiene que reportar `finalized`, el commitment que la red no va a deshacer, antes de que el constructor de reembolsos firme nada. Alcanzar finality cuesta unos diez segundos según la estimación del ecosistema, los mismos ~10s que derivó la lección de apertura de este módulo al objetivo de slot de 300ms. Un reembolso nunca es tan urgente como para no poder esperar diez segundos; la lección de apertura del módulo 4 ya hizo este mismísimo argumento según el valor para el despacho, y el caso del reembolso es más fuerte, porque ahora tú eres el pagador.
 
-![Una solicitud de reembolso pasa las comprobaciones del libro mayor y una barrera de finality sobre la firma de origen antes de que se empujen stablecoins a la billetera de origen; un origen sin finality es rechazado.](assets/v04-flowchart.png)
+![Una solicitud de reembolso pasa las comprobaciones del libro mayor y una barrera de finality sobre la firma de origen antes de que se empujen stablecoins a la billetera de origen; un origen sin finality es rechazado.](assets/v04-flowchart.webp)
 
 ### Política, no valores por defecto
 
@@ -111,7 +111,7 @@ Un **pago parcial** es pago de menos con un nombre más respetable, y merece su 
 
 El tl;dr es: ninguna de estas respuestas es correcta, y ese es el punto. Lo correcto es que tu libro mayor pueda mostrar, para cada pago no exacto, qué política declarada lo ruteó y cuándo. Esa auditabilidad es cómo se ve una disputa en rieles sin máquina de disputas.
 
-![Tabla de los tres estados de pago no exacto, la trampa del valor por defecto silencioso para cada uno, y dos políticas defendibles por estado con el costo que carga cada política.](assets/v05-table.png)
+![Tabla de los tres estados de pago no exacto, la trampa del valor por defecto silencioso para cada uno, y dos políticas defendibles por estado con el costo que carga cada política.](assets/v05-table.webp)
 
 ## Lab: construye backoffice-refunds
 
@@ -300,7 +300,7 @@ export type RefundRow = {
 
 La firma de origen es todo el diseño. Una fila de reembolso que no puede nombrar el pago que revierte es dinero que se va sin historia, no auditable por ti e indistinguible de un robo para cualquier otro que lea tus libros. Una verruga práctica que vale el paréntesis: `bigint` no sobrevive a `JSON.stringify`, así que las unidades base viven como cadenas en disco y reviven en los bordes. Te encontraste con esta mismísima verruga en la lección de transfer-kit desde la otra dirección; misma regla, cadena exacta adentro, bigint exacto afuera.
 
-![La fila de reembolso del libro mayor guarda la firma del pago de origen y la suya propia, y el memo de la transacción de reembolso repite el origen, así un auditor puede recorrer el enlace en los dos sentidos.](assets/v06-diagram.png)
+![La fila de reembolso del libro mayor guarda la firma del pago de origen y la suya propia, y el memo de la transacción de reembolso repite el origen, así un auditor puede recorrer el enlace en los dos sentidos.](assets/v06-diagram.webp)
 
 **Paso 4: el constructor de reembolsos.** Este es el archivo que no existía en ningún doc que pudieras haber copiado. Abre `refund.ts`:
 
@@ -411,7 +411,7 @@ export async function getOriginatingWallet(
 
 Los mismos saldos de token pre y post que lee el verificador para el delta de tu lado, recorridos desde el otro extremo: la cuenta que fue debitada nombra a su dueño, y ese dueño es el destino del reembolso. Esta es la regla de Stripe sobre la billetera de origen, hecha estructural en vez de procedimental; no hay ningún camino de código donde un correo persuasivo cambie a dónde va el dinero.
 
-![El destino del reembolso se lee de la transacción de origen misma: la cuenta de token debitada por el mint del pago nombra a su dueño, y ese dueño es la billetera de origen.](assets/v07-diagram.png)
+![El destino del reembolso se lee de la transacción de origen misma: la cuenta de token debitada por el mint del pago nombra a su dueño, y ese dueño es la billetera de origen.](assets/v07-diagram.webp)
 
 De vuelta al constructor mismo. La comprobación de `already refunded` importa más de lo que parece: las solicitudes de reembolso van a llegar desde el tooling de soporte, y el tooling de soporte reintenta, así que la idempotencia por firma de origen aquí es la misma disciplina que la idempotencia por firma en el handler de webhooks. Y el memo hace la reversión legible on-chain, no solo en tu base de datos. El reembolso lleva su propia reference key nueva, acuñada aquí y entregada a transfer-kit exactamente como ha sido la reference de cada venta desde el módulo 2, lo que quiere decir que un reembolso se puede localizar con una búsqueda de firmas exactamente igual que un pago. El dinero que sale va sobre los mismos rieles buscables que el dinero que entra, gratis, porque compusiste en vez de escribir un segundo sistema. Esa composición es la recompensa silenciosa de toda la escalera de artefactos hasta aquí.
 
@@ -600,7 +600,7 @@ Segundo, el memo de política. Elige tu política de pago de menos y de pago par
 
 Aceptación: un reembolso aparece en el libro mayor atado a la firma del pago original, lleva el origen en su memo on-chain, y se resuelve desde su propia reference key en una sola búsqueda de firmas; el intento de doble reembolso lanza; un pedido underpaid rutea a tu política declarada, no a un despacho silencioso; el memo de política existe y nombra su contrapartida.
 
-![Línea de tiempo de un pedido de 30 USDC pagado con 12: el conciliador lo marca underpaid, se abre una ventana de 60 minutos para completar el pago, y el pedido o se completa o rutea a un reembolso con guarda.](assets/v08-timeline.png)
+![Línea de tiempo de un pedido de 30 USDC pagado con 12: el conciliador lo marca underpaid, se abre una ventana de 60 minutos para completar el pago, y el pedido o se completa o rutea a un reembolso con guarda.](assets/v08-timeline.webp)
 
 ## Checkpoint: el back office, completo
 

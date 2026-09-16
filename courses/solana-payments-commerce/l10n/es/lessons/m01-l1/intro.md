@@ -27,13 +27,13 @@ Un puñado de definiciones para que el JSON deje de ser ruido, y después nos ga
 - **`spl-token` y `transferChecked`**: `spl-token` es el programa on-chain que es dueño de este saldo de USDC, y de la mayoría de los saldos de tokens en Solana, tal como un servicio de libro mayor es dueño de las filas de saldo. La mayoría, no todos: un segundo programa de tokens llamado Token-2022 es dueño de sus propios saldos (PYUSD vive ahí, por ejemplo), y el módulo 2 te enseña a comprobar a qué programa pertenece un mint antes de decodificar nada. `transferChecked` es la única instrucción de ese programa que este curso usa para mover tokens; la parte "checked" quiere decir que quien llama tiene que declarar además el mint y su cuenta de decimales, y el programa se niega si no coinciden. En el JSON, su campo `authority` es la cuenta que autorizó el movimiento, que para un pago ordinario es la propia billetera del remitente. Los saldos en sí viven en **cuentas de token**, una por dueño por moneda; el próximo módulo las construye como se debe.
 - **`spl-memo` y el memo**: `spl-memo` es un segundo programa, diminuto, cuyo único trabajo es adjuntar una nota legible por humanos a una transacción. La nota en tu JSON dice `079cea64791142a59e12a3491a425f90`, la referencia interna de algún sistema. Más adelante en este curso, los memos se vuelven la forma en que un comercio empareja un pago con un pedido. Guárdate eso.
 
-![Una transacción liquidada que contiene una instrucción transferChecked de spl-token moviendo 0.036115 USDC y una instrucción spl-memo que lleva la nota de referencia, empaquetadas bajo una sola firma.](assets/v01-diagram.png)
+![Una transacción liquidada que contiene una instrucción transferChecked de spl-token moviendo 0.036115 USDC y una instrucción spl-memo que lleva la nota de referencia, empaquetadas bajo una sola firma.](assets/v01-diagram.webp)
 
 Así que la transacción que trajiste se descompone en esto: el remitente `BhFRCUXHVm76PmXkSzus8T4LUGrD2MTW9Au6bocBox5U` movió 0.036115 USDC, con ese memo adjunto, y se liquidó el 2026-08-22. Eso son 3.6 centavos, y el tamaño es justamente el punto, no una vergüenza: en rieles de tarjeta una transferencia de 3.6 centavos no es un pago pequeño, es un pago imposible, porque el piso de comisiones supera el monto. Aquí alguien lo movió y la economía todavía funcionó. Le ponemos un número exacto a las comisiones en la próxima lección; por ahora el punto es que el registro es público, completo y tuyo para leer.
 
 Fíjate, además, en lo que NO está en ese registro, porque las ausencias son tan instructivas como los campos. No hay número de tarjeta, así que no hay nada con forma de PCI que guardar en una bóveda. No hay CVV, ni vencimiento, ni dirección de facturación, ni un campo que diga "la ventana de chargeback cierra en 120 días". La dirección del remitente identifica una clave, no una persona, que es la razón por la que "quién me pagó de verdad" se vuelve una pregunta distinta en estos rieles de lo que era en las tarjetas, y emparejar pagos con clientes se va a apoyar en ese campo memo antes que en cualquier cosa parecida al nombre del titular de la tarjeta. Por ahora, solo registra la forma: todo lo que necesita la liquidación está presente, y no está ahí en absoluto nada de lo que necesita la responsabilidad por fraude con tarjetas.
 
-![Una terminal envía una petición HTTPS sin autenticar a un endpoint RPC público, que lee una transacción liquidada del libro mayor compartido y devuelve el registro JSON; el camino es de solo lectura.](assets/v02-diagram.png)
+![Una terminal envía una petición HTTPS sin autenticar a un endpoint RPC público, que lee una transacción liquidada del libro mayor compartido y devuelve el registro JSON; el camino es de solo lectura.](assets/v02-diagram.webp)
 
 ### La inversión que tu PSP nunca ofreció
 
@@ -41,7 +41,7 @@ Esta es la forma de lo que integras hoy. Un pago con tarjeta viaja a través de 
 
 Solana invierte eso. La verdad de la liquidación vive en un libro mayor público y compartido, y la cosa con forma de procesador que está en el medio es opcional. Cualquier parte de un pago, o cualquier tercero curioso, puede verificar la liquidación directamente, sobre cualquier endpoint RPC, para siempre. Tu futuro código de conciliación en este curso no le va a pedir a un proveedor "por favor dime si me pagaron". Va a leer el libro mayor mismo.
 
-![Comparación lado a lado que muestra los registros de liquidación de tarjeta como filas privadas de un procesador detrás de una clave de API, frente a los registros de liquidación de Solana como entradas públicas de un libro mayor que cualquiera puede leer sobre cualquier RPC.](assets/v03-comparison.png)
+![Comparación lado a lado que muestra los registros de liquidación de tarjeta como filas privadas de un procesador detrás de una clave de API, frente a los registros de liquidación de Solana como entradas públicas de un libro mayor que cualquiera puede leer sobre cualquier RPC.](assets/v03-comparison.webp)
 
 Lo público por defecto es lo que cambia el juego aquí, y quiero ser preciso sobre por qué. No es que lo público sea virtuoso. Es que lo público más lo legible por máquina colapsa categorías enteras de trabajo de integración que hoy haces: APIs de conciliación, exportaciones de reportes de liquidación, "contacta a soporte para rastrear este pago". El libro mayor es el reporte.
 
@@ -64,7 +64,7 @@ La historia detrás de ese binario vale sesenta segundos, porque es todo el ecos
 
 Lee el movimiento con precisión, porque importa: no se borró nada. El Solana Pay clásico, la biblioteca de checkout con código QR, sobrevive como un subpaquete dentro de ese mismo monorepo, mantenida y publicada, y este curso construye un checkout de verdad sobre ella en el módulo 3, el módulo de superficies de pago. Un cambio de portada no es un producto removido. Aprender a leer los movimientos del ecosistema a esa resolución, qué cambió de verdad frente a qué simplemente dejó de ser la cara visible, es una habilidad de supervivencia en rieles tan jóvenes, y vas a tener práctica de sobra.
 
-![Línea de tiempo que muestra el repo canónico de Solana Pay redirigiendo al repo pay de la Foundation, cuyo producto de portada es una CLI de pagos agénticos, mientras la biblioteca clásica de checkout con código QR continúa como subpaquete de principio a fin.](assets/v04-timeline.png)
+![Línea de tiempo que muestra el repo canónico de Solana Pay redirigiendo al repo pay de la Foundation, cuyo producto de portada es una CLI de pagos agénticos, mientras la biblioteca clásica de checkout con código QR continúa como subpaquete de principio a fin.](assets/v04-timeline.webp)
 
 ### Esto es dinero real, no una economía de demo
 
@@ -74,7 +74,7 @@ Primero, el actor establecido: el "Pay with crypto" de Stripe acepta USDC en Sol
 
 Segundo, la trayectoria. La oferta de stablecoins en Solana, es decir dólares tokenizados y sentados en estos rieles, pasó de alrededor de $1.5B en diciembre de 2023 a $11.7B para febrero de 2025 (según un artículo de investigación de Helius), y está en unos $15.87B al 2026-08-23 (DefiLlama, contando solo stablecoins ancladas al dólar; este número se mueve a diario, así que trata cualquier cifra que leas, incluida esta, como una foto con fecha). La propia documentación de pagos de Solana dice que la red procesó más de $1 billón en volumen de stablecoins en 2025. La oferta es el float; el volumen es el throughput; las dos curvas apuntan al mismo lado. El dinero se fue a donde la liquidación era barata y rápida, tal como el agua encuentra el desagüe. El float sentado en estos rieles creció más de diez veces en menos de tres años, y los actores establecidos lo siguieron hacia adentro en vez de esperar a que pasara.
 
-![Gráfico de la oferta de stablecoins en Solana subiendo de 1.5 mil millones de dólares en diciembre de 2023 a 11.7 mil millones en febrero de 2025 y unos 15.87 mil millones en agosto de 2026.](assets/v05-chart.png)
+![Gráfico de la oferta de stablecoins en Solana subiendo de 1.5 mil millones de dólares en diciembre de 2023 a 11.7 mil millones en febrero de 2025 y unos 15.87 mil millones en agosto de 2026.](assets/v05-chart.webp)
 
 ### Estos rieles se mueven debajo de ti
 
@@ -92,7 +92,7 @@ Ya tocaste los dos extremos del arco: leíste un pago liquidado y conociste la h
 
 Construimos todo eso para un solo comercio. Te presento a **Wavelength Records**, una tienda independiente de vinilos que existe solo en este curso: tienda en línea, una terminal POS de puesto de mercado, un club de suscripción al disco del mes y, con el tiempo, una API que cotiza precios de prensado a otras empresas. Cada lección le agrega una pieza real al stack de Wavelength, y para el final vas a haber construido una operación de comercio de punta a punta sobre rieles de Solana, no una pila de fragmentos desconectados. Cuando generes un código QR en el lab de hoy, va a estar denominado como un pedido de Wavelength, porque es uno.
 
-![Mapa del curso en seis etapas, desde las superficies de pago pasando por operaciones, ingresos recurrentes, la frontera fiat, los pagos entre máquinas y el endurecimiento para producción, todo anclado a construir la tienda de Wavelength Records de punta a punta.](assets/v06-flowchart.png)
+![Mapa del curso en seis etapas, desde las superficies de pago pasando por operaciones, ingresos recurrentes, la frontera fiat, los pagos entre máquinas y el endurecimiento para producción, todo anclado a construir la tienda de Wavelength Records de punta a punta.](assets/v06-flowchart.webp)
 
 Una pieza más de orientación antes del lab, sobre cómo las lecciones de este curso te pasan el trabajo. Cada lección atenúa la autonomía en tres pasos, en voz alta: la visión general que acabas de terminar se lee sin tocar un teclado; el lab lo hacemos juntos, paso a paso, con la salida esperada en cada Checkpoint; el Challenge del final lo haces solo, y es la parte que hace que la lección se quede. Hoy el lab es deliberadamente suave, y fíjate en lo que no hace: nada de billetera hasta el final. Ya leíste mainnet sin una, que es justamente el punto. La billetera llega solo cuando has construido algo que valga la pena escanear.
 
@@ -102,7 +102,7 @@ Los pasos 1 a 4 son los cinco minutos prometidos arriba: revisión del toolchain
 
 Vamos a decodificar una transferencia como se debe con un script, generar un código QR de pago de Wavelength y solo entonces configurar una billetera y escanear nuestro propio código QR con ella. Antes del script, un mapa: el JSON crudo que devolvió tu curl anida los campos interesantes unos niveles más abajo, y el decodificador que estás a punto de escribir no es más que una caminata hasta esos puntos. Aquí está dónde vive cada campo impreso.
 
-![Un árbol JSON abreviado de getTransaction con flechas de llamada que mapean blockTime a settledAt, la instrucción transferChecked de spl-token a sender, amount y mint, y la instrucción spl-memo a la cadena del memo.](assets/v07-annotated-code.png)
+![Un árbol JSON abreviado de getTransaction con flechas de llamada que mapean blockTime a settledAt, la instrucción transferChecked de spl-token a sender, amount y mint, y la instrucción spl-memo a la cadena del memo.](assets/v07-annotated-code.webp)
 
 1. **Revisa tu toolchain.** Necesitas Node 24 o más nuevo, que es lo que cada lab de este curso asume de aquí en adelante. `node -v` debería imprimir v24.x o más alto; si imprime algo más viejo, actualiza ahora en vez de en la primera instalación que se niegue. Los scripts de abajo corren vía `tsx`, un runner de TypeScript sin configuración; lo invocamos a través de `npx` con una versión fijada (`tsx@4.23.12`, el último en npm al 2026-08-23), así que `tsx` mismo no necesita instalación.
 
@@ -241,7 +241,7 @@ Vamos a decodificar una transferencia como se debe con un script, generar un có
 
    Deja al destinatario como alguien que no seas tú para esta vista previa. Apuntar una solicitud a tu propia dirección es el único caso en el que las billeteras no se ponen de acuerdo: Phantom hoy renderiza una vista previa de auto-transferencia con un banner de advertencia, Solflare se niega en seco, y las dos se van a quejar por separado de que no tienes SOL para cubrir la comisión de red. Nada de eso es tu bug, son solo tres advertencias sin relación apiladas en una pantalla, y oscurece la cosa que viniste a ver. **Checkpoint: tu propia billetera, escaneando un código QR que generó tu propio código, muestra correctamente el destinatario, el monto `24 USDC` y el memo de pedido `WAV-0001`.** Ya te paraste en los dos lados del mostrador.
 
-![Flujo desde el script qr.ts pasando por la URL codificada y el código QR de la terminal hasta una billetera de teléfono que la parsea y previsualiza un pago de 24 USDC sin pagar.](assets/v08-flowchart.png)
+![Flujo desde el script qr.ts pasando por la URL codificada y el código QR de la terminal hasta una billetera de teléfono que la parsea y previsualiza un pago de 24 USDC sin pagar.](assets/v08-flowchart.webp)
 
 ## Challenge: la Rosetta de los rieles de tarjeta
 

@@ -36,13 +36,13 @@ Cada cuenta en Solana tiene un campo `owner` que nombra al programa que puede mu
 
 Durante años hubo en la práctica una sola respuesta, el programa Token clásico en `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`, así que toda una generación de código de pagos lo hardcodeó y se salió con la suya. Después llegó Token-2022 en `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`: un segundo programa de tokens, separado, con la misma interfaz central, más un sistema de extensiones que el programa clásico nunca tuvo. No reemplazó al programa clásico. Los dos corren lado a lado, y un mint vive en uno o en el otro, para siempre. USDC es clásico. PYUSD es Token-2022. Los dos son dólares; el dólar no es la máquina.
 
-![Dos tarjetas de mint, USDC y PYUSD, cada una con una flecha de owner hacia un programa de tokens distinto, encima de una regla que dice que las transferencias tienen que apuntar al dueño del mint.](assets/v01-diagram.png)
+![Dos tarjetas de mint, USDC y PYUSD, cada una con una flecha de owner hacia un programa de tokens distinto, encima de una regla que dice que las transferencias tienen que apuntar al dueño del mint.](assets/v01-diagram.webp)
 
 Así que el arreglo para el kit no es "agregar soporte para PYUSD" sino algo más simple: deja de suponer, empieza a leer. Pregúntale a la blockchain quién es dueño del mint, y después construye la transferencia contra esa respuesta. Una lectura de mint por pago, cacheada si quieres, y desaparece toda la clase de fallas por programa equivocado. El lab convierte esto en una función de cinco líneas, y las cinco líneas importan menos que el hábito: en estos rieles, el mint es el archivo de configuración, y es público. Léelo.
 
 Sé preciso sobre dónde cae esa falla, porque cambia cómo la depuras. Nada lanza mientras construyes. Tu `TransferChecked` de la lección pasada hardcodea el id del programa clásico y deriva cuentas de token debajo de él, y los dos son bytes que se ven válidos, así que el mensaje se construye y se firma sin problemas. El rechazo le pertenece al programa Token clásico: cuando le entregan una cuenta de mint que no le pertenece, revisa el campo owner y da error. Pero con el tramo final de envío del kit nunca llega a decirlo en la blockchain. Antes de transmitir, el RPC pasa tu transacción firmada por un dry-run contra el estado actual —la **simulación de preflight**— y la comprobación de owner se dispara ahí. `sendAndConfirmTransactionFactory` lo expone como una promesa rechazada que lleva `Transaction simulation failed` más el error del programa, y la transacción nunca aterriza: ninguna entrada en el explorador, y `getSignatureStatuses` sobre tu firma devuelve null incluso con la búsqueda en el historial activada. Solo si desactivaras ese dry-run (`skipPreflight`) el mismo rechazo pasaría en la blockchain, te costaría la comisión y dejaría atrás una transacción fallida. El paso 6 del lab te hace pisar la misma mina desde la CLI, que la atrapa en una tercera costura, todavía más temprana.
 
-![Una transferencia al programa equivocado se construye y se firma sin problemas, y después muere en la simulación de preflight del RPC cuando el programa Token clásico encuentra un owner que no coincide — rechazada antes de transmitirse, sin rastro en la blockchain.](assets/v02-flowchart.png)
+![Una transferencia al programa equivocado se construye y se firma sin problemas, y después muere en la simulación de preflight del RPC cuando el programa Token clásico encuentra un owner que no coincide — rechazada antes de transmitirse, sin rastro en la blockchain.](assets/v02-flowchart.webp)
 
 Molesto en el peor momento, claro, pero este es el buen modo de falla: el programa rechazó en vez de mover dinero mal. Guarda ese instinto mientras avanzamos, porque los rechazos ruidosos son un feature que vas a construir dentro de tu propio kit hoy, esta vez localmente, antes de que se gaste una sola firma.
 
@@ -56,7 +56,7 @@ Una sola decisión de diseño hace posible todo tu lab: las extensiones se agreg
 
 PYUSD es el ejemplo trabajado al que apunta todo el ecosistema. Su mint carga ocho extensiones TLV: mintCloseAuthority, permanentDelegate, transferFeeConfig, confidentialTransferMint, confidentialTransferFeeConfig, transferHook, metadataPointer, tokenMetadata. Ocho es el número que te sale contando entradas TLV; a veces vas a oír siete, contando el par confidencial como una sola suite. Leemos todo esto en vivo en el lab, pero tres de las ocho merecen toda la atención de un comercio ahora mismo.
 
-![El mint de PYUSD dibujado como una tarjeta con el layout clásico arriba y ocho filas de extensiones TLV agregadas, tres de ellas marcadas para la atención del comercio.](assets/v03-diagram.png)
+![El mint de PYUSD dibujado como una tarjeta con el layout clásico arriba y ocho filas de extensiones TLV agregadas, tres de ellas marcadas para la atención del comercio.](assets/v03-diagram.webp)
 
 **permanentDelegate** es la que hay que mirar con calma. Nombra una autoridad permanente, aquí el emisor, que puede sacar PYUSD de la cuenta de token de cualquier tenedor. Cualquier billetera, cualquier saldo, ninguna firma del tenedor. Eso es capacidad de incautación, y no es un bug ni un riesgo de hackeo: es política del emisor, la expresión en la blockchain de la obligación que tiene una empresa regulada de congelar y recuperar fondos bajo una orden judicial. Tu código de transferencia no la agrega, no puede quitarla y nunca la dispara. Pero cuando le pones precio a una venta en PYUSD, aceptas un activo cuyo emisor conserva ese poder, y deberías saberlo igual que sabes que tu adquirente de tarjetas puede revertir una liquidación.
 
@@ -66,7 +66,7 @@ Y entiende dónde mordería una comisión distinta de cero: se retiene del monto
 
 **transferHook** deja que un mint adjunte un programa que corre en cada transferencia, y que puede agregar cuentas requeridas extra a la instrucción. En PYUSD está configurado pero dormido: la extensión está presente y el id del programa del hook es null, así que las transferencias de hoy no necesitan nada extra. Tu kit va a revisar esto y va a rechazar ruidosamente si alguna vez se encuentra con un mint con un hook activo, porque una transferencia construida sin las cuentas del hook falla de maneras confusas. Construir la interfaz del hook de punta a punta explícitamente no es nuestro trabajo: esa profundidad del lado de la autoría — la interfaz de transfer-hook y el resto de las tripas de las extensiones — es territorio del curso Digital Assets, Tokenization and Token Extensions. Este curso lee y enruta, nada más.
 
-![Una tabla de tres filas con los poderes del emisor: un delegado permanente que puede incautar tokens, una comisión de transferencia cambiable que hoy está en cero centésimos de punto porcentual, y un transfer hook dormido.](assets/v04-comparison.png)
+![Una tabla de tres filas con los poderes del emisor: un delegado permanente que puede incautar tokens, una comisión de transferencia cambiable que hoy está en cero centésimos de punto porcentual, y un transfer hook dormido.](assets/v04-comparison.webp)
 
 Las cinco restantes, rápido: mintCloseAuthority deja que el emisor cierre la propia cuenta del mint; el par confidencial habilita transferencias con montos cifrados (opt-in, y no es algo que un checkout necesite); metadataPointer y tokenMetadata ponen el nombre y el símbolo del token en la cuenta del mint en vez de en un registro externo. Poderes ordinarios, que vale la pena nombrar, nada sobre lo que una integración de pagos tenga que actuar.
 
@@ -74,7 +74,7 @@ Esta es la disyuntiva honesta sobre la que está construida esta lección. Un ki
 
 Vale preguntarse por qué PayPal se tomó la molestia de toda esta maquinaria. La respuesta es que funcionó: PYUSD llegó a alrededor de $332M de capitalización de mercado dentro de los cuatro meses de su lanzamiento en Solana, con PayPal declarando en Breakpoint 2024 por qué eligieron estos rieles, y el conjunto de extensiones del mint (poder de incautación, hook dormido, capacidad confidencial) es exactamente lo que un emisor regulado necesita para satisfacer a sus reguladores mientras liquida en segundos. Las extensiones son el departamento de cumplimiento, compilado.
 
-![Una línea de tiempo de cuatro puntos desde el lanzamiento de PYUSD en Solana, pasando por alrededor de 332 millones de dólares en capitalización de mercado y PayPal en Breakpoint 2024, hasta la lectura en vivo del mint en 2026.](assets/v05-timeline.png)
+![Una línea de tiempo de cuatro puntos desde el lanzamiento de PYUSD en Solana, pasando por alrededor de 332 millones de dólares en capitalización de mercado y PayPal en Breakpoint 2024, hasta la lectura en vivo del mint en 2026.](assets/v05-timeline.webp)
 
 ### El resto del roster de 2026
 
@@ -88,7 +88,7 @@ A tu checkout le van a pedir más que USDC y PYUSD. Este es el resto del roster,
 
 Después está el grupo de los que rinden intereses: stablecoins cuyo saldo o valor de rescate crece porque la reserva genera intereses. Se ven como un mint más, y tratarlos como USDC común es un error, porque sus mecánicas (saldos que hacen rebasing, precios por participación que se acumulan, restricciones de transferencia) se meten exactamente en la contabilidad que hace tu tienda. No los estamos cubriendo, a propósito; sus mecánicas son territorio de DeFi and RWA Engineering. Si un socio te pide aceptar uno, esa profundidad es el prerrequisito, no este párrafo.
 
-![Una tabla de roster con USDC, PYUSD, EURC, USDG y USDT con el programa dueño y los decimales de cada mint, más una fila de traspaso para los tokens que rinden intereses.](assets/v06-comparison.png)
+![Una tabla de roster con USDC, PYUSD, EURC, USDG y USDT con el programa dueño y los decimales de cada mint, más una fila de traspaso para los tokens que rinden intereses.](assets/v06-comparison.webp)
 
 ### Cómo viaja USDC: CCTP en una sección
 
@@ -98,7 +98,7 @@ La vieja respuesta de los puentes era lock-and-wrap: estacionar el token real en
 
 Dos hechos específicos de Solana para guardarte. En el esquema de direccionamiento de CCTP cada blockchain es un dominio numerado, y Solana es el dominio 5 (Ethereum es el dominio 0); vas a ver ese número en los mensajes y logs de CCTP cuando depures una llegada cross-chain. Y la velocidad, con la dirección dicha con cuidado, porque este es el detalle que cada resumen de CCTP entiende al revés. Tanto la ruta estándar como la rápida esperan en la blockchain de **origen** — los propios docs de Circle limitan la disponibilidad de Fast Transfer a las blockchains de origen, ya que lo que se está esperando es que la quema se vuelva irreversible donde ocurrió. Así que los tan citados "unos 8 segundos" son la cifra para Solana *como origen*, no para las llegadas hacia Solana. Un comprador que cruza por puente desde Ethereum espera a la finality de Ethereum, y su ruta rápida es correspondientemente más lenta que 8 segundos, aunque sigue siendo una gran mejora sobre la ruta estándar. La tabla de Circle hace concreta la brecha, y es más ancha de lo que admite la mayoría de los artículos. Con Solana como origen, la estándar son 32 confirmaciones, unos 25 segundos. Con Ethereum como origen, la estándar son alrededor de 65 confirmaciones, unos 15 a 19 minutos. Así que "la ruta estándar tarda alrededor de un cuarto de hora" es un hecho sobre Ethereum citado como un hecho sobre CCTP; no hay una sola duración de ruta estándar que citar. Lee la tabla por blockchain de Circle para el origen desde el que de verdad pagan tus clientes, y cita esa fila en vez de la de Solana. El punto de producto sobrevive igual: los compradores cross-chain dejan de ser un ticket de soporte y se vuelven un pago normal que llega un poco tarde.
 
-![Un diagrama de flujo que contrasta CCTP, que quema USDC y lo acuña de forma nativa en el dominio 5 de Solana después de esperar la finality de la blockchain de origen, contra los puentes lock-and-wrap que guardan tokens en un pool.](assets/v07-flowchart.png)
+![Un diagrama de flujo que contrasta CCTP, que quema USDC y lo acuña de forma nativa en el dominio 5 de Solana después de esperar la finality de la blockchain de origen, contra los puentes lock-and-wrap que guardan tokens en un pool.](assets/v07-flowchart.webp)
 
 Para tu integración el remate es casi anticlimático, y anticlimático es la meta. No integras CCTP en este curso; las billeteras y los on-ramps lo manejan. Tú solo recibes USDC. Todo lo que construiste la lección pasada, y todo lo que construyes hoy, ya maneja la llegada.
 
@@ -259,7 +259,7 @@ npx tsx scripts/read.mts 2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo
 
 Antes del código de envío, ten toda la ruta en la cabeza. El nuevo camino de decisión del kit por pago:
 
-![Un diagrama de flujo del camino de envío: detectar el programa dueño del mint, rechazar dueños desconocidos y transfer hooks activos, y después enrutar cada transferencia hacia un tramo final compartido de firmar-y-confirmar.](assets/v08-flowchart.png)
+![Un diagrama de flujo del camino de envío: detectar el programa dueño del mint, rechazar dueños desconocidos y transfer hooks activos, y después enrutar cada transferencia hacia un tramo final compartido de firmar-y-confirmar.](assets/v08-flowchart.webp)
 
 5. Reescribe `src/send.ts` para que la ruta de arriba sea real. Esto reemplaza la versión hardcodeada de la lección pasada; el pipe de abajo queda intacto, que es el punto:
 

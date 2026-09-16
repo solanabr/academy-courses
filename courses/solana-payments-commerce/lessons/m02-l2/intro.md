@@ -36,13 +36,13 @@ Every account on Solana has an `owner` field naming the program that is allowed 
 
 For years there was effectively one answer, the classic Token program at `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`, so a generation of payment code hardcoded it and got away with it. Then Token-2022 arrived at `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`: a second, separate token program, same core interface, plus an extension system the classic program never had. It did not replace the classic program. The two run side by side, and a mint lives on one or the other, forever. USDC is classic. PYUSD is Token-2022. Both are dollars; the dollar is not the machine.
 
-![Two mint cards, USDC and PYUSD, each with an owner arrow to a different token program, above a rule that transfers must target the mint's owner.](assets/v01-diagram.png)
+![Two mint cards, USDC and PYUSD, each with an owner arrow to a different token program, above a rule that transfers must target the mint's owner.](assets/v01-diagram.webp)
 
 So the fix for the kit is not "add PYUSD support" but something simpler: stop assuming, start reading. Ask the chain who owns the mint, then build the transfer against that answer. One mint read per payment, cached if you like, and the whole class of wrong-program failures disappears. The lab makes this a five-line function, and the five lines matter less than the habit: on these rails, the mint is the configuration file, and it is public. Read it.
 
 Be precise about where that failure lands, because it changes how you debug it. Nothing throws while you build. Your `TransferChecked` from last lesson hardcodes the classic program id and derives token accounts under it, and both of those are valid-looking bytes, so the message builds and signs cleanly. The refusal belongs to the classic Token program: handed a mint account it does not own, it checks the owner field and errors. But with the kit's send tail it never gets to say so on-chain. Before broadcasting, the RPC runs your signed transaction through a dry-run against current state — the **preflight simulation** — and the owner check fires there. `sendAndConfirmTransactionFactory` surfaces it as a rejected promise carrying `Transaction simulation failed` plus the program's error, and the transaction never lands: no explorer entry, and `getSignatureStatuses` on your signature returns null even with history search turned on. Only if you disabled that dry-run (`skipPreflight`) would the same refusal happen on-chain, cost you the fee, and leave a failed transaction behind. Step 6 of the lab has you trip the same landmine from the CLI, which catches it at a third, even earlier seam.
 
-![A wrong-program transfer builds and signs cleanly, then dies at the RPC's preflight simulation when the classic Token program finds an owner mismatch — refused before broadcast, no on-chain trace.](assets/v02-flowchart.png)
+![A wrong-program transfer builds and signs cleanly, then dies at the RPC's preflight simulation when the classic Token program finds an owner mismatch — refused before broadcast, no on-chain trace.](assets/v02-flowchart.webp)
 
 Annoying at the worst moment, sure, but this is the good failure mode: the program refused rather than moving money wrongly. Keep that instinct as we go, because loud refusals are a feature you will build into your own kit today, this time locally, before a signature is ever spent.
 
@@ -56,7 +56,7 @@ One design choice makes your whole lab possible: the extensions are appended aft
 
 PYUSD is the worked example the whole ecosystem points at. Its mint carries eight TLV extensions: mintCloseAuthority, permanentDelegate, transferFeeConfig, confidentialTransferMint, confidentialTransferFeeConfig, transferHook, metadataPointer, tokenMetadata. Eight is the count you get by counting TLV entries; you will sometimes hear seven, counting the confidential pair as one suite. We read all of this live in the lab, but three of the eight deserve a merchant's full attention right now.
 
-![The PYUSD mint drawn as a card with the classic layout on top and eight appended TLV extension rows, three of them flagged for merchant attention.](assets/v03-diagram.png)
+![The PYUSD mint drawn as a card with the classic layout on top and eight appended TLV extension rows, three of them flagged for merchant attention.](assets/v03-diagram.webp)
 
 **permanentDelegate** is the one to sit with. It names a standing authority, here the issuer, that can move PYUSD out of any holder's token account. Any wallet, any balance, no signature from the holder. That is seizure capability, and it is not a bug or a hack risk: it is issuer policy, the on-chain expression of a regulated company's obligation to freeze and claw back funds under a court order. Your transfer code does not add it, cannot remove it, and never triggers it. But when you price a sale in PYUSD, you accept an asset whose issuer retains that power, and you should know it the way you know your card acquirer can reverse a settlement.
 
@@ -66,7 +66,7 @@ And understand where a nonzero fee would bite: it is withheld from the transferr
 
 **transferHook** lets a mint attach a program that runs on every transfer, which can add extra required accounts to the instruction. On PYUSD it is configured but dormant: the extension is present and the hook program id is null, so transfers today need nothing extra. Your kit will check this and refuse loudly if it ever meets a mint with a live hook, because a transfer built without the hook's accounts fails in confusing ways. Building the hook interface end to end is explicitly not our job: that authoring-side depth — the transfer-hook interface and the rest of the extension internals — is the Digital Assets, Tokenization and Token Extensions course's territory. This course reads and routes, nothing more.
 
-![A three-row table of issuer powers: a permanent delegate that can seize tokens, a changeable transfer fee currently at zero basis points, and a dormant transfer hook.](assets/v04-comparison.png)
+![A three-row table of issuer powers: a permanent delegate that can seize tokens, a changeable transfer fee currently at zero basis points, and a dormant transfer hook.](assets/v04-comparison.webp)
 
 The remaining five, quickly: mintCloseAuthority lets the issuer close the mint account itself; the confidential pair enables encrypted-amount transfers (opt-in, and not something a checkout needs); metadataPointer and tokenMetadata put the token's name and symbol on the mint account instead of in an external registry. Ordinary powers, worth naming, nothing a payment integration must act on.
 
@@ -74,7 +74,7 @@ Here is the honest trade this lesson is built around. A kit that speaks both tok
 
 Worth asking why PayPal bothered with all this machinery. The answer is that it worked: PYUSD reached about $332M in market cap within four months of its Solana launch, with PayPal on record at Breakpoint 2024 about why they picked these rails, and the mint's extension set (seizure power, dormant hook, confidential capability) is exactly what a regulated issuer needs to satisfy its regulators while settling in seconds. The extensions are the compliance department, compiled.
 
-![A four-point timeline from PYUSD's Solana launch, through roughly 332 million dollars of market cap and PayPal at Breakpoint 2024, to the live 2026 mint read.](assets/v05-timeline.png)
+![A four-point timeline from PYUSD's Solana launch, through roughly 332 million dollars of market cap and PayPal at Breakpoint 2024, to the live 2026 mint read.](assets/v05-timeline.webp)
 
 ### The rest of the 2026 roster
 
@@ -88,7 +88,7 @@ Your checkout will be asked for more than USDC and PYUSD. Here is the rest of th
 
 Then there is the yield-bearing crowd: stablecoins whose balance or redemption value grows because the reserve throws off interest. They look like just another mint, and treating them as plain USDC is a mistake, because their mechanics (rebasing balances, accruing share prices, transfer restrictions) reach into exactly the accounting your storefront does. We are not covering them, on purpose; their mechanics are DeFi and RWA Engineering territory. If a partner asks you to accept one, that depth is the prerequisite, not this paragraph.
 
-![A roster table of USDC, PYUSD, EURC, USDG, and USDT with each mint's owner program and decimals, plus a hand-off row for yield-bearing tokens.](assets/v06-comparison.png)
+![A roster table of USDC, PYUSD, EURC, USDG, and USDT with each mint's owner program and decimals, plus a hand-off row for yield-bearing tokens.](assets/v06-comparison.webp)
 
 ### How USDC travels: CCTP in one section
 
@@ -98,7 +98,7 @@ The old bridge answer was lock-and-wrap: park the real token in a pool on the so
 
 Two Solana-specific facts to keep. In CCTP's addressing scheme every chain is a numbered domain, and Solana is domain 5 (Ethereum is domain 0); you will see that number in CCTP messages and logs when you debug a cross-chain arrival. And speed, with the direction stated carefully, because this is the detail every summary of CCTP gets backwards. Both the standard and the fast path wait on the **source** chain — Circle's own docs scope Fast Transfer availability to source chains, since what is being waited on is the burn becoming irreversible where it happened. So the widely-quoted "about 8 seconds" is the figure for Solana *as the source*, not for arrivals into Solana. A buyer bridging in from Ethereum waits out Ethereum's finality, and their fast path is correspondingly slower than 8 seconds while still being a large improvement on the standard route. Circle's table makes the spread concrete, and it is wider than most write-ups admit. With Solana as source, standard is 32 confirmations, about 25 seconds. With Ethereum as source, standard is roughly 65 confirmations, about 15 to 19 minutes. So "the standard route takes about a quarter of an hour" is an Ethereum fact being quoted as a CCTP fact; there is no single standard-route duration to quote. Read Circle's per-chain table for whichever source your customers actually pay from, and quote that row rather than the Solana one. The product point survives either way: cross-chain shoppers stop being a support ticket and become a normal payment that arrives slightly late.
 
-![A flowchart contrasting CCTP, which burns USDC and natively mints it on Solana domain 5 after waiting out the source chain's finality, against lock-and-wrap bridges holding tokens in a pool.](assets/v07-flowchart.png)
+![A flowchart contrasting CCTP, which burns USDC and natively mints it on Solana domain 5 after waiting out the source chain's finality, against lock-and-wrap bridges holding tokens in a pool.](assets/v07-flowchart.webp)
 
 For your integration the punchline is almost anticlimactic, and anticlimactic is the goal. You do not integrate CCTP in this course; wallets and on-ramps drive it. You just receive USDC. Everything you built last lesson, and everything you build today, already handles the arrival.
 
@@ -259,7 +259,7 @@ npx tsx scripts/read.mts 2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo
 
 Before the send code, hold the full route in your head. The kit's new decision path per payment:
 
-![A flowchart of the send path: detect the mint's owner program, refuse unknown owners and live transfer hooks, then route each transfer into a shared sign-and-confirm tail.](assets/v08-flowchart.png)
+![A flowchart of the send path: detect the mint's owner program, refuse unknown owners and live transfer hooks, then route each transfer into a shared sign-and-confirm tail.](assets/v08-flowchart.webp)
 
 5. Rewrite `src/send.ts` so the route above is real. This replaces last lesson's hardcoded version; the pipe at the bottom is untouched, which is the point:
 

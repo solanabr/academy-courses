@@ -23,7 +23,7 @@ Los hallazgos por delante:
 
 Piensa en esta noche como la noche de estreno de una sala. Cada instrumento llegó en su propio estuche y pasó su propia prueba de banco. La prueba de sonido no es sobre ningún instrumento; es sobre si la sala funciona cuando todo suena a la vez. Igual aquí: el ensamblaje es una disciplina propia, con sus propios modos de falla, y ninguno de ellos vive dentro de un solo peldaño.
 
-![Diagrama de arquitectura de tres procesos: un servidor montando las superficies de transaction-request, gasless, blink y x402, un worker de webhook, y un crank de subscriptions aislado como la isla kit-7, todos compartiendo transfer-kit y un solo libro mayor de pedidos.](assets/v01-diagram.png)
+![Diagrama de arquitectura de tres procesos: un servidor montando las superficies de transaction-request, gasless, blink y x402, un worker de webhook, y un crank de subscriptions aislado como la isla kit-7, todos compartiendo transfer-kit y un solo libro mayor de pedidos.](assets/v01-diagram.webp)
 
 ### El journey del comprador es la spec
 
@@ -39,7 +39,7 @@ Los tramos, en el orden en que el script los corre. Un comprador, guionado, en d
 6. **El agente le paga a la API tres veces.** Un agente que paga le pega al endpoint de precios de prensado, se come el 402, liquida, y lo hace dos veces más. Tres ids de factura de memo se concilian en el libro mayor.
 7. **Un reembolso.** Un pago push inverso a través de transfer-kit, registrado contra la firma de origen.
 
-![Diagrama de flujo de los siete tramos del journey desde el ramp stub hasta el reembolso, cada uno alimentando al verificador compartido del lado del servidor que comprueba el programa de tokens, el mint, el delta de saldo y el memo antes de imprimir PASS.](assets/v02-flowchart.png)
+![Diagrama de flujo de los siete tramos del journey desde el ramp stub hasta el reembolso, cada uno alimentando al verificador compartido del lado del servidor que comprueba el programa de tokens, el mint, el delta de saldo y el memo antes de imprimir PASS.](assets/v02-flowchart.webp)
 
 El journey no es un recorrido de UI, y ningún tramo confía nunca en un toast de billetera, un payload de webhook o una respuesta 200 como prueba. El curso tiene un solo harness de aceptación, el verificador de m04, y el journey lo llama una vez por tramo: vuelve a traer la transacción con `getTransaction`, comprueba el programa de tokens, después el mint, después el delta de saldo en la cuenta de token PROPIEDAD del comercio (con clave en el owner, la manera en que el verificador le ha puesto clave desde m04 — esa elección es lo que atrapa el fixture de mint equivocado), después el memo. Una transacción patrocinada recibe el mismo trato que una común. La co-firma de Kora cambia quién pagó la comisión; no cambia nada sobre qué merece que se le crea.
 
@@ -51,7 +51,7 @@ Sé exacto sobre qué los mantiene separados, eso sí, porque la lección de sus
 
 Esos rangos de peers se volvieron a verificar contra npm en la lección de suscripciones el 2026-08-22; corre `npm view @solana/subscriptions@0.5.0 peerDependencies` tú mismo antes de instalar nada hoy, porque este rincón de npm se ha movido dos veces este trimestre y nunca, en ningún lado, fijes a `latest`.
 
-![Diagrama del monorepo listando las quince carpetas de workspace con el workspace subscriptions aislado como la única isla kit-7 y el nuevo workspace stack resaltado del lado kit-6.](assets/v03-diagram.png)
+![Diagrama del monorepo listando las quince carpetas de workspace con el workspace subscriptions aislado como la única isla kit-7 y el nuevo workspace stack resaltado del lado kit-6.](assets/v03-diagram.webp)
 
 No todos los peldaños se llevaron su propia carpeta, y vale la pena decirlo en voz alta: el embed del ramp vive dentro del workspace wavelength-checkout porque creció a partir de ese servidor, el gate de MPP es un archivo de config parado delante del workspace x402 en vez de un código propio, y el registro de decisión de corredores es un documento, no un proceso. Los peldaños son capacidades, no directorios. Tu roster puede diferir del mío en los nombres; el array workspaces es la fuente de verdad, y tiene que listar lo que de verdad construiste.
 
@@ -65,7 +65,7 @@ Aquí está la acumulación, mostrada en vez de afirmada, porque una afirmación
 
 **Tres protocolos, un solo libro mayor.** Un checkout con QR, un pull de suscripción y una llamada de agente x402 son puertas de entrada salvajemente distintas, y cada una de ellas aterriza como una fila en el mismo libro mayor de pedidos del back office, con la misma clave. Los ids de factura de `extra.memo` del tramo de x402 (256 bytes máximo, de la spec v2 de x402) se concilian por el mismo camino que un memo de checkout. Una sola historia de conciliación para todo el negocio.
 
-![Línea de tiempo mostrando los artefactos de los módulos dos a ocho, cada uno alimentando el ensamblaje final de wavelength-stack, desde transfer-kit como el core compartido hasta la checklist de prod-gate al final.](assets/v04-timeline.png)
+![Línea de tiempo mostrando los artefactos de los módulos dos a ocho, cada uno alimentando el ensamblaje final de wavelength-stack, desde transfer-kit como el core compartido hasta la checklist de prod-gate al final.](assets/v04-timeline.webp)
 
 ### El harness es delgado a propósito
 
@@ -91,7 +91,7 @@ Una elección deliberada más: el journey nunca reusa ids de pedido entre corrid
 
 Cuatro modos de falla explican la mayor parte del dolor de este lab, y te los entrego por delante porque, en mi experiencia con las semanas de integración, eso cambia el debugging de horas a minutos.
 
-![Tabla que empareja cuatro trampas del ensamblaje, contaminación cruzada de kit, guarda de idempotencia faltante, fila de la feria sin drenar y límites de tasa de devnet, con sus síntomas observables y sus arreglos.](assets/v05-comparison.png)
+![Tabla que empareja cuatro trampas del ensamblaje, contaminación cruzada de kit, guarda de idempotencia faltante, fila de la feria sin drenar y límites de tasa de devnet, con sus síntomas observables y sus arreglos.](assets/v05-comparison.webp)
 
 La última fila merece una oración extra, porque es la que engaña a la gente bajo presión de demo: el RPC público de devnet te va a limitar la tasa a mitad del journey, y una lectura que da timeout se ve exactamente igual que un tramo que falló. La distinción que importa es *qué lado dijo que no*. Un timeout es la infraestructura de lectura encogiéndose de hombros; lo reintentas. Un rechazo del verificador es tu harness de aceptación hablando; eso nunca lo reintentas, lo investigas.
 
@@ -99,7 +99,7 @@ La última fila merece una oración extra, porque es la que engaña a la gente b
 
 Nombra la contrapartida antes del lab, como siempre. El monorepo ensamblado corre cada servicio en un solo árbol de procesos sobre una sola máquina contra devnet, y eso es exactamente lo correcto para un capstone de enseñanza y lo equivocado para producción. Un despliegue de verdad separa el worker, el crank y la API con paywall en servicios separados y de vida larga, con su propio monitoreo y sus propias políticas de reinicio, y nunca comparte un solo firmante entre todos ellos: el radio de impacto de una llave filtrada debería ser un servicio, no toda tu tienda. El capstone demuestra el cableado y la disciplina de verificar-del-lado-del-servidor. No demuestra una postura de ops, y las disciplinas más profundas de aterrizaje e indexado que necesita una versión de alto volumen son territorio del curso Client-Side Mastery, como lo han sido cada vez que este curso las tocó.
 
-![Comparación del stack de enseñanza contra un despliegue de producción a través de procesos, firmantes, monitoreo y red, terminando con las invariantes que se trasladan, verificación del lado del servidor, idempotencia, un solo libro mayor y pins por workspace.](assets/v06-comparison.png)
+![Comparación del stack de enseñanza contra un despliegue de producción a través de procesos, firmantes, monitoreo y red, terminando con las invariantes que se trasladan, verificación del lado del servidor, idempotencia, un solo libro mayor y pins por workspace.](assets/v06-comparison.webp)
 
 ¿Algo de esto es real fuera de un repo de curso? Sip, y con números. Helius corre su propia facturación sobre el mismo programa oficial de Subscriptions que integraste, el programa `De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44` (el prefijo vanity `De1eg` nombra al programa de Delegation on-chain sobre el que corre el producto Subscriptions, el mismo nombrado que usan los códigos de error de su cliente), y declara su política de dunning con las mismas palabras que codifica tu máquina de estados: una renovación fallida no se reintenta contra la billetera, se vuelve una factura abierta (su blog de ingeniería, traído el 2026-08-21). Tu tramo de falla forzada afirma el comportamiento exacto sobre el que una empresa de infraestructura de verdad apuesta sus ingresos. Y el tramo del agente tampoco es especulativo: el dashboard de x402.org, la misma ventana móvil de 30 días que leíste en la lección de x402, reportó 75.41M transacciones y 24.24 millones de dólares en volumen cuando lo consulté el 2026-08-21. Los rieles a los que les estás haciendo la prueba de sonido esta noche están cargando peso real en el mundo, a escala de juego, ahora mismo.
 
@@ -216,7 +216,7 @@ Montar en la raíz importa para una superficie en particular: el `actions.json` 
 
 Un prerrequisito que la superficie gasless carga y las otras no: habla con un nodo de Kora. Su constructor cotiza y co-firma contra `http://localhost:8080`, así que ese nodo tiene que estar corriendo antes de que arranque el journey, exactamente como era en la lección de gasless. No es uno de los tres hijos de boot.ts de abajo, porque es un binario externo y no un proceso que arrancas tú, al lado del pay gate en ese sentido.
 
-![Mapa de rutas del servidor único en el puerto 3000 ramificándose hacia la comprobación de salud, la transaction request, la ruta gasless de Kora montada, las actions del blink montadas en la raíz, y la ruta de pago de x402 (el gate de MPP corre como un proceso separado y no está montado aquí).](assets/v07-diagram.png)
+![Mapa de rutas del servidor único en el puerto 3000 ramificándose hacia la comprobación de salud, la transaction request, la ruta gasless de Kora montada, las actions del blink montadas en la raíz, y la ruta de pago de x402 (el gate de MPP corre como un proceso separado y no está montado aquí).](assets/v07-diagram.webp)
 
 Una palabra sobre la superficie más callada del módulo de protocolos, porque es fácil recordarla mal como si ya estuviera cableada. El camino del desafío de MPP NO viaja dentro de la app de x402: en el módulo 7 el desafío `WWW-Authenticate: Payment` lo servía el proceso `pay gate` separado, manejado por `paywall.yml` y proxeando un upstream libre de pago, y nada esta noche cambia esa arquitectura — exactamente el "archivo de config parado delante del workspace x402" de la nota del roster de arriba. boot.ts hace spawn de tres procesos, servidor, worker, crank, y un pay gate no es uno de ellos, así que el stack ensamblado habla x402 nada más. Si quieres el lado de MPP en vivo es una terminal más, no código nuevo: expón una ruta pelada de precios de prensado para que el gate la proxee (la ruta montada en x402 no puede ser su upstream, porque el gate exige una libre de pago), apunta `paywall.yml` hacia ella, y corre el gate en :4021 exactamente como en el módulo 7. Construiste para el riel que tiene tráfico; el que viene se queda a un comando documentado de distancia, que es la postura honesta para una spec de método de pago que todavía se mueve en su propio repo en vez de estar sentada en el reloj de algún organismo de estándares.
 
@@ -486,11 +486,11 @@ if (!result.ok) throw new Error(result.reason);
 
 Doce USDC y medio de devnet — el precio de catálogo del prensado, sin cambios desde que la lección de transaction-request lo fijó — en unidades base, contra el mint de devnet que tu config de transfer-kit tiene fijado desde el módulo 2. Para el tramo gasless, agrega las dos lecturas específicas del patrocinio sobre la misma transacción traída: el fee payer tiene que ser igual al firmante de Kora y no tiene que ser igual al comprador, y el delta de lamports del comprador tiene que ser exactamente cero. Para la mitad de dunning del tramo 4, la afirmación no es sobre una transacción en absoluto; es una lectura del libro mayor que demuestra que la falla forzada se volvió una factura abierta y que no existe ninguna transacción de reintento contra la billetera del comprador.
 
-![Diagrama de flujo de una renovación fallida forzada donde el camino que pasa registra una factura abierta sin reintento de billetera, mientras que un reintento de billetera o un revoke de autoridad fallan.](assets/v08-flowchart.png)
+![Diagrama de flujo de una renovación fallida forzada donde el camino que pasa registra una factura abierta sin reintento de billetera, mientras que un reintento de billetera o un revoke de autoridad fallan.](assets/v08-flowchart.webp)
 
 Para el tramo del agente, recuerda que la afirmación tiene tres lados: la llamada sin pagar tiene que volver 402, las tres llamadas pagadas tienen que liquidar en devnet, y los tres ids de factura de `extra.memo` tienen que aparecer en el libro mayor del back office. El dinero que aterriza pero nunca se concilia hace fallar el tramo. Eso es deliberado, y es la misma lección que el libro mayor viene enseñando desde el módulo 4: en el comercio, un pago sin conciliar es un pasivo con disfraz de éxito.
 
-![Flujo de un agente recibiendo un 402, pagando con el header de firma de pago, y después leyendo una respuesta de pago cuyo id de factura de memo se concilia en el libro mayor, repetido tres veces.](assets/v09-flowchart.png)
+![Flujo de un agente recibiendo un 402, pagando con el header de firma de pago, y después leyendo una respuesta de pago cuyo id de factura de memo se concilia en el libro mayor, repetido tres veces.](assets/v09-flowchart.webp)
 
 Ese es el lab entero, y decirlo así es la última jugada didáctica de la lección: seis pasos, dos archivos nuevos, cero código de pago nuevo. Todo lo demás que vas a escribir esta noche son cuerpos de tramos del journey llamando a interfaces que ya son tuyas.
 

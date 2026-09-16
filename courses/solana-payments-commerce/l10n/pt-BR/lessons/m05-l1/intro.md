@@ -59,7 +59,7 @@ Leia isso como uma frase: "este endereço pode mover no máximo 60 USDC desta mi
 
 Depois que isso aterrissa, a conta de token do assinante carrega três fatos que ela não carregava antes: um endereço `delegate`, um `delegatedAmount`, e mais nada. Sem nome de plano, sem cadência de cobrança, sem metadados. O Token program guarda um número e um endereço, e tudo o que uma "assinatura" significa além disso é problema seu, off-chain. Segure esse pensamento; a fatura disso vence no fim da lição.
 
-![O ApproveChecked escreve apenas um endereço de delegado e um delegatedAmount na própria conta de token do assinante; a propriedade e o saldo ficam intocados, e o poder do crank é delimitado por esses dois campos.](assets/v01-diagram.png)
+![O ApproveChecked escreve apenas um endereço de delegado e um delegatedAmount na própria conta de token do assinante; a propriedade e o saldo ficam intocados, e o poder do crank é delimitado por esses dois campos.](assets/v01-diagram.webp)
 
 A saída é ainda menor. O `Revoke` recebe a conta de origem e a signature do dono, limpa os dois campos, e não precisa da permissão de ninguém:
 
@@ -75,7 +75,7 @@ Agora a restrição. Cada conta de token tem exatamente um slot de delegado ativ
 
 Rode a fita para a frente. O seu assinante ama o clube de discos. Em março ele também vira assinante de, digamos, um drop de café que roda o mesmo design de delegado cru na mesma conta de USDC. No momento em que a carteira dele assina o `ApproveChecked` da cafeteria, a aprovação do seu crank para de existir. O seu pull de abril falha. Ninguém fez nada errado: o assinante consentiu com os dois lojistas, os dois lojistas escreveram código correto, e a primitiva simplesmente não consegue segurar duas permissões vivas numa conta de token.
 
-![Estados da conta antes e depois mostrando que um assinante aprovando um segundo lojista sobrescreve o delegado e o limite restante do primeiro lojista sem nenhuma notificação.](assets/v02-comparison.png)
+![Estados da conta antes e depois mostrando que um assinante aprovando um segundo lojista sobrescreve o delegado e o limite restante do primeiro lojista sem nenhuma notificação.](assets/v02-comparison.webp)
 
 É por isso que a lição fica dizendo "a primitiva crua". Uma assinatura viva por (usuário, mint) é um teto de produto real, e nenhuma quantidade de código esperto de backend levanta ele, porque o teto está no próprio layout da conta. O que o código de backend CONSEGUE fazer é detectar o despejo com honestidade em vez de dar erro às cegas, e esse é o seu desafio de solo hoje. Levantar o teto exige um programa que ocupa o slot uma vez e multiplexa arranjos de cobrança reais atrás dele, que é precisamente a próxima lição.
 
@@ -85,7 +85,7 @@ A segunda coisa que a intuição treinada pela Stripe erra: o valor aprovado nã
 
 O clube de discos cobra 15 USDC por ciclo. O assinante aprovou 60. Então:
 
-![Um limite de 60 USDC desce por 45, 30 e 15 ao longo de quatro pulls bem-sucedidos; o quarto esvazia ele e o Token program limpa o delegado na mesma instrução, então o quinto pull acha um slot vazio, e só uma aprovação nova assinada pelo dono restaura os dois.](assets/v03-chart.png)
+![Um limite de 60 USDC desce por 45, 30 e 15 ao longo de quatro pulls bem-sucedidos; o quarto esvazia ele e o Token program limpa o delegado na mesma instrução, então o quinto pull acha um slot vazio, e só uma aprovação nova assinada pelo dono restaura os dois.](assets/v03-chart.webp)
 
 Quatro pulls e o tanque está seco, e o tanque leva a torneira junto. O Token program decrementa o `delegatedAmount` dentro da transferência assinada pelo delegado, e quando essa subtração cai em exatamente zero ele devolve o `delegate` da conta para nenhum na mesma instrução, que é o `null` que a sua guarda lê no ciclo seguinte: esgotar uma aprovação também limpa ela. Então a quinta transação não falha por limite vazio; ela falha porque a conta não tem mais delegado, o que faz da signature do crank só a signature de um estranho qualquer, e o Token program diz isso com `OwnerMismatch`, custom program error `0x4`. `InsufficientFunds`, custom program error `0x1`, é o caso vizinho: um limite pequeno demais para este pull mas ainda não zero, digamos 10 restantes contra uma cobrança de 15 USDC, onde o slot ainda é seu. De um jeito ou de outro a conta continua segurando bastante USDC; a permissão de mover ele é o que foi gasto. Não tem nada que o crank possa fazer a respeito a não ser pedir para o assinante assinar de novo. Isso parece um inconveniente e na verdade é uma feature: o assinante pré-consentiu com um total delimitado, e a fronteira está fazendo o trabalho dela. Uma aprovação de 60 USDC é quatro meses de clube, uma cadência natural de reconsentimento. Você podia pedir 600 adiantado e puxar por anos; alguns produtos vão pedir, e os usuários deles que cancelaram vão descobrir um limite vivo que esqueceram. Onde você põe o teto é uma decisão de produto que a blockchain não vai tomar por você. A blockchain só impõe o número que o dono assinou.
 
@@ -114,7 +114,7 @@ Porque é o mesmo formato de instrução, tudo o que os módulos 3 e 4 ensinaram
 
 O trabalho de verdade do crank, então, não é a transferência, é o parágrafo antes dela: decidir se puxar ainda é legítimo. Vou confessar o erro para você poder pular ele: o primeiro crank que eu montei cacheou o estado da aprovação no cadastro, porque por que é que ele mudaria? Uma carteira de teste reaprovou um delegado diferente no meio do ciclo, o meu crank submeteu mesmo assim, e eu passei uma noite encarando um custom program error 0x4 num log de transação antes de cair a ficha. O estado da conta é o livro-razão. O seu banco de dados é um cache com opiniões. Então o crank relê a conta de token todo santo ciclo, antes de todo pull, e responde três perguntas:
 
-![Três checagens pré-pull mapeiam para desfechos: um delegado faltando recusa como delegate-revoked, seja porque o dono revogou ou porque um pull que esgotou limpou o slot; um delegado estranho recusa do mesmo jeito; um limite pequeno demais recusa como insufficient-allowance; e só um tudo-certo prossegue.](assets/v04-table.png)
+![Três checagens pré-pull mapeiam para desfechos: um delegado faltando recusa como delegate-revoked, seja porque o dono revogou ou porque um pull que esgotou limpou o slot; um delegado estranho recusa do mesmo jeito; um limite pequeno demais recusa como insufficient-allowance; e só um tudo-certo prossegue.](assets/v04-table.webp)
 
 O crank poderia pular a guarda e simplesmente submeter, deixando a blockchain rejeitar os pulls ruins? Mecanicamente sim, e os fundos ficariam exatamente tão seguros: o Token program impõe tudo o que a guarda checa. A guarda existe porque "transaction failed: custom program error 0x4" e "este assinante nos revogou, marque a assinatura como vencida" são fatos diferentes para um sistema de cobrança, e só um deles diz ao seu back office o que fazer em seguida. A blockchain te dá um não. A guarda te dá o motivo, antes de você gastar uma taxa para descobrir. Essas strings de motivo, `delegate-revoked` e `insufficient-allowance`, são o vocabulário da primitiva crua, e as próximas duas lições mantêm os dois nomes significativos uma camada abaixo: a guarda do programa oficial acrescenta os motivos dela por cima, e a nota de continuidade no Challenge da próxima lição percorre o mapeamento explicitamente.
 
@@ -124,7 +124,7 @@ Rode o pior cenário do assinante com honestidade, porque um cliente vai pergunt
 
 Suponha que a Wavelength vire do mal, ou mais realisticamente, que o par de chaves do crank vaze. O que quem segura ele consegue fazer? Assinar `TransferChecked` contra a conta de USDC do assinante, até o limite restante. Se três pulls já aconteceram, isso é no máximo 15 USDC. O que ele consegue fazer com o SOL do assinante? Nada; o delegado está em uma conta de token. Os outros saldos SPL dele e os NFTs dele moram em contas completamente diferentes, cada uma com o próprio slot de delegado intocado. Ele consegue aprovar para si mesmo um limite maior? Não: `ApproveChecked` exige a signature do dono. Ele consegue impedir o assinante de revogar? Não: `Revoke` exige só o dono. O raio de impacto de um crank totalmente comprometido é o limite não gasto exatamente nas contas que aprovaram ele, e cada um desses donos consegue zerar isso unilateralmente no momento em que o comprometimento for anunciado.
 
-![Uma chave de crank vazada alcança apenas o limite restante na única conta de USDC aprovada; SOL, outros tokens, NFTs, autoaprovação e bloqueio de revogação ficam todos fora dessa fronteira.](assets/v05-diagram.png)
+![Uma chave de crank vazada alcança apenas o limite restante na única conta de USDC aprovada; SOL, outros tokens, NFTs, autoaprovação e bloqueio de revogação ficam todos fora dessa fronteira.](assets/v05-diagram.webp)
 
 Essa é a promessa não custodial, dita sem romance: não que o lojista seja honesto, mas que a honestidade dele não é estrutural. A fronteira mora no Token program, o mesmo caminho de código auditado que liquidou toda transferência SPL que este curso fez. Você não fez deploy de um programa hoje, e é esse o ponto: não existe contrato novo para um assinante auditar. A permissão que ele concede é imposta por código em que ele já confia pelo simples fato de segurar o token.
 
@@ -134,7 +134,7 @@ O ecossistema reparou neste formato. Quando a Superteam rodou o tema de bounty S
 
 O clube: 15 USDC de devnet por ciclo, aprovado em 60, então o livro-razão conta a história inteira em quatro pulls e uma recusa. Você vai jogar dos dois lados, assinante e lojista, com dois pares de chaves.
 
-![O assinante assina uma aprovação, o crank assina e paga a taxa de todo pull, e o lojista só recebe 15 USDC por ciclo.](assets/v06-diagram.png)
+![O assinante assina uma aprovação, o crank assina e paga a taxa de todo pull, e o lojista só recebe 15 USDC por ciclo.](assets/v06-diagram.webp)
 
 1. **Pares de chaves e fundos.** No workspace `club-crank`, cunhe duas identidades. A instalação do topo da lição já deve ter terminado a esta altura.
 
@@ -439,7 +439,7 @@ O clube: 15 USDC de devnet por ciclo, aprovado em 60, então o livro-razão cont
 
    Você ainda não consegue rodar `pull.ts` com sucesso; a guarda dele ainda lança. Essa ordem é deliberada. Vá preencher os TODOs.
 
-![Cada ciclo do crank lê a conta de novo, recusa com delegate-revoked ou insufficient-allowance, ou deixa passar um TransferChecked assinado pelo delegado, depois relê para confirmar o limite decrementado.](assets/v07-flowchart.png)
+![Cada ciclo do crank lê a conta de novo, recusa com delegate-revoked ou insufficient-allowance, ou deixa passar um TransferChecked assinado pelo delegado, depois relê para confirmar o limite decrementado.](assets/v07-flowchart.webp)
 
 ## Challenge
 

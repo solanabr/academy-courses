@@ -88,7 +88,7 @@ const link = undefined;
 
 The maintainers left the seam in on purpose. When `link` is a URL, the POS stops encoding transfer requests and starts encoding transaction requests, `solana:<https-link>`, aimed wherever `link` points. The commented line aims it at the app's own bundled API. You are going to aim it at checkout-txreq instead, because you already built the better endpoint: it prices server-side, it stamps the memo and reference, and last lesson's smoke test proves it returns a base64 transaction for a POSTed `{account}`.
 
-![Annotated App.tsx snippet showing the connectWallet flag and the link toggle: link undefined means the wallet builds a transfer, link set means your server builds it.](assets/v01-annotated-code.png)
+![Annotated App.tsx snippet showing the connectWallet flag and the link toggle: link undefined means the wallet builds a transfer, link set means your server builds it.](assets/v01-annotated-code.webp)
 
 ### How the sale actually flows
 
@@ -96,7 +96,7 @@ Trace one sale through the rewired stall, because two of the hops are new and on
 
 You key 0.15 on the number pad and hit generate. The POS takes your `link` URL and appends the sale to it as query parameters before encoding anything: the configured `recipient`, the keyed `amount`, your stall's `label`, and `reference`, a fresh single-use public key it mints for this sale with `generateKeyPairSigner` (the same 32-byte base58 reference discipline you have used since the first QR lesson). Then it encodes the whole thing with `encodeURL({ link })` and paints the QR. The customer scans. Their wallet does the two-step you implemented last lesson: GET to your endpoint for a label and icon, then POST `{account}` to the same URL, query string and all. Your server builds the transaction, the wallet signs and submits, and the POS polls `findReference` on the reference it minted until the signature shows up, then validates and flips to the confirmed screen.
 
-![Flowchart of a sale across three lanes (POS, customer wallet, server), from keying an amount and minting a reference through signing, submitting, and the POS confirming via findReference.](assets/v02-flowchart.png)
+![Flowchart of a sale across three lanes (POS, customer wallet, server), from keying an amount and minting a reference through signing, submitting, and the POS confirming via findReference.](assets/v02-flowchart.webp)
 
 Here is the hop that changes your endpoint's job: the amount arrived in the URL. Two lessons of this course have drilled "never trust a client-sent price," and now the price rides a query string again. So which is it?
 
@@ -133,7 +133,7 @@ Wire that into the POST handler you built last lesson as a branch: if the query 
 
 One parameter deserves a harder rule than validation. The POS also appends `recipient` to the query, and your endpoint should ignore it completely. The payee is configuration on your server, set once, not a value that arrives per request; an endpoint that pays whatever recipient the query names is an open redirect for money, because anyone who can reach the https URL can put their own address in it. Same story for `memo` if it shows up: your endpoint stamps its own memo with its own order id, and that stays true at the stall. The query is allowed to tell you how much this sale is. It is never allowed to tell you who gets paid or what the books say.
 
-![A labeled breakdown of the QR payload URL: the solana scheme, the https link marking it a transaction request, the /txreq path, and the per-sale parameters the POS appends.](assets/v03-diagram.png)
+![A labeled breakdown of the QR payload URL: the solana scheme, the https link marking it a transaction request, the /txreq path, and the per-sale parameters the POS appends.](assets/v03-diagram.webp)
 
 ### What the confirmed screen actually knows
 
@@ -145,7 +145,7 @@ Two consequences fall out of that design, and both will save you debugging time 
 
 After the signature shows up, the POS validates the found transaction before flipping the screen, checking that what landed matches the sale it encoded. Keep that ordering in your head: found, then validated, then confirmed-on-screen. A signature existing is not the same thing as the right payment existing.
 
-![A flowchart of the POS confirmation loop, findReference polling until a signature appears then validating before showing confirmed, with an ordered three-suspect checklist for diagnosing a stuck pending screen.](assets/v04-flowchart.png)
+![A flowchart of the POS confirmation loop, findReference polling until a signature appears then validating before showing confirmed, with an ordered three-suspect checklist for diagnosing a stuck pending screen.](assets/v04-flowchart.webp)
 
 ### The hardware reality: what exists, what does not
 
@@ -159,17 +159,17 @@ Before you read that as a downgrade, look at where in-person payments actually w
 
 What about the phone side? Solana Mobile ships Seeker, a phone with Seed Vault, which is hardware key custody, not a payments feature, and it runs a dApp Store. Real products, and the dApp Store's fee pitch is genuinely interesting for app economics. But be careful with the numbers on the homepage: the "150,000+ users" figure has an ambiguous referent (users of what, exactly, is not stated), the "0% platform fees" line is a pricing claim, and shipped-unit numbers are undisclosed. Treat all of it as homepage claims, present none of it as verified adoption data, and notice what is absent: nothing in the Seeker stack gives your stall tap-to-pay either. A Seeker customer at your table still scans the same QR as an iPhone customer.
 
-![A capability matrix marking QR transfer and transaction requests and the first-party POS example as real, Commerce Kit as beta, and tap-to-pay terminals as nonexistent on Solana.](assets/v05-comparison.png)
+![A capability matrix marking QR transfer and transaction requests and the first-party POS example as real, Commerce Kit as beta, and tap-to-pay terminals as nonexistent on Solana.](assets/v05-comparison.webp)
 
 The sharpest evidence for how thin the in-store niche is comes from the company that owned it. Decaf was the festival-POS darling of this ecosystem: the name you heard whenever someone paid for food with USDC at a Solana event. Go to decaf.so today (I re-checked on 2026-08-22) and the Solana POS is gone. The product is a payment link you create in two minutes, payable by card, bank transfer, or crypto, with cash pickup and payouts across 180+ countries, pitched at exactly the sender Stripe and PayPal will not serve. Same company, same rails underneath, completely different customer.
 
 Read that pivot as market data, because that is what it is. Demand is an actor here, and it voted: the merchant standing at a terminal turned out to be a much smaller customer than the worker sending money home or the business invoicing across a border. In-store crypto POS demand was thinner than payout demand, so the capital and the product followed the payouts. The same shape shows up across the builder communities of Latin America: the crypto payment that happens every single day is the cross-border payout to a contributor, not the coffee bought with a wallet. None of this means your stall is a bad idea. It means nobody is going to sell you a terminal for it, there is no vendor catalog to lean on, and the first-party example you cloned is the sanctioned base precisely because the commercial layer above it emptied out. Build accordingly, and know that the same endpoint powering your table is the piece that transfers to where the demand actually lives.
 
-![Timeline of Decaf moving from festival point-of-sale on Solana, through thin in-store demand, to global payment links and cross-border payouts in more than 180 countries.](assets/v06-timeline.png)
+![Timeline of Decaf moving from festival point-of-sale on Solana, through thin in-store demand, to global payment links and cross-border payouts in more than 180 countries.](assets/v06-timeline.webp)
 
 There is one more piece of hardware honesty, and it is the one nobody puts on a slide: the network at the fair. Walk the sale flow again and count the connections it needs. Your laptop must be reachable by the customer's phone (the GET and POST to your endpoint) and must reach devnet RPC (the confirmation poll). The customer's phone must have data, because their wallet submits the signed transaction to the chain itself. That is three network dependencies for one sale, and a church-hall record fair with concrete walls and two hundred phones on one access point will test every one of them. This is not a crypto-specific weakness, card terminals die on bad connectivity too, but a card terminal vendor has spent twenty years engineering store-and-forward around it, and you have not. Yet. Later in this course you build exactly that: an offline queue that signs sales at the table and drains them when the network comes back, on a primitive called a durable nonce. For now, the practical mitigations are boring and effective: your own hotspot for the laptop, a printed fallback QR for a fixed-price item, and the knowledge of which failure looks like which on the pending screen.
 
-![A pre-fair checklist covering LAN reachability, RPC access, customer phone data, a hotspot, certificate acceptance, and a printed fallback QR, plus how each network failure presents at the stall.](assets/v07-table.png)
+![A pre-fair checklist covering LAN reachability, RPC access, customer phone data, a hotspot, certificate acceptance, and a printed fallback QR, plus how each network failure presents at the stall.](assets/v07-table.webp)
 
 One last aside before the lab. There is a Commerce Kit in the ecosystem, and it is beta, with the docs' own "APIs may change" warning attached. You now know enough to decode what that means for a stall you depend on: a Saturday of sales is not the place for an API surface that reserves the right to shift under you. Know it exists, watch it mature, and build today's table on the first-party example and your own endpoint. That is the whole mention.
 
@@ -308,7 +308,7 @@ Worked rung: every command below is given. You clone (done above), rewire, and r
 
    Run `npx tsx smoke.ts`. With the TODOs still open it fails with `cart is empty; fill the completion TODOs in config.ts first`, which is correct: the failing smoke test is your completion rung's to-do list. (This exact file, on these exact pins, type-checks under `npx tsc --strict --noEmit smoke.ts config.ts` and runs; if it does not for you, the import extension and the `type=module` line from step 5 are the two usual suspects.)
 
-![Deployment diagram of the stall: a laptop running the POS and the endpoint behind local SSL proxies, a customer phone reaching them over the LAN, and devnet settling the transaction.](assets/v08-diagram.png)
+![Deployment diagram of the stall: a laptop running the POS and the endpoint behind local SSL proxies, a customer phone reaching them over the LAN, and devnet settling the transaction.](assets/v08-diagram.webp)
 
 ## Challenge
 

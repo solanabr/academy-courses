@@ -22,7 +22,7 @@ The findings up front:
 
 The artifact is `ramp-embed`, grown out of the same `wavelength-checkout` workspace: a server route that mints the session token, a client handoff that opens the onramp URL, and a smoke test that proves the address never leaks. How today's work is split: the session handler ships as a skeleton with two loud TODO holes and the theory contains both answers verbatim; the offramp is a guided walkthrough because you cannot meaningfully automate someone else's hosted KYC flow; and the solo coding challenge hands you a working-but-leaky integration to repair rather than a blank file.
 
-![The existing checkout sits at the center, with a card buyer entering through the embedded Coinbase Onramp and an artist exiting through the hosted Coinbase Offramp to a bank.](assets/v01-diagram.png)
+![The existing checkout sits at the center, with a card buyer entering through the embedded Coinbase Onramp and an artist exiting through the hosted Coinbase Offramp to a bank.](assets/v01-diagram.webp)
 
 ## The fiat edge
 
@@ -36,7 +36,7 @@ Why does a record shop care at all? Because the buyer math is brutal. Every less
 
 And this stopped being hypothetical for consumers a while ago. The April 2026 wave of consumer rails made the pattern mainstream: Meta started paying creators in USDC on Solana in Colombia and the Philippines, MetaMask Card began spending Solana USDC over Mastercard at ordinary terminals, and Solflare shipped Coinbase Apple Pay onramps directly inside the wallet (all three beats from the Solana Foundation's April 2026 ecosystem roundup on solana.com, the same roundup later lessons cite; dated claims, so re-check before you repeat them). The plumbing you are about to build is the same plumbing, one storefront smaller.
 
-![A timeline of three April 2026 consumer rails, Meta creator payouts, MetaMask Card spending, and Solflare Apple Pay onramps, arrowing forward to this lesson's storefront embed.](assets/v02-timeline.png)
+![A timeline of three April 2026 consumer rails, Meta creator payouts, MetaMask Card spending, and Solflare Apple Pay onramps, arrowing forward to this lesson's storefront embed.](assets/v02-timeline.webp)
 
 ### The session token: bind server-side, never leak
 
@@ -54,7 +54,7 @@ Be precise about what the token does and does not protect, because a security cl
 
 The property to hold onto: **bind server-side, never leak**. The sensitive value lives in an authenticated server-to-server call; the client carries an opaque reference. If you have used Stripe's PaymentIntents, this is the same shape (a server-created intent, a client-side secret that references it), and the overlap is the standard answer to "the client wants to start a flow the client must not be able to steer."
 
-![A four-hop flow where the client requests a session, your server binds the address into a Coinbase token, and the client opens a URL on which tampering dead-ends.](assets/v03-flowchart.png)
+![A four-hop flow where the client requests a session, your server binds the address into a Coinbase token, and the client opens a URL on which tampering dead-ends.](assets/v03-flowchart.webp)
 
 The concrete shapes, verified against Coinbase's live docs today, are small enough to memorize. The mint is a POST to `https://api.developer.coinbase.com/onramp/v1/token` with a Bearer JWT generated from your CDP API key, and the body that binds a Solana USDC destination is exactly this:
 
@@ -78,11 +78,11 @@ https://pay.coinbase.com/buy/select-asset
 
 Read that URL twice and notice what is missing: no address, no app ID. `defaultNetwork` and `defaultAsset` are user-experience presets (they pick which asset screen the widget opens on), and `presetFiatAmount` pre-fills the purchase with the record's price so the buyer lands on a screen that already says the right number. None of them are security-relevant. The only load-bearing param is `sessionToken`, and it is opaque. That asymmetry, boring presets in the URL, the sensitive binding behind the token, is the design.
 
-![The onramp URL annotated line by line, with sessionToken marked load-bearing, four display presets marked cosmetic, and the wallet address and app ID absent by design.](assets/v04-annotated-code.png)
+![The onramp URL annotated line by line, with sessionToken marked load-bearing, four display presets marked cosmetic, and the wallet address and app ID absent by design.](assets/v04-annotated-code.webp)
 
 The token's two lifetimes are also part of the property, not trivia. Single-use means a captured URL cannot be replayed to open a second funding session against the same binding, and the five-minute expiry means a leaked link dies before it can circulate. Your server mints per click, at the moment of intent. Cache a session token the way you would cache a price quote and the best case is a dead link, expired or already consumed, served to a real buyer at the moment of purchase; the worst case is a binding minted for one buyer handed to another. The mint costs one authenticated round trip, so there is nothing worth saving.
 
-![A session token's life from per-click mint through a single use and five-minute expiry, with replayed and cached tokens shown dead-ending off the line.](assets/v05-timeline.png)
+![A session token's life from per-click mint through a single use and five-minute expiry, with replayed and cached tokens shown dead-ending off the line.](assets/v05-timeline.webp)
 
 One practical note on what the buyer receives. The destination you bind is the buyer's wallet address, and Coinbase delivers USDC to the associated token account derived from it, the same ATA derivation you learned when Wavelength first received USDC in module 2. The buyer does not need to pre-create anything. They come out of the flow holding exactly the balance your checkout knows how to charge. Mainnet USDC on Solana is the mint `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`; your devnet checkout charges the devnet stand-in mint, which is why the lab's live run is a sandboxed session rather than a devnet one. Onramps are a mainnet product. Real cards buy real dollars.
 
@@ -114,7 +114,7 @@ Ten disputed purchases. Whoever sits in the seat is out the $125 of reversed sal
 
 The instinct here is to ask which shape wins, and it is slightly the wrong instinct. Both shapes put the provider in the merchant-of-record seat for the crypto purchase; you are choosing integration depth and provider surface, not liability. The honest comparison:
 
-![Coinbase Onramp and Stripe's onramp compared: both make the provider merchant-of-record and KYC owner; they differ in integration shape, product status, and which one this lesson builds against.](assets/v06-comparison.png)
+![Coinbase Onramp and Stripe's onramp compared: both make the provider merchant-of-record and KYC owner; they differ in integration shape, product status, and which one this lesson builds against.](assets/v06-comparison.webp)
 
 The pattern generalizes past these two vendors, which is why it is worth internalizing now: whoever is merchant-of-record owns the fraud, the disputes, and the identity checks, and in exchange owns the coverage map. You will meet the same trade with a different set of vendors next lesson, and by the end of it, "who is merchant-of-record here?" should be the first question you ask any payments vendor, right before "and in what corridors?"
 
@@ -126,7 +126,7 @@ The integration constraint that shapes everything: **Offramp is hosted-only.** T
 
 Why would Coinbase embed the way in and host the way out? Follow the risk. Onramp fraud is card fraud, a problem providers can price and eat at scale. Offramp is where money laundering exits to the banking system, and the provider wants that flow entirely on its own pages, under its own session, with no partner-controlled UI anywhere near it. You lose the embedded UX for the exit; in exchange the payout compliance never touches your product at all. As trades go, take it, every time.
 
-![The offramp walk, where your product mints a token and redirects out, after which sign-in, KYC, the USDC send, and the bank payout all happen on Coinbase's pages.](assets/v07-flowchart.png)
+![The offramp walk, where your product mints a token and redirects out, after which sign-in, KYC, the USDC send, and the bank payout all happen on Coinbase's pages.](assets/v07-flowchart.webp)
 
 ### Two flows that look alike and are not
 
@@ -136,7 +136,7 @@ Here is the distinction this module will not let you blur, because blurring it i
 
 Your compliance surface as the dev is honestly stated in one sentence: you must be able to say, at every seam of your product where fiat and crypto touch, which actor is moving money and who is merchant-of-record for that movement. That is a describing job, not an operating job. You run neither flow. And to say it plainly, because this corner of the course brushes regulated territory: this is an engineering framing of where the seams sit, not legal advice, and a real money-services product ships with a real lawyer.
 
-![Three seams mapped, with Coinbase merchant-of-record for both its onramp and offramp, Stripe for its own onramp, and Wavelength describing every seam while operating none.](assets/v08-diagram.png)
+![Three seams mapped, with Coinbase merchant-of-record for both its onramp and offramp, Stripe for its own onramp, and Wavelength describing every seam while operating none.](assets/v08-diagram.webp)
 
 ### What I verified, and what you must not trust me on
 
@@ -303,7 +303,7 @@ That is Coinbase's CDP SDK (1.x line as of August 2026; check npm before pinning
 
    With the holes in place this dies with `TODO: buildSessionRequest`, and that exact failure is the checkpoint for the worked portion. Anything else means a typo upstream: the usual suspect is the relative import path to `checkout/record.ts`, which must climb out of `ramp-embed/` with `../`.
 
-![The three ramp-embed files, pure session builders, an authenticated server route, and a smoke test proving the address is bound server-side and absent from the client URL.](assets/v09-diagram.png)
+![The three ramp-embed files, pure session builders, an authenticated server route, and a smoke test proving the address is bound server-side and absent from the client URL.](assets/v09-diagram.webp)
 
 5. **The session walk, sandbox by default.** This step needs CDP keys, and so does the offramp walk in step 6, so bank the pair together for when you have credentials; only the opt-in real-card walk at the end additionally needs your app's trial-mode clearance. If you are offline or keyless today, the smoke test alone completes the lesson's build, and steps 5 and 6 keep. Export `CDP_API_KEY_ID` and `CDP_API_KEY_SECRET`, start the route with `npx tsx ramp-embed/server.ts`, then play the storefront client from a second terminal:
 

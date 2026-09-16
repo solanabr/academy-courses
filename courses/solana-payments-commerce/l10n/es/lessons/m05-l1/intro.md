@@ -59,7 +59,7 @@ Lee eso como una oración: "esta dirección puede mover como máximo 60 USDC de 
 
 Después de que esto aterrice, la cuenta de token del suscriptor lleva tres hechos que antes no llevaba: una dirección `delegate`, un `delegatedAmount`, y nada más. No hay nombre de plan, no hay cadencia de facturación, no hay metadatos. El programa Token guarda un número y una dirección, y todo lo que una "suscripción" quiere decir más allá de eso es tu problema, off-chain. Guarda ese pensamiento; la factura por eso vence al final de la lección.
 
-![ApproveChecked escribe solo una dirección de delegado y un delegatedAmount en la propia cuenta de token del suscriptor; la propiedad y el saldo quedan intactos, y el poder del crank está acotado por esos dos campos.](assets/v01-diagram.png)
+![ApproveChecked escribe solo una dirección de delegado y un delegatedAmount en la propia cuenta de token del suscriptor; la propiedad y el saldo quedan intactos, y el poder del crank está acotado por esos dos campos.](assets/v01-diagram.webp)
 
 La salida es incluso más chica. `Revoke` toma la cuenta de origen y la firma del dueño, limpia los dos campos, y no necesita el permiso de nadie:
 
@@ -75,7 +75,7 @@ Ahora la restricción. Cada cuenta de token tiene exactamente un slot de delegad
 
 Corre la cinta hacia adelante. A tu suscriptor le encanta el club del disco. En marzo también se suscribe a, digamos, un drop de café que corre el mismo diseño de delegado crudo sobre la misma cuenta de USDC. En el momento en que su billetera firma el `ApproveChecked` de la cafetería, la aprobación de tu crank deja de existir. Tu pull de abril falla. Nadie hizo nada mal: el suscriptor consintió a los dos comercios, los dos comercios escribieron código correcto, y la primitiva simplemente no puede sostener dos permisos vivos en una cuenta de token.
 
-![Estados de la cuenta antes y después, mostrando que un suscriptor que aprueba a un segundo comercio sobrescribe el delegado y el límite restante del primer comercio sin ninguna notificación.](assets/v02-comparison.png)
+![Estados de la cuenta antes y después, mostrando que un suscriptor que aprueba a un segundo comercio sobrescribe el delegado y el límite restante del primer comercio sin ninguna notificación.](assets/v02-comparison.webp)
 
 Por eso la lección no deja de decir "la primitiva cruda." Una suscripción viva por (usuario, mint) es un techo de producto real, y ninguna cantidad de código de backend ingenioso lo levanta, porque el techo está en el layout de la cuenta mismo. Lo que el código de backend SÍ puede hacer es detectar el desalojo honestamente en vez de tirar un error a ciegas, y ese es tu challenge solo de hoy. Levantar el techo pide un programa que ocupe el slot una vez y multiplexe acuerdos de facturación reales por detrás, que es precisamente la próxima lección.
 
@@ -85,7 +85,7 @@ La segunda cosa que la intuición entrenada por Stripe entiende mal: el monto ap
 
 El club del disco cobra 15 USDC por ciclo. El suscriptor aprobó 60. Así que:
 
-![Un límite de 60 USDC baja escalonadamente por 45, 30 y 15 a lo largo de cuatro pulls exitosos; el cuarto lo vacía y el programa Token limpia el delegado en la misma instrucción, así que el quinto pull encuentra un slot vacío, y solo una aprobación fresca firmada por el dueño restaura los dos.](assets/v03-chart.png)
+![Un límite de 60 USDC baja escalonadamente por 45, 30 y 15 a lo largo de cuatro pulls exitosos; el cuarto lo vacía y el programa Token limpia el delegado en la misma instrucción, así que el quinto pull encuentra un slot vacío, y solo una aprobación fresca firmada por el dueño restaura los dos.](assets/v03-chart.webp)
 
 Cuatro pulls y el tanque está seco, y el tanque se lleva la llave de paso con él. El programa Token decrementa `delegatedAmount` dentro de la transferencia firmada por el delegado, y cuando esa resta cae en exactamente cero devuelve el `delegate` de la cuenta a ninguno en la misma instrucción, que es el `null` que tu guarda lee el ciclo que viene: agotar una aprobación también la limpia. Así que la quinta transacción no falla por un límite vacío; falla porque la cuenta ya no tiene delegado, lo que convierte la firma del crank en la firma de un desconocido cualquiera, y el programa Token lo dice con `OwnerMismatch`, custom program error `0x4`. `InsufficientFunds`, custom program error `0x1`, es el caso vecino: un límite demasiado chico para este pull pero todavía no en cero, digamos 10 restantes contra un cargo de 15 USDC, donde el slot sigue siendo tuyo. De cualquier manera la cuenta todavía tiene USDC de sobra; lo que se gasta es el permiso para moverlo. No hay nada que el crank pueda hacer al respecto salvo pedirle al suscriptor que firme de nuevo. Esto se lee como una molestia y en realidad es un feature: el suscriptor pre-consintió un total acotado, y el límite está haciendo su trabajo. Una aprobación de 60 USDC son cuatro meses del club, una cadencia de re-consentimiento natural. Podrías pedir 600 por adelantado y hacer pulls por años; algunos productos lo van a hacer, y sus usuarios dados de baja van a descubrir un límite vivo que olvidaron. Dónde pones el techo es una decisión de producto que la blockchain no va a tomar por ti. La blockchain solo hace cumplir el número que el dueño haya firmado.
 
@@ -114,7 +114,7 @@ Como es la misma forma de instrucción, todo lo que enseñaron los módulos 3 y 
 
 El verdadero trabajo del crank, entonces, no es la transferencia sino el párrafo anterior: decidir si hacer el pull sigue siendo legítimo. Voy a confesar el error para que te lo puedas saltar: el primer crank que cableé cacheó el estado de la aprobación en el alta, porque ¿por qué iba a cambiar? Una billetera de prueba reaprobó a un delegado distinto a mitad de ciclo, mi crank mandó la transacción igual, y me pasé una noche mirando un custom program error 0x4 en un log de transacción antes de caer en lo obvio. El estado de la cuenta es el libro mayor. Tu base de datos es un caché con opiniones. Así que el crank vuelve a leer la cuenta de token todos y cada uno de los ciclos, antes de cada pull, y contesta tres preguntas:
 
-![Tres comprobaciones previas al pull se mapean a resultados: un delegado ausente rechaza como delegate-revoked, ya sea que el dueño lo haya revocado o que un pull que agotó el límite haya limpiado el slot; un delegado ajeno rechaza igual; un límite demasiado chico rechaza como insufficient-allowance; y solo un todo-en-orden sigue adelante.](assets/v04-table.png)
+![Tres comprobaciones previas al pull se mapean a resultados: un delegado ausente rechaza como delegate-revoked, ya sea que el dueño lo haya revocado o que un pull que agotó el límite haya limpiado el slot; un delegado ajeno rechaza igual; un límite demasiado chico rechaza como insufficient-allowance; y solo un todo-en-orden sigue adelante.](assets/v04-table.webp)
 
 ¿Podría el crank saltarse la guarda y mandar la transacción sin más, dejando que la blockchain rechace los pulls malos? Mecánicamente sí, y los fondos estarían exactamente igual de seguros: el programa Token hace cumplir todo lo que la guarda comprueba. La guarda existe porque "transaction failed: custom program error 0x4" y "este suscriptor nos revocó, marca la suscripción como caducada" son hechos distintos para un sistema de facturación, y solo uno de los dos le dice a tu back office qué hacer después. La blockchain te da un no. La guarda te da el motivo, antes de que gastes una comisión en averiguarlo. Esos strings de motivo, `delegate-revoked` y `insufficient-allowance`, son el vocabulario de la primitiva cruda, y las próximas dos lecciones mantienen los dos nombres significativos una capa más abajo: la guarda del programa oficial agrega sus propios motivos encima, y la nota de continuidad en el Challenge de la próxima lección recorre el mapeo explícitamente.
 
@@ -124,7 +124,7 @@ Corre el peor escenario del suscriptor honestamente, porque un cliente va a preg
 
 Supón que Wavelength se vuelve malvada, o más realista, que el keypair del crank se filtra. ¿Qué puede hacer quien lo tenga? Firmar `TransferChecked` contra la cuenta de USDC del suscriptor, hasta el límite restante. Si ya pasaron tres pulls, eso es como máximo 15 USDC. ¿Qué le puede hacer al SOL del suscriptor? Nada; el delegado está sobre una sola cuenta de token. Sus otros saldos de SPL y sus NFTs viven en cuentas completamente distintas, cada una con su propio slot de delegado intacto. ¿Puede aprobarse a sí mismo un límite más grande? No: `ApproveChecked` pide la firma del dueño. ¿Puede impedirle al suscriptor revocar? No: `Revoke` pide solo al dueño. El radio de impacto de un crank completamente comprometido es el límite no gastado sobre exactamente las cuentas que lo aprobaron, y cada uno de esos dueños puede ponerlo en cero unilateralmente en el momento en que se anuncie el compromiso.
 
-![Una clave de crank filtrada alcanza solo el límite restante en la única cuenta de USDC aprobada; el SOL, los otros tokens, los NFTs, la auto-aprobación y el bloqueo de revocación quedan todos fuera de ese perímetro.](assets/v05-diagram.png)
+![Una clave de crank filtrada alcanza solo el límite restante en la única cuenta de USDC aprobada; el SOL, los otros tokens, los NFTs, la auto-aprobación y el bloqueo de revocación quedan todos fuera de ese perímetro.](assets/v05-diagram.webp)
 
 Esa es la promesa no custodial, dicha sin romance: no que el comercio sea honesto, sino que la honestidad del comercio no es estructural. El límite vive en el programa Token, el mismo camino de código auditado que ha liquidado todas las transferencias de SPL que hizo este curso. Hoy no desplegaste un programa, y ese es el punto: no hay ningún contrato nuevo que un suscriptor tenga que auditar. El permiso que otorga lo hace cumplir código en el que ya confía por el solo hecho de tener el token.
 
@@ -134,7 +134,7 @@ El ecosistema notó esta forma. Cuando Superteam corrió su tema de bounty Solan
 
 El club: 15 USDC de devnet por ciclo, aprobados en 60, así que el libro mayor cuenta toda la historia en cuatro pulls y un rechazo. Vas a jugar los dos lados, suscriptor y comercio, con dos keypairs.
 
-![El suscriptor firma una aprobación, el crank firma y paga la comisión de cada pull, y el comercio solo recibe 15 USDC por ciclo.](assets/v06-diagram.png)
+![El suscriptor firma una aprobación, el crank firma y paga la comisión de cada pull, y el comercio solo recibe 15 USDC por ciclo.](assets/v06-diagram.webp)
 
 1. **Keypairs y fondeo.** En el workspace `club-crank`, acuña dos identidades. La instalación del comienzo de la lección ya debería estar lista.
 
@@ -439,7 +439,7 @@ El club: 15 USDC de devnet por ciclo, aprobados en 60, así que el libro mayor c
 
    Todavía no puedes correr `pull.ts` con éxito; su guarda sigue lanzando. Ese orden es deliberado. Ve a llenar los TODOs.
 
-![Cada ciclo del crank lee la cuenta fresca, rechaza con delegate-revoked o insufficient-allowance, o deja pasar un TransferChecked firmado por el delegado, y después vuelve a leer para confirmar el límite decrementado.](assets/v07-flowchart.png)
+![Cada ciclo del crank lee la cuenta fresca, rechaza con delegate-revoked o insufficient-allowance, o deja pasar un TransferChecked firmado por el delegado, y después vuelve a leer para confirmar el límite decrementado.](assets/v07-flowchart.webp)
 
 ## Challenge
 
