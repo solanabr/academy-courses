@@ -153,15 +153,15 @@ The newest rail buys elegance at the cost of being devnet-only today. That is al
 
 You will encode the reasoning above as a small program, because a verdict you can rerun on a new workload is worth more than a verdict you remember. No network, no SDK, no wallet. Just the cost model, four workloads, and honest output.
 
-1. **Set up.** One directory, one dev dependency, no Solana packages at all.
+1. **Set up.** One directory, two dev dependencies, no Solana packages at all.
 
     ```bash
     mkdir -p labs/m07-l3 && cd labs/m07-l3
     npm init -y
-    npm install -D tsx@^4.20.0 typescript@^5.9.0
+    npm install -D tsx@4.23.12 typescript@5.9.3
     ```
 
-    Pins checked against npm the week of writing (2026-08); re-check before you pin anything long-lived. `tsx` runs a TypeScript file directly, which is all we need here.
+    Pins are exact and match this lesson's versionStamp (re-checked 2026-09-05); re-check before you pin anything long-lived. `tsx` runs a TypeScript file directly, which is all we need here.
 
 2. **The cost model (worked in full).** Every constant in this file is either a frozen course figure or a value read from a public source on a stated date, and each comment says which. The derived values fall straight out of them. Nothing here is a guess.
 

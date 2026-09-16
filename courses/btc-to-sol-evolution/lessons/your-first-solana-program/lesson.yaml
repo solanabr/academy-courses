@@ -1,6 +1,11 @@
 id: lesson-b2s-your-first-solana-program
 slug: your-first-solana-program
 title: "Push code you can never edit: your first program on devnet"
+versionStamp:
+  checkedAt: "2026-09-07"
+  packages:
+    solana-cli: "4.1.1"
+    "@solana/kit": "8.2.0"
 skills:
   - account-model
   - solana-programs

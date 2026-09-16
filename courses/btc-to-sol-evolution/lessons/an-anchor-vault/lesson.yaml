@@ -1,6 +1,10 @@
 id: lesson-b2s-an-anchor-vault
 slug: an-anchor-vault
 title: "A vault only its program can open"
+versionStamp:
+  checkedAt: "2026-09-07"
+  packages:
+    anchor-lang: "1.1.2"
 skills:
   - anchor
   - solana-kit

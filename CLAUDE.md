@@ -21,7 +21,7 @@ Source of truth for all Superteam Academy content. This repo is data, not code: 
 - **Never hand-edit `courses/*/slots.lock.json`.** It pins on-chain bitmap positions; CI regenerates it and fails on any diff. A wrong slot corrupts real learner progress.
 - **Ids are immutable and some are PDA seeds.** Never strip a prefix or rename. `course-*` / `achievement-*` ≤ 32 UTF-8 bytes; the rest ≤ 128.
 - **`xpPerLesson × lessonCount ≤ 10000`**, or `finalize_course` reverts forever and nobody can complete the course.
-- **A `code` block's `solution` must pass `tests.json`; its `starter` must fail.** CI executes TypeScript blocks; rust and buildable are graded at runtime (fail-closed), not in CI or at sync.
+- **A `code` block's `solution` must pass `tests.json`; its `starter` must fail.** CI executes TypeScript blocks via content-lint, and rust/buildable blocks via the `verify-code` workflow (`scripts/verify_code_blocks.py`; a starter that fails to compile counts as failing). Runtime grading remains fail-closed per block.
 - **Answer keys are public by design.** Grading is by sandboxed execution, not secrecy.
 - **`openEnded` never mints XP.** It's a reflection: one learner message, one AI reply.
 - **`course.creator` is the author's wallet and is immutable.** It maps straight to `Course.creator` on-chain (there is no `instructor` indirection — the `instructors/` folder was removed). Must be on-curve. Changing it after creation costs a full close-and-recreate, so mainnet courses must be created with the final wallet.

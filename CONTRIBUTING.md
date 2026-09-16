@@ -25,13 +25,15 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 ## The rules CI enforces
 
-**Ids are permanent.** `course-…`, `lesson-…`, `achievement-…`, `path-…`, `quest-…`, `instructor-…`, all `kebab-case`. Course and achievement ids are capped at **32 characters**. Renaming an id after a course ships is rejected — it would lose the progress of everyone who's taken it.
+**Ids are permanent.** `course-…`, `lesson-…`, `achievement-…`, `path-…`, `quest-…`, all `kebab-case`. Course and achievement ids are capped at **32 characters**. Renaming an id after a course ships is rejected — it would lose the progress of everyone who's taken it.
 
 **`slots.lock.json` is generated, not edited.** Never change it by hand; the checks regenerate and compare it.
 
 **XP has a ceiling.** `xpPerLesson × lessonCount ≤ 10000` — go over it and the course can't be completed. `xpPerLesson` is 1–100.
 
 **Challenges are executed.** For a TypeScript challenge, the checks run your `solution.ts` against `tests.json` — it must pass every case — and run your `starter.ts`, which **must fail** at least one. A starter that already passes has nothing to solve. Rust challenges get the same treatment from this repo's own `verify-code` workflow — failing to compile counts as the starter failing — and each graded file must expose exactly one entry `fn`: see [Graded Rust: the one-fn rule](#graded-rust-the-one-fn-rule).
+
+**Code-bearing lessons carry a `versionStamp`.** A top-level `checkedAt` (YYYY-MM-DD) plus a `packages` map of **exact** semver pins — no ranges (`^`, `~`) — recording what the lesson's code was verified against. CATALOG §6 requires one on every code-bearing lesson; content-lint rejects range pins, and review enforces presence. The format lives in [courses/README.md](./courses/README.md#lessons-are-ordered-blocks).
 
 **Every course needs a creator wallet.** `course.creator` must be a real Solana address — that's how the author gets credited (and earns creator XP). It becomes `Course.creator` on-chain and **cannot be changed after the course is created**, so use the wallet you actually want paid.
 
@@ -45,21 +47,24 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 ## Quizzes
 
-Correctness is keyed to a stable option `id`, never to array position, so reordering options can't silently change the answer.
+**Correctness is keyed to a stable option `id`, never to array position** — reordering options can't silently change the answer.
 
 ```yaml
 - key: check
   type: quiz
   questions:
     - id: q1
-      prompt: Which accounts store state?
-      multiSelect: true
+      prompt: Where does on-chain state live?
+      multiSelect: false
       options:
         - { id: a, label: Data accounts, correct: true, feedback: "Yes — and a program account holds its executable bytes." }
         - { id: b, label: Instructions, correct: false, feedback: "Inputs, not accounts." }
+        - { id: c, label: Signatures, correct: false, feedback: "They authorize writes; they don't store state." }
+        - { id: d, label: RPC nodes, correct: false, feedback: "They serve reads; the state they serve lives in accounts." }
+        - { id: e, label: The program binary, correct: false, feedback: "Programs are stateless and can't write to themselves." }
 ```
 
-With `multiSelect: false` exactly one option may be correct; with `true`, at least one.
+With `multiSelect: false` exactly one option may be correct; with `true` the schema floor is at least one — and the authoring bar below raises it to between two and *k*−2.
 
 **Four options minimum, five when the options are short.** A three-option question hands away a third of the answer. Where the options are short strings — an identifier, a flag, a version, a port — a fifth costs the learner almost nothing to read and is required: the rule is a mean option label of 70 characters or less.
 

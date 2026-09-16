@@ -153,15 +153,15 @@ O trilho mais novo compra elegância ao custo de ser só de devnet hoje. Isso ta
 
 Você vai codificar o raciocínio acima como um programa pequeno, porque um veredicto que você pode rodar de novo em uma nova carga de trabalho vale mais do que um veredicto que você lembra. Sem rede, sem SDK, sem carteira. Só o modelo de custo, quatro cargas de trabalho e saída honesta.
 
-1. **Preparação.** Um diretório, uma dependência de dev, nenhum pacote da Solana.
+1. **Preparação.** Um diretório, duas dependências de dev, nenhum pacote da Solana.
 
     ```bash
     mkdir -p labs/m07-l3 && cd labs/m07-l3
     npm init -y
-    npm install -D tsx@^4.20.0 typescript@^5.9.0
+    npm install -D tsx@4.23.12 typescript@5.9.3
     ```
 
-    Pins conferidos contra o npm na semana em que escrevi (2026-08); confira de novo antes de fixar qualquer coisa de vida longa. O `tsx` roda um arquivo TypeScript direto, que é tudo de que a gente precisa aqui.
+    Pins exatos, os mesmos do versionStamp desta lição (re-checados em 2026-09-05); confira de novo antes de fixar qualquer coisa de vida longa. O `tsx` roda um arquivo TypeScript direto, que é tudo de que a gente precisa aqui.
 
 2. **O modelo de custo (trabalhado por completo).** Toda constante neste arquivo é ou um número congelado do curso ou um valor lido de uma fonte pública numa data declarada, e cada comentário diz qual é o caso. Os valores derivados saem direto delas. Nada aqui é chute.
 

@@ -64,8 +64,10 @@
   # corridor is covered in one place, m06-l2's distribution section.
   reviewExempt: true
 
-# Added for courses/mastering-anchor-v2 (2026-09-07). All four are in
-# CATALOG.md §5 policy 3's sanctioned registry and none is among the 18 the
+# Added for courses/mastering-anchor-v2 (2026-09-07). `idl` is in CATALOG.md
+# §5 policy 3's migration list; `cpi`, `program-testing` and
+# `program-deployment` carry over from the original 24-slug registry §5 quotes
+# rather than the policy-3 additions. None is among the 18 the
 # payments-commerce branch adds, so the two branches merge without duplicates.
 - slug: cpi
   label: Cross-Program Invocation
@@ -76,9 +78,10 @@
 - slug: idl
   label: IDL & Program Metadata
 
-# Added for courses/digital-assets (2026-09-07), under §5 policy 3 of
-# courses/CATALOG.md. Only slugs with NO equivalent in the sanctioned migration
-# list are added here: the token/program/client vocabulary that course also uses
+# Added for courses/digital-assets (2026-09-07) as new vocabulary under §5
+# policy 1 of courses/CATALOG.md — a reviewed skills.yaml PR, recorded in §5's
+# registry-amendments note. None of the four appears in the policy-3 migration
+# list, which is the point: only slugs with NO equivalent there are added here. the token/program/client vocabulary that course also uses
 # (token-2022, spl-tokens, pdas, signers, compute-budget, checked-arithmetic,
 # error-handling, version-pinning, program-security) is already being added by
 # the solana-payments-commerce branch, and re-adding it here would produce a
