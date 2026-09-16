@@ -404,7 +404,7 @@ Adicione `StationInstruction` e `describe_instruction` da seção de teoria ao m
 ```rust
     let queue = vec![
         StationInstruction::Transfer {
-            lamports: 2_039_280,
+            lamports: 2_000_000,
             to: [7u8; 32],
         },
         StationInstruction::Delegate {
@@ -417,7 +417,7 @@ Adicione `StationInstruction` e `describe_instruction` da seção de teoria ao m
     }
 ```
 
-Esse número de lamports é o número de rent da lição passada dando mais um plantão como valor trabalhado, nada mais. Pequena nota de honestidade: se você adicionar o enum sem usar toda variante e todo campo, o `-D warnings` vai falhar o build em lints de código morto no passo 5. Isso é rigor nível clippy vindo do próprio rustc, e é por isso que a fila acima constrói as três variantes. Código morto num binário é um warning; atrás da flag de deny, warnings são a lei.
+Esse número de lamports é o substituto de rent da lição passada dando mais um plantão como valor trabalhado, nada mais. Pequena nota de honestidade: se você adicionar o enum sem usar toda variante e todo campo, o `-D warnings` vai falhar o build em lints de código morto no passo 5. Isso é rigor nível clippy vindo do próprio rustc, e é por isso que a fila acima constrói as três variantes. Código morto num binário é um warning; atrás da flag de deny, warnings são a lei.
 
 ### 5. Gate #3: o pipeline aprende Rust
 

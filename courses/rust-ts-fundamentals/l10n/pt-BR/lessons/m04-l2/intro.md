@@ -141,9 +141,10 @@ Estado alvo, para você saber quando terminou: `pulse-rs` dividido num módulo d
    /// A latency past this is a corrupted fixture line, not a slow probe.
    pub const MAX_SANE_LATENCY_MS: u64 = 60_000;
 
-   /// Worked-example constant for the checked-math path. The number is real;
-   /// what an ATA actually is belongs to the Digital Assets course.
-   pub const ATA_RENT_LAMPORTS: u64 = 2_039_280;
+   /// Worked-example constant for the checked-math path. The number is a
+   /// round synthetic stand-in, not the live rent rate; what an ATA
+   /// actually is belongs to the Digital Assets course.
+   pub const ATA_RENT_LAMPORTS: u64 = 2_000_000;
 
    #[derive(Debug, Error)]
    pub enum ProbeError {
@@ -318,7 +319,7 @@ Estado alvo, para você saber quando terminou: `pulse-rs` dividido num módulo d
        #[test]
        fn what_release_mode_would_have_done() {
            let nearly_full: u64 = u64::MAX - 1_000_000;
-           assert_eq!(nearly_full.wrapping_add(ATA_RENT_LAMPORTS), 1_039_279);
+           assert_eq!(nearly_full.wrapping_add(ATA_RENT_LAMPORTS), 999_999);
        }
 
        #[test]
@@ -367,7 +368,7 @@ Estado alvo, para você saber quando terminou: `pulse-rs` dividido num módulo d
      no answer in 3000ms -> Down
      HTTP 429 -> Degraded
    4 clean probes, 2 rejected, 2833ms total latency
-   station funding needed: 3089280 lamports
+   station funding needed: 3050000 lamports
    ```
 
    Compare isso com a abertura. A mesma classe de lixo na entrada, e em vez de duas linhas e um cadáver você recebe o relatório inteiro: vereditos para as quatro sondas limpas, uma razão tipada e impressa para cada uma das duas rejeitadas (a forma de debug E a renderização do `#[error]` lado a lado), e totais honestos. O panic da abertura sumiu, e um grep prova o quanto sumiu:
