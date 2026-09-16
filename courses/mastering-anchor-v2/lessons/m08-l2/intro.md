@@ -33,7 +33,7 @@ Here is the shape of it:
 
 The fade this lesson: I run the full build, deploy, and verify cycle end to end in the lab, with the devnet hash match on screen, and every command in it is one you run against your own program id and your own repo. The solo rung is the mismatch: change one line, rebuild, redeploy, and make the proof go red, then say in one sentence what a green result does and does not buy you. This lesson is a build and a judgement, with no completion problem in between.
 
-![A chain of four boxes shows the kit client trusting the published IDL, which trusts the deployed program, whose link back to the source repo stays unproven.](assets/v01-flowchart.png)
+![A chain of four boxes shows the kit client trusting the published IDL, which trusts the deployed program, whose link back to the source repo stays unproven.](assets/v01-flowchart.webp)
 
 ## From source to bytes and back
 
@@ -47,7 +47,7 @@ The silver bullet is Docker. `solana-verify build` runs the compile inside a pin
 
 The cost is real and I want it on the table. A verifiable build is slower than a native one, it needs Docker running, and the first build pulls a large image. You are buying reproducibility with build time and a heavier local dependency. For day-to-day iteration you still use the fast native `cargo build-sbf`. You reach for the verifiable build when you are about to deploy something people will trust.
 
-![A normal build forks one source into two different hashes on two machines; a pinned Docker build funnels the same source into one reproducible hash.](assets/v02-flowchart.png)
+![A normal build forks one source into two different hashes on two machines; a pinned Docker build funnels the same source into one reproducible hash.](assets/v02-flowchart.webp)
 
 Which brings up the pins, and one number I want to defuse before it misleads you. A verifiable build records the exact toolchain it used, and that toolchain includes a Solana version. That version is the build environment for these bytes. It is not a statement about what "current Solana" is. Those are two different facts and conflating them is a real footgun.
 
@@ -82,13 +82,13 @@ solana-verify verify-from-repo -u devnet \
 
 It rebuilds the repo inside the pinned image, hashes that fresh binary, fetches the on-chain program from the cluster in `-u`, and hashes what is actually deployed. Two hashes, computed independently from two sources: your public code and the live cluster. If they are equal, the deployed bytes provably came from that source at that toolchain. If they differ, they did not. That is it. There is no trusted middleman in this path, which is exactly why it works on devnet: you are the one running the rebuild and the one running the comparison.
 
-![Verify-from-repo hashes a Docker rebuild of the repo and the fetched on-chain program independently, then compares the two hashes locally to output verified or mismatch.](assets/v03-diagram.png)
+![Verify-from-repo hashes a Docker rebuild of the repo and the fetched on-chain program independently, then compares the two hashes locally to output verified or mismatch.](assets/v03-diagram.webp)
 
 Make it concrete for a second. Say your local build hashes to `9f3c...a1` and `get-program-hash` on your devnet deploy returns the same `9f3c...a1`. `verify-from-repo` then rebuilds from the public repo, computes `9f3c...a1` a third time, and compares it to the on-chain value. Three independent computations, one value, and every one of them is something a skeptic can reproduce without asking you for a thing. Now flip one basis point in the fee, rebuild, and the local hash becomes `2b77...e0` while the repo still produces `9f3c...a1`. The mismatch is arithmetic: different bytes, different sha256, zero overlap.
 
 Here is where I turn and name the honest part, because a green line is seductive and it lies by omission if you let it. A match proves that the bytes on devnet were built from this source at this toolchain. It proves provenance. It does not prove the source is safe. A perfectly verifiable program can drain every vault in it, because verification never reads the logic, it only fingerprints the compiled output. Provenance and safety are orthogonal, and the reason your program is trustworthy is the audit checklist and the fuzz pass you ran in the security module, not this hash. Verification makes those results portable. It lets a stranger confirm that the code you audited is the code that is running. That is enormous, and it is also strictly less than "safe."
 
-![A verified build proves the bytes came from this source at the pinned toolchain and is trustlessly re-runnable, but proves nothing about bug-freedom, safety to grant permissions, or upgrade authority.](assets/v04-comparison.png)
+![A verified build proves the bytes came from this source at the pinned toolchain and is trustlessly re-runnable, but proves nothing about bug-freedom, safety to grant permissions, or upgrade authority.](assets/v04-comparison.webp)
 
 ## The steward under the whole chain
 
@@ -115,13 +115,13 @@ npm view @anchor-lang/core@1.1.1 repository.url   # the version where it changes
 
 The repository field for `@anchor-lang/core` points to otter-sec starting from version 1.1.1, published 2026-06-25. Walk the history and you can watch custody move: the field trails from coral-xyz to solana-foundation to otter-sec, with no announcement anywhere. Two silent custody transfers, recorded only in a metadata field almost nobody reads. When I first traced this I did it exactly the way you just did, one `npm view` at a time, because I did not believe it from a secondhand claim either. That is the seam I want you to keep: verify the provenance of your provenance tool.
 
-![The npm repository field for @anchor-lang/core walks from coral-xyz to solana-foundation to otter-sec, with two unannounced transfers and otter-sec taking over at v1.1.1 on 2026-06-25.](assets/v05-timeline.png)
+![The npm repository field for @anchor-lang/core walks from coral-xyz to solana-foundation to otter-sec, with two unannounced transfers and otter-sec taking over at v1.1.1 on 2026-06-25.](assets/v05-timeline.webp)
 
 Compared to what, though? That is the question that keeps this honest instead of alarmist. Compared to no verification at all, where you take a stranger's word that their deploy matches their repo, a single well-regarded steward running a reproducible pipeline is a large step up. Compared to a fully diversified supply chain, several independent parties building the framework, publishing the crates, and running competing registries, it is a step short. Both comparisons are true at the same time. The right response is not to distrust the tool but to know the exact shape of what you are trusting, so that if custody ever changes hands again you notice it, the same way you just noticed the last two transfers.
 
 One steward custodies the framework, publishes the artifacts, runs the registry Anchor verifies against, and GPG-signs the v2 tag under the key trixter-osec. That is a lot of the supply chain resting on one competent, well-regarded party. "Well-regarded" is doing real work in that sentence, and it is not the same as "trustless." A verifiable build removes your need to trust the builder of your specific program. It does not remove your need to trust the builder of the framework. Both facts are true at once, and a security engineer holds both without flinching.
 
-![OtterSec sits at the center of three spokes, building the framework, publishing the crates, and running the verified-builds registry, so one steward spans the whole supply chain.](assets/v06-diagram.png)
+![OtterSec sits at the center of three spokes, building the framework, publishing the crates, and running the verified-builds registry, so one steward spans the whole supply chain.](assets/v06-diagram.webp)
 
 ## Mainnet-only, and read-only here
 
@@ -133,13 +133,13 @@ Be precise about what the remote job adds, because it is a convenience layer, no
 
 The second is the upgrade authority handoff, and this is where verification meets governance. The upgrade authority is the account allowed to replace a program's bytes. A freshly deployed program has one, usually a single keypair, that can swap the executable at will. A verified build with a hot single-key authority is a program that is provably this source right now and could be silently different tomorrow. The recommended endgame is to move that authority to a Squads v4 multisig, a program that requires M-of-N member signatures before it will authorize an action, so no single key can push an upgrade on its own. **This flow is mainnet-only for this course; I am narrating it, not running it.** The Squads v4 program is `SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf` (re-verify before you ever act on it), and the handoff has a specific order:
 
-![The mainnet-only Squads v4 handoff runs from creating the Squad, to writing a buffer, to transferring upgrade authority, to a proposal approved to threshold and executed.](assets/v07-flowchart.png)
+![The mainnet-only Squads v4 handoff runs from creating the Squad, to writing a buffer, to transferring upgrade authority, to a proposal approved to threshold and executed.](assets/v07-flowchart.webp)
 
 The ordering is not arbitrary, and getting it backwards is the classic footgun. You write the new bytes to a buffer and set that buffer's authority to the Squad before you hand the program's own upgrade authority over. If you transferred the program authority to the Squad first and only then found the buffer was owned by the wrong key, you would be stuck needing a multisig proposal to fix a mistake the multisig cannot yet reach. Buffer first, program second, execute last. Each step leaves you somewhere you can still recover from, right up until the final approval.
 
 The honest caveat stacks two ways, and both belong on the table before anyone touches mainnet. First, the recommended authority holder is itself un-upgradeable: the Squads v4 program has been immutable since Nov 2024, which is a feature, the multisig you trust cannot be swapped out from under you, and also a fact you should say out loud. Second, the endgame past the multisig is to set the program authority to `None`, making your own program immutable. That is the strongest guarantee you can offer users and it is irreversible. There is no undo. An authority move you cannot take back is a trade, not a free win. Make it immutable after you have verified it, never before, because immutability freezes whatever is there, safe or not.
 
-![The authority ladder runs from a single keypair to a Squads v4 multisig to immutable, trading control for assurance at each rung, with the final rung irreversible.](assets/v08-comparison.png)
+![The authority ladder runs from a single keypair to a Squads v4 multisig to immutable, trading control for assurance at each rung, with the final rung irreversible.](assets/v08-comparison.webp)
 
 ## Lab: prove the swap on devnet
 
@@ -231,7 +231,7 @@ solana-verify verify-from-repo -u devnet \
 
 Checkpoint: it reports a match, a "verified" line for the devnet program. That single line is the assessment target for this lesson. You have now proven, locally and trustlessly, that the bytes on devnet were built from your public source at the pinned toolchain.
 
-![A checkpoint table pairing each lab step with what success looks like and the specific fix if it goes wrong, ending with verify-from-repo reporting a match on devnet.](assets/v09-table.png)
+![A checkpoint table pairing each lab step with what success looks like and the specific fix if it goes wrong, ending with verify-from-repo reporting a match on devnet.](assets/v09-table.webp)
 
 ## Challenge: make the proof go red, then say what green means
 

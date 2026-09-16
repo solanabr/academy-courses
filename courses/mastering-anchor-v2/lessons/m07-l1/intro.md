@@ -28,7 +28,7 @@ The four classes:
 
 Your deliverable is concrete: three named compiler errors, captured with their message text, plus one green `anchor test` run once you restore R4. The register here is caution, not celebration. The compiler is a strong ally and a bad excuse.
 
-![A four-row table pairing each Anchor vulnerability class with its v1 runtime hazard, its status under V2 defaults, and the judgment the developer still owns.](assets/v01-comparison.png)
+![A four-row table pairing each Anchor vulnerability class with its v1 runtime hazard, its status under V2 defaults, and the judgment the developer still owns.](assets/v01-comparison.webp)
 
 ## The four classes, and why three become type errors
 
@@ -48,7 +48,7 @@ Rule out the naive fixes first, because they are what v1 shipped. Naive fix one:
 
 V2 sharpens the requirement into something the compiler can enforce. On the V2 defaults, `Account<T>` (note the dropped lifetime) is a **zero-copy, Pod-typed view** of the account's data. `T` must implement `Pod`, which means it has no padding and a fully deterministic layout, and the bytes are cast directly to `T` rather than parsed field by field. This is the same design decision that issue #4390 argued for under the banner "zero-copy account deserialization by default," which named the old parse-on-load `Account<T>` as "the slow path" and "the #1 performance complaint." The point worth sitting with: Pod-by-default is a security move as much as a speed move. A deterministic, no-padding layout is exactly what makes "these bytes are a `FeeConfig`" a claim the type system can hold rather than a claim you re-check at runtime.
 
-![A diagram contrasting v1's runtime discriminator check, which can be skipped, with V2's compile-time Pod-typed cast, where the account type is fixed in the struct and tracked by the compiler.](assets/v02-diagram.png)
+![A diagram contrasting v1's runtime discriminator check, which can be skipped, with V2's compile-time Pod-typed cast, where the account type is fixed in the struct and tracked by the compiler.](assets/v02-diagram.webp)
 
 So when you write the cosplay, the type mismatch has nowhere to hide. One piece of honest setup first, because the shape of your own program matters here: R4 ships exactly **one** account type, the `Pool` you wrote in m05-l2, and cosplay needs two. So the exploit branch adds a second — a `FeeConfig` your swap does not have and is not going to grow. It is a prop, and naming it as one is part of the lesson: what the compile error below proves is a fact about the type system, not a claim about a field your program really holds.
 
@@ -126,7 +126,7 @@ On the V2 defaults, the set of writable accounts an instruction touches is a com
 
 Read that footgun carefully, because it is the one people misremember: the runtime duplicate check still runs in the dispatcher. V2 did not delete it. What V2 added is a compiler gate in front of the unsafe spelling, so you reach the runtime check only on the path you explicitly marked unsafe. "The build is green" now means "I did not disable this by typo."
 
-![An annotated code card showing two mutable account slots marked with bare dup, the V2 compiler error rejecting it, and the required unsafe(dup) spelling the error names as the fix.](assets/v03-annotated-code.png)
+![An annotated code card showing two mutable account slots marked with bare dup, the V2 compiler error rejecting it, and the required unsafe(dup) spelling the error names as the fix.](assets/v03-annotated-code.webp)
 
 ### CPI aliasing and the death of `.reload()`
 
@@ -138,7 +138,7 @@ Rule out the v1 answers in tiers, because the ecosystem tried all of them. Tier 
 
 V2's answer is a borrow, not a reminder. A **`CpiHandle`** is a borrow-tracked handle to the accounts a CPI will touch. While the handle is alive, it holds a Rust borrow over those accounts, and typed access to the same data does not compile until the handle is dropped. You physically cannot read the stale field, because the read does not build while the CPI is pending. The entire stale-after-CPI class collapses into the borrow checker, which is the one part of Rust that never forgets.
 
-![A vertical timeline of a CpiHandle's borrow window, marking every typed read of the ticket reserve inside it as a compile error, against the v1 stale read.](assets/v04-diagram.png)
+![A vertical timeline of a CpiHandle's borrow window, marking every typed read of the ticket reserve inside it as a compile error, against the v1 stale read.](assets/v04-diagram.webp)
 
 ### Bump recalculation, the one that compiles
 
@@ -146,7 +146,7 @@ The fourth class is the interesting one, because it does not produce an error. I
 
 So when you hand-recompute a bump in your exploit, it compiles. `Address::find_program_address` is ordinary code. But the framework validates and signs against its own canonical derivation, so your recomputed value is either identical, in which case you changed nothing, or different, in which case PDA validation rejects it at runtime. The attack builds and goes nowhere. Keep that result close, because it is the bridge to the next lesson: compiling is not exploiting, and there is a whole set of classes where code compiles *and* drains an escrow.
 
-![A funnel showing four attacks entering anchor build, three leaving as rejected compile errors, and only the bump attack emerging as a binary.](assets/v05-flowchart.png)
+![A funnel showing four attacks entering anchor build, three leaving as rejected compile errors, and only the bump attack emerging as a binary.](assets/v05-flowchart.webp)
 
 That set is where the honesty lives, so let me name the trap now rather than at the end.
 
@@ -154,7 +154,7 @@ Converting four classes to compile errors narrows the attack surface. It does no
 
 There is a second-order risk here that is worse than any single bug. A team that internalizes "the compiler catches our security bugs" reviews less, and reviews less precisely in the region where the compiler is silent, which is the region where the money actually leaves. So the discipline is inverted from what it feels like: the classes the compiler kills are the ones you can spend the least attention on in review, and the classes it cannot touch are where the whole audit budget should go. Compile-time wins are a reallocation of where you look, not a reason to look less. The split is worth keeping somewhere you can see it.
 
-![A two-band table separating the classes V2 defaults catch from the signer, substitution, and logic classes that compile, run, and stay the developer's job.](assets/v06-table.png)
+![A two-band table separating the classes V2 defaults catch from the signer, substitution, and logic classes that compile, run, and stay the developer's job.](assets/v06-table.webp)
 
 That changelog is worth one glance, because it models the posture. PR #4914, merged 2026-08-13, revised the headline benchmarks *down*: bytecode savings from 95% to 94%, and the compute win from 9.9x to 8.8x, with the caveat that "This version is alpha and exact values can move as codegen, pinocchio, and tooling change." Cite the 8.8x as context for how much faster the Pod path runs, never as a security number. The same honesty that revises a benchmark downward is the honesty that forbids treating any V2 default as audited.
 
@@ -271,7 +271,7 @@ anchor test
 
 Checkpoint: `anchor test` is green. Your assessment artifact is now complete: three captured compile errors on the exploit branch (type cosplay, duplicate-mutable, CPI aliasing) plus one green test run on restored R4. The bump attack is the recorded fourth commit that built and did nothing.
 
-![A five-node commit timeline: three attacks failing to build, one building as a runtime no-op, and a final commit restoring the green suite.](assets/v07-timeline.png)
+![A five-node commit timeline: three attacks failing to build, one building as a runtime no-op, and a final commit restoring the green suite.](assets/v07-timeline.webp)
 
 ## Challenge
 

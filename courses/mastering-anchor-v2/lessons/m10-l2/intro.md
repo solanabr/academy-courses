@@ -26,11 +26,11 @@ The naive answer is "more breaking changes piled up." Tempting, and wrong. If it
 
 That single fact is the generator. Almost every delta ahead is a consequence of one of three design decisions baked into that rebuild, and if you carry the three decisions in your head you can predict the deltas instead of memorizing them.
 
-![A tree showing three root design decisions (no_std rewrite, zero-copy default, borrow-tracked CPI) each branching into the specific syntax changes they cause, plus a cross-cutting group for the compiler-narrated deltas.](assets/v01-diagram.png)
+![A tree showing three root design decisions (no_std rewrite, zero-copy default, borrow-tracked CPI) each branching into the specific syntax changes they cause, plus a cross-cutting group for the compiler-narrated deltas.](assets/v01-diagram.webp)
 
 Before the decisions, one piece of vocabulary and one map, because the ground is moving while you stand on it. The v1 line is `anchor-lang` 1.1.2 — or rather it was: v1.2.0 shipped on 2026-09-04, so the stable line is 1.2.0 now and still taking commits. V2 lives on the `anchor-next` branch and ships as `2.0.0-rc.1`, published to crates.io on 2026-08-12 under the git tag `v2.0.0-rc.1`. Those are two parallel lines, not a before and after. As of this writing, 2026-08-22, the V2 reference docs still carry install language that predates the crates.io publish, warning you to consume the crates from git. Do not read the alpha wording alongside it as the same kind of lag: the project labels this one release both `rc` and `alpha` on purpose, and that pair is current, not stale. RCs move fast. Re-check the crates.io version and the `anchor-next` tag before you pin anything, and treat every version number in this lesson as a snapshot with a date on it.
 
-![A two-track timeline of the stable v1 line and the V2 anchor-next release-candidate line running in parallel through 2026, with rc.1 reaching crates.io on 2026-08-12.](assets/v02-timeline.png)
+![A two-track timeline of the stable v1 line and the V2 anchor-next release-candidate line running in parallel through 2026, with rc.1 reaching crates.io on 2026-08-12.](assets/v02-timeline.webp)
 
 ### Decision 1: the no_std rewrite renames the primitives
 
@@ -40,7 +40,7 @@ The lifetimes go for a related reason. In v1 every account struct carried `<'inf
 
 If going one layer deeper than "the framework handles it" is the itch you keep scratching, that is exactly where the Low-Level Solana course lives: beneath the framework entirely, on the machinery V2 is now sitting on.
 
-![A comparison table pairing each v1 Anchor spelling with its V2 replacement and the one-line reason, from Pubkey-to-Address through the removal of reload().](assets/v03-comparison.png)
+![A comparison table pairing each v1 Anchor spelling with its V2 replacement and the one-line reason, from Pubkey-to-Address through the removal of reload().](assets/v03-comparison.webp)
 
 ### Decision 2: zero-copy is the default, so the ceremony around it disappears
 
@@ -59,13 +59,13 @@ So a v1 struct copied across usually is not Pod-legal on arrival. You have two h
 
 Then the trap. `AccountLoader` still exists in V2. Your grep flags it as one more line among many, your build will not complain at all, and that is precisely the danger. It does not mean what it meant in v1. The v1 zero-copy role that `AccountLoader` used to fill has moved to `Account<T>` (the new default). The name `AccountLoader` has been repurposed as a sequential account cursor, a completely different thing, and the docs explicitly warn that it "means something else" now. This is the one delta most likely to compile and then misbehave rather than fail loudly. Treating it as "gone, delete it" is wrong. Treating it as "same as v1, keep it" is worse. It is a false friend: same face, new job.
 
-![A table showing the v1 AccountLoader's zero-copy role moving to Account-of-T, the AccountLoader name repurposed as a sequential cursor, and LazyAccount left with no V2 equivalent.](assets/v04-comparison.png)
+![A table showing the v1 AccountLoader's zero-copy role moving to Account-of-T, the AccountLoader name repurposed as a sequential cursor, and LazyAccount left with no V2 equivalent.](assets/v04-comparison.webp)
 
 Last consequence of Decision 2, and the one you will fix by hand in the challenge: space math. In 0.32 you hand-rolled `space = 8 + 32 + 8`, where the leading `8` was the account discriminator you added yourself. The derived form arrived with 1.0, as m10-l1's change three, and V2 keeps it unchanged: `space = T::DISCRIMINATOR.len() + T::INIT_SPACE`. The reason it still bites a migrator in 2.0 is that the hand-count is legal Rust arithmetic, so a program that skipped the 1.0 edit compiles on 1.1.2 with the magic `8` intact and arrives here still carrying it. The discriminator is still 8 bytes (sha256 default, unchanged and v1-compatible), so `DISCRIMINATOR.len()` is 8. The trap is that `INIT_SPACE` is the sum of the Pod field sizes only. It never includes the discriminator. A half-finished port that deletes the magic `8` but forgets that `INIT_SPACE` excludes it will under-count every account by exactly 8 bytes, size every account too small, and overrun the buffer on the first write.
 
 Itemize it, because the number is the whole argument. Take the `Config` from the lab: one `Address` at 32 bytes, one `u64` at 8, one `bool` at 1. `INIT_SPACE` is `32 + 8 + 1 = 41`. The full on-chain length is `DISCRIMINATOR.len() + INIT_SPACE = 8 + 41 = 49`. The careless port computes `41` and allocates `41`, so the account is exactly one discriminator short, and the very first byte of your `authority` field lands where the runtime expected the account to end. The bug will not crash anywhere you can read it: it is an off-by-8 that sizes correctly in your head and wrongly on chain. Hold that layout. It is the challenge.
 
-![A byte-layout strip for a 49-byte Config account: the 8-byte discriminator plus 41 bytes of INIT_SPACE, beside a short allocation whose writes overrun by eight bytes.](assets/v05-diagram.png)
+![A byte-layout strip for a 49-byte Config account: the 8-byte discriminator plus 41 bytes of INIT_SPACE, beside a short allocation whose writes overrun by eight bytes.](assets/v05-diagram.webp)
 
 ### Decision 3: CPI is borrow-tracked, so .reload() cannot exist
 
@@ -77,7 +77,7 @@ A migrator's instinct is: "V2 removed `.reload()`, fine, I will just call it man
 
 Notice which class of bug this kills, because it is the worst class. A forgotten `.reload()` in v1 does not fail the average case. The transfer still happens, the CPI still succeeds, the tests that do not depend on the post-CPI balance still pass. It fails only when your handler reads the mutated value and branches on it: a withdrawal that checks a balance it thinks is still 100 when the CPI just moved it to 0. That is the signature of the most expensive bugs on chain. Correct in the common path, wrong exactly when money is on the line, invisible until the worst case arrives. Deprecating `.reload()` would have left that worst-case window open for anyone who forgot to call it. Removing the ability to hold the stale copy at all closes the window for everyone, including the migrator who never read this lesson. That asymmetry, average-case-fine versus worst-case-catastrophic, is the exact reason V2 chose "unrepresentable" over "documented."
 
-![Two code panels: in v1 a post-CPI read goes stale and reload() patches it; in V2 typed access during a live CpiHandle is a compile error.](assets/v06-annotated-code.png)
+![Two code panels: in v1 a post-CPI read goes stale and reload() patches it; in V2 typed access during a live CpiHandle is a compile error.](assets/v06-annotated-code.webp)
 
 One more small delta from this decision, because it is where new migrators trip on syntax after they understand the concept: `CpiContext::new` now takes the program as `&Address`. In m10-l1 you learned the 1.0 form, where `CpiContext::new` took a `Pubkey`. V2 takes a borrowed `Address`. Same idea, one more type rename following Decision 1 downstream into the CPI API.
 
@@ -87,11 +87,11 @@ Two changes do not belong to a single decision. They belong to a philosophy: mak
 
 Take `has_one`. Port `#[account(mut, has_one = authority)]` into V2 and it compiles, but it emits a deprecation warning that underlines the `has_one` keyword specifically. That underline is not incidental. The framework's parser stores the `has_one` keyword span on purpose so that codegen can point back at it. The warning is telling you the exact edit, in its own words: "on the sibling field, use `#[account(address = owner.field)]` instead." The right-hand side is any expression, most often the parent account's field. It is a deprecation with a map attached. Do not reach for `#[allow(deprecated)]` to silence it. `has_one` is on a path to removal, and a later RC may take it. The warning is doing you a favor.
 
-![A code panel showing a V2 build warning that underlines the has_one keyword via a deliberately stored parser span, with the corrected address-equals-parent-field spelling below it, still on a Signer.](assets/v07-annotated-code.png)
+![A code panel showing a V2 build warning that underlines the has_one keyword via a deliberately stored parser span, with the corrected address-equals-parent-field spelling below it, still on a Signer.](assets/v07-annotated-code.webp)
 
 Now the sharper one, the per-line fork. Your v1 code opts a duplicate mutable account out of the duplicate-mutable check with `#[account(mut, dup)]`. In V2 that line does not warn. It fails to build. Plain `dup` is a compile error, and the error text names the fix: write `unsafe(dup)`. This matters more than it looks. V2 still detects duplicate mutables, and the check still runs during account validation against the walked bitvec. What changed is that the escape hatch must now be spelled `unsafe`, at the call site, every time you use it. (The walked bitvec is the dispatcher's runtime pass from m01-l4: it marks every address that arrives twice, then ANDs that against the struct's compile-time `MUT_MASK`. The attribute is a compile-time event; the collision it guards is a runtime one.) The word is doing work: it makes you acknowledge, right where you deviate, that you have taken on the obligation to write the handler so it never forms conflicting mutable references. The docs say the hatch is named `unsafe(dup)` "on purpose." A `dup` that silently compiled was a risk you could forget. An `unsafe(dup)` you had to type is a risk you chose.
 
-![A flowchart for porting a duplicate-mutable account: plain dup fails to build, and two questions about the alias route you to removing the opt-out or writing unsafe(dup).](assets/v08-flowchart.png)
+![A flowchart for porting a duplicate-mutable account: plain dup fails to build, and two questions about the alias route you to removing the opt-out or writing unsafe(dup).](assets/v08-flowchart.webp)
 
 ### Mechanical renames and the things you must leave behind
 
@@ -107,7 +107,7 @@ Worth pausing on the question a careful engineer asks before touching a working 
 
 So compared to what? Compared to the alternative of learning the deltas after 2.0 is stable, under deadline, on a codebase you have half-forgotten. The port is a rewrite, and a rewrite you do calmly on a scratch copy, while the compiler teaches you each delta, is a completely different task from the same rewrite done in a rush because a dependency finally dropped v1 support. Learning the deltas now is cheap. Porting production funds now is not. Those are two different decisions, and the mistake is treating them as one. This lesson is the first: build the map, port a throwaway, own the reasoning. The second, when to move a real program, is a call you make later with a stable release and an audit in hand.
 
-![A decision table separating the cheap choice, learning the deltas and porting a throwaway now, from the expensive one of moving real funds onto an unaudited RC.](assets/v09-comparison.png)
+![A decision table separating the cheap choice, learning the deltas and porting a throwaway now, from the expensive one of moving real funds onto an unaudited RC.](assets/v09-comparison.webp)
 
 ### The tradeoff, and the discipline the RC forces
 

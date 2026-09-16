@@ -44,7 +44,7 @@ So the loop is four steps, and step two is load-bearing:
 3. **Re-measure** the same instruction, the same way, with the same fixture.
 4. **Keep or revert** based on the delta, and write down which single change caused it.
 
-![A cyclic loop of measure, change exactly one thing, re-measure, and keep-or-revert, with the single-variable rule flagged as the load-bearing step.](assets/v01-flowchart.png)
+![A cyclic loop of measure, change exactly one thing, re-measure, and keep-or-revert, with the single-variable rule flagged as the load-bearing step.](assets/v01-flowchart.webp)
 
 Why is this worth a whole lesson instead of a sentence? Because the failure mode is seductive. Three simultaneous changes and a total CU drop feel like progress. But that total could easily hide a regression: one change saved 400 CU, another cost 200, a third did nothing, and you shipped the 200-CU regression because the sum still went down. You would carry it forever, invisible, because you never isolated it. The loop is the thing that makes a win real. The delta is the evidence, and evidence requires a controlled experiment.
 
@@ -62,7 +62,7 @@ So what are the nets, concretely? This matters, because you cannot argue an inva
 
 So the honest verdict on guardrails-off is: it is defensible only for code whose invariants you can argue yourself. If you can look at the `swap_arcade_for_tickets` handler and say, out loud and correctly, "the reserves are always distinct accounts, the fee scale is fixed, the output is bounded by `reserve_out`, and nothing here can underflow because the quote returns 0 on an empty pool," then you have made the argument the framework was making for you, and you can take the nets down. If you cannot make that argument, leave them on. Shipping guardrails-off with no written invariant argument is a bet you did not know you placed.
 
-![A comparison of guardrails-off, which strips hot-path checks for CU and 300 bytes but makes you own the invariants, against const-rent-on, which folds the rent constant and can go stale.](assets/v02-comparison.png)
+![A comparison of guardrails-off, which strips hot-path checks for CU and 300 bytes but makes you own the invariants, against const-rent-on, which folds the rent constant and can go stale.](assets/v02-comparison.webp)
 
 ### Lever two: folding in const-rent
 
@@ -74,11 +74,11 @@ Notice I wrote a range, not a single number, and I am going to be stubborn about
 
 And the drift is the real lesson here. `const-rent` folds the rent constant, which is correct only as long as the rent formula that produced it stays put. Anchor's own Cargo.toml comment says exactly this, and it cites SIMD-0194 to say it. SIMD-0194 is titled "Deprecate Rent Exemption Threshold." It is a Core proposal, Accepted, filed back in November 2024, that would change how the rent-exempt minimum is derived. If it activates, the constant you folded in becomes wrong, silently, and your account creation is now computing rent against a stale number.
 
-![A timeline from SIMD-0194's November 2024 filing onward, showing const-rent's folded constant staying valid only until the rent formula changes, which makes the flag a re-verify item.](assets/v03-timeline.png)
+![A timeline from SIMD-0194's November 2024 filing onward, showing const-rent's folded constant staying valid only until the rent formula changes, which makes the flag a re-verify item.](assets/v03-timeline.webp)
 
 Sit with how strange that is for a second. You reached for a feature flag to shave under a hundred compute units off an account creation, and the fine print handed you back a live protocol-governance question. A one-line Cargo edit put a dependency on a SIMD's activation status into your build. That is genuinely the most interesting thing about `const-rent`, and it is why the range matters: you are not just quoting a saving, you are quoting a saving with an expiry date you do not control.
 
-![A range bar spanning roughly 85 to 90 CU across two source citations, with a dashed drift extension showing why one frozen digit would be false precision.](assets/v04-chart.png)
+![A range bar spanning roughly 85 to 90 CU across two source citations, with a dashed drift extension showing why one frozen digit would be false precision.](assets/v04-chart.webp)
 
 ### Lever three: a refactor, not a flag
 
@@ -90,7 +90,7 @@ The quote you shipped, `swap_out`, already promotes to `u128` before multiplying
 
 That is what the coding challenge at the end of this lesson is: a generalized quote, `get_amount_out`, with the fee lifted into a parameter, written from scratch and then measured. It is a separate function from the `swap_out` you shipped, not an edit to it, so you can hold both and compare. Write it, swap it into the handler behind a one-line call change, and re-measure the trade. If the delta is a win and the function still matches its reference outputs, keep it. If your `checked_mul`-plus-branch version came in cheaper on your reserves, that is what the loop is for, and the number decides, not your intuition about which reads faster.
 
-![A side-by-side comparison of a checked multiply with a branch against promoting to u128, showing both are safe and only a measurement on real reserves decides which costs less.](assets/v05-comparison.png)
+![A side-by-side comparison of a checked multiply with a branch against promoting to u128, showing both are safe and only a measurement on real reserves decides which costs less.](assets/v05-comparison.webp)
 
 The point that generalizes past this one function: a lever is anything you can flip and re-measure in isolation. A feature flag is the cleanest kind because it moves nothing in your source. A refactor is a lever too, as long as you make one and only one, then measure. The method does not change. Only the thing you are changing does.
 
@@ -108,11 +108,11 @@ Both aims are legitimate, but the weighting is not the same. A CU saved on the t
 
 Which is worth stating plainly against what this lesson then asks you to do, because it looks like a contradiction. The completion below runs the loop on `const-rent`, a cold-path lever, while the hot frame is still untouched until the challenge. That ordering is pedagogical, not a recommendation: `const-rent` is the cleanest second trip around the loop because its trade-off is drift rather than correctness, so you get to practice the method without also having to defend an invariant argument — and, after the lab's zero, it is the first trip where the number actually moves. In your own program you would do the hot path first. Here you are learning the loop, and the loop is cheaper to learn on the lever that cannot hurt you.
 
-![A two-column comparison weighting the hot trade path against the cold pool-init path, showing that the same CU delta should be ranked by frequency times delta.](assets/v06-comparison.png)
+![A two-column comparison weighting the hot trade path against the cold pool-init path, showing that the same CU delta should be ranked by frequency times delta.](assets/v06-comparison.webp)
 
 The other half of pointing the loop correctly is isolation, and it is where the whole method lives or dies.
 
-![A two-panel diagram contrasting one attributable change against three simultaneous changes whose net total hides a regression that ships invisibly because the sum still went down.](assets/v07-diagram.png)
+![A two-panel diagram contrasting one attributable change against three simultaneous changes whose net total hides a regression that ships invisibly because the sum still went down.](assets/v07-diagram.webp)
 
 ## Lab: run one full cycle on the swap
 
@@ -226,7 +226,7 @@ Here is the decision, and the zero makes it for you: **revert**. Take `--no-defa
 
 The invariant discipline the nets-off trade demands is not wasted, though — shelve it where the zero left it. On a crate that does not sit under `anchor-spl` — a pure-logic program with only `anchor-lang` in its graph — this exact flip lands, the binary shrinks, and the rule applies in full: never ship nets-off without a written argument that defends every invariant the checks were covering. For this swap the paragraph would even be writable: the two reserves are distinct token accounts by construction, so there is no aliasing to catch; the quote returns 0 on an empty or zero-input pool and the handler reverts on a 0 output; the fee scale is a fixed constant; and the output is bounded by `reserve_out`, a `u64`, so the final cast cannot truncate. Write it the day the flip can land. Today the graph vetoed the trade before you could make it.
 
-![A decision table gating a guardrails-off build on a real delta, a full written invariant argument for the handler, and the argument actually committed, otherwise revert.](assets/v08-comparison.png)
+![A decision table gating a guardrails-off build on a real delta, a full written invariant argument for the handler, and the argument actually committed, otherwise revert.](assets/v08-comparison.webp)
 
 ### 5. Encode the measured number as a regression test
 
@@ -282,7 +282,7 @@ fn cu_swap_regression() {
 }
 ```
 
-![An annotated panel explaining the regression test's four load-bearing lines: the earned budget plus headroom, the success check first, an at-or-below comparison, and both numbers printed on failure.](assets/v09-annotated-code.png)
+![An annotated panel explaining the regression test's four load-bearing lines: the earned budget plus headroom, the success check first, an at-or-below comparison, and both numbers printed on failure.](assets/v09-annotated-code.webp)
 
 Run it:
 

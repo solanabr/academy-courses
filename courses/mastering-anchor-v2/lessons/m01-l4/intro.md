@@ -34,7 +34,7 @@ The derive generates three phases, and they always run in this sequence:
 2. **Constraints.** The `#[account(...)]` attributes fire as hooks: `mut`, `init`, `seeds` and `bump`, `has_one` (which V2 deprecates in favor of `address = ...`; it still parses, with a warning), `constraint = ...`. These run after the load because most of them need the loaded data to check anything. A `has_one = authority` cannot compare against a field it has not deserialized yet.
 3. **Dispatch.** Only once loading and constraints have passed does the dispatcher hand the validated `ctx.accounts` to your handler. Your handler body is the last thing to run, not the first.
 
-![A top-to-bottom flow of three phases, load then constraints then dispatch, where each phase only runs if the previous one passed and the handler body runs last.](assets/v01-flowchart.png)
+![A top-to-bottom flow of three phases, load then constraints then dispatch, where each phase only runs if the previous one passed and the handler body runs last.](assets/v01-flowchart.webp)
 
 That ordering is the mental model you carry for the rest of the course. Every constraint you ever write lives in phase two, which means it can assume the account already loaded as its type, and it runs before your logic, which means a failed constraint costs you the transaction fee but never lets a bad account reach your handler.
 
@@ -51,7 +51,7 @@ Hold that command until Lab step 1. Right now your program has one accounts stru
 
 For that struct, the derive generates an implementation of the `TryAccounts` trait whose `try_accounts` function is, in essence, the three phases written out as straight-line code. It runs in field-declaration order, which is why the order you write your fields in is the order they load:
 
-![A sketch of the dispatcher testing the walked duplicate bitvec against LightMarquee's MUT_MASK, then try_accounts loading and constraining each field in declaration order before the handler runs.](assets/v02-annotated-code.png)
+![A sketch of the dispatcher testing the walked duplicate bitvec against LightMarquee's MUT_MASK, then try_accounts loading and constraining each field in declaration order before the handler runs.](assets/v02-annotated-code.webp)
 
 That sketch is deliberately simplified, but the structure is faithful. Three things are worth pulling out of it, because they answer questions the abstract version leaves open.
 
@@ -83,7 +83,7 @@ Here is the question that matters: *where* is that collision caught? The naive a
 
 But the compiler cannot know the *values*. Whether `first` and `second` hold the same address depends entirely on what the caller sends, and that is only knowable when the transaction arrives. So the runtime does the other half: the dispatcher walks the incoming account views, sets a bit for every slot whose address it has already seen, and AND-s that bitvec against `MUT_MASK`. If any bit survives, two mutable slots carry the same address, and the call returns `ConstraintDuplicateMutableAccount` from the dispatcher, at runtime, before your handler runs.
 
-![A two-part diagram of MUT_MASK as a fixed compile-time bitmask of mutable fields, tested against a runtime bitvec of repeated addresses, with any surviving bit raising an error.](assets/v03-diagram.png)
+![A two-part diagram of MUT_MASK as a fixed compile-time bitmask of mutable fields, tested against a runtime bitvec of repeated addresses, with any surviving bit raising an error.](assets/v03-diagram.webp)
 
 There is a second, separate thing people confuse with this, and pinning it down is the whole point of the checkpoint later. If you actually *want* to pass the same mutable account twice, because your handler is written to never hold conflicting mutable references, you opt out per field:
 
@@ -113,7 +113,7 @@ A discriminator is an 8-byte tag Anchor prepends so that the runtime can tell on
 - an event struct hashes from `event:<Name>`, for example `sha256("event:MarqueeLit")[..8]`
 - an instruction handler hashes from `global:<Name>`, for example `sha256("global:greet")[..8]`
 
-![A three-row comparison of discriminator namespaces showing account structs use account, events use event, and instruction handlers use global, with the global namespace flagged as the common trap.](assets/v04-comparison.png)
+![A three-row comparison of discriminator namespaces showing account structs use account, events use event, and instruction handlers use global, with the global namespace flagged as the common trap.](assets/v04-comparison.webp)
 
 Why `global:`? History. Early Anchor namespaced instruction handlers under a `global` state namespace, a design that mostly went away but left the preimage convention behind. There is no `instruction:` namespace and there never was. If you ever hand-build an instruction tag from `instruction:<Name>`, your bytes will not match the ones the program generated, and the dispatcher will reject the call as an unknown instruction.
 
@@ -121,7 +121,7 @@ A few more facts nail down the surface, and they matter the moment you care abou
 
 And there is an opt-in compaction. If 8 bytes on the front of every instruction feels heavy, V2 lets you annotate a handler with `#[discrim = N]`, which swaps its 8-byte sha256 prefix for a small integer tag. It is honest engineering, but read the trade before you reach for it, because it is not the per-item override you might expect.
 
-![A comparison table of default 8-byte sha256 discriminators against compact instruction discriminators, showing compact saves bytes but is all-or-nothing per program, adds prefix-ambiguity validation, and drops default v1 wire compatibility.](assets/v05-table.png)
+![A comparison table of default 8-byte sha256 discriminators against compact instruction discriminators, showing compact saves bytes but is all-or-nothing per program, adds prefix-ambiguity validation, and drops default v1 wire compatibility.](assets/v05-table.webp)
 
 Notice the shape of that trade. The default costs you 8 bytes on the wire plus the compute units to compare them, and buys you legibility and v1 compatibility for free. The compact option saves the bytes and the compute, but it is all-or-nothing per program, it has to be validated for prefix ambiguity so two tags cannot alias, and it drops the default v1 compatibility. Compatibility and legibility versus raw efficiency. That is the whole decision, and for most programs the default wins, which is exactly why the compact path stays an edge.
 
@@ -133,7 +133,7 @@ The last piece of the surface is what a client sees when something fails. Anchor
 
 Every constraint the framework enforces returns a code in its own band. The one you will meet constantly is the constraint band, which starts at 2000. `ConstraintHasOne`, the error a violated `has_one` throws, is 2001. `ConstraintDuplicateMutableAccount`, the guard we just traced, lives in that same framework territory. Your own errors, the ones you declare with `#[error_code]`, start at 6000 and count up from there, zero-indexed by variant.
 
-![A banded chart of Anchor's error-code ranges, running from instruction errors at 100 through constraint errors at 2000 up to custom errors starting at 6000.](assets/v06-comparison.png)
+![A banded chart of Anchor's error-code ranges, running from instruction errors at 100 through constraint errors at 2000 up to custom errors starting at 6000.](assets/v06-comparison.webp)
 
 This gives you a genuinely useful predictive tool. Take a program whose custom `#[error_code]` enum has, say, three variants, and no `offset` override. The first variant is 6000, the second 6001, the third 6002. If you know a variant's zero-based position you know its on-wire number without running anything. The classic mistake is to see the 2000s in a decoded error and assume that is where custom errors live. It is not. The 2000s are the framework's constraint band. Your errors start at 6000. When you want to move that base, for example to leave room or to match an external convention, `#[error_code(offset = N)]` shifts it.
 
@@ -147,7 +147,7 @@ There is a faster event variant, `#[event(bytemuck)]`, that skips the serializer
 
 Which closes the loop back to where the whole chapter started, the dispatcher. Trace one full call and every namespace shows up in its place. A client builds a transaction, prepends the 8-byte `global:light_marquee` tag to the instruction data, and sends it. The dispatcher reads those first 8 bytes, matches them against each handler's instruction discriminator, and routes to `light_marquee`. Then `try_accounts` runs: it loads each `Account<Marquee>` by checking its `account:` discriminator, runs the constraints, walks the duplicate-mutable guard. Only then does your handler body run, and when it calls `emit!`, out goes the `event:` discriminator on the log. Three namespaces, one invocation, each doing the one job it was hashed for.
 
-![A six-stop timeline of one invocation, with the global namespace routing the instruction, account: validating the loaded account, and event: tagging the emitted log.](assets/v07-timeline.png)
+![A six-stop timeline of one invocation, with the global namespace routing the instruction, account: validating the loaded account, and event: tagging the emitted log.](assets/v07-timeline.webp)
 
 ## Lab: extend R0 and watch the surface
 
@@ -253,7 +253,7 @@ Two error spellings appear in that program and it is worth knowing why both comp
 
 Note the V2 surface you are looking at directly. No `<'info>` lifetimes on the account structs. Handlers take `&mut Context<T>`. `LightMarquee` uses `init` with no explicit `space`, because V2 infers the size from the account type. Every field in every derive is a phase-one load followed by phase-two constraints, exactly the order from the diagram.
 
-![An annotated LightMarquee accounts struct labeling each field with the load and constraint work it generates, and the handler body as the dispatch phase that runs last.](assets/v08-annotated-code.png)
+![An annotated LightMarquee accounts struct labeling each field with the load and constraint work it generates, and the handler body as the dispatch phase that runs last.](assets/v08-annotated-code.webp)
 
 **Step 2: see a discriminator with your own eyes.** You do not need to guess what tag `init` writes to the front of a `Marquee` account. Compute it:
 
@@ -328,7 +328,7 @@ anchor test
 
 The call to `tally_two` never reaches your handler. The dispatcher walks the account views, flags the repeated address, ANDs that bitvec against `MUT_MASK`, sees a surviving bit, and returns `ConstraintDuplicateMutableAccount` at runtime, before the two fields even load. Your `checked_add` logic is irrelevant here, because the guard fires before the body. That is the checkpoint: a duplicate mutable account, passed without `unsafe(dup)`, is a runtime rejection from the dispatcher. You should see the test pass because the error was thrown, which is the guard doing its job.
 
-![A left-to-right invocation flow where the dispatcher finds the same address twice and rejects with ConstraintDuplicateMutableAccount, so neither account loading nor the handler body runs.](assets/v09-flowchart.png)
+![A left-to-right invocation flow where the dispatcher finds the same address twice and rejects with ConstraintDuplicateMutableAccount, so neither account loading nor the handler body runs.](assets/v09-flowchart.webp)
 
 If you want to prove the opt-out to yourself, add `unsafe(dup)` to both `TallyTwo` fields and re-run. Now the same call is accepted, both writes target the same account, and the second `checked_add` sees the value the first one wrote. That is the aliasing V2 protects you from by default, made visible on demand.
 

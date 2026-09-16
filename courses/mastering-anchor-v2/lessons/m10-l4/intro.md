@@ -8,7 +8,7 @@ One thing left, and it is not a lab. Pick a project you actually care about, rig
 
 Two moves, and a deliberate refusal.
 
-![A hub-and-spoke map of the closing plan: snap the five programs into one model, run the adoption decision tree, hand adjacent layers to sibling courses.](assets/v01-diagram.png)
+![A hub-and-spoke map of the closing plan: snap the five programs into one model, run the adoption decision tree, hand adjacent layers to sibling courses.](assets/v01-diagram.webp)
 
 First, it snaps everything you built into one connected model, so the five programs stop being five exercises and become one picture of how V2 thinks. Second, it walks the migrator's decision tree against the real tensions in the project today, because "V2 is better" and "you should put your mainnet money on V2 this afternoon" are two different questions and only one of them is easy. The refusal: this course owns the framework layer and nothing else, so the close points you outward to the sibling courses that own the layers V2 sits on top of.
 
@@ -26,7 +26,7 @@ PDA bumps reach you through a typed struct the macro builds at expansion time. Y
 
 And three named vulnerability classes are now compile errors rather than runtime exploits. Module 7 put numbers on exactly which: type cosplay, the duplicate-mutable alias, and the stale read after a CPI. You exploited all three on v1 shapes and then watched the V2 defaults refuse to build them. Keep the scope honest, because it is the scope you audited yourself: three of the eleven classes in the Foundation taxonomy, not all of them, and account substitution across a CPI is still yours to validate by hand. Your prize-escrow and your swap are where you felt that guardrail push back, and where you found its edge.
 
-![A concept map with Anchor V2 at the center and four spokes: Pod-by-default accounts, borrow-tracked CPIs, a bump const for all-literal seeds atop the typed struct 0.29 already gave you, and compile-time security, each wired to a program you built.](assets/v02-diagram.png)
+![A concept map with Anchor V2 at the center and four spokes: Pod-by-default accounts, borrow-tracked CPIs, a bump const for all-literal seeds atop the typed struct 0.29 already gave you, and compile-time security, each wired to a program you built.](assets/v02-diagram.webp)
 
 Notice what the map is really telling you. These are not four features bolted on but one decision, applied consistently: move work the developer used to do at runtime, and used to get wrong, up into the type system and the codegen. That is the through-line of the whole rewrite.
 
@@ -34,7 +34,7 @@ Notice what the map is really telling you. These are not four features bolted on
 
 Zoom out one more click and you can see the trajectory that produced this. The early Anchor you might remember was macro-heavy and compute-hungry, buying developer ergonomics with runtime cost. The 1.0 line stabilized that bargain and put it under real stewardship. The 2.0 line, the anchor-next work, went back and paid down the cost it had taken on, pushing the ergonomics into the compiler and the bytes onto a leaner runtime.
 
-![A three-stop timeline: macro-heavy early Anchor, the stabilized and still-maintained 1.1.2 line, and the leaner 2.0 release-candidate line.](assets/v03-timeline.png)
+![A three-stop timeline: macro-heavy early Anchor, the stabilized and still-maintained 1.1.2 line, and the leaner 2.0 release-candidate line.](assets/v03-timeline.webp)
 
 A framework that revisits its own tradeoffs out loud is rare, and it is exactly the kind of thing you want under your programs. But that same honesty is what makes the adoption question hard, because the honesty extends to the parts that are not finished yet.
 
@@ -52,7 +52,7 @@ And the old line is not standing still. Anchor 1.1.2 is the current stable, and 
 
 That distinction matters more than it looks, because it changes what "wait" costs you. Waiting on 1.1.2 is not the same as stagnating on it. The line keeps getting fixes, and it keeps tracking the runtime as the network itself changes under your program. You are parked on a road that is still being paved, not stranded on an abandoned one, and that is exactly why the patient branch of the tree is a real option rather than a euphemism for falling behind.
 
-![A side-by-side of Anchor 1.1.2, stable and production-hardened, against 2.0.0-rc.1, labeled both rc and alpha and explicitly unaudited but far leaner in bytecode and CU.](assets/v04-comparison.png)
+![A side-by-side of Anchor 1.1.2, stable and production-hardened, against 2.0.0-rc.1, labeled both rc and alpha and explicitly unaudited but far leaner in bytecode and CU.](assets/v04-comparison.webp)
 
 ### The number that got more honest
 
@@ -62,7 +62,7 @@ V2's own benchmarks report roughly 94% less deployed bytecode and about an 8.8x 
 
 Sit with that for a second, because it is the most reassuring thing in this whole lesson. A project revising its marketing numbers down, on purpose, is a project you can trust more, not less. It is "don't trust, verify" applied by the maintainers to themselves. The catch is that it also tells you the numbers can still move, because the benchmark page says as much: the values shift as codegen and the underlying pinocchio runtime change. So the right way to carry them is as caveated, directional, re-verifiable evidence. V2 is dramatically leaner. That is the claim. A frozen multiplier is not.
 
-![Two paired figures showing the headline benchmarks revised downward, bytecode from 95% to 94% and compute from 9.9x to 8.8x, per PR #4914.](assets/v05-chart.png)
+![Two paired figures showing the headline benchmarks revised downward, bytecode from 95% to 94% and compute from 9.9x to 8.8x, per PR #4914.](assets/v05-chart.webp)
 
 There is one more fact worth weighing before you route anything, and it sits on the trust surface rather than the code. One steward now custodies the whole supply chain. OtterSec holds the framework, publishes its crates, runs the verified-builds registry that Anchor checks releases against, and GPG-signed the v2 tag. A single competent security-focused steward across the crates, the registry, and the signatures is a real point in V2's favor, and you can check the last part yourself rather than take my word for it. We will do that in the lab.
 
@@ -72,7 +72,7 @@ A verified-builds registry is worth understanding, not just noting, because it b
 
 Everything above feeds one flowchart. The inputs are the same for every project: rc-and-alpha labeling, not audited, no committed stable date, a v1 line that still moves. What changes is your project, and that changes the routing.
 
-![A decision tree routing a greenfield project to yes, a live value-holding protocol to not-today, and a large v1 codebase to map-now-and-port-when-stable-and-audited.](assets/v06-flowchart.png)
+![A decision tree routing a greenfield project to yes, a live value-holding protocol to not-today, and a large v1 codebase to map-now-and-port-when-stable-and-audited.](assets/v06-flowchart.webp)
 
 Read each branch as a sentence you could say to a skeptical teammate.
 
@@ -94,7 +94,7 @@ The third is hearing "no other V2 course exists" as a proven law of the universe
 
 The fourth, and the one that quietly costs the most, is assuming a topic this course skipped is a topic that does not matter. Every omission here was a handoff, not a verdict. The transfer-hook interface, transaction landing, the runtime beneath the loader: this course refused each of them because a named sibling owns it and teaches it better than a bolted-on chapter ever could. Skipped is not the same as unimportant, and confusing the two is how you end up rebuilding, badly, a thing someone already taught well.
 
-![A table pairing each of the four ways to misread the adoption tree with why it is wrong and the corrected reading.](assets/v07-table.png)
+![A table pairing each of the four ways to misread the adoption tree with why it is wrong and the corrected reading.](assets/v07-table.webp)
 
 ## Lab: route three profiles, then verify a signature
 
@@ -140,7 +140,7 @@ Here is a thing worth knowing, framed as a survey result and not an absolute. Th
 
 This is the end of the course, so the forward hook points outward instead of to a next lesson. The framework layer is yours now, and it is deliberately just the framework layer. The things this course refused, it refused because a sibling owns them and teaches them properly.
 
-![A handoff table routing each next topic to its owning sibling course: Digital Assets, Client-Side, Low-Level Solana, DeFi and RWA, and Payments and Commerce.](assets/v08-table.png)
+![A handoff table routing each next topic to its owning sibling course: Digital Assets, Client-Side, Low-Level Solana, DeFi and RWA, and Payments and Commerce.](assets/v08-table.webp)
 
 Each of those courses builds on exactly what you just learned — the framework layer is yours now, and they stand on it. The Digital Assets course owns the token standards this course touched only from the program's seat, the transfer-hook interface included. The Client-Side course owns getting a transaction to actually land and reading chain data back out — the entire client half this course never once opened. Low-Level Solana goes beneath the loader you have been standing on this whole time, into sBPF and the syscalls, with no framework at all. DeFi and RWA Engineering owns what real protocol design and real venues demand beyond the toy swap you wrote as an Anchor pattern. And Payments and Commerce turns the whole stack into rails a business can run money over. Five layers, five owners, and one of those owners, for the framework layer, is now you.
 

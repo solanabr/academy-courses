@@ -29,7 +29,7 @@ Custody is a layer, not the program. Your vault's identity, the PDA derived from
 
 That is the spine of the whole upgrade, and it is worth seeing as a diff before we touch a single line.
 
-![Two columns: the PDA seeds, stored bump, authority check, debit, and instruction shapes stay identical, while only the custody layer swaps to a token account and transfer_checked.](assets/v01-comparison.png)
+![Two columns: the PDA seeds, stored bump, authority check, debit, and instruction shapes stay identical, while only the custody layer swaps to a token account and transfer_checked.](assets/v01-comparison.webp)
 
 Read that right column again. Four items. That is what a custody migration costs. Everything on the left is the work you already did in R2 and R3, and it survives the move intact. This is exactly why the upgrade path teaches tokens better than a fresh build would. A fresh build hides the seam, because everything is new at once. The upgrade isolates the seam, and the seam is the lesson.
 
@@ -45,13 +45,13 @@ Which means the wrapper is not where the behavior lives, and this is the sentenc
 
 Why an *alias*, and not the separate heavier type it used to be? This one is worth a beat, because the answer explains the whole direction of V2.
 
-![A three-stop timeline: Account<T> is called Anchor's slow path, issue #4390 argues zero-copy by default, and V2 makes InterfaceAccount<T> an alias of the now-fast Account<T>.](assets/v02-timeline.png)
+![A three-stop timeline: Account<T> is called Anchor's slow path, issue #4390 argues zero-copy by default, and V2 makes InterfaceAccount<T> an alias of the now-fast Account<T>.](assets/v02-timeline.webp)
 
 So when you write `InterfaceAccount<TokenAccount>` in V2, you get today's zero-copy `Account<TokenAccount>` plus the property that it will validate a mint or token account owned by *either* token program. You pay nothing extra for the interface capability. That is the design paying off: the fast path and the compatible path are now the same path. It is the same lever behind the 8.8x average compute-unit improvement Anchor reports in its own bench harness, the figure PR #4914 revised down from 9.9x on 2026-08-13. Dated and attributed, not measured here; module 6 is where you measure your own.
 
 Which raises the obvious migrator's question: if `InterfaceAccount<T>` is just `Account<T>`, why not keep writing `Account<TokenAccount>`? Because on the reflex path, `Account<TokenAccount>` comes with a `use anchor_spl::token::TokenAccount`, and that `T` hardcodes the classic Token program as the owner. The moment a Token-2022 mint shows up, that account fails to load. Pairing the `InterfaceAccount` wrapper with the `token_interface` module is what stays owner-agnostic across both programs. The combinations are not interchangeable, and the ones you will actually meet are worth seeing side by side.
 
-![Two account typings, one classic-only and one that accepts both token programs, plus the matching program-account choice between Program<Token> and Interface<'static, TokenInterface>.](assets/v03-comparison.png)
+![Two account typings, one classic-only and one that accepts both token programs, plus the matching program-account choice between Program<Token> and Interface<'static, TokenInterface>.](assets/v03-comparison.webp)
 
 There is a real footgun hiding in that first card, subtle enough to burn an afternoon. If you type an account as `Account<T>` and expect a *custom* owner error, you will not get one. The owner and discriminator checks run inside the account's load step, which happens before any of your constraint hooks. So an owner mismatch surfaces as a generic `IllegalOwner`, and your nicely worded custom message never fires. If you genuinely need a custom owner error, you drop to `UncheckedAccount` and assert the owner yourself in the handler. Keep that one in your pocket.
 
@@ -63,7 +63,7 @@ The `associated_token::` family says "this account is the Associated Token Accou
 
 The `mint::` family, by contrast, constrains the mint itself: `mint::decimals`, `mint::authority`, `mint::freeze_authority`. You will not need those in this upgrade, because you are custodying an *existing* arcade-token mint, not creating one. But they are the same shape, and knowing the family exists keeps you from reinventing a decimals check by hand later. The reason the `associated_token::token_program = token_program` line matters at all is the one-code-path story from earlier: because `token_program` is an `Interface`, the derived ATA address is computed against whichever token program actually owns the mint, so the same constraint resolves correctly for a classic mint and a Token-2022 mint. Hardcode the classic program there and you would silently derive the wrong address the day a Token-2022 mint arrives.
 
-![Two constraint families side by side: associated_token places and derives a token account for a mint and owner, while mint constrains an existing mint's decimals and authorities.](assets/v04-comparison.png)
+![Two constraint families side by side: associated_token places and derives a token account for a mint and owner, while mint constrains an existing mint's decimals and authorities.](assets/v04-comparison.webp)
 
 ### transfer_checked: the primitive that carries the mint
 
@@ -121,7 +121,7 @@ Checkpoint: `cargo check` resolves both crates and the build fails only on your 
 
 This is the first place the diff shows. In R2, value lived in a *second* PDA: the System-owned `sol_vault`, seeded on `[b"sol", owner]`, holding the lamports. Now value lives in a token account whose *authority* is the state PDA itself. The `Vault` state PDA stays exactly where it was, seeds and bump unchanged; the `sol_vault` retires, and a new `vault_token_account` (an ATA whose authority is the vault PDA) takes over the holding.
 
-![An accounts-struct diff: the vault account keeps its seeds and bump, the separate sol-vault PDA is removed, and mint, token-account, and token-program lines are added.](assets/v05-annotated-code.png)
+![An accounts-struct diff: the vault account keeps its seeds and bump, the separate sol-vault PDA is removed, and mint, token-account, and token-program lines are added.](assets/v05-annotated-code.webp)
 
 The **custody path** in full, `initialize` through `release`. Read `withdraw` closely: that is the interim check you re-run.
 
@@ -381,7 +381,7 @@ This is the heart of it, and I want you to notice precisely what moved and what 
 
 The seed array changed. The *move* did not, and that is the transferable part: rebuild the seeds from a bump you stored at init, never re-derive it, attach `.with_signer`, and the runtime grants the PDA signer privilege whether the inner call is a System Program transfer or a token `transfer_checked`. The seeds are the signature, and that mechanism is custody agnostic.
 
-![A before-and-after of the withdraw CPI: the signing move is unchanged, while the System Program lamport transfer becomes a transfer_checked carrying the mint and a trailing decimals argument.](assets/v06-annotated-code.png)
+![A before-and-after of the withdraw CPI: the signing move is unchanged, while the System Program lamport transfer becomes a transfer_checked carrying the mint and a trailing decimals argument.](assets/v06-annotated-code.webp)
 
 Four things in that `AFTER` block are V2-specific and worth naming, because the 1.x muscle memory (the version still on your machine) will fight you on each.
 
@@ -390,11 +390,11 @@ Four things in that `AFTER` block are V2-specific and worth naming, because the 
 - The handler takes `&mut Context<T>`, not `Context<T>`. V2 handler signatures are mutable-context by default.
 - `.with_signer(signer_seeds)` is what turns a plain CPI into a PDA-signed one. Drop it and this exact call becomes an unsigned transfer that the runtime rejects, because the vault PDA never authorized it.
 
-![The program rebuilds its signer seeds from the stored bump and calls transfer_checked; the token program verifies those seeds reproduce the vault PDA before moving the balance.](assets/v07-diagram.png)
+![The program rebuilds its signer seeds from the stored bump and calls transfer_checked; the token program verifies those seeds reproduce the vault PDA before moving the balance.](assets/v07-diagram.webp)
 
 One more thing to have in your head before you run it: the order the runtime does all this in, because knowing the sequence is how you locate a failure to the right line instead of guessing.
 
-![An eight-step vertical flowchart of the SPL withdraw, from account loading and the address constraint through the PDA-signed transfer_checked to the checked_sub debit, with per-step failure callouts.](assets/v08-flowchart.png)
+![An eight-step vertical flowchart of the SPL withdraw, from account loading and the address constraint through the PDA-signed transfer_checked to the checked_sub debit, with per-step failure callouts.](assets/v08-flowchart.webp)
 
 Checkpoint: `anchor build` is green, and you can read `withdraw` top to bottom and name each line as either identity (unchanged) or custody (changed), and point at which of the eight steps it lives in.
 
@@ -590,7 +590,7 @@ The prize-escrow (R3), the `quarter-prize` program you built last lesson, never 
 
 That is the sentence to sit with. Because you built on a vault instead of inlining custody, the SPL migration never leaves the escrow's CPI edge: the accounts it threads into the vault CPI change, and `reserve` follows one mechanical rename, the vault's init instruction going from `init_vault` to `initialize`. Policy, condition, caller pin, PDA signing: untouched.
 
-![The escrow's policy fields, condition check, caller pin, and PDA signing are unchanged; only the CPI edge changes, now carrying the mint and token accounts.](assets/v09-diagram.png)
+![The escrow's policy fields, condition check, caller pin, and PDA signing are unchanged; only the CPI edge changes, now carrying the mint and token accounts.](assets/v09-diagram.webp)
 
 Here is `redeem`, with the condition guard and the escrow signing already in place, and the release CPI's account wiring left as your gap. The answer is printed inside the marked block rather than withheld, because six field names with no compiler in front of you is a guessing game, not an exercise. Cover it with your hand, write the struct from what the vault taught you, then uncover and diff. The gap that is genuinely yours is the solo section below it.
 
@@ -717,7 +717,7 @@ Acceptance: `withdraw` moves the token balance only under the vault PDA's signat
 
 Here is the feedback loop, honest. If your escrow `redeem` compiled on the first try, the vault taught you the pattern and you transferred it. Good. If it did not, the failure was almost certainly one of three, in the order they usually bite: you reached for a bare `transfer` instead of `transfer_checked` somewhere in the vault, you forgot the mint account (so decimals never reached `transfer_checked`), or you dropped a `.with_signer` and the runtime rejected an unsigned PDA move. Every one of those is a custody-layer error, not an identity error, which is the lesson landing: the skeleton you built in R2 and R3 was correct, and swapping what it holds did not break who it is.
 
-![A three-row diagnostic table mapping a bare transfer, a missing mint account, and a dropped signer seed to their fixes, all three being custody errors rather than identity errors.](assets/v10-table.png)
+![A three-row diagnostic table mapping a bare transfer, a missing mint account, and a dropped signer seed to their fixes, all three being custody errors rather than identity errors.](assets/v10-table.webp)
 
 That is a real milestone, so name it for what it cost. You just proved that a working program's design outlives its custody. The lamport prototype was the skeleton, and the skeleton held. And the escrow proved the second, sharper claim: because it delegated custody to the vault instead of inlining it, the token migration never left its CPI edge. That is not luck. That is what building on a vault buys you, and it is the same reason a real protocol splits policy from custody.
 

@@ -20,7 +20,7 @@ One expectation to set before you look, because it will save you from hunting fo
 
 The autonomy fade this lesson: the diff walkthrough is fully worked, done for you piece by piece. The Lab has you run `cargo expand` on your own vault and annotate the real output against your native code. The three-line gate at the end is solo, no scaffolding.
 
-![A table pairing each native pinocchio step with the V2 expansion piece that replaces it, ending with a duplicate-account walk your native code only approximates for one pair and a borrow guard it has no version of.](assets/v01-comparison.png)
+![A table pairing each native pinocchio step with the V2 expansion piece that replaces it, ending with a duplicate-account walk your native code only approximates for one pair and a borrow guard it has no version of.](assets/v01-comparison.webp)
 
 ## The diff
 
@@ -100,7 +100,7 @@ One structural fact the expansion nails down, and it is the one people get wrong
 
 Make that concrete, because it is the one place field order is not cosmetic. The constraint on `state` reads the `owner` field out of the loaded `state` account and compares it against the `authority` declared above it. If you moved `state` above `authority` in the struct, the constraint would reference a field that had not loaded yet, and the derive would reject the struct at compile time rather than run a check against nothing. Native, the same mistake is a silent reorder of two `if` blocks that no compiler would ever flag. The framework turned an ordering discipline into an ordering guarantee.
 
-![The generated try_accounts loads each field with owner and discriminator checks, runs the constraint hooks, then walks for duplicate mutable accounts, a walk native code lacks.](assets/v02-annotated-code.png)
+![The generated try_accounts loads each field with owner and discriminator checks, runs the constraint hooks, then walks for duplicate mutable accounts, a walk native code lacks.](assets/v02-annotated-code.webp)
 
 ### Constraint hooks: the checks that run after everything loads
 
@@ -108,7 +108,7 @@ The load phase proves each account is what it claims to be. The constraint hooks
 
 You wrote these by hand too, just fused into your handler instead of split out. Your native withdraw re-derived the PDA and compared it, or trusted the seeds you passed to `invoke_signed`; it read `state.owner` and refused a caller who did not match. The framework pulls that logic out of the handler entirely and runs it as a separate phase, which is why a V2 constraint can never fire "too late." It physically cannot run after your handler, because it lives in a function that finishes before your handler starts. Native, that guarantee was your discipline. Generated, it is structural.
 
-![A comparison mapping the bump, stored-authority, and seeds constraints to what each generates and to the hand-written native check it replaces.](assets/v03-comparison.png)
+![A comparison mapping the bump, stored-authority, and seeds constraints to what each generates and to the hand-written native check it replaces.](assets/v03-comparison.webp)
 
 ### The dispatcher: your u8 match, grown to eight bytes
 
@@ -151,7 +151,7 @@ pub state: Account<Vault>,
 
 `init` generates the `CreateAccount` CPI, computes and funds the rent-exempt minimum from `payer`, and writes the discriminator into the new account, all three. The one line you were most likely to forget natively, tagging byte zero, is the one the framework will never skip. Miss the tag in your hand-rolled init and any program-owned account of the same length can later be deserialized as a vault, the exact type-cosplay class the discriminator check on the load side exists to close. Native, creation and validation are two places you must keep in agreement by hand. Generated, `init` on the way in and the load check on the way out are two halves of one guarantee the derive writes together.
 
-![A comparison showing the init constraint generating allocation, rent-exempt funding, and the discriminator write, which is the native line most easily forgotten.](assets/v04-comparison.png)
+![A comparison showing the init constraint generating allocation, rent-exempt funding, and the discriminator write, which is the native line most easily forgotten.](assets/v04-comparison.webp)
 
 ### MUT_MASK: the guard your native vault does not have
 
@@ -165,7 +165,7 @@ Is that class real, or is it a cosmetic guard you could skip? It is real. Imagin
 
 There is a detail here that matters more next lesson than it does now, so file it. The duplicate walk is not per-struct, it is per-tree. The derive emits a trait that reports the mutable keys a struct serializes on exit, and when you nest one Accounts struct inside another, the outer struct calls each inner struct's implementation and merges the keys into one set. So the guard catches a collision even when the same account arrives once as a direct field and once buried inside a composite. That is exactly the shape the capstone floor-registry has: it composes the cabinet-counter, the vault, the escrow, and the swap, and a naive hand-rolled composition is precisely where a duplicate-mutable aliasing bug would hide. Your native vault never had this walk at one level. A native registry would need it at every level, merged, and would have it nowhere.
 
-![A two-lane diagram contrasting the V2 duplicate-mutable guard's exhaustive walk against native pinocchio's single hand-written pair comparison.](assets/v05-diagram.png)
+![A two-lane diagram contrasting the V2 duplicate-mutable guard's exhaustive walk against native pinocchio's single hand-written pair comparison.](assets/v05-diagram.webp)
 
 ### CpiHandle: the borrow that replaced a footgun you had to remember
 
@@ -218,7 +218,7 @@ Both move lamports out of a keyless PDA under program authority. The difference 
 
 The stakes of that guard rise the moment programs compose, which is next lesson's whole subject. A single-instruction vault reads its own state, transfers, and returns; the window for a stale read is narrow. The capstone floor-registry CPIs into the vault, the escrow, and the swap, and after each of those calls returns, any typed field you were holding is a candidate for staleness. That is precisely the situation v1 shipped bugs in, because the reload you owed was one call deep in a composition you were also trying to reason about. In V2 the borrow model scales with the composition for free: each `CpiHandle` you take borrows exactly the accounts that call touches, for exactly its scope, and the compiler tracks all of them at once. The deeper you compose, the more the guard is doing, and the more the native version would have been asking you to remember.
 
-![Two timelines contrasting the v1 and native stale-read footgun with V2, where reading through a live CpiHandle borrow is a compile error rather than a runtime surprise.](assets/v06-timeline.png)
+![Two timelines contrasting the v1 and native stale-read footgun with V2, where reading through a live CpiHandle borrow is a compile error rather than a runtime surprise.](assets/v06-timeline.webp)
 
 ### The tradeoff: reading it is not a license to hand-roll it
 
@@ -230,7 +230,7 @@ One number keeps that trust honest. The generated code has a measured, moving co
 
 So when is native actually the right call, and not just an exercise? The honest answer is narrow but real: a hot path where you have profiled a specific instruction, proven the framework's per-account overhead is your bottleneck, and decided the CU you buy back is worth owning every check by hand forever. That is a rare, measured decision, not a default. And notice the tell in V2's own design: the framework is itself a no_std rewrite on pinocchio, and it offers `asm-v2` for exactly those hot paths, so you can drop to the metal for one instruction without abandoning the guards on all the others. The framework is not the enemy of the CU you want back; it is the way to spend that budget where it matters and keep the seatbelts everywhere else. Reading the expansion is what earns you that judgment. Now you can look at a generated `try_accounts`, see what each line costs and what bug it closes, and decide, with numbers, which lines you would ever want to own yourself. For almost all of them, the answer is no.
 
-![A table listing each generated expansion piece, the native step it replaces, the bug class it closes, and whether it fires at compile time or at runtime.](assets/v07-table.png)
+![A table listing each generated expansion piece, the native step it replaces, the bug class it closes, and whether it fires at compile time or at runtime.](assets/v07-table.webp)
 
 ### One name that survives, and one beat beneath the floor
 
@@ -252,7 +252,7 @@ Autonomy fade: steps 1 through 4 are worked, you run the commands and read the o
 
 4. **Find the missing guards.** Grep the expansion for `MUT_MASK`, which is a real associated const and will be there verbatim, then read outward from it to find where it is tested against the accounts the caller sent. Do not grep for a function name; the sketches above named one for readability and the real emitted code may inline it or call it something else. Then put your native gate 6 beside it and confirm the difference in scope: yours compares one pair, this compares every pair the mask marks. Then look at your native `invoke_signed` and confirm there is no compiler guard preventing a stale post-CPI read, the job the `CpiHandle` borrow does in V2.
 
-![A five-row worksheet with two worked rows and three blank ones, pairing each generated line with the native step it replaces and whether it fires at compile time or runtime.](assets/v08-table.png)
+![A five-row worksheet with two worked rows and three blank ones, pairing each generated line with the native step it replaces and whether it fires at compile time or runtime.](assets/v08-table.webp)
 
 5. **Write the annotations.** In your own words, in a comment beside each of five generated lines, name the native step it replaces and write `compile-time` or `runtime` next to it. Checkpoint: you should be able to point at every line of your native `TryFrom` and dispatch and find its generated twin, and point at exactly two generated guards, the duplicate walk and the borrow model, that have no twin at all. If you can do that, you have read the framework.
 

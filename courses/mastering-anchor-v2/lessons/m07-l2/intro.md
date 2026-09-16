@@ -58,7 +58,7 @@ Last lesson answered "what does V2 kill for free." This one answers the harder q
 
 The autonomy fades the usual way. I work the signer/owner class end to end, exploit and patch, because I want the drain in your test output and the fix in your fingers once. UncheckedAccount substitution drops to a completion problem: I hand you the patch, you write the exploit that proves the hole was real. The withdraw guard is the last rung, a pure-Rust coding challenge stripped of Anchor entirely, where you get the signature and the return convention and nothing else. Land the exploit, close the hole, prove it stays closed.
 
-![A two-column comparison putting the three classes retired at compile time, plus the bump class that compiles but has no seam, beside the seven surviving classes this lesson must patch by hand.](assets/v01-comparison.png)
+![A two-column comparison putting the three classes retired at compile time, plus the bump class that compiles but has no seam, beside the seven surviving classes this lesson must patch by hand.](assets/v01-comparison.webp)
 
 One trap to name before we start, because it is the whole reason this half is dangerous. Every guard you add costs compute and code you have to maintain, and the framework will never tell you which guard is *missing*. It only rejects the spellings it already knows. So "secure by default" is a claim about the classes on the top of that table, not the bottom. Over-trusting it on the bottom half is exactly how escrows get drained.
 
@@ -66,7 +66,7 @@ One trap to name before we start, because it is the whole reason this half is da
 
 The method is fixed and it is the point: for each class, land an exploit that succeeds against the current code, name precisely why it works, then patch until the exploit fails and the legitimate path still passes. Read, break, fix, prove.
 
-![A seven-step loop diagram: pick a class, write a passing exploit, name the missing guard, add it, and re-run until the exploit fails.](assets/v02-flowchart.png)
+![A seven-step loop diagram: pick a class, write a passing exploit, name the missing guard, add it, and re-run until the exploit fails.](assets/v02-flowchart.webp)
 
 ### Class 1: the signer and owner check (worked in full)
 
@@ -229,7 +229,7 @@ pub player: Signer,
 
 `address = escrow.player` says, plainly, the account passed here must equal the player this escrow named. It is the V2 idiom that replaced `has_one`, and it takes any expression, so it reads as what it does. Re-run `drain_as_stranger` and it flips: the transaction now fails at account load, before your handler runs a single line, because the stranger's key does not match `escrow.player`. Re-run the legitimate `conditional_release` test and it is still green. Exploit dead, feature intact. That is the whole loop, and every class below is a variation on it.
 
-![An annotated code card showing the unpinned player field a stranger can drain, and the address constraint that rejects the stranger at account load.](assets/v03-annotated-code.png)
+![An annotated code card showing the unpinned player field a stranger can drain, and the address constraint that rejects the stranger at account load.](assets/v03-annotated-code.webp)
 
 ### Class 2: UncheckedAccount substitution (the one that survives every framework)
 
@@ -239,7 +239,7 @@ Here is why that is the deepest class in the lesson. The escrow closes to `maker
 
 This is the account-substitution class, and I want you to sit with a claim: no compiler in any framework, in any language, can catch this one for you. Type cosplay was catchable because the types differed. Duplicate-mutable was catchable because the addresses aliased. Substitution has no signal. A correct account and an attacker's account have identical types, identical owners in the general case, identical everything except *which one the business logic intended*, and intent is not in the type system. It is the one class you own forever.
 
-![A side-by-side comparison of an UncheckedAccount carrying only mut against one pinned by address, owner, or constraint, showing which substitutions each allows.](assets/v04-comparison.png)
+![A side-by-side comparison of an UncheckedAccount carrying only mut against one pinned by address, owner, or constraint, showing which substitutions each allows.](assets/v04-comparison.webp)
 
 The patch on the escrow restores the pin the frozen version always had:
 
@@ -275,7 +275,7 @@ You write your test, pass a vault owned by some other program, and expect `Wrong
 
 This is worth deriving, not just memorizing, because the reason generalizes. An `Account<T>` is a typed wrapper, and before your constraint hooks run, Anchor has to *load* it: read its bytes, check the account is owned by the declaring program, and check the discriminator matches `T`. Those two checks, owner and discriminator, are structural. They happen inside `load`, first, because the framework cannot hand you a typed `T` it has not verified is a `T`. Your `owner = ... @ MyErr` constraint is a *hook*, and hooks run after load. So on a wrong-owner account, load fails first with `IllegalOwner`, and control never reaches the hook that carries your custom error.
 
-![A diagram of check ordering for Account<T>, with owner and discriminator running inside load before any constraint hook, so IllegalOwner wins over the custom error.](assets/v05-diagram.png)
+![A diagram of check ordering for Account<T>, with owner and discriminator running inside load before any constraint hook, so IllegalOwner wins over the custom error.](assets/v05-diagram.webp)
 
 The fix, when you genuinely need the custom error, is to stop asking `Account<T>` to carry it. Take an `UncheckedAccount`, which does no load-time owner check (exactly the type from class 2), and put the *same* `owner = X @ MyErr` constraint on it. Now there is no `load` to short-circuit, so the constraint hook is the only thing checking the owner, and it carries your error:
 
@@ -296,7 +296,7 @@ In V2, `init_if_needed` is no longer behind a feature flag. I checked the V2 fea
 
 The part that survives all of that: The framework can verify the account is the right *shape*. It cannot verify that reinitializing *this* account is the right *thing to do*. If your instruction hits the `init` branch over an account that already holds live state, the reuse-validation passes (space matches, owner matches, discriminator matches) and you cheerfully overwrite a funded escrow back to zeros.
 
-![A table splitting init_if_needed reuse-validation into the structural checks V2 performs and the business intent it cannot judge, where a reinit bug survives.](assets/v06-table.png)
+![A table splitting init_if_needed reuse-validation into the structural checks V2 performs and the business intent it cannot judge, where a reinit bug survives.](assets/v06-table.webp)
 
 Freshness note: this reflects the Anchor V2 release candidate as of 2026-08-22, verified against the framework's feature-flag docs and changelog. V2 is still an RC with no stable tag, so if you pin a newer RC, re-read its `init_if_needed` reuse-validation behavior before you trust the exact semantics. The mitigation does not change: if an account can hold live state, guard the reinit yourself. Check a stored flag or a nonzero field before you let the `init` branch run, and reject when the account is already live.
 
@@ -316,7 +316,7 @@ An attacker passes their own program as `some_program`, your escrow signs the CP
 
 The patch is to let the type pin the target, exactly as the frozen escrow does. For the swap, the same rule applies to the token program: `token_program: Interface<'static, TokenInterface>` pins the callee to a real token program (classic or Token-2022) rather than accepting an arbitrary one.
 
-![A flowchart contrasting an untyped program account an attacker can choose with a typed Program that pins the callee to the vault's program id.](assets/v07-flowchart.png)
+![A flowchart contrasting an untyped program account an attacker can choose with a typed Program that pins the callee to the vault's program id.](assets/v07-flowchart.webp)
 
 ### Class 6: close-and-revival (zero it, or guard it)
 
@@ -324,7 +324,7 @@ Closing an account is not just moving its lamports out. On Solana, an account wi
 
 The escrow avoids it because it uses the `close = maker` constraint, and V2's close zeroes the data, writes the closed-account sentinel, and assigns the account to the system program. There is nothing left to revive. The class only bites when someone reaches past the constraint and closes by hand. If you ever do, the rule is: zero the discriminator and guard against the revived shape, do not just move the lamports.
 
-![A single-transaction timeline where a lamports-only close leaves the discriminator intact and the account is revived, beside a zeroing close that blocks revival.](assets/v08-timeline.png)
+![A single-transaction timeline where a lamports-only close leaves the discriminator intact and the account is revived, beside a zeroing close that blocks revival.](assets/v08-timeline.webp)
 
 ### Class 7: arithmetic overflow (the withdraw guard's real bug)
 
@@ -353,7 +353,7 @@ vault.credit = vault
 
 `checked_sub` returns `None` in precisely the case that would underflow, so you convert that `None` into a real error and reject the over-withdraw. It is one method and one `?`. It is also, not coincidentally, the exact patch your coding challenge asks for.
 
-![An annotated code card comparing raw subtraction and checked_sub on a withdraw of 100 against a ledger credit of 30, one wrapping and one rejecting.](assets/v09-annotated-code.png)
+![An annotated code card comparing raw subtraction and checked_sub on a withdraw of 100 against a ledger credit of 30, one wrapping and one rejecting.](assets/v09-annotated-code.webp)
 
 One housekeeping fact for your patches. Anchor's own constraint rejections mostly live in the 2000s — `ConstraintAddress`, the one your pins raise, is Custom(2012) — but not all of them: a handful map straight onto the runtime's builtin errors instead, and `ConstraintOwner` is the sharp case, surfacing as `ProgramError::IllegalOwner` rather than any 2000s number, exactly as class 3 showed you. Your custom `#[error_code]` variants start at 6000 and count up. So an error in the 6000s is one of yours, and *which* one depends on the program: `quarter_prize` and `quarter_vault` each have their own `#[error_code]` enum, each numbered from 6000 by declaration order, so 6001 means one thing in a redeem rejection and another in a withdraw rejection. Read the program the error came from before you read the number. Knowing which band an error lives in tells you at a glance whether the framework rejected the transaction or your own guard did.
 
@@ -367,7 +367,7 @@ Now the uncomfortable half. The patch is the same *shape* as the escrow's — pi
 
 Second, arbitrary CPI, class 5. The swap CPIs `transfer_checked` through `token_program`, and the frozen swap types it as `Interface<'static, TokenInterface>`, which pins the callee to a real token program (classic or Token-2022) and nothing else. Type it as an `UncheckedAccount` instead and the trader chooses which program moves the tokens, with the pool's authority behind the call. The type is the guard.
 
-![A comparison mapping each surviving escrow vulnerability class onto the swap's own fields, with the guard that closes it named in the final column.](assets/v10-comparison.png)
+![A comparison mapping each surviving escrow vulnerability class onto the swap's own fields, with the guard that closes it named in the final column.](assets/v10-comparison.webp)
 
 You do not re-derive anything to attack the swap. You carry the same seven questions over and ask them of a different account list. That portability is the reason the taxonomy is worth learning as classes rather than as a checklist for one program.
 
@@ -455,7 +455,7 @@ test result: FAILED. 1 passed; 3 failed
 
 Read that inverted result carefully, because a failing exploit test is success here. `drain_as_stranger` and `steal_rent_on_close` now fail with `ConstraintAddress`, the framework's 2000s-band rejection at account load: the wrong caller and the substituted maker never reach your handler. `over_withdraw` fails with a custom error in the 6000s, whichever number your `Underflow` variant landed on given its position in `VaultError` (variants are numbered from 6000 by declaration order, so count yours rather than copying mine). The runtime prints it in hex, so a variant at 6001 shows as `0x1771`. And `conditional_release`, the real player clearing the real bar, still passes. Checkpoint: the three exploits flip from pass to fail, and the legitimate release stays green. If any exploit still passes, the culprit is the guard you have not added yet, and the test name tells you which class.
 
-![A top-to-bottom flowchart of the guarded redeem, from address-pinned account loading through the win check, signed payout, checked debit, and zeroing close.](assets/v11-flowchart.png)
+![A top-to-bottom flowchart of the guarded redeem, from address-pinned account loading through the win check, signed payout, checked debit, and zeroing close.](assets/v11-flowchart.webp)
 
 ## Challenge: patch the withdraw guard as a pure function
 

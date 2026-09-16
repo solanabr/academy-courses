@@ -84,7 +84,7 @@ A **marker type** is a struct with no fields, `pub struct MinBalanceConstraint;`
 
 An **associated item** is a type or constant that belongs to a trait implementation rather than being passed in. `AccountConstraint` has an associated type `Value`, the type of the value on the right of the `=`. For `quarters::min_balance = 100`, `Value` is `u64` and the `100` is that value. That is genuinely all the Rust machinery this lesson leans on. Trait, marker type, associated type. Everything else is the argument for why they are here.
 
-![A three-card reference mapping the trait AccountConstraint, the fieldless marker type MinBalanceConstraint, and the associated type Value to the single impl line that binds all three together.](assets/v01-diagram.png)
+![A three-card reference mapping the trait AccountConstraint, the fieldless marker type MinBalanceConstraint, and the associated type Value to the single impl line that binds all three together.](assets/v01-diagram.webp)
 
 ### The status quo, and the exact place it breaks
 
@@ -106,7 +106,7 @@ The third, subtler answer: "make it a generic `constraint = <expr>`." V2 does sh
 
 So the real question narrows to this: how do you let a program add a *named, reusable, IDL-visible* constraint keyword without touching the framework and without forking it? Once the question is that precise, the mechanism is almost forced.
 
-![A matrix comparing handler ifs, forking Anchor, inline constraint expressions, and implementing AccountConstraint; only the trait is IDL-visible, type-enforced on every call site, fork-free, and reusable at once.](assets/v02-comparison.png)
+![A matrix comparing handler ifs, forking Anchor, inline constraint expressions, and implementing AccountConstraint; only the trait is IDL-visible, type-enforced on every call site, fork-free, and reusable at once.](assets/v02-comparison.webp)
 
 ### The mechanism: dispatch through a trait
 
@@ -130,7 +130,7 @@ pub trait AccountConstraint<A> {
 
 Codegen does not call all four methods every time. It calls the one that matches how the constraint was written. This is the routing table, and it is the load-bearing fact of the lesson:
 
-![A routing map showing bare ns::key routes to check, init-prefixed routes to init, init_if_needed forks to init then check, update(...) routes to update, and exit fires on any successful path.](assets/v03-diagram.png)
+![A routing map showing bare ns::key routes to check, init-prefixed routes to init, init_if_needed forks to init then check, update(...) routes to update, and exit fires on any successful path.](assets/v03-diagram.webp)
 
 Now reason about where a min-balance floor belongs, out loud, because the reasoning is the point and it is what the assessment asks you to defend.
 
@@ -142,7 +142,7 @@ Now reason about where a min-balance floor belongs, out loud, because the reason
 
 That leaves `check`, and `check` is exactly right, not by elimination but by fit. `check` runs on the loaded account, on every matching instruction, before the handler. That is the definition of a read-time gate: the vault must already satisfy the invariant for the instruction to proceed, and it is re-verified every single call, not cached, not one-time. A balance floor is a read-time gate. So it lives in `check`. When the assessment asks which hook and why, this is the whole answer: `check`, because a floor is an invariant on the loaded account that must hold before the handler runs and on every call.
 
-![A decision tree routing a rule to update when it mutates, check when it must hold on every load, init at creation only, or exit for post-handler assertions.](assets/v04-flowchart.png)
+![A decision tree routing a rule to update when it mutates, check when it must hold on every load, init at creation only, or exit for post-handler assertions.](assets/v04-flowchart.webp)
 
 ### The tradeoff, said plainly
 
@@ -150,11 +150,11 @@ An open constraint trait buys you something real. Your invariant now lives in th
 
 But you are now the author of code that runs inside every matching instruction's compute budget. This is not free, and pretending otherwise is how you ship a slow program. Compared to a handler `if` you wrote once, a `check` hook runs the same comparison, so the cost of a *cheap* check is a wash. The danger is a check that is not cheap. If a teammate writes a `check` that re-reads and re-hashes a large slab of data on every call, that is compute you now pay on every matching instruction, on a hot path, forever. And there is a second, quieter cost: because the account then reads as "valid," a heavy or subtly wrong check can hide a logic bug behind a green "passes constraints." The rule of thumb is short. Keep hooks cheap, keep them in the right phase, and never let a constraint do work that belongs in the handler. Extensibility hands you framework-adjacent code to own; own it carefully.
 
-![A row-by-row comparison showing the check hook wins on reuse and IDL visibility, ties on the cost of a cheap comparison, and loses badly when the hook is expensive or subtly wrong.](assets/v05-comparison.png)
+![A row-by-row comparison showing the check hook wins on reuse and IDL visibility, ties on the cost of a cheap comparison, and loses badly when the hook is expensive or subtly wrong.](assets/v05-comparison.webp)
 
 There is a bit of lineage worth carrying into the Lab, because it explains why this door exists at all. The pressure was not academic. It came from builders. In discussion #3742, ChewingGlass put the framework's ergonomics problem bluntly, "Boilerplate kills new devs because they don't know the sacred incantations," and, in a Codama sub-thread of that same discussion, "But borsh is kind of terrible." The #4390 design issue carries the same pressure in its own words, that "the default serialization should probably behave more like zero-copy but with better UX." That is the community argument, compressed, that pushed V2 toward a constraint surface you can extend instead of a keyword list you can only accept. The open trait is what "less boilerplate" looks like once it stops being a complaint and becomes an API.
 
-![A timeline from v1's closed keyword list, through community pressure to cut boilerplate, to the no_std V2 rewrite that made constraints dispatch through public, implementable traits.](assets/v06-timeline.png)
+![A timeline from v1's closed keyword list, through community pressure to cut boilerplate, to the no_std V2 rewrite that made constraints dispatch through public, implementable traits.](assets/v06-timeline.webp)
 
 ## Lab: ship `quarters::min_balance` on R2
 
@@ -287,7 +287,7 @@ pub enum VaultError {
 
 `require_gte!(a, b, err)` is V2's "a must be greater than or equal to b, else return err" macro. It is the framework-native way to write the inclusive floor; reaching for a raw `if` with a manual `return Err(...)` would compile too, but the macro is the house style and it keeps the error path uniform.
 
-![The check function reads the loaded vault read-only, dereferences the u64 floor, and uses require_gte to reject any credit below that inclusive floor.](assets/v07-annotated-code.png)
+![The check function reads the loaded vault read-only, dereferences the u64 floor, and uses require_gte to reject any credit below that inclusive floor.](assets/v07-annotated-code.webp)
 
 Expected after this step: `anchor build` compiles the impl even though nothing uses the constraint yet. A compile error naming `AccountConstraint` here means the trait's shape has moved under the RC, so re-read it against the crate before going further.
 

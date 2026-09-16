@@ -78,7 +78,7 @@ fn main() {
 
 Run it and you see the framing in one line each: 40 bytes copied to get at the counter, versus reading the field where it already sits. That snippet re-decodes for clarity; V2's real trick is sharper. It hands you a typed `&Counter` view laid directly over the account bytes, so reading any field is a pointer offset, not a decode. **Zero-copy** means exactly that: zero copies of the account buffer. The bytes on the account and the struct in your code are the same bytes.
 
-![In v1 the account bytes are copied into an owned struct before a field read; in V2 a typed view sits over the same bytes, with identical checks.](assets/v01-comparison.png)
+![In v1 the account bytes are copied into an owned struct before a field read; in V2 a typed view sits over the same bytes, with identical checks.](assets/v01-comparison.webp)
 
 Now, the fair question a careful reader asks: could you not already do this in the Anchor you know? Yes, sort of. Old Anchor shipped a `zero_copy` opt-in for exactly the big-account cases where the copy hurt most. And that is precisely the lesson the V2 authors took from years of real programs: an opt-in that solves the common cost only when someone remembers to reach for it does not solve the common cost. Almost nobody reached for it. I will confess my own part in that. I have shipped 0.x programs and never once reached for `zero_copy`, because the plain `Account<T>` was right there and it worked. That is the whole point. The default is what ships in ten thousand programs.
 
@@ -88,7 +88,7 @@ That inversion has a name and a paper trail. Anchor design issue #4390 is titled
 
 That phrase, the slow path, is the through-line of this whole course, so I am going to keep using it. Every rung you build from here is a small argument about whether you are on the slow path or the fast one, and V2's answer is baked into the defaults you inherit for free. Here is why you should care beyond a benchmark bragging right. Your programs get bigger. The counter becomes a vault, the vault composes with an escrow, the escrow calls a swap, and each of those calls reads accounts. On the slow path every one of those reads pays the copy tax, and the taxes stack until a call that used to fit under budget suddenly does not and starts reverting in production. On the fast path that whole class of "why did my CU creep up as I added features" problem is quieter by default. What you get out of it is headroom to spend on the thing you actually wanted to build.
 
-![A 40-byte strip holding a 32-byte authority and an 8-byte count, where v1 copies all 40 bytes to read count while V2 reads the 8 in place.](assets/v02-annotated-code.png)
+![A 40-byte strip holding a 32-byte authority and an 8-byte count, where v1 copies all 40 bytes to read count while V2 reads the 8 in place.](assets/v02-annotated-code.webp)
 
 There is a second design idea underneath all this, and it is worth naming even though you will not touch it until later modules. V2 is a ground-up **no_std** rewrite built on pinocchio. `no_std` means it drops Rust's standard library, the big runtime layer most programs assume, and works against the bare metal of the Solana runtime instead. Less machinery between your struct and the account bytes is a chunk of where the savings come from. You do not need to internalize pinocchio today. You need to know the savings are structural, not a trick.
 
@@ -100,7 +100,7 @@ The V2 benchmarks originally advertised big round claims. Then, on 2026-08-13, b
 
 So the honest shape of it, as of that 2026-08-13 revision: roughly 8.8x average CU reduction, roughly 94% smaller bytecode. Both are alpha numbers on an alpha framework, and both can move again before you read this. Treat any single multiplier as a snapshot with a date on it, never a promise. This is footgun number one, and it is the reason your Lab does not hand you a number to memorize. It hands you a `solana confirm` command so you measure the gap on the actual programs, today, yourself.
 
-![A before-and-after chart of the V2 headline claims, with average CU revised from 9.9x down to 8.8x and bytecode from 95 to 94 percent.](assets/v03-chart.png)
+![A before-and-after chart of the V2 headline claims, with average CU revised from 9.9x down to 8.8x and bytecode from 95 to 94 percent.](assets/v03-chart.webp)
 
 ### Where this sits, honestly
 
@@ -110,11 +110,11 @@ Make that concrete. A leaderboard you would model in normal Rust as `Vec<Score>`
 
 Second, why this course exists at all. As of August 2026 I went looking for a dedicated Anchor V2 course or long-form guide, and I did not find one. Not "there is none," I cannot prove a negative, but a real search turned up nothing. The official Solana Foundation developer-courses path is worse than empty: it now redirects into an archived content repository frozen on 2025-01-24, roughly 0.30-era Anchor, a tombstone with a nice headstone. So this is not competing with the on-ramp. It is replacing one that stopped breathing.
 
-![A timeline running from Anchor 0.3x through the 1.0 line to V2 2.0.0-rc.1, with the official courses frozen in early 2025 and the V2 span left empty.](assets/v04-timeline.png)
+![A timeline running from Anchor 0.3x through the 1.0 line to V2 2.0.0-rc.1, with the official courses frozen in early 2025 and the V2 span left empty.](assets/v04-timeline.webp)
 
 Before the Lab, look at the road. You are not going to build twins. You are going to build an arcade. The course domain is a retro barcade token economy called Quarters, and across the modules you author a real ladder of programs: a cabinet-counter first, then a quarter-vault that holds value, a prize-escrow, a token-to-ticket swap, and a capstone floor-registry that composes the whole ladder by CPI. Every rung is Rust against the V2 RC. The rungs that face the cluster ship to devnet — the scratch greeter, the token-to-ticket swap, the capstone floor — and the ones between prove themselves in-process, under the test harness you stand up in module two. This lesson is the one rung you do not build yourself, so that you feel the destination before you take the first step.
 
-![A five-rung ladder from the cabinet-counter up to the floor-registry capstone, with today's measure-only twin and next lesson's scratch greeter sitting before the first rung.](assets/v05-flowchart.png)
+![A five-rung ladder from the cabinet-counter up to the floor-registry capstone, with today's measure-only twin and next lesson's scratch greeter sitting before the first rung.](assets/v05-flowchart.webp)
 
 ## Lab: measure the gap yourself
 
@@ -122,7 +122,7 @@ Hands on the keyboard now. This is the part you do not skip. No install: everyth
 
 The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a transaction's full log messages. Buried in those logs is a line the runtime writes for every program it runs: `Program <id> consumed X of Y compute units`. That `X` is the meter reading. That is the whole measurement.
 
-![A four-step flow from exporting a signature to running solana confirm to reading logs to grepping the consumed-compute-units line, with the spent-CU number circled as the measurement.](assets/v06-flowchart.png)
+![A four-step flow from exporting a signature to running solana confirm to reading logs to grepping the consumed-compute-units line, with the spent-CU number circled as the measurement.](assets/v06-flowchart.webp)
 
 1. **Point at devnet and set the pins.** Export all four values. These are the twins I landed for you, verified 2026-09-02. If you want to sanity-check the programs are really deployed, `solana account "$V1_TWIN_ID" --url devnet` shows each as an executable account.
 
@@ -175,7 +175,7 @@ The move you are about to use is `solana confirm -v <SIGNATURE>`, which prints a
 
 Here is the answer, so you can check yours. The v2 twin spends fewer CU because v1's `Account<T>` deserializes, that is, copies, the account bytes into a struct on every access, while V2 casts the same bytes in place and reads them where they sit. That is footgun number two pre-empted: the win is not that V2 skipped any checks. Both twins ran the same signer, owner, and discriminator validation. A **discriminator** is the small tag Anchor writes at the front of an account so a load can reject the wrong account type on sight; you derive one by hand in m01-l4. Dropping those would be a security regression, not an optimization. The savings are the copies that are no longer happening, nothing more and nothing less.
 
-![A gain-versus-cost card: zero-copy-by-default gains lower CU and smaller bytecode but costs Pod-only account types and alpha-grade maturity risk, while the safety checks stay identical on both paths.](assets/v07-comparison.png)
+![A gain-versus-cost card: zero-copy-by-default gains lower CU and smaller bytecode but costs Pod-only account types and alpha-grade maturity risk, while the safety checks stay identical on both paths.](assets/v07-comparison.webp)
 
 ## Challenge
 

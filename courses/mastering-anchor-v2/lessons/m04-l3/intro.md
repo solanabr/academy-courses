@@ -58,7 +58,7 @@ Composition is one program invoking an instruction on another and building on th
 
 Concretely, the prize never sits in the escrow. The escrow is a record: it says "50,000,000 lamports for this player, released on this condition, custodied over there." The lamports themselves live in a quarter-vault instance, and R3 reaches that vault only by CPI. That single arrow, R3 depositing into and later releasing from an R2 vault, is why this lesson declares that R3 consumes R2.
 
-![R3 CPIs into R2 to deposit the operator's lamports on reserve and, after checking caller and score, to release them on redeem, holding no prize itself.](assets/v01-flowchart.png)
+![R3 CPIs into R2 to deposit the operator's lamports on reserve and, after checking caller and score, to release them on redeem, holding no prize itself.](assets/v01-flowchart.webp)
 
 Compared to what, though? The obvious simpler design is to let the escrow hold the lamports directly: skip R2 entirely, credit the escrow account, debit it on redeem. It works, and for a one-off it is less code. But watch what you give up. You would be reimplementing custody (the lamport moves, the rent math, the authority checks) inside R3, a second copy of logic that already lives in R2 and that you have already tested. Two copies drift. The day you fix a custody bug in the vault, the escrow's private copy still has it. Composing on R2 instead means the escrow owns exactly one thing, the *decision* to release, and delegates the *holding* to the program built for it. That is the trade the whole lesson is arguing for: a smaller thing you can reason about, bolted onto a proven thing you already trust.
 
@@ -82,7 +82,7 @@ pub maker: UncheckedAccount,
 
 The shift is more than cosmetic. `has_one` was locked to a field whose name matched the account name. `address` takes any expression, so `address = escrow.player` on the claimant says, plainly, "the account passed here must be the pubkey this escrow recorded as the player." That is the caller check for the whole conditional release, and it is one line.
 
-![has_one = maker becomes address = escrow.player; same equality check, now written as an expression, and the compiler warns on the deprecated form.](assets/v02-annotated-code.png)
+![has_one = maker becomes address = escrow.player; same equality check, now written as an expression, and the compiler warns on the deprecated form.](assets/v02-annotated-code.webp)
 
 ### The duplicate-mutable default: distinct is fine, aliased is not
 
@@ -92,7 +92,7 @@ Read that carefully, because the common misread is expensive. It does *not* mean
 
 Why does the default cost you nothing at runtime for the common case? Because the check is split across two places. The `#[derive(Accounts)]` macro computes, at compile time, a 256-bit mask of which fields are mutable: this is the `MUT_MASK`, an associated const baked into your accounts struct. Then, as the dispatcher loads accounts for the instruction, it walks that mask against a runtime bitvec of addresses seen so far. The *shape* of the check (which fields are mutable) is decided when you compile. The *values* (are any two of those addresses equal) are decided when the transaction runs. Compile-time const, runtime dispatch. That division is why it is cheap and why it cannot be fooled.
 
-![The derive macro emits a compile-time 256-bit MUT_MASK of mutable fields; the dispatcher checks those fields' addresses against a runtime bitvec as it loads accounts, failing on an alias.](assets/v03-diagram.png)
+![The derive macro emits a compile-time 256-bit MUT_MASK of mutable fields; the dispatcher checks those fields' addresses against a runtime bitvec as it loads accounts, failing on an alias.](assets/v03-diagram.webp)
 
 When you genuinely mean to pass one account twice as mutable (a batch instruction touching two prize pools that happen to resolve to the same vault, say) you opt out per field, and the opt-out is spelled to make you feel it: `unsafe(dup)`. Plain `dup` without the `unsafe` wrapper is a compile error in V2, on purpose. The keyword is the seatbelt light: you are turning off an alias check, so you now own the aliasing risk and must write the handler so it never holds two conflicting mutable references to that account.
 
@@ -111,7 +111,7 @@ It is worth ruling out the naive alternatives, because they each look fine until
 
 So the real shape is forced: verify the caller and the condition, and only then build the release CPI. In the handler, the `require!` lines come first and the `quarter_vault::cpi::withdraw` call comes last. Nothing moves until the guards have passed.
 
-![The safe redeem checks the caller and condition before the withdraw CPI; paying first and checking after, or checking mid-instruction and trusting atomicity, both fail.](assets/v04-flowchart.png)
+![The safe redeem checks the caller and condition before the withdraw CPI; paying first and checking after, or checking mid-instruction and trusting atomicity, both fail.](assets/v04-flowchart.webp)
 
 ### The trade-off you are buying
 
@@ -119,7 +119,7 @@ Composition is not free, and naming the bill is the honest part. Three costs com
 
 First, your trust surface multiplied. R3 depends on R2 being correct; a bug in the vault's withdraw is now a bug in your escrow. Second, the CPI stack is bounded, at the stack height of 5 that m04-l1 already put a number and a pending-SIMD caveat on. Your escrow calling the vault sits at height 2, nowhere near it, but a protocol that composes five deep is a protocol that will one day hit the wall, and this is the lesson where you start spending that budget. Third, the aliasing risk: two mutable accounts in one instruction are rejected by default, and the day you write `unsafe(dup)` you have signed for the consequences yourself.
 
-![Stack height 1 is the top-level instruction and each CPI adds one to a live ceiling of 5, so this lesson's escrow-to-vault call sits at height 2.](assets/v05-table.png)
+![Stack height 1 is the top-level instruction and each CPI adds one to a live ceiling of 5, so this lesson's escrow-to-vault call sits at height 2.](assets/v05-table.webp)
 
 There is a thesis under all of this. The Anchor manifesto issue that kicked off V2, number 4390, "Zero-copy account deserialization by default," argued for exactly one idea: make the account model safe by default and let unsound things fail to compile. Borrow-tracked composition is that thesis applied to the hardest case, one program building on another's state. The `CpiHandle` you fought last lesson and the duplicate-mutable default you just met are the same principle enforced at two different seams.
 
@@ -189,7 +189,7 @@ Creating a vault for an address is harmless: it costs the funder rent and gives 
 
 Then point the two `Transfer` CPIs at the new accounts: `deposit`'s `from` becomes `funder`, and `withdraw`'s `to` becomes `destination`. Nothing else changes, and that is the point. Three extra accounts across three structs, no new custody logic, and R3 gets to build on the same code instead of copying it.
 
-![Self-custody keeps every role in the player's hands through distinct accounts, since the duplicate-mutable default rejects one key aliased across slots, while the escrow-owned vault splits the roles across escrow PDA, operator, and player with R2's custody logic unchanged.](assets/v06-comparison.png)
+![Self-custody keeps every role in the player's hands through distinct accounts, since the duplicate-mutable default rejects one key aliased across slots, while the escrow-owned vault splits the roles across escrow PDA, operator, and player with R2's custody logic unchanged.](assets/v06-comparison.webp)
 
 Note the one demotion: `Deposit`'s `authority` stops being a `Signer`. Topping up someone's vault never needed their permission, only their address to derive the seeds, and the escrow PDA cannot sign a deposit it is merely the owner of. `Withdraw`'s `authority` stays a `Signer`, which is exactly the account the escrow PDA will satisfy through `invoke_signed` in Step 4.
 
@@ -400,7 +400,7 @@ Checkpoint: `anchor build` is clean, no `has_one` deprecation warning left (you 
 
 Step back and look at the whole life of one prize. It exists in exactly two states, and the account model makes the transitions total: an escrow is either open (funded, waiting) or released (condition met, lamports gone to the player, record closed). Every rejected claim leaves it open, unchanged. There is no third state where the money is half-moved, because the release is one instruction and the guards gate it.
 
-![An escrow is either OPEN and funded in the vault or RELEASED and closed, and only the right caller with a passing score makes that transition.](assets/v07-diagram.png)
+![An escrow is either OPEN and funded in the vault or RELEASED and closed, and only the right caller with a passing score makes that transition.](assets/v07-diagram.webp)
 
 ### Step 5: prove it with a LiteSVM test
 
