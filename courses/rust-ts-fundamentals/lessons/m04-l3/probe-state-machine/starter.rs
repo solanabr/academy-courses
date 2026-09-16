@@ -19,7 +19,8 @@
 // string into it (unknown -> return "Invalid"), and write next_state as a
 // match over (state, probe_ok), let the COMPILER tell you which arms you
 // forgot. Return the next state's name exactly: "Pending", "Up", "Degraded",
-// "Down", or "Invalid".
+// "Down", or "Invalid". Put the enum at top level, but nest your parse helper
+// inside next_state: the graded entry point stays this file's one top-level `fn`.
 
 fn next_state(current: &str, probe_ok: bool, consecutive_failures: u32) -> String {
     let _ = consecutive_failures; // TODO: the Degraded ladder needs this
