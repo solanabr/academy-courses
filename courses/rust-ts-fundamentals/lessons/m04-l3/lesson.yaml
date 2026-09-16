@@ -18,7 +18,7 @@ blocks:
     solution: probe-state-machine/solution.rs
     tests: probe-state-machine/tests.json
     hints:
-      - "Define enum ProbeState { Pending, Up, Degraded, Down } and a parse_state(&str) -> Option<ProbeState>; return \"Invalid\" when parsing fails."
+      - "Define enum ProbeState { Pending, Up, Degraded, Down } at top level and a parse_state(&str) -> Option<ProbeState> nested inside next_state; return \"Invalid\" when parsing fails."
       - "Match on the tuple (state, probe_ok), the compiler will list every arm you haven't written yet."
       - "The Degraded ladder needs a match guard: (Degraded, false) if consecutive_failures >= 3 goes Down, otherwise it stays Degraded."
       - "derive Debug on the enum and return format!(\"{:?}\", next) to get the exact state names the tests expect."

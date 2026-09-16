@@ -2655,9 +2655,10 @@ lessons:
     blocks:
       probe-state-machine:                      # code
         hints:                     # keyed by ARRAY INDEX
-          # | Define enum ProbeState { Pending, Up, Degraded, Down } and a parse_state(&str)
-          # | -> Option<ProbeState>; return "Invalid" when parsing fails.
-          0: "Define enum ProbeState { Pending, Up, Degraded, Down } y un parse_state(&str) -> Option<ProbeState>; devuelve \"Invalid\" cuando el parseo falle."  # @src=6cea80d418bf
+          # | Define enum ProbeState { Pending, Up, Degraded, Down } at top level and a
+          # | parse_state(&str) -> Option<ProbeState> nested inside next_state; return
+          # | "Invalid" when parsing fails.
+          0: "Define enum ProbeState { Pending, Up, Degraded, Down } al nivel superior y un parse_state(&str) -> Option<ProbeState> anidado dentro de next_state; devuelve \"Invalid\" cuando el parseo falle."  # @src=0f5f402183d8
           # | Match on the tuple (state, probe_ok), the compiler will list every arm you
           # | haven't written yet.
           1: "Haz match sobre la tupla (state, probe_ok), el compilador va a listar cada brazo que todavía no escribiste."  # @src=83c10723d99e
