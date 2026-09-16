@@ -8,6 +8,11 @@ blocks:
   - key: intro
     type: prose
     src: intro.md
+  - key: fund
+    type: wallet-funding
+    amount: 2
+    network: devnet
+    produces: funded-wallet
   - key: ping-program
     type: code
     language: rust
@@ -16,9 +21,14 @@ blocks:
     starter: ping-program/starter.rs
     solution: ping-program/solution.rs
     tests: ping-program/tests.json
+    consumes: [funded-wallet]
+    produces: deployed-program
     hints:
       - "The verification harness at the bottom already names both missing pieces — build first and read which names it can't find."
       - "`Context<Ping>` needs `Ping` to carry #[derive(Accounts)] (that derive supplies the Bumps impl), not #[account]."
+  - key: deployed
+    type: deployed-program-card
+    consumes: [deployed-program]
   - key: check
     type: quiz
     questions:

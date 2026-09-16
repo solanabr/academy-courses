@@ -1,1 +1,1 @@
-// solution program
+pub fn ping() {}

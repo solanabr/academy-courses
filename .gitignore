@@ -1,11 +1,74 @@
-node_modules/
+# .gitignore — courses-academy
+# Content repo (YAML, Markdown, images, exercise sources); there is no app
+# build here. Every entry exists because that byproduct class has actually
+# appeared in or around this tree — keep it that way, no generic templates.
+
+# --- macOS / editor noise --------------------------------------------------
+# AppleDouble (._*) copies appear when assets move across volumes/AirDrop.
 .DS_Store
-*.log
+._*
+*.swp
+*~
+
+# --- local env & secrets ----------------------------------------------------
+# A real .env (MCP/API keys) lives untracked at the repo root. Only the
+# example template may ever be committed.
+.env
+.env.*
+!.env.example
+# Keypairs generated while test-deploying course programs (twins, exercise
+# crates). Deliberately narrow: a *.json glob here would also swallow
+# tests.json and IDLs, which are course content.
+*-keypair.json
+
+# --- agent / session scratch -------------------------------------------------
+# Sessions litter the root with scratch dirs (.tmplint/tsx-501 happened) and
+# in-repo worktrees under .claude/worktrees/. Claude/plugin local state is
+# machine-local; versioning any of it is a deliberate act — edit this file
+# first if that day comes.
+.claude/
+CLAUDE.local.md
+.agents/
+.memsearch/
+.superpowers/
+.tmp*/
 
 # local course-production staging (agent output; never commit directly)
 academy-pass1/
 academy-raw/
 
-# mastering-anchor-v2 twins: build artifacts and keys stay local (twins/README.md)
-courses/mastering-anchor-v2/twins/**/target/
-courses/mastering-anchor-v2/twins/**/*.json
+# --- Node / TypeScript -------------------------------------------------------
+# Lessons carry ts/ and exercise/ workspaces; contributors run `npm i` inside
+# them to verify solutions. node_modules/ matches at any depth. No lockfile
+# is tracked anywhere in this repo — they are verification byproducts.
+node_modules/
+package-lock.json
+*.tsbuildinfo
+
+# --- Rust ---------------------------------------------------------------------
+# Building twin programs or lesson exercise crates in place drops target/ and
+# a Cargo.lock; neither is ever content. Generalized from the PR #44 pattern
+# courses/mastering-anchor-v2/twins/**/target/.
+target/
+Cargo.lock
+
+# --- Python (scripts/) ---------------------------------------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- logs & interrupted-tool leftovers -------------------------------------------
+# *.tmp: cwebp/sips asset-conversion runs cut short; *.orig / *.rej: mergetool
+# backups and failed patch hunks from the PR merge train.
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# --- tracked on purpose — never add patterns that match these ---------------------
+# courses/*/visual-src/      HTML render sources. Never published, but tracked
+#                            so lesson figures can be regenerated.
+# courses/*/slots.lock.json  Pins on-chain bitmap positions. CI regenerates it
+#                            and fails on any diff — it must stay tracked.
