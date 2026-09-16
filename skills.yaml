@@ -20,6 +20,78 @@
   label: Anchor Framework
 - slug: solana-kit
   label: Solana Kit
+# Added 2026-09-01 for solana-payments-commerce, from the registry migration in
+# courses/CATALOG.md §5 policy 3 (plus `spl-tokens` and `pdas`, which that
+# policy carries over from the original registry rather than retiring). Each
+# entry below is applied to ≥2 lessons, except the review-exempt one.
+- slug: spl-tokens
+  label: SPL Tokens
+- slug: token-2022
+  label: Token-2022
+- slug: pdas
+  label: Program Derived Addresses
+- slug: checked-arithmetic
+  label: Checked Arithmetic
+- slug: signers
+  label: Signers & Fee Payers
+- slug: transaction-fees
+  label: Transaction Fees
+- slug: compute-budget
+  label: Compute Budget
+- slug: confirmation
+  label: Confirmation & Commitment
+- slug: error-handling
+  label: Error Handling
+- slug: version-pinning
+  label: Version Pinning
+- slug: program-security
+  label: Program Security
+- slug: payment-model-selection
+  label: Payment Model Selection
+- slug: solana-pay
+  label: Solana Pay
+- slug: x402-protocol
+  label: x402 Protocol
+- slug: api-monetization
+  label: API Monetization
+- slug: subscriptions-program
+  label: Subscriptions Program
+- slug: recurring-delegation
+  label: Recurring Delegation
+- slug: brazil-compliance
+  label: Brazil Payments Compliance
+  # Single-use by design (CATALOG.md §5 policy 4 names it): the Brazil/PIX
+  # corridor is covered in one place, m06-l2's distribution section.
+  reviewExempt: true
+
+# Added for courses/mastering-anchor-v2 (2026-09-07). All four are in
+# CATALOG.md §5 policy 3's sanctioned registry and none is among the 18 the
+# payments-commerce branch adds, so the two branches merge without duplicates.
+- slug: cpi
+  label: Cross-Program Invocation
+- slug: program-testing
+  label: Program Testing
+- slug: program-deployment
+  label: Program Deployment
+- slug: idl
+  label: IDL & Program Metadata
+
+# Added for courses/digital-assets (2026-09-07), under §5 policy 3 of
+# courses/CATALOG.md. Only slugs with NO equivalent in the sanctioned migration
+# list are added here: the token/program/client vocabulary that course also uses
+# (token-2022, spl-tokens, pdas, signers, compute-budget, checked-arithmetic,
+# error-handling, version-pinning, program-security) is already being added by
+# the solana-payments-commerce branch, and re-adding it here would produce a
+# duplicate on merge. Each of the four below lands on >= 2 digital-assets
+# lessons, per policy 4.
+- slug: token-metadata
+  label: Token & Asset Metadata
+- slug: state-compression
+  label: State Compression
+- slug: merkle-proofs
+  label: Merkle Proofs
+- slug: das-api
+  label: Digital Asset Standard API
 
 # Added for courses/rust-ts-fundamentals (2026-09-07). That course teaches the
 # two languages and the shipping toolchain, not the chain, so most of its tags

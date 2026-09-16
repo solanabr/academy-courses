@@ -8,12 +8,16 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"); // replace with `an
 pub mod first_program {
     use super::*;
 
+    // a handler named `ping` exists inside #[program], takes `Context<Ping>` and
+    // returns `Result<()>`.
     pub fn ping(_ctx: Context<Ping>) -> Result<()> {
         msg!("pong from {}", ID);
         Ok(())
     }
 }
 
+// `Ping` exists, is empty, and carries #[derive(Accounts)] (the derive supplies
+// the `Bumps` impl that `Context` demands).
 #[derive(Accounts)]
 pub struct Ping {}
 
@@ -27,13 +31,9 @@ pub struct Ping {}
 mod verify {
     use super::*;
 
-    // `Ping` exists, is empty, and carries #[derive(Accounts)] (the derive supplies
-    // the `Bumps` impl that `Context` demands).
     fn accounts() -> Ping {
         Ping {}
     }
 
-    // a handler named `ping` exists inside #[program], takes `Context<Ping>` and
-    // returns `Result<()>`.
     const PING: for<'info> fn(Context<'info, Ping>) -> Result<()> = first_program::ping;
 }
