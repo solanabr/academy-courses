@@ -4,15 +4,15 @@
 
 En la lección pasada apuntaste `read-any-asset.ts` a todo lo que Overgrowth posee y volvió con el estante completo: el mint SPROUT, los activos Almanac y un cNFT de crate Harvest que no tiene cuenta en ninguna parte on-chain. Esa lectura tuvo que pasar por un RPC de DAS, porque no había nada a lo que hacerle `getAccountInfo`. Ya pagaste el impuesto de lectura de la compresión una vez, a sabiendas.
 
-Lo cual prepara la idea que hoy quiero matar. Si un millón de NFTs caben en un árbol por centavos, ¿por qué no meter también los balances de SPROUT en un árbol? ¿Por qué alguien sigue bloqueando dos millones de lamports de rent por cuenta de token?
+Lo cual prepara la idea que hoy quiero matar. Si un millón de NFTs caben en un árbol por centavos, ¿por qué no meter también los balances de SPROUT en un árbol? ¿Por qué alguien sigue bloqueando casi dos millones de lamports de rent por cuenta de token?
 
-La respuesta es aritmética, y puedes correrla antes de leer otro párrafo:
+La respuesta es aritmética, y puedes correrla antes de leer otro párrafo. Los dos factores con cara de magia son una cuenta de bytes y una tasa de rent: una cuenta de token clásica tiene 293 bytes (165 de datos más el encabezado de cuenta de 128 bytes), y mainnet cobraba 6,333 lamports por byte cuando lo leí el 2026-09-06:
 
 ```bash
-node -e "console.log('break-even:', Math.floor((2_000_000 - 5_000) / 5_300), 'lifetime writes')"
+node -e "console.log('break-even:', Math.floor((293 * 6_333 - 5_000) / 5_300), 'lifetime writes')"
 ```
 
-`break-even: 376 lifetime writes`. Dos nombres antes de la aritmética, porque los dos son nuevos: Light Protocol es el equipo detrás de la compresión ZK, el segundo riel de compresión que esta lección presenta (cuentas probadas en vez de almacenadas, la prima fungible del truco de Bubblegum), y su generación de programa actual se llama V2, el V2 propio de Light, nada que ver con Bubblegum v2. El número compara una cuenta de token comprimida sobre ese riel (5,000 lamports para crearla, unos 5,300 lamports de costo de estado por transferencia) contra una cuenta de token SPL clásica (unos 2,000,000 lamports de rent, y nada por transferencia). Escribe esa cuenta 376 veces y la compresión ya gastó todo lo que la cuenta clásica apenas dejaba bloqueado. Escríbela 4,000 veces y quemaste diez veces el rent que intentabas evitar.
+`break-even: 349 lifetime writes`. Dos nombres antes de la aritmética, porque los dos son nuevos: Light Protocol es el equipo detrás de la compresión ZK, el segundo riel de compresión que esta lección presenta (cuentas probadas en vez de almacenadas, la prima fungible del truco de Bubblegum), y su generación de programa actual se llama V2, el V2 propio de Light, nada que ver con Bubblegum v2. El número compara una cuenta de token comprimida sobre ese riel (5,000 lamports para crearla, unos 5,300 lamports de costo de estado por transferencia) contra una cuenta de token SPL clásica: 293 × 6,333 = 1,855,569 lamports de rent a esa tasa fechada de mainnet, y nada por transferencia. La tasa es la mitad viva del producto. SIMD-0437 la está bajando por etapas y los clusters no van al mismo paso — devnet ya leía 5,080 el mismo día, lo que deja el mismo break-even en 279 — así que el rent es algo que re-derivas en tu cluster, nunca una constante que citas. Escribe esa cuenta 349 veces y la compresión ya gastó todo lo que la cuenta clásica apenas dejaba bloqueado. Escríbela 4,000 veces y quemaste más de once veces el rent que intentabas evitar.
 
 Esa es la lección entera en una línea, y el resto es por qué la línea es verdadera, de dónde sale, y qué le hace a la foto la segunda mitad de la factura (cómputo, no lamports). Esta es una lección de razonamiento, no una lección de construcción. Hoy no vas a comprimir un token; vas a decidir si hacerlo.
 
@@ -56,7 +56,7 @@ La parte que la gente se salta, y la parte que hace que los dos rieles sean sist
 
 Dos números venden la compresión y un número debería frenarte.
 
-Crear una cuenta de token comprimida cuesta unos 5,000 lamports. Crear una cuenta de token SPL clásica cuesta unos 2,000,000 lamports de rent. Esa proporción, de unas 400x, es toda la razón por la que alguien hace airdrop con compresión, y la lección del drop del módulo 8 la convierte en una tabla por destinatario contra la que de verdad vas a presupuestar.
+Crear una cuenta de token comprimida cuesta unos 5,000 lamports. Crear una cuenta de token SPL clásica bloquea 1,855,569 lamports de rent — los 293 bytes × 6,333 lamports/byte del resumen, mainnet, 2026-09-06. Esa proporción, de unas 370x a esa tasa, es toda la razón por la que alguien hace airdrop con compresión, y la lección del drop del módulo 8 la convierte en una tabla por destinatario contra la que de verdad vas a presupuestar, junto con la sonda de una línea (`solana rent 165 --url <cluster>`) que relee la tasa el día que presupuestes.
 
 Después el tercer número. Una transferencia de token comprimido corre unas 292,000 CU. La verificación de la prueba y el hasheo del árbol no son gratis, y los pagas por escritura. Pon eso al lado de la transferencia clásica que conociste en m01-l3, donde el motor p-token llevó la instrucción Transfer a 76 CU. La misma acción visible para el usuario, unas 3,800 veces el cómputo.
 
@@ -64,14 +64,14 @@ Desglósalo como una factura, por cuenta, a lo largo de una vida de W escrituras
 
 | Camino | Creación | Por escritura (lamports) | Por escritura (CU) |
 |---|---|---|---|
-| Cuenta de token SPL clásica | ~2,000,000 de rent (un depósito reembolsable) | 0 | 76 |
+| Cuenta de token SPL clásica | 1,855,569 de rent (293 × 6,333, mainnet 2026-09-06; un depósito reembolsable) | 0 | 76 |
 | Cuenta de token comprimida | ~5,000 | ~5,300 (costo de estado en V2) | ~292,000 |
 
-Iguala las dos columnas de lamports y te sale el número que imprimió el one-liner: 5,000 + 5,300W cruza 2,000,000 en W = 376. Por debajo de 376 escrituras de por vida, la compresión es más barata en lamports. Por encima, la compresión es más cara, y la brecha se ensancha para siempre desde ahí, porque un lado tiene un término por escritura y el otro no.
+Iguala las dos columnas de lamports y te sale el número que imprimió el one-liner: 5,000 + 5,300W cruza 1,855,569 en W = 349. Por debajo de 349 escrituras de por vida, la compresión es más barata en lamports. Por encima, la compresión es más cara, y la brecha se ensancha para siempre desde ahí, porque un lado tiene un término por escritura y el otro no. Y como el lado clásico es una cuenta de bytes por una tasa viva, el cruce se mueve cuando la tasa baja un escalón: los 5,080 de devnet lo dejan hoy en 279, y el próximo paso de SIMD-0437 mueve los dos. El break-even es una salida del modelo, nunca una constante del modelo.
 
-Hay una versión más afilada de ese argumento. Los 2,000,000 de lamports de la cuenta clásica son rent, y el rent es un depósito: cierras la cuenta y te lo devuelven. Los 5,300 lamports por escritura de la cuenta comprimida están gastados. Así que el break-even honesto es más temprano que 376, y la razón para seguir citando 376 es que la mayoría de la gente nunca cierra sus cuentas de token y por eso nunca siente el reembolso. La guía que vas a ver citada en el ecosistema es de unas mil escrituras de por vida como la línea donde la compresión deja de convenir. Nuestra aritmética cruza bastante antes. Trata las mil como un techo generoso, no como una meta.
+Hay una versión más afilada de ese argumento. Los 1,855,569 lamports de la cuenta clásica son rent, y el rent es un depósito: cierras la cuenta y te lo devuelven. Los 5,300 lamports por escritura de la cuenta comprimida están gastados. Así que el break-even honesto es más temprano que 349, y la razón para seguir citando 349 es que la mayoría de la gente nunca cierra sus cuentas de token y por eso nunca siente el reembolso. La guía que vas a ver citada en el ecosistema es de unas mil escrituras de por vida como la línea donde la compresión deja de convenir. Nuestra aritmética cruza bastante antes. Trata las mil como un techo generoso, no como una meta.
 
-![Gráfico de líneas donde el camino comprimido sube a 5,300 lamports por escritura desde un arranque de 5,000 lamports y cruza la línea plana de 2,000,000 de lamports de rent clásico en 376 escrituras.](assets/v03-chart.png)
+![Gráfico de líneas donde el camino comprimido sube a 5,300 lamports por escritura desde un arranque de 5,000 lamports y cruza la línea plana de 1,855,569 lamports de rent clásico en 349 escrituras.](assets/v03-chart.png)
 
 ### Las respuestas ingenuas, descartadas por niveles
 
@@ -79,7 +79,7 @@ Con la factura sobre la mesa, recorre las posiciones obvias y mira cómo cada un
 
 **"Comprime todo."** Falla solo con la columna de CU. Cualquier cuenta escrita más de unos cientos de veces paga más lamports y unas 3,800 veces el cómputo, para siempre. También falla por una restricción que la tabla no muestra: cada escritura necesita una prueba fresca de un indexador, así que convertiste una transacción autocontenida y capaz de funcionar offline en una con una dependencia viva de terceros en su camino de construcción.
 
-**"No comprimas nada, el rent es barato."** Falla a escala. Dos millones de lamports no son nada para una cuenta y son 200 SOL para cien mil de ellas. Un drop que cuesta 200 SOL en clásico cuesta unos 1.03 SOL comprimido, y esa es la diferencia entre entregar una distribución y cancelarla.
+**"No comprimas nada, el rent es barato."** Falla a escala. 1,855,569 lamports no son nada para una cuenta y son unos 186 SOL para cien mil de ellas. Un drop que cuesta 186 SOL en clásico cuesta unos 1.03 SOL comprimido, y esa es la diferencia entre entregar una distribución y cancelarla.
 
 **"Usa Bubblegum para los tokens también."** Tentador después del módulo pasado, y no funciona, por una razón que vale la pena enunciar con precisión en vez de señalar de lejos. Los árboles de Bubblegum tienen forma de NFT: una hoja es un activo con dueño, y las instrucciones del programa son mint, transfer, burn, delegate. Un balance de token no es un activo, es un número al que se le suma y se le resta, y en ese programa no hay ningún esquema de hoja para "aumenta esto en 40". Estarías reconstruyendo el programa de tokens comprimidos adentro de un programa de NFTs comprimidos. Que es más o menos lo que es la compresión ZK, salvo hecho como se debe y generalizado a cualquier cuenta, no solo a balances de token.
 
@@ -97,7 +97,7 @@ De esas dos variables salen tres formas concretas de falla:
 
 **Accesos grandes.** Pasando más o menos 1 KB por acceso, el costo de leer y hashear ese blob a través de la maquinaria de compresión deja de valer el rent que ahorraste. Los blobs grandes quieren una cuenta normal, o quieren no estar on-chain para nada.
 
-Y la forma que gana, dicha con la misma claridad: estado creado una vez, escrito una o dos veces, en manos de una cantidad enorme de dueños distintos. Airdrops. Distribuciones. Derechos de reclamo. Artefactos de un solo uso. Que es exactamente la forma del compost drop que Overgrowth corre en el módulo 8 (una distribución masiva de puntos de compost a cada jugador, su primera aparición aquí como adelanto), y exactamente por qué ese módulo usa este riel en vez de pagar 200 SOL para crear cuentas de token para gente que quizá nunca las toque.
+Y la forma que gana, dicha con la misma claridad: estado creado una vez, escrito una o dos veces, en manos de una cantidad enorme de dueños distintos. Airdrops. Distribuciones. Derechos de reclamo. Artefactos de un solo uso. Que es exactamente la forma del compost drop que Overgrowth corre en el módulo 8 (una distribución masiva de puntos de compost a cada jugador, su primera aparición aquí como adelanto), y exactamente por qué ese módulo usa este riel en vez de pagar unos 186 SOL para crear cuentas de token para gente que quizá nunca las toque.
 
 ![Tabla de decisión con cuatro cargas de trabajo que muestra que solo el airdrop de una escritura por cuenta se comprime, mientras que el libro mayor con escritura pesada, el estado del pool en el mismo bloque y el blob de receta de cuatro kilobytes se quedan todos como cuentas clásicas.](assets/v04-table.png)
 
@@ -145,7 +145,7 @@ Una cosa más, y esto es una confesión más que un hecho. Un borrador temprano 
 
 La compresión invierte el modelo de costos. No deroga la física.
 
-Cambias una creación de cuenta unas 400x más barata por un cómputo por escritura mucho más alto, más una prueba que el cliente tiene que traer y mantener fresca, más una dependencia viva de indexador en el camino de escritura. Para distribución de un solo tiro a muchos dueños, ese canje es abrumadoramente bueno. Para estado con escritura pesada, estado grande, o estado tocado repetidamente dentro de un solo bloque, el mismo canje se invierte y se lleva tu economía con él.
+Cambias una creación de cuenta unas 370x más barata por un cómputo por escritura mucho más alto, más una prueba que el cliente tiene que traer y mantener fresca, más una dependencia viva de indexador en el camino de escritura. Para distribución de un solo tiro a muchos dueños, ese canje es abrumadoramente bueno. Para estado con escritura pesada, estado grande, o estado tocado repetidamente dentro de un solo bloque, el mismo canje se invierte y se lleva tu economía con él.
 
 El riel más nuevo compra elegancia al costo de ser hoy solo de devnet. Eso también es un canje, y hoy no es uno que hagas con dinero de producción.
 
@@ -163,7 +163,7 @@ Vas a codificar el razonamiento de arriba como un programa pequeño, porque un v
 
     Pins revisados contra npm la semana de escritura (2026-08); vuelve a revisar antes de fijar cualquier cosa de larga vida. `tsx` corre un archivo TypeScript directamente, que es todo lo que necesitamos aquí.
 
-2. **El modelo de costos (trabajado de punta a punta).** Cada constante de este archivo es una cifra congelada de la investigación detrás de este curso, y los dos valores derivados salen directo de ellas. Nada aquí es una adivinanza.
+2. **El modelo de costos (trabajado de punta a punta).** Cada constante de este archivo es o una cifra congelada del curso o un valor leído de una fuente pública en una fecha declarada, y cada comentario dice cuál es el caso. Los valores derivados salen directo de ellas. Nada aquí es una adivinanza.
 
     ```typescript
     // labs/m07-l3/model.ts
@@ -172,8 +172,22 @@ Vas a codificar el razonamiento de arriba como un programa pequeño, porque un v
     export const COMPRESSED_CREATE_LAMPORTS = 5_000;
     /** Lamports of state cost per compressed transfer (Light's V2 program line). */
     export const COMPRESSED_WRITE_LAMPORTS = 5_300;
-    /** Rent locked by one classic SPL token account. Refundable on close. */
-    export const CLASSIC_RENT_LAMPORTS = 2_000_000;
+    /** A classic SPL token account: 165 bytes of data plus the 128-byte account header. */
+    export const CLASSIC_ACCOUNT_BYTES = 293;
+    /**
+     * Rent-exemption price of one byte. THE ONLY NUMBER IN THIS FILE THAT
+     * BELONGS TO THE NETWORK RATHER THAN TO A LAYOUT OR A PROGRAM: mainnet-beta,
+     * read 2026-09-06; devnet was a step further down at 5,080 the same day.
+     * SIMD-0437 is stepping the rate down over several releases, so re-read it
+     * before you budget: solana rent 0 --url <cluster>, then divide by 128.
+     */
+    export const LAMPORTS_PER_BYTE = 6_333;
+    /**
+     * Rent locked by one classic SPL token account. DERIVED, not pasted: at
+     * 6,333 this is 1,855,569, which is what `solana rent 165 --url
+     * mainnet-beta` printed on 2026-09-06. Refundable on close.
+     */
+    export const CLASSIC_RENT_LAMPORTS = CLASSIC_ACCOUNT_BYTES * LAMPORTS_PER_BYTE;
     /** Compute units for one compressed token transfer: proof verification + hashing. */
     export const COMPRESSED_TRANSFER_CU = 292_000;
     /** Compute units for a classic Transfer on the p-token engine (see m01-l3). */
@@ -183,7 +197,9 @@ Vas a codificar el razonamiento de arriba como un programa pequeño, porque un v
 
     /**
      * Highest lifetime write count at which the compressed path is still cheaper
-     * in lamports than one classic account's rent.
+     * in lamports than one classic account's rent. An output of the model, not a
+     * constant of it: 349 at mainnet's 6,333, 279 at devnet's 5,080, and it moves
+     * again at the next rate step.
      */
     export const BREAK_EVEN_WRITES = Math.floor(
       (CLASSIC_RENT_LAMPORTS - COMPRESSED_CREATE_LAMPORTS) / COMPRESSED_WRITE_LAMPORTS,
@@ -334,23 +350,23 @@ Vas a codificar el razonamiento de arriba como un programa pequeño, porque un v
     ```text
     compost-drop (100k recipients)
       verdict: COMPRESS
-      reason: 1 lifetime write per account is under the 376-write break-even
-      compressed: 1.0300 SOL   classic: 200.0000 SOL
+      reason: 1 lifetime write per account is under the 349-write break-even
+      compressed: 1.0300 SOL   classic: 185.5569 SOL
     currency-ledger (12k players)
       verdict: KEEP CLASSIC
-      reason: 4000 lifetime writes per account is past the 376-write break-even
-      compressed: 254.4600 SOL   classic: 24.0000 SOL
+      reason: 4000 lifetime writes per account is past the 349-write break-even
+      compressed: 254.4600 SOL   classic: 22.2668 SOL
     sprout-sol-pool-state
       verdict: KEEP CLASSIC
       reason: same-block repeated updates: each update invalidates the next transaction's proof
-      compressed: 4.7700 SOL   classic: 0.0020 SOL
+      compressed: 4.7700 SOL   classic: 0.0019 SOL
 
     compute ratio per transfer: 3842x
     ```
 
-    Mira fijo la fila del medio. Doce mil jugadores, y la versión comprimida de su libro mayor de moneda cuesta unas diez veces la versión clásica. Es el mismo mecanismo que hace de la fila uno un ahorro de 194x, corrido en la otra dirección. Un número, dos signos, y la frecuencia de escritura es lo único que cambió.
+    Mira fijo la fila del medio. Doce mil jugadores, y la versión comprimida de su libro mayor de moneda cuesta más de once veces la versión clásica. Es el mismo mecanismo que hace de la fila uno un ahorro de 180x, corrido en la otra dirección. Un número, dos signos, y la frecuencia de escritura es lo único que cambió.
 
-6. **Verifica la fila del drop contra el módulo siguiente.** Tu fila de compost-drop dice unos 10,300 lamports por destinatario. La lección de airdrop del módulo 8 presupuesta unos 10,300 comprimidos contra una cifra clásica que deriva en vez de citar: (128 + 165) bytes a la tasa de rent por byte de tu cluster, que era 6,333 en mainnet el 2026-09-06 y da 1,855,569. Esta lección usó una constante redonda de 2,000,000 para lo mismo, que era una SUBestimación leve a la vieja tasa de 6,960 y ahora es una sobrestimación leve. Tu número debería coincidir exactamente del lado comprimido, porque el costo comprimido no es rent y no se movió, y quedar dentro de más o menos 10% del lado clásico. Si el lado comprimido no coincide, cambiaste una constante.
+6. **Verifica la fila del drop contra el módulo siguiente.** Tu fila de compost-drop dice unos 10,300 lamports por destinatario. La lección de airdrop del módulo 8 presupuesta unos 10,300 comprimidos contra una cifra clásica derivada exactamente como la deriva este modelo: (128 + 165) bytes a la tasa de rent por byte de tu cluster, 6,333 en mainnet el 2026-09-06, dando 1,855,569 — la misma tasa y la misma fecha que fija este archivo. Tus números deberían coincidir exactamente de los dos lados. Si el lado comprimido no coincide, cambiaste una constante. Si el lado clásico no coincide, los dos archivos están fijando tasas de rent o fechas de lectura distintas, y gana la lectura más reciente — recomputa, no promedies.
 
 ## Challenge
 
@@ -366,7 +382,7 @@ Aceptado cuando el memo nombra la frecuencia de escritura (no el conteo de tened
 
 El criterio es que `npx tsx run.ts` imprima cuatro cargas de trabajo con un COMPRESS y tres KEEP CLASSIC, más un memo que de verdad enviarías.
 
-La respuesta de una oración que deberías poder dar con la terminal cerrada: la compresión cambia una creación de cuenta unas 400x más barata por un costo por escritura en lamports y en cómputo, así que gana para estado creado una vez y en manos de muchos, y pierde para estado que se escribe, lo que quiere decir que la frecuencia de escritura y el tamaño de acceso lo deciden, nunca el conteo de tenedores.
+La respuesta de una oración que deberías poder dar con la terminal cerrada: la compresión cambia una creación de cuenta unas 370x más barata por un costo por escritura en lamports y en cómputo, así que gana para estado creado una vez y en manos de muchos, y pierde para estado que se escribe, lo que quiere decir que la frecuencia de escritura y el tamaño de acceso lo deciden, nunca el conteo de tenedores.
 
 Los errores que espero. Primero, la trampa del conteo de tenedores: si tu memo argumenta desde el número de jugadores, vuelve a leer la tabla de decisión, porque a un árbol no le importa qué tan ancho es. Segundo, la sorpresa de la fila cuatro: el blob de receta de crafteo es más barato comprimido y aun así queda rechazado, y si eso se sintió como un bug en la herramienta en vez de una lección sobre barreras, siéntate con eso otra vez. Tercero, el número de CU soltado con confianza, que es el que de verdad me preocupa, porque es el error que yo casi cometí escribiendo esto y el que un asistente va a cometer con gusto en tu nombre.
 
