@@ -97,17 +97,17 @@ blocks:
           - id: a
             label: "Yes, the docs lead with it, which means the pipe-style flow is already deprecated"
             correct: false
-            feedback: "Leading the upgrade guide signals direction, not deprecation, the pipe flow remains the documented, stable path and the one kit's own examples use. Docs-page ordering is marketing; package versions are evidence."
+            feedback: "Leading the upgrade guide signals direction, not deprecation, the pipe flow remains the documented, stable path and the one kit's own examples use. Docs-page ordering is marketing; what the ecosystem's shipped code speaks is evidence."
           - id: c
-            label: "Not yet, the plugin packages are 0.x-young; the pipe flow stays the taught canon"
+            label: "Not yet, the plugin API is kit's newest; the pipe flow stays the taught canon"
             correct: true
-            feedback: "The plugin packages read 0.19.0 at write time, and a pre-1.0 minor is allowed to break you. The pipe flow is the documented stable path that kit's own examples and generated clients speak, so what you wired is foundation. Re-run this calculus when the plugins cross 1.0."
+            feedback: "The plugin packages version in lockstep with kit, they read 8.2.0 at write time, the same digit as kit itself, so no 1.0 milestone exists to wait for. What dates the surface is newness: kit shipped two majors in just over nine weeks, and the plugin API is the youngest thing riding that pace. The pipe flow is the documented stable path that kit's own examples and generated clients speak, so what you wired is foundation. Re-run this calculus when that canon moves to createClient()."
           - id: d
             label: "Yes, an early rewrite usually costs less than a later forced migration under deadline"
             correct: false
-            feedback: "That trade only pays once the target stops moving. At 0.19.0 the plugin API can change shape on a minor, so an early rewrite buys you the migration several times over instead of once, which is the same pre-1.0 arithmetic the pinning lesson ran."
+            feedback: "That trade only pays once the target stops moving, and nothing here forces the move: the pipe flow is not deprecated, it is the dialect kit's own examples and generated clients still speak. The plugin surface is the library's newest in an ecosystem that shipped two kit majors in just over nine weeks, so an early rewrite buys you the migration several times over instead of once."
           - id: b
             label: "No, createClient() is a third-party wrapper, not part of kit itself"
             correct: false
-            feedback: "It IS kit's own API, live on solanakit.com, the hesitation isn't provenance. It's maturity: the plugin packages backing it are 0.x, and pre-1.0 minors carry breaking-change rights (the m07-l2 pin lesson)."
-        explanation: "The 'where kit is heading' box exists precisely for this: name the new API, date its maturity (plugins at 0.x), and keep the lab on the stable path, the dialect kit's own examples and generated clients speak today. Re-check plugin maturity when you next touch this code; if plugins hit 1.0, the calculus changes."
+            feedback: "It IS kit's own API, live on solanakit.com, the hesitation isn't provenance. It's maturity: the plugin packages backing it version in lockstep with kit itself (8.2.0 at write time), so no 0.x digit will ever flag them as young. Their age shows elsewhere: they are the library's newest surface, and the canon kit's examples and generated clients speak has not moved onto them."
+        explanation: "The 'where kit is heading' box exists precisely for this: name the new API, date its maturity (the plugin packages version in lockstep with kit, 8.2.0 at write time, so newness is the caution, not a 0.x digit), and keep the lab on the stable path, the dialect kit's own examples and generated clients speak today. Re-check when you next touch this code; when that canon moves to createClient(), the calculus changes."
