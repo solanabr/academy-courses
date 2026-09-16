@@ -186,7 +186,7 @@ Estás construyendo `sprout-economy`, el peldaño que convierte a SPROUT de un t
 
 Córrelo contra surfpool, forkeado desde mainnet, para que el programa DAMM v2 y sus cuentas sean reales. Si surfpool no está ya corriendo de los labs anteriores, `surfpool start --no-tui --no-studio` en otra terminal es toda la ceremonia (instalación: `brew install txtx/taps/surfpool`, o `cargo install surfpool-cli`; verificado en 1.2.1).
 
-**1. Fija la toolchain.** Dos líneas, y la segunda necesita una palabra de honestidad.
+**1. Fija la toolchain.** Tres líneas, y la del medio necesita una palabra de honestidad.
 
 ```bash
 npm install @solana/kit@7.1.1 @solana-program/token-2022@0.15.0 @solana-program/system@0.13.0
