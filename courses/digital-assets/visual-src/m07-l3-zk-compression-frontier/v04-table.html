@@ -12,7 +12,7 @@
 <body>
 <!-- table: The compress-or-not decision, by workload shape
      purpose: give the reader the four-row matrix the lab's tool encodes, so the verdict is reproducible rather than intuitive
-     data: Columns: Workload | Lifetime writes per account | Bytes per access | Same-block updates | Verdict | Binding reason Row 1: Compost airdrop, 100k recipients | 1 | ~128 | no | COMPRESS | 1 write is far under the 376-write break-even; 1.03 SOL versus about 200 SOL Row 2: In-game currency ledger, 12k players | ~4,000 | ~128 | no | KEEP CLASSIC | past break-even by an order of magnitude; 254 SOL versus 24 SOL Row 3: SPROUT/SOL pool state | ~900,000 | ~400 | YES | KEEP CLASSIC | same-block updates invalidate the proof the next tx was built with Row 4: Crafting-recipe blob, 5k recipes | 2 | 4,096 | no | KEEP CLASSIC | over the ~1 KB per-access guideline, even though the lamport math favors it Caption: rows 3 and 4 are disqualified before the arithmetic runs. Cheapest is not the same as eligible.
+     data: Columns: Workload | Lifetime writes per account | Bytes per access | Same-block updates | Verdict | Binding reason Row 1: Compost airdrop, 100k recipients | 1 | ~128 | no | COMPRESS | 1 write is far under the 349-write break-even; 1.03 SOL versus about 186 SOL Row 2: In-game currency ledger, 12k players | ~4,000 | ~128 | no | KEEP CLASSIC | past break-even by an order of magnitude; 254 SOL versus 22 SOL Row 3: SPROUT/SOL pool state | ~900,000 | ~400 | YES | KEEP CLASSIC | same-block updates invalidate the proof the next tx was built with Row 4: Crafting-recipe blob, 5k recipes | 2 | 4,096 | no | KEEP CLASSIC | over the ~1 KB per-access guideline, even though the lamport math favors it Caption: rows 3 and 4 are disqualified before the arithmetic runs. Cheapest is not the same as eligible.
      prompt: Six-column data table with the four rows above. Style the Verdict column as badges, green for COMPRESS and neutral-grey for KEEP CLASSIC. Highlight the cell that carries the binding reason in each row with a subtle left border. Place the caption directly beneath the table.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
@@ -46,7 +46,7 @@
           <td style="padding:13px 14px;text-align:right;font-family:var(--font-mono);font-size:14px;color:var(--stbr-dark);">~128</td>
           <td style="padding:13px 14px;text-align:center;font-size:14px;color:var(--text-secondary,#4a5a4e);">no</td>
           <td style="padding:13px 14px;text-align:center;"><span style="display:inline-block;background:var(--stbr-emerald);color:var(--stbr-cream);font-family:var(--font-display);font-weight:900;font-size:13px;letter-spacing:.05em;padding:5px 14px;border-radius:999px;">COMPRESS</span></td>
-          <td style="padding:13px 16px;font-size:13.5px;line-height:1.4;color:var(--stbr-dark);background:rgba(255,210,63,0.16);border-left:4px solid var(--stbr-yellow);">1 write is far under the 376-write break-even; <b>1.03 SOL vs about 200 SOL</b></td>
+          <td style="padding:13px 16px;font-size:13.5px;line-height:1.4;color:var(--stbr-dark);background:rgba(255,210,63,0.16);border-left:4px solid var(--stbr-yellow);">1 write is far under the 349-write break-even; <b>1.03 SOL vs about 186 SOL</b></td>
         </tr>
         <tr style="border-bottom:1px solid var(--border-subtle,#e5decb);background:var(--surface-paper,#faf5e6);">
           <td style="padding:13px 16px;font-weight:700;font-size:15px;color:var(--stbr-dark);">In-game currency ledger, 12k players</td>
@@ -54,7 +54,7 @@
           <td style="padding:13px 14px;text-align:right;font-family:var(--font-mono);font-size:14px;color:var(--stbr-dark);">~128</td>
           <td style="padding:13px 14px;text-align:center;font-size:14px;color:var(--text-secondary,#4a5a4e);">no</td>
           <td style="padding:13px 14px;text-align:center;"><span style="display:inline-block;background:#e6e2d6;color:var(--stbr-dark);font-family:var(--font-display);font-weight:900;font-size:13px;letter-spacing:.05em;padding:5px 12px;border-radius:999px;">KEEP CLASSIC</span></td>
-          <td style="padding:13px 16px;font-size:13.5px;line-height:1.4;color:var(--stbr-dark);background:rgba(255,210,63,0.16);border-left:4px solid var(--stbr-yellow);">past break-even by an order of magnitude; <b>254 SOL vs 24 SOL</b></td>
+          <td style="padding:13px 16px;font-size:13.5px;line-height:1.4;color:var(--stbr-dark);background:rgba(255,210,63,0.16);border-left:4px solid var(--stbr-yellow);">past break-even by an order of magnitude; <b>254 SOL vs 22 SOL</b></td>
         </tr>
         <tr style="border-bottom:1px solid var(--border-subtle,#e5decb);">
           <td style="padding:13px 16px;font-weight:700;font-size:15px;color:var(--stbr-dark);">SPROUT/SOL pool state</td>

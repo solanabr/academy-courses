@@ -4,15 +4,15 @@
 
 Last lesson you pointed `read-any-asset.ts` at everything Overgrowth owns and it came back with the whole shelf: the SPROUT mint, the Almanac assets, and a Harvest-crate cNFT that has no account anywhere on chain. That read had to go through a DAS RPC, because there was nothing to `getAccountInfo`. You have already paid compression's read tax once, knowingly.
 
-Which sets up the thought I want to kill today. If a million NFTs fit in one tree for pocket change, why not put SPROUT balances in a tree too? Why does anybody still lock up two million lamports of rent per token account?
+Which sets up the thought I want to kill today. If a million NFTs fit in one tree for pocket change, why not put SPROUT balances in a tree too? Why does anybody still lock up nearly two million lamports of rent per token account?
 
-The answer is arithmetic, and you can run it before you read another paragraph:
+The answer is arithmetic, and you can run it before you read another paragraph. The two magic-looking factors are a byte count and a rent rate: a classic token account is 293 bytes (165 of data plus the 128-byte account header), and mainnet priced a byte at 6,333 lamports when I read it on 2026-09-06:
 
 ```bash
-node -e "console.log('break-even:', Math.floor((2_000_000 - 5_000) / 5_300), 'lifetime writes')"
+node -e "console.log('break-even:', Math.floor((293 * 6_333 - 5_000) / 5_300), 'lifetime writes')"
 ```
 
-`break-even: 376 lifetime writes`. Two names before the arithmetic, since both are new: Light Protocol is the team behind ZK compression, the second compression rail this lesson introduces (accounts proven rather than stored, the fungible cousin of Bubblegum's trick), and its current program generation is called V2, Light's own V2, nothing to do with Bubblegum v2. The number compares a compressed token account on that rail (5,000 lamports to create, about 5,300 lamports of state cost per transfer) against a classic SPL token account (about 2,000,000 lamports of rent, and nothing per transfer). Write that account 376 times and compression has spent everything the classic account merely locked up. Write it 4,000 times and you have burned ten times the rent you were trying to avoid.
+`break-even: 349 lifetime writes`. Two names before the arithmetic, since both are new: Light Protocol is the team behind ZK compression, the second compression rail this lesson introduces (accounts proven rather than stored, the fungible cousin of Bubblegum's trick), and its current program generation is called V2, Light's own V2, nothing to do with Bubblegum v2. The number compares a compressed token account on that rail (5,000 lamports to create, about 5,300 lamports of state cost per transfer) against a classic SPL token account: 293 × 6,333 = 1,855,569 lamports of rent at that dated mainnet rate, and nothing per transfer. The rate is the live half of the product. SIMD-0437 is stepping it down in stages and the clusters are not in step — devnet already read 5,080 on the same day, which puts the same break-even at 279 — so the rent is something you re-derive on your cluster, never a constant you quote. Write that account 349 times and compression has spent everything the classic account merely locked up. Write it 4,000 times and you have burned more than eleven times the rent you were trying to avoid.
 
 That is the whole lesson in one line, and the rest of it is why the line is true, where it comes from, and what the second half of the bill (compute, not lamports) does to the picture. This is a reasoning lesson, not a build lesson. You will not compress a token today; you will decide whether to.
 
@@ -56,7 +56,7 @@ The part people skip, and the part that makes the two rails genuinely different 
 
 Two numbers sell compression and one number should stop you.
 
-Creating a compressed token account costs about 5,000 lamports. Creating a classic SPL token account costs about 2,000,000 lamports of rent. That ratio, roughly 400x, is the entire reason anyone airdrops with compression, and module 8's drop lesson turns it into a per-recipient table you will actually budget against.
+Creating a compressed token account costs about 5,000 lamports. Creating a classic SPL token account locks up 1,855,569 lamports of rent — the summary's 293 bytes × 6,333 lamports/byte, mainnet, 2026-09-06. That ratio, roughly 370x at that rate, is the entire reason anyone airdrops with compression, and module 8's drop lesson turns it into a per-recipient table you will actually budget against, along with the one-line probe (`solana rent 165 --url <cluster>`) that re-reads the rate on the day you budget.
 
 Then the third number. A compressed token transfer runs about 292,000 CU. Proof verification and tree hashing are not free, and you pay them per write. Set that beside the classic transfer you met in m01-l3, where the p-token engine took the Transfer instruction to 76 CU. Same user-visible action, roughly 3,800 times the compute.
 
@@ -64,14 +64,14 @@ Itemize it as a bill, per account, over a lifetime of W writes:
 
 | Path | Creation | Per write (lamports) | Per write (CU) |
 |---|---|---|---|
-| Classic SPL token account | ~2,000,000 rent (a refundable deposit) | 0 | 76 |
+| Classic SPL token account | 1,855,569 rent (293 × 6,333, mainnet 2026-09-06; a refundable deposit) | 0 | 76 |
 | Compressed token account | ~5,000 | ~5,300 (V2 state cost) | ~292,000 |
 
-Set the two lamport columns equal and you get the number the one-liner printed: 5,000 + 5,300W crosses 2,000,000 at W = 376. Under 376 lifetime writes, compression is cheaper in lamports. Over it, compression is more expensive, and the gap widens forever after, because one side has a per-write term and the other does not.
+Set the two lamport columns equal and you get the number the one-liner printed: 5,000 + 5,300W crosses 1,855,569 at W = 349. Under 349 lifetime writes, compression is cheaper in lamports. Over it, compression is more expensive, and the gap widens forever after, because one side has a per-write term and the other does not. And because the classic side is a byte count times a live rate, the crossover moves when the rate steps: devnet's 5,080 puts it at 279 today, and the next SIMD-0437 step will move both. The break-even is an output of the model, never a constant of it.
 
-There is a sharper version of that argument. The classic account's 2,000,000 lamports is rent, and rent is a deposit: close the account and you get it back. The compressed account's 5,300 lamports per write is spent. So the honest break-even is earlier than 376, and the reason to still quote 376 is that most people never close their token accounts and so never feel the refund. The guidance you will see quoted in the ecosystem is roughly a thousand lifetime writes as the line where compression stops paying. Our arithmetic crosses well before that. Treat a thousand as a generous ceiling, not a target.
+There is a sharper version of that argument. The classic account's 1,855,569 lamports is rent, and rent is a deposit: close the account and you get it back. The compressed account's 5,300 lamports per write is spent. So the honest break-even is earlier than 349, and the reason to still quote 349 is that most people never close their token accounts and so never feel the refund. The guidance you will see quoted in the ecosystem is roughly a thousand lifetime writes as the line where compression stops paying. Our arithmetic crosses well before that. Treat a thousand as a generous ceiling, not a target.
 
-![Line chart where the compressed path rises at 5,300 lamports per write from a 5,000-lamport start and crosses the flat 2,000,000-lamport classic rent line at 376 writes.](assets/v03-chart.png)
+![Line chart where the compressed path rises at 5,300 lamports per write from a 5,000-lamport start and crosses the flat 1,855,569-lamport classic rent line at 349 writes.](assets/v03-chart.png)
 
 ### The naive answers, ruled out in tiers
 
@@ -79,7 +79,7 @@ With the bill on the table, walk the obvious positions and watch each one fail.
 
 **"Compress everything."** Fails on the CU column alone. Any account written more than a few hundred times pays more lamports and roughly 3,800 times the compute, forever. It also fails on a constraint the table does not show: every write needs a fresh proof from an indexer, so you have converted an offline-capable, self-contained transaction into one with a live third-party dependency in its build path.
 
-**"Compress nothing, rent is cheap."** Fails at scale. Two million lamports is nothing for one account and 200 SOL for a hundred thousand of them. A drop that costs 200 SOL classic costs about 1.03 SOL compressed, and that is the difference between shipping a distribution and cancelling it.
+**"Compress nothing, rent is cheap."** Fails at scale. 1,855,569 lamports is nothing for one account and about 186 SOL for a hundred thousand of them. A drop that costs 186 SOL classic costs about 1.03 SOL compressed, and that is the difference between shipping a distribution and cancelling it.
 
 **"Just use Bubblegum for the tokens too."** Tempting after last module, and it does not work, for a reason worth stating precisely rather than waving at. Bubblegum's trees are NFT-shaped: a leaf is an asset with an owner, and the program's instructions are mint, transfer, burn, delegate. A token balance is not an asset, it is a number that gets added to and subtracted from, and there is no leaf schema in that program for "increase this by 40". You would be rebuilding the compressed-token program inside a compressed-NFT program. Which is roughly what ZK compression is, except done properly and generalized to any account, not just token balances.
 
@@ -97,7 +97,7 @@ From those two variables, three concrete failure shapes:
 
 **Large accesses.** Past roughly 1 KB per access, the read and hashing cost of moving that blob through the compression machinery stops being worth the rent you saved. Big blobs want a plain account, or they want to not be on chain at all.
 
-And the shape that wins, stated as clearly: state created once, written once or twice, held by an enormous number of distinct owners. Airdrops. Distributions. Claim rights. One-shot artifacts. Which is exactly the shape of the compost drop Overgrowth runs in module 8 (a mass distribution of compost points to every player, its first appearance here as a preview), and exactly why that module uses this rail rather than paying 200 SOL to create token accounts for people who may never touch them.
+And the shape that wins, stated as clearly: state created once, written once or twice, held by an enormous number of distinct owners. Airdrops. Distributions. Claim rights. One-shot artifacts. Which is exactly the shape of the compost drop Overgrowth runs in module 8 (a mass distribution of compost points to every player, its first appearance here as a preview), and exactly why that module uses this rail rather than paying about 186 SOL to create token accounts for people who may never touch them.
 
 ![Decision table of four workloads showing that only the one-write-per-account airdrop compresses, while the write-heavy ledger, the same-block pool state, and the four-kilobyte recipe blob all stay as classic accounts.](assets/v04-table.png)
 
@@ -145,7 +145,7 @@ One more thing, and this is a confession rather than a fact. An early draft of t
 
 Compression flips the cost model. It does not repeal physics.
 
-You trade roughly 400x cheaper account creation for far higher per-write compute, plus a proof the client must fetch and keep fresh, plus a live indexer dependency in the write path. For one-shot distribution to many owners, that trade is overwhelmingly good. For write-heavy state, large state, or state touched repeatedly inside a single block, the same trade inverts and takes your economics with it.
+You trade roughly 370x cheaper account creation for far higher per-write compute, plus a proof the client must fetch and keep fresh, plus a live indexer dependency in the write path. For one-shot distribution to many owners, that trade is overwhelmingly good. For write-heavy state, large state, or state touched repeatedly inside a single block, the same trade inverts and takes your economics with it.
 
 The newest rail buys elegance at the cost of being devnet-only today. That is also a trade, and today it is not one you make with production money.
 
@@ -163,7 +163,7 @@ You will encode the reasoning above as a small program, because a verdict you ca
 
     Pins checked against npm the week of writing (2026-08); re-check before you pin anything long-lived. `tsx` runs a TypeScript file directly, which is all we need here.
 
-2. **The cost model (worked in full).** Every constant in this file is a frozen figure from the research behind this course, and the two derived values fall straight out of them. Nothing here is a guess.
+2. **The cost model (worked in full).** Every constant in this file is either a frozen course figure or a value read from a public source on a stated date, and each comment says which. The derived values fall straight out of them. Nothing here is a guess.
 
     ```typescript
     // labs/m07-l3/model.ts
@@ -172,8 +172,22 @@ You will encode the reasoning above as a small program, because a verdict you ca
     export const COMPRESSED_CREATE_LAMPORTS = 5_000;
     /** Lamports of state cost per compressed transfer (Light's V2 program line). */
     export const COMPRESSED_WRITE_LAMPORTS = 5_300;
-    /** Rent locked by one classic SPL token account. Refundable on close. */
-    export const CLASSIC_RENT_LAMPORTS = 2_000_000;
+    /** A classic SPL token account: 165 bytes of data plus the 128-byte account header. */
+    export const CLASSIC_ACCOUNT_BYTES = 293;
+    /**
+     * Rent-exemption price of one byte. THE ONLY NUMBER IN THIS FILE THAT
+     * BELONGS TO THE NETWORK RATHER THAN TO A LAYOUT OR A PROGRAM: mainnet-beta,
+     * read 2026-09-06; devnet was a step further down at 5,080 the same day.
+     * SIMD-0437 is stepping the rate down over several releases, so re-read it
+     * before you budget: solana rent 0 --url <cluster>, then divide by 128.
+     */
+    export const LAMPORTS_PER_BYTE = 6_333;
+    /**
+     * Rent locked by one classic SPL token account. DERIVED, not pasted: at
+     * 6,333 this is 1,855,569, which is what `solana rent 165 --url
+     * mainnet-beta` printed on 2026-09-06. Refundable on close.
+     */
+    export const CLASSIC_RENT_LAMPORTS = CLASSIC_ACCOUNT_BYTES * LAMPORTS_PER_BYTE;
     /** Compute units for one compressed token transfer: proof verification + hashing. */
     export const COMPRESSED_TRANSFER_CU = 292_000;
     /** Compute units for a classic Transfer on the p-token engine (see m01-l3). */
@@ -183,7 +197,9 @@ You will encode the reasoning above as a small program, because a verdict you ca
 
     /**
      * Highest lifetime write count at which the compressed path is still cheaper
-     * in lamports than one classic account's rent.
+     * in lamports than one classic account's rent. An output of the model, not a
+     * constant of it: 349 at mainnet's 6,333, 279 at devnet's 5,080, and it moves
+     * again at the next rate step.
      */
     export const BREAK_EVEN_WRITES = Math.floor(
       (CLASSIC_RENT_LAMPORTS - COMPRESSED_CREATE_LAMPORTS) / COMPRESSED_WRITE_LAMPORTS,
@@ -334,23 +350,23 @@ You will encode the reasoning above as a small program, because a verdict you ca
     ```text
     compost-drop (100k recipients)
       verdict: COMPRESS
-      reason: 1 lifetime write per account is under the 376-write break-even
-      compressed: 1.0300 SOL   classic: 200.0000 SOL
+      reason: 1 lifetime write per account is under the 349-write break-even
+      compressed: 1.0300 SOL   classic: 185.5569 SOL
     currency-ledger (12k players)
       verdict: KEEP CLASSIC
-      reason: 4000 lifetime writes per account is past the 376-write break-even
-      compressed: 254.4600 SOL   classic: 24.0000 SOL
+      reason: 4000 lifetime writes per account is past the 349-write break-even
+      compressed: 254.4600 SOL   classic: 22.2668 SOL
     sprout-sol-pool-state
       verdict: KEEP CLASSIC
       reason: same-block repeated updates: each update invalidates the next transaction's proof
-      compressed: 4.7700 SOL   classic: 0.0020 SOL
+      compressed: 4.7700 SOL   classic: 0.0019 SOL
 
     compute ratio per transfer: 3842x
     ```
 
-    Look hard at the middle row. Twelve thousand players, and the compressed version of their currency ledger costs about ten times the classic version. That is the same mechanism that makes row one a 194x saving, run in the other direction. One number, two signs, and write frequency is the only thing that changed.
+    Look hard at the middle row. Twelve thousand players, and the compressed version of their currency ledger costs more than eleven times the classic version. That is the same mechanism that makes row one a 180x saving, run in the other direction. One number, two signs, and write frequency is the only thing that changed.
 
-6. **Sanity-check the drop row against the next module.** Your compost-drop row says about 10,300 lamports per recipient. Module 8's airdrop lesson budgets roughly 10,300 compressed against a classic figure it derives rather than quotes: (128 + 165) bytes at your cluster's per-byte rent rate, which was 6,333 on mainnet on 2026-09-06 and gives 1,855,569. This lesson used a round 2,000,000 constant for the same thing, which was a slight UNDER-estimate at the old 6,960 rate and is a slight over-estimate now. Your number should agree exactly on the compressed side, because compressed cost is not rent and did not move, and sit within about 10% on the classic side. If the compressed side disagrees, you changed a constant.
+6. **Sanity-check the drop row against the next module.** Your compost-drop row says about 10,300 lamports per recipient. Module 8's airdrop lesson budgets roughly 10,300 compressed against a classic figure derived exactly the way this model derives it: (128 + 165) bytes at your cluster's per-byte rent rate, 6,333 on mainnet on 2026-09-06, giving 1,855,569 — the same rate and date this file pins. Your numbers should agree exactly on both sides. If the compressed side disagrees, you changed a constant. If the classic side disagrees, the two files are pinning different rent rates or different read dates, and the later read wins — recompute, don't average.
 
 ## Challenge
 
@@ -366,7 +382,7 @@ Accepted when the memo names write frequency (not holder count) as the binding c
 
 The gate is `npx tsx run.ts` printing four workloads with one COMPRESS and three KEEP CLASSIC, plus a memo you would actually send.
 
-The one-sentence answer you should be able to give with the terminal closed: compression trades roughly 400x cheaper account creation for a per-write cost in both lamports and compute, so it wins for state created once and held by many, and loses for state that gets written, which means write frequency and access size decide it, never holder count.
+The one-sentence answer you should be able to give with the terminal closed: compression trades roughly 370x cheaper account creation for a per-write cost in both lamports and compute, so it wins for state created once and held by many, and loses for state that gets written, which means write frequency and access size decide it, never holder count.
 
 The misses I expect. First, the holder-count trap: if your memo argues from the number of players, reread the decision table, because a tree does not care how wide it is. Second, the row-four surprise: the crafting-recipe blob is cheaper compressed and still gets rejected, and if that felt like a bug in the tool rather than a lesson about gates, sit with it again. Third, the confident CU number, which is the one I actually worry about, because it is the mistake I nearly made in writing this and the one an assistant will happily make on your behalf.
 

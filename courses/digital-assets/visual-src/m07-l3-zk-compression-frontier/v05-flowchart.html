@@ -12,8 +12,8 @@
 <body>
 <!-- flowchart: The compress-hold-decompress round trip
      purpose: show that compression is a distribution strategy with a defined exit, and that the exit cost lands on active users rather than the issuer
-     data: Issuer: mint SPROUT -> compress into cTokens -> one drop transaction batch covers many recipients at about 10,300 lamports each (5,000 create + 5,300 first write). Idle holder: balance sits as a compressed account. Issuer paid about 10,300 lamports. No further cost to anyone. Active holder: wants to swap -> decompress to a regular SPL token account (holder now pays the classic account rent) -> route through Jupiter as an ordinary SPL token. Annotation: the classic path would have paid about 2,000,000 lamports per recipient up front, active or not.
-     prompt: Left-to-right flowchart with one branch. Start node "issuer mints and compresses", then a fan-out to many small holder nodes. From the holder cluster, two labeled paths: an upper path "stays idle" ending in a terminal node "cost stops here", and a lower path "wants to trade" through a "decompress" node into an "SPL token account" node and then a "Jupiter swap" node. Annotate the decompress node "holder pays rent, at the moment they benefit". A callout box near the start reads "classic path: about 2,000,000 lamports per recipient, paid up front, idle or not".
+     data: Issuer: mint SPROUT -> compress into cTokens -> one drop transaction batch covers many recipients at about 10,300 lamports each (5,000 create + 5,300 first write). Idle holder: balance sits as a compressed account. Issuer paid about 10,300 lamports. No further cost to anyone. Active holder: wants to swap -> decompress to a regular SPL token account (holder now pays the classic account rent) -> route through Jupiter as an ordinary SPL token. Annotation: the classic path would have paid about 1,855,569 lamports per recipient up front (293 bytes x 6,333 lamports/byte, mainnet 2026-09-06), active or not.
+     prompt: Left-to-right flowchart with one branch. Start node "issuer mints and compresses", then a fan-out to many small holder nodes. From the holder cluster, two labeled paths: an upper path "stays idle" ending in a terminal node "cost stops here", and a lower path "wants to trade" through a "decompress" node into an "SPL token account" node and then a "Jupiter swap" node. Annotate the decompress node "holder pays rent, at the moment they benefit". A callout box near the start reads "classic path: about 1,855,569 lamports per recipient (293 x 6,333, mainnet 2026-09-06), paid up front, idle or not".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -80,7 +80,7 @@
       </div>
     </div>
 
-    <div style="margin-top:22px;border:1.5px dashed var(--stbr-green);border-radius:12px;padding:12px 20px;font-family:var(--font-body);font-size:15px;color:var(--stbr-dark);"><b>the counterfactual:</b> the classic path would have paid &asymp;2,000,000 lamports per recipient <b>up front</b> &mdash; active or not</div>
+    <div style="margin-top:22px;border:1.5px dashed var(--stbr-green);border-radius:12px;padding:12px 20px;font-family:var(--font-body);font-size:15px;color:var(--stbr-dark);"><b>the counterfactual:</b> the classic path would have paid &asymp;1,855,569 lamports per recipient (293 &times; 6,333, mainnet 2026-09-06) <b>up front</b> &mdash; active or not</div>
   </div>
 </div>
 </body></html>

@@ -12,8 +12,8 @@
 <body>
 <!-- annotated-code: Why the disqualifiers run before the arithmetic
      purpose: make the evaluation order explicit, since the cheapest-on-paper workload is the one the gates reject
-     data: decide(workload): 1. same-block updates?      -> reject. Reason is mechanical (proof staleness), not economic. Lamports are irrelevant here. 2. bytesPerAccess > 1024?   -> reject. Guideline ceiling on access size. 3. writes > 376?            -> reject. Past the lamport break-even. 4. otherwise                -> compress. Worked case: the crafting-recipe blob costs 0.0780 SOL compressed against 10.0000 SOL classic, and is still rejected at gate 2 for 4,096 bytes per access. Cheapest is not the same as eligible.
-     prompt: Vertical four-step gate diagram rendered as annotated pseudocode. Each of the first three steps is a diamond gate with a reject arrow branching right into a "KEEP CLASSIC" sink; the fourth falls through to a "COMPRESS" terminal. Attach a callout to gate 2 showing the crafting-recipe numbers (0.0780 SOL compressed versus 10.0000 SOL classic) with the label "cheaper, and still rejected".
+     data: decide(workload): 1. same-block updates?      -> reject. Reason is mechanical (proof staleness), not economic. Lamports are irrelevant here. 2. bytesPerAccess > 1024?   -> reject. Guideline ceiling on access size. 3. writes > 349?            -> reject. Past the lamport break-even. 4. otherwise                -> compress. Worked case: the crafting-recipe blob costs 0.0780 SOL compressed against 9.2778 SOL classic, and is still rejected at gate 2 for 4,096 bytes per access. Cheapest is not the same as eligible.
+     prompt: Vertical four-step gate diagram rendered as annotated pseudocode. Each of the first three steps is a diamond gate with a reject arrow branching right into a "KEEP CLASSIC" sink; the fourth falls through to a "COMPRESS" terminal. Attach a callout to gate 2 showing the crafting-recipe numbers (0.0780 SOL compressed versus 9.2778 SOL classic) with the label "cheaper, and still rejected".
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -51,14 +51,14 @@
       <div style="flex:none;width:170px;display:flex;align-items:center;justify-content:center;background:#e6e2d6;border-radius:12px;font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:.04em;color:var(--stbr-dark);">KEEP CLASSIC</div>
       <div style="flex:none;width:340px;background:var(--stbr-yellow);border-radius:12px;padding:10px 16px;">
         <div style="font-family:var(--font-display);font-weight:900;font-size:14px;color:var(--stbr-dark);">cheaper, and still rejected</div>
-        <div style="font-family:var(--font-body);font-size:12.5px;line-height:1.4;color:var(--stbr-dark);margin-top:2px;">crafting-recipe blob: <b>0.0780 SOL</b> compressed vs <b>10.0000 SOL</b> classic &mdash; killed here at 4,096 bytes per access</div>
+        <div style="font-family:var(--font-body);font-size:12.5px;line-height:1.4;color:var(--stbr-dark);margin-top:2px;">crafting-recipe blob: <b>0.0780 SOL</b> compressed vs <b>9.2778 SOL</b> classic &mdash; killed here at 4,096 bytes per access</div>
       </div>
     </div>
 
     <!-- gate 3 -->
     <div style="display:flex;align-items:stretch;gap:12px;margin-top:10px;">
       <div style="flex:1;background:var(--surface-inverse,#1B231D);border-radius:12px;padding:12px 22px;">
-        <div style="font-family:var(--font-mono);font-size:16px;color:var(--stbr-cream);"><span style="color:var(--stbr-yellow);">3</span>&nbsp; writes &gt; 376?</div>
+        <div style="font-family:var(--font-mono);font-size:16px;color:var(--stbr-cream);"><span style="color:var(--stbr-yellow);">3</span>&nbsp; writes &gt; 349?</div>
         <div style="font-family:var(--font-body);font-size:12.5px;color:#b9c2ba;margin-top:4px;">past the lamport break-even</div>
       </div>
       <div style="flex:none;display:flex;align-items:center;"><div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:12px solid var(--stbr-dark);"></div></div>
