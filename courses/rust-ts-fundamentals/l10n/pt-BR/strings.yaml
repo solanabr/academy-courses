@@ -5156,11 +5156,12 @@ lessons:
             # | plugin API. Should the panel be rewritten onto it today?
             prompt: "O guia de upgrade do solanakit.com lidera com a nova API de plugin createClient().use(...). O painel deveria ser reescrito em cima dela hoje?"  # @src=a4f8bd0fb73d
             # | The 'where kit is heading' box exists precisely for this: name the new API,
-            # | date its maturity (plugins at 0.x), and keep the lab on the stable path, the
-            # | dialect kit's own examples and generated clients speak today. Re-check
-            # | plugin maturity when you next touch this code; if plugins hit 1.0, the
-            # | calculus changes.
-            explanation: "A caixa 'para onde o kit está indo' existe precisamente para isto: nomear a API nova, datar a maturidade dela (plugins em 0.x), e manter o lab no caminho estável, o dialeto que os exemplos e os clientes gerados do próprio kit falam hoje. Reconfira a maturidade dos plugins da próxima vez que você tocar neste código; se os plugins chegarem em 1.0, a matemática muda."  # @src=a78b46f1e24f
+            # | date its maturity (the plugin packages version in lockstep with kit, 8.2.0
+            # | at write time, so newness is the caution, not a 0.x digit), and keep the
+            # | lab on the stable path, the dialect kit's own examples and generated
+            # | clients speak today. Re-check when you next touch this code; when that
+            # | canon moves to createClient(), the calculus changes.
+            explanation: "A caixa 'para onde o kit está indo' existe precisamente para isto: nomear a API nova, datar a maturidade dela (os pacotes de plugin versionam em lockstep com o kit, 8.2.0 na hora de escrita, então o cuidado é a novidade, não um dígito 0.x), e manter o lab no caminho estável, o dialeto que os exemplos e os clientes gerados do próprio kit falam hoje. Reconfira da próxima vez que você tocar neste código; quando esse cânone se mover para createClient(), a matemática muda."  # @src=9e71dd10dd99
             options:                 # source order — keep it
               a:
                 # | Yes, the docs lead with it, which means the pipe-style flow is already
@@ -5168,33 +5169,42 @@ lessons:
                 label: "Sim, a documentação lidera com ela, o que quer dizer que o fluxo em estilo pipe já está deprecado"  # @src=455bc7f48b0a
                 # | Leading the upgrade guide signals direction, not deprecation, the pipe
                 # | flow remains the documented, stable path and the one kit's own examples
-                # | use. Docs-page ordering is marketing; package versions are evidence.
-                feedback: "Liderar o guia de upgrade sinaliza direção, não depreciação, o fluxo pipe continua sendo o caminho documentado e estável e o que os exemplos do próprio kit usam. A ordenação da página de documentação é marketing; versões de pacote são evidência."  # @src=49bfa92c4f0e
+                # | use. Docs-page ordering is marketing; what the ecosystem's shipped code
+                # | speaks is evidence.
+                feedback: "Liderar o guia de upgrade sinaliza direção, não depreciação, o fluxo pipe continua sendo o caminho documentado e estável e o que os exemplos do próprio kit usam. A ordenação da página de documentação é marketing; o que o código despachado do ecossistema fala é evidência."  # @src=7e186f2e4ba5
               c:
-                # | Not yet, the plugin packages are 0.x-young; the pipe flow stays the
-                # | taught canon
-                label: "Ainda não, os pacotes de plugin são novos de 0.x; o fluxo pipe continua sendo o cânone ensinado"  # @src=ac16f16beb66
-                # | The plugin packages read 0.19.0 at write time, and a pre-1.0 minor is
-                # | allowed to break you. The pipe flow is the documented stable path that
-                # | kit's own examples and generated clients speak, so what you wired is
-                # | foundation. Re-run this calculus when the plugins cross 1.0.
-                feedback: "Os pacotes de plugin liam 0.19.0 na hora de escrita, e um minor pré-1.0 tem permissão para te quebrar. O fluxo pipe é o caminho estável documentado que os exemplos e os clientes gerados do próprio kit falam, então o que você fiou é fundação. Rode esta matemática de novo quando os plugins cruzarem o 1.0."  # @src=2e24ef8a38d5
+                # | Not yet, the plugin API is kit's newest; the pipe flow stays the taught
+                # | canon
+                label: "Ainda não, a API de plugin é a mais nova do kit; o fluxo pipe continua sendo o cânone ensinado"  # @src=fc75af44024c
+                # | The plugin packages version in lockstep with kit, they read 8.2.0 at
+                # | write time, the same digit as kit itself, so no 1.0 milestone exists to
+                # | wait for. What dates the surface is newness: kit shipped two majors in
+                # | just over nine weeks, and the plugin API is the youngest thing riding
+                # | that pace. The pipe flow is the documented stable path that kit's own
+                # | examples and generated clients speak, so what you wired is foundation.
+                # | Re-run this calculus when that canon moves to createClient().
+                feedback: "Os pacotes de plugin versionam em lockstep com o kit, eles liam 8.2.0 na hora de escrita, o mesmo dígito do próprio kit, então não existe marco de 1.0 para esperar. O que data a superfície é a novidade: o kit entregou dois majors em pouco mais de nove semanas, e a API de plugin é a coisa mais jovem montada nesse ritmo. O fluxo pipe é o caminho estável documentado que os exemplos e os clientes gerados do próprio kit falam, então o que você fiou é fundação. Rode esta matemática de novo quando esse cânone se mover para createClient()."  # @src=05dd3f225418
               d:
                 # | Yes, an early rewrite usually costs less than a later forced migration
                 # | under deadline
                 label: "Sim, uma reescrita cedo em geral custa menos que uma migração forçada mais tarde sob prazo"  # @src=6655f0117d6e
-                # | That trade only pays once the target stops moving. At 0.19.0 the plugin
-                # | API can change shape on a minor, so an early rewrite buys you the
-                # | migration several times over instead of once, which is the same pre-1.0
-                # | arithmetic the pinning lesson ran.
-                feedback: "Esse trade-off só paga depois que o alvo para de se mover. Em 0.19.0 a API de plugin pode mudar de formato num minor, então uma reescrita cedo te compra a migração várias vezes em vez de uma, que é a mesma aritmética pré-1.0 que a lição de pinning rodou."  # @src=6b6413629b50
+                # | That trade only pays once the target stops moving, and nothing here
+                # | forces the move: the pipe flow is not deprecated, it is the dialect
+                # | kit's own examples and generated clients still speak. The plugin
+                # | surface is the library's newest in an ecosystem that shipped two kit
+                # | majors in just over nine weeks, so an early rewrite buys you the
+                # | migration several times over instead of once.
+                feedback: "Esse trade-off só paga depois que o alvo para de se mover, e nada aqui força o movimento: o fluxo pipe não está deprecado, ele é o dialeto que os exemplos e os clientes gerados do próprio kit ainda falam. A superfície de plugin é a mais nova da biblioteca num ecossistema que entregou dois majors do kit em pouco mais de nove semanas, então uma reescrita cedo te compra a migração várias vezes em vez de uma."  # @src=094702435a4d
               b:
                 # | No, createClient() is a third-party wrapper, not part of kit itself
                 label: "Não, createClient() é um wrapper de terceiros, não parte do kit em si"  # @src=308854d4374b
                 # | It IS kit's own API, live on solanakit.com, the hesitation isn't
-                # | provenance. It's maturity: the plugin packages backing it are 0.x, and
-                # | pre-1.0 minors carry breaking-change rights (the m07-l2 pin lesson).
-                feedback: "Ela É a API do próprio kit, no ar em solanakit.com, a hesitação não é procedência. É maturidade: os pacotes de plugin que dão suporte a ela são 0.x, e minors pré-1.0 carregam direitos de breaking change (a lição de pin do m07-l2)."  # @src=8a39be8bf3c2
+                # | provenance. It's maturity: the plugin packages backing it version in
+                # | lockstep with kit itself (8.2.0 at write time), so no 0.x digit will
+                # | ever flag them as young. Their age shows elsewhere: they are the
+                # | library's newest surface, and the canon kit's examples and generated
+                # | clients speak has not moved onto them.
+                feedback: "Ela É a API do próprio kit, no ar em solanakit.com, a hesitação não é procedência. É maturidade: os pacotes de plugin que dão suporte a ela versionam em lockstep com o próprio kit (8.2.0 na hora de escrita), então nenhum dígito 0.x vai jamais sinalizar que eles são jovens. A idade deles aparece em outro lugar: eles são a superfície mais nova da biblioteca, e o cânone que os exemplos e os clientes gerados do kit falam ainda não se moveu para eles."  # @src=89598ec952f5
   m08-l3:
     # | The Rust path: raw JSON-RPC
     title: "O caminho do Rust: JSON-RPC cru"  # @src=60945f65b2b3
