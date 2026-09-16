@@ -22,6 +22,12 @@ const fn resolve_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) 
     requested as i64
 }
 
+// The test vectors call through this thin runtime wrapper; the decision stays
+// in the `const fn` above so the harness below can prove it at build time.
+fn run_withdrawal(balance: u64, rent_exempt_min: u64, requested: u64) -> i64 {
+    resolve_withdrawal(balance, rent_exempt_min, requested)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
 // Compile-time assertions. Because `resolve_withdrawal` is a `const fn`, the

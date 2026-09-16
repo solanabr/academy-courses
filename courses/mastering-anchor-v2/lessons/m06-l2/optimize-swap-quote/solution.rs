@@ -51,6 +51,12 @@ const fn get_amount_out(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_b
     (numerator / denominator) as u64
 }
 
+// The test vectors call through this thin runtime wrapper; the quote itself
+// stays in the `const fn` above so the harness below can prove it at build time.
+fn run_quote(reserve_in: u64, reserve_out: u64, amount_in: u64, fee_bps: u64) -> u64 {
+    get_amount_out(reserve_in, reserve_out, amount_in, fee_bps)
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // VERIFICATION HARNESS — DO NOT EDIT ANYTHING BELOW THIS LINE.
 // Compile-time assertions. Because `get_amount_out` is a `const fn`, the
