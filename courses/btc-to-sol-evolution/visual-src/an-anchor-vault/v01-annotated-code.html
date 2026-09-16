@@ -12,8 +12,8 @@
 <body>
 <!-- annotated-code: what the starter test proves before you touch it
      purpose: certify that SOL already moved INTO a keyless account and only the outbound signature is missing
-     data: ✔ deposits 0.5 SOL into the vault PDA owner balance: 2.000 SOL -> 1.499 SOL (0.5 SOL + fees left the wallet) vault balance: 0.000 SOL -> 0.500 SOL (landed in an account with no key) 1) withdraws it back to the owner Error: Transaction signature verification failure ^ the vault has no private key, and the program has not yet signed for it
-     prompt: Terminal-style annotated panel, dark theme, monospace. Two balance-delta rows under a green "deposit" heading (owner down, vault up). One red "withdraw" heading with the error line and a callout arrow: "no key here, no signer yet". No decorative icons.
+     data: ✔ deposits 0.5 SOL into the vault PDA owner balance: 2.000 SOL -> 1.499 SOL (0.5 SOL + fees left the wallet) vault balance: 0.000 SOL -> 0.500 SOL (landed in an account with no key) 1) withdraws it back to the owner withdraw failed: Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account Program log: <VAULT_PDA>'s signer privilege escalated ^ the vault has no private key, and the program has not yet signed for it
+     prompt: Terminal-style annotated panel, dark theme, monospace. Two balance-delta rows under a green "deposit" heading (owner down, vault up). One red "withdraw" heading with the error line and a callout arrow: "no key here, no signer yet". Quote the error EXACTLY as the runtime prints it and as intro.md quotes it: "Error processing Instruction 0: Cross-program invocation with unauthorized signer or writable account", followed by the "signer privilege escalated" program log. It is NOT "Transaction signature verification failure" -- that was shipped once and describes a missing outer signature, not the CPI privilege the vault lacks. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -43,7 +43,8 @@
   .errbox { display:flex; align-items:stretch; gap:24px; margin-top:22px; }
   .errline { flex:1; background:rgba(192,57,43,0.12); border-left:4px solid #c0392b;
     border-radius:0 var(--radius-md) var(--radius-md) 0; padding:20px 24px; }
-  .errline .msg { font-size:20px; color:#e88a7d; font-weight:700; }
+  .errline .msg { font-size:19px; line-height:1.35; color:#e88a7d; font-weight:700; }
+  .errline .log { font-size:17px; color:var(--stbr-ink-300); margin-top:8px; }
   .errline .caret { color:#c0392b; font-weight:900; }
   .callout { flex:0 0 340px; align-self:center; background:var(--stbr-yellow); color:var(--text-on-accent);
     border-radius:var(--radius-md); padding:18px 22px; font-family:var(--font-body); font-weight:800;
@@ -63,7 +64,8 @@
     <div class="grp"><span class="status fail">1) withdraw</span><span class="desc">withdraws it back to the owner</span></div>
     <div class="errbox">
       <div class="errline">
-        <div class="msg">Error: Transaction signature verification failure</div>
+        <div class="msg">Error processing Instruction 0:<br>Cross-program invocation with unauthorized signer or writable account</div>
+        <div class="log">Program log: &lt;VAULT_PDA&gt;&rsquo;s signer privilege escalated</div>
         <div><span class="caret">^</span> <span style="color:var(--stbr-ink-300);font-family:var(--font-body);font-size:16px;">the vault has no private key, and the program has not yet signed for it</span></div>
       </div>
       <div class="callout">no key here &mdash; no signer yet</div>

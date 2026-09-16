@@ -136,7 +136,17 @@ And you've been trusting this exact machinery for years without noticing, becaus
 git log --format='%H %s' -3
 ```
 
-Every line starts with 40 hex characters, and every `git log` you've ever read is a chain of fingerprints, each commit committing to its parent. Fingerprints can also break, and git's did. Its original function, SHA-1, died in public when the first practical SHA-1 collision (SHAttered) was announced in 2017 by CWI Amsterdam and Google: two different PDFs, one digest. A **collision** (two inputs sharing one fingerprint) is fatal for a hash function, because a fingerprint two things can wear is no longer a fingerprint. That's why git migrated, and why this course uses SHA-256, which has no known practical collision. Hash functions aren't magic; they're engineering with a shelf life, and the industry watches that shelf date closely.
+Every line starts with 40 hex characters, and every `git log` you've ever read is a chain of fingerprints, each commit committing to its parent. Fingerprints can also break, and git's did. Its original function, SHA-1, died in public when the first practical SHA-1 collision (SHAttered) was announced in 2017 by CWI Amsterdam and Google: two different PDFs, one digest. A **collision** (two inputs sharing one fingerprint) is fatal for a hash function, because a fingerprint two things can wear is no longer a fingerprint. Notice what git did about it, though, because the honest version is more interesting than "git migrated." It did not. Ask your own repository which function it uses:
+
+```bash
+git rev-parse --show-object-format
+```
+
+```
+sha1
+```
+
+Git still defaults to SHA-1, a *hardened* SHA-1 that detects the SHAttered attack pattern and refuses those objects, but SHA-1 all the same, which is why the digests in your `git log` are still 40 characters and not 64. A SHA-256 mode exists in git, and a release that flips the default has been planned for years; the ecosystem around it, GitHub included, has not followed. That is the real lesson about hash migrations: the cryptography moves years before the tooling does. This course uses SHA-256, which has no known practical collision. Hash functions aren't magic; they're engineering with a shelf life, and the industry watches that shelf date closely.
 
 ## Three flavors of hard
 
@@ -156,17 +166,17 @@ Keep the ranking in your head: if collision resistance holds, the other two almo
 
 Now connect this to the opener's problem. A blockchain is, at bottom, a list of blocks (batches of records) where **each block contains the digest of the previous block**. That's it. That one design decision does more work than any other in this course, so walk it slowly, with a villain.
 
-Say Alice wants to rewrite history. She paid Bob in block 1, regrets it, and edits her copy of block 1 to erase the payment. Watch the properties fire in order. Avalanche: her edit, one field in one old record, scrambles block 1's digest entirely, so there was never any hope of a quiet touch-up. Determinism: everyone who re-hashes her block 1 computes the same new digest, so the damage isn't a matter of opinion. But block 2 *contains* block 1's old digest, embedded when block 2 was made, so block 2 no longer matches the block it points at; block 2's own digest sits inside block 3, which sits inside block 4, all the way to the tip. Her one edit didn't alter one record. It visibly broke every seal from that point forward.
+Say Alice wants to rewrite history. She paid Bob in block 1, regrets it, and edits her copy of block 1 to erase the payment. Watch the properties fire in order. Avalanche: her edit, one field in one old record, scrambles block 1's digest entirely, so there was never any hope of a quiet touch-up. Determinism: everyone who re-hashes her block 1 computes the same new digest, so the damage isn't a matter of opinion. But block 2 *contains* block 1's old digest, embedded when block 2 was made, so block 2 no longer matches the block it points at. Be precise about how far the damage travels, because the loose version of this story is wrong in a way that matters later. Exactly one link is now broken: the 1-to-2 link. Block 2 itself was never edited, so its digest is unchanged, so block 3's pointer still matches it perfectly. One mismatched link is all it takes to expose her, and repairing it is what costs her everything: to make block 2 point at her new block 1 she must re-seal block 2, which changes block 2's digest, which breaks the 2-to-3 link, and so on to the tip. Her one edit did not quietly alter one record. It left one visible break, and covering that break means re-sealing every block above it.
 
 Run the implication the other direction and it gets better. Anyone holding just the *latest* digest, 64 characters, small enough to read aloud on a phone call, can detect whether anything, anywhere in gigabytes of history, was touched. Re-hash the chain, compare one string, done. The tiny fixed size from the file demo is exactly what makes this cheap.
 
-![Each block commits to the previous block's digest, so one edit anywhere breaks every seal after it, and the tip digest alone reveals tampering.](assets/v06-diagram.webp)
+![Each block commits to the previous block's digest, so editing a block breaks its link to the very next one, and hiding that break means re-sealing every block above it while the tip digest alone reveals the tampering.](assets/v06-diagram.webp)
 
 Be precise about what you now have, because the gaps matter as much as the win. Tamper-*evidence* is not tamper-*prevention*: nothing in the math stops Alice from re-running the sealing herself, recomputing every digest from her edit to the tip and presenting a chain that's internally perfect. The hashes prove "unchanged since sealing," never "this seal is the legitimate one." And nothing here says whose chain wins when two internally consistent histories disagree, or even what order events happened in. Those two gaps, who gets to seal and who wins, are the entire job of the Bitcoin module, and the fix turns out to be economic rather than cryptographic. For now, hold the bedrock: the reason thousands of strangers can even *argue* about a shared history is that the history carries its own seals.
 
 ## Fingerprinting a whole batch: Merkle trees
 
-The chain commits each block to the one before it, which handles a sequence. But a block is not one record. It's a batch of thousands. So how do you fingerprint a thousand records into a single digest without re-hashing all thousand every time you want to check just one? You build a tree.
+The chain commits each block to the one before it, which handles a sequence. But a block is a batch of thousands of records, not one. So how do you fingerprint a thousand records into a single digest without re-hashing all thousand every time you want to check just one? You build a tree.
 
 Hash each record into a leaf digest. Pair the leaves up and hash each pair into a parent. Pair the parents and hash those. Keep climbing, halving the count at every floor, until one digest is left at the top: the **Merkle root** (a single fingerprint that commits to the entire set of records beneath it). The root is to the batch what the previous-block digest is to the chain: 64 characters that seal everything under them.
 

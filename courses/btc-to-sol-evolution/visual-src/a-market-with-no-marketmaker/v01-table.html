@@ -12,7 +12,7 @@
 <body>
 <!-- table: how the pool mints your LP shares
      purpose: separate the first-deposit rule (geometric mean) from every deposit after it (proportional, minimum of the two ratios)
-     data: | deposit | shares minted | why this rule | | --- | --- | --- | | first, into an empty pool | sqrt(amount0 · amount1) | the geometric mean sets an opening price independent of which token you value the pool in | | every deposit after | totalShares · min(Δx / reserve0, Δy / reserve1) | the minimum ignores any excess off the live ratio, you donate it and get no shares for it | | your run: seed 1000 + 1000 | sqrt(1000 · 1000) = 1000 | exactly the `LP shares: 1000` receipt you saw |
+     data: | deposit | shares minted | why this rule | | --- | --- | --- | | first, into an empty pool | sqrt(amount0 · amount1) | the geometric mean sets an opening price independent of which token you value the pool in | | every deposit after | totalShares · min(Δx / reserve0, Δy / reserve1) | the minimum never mints for excess off the live ratio, and this pool is stricter still, reverting the off-ratio deposit outright | | your run: seed 1000 + 1000 | sqrt(1000 · 1000) = 1000 | exactly the `LP shares: 1000` receipt you saw |
      prompt: Three-row table, dark background, monospace, emphasized header row. Shade the first-deposit row a faint accent to mark it as the special case, and render both formulas in code-styled cells. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
@@ -58,7 +58,7 @@
     <tr>
       <td class="dep">every deposit after</td>
       <td><code>totalShares &middot; min(&Delta;x/reserve<sub>0</sub>, &Delta;y/reserve<sub>1</sub>)</code></td>
-      <td>the minimum ignores any excess off the live ratio &mdash; you donate it and get no shares for it</td>
+      <td>the minimum never mints for excess off the live ratio &mdash; and this pool is stricter still, reverting the off-ratio deposit outright</td>
     </tr>
     <tr class="run">
       <td class="dep">your run: seed 1000 + 1000</td>

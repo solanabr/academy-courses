@@ -13,7 +13,7 @@
 <!-- flowchart: from a devnet program to a mainnet deploy
      purpose: sequence the send-off tooling into one actionable path the reader can follow
      data: devnet program (green tests) -> verifiable build (anchor build --verifiable / solana-verify) -> self-review against sealevel-attacks + Neodyme pitfalls -> external audit (OtterSec / Neodyme / Halborn / Zellic / Trail of Bits / Ackee) -> decide upgrade authority (who can change it, can they be stopped) -> integrate a real protocol (read its audits + SDK) -> mainnet deploy note: this is the road beyond the course; each step costs time or money, and skipping one is how the exploits happen
-     prompt: Left-to-right flowchart, dark background, monospace. Six nodes in the order listed, ending on "mainnet deploy" (warm-tinted). A thin cost bar under the chain labeled "time / money at every step". No decorative icons.
+     prompt: [render check: step 3 lists SIX audit firms and all six must sit fully inside the node's card, wrapping onto a second line rather than spilling onto the page background or under the banner] Left-to-right flowchart, dark background, monospace. Six nodes in the order listed, ending on "mainnet deploy" (warm-tinted). A thin cost bar under the chain labeled "time / money at every step". No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -23,8 +23,12 @@
 <div class="viz">
 <style>
   .flow { display:flex; align-items:stretch; margin-top:36px; }
+  /* Block layout inside the node, not a column flex container. As flex items the
+     three lines kept flex-shrink:1, so the node squashed them below the height the
+     wrapped audit-firm list needs and that list spilled out under the card onto the
+     page. Blocks stack to their content height and the card grows to fit. */
   .node { flex:1; background:var(--surface-card); border:2px solid var(--border-subtle);
-    border-radius:var(--radius-lg); padding:22px 18px; display:flex; flex-direction:column; justify-content:flex-start; text-align:center; }
+    border-radius:var(--radius-lg); padding:22px 18px; text-align:center; }
   .node .step { font-family:var(--font-body); font-weight:800; font-size:12px; letter-spacing:.09em;
     text-transform:uppercase; color:var(--stbr-emerald); margin-bottom:10px; }
   .node .t { font-family:var(--font-display); font-weight:900; font-size:19px; line-height:1.1;
@@ -51,7 +55,7 @@
     <div class="arr">&rarr;</div>
     <div class="node"><div class="step">step 2</div><div class="t">self-review</div><div class="s">sealevel-attacks + Neodyme pitfalls</div></div>
     <div class="arr">&rarr;</div>
-    <div class="node"><div class="step">step 3</div><div class="t">external audit</div><div class="s">OtterSec / Neodyme / Halborn / Zellic / Trail of Bits / Ackee</div></div>
+    <div class="node"><div class="step">step 3</div><div class="t">external audit</div><div class="s">OtterSec &middot; Neodyme &middot; Halborn<br>Zellic &middot; Trail of Bits &middot; Ackee</div></div>
     <div class="arr">&rarr;</div>
     <div class="node"><div class="step">step 4</div><div class="t">upgrade authority</div><div class="s">who can change it, can they be stopped</div></div>
     <div class="arr">&rarr;</div>

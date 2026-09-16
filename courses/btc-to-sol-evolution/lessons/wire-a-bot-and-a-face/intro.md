@@ -2,34 +2,39 @@
 
 You closed the last module with a vault deployed and green under `anchor test`: a real PDA vault whose only caller, so far, has been your own test file. That was the point of the exercise, and it is also the problem. Your vault is deployed and it does nothing. The only thing that has ever called it is a test file, and test files don't ship. A real deposit needs something to build the transaction, sign it, and put it on the wire, and right now that something does not exist, so the vault just sits there holding zero.
 
-So build the something. There is a `bot/` folder in the repo, already wired for you. Don't read it yet. Run it.
+So build the something. Everything happens inside the `toolkit/vault` workspace you already have, because that is where the compiler left your program's interface. Four short steps, and then you run a bot.
+
+**One: give the workspace a Node side.** It has none yet; the Rust tests never needed one.
 
 ```bash
-npx tsx bot/deposit.ts
+cd toolkit/vault
+npm init -y && npm pkg set type=module
+npm install @solana/kit
+npm install -D tsx typescript @types/node codama @codama/nodes-from-anchor @codama/renderers-js@^1
 ```
 
-Three lines come back:
+Two pins in that line are load-bearing. `type=module` is what lets these files use top-level `await`, which every one of them does. And `@codama/renderers-js@^1` is deliberate: the 2.x line renders a whole publishable npm package instead of a plain folder, which moves every generated file down two directories and breaks the `./generated` import below. Pin the major or read a `Cannot find module` error for twenty minutes.
 
+**Two: point TypeScript at the folder.** Save this as `tsconfig.json` next to `package.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["bot/**/*.ts"]
+}
 ```
-vault balance before: 0
-sent: 2Zj7Kq...gT9vXeL (yours will differ)
-vault balance after: 100000000
-```
 
-The last line is the vault's balance in lamports (the smallest unit of SOL, a billionth of one), and it went up by exactly the 0.1 SOL the bot deposited. The middle line is your receipt from the network. Nothing about that receipt was faked: re-run the script and the balance climbs again, because a second, separate read confirmed it against the chain, not against a variable in memory. You just did the thing test files pretend to do, from a program that will still be running when the test harness is long gone.
-
-![A headless script prints the vault balance before, a transaction receipt, and the balance after, which has risen by the deposited amount.](assets/v01-annotated-code.webp)
-
-## Read the bot you just ran
-
-You ran the thing before you read it. Now read it, top to bottom, because every line is a named idea you will reuse for the rest of this course.
-
-**A 30-second sidebar for absolute beginners: how to read TypeScript.** You do not need to know TypeScript to follow this bot; read it the way you read a recipe. An `import` line at the top pulls a named tool in from another file, the way you would fetch a whisk from a drawer before you start cooking. A line like `const name = value` gives a value a name so you can call it back later. Any line that starts with `await` is a step that talks to the network, so the word just means "wait right here until the chain answers before running the next line." The bits with a colon are labels that tell your editor what shape a value should be, so it can underline a typo in red before you ever hit the network; they do nothing when the code actually runs. That is the entire vocabulary you need here. You are reading these lines, not inventing them: every one was written for you already in the `bot/` folder.
-
-The client never wrote itself, and it never hand-wrote your program's shape either. It was generated. Last module `anchor build` emitted a file to `target/idl/vault.json`, the **IDL** (Interface Description Language: the generated contract Anchor writes down). It lists every instruction your program exposes, every argument each one takes, and every account each one touches. Then one small script turns that JSON into a typed client:
+**Three: generate the client.** Save this as `codama.mjs` and run it; we take it apart in a minute.
 
 ```javascript
-// codama.mjs, run once after every anchor build
+// codama.mjs - run once after every `anchor build`
 import { rootNodeFromAnchor } from "@codama/nodes-from-anchor";
 import { createFromRoot } from "codama";
 import { renderVisitor } from "@codama/renderers-js";
@@ -40,31 +45,89 @@ const codama = createFromRoot(rootNodeFromAnchor(idl));
 codama.accept(renderVisitor("./bot/generated"));
 ```
 
-Run `node codama.mjs` and a `bot/generated/` folder appears, holding a typed function for every instruction, a decoder for every account, and a helper for every PDA. `codama` reads the IDL and writes the client so you never do. Change the program, rebuild, regenerate, and the client rewrites itself. That is why you never hand-write an ABI here (the Application Binary Interface an Ethereum client has to maintain by hand, and keep in sync by hand, and get subtly wrong by hand). The build step is the source of truth, and the generated client is a reader of it, not a second author who can disagree.
+```bash
+node codama.mjs
+```
 
-![The Rust program compiles through anchor build into an IDL, which Codama renders into a generated client the bot imports, so the interface is generated, not hand-written.](assets/v02-flowchart.webp)
+**Four: give the bot a key and a cluster.** Your vault is deployed on devnet from last lesson, and the wallet that deployed it is already funded, so reuse it rather than minting a stranger:
 
-## One shape for every transaction
+```bash
+mkdir -p state
+cp "$(solana config get keypair | cut -d' ' -f3-)" state/sol.key
+solana address -k state/sol.key      # same address you airdropped to last lesson
+```
 
-Here is the whole of `bot/deposit.ts`, and the shape it teaches is the shape of every Solana transaction you will ever send from a client. There is exactly one path: build a message, sign it, send it. Read it once, then we name each move.
+Now the bot itself. Two files. Save the first as `bot/init.ts`: your vault's record account has to exist before anything can deposit into it, and on devnet nothing has created it yet.
+
+```typescript
+// bot/init.ts - create this owner's vault record once, before any deposit.
+import { readFileSync } from "node:fs";
+import {
+  createSolanaRpc, createSolanaRpcSubscriptions, sendAndConfirmTransactionFactory,
+  createKeyPairSignerFromBytes, getSignatureFromTransaction, pipe, createTransactionMessage,
+  setTransactionMessageFeePayerSigner, setTransactionMessageLifetimeUsingBlockhash,
+  appendTransactionMessageInstruction, signTransactionMessageWithSigners,
+  assertIsTransactionWithBlockhashLifetime,
+} from "@solana/kit";
+import { getInitializeInstructionAsync, findVaultStatePda } from "./generated";
+
+const RPC_HTTP = process.env.SOLANA_RPC ?? "https://api.devnet.solana.com";
+const RPC_WS = process.env.SOLANA_WS ?? "wss://api.devnet.solana.com";
+
+const rpc = createSolanaRpc(RPC_HTTP);
+const rpcSubscriptions = createSolanaRpcSubscriptions(RPC_WS);
+const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
+
+const secret = new Uint8Array(JSON.parse(readFileSync("state/sol.key", "utf8")));
+const owner = await createKeyPairSignerFromBytes(secret);
+
+const [vaultState] = await findVaultStatePda({ owner: owner.address });
+const { value: existing } = await rpc.getAccountInfo(vaultState).send();
+if (existing) {
+  console.log("vault already initialized at", vaultState);
+  process.exit(0);
+}
+
+const ix = await getInitializeInstructionAsync({ owner });
+const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+const message = pipe(
+  createTransactionMessage({ version: 0 }),
+  (tx) => setTransactionMessageFeePayerSigner(owner, tx),
+  (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+  (tx) => appendTransactionMessageInstruction(ix, tx),
+);
+const signed = await signTransactionMessageWithSigners(message);
+assertIsTransactionWithBlockhashLifetime(signed);
+await sendAndConfirm(signed, { commitment: "confirmed" });
+console.log("initialized:", getSignatureFromTransaction(signed));
+```
+
+Save the second as `bot/deposit.ts`. Don't read it yet.
 
 ```typescript
 import { readFileSync } from "node:fs";
 import {
   createSolanaRpc, createSolanaRpcSubscriptions, sendAndConfirmTransactionFactory,
-  createKeyPairSignerFromBytes, pipe, createTransactionMessage,
+  createKeyPairSignerFromBytes, getSignatureFromTransaction, pipe, createTransactionMessage,
   setTransactionMessageFeePayerSigner, setTransactionMessageLifetimeUsingBlockhash,
   appendTransactionMessageInstruction, signTransactionMessageWithSigners,
   assertIsTransactionWithBlockhashLifetime,
 } from "@solana/kit";
-import { getDepositInstructionAsync } from "./generated";
+import { getDepositInstructionAsync, fetchVaultState, findVaultStatePda } from "./generated";
 
-const rpc = createSolanaRpc("http://127.0.0.1:8899");
-const rpcSubscriptions = createSolanaRpcSubscriptions("ws://127.0.0.1:8900");
+const RPC_HTTP = process.env.SOLANA_RPC ?? "https://api.devnet.solana.com";
+const RPC_WS = process.env.SOLANA_WS ?? "wss://api.devnet.solana.com";
+
+const rpc = createSolanaRpc(RPC_HTTP);
+const rpcSubscriptions = createSolanaRpcSubscriptions(RPC_WS);
 const sendAndConfirm = sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions });
 
 const secret = new Uint8Array(JSON.parse(readFileSync("state/sol.key", "utf8")));
 const owner = await createKeyPairSignerFromBytes(secret);
+
+const [vaultState] = await findVaultStatePda({ owner: owner.address });
+const before = await fetchVaultState(rpc, vaultState);
+console.log("vault balance before:", before.data.balance);
 
 const ix = await getDepositInstructionAsync({ owner, amount: 100_000_000n });
 
@@ -77,8 +140,48 @@ const message = pipe(
 );
 const signed = await signTransactionMessageWithSigners(message);
 assertIsTransactionWithBlockhashLifetime(signed);
-const signature = await sendAndConfirm(signed, { commitment: "confirmed" });
+await sendAndConfirm(signed, { commitment: "confirmed" });
+console.log("sent:", getSignatureFromTransaction(signed));
+
+const after = await fetchVaultState(rpc, vaultState);
+console.log("vault balance after:", after.data.balance);
 ```
+
+Run them:
+
+```bash
+npx tsx bot/init.ts
+npx tsx bot/deposit.ts
+```
+
+```
+initialized: 5tioLDkv5Bc...eckwz8j (yours will differ)
+vault balance before: 0n
+sent: 5WXK1eRSKMX...osJudB (yours will differ)
+vault balance after: 100000000n
+```
+
+(If devnet is slow or the faucet has left you short, every one of these commands takes a local validator instead: run `solana-test-validator` in another terminal, `solana -u localhost program deploy target/deploy/vault.so --program-id target/deploy/vault-keypair.json`, then prefix the bot with `SOLANA_RPC=http://127.0.0.1:8899 SOLANA_WS=ws://127.0.0.1:8900`. The two environment variables at the top of each file exist for exactly that.)
+
+The last line is the vault's balance in lamports (the smallest unit of SOL, a billionth of one), and it went up by exactly the 0.1 SOL the bot deposited. The trailing `n` is JavaScript telling you it is a `BigInt`, not an ordinary number: lamport counts overflow a JavaScript float, so kit hands them to you in the one type that cannot silently round them. The line above it is your receipt from the network. Nothing about that receipt was faked: re-run `bot/deposit.ts` and the balance climbs again, from 100000000n to 200000000n, because a second, separate read confirmed it against the chain, not against a variable in memory. You just did the thing test files pretend to do, from a program that will still be running when the test harness is long gone.
+
+![A headless script prints the vault balance before, a transaction receipt, and the balance after, which has risen by the deposited amount.](assets/v01-annotated-code.webp)
+
+## Read the bot you just ran
+
+You ran the thing before you read it. Now read it, top to bottom, because every line is a named idea you will reuse for the rest of this course.
+
+**A 30-second sidebar for absolute beginners: how to read TypeScript.** You do not need to know TypeScript to follow this bot; read it the way you read a recipe. An `import` line at the top pulls a named tool in from another file, the way you would fetch a whisk from a drawer before you start cooking. A line like `const name = value` gives a value a name so you can call it back later. Any line that starts with `await` is a step that talks to the network, so the word just means "wait right here until the chain answers before running the next line." The bits with a colon are labels that tell your editor what shape a value should be, so it can underline a typo in red before you ever hit the network; they do nothing when the code actually runs. That is the entire vocabulary you need here. You are reading these lines, not inventing them: you pasted every one of them a page ago.
+
+The client never wrote itself, and it never hand-wrote your program's shape either. It was generated, by the `codama.mjs` from step three. Last module `anchor build` emitted a file to `target/idl/vault.json`, the **IDL** (Interface Description Language: the generated contract Anchor writes down). It lists every instruction your program exposes, every argument each one takes, and every account each one touches. `rootNodeFromAnchor` parses that JSON into Codama's own description of a program, and `renderVisitor` walks that description and writes TypeScript out of it.
+
+That is why `node codama.mjs` made a `bot/generated/` folder appear, holding a typed function for every instruction, a decoder for every account, and a helper for every PDA. `codama` reads the IDL and writes the client so you never do. Change the program, rebuild, regenerate, and the client rewrites itself. That is why you never hand-write an ABI here (the Application Binary Interface an Ethereum client has to maintain by hand, and keep in sync by hand, and get subtly wrong by hand). The build step is the source of truth, and the generated client is a reader of it, not a second author who can disagree.
+
+![The Rust program compiles through anchor build into an IDL, which Codama renders into a generated client the bot imports, so the interface is generated, not hand-written.](assets/v02-flowchart.webp)
+
+## One shape for every transaction
+
+Scroll back to `bot/deposit.ts` and read it once more, because the shape it teaches is the shape of every Solana transaction you will ever send from a client. There is exactly one path: build a message, sign it, send it.
 
 Start at the top. `createSolanaRpc` opens a plain HTTP connection to a node, the same JSON-RPC front door you built by hand back in module 2, now typed. `createSolanaRpcSubscriptions` opens the websocket twin of it, which the send helper uses to hear when your transaction confirms. `createKeyPairSignerFromBytes` loads a 64-byte keypair off disk and hands back a **signer**: an object that holds a key and knows how to sign. That signer, `owner`, is the pen for this whole script.
 
@@ -98,21 +201,33 @@ That commitment level is `"confirmed"`, and it is worth a full paragraph because
 
 ![A table of the three Solana commitment levels, processed, confirmed, and finalized, describing what each guarantees and how strong it is, with confirmed marked as the bot's choice.](assets/v04-table.webp)
 
-The base-58 string it returns, captured here as `signature`, is your **transaction signature** (the identifier that pins your exact transaction on-chain: your permanent receipt). Paste it into a block explorer, Solana Explorer or Solscan, and you can pull up the whole transaction: which program ran, which accounts changed and by how much, the compute it burned, the fee it paid. In the bot it is proof for you; in a frontend you turn it into a clickable link so a user can watch their own deposit settle.
+One thing it does *not* do is hand you a receipt. `sendAndConfirm` returns `Promise<void>`: it tells you the transaction landed by returning at all, and it tells you it failed by throwing. That surprises people, because the receipt is what you want to print. Kit's answer is that you already have it: a signed transaction *contains* its own signature, so `getSignatureFromTransaction(signed)` reads it back out with no extra network call. That is the line printing `sent:` in the bot, and reaching for the return value of `sendAndConfirm` instead is how you end up logging `sent: undefined`.
+
+That base-58 string is your **transaction signature** (the identifier that pins your exact transaction on-chain: your permanent receipt). Paste it into a block explorer, Solana Explorer or Solscan, and you can pull up the whole transaction: which program ran, which accounts changed and by how much, the compute it burned, the fee it paid. In the bot it is proof for you; in a frontend you turn it into a clickable link so a user can watch their own deposit settle.
 
 That is the whole `bot/deposit.ts`: open an RPC, load a signer, build the instruction from the generated client, thread the message through `pipe`, sign, send. Nothing hidden, and no second path. There is no shortcut door and no verbose door, the way older Solana clients split into a one-line convenience call and a build-it-yourself call. Kit gives you one pipeline, and the only thing you ever vary is the signer.
 
-## The version you must pin
+## The pin that actually matters
 
-Look back at the imports. Every primitive, the RPC, the signer, the message builders, the send helper, came from `@solana/kit`. Kit is the modern Solana SDK (formerly web3.js v2): tree-shakable, typed, built on native Web Crypto, and the one you reach for on anything new. But there is a version fact you cannot skip, and it will cost you an evening if you learn it the hard way. Kit's latest is v7, released 2026-06-30. You should install v6, not v7.
+Look back at the imports. Every primitive, the RPC, the signer, the message builders, the send helper, came from `@solana/kit`. Kit is the modern Solana SDK (formerly web3.js v2): tree-shakable, typed, built on native Web Crypto, and the one you reach for on anything new. Notice which package the install line pinned, though, because it is not that one.
 
-The reason is the generated client. The `@solana-program` packages and the client `codama` renders both depend on kit, and as of now they require `@solana/kit@^6.4.0`. Kit v7 shipped ahead of that ecosystem, so if you install `@solana/kit@7` alongside a generated client, `npm` throws a peer-dependency error and nothing installs. Pin kit to the 6 line and everything agrees. Concretely: `npm install @solana/kit@^6.10.0`, and let the generated client pull its matching pieces. This is not kit being broken; it is a young ecosystem where the client generators trail the core SDK by one major version, and the fix is simply to install the version the whole toolchain shares.
+Kit is unpinned here on purpose: `npm install @solana/kit` takes the current major and the rest of this stack agrees with it. The pin went on the *renderer*, `@codama/renderers-js@^1`, and it is the pin that saves your evening. Codama's 2.x renderer changed what it produces: instead of writing a plain folder of TypeScript, it writes a whole publishable npm package, complete with its own `package.json` and every source file moved down into `src/generated/`. The `import … from "./generated"` in your bot then resolves to that package's `main`, which points at a file the renderer does not create, and you get a module-resolution error with nothing obviously wrong on screen. The `^1` line still emits the flat folder these two bots expect.
 
-![A comparison of kit v7 versus v6 showing that the generated client requires v6, so v6 is the version to install despite v7 being newer.](assets/v05-comparison.webp)
+Take the general rule with you, because it outlives every version number here: **pin to what your own dependencies say they need, and ask them rather than guessing.** `npm view @solana/react peerDependencies` will tell you, today, which kit major the React helpers require; `npm view @codama/renderers-js version` will tell you which renderer major `latest` currently means. Do that check per workspace, not once per career. Kit and the client generators have already been out of step once, in 2025, when generated clients required kit v6 while kit itself had shipped v7 and installing them together produced a flat peer-dependency error. That particular window has closed, but the way you detect the next one is the same two commands.
+
+![A comparison showing the version fact that matters is the Codama renderer major: the 1.x renderer emits a flat generated folder the bot can import, while 2.x emits a package scaffold whose main entry does not resolve.](assets/v05-comparison.webp)
 
 ## The face: a button that signs
 
 The bot proves the vault works. Nobody but you can drive it, because it needs your keypair on disk. A person with a browser wallet has to be able to walk up and deposit, and that means a frontend. The whole trick of the frontend is a single substitution: everywhere the bot loaded a signer off disk, the browser hands you a signer backed by the user's wallet instead. Every other line you already wrote stays.
+
+This half needs a React app, which is outside what this lesson builds line by line; scaffold one however you normally would, copy `bot/generated/` into it, and install the browser-side packages beside kit:
+
+```bash
+npm install @solana/kit @solana/react @wallet-standard/react swr @tanstack/react-query
+```
+
+Point it at devnet, the same cluster your bot just deposited to, so the button and the bot are moving the same balance rather than two lookalikes on two networks.
 
 Wallets announce themselves to a page through a browser standard called **wallet-standard**, and `@wallet-standard/react` gives you two hooks to reach them: `useWallets` lists every wallet the browser found, and `useConnect` opens one and returns the accounts the user approved. That is the entire connect flow, and you render it however you like:
 
@@ -211,7 +326,7 @@ Every tool in this course gets its bill read out loud, and kit's is two clauses,
 
 The first is verbosity. That `pipe` block is four lines to do what an older typed client could collapse into a single chained call that built, signed, and sent all at once. Kit made a deliberate trade: nothing is hidden, every step is a named function you can inspect, reorder, or swap, and in return you write the assembly out by hand every time. On a script that sends one instruction, that reads like extra typing. On a bot that needs to attach a compute-budget instruction, batch three deposits into one transaction, or sign with one key and pay fees with another, the explicit pipeline is the only thing that makes those possible, because there is a seam at every step to reach into. You pay a few lines on the simple case to keep the hard case reachable.
 
-The second is the version fragmentation you already met. Because the generated client pins `@solana/kit@^6.4.0` while kit itself is at v7, you are living one major version behind the newest release until `@solana-program` and `@solana/react` publish their v7 lines. That is the toll of being early: the pieces are real, they work, and they do not all move in lockstep yet. Pin v6, keep the whole toolchain on one version, and revisit when the ecosystem catches up.
+The second is the version fragmentation you already met. Kit is one package in a constellation (the generated client, the React helpers, the program clients) that ships on independent release trains, and any of them can move a major ahead of the others for a while. It happened in 2025 with kit v7 and the v6-era generated clients; it happened again with the Codama renderer's 2.x layout change that your `^1` pin is holding back. That is the toll of being early: the pieces are real, they work, and they do not all move in lockstep. The discipline is a habit, not a magic version number: read `peerDependencies` before you install, pin per workspace rather than per career, and write the date next to any version you hardcode in a document.
 
 ## Finish the bot, then the button
 
@@ -236,4 +351,6 @@ You are done with this lesson when three things are true, and you prove each one
 
 Say the answer to one question out loud before you move on, one sentence: the bot and the button send the same deposit; what single thing differs between them? A good answer lands on the signer. The bot loads a keypair off disk with `createKeyPairSignerFromBytes` and the button gets one from the wallet through `useWalletAccountTransactionSendingSigner`, and every other line, the generated instruction, the `pipe`, the signing, is identical. If your sentence names "who holds the pen," you have the one idea that runs under this entire lesson.
 
-This bot and this button both point at the same vault your test file used to poke, and now the toolkit that started as a Bitcoin-RPC script drives a Solana program and listens to it too, one rung closer to the cross-chain ops bot. Your bot is no longer deaf: it pushes a transaction, and it hears the chain answer back when the vault moves. But it still lives on one side of a wall. The Bitcoin watcher from module 2 knows only Bitcoin, and this Solana bot knows only Solana, and neither has ever heard of the other. Next they finally report to a single brain, and the two lonely scripts become one cross-chain ops bot that watches both chains at once.
+One caveat before you call the third gate passed: the browser wallet signs with *its own* key, not the one in `state/sol.key`, and your vault's seeds are derived from the owner. So the connected wallet gets its own vault, and it needs its own `initialize` before its first deposit. Either run `bot/init.ts` with that key, or have the Deposit button send an initialize first when `fetchVaultState` comes back empty. Point the browser wallet at the same devnet keypair you gave the bot and both drive one balance; point it at a different wallet and you have two vaults from one program, which is the per-owner PDA design working exactly as specified.
+
+This bot and this button both speak to the same deployed program on the same cluster your test file used to poke, and now the toolkit that started as a Bitcoin-RPC script drives a Solana program and listens to it too, one rung closer to the cross-chain ops bot. Your bot is no longer deaf: it pushes a transaction, and it hears the chain answer back when the vault moves. But it still lives on one side of a wall. The Bitcoin watcher from module 2 knows only Bitcoin, and this Solana bot knows only Solana, and neither has ever heard of the other. Next they finally report to a single brain, and the two lonely scripts become one cross-chain ops bot that watches both chains at once.

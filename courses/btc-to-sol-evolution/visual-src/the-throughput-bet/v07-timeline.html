@@ -13,7 +13,7 @@
 <!-- timeline: the leader schedule is fixed before your transaction exists
      purpose: certify that stake-weighted PoH pins the recipient validator ~2 days ahead
      data: epoch start: stake-weighted Proof of History assigns every leader slot for the whole epoch (~2 days) during the epoch: the schedule is public and fixed; anyone can compute who leads at any slot you broadcast: you already know which validator (current or next leader) will receive your tx contrast Bitcoin: the producer is only known AFTER the block is mined
-     prompt: Horizontal timeline, dark background, monospace. A bar spanning "~2 days = 1 epoch" pre-filled with leader-slot ticks assigned at the left edge. A "you broadcast" marker mid-bar points at an already-labeled slot. A greyed Bitcoin lane below with its producer marked "?" only at the far right. No decorative icons.
+     prompt: Horizontal timeline, dark background, monospace. A bar spanning "~2 days = 1 epoch" pre-filled with leader-slot ticks assigned at the left edge. A "you broadcast" marker mid-bar points at an already-labeled slot. A greyed Bitcoin lane below with its producer marked "?" only at the far right. The "~1 epoch = ~2 days" span label belongs to the SOLANA lane only - Bitcoin has no epochs - and it must not overprint the "producer" label in the lane below it. No decorative icons.
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -72,7 +72,7 @@
       </div>
     </div>
     <div class="lane btc">
-      <div class="lname"><span>Bitcoin &mdash; producer only known AFTER the block is mined</span><span class="span">~1 epoch = ~2 days</span></div>
+      <div class="lname"><span>Bitcoin &mdash; producer only known AFTER the block is mined</span></div>
       <div class="btcbar">
         <div class="txt">no schedule &mdash; the winning miner is unknown until the block lands</div>
         <div class="qlab">producer</div>
