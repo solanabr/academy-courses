@@ -10,7 +10,7 @@
 
 **Conceitos:** pipeline de submissão de transações; verificação de assinatura e etapas básicas de validação; visão geral de ordenação e tratamento de conflitos; conceitos de finalização e confirmação; considerações de latência e taxa de transferência
 
-**Tempo de leitura:** 35 min
+**Tempo de leitura:** 15 min
 
 ---
 

@@ -10,7 +10,7 @@
 
 **Conceitos:** Tipos de recursos autoritativos para a visão geral do ecossistema Solana; Como abordar documentação e glossários da terminologia Solana; Sinais que indicam projetos ativos ou mantidos; Preparar comparações baseadas em recursos para módulos futuros sobre incentivos
 
-**Tempo de leitura:** 15 min
+**Tempo de leitura:** 13 min
 
 ---
 

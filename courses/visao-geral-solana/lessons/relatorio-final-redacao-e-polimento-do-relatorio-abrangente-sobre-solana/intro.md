@@ -10,7 +10,7 @@
 
 **Conceitos:** História da Solana; Arquitetura da Solana; síntese e estrutura do relatório; padrões de fontes e citações; resumo executivo e conclusões; revisão e feedback de pares
 
-**Tempo de leitura:** 20 min
+**Tempo de leitura:** 15 min
 
 ---
 
