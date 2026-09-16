@@ -79,6 +79,9 @@ QUALIFIED_FN_RE = re.compile(
 NESTED_FN_RE = re.compile(
     r"^[ \t]+(?:pub(?:\([^)]*\))?\s+)?(?:const\s+|async\s+)*fn\s+([a-z_][a-z0-9_]*)\s*\(", re.M
 )
+# Where the one-fn rule is documented for authors — cited by every violation message
+# below so a red X leads straight to the rule and its rationale.
+RULE_DOC = 'CONTRIBUTING.md § "Graded Rust: the one-fn rule"'
 
 
 def grader_visible_fns(src: str):
@@ -100,7 +103,7 @@ def no_entry_point_msg(src: str) -> str:
     nested = sorted(set(NESTED_FN_RE.findall(src)))
     msg = (
         "NOT GRADED — the production grader finds the entry point with "
-        "/^fn\\s+(\\w+)\\s*\\(/ and this file matches it nowhere. "
+        f"/^fn\\s+(\\w+)\\s*\\(/ and this file matches it nowhere ({RULE_DOC}). "
     )
     if qualified:
         return msg + (
@@ -283,7 +286,7 @@ def verify_standard_rust(key, tag, sol_src, start_src, tests, work, subject_pins
             f"{key}: SOLUTION defines {len(sol_fns)} bare column-0 fns "
             f"({', '.join(sol_fns)}) — a graded Rust file must define exactly one so "
             f"entry-point selection can never be ambiguous; make helpers `const fn` or "
-            f"nest them inside a mod"
+            f"nest them inside a mod ({RULE_DOC})"
         )
         return
     if pick_entry_fn(sol_src) is None:
@@ -306,7 +309,7 @@ def verify_standard_rust(key, tag, sol_src, start_src, tests, work, subject_pins
         violations.append(
             f"{key}: STARTER defines {len(start_fns)} bare column-0 fns "
             f"({', '.join(start_fns)}) — a graded Rust file must define exactly one; "
-            f"make helpers `const fn` or nest them inside a mod"
+            f"make helpers `const fn` or nest them inside a mod ({RULE_DOC})"
         )
         return
     if pick_entry_fn(start_src) is None:

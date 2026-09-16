@@ -31,7 +31,7 @@ Exit code 0 means zero errors. `notice` and `warning` lines never fail the build
 
 **XP has a ceiling.** `xpPerLesson × lessonCount ≤ 10000` — go over it and the course can't be completed. `xpPerLesson` is 1–100.
 
-**Challenges are executed.** For a TypeScript challenge, the checks run your `solution.ts` against `tests.json` — it must pass every case — and run your `starter.ts`, which **must fail** at least one. A starter that already passes has nothing to solve. Rust challenges are checked when a learner runs them, not on your PR — but their `starter`, `solution`, and `tests` files still have to be present.
+**Challenges are executed.** For a TypeScript challenge, the checks run your `solution.ts` against `tests.json` — it must pass every case — and run your `starter.ts`, which **must fail** at least one. A starter that already passes has nothing to solve. Rust challenges get the same treatment from this repo's own `verify-code` workflow — failing to compile counts as the starter failing — and each graded file must expose exactly one entry `fn`: see [Graded Rust: the one-fn rule](#graded-rust-the-one-fn-rule).
 
 **Every course needs a creator wallet.** `course.creator` must be a real Solana address — that's how the author gets credited (and earns creator XP). It becomes `Course.creator` on-chain and **cannot be changed after the course is created**, so use the wallet you actually want paid.
 
@@ -60,6 +60,17 @@ Correctness is keyed to a stable option `id`, never to array position, so reorde
 ```
 
 With `multiSelect: false` exactly one option may be correct; with `true`, at least one.
+
+## Graded Rust: the one-fn rule
+
+A graded Rust file — the `starter.rs` and `solution.rs` of a `language: rust` challenge — contains **exactly one bare column-0 `fn`**: unindented, no `pub`, no `const`, not named `main`. That `fn` is the entry point the grader calls, through a `main()` it appends itself. Helpers are `const fn` or nested — inside the entry `fn` or a `mod` — which keeps them out of the count. (A starter may define *none*, when writing the entry `fn` is the exercise — but never more than one.) The template shows the shape: [`courses/_template/lessons/exercise/rs/solution.rs`](./courses/_template/lessons/exercise/rs/solution.rs) is a lone bare `fn add`.
+
+The rule is mechanical, not stylistic. The production grader finds the entry point with a line-anchored regex, `/^fn\s+(\w+)\s*\(/`, which `pub fn` and `const fn` do not match:
+
+- **Zero matches** — say the only candidate is a `pub fn` — and the grader has no entry point, so every test fails **against the reference solution itself**: the lesson ships un-completable. The platform grades Rust at runtime, fail-closed, so the first person to notice would be a learner. The `verify-code` workflow exists to fail your PR instead.
+- **Two or more matches**, and which one is called depends on whether the executor takes the first or the last — an app-repo implementation detail this repo can't read. With exactly one, first and last are the same match.
+
+Helpers often *can't* be `const fn` on stable — `for` loops, `&str` matching and `String` allocation are all rejected in const context — so nesting the helper inside the entry function is the usual fallback. All of this applies to `buildType: standard` (the default); a `buildType: buildable` block is a whole crate, compiled rather than called, and shapes its functions however it needs. Reproduce the check locally with `python3 scripts/verify_code_blocks.py courses/<your-slug>` (needs `cargo` and `pyyaml`).
 
 ## Reflections are never graded
 

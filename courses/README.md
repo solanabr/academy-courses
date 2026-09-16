@@ -230,4 +230,4 @@ Each lesson owns a permanent **slot** that tracks learner progress, kept separat
 
 See [the block-type table in the root README](../README.md#a-lesson-is-a-list-of-blocks). A lesson is `id`, `slug`, `title`, and a `blocks[]` array. Adding a new kind of activity is a new block type — it never reshapes a course or a lesson.
 
-For a `code` block, the reference `solution` must pass `tests.json` and the `starter` must **fail** at least one case. TypeScript challenges are checked automatically when you open a PR; Rust challenges are checked when a learner runs them.
+For a `code` block, the reference `solution` must pass `tests.json` and the `starter` must **fail** at least one case. TypeScript challenges are checked automatically when you open a PR; Rust challenges are too, by the `verify-code` workflow — which also requires each graded Rust file to expose exactly one entry `fn`, per [CONTRIBUTING.md § Graded Rust: the one-fn rule](../CONTRIBUTING.md#graded-rust-the-one-fn-rule).
