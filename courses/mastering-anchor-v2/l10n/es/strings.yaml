@@ -787,14 +787,19 @@ lessons:
                 # | banned — bare bool just isn't castable.
                 feedback: "El bound es ser Pod, no ser numérico. Slab guarda con gusto cualquier campo Pod, incluido el wrapper PodBool de un byte, así que los booleanos no están prohibidos — el bool desnudo simplemente no se puede castear."  # @src=62b0724a1d19
               d:
-                # | A 1-byte bool after a PodU64 usually opens 7 bytes of padding, and Pod
-                # | forbids padding; reorder the fields
-                label: "Un bool de 1 byte después de un PodU64 suele abrir 7 bytes de relleno, y Pod prohíbe el relleno; reordena los campos"  # @src=d4f03ba09d76
-                # | Padding is a real Pod failure and field order is a real fix for it,
-                # | which is exactly why this reads correctly. It is the wrong failure here:
-                # | a bare bool is rejected because 254 of its 256 byte patterns are
-                # | undefined, so no ordering makes it castable. PodBool does.
-                feedback: "El relleno es una falla real de Pod y el orden de los campos es un arreglo real para ella, que es exactamente por lo que esto se lee bien. Es la falla equivocada aquí: un bool desnudo se rechaza porque 254 de sus 256 patrones de bytes son indefinidos, así que ningún orden logra que se pueda castear. PodBool sí."  # @src=75e90090d485
+                # | The struct trips V2's no-padding assertion once a 1-byte field sits
+                # | beside 8-byte ones; reorder largest-to-smallest
+                label: "El struct dispara la aserción de sin-relleno de V2 en cuanto un campo de 1 byte queda al lado de campos de 8 bytes; reordena de mayor a menor"  # @src=b08fea344f3b
+                # | Both halves are real V2 facts, in the wrong place. The no-padding
+                # | assertion exists and largest-to-smallest ordering is its fix, but
+                # | neither fires here: PodU64 wraps [u8; 8] at alignment 1, so {PodU64,
+                # | bool} is nine bytes with no gap in either order — that alignment-1
+                # | wrapper is the whole reason the Pod types exist. Seven bytes of padding
+                # | is the native-u64-after-u8 story from this lesson's other diagram, not
+                # | this one. A bare bool is rejected by the Pod bound itself, because 254
+                # | of its 256 byte patterns are undefined, so no ordering makes it
+                # | castable. PodBool does.
+                feedback: "Las dos mitades son hechos reales de V2, en el lugar equivocado. La aserción de sin-relleno existe y ordenar de mayor a menor es su arreglo, pero ninguna de las dos dispara acá: PodU64 envuelve [u8; 8] con alineación 1, así que {PodU64, bool} son nueve bytes sin hueco en ninguno de los dos órdenes — ese wrapper de alineación 1 es la razón entera de que los tipos Pod existan. Siete bytes de relleno es la historia del u64-nativo-después-de-u8 del otro diagrama de esta lección, no de este. Un bool desnudo se rechaza por el propio bound de Pod, porque 254 de sus 256 patrones de bytes son indefinidos, así que ningún orden logra que se pueda castear. PodBool sí."  # @src=8c0a35022710
               b:
                 # | bool isn't Pod because not every bit pattern is a valid bool, so
                 # | bytemuck rejects it — use PodBool.
@@ -2862,11 +2867,11 @@ lessons:
             # | and that program needs its extra accounts forwarded in the instruction.
             # | transfer_checked itself is fine; a transfer against a hooked mint just won't
             # | complete unless you resolve and pass those accounts. Designing the hook is
-            # | the Digital Assets course's job; noticing you must forward its accounts is
-            # | yours. Note that the extension being present is not the trigger: the hook's
-            # | programId is. An all-zero programId means the hook is declared but dormant,
-            # | and the usual four accounts still suffice.
-            explanation: "Un mint con una extensión TransferHook corre un programa de hook en cada transferencia, y ese programa necesita sus cuentas extra reenviadas en la instrucción. transfer_checked en sí está bien; una transferencia contra un mint con hook simplemente no se va a completar a menos que resuelvas y pases esas cuentas. Diseñar el hook es trabajo del curso de Digital Assets; notar que tienes que reenviar sus cuentas es tuyo. Nota que la extensión estando presente no es el disparador: el programId del hook lo es. Un programId de todos ceros quiere decir que el hook está declarado pero dormido, y las cuatro cuentas de siempre todavía alcanzan."  # @src=ef4bdf205954
+            # | standards work past this course's boundary; noticing you must forward its
+            # | accounts is yours. Note that the extension being present is not the trigger:
+            # | the hook's programId is. An all-zero programId means the hook is declared
+            # | but dormant, and the usual four accounts still suffice.
+            explanation: "Un mint con una extensión TransferHook corre un programa de hook en cada transferencia, y ese programa necesita sus cuentas extra reenviadas en la instrucción. transfer_checked en sí está bien; una transferencia contra un mint con hook simplemente no se va a completar a menos que resuelvas y pases esas cuentas. Diseñar el hook es trabajo de estándares más allá de la frontera de este curso; notar que tienes que reenviar sus cuentas es tuyo. Nota que la extensión estando presente no es el disparador: el programId del hook lo es. Un programId de todos ceros quiere decir que el hook está declarado pero dormido, y las cuatro cuentas de siempre todavía alcanzan."  # @src=f5586145e197
             options:                 # source order — keep it
               b:
                 # | Token-2022 needs its own transfer instruction, because transfer_checked
@@ -2909,28 +2914,31 @@ lessons:
             # | What's the right call?
             prompt: "Un compañero te pide agregar diseño completo de transfer hook, escribiendo el programa de hook y su interfaz de resolución de cuentas, dentro del swap de esta lección. ¿Cuál es la decisión correcta?"  # @src=980a6f3dde59
             # | The boundary is explicit: this course teaches Token-2022 from the program's
-            # | seat (account sizing, forwarding hook accounts), and the Digital Assets
-            # | course owns extension-standards depth and walks the transfer-hook interface
-            # | end to end. Keeping the line sharp is the lesson's job: mechanics here,
-            # | standards there. Concretely, reading the extension-aware account length,
-            # | detecting a TransferHook extension and reading its programId, and reasoning
-            # | about whether a transfer must forward extra accounts belong here; designing
+            # | seat (account sizing, forwarding hook accounts), and extension-standards
+            # | depth -- authoring the hook and walking the transfer-hook interface end to
+            # | end -- sits past its boundary. That boundary names a subject, not a shipped
+            # | course: no digital-assets course exists in the Academy catalog today, so the
+            # | honest handoff for hook authoring is the Token-2022 specification itself.
+            # | Keeping the line sharp is the lesson's job: mechanics here, standards there.
+            # | Concretely, reading the extension-aware account length, detecting a
+            # | TransferHook extension and reading its programId, and reasoning about
+            # | whether a transfer must forward extra accounts belong here; designing
             # | extensions, writing a hook program, and wiring its account-resolution
             # | interface belong there.
-            explanation: "La frontera es explícita: este curso enseña Token-2022 desde el asiento del programa (dimensionamiento de cuentas, reenviar cuentas de hook), y el curso de Digital Assets es dueño de la profundidad de estándares de extensión y recorre la interfaz de transfer hook de punta a punta. Mantener la línea nítida es el trabajo de la lección: mecánica acá, estándares allá. Concretamente, leer el largo de cuenta consciente de extensiones, detectar una extensión TransferHook y leer su programId, y razonar sobre si una transferencia tiene que reenviar cuentas extra pertenecen acá; diseñar extensiones, escribir un programa de hook y cablear su interfaz de resolución de cuentas pertenecen allá."  # @src=e567e36016f4
+            explanation: "La frontera es explícita: este curso enseña Token-2022 desde el asiento del programa (dimensionamiento de cuentas, reenviar cuentas de hook), y la profundidad de estándares de extensión -- escribir el hook y recorrer la interfaz de transfer hook de punta a punta -- queda más allá de su frontera. Esa frontera nombra un tema, no un curso lanzado: ningún curso de digital-assets existe hoy en el catálogo de la Academy, así que la entrega honesta para la autoría de hooks es la propia especificación de Token-2022. Mantener la línea nítida es el trabajo de la lección: mecánica acá, estándares allá. Concretamente, leer el largo de cuenta consciente de extensiones, detectar una extensión TransferHook y leer su programId, y razonar sobre si una transferencia tiene que reenviar cuentas extra pertenecen acá; diseñar extensiones, escribir un programa de hook y cablear su interfaz de resolución de cuentas pertenecen allá."  # @src=cb639e7d2cc0
             options:                 # source order — keep it
               c:
                 # | Split the difference: write a minimal hook program here and defer only
-                # | the account-resolution interface to Digital Assets.
-                label: "Divide la diferencia: escribe un programa de hook mínimo acá y posterga solo la interfaz de resolución de cuentas a Digital Assets."  # @src=e49c2288c8ec
+                # | the account-resolution interface past the standards boundary.
+                label: "Divide la diferencia: escribe un programa de hook mínimo acá y posterga solo la interfaz de resolución de cuentas más allá de la frontera de estándares."  # @src=30653274b78f
                 # | A partial re-teach is exactly the boundary creep the design forbids. It
                 # | duplicates owned material and leaves learners unsure which course
                 # | actually teaches the interface end to end.
                 feedback: "Una re-enseñanza parcial es exactamente la invasión de frontera que el diseño prohíbe. Duplica material del que otro es dueño y deja a quien aprende sin saber qué curso enseña de verdad la interfaz de punta a punta."  # @src=7ebfd051f38f
               b:
-                # | Decline: hook authoring is standards depth the Digital Assets course
-                # | owns; this lesson stays at program-seat mechanics.
-                label: "Recházalo: escribir el hook es profundidad de estándares de la que es dueño el curso de Digital Assets; esta lección se queda en la mecánica del asiento del programa."  # @src=5e3f5ea98865
+                # | Decline: hook authoring is standards depth past this course's boundary;
+                # | this lesson stays at program-seat mechanics.
+                label: "Recházalo: escribir el hook es profundidad de estándares más allá de la frontera de este curso; esta lección se queda en la mecánica del asiento del programa."  # @src=db51992a6c79
                 # | Sizing the account, spotting the extension, shipping the extra accounts
                 # | along with the call: that's the program seat's work. Authoring the hook
                 # | and its resolution interface is standards work, and it lives in one
@@ -3970,9 +3978,9 @@ lessons:
                 # | not mutator noise, and that is the entire point of running it.
                 feedback: "Crucible guarda la secuencia que falla como un artefacto de crash y la repite de forma determinista con `--replay`, así que un crash reproducible es un hallazgo, no ruido del mutador, y ese es el punto entero de correrlo."  # @src=22339c9cb34e
           q2:
-            # | A teammate on an Anchor master build runs `anchor fuzz`. Which tool actually
-            # | runs under the hood?
-            prompt: "Un compañero de equipo sobre un build master de Anchor corre `anchor fuzz`. ¿Qué herramienta corre de verdad debajo del capó?"  # @src=36faf32d554c
+            # | A teammate on the V1 line's CLI (anchor-cli 1.2.0) runs `anchor fuzz`. Which
+            # | tool actually runs under the hood?
+            prompt: "Un compañero de equipo en el CLI de la línea V1 (anchor-cli 1.2.0) corre `anchor fuzz`. ¿Qué herramienta corre de verdad debajo del capó?"  # @src=187a6f95be44
             # | anchor fuzz is Crucible (crucible-fuzz-cli), embedded in the CLI, using a
             # | LibAFL/LiteSVM backend with sBPF edge coverage. Trident (Ackee) is a
             # | one-paragraph alternative that has not cut a stable release since 0.12.0
@@ -4012,9 +4020,10 @@ lessons:
                 # | Crucible (`crucible-fuzz-cli`), a LibAFL engine driving a LiteSVM
                 # | runtime.
                 label: "Crucible (`crucible-fuzz-cli`), un motor LibAFL que maneja un runtime LiteSVM."  # @src=779b1b25b834
-                # | Verified 2026-08-22: that subcommand lives on master, which pins the
-                # | crate at 0.2.1; the RC branch's CLI has no fuzz command at all.
-                feedback: "Verificado el 2026-08-22: ese subcomando vive en master, que fija el crate en 0.2.1; el CLI de la rama RC no tiene ningún comando fuzz."  # @src=e09a082d1cf0
+                # | Checked 2026-09-07: that subcommand rides the V1 line, whose 1.2.0
+                # | release (2026-09-04) pins `crucible-fuzz-cli` at 0.2.1; the 2.0.0-rc.1
+                # | CLI has no fuzz command at all.
+                feedback: "Verificado el 2026-09-07: ese subcomando anda sobre la línea V1, cuyo release 1.2.0 (2026-09-04) fija `crucible-fuzz-cli` en 0.2.1; el CLI de 2.0.0-rc.1 no tiene ningún comando fuzz."  # @src=681baa7f3747
               d:
                 # | Anchor's own fuzz engine, added to the CLI beside `anchor coverage` and
                 # | `anchor debugger`.
@@ -4167,9 +4176,13 @@ lessons:
             # | add @solana/kit. What do you pin?
             prompt: "Acabas de generar el cliente kit del swap. Tu package.json ya tiene @solana-program/token@0.15.0 (que hace peer sobre ^7.0.0), y estás a punto de agregar @solana/kit. ¿Qué fijas?"  # @src=bc7dda290d9f
             # | The durable rule (CF4): pin @solana/kit to the major your @solana-program
-            # | dependencies declare, never to 'latest'. Today that major is 7, even though
-            # | kit 8.0.0 is the newest published version.
-            explanation: "La regla durable (CF4): fija @solana/kit al major que declaran tus dependencias de @solana-program, nunca a 'latest'. Hoy ese major es 7, aunque kit 8.0.0 sea la versión publicada más nueva."  # @src=0445c4cb4a9f
+            # | dependencies declare, never to 'latest'. At the time of writing that major
+            # | is 7 while npm latest was kit 8.2.0 (checked 2026-09-07). Expect both
+            # | numbers to have moved by the time you run this — read them yourself with
+            # | `npm view @solana/kit version` and `npm view @solana-program/token
+            # | peerDependencies`. The digits are a dated observation; the rule that the pin
+            # | comes from the peer range is what does not move.
+            explanation: "La regla durable (CF4): fija @solana/kit al major que declaran tus dependencias de @solana-program, nunca a 'latest'. Al momento de escribir ese major es 7 mientras que el latest de npm era kit 8.2.0 (verificado el 2026-09-07). Espera que los dos números se hayan movido para cuando corras esto — léelos tú mismo con `npm view @solana/kit version` y `npm view @solana-program/token peerDependencies`. Los dígitos son una observación fechada; la regla de que el pin sale del rango de peers es lo que no se mueve."  # @src=900388662593
             options:                 # source order — keep it
               c:
                 # | 'latest' so npm always resolves the newest kit for you
@@ -4181,17 +4194,20 @@ lessons:
                 # | >=7, so npm can be trusted to move up once @solana-program does
                 label: ">=7, para poder confiar en que npm suba una vez que @solana-program suba"  # @src=aba1e22884c8
                 # | An open-ended range resolves to the newest version that satisfies it,
-                # | which today is kit 8.0.0, so `>=7` hits the same ERESOLVE that pinning
-                # | 'latest' does. Moving a major is a decision you take after checking that
-                # | the peer ranges moved too.
-                feedback: "Un rango abierto resuelve a la versión más nueva que lo satisface, que hoy es kit 8.0.0, así que `>=7` pega en el mismo ERESOLVE que pegar fijando 'latest'. Mover un major es una decisión que tomas después de verificar que los rangos de peer también se movieron."  # @src=6c0f9fc1d91a
+                # | which as of 2026-09-07 was kit 8.2.0 and by the time you read this is
+                # | probably higher, so `>=7` hits the same ERESOLVE that pinning 'latest'
+                # | does. Moving a major is a decision you take after checking that the peer
+                # | ranges moved too.
+                feedback: "Un rango abierto resuelve a la versión más nueva que lo satisface, que al 2026-09-07 era kit 8.2.0 y para cuando leas esto probablemente sea más alta, así que `>=7` pega en el mismo ERESOLVE que pegar fijando 'latest'. Mover un major es una decisión que tomas después de verificar que los rangos de peer también se movieron."  # @src=8082d4003d58
               a:
-                # | ^8 — pin the newest kit (8.0.0) so the client stays current
-                label: "^8 — fija el kit más nuevo (8.0.0) para que el cliente se mantenga actual"  # @src=d9ebf0c7786a
-                # | kit 8.0.0 is npm latest, but @solana-program/token 0.15.0 peers on
-                # | @solana/kit ^7.0.0; pinning ^8 breaks the peer graph and the install
-                # | fails.
-                feedback: "kit 8.0.0 es el latest de npm, pero @solana-program/token 0.15.0 hace peer sobre @solana/kit ^7.0.0; fijar ^8 rompe el grafo de peers y la instalación falla."  # @src=b64164596e1c
+                # | ^8 — pin the newest kit (8.2.0 at the time of writing) so the client
+                # | stays current
+                label: "^8 — fija el kit más nuevo (8.2.0 al momento de escribir) para que el cliente se mantenga actual"  # @src=4970a0f12008
+                # | kit 8.2.0 was npm latest as of 2026-09-07 and yours will likely be
+                # | newer, but @solana-program/token 0.15.0 peers on @solana/kit ^7.0.0;
+                # | pinning ^8 breaks the peer graph and the install fails. Which digit is
+                # | newest moves; which major your peers declare is what you read.
+                feedback: "kit 8.2.0 era el latest de npm al 2026-09-07 y el tuyo probablemente sea más nuevo, pero @solana-program/token 0.15.0 hace peer sobre @solana/kit ^7.0.0; fijar ^8 rompe el grafo de peers y la instalación falla. Qué dígito es el más nuevo se mueve; qué major declaran tus peers es lo que lees."  # @src=59c3cfc993ed
               d:
                 # | ^6, because one repo should settle on a single kit major
                 label: "^6, porque un repositorio debería asentarse en un único major de kit"  # @src=c4845e486d4c
@@ -4488,20 +4504,22 @@ lessons:
                 # | Yes — the pinned toolchain always tracks the newest stable Agave release
                 # | at build time
                 label: "Sí — el toolchain fijado siempre sigue el release estable más nuevo de Agave en el momento del build"  # @src=3f00db00feff
-                # | The build pin (Solana 3.1.10) and current stable (Agave v4.2.1 as of
-                # | writing) drift apart on purpose. A pin that chased the newest release
-                # | would be a moving toolchain, which is exactly the free variable that
-                # | breaks the hash.
-                feedback: "El pin de build (Solana 3.1.10) y el release estable actual (Agave v4.2.1 al momento de escribir) se separan a propósito. Un pin que persiguiera el release más nuevo sería un toolchain en movimiento, que es exactamente la variable libre que rompe el hash."  # @src=c725b6eb064d
+                # | The build pin (Solana 3.1.10) and current stable (Agave v4.2.2 when
+                # | mainnet-beta was queried on 2026-09-07; yours will likely be newer)
+                # | drift apart on purpose. A pin that chased the newest release would be a
+                # | moving toolchain, which is exactly the free variable that breaks the
+                # | hash.
+                feedback: "El pin de build (Solana 3.1.10) y el release estable actual (Agave v4.2.2 cuando se consultó mainnet-beta el 2026-09-07; el tuyo probablemente sea más nuevo) se separan a propósito. Un pin que persiguiera el release más nuevo sería un toolchain en movimiento, que es exactamente la variable libre que rompe el hash."  # @src=cb397a5ab4e5
               d:
                 # | It's the devnet cluster's own version, which is why the deploy targets
                 # | 3.1.10
                 label: "Es la versión propia del cluster de devnet, que es por qué el deploy apunta a 3.1.10"  # @src=1babbdf5724a
-                # | A cluster runs its own release on its own schedule: current stable was
-                # | Agave v4.2.1 while this table pinned 3.1.10. The number describes the
-                # | environment the bytes were compiled in, and a deploy does not target a
-                # | toolchain at all.
-                feedback: "Un cluster corre su propio release en su propio calendario: el release estable actual era Agave v4.2.1 mientras esta tabla fijaba 3.1.10. El número describe el entorno en el que se compilaron los bytes, y un deploy no apunta a ningún toolchain."  # @src=7689bcd22764
+                # | A cluster runs its own release on its own schedule: mainnet-beta
+                # | answered `getVersion` with Agave v4.2.2 on 2026-09-07, while this table
+                # | pinned 3.1.10. Check yours rather than trusting that digit -- it moves,
+                # | the pin does not. The number describes the environment the bytes were
+                # | compiled in, and a deploy does not target a toolchain at all.
+                feedback: "Un cluster corre su propio release en su propio calendario: mainnet-beta respondió `getVersion` con Agave v4.2.2 el 2026-09-07, mientras esta tabla fijaba 3.1.10. Verifica el tuyo en vez de confiar en ese dígito -- se mueve, el pin no. El número describe el entorno en el que se compilaron los bytes, y un deploy no apunta a ningún toolchain."  # @src=440aa27d5eb6
               b:
                 # | No — it's the local-CI/Docker toolchain pin, not a claim about the
                 # | current release
@@ -4803,28 +4821,33 @@ lessons:
             # | course's scope, where does the 'why the VM runs it that way' depth live?
             prompt: "Le das la mirada de un compás al asm-v2 con sBPF escrito a mano, y después paras. Según el alcance de este curso, ¿dónde vive la profundidad del 'por qué la VM lo corre de esa forma'?"  # @src=e22f9314401b
             # | This course stays framework-level: what the macro expands to. The sBPF peek
-            # | is a single beat; the Low-Level Solana course owns loaders, sBPF, and
-            # | syscalls, and it runs the same strip-the-framework mirror in the other
-            # | direction on a counter — rebuilding it with no framework at all.
-            explanation: "Este curso se queda al nivel del framework: en qué expande la macro. La mirada al sBPF es un solo compás; el curso de Low-Level Solana es dueño de loaders, sBPF y syscalls, y corre este mismo espejo de desmonta-el-framework en la otra dirección sobre un counter — reconstruyéndolo sin ningún framework."  # @src=cb0b4d13f6a7
+            # | is a single beat, and loaders, sBPF and syscalls are the low-level boundary
+            # | it hands off. One honest caveat about every sibling this course names: they
+            # | are boundary names, describing who would own a topic, not entries in the
+            # | shipped catalog — no low-level, client-side or digital-assets course has
+            # | shipped in the Academy catalog. Treat a handoff as this course telling you
+            # | truthfully what it is not teaching, and go to primary docs for the rest.
+            explanation: "Este curso se queda al nivel del framework: en qué expande la macro. La mirada al sBPF es un solo compás, y loaders, sBPF y syscalls son la frontera low-level que él entrega. Una salvedad honesta sobre cada hermano que este curso nombra: son nombres de frontera, que describen quién sería dueño de un tema, no entradas en el catálogo lanzado — ningún curso low-level, client-side o digital-assets se ha lanzado en el catálogo de la Academy. Trata una entrega como este curso diciéndote con franqueza qué no está enseñando, y ve a la documentación primaria para el resto."  # @src=c0a1baaa475e
             options:                 # source order — keep it
               d:
-                # | In the Client-Side Mastery course, which owns the sBPF and wire depth
-                # | under a send.
-                label: "En el curso de Client-Side Mastery, que es dueño de la profundidad de sBPF y de wire debajo de un send."  # @src=dac468c0bbde
-                # | That course picks up where a well-formed transaction ends: priority
-                # | fees, retries, getting a send to land. What the VM does with the bytes
-                # | once they arrive is the loader-and-syscall territory the boundary map
-                # | routes elsewhere.
-                feedback: "Ese curso agarra donde termina una transacción bien formada: tarifas de prioridad, reintentos, hacer que un send aterrice. Lo que hace la VM con los bytes una vez que llegan es el territorio de loader-y-syscall que el mapa de frontera rutea a otro lado."  # @src=3d16dfc87023
+                # | In the client-side course, which owns the sBPF and wire depth under a
+                # | send.
+                label: "En el curso client-side, que es dueño de la profundidad de sBPF y de wire debajo de un send."  # @src=9b597a8f32a6
+                # | The client-side boundary picks up where a well-formed transaction ends:
+                # | priority fees, retries, getting a send to land. What the VM does with
+                # | the bytes once they arrive is the loader-and-syscall territory the
+                # | boundary map routes elsewhere.
+                feedback: "La frontera client-side agarra donde termina una transacción bien formada: tarifas de prioridad, reintentos, hacer que un send aterrice. Lo que hace la VM con los bytes una vez que llegan es el territorio de loader-y-syscall que el mapa de frontera rutea a otro lado."  # @src=d9505c35c5b4
               b:
-                # | In the Low-Level Solana course, which owns runtime, loader, and sBPF
+                # | In the low-level Solana course, which owns runtime, loader, and sBPF
                 # | depth.
-                label: "En el curso de Low-Level Solana, que es dueño de la profundidad de runtime, de loader y de sBPF."  # @src=51d89fc58916
-                # | That course runs this same mirror in the opposite direction, rebuilding
-                # | a counter with nothing underneath it. The peek here only establishes
-                # | that a hand-written hot path can be linked in at all.
-                feedback: "Ese curso corre este mismo espejo en la dirección opuesta, reconstruyendo un counter sin nada debajo. La mirada de acá solo establece que un camino caliente escrito a mano puede linkearse."  # @src=9f8b9c079615
+                label: "En el curso low-level de Solana, que es dueño de la profundidad de runtime, de loader y de sBPF."  # @src=c4a54e305eda
+                # | Runtime, loader and sBPF depth is the boundary this course hands off,
+                # | and the peek here only establishes that a hand-written hot path can be
+                # | linked in at all. Read the handoff for what it is, though: a named
+                # | boundary and a reading list, not a link you can follow — see the
+                # | explanation.
+                feedback: "La profundidad de runtime, de loader y de sBPF es la frontera que este curso entrega, y la mirada de acá solo establece que un camino caliente escrito a mano puede linkearse. Pero lee la entrega por lo que es: una frontera nombrada y una lista de lectura, no un link que puedas seguir — mira la explicación."  # @src=8ab5c9684c18
               a:
                 # | Here in the next module, since Anchor V2's asm-v2 hot path puts sBPF in
                 # | scope.
@@ -4834,12 +4857,12 @@ lessons:
                 # | map, not taught here.
                 feedback: "asm-v2 solo demuestra que la salida de emergencia existe — puedes linkear un camino caliente escrito a mano. Por qué la VM lo ejecuta de esa forma lo entrega el mapa de frontera, no se enseña acá."  # @src=43708f94585e
               c:
-                # | In the Digital Assets course, next to token standards and the
+                # | In the digital-assets course, next to token standards and the
                 # | transfer-hook interface.
-                label: "En el curso de Digital Assets, al lado de los estándares de token y de la interfaz de transfer hook."  # @src=adc7c7bf2940
-                # | Digital Assets owns token standards and the transfer-hook interface,
-                # | which are program-level concerns, not VM or loader internals.
-                feedback: "Digital Assets es dueño de los estándares de token y de la interfaz de transfer hook, que son preocupaciones de nivel de programa, no internas de VM ni de loader."  # @src=95b37e74b8e6
+                label: "En el curso de digital-assets, al lado de los estándares de token y de la interfaz de transfer hook."  # @src=dc003c1f67cb
+                # | Token standards and the transfer-hook interface sit behind a different
+                # | boundary entirely — program-level concerns, not VM or loader internals.
+                feedback: "Los estándares de token y la interfaz de transfer hook quedan detrás de una frontera totalmente distinta — preocupaciones de nivel de programa, no internas de VM ni de loader."  # @src=fb8870d3fb20
   m09-l3:
     # | Capstone: run the whole arcade floor
     title: "Capstone: pon a correr el salón de arcade entero"  # @src=1cab25aaef9b
@@ -5153,7 +5176,7 @@ lessons:
                 # | flow no longer exists at all -- IDLs go on-chain through the Program
                 # | Metadata Program instead.
                 feedback: "`[registry]` y `anchor login` se sacaron los dos en 1.0. Ese flujo de publish ya no existe para nada -- los IDL van on-chain a través del Program Metadata Program en cambio."  # @src=646fe227ac02
-              a2:
+              e:
                 # | Pin `avm` back to 0.32.1 permanently, since the 1.x line has no way to
                 # | write an IDL on-chain at all.
                 label: "Fija `avm` de vuelta en 0.32.1 permanentemente, ya que la línea 1.x no tiene ninguna forma de escribir un IDL on-chain."  # @src=7769ebfd2fd2
@@ -5351,7 +5374,7 @@ lessons:
                 # | V2 spelling is specifically `unsafe(dup)`, and the compile error names
                 # | it for you.
                 feedback: "No hay ningún namespace `allow` para constraints, ni ningún `allow(dup)`. La ortografía de V2 es específicamente `unsafe(dup)`, y el error de compilación te la nombra."  # @src=ef2d41a25aae
-              a2:
+              e:
                 # | Keep `dup` as written and wrap the handler body in a Rust `unsafe { }`
                 # | block; the constraint spelling itself is unchanged in V2.
                 label: "Deja `dup` como está escrito y envuelve el cuerpo del handler en un bloque `unsafe { }` de Rust; la ortografía del constraint en sí no cambió en V2."  # @src=38308edf2f5f
@@ -5767,52 +5790,60 @@ lessons:
             # | course send them, and why?
             prompt: "Un lector que termina este curso quiere agregar un transfer hook de Token-2022 y, por separado, ajustar tarifas de prioridad para que sus transacciones aterricen. ¿A dónde lo manda este curso, y por qué?"  # @src=1409ddd5cc65
             # | This course owns the framework layer and refuses two things by design:
-            # | token/NFT standards depth (the transfer-hook interface belongs to the
-            # | Digital Assets course, which walks it end to end) and client tx-landing /
-            # | priority-fee science (the Client-Side Mastery course). The conclusion routes
-            # | readers to the sibling that owns each -- the boundary map is a set of
-            # | handoffs, not gaps. Behind the crisp routing sits the fourth misreading from
-            # | this lesson: a topic this course skipped is not a topic that does not
-            # | matter. Digital Assets walks the whole Token-2022 standard, and Client-Side
-            # | Mastery teaches priority fees, Jito bundles, DEX aggregation, and DAS
-            # | indexing -- each better than a bolted-on chapter here ever could.
-            explanation: "Este curso es dueño de la capa de framework y rechaza dos cosas por diseño: profundidad de estándares de token/NFT (la interfaz de transfer hook le pertenece al curso de Digital Assets, que la recorre de punta a punta) y aterrizaje de tx del cliente / ciencia de tarifas de prioridad (el curso de Client-Side Mastery). La conclusión rutea a los lectores al hermano que es dueño de cada una -- el mapa de frontera es un conjunto de entregas, no de huecos. Detrás del ruteo seco está la cuarta lectura equivocada de esta lección: un tema que este curso se salteó no es un tema que no importa. Digital Assets recorre el estándar Token-2022 entero, y Client-Side Mastery enseña tarifas de prioridad, bundles de Jito, agregación de DEX e indexación DAS -- cada uno mejor de lo que jamás podría un capítulo atornillado acá."  # @src=c995d60264c3
+            # | token/NFT standards depth (the transfer-hook interface, past the
+            # | digital-assets boundary) and client tx-landing / priority-fee science (past
+            # | the client-side one). The conclusion routes readers to the boundary that
+            # | owns each -- the map is a set of handoffs, not gaps. Behind the crisp
+            # | routing sits the fourth misreading from this lesson: a topic this course
+            # | skipped is not a topic that does not matter. Someone should walk the whole
+            # | Token-2022 standard, and someone should teach priority fees, Jito bundles,
+            # | DEX aggregation and DAS indexing -- each better than a bolted-on chapter
+            # | here ever could. Be precise about what those two names are, though: they are
+            # | boundary names for who would own a topic, not shipped courses. Neither has
+            # | shipped in the Academy catalog, so until one lands the handoff points you at
+            # | primary docs rather than at a sibling lesson.
+            explanation: "Este curso es dueño de la capa de framework y rechaza dos cosas por diseño: profundidad de estándares de token/NFT (la interfaz de transfer hook, más allá de la frontera digital-assets) y aterrizaje de tx del cliente / ciencia de tarifas de prioridad (más allá de la client-side). La conclusión rutea a los lectores a la frontera que es dueña de cada una -- el mapa es un conjunto de entregas, no de huecos. Detrás del ruteo seco está la cuarta lectura equivocada de esta lección: un tema que este curso se salteó no es un tema que no importa. Alguien debería recorrer el estándar Token-2022 entero, y alguien debería enseñar tarifas de prioridad, bundles de Jito, agregación de DEX e indexación DAS -- cada uno mejor de lo que jamás podría un capítulo atornillado acá. Pero sé preciso sobre qué son esos dos nombres: son nombres de frontera para quién sería dueño de un tema, no cursos lanzados. Ninguno de los dos se ha lanzado en el catálogo de la Academy, así que hasta que uno aterrice la entrega te apunta a documentación primaria en vez de a una lección hermana."  # @src=df997dbafa73
             options:                 # source order — keep it
               c:
-                # | Transfer hooks to the Digital Assets course; priority fees and
-                # | tx-landing to the Client-Side course. This course owns the framework
+                # | Transfer hooks to the digital-assets boundary; priority fees and
+                # | tx-landing to the client-side boundary. This course owns the framework
                 # | layer.
-                label: "Transfer hooks al curso de Digital Assets; tarifas de prioridad y aterrizaje de tx al curso de Client-Side. Este curso es dueño de la capa de framework."  # @src=3e231d2dcbd2
-                # | A handoff names the sibling that owns the topic end to end, which is not
-                # | at all the same as the topic not mattering. One walks the token standard
-                # | in full; the other gets transactions landed.
-                feedback: "Una entrega nombra al hermano que es dueño del tema de punta a punta, que no es para nada lo mismo que el tema no importar. Uno recorre el estándar de token por completo; el otro hace que las transacciones aterricen."  # @src=674ba3471a39
+                label: "Transfer hooks a la frontera digital-assets; tarifas de prioridad y aterrizaje de tx a la frontera client-side. Este curso es dueño de la capa de framework."  # @src=9e1e44312bac
+                # | A handoff names who would own the topic end to end, which is not at all
+                # | the same as the topic not mattering. One walks the token standard in
+                # | full; the other gets transactions landed. See the explanation for what
+                # | those two names are and are not.
+                feedback: "Una entrega nombra a quién sería dueño del tema de punta a punta, que no es para nada lo mismo que el tema no importar. Uno recorre el estándar de token por completo; el otro hace que las transacciones aterricen. Mira en la explicación qué son y qué no son esos dos nombres."  # @src=1b7f1bf08371
               a:
                 # | Both are covered here -- m05 walks the Token-2022 transfer-hook
                 # | interface end to end, and m06 covers priority fees and transaction
                 # | landing.
                 label: "Los dos están cubiertos acá -- m05 recorre la interfaz de transfer hook de Token-2022 de punta a punta, y m06 cubre tarifas de prioridad y aterrizaje de transacciones."  # @src=8e72202cb29e
                 # | m05 touches Token-2022 only from the program's seat and explicitly hands
-                # | the transfer-hook interface to the Digital Assets course; there is no
-                # | priority-fee module at all, because this course refuses client-side
+                # | the transfer-hook interface past the digital-assets boundary; there is
+                # | no priority-fee module at all, because this course refuses client-side
                 # | tx-landing entirely. Neither topic is owned here.
-                feedback: "m05 toca Token-2022 solo desde el asiento del programa y explícitamente entrega la interfaz de transfer hook al curso de Digital Assets; no hay ningún módulo de tarifas de prioridad, porque este curso rechaza por completo el aterrizaje de tx del lado del cliente. Ninguno de los dos temas es propiedad de acá."  # @src=552149f6b275
+                feedback: "m05 toca Token-2022 solo desde el asiento del programa y explícitamente entrega la interfaz de transfer hook más allá de la frontera digital-assets; no hay ningún módulo de tarifas de prioridad, porque este curso rechaza por completo el aterrizaje de tx del lado del cliente. Ninguno de los dos temas es propiedad de acá."  # @src=5fe484379aa5
               d:
-                # | Transfer hooks to the Digital Assets course; priority fees and
-                # | tx-landing to DeFi and RWA Engineering, which owns the real venue
+                # | Transfer hooks to the digital-assets boundary; priority fees and
+                # | tx-landing to a DeFi and RWA course, which owns the real venue
                 # | mechanics.
-                label: "Transfer hooks al curso de Digital Assets; tarifas de prioridad y aterrizaje de tx a DeFi y RWA Engineering, que es dueño de la mecánica de venues de verdad."  # @src=14936cde8384
-                # | Half right, and the half that is wrong costs you the reading list. DeFi
-                # | and RWA owns protocol and venue design past the toy swap; what gets a
-                # | transaction confirmed under load (fees, retries, bundles) is the
-                # | Client-Side course's whole subject.
-                feedback: "Medio correcto, y la mitad que está mal te cuesta la lista de lectura. DeFi y RWA es dueño del diseño de protocolo y de venues más allá del swap de juguete; lo que hace que una transacción se confirme bajo carga (tarifas, reintentos, bundles) es el asunto entero del curso de Client-Side."  # @src=1d3c9894d1cf
+                label: "Transfer hooks a la frontera digital-assets; tarifas de prioridad y aterrizaje de tx a un curso de DeFi y RWA, que es dueño de la mecánica de venues de verdad."  # @src=acd94a9984ed
+                # | Half right, and the half that is wrong costs you the reading list. What
+                # | gets a transaction confirmed under load (fees, retries, bundles) is the
+                # | client-side subject, not a venue-design one. And do not wait on that
+                # | second name: DeFi/AMM sits in the catalog's rejected column, with its
+                # | reasoning written out, so it is the one topic here that no sibling is
+                # | scoped to pick up.
+                feedback: "Medio correcto, y la mitad que está mal te cuesta la lista de lectura. Lo que hace que una transacción se confirme bajo carga (tarifas, reintentos, bundles) es asunto client-side, no de diseño de venues. Y no esperes por ese segundo nombre: DeFi/AMM está en la columna de rechazados del catálogo, con su razonamiento escrito, así que es el único tema de acá que ningún hermano tiene en su alcance para agarrar."  # @src=a03fd653f6c3
               b:
-                # | Nowhere in the catalog -- transfer hooks and priority-fee science fall
-                # | outside the whole curriculum, so both of them send you to external docs.
-                label: "En ningún lado del catálogo -- transfer hooks y ciencia de tarifas de prioridad caen fuera del currículo entero, así que los dos te mandan a documentación externa."  # @src=abd8826a5422
-                # | They are firmly in the catalog, just not in THIS course: Digital Assets
-                # | owns the transfer-hook interface and Client-Side Mastery owns
-                # | tx-landing. The boundary is a handoff to a named sibling, not an
-                # | omission from the curriculum.
-                feedback: "Están firmemente en el catálogo, solo no en ESTE curso: Digital Assets es dueño de la interfaz de transfer hook y Client-Side Mastery es dueño del aterrizaje de tx. La frontera es una entrega a un hermano nombrado, no una omisión del currículo."  # @src=470f2d141c67
+                # | Nowhere -- transfer hooks and priority-fee science are outside the whole
+                # | Academy's remit, so this course has no opinion about where they belong.
+                label: "En ningún lado -- transfer hooks y ciencia de tarifas de prioridad quedan fuera del alcance de toda la Academy, así que este curso no tiene opinión sobre dónde pertenecen."  # @src=f44265cd0775
+                # | This course has a very specific opinion about where they belong, and
+                # | states it: the transfer-hook interface sits past the digital-assets
+                # | boundary and tx-landing past the client-side one. That the courses on
+                # | the far side of those boundaries have not shipped is a fact about the
+                # | catalog's progress, not evidence that the topics are unclaimed or that
+                # | the boundary was arbitrary.
+                feedback: "Este curso tiene una opinión bien específica sobre dónde pertenecen, y la declara: la interfaz de transfer hook queda más allá de la frontera digital-assets y el aterrizaje de tx más allá de la client-side. Que los cursos del otro lado de esas fronteras no se hayan lanzado es un hecho sobre el progreso del catálogo, no evidencia de que los temas estén sin dueño o de que la frontera fue arbitraria."  # @src=f39bcc475755
