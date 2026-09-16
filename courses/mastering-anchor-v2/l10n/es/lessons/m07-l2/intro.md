@@ -58,7 +58,7 @@ La lección pasada respondió "qué mata V2 gratis." Esta responde la pregunta m
 
 La ayuda se repliega como siempre. Yo recorro la clase de firmante/dueño de punta a punta, exploit y parche, porque quiero el drenaje en tu salida de pruebas y el arreglo en tus dedos una vez. La sustitución de UncheckedAccount baja a un problema Completion: yo te entrego el parche, tú escribes el exploit que demuestra que el agujero era real. La guarda de withdraw es el último peldaño, un Challenge de código en Rust puro despojado de Anchor por completo, donde recibes la firma y la convención de retorno y nada más. Aterriza el exploit, cierra el agujero, demuestra que se queda cerrado.
 
-![Una comparación de dos columnas que pone las tres clases retiradas en tiempo de compilación, más la clase de bump que compila pero no tiene ninguna costura, al lado de las siete clases que sobreviven y que esta lección tiene que parchear a mano.](assets/v01-comparison.png)
+![Una comparación de dos columnas que pone las tres clases retiradas en tiempo de compilación, más la clase de bump que compila pero no tiene ninguna costura, al lado de las siete clases que sobreviven y que esta lección tiene que parchear a mano.](assets/v01-comparison.webp)
 
 Una trampa para nombrar antes de empezar, porque es toda la razón por la que esta mitad es peligrosa. Cada guarda que agregas cuesta cómputo y código que tienes que mantener, y el framework nunca te va a decir qué guarda *falta*. Solo rechaza las formas de escribirlo que ya conoce. Así que "secure by default" es una afirmación sobre las clases de arriba de esa tabla, no las de abajo. Confiar de más en eso sobre la mitad de abajo es exactamente cómo se drenan los escrows.
 
@@ -66,7 +66,7 @@ Una trampa para nombrar antes de empezar, porque es toda la razón por la que es
 
 El método es fijo y es el punto: para cada clase, aterriza un exploit que tenga éxito contra el código actual, nombra con precisión por qué funciona, y después parchea hasta que el exploit falle y el camino legítimo siga pasando. Lee, rompe, arregla, demuestra.
 
-![Un diagrama de loop de siete pasos: elige una clase, escribe un exploit que pase, nombra la guarda que falta, agrégala, y vuelve a correr hasta que el exploit falle.](assets/v02-flowchart.png)
+![Un diagrama de loop de siete pasos: elige una clase, escribe un exploit que pase, nombra la guarda que falta, agrégala, y vuelve a correr hasta que el exploit falle.](assets/v02-flowchart.webp)
 
 ### Clase 1: la verificación de firmante y de dueño (trabajada completa)
 
@@ -229,17 +229,17 @@ pub player: Signer,
 
 `address = escrow.player` dice, sin rodeos, que la cuenta que se pasa acá tiene que ser igual al jugador que este escrow nombró. Es la forma idiomática de V2 que reemplazó a `has_one`, y toma cualquier expresión, así que se lee como lo que hace. Vuelve a correr `drain_as_stranger` y se da vuelta: la transacción ahora falla en la carga de cuentas, antes de que tu handler corra una sola línea, porque la clave del extraño no coincide con `escrow.player`. Vuelve a correr la prueba legítima `conditional_release` y sigue verde. Exploit muerto, feature intacto. Ese es el loop entero, y cada clase de abajo es una variación de él.
 
-![Una tarjeta de código anotada que muestra el campo player sin fijar que un extraño puede drenar, y el constraint address que rechaza al extraño en la carga de cuentas.](assets/v03-annotated-code.png)
+![Una tarjeta de código anotada que muestra el campo player sin fijar que un extraño puede drenar, y el constraint address que rechaza al extraño en la carga de cuentas.](assets/v03-annotated-code.webp)
 
 ### Clase 2: sustitución de UncheckedAccount (la que sobrevive a todos los frameworks)
 
-Vuelve a mirar ese campo `maker`. Es un `UncheckedAccount`, y sobre la rama vuln lleva solo `mut`. Esa palabra `UncheckedAccount` no es decoración. Es el tipo haciendo opt-out de toda verificación del framework que exista: ninguna verificación de dueño, ninguna de discriminador, ninguna de identidad. Le estás diciendo a Anchor "yo voy a validar esto por mi cuenta," y después no lo haces.
+Vuelve a mirar ese campo `maker`. Es un `UncheckedAccount`, y sobre la rama vuln lleva solo `mut`. Esa palabra `UncheckedAccount` es el tipo haciendo opt-out de toda verificación del framework que exista: ninguna verificación de dueño, ninguna de discriminador, ninguna de identidad. Le estás diciendo a Anchor "yo voy a validar esto por mi cuenta," y después no lo haces.
 
 Acá está por qué esa es la clase más profunda de la lección. El escrow cierra hacia `maker`, devolviendo el rent. Sobre la rama vuln, `maker` es cualquier cuenta que pase quien llama. Así que un atacante pasa su *propia* cuenta como `maker`, y los lamports de rent de `close = maker` aterrizan en su billetera en vez de la del operador. Plata chica en un escrow, plata de verdad a lo largo de mil. Y nada lo atrapa, porque no hay nada que atrapar: la cuenta es válida, es mutable, es escribible. Simplemente no es la cuenta que el escrow quería decir.
 
 Esta es la clase de sustitución de cuentas, y quiero que te quedes un rato con una afirmación: ningún compilador de ningún framework, en ningún lenguaje, puede atrapar esta por ti. Type cosplay era atrapable porque los tipos diferían. Duplicate-mutable era atrapable porque las direcciones hacían alias. La sustitución no tiene ninguna señal. Una cuenta correcta y la cuenta de un atacante tienen tipos idénticos, dueños idénticos en el caso general, todo idéntico excepto *cuál de las dos quería la lógica de negocio*, y la intención no está en el sistema de tipos. Es la única clase de la que eres dueño para siempre.
 
-![Una comparación lado a lado de un UncheckedAccount que lleva solo mut contra uno fijado por address, owner o constraint, mostrando qué sustituciones permite cada uno.](assets/v04-comparison.png)
+![Una comparación lado a lado de un UncheckedAccount que lleva solo mut contra uno fijado por address, owner o constraint, mostrando qué sustituciones permite cada uno.](assets/v04-comparison.webp)
 
 El parche sobre el escrow restaura el pin que la versión congelada siempre tuvo:
 
@@ -275,7 +275,7 @@ Escribes tu prueba, pasas un vault del que es dueño algún otro programa, y esp
 
 Esto vale derivarlo, no solo memorizarlo, porque la razón generaliza. Un `Account<T>` es un wrapper tipado, y antes de que corran tus hooks de constraint, Anchor tiene que *cargarlo*: leer sus bytes, verificar que el programa declarante sea dueño de la cuenta, y verificar que el discriminador coincida con `T`. Esas dos verificaciones, dueño y discriminador, son estructurales. Pasan adentro de `load`, primero, porque el framework no te puede entregar un `T` tipado que no verificó que sea un `T`. Tu constraint `owner = ... @ MyErr` es un *hook*, y los hooks corren después de la carga. Así que sobre una cuenta con el dueño equivocado, la carga falla primero con `IllegalOwner`, y el control nunca llega al hook que lleva tu error personalizado.
 
-![Un diagrama del orden de verificación para Account<T>, con dueño y discriminador corriendo adentro de load antes de cualquier hook de constraint, así que IllegalOwner le gana al error personalizado.](assets/v05-diagram.png)
+![Un diagrama del orden de verificación para Account<T>, con dueño y discriminador corriendo adentro de load antes de cualquier hook de constraint, así que IllegalOwner le gana al error personalizado.](assets/v05-diagram.webp)
 
 El arreglo, cuando genuinamente necesitas el error personalizado, es dejar de pedirle a `Account<T>` que lo lleve. Toma un `UncheckedAccount`, que no hace ninguna verificación de dueño en tiempo de carga (exactamente el tipo de la clase 2), y ponle encima el *mismo* constraint `owner = X @ MyErr`. Ahora no hay ningún `load` que cortocircuitar, así que el hook de constraint es lo único que verifica al dueño, y lleva tu error:
 
@@ -292,11 +292,11 @@ Fíjate en la forma: las dos clases se componen. El tipo que hace opt-out de las
 
 Un compañero se acuerda de `init_if_needed` de la línea de v1 como el que tenía feature gate, el que tenías que habilitar explícitamente porque era peligroso. Corrige el registro, porque V2 lo cambió y acordarse a medias del cambio es su propio riesgo.
 
-En V2, `init_if_needed` ya no está detrás de un feature flag. Verifiqué el conjunto de features de V2 contra los propios docs del framework: la release entrega seis feature flags, `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent` y `testing`, y `init-if-needed` no está entre ellos. No tiene feature gate. Encima de eso, las cuentas de `init_if_needed` están plegadas dentro de la verificación de duplicate-mutable desde la línea 1.0 (#4239) y lo siguen estando bajo V2, y la rama de reúso vuelve a validar el espacio, el dueño y el discriminador de la cuenta, lo que cierra los trucos de reinicialización más crudos.
+En V2, `init_if_needed` ya no está detrás de un feature flag. Verifiqué el conjunto de features de V2 contra los propios docs del framework: la release entrega seis feature flags, `alloc`, `guardrails`, `idl-build`, `compat`, `const-rent` y `testing`, y `init-if-needed` no está entre ellos, así que no tiene feature gate. Encima de eso, las cuentas de `init_if_needed` están plegadas dentro de la verificación de duplicate-mutable desde la línea 1.0 (#4239) y lo siguen estando bajo V2, y la rama de reúso vuelve a validar el espacio, el dueño y el discriminador de la cuenta, lo que cierra los trucos de reinicialización más crudos.
 
 La parte que sobrevive a todo eso: El framework puede verificar que la cuenta tenga la *forma* correcta. No puede verificar que reinicializar *esta* cuenta sea *lo correcto que hacer*. Si tu instrucción cae en la rama `init` sobre una cuenta que ya sostiene estado vivo, la validación de reúso pasa (el espacio coincide, el dueño coincide, el discriminador coincide) y alegremente sobrescribes un escrow fondeado de vuelta a ceros.
 
-![Una tabla que parte la validación de reúso de init_if_needed en las verificaciones estructurales que V2 hace y la intención de negocio que no puede juzgar, donde sobrevive un bug de reinit.](assets/v06-table.png)
+![Una tabla que parte la validación de reúso de init_if_needed en las verificaciones estructurales que V2 hace y la intención de negocio que no puede juzgar, donde sobrevive un bug de reinit.](assets/v06-table.webp)
 
 Nota de frescura: esto refleja la release candidate de Anchor V2 al 2026-08-22, verificada contra los docs de feature flags y el changelog del propio framework. V2 sigue siendo una RC sin tag estable, así que si fijas una RC más nueva, vuelve a leer su comportamiento de validación de reúso de `init_if_needed` antes de confiar en la semántica exacta. La mitigación no cambia: si una cuenta puede sostener estado vivo, ponle tú mismo una guarda al reinit. Verifica una flag guardada o un campo distinto de cero antes de dejar que corra la rama `init`, y rechaza cuando la cuenta ya esté viva.
 
@@ -316,7 +316,7 @@ Un atacante pasa su propio programa como `some_program`, tu escrow firma la CPI 
 
 El parche es dejar que el tipo fije el target, exactamente como hace el escrow congelado. Para el swap, la misma regla aplica al token program: `token_program: Interface<'static, TokenInterface>` fija al callee a un token program de verdad (clásico o Token-2022) en vez de aceptar uno arbitrario.
 
-![Un diagrama de flujo que contrasta una cuenta de programa sin tipar que un atacante puede elegir con un Program tipado que fija al callee al id del programa del vault.](assets/v07-flowchart.png)
+![Un diagrama de flujo que contrasta una cuenta de programa sin tipar que un atacante puede elegir con un Program tipado que fija al callee al id del programa del vault.](assets/v07-flowchart.webp)
 
 ### Clase 6: cerrar-y-revivir (ponla en ceros, o ponle una guarda)
 
@@ -324,7 +324,7 @@ Cerrar una cuenta no es solo sacarle los lamports. En Solana, una cuenta con cer
 
 El escrow lo evita porque usa el constraint `close = maker`, y el close de V2 pone los datos en ceros, escribe el centinela de cuenta cerrada, y asigna la cuenta al system program. No queda nada que revivir. La clase solo muerde cuando alguien pasa por encima del constraint y cierra a mano. Si alguna vez lo haces, la regla es: pon el discriminador en ceros y ponle una guarda contra la forma revivida, no muevas solamente los lamports.
 
-![Una línea de tiempo de una sola transacción donde un cierre de solo lamports deja el discriminador intacto y la cuenta se revive, al lado de un cierre que pone en ceros y bloquea la revivida.](assets/v08-timeline.png)
+![Una línea de tiempo de una sola transacción donde un cierre de solo lamports deja el discriminador intacto y la cuenta se revive, al lado de un cierre que pone en ceros y bloquea la revivida.](assets/v08-timeline.webp)
 
 ### Clase 7: overflow aritmético (el bug de verdad de la guarda de withdraw)
 
@@ -353,13 +353,13 @@ vault.credit = vault
 
 `checked_sub` devuelve `None` exactamente en el caso que haría underflow, así que conviertes ese `None` en un error de verdad y rechazas el over-withdraw. Es un método y un `?`. Es también, y no por casualidad, el parche exacto que te pide tu Challenge de código.
 
-![Una tarjeta de código anotada que compara la resta cruda y checked_sub sobre un withdraw de 100 contra un credit de 30 del libro mayor, una haciendo wrap y la otra rechazando.](assets/v09-annotated-code.png)
+![Una tarjeta de código anotada que compara la resta cruda y checked_sub sobre un withdraw de 100 contra un credit de 30 del libro mayor, una haciendo wrap y la otra rechazando.](assets/v09-annotated-code.webp)
 
 Un dato de mantenimiento para tus parches. Los rechazos de constraint del propio Anchor viven mayormente en los 2000 — `ConstraintAddress`, el que levantan tus pins, es Custom(2012) — pero no todos: un puñado mapea directo sobre los errores builtin del runtime en vez de eso, y `ConstraintOwner` es el caso filoso, aflorando como `ProgramError::IllegalOwner` en vez de cualquier número de los 2000, exactamente como te mostró la clase 3. Tus variantes personalizadas de `#[error_code]` empiezan en 6000 y cuentan hacia arriba. Así que un error en los 6000 es uno tuyo, y *cuál* depende del programa: `quarter_prize` y `quarter_vault` tienen cada uno su propio enum `#[error_code]`, cada uno numerado desde 6000 por orden de declaración, así que 6001 quiere decir una cosa en un rechazo de redeem y otra en un rechazo de withdraw. Lee el programa del que vino el error antes de leer el número. Saber en qué banda vive un error te dice de un vistazo si la transacción la rechazó el framework o tu propia guarda.
 
 ### El mismo loop sobre el swap
 
-El escrow era la taxonomía entera sobre un solo programa. El swap (R4) son las mismas clases vistiendo cuentas de token en vez de vaults de lamports, y correr el loop contra él es lo que te convence de que estas son *clases*, no trivia del escrow. `swap_arcade_for_tickets(amount_in, min_out)` jala los tokens de arcade del trader hacia la reserva de arcade del pool y empuja tickets de vuelta afuera. Dos de las clases que sobreviven mapean directo sobre él.
+El escrow era la taxonomía entera sobre un solo programa. El swap (R4) son las mismas clases aplicadas a cuentas de token en vez de vaults de lamports, y correr el loop contra él es lo que te convence de que estas son *clases*, no trivia del escrow. `swap_arcade_for_tickets(amount_in, min_out)` jala los tokens de arcade del trader hacia la reserva de arcade del pool y empuja tickets de vuelta afuera. Dos de las clases que sobreviven mapean directo sobre él.
 
 Primero, sustitución, la clase 2 otra vez. El `reserve_arcade` y el `reserve_ticket` del swap son las cuentas de token propias del pool, aquellas contra las que los canjes cotizan. Llevan `token::mint` y `token::authority = pool`, y ninguna de esas dos dice *cuál* cuenta quería decir el pool: cualquiera puede crear una cuenta de token sobre el mint correcto con el pool como su autoridad, porque el `InitializeAccount` de SPL toma al dueño como un argumento común y nunca le pide al dueño que firme. Así que un atacante pasa su propio par como las reservas, la matemática de producto constante cotiza contra balances que él controla, y se cotizan a sí mismos un fill que el pool de verdad nunca ofrecería. La misma forma que el extraño drenando el escrow: una cuenta válida del tipo correcto, simplemente no la que el programa quería decir.
 
@@ -367,7 +367,7 @@ Ahora la mitad incómoda. El parche es de la misma *forma* que el del escrow —
 
 Segundo, CPI arbitraria, la clase 5. El swap hace CPI de `transfer_checked` a través de `token_program`, y el swap congelado lo tipa como `Interface<'static, TokenInterface>`, que fija al callee a un token program de verdad (clásico o Token-2022) y a nada más. Típalo como un `UncheckedAccount` en vez de eso y el trader elige qué programa mueve los tokens, con la autoridad del pool detrás de la llamada. El tipo es la guarda.
 
-![Una comparación que mapea cada clase de vulnerabilidad del escrow que sobrevive sobre los campos propios del swap, con la guarda que la cierra nombrada en la columna final.](assets/v10-comparison.png)
+![Una comparación que mapea cada clase de vulnerabilidad del escrow que sobrevive sobre los campos propios del swap, con la guarda que la cierra nombrada en la columna final.](assets/v10-comparison.webp)
 
 No vuelves a derivar nada para atacar el swap. Llevas las mismas siete preguntas y se las haces a una lista de cuentas distinta. Esa portabilidad es la razón por la que vale la pena aprender la taxonomía como clases en vez de como una checklist para un solo programa.
 
@@ -455,7 +455,7 @@ test result: FAILED. 1 passed; 3 failed
 
 Lee ese resultado invertido con cuidado, porque una prueba de exploit que falla es éxito acá. `drain_as_stranger` y `steal_rent_on_close` ahora fallan con `ConstraintAddress`, el rechazo de la banda de los 2000 del framework en la carga de cuentas: quien llama equivocado y el maker sustituido nunca llegan a tu handler. `over_withdraw` falla con un error personalizado en los 6000, sea cual sea el número en el que cayó tu variante `Underflow` dada su posición en `VaultError` (las variantes se numeran desde 6000 por orden de declaración, así que cuenta las tuyas en vez de copiar las mías). El runtime lo imprime en hex, así que una variante en 6001 se muestra como `0x1771`. Y `conditional_release`, el jugador de verdad superando la barra de verdad, sigue pasando. Checkpoint: los tres exploits pasan de pasar a fallar, y la liberación legítima se queda verde. Si algún exploit todavía pasa, el culpable es la guarda que no agregaste todavía, y el nombre de la prueba te dice qué clase.
 
-![Un diagrama de flujo de arriba abajo del redeem con guardas, desde la carga de cuentas fijada por address, pasando por la verificación de victoria, el pago firmado, el débito verificado, y el cierre que pone en ceros.](assets/v11-flowchart.png)
+![Un diagrama de flujo de arriba abajo del redeem con guardas, desde la carga de cuentas fijada por address, pasando por la verificación de victoria, el pago firmado, el débito verificado, y el cierre que pone en ceros.](assets/v11-flowchart.webp)
 
 ## Challenge: parchea la guarda de withdraw como una función pura
 

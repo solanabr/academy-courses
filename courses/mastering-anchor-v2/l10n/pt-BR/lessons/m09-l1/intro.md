@@ -38,11 +38,11 @@ Você vai construir o `native-quarter-vault`: um programa pinocchio `no_std` com
 
 `no_std` quer dizer que a biblioteca padrão está desligada. Nenhum alocador de heap que você não pediu, nada de `std::`, só o `core` e o que você escolher trazer. Seja preciso sobre o que isso é e não é, porque a versão do folclore exagera: programas Solana comuns — cada programa Anchor 1.x incluído — são linkados com `std`. O toolchain SBF entrega um `std` funcional, ainda que aparado, e o entrypoint de fábrica instala um alocador bump default; é exatamente essa a maquinaria escondida que o `no_std` recusa. Então este não é "o modo em que programas Solana de fato rodam". Ele é o modo que o V2 e o pinocchio *escolheram*, e ligar ele você mesmo não é uma escolha estética: é o que mantém o binário pequeno e o compute previsível, porque nada é trazido que você não pediu explicitamente. Aqui você vira essa chave na primeira linha do arquivo.
 
-O trade-off é o ponto inteiro do módulo: o pinocchio nativo compra de volta compute e te entrega controle total, mas você agora escreve na mão e nunca pode esquecer cada checagem que o derive gerava. Discriminator, owner, duplicate-mutable, signer, aritmética checada. Omita uma e você entregou uma vulnerabilidade. É precisamente por isso que o framework existe. Você não está aprendendo que o Anchor é ruim. Você está aprendendo exatamente o que ele custa para ganhar, para você conseguir decidir quando a CU vale o risco.
+O trade-off é o ponto inteiro do módulo: o pinocchio nativo compra de volta compute e te entrega controle total, mas você agora escreve na mão e nunca pode esquecer cada checagem que o derive gerava. Discriminator, owner, duplicate-mutable, signer, aritmética checada. Omita uma e você entregou uma vulnerabilidade. É precisamente por isso que o framework existe. Você não está aprendendo que o Anchor é ruim, e sim exatamente o que ele custa para ganhar, para você conseguir decidir quando a CU vale o risco.
 
 ## O que o derive estava fazendo por você
 
-Aqui está a ressonância que deixa este exercício mais que uma acrobacia. O Anchor V2, o RC em cima do qual você vem construindo o curso todo, o `anchor-next` no `2.0.0-rc.1`, é ele mesmo uma reescrita `no_std` do zero construída em cima do pinocchio: o crate `lang-v2` dele depende do `pinocchio` e do `pinocchio-system 0.6` diretamente. Os crates que você acabou de adicionar na mão são essa mesma fundação, duas linhas de minor atrás (a árvore do V2 roda a linha pinocchio 0.11, onde os tipos centrais já foram renomeados; mais sobre isso na nota de pins no fim). Quando você reconstrói o vault cru, você não está fazendo um brinquedo sem relação. Você está escrevendo na mão exatamente a camada que o framework agora gera.
+Aqui está a ressonância que deixa este exercício mais que uma acrobacia. O Anchor V2, o RC em cima do qual você vem construindo o curso todo, o `anchor-next` no `2.0.0-rc.1`, é ele mesmo uma reescrita `no_std` do zero construída em cima do pinocchio: o crate `lang-v2` dele depende do `pinocchio` e do `pinocchio-system 0.6` diretamente. Os crates que você acabou de adicionar na mão são essa mesma fundação, duas linhas de minor atrás (a árvore do V2 roda a linha pinocchio 0.11, onde os tipos centrais já foram renomeados; mais sobre isso na nota de pins no fim). Quando você reconstrói o vault cru, você não está fazendo um brinquedo sem relação: você está escrevendo na mão exatamente a camada que o framework agora gera.
 
 Por que o V2 foi por esse caminho? Leia a issue #4390 do GitHub, o manifesto de zero-copy que moldou a reescrita. Ela chama o `Account<T>` de hoje de "the slow path" e "the #1 performance complaint from Anchor developers." A tese inteira do V2 é que o wrapper ergonômico de conta faz trabalho de desserialização e de alocação que você muitas vezes não precisa, e que uma fundação mais magra e zero-copy deveria ser o default. Desmontar o framework na mão rima com a decisão de design do próprio V2. Você está seguindo o mesmo raciocínio que os mantenedores seguiram, uma camada abaixo.
 
@@ -62,7 +62,7 @@ Cada atributo naquela struct é uma checagem que a macro transforma em código d
 
 (Duas grafias do V2 que valem re-notar, porque são exatamente as que o módulo de migração mapeia: os wrappers largaram os lifetimes `<'info>` deles, e o `.key()` virou `.address()`. A checagem de chave guardada em si costumava ser a keyword `has_one = authority`; o V2 deprecia ela em favor das formas de expressão `address = ...` e `constraint = ...` que você encontrou no módulo 3; a keyword ainda parseia, com um aviso.)
 
-![Uma tabela mapeando cada atributo de conta do Anchor para a checagem explícita de pinocchio que substitui ele e o bug específico que aparece se você omitir aquela checagem.](assets/v01-comparison.png)
+![Uma tabela mapeando cada atributo de conta do Anchor para a checagem explícita de pinocchio que substitui ele e o bug específico que aparece se você omitir aquela checagem.](assets/v01-comparison.webp)
 
 Leia a coluna da direita mais uma vez, porque aquelas não são hipóteses: cada uma é uma classe de exploit que drenou programas reais, e cada uma é um `if` só que o Anchor escrevia e você não. Agora você escreve elas.
 
@@ -75,7 +75,7 @@ Aqui está o constraint que força isso. O System Program só vai mover lamports
 - O PDA de **config**, seeds `[b"config", authority]`, de propriedade do seu programa. Ele guarda `[discriminator][authority][vault_bump]`. Este é o seu análogo de `Account<Vault>`, a coisa que você valida.
 - O PDA de **vault**, seeds `[b"vault", authority]`, de propriedade do System Program, segurando o SOL custodiado. O seu programa nunca escreve o dado dele (não tem nenhum). Ele assina para mover os lamports dele.
 
-![Um diagrama de dois PDAs a partir de uma authority: um config de propriedade do programa segurando estado e um vault de propriedade do System segurando SOL, retirado assinando com invoke_signed.](assets/v02-diagram.png)
+![Um diagrama de dois PDAs a partir de uma authority: um config de propriedade do programa segurando estado e um vault de propriedade do System segurando SOL, retirado assinando com invoke_signed.](assets/v02-diagram.webp)
 
 Se você está imaginando o R2 como um `Account<Vault>` único que tanto guardava o bump quanto segurava lamports, ele estava fazendo o truque de lamport direto: debitando o saldo da conta própria dele porque o programa era dono dela. Aquilo funciona, mas não é uma transferência assinada, e não é o que a gente quer ensinar aqui. O caminho do invoke_signed, onde um PDA apresenta as seeds dele para autorizar uma transferência de System de verdade, é o padrão para o qual você vai recorrer constantemente (vaults de token, escrows, qualquer coisa em que o PDA tem que ser um signer de CPI). Então a gente constrói a versão que assina.
 
@@ -83,7 +83,7 @@ Se você está imaginando o R2 como um `Account<Vault>` único que tanto guardav
 
 O Anchor gasta 8 bytes num discriminator de conta, a tag derivada de SHA-256 que diz "isto é um `Vault`, não um `Config` nem um `Pool`". Nativo, você consegue gastar um. Um `u8` único te dá 255 tipos de conta, que é bastante, e o layout é simples demais: o byte 0 é a tag, o resto é dado.
 
-![Uma faixa de layout de 34 bytes para a conta de config: byte 0 discriminator, bytes 1 até 32 a pubkey de authority, byte 33 o bump de vault guardado.](assets/v03-annotated-code.png)
+![Uma faixa de layout de 34 bytes para a conta de config: byte 0 discriminator, bytes 1 até 32 a pubkey de authority, byte 33 o bump de vault guardado.](assets/v03-annotated-code.webp)
 
 A regra da casa importa aqui e ela não é opcional: leia e escreva estes campos como slices de array de bytes com lógica de acessor, nunca convertendo o buffer cru para uma struct packed com um ponteiro desalinhado. Um `&*(ptr as *const Config)` numa struct `#[repr(C, packed)]` produz referências desalinhadas, que é comportamento indefinido em Rust e uma das ciladas mais afiadas do ecossistema nativo inteiro. Slices com `copy_from_slice` e `from_le_bytes` são seguros, óbvios, e só um fio mais lentos, então é isso que a gente vai usar por toda parte.
 
@@ -95,7 +95,7 @@ Um PDA não tem chave privada. Ele "assina" uma CPI apresentando, na hora da cha
 
 Nativo, você monta o signer você mesmo. E você usa o bump canônico **guardado**, o que você salvou no init, não um recém-derivado. Re-rodar o `find_program_address` dentro de cada instrução queima mais ou menos 1500 unidades de compute por chamada, porque ele mói candidatos de bump de 255 para baixo procurando o que está fora da curva. Você pagou por isso uma vez no init. Guarde, reuse. O Anchor guarda no account e lê de volta através do `bump = vault.bump`; você faz o mesmo na mão.
 
-![Um fluxograma mostrando o withdraw lendo o bump guardado, montando as seeds, chamando o invoke_signed, o runtime re-derivando o endereço, e executando a transferência só se ele casar com a chave do vault.](assets/v04-flowchart.png)
+![Um fluxograma mostrando o withdraw lendo o bump guardado, montando as seeds, chamando o invoke_signed, o runtime re-derivando o endereço, e executando a transferência só se ele casar com a chave do vault.](assets/v04-flowchart.webp)
 
 ### A checagem que o V2 adicionou: sem mutáveis duplicados
 
@@ -227,7 +227,7 @@ impl<'a> TryFrom<(&'a [u8], &'a [AccountInfo])> for Withdraw<'a> {
 
 Seis checagens. As primeiras cinco se alinham uma para uma com a tabela de comparação acima, e a sexta é a trava de duplicate-mutable que o V2 liga por padrão, adicionada aqui ao mesmo corredor. O padrão `let [authority, config, vault..] = accounts else` é a sua ordenação de contas, a coisa que o `#[derive(Accounts)]` impunha pela ordem dos campos da struct. Erre a ordem aqui e tudo mais adiante lê a conta errada, que é ela mesma uma cilada que o framework removeu.
 
-![Um fluxograma de falha-rápida de seis travas do TryFrom, cada uma rotulada com o erro que ela retorna e o exploit que ela bloqueia, convergindo numa struct Withdraw validada.](assets/v05-flowchart.png)
+![Um fluxograma de falha-rápida de seis travas do TryFrom, cada uma rotulada com o erro que ela retorna e o exploit que ela bloqueia, convergindo numa struct Withdraw validada.](assets/v05-flowchart.webp)
 
 Note o que o TryFrom te compra: no momento em que o `process()` roda, a validação está pronta e a lógica de negócio nunca re-checa. Essa separação, validar-depois-agir, é exatamente o que o Anchor te dá separando a struct de accounts do corpo da instrução, e você acabou de construir ela na mão.
 
@@ -454,11 +454,11 @@ test withdraw_signed ... ok
 
 É essa a mesma trava. Lamports saíram do PDA sob autoridade do programa, e o over-withdraw foi rejeitado. O seu vault nativo faz exatamente o que o vault de framework fazia. Sente com isso por um segundo: sem `#[account]`, sem `#[program]`, sem mágica de `declare_id!` além de um const, e o teste de aceitação não sabe a diferença.
 
-![Uma linha do tempo indo da reclamação de zero-copy da #4390, até o pinocchio como uma fundação magra, até a reescrita no_std do Anchor V2, até a reconstrução na mão desta lição.](assets/v06-timeline.png)
+![Uma linha do tempo indo da reclamação de zero-copy da #4390, até o pinocchio como uma fundação magra, até a reescrita no_std do Anchor V2, até a reconstrução na mão desta lição.](assets/v06-timeline.webp)
 
 Antes de você sair do Lab, olhe de volta o trade-off no modelo de conta. Dois PDAs e mais ou menos oitenta linhas compraram para você o que seis atributos do Anchor davam de graça, mais o compute que você economizou por não desserializar através do `Account<T>`. É esse o acordo que o nativo oferece, e ele é um acordo de verdade, não uma bronca. O próximo visual é o de dar print, porque ele é a resposta para "quando isso vale a pena".
 
-![Uma tabela de decisão comparando o Anchor V2 e o pinocchio nativo através de checagens, compute, auditabilidade, modo de falha, e quando escolher cada um.](assets/v07-table.png)
+![Uma tabela de decisão comparando o Anchor V2 e o pinocchio nativo através de checagens, compute, auditabilidade, modo de falha, e quando escolher cada um.](assets/v07-table.webp)
 
 ## Challenge: a trava de withdraw do vault nativo
 

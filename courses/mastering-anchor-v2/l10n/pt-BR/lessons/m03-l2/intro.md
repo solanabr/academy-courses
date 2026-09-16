@@ -43,7 +43,7 @@ A primeira fase é o **`load`**. Para cada campo `Account<T>`, o framework lê a
 
 Glossário, porque ele se paga em trinta segundos: o **hook de constraint** é o passo de imposição de um único constraint, rodado depois do `load`. Mantenha essa ordenação na cabeça. Quase toda ponta afiada deste catálogo é consequência dela.
 
-![A struct do derive valida em duas fases: o load checa owner e discriminator e pode sair com erros embutidos, depois os hooks de constraint rodam antes do handler, que é por que um constraint de owner carregando um erro customizado só dispara em uma conta unchecked.](assets/v01-flowchart.png)
+![A struct do derive valida em duas fases: o load checa owner e discriminator e pode sair com erros embutidos, depois os hooks de constraint rodam antes do handler, que é por que um constraint de owner carregando um erro customizado só dispara em uma conta unchecked.](assets/v01-flowchart.webp)
 
 ### address = parent.field: a trava de autoridade, e por que has_one perdeu o emprego
 
@@ -60,7 +60,7 @@ pub authority: Signer,
 
 Ela não sumiu, porém, e o jeito como ela sobrevive é uma bela peça de arqueologia de framework. `has_one` ainda parseia no V2. Ele só emite um aviso de depreciação. O parser armazena o span de origem da keyword especificamente para que o codegen consiga sublinhar ela para você (lang-v2 `derive/src/parse.rs`, em 2026-08). Alguém deliberadamente manteve a localização por perto só para desenhar um risquinho ondulado embaixo dela. Então as migrações não quebram, o código antigo compila, e o compilador te cutuca na direção de `address =` um aviso por vez.
 
-![has_one compara um campo de chave armazenado contra uma conta de mesmo nome e está depreciado, enquanto address = expr compara a chave da conta contra qualquer expressão e é a forma que o V2 padroniza.](assets/v02-comparison.png)
+![has_one compara um campo de chave armazenado contra uma conta de mesmo nome e está depreciado, enquanto address = expr compara a chave da conta contra qualquer expressão e é a forma que o V2 padroniza.](assets/v02-comparison.webp)
 
 ### owner: a cilada que se esconde à vista de todos
 
@@ -92,7 +92,7 @@ pub registry: UncheckedAccount,
 
 O trade-off honesto: `Account<T>` fixar o owner no seu programa durante o `load` é uma *feature* noventa e nove vezes em cada cem. Quer dizer que você quase nunca escreve checagens de owner na mão, e aquela que você escreveu e esqueceu não é um bug porque o framework fez ela por você. A cilada é só o caso extremo em que você quer uma *mensagem customizada* naquela checagem automática. Não saia trocando todo `Account<T>` por `UncheckedAccount` para ter erros bonitos. Você estaria desligando o cinto de segurança para mudar a cor dele.
 
-![Um constraint de owner com um erro customizado em Account<T> roda durante o load e resulta em IllegalOwner, enquanto a mesma asserção em UncheckedAccount roda na fase de hooks e faz aparecer WrongOwner.](assets/v03-comparison.png)
+![Um constraint de owner com um erro customizado em Account<T> roda durante o load e resulta em IllegalOwner, enquanto a mesma asserção em UncheckedAccount roda na fase de hooks e faz aparecer WrongOwner.](assets/v03-comparison.webp)
 
 ### close = destination: devolvendo o rent
 
@@ -110,9 +110,9 @@ Um jogador que não quer mais um vault deveria receber o dinheiro dele de volta.
 pub vault: Account<Vault>,
 ```
 
-Três coisas acontecem atomicamente quando esta instrução tem sucesso. O saldo inteiro de lamports da conta, reserva isenta de aluguel incluída, se move para `player`. Os dados da conta são zerados e o discriminator dela é apagado para que ela nunca possa ser silenciosamente revivida e confundida com um vault vivo. E tudo isso fica visível na IDL, então um indexador ou um cliente sabe que esta instrução fecha uma conta sem ler o corpo do seu handler. Na verdade o corpo do handler pode ser vazio, porque o constraint carrega a operação inteira sozinho. Compare isso com a versão na mão, em que você debitaria lamports manualmente, zeraria os dados, e torceria para não ter deixado um caminho de volta à vida, e a diferença não é concisão de jeito nenhum. É que a forma com constraint não consegue esquecer um passo e a na mão consegue.
+Três coisas acontecem atomicamente quando esta instrução tem sucesso. O saldo inteiro de lamports da conta, reserva isenta de aluguel incluída, se move para `player`. Os dados da conta são zerados e o discriminator dela é apagado para que ela nunca possa ser silenciosamente revivida e confundida com um vault vivo. E tudo isso fica visível na IDL, então um indexador ou um cliente sabe que esta instrução fecha uma conta sem ler o corpo do seu handler. Na verdade o corpo do handler pode ser vazio, porque o constraint carrega a operação inteira sozinho. Compare isso com a versão na mão, em que você debitaria lamports manualmente, zeraria os dados, e torceria para não ter deixado um caminho de volta à vida, e a diferença de verdade não é concisão: a forma com constraint não consegue esquecer um passo e a na mão consegue.
 
-![Antes do close o vault segura a reserva de rent dele; o constraint close move todo lamport para o jogador, zera os dados, e apaga o discriminator para que a conta não possa ser revivida.](assets/v04-diagram.png)
+![Antes do close o vault segura a reserva de rent dele; o constraint close move todo lamport para o jogador, zera os dados, e apaga o discriminator para que a conta não possa ser revivida.](assets/v04-diagram.webp)
 
 ### realloc_payer e realloc_zero: a mesma ideia, uma grafia nova
 
@@ -138,7 +138,7 @@ No v1, esta keyword ficava atrás de um feature gate e vinha embrulhada em aviso
 
 Aqui está a parte que você não pode ler errado. A validação de reuso do V2 recheca a **estrutura** da conta quando ela já existe: o space está certo, o owner é o seu programa, o discriminator casa com `Vault`. Isso vale ter. O que ela *não* faz, o que ela *não consegue* fazer, é conhecer os seus invariantes. Ela não faz ideia de que `credit` é um saldo vivo que um jogador bancou. Então o ataque de reinicialização sobrevive, em exatamente uma forma estreitada: a validação de reuso trava a *forma*, e o *estado* é seu para travar.
 
-![A validação de reuso cobre space, owner e discriminator numa conta init_if_needed existente mas não o estado de negócio vivo; a trava é ramificar se o vault é novo antes de resetar qualquer campo.](assets/v05-diagram.png)
+![A validação de reuso cobre space, owner e discriminator numa conta init_if_needed existente mas não o estado de negócio vivo; a trava é ramificar se o vault é novo antes de resetar qualquer campo.](assets/v05-diagram.webp)
 
 A trava é um único branch. Numa conta recém-criada todo byte é zero, então `owner == Address::default()` te diz que ela é nova. Inicialize só nesse caso, e só *adicione* ao saldo, nunca atribua:
 
@@ -227,7 +227,7 @@ pub struct AdminSetCredit {
 
 O corpo do handler não muda em relação ao ingênuo. É essa a mensagem em que vale pausar: a segurança se mudou *para fora* do handler e *para dentro* da struct do derive, onde ela não pode ser esquecida e onde a IDL anuncia ela.
 
-![A struct AdminSetCredit trava o signatário authority com address = config.authority, re-deriva o config somente-leitura a partir do bump armazenado dele, e re-deriva o vault alvo mutável do mesmo jeito.](assets/v06-annotated-code.png)
+![A struct AdminSetCredit trava o signatário authority com address = config.authority, re-deriva o config somente-leitura a partir do bump armazenado dele, e re-deriva o vault alvo mutável do mesmo jeito.](assets/v06-annotated-code.webp)
 
 Esperado depois deste passo: o build *não* compila ainda, e vale ler o erro em vez de temer ele. O constraint nomeia `VaultError::Unauthorized`, um enum que não existe até o passo 4, então o `anchor build` para com um E0433 `failed to resolve` em `VaultError`. Deixe vermelho até o passo 3; o passo 4 paga isso. Assim que o enum aterrissar, a IDL gerada para `admin_set_credit` vai listar uma conta `config` que ela não listava um minuto atrás. Essa nova conta na interface *é* a trava, visível para qualquer um que leia a IDL sem ler o seu Rust.
 
@@ -268,7 +268,7 @@ pub enum VaultError {
 }
 ```
 
-Esperado depois deste passo: o `anchor build` está limpo. Se não está, a causa de sempre é um segundo enum `#[error_code]` sobrando em algum lugar: o V2 permite exatamente um por programa, então toda variante que o programa algum dia vai levantar tem de aterrissar neste.
+Esperado depois deste passo: o `anchor build` está limpo. Mas fique de olho num segundo enum `#[error_code]` sobrando: ele compila verde, e os dois enums numeram as variantes deles a partir da mesma base 6000, colidindo silenciosamente em tempo de execução. Toda variante que o programa algum dia vai levantar tem de aterrissar neste.
 
 **5. Comprove a trava com um teste de autoridade errada.** Esta é a trava de avaliação: a rejeição tem de vir do *constraint*, não de um branch no handler. Acrescente isto ao `tests/quarter_vault.rs` que você escreveu na lição passada, mantendo o teste existente daquele arquivo e descartando as linhas `use` duplicadas em vez de colar elas duas vezes:
 
@@ -426,7 +426,7 @@ Dois degraus de novo, e desta vez o segundo não tem código nenhum na página.
 
 **Solo.** Construa o caminho do `top_up_or_open` com `init_if_needed`, usando o handler travado da seção de teoria, e depois escreva o teste que comprova que o seu branch de reuso não consegue atropelar um saldo vivo. O formato: inicialize um vault, recarregue ele até um credit diferente de zero, depois chame `top_up_or_open` *de novo* com um segundo valor e afirme que o credit final é a *soma*, não o segundo valor sozinho. Essa única asserção é a prova de que a sua trava `if vault.owner == Address::default()` segurou e de que o risco de reinicialização não mordeu. Aceitação: a chamada de reuso preserva e adiciona ao saldo existente, uma chamada nova inicializa limpo, e nenhum dos caminhos reseta `credit` incondicionalmente. Se o seu teste vê o saldo igual só à última recarga, a sua trava está faltando ou invertida, e você escreveu exatamente a vulnerabilidade contra a qual a seção avisou, o que é uma coisa genuinamente útil de ter visto falhar uma vez, de propósito, num teste.
 
-![Uma linha do tempo do init_if_needed atrás de feature gate no v1, passando pela reescrita que projetou a validação de reuso, até o V2 entregar ele sem gate enquanto os seus invariantes de estado de negócio continuam sendo a sua própria trava.](assets/v07-timeline.png)
+![Uma linha do tempo do init_if_needed atrás de feature gate no v1, passando pela reescrita que projetou a validação de reuso, até o V2 entregar ele sem gate enquanto os seus invariantes de estado de negócio continuam sendo a sua própria trava.](assets/v07-timeline.webp)
 
 Quando os dois degraus passarem, fique um instante com o que o vault virou. Um signatário errado quica na macro de derive antes de o seu código rodar. Um jogador recebe o rent dele de volta com um handler vazio e nenhum caminho de volta à vida. Uma instrução de criar-ou-reusar existe e *não* deixa ninguém sobrescrever um saldo com fundos, porque você escreveu o único `if` que nenhuma keyword vai escrever por você. Cada uma dessas garantias agora está visível na IDL, o que quer dizer que a próxima pessoa a ler o seu programa vê as regras sem ler a lógica. É essa a troca que o catálogo ofereceu, e você ficou com o lado bom dela: validação que você não pode esquecer, menos duas pontas afiadas que você agora conhece pelo nome.
 

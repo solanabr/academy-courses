@@ -14,7 +14,7 @@ Si la línea que buscaste es un constraint `token::authority = pool`, mira de nu
 
 Esta lección convierte la seguridad de una sensación en un procedimiento de dos partes. La parte uno es una checklist que corres a mano, fila por fila, contra el swap: hace que tu revisión sea repetible y te obliga a nombrar la línea que satisface cada garantía. La parte dos es `anchor fuzz`, que corre el ataque por ti. Lo apuntas al swap, te vas, y vuelves a un artefacto de crash por un input que nunca habrías escrito. El reencuadre que carga la lección entera: una corrida de fuzz limpia no es tranquilidad, es silencio. Un crash es la victoria, porque un crash que encontraste tú es un bug que el atacante no.
 
-![Una tarjeta de dos columnas que compara qué atrapa, qué se le pierde y qué cuesta la checklist manual de auditoría contra las mismas tres filas para corridas automatizadas de anchor fuzz.](assets/v01-comparison.png)
+![Una tarjeta de dos columnas que compara qué atrapa, qué se le pierde y qué cuesta la checklist manual de auditoría contra las mismas tres filas para corridas automatizadas de anchor fuzz.](assets/v01-comparison.webp)
 
 Acá está lo que te entrego y lo que no. Yo corro la checklist completa contigo y monto el primer loop de fuzz paso a paso, incluyendo sembrar un bug a propósito para que veas al fuzzer atraparlo. La aserción del invariante que está en el centro del banco de pruebas la terminas tú mismo a partir de un scaffold con un agujero. Después sembrar un bug totalmente nuevo, predecir si el fuzzer lo va a encontrar, y repetir el crash para confirmar es enteramente tuyo. El entregable al final es una checklist completada, un artefacto de crash y su repetición, un parche, y un re-fuzz limpio con un reporte de cobertura.
 
@@ -34,13 +34,13 @@ Una revisión de código que vive en tu cabeza no es repetible, y nadie más la 
 | 6 | Bumps canónicos almacenados | Los bumps de PDA se leen del estado almacenado, nunca se vuelven a buscar en cada llamada | ? |
 | 7 | Discriminadores sanos | Los discriminadores de cuenta son distintos y no triviales para que la confusión de tipos sea imposible | ? |
 
-![Una fila de checklist trabajada que cita la línea 41 de swap.rs, al lado del UncheckedAccount que pasa fijado por un constraint address y la versión que falla y no fija nada.](assets/v02-annotated-code.png)
+![Una fila de checklist trabajada que cita la línea 41 de swap.rs, al lado del UncheckedAccount que pasa fijado por un constraint address y la versión que falla y no fija nada.](assets/v02-annotated-code.webp)
 
 El punto de escribir el número de línea es que te defiende del autoengaño más común en una revisión, que es suponer que el framework hizo algo que no hizo. Anchor V2 sí mata varias de estas en tiempo de compilación. `Account<T>` exige `T: Pod` con un layout sin relleno, así que una lectura con confusión de tipos no compila en vez de leer mal los bytes en silencio. Las cuentas mutables duplicadas se rechazan durante la validación de cuentas a menos que hagas opt-in con el deliberadamente feo `unsafe(dup)`. Esas son garantías de verdad que puedes citar. Pero la fila 2 es exactamente aquella en la que el framework no te va a salvar: los docs de V2 son tajantes en que `UncheckedAccount` sigue sin hacer ninguna validación, y tú mismo tienes que acompañarlo con un `address`, un `owner` o un `constraint`. La checklist existe para hacerte mirar esa línea y confirmar que está.
 
 Unas cuantas filas merecen una mirada específica en el swap, porque son las que la gente pasa por alto. Fila 3, targets de CPI: el swap mueve tokens a través de una CPI, y el programa de token que invoca tiene que ser un `Interface` o `Program` tipado, nunca una dirección pelada que pasó quien llama, o un atacante te entrega un programa parecido y tu "transfer" corre el código de ellos. Fila 5, cerrar-y-poner-en-cero: si el pool se puede desmontar, cerrarlo tiene que poner los datos en ceros además de recuperar los lamports, si no un ataque de resurrección reinicializa bytes obsoletos en una cuenta nueva con balances viejos. Fila 6, bumps canónicos: almacenaste el bump del pool en el estado cuando construiste el pool; la fila 6 confirma que el handler de `swap` lee ese bump almacenado en vez de llamar a `find_program_address` de nuevo, que es a la vez un costo de CU y una trampa sutil de corrección si las seeds llegan a cambiar. Escribe la línea, o escribe `FAIL`. Una fila de la que "estás bastante seguro" es un `FAIL` que todavía no admitiste.
 
-![Una tabla que marca en cuáles de las siete filas de auditoría ayuda el compilador de V2 y cuáles quedan enteramente como responsabilidad del desarrollador.](assets/v03-comparison.png)
+![Una tabla que marca en cuáles de las siete filas de auditoría ayuda el compilador de V2 y cuáles quedan enteramente como responsabilidad del desarrollador.](assets/v03-comparison.webp)
 
 ### Por qué el fuzzer atrapa lo que tu revisión no puede
 
@@ -50,13 +50,13 @@ La primera respuesta ingenua es "escribe más pruebas." Falla por la misma razó
 
 La herramienta que sobrevive a las tres fallas es el fuzzing stateful guiado por cobertura, y cada palabra es estructural. Stateful, para que el mundo persista a través de una cadena de acciones y los estados profundos se vuelvan siquiera alcanzables. Guiado por cobertura, para que el fuzzer no ande deambulando: mira qué ramas de tu programa compilado alcanzó cada input y dirige hacia inputs que alcancen ramas nuevas, convirtiendo una caminata aleatoria en una búsqueda dirigida. Esa combinación es lo que te da `anchor fuzz`, y es por eso que una máquina encuentra inputs que tú nunca encontrarías.
 
-![Una comparación que descarta por turnos más pruebas, inputs aleatorios y secuencias aleatorias, y deja el fuzzing stateful guiado por cobertura como la herramienta sobreviviente.](assets/v04-comparison.png)
+![Una comparación que descarta por turnos más pruebas, inputs aleatorios y secuencias aleatorias, y deja el fuzzing stateful guiado por cobertura como la herramienta sobreviviente.](assets/v04-comparison.webp)
 
 ### Qué corre de verdad cuando escribes `anchor fuzz`
 
 Antes de confiarle a una herramienta la seguridad de tu programa, sabe qué es. `anchor fuzz` no es un wrapper delgado alrededor de bytes aleatorios. Corre Crucible, un fuzzer guiado por cobertura construido por Asymmetric Research y cableado en el CLI de Anchor como un subcomando. Debajo de Crucible se sienta un motor de fuzzing LibAFL que maneja un runtime LiteSVM en proceso, con cobertura de aristas sBPF realimentando la selección de inputs. Esa última parte es la diferencia entre un fuzzer que manotea y uno que aprende: la cobertura de aristas quiere decir que el fuzzer ve qué ramas de tu programa compilado alcanzó cada input, y dirige hacia inputs que alcancen ramas nuevas. Lo aleatorio se vuelve dirigido.
 
-![Un diagrama de stack que pone anchor fuzz sobre Crucible, un motor LibAFL y un runtime LiteSVM, con cobertura de aristas sBPF realimentando la mutación.](assets/v05-diagram.png)
+![Un diagrama de stack que pone anchor fuzz sobre Crucible, un motor LibAFL y un runtime LiteSVM, con cobertura de aristas sBPF realimentando la mutación.](assets/v05-diagram.webp)
 
 El motor tiene un trabajo que una prueba unitaria no puede hacer: genera secuencias de acciones, no inputs sueltos. Tú describes las acciones que tu programa soporta (deposit, swap, withdraw) y las propiedades que siempre tienen que cumplirse (los invariantes), y el fuzzer elige qué acciones disparar, en qué orden, con qué argumentos, y después verifica cada invariante después de cada acción. Un bug que necesita tres llamadas específicas en un orden específico para aparecer es un bug que tus pruebas escritas a mano casi nunca alcanzan, porque tendrías que imaginarlo primero para escribirlo.
 
@@ -66,7 +66,7 @@ El default de Crucible es *stateless*, y el nombre es más preciso de lo que sue
 
 Así que la pregunta de verdad es más angosta que "¿el input lo rompe?" Es: ¿algún *estado* alcanzable lo rompe, incluyendo estados que solo existen bien al fondo de una cadena de llamadas por lo demás válidas? Un pool drenado y después rellenado, una posición inicializada a medias, un residuo de redondeo que se acumula a lo largo de cuarenta canjes. Eso es lo que prende `--stateful`. En modo stateful Crucible mantiene un pool indexado por cobertura de estados vivos del programa (`--pool-size`, default 256,000) y aplica una acción mutada por iteración a un estado que sacó de ese pool, así que el progreso se acumula en vez de reiniciarse: las cadenas crecen hasta `--max-depth` (default 15) y los estados profundos se vuelven siquiera alcanzables. Asymmetric Research reporta una ganancia de throughput de alrededor de un orden de magnitud por eso, pagada en memoria a medida que el pool crece con la cobertura.
 
-![Una comparación del fuzzing stateless, que descarta su instantánea en cada iteración, contra el fuzzing stateful, que mantiene un pool de estados vivos y los extiende.](assets/v06-comparison.png)
+![Una comparación del fuzzing stateless, que descarta su instantánea en cada iteración, contra el fuzzing stateful, que mantiene un pool de estados vivos y los extiende.](assets/v06-comparison.webp)
 
 Olvidarse de `--stateful` es el modo de falla callado. Tu corrida vuelve limpia, te sientes seguro, y la mitad profunda del espacio de estados nunca estuvo en el presupuesto. Limpia sin `--stateful` quiere decir "ningún bug encontrado dentro de ocho acciones de un pool recién creado," que es una afirmación mucho más chica que la que crees que estás haciendo.
 
@@ -169,7 +169,7 @@ Nota de frescura: `0.2.1` es el estable actual tanto de `crucible-fuzzer` como d
 
 Generar el scaffold también desbloquea el resto de la familia de comandos `anchor fuzz`, y vale la pena ver el mapa entero ahora para que sepas para qué es cada uno cuando lo necesites después en el loop.
 
-![Una tabla de los subcomandos de anchor fuzz (init, run, list, show, cmin, tmin) con sus flags, que anota anchor coverage como una lectura aparte.](assets/v07-table.png)
+![Una tabla de los subcomandos de anchor fuzz (init, run, list, show, cmin, tmin) con sus flags, que anota anchor coverage como una lectura aparte.](assets/v07-table.webp)
 
 ### 4. Siembra un overflow conocido para que veas al fuzzer ganarse el sueldo
 
@@ -220,7 +220,7 @@ Un detalle del build decide si esto hace wrap o entra en panic, y es el mismo de
 
 Checkpoint: `anchor build` tiene éxito y tus pruebas de swap existentes siguen pasando, porque todas canjean contra un pool de 1,000,000 / 1,000,000 donde nada se acerca a `u64::MAX`. Esa es la parte inquietante y la razón por la que lo sembraste: el bug está adentro, la suite está verde, y nada de lo que ya escribiste lo notó. Si en cambio el build falla, también cambiaste los casts en las líneas de alrededor, y el bug sembrado tiene que ser exactamente una línea.
 
-![Una tarjeta de código anotada que muestra una multiplicación pelada de reservas en u64 haciendo wrap en release, colapsando el producto constante, al lado del arreglo verificado en u128.](assets/v08-annotated-code.png)
+![Una tarjeta de código anotada que muestra una multiplicación pelada de reservas en u64 haciendo wrap en release, colapsando el producto constante, al lado del arreglo verificado en u128.](assets/v08-annotated-code.webp)
 
 ### 5. Completa el invariante y córrelo (el repliegue empieza acá)
 
@@ -294,7 +294,7 @@ anchor fuzz run token_ticket_swap constant_product_holds --release --stateful
 
 Estás esperando que la corrida se detenga y reporte un crash. Con la multiplicación `u64` sembrada en su lugar, lo va a hacer, y rápido, porque el fuzzer está guiado por cobertura hacia la rama donde las reservas se hacen lo bastante grandes para hacer wrap. Te entrega un artefacto de crash: una secuencia de inputs concreta, minimizada, repetible que violó tu invariante.
 
-![Un diagrama de flujo del loop de crash-a-limpio, de la siembra y el invariante al artefacto de crash, la repetición, el parche y el re-fuzz limpio con export de LCOV.](assets/v09-flowchart.png)
+![Un diagrama de flujo del loop de crash-a-limpio, de la siembra y el invariante al artefacto de crash, la repetición, el parche y el re-fuzz limpio con export de LCOV.](assets/v09-flowchart.webp)
 
 ### 6. Repite el crash, parchea, y vuelve a fuzzear hasta limpio
 
@@ -337,13 +337,13 @@ Acéptalo cuando: se produce y se repite un artefacto de crash para tu bug sembr
 
 Terminaste con esta lección cuando puedes mostrar cuatro cosas: una checklist verde, un artefacto de crash repetido, un re-fuzz limpio y un reporte LCOV. Si tu corrida nunca crasheó con el bug sembrado, la causa habitual es un `--stateful` faltante o un invariante que no hace assert de nada de verdad (un `assert!(true)` disfrazado). Si crashea y no puedes repetirlo, parcheaste antes de guardar el artefacto. Arregla el orden: crash, repetición, parche, re-fuzz.
 
-![Una checklist de cuatro filas que empareja cada artefacto requerido con el error que explica su ausencia, bajo una tira que fija el orden como crash, repetición, parche, y después re-fuzz.](assets/v10-table.png)
+![Una checklist de cuatro filas que empareja cada artefacto requerido con el error que explica su ausencia, bajo una tira que fija el orden como crash, repetición, parche, y después re-fuzz.](assets/v10-table.webp)
 
 Ahora la parte que te mantiene honesto, porque es fácil alejarse de una corrida verde sintiéndote terminado. El fuzzing y una checklist suben tu confianza. Nunca demuestran la ausencia de bugs. Una corrida limpia quiere decir "no encontrado todavía," que es una afirmación real, útil, y estrictamente más débil que "seguro." Vale la pena ser preciso sobre la brecha. Una corrida de fuzz limpia es una afirmación de caso promedio: sobre los inputs y las secuencias que el fuzzer llegó a explorar en el tiempo que le diste, ningún invariante se rompió. El bug que te arruina normalmente es un objeto de peor caso, un solo input angosto en un rincón al que la búsqueda no llegó antes de que dieras el día por terminado. El fuzzing guiado por cobertura angosta esa brecha dirigiendo hacia ramas inexploradas, pero no la cierra, y no hay largo de corrida que convierta un "limpio de caso promedio" en un "seguro de peor caso."
 
 El argumento más fuerte para esa humildad viene del framework sobre el que estás parado. La propia suite de pruebas de Anchor lleva testigos de Miri, que verifican comportamiento indefinido en código unsafe, y configs de Kani, que hacen model-check de propiedades específicas. Y el fuzzing encontró cuatro bugs de corrección en el propio Anchor, rastreados como la issue #4431. El framework está fuzzeado y verificado contra comportamiento indefinido tan fuerte como te pide que verifiques tu programa, y *aun así* encontró cuatro cosas. Si eso es verdad de código escrito y revisado por la gente que construyó el framework, asume que es verdad del tuyo.
 
-![Un diagrama vertical en capas de la superficie de confianza, que va desde tu programa hacia abajo pasando por las verificaciones de Miri y Kani de Anchor y por OtterSec como guardián hasta llegar a una advertencia de revisión que este curso aporta por su propia autoridad, porque el tag fijado no entrega ninguna.](assets/v11-timeline.png)
+![Un diagrama vertical en capas de la superficie de confianza, que va desde tu programa hacia abajo pasando por las verificaciones de Miri y Kani de Anchor y por OtterSec como guardián hasta llegar a una advertencia de revisión que este curso aporta por su propia autoridad, porque el tag fijado no entrega ninguna.](assets/v11-timeline.webp)
 
 Ese único guardián es en sí mismo un hecho que vale la pena rumiar. OtterSec custodia el framework, publica los crates, corre el registry de builds verificados contra el que verifica `anchor verify`, y firma el tag v2 con una clave GPG (trixter-osec). Una sola organización sostiene un montón de la cadena de suministro, que es eficiente y también una concentración que deberías conocer. Se empareja con una advertencia que este curso tiene que aportar por su propia autoridad, porque el proyecto no lo hace: ve a buscar en el tag fijado y no vas a encontrar ninguna página de advertencias — el README de lang-v2 dice "v2 is secure by default for users" y se detiene. Así que toma la oración de la auditoría que acabas de correr, no de una cita: los defaults no son un sustituto de la revisión, el fuzzing y el modelado de amenazas específico de producción. Un solo guardián, una release candidate no auditada, y cuatro bugs encontrados por el fuzzer en el framework mismo son el argumento entero, y alcanzan.
 

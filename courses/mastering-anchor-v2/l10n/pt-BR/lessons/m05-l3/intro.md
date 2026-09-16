@@ -32,7 +32,7 @@ O que não muda é mais do que você imaginaria, então pegue isso primeiro. Um 
 
 Esse acréscimo é a coisa para internalizar. Tudo o que o Token-2022 adiciona mora numa seção TLV colada na cauda da conta: tipo, tamanho, valor, repetido. Um mint que opta por uma taxa de transferência, um ponteiro de metadados e um transfer hook carrega três entradas TLV depois da base dele. Um mint que não opta por nada não carrega nenhuma e lê exatamente como um mint clássico.
 
-![Layouts base e a primitiva transfer_checked vêm do SPL clássico; o tamanho total da conta e a necessidade de contas extra de transferência precisam ser observados ao vivo no Token-2022.](assets/v01-comparison.png)
+![Layouts base e a primitiva transfer_checked vêm do SPL clássico; o tamanho total da conta e a necessidade de contas extra de transferência precisam ser observados ao vivo no Token-2022.](assets/v01-comparison.webp)
 
 ### Consequência um: tamanho agora é dado, não constante
 
@@ -40,7 +40,7 @@ Um número deixa isso concreto. Um mint clássico do SPL tem 82 bytes. Ponto fin
 
 Agora a leitura ao vivo que você está a ponto de rodar você mesmo: o mint PYUSD da mainnet, um mint Token-2022 de verdade, ocupa 866 bytes agora. Mesma base, mesmos 82 bytes na frente, mais uma cauda TLV carregando as extensões dele. Isso é mais de dez vezes o tamanho clássico, e não é um número mágico que eu quero que você memorize. É um número que você *lê*, porque um mint Token-2022 diferente carrega um conjunto diferente de extensões e aterrissa num tamanho diferente.
 
-![Um mint clássico do SPL tem 82 bytes e uma conta de token clássica 165 bytes, os dois fixos, enquanto o mint PYUSD Token-2022 ao vivo tem 866 bytes por causa da cauda de extensões dele.](assets/v02-chart.png)
+![Um mint clássico do SPL tem 82 bytes e uma conta de token clássica 165 bytes, os dois fixos, enquanto o mint PYUSD Token-2022 ao vivo tem 866 bytes por causa da cauda de extensões dele.](assets/v02-chart.webp)
 
 Por que o padrão fez desse jeito, acrescentando uma cauda auto-descritiva em vez de só alargar a struct? Porque você não consegue renumerar um formato binário que o ecossistema inteiro já está parseando. Os campos base ficam em offsets fixos dos quais milhares de clientes dependem. Então features novas não podiam ir *dentro* do layout antigo, elas tinham que ir *depois* dele, cada uma anunciando o próprio tipo e o próprio tamanho para um leitor conseguir caminhar a cauda sem um schema assado de antemão. A elegância é real. O custo é igualmente real e ele cai em cima de você: tamanho agora é um valor carregado nos dados, não uma constante que você pode confiar a partir do header. Leia ele.
 
@@ -48,7 +48,7 @@ Por que o padrão fez desse jeito, acrescentando uma cauda auto-descritiva em ve
 
 O framework ajuda aqui, e ele ajuda mais do que o caminho clássico ajudava. No seu swap, o mint e os vaults são tipados como `anchor_spl::token_interface::InterfaceAccount<Mint>` e `InterfaceAccount<TokenAccount>`. Esse tipo aceita uma conta de propriedade *de qualquer um* dos dois, o programa Token clássico ou o Token-2022, e ele desserializa os campos base corretamente nos dois. Quando você alcança para além da base, dentro da cauda de extensões, a segunda camada é o `anchor_spl::extensions`, que parseia as structs de extensão TLV de tamanho fixo suportadas a partir da conta. Duas camadas, uma para a base e uma para a cauda.
 
-![Um mint Token-2022 mantém o layout clássico de 82 bytes, preenche até 165 bytes, marca o tipo de conta no byte 165, e depois carrega uma cauda de extensões TLV.](assets/v03-annotated-code.png)
+![Um mint Token-2022 mantém o layout clássico de 82 bytes, preenche até 165 bytes, marca o tipo de conta no byte 165, e depois carrega uma cauda de extensões TLV.](assets/v03-annotated-code.webp)
 
 Um detalhe nesse diagrama surpreende as pessoas, então nomeie ele antes de ele morder: a cauda não começa no byte 82. Um mint estendido é preenchido até 165 bytes, o tamanho da *conta de token* clássica, e o byte 165 carrega uma tag de tipo de conta de um byte, `1` para um mint. Só então o TLV roda, do byte 166 até o fim. O preenchimento existe para um leitor nunca conseguir confundir um mint estendido com uma conta de token pelo tamanho sozinho: um mint simples de 82 bytes nunca foi ambíguo, mas uma base de 82 bytes mais uma cauda TLV poderia aterrissar em exatamente 165 bytes — o tamanho de uma conta de token — e é essa a colisão que o preenchimento mais a tag de tipo descartam. No PYUSD isso deixa 700 bytes de cauda embaixo dos 866.
 
@@ -70,7 +70,7 @@ O primeiro imprime a constante que você poderia ter deixado hardcoded. O segund
 
 A segunda mudança é a que falha alto em vez de caladinho. Um mint pode declarar um *transfer hook*: um programa que o programa Token-2022 chama em cada transferência daquele token, depois de a lógica própria da transferência rodar. Quem cria o token escreve e faz o deploy daquele programa, e depois aponta o mint para ele através da extensão TransferHook.
 
-Para o seu swap, a consequência é estreita e específica. Quando uma transferência roda contra um mint com hook, o programa de hook executa, e ele precisa das contas dele. Essas contas extra não são contas que você conhece em tempo de compilação. Elas são resolvidas a partir de uma lista on-chain que o hook publica para aquele mint. A sua instrução tem que encaminhar elas. Se você monta um `transfer_checked` com só as quatro contas que ele sempre pegou, from, to, mint, authority, e o mint tem um hook vivo, a transferência não vai completar. O `transfer_checked` continua sendo a primitiva certa. Não é a instrução que está errada. É a lista de contas que está curta.
+Para o seu swap, a consequência é estreita e específica. Quando uma transferência roda contra um mint com hook, o programa de hook executa, e ele precisa das contas dele. Essas contas extra não são contas que você conhece em tempo de compilação. Elas são resolvidas a partir de uma lista on-chain que o hook publica para aquele mint. A sua instrução tem que encaminhar elas. Se você monta um `transfer_checked` com só as quatro contas que ele sempre pegou, from, to, mint, authority, e o mint tem um hook vivo, a transferência não vai completar. O `transfer_checked` continua sendo a primitiva certa; o que está curto é a lista de contas.
 
 Então, da cadeira do programa, existe exatamente uma pergunta que você tem que conseguir responder antes de uma transferência: este mint declara um hook, e se declara, aquele hook está vivo? E o campo no qual você chaveia isso é o `programId` da extensão TransferHook. Se o mint não carrega extensão TransferHook nenhuma, não tem nada para encaminhar. Se ele carrega a extensão mas o `programId` está sem valor, o hook está *declarado mas dormente*, ainda nada para encaminhar. Só quando o `programId` é um endereço de verdade é que uma transferência precisa das contas extra do hook resolvidas e acrescentadas.
 
@@ -78,21 +78,21 @@ Sem valor é uma coisa específica aqui, não um gesto vago. No wire aquele camp
 
 Esse caso dormente não é um canto que eu inventei para ser minucioso. O mint PYUSD vivo carrega uma extensão TransferHook agora, e o `programId` dele é o default todo-zero. Oito extensões presentes, hook entre elas, e ainda assim um `transfer_checked` simples contra ele não precisa de contas extra, porque o hook está armado e parado em vez de ativo. É por isso que "ele tem a extensão" é a pergunta errada e "o `programId` está com valor" é a certa. Você vai ver exatamente isso num minuto quando rodar o leitor.
 
-![Um branch de sim/não: um mint sem hook, ou com um programId de hook deixado no endereço default todo-zero, transfere normalmente; um programId de verdade exige resolver contas extra primeiro.](assets/v04-flowchart.png)
+![Um branch de sim/não: um mint sem hook, ou com um programId de hook deixado no endereço default todo-zero, transfere normalmente; um programId de verdade exige resolver contas extra primeiro.](assets/v04-flowchart.webp)
 
 Duas camadas, de novo, e vale nomear elas juntas porque elas são a forma da história inteira do Token-2022 no Anchor.
 
-![O Anchor te dá compatibilidade com os dois programas de graça através do InterfaceAccount e do transfer_checked, mas ler a cauda de extensões para tamanho e estado de transfer hook é trabalho que o seu programa tem que fazer.](assets/v05-diagram.png)
+![O Anchor te dá compatibilidade com os dois programas de graça através do InterfaceAccount e do transfer_checked, mas ler a cauda de extensões para tamanho e estado de transfer hook é trabalho que o seu programa tem que fazer.](assets/v05-diagram.webp)
 
 Esse rótulo de emenda é o trade-off, dito sem enfeite. O `token_interface` te compra compatibilidade com os dois programas de graça, no nível do tipo, e é genuinamente um alívio comparado a deixar um id de programa hardcoded e ramificar. Mas o Token-2022 move trabalho real para cima de você em troca: você não pode assumir um tamanho fixo, e um mint com hook quer dizer que uma transferência que *parece* completa pode falhar a não ser que você encaminhe as contas do hook. O framework te entrega a cadeira. Ele não te entrega o padrão.
 
 Mais uma armadilha de leia-não-assuma pertence logo ao lado do hook, porque o mint do player na abertura carregava as duas. Um mint também pode declarar uma taxa de transferência, e quando ele declara, a quantia que de fato aterrissa no destino é menor que a quantia que você entregou para o `transfer_checked`. Para um envio simples de carteira para carteira isso é um incômodo de arredondamento. Para o seu swap é um bug de corretude: a sua matemática de produto constante assume que o vault recebeu exatamente o que você mandou para ele, e uma taxa caladamente anula essa suposição, então o seu invariante deriva e a sua precificação sai errada. A mecânica é idêntica a tudo o mais aqui, leia o mint, não assuma a quantia. A matemática própria da taxa, como os basis points e o teto máximo de fato computam, é o catálogo de extensões, e aquele catálogo é do curso de Digital Assets. Notar que o líquido-recebido pode diferir da quantia-mandada é a parte que é sua.
 
-![Um mint Token-2022 que carrega taxa entrega menos que a quantia mandada, então o invariante do swap é computado em cima da reserva errada e o saldo guardado do vault superestima a custódia real.](assets/v06-diagram.png)
+![Um mint Token-2022 que carrega taxa entrega menos que a quantia mandada, então o invariante do swap é computado em cima da reserva errada e o saldo guardado do vault superestima a custódia real.](assets/v06-diagram.webp)
 
 E essa é a linha que a gente não cruza. Projetar uma extensão, escrever um programa de transfer hook, ligar a interface de resolução de contas dele de ponta a ponta, isso é profundidade de padrões, e isso mora num lugar só por design. O curso de Digital Assets percorre a interface de transfer hook de ponta a ponta e ensina profundidade de padrões de extensão. Aqui, da cadeira do framework, o seu trabalho para em notar que o hook existe e em saber que você teria que encaminhar as contas dele. Notar é mecânica. Autoria é o padrão. Curso diferente, de propósito.
 
-![Esta lição ensina ler tamanho ciente de extensões, detectar um transfer hook e raciocinar sobre contas extra; projetar extensões e autorar a interface de transfer hook pertencem ao curso de Digital Assets.](assets/v07-comparison.png)
+![Esta lição ensina ler tamanho ciente de extensões, detectar um transfer hook e raciocinar sobre contas extra; projetar extensões e autorar a interface de transfer hook pertencem ao curso de Digital Assets.](assets/v07-comparison.webp)
 
 Você pode ficar tentado a arquivar tudo isso como "caso extremo que eu vou tratar quando alguém reclamar". Resista a isso. Os mints Token-2022 soltos por aí são desproporcionalmente os que você menos quer que falhem. As stablecoins reguladas e os ativos de valor mais alto recorrem a delegados permanentes, taxas de transferência e hooks precisamente porque dinheiro real e compliance real estão em cima deles. A memecoin descartável nunca vai exercitar este caminho. O mint com o qual a sua tesouraria de fato se importa vai. Essa assimetria é o argumento inteiro: um hábito de leia-não-assuma é seguro barato, e um tamanho hardcoded é uma bomba-relógio com o nome da sua maior contraparte escrito nela.
 

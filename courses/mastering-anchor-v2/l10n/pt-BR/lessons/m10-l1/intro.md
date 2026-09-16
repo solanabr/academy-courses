@@ -41,7 +41,7 @@ Então o rename é notícia velha. Ele teve quase um ano para se propagar. Aqui 
 
 A resposta ingênua é sim, claro, a documentação diz para usar o novo. Essa resposta vai caladamente quebrar a sua migração. Porque "canônico" e "o que você de fato vai ler" divergiram, e divergiram forte.
 
-![O pacote antigo @coral-xyz/anchor puxou cerca de 602k downloads semanais contra os aproximadamente 15k do novo @anchor-lang/core, uma lacuna perto de quarenta para um.](assets/v01-chart.png)
+![O pacote antigo @coral-xyz/anchor puxou cerca de 602k downloads semanais contra os aproximadamente 15k do novo @anchor-lang/core, uma lacuna perto de quarenta para um.](assets/v01-chart.webp)
 
 Mais ou menos oito meses depois do rename, o nome antigo ainda supera o novo em downloads por algo perto de quarenta para um. O número exato não importa e ele muda toda semana. A forma dele é o que você carrega: o pacote que você é mandado importar não é o pacote que o ecossistema está importando. A maior parte do código de exemplo que você copia de um blog, a maior parte das respostas de Stack Overflow, a maior parte dos repositórios meio-migrados que você herda, continuam recorrendo ao `@coral-xyz/anchor`.
 
@@ -60,7 +60,7 @@ Tem uma peça de cor pequena e sombria que deixa isso concreto. O caminho de apr
 
 Aqui está uma quebra que para o build, não só o linter. No 0.32 você montava uma chamada entre programas entregando para o `CpiContext::new` o programa como um `AccountInfo`:
 
-![No 0.32 o CpiContext::new pegava o token program como um AccountInfo e usava Transfer; no 1.0 ele pega um Pubkey via .key() e usa TransferChecked com decimais.](assets/v02-annotated-code.png)
+![No 0.32 o CpiContext::new pegava o token program como um AccountInfo e usava Transfer; no 1.0 ele pega um Pubkey via .key() e usa TransferChecked com decimais.](assets/v02-annotated-code.webp)
 
 O Anchor 1.0 mudou o `CpiContext::new` para pegar o programa como um `Pubkey` (PR #2762). Passe um `.to_account_info()` ali agora e ele falha em compilar com um descasamento de tipo seco: esperava `Pubkey`, achou `AccountInfo`.
 
@@ -76,7 +76,7 @@ Uma cautela para você não confundir dois deltas que parecem iguais. O modelo d
 
 No 0.32, metade dos blocos de `init` do ecossistema carregava um cálculo de space feito na mão que começava com um `8` mágico:
 
-![O literal de space contado na mão do 0.32, 8 mais os tamanhos de campo, vira a expressão derivada DISCRIMINATOR.len() mais INIT_SPACE no 1.0.](assets/v03-annotated-code.png)
+![O literal de space contado na mão do 0.32, 8 mais os tamanhos de campo, vira a expressão derivada DISCRIMINATOR.len() mais INIT_SPACE no 1.0.](assets/v03-annotated-code.webp)
 
 O `8` era o discriminator da conta, e tudo depois dele era você, contando bytes de campo na mão e esperando ter acertado o preenchimento. O limite motivador é óbvio depois de você ter entregado um bug por causa dele: um literal contado na mão deriva. Adicione um `u64` na struct, esqueça de subir o literal, e você recebe uma falha de runtime que não tem nada a ver com o código que você acabou de mudar.
 
@@ -94,7 +94,7 @@ Esta é a quebra no hook. No 0.32, uma instrução de interface do SPL, o caso c
 
 O que substituiu, e por quê? A razão é unificação. Cada instrução comum do Anchor já é despachada casando o discriminator dela, os bytes iniciais dos dados de instrução. Instruções de interface precisavam da *mesma* coisa, despacho por um discriminator específico e definido de fora, mas elas tinham uma macro feita sob medida para fazer isso. O 1.0 colapsa o caso especial para dentro do geral. O `execute` de um transfer hook agora é declarado como qualquer outra instrução, exceto que você diz para o Anchor qual discriminator casar:
 
-![A macro de interface do 0.32 num transfer hook vira um atributo de instrução do 1.0 carregando um slice de discriminator do SPL explícito, usando despacho comum por discriminator.](assets/v04-annotated-code.png)
+![A macro de interface do 0.32 num transfer hook vira um atributo de instrução do 1.0 carregando um slice de discriminator do SPL explícito, usando despacho comum por discriminator.](assets/v04-annotated-code.webp)
 
 O discriminator vem da própria interface do SPL, exposto como uma constante `SPL_DISCRIMINATOR_SLICE`, então você está casando os bytes exatos que a interface define em vez de confiar numa macro para saber eles por você. A correção: delete o atributo `#[interface]` e declare a instrução normalmente com `#[instruction(discriminator = ...SPL_DISCRIMINATOR_SLICE)]`.
 
@@ -102,11 +102,11 @@ Uma nota de fronteira, porque é aqui que os cursos se sobrepõem e eu quero man
 
 ### 6. O toolchain mudou de forma embaixo do código
 
-As primeiras cinco mudanças são coisas que você edita no código. A sexta não é uma edição de código nenhuma. Ela é o chão em cima do qual o código fica de pé, e ela é a que embosca as pessoas na hora do deploy em vez de na hora do build.
+As primeiras cinco mudanças são coisas que você edita no código. A sexta não é uma edição de código nenhuma, e sim o chão em cima do qual o código fica de pé, e ela é a que embosca as pessoas na hora do deploy em vez de na hora do build.
 
 Comece pela emboscada. O seu programa de 0.32 compila no 1.x depois de você corrigir o código, você aponta ele para a devnet, você faz o deploy, e o *deploy* dá erro no IDL on-chain. Nada no seu Rust está errado. O problema é uma conta obsoleta do mundo antigo.
 
-![Um build de 1.x passa mas o deploy tropeça numa conta de IDL on-chain legada; fechar ela uma vez com o CLI 0.32.1 limpa o caminho.](assets/v05-flowchart.png)
+![Um build de 1.x passa mas o deploy tropeça numa conta de IDL on-chain legada; fechar ela uma vez com o CLI 0.32.1 limpa o caminho.](assets/v05-flowchart.webp)
 
 O 1.0 removeu as instruções legadas de IDL on-chain (PR #3798). IDLs agora vão para on-chain através do Program Metadata Program em vez disso. Mas um programa que você herdou provavelmente teve deploy com uma conta de IDL criada do jeito antigo, e o caminho de deploy do 1.x não sabe como passar em volta dela. A correção é precisa e é uma jogada de uma vez: troque para o CLI 0.32.1, feche a conta de IDL legada com o `anchor idl close`, troque de volta para o 1.x, e faça o deploy. Você usa o CLI antigo exatamente uma vez, para exatamente isso. Não é um downgrade e não é permanente. O 1.x escreve IDLs perfeitamente bem, só através de um programa diferente.
 
@@ -118,19 +118,19 @@ Enquanto a gente está aqui embaixo, várias outras peças do toolchain mudaram 
 - **O CLI se desacoplou de um CLI solana externo** (PR #4099). O toolchain do Anchor empacota o que ele precisa agora em vez de chamar um binário solana instalado separadamente, que é por que o instalador do 1.x não te incomoda mais para casar uma versão específica de solana primeiro. Note a direção disso com cuidado, porque ela muda como você lê um número de versão. A versão do CLI do Anchor e a versão do CLI do Agave que você instalou agora são fatos independentes, então um pin como "Solana CLI 3.1.10" sentado no bloco de toolchain de um projeto é uma declaração sobre o ambiente de integração contínua daquele projeto, nunca uma afirmação sobre qual é o release atual da Solana. Leia isso como um pin local, não como uma manchete.
 - **O `declare_program!` moveu os helpers gerados dele** de `utils` para `parsers`. O `declare_program!` é como um programa consome o IDL on-chain de outro programa para gerar um módulo de CPI e de cliente, e no 0.32 os parsers de conta gerados moravam embaixo de um submódulo `utils`. O 1.0 moveu eles para `parsers`, que lê como uma mudança cosmética de caminho até você perceber que é o tipo de quebra que o compilador pega instantaneamente e um grep pega mais rápido. Se o código que você herdou consome outro programa via `declare_program!` e alcança dentro do módulo `utils` gerado, atualize o caminho para `parsers` e siga em frente.
 
-![Um lado a lado de seis preocupações de toolchain mostrando a ferramenta do 0.3x e a substituta dela no 1.0, de publicação de IDL até caminhos de módulo do declare_program!.](assets/v06-comparison.png)
+![Um lado a lado de seis preocupações de toolchain mostrando a ferramenta do 0.3x e a substituta dela no 1.0, de publicação de IDL até caminhos de módulo do declare_program!.](assets/v06-comparison.webp)
 
 ### O delta como evidência, não trivia
 
 Dê um passo atrás dos seis itens e pergunte no que eles somam. Cada quebra rastreia para um limite que a forma antiga estava batendo: um handle gordo de CPI onde uma chave bastava, um literal contado na mão que deriva, códigos de erro colidindo, uma macro sob medida duplicando um despacho que já existia, um fluxo de IDL que ficou grande demais para um registry. Nenhuma delas é arbitrária. É essa a leitura que deixa uma decisão de migração legível em vez de assustadora.
 
-![Uma tabela de referência de seis linhas mapeando cada quebra de 0.32-para-1.0 para a razão motivadora dela e a correção exata dela, cobrindo o rename, o CpiContext, o cálculo de space, o enum de error-code, a remoção de interface, e o IDL legado.](assets/v07-table.png)
+![Uma tabela de referência de seis linhas mapeando cada quebra de 0.32-para-1.0 para a razão motivadora dela e a correção exata dela, cobrindo o rename, o CpiContext, o cálculo de space, o enum de error-code, a remoção de interface, e o IDL legado.](assets/v07-table.webp)
 
 Vale amarrar isso de volta na trajetória que a gente montou no m01-l2, porque é isso que deixa quem migra e um leitor novo de novo no Anchor compartilharem uma história em vez de duas. Lá atrás o arco inteiro do framework foi enquadrado como um aperto lento: cada versão troca um pouco da antiga folga por um compilador que pega mais dos seus erros antes de eles chegarem num validador. O delta de 0.32-para-1.0 é esse mesmo arco, visto de dentro do único salto onde o aperto por acaso quebrou código. Um leitor que nunca escreveu uma linha de 0.32 ainda se beneficia de ler dessa forma, porque as *razões* são os princípios de design do framework que ele está aprendendo, não trivia de migração que ele pode esquecer. Quem migra recebe os mesmos princípios mais um plano de port. Uma narrativa, duas audiências.
 
 Isso também comprova uma coisa que a conclusão deste módulo (m10-l4) vai formalizar numa árvore de decisão: mudanças que quebram custam horas de verdade. Você acabou de contar as horas. Quem migra bate em cada uma destas num programa não trivial, e o dado de que o nome antigo do pacote ainda supera o novo em downloads por quarenta para um comprova que a audiência para este trabalho é real e grande. Pessoas estão rodando código de 0.32 em produção agora mesmo e vão estar portando ele muito depois de esta lição ficar velha. O ponto de segurar o *por quê* de cada mudança é que, quando você portar no m10-l3, o "isto quebrou" seco do compilador vira o seu "certo, essa é a mudança três, aqui está a edição", sem um desvio por documentação que pode ela mesma ser uma lápide.
 
-![Uma linha do tempo da criação do pacote novo no npm em 2025-12-19, passando pelo release do 1.0.0 em 2026-04-02, terminando onde o nome antigo ainda lidera por cerca de quarenta para um.](assets/v08-timeline.png)
+![Uma linha do tempo da criação do pacote novo no npm em 2025-12-19, passando pelo release do 1.0.0 em 2026-04-02, terminando onde o nome antigo ainda lidera por cerca de quarenta para um.](assets/v08-timeline.webp)
 
 ## Lab: reconhecimento de port
 

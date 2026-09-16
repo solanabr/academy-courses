@@ -29,7 +29,7 @@ Custódia é uma camada, não o programa. A identidade do seu vault, o PDA deriv
 
 É essa a espinha do upgrade inteiro, e vale ver ela como um diff antes de a gente tocar numa única linha.
 
-![Duas colunas: as seeds do PDA, o bump armazenado, a checagem de authority, o débito e as formas das instruções ficam idênticos, enquanto só a camada de custódia troca para uma conta de token e transfer_checked.](assets/v01-comparison.png)
+![Duas colunas: as seeds do PDA, o bump armazenado, a checagem de authority, o débito e as formas das instruções ficam idênticos, enquanto só a camada de custódia troca para uma conta de token e transfer_checked.](assets/v01-comparison.webp)
 
 Leia aquela coluna da direita de novo. Quatro itens. É isso que uma migração de custódia custa. Tudo à esquerda é o trabalho que você já fez no R2 e no R3, e ele sobrevive à mudança intacto. É exatamente por isso que o caminho de upgrade ensina tokens melhor do que um build novo ensinaria. Um build novo esconde a emenda, porque tudo é novo de uma vez. O upgrade isola a emenda, e a emenda é a lição.
 
@@ -45,13 +45,13 @@ O que quer dizer que o wrapper não é onde o comportamento mora, e esta é a fr
 
 Por que um *alias*, e não o tipo separado e mais pesado que ele era antes? Essa vale uma pausa, porque a resposta explica a direção inteira do V2.
 
-![Uma linha do tempo de três paradas: o Account<T> é chamado de caminho lento do Anchor, a issue #4390 defende zero-copy por padrão, e o V2 faz do InterfaceAccount<T> um alias do Account<T> agora rápido.](assets/v02-timeline.png)
+![Uma linha do tempo de três paradas: o Account<T> é chamado de caminho lento do Anchor, a issue #4390 defende zero-copy por padrão, e o V2 faz do InterfaceAccount<T> um alias do Account<T> agora rápido.](assets/v02-timeline.webp)
 
 Então quando você escreve `InterfaceAccount<TokenAccount>` no V2, você ganha o `Account<TokenAccount>` zero-copy de hoje mais a propriedade de que ele vai validar um mint ou uma conta de token de propriedade de *qualquer um* dos dois token programs. Você não paga nada extra pela capacidade de interface. É o design se pagando: o caminho rápido e o caminho compatível agora são o mesmo caminho. É a mesma alavanca por trás da melhora média de 8.8x em CU que o Anchor reporta na própria bancada de benchmark dele, número que o PR #4914 revisou para baixo dos 9.9x em 2026-08-13. Datado e atribuído, não medido aqui; o módulo 6 é onde você mede o seu.
 
 O que levanta a pergunta óbvia de quem migra: se `InterfaceAccount<T>` é só `Account<T>`, por que não continuar escrevendo `Account<TokenAccount>`? Porque no caminho do reflexo o `Account<TokenAccount>` vem com um `use anchor_spl::token::TokenAccount`, e esse `T` deixa o Token program clássico hardcoded como owner. No momento em que um mint Token-2022 aparece, essa conta falha no carregamento. Emparelhar o wrapper `InterfaceAccount` com o módulo `token_interface` é o que fica agnóstico de owner nos dois programas. As combinações não são intercambiáveis, e as que você vai encontrar de verdade valem ser vistas lado a lado.
 
-![Duas tipagens de conta, uma só-clássica e uma que aceita os dois token programs, mais a escolha correspondente de conta de programa entre Program<Token> e Interface<'static, TokenInterface>.](assets/v03-comparison.png)
+![Duas tipagens de conta, uma só-clássica e uma que aceita os dois token programs, mais a escolha correspondente de conta de programa entre Program<Token> e Interface<'static, TokenInterface>.](assets/v03-comparison.webp)
 
 Existe uma cilada de verdade escondida naquele primeiro card, sutil o bastante para queimar uma tarde. Se você tipa uma conta como `Account<T>` e espera um erro de owner *customizado*, você não vai ganhar um. As checagens de owner e de discriminator rodam dentro do passo de carregamento da conta, que acontece antes de qualquer um dos seus hooks de constraint. Então um descasamento de owner aparece como um `IllegalOwner` genérico, e a sua mensagem customizada bem escrita nunca dispara. Se você genuinamente precisa de um erro de owner customizado, você desce para `UncheckedAccount` e afirma o owner você mesmo no handler. Guarde essa no bolso.
 
@@ -63,7 +63,7 @@ A família `associated_token::` diz "esta conta é a Associated Token Account de
 
 A família `mint::`, por outro lado, restringe o mint em si: `mint::decimals`, `mint::authority`, `mint::freeze_authority`. Você não vai precisar deles neste upgrade, porque você está fazendo a custódia de um mint de token de fliperama *existente*, não criando um. Mas eles têm a mesma forma, e saber que a família existe te impede de reinventar uma checagem de decimais na mão mais tarde. O motivo pelo qual a linha `associated_token::token_program = token_program` importa é a história de um-caminho-de-código de antes: porque `token_program` é um `Interface`, o endereço de ATA derivado é computado contra o token program que de fato é dono do mint, então o mesmo constraint resolve certo para um mint clássico e para um mint Token-2022. Deixe o programa clássico hardcoded ali e você derivaria em silêncio o endereço errado no dia em que um mint Token-2022 chegar.
 
-![Duas famílias de constraint lado a lado: associated_token coloca e deriva uma conta de token para um mint e um owner, enquanto mint restringe os decimais e as authorities de um mint existente.](assets/v04-comparison.png)
+![Duas famílias de constraint lado a lado: associated_token coloca e deriva uma conta de token para um mint e um owner, enquanto mint restringe os decimais e as authorities de um mint existente.](assets/v04-comparison.webp)
 
 ### transfer_checked: a primitiva que carrega o mint
 
@@ -121,7 +121,7 @@ Checkpoint: o `cargo check` resolve os dois crates e o build falha só no seu pr
 
 Este é o primeiro lugar em que o diff aparece. No R2, o valor morava num *segundo* PDA: o `sol_vault` de propriedade do System, semeado em `[b"sol", owner]`, segurando os lamports. Agora o valor mora numa conta de token cuja *authority* é o próprio PDA de state. O PDA de state `Vault` fica exatamente onde estava, seeds e bump inalterados; o `sol_vault` se aposenta, e um novo `vault_token_account` (uma ATA cuja authority é o PDA do vault) assume o trabalho de segurar.
 
-![Um diff de struct de accounts: a conta do vault mantém as seeds e o bump dela, o PDA sol-vault separado é removido, e linhas de mint, de conta de token e de token program são acrescentadas.](assets/v05-annotated-code.png)
+![Um diff de struct de accounts: a conta do vault mantém as seeds e o bump dela, o PDA sol-vault separado é removido, e linhas de mint, de conta de token e de token program são acrescentadas.](assets/v05-annotated-code.webp)
 
 O **caminho de custódia** inteiro, do `initialize` ao `release`. Leia `withdraw` com atenção: é essa a checagem intermediária que você re-roda.
 
@@ -381,7 +381,7 @@ Este é o coração da coisa, e eu quero que você note com precisão o que se m
 
 O array de seeds mudou. A *jogada* não, e é essa a parte transferível: reconstrua as seeds a partir de um bump que você armazenou no init, nunca re-derive ele, anexe `.with_signer`, e o runtime concede o privilégio de signer do PDA seja a chamada interna uma transferência do System Program ou um `transfer_checked` de token. As seeds são a assinatura, e esse mecanismo é agnóstico de custódia.
 
-![Um antes-e-depois da CPI de withdraw: a jogada de assinatura fica inalterada, enquanto a transferência de lamports do System Program vira um transfer_checked carregando o mint e um argumento de decimais no final.](assets/v06-annotated-code.png)
+![Um antes-e-depois da CPI de withdraw: a jogada de assinatura fica inalterada, enquanto a transferência de lamports do System Program vira um transfer_checked carregando o mint e um argumento de decimais no final.](assets/v06-annotated-code.webp)
 
 Quatro coisas naquele bloco `AFTER` são específicas do V2 e valem ser nomeadas, porque a memória muscular de 1.x (a versão ainda na sua máquina) vai brigar com você em cada uma.
 
@@ -390,11 +390,11 @@ Quatro coisas naquele bloco `AFTER` são específicas do V2 e valem ser nomeadas
 - O handler recebe `&mut Context<T>`, não `Context<T>`. As assinaturas de handler do V2 são de contexto mutável por padrão.
 - `.with_signer(signer_seeds)` é o que transforma uma CPI simples numa CPI assinada por PDA. Tire ele e esta chamada exata vira uma transferência sem assinatura que o runtime rejeita, porque o PDA do vault nunca autorizou ela.
 
-![O programa reconstrói as signer seeds dele a partir do bump armazenado e chama transfer_checked; o token program verifica que essas seeds reproduzem o PDA do vault antes de mover o saldo.](assets/v07-diagram.png)
+![O programa reconstrói as signer seeds dele a partir do bump armazenado e chama transfer_checked; o token program verifica que essas seeds reproduzem o PDA do vault antes de mover o saldo.](assets/v07-diagram.webp)
 
 Mais uma coisa para ter na cabeça antes de rodar: a ordem em que o runtime faz tudo isso, porque saber a sequência é como você localiza uma falha na linha certa em vez de adivinhar.
 
-![Um fluxograma vertical de oito passos do withdraw SPL, do carregamento de conta e do constraint address, passando pelo transfer_checked assinado por PDA, até o débito checked_sub, com avisos de falha por passo.](assets/v08-flowchart.png)
+![Um fluxograma vertical de oito passos do withdraw SPL, do carregamento de conta e do constraint address, passando pelo transfer_checked assinado por PDA, até o débito checked_sub, com avisos de falha por passo.](assets/v08-flowchart.webp)
 
 Checkpoint: o `anchor build` está verde, e você consegue ler `withdraw` de cima a baixo e nomear cada linha como identidade (inalterada) ou custódia (mudada), e apontar em qual dos oito passos ela mora.
 
@@ -590,7 +590,7 @@ O prize-escrow (R3), o programa `quarter-prize` que você construiu na lição p
 
 É essa a frase para deixar assentar. Porque você construiu sobre um vault em vez de embutir a custódia, a migração para SPL nunca sai da borda de CPI do escrow: as accounts que ele costura na CPI do vault mudam, e o `reserve` segue uma única renomeação mecânica, a instrução de init do vault indo de `init_vault` para `initialize`. Política, condição, pin do chamador, assinatura de PDA: intocados.
 
-![Os campos de política do escrow, a checagem de condição, o pin do chamador e a assinatura de PDA ficam inalterados; só a borda de CPI muda, agora carregando o mint e as contas de token.](assets/v09-diagram.png)
+![Os campos de política do escrow, a checagem de condição, o pin do chamador e a assinatura de PDA ficam inalterados; só a borda de CPI muda, agora carregando o mint e as contas de token.](assets/v09-diagram.webp)
 
 Aqui está o `redeem`, com a trava de condição e a assinatura do escrow já no lugar, e a fiação de accounts da CPI de release deixada como a sua lacuna. A resposta está impressa dentro do bloco marcado em vez de escondida, porque seis nomes de campo sem um compilador na sua frente é jogo de adivinhação, não exercício. Cubra com a mão, escreva a struct a partir do que o vault te ensinou, depois descubra e faça o diff. A lacuna que é genuinamente sua é a seção solo abaixo dele.
 
@@ -717,8 +717,8 @@ Aceitação: o `withdraw` move o saldo de token só sob a assinatura do PDA do v
 
 Aqui está o loop de feedback, sem enfeite. Se o `redeem` do seu escrow compilou na primeira tentativa, o vault te ensinou o padrão e você transferiu ele. Bom. Se não compilou, a falha foi quase com certeza uma de três, na ordem em que elas costumam morder: você pegou um `transfer` simples em vez de `transfer_checked` em algum lugar do vault, você esqueceu a conta de mint (então os decimais nunca chegaram ao `transfer_checked`), ou você deixou cair um `.with_signer` e o runtime rejeitou uma movimentação de PDA sem assinatura. Cada um desses é um erro de camada de custódia, não um erro de identidade, que é a lição aterrissando: o esqueleto que você construiu no R2 e no R3 estava correto, e trocar o que ele segura não quebrou quem ele é.
 
-![Uma tabela de diagnóstico de três linhas mapeando um transfer simples, uma conta de mint faltando e uma signer seed que ficou de fora, cada um para a sua correção, os três sendo erros de custódia em vez de erros de identidade.](assets/v10-table.png)
+![Uma tabela de diagnóstico de três linhas mapeando um transfer simples, uma conta de mint faltando e uma signer seed que ficou de fora, cada um para a sua correção, os três sendo erros de custódia em vez de erros de identidade.](assets/v10-table.webp)
 
-É um marco de verdade, então nomeie ele pelo que custou. Você acabou de comprovar que o design de um programa que funciona sobrevive à custódia dele. O protótipo lamport não era descartável. Ele era o esqueleto, e o esqueleto se sustentou. E o escrow comprovou a segunda afirmação, mais afiada: porque ele delegou a custódia ao vault em vez de embutir ela, a migração para tokens nunca saiu da borda de CPI dele. Isso não é sorte. É isso que construir sobre um vault te compra, e é a mesma razão pela qual um protocolo de verdade separa política de custódia.
+É um marco de verdade, então nomeie ele pelo que custou. Você acabou de comprovar que o design de um programa que funciona sobrevive à custódia dele. O protótipo lamport era o esqueleto, e o esqueleto se sustentou. E o escrow comprovou a segunda afirmação, mais afiada: porque ele delegou a custódia ao vault em vez de embutir ela, a migração para tokens nunca saiu da borda de CPI dele. Isso não é sorte. É isso que construir sobre um vault te compra, e é a mesma razão pela qual um protocolo de verdade separa política de custódia.
 
 Dois programas SPL agora ficam no seu workspace: um vault que não cota nada e um escrow que não cota nada. Eles só movem tokens que já seguram. Só que os jogadores têm tokens de fliperama e querem tickets, e nenhum destes dois programas tem opinião sobre preço. Na lição que vem você constrói um terceiro programa, um pool que cota a própria taxa de câmbio a partir das reservas dele e troca tokens por tickets, segurando cada lado numa conta de token própria. Nem o vault nem o escrow entram nesse build, e isso é de propósito: a authority de uma reserva tem de ser o pool, então ela não pode ser também um vault. O que carrega para a frente é a forma, não o artefato. O `transfer_checked` assinado por PDA que você acabou de escrever é o payout do swap, e a release condicional que você escreveu no R3 é exatamente o fluxo de controle de que a trava de slippage do swap precisa. A mesma cadeira de PDA-e-CPI que você acabou de aprender, um trabalho novo: precificação.

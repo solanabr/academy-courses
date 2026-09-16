@@ -47,7 +47,7 @@ En el momento en que borras `initialize`, el workspace deja de compilar, y vale 
 
 Una cosa que esa línea de log *no* hace es imprimir la dirección del player, y la razón es una restricción genuina de V2 con la que conviene encontrarse temprano y no como un error de compilación misterioso. `Address` solo implementa `Display` y `Debug` cuando el feature `decode` del crate `solana-address` está activado, porque la codificación base58 es exactamente el tipo de peso que un framework `no_std` se niega a cargar por defecto, y anchor-lang no lo activa. Así que `msg!("gm, {}", ctx.accounts.player.address())` no compila en un programa V2 de fábrica. Sé preciso con lo que falta ahí: `msg!` formatea bien, y `msg!("lit at {} plays", plays)` sobre un `u64` es código V2 ordinario que vas a escribir la lección que viene. El hueco es `Display` sobre `Address` específicamente, así que son las direcciones las que no puedes interpolar, no los valores en general. Si de verdad necesitas una dirección base58 en un log, activas ese feature a propósito (el feature `compat` de anchor-lang lo trae consigo, junto con una macro `debug!`) y lo pagas en tamaño del binario y en unidades de cómputo. El valor por defecto es el silencio sobre las direcciones, y el valor por defecto es el punto.
 
-![Una tabla de cuatro filas que muestra que los literales y los valores u64 formatean bien en msg! mientras que un Address no, hasta que el feature compat se activa a propósito, a costa de tamaño y de cómputo.](assets/v01-table.png)
+![Una tabla de cuatro filas que muestra que los literales y los valores u64 formatean bien en msg! mientras que un Address no, hasta que el feature compat se activa a propósito, a costa de tamaño y de cómputo.](assets/v01-table.webp)
 
 La lección pasada nombró los cambios de superficie al pasar y prometió que los ibas a abrir acá. Esto es lo prometido. Tres de ellos son visibles en las once líneas de arriba: `&mut Context`, no `Context`. `Signer`, no `Signer<'info>`. Y ningún `Pubkey` en ninguna parte. El cuarto venía montado en la línea del scaffold que estás reemplazando, `ctx.accounts.counter.authority = *ctx.accounts.payer.address();`: `.address()`, no `.key()`. Nombrarlos era el trabajo de la lección pasada. Derivar por qué cada uno tiene esa forma, y qué genera la macro a su alrededor, es el de esta. Tómalos uno por uno.
 
@@ -69,7 +69,7 @@ Una constante `ID`, un accesor `id()` verificado, y un helper `check_id`, para q
 
 El valor en el tuyo es lo que sea que `anchor keys sync` escribió después de tu deploy de m01-l2; el de arriba es un sustituto. Mete el id de programa que tienes en tu archivo de pins cuando sigas los pasos, o el `.so` construido va a cargar la dirección equivocada y cada invocación va a rebotar en la verificación del id.
 
-Esa verificación del id no es decoración. Es lo primerísimo que hace el punto de entrada generado en cada llamada: `check_id` del id de programa declarado contra el id de programa de entrada, rechazar si difieren. Tenlo en mente, porque es el paso uno del camino de despacho al que llegamos en un rato. También es la razón por la que un `.so` construido con el `declare_id!` de otra persona llega muerto: el programa se niega a correr como una dirección para la que no fue compilado.
+La verificación del id es lo primerísimo que hace el punto de entrada generado en cada llamada: `check_id` del id de programa declarado contra el id de programa de entrada, rechazar si difieren. Tenlo en mente, porque es el paso uno del camino de despacho al que llegamos en un rato. También es la razón por la que un `.so` construido con el `declare_id!` de otra persona llega muerto: el programa se niega a correr como una dirección para la que no fue compilado.
 
 ### #[program]: el handler, y el &mut que te sorprende
 
@@ -77,7 +77,7 @@ Esa verificación del id no es decoración. Es lo primerísimo que hace el punto
 
 En v1 un handler tomaba su contexto *por valor*: `pub fn greet(ctx: Context<Greet>)`. En V2 toma una *referencia mutable*: `pub fn greet(ctx: &mut Context<Greet>)`. Todo handler, de manera uniforme, incluso uno como `greet` que solo lee. El framework construye el `Context`, te entrega un `&mut` a él, y lo reutiliza a lo largo de la rutina de salida que escribe de vuelta tus cambios de cuenta. No lo construyes y no lo devuelves. Lo tomas prestado, mutas a través de él, devuelves `Ok(())`.
 
-![La misma instrucción greet en v1 y V2, marcando cuatro cambios: una referencia mutable a Context, .address() reemplazando a .key(), Address reemplazando a Pubkey, y los lifetimes info eliminados.](assets/v02-annotated-code.png)
+![La misma instrucción greet en v1 y V2, marcando cuatro cambios: una referencia mutable a Context, .address() reemplazando a .key(), Address reemplazando a Pubkey, y los lifetimes info eliminados.](assets/v02-annotated-code.webp)
 
 ¿Por qué `&mut` siquiera, si `greet` nunca escribe? La respuesta honesta es que el contexto por valor era un costo chico que se pagaba en cada instrucción: el framework movía un contexto hacia adentro de tu función, hacías tu trabajo, volvía a mover el estado de la cuenta hacia afuera. Una referencia elimina el movimiento y deja que el mismo contexto atraviese la validación, tu handler y la rutina de salida como una sola cosa prestada. Es una ganancia chica en ergonomía y en costo, y encaja con toda la tesis de V2 desde la lección uno: deja de copiar lo que puedes tomar prestado o castear en el lugar. No tienes que amar la sintaxis. Sí tienes que reconocerla, porque un handler escrito `Context<T>` por valor no va a compilar contra la RC, y el mensaje de error apunta a la firma, no a la causa.
 
@@ -89,7 +89,7 @@ Esto es un rename directo de dos cosas que usas todo el tiempo, y es exactamente
 
 El rename no es puro cambio cosmético, y vale la pena entender de dónde viene para que deje de sentirse arbitrario. V2 es una reescritura no_std construida sobre pinocchio, y pinocchio trae su propio tipo de dirección a través del crate `solana-address` en vez del más viejo `solana-program::Pubkey`. Así que cuando Anchor V2 se apoya en ese cimiento, el tipo que te entrega arriba es el que habla el cimiento: `Address`. El paso de `.key()` a `.address()` es el accesor siguiendo al tipo. Léelo así y el patrón se generaliza: la mayor parte de lo que parece nuevo en una firma de V2 es el cimiento de pinocchio asomando a través del framework en vez de quedar tapado. Esa es la misma tesis de la lección uno, vista desde el lado de los tipos en vez del lado del cómputo.
 
-![Una tabla de cinco filas que mapea v1 a V2, cubriendo la firma del handler, Pubkey a Address, .key() a .address(), el lifetime eliminado del wrapper de cuenta, y la lectura del bump que es idéntica en los dos lados porque el mapa de cadenas murió en 0.29.](assets/v03-comparison.png)
+![Una tabla de cinco filas que mapea v1 a V2, cubriendo la firma del handler, Pubkey a Address, .key() a .address(), el lifetime eliminado del wrapper de cuenta, y la lectura del bump que es idéntica en los dos lados porque el mapa de cadenas murió en 0.29.](assets/v03-comparison.webp)
 
 ### Los lifetimes <'info> desaparecieron de los wrappers
 
@@ -105,7 +105,7 @@ Ya leíste las piezas. Ahora míralas correr, porque "la macro genera un punto d
 
 Primero, el punto de entrada verifica que el id de programa declarado (el de `declare_id!`) coincida con el id de programa con el que realmente fue invocado, y lanza error si no. Segundo, lee el frente de los datos de instrucción y lo compara contra el discriminador de cada handler, la etiqueta chica que dice "esta llamada es para `greet`, no para algún otro handler." Tercero, el wrapper del handler que coincidió deserializa las cuentas nombradas en la transacción hacia tu struct `Greet`, corriendo cada constraint y cada verificación a medida que avanza, y construye el `Context`. Cuarto, llama al código que realmente escribiste, `greet`, con un `&mut` a ese contexto, y después corre una rutina de salida que escribe de vuelta cualquier cambio de cuenta.
 
-![Un flujo de seis pasos desde el punto de entrada hasta la salida: verificación del id de programa, coincidencia del discriminador, deserialización de cuentas hacia un Context, el cuerpo del handler greet, y después la rutina de salida que escribe de vuelta los cambios.](assets/v04-flowchart.png)
+![Un flujo de seis pasos desde el punto de entrada hasta la salida: verificación del id de programa, coincidencia del discriminador, deserialización de cuentas hacia un Context, el cuerpo del handler greet, y después la rutina de salida que escribe de vuelta los cambios.](assets/v04-flowchart.webp)
 
 Todo menos el cuerpo del handler es generado: la verificación del id, el despacho, la deserialización, y la rutina de salida que escribe de vuelta los cambios. El único código que escribiste es el cuerpo de `greet`. Ese es todo el canje de un framework: escribe el despacho, la deserialización, las verificaciones de constraints, y la persistencia, y a cambio esconde cableado sobre el que igual tienes que poder razonar cuando algo sale mal. Leer la expansión es cómo te quedas con el razonamiento aunque la macro se quede con el tipeo.
 
@@ -119,11 +119,11 @@ Una nota de alcance, para que no te quedes esperando un zapato que no va a caer.
 
 Un paréntesis rápido sobre por qué la prueba por defecto es Rust y no TypeScript, ya que llevas un rato mirándola. `anchor init` en V2 ofrece cinco plantillas de prueba: Mocha, Jest, Rust, Mollusk y Litesvm. Litesvm es el `#[default]`. Así que el scaffold te entrega una prueba de integración en Rust que carga tu `.so` compilado en una VM en proceso y lo invoca, sin TypeScript escrito y sin validador local levantado.
 
-![Una tabla con las cinco plantillas de prueba de anchor init, que separa las opciones de TypeScript-contra-un-validador de las de Rust en proceso, con Litesvm marcada como la opción por defecto.](assets/v05-comparison.png)
+![Una tabla con las cinco plantillas de prueba de anchor init, que separa las opciones de TypeScript-contra-un-validador de las de Rust en proceso, con Litesvm marcada como la opción por defecto.](assets/v05-comparison.webp)
 
 ¿Por qué ese valor por defecto, y no uno de TypeScript como todos los tutoriales de v1 que leíste? Porque en V2 la superficie de Rust es el cliente principal, y todavía no hay ningún paquete oficial de TypeScript para V2 al que echar mano. Pero la elección también es una apuesta, y Jacob Creech la nombró en su memo de unificación: "I expect Anchor V2 to unify tools around using Litesvm, using the solana-verify standard, potentially surfpool, Gill." El loop de invocación con LiteSVM por defecto que estás por correr es ese memo entregado. Rima con los incrementos fechados de Anchor 1.0 que narraste la lección pasada, la misma ola de decisiones que renombró el paquete de TypeScript y cambió el validador por defecto.
 
-![Cinco incrementos de Anchor 1.0 mostrados como un solo conjunto: el rename del paquete, CpiContext tomando un Pubkey, transfer_checked, LiteSVM como plantilla de prueba por defecto, y Surfpool como validador por defecto.](assets/v06-timeline.png)
+![Cinco incrementos de Anchor 1.0 mostrados como un solo conjunto: el rename del paquete, CpiContext tomando un Pubkey, transfer_checked, LiteSVM como plantilla de prueba por defecto, y Surfpool como validador por defecto.](assets/v06-timeline.webp)
 
 También es la razón por la que todo este módulo cierra el loop de deploy e invocación en Rust en vez de entregarte un harness de TypeScript que todavía no existe.
 
@@ -169,7 +169,7 @@ Una cosa en ese bloque de imports merece una nota antes de que leas el cuerpo, p
 
 Ahora lee lo que hace la prueba contra el flujo de despacho que acabas de trazar. `anchor_v2_testing::svm()` levanta la VM en proceso. `add_program` inserta tu `.so` construido en su id de programa. `greeter::instruction::Greet {}.data()` produce los bytes de instrucción, discriminador incluido, con los que el paso dos hace la coincidencia. `greeter::accounts::Greet { ... }.to_account_metas(None)` produce los account metas que el wrapper deserializa en el paso tres. Estos módulos `instruction::` y `accounts::` los generan las mismas macros a partir de tu programa; la prueba no lee un IDL en runtime, usa los constructores tipados directamente.
 
-![Un solo greeter.so construido desde lib.rs alimenta dos demostraciones, una corrida local en proceso del handler en LiteSVM y una cuenta de devnet que resuelve como ejecutable.](assets/v07-diagram.png)
+![Un solo greeter.so construido desde lib.rs alimenta dos demostraciones, una corrida local en proceso del handler en LiteSVM y una cuenta de devnet que resuelve como ejecutable.](assets/v07-diagram.webp)
 
 **Paso 2. Construye y corre, y espera rojo.** Desde la raíz del workspace:
 

@@ -9,9 +9,9 @@ anchor --version
 which anchor
 ```
 
-O que aparecer de volta é quase certamente o Anchor **1.1.2**, a linha estável atual, instalado pelo `avm` e morando no seu PATH. Esse binário é a ferramenta errada para este curso, e ele não vai te avisar. Ele vai fazer build de um lab V2 contra a semântica do V1 numa boa e te entregar erros que não fazem sentido. Então a primeira coisa que você aprende sobre o Anchor V2 não é uma macro. É que a versão que você já tem é uma armadilha, e a versão que você quer briga de volta quando você tenta instalar.
+O que aparecer de volta é quase certamente o Anchor **1.1.2**, a linha estável atual, instalado pelo `avm` e morando no seu PATH. Esse binário é a ferramenta errada para este curso, e ele não vai te avisar. Ele vai fazer build de um lab V2 contra a semântica do V1 numa boa e te entregar erros que não fazem sentido. Então a primeira coisa que você aprende sobre o Anchor V2 não tem nada a ver com macros: a versão que você já tem é uma armadilha, e a versão que você quer briga de volta quando você tenta instalar.
 
-É essa a lição. Não um desvio em volta do atrito, o atrito em si. Instalar um release candidate (candidata a versão final) a partir de um branch, quando o instalador oficial não tem binário nenhum para te entregar, é a sensação de verdade de viver na fronteira. Quero que você sinta isso uma vez, comigo narrando cada parede para você saber que é a ferramenta e não você.
+É essa a lição: o atrito em si, não um desvio em volta dele. Instalar um release candidate (candidata a versão final) a partir de um branch, quando o instalador oficial não tem binário nenhum para te entregar, é a sensação de verdade de viver na fronteira. Quero que você sinta isso uma vez, comigo narrando cada parede para você saber que é a ferramenta e não você.
 
 ## Resumo
 
@@ -19,17 +19,17 @@ O Anchor é entregue em duas linhas paralelas agora mesmo: a estável **1.1.2**,
 
 O recuo da ajuda aqui é deliberado e raso. Esta é uma lição de toolchain, então a instalação e o scaffold são **totalmente guiados**: eu mostro cada comando, você segue exatamente, nada de solo ainda. O único passo que é só seu é o deploy final. Você roda o `anchor deploy` contra a devnet, você lê de volta um program id, e você cola isso no arquivo de pins. É essa a graduação inteira.
 
-Uma nota honesta logo de saída. Todo número de versão nesta página é um instantâneo com uma data grudada, e o RC vai se mover. Isso não é desleixo, é o custo de estar semanas na frente. A disciplina de re-verificar que você constrói aqui é a habilidade de verdade.
+Uma nota honesta logo de saída. Todo número de versão nesta página é um instantâneo com uma data grudada, e o RC vai se mover. Isso é o custo de estar semanas na frente, não desleixo. A disciplina de re-verificar que você constrói aqui é a habilidade de verdade.
 
 ## Por que o RC mora na casa dele
 
-Comece pela coisa que você já consegue ver. Existem duas linhas do Anchor, e elas não são uma escadinha de beta para estável. Elas são paralelas.
+Comece pela coisa que você já consegue ver. Existem duas linhas do Anchor, e elas correm em paralelo em vez de como uma escadinha de beta para estável.
 
 A linha estável é a **1.1.2**. É o que o `avm` instala, o que o crates.io serve como `anchor-lang`, e contra o que a maior parte do ecossistema faz build hoje. A linha da fronteira é a **2.0.0-rc.1**. Ela não mora num release publicado e abençoado como a 1.1.2 mora. Ela mora num branch de desenvolvimento chamado `anchor-next`, e o único jeito documentado de tirar dele uma CLI que funciona é fazer você mesmo o build desse branch com o cargo.
 
-![Um lado a lado do Anchor estável 1.1.2 (avm/crates, já instalado) contra a fronteira 2.0.0-rc.1 (construída a partir do branch git anchor-next, e rotulada tanto como "rc" quanto como "alpha").](assets/v01-comparison.png)
+![Um lado a lado do Anchor estável 1.1.2 (avm/crates, já instalado) contra a fronteira 2.0.0-rc.1 (construída a partir do branch git anchor-next, e rotulada tanto como "rc" quanto como "alpha").](assets/v01-comparison.webp)
 
-Aqui está o porquê debaixo do quê, porque vale derivar isso uma vez. Um release candidate num branch não mergeado não é uma promessa, é um trabalho em andamento que por acaso tem um número de versão. Se você deixar ele sobrescrever a 1.1.2 do seu PATH, agora você tem exatamente um Anchor, e é o que está fervendo. No momento em que o `anchor-next` quebrar (e RCs quebram, é o trabalho deles), todo projeto na sua máquina quebra junto. Isolamento não é cautela por si mesma. É manter uma ferramenta estável para o seu trabalho estável e uma ferramenta de fronteira para o seu trabalho de fronteira, lado a lado, cada uma honesta sobre o que é.
+Aqui está o porquê debaixo do quê, porque vale derivar isso uma vez. Um release candidate num branch não mergeado não é uma promessa, é um trabalho em andamento que por acaso tem um número de versão. Se você deixar ele sobrescrever a 1.1.2 do seu PATH, agora você tem exatamente um Anchor, e é o que está fervendo. No momento em que o `anchor-next` quebrar (e RCs quebram, é o trabalho deles), todo projeto na sua máquina quebra junto. O isolamento aqui é prático, não preciosismo: uma ferramenta estável para o seu trabalho estável e uma ferramenta de fronteira para o seu trabalho de fronteira, lado a lado, cada uma honesta sobre o que é.
 
 A boa notícia é que "isolado" aqui não quer dizer um contêiner nem uma máquina virtual. É mais simples e mais físico que isso. O `cargo install` que você está a ponto de rodar deixa um único binário em `~/.cargo/bin/anchor`. O `avm`, enquanto isso, gerencia a sua 1.1.2 por um shim próprio. Os dois querem responder quando você digita `anchor`, e quem ganha é decidido por nada mais exótico que a ordem do PATH. É esse o modelo de isolamento inteiro: dois binários no disco, um nome, e o seu shell pegando a primeira correspondência. É também por isso que a confusão mais comum desta instalação toda é um build que se comporta como V1 quando você tinha certeza de que instalou o V2. O RC está lá. Seu PATH só te entregou o outro. Você vai confirmar qual binário responde no lab, e vale internalizar agora que, na fronteira, `which anchor` é um comando de depuração, não uma formalidade.
 
@@ -64,7 +64,7 @@ Isso não é uma rejeição de política. O `avm` faz o parse de `2.0.0-rc.1` pe
 
 Note o que *não* está acontecendo aqui, porque é uma história que você vai ouvir contada errado. O `avm` não verifica nenhuma atestação criptográfica do release, e nunca verificou: não existe código de atestação dentro dele. A parede é um arquivo que falta, não uma checagem de assinatura que falhou. Vale saber isso com precisão, porque uma checagem de segurança que você não consegue satisfazer e um artefato de build que ninguém subiu pedem respostas completamente diferentes.
 
-![O avm install baixa um binário pré-compilado dos assets de release da tag v2, leva um 404 porque nenhuma Release foi cortada, e aborta, então o cargo git install documentado assume.](assets/v02-flowchart.png)
+![O avm install baixa um binário pré-compilado dos assets de release da tag v2, leva um 404 porque nenhuma Release foi cortada, e aborta, então o cargo git install documentado assume.](assets/v02-flowchart.webp)
 
 Para completar: o `avm install` carrega sim uma flag `--from-source`, que pula o download e passa o trabalho para `cargo install --git https://github.com/otter-sec/anchor --tag v2.0.0-rc.1` — o mesmo build que você está a ponto de rodar na mão, com o canal escolhido para você.
 
@@ -101,7 +101,7 @@ A primeira história de guerra de verdade do RC deixa o ponto concreto. A issue 
 
 Mais um pedaço de contexto, e este é para todo leitor, não importa qual Anchor você já tocou antes. Para entender por que o V2 mudou coisas, você precisa do mapa do que o Anchor **1.0** já mudou. Estes são os incrementos que chegaram com o Anchor 1.0.0 em **2026-04-02**, e lições posteriores vão voltar a esta lista toda vez que a gente disser "o V2 manteve isso" ou "o V2 foi além."
 
-![Uma linha do tempo marcando o Anchor 1.0.0 em 2026-04-02 com os cinco incrementos dele (a renomeação do pacote, o CpiContext recebendo um Pubkey, o transfer_checked como default, o LiteSVM, o Surfpool) e a publicação da 2.0.0-rc.1 no crates.io em 2026-08-12.](assets/v03-timeline.png)
+![Uma linha do tempo marcando o Anchor 1.0.0 em 2026-04-02 com os cinco incrementos dele (a renomeação do pacote, o CpiContext recebendo um Pubkey, o transfer_checked como default, o LiteSVM, o Surfpool) e a publicação da 2.0.0-rc.1 no crates.io em 2026-08-12.](assets/v03-timeline.webp)
 
 Percorra todos uma vez, devagar, porque cada um é um retorno esperando para acontecer.
 
@@ -123,7 +123,7 @@ Nenhuma dessas cinco mudanças do 1.0 é coisa que você toca no lab abaixo. O p
 
 Antes de abrir um terminal, mantenha os modos de falha à vista. A fronteira tem exatamente quatro paredes que pegam quase todo mundo, e cada uma delas é um caso de uma ferramenta sendo honesta enquanto você esperava uma ferramenta diferente. Nenhuma delas é o seu código.
 
-![Uma tabela de runbook emparelhando cada uma das quatro paredes de instalação da fronteira, mais a armadilha de nome do avm, com a única linha corretiva que resolve cada uma.](assets/v04-table.png)
+![Uma tabela de runbook emparelhando cada uma das quatro paredes de instalação da fronteira, mais a armadilha de nome do avm, com a única linha corretiva que resolve cada uma.](assets/v04-table.webp)
 
 Mantenha essa tabela por perto durante o lab. Quando algo quebrar, e na fronteira algo normalmente quebra, case o sintoma com uma linha antes de assumir que você fez algo errado.
 
@@ -191,7 +191,7 @@ cargo install --git https://github.com/otter-sec/anchor.git \
 
 No Linux o prefixo `CARGO_PROFILE_RELEASE_LTO=off` é inofensivo, então deixar ele aí mantém um comando que funciona em todo lugar. No macOS ele é obrigatório: sem ele o build do RC morre com confiabilidade durante o **LTO** (link-time optimization, o passe final de otimização entre crates), e a falha parece um crash do linker, não um problema do Anchor. Definir a variável de ambiente do profile de release do cargo desliga esse passe e o build completa. Essa única linha pertence ao seu `PINS.md`, que é exatamente por que ela já está na tabela acima. Note o nome: é `CARGO_PROFILE_RELEASE_LTO`, uma variável padrão de profile do cargo, não alguma invenção `ANCHOR_LTO`.
 
-![O comando de instalação do RC dividido nas partes dele, com cada flag explicada: a variável de ambiente de LTO, --git e --branch anchor-next, --locked, e --force.](assets/v05-annotated-code.png)
+![O comando de instalação do RC dividido nas partes dele, com cada flag explicada: a variável de ambiente de LTO, --git e --branch anchor-next, --locked, e --force.](assets/v05-annotated-code.webp)
 
 Quando terminar, verifique que você pegou o RC e não o seu binário antigo:
 
@@ -210,7 +210,7 @@ cd greeter
 
 Esse único comando escreve um projeto inteiro. Aqui está o que chega, para a árvore não ser uma caixa preta:
 
-![A árvore do workspace greeter gerado, com programs/greeter/src/lib.rs destacado como o programa de verdade, um teste Rust LiteSVM gerado ao lado dele, e app/ e migrations/ marcados como scaffold ainda não usado.](assets/v06-diagram.png)
+![A árvore do workspace greeter gerado, com programs/greeter/src/lib.rs destacado como o programa de verdade, um teste Rust LiteSVM gerado ao lado dele, e app/ e migrations/ marcados como scaffold ainda não usado.](assets/v06-diagram.webp)
 
 Abra `programs/greeter/src/lib.rs`. Aqui está o que o template do V2 escreve de fato, literalmente, tirando o program id gerado para você:
 
@@ -331,7 +331,7 @@ O `anchor keys sync` lê `target/deploy/greeter-keypair.json`, deriva a chave p�
 anchor deploy --provider.cluster devnet
 ```
 
-![O build emite o .so, o keys sync alinha os program ids, o deploy imprime um Program Id, e um explorador de devnet confirma que ele resolve como executável.](assets/v07-flowchart.png)
+![O build emite o .so, o keys sync alinha os program ids, o deploy imprime um Program Id, e um explorador de devnet confirma que ele resolve como executável.](assets/v07-flowchart.webp)
 
 Sucesso é a cara das palavras **Deploy success** e de uma linha dizendo `Program Id:` seguida de uma string base58. Essa string é o endereço do seu greeter na devnet. Copie ela para a linha `R0 greeter program id` do `PINS.md`, com a data de hoje na coluna verified. Depois cole ela em qualquer explorador de devnet e confirme que a conta resolve como um programa executável. Essa resolução é o seu checkpoint. Se o explorador mostrar um programa executável no seu id, o R0 está no ar e o seu toolchain de RC isolado funciona de ponta a ponta.
 
@@ -347,9 +347,9 @@ A sua trava é simples de enunciar, e ou ela passa ou não passa.
 
 **Aceitação:** o `anchor --version` imprime o RC, o greeter faz deploy, e o program id resolve como um programa executável em um explorador de devnet. Três fatos, todos conferíveis. Se os três valerem, você conquistou o seu primeiro deploy de V2 num toolchain que quase ninguém no ecossistema está rodando ainda.
 
-Uma coisa para você sentar com ela enquanto compila. Agora você está seguindo duas linhas do Anchor ao mesmo tempo, a 1.1.2 e a `anchor-next`, e a da fronteira vai derivar para fora de debaixo dos seus pins. Isso não é um bug na sua configuração. É o acordo. A conveniência que você abriu mão, um `avm install` abençoado que só funciona, você trocou por estar semanas na frente no V2. O preço dessa troca é a coluna `verified`, e você paga ele re-rodando `anchor --version` e relendo seus pins em um cronograma em vez de confiar neles para sempre.
+Uma coisa para você sentar com ela enquanto compila. Agora você está seguindo duas linhas do Anchor ao mesmo tempo, a 1.1.2 e a `anchor-next`, e a da fronteira vai derivar para fora de debaixo dos seus pins. Essa deriva é o acordo que você fez, não um bug na sua configuração. A conveniência que você abriu mão, um `avm install` abençoado que só funciona, você trocou por estar semanas na frente no V2. O preço dessa troca é a coluna `verified`, e você paga ele re-rodando `anchor --version` e relendo seus pins em um cronograma em vez de confiar neles para sempre.
 
-![Dois gatilhos alimentam um loop de observar-e-estampar que reescreve a data verified no PINS.md toda vez que um humano re-confere o RC que se move.](assets/v08-flowchart.png)
+![Dois gatilhos alimentam um loop de observar-e-estampar que reescreve a data verified no PINS.md toda vez que um humano re-confere o RC que se move.](assets/v08-flowchart.webp)
 
 Faça esse cronograma existir, porque uma intenção vaga de "conferir de vez em quando" é como um arquivo de pins apodrece. Uma cadência que funciona num RC: re-rodar `anchor --version` no começo de qualquer sessão em que um build de repente se comporta diferente de ontem, e refazer o build do RC a partir do `anchor-next` quando as notas de release do projeto ou um build quebrado te disserem que o branch se moveu. Quando você re-verifica, você não confia na data que já está no arquivo. Você re-observa o valor e estampa a data de hoje, mesmo que o valor não tenha mudado, porque uma data fresca em um valor inalterado é informação por si só: ela diz que alguém olhou. A issue #4937, o descasamento entre `wincode` e `solana-address` que quebrou `#[account(borsh)]` e fechou em 2026-08-20, é o argumento inteiro em um bug. Uma dependência dois níveis abaixo se moveu, e a única defesa foi `--locked` mais um humano que re-conferiu. No estável você pode ser preguiçoso com isso. Na fronteira a re-conferência é o trabalho.
 
