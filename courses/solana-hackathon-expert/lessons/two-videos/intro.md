@@ -16,7 +16,7 @@ The one idea this lesson adds is that you are making **two different objects**. 
 presentation-script.md, your project, Colosseum World's Fair season, started 2026-09-06
 0:00 to 0:20   the problem: one person, the thing that happened, the feeling; no product name yet
 0:20 to 0:50   what the product does, in the words of the cover sentence
-0:50 to 1:20   the slice on devnet, one screen, the transaction a judge can open
+0:50 to 1:20   the slice on devnet, one screen, the transaction a judge can open, the traction line
 1:20 to 1:45   what is new, and why Solana, three lines from slides 4 and 5
 1:45 to 2:15   this team, and who pays
 2:15 to 2:45   what is not built yet, and the ask
@@ -39,7 +39,8 @@ presentation-script.md, Fiado, Colosseum World's Fair season, 2026-10-05
                owner never had to send. The regular pays part of it in a stablecoin from
                that same phone, and both sides watch the balance move.
 0:50 to 1:20   This is running on devnet today. This is the tab screen, and under it is the
-               signature of a real transaction that you can open. We built the tab, the
+               signature of a real transaction that you can open. Four shops already run
+               real tabs on it, and three came back without being asked. We built the tab, the
                part-payment and the reminder in two weeks, and we left the tab program,
                the fiat rails and wallet onboarding out on purpose. They are on the last slide.
 1:20 to 1:45   The bank's app does not know the regular. The shop does. Fiado keeps the

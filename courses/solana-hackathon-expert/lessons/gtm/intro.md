@@ -22,9 +22,13 @@ If your line names a market and no place, keep it as a record of day one and **w
 
 2. **Write the distribution hypothesis** as the people flow: a person with the problem, the place they already gather, first contact with the product, the first 100 users. The page has to read as **two flows, people and money**, since Traction and Viability get read off the same page and both are questions about a flow. Fiado's hypothesis: *the unit of distribution is the shop, not the regular*, Lucia shows her own tab on her own phone at the cooperative's monthly meeting, and an owner that opens a tab brings around twenty regulars with it, because the regulars are already in the notebook. *A regular never has to be sold anything.*
 
+Then **read the traction log for the channel**. Next to each shop that ran a real tab, write how it arrived: Lucia's introduction, a walk-in, the cooperative's chat. **The strongest channel is the one that brought the shops that came back**, not the one that brought the most names, and the hypothesis keeps only what the log backs. Fiado's log says the three shops that came back were all owners from the week-1 conversations, and none of the walk-ins opened a tab, *so the channel is a conversation in person first, and the cooperative's monthly meeting is where the next ten of those conversations happen*.
+
 3. **Write the price**, or the reason there is none. **Draw the money flow first**, who pays whom today and with the product. For Fiado today the regular buys, pays later in cash, and the shop carries the debt in a notebook by the till. With the tab the regular settles in a stablecoin to the shop's wallet, the reminder fires before the settlement and not after, *and Fiado sits between the two and takes nothing*.
 
-That last clause is the whole pricing section for a project with one shop. A pricing slide for a product with no users is *a slide about nothing*. The honest line has **three parts**. Fiado's: none yet, the shop would pay, since the shop is the one that loses the notebook, and not before **ten shops** have run a tab for a month.
+That last clause is the whole pricing section for a project with four shops and no revenue. A pricing slide for a product nobody pays for yet is *a slide about nothing*. The honest line has **three parts**. Fiado's: none yet, the shop would pay, since the shop is the one that loses the notebook, and not before **ten shops** have run a tab for a month.
+
+Under the price, **write what the product costs to run** each month, the burn rate, and **the point where paying customers would cover it**. A judge reading for Viability asks both, and for a month-old slice both are small numbers worth writing. Fiado's, as estimates with their inputs: hosting and the database about US$25, the reminder messages about US$15 at four shops' volume, **about US$40 a month**, and *nobody on the team is paid yet, which the line says*. The break-even point is that cost divided by what one customer would pay: at US$5 a shop a month, **eight paying shops** cover it, and the ten-shop condition is the test of whether they would pay at all.
 
 ![Today the regular pays the shop in cash from a notebook, with the tab the regular settles in a stablecoin to the shop's wallet and Fiado takes nothing.](assets/v01-flowchart.webp)
 
@@ -64,6 +68,8 @@ Ana's two messages go out on **2026-10-05**. The first goes to the coordinator o
 
 A message with only the big ask in it gets no reply. A message with a small ask beside it gets the small one, *which is a reply, which is a row*.
 
+Partner messages are capped because each one needs a follow-up. **Public updates are not.** From today to the deadline, post the weekly update video on the team's X account and in the chat where your first hundred users gather, *and end each post on one number from the traction log*.
+
 7. **Log every reply in partner-list.md**, one row per project: who, why adjacent, what was asked, what they said in their words, the date, and whether it goes on the deck. *An empty reply column is a row in progress.* A row with a reply, **even a no, is evidence**, and the only kind that goes on the deck. Fiado's file by the end of the week:
 
 ```text
@@ -100,6 +106,7 @@ Team A emailed five logos once, so it has **four names it cannot talk about**, a
 - The page reads as **two flows, people and money**, with pricing as a number or as none yet, the reason, and who would pay first.
 - **Why-Solana** argues both the track and the accelerator, names the integration in one line, and names no benchmark.
 - **Two outreach messages** went out today, and one reply is logged in their words with a date, even if the word is no.
+- **Burn rate and break-even** are on the page as numbers with their inputs, and the channel line names where the shops that came back arrived from.
 
 ## Watch out
 

@@ -27,21 +27,21 @@ blocks:
             feedback: "The track judge wants a mechanism the slice uses, and this course names no benchmark for the same reason."
         explanation: "The track judge has seen the same category of project argued for every ecosystem that season and wants a mechanism: the thing the slice does and the thing on the chain it does it with. The accelerator requires some form of Solana integration and wants it named in one line, and the settlement with the transaction from the narrative log is that line. A benchmark is a claim about the chain, your slice is not in it, and the next-track-over test is what the rewritten paragraph has to survive."
       - id: q2
-        prompt: "Fiado has one shop on the tab and no revenue. A teammate adds a three-tier pricing table to the one-pager. Predict how a judge reading for Viability takes it and what the honest line is."
+        prompt: "Fiado has four shops on real tabs and no revenue. A teammate adds a three-tier pricing table to the one-pager. Predict how a judge reading for Viability takes it and what the honest line is."
         multiSelect: false
         options:
           - id: a
             label: "As a strong Viability answer, since a tiered table is what the factor asks for and the drawn money flow is optional once a price exists."
             correct: false
-            feedback: "A pricing slide for a product with no users is a slide about nothing, however many tiers it has, and the drawn money flow is what makes the line read as a decision."
+            feedback: "A pricing slide for a product nobody pays for yet is a slide about nothing, however many tiers it has, and the drawn money flow is what makes the line read as a decision."
           - id: b
-            label: "As a slide about nothing, since the product has no users, so the line becomes none yet, the reason, and who would pay first."
+            label: "As a slide about nothing, since nobody pays for the product yet, so the line becomes none yet, the reason, and who would pay first."
             correct: true
           - id: c
             label: "As a mild negative that a bigger market number on the problem slide offsets, so the table stays with a note that the prices are indicative."
             correct: false
-            feedback: "A pricing slide for a product with no users is a slide about nothing, and no market number makes it about something."
-        explanation: "A pricing slide for a product with no users is a slide about nothing. The honest line has three parts: none yet, the reason, and who would pay first, which for Fiado is the shop, since the shop is the one that loses the notebook, and not before ten shops have run a tab for a month. Written at the end of a drawn money flow that line reads as a decision made with open eyes, and the same words with no flow read as a team that never thought about it."
+            feedback: "A pricing slide for a product nobody pays for yet is a slide about nothing, and no market number makes it about something."
+        explanation: "A pricing slide for a product nobody pays for yet is a slide about nothing. The honest line has three parts: none yet, the reason, and who would pay first, which for Fiado is the shop, since the shop is the one that loses the notebook, and not before ten shops have run a tab for a month. Written at the end of a drawn money flow that line reads as a decision made with open eyes, and the same words with no flow read as a team that never thought about it."
       - id: q3
         prompt: "The wallet replied on 2026-10-07: not before the end of the year, interesting, but the roadmap is fixed. A teammate wants its logo on the partner slide. Predict where the row goes and what a judge gets in the interview."
         multiSelect: false

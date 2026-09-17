@@ -16,7 +16,7 @@ So the deck is **built from the problem outwards**, and the first thing to build
 deck-judge.md, Fiado, Colosseum World's Fair season, started 2026-10-05
 1 cover        the problem in one sentence, the product name small
 2 problem      the notebook by the till, and how many tills
-3 demo         the tab on devnet, the transaction a judge can open
+3 demo         the tab on devnet, the transaction a judge can open, the traction line
 4 what is new  what the slice does that the notebook and the bank app do not
 5 why Solana   for the track and for the accelerator
 6 this team    who we are, why this problem, and who pays
@@ -37,7 +37,7 @@ One decision is made: *the product's name does not show up until the problem has
 
 The problem slide **gets the most time**: three short lines on what happens, for Fiado the notebook by the till, it gets wet or lost or a regular moves away with a balance open, and the owner chases forty small debts herself. Under those lines, one line of numbers: **the three sizing numbers** from competitor-map-sizing.md, each with its source and the date it was read. On the judge deck *the market lives here and nowhere else*.
 
-5. **Fill the demo** and the what-is-new slide. Demo is **one screenshot** of the tab screen from the narrative log, with the devnet transaction signature under it *so a judge can open it*. If the one shop from the Colosseum brief is on the tab by now, its name goes here as the traction line. If not, the slide says devnet and stops. What is new is **the technical novelty in three lines**, the thing the slice does that the notebook and the bank app do not: for Fiado, a tab both sides can read, that settles in a stablecoin, with a reminder the owner does not have to send herself. No architecture diagram here.
+5. **Fill the demo** and the what-is-new slide. Demo is **one screenshot** of the tab screen from the narrative log, with the devnet transaction signature under it *so a judge can open it*. Under it goes **the traction line**, copied from traction-log.md with its date: for Fiado, four shops running real tabs, 34 tabs opened, three shops back without being asked, settlement on devnet. *If the log is empty, the slide says devnet and stops*, and the gap goes on the objection list. What is new is **the technical novelty in three lines**, the thing the slice does that the notebook and the bank app do not: for Fiado, a tab both sides can read, that settles in a stablecoin, with a reminder the owner does not have to send herself. No architecture diagram here.
 
 ![Fiado's judge deck runs cover, problem, demo, novelty, why-Solana, team and next steps, and every number on it points to the sizing file, the narrative log or the one-pager.](assets/v03-table.webp)
 

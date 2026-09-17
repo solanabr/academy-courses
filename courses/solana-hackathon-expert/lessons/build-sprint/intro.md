@@ -44,7 +44,7 @@ Step 5: the transfer confirms, both phones read 25 owed, and a link under the ba
 Step 6: the owner sets a due date for the 25.
 Step 7: the reminder reaches the regular's phone with the 25 and the link.
 The balance is derived from the tab's transfer history; the app keeps only the customer directory, the opening amount, the due date and the reminder.
-Non-goals: accounts, login, signup, a shop profile, a settings screen; onboarding the regular onto a wallet, or funding it; reais in or out; paying a tab in full, or closing one; a second shop, a second owner; the supplier log and the loyalty stamps; a program of Fiado's own for the tab.
+Non-goals: accounts, login, signup, a shop profile, a settings screen; onboarding the regular onto a wallet, or funding it; reais in or out; paying a tab in full, or closing one; shops signing themselves up, a second owner per shop; the supplier log and the loyalty stamps; a program of Fiado's own for the tab.
 Order the plan so step 4 is built and run before steps 5 to 7 are started.
 ```
 

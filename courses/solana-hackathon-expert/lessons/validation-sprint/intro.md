@@ -95,6 +95,22 @@ feedback log, round 1, day 7
                             asked for is already in v1
 ```
 
+9. **Turn the yeses into design partners.** A design partner is a real customer who agrees to use the slice for real while you build it, and to tell you what broke. **Aim for five to ten**, all of them people from the pitch sentence and none of them the team's friends. Start with the conversations: every owner who said yes, or yes on a condition, gets one question before you leave, *would you run two or three real tabs on it in week 3?* Then **walk into five more shops** with v1 and ask the same question.
+
+   Write them in **design-partners.md**, one row each: the name, the business, what they agreed to, the date, and how to reach them. Fiado's list on day 7:
+
+```text
+design-partners.md, Fiado, day 7
+who                      agreed to                                   date        reach
+Lucia, corner shop       three real tabs in week 3                   2026-09-20  Ana's aunt, in person
+the butcher              two tabs, if the regular sees the balance   2026-09-20  WhatsApp
+the bar                  move the WhatsApp tabs over for a week      2026-09-20  in person, evenings
+the pharmacy next door   a couple of tabs, to try it                 2026-09-20  WhatsApp
+next:                    five more shops on the cooperative's street before day 14
+```
+
+   **This file is where Traction starts.** The slice you build next is built for these people, and in week 3 their use is the first number a judge will read.
+
 ## Where the memo gets read
 
 The Colosseum portal, on the page read 2026-09-06 and as of the 2026 World's Fair season, asks in its own words for the go-to-market strategy, demand validation, and plans for developing distribution, and says the review wants to understand how the opportunity was uncovered and how the team prioritizes. A team that spent the week building answers the **demand-validation field** with a sentence about how confident they feel, and *a team that spent it on the five conversations answers it with the memo*.
@@ -107,6 +123,7 @@ A seasonal hackathon or a side track will have its own page with its own deliver
 - The **decision memo** names its evidence, with the people or the pages in it, and carries the line for what would have killed it.
 - **Pitch v1** differs from v0 in at least one claim, or the memo says in one line why the evidence touched nothing.
 - The **feedback log** has three entries for round 1, each with what the person did not get.
+- **design-partners.md** names at least five real customers with what each agreed to, or a dated line on where the rest will come from.
 
 ## Watch out
 
