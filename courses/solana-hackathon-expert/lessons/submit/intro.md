@@ -17,6 +17,7 @@ submission-package.md, opened 2026-10-05
 Colosseum brief (the seven factors, deadline line, disqualifiers) path, date
 team card, month plan, pitch v0                                  path, date
 idea memo, competitor map, evidence pack, decision memo          path, date
+design partners, traction log                                    path, date
 scope card, demo script, devnet slice, narrative log             path, date
 GTM one-pager, partner list                                      path, date
 deck, both exports                                               path, date
@@ -45,7 +46,7 @@ If the live page shows a different list on the day you copy it, **the page wins*
 
 The logo is the deck's title graphic exported as an image, and *nothing gets designed today*. The repository link is the field with **a second person in it**: if the repo is private, one teammate grants access to hackathon@colosseum.com and another confirms it by reading the repo's access list. The presentation video is the **2 to 3 minute** file from last lesson, the demo video is the one at 3 minutes or less, and both go in as links with the timed length written beside them.
 
-The last field is **three questions in one box**. Go-to-market strategy is the one-pager. Demand validation is the evidence pack, the conversations from week 1 and whatever traction the month produced. Distribution plans are the partners named in the partner list, and *a partner that replied, even with a no, is a better line than a partner category*. For Fiado the tools line reads Solana, devnet, the agent tool and the kit skills as the narrative log names them, and the description and the GTM answer are **the two fields left blank** for you to write in the same shape.
+The last field is **three questions in one box**. Go-to-market strategy is the one-pager. Demand validation is the evidence pack, the conversations from week 1, and **the traction log's latest row** with its date. Distribution plans are the partners named in the partner list, and *a partner that replied, even with a no, is a better line than a partner category*. For Fiado the tools line reads Solana, devnet, the agent tool and the kit skills as the narrative log names them, and the description and the GTM answer are **the two fields left blank** for you to write in the same shape.
 
 The description is **written to a format**, and a pasted slide does not scan. The kit's hackathon skill carries one: a tagline, the problem, the novel thing in bold, a part titled 'What works today', and why Solana, in **200 to 500 words**, scored against the kit's own judging-criteria.md. That is what the skill said at github.com/solanabr/solana-ai-kit on 2026-09-06. Verify against the kit's current README before you use it, *since a skill file moves faster than a lesson*.
 

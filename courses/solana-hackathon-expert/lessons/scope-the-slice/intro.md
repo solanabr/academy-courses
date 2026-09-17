@@ -64,7 +64,7 @@ non-goals (won't now):
   onboarding the regular onto a wallet, or funding it
   reais in or out (the fiat on-ramp and off-ramp)
   paying a tab in full, or closing one
-  a second shop, a second owner
+  shops signing themselves up, a second owner per shop
   the supplier log and the loyalty stamps from the idea memo
   a program of Fiado's own for the tab (the payments are already the on-chain
   record, one memo-tagged transfer each; the customer directory, the opening
@@ -101,7 +101,7 @@ demo-script.md, Fiado, v0, <date>
 
 2:15  on screen: the owner's phone. She sets a due date for the 25. The regular's phone
       lights up with the reminder, the 25 and the link. Narration: the reminder is the
-      claim the team is testing this week, with one shop. (steps 6 and 7)
+      claim the team is testing with its design partners. (steps 6 and 7)
 
 2:45  on screen: the owner's tab list, one row, 15 paid with the signature link, 25 due
       on the date. Narration, one sentence: what is not in this demo and where it lives.

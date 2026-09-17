@@ -56,7 +56,9 @@ does the story land:     Founder Communication (written answers, video, 15-minut
 can this team carry it:  Founder + Market Fit, the repo review (work by the team), the interview
 ```
 
-Traction is not a new question. It is the first two answered with **evidence instead of argument**: people already use it, so the problem is real, and it holds up, so the thing works. Viability and Traction are the two lines a startup competition adds. Next to each question, note what your project can already say and **write "open" where it cannot**. Fiado's Viability line reads "who pays for the tab: still open", and its Traction line is a target, "one shop on the tab before the deadline", never a claim, *because a number made up on day 0 is worse than a blank*.
+Traction is not a new question. It is the first two answered with **evidence instead of argument**: people already use it, so the problem is real, and it holds up, so the thing works. Viability and Traction are the two lines a startup competition adds. Next to each question, note what your project can already say and **write "open" where it cannot**. Fiado's Viability line reads "who pays for the tab: still open", and its Traction line is a target, "five shops running real tabs by the deadline, and how many come back", never a claim, *because a number made up on day 0 is worse than a blank*.
+
+**Traction is the factor teams underestimate most**, and it is the one a month can still move. A judge cannot value the technology if nobody uses the product built on it. Traction means **people using the product**, counted, and it does not wait for mainnet: shops running real tabs while the payments settle on devnet is traction, *and a mainnet deploy nobody opens is not*. The course builds toward that count from week 1.
 
 ![The seven Colosseum factors sort into four questions, with Traction feeding two of them as evidence and Viability and Traction marked as the startup competition's additions.](assets/v02-flowchart.webp)
 
