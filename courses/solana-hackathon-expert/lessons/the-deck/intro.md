@@ -35,6 +35,18 @@ One decision is made: *the product's name does not show up until the problem has
 
 4. **Fill the cover** and the problem slide. The cover is one sentence, and **the sentence is the problem**, with the product name small in a corner. For Fiado: a shop owner keeps forty open tabs in a paper notebook, and the notebook gets lost. That sentence is v2 until step 11.
 
+Then **write the one-liner**, which is a different object from the cover sentence: the answer to *what is this?* in **five words or fewer**, for the tagline on the submission form, the corner of the cover next to the name, and the first words of a post. Three rules, in order. **Unambiguous first**, since ten people reading it should picture the same product, and *if they picture ten products the line failed*. **Exciting second**, because nobody gets excited about a product they did not understand. **Truthful enough third**, meaning it paints the right picture and the details come after it.
+
+Use the words your mother would use over coffee. **No jargon**, and none of the lego, building-block, layer or glue metaphors. Two shapes work: the analogue, *something everyone knows plus your twist*, and the plain description, a verb and an object and a context. **Write four candidates and pick one**, with the reason beside it. Fiado's:
+
+```text
+one-liner candidates, Fiado, 2026-10-05
+loans for corner shops              wrong: a tab is not a loan, nobody lends anything
+self-repaying tabs                  ambiguous: ten readers, ten products
+the credit notebook, on two phones  clear, the analogue shape, six words
+shop credit both sides see          chosen: five words, one picture, true today
+```
+
 The problem slide **gets the most time**: three short lines on what happens, for Fiado the notebook by the till, it gets wet or lost or a regular moves away with a balance open, and the owner chases forty small debts herself. Under those lines, one line of numbers: **the three sizing numbers** from competitor-map-sizing.md, each with its source and the date it was read. On the judge deck *the market lives here and nowhere else*.
 
 5. **Fill the demo** and the what-is-new slide. Demo is **one screenshot** of the tab screen from the narrative log, with the devnet transaction signature under it *so a judge can open it*. Under it goes **the traction line**, copied from traction-log.md with its date: for Fiado, four shops running real tabs, 34 tabs opened, three shops back without being asked, settlement on devnet. *If the log is empty, the slide says devnet and stops*, and the gap goes on the objection list. What is new is **the technical novelty in three lines**, the thing the slice does that the notebook and the bank app do not: for Fiado, a tab both sides can read, that settles in a stablecoin, with a reminder the owner does not have to send herself. No architecture diagram here.
@@ -65,7 +77,7 @@ Write yours before the feedback round, *because the three people are going to as
 
 10. **Run feedback round 3**: the deck read out loud to three people who have not seen it. One has the problem, a shop owner for Fiado and for you whoever your first 100 users are. One is a builder. One knows nothing about either, and *that is the one who tells you whether slide 2 works*.
 
-After the read, ask each to say the problem in one sentence and write down the sentence they said, *not the one you meant*. **Log three entries**: who, what they said, what changed. If **two of the three** land close to the cover, the pitch is final. If not, rewrite the problem slide and read it again the same day, and it is still round 3, with more than three entries.
+After the read, ask each to say the problem in one sentence and write down the sentence they said, *not the one you meant*. Then ask what the product is **in five words** and write that down too, *because a one-liner two readers hear differently is ambiguous, not clever*. **Log three entries**: who, what they said, what changed. If **two of the three** land close to the cover, the pitch is final. If not, rewrite the problem slide and read it again the same day, and it is still round 3, with more than three entries.
 
 11. **Lock pitch final**. It is the cover sentence after the round, and from here it does not change, *because the videos next lesson are cut from it and every later change costs a re-record*. Write **final and the date** next to it in the log. Fiado's, after round 3:
 
