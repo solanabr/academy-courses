@@ -60,3 +60,19 @@ blocks:
             correct: false
             feedback: "The rule is that each verb points at a step of the demo, and opening a tab is step 1 on screen whether or not it is on-chain."
         explanation: "The rule for v2 is that every verb in the product half names a thing the demo shows on screen. Moves the tab becomes opens the tab and settles it becomes takes part of it in USDC, because those are what steps 1 and 4 show. The reminder is back in the sentence only as sent, since the slice fires one, and a claim that it reduces late payment points at nothing in the demo, so it is a promise and comes out until the slice keeps it."
+      - id: q4
+        prompt: "Four of Fiado's design partners ran real tabs this week, but the payments still settle on devnet. A teammate says there is no traction to report until the product is on mainnet. Predict what goes on the traction line."
+        multiSelect: false
+        options:
+          - id: a
+            label: "Nothing yet, because Traction only counts payments that moved real money on mainnet before the deadline."
+            correct: false
+            feedback: "Traction is people using the product. Real tabs run by real shops count even while the settlement is on devnet."
+          - id: b
+            label: "The app's own counts, dated: shops with real tabs, tabs opened, and shops that came back unprompted."
+            correct: true
+          - id: c
+            label: "The partners' promises from the week-1 calls, since a stated intention to use it is stronger evidence than a devnet app."
+            correct: false
+            feedback: "The log is filled from the app's records, never from what a partner said. A promise is not use."
+        explanation: "Traction is counted in people using the product, and it does not wait for mainnet. Fiado's tab is real for the shops that run it: the regulars see real balances and the owner marks cash payments as paid, while the transfer the demo shows settles on devnet. The traction log takes its numbers from the app's records, and repeat use gets its own column because anyone tries a thing once to be polite."

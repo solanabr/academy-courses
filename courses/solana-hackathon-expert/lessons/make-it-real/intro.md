@@ -1,6 +1,6 @@
 # Make it real, then say what changed
 
-Last lesson you shipped the seven-step slice to devnet with an agent team, and the last line in your log is the transaction signature a judge can open. Keep the slice running on a second screen, because **nothing new gets built today**. Today it gets looked at, by you and by people that were not in the build, and *what they see gets written down*.
+Last lesson you shipped the seven-step slice to devnet with an agent team, and the last line in your log is the transaction signature a judge can open. Keep the slice running on a second screen, because **nothing new gets built today**, with one small exception for the shops that start using it for real. Today it gets looked at, by you and by people that were not in the build, and *what they see gets written down*.
 
 ## Which one is yours
 
@@ -84,7 +84,23 @@ Two of the four became decisions in the log **the same afternoon**. The third, t
 
 ![A slice with a program runs the kit's audit command, a slice without one answers five key-handling questions by hand, and both log their findings on day 17.](assets/v03-flowchart.webp)
 
-5. **Rewrite the pitch as v2**, from what the slice does. Pitch v1 was written on day 7 from five conversations, before any code existed, *so it could only say what the team hoped*. The rule for v2 is that **every verb in the product half** names a thing the demo shows on screen.
+5. **Put the slice in real hands.** The polished slice goes to the design partners from week 1 **this week**, not after the deadline, *because Traction is counted in people using the product and the count needs days to grow*. The builder sets up each partner shop by hand, since signup is still a non-goal. The tab is real: the owner opens tabs for her real regulars, adds real purchases, and the regulars open their balance on their own phones.
+
+   **The settlement stays on devnet**, so a real regular pays the way he always did, in cash at the till, and the owner marks it paid. That button is **the one thing built today**, since a shop cannot run a tab it cannot pay down, and the devnet transfer stays the demo path until the product moves to mainnet. Real names and phone numbers now sit in your backend, *so the key-handling check from step 4 covers that database too*.
+
+   Then **start traction-log.md** and fill it every day from the app's own records, never from what a partner said on the phone. Five columns: shops invited, shops with at least one real tab, tabs opened, regulars who opened their balance link, and shops that came back on a later day without being asked. The last one is **repeat use**, the number a judge trusts most, *because anyone tries a thing once to be polite*.
+
+```text
+traction-log.md, Fiado, week 3 (counted from the app's records)
+day  shops invited  shops with a real tab  tabs opened  regulars opened link  came back unprompted
+16   4              2                      9            4                     n/a
+18   6              3                      21           11                    1 of 2
+21   7              4                      34           19                    3 of 4
+```
+
+   Four shops of seven used it and **three came back** on a later day without a reminder from the team. That line feeds pitch v2, the deck's demo slide and the portal's demand-validation answer, and the log keeps growing through week 4. The pharmacy stopped after two tabs, so it gets a call and a row in the feedback log, *because the reason a real user quit is the most useful sentence the month produces*.
+
+6. **Rewrite the pitch as v2**, from what the slice does. Pitch v1 was written on day 7 from five conversations, before any code existed, *so it could only say what the team hoped*. The rule for v2 is that **every verb in the product half** names a thing the demo shows on screen.
 
 ```text
 pitch v1 (day 7):   A shop owner who loses the credit notebook loses forty small
@@ -104,7 +120,7 @@ changed:            "keeps the tab" -> "opens the tab" (the first screen the dem
 
 The problem half **did not move again**, and after two rounds of evidence and a build *that is probably the right problem*. The reminder is back because the slice fires it, and only that: whether it reduces late payment is **still the untested assumption** from the decision memo, so v2 claims the reminder is sent, which the demo shows.
 
-6. **Run feedback round 2** with the same three people from round 1, *watching the demo this time instead of reading a sentence*. The storyteller runs it and the log gets **the day-0 shape**, what each person did not get and what changed. Fiado's:
+7. **Run feedback round 2** with the same three people from round 1, *watching the demo this time instead of reading a sentence*. The storyteller runs it and the log gets **the day-0 shape**, what each person did not get and what changed. Fiado's:
 
 ```text
 feedback log, round 2, day 18
@@ -136,6 +152,7 @@ The artifact is **the narrative log** with six things in it, and it is done when
 - **Roast notes from two roasters** and security notes, hand check included, are in the log.
 - **Pitch v2** names something the slice actually does: each verb in the product half points at the step of the demo that shows it, and a verb that points at nothing comes out *until the slice keeps it*.
 - Feedback round 2 has **three entries in the day-0 shape**.
+- **traction-log.md** has a row for every day since the first partner started, counted from the app's records, with repeat use in its own column.
 
 ![The week-3 pass runs from a dated before screenshot through the checklist, an update video, a roast, a security pass and pitch v2 to a three-person feedback round.](assets/v04-flowchart.webp)
 
@@ -144,12 +161,13 @@ The artifact is **the narrative log** with six things in it, and it is done when
 - **Screenshots taken only at the end**. A log written on the last day *has only the last day in it*.
 - **A roast by the team itself**. The team built the thing and cannot see it any more, *the way you stop seeing a typo on a page you have read ten times*.
 - **Skipping the key-handling check** because there is no program. No program is not no keys.
+- **Counting a tab a partner promised** instead of one the app recorded. A promise is not use.
 
 **Polish time is build time**, so the pass is a checklist and not a redesign: a checklist has four items and a fixed cost, around two hours in total, while a redesign finds a fifth item and a sixth, a new navigation and a color system, and is still open on day 21 when the week-3 update video should be recorded, so that team arrives in week 4 with a nicer screen and no video. **The same trade** lives inside the video: the first take is usually fine, the second usually better, and I would guess *the third is where most teams start losing the week*, call it a hunch.
 
 ## The takeaway
 
-Polish is a checklist with four items and a fixed cost, not a redesign, and the narrative log is written on the days things change. A stranger who watches your 60-second update should be able to *say what changed this week*, and if they would describe the product instead, the minute was a pitch, and **the difference is the first sentence**.
+Polish is a checklist with four items and a fixed cost, not a redesign, and the narrative log is written on the days things change. **Traction starts this week**, in real shops on a devnet settlement, *and the traction log counts use, never promises*. A stranger who watches your 60-second update should be able to *say what changed this week*, and if they would describe the product instead, the minute was a pitch, and **the difference is the first sentence**.
 
 ## Next lesson: how does anyone find this
 

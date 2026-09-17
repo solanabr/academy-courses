@@ -4,7 +4,7 @@ Last lesson you assembled the package, converted the deadline, signed the disqua
 
 ## Why this matters
 
-Sometimes the pitch is worse than the product and you lose. I have watched it happen to good teams and it has happened to me: the product did the thing, *the three minutes of video did not sell it*, and the only feedback was a winners page a month later without your name on it. The month between the deadline and that page is the stretch most teams spend refreshing it, and this lesson's file is written for it. **Planning the next season before the results arrive** can feel like conceding. It is the opposite, because the announcement takes a month and **the next window opens before it**.
+Sometimes the pitch is worse than the product and you lose. I have watched it happen to good teams: the product did the thing, *the three minutes of video did not sell it*, and the only feedback was a winners page a month later without your name on it. The month between the deadline and that page is the stretch most teams spend refreshing it, and this lesson's file is written for it. **Planning the next season before the results arrive** can feel like conceding. It is the opposite, because the announcement takes a month and **the next window opens before it**.
 
 Start the file now. **Make next-season-plan.md** next to the submission package, open colosseum.com/hackathon, find the part about what happens once submissions close, and copy the two sentences that matter with the date you read them. Read on 2026-09-06, the file starts like this:
 
@@ -85,6 +85,10 @@ between seasons: Eternal, November to March window, one four-week sprint; materi
                  (colosseum.com/eternal, 2026-09-06)
 next season:     the season after World's Fair had no page on 2026-09-06; re-read
                  colosseum.com/hackathon each month and write the date here when it prints
+traction:        from 4 shops on real tabs to recurring use, shops running the tab every week
+                 for a month (traction-log.md); grow through the channel the log backed,
+                 conversations in person at the cooperative's meeting; keep the burn line current; double down on what
+                 brought the shops that came back
 pitch change:    first twenty seconds; the notebook story lands by second ten (feedback round 4)
 ```
 
