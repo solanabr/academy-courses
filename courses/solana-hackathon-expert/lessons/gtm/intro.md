@@ -68,7 +68,7 @@ Ana's two messages go out on **2026-10-05**. The first goes to the coordinator o
 
 A message with only the big ask in it gets no reply. A message with a small ask beside it gets the small one, *which is a reply, which is a row*.
 
-Partner messages are capped because each one needs a follow-up. **Public updates are not.** From today to the deadline, post the weekly update video on the team's X account and in the chat where your first hundred users gather, *and end each post on one number from the traction log*.
+Partner messages are capped because each one needs a follow-up. **Public updates are not.** From today to the deadline, post the weekly update video on the team's X account and in the chat where your first hundred users gather, *and end each post on one number from the traction log*. **The first five words** of the post are the whole pitch to someone scrolling, so they carry the one-liner and never the project's name.
 
 7. **Log every reply in partner-list.md**, one row per project: who, why adjacent, what was asked, what they said in their words, the date, and whether it goes on the deck. *An empty reply column is a row in progress.* A row with a reply, **even a no, is evidence**, and the only kind that goes on the deck. Fiado's file by the end of the week:
 
