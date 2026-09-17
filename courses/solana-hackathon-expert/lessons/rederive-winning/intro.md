@@ -56,7 +56,7 @@ a real problem: Insight, Founder + Market Fit, Potential Market Size
 it works:       Product + Execution (the devnet slice, not built yet in week 1)
 the story lands: Founder Communication, in the written answers, the video, the interview
 this team:      Founder + Market Fit, the repo review
-colosseum adds: Viability (who pays for the tab); Traction (one shop before the deadline)
+colosseum adds: Viability (who pays for the tab); Traction (five shops on real tabs before the deadline)
 judges open:    the presentation video first, then the repo review, then the 15-minute
                 interview for a smaller group (colosseum.com/hackathon, 2026-09-06)
 deadline local:
@@ -102,7 +102,7 @@ unchanged:       the seven judging factors (colosseum.com/hackathon, 2026-09-06)
 
 7. **Rescore the evidence pack** against the seven factors. Score **0 to 10** on each of the four questions, one sentence each, then a line each for Viability and Traction, then three lines on what would change for your project, and *if a line says nothing changes, say why*.
 
-   Fiado's week 1 numbers: a real problem 7 (five dated conversations with owners that keep the notebook), it works 3 (no devnet slice yet, scored on the plan), the story lands 5 (pitch v1 rewritten from evidence, one feedback round of three), this team 6 (a founder that has stood in the shop, repo work to come), Viability as the memo answered it, Traction near zero until one shop is on the tab.
+   Fiado's week 1 numbers: a real problem 7 (five dated conversations with owners that keep the notebook), it works 3 (no devnet slice yet, scored on the plan), the story lands 5 (pitch v1 rewritten from evidence, one feedback round of three), this team 6 (a founder that has stood in the shop, repo work to come), Viability as the memo answered it, Traction near zero until the first design partners run real tabs in week 3.
 
    Fiado's three lines: nothing in the four questions moves, because *the factors read the same and the evidence is the evidence*. The prize shape moves what a good result looks like, since twenty teams at US$10,000 means the plan aims at **a paid place** before it aims at the champion. The judges line names a person for one season, so the pitch does not get written for a name.
 

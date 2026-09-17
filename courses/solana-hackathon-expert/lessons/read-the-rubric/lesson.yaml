@@ -43,7 +43,7 @@ blocks:
             correct: true
         explanation: "The seven factors as read on 2026-09-06 end with Viability and Traction, and a brief carrying another word in that slot is quoting a different season. The same page says the two to three minute presentation video is one of the first resources judges review. Both facts come from the page, not from memory, which is why the brief quotes the page with a date."
       - id: q3
-        prompt: "Fiado's brief writes its Traction line as a target: one shop on the tab before the deadline. Which of the four questions does that line answer, and how?"
+        prompt: "Fiado's brief writes its Traction line as a target: five shops running real tabs by the deadline, and how many come back. Which of the four questions does that line answer, and how?"
         multiSelect: false
         options:
           - id: a
