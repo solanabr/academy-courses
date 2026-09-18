@@ -1,0 +1,12 @@
+id: path-construa-e-publique
+slug: construa-e-publique
+title: Construa e publique
+description: "Rust e TypeScript do jeito que os códigos web3 de verdade são escritos, pagamentos em stablecoin de ponta a ponta, tokens e ativos digitais, e por fim programas Anchor V2 prontos pra produção."
+tag: Builder
+order: 3
+difficulty: intermediate
+courses:
+  - course-rust-ts-fundamentals
+  - course-solana-payments-commerce
+  - course-digital-assets
+  - course-mastering-anchor-v2
