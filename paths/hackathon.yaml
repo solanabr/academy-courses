@@ -1,0 +1,9 @@
+id: path-hackathon
+slug: hackathon
+title: Hackathon
+description: "Do problema real ao pacote de submissão do Colosseum em um mês: demo na devnet, deck, dois vídeos e um one-pager de go-to-market."
+tag: Arena
+order: 2
+difficulty: intermediate
+courses:
+  - course-solana-hackathon-expert

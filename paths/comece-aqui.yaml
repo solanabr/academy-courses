@@ -1,0 +1,12 @@
+id: path-comece-aqui
+slug: comece-aqui
+title: Comece aqui
+description: "Seus primeiros passos na Solana. Dois minutos pra entender a tese, dez pra ter seu primeiro ativo na mainnet, depois a visão completa da rede e um curso mão na massa do Bitcoin até a Solana."
+tag: Fundamentos
+order: 1
+difficulty: beginner
+courses:
+  - course-pilula-solana-superteam
+  - course-solana-speedrun
+  - course-visao-geral-solana
+  - course-btc-to-sol-evolution
