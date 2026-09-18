@@ -54,7 +54,7 @@ The same skill picks a track by how crowded each one is on the live portal, thro
 
 ```text
 description, written to the kit's hackathon skill format (verify against the current README)
-tagline:            one line, what it is, in the user's words
+tagline:            the one-liner from the deck, five words or fewer, no jargon
 problem:            who has it and what it costs them, from the evidence pack
 **the novel thing** one sentence in bold, the insight from the decision memo
 What works today:   the slice, exactly what the demo video shows, nothing planned
