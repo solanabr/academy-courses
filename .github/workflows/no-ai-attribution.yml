@@ -1,0 +1,51 @@
+name: no-ai-attribution
+
+# Blocks AI-tool attribution from entering git history: co-author trailers,
+# session links, and "generated with" lines in commit messages, and in the PR
+# title/body (squash merges inherit those into main's history). The history
+# was scrubbed of this once (2026-09-18); this gate keeps it clean — fix the
+# commit, don't merge around the check.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  no-ai-attribution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan PR commits, title and body
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          PATTERN='^[[:space:]]*[Cc]o-[Aa]uthored-[Bb]y:.*([Cc]laude|[Aa]nthropic|[Cc]opilot|[Cc]ursor|[Cc]odex|[Oo]pen[Aa][Ii]|[Gg]emini|[Aa]ider|[Dd]evin)|^[[:space:]]*[Cc]laude-[Ss]ession:|[Gg]enerated [Ww]ith.*([Cc]laude|[Cc]opilot|[Cc]ursor)|claude\.ai/code'
+          FAIL=0
+          for sha in $(git rev-list "$BASE_SHA".."$HEAD_SHA"); do
+            if git log -1 --format='%B' "$sha" | grep -qE "$PATTERN"; then
+              echo "::error::AI attribution in commit $(git log -1 --format='%h (%s)' "$sha")"
+              git log -1 --format='%B' "$sha" | grep -nE "$PATTERN"
+              FAIL=1
+            fi
+          done
+          if printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" | grep -qE "$PATTERN"; then
+            echo "::error::AI attribution in the PR title/body — squash merges copy it into the commit message"
+            printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" | grep -nE "$PATTERN"
+            FAIL=1
+          fi
+          if [ "$FAIL" -eq 1 ]; then
+            echo ""
+            echo "Remove the attribution lines (git commit --amend / rebase -i), then disable them at the source:"
+            echo '  Claude Code: ~/.claude/settings.json -> "attribution": { "commit": "", "pr": "" }'
+            exit 1
+          fi
+          echo "clean: no AI attribution in $(git rev-list --count "$BASE_SHA".."$HEAD_SHA") commit(s)"
