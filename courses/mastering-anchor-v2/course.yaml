@@ -6,7 +6,7 @@ description: "Design, build, test, secure, and ship an Anchor V2 program to devn
 difficulty: advanced
 duration: 48
 xpPerLesson: 18
-xpReward: 600
+xpReward: 540
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
 # Course subject is pinned to a moving release candidate; see README.md for the
