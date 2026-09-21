@@ -1,0 +1,1571 @@
+locale: es
+course:
+  title: 'Solana Hackathon Expert: construye un proyecto ganador'
+  description: >-
+    Lleva un problema que de verdad tienes a un paquete listo para entregar a Colosseum en un mes: una demo
+    funcional en devnet, un deck, dos videos y un one-pager de GTM, y usa un hackathon de temporada o un
+    side track de Earn como ensayo para la próxima edición de Colosseum.
+  modules:
+    before:
+      title: Antes de que arranque el reloj
+    week1:
+      title: 'Semana 1: de la idea a la evidencia'
+    build:
+      title: 'Semanas 2 y 3: la porción demostrable'
+    story:
+      title: 'Semana 4: la historia'
+    submit:
+      title: Entregar, y luego seguir
+    seasonal:
+      title: 'Opcional: ensaya la temporada antes de la temporada'
+lessons:
+  the-record:
+    title: El registro
+  read-the-rubric:
+    title: Qué significa ganar en Colosseum
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu equipo pasó la semana 2 refactorizando la porción a código limpio e idiomático. Abres
+              la sección de revisión del repositorio en colosseum.com/hackathon, leída el 2026-09-06,
+              y revisas qué busca. Predice cómo puntúa esa semana.
+            explanation: >-
+              La revisión del repositorio de Colosseum quiere trabajo significativo durante la ventana
+              del hackathon, hecho por el equipo y no por un tercero, con funcionalidades priorizadas
+              estratégicamente. Dice con sus propias palabras que el lenguaje, el framework, los patrones
+              y la calidad del código no son lo que mira. Una semana de refactorización no mueve ninguna
+              de las siete líneas por sí sola, y el tiempo sale de la porción, el video y las respuestas
+              escritas que sí las mueven.
+            options:
+              a:
+                label: >-
+                  No puntúa nada por sí sola, porque la revisión nombra la calidad del código como algo
+                  que no mira.
+              b:
+                label: >-
+                  Puntúa bajo Product + Execution, porque la revisión verifica si los patrones encajan
+                  con el framework del equipo.
+                feedback: >-
+                  La revisión dice explícitamente que no mira el lenguaje, el framework, los patrones
+                  ni la calidad del código.
+              c:
+                label: >-
+                  Puntúa bajo Insight, porque una arquitectura limpia es la intuición técnica que la
+                  revisión está hecha para encontrar.
+                feedback: >-
+                  Insight pide una intuición única sobre el problema o una tendencia nueva, no una arquitectura.
+          q2:
+            prompt: >-
+              El brief de un compañero lista el séptimo factor como Business Model y dice que los jurados
+              abren el repositorio primero. Revisas colosseum.com/hackathon a la fecha de la temporada
+              World's Fair 2026. ¿Qué está mal y qué está bien?
+            explanation: >-
+              Los siete factores tal como se leyeron el 2026-09-06 terminan con Viability y Traction,
+              y un brief que trae otra palabra en ese lugar está citando otra temporada. La misma página
+              dice que el video de presentación de dos a tres minutos es uno de los primeros recursos
+              que revisan los jurados. Los dos datos vienen de la página, no de la memoria, y por eso
+              el brief cita la página con una fecha.
+            options:
+              a:
+                label: >-
+                  Las dos cosas están bien: la página todavía usa ese nombre, y la revisión del repositorio
+                  pasa antes de que se vea cualquier video.
+                feedback: >-
+                  La palabra en vivo es Viability, y la página nombra el video de presentación como uno
+                  de los primeros recursos que revisan los jurados.
+              b:
+                label: >-
+                  El nombre está bien pero el orden está mal: los jurados leen las respuestas escritas
+                  primero y abren el repositorio después.
+                feedback: >-
+                  El factor se llama Viability en la página en vivo, y la página dice que el video de
+                  presentación se abre temprano, no las respuestas escritas.
+              c:
+                label: >-
+                  Las dos cosas están mal: la palabra en vivo es Viability, y el video de presentación
+                  está entre las primeras cosas que revisan los jurados.
+          q3:
+            prompt: >-
+              El brief de Fiado escribe su línea de Traction como una meta: cinco tiendas corriendo
+              fiados reales para la fecha límite, y cuántas vuelven. ¿Cuál de las cuatro preguntas responde
+              esa línea, y cómo?
+            explanation: >-
+              Traction no cabe en una sola casilla porque no es una pregunta nueva. Son las dos primeras
+              preguntas respondidas con evidencia en vez de argumento: la gente ya lo usa, así que el
+              problema es real, y aguanta, así que la cosa funciona. Una competencia de startups agrega
+              Viability y Traction a la lista que llevaría un concurso de código, y por eso Fiado escribe
+              Traction como una meta y no como una afirmación.
+            options:
+              a:
+                label: >-
+                  La historia aterriza, con argumento: una dueña de tienda abriendo el video es los fundadores
+                  comunicando la visión.
+                feedback: >-
+                  Founder Communication es la pregunta de la historia. Traction se puntúa por el uso, no
+                  por cómo se cuenta.
+              b:
+                label: >-
+                  El problema es real y funciona, con evidencia: alguien ya lo usa y aguanta.
+              c:
+                label: >-
+                  Este equipo puede con esto, con prueba: trabajo hecho dentro de la ventana por el equipo
+                  y no por un tercero.
+                feedback: >-
+                  Eso es lo que la revisión del repositorio verifica bajo la pregunta del equipo. Una
+                  tienda usando el fiado no dice nada sobre quién escribió el código.
+  day-zero:
+    title: El equipo en el día 0
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Ana es la única builder de Fiado y también su responsable de alianzas. La tarjeta nombra
+              los dos roles pero no dice nada sobre en qué semanas alianzas va a quedar relegado. Predice
+              dónde encuentran la brecha los criterios de evaluación.
+            explanation: >-
+              Un rol doblado queda desatendido en las semanas que se lleva el otro trabajo de su dueño,
+              y las semanas de construcción del builder son las semanas 2 y 3, así que las conversaciones
+              con socios no van a pasar entonces, diga lo que diga la tarjeta. La tarjeta de Fiado lo
+              dice primero y pone fecha a las llamadas en la semana 1 y el inicio de la semana 4. Una
+              tarjeta que se queda callada produce un one-pager de GTM con socios descritos y no nombrados,
+              y eso se ve desde el otro lado de la sala.
+            options:
+              a:
+                label: >-
+                  Bajo Product + Execution en las semanas 2 y 3, porque las horas del builder se repartieron
+                  entre las llamadas con socios.
+                feedback: >-
+                  En la práctica la construcción gana esas semanas y las llamadas con socios no pasan,
+                  así que la porción está bien y la lista de socios no.
+              b:
+                label: >-
+                  Bajo Founder + Market Fit, porque un rol doblado les dice a los jurados que a este equipo
+                  le faltan las habilidades para llevarlo.
+                feedback: >-
+                  Doblar es normal en un equipo de dos. Los jurados encuentran la salida que falta, no
+                  el rol doblado.
+              c:
+                label: >-
+                  En el one-pager de GTM de la semana 4, que no tiene nombres de socios porque nadie puso
+                  fecha a las llamadas alrededor de la construcción.
+          q2:
+            prompt: >-
+              Corriste el comando de fechas con 2026-09-14 y pusiste las cinco fechas impresas sobre las
+              cinco fases. Una semana después la página en vivo imprime una fecha de apertura distinta.
+              ¿Qué le haces al plan?
+            explanation: >-
+              El plan se deriva de una sola fecha para que un cambio en la página en vivo cueste una sola
+              edición. Cambia la fecha dentro del comando, córrelo otra vez, y las cinco fases se mueven
+              con ella. La hora de la fecha límite sigue viviendo en el brief y el plan apunta a él, así
+              que hay un solo lugar donde cada número puede estar mal.
+            options:
+              a:
+                label: >-
+                  Mantener las fechas de las fases, porque la fecha límite es lo que importa, y solo releer
+                  la hora en el brief.
+                feedback: >-
+                  Las fases se derivaron de la fecha de apertura, así que una apertura que se mueve mueve
+                  cada límite debajo de ella.
+              b:
+                label: >-
+                  Cambiar la única fecha dentro del comando, correrlo otra vez y dejar que las cinco fases
+                  se muevan juntas.
+              c:
+                label: >-
+                  Retipear cada límite de fase a mano desde la página nueva, porque una temporada corrida
+                  rompe la aritmética.
+                feedback: >-
+                  La aritmética es inicio más siete días por fase. Exactamente por eso se deriva y no
+                  se tipea.
+          q3:
+            prompt: >-
+              Bruno le manda el pitch v0 a tres personas y registra 'qué bueno, me gusta' de las tres,
+              con fecha. Contra la vara de aceptación, ¿está lista la pieza, y qué deberían tener las
+              entradas?
+            explanation: >-
+              Un registro de feedback anota, con las palabras de la persona, la parte de la oración que
+              no entendió. Lo que les gustó no va a ningún lado, porque un cumplido no dice qué afirmación
+              falta. El arreglo es preguntarle a cada persona de qué trata la oración y anotar lo que
+              responde. Los tres nombres de Fiado son la dueña de la tienda, un cliente habitual y alguien
+              ajeno a los fiados, tres distancias que la oración tiene que sobrevivir.
+            options:
+              a:
+                label: >-
+                  No está lista: una entrada tiene lo que la persona no entendió, con sus palabras, así
+                  que le pregunta a cada una qué dice la oración.
+              b:
+                label: >-
+                  Está lista: tres entradas con nombre y fecha de esta semana cumplen la vara, y lo que
+                  no entendieron viene después en la ronda 1 de la semana 1.
+                feedback: >-
+                  Una respuesta de qué bueno no es una entrada del registro. La vara pide tres entradas
+                  con lo que cada persona no entendió.
+              c:
+                label: >-
+                  No está lista: los tres tienen que ser dueños de tienda con el problema, así que reemplaza
+                  a dos y registra otra vez.
+                feedback: >-
+                  Los tres de Fiado están a distintas distancias del problema a propósito, incluido uno
+                  que nunca tuvo un fiado.
+  ideation:
+    title: Problemas que de verdad tienes
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Corres idea-sprint sobre una tercera candidata tomada de al lado: la tarjeta de sellos de
+              papel de la panadería como un token que un cliente habitual guarda en una billetera. Predice
+              la respuesta del filtro y el veredicto.
+            explanation: >-
+              El filtro de necesidad de cripto le hace una pregunta a cada candidata: construida con una
+              base de datos y una app web, ¿qué se rompe? La tarjeta de sellos ya es un registro que tanto
+              la panadería como el cliente habitual pueden ver, así que no se rompe nada, y en el ejemplo
+              trabajado puntúa 3 de 15 para un no-go. Robar de al lado igual vale la pena cada vez, porque
+              una candidata de afuera mantiene honestas a las otras dos.
+            options:
+              a:
+                label: >-
+                  Pasa el filtro porque los tokens son un registro compartido, y cae como condicional
+                  hasta que una panadería acepte pilotearlo.
+                feedback: >-
+                  La tarjeta de sellos ya es un registro que las dos partes pueden ver, así que no se
+                  rompe nada sin una cadena.
+              b:
+                label: >-
+                  Reprueba el filtro porque una tarjeta de sellos de papel ya es un registro que las dos
+                  partes pueden ver, y cae como no-go.
+              c:
+                label: >-
+                  Reprueba el filtro porque la panadería no es la tienda entrevistada, y cae como condicional
+                  pendiente de una segunda entrevista.
+                feedback: >-
+                  De dónde salió una candidata no decide el filtro. El filtro pregunta qué se rompe con
+                  una base de datos y una app web.
+          q2:
+            prompt: >-
+              Tu idea favorita puntúa 7 de 15 y el skill escribe condicional sin nombrar ninguna condición.
+              Predice cuánto vale ese veredicto, y el siguiente movimiento.
+            explanation: >-
+              En 6 a 7 el veredicto es condicional, y un condicional es una candidata que podría convertirse
+              en un go si una cosa nombrada cambiara. El skill debería nombrar la cosa, y si no lo hace
+              le pides que lo haga, porque un condicional sin condición es solo un no educado. La semana
+              que sigue, investigación de mercado y validación, es donde una condición nombrada se cumple
+              o no.
+            options:
+              a:
+                label: >-
+                  Un condicional sin condición es un no educado, así que le pides al skill que nombre la
+                  cosa que lo movería.
+              b:
+                label: >-
+                  Un 7 está a un punto de un go, así que vuelves a correr la entrevista con respuestas
+                  más ajustadas hasta que el número cruce el 8.
+                feedback: >-
+                  Volver a correr la entrevista hasta que aparezca el número que querías es lo mismo que
+                  no puntuar.
+              c:
+                label: >-
+                  Un condicional significa constrúyelo y valida en la semana 2, así que lo marcas como
+                  elegido y escribes la nota de brecha después.
+                feedback: >-
+                  Una candidata elegida por debajo de 8 no cumple la vara, y la nota de brecha se escribe
+                  para las tres antes de elegir.
+          q3:
+            prompt: >-
+              El fiado puntuó 11. Buscas en el registro con Copilot y encuentras un proyecto terminado
+              de la temporada pasada que ya hace todo lo que hace el fiado. Predice qué le pasa al memorando.
+            explanation: >-
+              El análisis de brechas encuentra los proyectos pasados más cercanos y escribe qué no hicieron,
+              y la brecha es donde vive tu candidata. Si el proyecto más cercano ya hace todo lo que hace
+              el fiado, la candidata es un clon de una idea que los jurados ya puntuaron una vez, y la
+              fila cambia con la fecha al lado. Por eso la búsqueda corre sobre las tres candidatas antes
+              de elegir una: el registro puede reordenarlas, y lo hace.
+            options:
+              a:
+                label: >-
+                  La puntuación se queda en 11, porque el sprint puntuó la entrevista y el registro solo
+                  cambia la redacción del pitch.
+                feedback: >-
+                  Una candidata sin brecha es un clon de algo que los jurados ya puntuaron una vez, y
+                  la fila tiene que decirlo.
+              b:
+                label: >-
+                  El fiado baja a condicional, y la nota de brecha nombra al proyecto pasado como la primera
+                  fila del mapa de mercado.
+                feedback: >-
+                  El mapa de competidores es la próxima lección. Hoy la nota de brecha tiene que registrar
+                  que no hay brecha, con fecha.
+              c:
+                label: >-
+                  La fila ya no está en 11, y el memorando lo dice con la fecha, porque una candidata
+                  sin brecha es un clon.
+  market-research:
+    title: Dimensionar a velocidad de hackathon
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              La fila cinco de tu mapa es una herramienta on-chain para comercios. La página del explorer
+              muestra un conteo histórico de transacciones grande y una transacción más reciente de hace
+              seis semanas. ¿Qué va en la celda de última actividad, y qué dice?
+            explanation: >-
+              La lectura on-chain copia el conteo histórico, los últimos treinta días donde se muestren,
+              y la hora de la transacción más reciente, cada uno con la URL y la fecha. Un conteo histórico
+              grande con una última transacción de hace semanas es un producto que tuvo usuarios y los
+              perdió, y esa es una fila útil. Lo que el sitio del propio proyecto dice de sí mismo nunca
+              va en la columna de actividad.
+            options:
+              a:
+                label: >-
+                  El último anuncio de financiamiento del proyecto, con fecha, porque es la señal más
+                  fresca de que el producto está vivo.
+                feedback: >-
+                  Un anuncio es el marketing del competidor. Si es todo lo que encuentras, la celda dice
+                  solo anuncio, con fecha, nunca actividad.
+              b:
+                label: >-
+                  Solo el conteo histórico, porque prueba una base grande de usuarios y la última transacción
+                  es ruido en un programa ocupado.
+                feedback: >-
+                  La hora de la última transacción es la señal. Un conteo grande con una última transacción
+                  vieja dice que los usuarios vinieron y se fueron.
+              c:
+                label: >-
+                  Los tres valores del explorer con la fecha de lectura, y se lee como un producto que
+                  tuvo usuarios y los perdió.
+          q2:
+            prompt: >-
+              La línea de SOM de Fiado dice '12 por ciento del SAM para el mes tres.' Contra la vara de
+              aceptación, ¿pasa, y por qué?
+            explanation: >-
+              El SOM es la parte del mercado que puedes alcanzar en los primeros meses a través de un canal
+              que puedes nombrar. Una cooperativa con una lista de miembros la puede alcanzar una persona
+              con un teléfono, y un porcentaje no. La línea que el jurado quiere es N tiendas, alcanzables
+              a través de una asociación nombrada con su página y fecha, para el mes tres, gracias a
+              una presentación con nombre.
+            options:
+              a:
+                label: >-
+                  Reprueba, porque el SOM tiene que nombrar un canal con un conteo de miembros y una página,
+                  y nadie puede alcanzar un porcentaje.
+              b:
+                label: >-
+                  Pasa, porque el SOM es por definición una participación del SAM y la aritmética detrás
+                  de esa participación se muestra para el jurado.
+                feedback: >-
+                  Una participación del SAM en la línea del SOM reprueba la vara por más razonable que
+                  se vea la participación.
+              c:
+                label: >-
+                  Reprueba, porque 12 por ciento es demasiado optimista para un número del mes tres y
+                  la participación debería revisarse hacia abajo.
+                feedback: >-
+                  El problema no es el tamaño de la participación. Cualquier participación reprueba, porque
+                  una participación no la puede alcanzar una persona con un teléfono.
+          q3:
+            prompt: >-
+              La página de explorer de una stablecoin muestra un conteo de holders para la región. Un
+              compañero lo copia en la entrada D como 'clientes que ya pueden pagar en una stablecoin.'
+              Predice la lectura del jurado.
+            explanation: >-
+              Una persona tiene varias billeteras y un bot tiene miles, así que un conteo de direcciones
+              es un límite superior de personas y el archivo lo escribe así. El conteo de holders y los
+              últimos treinta días de transferencias entran los dos con la fecha, y si el emisor publica
+              un número regional entra también con su página marcada, porque el jurado puede preguntar
+              en cuál confías.
+            options:
+              a:
+                label: >-
+                  Aceptado como un conteo de una página pública, porque el explorer es una fuente que
+                  el jurado puede clickear.
+                feedback: >-
+                  Que sea clickeable es necesario pero no alcanza. El jurado va a preguntar qué tiene
+                  permitido probar un conteo de holders.
+              b:
+                label: >-
+                  Cuestionado, porque una billetera no es un usuario, así que entra como límite superior
+                  de personas con la fecha.
+              c:
+                label: >-
+                  Rechazado, porque las lecturas on-chain no son evidencia de mercado y D necesita la
+                  cifra publicada por el emisor.
+                feedback: >-
+                  Las lecturas on-chain sí son evidencia de mercado. La cifra del emisor entra también,
+                  marcada, porque las dos no van a coincidir.
+  validation-sprint:
+    title: Evidencia en una semana, luego decide
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              La única prueba de tu paquete de evidencias es 'mostrarle el fiado a cinco amigos y contar
+              quién dice que suena bien.' Contra la primera línea de aceptación, ¿pasa el paquete?
+            explanation: >-
+              Una prueba desconfirmatoria se construye para que uno de sus resultados posibles te haga
+              abandonar la idea o una afirmación dentro de ella. Un sí encaja en cinco mundos a la vez,
+              incluido el amigo educado, y suena bien se puntúa como nada bajo la regla del día 1. La
+              primera línea de aceptación pide al menos una prueba cuyo resultado tuviera permitido alcanzar
+              la línea de corte, y esta no tiene línea de corte que alcanzar.
+            options:
+              a:
+                label: >-
+                  No, porque ningún resultado que pueda producir cambiaría lo que haces el lunes, así
+                  que es un ensayo, no una prueba.
+              b:
+                label: >-
+                  Sí, porque cinco conversaciones son el instrumento más barato y el conteo da un resultado
+                  puntuable el día 6 de la semana.
+                feedback: >-
+                  Las conversaciones son el instrumento más barato solo cuando pueden decir que no. Contar
+                  suena bien no puede.
+              c:
+                label: >-
+                  No, porque hay que cambiar a los amigos por dueños, pero el instrumento y la regla de
+                  conteo son sólidos.
+                feedback: >-
+                  Los amigos son un problema, y la regla de conteo es el otro. Un conteo de suena bien
+                  puntúa como nada.
+          q2:
+            prompt: >-
+              Las cinco conversaciones de Fiado vuelven: 2 no con razones distintas, 2 sí condicionales
+              con la misma condición, 1 que ya está en un teléfono. La línea de corte es 3 o más no. Predice
+              la decisión del memorando.
+            explanation: >-
+              La línea de corte no se alcanzó, y los dos no se repartieron entre las discusiones y los
+              clientes mayores, así que ninguna razón única bloquea la idea. Los dos síes condicionales
+              nombraron la misma forma sin que se los sugirieran, el teléfono de la dueña con un saldo
+              que el cliente también puede ver. Ese recorte es el resultado, así que el memorando dice
+              pivotar en la forma y sigue con el fiado, y el pitch v1 cambia la mitad de producto para
+              que coincida.
+            options:
+              a:
+                label: >-
+                  Seguir tal como está escrito, porque la línea de corte no se alcanzó y tres de los cinco
+                  fueron alguna forma de sí ese día.
+                feedback: >-
+                  La suposición sobrevivió más estrecha de lo que estaba escrita. Seguir con la oración
+                  del día 0 ignora la forma que los síes nombraron.
+              b:
+                label: >-
+                  Pivotar en la forma, porque sobrevivió más estrecha: el teléfono de la dueña, y el cliente
+                  ve el mismo saldo.
+              c:
+                label: >-
+                  Matar, porque dos no con dos razones distintas muestran que el problema es más amplio
+                  de lo que un teléfono puede arreglar.
+                feedback: >-
+                  Dos no no alcanzaron la línea de corte, y dos razones distintas es lo contrario de un
+                  bloqueo compartido.
+          q3:
+            prompt: >-
+              La ronda 1 de feedback vuelve: tres personas, tres entradas, y ninguno de sus comentarios
+              cambió la oración del pitch. Predice cuánto vale esa ronda.
+            explanation: >-
+              La ronda 1 de Fiado cambió la oración cero veces e igual movió tres cosas: la respuesta
+              de por qué una cadena a las respuestas escritas, una nota para las semanas de construcción
+              de que el cliente nunca ve la palabra stablecoin, y quién paga al memorando como la próxima
+              suposición de Viability. El registro está haciendo su trabajo cuando te dice qué no está
+              cargando la oración y dónde va eso.
+            options:
+              a:
+                label: >-
+                  Nada, porque una ronda que reescribe cero palabras significa que las tres personas estaban
+                  demasiado cerca del equipo.
+                feedback: >-
+                  Los tres de Fiado fueron una dueña de tienda, un cliente habitual y alguien que entró
+                  a un hackathon una vez. La ronda se juzga por lo que reveló, no por las ediciones.
+              b:
+                label: >-
+                  Poco, porque el storyteller debería seguir mostrándola hasta que al menos una afirmación
+                  cambie por ronda.
+                feedback: >-
+                  Una ronda donde cada comentario reescribe la oración es una oración que no tenía nada
+                  adentro.
+              c:
+                label: >-
+                  Una buena ronda, porque cada entrada dice qué no está cargando la oración y dónde debería
+                  vivir esa cosa.
+  rederive-winning:
+    title: Vuelve a deducir qué es ganar en una temporada de Colosseum que nunca viste
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Leyendo Frontier en frío, ves que seis primeros lugares de track a US$25,000 en Cypherpunk
+              se volvieron veinte equipos a US$10,000 en Frontier. Un compañero dice que los factores
+              también deben haber cambiado. ¿Dónde va eso en el brief?
+            explanation: >-
+              El tiro en el pie que atrapa a buenos equipos es suponer que los factores cambiaron porque
+              cambiaron los premios. Cada línea se revisa por separado, contra la página, cada temporada.
+              A lo largo de Frontier, Cypherpunk y World's Fair los siete factores, la lista de campos
+              del portal y la entrevista de 15 minutos dicen lo mismo en colosseum.com/hackathon, y eso
+              lo sabes solo porque miraste la línea y no los premios de al lado.
+            options:
+              a:
+                label: >-
+                  En la columna de cambios, porque una nueva forma de premio significa que Colosseum
+                  reponderó lo que puntúan los jurados.
+                feedback: >-
+                  Premios y factores son líneas separadas en páginas separadas. Una forma de premio
+                  distinta no dice nada sobre los factores.
+              b:
+                label: >-
+                  Todavía en ningún lado, porque revisas la línea de factores en la página por separado
+                  antes de escribir cualquiera de las dos columnas.
+              c:
+                label: >-
+                  En la columna sin cambios, porque los premios nunca afectan a los factores y la revisión
+                  es un desperdicio del reloj.
+                feedback: >-
+                  Los factores se han mantenido durante tres temporadas, pero van en la columna sin cambios
+                  solo después de que leíste la línea misma.
+          q2:
+            prompt: >-
+              Tu lectura en frío de Cypherpunk copia los descalificadores: el líder del equipo debe completar
+              el envío antes de la fecha límite. Tu tarjeta de equipo del día 0 no nombra ningún líder.
+              Predice la consecuencia y el arreglo.
+            explanation: >-
+              El líder del equipo es quien debe completar el envío antes de la fecha límite. Un equipo
+              que descubre el último día que no tiene líder es el equipo que está despierto a las dos
+              de la mañana. El nombre va junto a exactamente una persona en la tarjeta de equipo y al
+              bloque de descalificación del brief, y Fiado se lo da a Bruno para que la persona que completa
+              el formulario no sea la persona que despliega.
+            options:
+              a:
+                label: >-
+                  Ninguna consecuencia, porque Colosseum asigna el líder a quien cree primero el equipo
+                  en el portal.
+                feedback: >-
+                  La página dice que el líder del equipo completa el envío antes de la fecha límite. Nadie
+                  asigna ese rol por ti.
+              b:
+                label: >-
+                  El envío llega tarde por defecto, así que lo arreglas haciendo que cada integrante envíe
+                  el paquete por separado.
+                feedback: >-
+                  Un envío de producto por equipo es la regla, y envíos separados por integrante la
+                  romperían.
+              c:
+                label: >-
+                  No es un envío a menos que el líder lo complete, así que nombras uno ahora en la tarjeta
+                  y en el brief.
+          q3:
+            prompt: >-
+              Repuntuando 'un problema real' contra Frontier, abres tus propios archivos. La fila elegida
+              del memorando de la idea empieza por el producto, y el TAM del dimensionamiento es una sola
+              cifra sin insumos. Predice la puntuación que un jurado podría darle a esa línea.
+            explanation: >-
+              Un problema real cae en Insight, Founder + Market Fit y Potential Market Size. La primera
+              línea de la fila elegida tiene que ser una persona y un problema, la misma regla que el
+              pitch v0, y la regla del dimensionamiento es ningún número sin sus insumos y ningún insumo
+              sin una URL y una fecha. Fiado saca un 7 aquí porque cinco conversaciones con fecha con
+              dueños que llevan la libreta cargan los dos factores. Una fila que empieza por el producto
+              y un TAM sin fuente no cargan ninguno. La misma honestidad corre en el otro sentido en la
+              semana 1: un 3 en 'funciona' y una Traction cercana a cero se quedan bajos y lo dicen, porque
+              esos números están ahí para moverse cuando algo esté construido.
+            options:
+              a:
+                label: >-
+                  Baja, porque falta la persona en la fila y el TAM no se puede reconstruir desde fuentes
+                  que un jurado pueda clicar.
+              b:
+                label: >-
+                  Media, porque la cifra del TAM carga Potential Market Size y la línea del producto carga
+                  Insight por sí sola.
+                feedback: >-
+                  Un TAM sin insumos responde un tercio de un factor, y una fila que empieza por el producto
+                  no tiene una persona sobre la que Insight pueda tratar.
+              c:
+                label: >-
+                  Alta, porque un TAM grande responde la pregunta del tamaño y la fila del producto muestra
+                  la función de la cadena que es el insight.
+                feedback: >-
+                  Los siete factores no puntúan la tecnología por sí misma, y un informe dijo es la respuesta
+                  que termina la conversación.
+          q4:
+            prompt: >-
+              Repuntuando contra la línea de la página del portal que dice que la revisión quiere entender
+              cómo se descubrió la oportunidad, abres tu memorando de decisión. La decisión dice seguir,
+              las cinco conversaciones están listadas, y la línea de 'lo habría matado' está vacía. Predice
+              qué lee ahí un jurado y qué hace el archivo después.
+            explanation: >-
+              La cuarta línea del memorando, qué habría matado la idea y por qué no lo hizo, es lo que
+              convierte un seguir en una decisión y no en una entrada de diario, y es la línea que la
+              página de Colosseum pide cuando dice que la revisión quiere entender cómo se descubrió la
+              oportunidad y cómo prioriza el equipo. La de Fiado dice tres o más no, o dos no con la misma
+              razón, y los no se dividen. Esa línea sale del bloque de prueba del día 1, así que el arreglo
+              es copiar la línea de corte del bloque, escribir por qué el conteo no llegó a ella, y solo
+              entonces registrar la puntuación de 'un problema real'.
+            options:
+              a:
+                label: >-
+                  Un diario que siempre iba a decir seguir, así que la línea de corte se escribe desde
+                  el bloque de prueba del día 1 antes de registrar la puntuación.
+              b:
+                label: >-
+                  Evidencia suficiente por sí sola, así que la línea se queda vacía y 'un problema real'
+                  se puntúa solo con las cinco conversaciones, porque la evidencia es la evidencia.
+                feedback: >-
+                  Cinco conversaciones son evidencia para el problema. La línea que la página pregunta
+                  es cómo se descubrió la oportunidad, y una línea de corte vacía dice que la prueba solo
+                  podía decir que sí.
+              c:
+                label: >-
+                  Un memorando al que le falta una formalidad, así que la línea de corte se llena desde
+                  el resultado que obtuviste, que muestra que la prueba se pasó.
+                feedback: >-
+                  Una línea de corte escrita después del resultado no es una línea de corte. Tiene que
+                  salir del bloque de prueba escrito el día 1, antes de que nadie hablara con nadie, o
+                  el memorando no puede decir por qué el resultado no llegó a ella.
+  scope-the-slice:
+    title: Recorta el alcance a la demo de tres minutos
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu primer intento de camino feliz salió en once pasos, con instalar, cuenta, perfil de la
+              tienda y conexión de billetera arriba. Un compañero propone fundir esos cuatro en un solo
+              paso de onboarding para llegar a siete. Predice qué hace la tarjeta de alcance con ellos.
+            explanation: >-
+              El corte se hace sobre el alcance y nunca sobre la cuenta. Instalar, cuenta, perfil y conexión
+              de billetera no son el trabajo, y un camino feliz con un login, un registro y una pantalla
+              de ajustes adentro es el tiro en el pie que la lección nombra. Van a la lista de no-objetivos
+              como pasos enteros, con un destino, y la demo abre en un celular que ya tiene Fiado como
+              lo tendría una tienda que lo usó durante una semana.
+            options:
+              a:
+                label: >-
+                  Los funde, porque la regla de siete pasos es sobre la cuenta en la tarjeta y un paso
+                  de onboarding sigue leyéndose como una sola pantalla que un jurado puede seguir.
+                feedback: >-
+                  La cuenta es solo el síntoma, y fundir tres pasos en uno para que la cuenta salga bien
+                  es justo lo que la regla prohíbe.
+              b:
+                label: >-
+                  Mueve los cuatro a la lista de no-objetivos como pasos enteros, y en la demo el celular
+                  de la dueña ya tiene Fiado abierto con su billetera conectada.
+              c:
+                label: >-
+                  Los deja donde están y corta el recordatorio en su lugar, porque un jurado necesita
+                  ver a la dueña configurar antes de confiar en un fiado que aparece de la nada.
+                feedback: >-
+                  El recordatorio es el instrumento para la afirmación sin probar, y las pantallas de
+                  configuración son las que un jurado ha visto mil veces y puntúa en cero.
+          q2:
+            prompt: >-
+              La demo de tu porción muestra el saldo en el celular del cliente cambiando porque cambió
+              una fila en la base de datos de la app, y nada en ningún lado deja una firma. Predice cómo
+              puntúa un jurado esa demo y cuál es el arreglo.
+            explanation: >-
+              Un saldo que cambia porque cambió un número en una base de datos prueba solo que la pantalla
+              funciona, y un jurado no puede verificar un mock. La transferencia es distinta porque deja
+              una firma pública que un jurado puede abrir en un explorer después de que termina el video.
+              Si nada en la demo deja una firma, la demo es un video de un sitio web y se puntúa como tal.
+            options:
+              a:
+                label: >-
+                  Como un video de un sitio web, porque nada dejó una firma, así que la única transacción
+                  se vuelve una transferencia real en devnet con su confirmación en pantalla.
+              b:
+                label: >-
+                  Como un producto que funciona, porque el saldo se movió en las dos pantallas y la revisión
+                  del repo va a encontrar la escritura en la base de datos cuando lea el código.
+                feedback: >-
+                  Un jurado no puede verificar un mock, y un saldo que se mueve porque se movió una fila
+                  de la base de datos no deja nada que un jurado pueda abrir en un explorer.
+              c:
+                label: >-
+                  Como una demo parcial, así que el arreglo es una diapositiva de próximos pasos que explique
+                  el registro on-chain del fiado que el equipo va a construir después de la temporada.
+                feedback: >-
+                  La diapositiva de próximos pasos es para la arquitectura que elegiste no construir, no
+                  un reemplazo de la única transacción que la demo tiene que mostrar confirmando.
+          q3:
+            prompt: >-
+              La tarjeta de Fiado deja el fiado y el recordatorio en un backend simple y pone solo la
+              transferencia de USDC on-chain, mientras el pitch v1 dice que la cadena está ahí para un
+              registro que las dos partes pueden leer y ninguna puede editar. Predice dónde un jurado
+              lee esa brecha como una elección y dónde como algo escondido.
+            explanation: >-
+              La porción que se demuestra bien en tres minutos muchas veces no es la arquitectura que
+              enviarías a producción, y un mes de hackathon no alcanza para construir las dos. Así que
+              construyes la demo y dices la arquitectura real en voz alta en la diapositiva de próximos
+              pasos, con las razones por las que todavía no está. Un jurado que puntúa Product + Execution
+              lee esa diapositiva como funciones priorizadas estratégicamente, y un jurado que en cambio
+              encuentra la brecha en la entrevista la lee como un equipo que la escondió.
+            options:
+              a:
+                label: >-
+                  En ningún lado, porque un jurado que puntúa Product + Execution lee la porción en sus
+                  propios términos y nunca la compara con la oración del pitch.
+                feedback: >-
+                  La entrevista es exactamente donde el pitch y la porción se comparan, y una brecha
+                  encontrada ahí se lee como un equipo que la escondió.
+              b:
+                label: >-
+                  En la diapositiva de demo se lee como una elección, y en la diapositiva de próximos
+                  pasos se lee como una función que el equipo le está ocultando al jurado.
+                feedback: >-
+                  La diapositiva de demo es donde una función sin construir se lee como una mentira, y
+                  la diapositiva de próximos pasos es el lugar honesto para ella.
+              c:
+                label: >-
+                  En la diapositiva de próximos pasos se lee como un equipo que eligió, y en la entrevista
+                  se lee como un equipo que la escondió.
+  build-sprint:
+    title: Constrúyelo con un equipo de agentes
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu salida de plan mode para los siete pasos propone una pantalla de login y dice simulate
+              la transferencia de USDC junto al paso 4. Predice qué haces antes de aprobar el plan.
+            explanation: >-
+              El plan se lee contra tres cosas antes de aprobarlo: los no-objetivos, el orden y la forma
+              de la transacción. Un login es lo más común que agrega una plantilla y la línea de no-objetivos
+              está ahí para cortarlo. Mock, stub o simulate en cualquier lugar cerca del paso 4 es el
+              plan diciéndote que pretende construir una demo que un jurado no puede verificar, así que
+              esa línea cambia antes de que se escriba nada, y el plan aprobado entra al repo con fecha
+              como la primera entrada del registro de la construcción.
+            options:
+              a:
+                label: >-
+                  Aprobarlo y dejar que el subagente de frontend quite el login después, porque el mock
+                  del paso 4 es un placeholder que el subagente de tests va a reemplazar con una transferencia
+                  real.
+                feedback: >-
+                  Los subagentes no comparten memoria y leen solo el repo, así que un plan aprobado con
+                  un login y un mock adentro es lo que se construye.
+              b:
+                label: >-
+                  Cortar el login contra la línea de no-objetivos y reescribir el paso 4 como una transferencia
+                  real en devnet, después aprobar y guardar el plan en el repo con su fecha.
+              c:
+                label: >-
+                  Rechazar el plan entero y abrir una sesión nueva con un prompt más corto, porque un
+                  plan que propone un login leyó más allá de la tarjeta de alcance por completo.
+                feedback: >-
+                  La mayoría de las plantillas proponen un login, y la línea de no-objetivos existe para
+                  que lo cortes en el plan ahora y no en la semana 3.
+          q2:
+            prompt: >-
+              Después del paso 4 la app muestra una firma, pero pegarla en un explorer puesto en devnet
+              devuelve no encontrado. Predice qué pasó y qué entra en narrative-log.md.
+            explanation: >-
+              Un agente que se topa con un error de devnet a veces lo rodea apuntando la app a un validador
+              local o a un mock, y la app sigue mostrando una firma que no abre nada. Si el explorer dice
+              no encontrado, la transacción de la demo nunca salió de localhost y la demo todavía no es
+              una demo. Arregla la ruta, envíala de nuevo, lee estado, slot, comisión y el cambio de saldo
+              de USDC en el explorer, y solo entonces escribe la entrada de la bitácora.
+            options:
+              a:
+                label: >-
+                  El explorer va atrasado respecto a la red, así que la entrada entra ahora con la firma
+                  y el enlace al explorer se agrega cuando la página se ponga al día.
+                feedback: >-
+                  Un resultado de no encontrado en un explorer de devnet no es atraso, es la transacción
+                  que nunca llegó a devnet.
+              b:
+                label: >-
+                  La transacción se envió y falló en devnet, así que la entrada registra el estado fallido
+                  y la comisión que la billetera firmante pagó por ella.
+                feedback: >-
+                  Una transacción fallida igual aparece en el explorer con una línea de estado, y no encontrado
+                  significa que nunca estuvo ahí.
+              c:
+                label: >-
+                  La transacción nunca salió de localhost, así que no entra nada hasta que la ruta esté
+                  arreglada y una transacción reenviada se lea en el explorer.
+          q3:
+            prompt: >-
+              La pantalla del paso 5 construida por el agente muestra el saldo correcto y su test pasa.
+              Revisas de dónde sale el número y es el valor del formulario del paso 3 restado del monto
+              de apertura. Predice qué ve un jurado que paga un monto distinto en la entrevista, y qué
+              cuesta el arreglo frente a la construcción.
+            explanation: >-
+              Nada en el diff se ve mal y el test pasa, porque el test se escribió desde el mismo supuesto
+              que la pantalla. La lectura a mano del camino de la demo con el explorer abierto es lo que
+              lo encuentra, y el arreglo es chico: la app lee el monto de la transacción confirmada y
+              muestra eso. El código escrito por IA necesita una revisión distinta y más larga que el
+              código que escribió una persona, y el bloque de revisión va en el calendario con el mismo
+              tamaño que el bloque de construcción.
+            options:
+              a:
+                label: >-
+                  Una pantalla que miente, porque la transacción confirmada nunca se lee, y el arreglo
+                  es chico mientras que encontrarlo tomó más que la construcción.
+              b:
+                label: >-
+                  El mismo saldo correcto, porque el valor del formulario es lo que el cliente escribió
+                  y un test que pasa significa que el número de la pantalla está bien siempre.
+                feedback: >-
+                  La pantalla mostraría el mismo número si la transacción hubiera fallado, y el test se
+                  escribió desde el mismo supuesto equivocado.
+              c:
+                label: >-
+                  Una pantalla que miente, y el arreglo es una segunda pasada de subagente sobre el paso
+                  5 con instrucciones nuevas, que cuesta más o menos lo que costó la construcción original.
+                feedback: >-
+                  El arreglo es un solo cambio, leer el monto de la transacción confirmada, y la parte
+                  cara fue la lectura a mano que lo encontró.
+  make-it-real:
+    title: Hazlo real, y después di qué cambió
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu pantalla del fiado del día 15 dice Dashboard y Welcome back, muestra tres fichas de
+              estadísticas en cero, y lista Customer 1 a Customer 4 con montos redondos. Predice qué
+              lee un jurado de eso y qué cuesta arreglarlo con la pasada.
+            explanation: >-
+              Dashboard se lee como la plantilla de la que salió y Customer 1 a 4 se lee como un mock,
+              y un jurado que ha visto cien demos reconoce las dos cosas a simple vista. La pasada son
+              cuatro ítems con un costo fijo: el nombre de la dueña en el encabezado y nombres de pila
+              en las filas, una página real de la libreta con permiso, las fichas y la grilla de tarjetas
+              quitadas con un número grande, y un estado vacío en palabras del usuario. Es un checklist
+              y no un rediseño, y esa diferencia es toda la disyuntiva de la lección.
+            options:
+              a:
+                label: >-
+                  Un equipo sin diseñador, así que el arreglo es un rediseño en la semana 3 con un sistema
+                  de color y navegación nueva antes de que ninguna captura entre a la bitácora.
+                feedback: >-
+                  Un rediseño no tiene costo fijo y sigue abierto el día 21 cuando debería grabarse el
+                  video de actualización, que es la trampa del pulido.
+              b:
+                label: >-
+                  Una construcción temprana normal que un jurado pasa por alto, así que nada cambia hasta
+                  la semana 4 cuando el deck necesite una captura que se vea terminada.
+                feedback: >-
+                  Desde el momento en que aparecen filas de relleno el resto de la demo se puntúa como
+                  un mock, y la semana 4 es para cortar la bitácora, no para arreglar pantallas.
+              c:
+                label: >-
+                  Una plantilla y un mock, así que el arreglo es nombrar y quitar, minutos para el texto
+                  y el estado vacío y unos 30 minutos para el look.
+          q2:
+            prompt: >-
+              La porción de Fiado no tiene programa propio, así que un compañero se salta la pasada de
+              seguridad. Predice qué hace la lección en su lugar y qué encontró realmente la revisión
+              de Fiado.
+            explanation: >-
+              Donde no hay programa la pasada es una revisión de firmas y manejo de llaves hecha a mano:
+              dónde vive la llave que firma, si alguna llave está en el historial de git, si el bundle
+              envía un secreto, con qué billetera firma la demo, y si la llave de devnet está separada
+              del valor en mainnet. Las respuestas de Fiado encontraron un keypair de devnet brevemente
+              en un archivo .env commiteado el día 13. Se quitó, la llave se rotó, y la bitácora lo dice
+              con la fecha, porque un jurado que lo encuentra en el historial sin una nota es peor que
+              uno que encuentra la nota.
+            options:
+              a:
+                label: >-
+                  La revisión a mano de cinco preguntas corre igual, y encontró el keypair de devnet brevemente
+                  commiteado en un archivo .env el día 13, ya quitado, rotado y registrado.
+              b:
+                label: >-
+                  La pasada se salta correctamente, porque /audit-solana solo lee programas y una porción
+                  cuya única transacción es una transferencia no tiene nada que auditar.
+                feedback: >-
+                  Sin programa no significa sin llaves, porque la demo firma algo y alguien tiene la llave
+                  que lo firma.
+              c:
+                label: >-
+                  La revisión a mano de cinco preguntas corre igual, y encontró una llave de mainnet en
+                  la laptop de la demo, que es por lo que la demo ahora firma con la billetera de la dueña
+                  en lugar de una llave del equipo.
+                feedback: >-
+                  El hallazgo de Fiado fue un keypair de devnet en un archivo .env commiteado, y la demo
+                  firma con una llave de devnet en una variable de entorno.
+          q3:
+            prompt: >-
+              Tu borrador del pitch v2 dice: Fiado lleva el fiado al celular de la dueña, lo liquida en
+              una stablecoin y reduce los pagos atrasados a la mitad. Lees cada verbo contra los siete
+              pasos. Predice qué se queda en la oración.
+            explanation: >-
+              La regla para la v2 es que cada verbo de la mitad del producto nombra algo que la demo muestra
+              en pantalla. Lleva el fiado se convierte en abre el fiado y lo liquida se convierte en paga
+              parte en USDC, porque eso es lo que muestran los pasos 1 y 4. El recordatorio vuelve a la
+              oración solo como enviado, porque la porción dispara uno, y una afirmación de que reduce
+              los pagos atrasados no apunta a nada en la demo, así que es una promesa y sale hasta que
+              la porción la sostenga.
+            options:
+              a:
+                label: >-
+                  Los tres se quedan, porque la porción abre un fiado, cobra USDC en devnet y dispara
+                  el recordatorio cuyo único propósito es reducir los pagos atrasados.
+                feedback: >-
+                  Que el recordatorio se mande es lo que la demo muestra, y si reduce los pagos atrasados
+                  es todavía el supuesto sin probar del memorando de decisión.
+              b:
+                label: >-
+                  Los primeros dos se reescriben a lo que la pantalla muestra, y la afirmación sobre los
+                  pagos atrasados sale hasta que la porción la sostenga.
+              c:
+                label: >-
+                  Solo la liquidación se queda, porque un fiado guardado en un backend simple no es algo
+                  que la demo pueda mostrar ocurriendo on-chain.
+                feedback: >-
+                  La regla es que cada verbo apunta a un paso de la demo, y abrir un fiado es el paso
+                  1 en pantalla esté o no on-chain.
+          q4:
+            prompt: >-
+              Cuatro de los design partners de Fiado corrieron fiados reales esta semana, pero los pagos
+              todavía se liquidan en devnet. Un compañero dice que no hay tracción que reportar hasta
+              que el producto esté en mainnet. Predice qué va en la línea de tracción.
+            explanation: >-
+              La tracción se cuenta en gente usando el producto, y no espera a mainnet. El fiado de Fiado
+              es real para las tiendas que lo corren: los clientes ven saldos reales y la dueña marca
+              los pagos en efectivo como pagados, mientras la transferencia que muestra la demo se liquida
+              en devnet. El registro de tracción toma sus números de los registros de la app, y el uso
+              recurrente tiene su propia columna porque cualquiera prueba una cosa una vez por cortesía.
+            options:
+              a:
+                label: >-
+                  Nada todavía, porque Traction solo cuenta pagos que movieron dinero real en mainnet
+                  antes de la fecha límite.
+                feedback: >-
+                  La tracción es gente usando el producto. Fiados reales corridos por tiendas reales cuentan
+                  aunque la liquidación esté en devnet.
+              b:
+                label: >-
+                  Los propios conteos de la app, con fecha: tiendas con fiados reales, fiados abiertos
+                  y tiendas que volvieron sin que se les pidiera.
+              c:
+                label: >-
+                  Las promesas de los socios de las llamadas de la semana 1, porque una intención declarada
+                  de usarlo es evidencia más fuerte que una app en devnet.
+                feedback: >-
+                  El registro se llena desde los registros de la app, nunca desde lo que dijo un socio.
+                  Una promesa no es uso.
+  gtm:
+    title: De dónde salen los primeros cien
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu párrafo de por-qué-Solana abre con una cifra de throughput y se lee igual con el nombre
+              de cualquier otro track cambiado. Predice cómo lo toman el jurado de track y el accelerator,
+              y qué lo reemplaza.
+            explanation: >-
+              El jurado de track ha visto la misma categoría de proyecto argumentada para cada ecosistema
+              esa temporada y quiere un mecanismo: lo que la porción hace y la cosa en la cadena con la
+              que lo hace. El accelerator exige alguna forma de integración con Solana y quiere que se
+              nombre en una línea, y la liquidación con la transacción de la bitácora narrativa es esa
+              línea. Un benchmark es una afirmación sobre la cadena, tu porción no está en él, y la prueba
+              de el track de al lado es lo que el párrafo reescrito tiene que sobrevivir.
+            options:
+              a:
+                label: >-
+                  Ninguno queda satisfecho, así que se reescribe alrededor de lo que la porción hace y
+                  el mecanismo en Solana que usa, con la integración nombrada en una línea.
+              b:
+                label: >-
+                  El jurado de track lo acepta y el accelerator no, así que un segundo párrafo va debajo
+                  nombrando la integración con Solana en una línea para el accelerator.
+                feedback: >-
+                  Un jurado en el track de Solana ya leyó ese párrafo en todas las demás entradas esa
+                  mañana, y un número sobre la cadena no tiene ninguna porción adentro.
+              c:
+                label: >-
+                  Los dos lo aceptan, porque el jurado de track quiere que se declaren las fortalezas
+                  de la cadena y el accelerator solo revisa que la integración con Solana se nombre en
+                  algún lado.
+                feedback: >-
+                  El jurado de track quiere un mecanismo que la porción use, y este curso no nombra ningún
+                  benchmark por la misma razón.
+          q2:
+            prompt: >-
+              Fiado tiene cuatro tiendas con fiados reales y ningún ingreso. Un compañero agrega una tabla
+              de precios de tres niveles al one-pager. Predice cómo lo toma un jurado que lee para Viability
+              y cuál es la línea honesta.
+            explanation: >-
+              Una diapositiva de precios para un producto que nadie paga todavía es una diapositiva sobre
+              nada. La línea honesta tiene tres partes: ninguno todavía, la razón, y quién pagaría primero,
+              que para Fiado es la tienda, porque la tienda es la que pierde la libreta, y no antes de
+              que diez tiendas hayan corrido un fiado durante un mes. Escrita al final de un flujo de dinero
+              dibujado esa línea se lee como una decisión tomada con los ojos abiertos, y las mismas palabras
+              sin flujo se leen como un equipo que nunca lo pensó.
+            options:
+              a:
+                label: >-
+                  Como una respuesta fuerte de Viability, porque una tabla por niveles es lo que el factor
+                  pide y el flujo de dinero dibujado es opcional una vez que existe un precio.
+                feedback: >-
+                  Una diapositiva de precios para un producto que nadie paga todavía es una diapositiva
+                  sobre nada, tenga los niveles que tenga, y el flujo de dinero dibujado es lo que hace
+                  que la línea se lea como una decisión.
+              b:
+                label: >-
+                  Como una diapositiva sobre nada, porque nadie paga el producto todavía, así que la línea
+                  se vuelve ninguno todavía, la razón, y quién pagaría primero.
+              c:
+                label: >-
+                  Como un negativo leve que un número de mercado más grande en la diapositiva del problema
+                  compensa, así que la tabla se queda con una nota de que los precios son indicativos.
+                feedback: >-
+                  Una diapositiva de precios para un producto que nadie paga todavía es una diapositiva
+                  sobre nada, y ningún número de mercado la vuelve sobre algo.
+          q3:
+            prompt: >-
+              La billetera respondió el 2026-10-07: no antes de fin de año, interesante, pero el roadmap
+              está fijo. Un compañero quiere su logo en la diapositiva de socios. Predice adónde va la
+              fila y qué recibe un jurado en la entrevista.
+            explanation: >-
+              El sí va al deck como una oración con el proyecto nombrado y lo que se acordó, y el no se
+              queda fuera del deck como logo y va a las notas como pedido, rechazado, la razón y la fecha.
+              En la entrevista de 15 minutos un jurado elige un nombre de la diapositiva de socios y pregunta
+              por él, y una respuesta verdadera con fecha vale más que un logo que el jurado puede perforar.
+              Una respuesta real vale más que cinco logos, y un no registrado sigue siendo una respuesta.
+            options:
+              a:
+                label: >-
+                  En el deck como logo, porque cualquier respuesta es una conversación y es poco probable
+                  que un jurado que elige nombres de la diapositiva al azar elija justo ese.
+                feedback: >-
+                  El jurado elige un nombre al azar, y un logo que no puedes respaldar es peor que una
+                  diapositiva vacía porque le dice al jurado algo sobre el equipo.
+              b:
+                label: >-
+                  Fuera de la lista por completo, porque un no no es evidencia y el deck debería llevar
+                  solo los proyectos que aceptaron algo.
+                feedback: >-
+                  Un no registrado es evidencia de que preguntaste, aprendiste la razón y sabes qué tiene
+                  que cambiar, y se queda en el archivo.
+              c:
+                label: >-
+                  En las notas como pedido, rechazado, la razón y la fecha, para que un jurado que pregunte
+                  por billeteras reciba una respuesta verdadera en lugar de un logo.
+  the-deck:
+    title: El deck para el jurado, no el deck para inversionistas
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu diapositiva de portada lleva el nombre del producto en letras grandes sobre un tagline,
+              y el problema aparece por primera vez en la diapositiva 3. Predice qué gastó el deck y cuál
+              es la corrección.
+            explanation: >-
+              Una diapositiva de título que nombra el producto antes que el problema es la primera
+              diapositiva más común en un hackathon, y gasta la única diapositiva que un jurado lee con
+              ojos frescos. El deck para el jurado se construye desde el problema hacia afuera, así que
+              la portada es el problema en una oración con el nombre del producto en pequeño en una
+              esquina. Esa oración es la que se convierte en pitch final al terminar la lección.
+            options:
+              a:
+                label: >-
+                  No mucho, porque una portada se lee en un segundo y la diapositiva del problema es donde
+                  el jurado se detiene de todas formas, así que el orden de las tres primeras se mantiene.
+                feedback: >-
+                  La portada es la única diapositiva que un jurado lee con ojos frescos, y gastarla en un
+                  nombre gasta la única lectura que es gratis.
+              b:
+                label: >-
+                  La única diapositiva que un jurado lee con ojos frescos, así que la portada se convierte
+                  en el problema en una oración con el nombre en pequeño en una esquina.
+              c:
+                label: >-
+                  Un poco de impulso, así que el tagline se reescribe para insinuar el problema mientras el
+                  nombre sigue grande para que se recuerde en una pila de cuarenta decks.
+                feedback: >-
+                  La decisión que los siete encabezados toman primero es que el nombre no aparece hasta que
+                  el problema se haya dicho.
+          q2:
+            prompt: >-
+              Tu deck para el jurado tiene once diapositivas: los siete encabezados más una tabla de
+              precios, un roadmap, un diagrama de arquitectura y una diapositiva de gracias, y la
+              diapositiva de próximos pasos dice solo: más funcionalidades en camino. Predice qué dice la
+              revisión de forma del kit y cuál es la corrección honesta.
+            explanation: >-
+              El kit enruta un deck para jurados de hackathon a 5 a 7 diapositivas, una de ellas una demo
+              funcionando, una la novedad técnica y una el por qué Solana, con 30 a 60 segundos de notas
+              en cada una. Una tabla de precios y un roadmap pertenecen al deck para inversionistas, que
+              es un objeto distinto. La diapositiva de próximos pasos es el lugar honesto para la
+              arquitectura que no construiste: para Fiado el programa del fiado on-chain, los rieles de
+              fiat, el onboarding de billeteras y el despliegue con la cooperativa, con fecha y en orden de
+              construcción, para que un jurado los lea como un plan y no como algo escondido.
+            options:
+              a:
+                label: >-
+                  Está bien así, porque un deck más largo se lee como una empresa más completa y la
+                  diapositiva del roadmap ya cubre lo que diría la de próximos pasos.
+                feedback: >-
+                  Un deck para el jurado tiene de 5 a 7 diapositivas, y un roadmap que dice más
+                  funcionalidades en camino no nombra nada que un jurado pueda leer como un plan.
+              b:
+                label: >-
+                  Pasado de largo, así que las cuatro diapositivas extra se funden en las siete como paneles
+                  más pequeños, y la línea de próximos pasos queda corta porque un jurado pasa rápido por el
+                  final de un deck.
+                feedback: >-
+                  Fundir cuatro diapositivas en siete paneles deja las mismas once ideas frente al jurado,
+                  y la diapositiva de próximos pasos es el único lugar donde el trabajo no construido se
+                  lee como una elección.
+              c:
+                label: >-
+                  Pasado de largo, así que las cuatro extra se van, y la diapositiva de próximos pasos lista
+                  lo que no está construido todavía, con fecha, en el orden en que lo construirías.
+          q3:
+            prompt: >-
+              Le lees el deck a tres personas para la ronda 3. Solo el builder dice el problema cerca de la
+              oración de portada, y las otras dos describen una categoría. Predice qué pasa con el pitch y
+              con la ronda.
+            explanation: >-
+              Cada una de las tres dice el problema en una oración después de la lectura, y tú anotas la
+              oración que dijo. Si dos de las tres caen cerca de la portada, el pitch es final. Si no, la
+              diapositiva del problema se reescribe y se lee otra vez el mismo día, y sigue siendo la
+              ronda 3 con más de tres entradas, porque la ronda son las entradas y no el día. El pitch
+              final es la oración de portada después de eso, y desde ahí deja de cambiar.
+            options:
+              a:
+                label: >-
+                  La diapositiva del problema se reescribe y se lee otra vez el mismo día, y las entradas
+                  extra se quedan dentro de la ronda 3.
+              b:
+                label: >-
+                  El pitch se marca como final de todas formas, porque el builder es el lector más parecido
+                  a un jurado y dos de tres es una vara pensada para rondas más grandes.
+                feedback: >-
+                  La regla es dos de tres cayendo cerca de la portada, y la persona que no sabe nada es la
+                  que te dice si la diapositiva 2 funciona.
+              c:
+                label: >-
+                  La ronda se cierra y se abre una ronda 4 nueva con tres lectores nuevos, porque las mismas
+                  personas no pueden calificar con justicia una reescritura que ya oyeron.
+                feedback: >-
+                  La ronda son las entradas y no el día, así que una reescritura leída otra vez el mismo día
+                  sigue siendo la ronda 3 con más de tres entradas.
+  two-videos:
+    title: Los dos videos
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              En los archivos exportados tu demo dura 3:08 y tu presentación dura 1:52. Predice qué hacen
+              los límites del portal con cada uno y qué cambia antes de subirlos.
+            explanation: >-
+              El video de presentación es de dos a tres minutos y la demo de no más de tres minutos, los
+              dos como los imprime el portal. Una demo de 3:08 está pasada del límite y quizá nunca se
+              vea, y una presentación de 1:52 está por debajo de la ventana en la que el guion se construyó
+              para caer. La duración se revisa en el archivo exportado y no en el contador del grabador,
+              porque las exportaciones recogen segundos en los bordes, y la última duración registrada es
+              la que copia el capstone.
+            options:
+              a:
+                label: >-
+                  Los dos están bien, porque los límites son orientativos y un revisor que mira con el
+                  sonido apagado no está cronometrando la demo al segundo.
+                feedback: >-
+                  El portal declara los dos límites, el brief asume que se hacen cumplir, y una demo de 3:08
+                  es una demo que quizá nunca se vea.
+              b:
+                label: >-
+                  Solo la presentación está en riesgo, porque es el video que los jurados abren primero, así
+                  que crece a dos minutos mientras la demo conserva sus ocho segundos.
+                feedback: >-
+                  La demo tiene un límite duro de tres minutos y diez segundos de material nunca valieron
+                  un video que no se ve.
+              c:
+                label: >-
+                  Los dos fallan, porque la demo quizá nunca se vea y la presentación está por debajo de dos
+                  minutos, así que los dos se vuelven a cortar y a cronometrar en la exportación.
+          q2:
+            prompt: >-
+              Detienes la presentación en 0:20 para tres espectadores y dos de ellos dicen: las tiendas
+              pequeñas dan crédito informalmente. Predice qué hace la ronda 4 con los primeros veinte
+              segundos.
+            explanation: >-
+              La vara para la primera pregunta es que el espectador diga algo cercano a eso me pasó a mí, o
+              nombre a alguien a quien le pasó. Si dos de los tres describen la categoría en lugar de una
+              persona, los veinte segundos se reescriben y se regraban el mismo día, y la ronda conserva
+              su número y recibe más de tres entradas. Cada entrada lleva la duración exportada del archivo
+              que ese espectador vio, porque una regrabación la cambia.
+            options:
+              a:
+                label: >-
+                  Los reescribe alrededor de una persona y regraba el mismo día, y las entradas nuevas van a
+                  la ronda 4 con sus duraciones exportadas.
+              b:
+                label: >-
+                  Los da por buenos, porque los dos espectadores nombraron el problema correctamente, y la
+                  ronda pasa a la pregunta de la demo sobre qué se confirmó.
+                feedback: >-
+                  Dos de tres describiendo la categoría en lugar de una persona es el disparador de la regla
+                  para una reescritura y una regrabación el mismo día.
+              c:
+                label: >-
+                  Los alarga a cuarenta segundos para que la historia tenga espacio para aterrizar, usando la
+                  nota completa de la diapositiva del problema tal como está escrita.
+                feedback: >-
+                  El bloque es la nota de la diapositiva del problema recortada, no leída tal como está, y
+                  solo el cronómetro decide cuántas palabras caben en veinte segundos.
+          q3:
+            prompt: >-
+              Tu lista de tomas te tiene diciendo: y después viene el despliegue con la cooperativa, sobre
+              la toma 5 mientras la transferencia se confirma. Predice qué ve un jurado que mira con el
+              sonido apagado y qué dice la regla.
+            explanation: >-
+              Si no está en la pantalla en ese segundo, no lo digas. Un video de demo que narra una
+              funcionalidad mientras la pantalla muestra otra cosa es una demo de tu voz, y un jurado que
+              mira con el sonido apagado ve un video que nunca mostró lo que afirma. El despliegue, el
+              programa del fiado y los rieles de fiat pertenecen a la diapositiva de próximos pasos y al
+              video de presentación, y la toma 5, silenciosa en la lista de tomas como la toma 4 antes,
+              deja que la confirmación aterrice.
+            options:
+              a:
+                label: >-
+                  La misma demo, porque los subtítulos llevan la oración y la confirmación está en la
+                  pantalla de todas formas para cualquiera que mire.
+                feedback: >-
+                  Los subtítulos de una afirmación que la pantalla no puede respaldar siguen siendo una
+                  afirmación que la pantalla no puede respaldar, y la demo solo muestra lo que hace.
+              b:
+                label: >-
+                  Un video que nunca mostró lo que afirma, así que la toma 5 se queda en silencio y el
+                  despliegue vuelve a la diapositiva de próximos pasos.
+              c:
+                label: >-
+                  Una demo más fuerte, porque una confirmación silenciosa desperdicia veinte segundos que un
+                  jurado podría pasar oyendo hacia dónde va el producto.
+                feedback: >-
+                  Un jurado que construye lee una transacción confirmándose más rápido de lo que puedes
+                  describirla, y las dos tomas silenciosas, la 4 y la 5, son las que importan.
+  submit:
+    title: El formulario, la fecha límite, las reglas
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              La línea de fecha límite de tu brief de Colosseum tiene la hora que imprime la página en
+              vivo, escrita en UTC con una Z al final. Un compañero en una laptop configurada con la hora
+              de Brasília lee la fecha en esa cadena y escribe: enviar la mañana de esa fecha. Predice qué
+              muestra el comando de conversión y qué cuesta ese plan.
+            explanation: >-
+              Pegada en el comando, la cadena de la página se imprime una vez en UTC y una vez en la hora
+              local de la laptop, y Brasília va tres horas por detrás de UTC. Una hora temprana de UTC en
+              la página cae en el día local anterior, así que un equipo que planea para la mañana de la
+              fecha impresa ya perdió con un producto que funciona. La línea se convierte una segunda vez
+              con una herramienta distinta, se marca como verificada solo cuando las dos coinciden, y lleva
+              el nombre del líder porque la página dice que el líder del equipo completa el envío antes de
+              la fecha límite.
+            options:
+              a:
+                label: >-
+                  Una hora local tres horas antes, así que una hora temprana de UTC cae en la noche anterior,
+                  y la línea recibe la coincidencia de una segunda herramienta y el nombre del líder al lado.
+              b:
+                label: >-
+                  Una hora local tres horas después, así que el plan está a salvo con horas de margen una vez
+                  que el desfase se aplica en la dirección que la página quería.
+                feedback: >-
+                  El desfase va para el otro lado, porque Brasília está por detrás de UTC, y una conversión
+                  hecha de cabeza es la que esta lección te dice que nunca confíes.
+              c:
+                label: >-
+                  La misma hora, porque la Z al final significa que la página ya imprime la hora en la forma
+                  local del lector.
+                feedback: >-
+                  La Z al final es UTC escrito corto, y el comando lo escribe completo como +00:00 antes de
+                  convertir.
+          q2:
+            prompt: >-
+              Tu submission-package.md no tiene ruta en la línea del one-pager de GTM, y el último campo
+              del portal pide estrategia de go-to-market, validación de demanda y planes de distribución.
+              Predice qué día es hoy, y qué alimenta ese campo una vez que la pieza existe.
+            explanation: >-
+              Si una línea del archivo del paquete no tiene ruta, la pieza falta, y hoy es el día en que
+              terminas esa pieza y no el día de envío. El último campo del portal son tres preguntas en una
+              sola caja: el go-to-market es el one-pager, la validación de demanda es el paquete de
+              evidencias y la tracción que el mes haya producido, y la distribución son los socios
+              nombrados en la lista de socios. Un socio que respondió, aunque sea con un no, es mejor línea
+              que una categoría de socios.
+            options:
+              a:
+                label: >-
+                  El día de envío de todas formas, porque el último campo se puede redactar en el portal a
+                  partir de la diapositiva del equipo del deck y la línea de quién paga.
+                feedback: >-
+                  Una línea sin ruta significa que la pieza falta, y hoy es el día en que la terminas, no el
+                  día de envío.
+              b:
+                label: >-
+                  El día en que terminas esa pieza, y el campo entonces se alimenta del one-pager, el paquete
+                  de evidencias y un socio nombrado de la lista de socios.
+              c:
+                label: >-
+                  El día de envío, con el campo llenado desde el párrafo de por qué Solana de la descripción,
+                  que ya dice de dónde vienen los usuarios y cómo llegan.
+                feedback: >-
+                  Por qué Solana es un argumento para el track, y el campo hace tres preguntas que responden
+                  el one-pager, el paquete de evidencias y la lista de socios.
+          q3:
+            prompt: >-
+              Mientras el líder envía Fiado, un compañero registra una segunda cuenta y envía un
+              experimento paralelo con su propio nombre, para estar seguros. Predice qué regla rompe eso y
+              quién debería haber apretado cualquier botón.
+            explanation: >-
+              La página dice: solo se permite un envío de producto por equipo, y por lo tanto uno por
+              individuo, durante cada hackathon. La forma en que los equipos la rompen sin querer es la
+              segunda cuenta, un compañero que se registra para estar seguros o envía un experimento
+              paralelo con su propio nombre. Así que nadie del equipo envía nada más, el líder es la única
+              persona que aprieta el botón, y el líder firma esa casilla en la lista de verificación.
+            options:
+              a:
+                label: >-
+                  Ninguna regla, porque el experimento es un producto distinto y Colosseum cuenta un producto
+                  por equipo y no por persona.
+                feedback: >-
+                  La página dice uno por equipo y por lo tanto uno por individuo, así que una persona con dos
+                  envíos en una temporada la rompe.
+              b:
+                label: >-
+                  La regla del historial de desarrollo, porque el experimento comparte código con Fiado y
+                  ninguno de los dos envíos declaró la superposición.
+                feedback: >-
+                  La declaración es una línea aparte en la lista de verificación, y la regla que se rompe aquí
+                  es la de un producto por individuo.
+              c:
+                label: >-
+                  La regla de un producto por individuo, así que nadie del equipo envía nada más y solo el
+                  líder aprieta enviar.
+          q4:
+            prompt: >-
+              Tu repo es privado. Un compañero dice que se dio acceso a hackathon@colosseum.com y nadie
+              revisó la lista de acceso. Predice qué encuentra la revisión de completitud del revisor y qué
+              exige la lista de verificación.
+            explanation: >-
+              El campo del repositorio es el que tiene una segunda persona adentro. Un repo privado sin
+              acceso otorgado a hackathon@colosseum.com es un repo que el revisor no puede abrir, y un repo
+              que nadie puede abrir se califica como sin repo. Otorgar el acceso es un paso que hace un
+              integrante, y confirmarlo leyendo la lista de acceso es un segundo paso de un segundo
+              integrante, y por eso la cuarta casilla de la lista es la que el líder no firma solo.
+            options:
+              a:
+                label: >-
+                  Un repo que el revisor no puede abrir, leído como sin repo, así que un segundo integrante
+                  confirma el acceso en la lista de acceso y firma la casilla.
+              b:
+                label: >-
+                  Un repo al que el revisor pide acceso, así que el equipo espera la solicitud y lo otorga
+                  durante la semana de revisión.
+                feedback: >-
+                  El revisor comprueba que el repo abra en la primera pasada, y un repo que nadie puede abrir
+                  se lee como sin repo.
+              c:
+                label: >-
+                  Ningún problema, porque el enlace del portal lleva el acceso y un repo privado con un enlace
+                  pegado lo trata el revisor igual que uno público.
+                feedback: >-
+                  La página permite un repo privado solo si se otorga acceso a la dirección que nombra, y el
+                  enlace solo no otorga nada.
+  after:
+    title: Después de la fecha límite
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              El anuncio nombra a tu equipo ganador y un compañero escribe: US$250,000 asegurados, en el
+              plan de la próxima temporada. Predice qué garantizan en realidad las dos páginas y en qué se
+              convierte la línea.
+            explanation: >-
+              A los ganadores del hackathon se les garantiza una entrevista para la Accelerator, no la
+              admisión, y los ganadores no están obligados a entrar. La Accelerator invierte US$250,000 por
+              startup aceptada a lo largo de ocho semanas, y aceptada es una segunda decisión en la que tú
+              no estás en la sala. Así que el plan lleva la entrevista y la inversión en líneas separadas
+              con sus fechas, y nadie del equipo las funde en una.
+            options:
+              a:
+                label: >-
+                  El cheque, porque los ganadores son el subconjunto de la aceleradora y la Accelerator
+                  invierte US$250,000 en cada uno a lo largo de ocho semanas.
+                feedback: >-
+                  Ganar garantiza una entrevista para la Accelerator y no la admisión, y la inversión viene
+                  después de una segunda decisión.
+              b:
+                label: >-
+                  Una entrevista para la Accelerator, no la admisión, con la inversión después de una segunda
+                  decisión, así que el plan lleva dos líneas.
+              c:
+                label: >-
+                  La admisión a la Accelerator con la inversión retenida hasta el Demo Day, así que la línea
+                  está bien y solo se adelanta ocho semanas.
+                feedback: >-
+                  Los ganadores no quedan admitidos por ganar, y las páginas también dicen que los ganadores
+                  no están obligados a entrar.
+          q2:
+            prompt: >-
+              Fiado solicita un grant por milestone de la Solana Foundation con el fiado tal como está,
+              incluida su línea de quién paga. Predice qué hacen las guías con eso y qué puerta encaja.
+            explanation: >-
+              Los grants por milestone son para bienes públicos, y un fiado en stablecoin para tiendas de
+              barrio tiene una respuesta de Viability, lo que significa que no es un bien público en ese
+              sentido. La página apunta esa forma hacia los grants convertibles, para bienes públicos con
+              un componente comercial. La línea de Fiado dice convertible, con los módulos open source del
+              fiado y del recordatorio como la parte de bien público, y la revisión toma cerca de una
+              semana con una decisión unas tres semanas después.
+            options:
+              a:
+                label: >-
+                  Pasa en Only Possible on Solana, porque la liquidación es una transferencia de stablecoin,
+                  y la respuesta llega en más o menos una semana.
+                feedback: >-
+                  Public Good y Open Source son las dos primeras guías y deciden la puerta antes de que se
+                  lean las otras dos.
+              b:
+                label: >-
+                  Lo devuelven por Open Source, así que la corrección es publicar el repo y solicitar otra
+                  vez por la misma puerta de milestone.
+                feedback: >-
+                  El fiado tiene una respuesta de Viability, así que no es un bien público en el sentido de
+                  milestone por más abierto que esté el repo.
+              c:
+                label: >-
+                  Un no que gasta la semana de la Foundation y la tuya, porque un producto comercial va por
+                  la puerta convertible.
+          q3:
+            prompt: >-
+              Fiado no queda. El equipo planea entrar con el mismo repo y un README nuevo a la ventana de
+              noviembre de Eternal, sin haber levantado capital de riesgo. Predice qué dice la regla de la
+              página y qué calificaría.
+            explanation: >-
+              Eternal admite productos de hackathons previos solo si cambiaron materialmente, y una startup
+              que levantó capital de riesgo no es elegible para el Eternal Award, aunque sí para entrar a
+              un sprint. La página no imprime ningún umbral, así que la lectura honesta es que el mismo
+              repo con un README nuevo no califica y la misma idea con el fiado liquidando para una tienda
+              real y un recordatorio reescrito probablemente sí. Anota qué cambió en el plan antes de que
+              empiece el sprint, para que el cambio material quede documentado y no se discuta después.
+            options:
+              a:
+                label: >-
+                  Califica, porque no se levantó capital de riesgo y la ventana de noviembre está abierta a
+                  cualquier producto de hackathon previo que entre a un sprint.
+                feedback: >-
+                  Los productos de hackathons previos se permiten solo si cambiaron materialmente, y un
+                  README nuevo no es un cambio que un revisor pueda ver.
+              b:
+                label: >-
+                  No califica como cambiado materialmente, así que el plan documenta primero un cambio real,
+                  como una tienda real liquidando en el fiado.
+              c:
+                label: >-
+                  Califica solo en la ventana de junio, porque la ventana de noviembre está reservada para
+                  productos que nunca entraron a un hackathon.
+                feedback: >-
+                  Las dos ventanas reciben sprints que uno mismo inicia bajo las mismas reglas, y la página
+                  no imprime esa división.
+  rehearsal:
+    title: Ensaya la temporada antes de la temporada
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              El historial que leíste en la lección 1 tiene el side track de Superteam Brasil de US$10,000
+              USDG en Frontier, y el 2026-09-06 la página de World's Fair todavía no está arriba. Un
+              compañero escribe US$10,000 en la línea de la próxima temporada. Predice qué debería tener
+              el plan en su lugar.
+            explanation: >-
+              Citar el side track de la temporada pasada como el de esta temporada es la trampa fácil,
+              porque el número viejo ya está en tu cabeza. La fila pasó de US$11,200 en Cypherpunk a
+              US$10,000 USDG en Frontier, y al 2026-09-06 el side track de Superteam Brasil para World's
+              Fair solo se esperaba para el 14 de septiembre. Así que el plan guarda un espacio con fecha
+              y sin monto hasta que earn.superteam.fun tenga la fila, y la fecha de revisión se escribe al
+              lado.
+            options:
+              a:
+                label: >-
+                  Los US$10,000, porque el monto del side track se mantuvo entre temporadas y un plan
+                  necesita un número contra el cual presupuestar el ensayo.
+                feedback: >-
+                  El monto pasó de US$11,200 en Cypherpunk a US$10,000 en Frontier, así que nunca es el
+                  monto de esta temporada hasta que la página lo diga.
+              b:
+                label: >-
+                  La cifra de Cypherpunk de US$11,200, porque la más alta de las dos filas conocidas es la
+                  estimación más segura para una línea de presupuesto.
+                feedback: >-
+                  Cypherpunk vino antes que Frontier, y el punto es que el número se mueve cada temporada,
+                  no cuál número viejo es más grande.
+              c:
+                label: >-
+                  Un espacio con fecha y sin monto, esperado el 14 de septiembre de 2026, llenado solo cuando
+                  earn.superteam.fun lo tenga.
+          q2:
+            prompt: >-
+              Decides entrar a una edición de temporada como ensayo. Un compañero dice que el paquete ya
+              está exportado, así que nadie necesita abrir la página de la edición hasta el día de envío.
+              Predice qué hace el plan el día en que decides, y por qué.
+            explanation: >-
+              Un hackathon de temporada o un side track tiene su propia página con sus propios entregables
+              y su fecha límite, y el plan lee esa página el día que decides entrar, no el día en que cierra
+              el formulario. La fecha límite pasa por la misma conversión que la de Colosseum, y el paquete
+              que ya tienes se reacomoda en las secciones de la página sin escribir nada nuevo. Las
+              calificaciones de la edición vuelven como una ronda de feedback que prueba cómo entregas los
+              siete factores a desconocidos, y el paquete cambia solo donde una calificación apunta a un
+              factor que Colosseum también lee.
+            options:
+              a:
+                label: >-
+                  Abre la página ese día y copia sus entregables y su fecha límite al plan, y después
+                  reacomoda el paquete que ya tienes en esas secciones.
+              b:
+                label: >-
+                  Espera al día de envío, porque cada edición recibe el mismo deck, video y repo y el paquete
+                  de Colosseum ya cubre los tres.
+                feedback: >-
+                  Cada edición tiene su propia página con sus propios entregables y su fecha límite, y un
+                  elemento que falta en esa página se descubre el día de envío, cuando ya no queda tiempo
+                  para reacomodar.
+              c:
+                label: >-
+                  Abre la página ese día y reconstruye el paquete alrededor de los criterios propios de la
+                  edición, porque un ensayo lo califican sus propios jurados y el deck debería encajar con
+                  la sala a la que entra.
+                feedback: >-
+                  Reconstruir para los criterios de un ensayo es la trampa que el plan rechaza. Los siete
+                  factores de Colosseum son el objetivo, y el paquete se exporta y se cambia una vez, nunca
+                  se reconstruye.
+          q3:
+            prompt: >-
+              Tres ediciones de Superteam Brasil se superponen en el calendario y un equipo de dos quiere
+              entrar a las tres antes de que se anuncie el side track el 14 de septiembre. Predice qué hace
+              el plan y con qué llegaría el equipo si no.
+            explanation: >-
+              Un ensayo cuesta una semana del mes y un segundo juego de formularios, y tres a la vez cuestan
+              el mes. Un equipo de dos que entra a las tres llega el 14 de septiembre con tres medios
+              paquetes y ninguna calificación que haya tenido tiempo de leer. El plan nombra un ensayo, el
+              presencial cuando alguien puede estar en la sala, y le dice que no al resto por escrito para
+              que el no ya esté ahí cuando la siguiente página parezca fácil.
+            options:
+              a:
+                label: >-
+                  Entra a las tres, porque más ensayos significan más calificaciones que leer, y exporta el
+                  paquete una vez para el formulario de cada edición.
+                feedback: >-
+                  Un equipo de dos que entra a las tres no ensaya nada y llega el 14 de septiembre con tres
+                  medios paquetes y ninguna calificación leída.
+              b:
+                label: >-
+                  Entra a las dos ediciones online, porque no cuestan un viaje, y se salta la presencial
+                  porque la presencia es una prueba que el portal global nunca corre de todas formas.
+                feedback: >-
+                  La presencia en una sala es la única prueba que el portal de Colosseum nunca te va a dar,
+                  y por eso la edición presencial es la que hay que tomar cuando alguien puede viajar.
+              c:
+                label: >-
+                  Nombra una edición y escribe un no con una razón junto a las otras, porque tres a la vez
+                  significan tres medios paquetes y ninguna calificación leída.
