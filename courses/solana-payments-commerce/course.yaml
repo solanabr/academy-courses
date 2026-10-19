@@ -10,8 +10,8 @@ xpReward: 360
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
 thumbnail: assets/banner.webp
-trackId: 0
-trackLevel: 0
+trackId: 3
+trackLevel: 2
 modules:
   - key: rails-mental-model
     title: "The rails you're switching to"
