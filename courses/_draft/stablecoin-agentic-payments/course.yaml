@@ -24,8 +24,8 @@ xpPerLesson: 25
 xpReward: 750
 creatorRewardXp: 30
 minCompletionsForReward: 10
-trackId: 1
-trackLevel: 5
+trackId: 0
+trackLevel: 0
 creator: B7o8NfV81HzjuZFWQTTx3Xdvh77Dqoajwib3kWEnvzJF
 modules:
   - key: sap-paid-tier

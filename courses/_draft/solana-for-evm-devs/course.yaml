@@ -21,10 +21,7 @@ xpPerLesson: 20
 xpReward: 500
 creatorRewardXp: 30
 minCompletionsForReward: 10
-# Unsequenced elective (owner 2026-07-30): trackId/trackLevel 0 keeps this course
-# OFF the sequential trackId 1 / trackLevel 1-5 path, so it cannot collide with
-# C1 (solana-for-web-devs, 1/1) — both values are effectively immutable once the
-# course is created on-chain.
+# 0/0 = on no path; set track/level when a path takes this course (immutable on-chain).
 trackId: 0
 trackLevel: 0
 # creator: platform authority per owner 2026-07-30; swap to instructor wallet

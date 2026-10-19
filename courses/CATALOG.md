@@ -23,6 +23,12 @@ to author *mechanically* (schemas, CI, ids); this tells you *what* to author and
   advanced) merged into `courses/` as electives at trackId 0 / trackLevel 0. `mastering-anchor-v2` is
   the first course admitted under §6's versioned-subject clause: its declared subject is Anchor
   `2.0.0-rc.1`, not the §6-pinned `1.1.2`. Neither is referenced by a path or an achievement.
+- **Track addendum (2026-10-19):** owner ruling — track = learning path, level = position in that
+  path: track 1 = `paths/comece-aqui.yaml`, 2 = `paths/hackathon.yaml`, 3 =
+  `paths/construa-e-publique.yaml`, and `trackId 0 / trackLevel 0` = on no path. This replaces the
+  "track 1 = C1–C5, electives at 0/0" placement used below; the parked `_draft/` courses are back at
+  0/0 until a path takes them. "Elective" below still means a course that hands nothing forward; it
+  no longer implies 0/0.
 - **Achievements addendum (2026-08-24):** owner ruling — no course-specific achievements except
   `achievement-speedrunner`. Don't add a "complete course X" badge when authoring a course.
 - **Strategic record** (the research it derives from, the platform work it depends on) lives in the app repo:
@@ -76,7 +82,7 @@ Three positioning claims are **retired** because they do not survive contact wit
 
 ### Addendum — adopted electives (outside the path)
 
-The five courses above are the **sequential path**: `trackId 1`, `trackLevel 1–5`, each consuming the previous course's artifact. A course that is neither a rung of that path nor a rewrite of an existing one is an **elective**: it ships at `trackId 0 / trackLevel 0`, is entered directly, hands nothing forward, and is therefore free to be adopted from outside this blueprint without renumbering anything. Both fields are effectively immutable after on-chain creation, so the 0/0 placement is the decision, not a placeholder.
+The five courses above are the **sequential path**, each consuming the previous course's artifact. A course that is neither a rung of that path nor a rewrite of an existing one is an **elective**: it is entered directly, hands nothing forward, and is therefore free to be adopted from outside this blueprint without renumbering anything. Its `trackId`/`trackLevel` come from the path it sits on (track addendum, top), and both are immutable after on-chain creation.
 
 Everything else in this document still binds an elective — §6's currency ruling and version stamps, §4's structural principles, §5's authoring rules, and the licensing section — because those are contracts about quality, not about sequence.
 
