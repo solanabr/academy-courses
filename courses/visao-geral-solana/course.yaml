@@ -10,8 +10,8 @@ xpReward: 320
 creator: Em8D6XyuXvNUK1YgLKBaji7HbbrZZq7fCdq3sGMXqxVZ
 creatorRewardXp: 30
 thumbnail: assets/banner.jpg
-trackId: 0
-trackLevel: 0
+trackId: 1
+trackLevel: 2
 modules:
   - key: origens-e-historia
     title: "Origens e História da Solana"

@@ -8,8 +8,8 @@ xpPerLesson: 20
 xpReward: 300
 creator: 8kMziL5e3qEWhp1nQHEiYLRypymyBVTXNxgZXyQwhbSo
 creatorRewardXp: 30
-trackId: 0
-trackLevel: 0
+trackId: 2
+trackLevel: 1
 sourceLocale: en
 thumbnail: assets/banner.webp
 modules:

@@ -9,8 +9,8 @@ xpPerLesson: 15
 xpReward: 420
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
-trackId: 0
-trackLevel: 0
+trackId: 3
+trackLevel: 3
 thumbnail: assets/banner.webp
 modules:
   - key: token-layer

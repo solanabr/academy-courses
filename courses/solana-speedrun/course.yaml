@@ -10,10 +10,8 @@ xpReward: 80
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
 thumbnail: assets/banner.webp
-# Unsequenced elective (owner 2026-08-01): trackId/trackLevel 0 keeps this course
-# OFF the sequential trackId 1 / trackLevel 1-5 path.
-trackId: 0
-trackLevel: 0
+trackId: 1
+trackLevel: 1
 modules:
   - key: speedrun
     title: "Speedrun: da tese ao seu primeiro ativo onchain"

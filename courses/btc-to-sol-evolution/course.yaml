@@ -10,11 +10,8 @@ xpReward: 300
 creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
 thumbnail: assets/banner.webp
-# Unsequenced elective (owner 2026-07-31): trackId/trackLevel 0 keeps this course
-# OFF the sequential trackId 1 / trackLevel 1-5 path, so it cannot collide with
-# the parked catalog if it is ever restored from _draft/.
-trackId: 0
-trackLevel: 0
+trackId: 1
+trackLevel: 3
 modules:
   - key: crypto
     title: "Trust math, not people"
