@@ -32,8 +32,8 @@ xpPerLesson: 20
 xpReward: 800
 creatorRewardXp: 30
 minCompletionsForReward: 10
-trackId: 1
-trackLevel: 2
+trackId: 0
+trackLevel: 0
 creator: B7o8NfV81HzjuZFWQTTx3Xdvh77Dqoajwib3kWEnvzJF
 modules:
   - key: rpd-rust-that-compiles

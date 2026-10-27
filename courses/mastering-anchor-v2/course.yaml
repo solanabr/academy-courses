@@ -12,8 +12,8 @@ creatorRewardXp: 30
 # Course subject is pinned to a moving release candidate; see README.md for the
 # full pins table and the re-verify cadence.
 subjectVersion: anchor-lang@2.0.0-rc.1
-trackId: 0
-trackLevel: 0
+trackId: 3
+trackLevel: 4
 thumbnail: assets/banner.webp
 modules:
   - key: orientation-anatomy-macros
