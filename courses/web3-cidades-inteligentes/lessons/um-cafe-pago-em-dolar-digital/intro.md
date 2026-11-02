@@ -10,11 +10,11 @@ Primeiro passo, você precisa entender que o USDC é um token e que você vai us
 
 ## Do real ao dólar digital
 
-Bom, se você ainda não tem dólar digital, o USDC, você vai ter que se utilizar de um fornecedor. Ele tem um termo técnico, chamado on-ramp, onde você traz dinheiro do mundo tradicional para esse mundo cripto. Então você vai precisar verificar as condições de taxa, a quanto o pessoal compra, para você sair de real e chegar em USDC, que é o dólar digital.
+Bom, se você ainda não tem dólar digital, o USDC, você vai ter que se utilizar de um fornecedor. Ele tem um termo técnico, chamado on-ramp, onde você traz dinheiro do mundo tradicional para esse mundo cripto. Então você vai precisar verificar as condições de taxa, a quanto o pessoal compra, para você sair de real e chegar em USDC.
 
-Para trazer esse dólar para a sua carteira, você lembra que nós já falamos disso, você precisa dar o endereço, como uma chave Pix, para onde esse USDC deve ser encaminhado. Você pagou em real, a pessoa faz a conversão, e aí esse dólar digital, um token que busca acompanhar o dólar, vai para a sua carteira. Por isso você precisa dar o endereço.
+Para trazer esse USDC para a sua carteira, você lembra que nós já falamos disso, você precisa dar o endereço, como uma chave Pix, para onde esse USDC deve ser encaminhado. Você pagou em real, a pessoa faz a conversão, e aí esse dólar digital, um token que busca acompanhar o dólar, vai para a sua carteira. Por isso você precisa dar o endereço.
 
-E sempre confira as transações, né? Veja se realmente o dinheiro que saiu em real foi transferido em dólar USDC. Saiba que tem as taxas de serviço, então sempre faça a conta da conversão para saber se está tudo ok.
+E sempre confira as transações, né? Veja se realmente o dinheiro que saiu em real foi transferido em USDC. Saiba que tem as taxas de serviço, então sempre faça a conta da conversão para saber se está tudo ok.
 
 ## Pagar com Solana Pay
 
@@ -42,7 +42,7 @@ Se é uma empresa que faz transações internacionais, o fornecedor recebe dóla
 
 Então ele também se utiliza desse meio de pagamento, que são as moedas digitais, como o USDC, que busca acompanhar o dólar. Ou, de repente, até o próprio SOL, com que ele paga as taxas da rede que está usando. De repente algum outro fornecedor também aceita até SOL. E tudo bem: dólar digital, SOL, a cripto que estiver sendo aceita.
 
-> **Nota editorial (2 de novembro de 2026).** Este texto não é orientação jurídica. No Brasil, regras do Banco Central, como a Res BCB 521 e a Res BCB 561, podem se aplicar a pagamentos com stablecoins e a fluxos internacionais. Comerciantes e importadores devem verificar as regras aplicáveis antes de operar.
+> **Nota editorial (2 de novembro de 2026).** Esta aula e o vídeo não são orientação jurídica. No Brasil, regras do Banco Central, como a Res BCB 521 e a Res BCB 561, podem se aplicar a pagamentos com stablecoins e a fluxos internacionais. Comerciantes e importadores devem verificar as regras aplicáveis antes de operar.
 
 ## Para guardar
 

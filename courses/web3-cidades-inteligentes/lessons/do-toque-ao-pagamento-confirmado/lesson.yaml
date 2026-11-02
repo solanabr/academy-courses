@@ -110,8 +110,8 @@ blocks:
     - id: e
       label: Em SOL, por você ou por um serviço em seu lugar
       correct: true
-      feedback: Isso. O estacionamento recebe dólares, mas a taxa da rede é paga
-        em SOL.
+      feedback: Isso. O estacionamento recebe USDC, mas a taxa da rede é paga em
+        SOL.
     - id: d
       label: Não há taxa quando o ativo enviado é USDC
       correct: false
@@ -161,5 +161,5 @@ blocks:
       correct: false
       feedback: Quem ainda pode mudar é processed. Finalized é o nível mais forte
         de confirmação.
-    explanation: Processamento inicial, confirmação coletiva e consolidação falam
-      do registro. O sucesso do pagamento é outra pergunta.
+    explanation: Esses nomes falam do registro, e hoje confirmed e finalized descrevem
+      o mesmo estado, como diz a nota da lição. O sucesso do pagamento é outra pergunta.

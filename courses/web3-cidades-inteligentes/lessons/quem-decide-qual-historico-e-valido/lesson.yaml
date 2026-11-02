@@ -125,8 +125,8 @@ blocks:
     - id: e
       label: O registro da identidade real de cada participante
       correct: false
-      feedback: Nada disso. A PoH trata da ordem e da passagem do tempo entre os
-        eventos.
+      feedback: Nada disso. A PoH tratava da ordem e da passagem do tempo entre
+        os eventos.
     - id: b
       label: Uma sequência que ajudava a comprovar ordem e tempo
       correct: true

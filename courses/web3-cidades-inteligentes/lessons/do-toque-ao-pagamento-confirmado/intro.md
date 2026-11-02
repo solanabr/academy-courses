@@ -40,7 +40,7 @@ E confira duas coisas separadamente. O pagamento teve sucesso? O registro foi fi
 
 ## Quem paga a taxa da rede?
 
-Agora vamos entender as taxas. O estacionamento recebe dólares, então, lembra o USDC? Mas a taxa da rede é paga em SOL, por você ou por um serviço que pague a taxa em seu lugar. Existe uma taxa base relacionada às assinaturas exigidas.
+Agora vamos entender as taxas. O estacionamento recebe USDC, lembra? Mas a taxa da rede é paga em SOL, por você ou por um serviço que pague a taxa em seu lugar. Existe uma taxa base relacionada às assinaturas exigidas.
 
 ## Por último: conferir o comprovante
 

@@ -23,9 +23,10 @@ blocks:
     multiSelect: false
     options:
     - id: b
-      label: Testnet, com foco em testar rede e validadores
+      label: Devnet, com SOL real trazido da rede principal
       correct: false
-      feedback: A Testnet é o campo de testes da infraestrutura, não dos aplicativos.
+      feedback: 'A Devnet é o ambiente certo, mas sem SOL real: nela usamos token
+        de teste, sem valor econômico.'
     - id: e
       label: Testnet, porque todo teste de aplicativo é feito nela
       correct: false
