@@ -24,7 +24,7 @@ Terceiro conceito, muito importante: a frase de recuperação. O que é isso? Em
 
 Guarde fora da internet, em local protegido, e somente a utilize quando você perder o acesso. Essa é a dica.
 
-Nunca compartilhe a sua chave privada nem a sua frase de recuperação com ninguém, nem com quem disser que é do "suporte".
+> **Nota de segurança da lição (não está no vídeo).** A chave privada e a frase de recuperação não devem ser compartilhadas com ninguém, nem com quem disser que é do "suporte".
 
 ## Custódia: alguém cuida por você
 
@@ -42,7 +42,7 @@ Agora, falando de autocustódia. Vamos voltar ao exemplo do estacionamento? Voc�
 
 Mesma coisa lá na sua carteira cripto. Você vai fazer todo o processo de transferência. Então, não existe aquela frase: "ah, esqueci, recuperação de senha".
 
-É algo que exige, eu chamo assim, uma maturidade maior: saber o que você está fazendo, porque não vai ter ninguém para te ajudar. O processo é seu.
+É algo em que você tem que ter uma maturidade maior: saber o que você está fazendo, porque não vai ter ninguém para te ajudar. O processo é seu.
 
 Existem, inclusive, dispositivos físicos que você compra no mercado e que facilitam toda essa operação. Fica a dica.
 

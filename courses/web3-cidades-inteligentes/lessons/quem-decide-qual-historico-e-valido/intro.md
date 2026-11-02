@@ -52,6 +52,8 @@ Ela utiliza a Proof of Stake, abreviada como PoS, ou prova de participação. Ne
 
 A Solana também nasceu com a Proof of History, PoH, chamada de prova de histórico. A PoH não é o consenso. É uma sequência criptográfica que ajuda a comprovar a ordem e a passagem do tempo entre os eventos.
 
+> **Nota editorial (2 de novembro de 2026).** O vídeo descreve o desenho com que a Solana foi lançada. Desde a época 1064, em 21 de outubro de 2026, a rede principal usa o Alpenglow, que mudou a forma como a rede vota e finaliza blocos e substituiu a Proof of History, conforme as propostas SIMD-0326 e SIMD-0384.
+
 Com o crescimento das aplicações em blockchain, algumas redes passaram a enfrentar congestionamentos, demora na confirmação e aumento das taxas. Para enfrentar esse desafio, Anatoly Yakovenko começou a desenvolver a Solana em 2017, e sua rede principal entrou em funcionamento em 2020.
 
 Na analogia com uma cidade inteligente, a Solana pode ser entendida como uma nova região digital planejada, com vias de grande capacidade e sistemas sincronizados. Sua proposta é permitir que pagamentos, jogos, mercados digitais e outras aplicações funcionem com rapidez e custos geralmente baixos.

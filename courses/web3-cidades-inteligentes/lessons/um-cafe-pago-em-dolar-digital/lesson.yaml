@@ -135,33 +135,34 @@ blocks:
     explanation: Você somente tem certeza de que a transação ocorreu de maneira
       efetiva quando a liquidação da operação aconteceu.
   - id: q5
-    prompt: O dono da cafeteria compra café importado. Ele precisa fazer off-ramp?
+    prompt: Você troca reais por USDC e, depois, o comerciante troca USDC por reais.
+      Como se chamam esses dois caminhos, nessa ordem?
     multiSelect: false
     options:
     - id: c
-      label: 'Nunca: off-ramp só vale para o consumidor final'
+      label: Off-ramp para os dois, em cada uma das conversões
       correct: false
-      feedback: O off-ramp é justamente o caminho do comerciante que quer real ou
-        dólar.
+      feedback: Você está entrando no mundo cripto, e isso é on-ramp. Off-ramp é
+        o caminho de volta.
     - id: d
-      label: 'Nem sempre: pode pagar o fornecedor em dólar digital'
+      label: On-ramp para você, off-ramp para o comerciante
       correct: true
-      feedback: Isso. Ele não precisa converter para a moeda local, já paga o fornecedor
-        em dólar digital.
+      feedback: Isso. Você traz dinheiro do mundo tradicional para o cripto, e o
+        comerciante faz o caminho de volta para a moeda local.
     - id: b
-      label: 'Sempre: USDC não serve para pagar outra empresa'
+      label: On-ramp para os dois, em cada uma das conversões
       correct: false
-      feedback: Serve, sim. Ele pode pagar o fornecedor em dólar digital. Isso é
-        legal.
+      feedback: O comerciante está saindo do mundo cripto, então o caminho dele
+        é o off-ramp.
     - id: a
-      label: 'Sempre: só moeda local paga fornecedor de café'
+      label: Off-ramp para você, on-ramp para o comerciante
       correct: false
-      feedback: Nem sempre você precisa fazer essa conversão. O fornecedor pode
-        receber dólar digital.
+      feedback: Invertido. Sair de real e chegar em USDC é o on-ramp. O caminho
+        de volta é o off-ramp.
     - id: e
-      label: 'Nunca: USDC vira moeda local automaticamente'
+      label: Solana Pay para você, liquidação para o comerciante
       correct: false
-      feedback: Não vira. Quando ele quer moeda local, tem que fazer o caminho da
-        conversão.
-    explanation: 'O dólar digital circula: quem recebe também pode usar essa moeda
-      para fazer as outras transações.'
+      feedback: Solana Pay é o instrumento do pagamento e liquidação é a palavra-chave
+        da certeza. Aqui a pergunta é sobre a conversão.
+    explanation: Quem sai do real e chega em USDC faz o on-ramp. Quem sai do USDC
+      e volta para a moeda local faz o off-ramp.

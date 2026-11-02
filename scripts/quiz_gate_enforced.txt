@@ -20,6 +20,7 @@ rust-ts-fundamentals       # 0 errors: key length rank [33,38,38,22], best strat
 solana-payments-commerce   # 0 errors: key length rank [23,27,25,20], best strategy 28.4% vs 25.0% chance
 digital-assets             # 0 errors: spread 28/86 over 1.7x -> 0/86, best strategy 26.7% vs 24.7% chance
 btc-to-sol-evolution       # round-3 (PR #59): 'longest' picked the key 72.7% pre-wave, 27.3% after, vs 24.5% chance
+web3-cidades-inteligentes  # 0 errors: key length rank [6,8,9,9,6], best strategy 23.7% vs 20.0% chance
 
 # Deliberately out of scope this wave (owner decision, 2026-09-07):
 # visao-geral-solana, solana-speedrun, pilula-solana-superteam. These are

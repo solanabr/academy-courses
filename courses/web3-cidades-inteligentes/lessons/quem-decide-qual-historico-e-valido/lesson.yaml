@@ -121,7 +121,7 @@ blocks:
     - id: a
       label: O consenso que substituía o trabalho dos validadores
       correct: false
-      feedback: 'Cuidado com esse: a PoH não é o consenso.'
+      feedback: 'Cuidado com esse: a PoH não era o consenso.'
     - id: e
       label: O registro da identidade real de cada participante
       correct: false
@@ -130,10 +130,10 @@ blocks:
     - id: b
       label: Uma sequência que ajudava a comprovar ordem e tempo
       correct: true
-      feedback: Isso. A PoH é uma sequência criptográfica que ajuda a comprovar
+      feedback: Isso. A PoH era uma sequência criptográfica que ajudava a comprovar
         a ordem e a passagem do tempo entre os eventos.
     explanation: 'Proof of Stake é a prova de participação. Proof of History, a
-      prova de histórico, não é o consenso: é uma sequência criptográfica.'
+      prova de histórico, não era o consenso: era uma sequência criptográfica.'
   - id: q5
     prompt: O que a blockchain faz com a confiança?
     multiSelect: false

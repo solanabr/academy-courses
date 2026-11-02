@@ -18,8 +18,8 @@ blocks:
   type: quiz
   questions:
   - id: q1
-    prompt: Você quer experimentar um aplicativo sem usar ativos com valor. Qual
-      é a oficina certa?
+    prompt: Sua equipe vai experimentar o aplicativo de estacionamento antes de
+      oferecê-lo aos motoristas. Em qual ambiente?
     multiSelect: false
     options:
     - id: b
@@ -27,20 +27,20 @@ blocks:
       correct: false
       feedback: A Testnet é o campo de testes da infraestrutura, não dos aplicativos.
     - id: e
-      label: Slot, a janela de tempo para produzir um bloco
+      label: Testnet, porque todo teste de aplicativo é feito nela
       correct: false
-      feedback: Slot é um termo da tela do explorador. Os ambientes são Mainnet,
-        Devnet e Testnet.
+      feedback: O nome engana. A Testnet testa a própria rede e os validadores.
+        Aplicativo se experimenta na Devnet.
     - id: d
-      label: Explorer, o painel público de consulta da rede
+      label: Mainnet, com uma quantia bem pequena de SOL real
       correct: false
-      feedback: O Explorer só mostra o movimento. Ele não é um ambiente para rodar
-        o aplicativo.
+      feedback: Mesmo pequena, é a rede principal, com ativos de valor econômico.
+        Experimentar antes dos motoristas é trabalho da oficina, a Devnet.
     - id: c
       label: Devnet, com token de teste sem valor econômico
       correct: true
-      feedback: Isso, a Devnet é a oficina em que a equipe experimenta o aplicativo
-        antes de oferecê-lo aos motoristas.
+      feedback: Isso, a Devnet é a oficina em que a equipe experimenta o aplicativo,
+        com token de teste.
     - id: a
       label: Mainnet, onde os pagamentos são feitos para valer
       correct: false

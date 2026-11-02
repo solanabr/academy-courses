@@ -78,7 +78,7 @@ blocks:
       nunca.
   - id: q3
     prompt: Alguém do "suporte" pede a sua frase de recuperação para resolver um
-      problema. O que fazer?
+      problema. Segundo a nota de segurança desta lição, o que fazer?
     multiSelect: false
     options:
     - id: c
@@ -88,24 +88,25 @@ blocks:
     - id: d
       label: Trocar pela chave privada, que é menos sensível
       correct: false
-      feedback: A chave privada também é o seu segredo. Nenhuma das duas se compartilha.
+      feedback: A chave privada é o segredo que assina. A nota de segurança da lição
+        vale para as duas.
     - id: e
       label: Não compartilhar com ninguém, nem com o suporte
       correct: true
-      feedback: Exato. Nunca compartilhe a chave privada nem a frase de recuperação
-        com ninguém, inclusive o suporte.
+      feedback: 'Exato. É o que diz a nota de segurança da lição: chave privada
+        e frase de recuperação não se compartilham, nem com o suporte.'
     - id: a
       label: Passar, pois o suporte precisa dela para ajudar
       correct: false
-      feedback: Não! Nunca compartilhe a frase de recuperação com ninguém, nem com
-        quem disser que é do suporte.
+      feedback: Não. Pela nota de segurança da lição, a frase não deve ser compartilhada
+        com ninguém, nem com quem disser que é do suporte.
     - id: b
       label: Passar só as primeiras palavras da sequência
       correct: false
-      feedback: Nem parte dela. A frase é uma chave mestra e fica guardada, fora
-        da internet.
-    explanation: A frase de recuperação reconstrói as chaves. Quem tem a frase,
-      tem o acesso. Não compartilhe com ninguém.
+      feedback: Nem parte dela. A frase é uma chave mestra, e a nota de segurança
+        da lição vale para ela inteira.
+    explanation: A frase de recuperação reconstrói as chaves e recupera o acesso.
+      Por isso a nota de segurança da lição diz para não compartilhá-la com ninguém.
   - id: q4
     prompt: Em qual situação não existe aquela frase "ah, esqueci, recuperação de
       senha"?

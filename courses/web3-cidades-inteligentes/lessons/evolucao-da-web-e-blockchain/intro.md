@@ -88,7 +88,9 @@ Finalmente, a Web3 pode ser entendida como uma cidade inteligente construída so
 
 As carteiras cripto atuam como identidade, assinatura e chave digital do cidadão, permitindo acessar edifícios, realizar pagamentos, comprovar propriedade e interagir com os serviços, sem depender, obrigatoriamente, de uma única empresa intermediária.
 
-Os edifícios representam aplicações descentralizadas. As ruas são as redes blockchain, pelas quais circulam dados, ativos e transações. E os contratos inteligentes funcionam como regras urbanas, executadas automaticamente quando determinadas condições são atendidas. Na Solana, um contrato só roda quando uma transação o chama.
+Os edifícios representam aplicações descentralizadas. As ruas são as redes blockchain, pelas quais circulam dados, ativos e transações. E os contratos inteligentes funcionam como regras urbanas, executadas automaticamente quando determinadas condições são atendidas.
+
+> **Nota editorial.** Na Solana, um contrato inteligente só é executado quando uma transação o chama.
 
 Nessa cidade, cada blockchain pode possuir sua própria arquitetura, velocidade, custos e normas de governança, enquanto pontes digitais conectam diferentes redes. Assim, o cidadão deixa de ser apenas usuário de plataformas e passa a controlar melhor sua identidade, seus ativos e sua participação na economia digital. Mas ainda são necessários planejamento, segurança, inclusão e boa governança para que essa nova cidade seja verdadeiramente inteligente.
 

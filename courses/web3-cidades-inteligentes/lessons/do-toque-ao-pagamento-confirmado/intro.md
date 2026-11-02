@@ -34,6 +34,8 @@ O quinto passo é acompanhar a confirmação. Você encontra três termos.
 
 Para lembrar: processamento inicial, confirmação coletiva e consolidação.
 
+> **Nota editorial (2 de novembro de 2026).** O vídeo descreve os três nomes como eles funcionavam antes do Alpenglow, ativo na rede principal desde 21 de outubro de 2026. Os três continuam existindo nas ferramentas, mas, segundo a Solana Foundation, `confirmed` e `finalized` agora descrevem o mesmo estado, e `confirmed` deve ser removido em uma versão futura.
+
 E confira duas coisas separadamente. O pagamento teve sucesso? O registro foi finalizado? Uma operação que falhou também pode ter seu registro de erro finalizado.
 
 ## Quem paga a taxa da rede?

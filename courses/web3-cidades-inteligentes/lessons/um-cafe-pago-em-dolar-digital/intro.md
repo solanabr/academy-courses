@@ -12,13 +12,13 @@ Primeiro passo, você precisa entender que o USDC é um token e que você vai us
 
 Bom, se você ainda não tem dólar digital, o USDC, você vai ter que se utilizar de um fornecedor. Ele tem um termo técnico, chamado on-ramp, onde você traz dinheiro do mundo tradicional para esse mundo cripto. Então você vai precisar verificar as condições de taxa, a quanto o pessoal compra, para você sair de real e chegar em USDC, que é o dólar digital.
 
-Para trazer esse dólar para a sua carteira, você lembra que nós já falamos disso, você precisa dar o endereço, como uma chave Pix, para onde esse USDC deve ser encaminhado. Você pagou em real, a pessoa faz a conversão, como se fosse um dólar em papel, e aí esse dólar digital vai para a sua carteira. Por isso você precisa dar o endereço.
+Para trazer esse dólar para a sua carteira, você lembra que nós já falamos disso, você precisa dar o endereço, como uma chave Pix, para onde esse USDC deve ser encaminhado. Você pagou em real, a pessoa faz a conversão, e aí esse dólar digital, um token que busca acompanhar o dólar, vai para a sua carteira. Por isso você precisa dar o endereço.
 
 E sempre confira as transações, né? Veja se realmente o dinheiro que saiu em real foi transferido em dólar USDC. Saiba que tem as taxas de serviço, então sempre faça a conta da conversão para saber se está tudo ok.
 
 ## Pagar com Solana Pay
 
-Um instrumento que você pode usar nesse próximo passo é o Solana Pay. Como hoje nós temos métodos de pagamento de encostar o celular nas maquininhas, no Solana Pay você vai fazer essa transferência da sua conta corrente digital, cripto, para o comerciante.
+Um instrumento que você pode usar nesse próximo passo é o Solana Pay. Como hoje nós temos métodos de pagamento de encostar o celular nas maquininhas, no Solana Pay você vai fazer essa transferência da sua carteira para o comerciante.
 
 Cuidado: nessa etapa, essa transferência é feita pelo token USDC. Ele vai estar recebendo na outra ponta não reais, vai estar recebendo dólar digital. Lembra da plaquinha? Ela dizia que recebia USDC via Solana. É o que você está fazendo.
 
@@ -36,11 +36,13 @@ Então, agora o comerciante, de posse desse dólar digital, vai fazer, o termo a
 
 ## Precisa converter?
 
-Mas nem sempre você precisa fazer essa conversão. De repente esse dono da cafeteria compra café importado também e paga o fornecedor em USDC. Então ele não precisa converter para a moeda local, ele já paga o fornecedor em dólar digital. Isso é legal.
+Mas nem sempre você precisa fazer essa conversão. De repente esse dono da cafeteria compra café importado também e paga o fornecedor em USDC. Então ele não precisa converter para a moeda local, ele já paga o fornecedor em dólar digital. Isso é bacana.
 
 Se é uma empresa que faz transações internacionais, o fornecedor recebe dólar digital e é interessante para ele. Por quê? Porque ele também se utiliza dessa moeda para fazer as outras transações: comprar café, de repente pagar lá o streaming da cafeteria dele, de repente fazer a manutenção das máquinas de café.
 
-Então ele também se utiliza desse meio de pagamento, que são as moedas digitais, como o dólar. Ou, de repente, até o próprio SOL, com que ele paga as taxas da rede que está usando. De repente algum outro fornecedor também aceita até SOL. E tudo bem: dólar, SOL, a cripto que estiver sendo aceita.
+Então ele também se utiliza desse meio de pagamento, que são as moedas digitais, como o USDC, que busca acompanhar o dólar. Ou, de repente, até o próprio SOL, com que ele paga as taxas da rede que está usando. De repente algum outro fornecedor também aceita até SOL. E tudo bem: dólar digital, SOL, a cripto que estiver sendo aceita.
+
+> **Nota editorial (2 de novembro de 2026).** Este texto não é orientação jurídica. No Brasil, regras do Banco Central, como a Res BCB 521 e a Res BCB 561, podem se aplicar a pagamentos com stablecoins e a fluxos internacionais. Comerciantes e importadores devem verificar as regras aplicáveis antes de operar.
 
 ## Para guardar
 

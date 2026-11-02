@@ -64,7 +64,7 @@ blocks:
       correct: false
       feedback: A chave privada não circula. O que é verificável é o histórico.
     - id: e
-      label: Se a operação foi incluída, mas não quem é a pessoa
+      label: Se a operação foi incluída, não necessariamente quem é a pessoa
       correct: true
       feedback: Exato. Você verifica a operação, mas consultar não significa conhecer
         a identidade real de todos.
