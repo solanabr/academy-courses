@@ -1,0 +1,167 @@
+id: lesson-wci-intermediario-registro
+slug: do-intermediario-ao-registro-distribuido
+title: Do intermediário ao registro distribuído
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=PENDING-AULA-4
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Quando você transfere R$ 100 pelo celular, o que de fato acontece?
+    multiSelect: false
+    options:
+    - id: b
+      label: Uma instrução manda atualizar os dois registros
+      correct: true
+      feedback: 'Isso. É uma ordem que diz para atualizar os registros: um saldo
+        diminui e o outro aumenta.'
+    - id: d
+      label: O banco envia cédulas para a outra agência
+      correct: false
+      feedback: Nenhuma cédula atravessa fisicamente. É uma instrução.
+    - id: e
+      label: O saldo só muda quando o recebedor sacar
+      correct: false
+      feedback: O saldo muda pela atualização dos registros, sem depender de saque
+        nenhum.
+    - id: a
+      label: Uma cédula digital atravessa de um celular ao outro
+      correct: false
+      feedback: Nenhuma cédula atravessa fisicamente, nem digital. O que anda é
+        uma ordem.
+    - id: c
+      label: Um arquivo com o valor é copiado para a outra conta
+      correct: false
+      feedback: Se fosse arquivo, teríamos o problema da cópia. O que acontece é
+        a atualização de registros.
+    explanation: 'Nenhuma cédula atravessa fisicamente: é uma instrução para atualizar
+      os registros.'
+  - id: q2
+    prompt: O que eu digo sobre os intermediários?
+    multiSelect: false
+    options:
+    - id: e
+      label: Têm sua importância, mas cobram e podem falhar
+      correct: true
+      feedback: Isso. Registram operações e identificam fraudes, só que cobram por
+        isso e às vezes estão fora do ar.
+    - id: b
+      label: Trabalham de graça e nunca ficam fora do ar
+      correct: false
+      feedback: Eles cobram pelos serviços e você já deve ter passado por algum
+        problema de eles estarem fora do ar.
+    - id: a
+      label: Não têm importância nenhuma e só atrapalham
+      correct: false
+      feedback: Não foi isso. Eles registram operações e podem identificar fraudes,
+        têm a sua importância.
+    - id: d
+      label: Guardam uma cédula física de cada transferência
+      correct: false
+      feedback: Eles registram operações. Nenhuma cédula atravessa nem fica guardada
+        para cada transferência.
+    - id: c
+      label: Só existem em transferências internacionais
+      correct: false
+      feedback: 'Eles estão no meio do seu dia a dia: banco, operadoras de cartão,
+        sistemas de pagamento.'
+    explanation: Banco, operadoras e sistemas de pagamento têm a sua importância,
+      mas custam caro e podem ficar fora do ar.
+  - id: q3
+    prompt: Por que uma moeda digital não pode ser apenas um arquivo?
+    multiSelect: false
+    options:
+    - id: c
+      label: Porque a internet não permite enviar arquivo de valor
+      correct: false
+      feedback: Enviar é fácil. O problema é que uma cópia pode continuar no computador
+        de quem enviou.
+    - id: e
+      label: Porque todo arquivo de valor precisa de um banco
+      correct: false
+      feedback: O que o dinheiro digital precisa é de um sistema de registro, e
+        o Bitcoin mostrou um caminho sem banco.
+    - id: b
+      label: Porque arquivos são pesados demais para a internet
+      correct: false
+      feedback: O problema não é o tamanho, é a facilidade de copiar.
+    - id: d
+      label: Porque um arquivo só abre em quem o criou
+      correct: false
+      feedback: Pelo contrário, o arquivo circula e é copiado com facilidade. Esse
+        é o ponto.
+    - id: a
+      label: Porque alguém poderia copiá-la e usar várias vezes
+      correct: true
+      feedback: Exato. Copiar é uma grande vantagem da internet, e vira problema
+        quando o arquivo representa dinheiro.
+    explanation: O dinheiro digital precisa de um sistema capaz de registrar quem
+      controla cada unidade e quais transferências já foram realizadas.
+  - id: q4
+    prompt: O que é o gasto duplo?
+    multiSelect: false
+    options:
+    - id: e
+      label: Usar dois intermediários na mesma operação
+      correct: false
+      feedback: O gasto duplo preocupa justamente quando não há instituição financeira
+        no meio.
+    - id: a
+      label: Pagar duas taxas ao banco pela mesma transferência feita
+      correct: false
+      feedback: Não é sobre taxa. É tentar gastar duas vezes as mesmas unidades.
+    - id: b
+      label: Receber em dobro por causa de uma falha do sistema bancário
+      correct: false
+      feedback: 'Aqui é quem envia que tenta enganar: as mesmas unidades para duas
+        pessoas.'
+    - id: c
+      label: Enviar as mesmas unidades digitais para duas pessoas
+      correct: true
+      feedback: Isso, o mesmo valor, o mesmo dinheiro, para duas pessoas. Sem um
+        banco, como é que nós impedimos isso?
+    - id: d
+      label: Comprar duas vezes o mesmo produto em uma loja sem perceber
+      correct: false
+      feedback: Isso seria uma distração sua. O gasto duplo é usar as mesmas unidades
+        duas vezes.
+    explanation: O gasto duplo é a preocupação de quando não há instituição financeira
+      no meio.
+  - id: q5
+    prompt: O que é o livro-razão distribuído do Bitcoin?
+    multiSelect: false
+    options:
+    - id: e
+      label: O aplicativo que controla as chaves de cada usuário
+      correct: false
+      feedback: Isso é a carteira. O livro-razão é o histórico das transações.
+    - id: d
+      label: Uma lista das pessoas que já possuem a moeda
+      correct: false
+      feedback: O livro-razão registra transações, não é um cadastro de pessoas.
+    - id: c
+      label: Cópias do histórico mantidas por vários computadores
+      correct: true
+      feedback: Isso. Livro-razão é o registro organizado das transações, e a rede
+        distribui cópias entre diferentes computadores.
+    - id: b
+      label: O documento de 2008 escrito por Satoshi Nakamoto
+      correct: false
+      feedback: Esse é o whitepaper. O livro-razão é o histórico das transações.
+    - id: a
+      label: Um registro único, guardado em um banco de confiança
+      correct: false
+      feedback: 'É o contrário: em vez de manter o registro em um banco, a rede
+        distribui cópias.'
+    explanation: Livro-razão significa registro organizado das transações, e na
+      rede Bitcoin ele é distribuído entre diferentes computadores.

@@ -1,0 +1,171 @@
+id: lesson-wci-evolucao-web
+slug: evolucao-da-web-e-blockchain
+title: A evolução da Web e blockchain
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=PENDING-AULA-1
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Na nossa cidade digital, o que a internet representa?
+    multiSelect: false
+    options:
+    - id: c
+      label: As ruas e as avenidas da cidade
+      correct: true
+      feedback: Isso. A internet é a infraestrutura que conecta, são as nossas ruas
+        e avenidas. Os prédios construídos nelas são a web.
+    - id: b
+      label: As regras de trânsito da cidade
+      correct: false
+      feedback: Essas são os protocolos, como TCP/IP, DNS e HTTP. A internet é o
+        que eles organizam.
+    - id: e
+      label: Os moradores que circulam na cidade
+      correct: false
+      feedback: Os moradores somos nós, os usuários. A internet é a infraestrutura
+        que conecta redes e dispositivos.
+    - id: a
+      label: Os prédios e os serviços da cidade
+      correct: false
+      feedback: Cuidado, o pessoal se confunde bem aqui. Os prédios e serviços são
+        a web, que funciona sobre a internet.
+    - id: d
+      label: O cartório digital da cidade
+      correct: false
+      feedback: O cartório digital é a imagem da blockchain, o registro distribuído.
+        A internet vem antes, é a infraestrutura.
+    explanation: A internet é a infraestrutura, as ruas e avenidas. A web são os
+      prédios e serviços construídos nessas ruas.
+  - id: q2
+    prompt: O que o efeito da rede diz sobre uma plataforma?
+    multiSelect: false
+    options:
+    - id: e
+      label: Ela fica mais barata a cada novo usuário
+      correct: false
+      feedback: 'Não falamos de preço aqui. O efeito da rede é sobre participação:
+        sem participação, a rede morre.'
+    - id: c
+      label: O proprietário perde o controle das regras
+      correct: false
+      feedback: 'Na Web2 é o contrário: o proprietário do terreno continua definindo
+        as regras.'
+    - id: b
+      label: Só quem programa consegue publicar nela
+      correct: false
+      feedback: Isso lembra a Web1. Na Web2 você não precisava mais ser um expert
+        de programação.
+    - id: d
+      label: Sem gente usando e trocando, o site morre
+      correct: true
+      feedback: É isso. Se as pessoas não publicam suas fotos, se ninguém coloca
+        nada para vender, esse site morre.
+    - id: a
+      label: Tecnologia boa garante o sucesso sozinha
+      correct: false
+      feedback: Não adianta ter a tecnologia. As pessoas precisam começar a usar
+        e fazer trocas entre elas.
+    explanation: Uma rede social morre se o pessoal não participa. Esse é o efeito
+      da rede.
+  - id: q3
+    prompt: Qual é o problema que eu aponto no modelo da Web2?
+    multiSelect: false
+    options:
+    - id: a
+      label: As plataformas são ruins por natureza
+      correct: false
+      feedback: Não foi isso que eu disse. Essas plataformas possuem serviços maravilhosos.
+        O ponto é quem controla.
+    - id: d
+      label: Ninguém consegue publicar sem programar
+      correct: false
+      feedback: 'Na Web2 ficou mais fácil: eu mesmo publicava em blog sem ser expert
+        de programação.'
+    - id: c
+      label: Os sites só permitem a leitura de conteúdo
+      correct: false
+      feedback: Isso era a Web1, a web da leitura. A Web2 é justamente a web participativa.
+    - id: e
+      label: As pessoas não querem mais participar nela
+      correct: false
+      feedback: Pelo contrário, todo mundo quer participar. O problema é que os
+        dados e as decisões ficaram concentrados.
+    - id: b
+      label: Há um controlador central e dependência
+      correct: true
+      feedback: Exato. O modelo possui um controlador central e cria uma relação
+        de dependência. É a casa no terreno de outra pessoa.
+    explanation: As plataformas facilitaram a comunicação, mas concentraram os dados
+      e as decisões. Podemos usar o espaço, mas o proprietário define as regras.
+  - id: q4
+    prompt: O que a blockchain faz com uma informação registrada?
+    multiSelect: false
+    options:
+    - id: c
+      label: Preserva o registro, sem atestar a realidade
+      correct: true
+      feedback: Muito bem. A tecnologia protege o registro, mas não garante por
+        si só que a informação corresponda à realidade externa.
+    - id: a
+      label: Torna verdadeira toda informação inserida
+      correct: false
+      feedback: 'Essa ressalva é fundamental: a blockchain não torna toda informação
+        automaticamente verdadeira.'
+    - id: d
+      label: Guarda tudo em um único computador central
+      correct: false
+      feedback: 'O cartório digital é justamente o oposto: diversos computadores
+        mantêm e verificam cópias do histórico.'
+    - id: e
+      label: Apaga o conteúdo depois de ele ser verificado
+      correct: false
+      feedback: Não, ela ajuda a preservar e a verificar aquilo que foi registrado
+        segundo as regras do sistema.
+    - id: b
+      label: Deixa um participante corrigir o histórico
+      correct: false
+      feedback: Nenhum participante pode modificar sozinho o histórico reconhecido
+        pela rede.
+    explanation: A blockchain ajuda a preservar e verificar o que foi registrado
+      segundo as regras, mas isso não significa que a informação inserida seja verdadeira.
+  - id: q5
+    prompt: Qual frase descreve a wallet, um dos três termos da Web3?
+    multiSelect: false
+    options:
+    - id: c
+      label: Controla as chaves e autoriza as operações
+      correct: true
+      feedback: Isso. A wallet, ou carteira criptográfica, controla as chaves digitais
+        e autoriza operações.
+    - id: a
+      label: É uma unidade registrada pelas regras da rede
+      correct: false
+      feedback: Esse é o token. A wallet é a ferramenta que controla as chaves.
+    - id: d
+      label: Localiza os endereços dos sites na internet
+      correct: false
+      feedback: Esse é o DNS, uma das regras de trânsito da cidade. Não tem relação
+        com a carteira.
+    - id: e
+      label: Guarda as fotos das suas redes sociais
+      correct: false
+      feedback: As fotos ficam nas plataformas das big techs. A carteira é identidade,
+        assinatura e chave do cidadão.
+    - id: b
+      label: Executa programas dentro da própria blockchain
+      correct: false
+      feedback: Esse é o smart contract, o contrato inteligente. A wallet controla
+        chaves e autoriza operações.
+    explanation: Wallet controla as chaves, token é a unidade digital registrada
+      e smart contract é o programa executado pela blockchain.

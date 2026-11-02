@@ -1,0 +1,166 @@
+id: lesson-wci-historico-valido
+slug: quem-decide-qual-historico-e-valido
+title: Quem decide qual histórico é válido?
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=PENDING-AULA-5
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: 'Guarde essa regra: mais blocos posteriores é igual a quê?'
+    multiSelect: false
+    options:
+    - id: a
+      label: Uma taxa maior para quem fez a transferência
+      correct: false
+      feedback: Não é sobre taxa. Mais blocos depois da transação tornam o registro
+        mais difícil de reverter.
+    - id: e
+      label: Uma nova disputa entre os mesmos mineradores
+      correct: false
+      feedback: A disputa acontece a cada bloco. A regra aqui fala do que acontece
+        com a transferência.
+    - id: d
+      label: Uma maior consolidação da transferência
+      correct: true
+      feedback: É essa a regra. Mais blocos posteriores é igual a uma maior consolidação.
+    - id: c
+      label: Um histórico mais fácil de ser alterado
+      correct: false
+      feedback: É o contrário. Mais blocos posteriores consolidam o histórico.
+    - id: b
+      label: Uma chance maior de reverter o registro
+      correct: false
+      feedback: 'É o contrário: quanto mais blocos depois, mais difícil reverter.'
+    explanation: Bloco N registra a transferência. N+1, N+2 e N+3 vão consolidando
+      esse registro.
+  - id: q2
+    prompt: Qual destas frases está certa?
+    multiSelect: false
+    options:
+    - id: d
+      label: bitcoin, com minúscula, é o protocolo que opera a rede
+      correct: false
+      feedback: Invertido. Com maiúscula, rede e protocolo. Com minúscula, a unidade
+        monetária, o BTC.
+    - id: a
+      label: Bitcoin usa blockchain, mas nem toda blockchain é Bitcoin
+      correct: true
+      feedback: Essa é a frase de efeito para você guardar. Outras redes, como a
+        Solana, têm outras características e arquiteturas.
+    - id: b
+      label: Blockchain é apenas outro nome para a rede criada pelo Bitcoin
+      correct: false
+      feedback: Não confunda. Blockchain é uma estrutura de registros, e o Bitcoin
+        é uma rede que a utiliza.
+    - id: c
+      label: Toda blockchain é um Bitcoin, só muda a moeda usada na rede
+      correct: false
+      feedback: Nem toda blockchain é Bitcoin. Outras redes têm outros objetivos
+        e outras arquiteturas.
+    - id: e
+      label: A Solana é uma versão mais rápida da rede Bitcoin
+      correct: false
+      feedback: A Solana é outra rede, com outra arquitetura, não uma versão do
+        Bitcoin.
+    explanation: Bitcoin com maiúscula é a rede e o protocolo. bitcoin com minúscula
+      é a unidade monetária, o BTC. E nem toda blockchain é Bitcoin.
+  - id: q3
+    prompt: Na compra do carro com smart contract, o que acontece com o dinheiro
+      depositado?
+    multiSelect: false
+    options:
+    - id: e
+      label: Vai para um banco, que decide quando pode liberar
+      correct: false
+      feedback: 'A graça é não depender dessa decisão: o programa executa quando
+        as condições são atingidas.'
+    - id: a
+      label: Vai direto para o vendedor assim que o comprador deposita
+      correct: false
+      feedback: Não. O vendedor não recebe nada até as condições serem atendidas.
+    - id: b
+      label: Fica numa região intermediária até cumprir as condições
+      correct: true
+      feedback: Isso. Quando as duas condições estão ok, o programa executa a venda.
+        Não é uma maravilha?
+    - id: d
+      label: Fica com o programa como pagamento pela execução
+      correct: false
+      feedback: O programa só segue a regra. O dinheiro é o valor da venda.
+    - id: c
+      label: Volta para o comprador quando o carro é transferido pelo vendedor
+      correct: false
+      feedback: Se as condições foram atingidas, a venda é executada. O dinheiro
+        não volta.
+    explanation: 'O smart contract cria uma região intermediária: nenhum dos dois
+      lados recebe direto, e o programa executa a venda quando as condições são
+      atingidas.'
+  - id: q4
+    prompt: Na origem da Solana, qual era o papel da Proof of History?
+    multiSelect: false
+    options:
+    - id: c
+      label: A disputa de mineradores para propor um novo bloco
+      correct: false
+      feedback: Essa é a Proof of Work do Bitcoin. A Solana nasceu com outra proposta.
+    - id: d
+      label: A delegação de SOL aos validadores da rede
+      correct: false
+      feedback: A delegação de SOL faz parte da Proof of Stake, a prova de participação.
+    - id: a
+      label: O consenso que substituía o trabalho dos validadores
+      correct: false
+      feedback: 'Cuidado com esse: a PoH não é o consenso.'
+    - id: e
+      label: O registro da identidade real de cada participante
+      correct: false
+      feedback: Nada disso. A PoH trata da ordem e da passagem do tempo entre os
+        eventos.
+    - id: b
+      label: Uma sequência que ajudava a comprovar ordem e tempo
+      correct: true
+      feedback: Isso. A PoH é uma sequência criptográfica que ajuda a comprovar
+        a ordem e a passagem do tempo entre os eventos.
+    explanation: 'Proof of Stake é a prova de participação. Proof of History, a
+      prova de histórico, não é o consenso: é uma sequência criptográfica.'
+  - id: q5
+    prompt: O que a blockchain faz com a confiança?
+    multiSelect: false
+    options:
+    - id: d
+      label: Passa toda a confiança para os desenvolvedores
+      correct: false
+      feedback: 'Lembre do espectro: desenvolvimento e validação podem estar distribuídos
+        de formas diferentes.'
+    - id: b
+      label: Concentra a confiança em uma autoridade central
+      correct: false
+      feedback: Ela existe justamente para não precisar confiar em uma única autoridade
+        central.
+    - id: c
+      label: Modifica como ela é construída e verificada
+      correct: true
+      feedback: Isso. Ela modifica a maneira como essa confiança é construída, distribuída
+        e verificada.
+    - id: a
+      label: Elimina por completo a necessidade de confiar
+      correct: false
+      feedback: Cuidado. Ela não elimina a confiança.
+    - id: e
+      label: Transforma a confiança em moeda da própria rede
+      correct: false
+      feedback: Confiança não vira moeda. O ponto é como ela é construída, distribuída
+        e verificada.
+    explanation: A blockchain não elimina a confiança. Ela modifica a maneira como
+      essa confiança é construída, distribuída e verificada.
