@@ -67,14 +67,24 @@ li b{font-weight:700;color:#fff}
 .card ul{margin-top:42px}
 .card li{font-size:40px;line-height:1.26;padding-left:38px;margin-top:22px}
 .banner .panel{background:
-  radial-gradient(1100px 700px at 4% -12%,rgba(0,128,120,.38),transparent 72%),
-  radial-gradient(1200px 820px at 96% 118%,rgba(112,40,190,.55),transparent 72%),
+  radial-gradient(1000px 640px at 2% -14%,rgba(0,128,120,.42),transparent 72%),
+  radial-gradient(1200px 820px at 98% 120%,rgba(112,40,190,.6),transparent 72%),
   #05070b}
-.banner .halo{position:absolute;left:1120px;top:400px;width:760px;height:600px;transform:translate(-50%,-50%);
-  background:radial-gradient(closest-side,rgba(60,190,200,.22),rgba(120,60,220,.12) 55%,transparent);filter:blur(10px)}
-.banner .big{position:absolute;left:1120px;top:400px;transform:translate(-50%,-50%)}
-.banner .big .mark{height:330px}
-.banner .glow{filter:blur(38px);opacity:.75}
+.bk{position:absolute;border-radius:50%;filter:blur(6px)}
+.pool{position:absolute;left:1060px;top:690px;width:900px;height:170px;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,rgba(70,200,210,.35),rgba(130,70,230,.18) 60%,transparent);filter:blur(14px)}
+.trail{position:absolute;inset:0}
+.cube{position:absolute;transform-style:preserve-3d}
+.face{position:absolute;inset:0;border:2px solid rgba(170,255,235,.6);border-radius:6px;
+  background:linear-gradient(140deg,rgba(20,241,149,.20),rgba(60,140,240,.12) 50%,rgba(153,69,255,.26));
+  box-shadow:inset 0 0 38px rgba(90,220,230,.35),0 0 26px rgba(120,90,255,.30)}
+.face.front{display:flex;align-items:center;justify-content:center}
+.face .mark{height:46%;filter:drop-shadow(0 0 16px rgba(80,255,190,.55))}
+.tile{position:absolute;width:118px;height:118px;border-radius:26px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,rgba(255,255,255,.12),rgba(255,255,255,.03));border:1.5px solid rgba(255,255,255,.28);
+  box-shadow:0 0 34px rgba(110,90,255,.35),inset 0 0 22px rgba(120,230,230,.18)}
+.tile svg{width:58px;height:58px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 6px rgba(160,240,255,.7))}
 `;
 
 const page = (body) => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -138,8 +148,41 @@ const CARDS = [
   ]],
 ];
 
-const BANNER = page(`<div class="frame banner"><div class="panel"><div class="halo"></div>
-<div class="big glow">${LOGO}</div><div class="big">${LOGO}</div></div><div class="strip"></div></div>`);
+const cube = (x, y, size, rx, ry, logo) => {
+  const h = size / 2;
+  const faces = [["front", `translateZ(${h}px)`], ["back", `rotateY(180deg) translateZ(${h}px)`], ["right", `rotateY(90deg) translateZ(${h}px)`],
+    ["left", `rotateY(-90deg) translateZ(${h}px)`], ["top", `rotateX(90deg) translateZ(${h}px)`], ["bottom", `rotateX(-90deg) translateZ(${h}px)`]];
+  return `<div style="position:absolute;left:${x - h}px;top:${y - h}px;width:${size}px;height:${size}px;perspective:1400px">
+<div class="cube" style="width:${size}px;height:${size}px;transform:rotateX(${rx}deg) rotateY(${ry}deg)">${faces
+    .map(([n, t]) => `<div class="face ${n}" style="transform:${t}">${n === "front" && logo ? LOGO : ""}</div>`).join("")}</div></div>`;
+};
+const ICONS = {
+  wallet: '<path d="M6 16h40a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4h30v8"/><path d="M50 26H38a5 5 0 0 0 0 10h12z"/>',
+  key: '<circle cx="20" cy="36" r="10"/><path d="M27 29 48 8M40 16l6 6M34 22l5 5"/>',
+  globe: '<circle cx="28" cy="28" r="22"/><path d="M6 28h44M28 6c-12 12-12 32 0 44M28 6c12 12 12 32 0 44"/>',
+  lock: '<rect x="10" y="24" width="36" height="26" rx="5"/><path d="M18 24v-7a10 10 0 0 1 20 0v7M28 34v6"/>',
+  coin: '<ellipse cx="28" cy="16" rx="18" ry="7"/><path d="M10 16v12c0 4 8 7 18 7s18-3 18-7V16M10 28v12c0 4 8 7 18 7s18-3 18-7V28"/>',
+};
+const tile = (x, y, icon, rot) => `<div class="tile" style="left:${x - 59}px;top:${y - 59}px;transform:rotate(${rot}deg)"><svg viewBox="0 0 56 56">${ICONS[icon]}</svg></div>`;
+// Chain runs lower-left to upper-right through the middle band; the title overlay
+// owns x<880 below y=600 and the status chip owns the top-right corner.
+const CHAIN = [[760, 560, 96, -18, 34], [905, 470, 118, -20, 36], [1080, 380, 172, -22, 38, true], [1265, 300, 118, -20, 40], [1405, 240, 92, -18, 42]];
+const BOKEH = [[220, 160, 10, "rgba(80,220,200,.35)"], [470, 90, 6, "rgba(160,120,255,.4)"], [640, 250, 4, "rgba(120,230,255,.4)"], [1500, 470, 8, "rgba(180,110,255,.35)"],
+  [1180, 600, 5, "rgba(90,240,190,.35)"], [330, 420, 5, "rgba(150,110,255,.3)"], [1540, 150, 4, "rgba(120,230,255,.35)"], [980, 170, 6, "rgba(90,240,190,.3)"]];
+const BANNER = page(`<div class="frame banner"><div class="panel">
+${BOKEH.map(([x, y, r, c]) => `<div class="bk" style="left:${x}px;top:${y}px;width:${r * 2}px;height:${r * 2}px;background:${c}"></div>`).join("")}
+<div class="pool"></div>
+<svg class="trail" viewBox="0 0 ${W} ${H}"><defs><linearGradient id="tr" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#14F195"/><stop offset=".5" stop-color="#35a7e8"/><stop offset="1" stop-color="#9945FF"/></linearGradient>
+<filter id="gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+<g fill="none" stroke="url(#tr)" stroke-linecap="round">
+<path d="M640 630 C 720 600, 760 560, 905 470 S 1080 380, 1265 300 S 1460 210, 1540 180" stroke-width="18" opacity=".7" filter="url(#gl)"/>
+<path d="M640 630 C 720 600, 760 560, 905 470 S 1080 380, 1265 300 S 1460 210, 1540 180" stroke-width="3.5"/>
+<path d="M880 230 Q 980 250 1040 330" stroke-width="2" opacity=".55"/><path d="M1180 170 Q 1150 240 1120 300" stroke-width="2" opacity=".55"/>
+<path d="M1400 570 Q 1300 500 1160 440" stroke-width="2" opacity=".55"/><path d="M1000 610 Q 1020 520 1050 470" stroke-width="2" opacity=".5"/>
+<path d="M1470 400 Q 1440 330 1405 270" stroke-width="2" opacity=".5"/></g></svg>
+${CHAIN.map(([x, y, s, rx, ry, logo]) => cube(x, y, s, rx, ry, logo)).join("")}
+${tile(860, 220, "wallet", -6)}${tile(1180, 150, "key", 5)}${tile(1400, 590, "globe", 6)}${tile(990, 640, "lock", -4)}${tile(1480, 420, "coin", -5)}
+</div><div class="strip"></div></div>`);
 
 async function shot(browser, html, out, quality) {
   const tmp = mkdtempSync(path.join(tmpdir(), "iwb-"));
@@ -154,7 +197,7 @@ async function shot(browser, html, out, quality) {
   if (!ok) throw new Error("Inter did not load");
   const overflow = await p.evaluate(() => {
     const panel = document.querySelector(".panel").getBoundingClientRect();
-    const items = [...document.querySelectorAll("h1,.sub,li,.who")];
+    const items = [...document.querySelectorAll("h1,.sub,li")];
     return items.filter((e) => {
       const r = e.getBoundingClientRect();
       return r.right > panel.right - 20 || r.bottom > panel.bottom - 30;
