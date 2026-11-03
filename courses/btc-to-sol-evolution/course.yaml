@@ -11,7 +11,7 @@ creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
 thumbnail: assets/banner.webp
 trackId: 1
-trackLevel: 3
+trackLevel: 4
 modules:
   - key: crypto
     title: "Trust math, not people"

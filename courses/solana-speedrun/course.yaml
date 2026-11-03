@@ -11,7 +11,7 @@ creator: 3WECquwCtcKVRYNWBPFWE28ag3b1CDKchLZPXxifAJzQ
 creatorRewardXp: 30
 thumbnail: assets/banner.webp
 trackId: 1
-trackLevel: 1
+trackLevel: 2
 modules:
   - key: speedrun
     title: "Speedrun: da tese ao seu primeiro ativo onchain"
