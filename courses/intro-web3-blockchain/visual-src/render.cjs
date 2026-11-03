@@ -1,8 +1,8 @@
 // Renders the course banner and the eight lesson cards in the panel style of the
 // videos. Needs playwright on NODE_PATH, optionally CHROMIUM_PATH, and cwebp on PATH:
 //   node courses/intro-web3-blockchain/visual-src/render.cjs
-// The portrait is frames/prof-aula2-00m73s.jpg: Aula2_Solana.mp4 at 73.4 s, cropped
-// to 1000x915 from x=180 so the burned-in caption stays out of the picture.
+// The banner is text-free like every course banner: the catalog card overlays the
+// title bottom-left and shows source y 0-770, with the status chip top-right.
 const { chromium } = require("playwright");
 const { execFileSync } = require("node:child_process");
 const { mkdtempSync, writeFileSync, statSync } = require("node:fs");
@@ -41,7 +41,6 @@ const CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:${W}px;height:${H}px;background:#05070b;font-family:Inter,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
 .frame{position:relative;width:${W}px;height:${H}px;overflow:hidden;display:flex}
-.photo{width:984px;height:${H}px;object-fit:cover;display:block;flex:none}
 .panel{position:relative;flex:1;height:${H}px;background:
   radial-gradient(760px 520px at -6% -8%,rgba(0,128,120,.34),transparent 72%),
   radial-gradient(900px 620px at 104% 108%,rgba(112,40,190,.44),transparent 72%),
@@ -67,15 +66,15 @@ li b{font-weight:700;color:#fff}
 .card .sub{margin-top:10px;font-size:36px;line-height:1.25}
 .card ul{margin-top:42px}
 .card li{font-size:40px;line-height:1.26;padding-left:38px;margin-top:22px}
-.banner .panel{padding:76px 58px 0 50px}
-.banner .mark{height:30px}
-.banner .word{height:20px}
-.banner h1{margin-top:40px;font-size:62px;line-height:1.1}
-.banner .sub{margin-top:14px;font-size:27px;line-height:1.3}
-.banner ul{margin-top:30px}
-.banner li{font-size:28px;line-height:1.3;padding-left:26px;margin-top:16px}
-.who{position:absolute;left:50px;bottom:64px;font-size:25px;line-height:1.35;color:#b4bac3}
-.who b{display:block;color:#fff;font-weight:700;font-size:28px}
+.banner .panel{background:
+  radial-gradient(1100px 700px at 4% -12%,rgba(0,128,120,.38),transparent 72%),
+  radial-gradient(1200px 820px at 96% 118%,rgba(112,40,190,.55),transparent 72%),
+  #05070b}
+.banner .halo{position:absolute;left:1120px;top:400px;width:760px;height:600px;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,rgba(60,190,200,.22),rgba(120,60,220,.12) 55%,transparent);filter:blur(10px)}
+.banner .big{position:absolute;left:1120px;top:400px;transform:translate(-50%,-50%)}
+.banner .big .mark{height:330px}
+.banner .glow{filter:blur(38px);opacity:.75}
 `;
 
 const page = (body) => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -139,11 +138,8 @@ const CARDS = [
   ]],
 ];
 
-const BANNER = page(`<div class="frame banner"><img class="photo" src="file://${__dirname}/frames/prof-aula2-00m73s.jpg" alt="">
-<div class="panel"><div class="head">${LOGO}${WORD}</div><div class="rule"></div>
-<h1><span>Introdução à Web3 e Blockchain</span></h1><p class="sub">A cidade digital, das vitrines à cidade inteligente</p>
-${bullets(["Quem controla as suas <b>informações</b> e os seus <b>ativos</b>?", "Da <b>blockchain</b> ao <b>pagamento na Solana</b>"])}
-<p class="who"><b>Marcos Crivelaro</b>Professor PhD</p></div><div class="strip"></div></div>`);
+const BANNER = page(`<div class="frame banner"><div class="panel"><div class="halo"></div>
+<div class="big glow">${LOGO}</div><div class="big">${LOGO}</div></div><div class="strip"></div></div>`);
 
 async function shot(browser, html, out, quality) {
   const tmp = mkdtempSync(path.join(tmpdir(), "iwb-"));
@@ -154,7 +150,7 @@ async function shot(browser, html, out, quality) {
   const p = await ctx.newPage();
   await p.goto(`file://${htmlPath}`, { waitUntil: "networkidle" });
   await p.evaluate(() => document.fonts.ready);
-  const ok = await p.evaluate(() => document.fonts.check('700 40px Inter'));
+  const ok = await p.evaluate(() => !document.querySelector("h1") || document.fonts.check("700 40px Inter"));
   if (!ok) throw new Error("Inter did not load");
   const overflow = await p.evaluate(() => {
     const panel = document.querySelector(".panel").getBoundingClientRect();
