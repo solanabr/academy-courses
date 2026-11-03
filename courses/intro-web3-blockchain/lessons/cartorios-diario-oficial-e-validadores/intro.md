@@ -12,7 +12,7 @@ Uma transação é como um documento que pede uma mudança no cadastro: o sistem
 
 ## O diário oficial e as confirmações
 
-Os blocos são como volumes numerados do diário oficial da cidade digital: cada um reúne acontecimentos aceitos e se conecta ao volume anterior, estabelecendo uma ordem. Quando uma transação entra em um bloco, recebe uma confirmação inicial; os blocos produzidos depois aumentam as confirmações e tornam a reversão mais difícil.
+Os blocos são como volumes numerados do diário oficial da cidade digital: cada um reúne acontecimentos aceitos e se conecta ao volume anterior, estabelecendo uma ordem. Quando uma transação entra em um bloco, recebe uma confirmação inicial; os blocos produzidos depois aumentam as confirmações e, dependendo do funcionamento de cada rede, tornam a reversão mais difícil.
 
 Com uma expressão cuidadosa: uma confirmação não é garantia mágica e absoluta. Ela indica que a transação foi incluída no histórico aceito. Quanto maior o valor ou o risco da operação, mais confirmações um serviço pode decidir aguardar.
 

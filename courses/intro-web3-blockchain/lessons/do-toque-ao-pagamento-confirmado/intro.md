@@ -20,4 +20,4 @@ O estacionamento recebe USDC, mas a taxa da rede é paga em SOL, por você ou po
 
 ## Confira, entenda e verifique
 
-Antes de pagar, confira. Antes de assinar, entenda. Depois de enviar, verifique. Se o pagamento aparecer como pendente, não aperte "enviar" de novo: consulte primeiro a transação no explorador, porque os dois pagamentos podem ser concluídos. Para um endereço novo, teste antes uma pequena quantia.
+Antes de pagar, confira. Antes de assinar, entenda. Depois de enviar, verifique. Se o pagamento aparecer como pendente, não aperte "enviar" de novo: consulte primeiro a transação no explorador, porque os dois pagamentos podem ser concluídos. Para um endereço novo, teste antes uma pequena quantia e confirme que o destinatário recebeu. O teste confere o caminho, mas não garante que um site ou uma pessoa seja confiável.
