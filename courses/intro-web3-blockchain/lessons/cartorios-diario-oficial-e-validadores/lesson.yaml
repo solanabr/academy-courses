@@ -10,7 +10,7 @@ blocks:
   src: header.md
 - key: video
   type: video
-  url: https://www.youtube.com/watch?v=PENDING-AULA-6
+  url: https://www.youtube.com/watch?v=nKbye8tl7CE
 - key: content
   type: prose
   src: intro.md
