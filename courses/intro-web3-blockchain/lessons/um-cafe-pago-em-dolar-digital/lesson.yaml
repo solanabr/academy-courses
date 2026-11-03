@@ -1,4 +1,4 @@
-id: lesson-wci-cafe-dolar-digital
+id: lesson-iwb-cafe-dolar-digital
 slug: um-cafe-pago-em-dolar-digital
 title: Um café pago em dólar digital
 skills:
@@ -10,7 +10,7 @@ blocks:
   src: header.md
 - key: video
   type: video
-  url: https://www.youtube.com/watch?v=zsTT0QBkdus
+  url: https://www.youtube.com/watch?v=PENDING-AULA-8
 - key: content
   type: prose
   src: intro.md
@@ -21,6 +21,21 @@ blocks:
     prompt: O que é o on-ramp?
     multiSelect: false
     options:
+    - id: d
+      label: Trazer dinheiro do mundo tradicional para o cripto
+      correct: true
+      feedback: Isso. Você usa um fornecedor para sair de real e chegar em USDC,
+        conferindo as taxas.
+    - id: c
+      label: Ler o QR Code com o destino do pagamento
+      correct: false
+      feedback: O QR Code entra na hora de conferir o destino. On-ramp vem antes,
+        é a entrada.
+    - id: e
+      label: Pagar as taxas da rede em SOL a um validador
+      correct: false
+      feedback: Taxa da rede é outro assunto. On-ramp é sair do dinheiro tradicional
+        e entrar no cripto.
     - id: a
       label: Voltar do cripto para o dinheiro da moeda local
       correct: false
@@ -29,26 +44,16 @@ blocks:
       label: Encostar o celular para pagar na maquininha
       correct: false
       feedback: Isso lembra o Solana Pay. On-ramp é a entrada no mundo cripto.
-    - id: e
-      label: Pagar as taxas da rede em SOL a um validador
-      correct: false
-      feedback: Taxa da rede é outro assunto. On-ramp é sair do dinheiro tradicional
-        e entrar no cripto.
-    - id: c
-      label: Ler o QR Code com o destino do pagamento
-      correct: false
-      feedback: O QR Code entra na hora de conferir o destino. On-ramp vem antes,
-        é a entrada.
-    - id: d
-      label: Trazer dinheiro do mundo tradicional para o cripto
-      correct: true
-      feedback: Isso. Você usa um fornecedor para sair de real e chegar em USDC,
-        conferindo as taxas.
     explanation: On-ramp é a entrada no mundo cripto, off-ramp é a saída.
   - id: q2
     prompt: O que você precisa dar ao fornecedor para o USDC chegar na sua carteira?
     multiSelect: false
     options:
+    - id: e
+      label: O seu endereço, como uma chave Pix
+      correct: true
+      feedback: Isso. Você precisa dar o endereço, como uma chave Pix, para onde
+        esse USDC deve ser encaminhado.
     - id: c
       label: O número do cartão de crédito da carteira
       correct: false
@@ -57,20 +62,15 @@ blocks:
       label: A sua frase de recuperação, por segurança
       correct: false
       feedback: Nunca! A frase de recuperação não sai da sua mão.
+    - id: a
+      label: A sua chave privada, para ele depositar
+      correct: false
+      feedback: Nunca! Para receber, basta o endereço.
     - id: d
       label: O QR Code da cafeteria que vai receber
       correct: false
       feedback: Esse é o destino do pagamento do café. Aqui estamos trazendo o USDC
         para a sua carteira.
-    - id: e
-      label: O seu endereço, como uma chave Pix
-      correct: true
-      feedback: Isso. Você precisa dar o endereço, como uma chave Pix, para onde
-        esse USDC deve ser encaminhado.
-    - id: a
-      label: A sua chave privada, para ele depositar
-      correct: false
-      feedback: Nunca! Para receber, basta o endereço.
     explanation: Você pagou em real, a pessoa faz a conversão, e o dólar digital
       vai para o endereço que você informou.
   - id: q3
@@ -78,16 +78,20 @@ blocks:
       outra ponta?'
     multiSelect: false
     options:
-    - id: e
-      label: Um comprovante, e o valor só no off-ramp
-      correct: false
-      feedback: O valor chega em dólar digital. O off-ramp é uma escolha que vem
-        depois.
     - id: d
       label: Um crédito de teste, até haver a liquidação
       correct: false
       feedback: Crédito de teste é coisa de Devnet. Aqui é pagamento para valer,
         em USDC.
+    - id: e
+      label: Um comprovante, e o valor só no off-ramp
+      correct: false
+      feedback: O valor chega em dólar digital. O off-ramp é uma escolha que vem
+        depois.
+    - id: c
+      label: SOL, porque o pagamento passa pela Solana
+      correct: false
+      feedback: A rede é a Solana, mas a transferência é feita pelo token USDC.
     - id: b
       label: Reais, convertidos na hora pelo Solana Pay
       correct: false
@@ -98,40 +102,36 @@ blocks:
       correct: true
       feedback: Isso. Lembra da plaquinha? Ela dizia que recebia USDC via Solana.
         É o que você está fazendo.
-    - id: c
-      label: SOL, porque o pagamento passa pela Solana
-      correct: false
-      feedback: A rede é a Solana, mas a transferência é feita pelo token USDC.
     explanation: 'Nessa etapa, a transferência é feita pelo token USDC: o comerciante
       recebe dólar digital.'
   - id: q4
     prompt: Qual é a palavra-chave para ter certeza de que a transação ocorreu?
     multiSelect: false
     options:
-    - id: c
-      label: Liquidação
-      correct: true
-      feedback: Essa é a palavra-chave. É aquele barulhinho da máquina de cartão,
-        tipo transação feita.
+    - id: b
+      label: On-ramp
+      correct: false
+      feedback: On-ramp é a entrada no mundo cripto. Isso vem bem antes.
     - id: e
       label: Simulação
       correct: false
       feedback: Simulação é um ensaio antes de aprovar. Aqui queremos saber se já
         aconteceu.
-    - id: d
-      label: Off-ramp
-      correct: false
-      feedback: Off-ramp é o comerciante voltando ao mundo tradicional, depois do
-        pagamento.
     - id: a
       label: Conversão
       correct: false
       feedback: Conversão é o que acontece no on-ramp e no off-ramp, não a certeza
         do pagamento.
-    - id: b
-      label: On-ramp
+    - id: d
+      label: Off-ramp
       correct: false
-      feedback: On-ramp é a entrada no mundo cripto. Isso vem bem antes.
+      feedback: Off-ramp é o comerciante voltando ao mundo tradicional, depois do
+        pagamento.
+    - id: c
+      label: Liquidação
+      correct: true
+      feedback: Essa é a palavra-chave. É aquele barulhinho da máquina de cartão,
+        tipo transação feita.
     explanation: Você somente tem certeza de que a transação ocorreu de maneira
       efetiva quando a liquidação da operação aconteceu.
   - id: q5
@@ -139,16 +139,6 @@ blocks:
       Como se chamam esses dois caminhos, nessa ordem?
     multiSelect: false
     options:
-    - id: c
-      label: Off-ramp para os dois, em cada uma das conversões
-      correct: false
-      feedback: Você está entrando no mundo cripto, e isso é on-ramp. Off-ramp é
-        o caminho de volta.
-    - id: d
-      label: On-ramp para você, off-ramp para o comerciante
-      correct: true
-      feedback: Isso. Você traz dinheiro do mundo tradicional para o cripto, e o
-        comerciante faz o caminho de volta para a moeda local.
     - id: b
       label: On-ramp para os dois, em cada uma das conversões
       correct: false
@@ -159,10 +149,20 @@ blocks:
       correct: false
       feedback: Invertido. Sair de real e chegar em USDC é o on-ramp. O caminho
         de volta é o off-ramp.
+    - id: c
+      label: Off-ramp para os dois, em cada uma das conversões
+      correct: false
+      feedback: Você está entrando no mundo cripto, e isso é on-ramp. Off-ramp é
+        o caminho de volta.
     - id: e
       label: Solana Pay para você, liquidação para o comerciante
       correct: false
       feedback: Solana Pay é o instrumento do pagamento e liquidação é a palavra-chave
         da certeza. Aqui a pergunta é sobre a conversão.
+    - id: d
+      label: On-ramp para você, off-ramp para o comerciante
+      correct: true
+      feedback: Isso. Você traz dinheiro do mundo tradicional para o cripto, e o
+        comerciante faz o caminho de volta para a moeda local.
     explanation: Quem sai do real e chega em USDC faz o on-ramp. Quem sai do USDC
       e volta para a moeda local faz o off-ramp.

@@ -1,4 +1,4 @@
-id: lesson-wci-toque-ao-pagamento
+id: lesson-iwb-toque-ao-pagamento
 slug: do-toque-ao-pagamento-confirmado
 title: Do toque no botão ao pagamento confirmado
 skills:
@@ -12,7 +12,7 @@ blocks:
   src: header.md
 - key: video
   type: video
-  url: https://www.youtube.com/watch?v=FBRy-2WbwoA
+  url: https://www.youtube.com/watch?v=PENDING-AULA-7
 - key: content
   type: prose
   src: intro.md
@@ -23,14 +23,6 @@ blocks:
     prompt: Dentro de uma transação, o que são as instruções?
     multiSelect: false
     options:
-    - id: e
-      label: O número de protocolo usado no explorador
-      correct: false
-      feedback: Esse papel é da assinatura da transação.
-    - id: a
-      label: O selo que comprova a sua autorização
-      correct: false
-      feedback: O selo é a assinatura digital. As instruções são as ordens.
     - id: c
       label: As ordens do envelope, como transferir
       correct: true
@@ -40,10 +32,18 @@ blocks:
       label: A prévia que a carteira mostra para você
       correct: false
       feedback: A prévia é o terceiro passo. Instruções são as tarefas do envelope.
+    - id: a
+      label: O selo que comprova a sua autorização
+      correct: false
+      feedback: O selo é a assinatura digital. As instruções são as ordens.
     - id: d
       label: A taxa paga em SOL por cada assinatura
       correct: false
       feedback: A taxa é outro assunto. Instruções são as ordens dentro do pedido.
+    - id: e
+      label: O número de protocolo usado no explorador
+      correct: false
+      feedback: Esse papel é da assinatura da transação.
     explanation: A transação é o pedido, e dentro dela vão as ordens, chamadas instruções.
   - id: q2
     prompt: Quando você aprova o pagamento, o que a rede recebe?
@@ -58,16 +58,16 @@ blocks:
       label: A sua chave privada, para confirmar que é você
       correct: false
       feedback: Cuidado! Você autoriza o pagamento sem entregar o seu segredo.
-    - id: e
-      label: O login e a senha da conta em que você entrou
-      correct: false
-      feedback: Quem assina é a carteira, usando a chave privada. Login e senha
-        não vão para a rede.
     - id: c
       label: A assinatura digital, sem receber a chave privada
       correct: true
       feedback: Isso. A rede verifica esse selo sem precisar receber a sua chave
         privada.
+    - id: e
+      label: O login e a senha da conta em que você entrou
+      correct: false
+      feedback: Quem assina é a carteira, usando a chave privada. Login e senha
+        não vão para a rede.
     - id: b
       label: A frase de recuperação, para refazer as chaves
       correct: false
@@ -78,35 +78,40 @@ blocks:
     prompt: O pagamento do estacionamento apareceu como pendente. O que fazer primeiro?
     multiSelect: false
     options:
-    - id: c
-      label: Criar e autorizar um novo pagamento
-      correct: false
-      feedback: Se você criar e autorizar um novo pagamento, pode acontecer de os
-        dois serem concluídos.
-    - id: a
-      label: Apertar enviar de novo para garantir
-      correct: false
-      feedback: Cuidado! Não aperte enviar várias vezes. Os dois pagamentos podem
-        acabar sendo concluídos.
-    - id: e
-      label: Usar o botão geral de desfazer da rede
-      correct: false
-      feedback: Uma transferência realizada não tem um botão geral de desfazer.
-    - id: d
-      label: Pedir a um validador que desfaça tudo
-      correct: false
-      feedback: Validador executa regras, não desfaz pagamento a pedido de ninguém.
     - id: b
       label: Consultar a transação no explorador
       correct: true
       feedback: Isso. Primeiro, consulte a transação no explorador. Se a tela travar,
         consulte antes de pagar novamente.
+    - id: a
+      label: Apertar enviar de novo para garantir
+      correct: false
+      feedback: Cuidado! Não aperte enviar várias vezes. Os dois pagamentos podem
+        acabar sendo concluídos.
+    - id: d
+      label: Pedir a um validador que desfaça tudo
+      correct: false
+      feedback: Validador executa regras, não desfaz pagamento a pedido de ninguém.
+    - id: e
+      label: Usar o botão geral de desfazer da rede
+      correct: false
+      feedback: Uma transferência realizada não tem um botão geral de desfazer.
+    - id: c
+      label: Criar e autorizar um novo pagamento
+      correct: false
+      feedback: Se você criar e autorizar um novo pagamento, pode acontecer de os
+        dois serem concluídos.
     explanation: Antes de pagar, confira. Antes de assinar, entenda. E, depois de
       enviar, verifique.
   - id: q4
     prompt: Você paga 5 USDC ao estacionamento. Em que é paga a taxa da rede?
     multiSelect: false
     options:
+    - id: a
+      label: Em USDC, descontada dos 5 dólares digitais
+      correct: false
+      feedback: O estacionamento recebe USDC, mas a taxa da rede é outra conta,
+        paga em SOL.
     - id: e
       label: Em SOL, por você ou por um serviço em seu lugar
       correct: true
@@ -121,11 +126,6 @@ blocks:
       correct: false
       feedback: 'É em SOL, mas não por quem recebe: é por você ou por um serviço
         em seu lugar.'
-    - id: a
-      label: Em USDC, descontada dos 5 dólares digitais
-      correct: false
-      feedback: O estacionamento recebe USDC, mas a taxa da rede é outra conta,
-        paga em SOL.
     - id: b
       label: Em reais, cobrada pelo aplicativo da cidade
       correct: false
@@ -137,21 +137,6 @@ blocks:
       sucesso?
     multiSelect: false
     options:
-    - id: a
-      label: 'Não: uma operação que falhou também pode ser finalizada'
-      correct: true
-      feedback: 'Isso. Confira duas coisas separadamente: o pagamento teve sucesso?
-        O registro foi finalizado?'
-    - id: e
-      label: 'Não: finalized só existe na Devnet, não na Mainnet'
-      correct: false
-      feedback: Esses termos não são exclusivos de um ambiente. O ponto é separar
-        sucesso e registro.
-    - id: b
-      label: 'Sim: finalized só aparece quando o pagamento é bem-sucedido'
-      correct: false
-      feedback: Cuidado. Uma operação que falhou também pode ter seu registro de
-        erro finalizado.
     - id: c
       label: 'Sim: um registro finalizado sempre entrega os fundos a alguém'
       correct: false
@@ -161,5 +146,20 @@ blocks:
       correct: false
       feedback: Quem ainda pode mudar é processed. Finalized é o nível mais forte
         de confirmação.
+    - id: b
+      label: 'Sim: finalized só aparece quando o pagamento é bem-sucedido'
+      correct: false
+      feedback: Cuidado. Uma operação que falhou também pode ter seu registro de
+        erro finalizado.
+    - id: e
+      label: 'Não: finalized só existe na Devnet, não na Mainnet'
+      correct: false
+      feedback: Esses termos não são exclusivos de um ambiente. O ponto é separar
+        sucesso e registro.
+    - id: a
+      label: 'Não: uma operação que falhou também pode ser finalizada'
+      correct: true
+      feedback: 'Isso. Confira duas coisas separadamente: o pagamento teve sucesso?
+        O registro foi finalizado?'
     explanation: Esses nomes falam do registro, e hoje confirmed e finalized descrevem
       o mesmo estado, como diz a nota da lição. O sucesso do pagamento é outra pergunta.

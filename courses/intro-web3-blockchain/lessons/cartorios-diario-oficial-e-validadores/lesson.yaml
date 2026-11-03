@@ -1,4 +1,4 @@
-id: lesson-wci-cartorios-validadores
+id: lesson-iwb-cartorios-validadores
 slug: cartorios-diario-oficial-e-validadores
 title: Cartórios, diário oficial e validadores
 skills:
@@ -10,7 +10,7 @@ blocks:
   src: header.md
 - key: video
   type: video
-  url: https://www.youtube.com/watch?v=nKbye8tl7CE
+  url: https://www.youtube.com/watch?v=PENDING-AULA-6
 - key: content
   type: prose
   src: intro.md
@@ -21,11 +21,11 @@ blocks:
     prompt: Dado compartilhado é o grande segredo. O que isso quer dizer?
     multiSelect: false
     options:
-    - id: e
-      label: Quem chega primeiro decide o que entra no livro
+    - id: a
+      label: Qualquer pessoa pode escrever qualquer informação nele
       correct: false
-      feedback: Quem decide o que entra são as regras do protocolo, não a ordem
-        de chegada de ninguém.
+      feedback: Isso não significa que qualquer pessoa possa escrever qualquer informação.
+        Há um protocolo.
     - id: c
       label: Cada empresa mantém o seu próprio banco de dados fechado
       correct: false
@@ -36,21 +36,25 @@ blocks:
       correct: true
       feedback: Isso. O registro é compartilhado, mas as alterações precisam seguir
         o protocolo.
-    - id: a
-      label: Qualquer pessoa pode escrever qualquer informação nele
-      correct: false
-      feedback: Isso não significa que qualquer pessoa possa escrever qualquer informação.
-        Há um protocolo.
     - id: d
       label: Só um cartório central pode alterar o seu livro
       correct: false
       feedback: Pense em vários cartórios, com cópias sincronizadas do mesmo livro.
+    - id: e
+      label: Quem chega primeiro decide o que entra no livro
+      correct: false
+      feedback: Quem decide o que entra são as regras do protocolo, não a ordem
+        de chegada de ninguém.
     explanation: Vários cartórios digitais mantêm cópias sincronizadas do mesmo
       livro, seguindo o protocolo.
   - id: q2
     prompt: Consultar uma blockchain pública mostra o quê?
     multiSelect: false
     options:
+    - id: b
+      label: A chave privada de quem assinou cada operação
+      correct: false
+      feedback: A chave privada não circula. O que é verificável é o histórico.
     - id: c
       label: Só os dados que o dono da conta permitiu que fossem mostrados
       correct: false
@@ -59,31 +63,31 @@ blocks:
       label: Nada, porque o registro serve só aos validadores
       correct: false
       feedback: 'Pelo contrário: o histórico é verificável por qualquer pessoa.'
-    - id: b
-      label: A chave privada de quem assinou cada operação
-      correct: false
-      feedback: A chave privada não circula. O que é verificável é o histórico.
-    - id: e
-      label: Se a operação foi incluída, não necessariamente quem é a pessoa
-      correct: true
-      feedback: Exato. Você verifica a operação, mas consultar não significa conhecer
-        a identidade real de todos.
     - id: a
       label: A identidade real de todas as pessoas envolvidas nela
       correct: false
       feedback: Consultar não significa necessariamente conhecer a identidade real
         das pessoas.
+    - id: e
+      label: Se a operação foi incluída, não necessariamente quem é a pessoa
+      correct: true
+      feedback: Exato. Você verifica a operação, mas consultar não significa conhecer
+        a identidade real de todos.
     explanation: O histórico é verificável por qualquer pessoa, o que é diferente
       de identificar as pessoas envolvidas.
   - id: q3
     prompt: Por que eu digo que a blockchain funciona como uma máquina de estados?
     multiSelect: false
     options:
-    - id: a
-      label: Recebe operações válidas e passa a uma nova situação
-      correct: true
-      feedback: Isso, não é apenas um depósito de dados. Passa de uma situação anterior
-        para uma nova situação.
+    - id: e
+      label: Decide cada pedido conforme a vontade do seu dono
+      correct: false
+      feedback: O sistema confere autorização, dados e regras. Vontade de dono não
+        entra.
+    - id: c
+      label: Funciona em um único computador central de toda a cidade
+      correct: false
+      feedback: Vários participantes preservam e verificam o histórico.
     - id: d
       label: Aceita qualquer operação, seja válida ou não, em ordem
       correct: false
@@ -93,25 +97,17 @@ blocks:
       label: Guarda os dados sem nunca mudar a situação já registrada
       correct: false
       feedback: Isso seria só um depósito de dados, e ela não é apenas isso.
-    - id: c
-      label: Funciona em um único computador central de toda a cidade
-      correct: false
-      feedback: Vários participantes preservam e verificam o histórico.
-    - id: e
-      label: Decide cada pedido conforme a vontade do seu dono
-      correct: false
-      feedback: O sistema confere autorização, dados e regras. Vontade de dono não
-        entra.
+    - id: a
+      label: Recebe operações válidas e passa a uma nova situação
+      correct: true
+      feedback: Isso, não é apenas um depósito de dados. Passa de uma situação anterior
+        para uma nova situação.
     explanation: 'Como um pedido de mudança no cadastro: o sistema confere e, se
       estiver tudo certo, passa para a nova situação.'
   - id: q4
     prompt: Usando a expressão cuidadosa, o que uma confirmação representa?
     multiSelect: false
     options:
-    - id: e
-      label: A prova da identidade real de quem fez aquela operação
-      correct: false
-      feedback: Confirmação fala do histórico, não de quem é a pessoa.
     - id: d
       label: Inclusão no histórico aceito, sem garantia absoluta
       correct: true
@@ -121,26 +117,34 @@ blocks:
       correct: false
       feedback: Validador não decide por preferência pessoal. Ele executa as regras
         do protocolo.
-    - id: a
-      label: Uma garantia mágica e absoluta de que nada mais muda
-      correct: false
-      feedback: É importante ser cuidadoso. Confirmação não é garantia mágica e
-        absoluta.
     - id: b
       label: O simples envio, com a transação fora de um bloco
       correct: false
       feedback: Confirmação pressupõe a inclusão. Ela indica que a transação entrou
         no histórico aceito.
+    - id: a
+      label: Uma garantia mágica e absoluta de que nada mais muda
+      correct: false
+      feedback: É importante ser cuidadoso. Confirmação não é garantia mágica e
+        absoluta.
+    - id: e
+      label: A prova da identidade real de quem fez aquela operação
+      correct: false
+      feedback: Confirmação fala do histórico, não de quem é a pessoa.
     explanation: Quanto maior o valor ou o risco da operação, mais confirmações
       um serviço pode decidir aguardar.
   - id: q5
     prompt: Quais destas perguntas estão no checklist do validador?
     multiSelect: true
     options:
-    - id: c
-      label: A operação respeita as regras do protocolo?
+    - id: b
+      label: A pessoa possui os recursos que quer transferir?
       correct: true
-      feedback: Sim. Ele deve executar as regras definidas pelo protocolo.
+      feedback: Sim, ele confere se a pessoa possui os recursos.
+    - id: d
+      label: Eu tenho simpatia por essa pessoa?
+      correct: false
+      feedback: Não! Validador não decide de acordo com as preferências pessoais.
     - id: a
       label: A assinatura digital é válida?
       correct: true
@@ -150,13 +154,9 @@ blocks:
       correct: false
       feedback: Não está no checklist. A verificação é da operação, não da identidade
         real.
-    - id: d
-      label: Eu tenho simpatia por essa pessoa?
-      correct: false
-      feedback: Não! Validador não decide de acordo com as preferências pessoais.
-    - id: b
-      label: A pessoa possui os recursos que quer transferir?
+    - id: c
+      label: A operação respeita as regras do protocolo?
       correct: true
-      feedback: Sim, ele confere se a pessoa possui os recursos.
+      feedback: Sim. Ele deve executar as regras definidas pelo protocolo.
     explanation: Os validadores são como agentes autorizados a verificar os documentos,
       seguindo as regras do protocolo.

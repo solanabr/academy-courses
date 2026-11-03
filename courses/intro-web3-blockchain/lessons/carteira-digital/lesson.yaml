@@ -1,4 +1,4 @@
-id: lesson-wci-carteira-digital
+id: lesson-iwb-carteira-digital
 slug: carteira-digital
 title: 'Carteira digital: será que você já usa?'
 skills:
@@ -9,7 +9,7 @@ blocks:
   src: header.md
 - key: video
   type: video
-  url: https://www.youtube.com/watch?v=tA8TwvRJtXU
+  url: https://www.youtube.com/watch?v=PENDING-AULA-3
 - key: content
   type: prose
   src: intro.md
@@ -20,15 +20,20 @@ blocks:
     prompt: Onde ficam os seus ativos, afinal?
     multiSelect: false
     options:
-    - id: a
-      label: Dentro do aplicativo da carteira, no seu celular
-      correct: false
-      feedback: 'Mas atenção: os ativos não ficam dentro do seu aplicativo.'
+    - id: c
+      label: Registrados na blockchain, não no aplicativo
+      correct: true
+      feedback: Isso. Eles estão lá, registrados na blockchain. É a carteira que
+        administra as chaves e permite a movimentação.
     - id: d
       label: Na frase de recuperação que você guardou em casa
       correct: false
       feedback: A frase reconstrói as chaves e recupera o acesso. Os ativos em si
         estão registrados na blockchain.
+    - id: a
+      label: Dentro do aplicativo da carteira, no seu celular
+      correct: false
+      feedback: 'Mas atenção: os ativos não ficam dentro do seu aplicativo.'
     - id: e
       label: No endereço público, fora da rede Solana
       correct: false
@@ -39,17 +44,26 @@ blocks:
       correct: false
       feedback: Não é a empresa do aplicativo que guarda os ativos. Eles estão registrados
         na blockchain.
-    - id: c
-      label: Registrados na blockchain, não no aplicativo
-      correct: true
-      feedback: Isso. Eles estão lá, registrados na blockchain. É a carteira que
-        administra as chaves e permite a movimentação.
     explanation: 'O aplicativo não guarda os ativos: eles estão registrados na blockchain,
       e a carteira administra as chaves.'
   - id: q2
     prompt: Um colega vai te enviar SOL. O que você passa para ele?
     multiSelect: false
     options:
+    - id: a
+      label: A sua chave privada, para ele autorizar
+      correct: false
+      feedback: Cuidado! A chave privada é o segredo que assina. Essa não sai da
+        sua mão.
+    - id: e
+      label: O login e a senha da sua carteira digital
+      correct: false
+      feedback: Para receber, ninguém precisa entrar na sua carteira. Basta o endereço
+        público.
+    - id: c
+      label: A sua frase de recuperação, para achar a conta
+      correct: false
+      feedback: Jamais. A frase é a chave mestra, e guarde fora da internet.
     - id: b
       label: O seu endereço público, como numa chave Pix
       correct: true
@@ -60,20 +74,6 @@ blocks:
       correct: false
       feedback: Assinatura é para autorizar uma operação sua. Para receber, basta
         o endereço público.
-    - id: a
-      label: A sua chave privada, para ele autorizar
-      correct: false
-      feedback: Cuidado! A chave privada é o segredo que assina. Essa não sai da
-        sua mão.
-    - id: c
-      label: A sua frase de recuperação, para achar a conta
-      correct: false
-      feedback: Jamais. A frase é a chave mestra, e guarde fora da internet.
-    - id: e
-      label: O login e a senha da sua carteira digital
-      correct: false
-      feedback: Para receber, ninguém precisa entrar na sua carteira. Basta o endereço
-        público.
     explanation: Endereço público se compartilha. Chave privada e frase de recuperação,
       nunca.
   - id: q3
@@ -81,15 +81,20 @@ blocks:
       problema. Segundo a nota de segurança desta lição, o que fazer?
     multiSelect: false
     options:
-    - id: c
-      label: Enviar por e-mail, fora do aplicativo da carteira
+    - id: b
+      label: Passar só as primeiras palavras da sequência
       correct: false
-      feedback: 'Isso é o contrário da dica: guarde fora da internet, em local protegido.'
+      feedback: Nem parte dela. A frase é uma chave mestra, e a nota de segurança
+        da lição vale para ela inteira.
     - id: d
       label: Trocar pela chave privada, que é menos sensível
       correct: false
       feedback: A chave privada é o segredo que assina. A nota de segurança da lição
         vale para as duas.
+    - id: c
+      label: Enviar por e-mail, fora do aplicativo da carteira
+      correct: false
+      feedback: 'Isso é o contrário da dica: guarde fora da internet, em local protegido.'
     - id: e
       label: Não compartilhar com ninguém, nem com o suporte
       correct: true
@@ -100,11 +105,6 @@ blocks:
       correct: false
       feedback: Não. Pela nota de segurança da lição, a frase não deve ser compartilhada
         com ninguém, nem com quem disser que é do suporte.
-    - id: b
-      label: Passar só as primeiras palavras da sequência
-      correct: false
-      feedback: Nem parte dela. A frase é uma chave mestra, e a nota de segurança
-        da lição vale para ela inteira.
     explanation: A frase de recuperação reconstrói as chaves e recupera o acesso.
       Por isso a nota de segurança da lição diz para não compartilhá-la com ninguém.
   - id: q4
@@ -112,6 +112,16 @@ blocks:
       senha"?
     multiSelect: false
     options:
+    - id: c
+      label: Na autocustódia, em que o processo é todo seu
+      correct: true
+      feedback: Isso. Você estaciona e a responsabilidade é toda sua. Não vai ter
+        ninguém para te ajudar.
+    - id: a
+      label: Na custódia, em que uma empresa cuida por você
+      correct: false
+      feedback: Na custódia você entra com login e senha, é algo com que você já
+        está acostumado.
     - id: e
       label: Quando a empresa da carteira está fora do ar
       correct: false
@@ -122,20 +132,10 @@ blocks:
       correct: false
       feedback: No banco você está no modelo que já conhece, com alguém cuidando
         da operação.
-    - id: a
-      label: Na custódia, em que uma empresa cuida por você
-      correct: false
-      feedback: Na custódia você entra com login e senha, é algo com que você já
-        está acostumado.
     - id: d
       label: Em todo estacionamento que tenha manobrista
       correct: false
       feedback: Com manobrista você entrega a chave. Esse é o exemplo de custódia.
-    - id: c
-      label: Na autocustódia, em que o processo é todo seu
-      correct: true
-      feedback: Isso. Você estaciona e a responsabilidade é toda sua. Não vai ter
-        ninguém para te ajudar.
     explanation: 'Autocustódia exige uma maturidade maior: saber o que você está
       fazendo, porque o processo é seu.'
   - id: q5
@@ -157,13 +157,13 @@ blocks:
       correct: true
       feedback: Isso. No caso da carteira cripto, vai ter uma empresa que cuida
         de toda a movimentação.
-    - id: b
-      label: Você entra com login e senha, como em um banco
-      correct: true
-      feedback: Exato, igual a um banco, e é algo com que você já está acostumado.
     - id: d
       label: Ninguém pode te ajudar se algo der errado
       correct: false
       feedback: Isso é da autocustódia, em que a responsabilidade é toda sua.
+    - id: b
+      label: Você entra com login e senha, como em um banco
+      correct: true
+      feedback: Exato, igual a um banco, e é algo com que você já está acostumado.
     explanation: 'Custódia é o manobrista: você entrega a chave, paga pelo serviço
       e depende de quem cuida para você.'

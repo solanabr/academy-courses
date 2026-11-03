@@ -1,6 +1,6 @@
 // Renders the course banner and the eight lesson cards in the panel style of the
 // videos. Needs playwright on NODE_PATH, optionally CHROMIUM_PATH, and cwebp on PATH:
-//   node courses/web3-cidades-inteligentes/visual-src/render.cjs
+//   node courses/intro-web3-blockchain/visual-src/render.cjs
 // The portrait is frames/prof-aula2-00m73s.jpg: Aula2_Solana.mp4 at 73.4 s, cropped
 // to 1000x915 from x=180 so the burned-in caption stays out of the picture.
 const { chromium } = require("playwright");
@@ -146,7 +146,7 @@ ${bullets(["Quem controla as suas <b>informações</b> e os seus <b>ativos</b>?"
 <p class="who"><b>Marcos Crivelaro</b>Professor PhD</p></div><div class="strip"></div></div>`);
 
 async function shot(browser, html, out, quality) {
-  const tmp = mkdtempSync(path.join(tmpdir(), "wci-"));
+  const tmp = mkdtempSync(path.join(tmpdir(), "iwb-"));
   const htmlPath = path.join(tmp, "page.html");
   const pngPath = path.join(tmp, "page.png");
   writeFileSync(htmlPath, html);
