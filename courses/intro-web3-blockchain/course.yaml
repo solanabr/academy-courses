@@ -1,0 +1,39 @@
+id: course-intro-web3-blockchain
+slug: intro-web3-blockchain
+sourceLocale: pt-BR
+title: Introdução à Web3 e Blockchain
+description: 'E se você acordasse e a sua vida digital tivesse sumido, porque ela
+  pertence às big techs? Com o professor Marcos Crivelaro, você percorre a cidade
+  digital, das vitrines da Web1 à cidade inteligente da Web3, entende como a blockchain
+  e a Solana funcionam e paga um café em dólar digital. No fim, a pergunta é uma
+  só: quem controla as suas informações e os seus ativos?'
+difficulty: beginner
+duration: 2.0
+xpPerLesson: 20
+xpReward: 160
+creator: Hc7Ww5QCkWZJXd3zGbnrodEEEoyfDrPQeJL8aMnrhuAz
+creatorRewardXp: 30
+thumbnail: assets/banner.webp
+trackId: 1
+trackLevel: 1
+modules:
+- key: a-cidade-digital
+  title: A cidade digital
+  lessons:
+  - lesson-iwb-evolucao-web
+  - lesson-iwb-explorando-rede
+- key: sua-identidade-na-cidade
+  title: Sua identidade na cidade
+  lessons:
+  - lesson-iwb-carteira-digital
+- key: como-a-blockchain-funciona
+  title: Como a blockchain funciona
+  lessons:
+  - lesson-iwb-intermediario
+  - lesson-iwb-historico-valido
+  - lesson-iwb-cartorios-validadores
+- key: pagando-na-pratica
+  title: Pagando na prática
+  lessons:
+  - lesson-iwb-toque-ao-pagamento
+  - lesson-iwb-cafe-dolar-digital

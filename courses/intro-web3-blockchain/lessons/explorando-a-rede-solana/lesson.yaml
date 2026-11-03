@@ -1,0 +1,171 @@
+id: lesson-iwb-explorando-rede
+slug: explorando-a-rede-solana
+title: Explorando a rede Solana
+skills:
+- solana-fundamentals
+- transactions
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=mblv9tLmiTI
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Sua equipe vai experimentar o aplicativo de estacionamento antes de
+      oferecê-lo aos motoristas. Em qual ambiente?
+    multiSelect: false
+    options:
+    - id: e
+      label: Testnet, porque todo teste de aplicativo é feito nela
+      correct: false
+      feedback: O nome engana. A Testnet testa a própria rede e os validadores.
+        Aplicativo se experimenta na Devnet.
+    - id: d
+      label: Mainnet, com uma quantia bem pequena de SOL real
+      correct: false
+      feedback: Mesmo pequena, é a rede principal, com ativos de valor econômico.
+        Experimentar antes dos motoristas é trabalho da oficina, a Devnet.
+    - id: c
+      label: Devnet, com token de teste sem valor econômico
+      correct: true
+      feedback: Isso, a Devnet é a oficina em que a equipe experimenta o aplicativo,
+        com token de teste.
+    - id: a
+      label: Mainnet, onde os pagamentos são feitos para valer
+      correct: false
+      feedback: Mainnet é a cidade em operação. Lá os ativos podem ter valor econômico.
+    - id: b
+      label: Devnet, com SOL real trazido da rede principal
+      correct: false
+      feedback: 'A Devnet é o ambiente certo, mas sem SOL real: nela usamos token
+        de teste, sem valor econômico.'
+    explanation: Mainnet é a cidade em operação, Devnet é a oficina dos aplicativos
+      e Testnet é o campo de testes da infraestrutura.
+  - id: q2
+    prompt: 'Alguém diz: tenho 10 SOL de teste, então posso gastar 10 SOL na rede
+      principal. E aí?'
+    multiSelect: false
+    options:
+    - id: e
+      label: 'Não: SOL de teste só existe dentro de uma carteira'
+      correct: false
+      feedback: O motivo é outro. O ponto é que esse token não tem valor econômico.
+    - id: a
+      label: 'Sim: o saldo da Devnet passa para a rede principal'
+      correct: false
+      feedback: Não passa. São ambientes diferentes, e o token de teste não tem
+        valor econômico.
+    - id: c
+      label: 'Sim: basta que os validadores aprovem a operação'
+      correct: false
+      feedback: Os validadores conferem as regras, mas nenhuma aprovação dá valor
+        a um token de teste.
+    - id: d
+      label: 'Depende: vale na Testnet, mas não vale na Mainnet'
+      correct: false
+      feedback: A Testnet também não é lugar para gastar. Valor econômico mesmo,
+        só na rede principal.
+    - id: b
+      label: 'Não: é crédito de demonstração sem valor econômico'
+      correct: true
+      feedback: Exato. É como receber créditos de demonstração para aprender a usar
+        o estacionamento.
+    explanation: Ter 10 SOL de teste não significa ter 10 SOL para gastar na rede
+      principal.
+  - id: q3
+    prompt: Para consultar uma operação no Solana Explorer, o que você precisa fazer?
+    multiSelect: false
+    options:
+    - id: b
+      label: Ter saldo na rede para pagar pela consulta
+      correct: false
+      feedback: Não precisa inserir dinheiro nessa rede. É um painel público de
+        consulta.
+    - id: c
+      label: Pedir autorização a um validador da rede
+      correct: false
+      feedback: Os dados on-chain estão lá para consulta. Ninguém precisa autorizar
+        você a olhar.
+    - id: e
+      label: Só pesquisar, sem conectar nenhuma carteira
+      correct: true
+      feedback: Isso. Pense no explorador como um painel público de consulta. Tudo
+        isso sem conectar uma carteira.
+    - id: d
+      label: Assinar a consulta com a sua chave privada
+      correct: false
+      feedback: Assinar é para autorizar operações. Só para observar, não entra
+        chave nenhuma.
+    - id: a
+      label: Instalar uma carteira e conectar antes de buscar
+      correct: false
+      feedback: Para começar, basta navegar. Não precisamos nem instalar uma carteira.
+    explanation: 'O explorador de blocos é um painel público: você pesquisa uma
+      operação e encontra os dados on-chain sem conectar carteira.'
+  - id: q4
+    prompt: O status mostra uma operação finalizada, mas com erro. O que isso quer
+      dizer?
+    multiSelect: false
+    options:
+    - id: e
+      label: O Explorer travou e a operação precisa ser repetida
+      correct: false
+      feedback: Não é falha do painel. Ele está mostrando o que foi registrado na
+        rede.
+    - id: d
+      label: A rede desfaz tudo e apaga o registro da operação
+      correct: false
+      feedback: O registro não some. A falha fica lá, registrada, para quem quiser
+        consultar.
+    - id: c
+      label: O registro ainda pode sumir, pois não consolidou
+      correct: false
+      feedback: 'Finalizada quer dizer o contrário: esse registro, mesmo sendo de
+        falha, foi consolidado.'
+    - id: a
+      label: A falha ficou registrada e o registro consolidou
+      correct: true
+      feedback: 'Muito bem, por isso são duas perguntas: deu certo? E o registro
+        já foi confirmado? Aqui, o registro da falha foi consolidado.'
+    - id: b
+      label: A operação deu certo e o erro é só um aviso de tela
+      correct: false
+      feedback: Cuidado. O erro diz que a operação não deu certo. Finalizada fala
+        do registro.
+    explanation: 'Faça duas perguntas separadas: a operação deu certo? E o seu registro
+      já foi confirmado pela rede?'
+  - id: q5
+    prompt: Na tela do explorador, o que é o slot?
+    multiSelect: false
+    options:
+    - id: a
+      label: O número de protocolo para consultar a transação
+      correct: false
+      feedback: Esse papel é da assinatura da transação.
+    - id: e
+      label: O conjunto de registros de transações reunidos
+      correct: false
+      feedback: Esse é o bloco. O slot é a janela de tempo em que ele pode ser produzido.
+    - id: b
+      label: A quantidade de um ativo que uma conta possui
+      correct: false
+      feedback: Esse é o saldo.
+    - id: d
+      label: Uma janela de tempo para um validador produzir um bloco
+      correct: true
+      feedback: Isso. O slot é a janela de tempo em que um validador tem a oportunidade
+        de produzir um bloco.
+    - id: c
+      label: A sequência que identifica uma conta na rede
+      correct: false
+      feedback: Esse é o endereço.
+    explanation: Endereço identifica a conta, saldo mostra a quantidade, slot é
+      a janela de tempo, bloco reúne registros e a assinatura funciona como número
+      de protocolo.

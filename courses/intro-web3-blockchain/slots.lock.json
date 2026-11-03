@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-iwb-evolucao-web": 0,
+    "lesson-iwb-explorando-rede": 1,
+    "lesson-iwb-carteira-digital": 2,
+    "lesson-iwb-intermediario": 3,
+    "lesson-iwb-historico-valido": 4,
+    "lesson-iwb-cartorios-validadores": 5,
+    "lesson-iwb-toque-ao-pagamento": 6,
+    "lesson-iwb-cafe-dolar-digital": 7
+  },
+  "retired": [],
+  "next": 8
+}
