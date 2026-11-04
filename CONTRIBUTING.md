@@ -89,6 +89,8 @@ The rule is mechanical, not stylistic. The production grader finds the entry poi
 
 Helpers often *can't* be `const fn` on stable — `for` loops, `&str` matching and `String` allocation are all rejected in const context — so nesting the helper inside the entry function is the usual fallback. All of this applies to `buildType: standard` (the default); a `buildType: buildable` block is a whole crate, compiled rather than called, and shapes its functions however it needs. Reproduce the check locally with `python3 scripts/verify_code_blocks.py courses/<your-slug>` (needs `cargo` and `pyyaml`).
 
+Test vectors in a `standard` block's `tests.json` are Rust source, not plain values. `input` is the argument list and `expectedOutput` is an expression, both pasted verbatim into the call the grader generates (`let __expected__ = <expectedOutput>;`, then `==`). A `String` result is therefore a string literal with its quotes: the text `OK api 500` is stored as the JSON string `"\"OK api 500\""`. Bare text does not compile, so the reference solution fails every test and the lesson ships un-completable. `verify-code` builds the same call and fails the PR.
+
 ## Reflections are never graded
 
 An `openEnded` block asks the learner to write, and the AI replies once with feedback. It awards no XP and gates nothing. Don't use it to test knowledge — use a `quiz` or a `code` block.
