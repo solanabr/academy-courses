@@ -10,10 +10,10 @@
   .viz { position: relative; width: 100%; }
 </style></head>
 <body>
-<!-- flowchart: Do toque ao brinde em 4 passos
-     purpose: Mostrar o caminho completo do claim para o leitor executar sem travar em nenhum passo
-     data: Passo 1 tocar no botão ou no QR do claim -> Passo 2 confirmar com Google ou wallet -> Passo 3 o cNFT aparece na carteira -> Passo 4 mostrar no balcão de brindes, que vira seu ticket
-     prompt: Fluxograma vertical mobile-first pensado para celular na mão, tipografia grande, alto contraste, no máximo 3 caixas em foco por vez, quatro passos numerados ligados por setas terminando na caixa do balcão de brindes
+<!-- flowchart: Da sua conta ao Explorer em 4 passos
+     purpose: Mostrar como o leitor, em casa, abre a prova onchain do próprio estudo sem travar em nenhum passo
+     data: Passo 1 abrir o Painel em Atividade -> Passo 2 clicar numa lição concluída -> Passo 3 ler Status, Fee e Fee payer no Explorer -> Passo 4 concluir o curso e ver a credencial em Certificados
+     prompt: Fluxograma vertical mobile-first pensado para celular na mão, tipografia grande, alto contraste, no máximo 3 caixas em foco por vez, quatro passos numerados ligados por setas terminando na caixa da credencial
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      Header: <div class="stbr-eyebrow">..</div> + <h2 class="viz-title">..</h2>.
      Leave the .stbr-decor block untouched (per-asset brand decoration).
@@ -41,34 +41,34 @@
   .conn .rail { flex:0 0 100px; text-align:center;
     color:var(--stbr-emerald); font-size:34px; font-weight:900; line-height:1; }
   .conn .sp { flex:1 1 auto; }
-  /* the payoff step: merch table = the ticket */
+  /* the payoff step: the credential */
   .row.pay .badge { background:var(--surface-accent); color:var(--stbr-dark); }
   .row.pay .card { background:var(--surface-accent); border-color:var(--stbr-yellow-600); }
   .row.pay .card .lbl { color:var(--stbr-dark); font-weight:800; }
   .row.pay .card .lbl b { display:block; font-size:18px; font-weight:800;
     text-transform:uppercase; letter-spacing:.08em; color:var(--stbr-green-800); margin-top:8px; }
 </style>
-  <div class="stbr-eyebrow">do toque ao brinde em 4 passos</div>
-  <h2 class="viz-title" style="font-size:48px;margin:6px 0 4px;">seu claim, sem travar</h2>
+  <div class="stbr-eyebrow">da sua conta ao explorer em 4 passos</div>
+  <h2 class="viz-title" style="font-size:48px;margin:6px 0 4px;">sua prova, sem travar</h2>
   <div class="flow">
     <div class="row">
       <div class="badge">1</div>
-      <div class="card"><div class="lbl">Toque no botão ou aponte a câmera pro QR do claim</div></div>
+      <div class="card"><div class="lbl">Abra o Painel e desça até Atividade</div></div>
     </div>
     <div class="conn"><div class="rail">&darr;</div><div class="sp"></div></div>
     <div class="row">
       <div class="badge">2</div>
-      <div class="card"><div class="lbl">Confirme com Google ou com sua wallet</div></div>
+      <div class="card"><div class="lbl">Clique numa lição concluída com a setinha</div></div>
     </div>
     <div class="conn"><div class="rail">&darr;</div><div class="sp"></div></div>
     <div class="row">
       <div class="badge">3</div>
-      <div class="card"><div class="lbl">O cNFT aparece na sua carteira</div></div>
+      <div class="card"><div class="lbl">No Explorer, leia Status, Fee e Fee payer</div></div>
     </div>
     <div class="conn"><div class="rail">&darr;</div><div class="sp"></div></div>
     <div class="row pay">
       <div class="badge">4</div>
-      <div class="card"><div class="lbl">Mostre no balcão de brindes<b>ele é o seu ticket</b></div></div>
+      <div class="card"><div class="lbl">Conclua o curso e veja a credencial<b>em Certificados, na devnet</b></div></div>
     </div>
   </div>
 </div>

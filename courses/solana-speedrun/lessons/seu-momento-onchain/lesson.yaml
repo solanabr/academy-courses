@@ -13,45 +13,114 @@ blocks:
   - key: check
     type: quiz
     questions:
-      - id: q1
-        prompt: "Você faz um PIX de R$ 50 no stand de onramp. O que acontece com o seu dinheiro?"
+      - id: q4
+        prompt: "Seu XP e sua credencial da Academy estão na devnet. O que isso significa hoje?"
         multiSelect: false
         options:
+          - id: e
+            label: "Viram ativos da mainnet sozinhos depois de um tempo parados na carteira"
+            correct: false
+            feedback: "Nada migra sozinho de uma rede para a outra. Devnet e mainnet são redes separadas."
           - id: a
-            label: "Fica guardado numa conta da Superteam, que promete devolver quando você pedir"
-            correct: false
-            feedback: "Onramp não é custódia: ninguém segura seu dinheiro por você. O valor é convertido e cai direto na SUA carteira, sob seu controle."
-          - id: b
-            label: "Vira dólar digital (stablecoin) direto na sua carteira, sob o seu controle"
+            label: "São registros públicos e verificáveis do seu estudo, sem valor de mercado"
             correct: true
-          - id: c
-            label: "Compra SOL automaticamente, e você precisa vender o token quando quiser sair"
+            feedback: "Isso. Qualquer pessoa confere no Explorer, sem depender da sua palavra. Mas é prova de estudo, não dinheiro."
+          - id: b
+            label: "São ativos da mainnet, e você pode vender os dois numa DEX quando quiser"
             correct: false
-            feedback: "O onramp entrega stablecoin: dólar digital de valor estável, não um ativo volátil. Comprar SOL é uma escolha sua, depois, se você quiser."
-        explanation: "Onramp é a porta de entrada: converte reais em dólar digital que chega direto na sua carteira. De lá, você decide o que fazer: guardar, render numa vault ou negociar numa DEX."
+            feedback: "Devnet não é mainnet: nada ali tem valor de mercado, e as DEXs da mainnet não enxergam esses registros."
+          - id: c
+            label: "Ficam só no banco de dados da Academy, sem nenhum registro na rede"
+            correct: false
+            feedback: "Estão na rede, sim: foi isso que você abriu no Explorer. Só que essa rede é a devnet."
+          - id: d
+            label: "Valem dólar digital, que a Academy paga quando você conclui o curso"
+            correct: false
+            feedback: "A Academy não troca XP por dinheiro. Ganhar pelo trabalho é outro caminho: o Superteam Earn."
+        explanation: "A devnet tem a mesma mecânica da mainnet (contas, transações, taxas), mas sem dinheiro real. Por isso o seu XP e a sua credencial provam o que você fez, sem valer nada no mercado."
+      - id: q5
+        prompt: "No Explorer, o Fee payer da sua lição concluída é outro endereço, não a sua carteira. O que isso indica?"
+        multiSelect: false
+        options:
+          - id: c
+            label: "Alguém usou a sua carteira sem permissão, e é melhor trocar de conta agora"
+            correct: false
+            feedback: "Pagar a taxa de uma transação não dá a ninguém acesso à sua carteira. Aqui é só a plataforma bancando o custo."
+          - id: e
+            label: "A Academy guarda a chave da sua carteira e assina tudo no seu nome"
+            correct: false
+            feedback: "Pagar a taxa não é ter a sua chave. Tanto que a matrícula pede a assinatura da sua própria carteira."
+          - id: a
+            label: "A Academy pagou a taxa por você, num modelo de fee-payer padrão na Solana"
+            correct: true
+            feedback: "Isso. Toda transação tem um fee payer, e ele não precisa ser você. É a mesma ideia de quem patrocina o uso de um app."
+          - id: d
+            label: "A rede não cobrou taxa nenhuma, porque transações na devnet são de graça"
+            correct: false
+            feedback: "A taxa existe e aparece no campo Fee. Na devnet ela só é paga em SOL sem valor de mercado."
+          - id: b
+            label: "A transação falhou, e a lição fica pendente até você pagar a taxa sozinho"
+            correct: false
+            feedback: "Quem diz se deu certo é o campo Status. O Fee payer só mostra quem pagou."
+        explanation: "Fee payer é só quem paga a taxa. Nas lições, é a Academy; na mainnet, ao usar um app com a sua carteira, em geral é você, e custa frações de centavo."
+      - id: q1
+        prompt: "Você faz um PIX de R$ 50 num onramp que entrega direto na sua carteira. O que acontece com o dinheiro?"
+        multiSelect: false
+        options:
+          - id: b
+            label: "Vira dólar digital (stablecoin) na sua carteira, sob o seu controle"
+            correct: true
+            feedback: "Isso. Com a stablecoin na sua carteira, o que fazer com ela é decisão sua."
+          - id: a
+            label: "Fica numa conta da Superteam, que promete devolver quando você pedir"
+            correct: false
+            feedback: "A Superteam não guarda o seu dinheiro. Num onramp que entrega direto, o valor é convertido e cai na SUA carteira."
+          - id: d
+            label: "Vira saldo na devnet, sem valor, até a Academy migrar você para a mainnet"
+            correct: false
+            feedback: "Onramp é dinheiro de verdade, fora da Academy, e chega na mainnet. A devnet é outra rede, sem dinheiro real."
+          - id: c
+            label: "Compra SOL automaticamente, e você precisa vender o token para sair"
+            correct: false
+            feedback: "Esse tipo de onramp entrega stablecoin: dólar digital de valor estável, não um ativo volátil. Comprar SOL é uma escolha sua, depois, se você quiser."
+          - id: e
+            label: "Fica retido pela Solana por um tempo, até os validadores aprovarem o PIX"
+            correct: false
+            feedback: "A Solana não sabe o que é PIX. Quem recebe os reais é o serviço de onramp, que então envia a stablecoin."
+        explanation: "Onramp é a porta de entrada: converte reais em dólar digital. Num que entrega direto, ele chega na sua carteira e você decide: guardar, render numa vault ou negociar numa DEX. Alguns serviços mantêm o saldo numa conta interna, por isso vale conferir antes."
       - id: q2
         prompt: "Qual é a vantagem real de negociar numa DEX (corretora descentralizada)?"
         multiSelect: false
         options:
+          - id: d
+            label: "O protocolo garante o preço, então você nunca recebe menos do que viu na tela"
+            correct: false
+            feedback: "O preço pode mudar entre a cotação e a execução. A vantagem da DEX é custódia e acesso, não preço garantido."
+          - id: b
+            label: "Um funcionário da corretora aprova cada operação, o que dá mais segurança"
+            correct: false
+            feedback: "É o contrário, e essa é a graça: não há aprovador humano. O contrato executa sozinho, e é daí que vem o acesso 24/7 sem depender de ninguém."
+          - id: c
+            label: "Você negocia direto da carteira, a qualquer hora, sem entregar a custódia a ninguém"
+            correct: true
+            feedback: "Isso. A vantagem é custódia e acesso: o mercado roda em código, e o dinheiro não sai do seu controle até a troca acontecer."
           - id: a
             label: "Não existe taxa nenhuma, então os preços são sempre melhores que nas corretoras"
             correct: false
             feedback: "Taxas existem: os centavos da rede e a taxa da pool. A vantagem da DEX é custódia e acesso, não gratuidade."
-          - id: b
-            label: "Um funcionário da corretora aprova cada operação, o que dá uma camada extra de segurança"
-            correct: false
-            feedback: "É o contrário, e essa é a graça: não há aprovador humano. O contrato executa sozinho, e é daí que vem o acesso 24/7 sem depender de ninguém."
-          - id: c
-            label: "Você negocia direto da sua carteira, a qualquer hora, sem entregar a custódia do dinheiro a ninguém"
-            correct: true
         explanation: "DEX é um mercado que roda em código na chain: você troca ativos direto da carteira, 24/7, sem intermediário segurando seu dinheiro. É por isso que 54% do volume global de DEX roda na Solana."
       - id: q3
         prompt: "O que uma vault da Kamino faz com o seu dólar digital?"
         multiSelect: false
         options:
           - id: a
-            label: "Executa uma estratégia de rendimento automatizada: você deposita em 1 clique e ela trabalha por você"
+            label: "Executa uma estratégia de rendimento automática: você deposita e ela trabalha"
             correct: true
+            feedback: "Isso. E lembre: o rendimento é variável e todo protocolo tem risco."
+          - id: d
+            label: "Garante que você nunca perde, porque o protocolo cobre qualquer prejuízo"
+            correct: false
+            feedback: "Nenhum protocolo garante isso. Todo protocolo tem risco, e é por isso que a lição manda começar pequeno."
           - id: b
             label: "Empresta o seu dinheiro para a equipe da Kamino investir manualmente no mercado"
             correct: false
@@ -59,5 +128,5 @@ blocks:
           - id: c
             label: "Trava o seu dinheiro por um ano em troca de juros fixos garantidos pelo protocolo"
             correct: false
-            feedback: "Rendimento em DeFi é variável e o depósito continua líquido: você entra e sai quando quiser. Juro fixo garantido é promessa de banco, não de protocolo."
-        explanation: "Vault é um cofre programado: você deposita em 1 clique e a estratégia (emprestar, prover liquidez) roda sozinha, com o rendimento aparecendo na sua posição. A Kamino gere ~US$ 2 bi assim."
+            feedback: "Rendimento em DeFi é variável, e ninguém garante juro fixo. Juro fixo garantido é promessa de banco, não de protocolo."
+        explanation: "Vault é um cofre programado: você deposita e a estratégia (emprestar, prover liquidez) roda sozinha, com o rendimento aparecendo na sua posição. Variável, e com risco."
