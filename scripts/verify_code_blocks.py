@@ -19,15 +19,22 @@ buildType standard — the submission is a file of free functions. tests.json ro
 are {id, input, expectedOutput} where `input` is a verbatim Rust argument list
 (`vec![100, 50], 75, 3` / `"a", "b"` / `[7u8; 32]`). The harness appends a
 generated main() that pastes that list into a call to the entry function once per
-test and prints TEST:<id>:<value>. The entry function is detected with the
-production grader's own regex — a bare column-0 `fn`; `pub fn` and `const fn` are
-invisible to the grader and therefore to this script. A graded file must expose
-exactly ONE such fn (helpers are `const fn` or nested, both invisible), so it can
-never matter whether an executor picks the first or the last match. A file in
-which the regex matches nothing, or more than once, is reported as a violation
-naming the cause, never guessed at. String expectedOutput values
-carry their own surrounding quotes; they are stripped before comparison, matching
-Display-formatted output.
+test and prints whether the result equals `expectedOutput`. The entry function is
+detected with the production grader's own regex — a bare column-0 `fn`; `pub fn`
+and `const fn` are invisible to the grader and therefore to this script. A graded
+file must expose exactly ONE such fn (helpers are `const fn` or nested, both
+invisible), so it can never matter whether an executor picks the first or the last
+match. A file in which the regex matches nothing, or more than once, is reported as
+a violation naming the cause, never guessed at.
+
+`expectedOutput` is a verbatim Rust EXPRESSION, exactly as in the platform grader,
+which pastes it into `let __expected__ = <expectedOutput>;` and compares with `==`.
+A String result is therefore written as a string literal, quotes included: the
+expected text `abc` is stored in tests.json as the JSON string "\\"abc\\"". A tuple
+is `(100, 60)`. Text that is not a valid expression of the entry fn's return type
+does not compile, so the solution fails here the way it would for a learner. A row
+whose expectedOutput mentions `__result__` is a boolean predicate over the result
+instead (`__result__.contains("x")`), as in the grader.
 
 buildType buildable — the submission IS a crate (an Anchor program), so there is
 no free function to call and the call harness does not apply. Its tests.json rows
@@ -125,17 +132,30 @@ def no_entry_point_msg(src: str) -> str:
     return msg + "The file defines no fn at all."
 
 
-def build_rust_harness(src: str, tests: list, debug_fmt: bool):
+def build_rust_harness(src: str, tests: list):
     """tests.json `input` is a verbatim Rust argument list (`vec![1, 2], 75, 3`,
-    `"a", "b"`, `[7u8; 32], ...`) — paste it directly into the call."""
+    `"a", "b"`, `[7u8; 32], ...`) and `expectedOutput` a verbatim Rust expression;
+    both are pasted into the call, one block per test, as the platform grader does."""
     name = pick_entry_fn(src)
     if name is None:
         raise ValueError("no single grader-visible fn to call (one-fn rule)")
-    fmt = "{:?}" if debug_fmt else "{}"
-    calls = [
-        f'    println!("TEST:{t["id"]}:{fmt}", {name}({t.get("input", "")}));'
-        for t in tests
-    ]
+    calls = []
+    for t in tests:
+        args = str(t.get("input", "")).strip()
+        expected = str(t["expectedOutput"]).strip()
+        if "__result__" in expected:
+            verdict = f"if {expected} {{ true }} else {{ false }}"
+            setup = ""
+        else:
+            verdict = "__result__ == __expected__"
+            setup = f"        let __expected__ = {expected};\n"
+        calls.append(
+            "    {\n"
+            f"        let __result__ = {name}({args});\n"
+            f"{setup}"
+            f'        println!("TEST:{t["id"]}:{{}}", {verdict});\n'
+            "    }"
+        )
     main = "\n#[allow(clippy::all)]\nfn main() {\n" + "\n".join(calls) + "\n}\n"
     return src + main
 
@@ -200,46 +220,33 @@ def run_rust_crate(work: Path, tag: str, src: str, subject_pins: dict, seed_deps
 
 
 def run_rust_submission(work: Path, tag: str, src: str, tests: list, subject_pins: dict):
-    """Returns (compiled, results dict id->output or None, stderr)."""
+    """Returns (compiled, results dict id->"true"/"false", stderr)."""
     crate = scaffold_crate(work, tag, lib=False)
-    for debug_fmt in (False, True):
-        try:
-            harness = build_rust_harness(src, tests, debug_fmt)
-        except ValueError as e:
-            return False, None, f"harness: {e}"
-        (crate / "src" / "main.rs").write_text(harness)
-        ok, err = cargo_check_loop(crate, subject_pins)
-        if not ok:
-            if debug_fmt:
-                return False, None, err
-            # Display may be the only problem; retry with Debug formatting.
-            if "std::fmt::Display" in err or "doesn't implement" in err:
-                continue
-            return False, None, err
-        try:
-            proc = subprocess.run(["cargo", "run", "--quiet"], cwd=crate, capture_output=True, text=True, timeout=RUN_TIMEOUT)
-        except subprocess.TimeoutExpired:
-            return True, {}, "run timeout"
-        results = {}
-        for line in proc.stdout.splitlines():
-            if line.startswith("TEST:"):
-                _, tid, val = line.split(":", 2)
-                if debug_fmt and len(val) >= 2 and val[0] == '"' and val[-1] == '"':
-                    val = val[1:-1]
-                results[tid] = val
-        return True, results, proc.stderr[-2000:]
-    return False, None, "unreachable"
+    try:
+        harness = build_rust_harness(src, tests)
+    except ValueError as e:
+        return False, None, f"harness: {e}"
+    (crate / "src" / "main.rs").write_text(harness)
+    ok, err = cargo_check_loop(crate, subject_pins)
+    if not ok:
+        return False, None, err
+    try:
+        proc = subprocess.run(["cargo", "run", "--quiet"], cwd=crate, capture_output=True, text=True, timeout=RUN_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        return True, {}, "run timeout"
+    results = {}
+    for line in proc.stdout.splitlines():
+        if line.startswith("TEST:"):
+            _, tid, val = line.split(":", 2)
+            results[tid] = val
+    return True, results, proc.stderr[-2000:]
 
 
 def grade(results, tests):
     """Returns (passed_ids, failed_ids). Missing output counts as failed."""
     passed, failed = [], []
     for t in tests:
-        got = (results or {}).get(t["id"])
-        want = str(t["expectedOutput"]).strip()
-        if len(want) >= 2 and want[0] == '"' and want[-1] == '"':
-            want = want[1:-1]
-        if got is not None and got.strip() == want:
+        if (results or {}).get(t["id"]) == "true":
             passed.append(t["id"])
         else:
             failed.append(t["id"])
