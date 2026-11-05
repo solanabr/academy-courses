@@ -4,7 +4,7 @@ Chega de teoria. Com a matrícula feita, cada lição que você conclui vira um 
 
 ![Um fluxograma vertical mostra quatro passos: abrir o Painel em Atividade, clicar numa lição concluída, ler Status, Fee e Fee payer no Explorer e concluir o curso para ver a credencial em Certificados.](assets/v01-flowchart.webp)
 
-Siga os quatro passos, um de cada vez. Ainda não se matriculou? Use o botão **Matricular-se** antes (sem conta, ele aparece como **Entrar para Matricular-se**). Lição lida antes da matrícula não conta: depois de se matricular, conclua as lições anteriores, passando nos quizzes, e volte para cá.
+Siga os quatro passos, um de cada vez. Ainda não se matriculou? Use o botão **Matricular-se** antes (sem conta, o mesmo botão pede para você entrar antes). Lição lida antes da matrícula não conta: depois de se matricular, conclua as lições anteriores, passando nos quizzes, e volte para cá.
 
 1. Abra o **Painel** da Academy e desça até **Atividade**.
 2. Clique numa lição concluída que tenha uma setinha no canto da linha. O Solana Explorer abre direto naquela transação, na rede Devnet. Se você está matriculado e acabou de concluir uma lição, a linha inteira pode demorar um pouco a aparecer: espere e recarregue.
