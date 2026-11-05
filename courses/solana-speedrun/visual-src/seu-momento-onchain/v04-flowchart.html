@@ -35,8 +35,8 @@
 </style></head>
 <body>
 <!-- flowchart: Do PIX ao rendimento
-     purpose: Mostrar o caminho completo do dinheiro depois do evento, do PIX à posição rendendo onchain
-     data: PIX no stand -> stablecoin na carteira -> três caminhos (guardar, vault Kamino, LP Meteora) -> rendimento visível onchain
+     purpose: Mostrar o caminho do dinheiro na mainnet, para quem quiser dar esse passo, do PIX à posição rendendo onchain
+     data: PIX num serviço de onramp -> stablecoin na carteira -> três caminhos (guardar, vault Kamino, LP Meteora) -> rendimento visível onchain, variável e com risco
      BUILD .viz as on-brand HTML per skills/content-gen/references/visual-rendering.md.
      WeasyPrint-safe CSS only: flexbox/grid/borders/gradients; NO box-shadow, NO
      background-image url(), NO JS. Use brand tokens (--surface-*, --text-*, --stbr-*). -->
@@ -45,12 +45,12 @@
   <div style="position:absolute;width:464px;height:448px;left:-252px;top:196px;border-radius:63% 35% 36% 57% / 41% 50% 64% 41%;background:#306c40;opacity:0.5;"></div>
 </div>
 <div class="viz">
-  <div class="stbr-eyebrow">O caminho do dinheiro</div>
+  <div class="stbr-eyebrow">O caminho do dinheiro, na mainnet</div>
   <h2 class="viz-title">Do PIX ao rendimento</h2>
 
   <div class="stage">
     <div class="node dark">
-      <div class="t">PIX no stand de onramp</div>
+      <div class="t">PIX num serviço de onramp</div>
       <div class="s">reais entram</div>
     </div>
     <div class="arrow"></div>
@@ -66,7 +66,7 @@
       </div>
       <div class="path hot">
         <div class="t">Vault da Kamino</div>
-        <div class="s">rendimento em 1 clique</div>
+        <div class="s">rendimento variável, com risco</div>
       </div>
       <div class="path">
         <div class="t">LP na Meteora</div>
@@ -75,7 +75,7 @@
     </div>
     <div class="arrow"></div>
     <div class="final">
-      <div class="t">Rendimento <em>visível onchain</em>, na sua posição</div>
+      <div class="t">Rendimento <em>visível onchain</em>, variável e com risco</div>
     </div>
   </div>
 </div>

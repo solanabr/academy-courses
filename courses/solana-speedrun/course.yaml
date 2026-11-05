@@ -2,7 +2,7 @@ id: course-solana-speedrun
 slug: solana-speedrun
 sourceLocale: pt-BR
 title: "Solana Speedrun: Inicie sua jornada onchain em minutos"
-description: "Por que o sistema financeiro está migrando para a Solana, como a tecnologia funciona de verdade, e seu primeiro ativo na mainnet — em menos de 10 minutos."
+description: "Por que o sistema financeiro está migrando para a Solana, como a tecnologia funciona de verdade, e seu primeiro registro onchain, conferido com os próprios olhos — em menos de 10 minutos."
 difficulty: beginner
 duration: 0.25
 xpPerLesson: 20
@@ -14,7 +14,7 @@ trackId: 1
 trackLevel: 2
 modules:
   - key: speedrun
-    title: "Speedrun: da tese ao seu primeiro ativo onchain"
+    title: "Speedrun: da tese ao seu primeiro registro onchain"
     lessons:
       - lesson-ssr-por-que-solana
       - lesson-ssr-como-funciona

@@ -24,4 +24,4 @@ Zoom out. Um slide da Frictionless Capital colocou o número na mesa: 9 das 22 e
 
 ![Slide da Frictionless Capital: 9 das 22 empresas de tecnologia mais rápidas a US$ 100 milhões de receita nasceram na Solana](assets/frictionless-9-de-22.webp)
 
-É pra isso que a gente está aqui: apoiar sua empresa, dar poder às suas finanças pessoais e corporativas, e levar seu sonho até as massas. O brinde que você vai reivindicar daqui a pouco? É, literalmente, seu primeiro earn. Bora.
+É pra isso que a gente está aqui: apoiar sua empresa, dar poder às suas finanças pessoais e corporativas, e levar seu sonho até as massas. Na próxima lição, você vai abrir o registro onchain que o seu próprio estudo já deixou. Bora.

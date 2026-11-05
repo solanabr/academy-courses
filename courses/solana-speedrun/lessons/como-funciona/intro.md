@@ -24,4 +24,4 @@ Falta o tempo. Antes de a rede votar em qualquer coisa, o Proof of History (prov
 
 ![Um diagrama empilha os votos numa torre em que cada novo voto no topo dobra o tempo de bloqueio dos votos abaixo dele.](assets/v06-diagram.webp)
 
-O preço disso? Declarar as contas antes cobra dos desenvolvedores e exige validadores com hardware forte. A Solana moveu a complexidade para quem constrói, para que quem usa tenha velocidade e taxa baixa. No próximo passo, você coloca isso em prática.
+O preço disso? Declarar as contas antes cobra dos desenvolvedores e exige validadores com hardware forte. A Solana moveu a complexidade para quem constrói, para que quem usa tenha velocidade e taxa baixa. Na última lição do curso, você vê isso numa transação sua.
