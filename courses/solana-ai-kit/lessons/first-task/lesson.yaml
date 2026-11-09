@@ -1,0 +1,76 @@
+id: lesson-aik-first-task
+slug: first-task
+title: "Your first Solana task through the kit"
+skills:
+  - solana-kit
+  - solana-fundamentals
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Claude's balance script opens with import { Connection, PublicKey } from '@solana/web3.js' and the transcript shows no file being read before the code appeared. What happened, and what do you say?"
+        multiSelect: false
+        options:
+          - id: a
+            label: "It wrote from training data and skipped the hub. Send it back to SKILL.md and the client reference, and ask for a Kit rewrite."
+            correct: true
+            feedback: "Yes. The whole point of the kit is the file read before the code, and a web3.js v1 import is the sign it did not happen."
+          - id: c
+            label: "The firewall blocked the skill read at the default tier, so the script has to be written by hand this time around."
+            correct: false
+            feedback: "No tier blocks reading files inside the project. The skill was simply not opened."
+          - id: d
+            label: "The Helius key is missing, so Claude fell back to the one client library that works without a key on devnet."
+            correct: false
+            feedback: "A public devnet RPC needs no key, and the choice of library has nothing to do with keys."
+          - id: b
+            label: "That is the right library for a devnet read, and the solana-dev skill would have produced the same code had it been opened."
+            correct: false
+            feedback: "The solana-dev skill is Kit-first and names web3.js v1 as the legacy library to migrate away from."
+        explanation: "A stale import is the clearest sign the hub was skipped. The kit's CLAUDE.md tells Claude to open the hub before Solana work, and the solana-dev pack teaches @solana/kit as the client library. When you see last year's library, point Claude back at the hub and ask for a rewrite rather than fixing the code yourself."
+      - id: q2
+        prompt: "You run /quick-commit while on the main branch with the new script uncommitted. Predict the first thing it does."
+        multiSelect: false
+        options:
+          - id: d
+            label: "It refuses, because /quick-commit runs after /test-ts has passed in the same session on the same files, not before."
+            correct: false
+            feedback: "It runs quick checks itself and tells you to run the full suites before pushing. Nothing gates it."
+          - id: a
+            label: "It proposes a branch named type/scope-description-DD-MM-YYYY and asks whether to create it, rename it, or stay on main."
+            correct: true
+            feedback: "Right. The branch question comes before staging, formatting, linting and the commit message."
+          - id: c
+            label: "It pushes to origin and opens a pull request, because the kit treats a commit and a PR as one step in the workflow."
+            correct: false
+            feedback: "Nothing in the command pushes. Pushing and PRs are separate, and /ship is the only command that merges."
+          - id: b
+            label: "It commits straight to main with a conventional message, since a branch is proposed just on repositories with a remote."
+            correct: false
+            feedback: "On main or master the command always proposes a kit-named branch first."
+        explanation: "The command's first step is the branch. On main it proposes a name in the kit's shape, with the type, a scope, a description and the date, and lets you choose. Then it stages while leaving out secrets and build output, formats, lints, writes a message from the staged diff, and commits with no AI attribution trailer."
+      - id: q3
+        prompt: "You delete CLAUDE.md from the project but leave .claude in place. Next session you ask for a Solana script. Predict what changes."
+        multiSelect: false
+        options:
+          - id: d
+            label: "The firewall tier drops to Off, because the tier is declared in CLAUDE.md and the rules are regenerated from it."
+            correct: false
+            feedback: "The tier lives in .claude/security.json and the rules in settings.json. Neither is in CLAUDE.md."
+          - id: b
+            label: "Nothing changes, because the hub is listed as a skill and Claude Code reads it on its own at the start of each session."
+            correct: false
+            feedback: "The hub sits inside .claude/skills, and CLAUDE.md is what tells Claude to open it before Solana work."
+          - id: a
+            label: "Skills, agents and commands are still there, but nothing sends Claude to the hub or asks for Done, Warnings and Open."
+            correct: true
+            feedback: "Yes. CLAUDE.md carries the house rules and the instruction to route through the hub. Everything else is still on disk, just no longer pointed at."
+          - id: c
+            label: "Claude Code refuses to start, since the kit's settings.json requires the instruction file to exist before it loads."
+            correct: false
+            feedback: "settings.json holds permissions and hooks. It does not depend on CLAUDE.md."
+        explanation: "CLAUDE.md is the small always-on file: the program-code rules, the devnet-first rule, the reply shape, and the line that sends Claude to the skill hub before building. Delete it and the rest of the kit is still installed but no longer wired to your session, which is why the installer leaves that one file tracked in git."

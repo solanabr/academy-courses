@@ -1,0 +1,79 @@
+id: lesson-aik-mcp-and-keys
+slug: mcp-and-keys
+title: "MCP servers and where keys go"
+skills:
+  - supply-chain-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Rafael pastes his Helius API key into .mcp.json under the helius server's env block, commits with /quick-commit, and pushes. Predict the problem."
+        multiSelect: false
+        options:
+          - id: a
+            label: ".mcp.json is config, not a secret store, and once shared it carries the key. Keys belong in .env, which /setup-mcp appends to."
+            correct: true
+            feedback: "Yes. The kit's rule is keys in .env, never in .mcp.json, and the server reads the key from the environment."
+          - id: c
+            label: "/quick-commit refuses to stage .mcp.json because it is gitignored, so the push will not include the file or the key."
+            correct: false
+            feedback: "Ignored files are left out, but the moment someone runs /commit-claude-config the file is tracked, key and all. The habit is the problem."
+          - id: d
+            label: "The firewall denies edits to .mcp.json at each tier, so his edit was not saved and the key is still just in his head."
+            correct: false
+            feedback: "Only the High tier protects the kit's configuration files. At Relaxed the edit goes through."
+          - id: b
+            label: "The helius server ignores literal values written in .mcp.json, so the key is not used and nothing has leaked anywhere."
+            correct: false
+            feedback: "A literal value in that block would be used. The problem is that it is now in a file that can travel."
+        explanation: "The helius entry in .mcp.json reads HELIUS_API_KEY from the environment on purpose, so the config file can be shared and the secret cannot. /setup-mcp appends KEY=VALUE lines to .env and never reads the file back. Writing the value into .mcp.json undoes that split, and the day the config is committed for the team the key goes with it."
+      - id: q2
+        prompt: "You attach the Supabase MCP server with the URL the kit lists first, the one ending in read_only=true and project_ref=<ref>. Later you ask Claude to apply a migration. Predict what happens."
+        multiSelect: false
+        options:
+          - id: c
+            label: "The firewall asks for approval because a migration counts as an on-chain write, and then the server applies it."
+            correct: false
+            feedback: "A database migration is not on-chain, and the kit's hooks do not reach MCP servers. The server's own form is what limits it."
+          - id: b
+            label: "It applies the migration, since read_only affects queries you type yourself, not the tool calls made by Claude."
+            correct: false
+            feedback: "The parameter changes which tools the server exposes to Claude. The write tools are not there to call."
+          - id: d
+            label: "It fails because the Supabase server needs the Solana CLI installed to authenticate before any SQL can be run."
+            correct: false
+            feedback: "Supabase authenticates through its own sign-in flow. The Solana CLI has nothing to do with it."
+          - id: a
+            label: "It will not. That form hides the write tools and forces SQL read-only. Dropping the two parameters is what grants writes."
+            correct: true
+            feedback: "Right. The read-only, project-scoped form is offered first as the default, and the unrestricted form is a deliberate choice."
+        explanation: "The two query parameters do the limiting: read_only hides the twelve write tools and forces execute_sql into a read-only Postgres session, and project_ref drops the account group and with it cross-project reach. Remove them when you actually want writes, knowing that execute_sql then becomes an unrestricted SQL channel into the database."
+      - id: q3
+        prompt: "Which of the four default MCP servers answer with no key at all, as installed?"
+        multiSelect: true
+        options:
+          - id: c
+            label: "context-mode"
+            correct: true
+            feedback: "Yes. No key, though it wants Node 22.5 or newer."
+          - id: e
+            label: "Playwright"
+            correct: false
+            feedback: "Playwright is opt-in, not one of the four defaults, and it needs a browser it can launch rather than a key."
+          - id: b
+            label: "Context7"
+            correct: true
+            feedback: "Yes. Library documentation lookup, no key."
+          - id: d
+            label: "Helius"
+            correct: false
+            feedback: "Helius is listed but useless until a key is set. The key goes in .env."
+          - id: a
+            label: "solana-dev"
+            correct: true
+            feedback: "Yes. It is the Foundation's remote docs server over HTTP and needs nothing."
+        explanation: "Three of the four defaults need no key: the solana-dev docs server, Context7 and context-mode. Helius is the one that needs a key from its dashboard, and /setup-mcp is the way to set it. Playwright, Surfpool and the others are opt-in servers you add yourself."

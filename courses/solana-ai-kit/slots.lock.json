@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-aik-what-you-install": 0,
+    "lesson-aik-install": 1,
+    "lesson-aik-skills": 2,
+    "lesson-aik-agents-and-commands": 3,
+    "lesson-aik-first-task": 4,
+    "lesson-aik-mcp-and-keys": 5,
+    "lesson-aik-firewall": 6,
+    "lesson-aik-keep-going": 7
+  },
+  "retired": [],
+  "next": 8
+}

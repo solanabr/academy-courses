@@ -1,0 +1,75 @@
+id: lesson-aik-install
+slug: install
+title: "Install it into a project"
+skills:
+  - toolchain-versions
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Marina opened a terminal in her home directory, ran the installer there, then created kit-workshop and ran claude inside it. Claude Code shows none of the kit's commands. Predict why."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Claude Code loads a project's commands after a first /update, so she has to run that once inside kit-workshop first."
+            correct: false
+            feedback: "Commands load from .claude/commands at session start. No update is needed for a fresh install."
+          - id: c
+            label: "The commands stay hidden until a Helius key is set in .env, because the kit refuses to start half configured."
+            correct: false
+            feedback: "An empty key only makes the Helius server useless. Commands do not depend on any key."
+          - id: a
+            label: "It installs into the directory it runs in, so the kit sits where she ran it and kit-workshop has nothing from it."
+            correct: true
+            feedback: "Yes. The installer installs into the current directory, which is why every lesson starts with cd into the project."
+          - id: d
+            label: "The installer edits the shell profile, and the terminal has to be restarted before the new commands show up."
+            correct: false
+            feedback: "The installer never touches shell startup files. The firewall even denies writes to them."
+        explanation: "The installer copies the kit into whatever directory you run it from. Running it from the home folder installs the kit there, and a project created afterwards gets nothing. The fix is to cd into the project and run the installer again, and later to clean the stray .claude folder out of the home directory."
+      - id: q2
+        prompt: "Pedro installed the kit, committed, and pushed. His teammate cloned the repository and sees CLAUDE.md but no .claude folder and no .mcp.json. What happened, and what is the kit's own fix?"
+        multiSelect: false
+        options:
+          - id: c
+            label: "Claude Code removes a .claude folder it did not install itself, so the teammate has to run the installer anyway."
+            correct: false
+            feedback: "Claude Code deletes nothing. The files were simply not in the commit."
+          - id: d
+            label: "CLAUDE.md is the whole kit and the rest is generated from it on first start, so nothing is actually missing yet."
+            correct: false
+            feedback: "CLAUDE.md holds the house rules only. Agents, commands, skills and the firewall live in .claude, which was ignored."
+          - id: a
+            label: "The installer gitignores the kit config by default. /commit-claude-config un-ignores it and commits it for the team."
+            correct: true
+            feedback: "Right. The kit reads as ignorable infrastructure by default, and that one command is the way to version it."
+          - id: b
+            label: "The push dropped the dot-directories, which git skips by default, so he has to push again with the force flag set."
+            correct: false
+            feedback: "Git pushes dot-directories like any other. The folder was never committed because it was ignored."
+        explanation: "The installer adds .claude/, .mcp.json, .gitmodules and .safe-ai-skill/ to .gitignore so your repository stays clean, and it deliberately leaves CLAUDE.md tracked. A teammate who clones gets the instruction file and nothing else. Run /commit-claude-config when the team should share one configuration, or have each person run the installer."
+      - id: q3
+        prompt: "Right after installing, /doctor reports the Solana CLI check as FAIL with an install command next to it, and everything else as OK or WARN. Can you continue the workshop?"
+        multiSelect: false
+        options:
+          - id: c
+            label: "No. The four MCP servers need the Solana CLI to start, so Claude Code will refuse to approve them without it."
+            correct: false
+            feedback: "None of the four default servers depends on the CLI. They run on Node or over HTTP."
+          - id: b
+            label: "No. A FAIL in /doctor blocks the kit's commands until it is fixed, so the CLI has to be installed before going on."
+            correct: false
+            feedback: "/doctor is a read-only report. It blocks nothing, and the kit's commands keep working."
+          - id: a
+            label: "Yes. The CLI matters for program and cluster work, and each task in this course runs on Node and Claude Code."
+            correct: true
+            feedback: "Yes. Each failing check comes with one fix-it command, and this one can wait until after the workshop."
+          - id: d
+            label: "Yes, but on the Off tier alone, because Relaxed requires a working Solana config directory to generate its rules."
+            correct: false
+            feedback: "Relaxed leaves the Solana config directory readable when it exists. It does not require one."
+        explanation: "The health check runs thirteen read-only checks and prints one fix-it command per failure. The Solana CLI matters when you build or deploy programs and read cluster balances from the shell. This course does neither, so you can run that install command later and continue now."

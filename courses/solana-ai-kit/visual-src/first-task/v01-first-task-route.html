@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 24px}
+.flow{display:flex;align-items:stretch}
+.node{width:204px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:14px 13px 12px;display:flex;flex-direction:column;min-height:250px}
+.arr{width:26px;flex:none;display:flex;align-items:center;justify-content:center;padding-top:108px}
+.n{width:30px;height:30px;border-radius:50%;background:var(--surface-brand);color:var(--text-on-brand);font-family:var(--font-display);font-weight:var(--weight-black);font-size:15px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.nt{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:17px;line-height:1.25;color:var(--text-primary)}
+.nd{font-size:13px;line-height:1.4;color:var(--text-secondary);margin-top:6px}
+.see{margin-top:auto;font-size:12px;line-height:1.3;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 8px}
+.see b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.warn{margin-top:20px;border-radius:var(--radius-lg);background:var(--surface-inverse);color:var(--text-on-dark);padding:14px 22px;display:flex;align-items:center;gap:26px}
+.warn .h{font-family:var(--font-display);font-weight:var(--weight-black);font-size:16px;letter-spacing:.06em;text-transform:uppercase;width:230px;flex:none}
+.warn .b{font-size:15px;line-height:1.5}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:520px;height:420px;right:-300px;top:-140px;border-radius:40% 60% 50% 50% / 55% 45% 55% 45%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:500px;height:540px;bottom:-320px;left:-280px;border-radius:60% 40% 45% 55% / 50% 58% 42% 50%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">The first task, step by step</div>
+  <h2 class="viz-title">The route a devnet balance read should take</h2>
+  <div class="flow">
+    <div class="node"><div class="n">1</div><div class="nt">Your prompt</div><div class="nd">Open the hub, follow the client row, write scripts/balance.ts with @solana/kit, run it.</div><div class="see"><b>You see</b>the request, with the route written into it</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">2</div><div class="nt">The hub</div><div class="nd">Claude opens .claude/skills/SKILL.md and finds the client row.</div><div class="see"><b>You see</b>a read of SKILL.md in the transcript</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">3</div><div class="nt">One reference</div><div class="nd">A file inside ext/solana-dev/ on building a Kit RPC client.</div><div class="see"><b>You see</b>a read inside .claude/skills/ext/solana-dev/</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">4</div><div class="nt">Setup and script</div><div class="nd">package.json, @solana/kit and a TypeScript runner installed, the script written.</div><div class="see"><b>You see</b>the first import from @solana/kit</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">5</div><div class="nt">The run</div><div class="nd">The balance of the System Program on devnet, in SOL. Any number is the answer.</div><div class="see"><b>You see</b>Done / Warnings / Open at the end of the reply</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">6</div><div class="nt">/quick-commit</div><div class="nd">A dated branch proposed, files staged without secrets, format, lint, conventional message.</div><div class="see"><b>You see</b>git log -1 with no attribution trailer</div></div>
+  </div>
+  <div class="warn"><div class="h">The one wrong turn</div><div class="b">An import of Connection from @solana/web3.js means steps 2 and 3 did not happen. Do not fix the line. Send Claude back to the hub and ask for the rewrite.</div></div>
+</div>
+</div>
+</body></html>

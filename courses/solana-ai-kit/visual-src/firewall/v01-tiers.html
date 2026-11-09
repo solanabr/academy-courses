@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 26px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 18px}
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:0 12px 10px;border-bottom:2px solid var(--stbr-dark)}
+td{padding:12px 12px;font-size:15px;line-height:1.4;color:var(--text-primary);border-bottom:1px solid var(--border-subtle);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.t{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:19px;width:150px}
+.def{display:inline-block;font-size:11px;font-weight:var(--weight-semibold);letter-spacing:.08em;text-transform:uppercase;background:var(--surface-accent);color:var(--text-on-accent);border-radius:var(--radius-sm);padding:3px 7px;margin-top:6px}
+.foot{margin-top:14px;display:flex;gap:18px}
+.foot div{flex:1;font-size:14px;line-height:1.45;color:var(--text-secondary);border-left:3px solid var(--stbr-dark);padding-left:12px}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:560px;height:440px;left:-320px;bottom:-230px;border-radius:45% 55% 52% 48% / 60% 40% 60% 40%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:460px;height:480px;right:-250px;top:-270px;border-radius:58% 42% 44% 56% / 48% 56% 44% 52%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">One tier per project, read at session start</div>
+  <h2 class="viz-title">The four firewall tiers</h2>
+  <table>
+    <tr><th>Tier</th><th>What the agent can read</th><th>An on-chain write</th><th>Use it for</th></tr>
+    <tr><td class="t">Off</td><td>Everything your user account can. The sandbox is off.</td><td>No stop from the kit's hooks. Still refused: --final, program close, authority disable, the never-allowed deny rules, a recursive rm at a root, kill -1.</td><td>A machine you already isolated: a container or a throwaway VM.</td></tr>
+    <tr><td class="t">Relaxed<br><span class="def">default</span></td><td>The repo and your toolchain. Solana config dir except the default wallet, the project's .env. Denied: wallet file, SSH and GPG keys, tokens, keychains, browser profiles, shell history.</td><td>Stops for your approval on every cluster except a local validator, naming the cluster.</td><td>Local development on your own machine and your own repo. The tier to run headless.</td></tr>
+    <tr><td class="t">Medium</td><td>Relaxed's denials plus the wallet JSON files and session transcripts. .env becomes write-denied.</td><td>As Relaxed. Publishing and force pushes ask or are denied; writes to a local validator ask.</td><td>Reading code you did not write: audits, a cloned repo. Interactive only.</td></tr>
+    <tr><td class="t">High</td><td>Only the working directory and the toolchain roots. .env is read-denied, even for a build.</td><td>Mainnet writes denied outright. The only tier that stops the agent editing the kit's own config.</td><td>A repo you distrust, or a machine holding production credentials. Interactive only.</td></tr>
+  </table>
+  <div class="foot">
+    <div><b>At every tier:</b> the guard scripts in .claude/hooks/ are denied to the agent, and a nested Claude Code with a policy-weakening flag is refused.</div>
+    <div><b>safe-ai-skill</b> refuses .env to the file tools and cat-style reads at every tier while it is on, and gates mainnet, authority and value-moving actions in Bash and in MCP tools.</div>
+    <div><b>A switch applies next session.</b> /firewall &lt;tier&gt; rewrites the rules now; the session you are in keeps the ones it started with.</div>
+  </div>
+</div>
+</div>
+</body></html>

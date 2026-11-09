@@ -1,0 +1,38 @@
+id: course-solana-ai-kit
+slug: solana-ai-kit
+title: "Solana AI Kit: Claude Code, set up to ship on Solana"
+description: "A workshop crash course of around 90 minutes: install the Solana AI Kit into a project on your own machine, learn what its skills, agents, commands, MCP servers and firewall do, and run your first Solana task through Claude Code. Runs locally, so you need Claude Code, Node and git installed. No Rust or Anchor is required to follow along."
+difficulty: beginner
+duration: 1.5
+xpPerLesson: 10
+xpReward: 100
+creator: 8kMziL5e3qEWhp1nQHEiYLRypymyBVTXNxgZXyQwhbSo
+creatorRewardXp: 30
+# Unsequenced elective, like the other trackId 0 / trackLevel 0 courses.
+trackId: 0
+trackLevel: 0
+sourceLocale: en
+modules:
+  - key: before
+    title: "Before the workshop"
+    lessons:
+      - lesson-aik-what-you-install
+  - key: install
+    title: "Install and look around"
+    lessons:
+      - lesson-aik-install
+      - lesson-aik-skills
+  - key: work
+    title: "Put it to work"
+    lessons:
+      - lesson-aik-agents-and-commands
+      - lesson-aik-first-task
+  - key: guardrails
+    title: "The guardrails"
+    lessons:
+      - lesson-aik-mcp-and-keys
+      - lesson-aik-firewall
+  - key: after
+    title: "After the workshop"
+    lessons:
+      - lesson-aik-keep-going

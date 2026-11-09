@@ -1,0 +1,148 @@
+id: lesson-aik-keep-going
+slug: keep-going
+title: "Memory, updates and the longer workflow"
+skills:
+  - toolchain-versions
+  - version-pinning
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: reflect
+    type: openEnded
+    prompt: "Write the first real task you will hand the kit next week, in two or three sentences: what you will build, which command or agent you expect to reach for first, and which firewall tier you will be on and why."
+    maxWords: 150
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "A learner pastes a 2024 tutorial into the session that builds a client with new Connection(clusterApiUrl('devnet')) and asks the solana-guide agent to help them follow it. Predict what the agent's own file tells it to do."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Follow the tutorial as written, since a guide teaches whatever the learner brought and leaves the library choice alone."
+            correct: false
+            feedback: "The file is explicit about teaching Anchor 1.x, @solana/kit and the current test tools, and about naming outdated material."
+          - id: d
+            label: "Hand off to the anchor-engineer agent, because client code counts as production work that a guide does not touch."
+            correct: false
+            feedback: "Learning stays with the guide. Hand-offs to engineers are for production code the learner cannot yet write unaided."
+          - id: a
+            label: "Point out that the tutorial predates current tooling and teach the @solana/kit form, with examples from solana-dev."
+            correct: true
+            feedback: "Yes. The agent file says to teach current tooling and to point it out when a learner's tutorial predates it."
+          - id: c
+            label: "Refuse to read pasted code, because agents read files inside .claude and the learner's pasted text sits outside it."
+            correct: false
+            feedback: "Agents read what the task gives them. The question is what they teach from it."
+        explanation: "The solana-guide file lists the current stack to teach and says to point it out when a tutorial predates it, naming pre-1.0 Anchor, the old Anchor package and Bankrun as examples. The same rule is why the first-task lesson treated a legacy import as a sign the hub was skipped."
+      - id: q2
+        prompt: "You run /add-skill jupiter today and your teammate runs it next month on a fresh install of the same kit release. Which commit of the Jupiter pack does each of you get?"
+        multiSelect: false
+        options:
+          - id: b
+            label: "Whatever the Jupiter repository's main branch holds on the day each of you runs the command, so likely different."
+            correct: false
+            feedback: "That is how an unpinned add-on behaves. Pinned extensions copy a recorded commit."
+          - id: a
+            label: "The same one: the commit the kit's registry pins for that release. It moves just when a new kit release moves the pin."
+            correct: true
+            feedback: "Right. Extensions are copied at the pinned, reviewed commit, and /update refreshes them only to what the new release records."
+          - id: c
+            label: "You get the pinned commit and your teammate gets upstream main, because a pin expires thirty days after a release."
+            correct: false
+            feedback: "Pins do not expire. They change only through a kit release."
+          - id: d
+            label: "Neither gets a copy. /add-skill adds a link into the hub, and the files are fetched from upstream on first use."
+            correct: false
+            feedback: "The command copies the pack into .claude/skills/ext/ and records it in extensions.txt so /update keeps it."
+        explanation: "Every pack the kit pins is recorded at a commit in the skill registry, checked by the kit's own validation, and copied into a project at that commit. Two installs of the same release get identical packs. Updating the kit is the only thing that moves a pin, which is the difference between an extension and an unpinned add-on."
+      - id: q3
+        prompt: "You type /update inside Claude Code. Predict what the script does and does not touch."
+        multiSelect: false
+        options:
+          - id: d
+            label: "It prints the changelog and stops, since updating the files requires rerunning the installer from the project root."
+            correct: false
+            feedback: "The bundled update script does the update. The installer is for a first install."
+          - id: c
+            label: "It reinstalls from scratch, resetting .env and the firewall tier to their defaults, and drops the extensions you added."
+            correct: false
+            feedback: ".env is kept, the tier declared in security.json is re-applied, and installed extensions are refreshed, not dropped."
+          - id: b
+            label: "It pulls the kit's main branch and overwrites CLAUDE.md with the latest version, so your project notes are lost with it."
+            correct: false
+            feedback: "The command resolves the release tag, and your instruction file is kept with the kit's version written beside it."
+          - id: a
+            label: "It pulls the newest release tag, refreshes the kit's files, keeps .env and CLAUDE.md, and writes CLAUDE.md.upstream to merge."
+            correct: true
+            feedback: "Yes. Then it re-applies your declared tier, so a restart is needed before the new rules hold."
+        explanation: "The update script fetches the same release tag a fresh install would get, replaces the files the kit ships, keeps .env and the instruction file, writes the kit's new CLAUDE.md as CLAUDE.md.upstream when it differs, and re-applies the declared firewall tier. Permission rules are read at session start, so restart Claude Code afterwards."
+      - id: q4
+        prompt: "You attached the Supabase server without the read_only and project_ref parameters because you needed a migration applied. Afterwards you forget it is there. What is the standing risk, in the kit's own words?"
+        multiSelect: false
+        options:
+          - id: c
+            label: "Just that the session costs more tokens, since the write tools add their schemas to each session the server joins."
+            correct: false
+            feedback: "The token cost is real and small. The reach of execute_sql is the risk the kit names."
+          - id: a
+            label: "execute_sql is an unrestricted SQL channel into the database, DROP and DELETE included, and no tier reaches it."
+            correct: true
+            feedback: "Yes. MCP servers run outside the sandbox, so the server's own form is the limit. Re-add the parameters when the migration is done."
+          - id: b
+            label: "None, because the firewall asks before any tool call that writes, at each tier, and MCP servers are covered too."
+            correct: false
+            feedback: "The kit's hooks match the shell and context-mode's tools. They do not reach other MCP servers."
+          - id: d
+            label: "That the Solana CLI will refuse to start while a database server is attached, until the server is detached again."
+            correct: false
+            feedback: "The two have nothing to do with each other."
+        explanation: "The configuration doc is direct about it: unflagged, execute_sql runs any SQL against the project's Postgres with no statement filtering, and apply_migration is the same reach with DDL. An MCP server runs outside the OS sandbox and the kit's hooks do not match it, so the only lever is the form you attach it in."
+      - id: q5
+        prompt: "You run /crew 41 42 against two issues and leave for lunch. Predict where it will be waiting when you come back, at the latest."
+        multiSelect: false
+        options:
+          - id: b
+            label: "At a merged pull request, since /crew runs the whole cycle from intake to ship without stopping for anyone."
+            correct: false
+            feedback: "/crew ends before /ship. Merging is yours, inside a standing order you gave."
+          - id: c
+            label: "At the first failing test, because /crew stops at any error it meets and does not retry a step without being asked."
+            correct: false
+            feedback: "It runs up to two fix waves. The stops are your gates, not every error."
+          - id: d
+            label: "It will not have started, because /crew requires the Rust toolchain for any issue, and /doctor said it is missing."
+            correct: false
+            feedback: "Intake, research and planning need no toolchain. Implementation needs whatever the work needs."
+          - id: a
+            label: "At the plan. Nothing is built before you approve it, and it stops again before shipping so you type /ship yourself."
+            correct: true
+            feedback: "Right. The plan gate is always on, and /ship is the one command only you can run."
+        explanation: "The chain is intake, research, decide, plan, implement, review, fix, ship. /crew runs the first seven and stops after intake when it has questions, always at the plan, after the review round when the sheet holds anything to answer, and always before shipping, where it asks you to push, open the PR and type /ship."
+      - id: q6
+        prompt: "Which of these are true of adding memsearch, the memory plugin the kit's standard install recommends?"
+        multiSelect: true
+        options:
+          - id: d
+            label: "It is an MCP server listed in .mcp.json."
+            correct: false
+            feedback: "It is a Claude Code plugin. The old .mcp.json entry pointed at a package that was never published, and /update removes it."
+          - id: a
+            label: "It takes two commands inside Claude Code and a restart before it activates."
+            correct: true
+            feedback: "Yes. A marketplace add, an install, then restart."
+          - id: c
+            label: "Its first launch downloads a model of around half a gigabyte."
+            correct: true
+            feedback: "Yes. Around 558 MB from HuggingFace, once."
+          - id: e
+            label: "It recalls memories at every firewall tier, including Medium and High."
+            correct: false
+            feedback: "Its recall skill runs a bash -c line that Medium and High deny, so it works at Off and Relaxed only."
+          - id: b
+            label: "Its store and embedder run locally, with no API key and no account."
+            correct: true
+            feedback: "Yes. A local database file and a CPU embedder, nothing leaves the machine."
+        explanation: "memsearch is a plugin from Zilliz's own marketplace, hence the extra marketplace line, and it activates on restart. Storage is a local Milvus Lite file and the embedder runs on CPU, so there is no key and no account, at the cost of one model download. It is not an MCP server, and its recall stops at the two stricter tiers."
