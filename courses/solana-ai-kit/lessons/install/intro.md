@@ -1,24 +1,24 @@
-# Install it into a project
+# Install the kit and meet the team
 
-Last lesson you created an empty folder and checked that `claude --version` prints something. This lesson puts the kit inside that folder and ends with **a health report of thirteen lines**. It takes around fifteen minutes, and most of that is reading.
+By the end of the workshop you will have handed a Solana project to **fifteen specialists**, one at a time, from the first research question to the deploy. This lesson installs the kit that carries them and shows you how one of them is built. Around fifteen minutes.
 
 ## Why this matters
 
-The installer is a shell script fetched over the network and piped into `bash`. That shape is common, and *most people run it without looking*. The kit's own README asks you not to, and I agree with it: the review step costs two minutes. So the three commands below download the script, show it to you, and only then run **the copy you read**.
+The Solana AI Kit is a folder of configuration for Claude Code, maintained by Superteam Brasil at [github.com/solanabr/ai-kit](https://github.com/solanabr/ai-kit). As read on 2026-11-09, at version **2.4.0**, it carries 15 agents, 54 slash commands, a hub of skills, four MCP servers and a firewall. This course is about the agents. **An agent is a specialist prompt**: a markdown file with a name, a one-line description, a model, the references it must read before working, the mistakes it must not make, and a table of who it hands work to. Claude Code starts one as a subagent when your request matches its description, or when you name it. *Naming it is the habit this course teaches.*
 
 ## Do this
 
-1. **Go into the folder and make it a repository.** The installer installs into the directory it runs in, so this `cd` is the step people skip and then wonder where the kit went.
+1. **Make the project folder and go in.** The installer installs into the directory it runs from, so this step is the one people skip and then wonder where the kit went.
 
 ```bash
-cd kit-workshop
+mkdir kit-workshop && cd kit-workshop
 ```
 
 ```bash
 git init
 ```
 
-2. **Download the installer and read it.** The address redirects to the script on the kit's `main` branch. Press `q` to leave the reader when you are done.
+2. **Download the installer, read it, run it.** The address redirects to the install script on the kit's `main` branch. Press `q` to leave the reader.
 
 ```bash
 curl -fsSL https://aikit.superteam.codes/install.sh -o /tmp/solana-ai-kit-install.sh
@@ -28,58 +28,65 @@ curl -fsSL https://aikit.superteam.codes/install.sh -o /tmp/solana-ai-kit-instal
 less /tmp/solana-ai-kit-install.sh
 ```
 
-You are reading for **four things**: it downloads the kit's latest release tag into a temporary directory and deletes it afterwards, it copies named folders and a handful of root files into your project, it adds lines to your `.gitignore`, and near the end it runs `claude plugin install safe-ai-skill@stbr --scope project` to install the security plugin. *It asks you nothing while it runs.* One more check before you run it, from the kit's own install doc: the script clones whatever repository `SOLANA_AI_KIT_UPSTREAM` names if that variable is set in your shell, so make sure it is not:
-
-```bash
-env | grep _UPSTREAM
-```
-
-3. **Run the copy you read.**
-
 ```bash
 bash /tmp/solana-ai-kit-install.sh
 ```
 
-4. **Read the closing box.** It starts with *Installation complete* and then lists the next steps, the firewall tier you are on (**Relaxed**), whether the security plugin was installed, and which paths were gitignored. If the box says safe-ai-skill is *enabled but not installed*, it prints the one command to run, and you run it now.
+It copies `.claude/`, `CLAUDE.md`, `.mcp.json`, `.env` and `.env.schema` into the folder, gitignores the kit's own files, and installs the **safe-ai-skill** security plugin with the `claude` CLI. It asks you nothing. The closing box says *Installation complete*, names the firewall tier (**Relaxed**), and lists next steps.
 
-5. **Look at what landed.** The project now carries `CLAUDE.md`, `.claude/`, `.mcp.json`, `.env`, `.env.schema` and `.safe-ai-skill/`. Inside `.claude/` are `agents/`, `commands/`, `skills/`, `hooks/`, `bin/`, a `settings.json` with the permission and sandbox rules, and a `security.json` that names the tier those rules came from.
-
-![The project folder after the install: CLAUDE.md and .env.schema tracked by git, and .claude with agents, commands, skills, hooks, bin, settings.json and security.json, plus .mcp.json, .env and .safe-ai-skill, gitignored.](assets/v01-what-landed.webp)
-
-The kit's folders are gitignored by default, and so are `.mcp.json`, `.env` and `.safe-ai-skill/`. Two files stay tracked on purpose. `CLAUDE.md` does because at least one other agent skips an instruction file that `.gitignore` lists, and `.env.schema` does because it holds key names with no values and is meant to be committed. The kit reads as infrastructure, not as your app code. When a team should share one configuration, `/commit-claude-config` un-ignores the lot and commits it.
-
-6. **Start Claude Code.**
+3. **Start Claude Code and approve the servers.**
 
 ```bash
 claude
 ```
 
-Claude Code asks **once per project** whether to start the four MCP servers it found in `.mcp.json`. Approve them. Helius is listed but useless until a key is set, which is fine for today.
-
-7. **Run the health check.** Type this inside Claude Code:
+Claude Code asks once whether to start the four MCP servers in `.mcp.json`. Approve them. Then type:
 
 ```text
 /doctor
 ```
 
-It runs **thirteen checks**, each marked OK, WARN, FAIL or n/a, with one fix-it command next to every failure. On a machine set up as last lesson asked, expect the Solana CLI line to read FAIL with its install command, a note or two about keys that are still empty, and the firewall and safe-ai-skill lines to read OK. *Read the whole report once*, because the shape of it is what you come back to when something breaks in a month.
+Thirteen checks, each OK, WARN, FAIL or n/a, with one fix-it command per failure. Today the Solana CLI line may read FAIL and the keys may read empty. *Both are fine for the next lesson.* Lesson 3 is where Rust, Anchor and the Solana CLI enter. `/doctor` has already printed the Solana CLI install command, and it prints the Rust and Anchor ones once the project holds an Anchor workspace.
+
+4. **Open one agent file end to end.**
+
+```bash
+cat .claude/agents/solana-architect.md
+```
+
+Read it as a job description. The header carries the name, the description Claude Code matches against, and **`model: opus`**, which every kit agent sets whatever your session runs on. Then the sections most of the fifteen files share: **what to read before working** (links into the solana-dev pack and the kit's own skills), **the details that are easy to get wrong** (here: seeds are permanent, shared writable accounts serialize every transaction, admin powers behind a multisig), **Handoffs** (which agent gets which follow-up, a table in this file and a list in the others), and a closing section, **Output** in the architect and the researcher, **Before handing back** in the engineers. That closing section is the one to hold onto: *it tells you what you are owed when the agent finishes*.
+
+5. **Meet the other fourteen in five lanes.** They group by the stage of a project they serve:
+
+![The fifteen agents in five lanes: design with solana-architect, game-architect and solana-researcher, programs with anchor-engineer and pinocchio-engineer, around the program with solana-frontend-engineer, mobile-engineer, rust-backend-engineer, token-engineer, defi-engineer and unity-engineer, ship with solana-qa-engineer, devops-engineer and tech-docs-writer, and learn with solana-guide.](assets/v01-five-lanes.webp)
+
+The lessons follow those lanes with **one example project**: *Stamp*, a loyalty card for a coffee shop, where a customer earns a stamp per purchase and ten stamps buy a coffee. The shop and the customer each hold a wallet. It is a small idea on purpose, so that every agent gets a turn on something you can picture.
+
+6. **Say the name.** Type this inside Claude Code and watch the transcript:
+
+```text
+Use the solana-researcher agent to tell me, in three sentences with a cited source each, what Token-2022 is and when a small shop would want it over the classic token program.
+```
+
+You should see the agent start, then a short answer with links and a confidence label per finding, which is the output shape its file demands. If Claude answers from memory with no agent and no links, say "use the agent" and ask again.
 
 ## Done when
 
-- `ls -a` in the project shows `CLAUDE.md`, `.claude`, `.mcp.json` and `.env`.
-- `cat .claude/security.json` names the tier **relaxed**.
-- `/doctor` ran, and the only FAIL is the Solana CLI, or there is none.
+- `ls .claude/agents` lists fifteen files and `/doctor` ran.
+- You can name the sections an agent file carries, and the closing one that says what you are owed.
+- The researcher started on your prompt and cited its sources.
 
 ## Watch out
 
-- **Run it from the project root.** The installer has no idea which folder you meant. It installs where it stands.
-- **Flags you did not use today.** `--agents` installs into `.agents/` with an `AGENTS.md` for Codex, opencode and other tools that read that file. `--with sendai,jupiter` adds skill extensions at install time. `--tier=medium` starts on a stricter firewall tier. The script's first lines document all of them.
-- **The plugin marketplace route exists and the kit does not recommend it.** A plugin runs hooks and MCP servers with your user permissions and can update from a remote. The install you just did is the one the maintainers stand behind.
+- **Run the installer from the project root.** It has no idea which folder you meant.
+- **Opus costs Opus.** An agent runs on the strongest model, whatever your session is on. For a quick question ask the main session, and for design, code and research let the agent run.
+- **Native Windows.** The security plugin has no engine build there and the installer skips it. WSL2 is fine.
+- **`.env` holds keys, `.mcp.json` holds config.** The Helius server reads its key from the environment, and `/setup-mcp` appends it for you. Nothing today needs a key.
 
 ## The takeaway
 
-The kit is installed by a script you read first, into the folder you ran it from, and **the health check is how you confirm it**. Everything it added is ignored by git except `CLAUDE.md` and the key schema, *so a teammate gets nothing until they install too or you commit the config*.
+The kit installs into the folder you run it from, and its agents are **markdown job descriptions** with a model, references, pitfalls, handoffs and a required output shape. *You get the specialist you ask for by name.*
 
 ## Next
 
-Next lesson you open one file, `.claude/skills/SKILL.md`, and read its first table. That file is the reason Claude will know which Solana reference to read before it writes anything.
+Next lesson the researcher and the architect take Stamp from three lines of idea to a design with named accounts, and you keep the design file, because every later agent reads it.

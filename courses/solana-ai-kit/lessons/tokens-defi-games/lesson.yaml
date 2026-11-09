@@ -1,0 +1,76 @@
+id: lesson-aik-tokens-defi-games
+slug: tokens-defi-games
+title: "Tokens, DeFi and games: four more specialists"
+skills:
+  - token-2022
+  - solana-programs
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "You ask the token-engineer agent to make Stamp's stamps a Token-2022 mint with a transfer hook, a permanent delegate, transfer fees and non-transferability, 'to be safe'. Predict its pushback, from its own file."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Extensions can be added after the mint exists, so start with none and add them one at a time once the shop sees a real problem."
+            correct: false
+            feedback: "The opposite is true in its file: mint extensions are fixed at creation, which is why it keeps options open with zero-value placeholders."
+          - id: a
+            label: "Use the fewest extensions that meet the requirement, since each one narrows where the token can trade and venues reject hooks."
+            correct: true
+            feedback: "Yes. Its first rule is the fewest extensions that meet the requirement, and it checks each target venue before fixing the set."
+          - id: c
+            label: "Non-transferable mints need Metaplex Token Metadata, and the metaplex pack is not installed, so it declines until you add it."
+            correct: false
+            feedback: "Token-2022 fungibles carry metadata through the metadata extension. Metaplex is for classic mints and NFTs."
+          - id: d
+            label: "Transfer fees are illegal for loyalty points in most jurisdictions, so it hands the question to the crypto-legal pack first."
+            correct: false
+            feedback: "The agent raises venue compatibility and authority holders, not legal status. Legal questions go to a different pack, on your ask."
+        explanation: "The token engineer's opening rule is to use the fewest extensions that meet the requirement, because every extension narrows where the token can trade and many pools, wallets and aggregators reject hooks, permanent delegates or default-frozen accounts. For stamps that should not be sold, non-transferable plus the metadata extension is the whole set."
+      - id: q2
+        prompt: "The defi-engineer agent adds a Jupiter swap so a customer can pay for coffee in any token. Its code checks the quoted output off-chain and trusts it. Predict the check its own file says is missing."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Price the coffee from the pool's spot reserves at the moment of the swap, since that is the one on-chain source of truth available."
+            correct: false
+            feedback: "Spot reserves are exactly what a flash loan can move inside one transaction. The file says to price from an oracle, not from a pool."
+          - id: c
+            label: "Call the legacy quote endpoint as a second opinion, because two quotes that agree with each other can be trusted for a payment."
+            correct: false
+            feedback: "The legacy endpoints are the ones the migration skill exists to retire. Two off-chain quotes are still not an on-chain check."
+          - id: a
+            label: "Enforce a minimum output on-chain, reload the destination after the swap CPI and check the balance delta rather than the quote."
+            correct: true
+            feedback: "Right. The quote is advice; the balance delta after the CPI is the fact, and a minimum output enforced on-chain is what protects the shop."
+          - id: d
+            label: "Move the swap to a separate transaction so the payment has no way to fail halfway through and leave the shop short of USDC."
+            correct: false
+            feedback: "Splitting a flow is allowed only when each step is safe alone, and it does not add the missing minimum-output check."
+        explanation: "The DeFi engineer's file is specific: enforce a minimum output on-chain, and after a swap CPI reload the destination account and check the balance delta rather than the quote. It also says to price from an oracle with a feed id and max age, not from spot reserves or balances that a flash loan can move within a transaction."
+      - id: q3
+        prompt: "In the Stamp mini-game, the Unity client reports the player's score and the program pays a stamp for a score over 100. Predict what game-architect's file says about that design."
+        multiSelect: false
+        options:
+          - id: c
+            label: "Scores are fine from the client as long as the payout is a non-transferable token the player has no way to sell on a market."
+            correct: false
+            feedback: "Non-transferability limits resale. It does nothing about a player forging a score to earn free coffee."
+          - id: a
+            label: "Client-reported scores are attacker-controlled, so anything that mints or pays out is verified on-chain or by a server signature."
+            correct: true
+            feedback: "Yes. Leaderboards rank off-chain and commit on-chain, and a payout needs a check the client cannot forge."
+          - id: b
+            label: "Per-frame gameplay belongs on-chain so the score is provable, and the client should write state on each action it takes."
+            correct: false
+            feedback: "The file puts per-frame gameplay off-chain and writes at checkpoints: match end, level-up, reward claim."
+          - id: d
+            label: "Unity has no way to sign transactions on WebGL, so the game has to target PSG1 before any payout to a player can exist at all."
+            correct: false
+            feedback: "WebGL signs through the wallet adapter login path. Platform choice does not fix a trust problem in the design."
+        explanation: "The game architect's file splits state into on-chain for what is valuable, tradeable or trusted by other players, and off-chain for gameplay and session state, written at checkpoints. It then says plainly that client-reported scores are attacker-controlled, so anything that mints or pays out is verified on-chain or with a server-authority signature."

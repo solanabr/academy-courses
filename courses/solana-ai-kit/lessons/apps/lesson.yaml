@@ -1,0 +1,79 @@
+id: lesson-aik-apps
+slug: apps
+title: "Build around it: frontend, mobile and backend engineers"
+skills:
+  - solana-kit
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "The frontend engineer's redeem button shows a spinner until the transaction is finalized, around thirty seconds. Which of its own transaction UX rules did it break?"
+        multiSelect: false
+        options:
+          - id: d
+            label: "Route keyed RPC URLs through a server route, because public env values ship in the bundle."
+            correct: false
+            feedback: "That rule protects the RPC key. It has nothing to do with the confirmation stage shown to the user."
+          - id: a
+            label: "Update the UI at confirmed and show each stage with an explorer link; users are not held until finalized."
+            correct: true
+            feedback: "Yes. Awaiting signature, submitted with a link, confirmed. Finalized is for irreversible backend effects, not for the button."
+          - id: c
+            label: "Check whether the wallet supports transaction v1 before planning the transaction, or route it through a v0 client."
+            correct: false
+            feedback: "The v1 check is about building the transaction, not about how long the UI waits afterwards."
+          - id: b
+            label: "Simulate before asking for a signature, so a failure maps to a specific message instead of a long wait."
+            correct: false
+            feedback: "Simulation is a real rule, but it happens before the wallet prompt. The spinner problem is about which stage releases the UI."
+        explanation: "The frontend engineer's file lists the stages to show, awaiting signature, submitted with the signature and an explorer link right away, confirmed, and says to update the UI at confirmed rather than hold users until finalized. A rejected signature is a normal outcome too, not an error."
+      - id: q2
+        prompt: "The backend engineer's indexer shows a customer with twelve stamps after ten purchases. Helius redelivered two webhook events. Predict the rule from the agent's file that the indexer skipped."
+        multiSelect: false
+        options:
+          - id: d
+            label: "Check meta.err on each transaction, because failed transactions still emit the events that were logged before the failure."
+            correct: false
+            feedback: "That rule is also in the file and also matters, but it explains phantom stamps from failed transactions, not doubles from retries."
+          - id: a
+            label: "Deliveries repeat, so upsert on the signature plus the event's position in the transaction instead of inserting each delivery."
+            correct: true
+            feedback: "Right. Webhook retries and reconnects redeliver, and one transaction can carry several events, hence signature plus position."
+          - id: c
+            label: "Index at finalized alone, because events seen at confirmed can vanish in a fork and come back later as a second copy."
+            correct: false
+            feedback: "A fork can drop a processed event; it does not create a duplicate of a confirmed one. The retry did."
+          - id: b
+            label: "Use the non-blocking RPC client, because the blocking one stalls the runtime and queued events get applied twice on resume."
+            correct: false
+            feedback: "The blocking client is a real pitfall, but it causes stalls, not duplicates. Idempotency is a storage rule."
+        explanation: "The backend engineer's file is blunt that the hard part is data correctness under redelivery, forks and gaps. Deliveries repeat, so the indexer upserts on the signature plus the event's index inside the transaction, stores the slot on every row, checks meta.err before applying effects, and waits for finalized before anything irreversible."
+      - id: q3
+        prompt: "A learner scaffolds the Stamp customer app with Expo and opens it in Expo Go on an iPhone, and the wallet connect does nothing. Which facts from the mobile engineer's file explain it?"
+        multiSelect: true
+        options:
+          - id: c
+            label: "The Web Crypto polyfill loads late, so signing fails before the wallet opens."
+            correct: false
+            feedback: "A real pitfall, but it shows up as a signing failure on Android, not as a silent connect on an iPhone in Expo Go."
+          - id: d
+            label: "The app has to be on the dApp Store before a wallet will answer it."
+            correct: false
+            feedback: "Publishing is a release step. Development builds connect to wallets without it."
+          - id: b
+            label: "MWA needs a development build, which Expo Go does not provide."
+            correct: true
+            feedback: "Yes. expo run:android produces a build that carries the native module. Expo Go does not."
+          - id: a
+            label: "Mobile Wallet Adapter runs on Android alone."
+            correct: true
+            feedback: "Yes. iOS builds run, but MWA is not there; iOS signing goes through a wallet's deep-link protocol or SDK."
+          - id: e
+            label: "Expo apps connect on devnet alone, and the wallet was set to mainnet."
+            correct: false
+            feedback: "Cluster mismatch shows stale data, not a dead connect. The file's rule is to put the chain in every query key."
+        explanation: "Two facts from the mobile engineer's file stack here: Mobile Wallet Adapter is Android only, and it needs a development build because Expo Go cannot load it. On iOS, signing goes through a wallet's deep-link protocol or SDK instead. The polyfill and cluster rules are real but produce different symptoms."

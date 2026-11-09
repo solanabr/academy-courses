@@ -1,0 +1,145 @@
+id: lesson-aik-keep-learning
+slug: keep-learning
+title: "Keep learning: solana-guide, /explain-code and staying current"
+skills:
+  - solana-fundamentals
+  - toolchain-versions
+  - solana-kit
+  - pdas
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "A learner pastes a 2024 tutorial that builds a client with new Connection(clusterApiUrl('devnet')) and asks the solana-guide agent to help them follow it. Predict what the agent's own file tells it to do."
+        multiSelect: false
+        options:
+          - id: d
+            label: "Hand off to the anchor-engineer agent, because client code counts as production work that a guide does not touch."
+            correct: false
+            feedback: "Learning stays with the guide. Hand-offs to engineers are for production code the learner cannot yet write unaided."
+          - id: c
+            label: "Refuse to read pasted code, because agents read files inside .claude and the learner's pasted text sits outside it."
+            correct: false
+            feedback: "Agents read what the task gives them. The question is what they teach from it."
+          - id: a
+            label: "Point out that the tutorial predates current tooling and teach the @solana/kit form, with examples from solana-dev."
+            correct: true
+            feedback: "Yes. The agent file says to teach current tooling and to point it out when a learner's tutorial predates it."
+          - id: b
+            label: "Follow the tutorial as written, since a guide teaches whatever the learner brought and leaves the library choice alone."
+            correct: false
+            feedback: "The file is explicit about teaching Anchor 1.x, @solana/kit and the current test tools, and about naming outdated material."
+        explanation: "The solana-guide file lists the current stack to teach and says to point it out when a tutorial predates it, naming pre-1.0 Anchor, the old Anchor package and Bankrun as examples. The same rule is why the apps lesson kept the legacy wallet packages out of new work."
+      - id: q2
+        prompt: "Your Stamp test fails with custom program error 0x7d6 after you changed the card's seeds on the client. Which decoded error is that, and what does it tell you?"
+        multiSelect: false
+        options:
+          - id: d
+            label: "4100, DeclaredProgramIdMismatch: the test loaded the program at a different address than declare_id after a stale build step."
+            correct: false
+            feedback: "4100 is 0x1004 and comes from a stale build after keys sync, not from a seeds change."
+          - id: b
+            label: "6000, the first custom error, meaning the program's own check on the stamp count rejected the call and returned its first variant."
+            correct: false
+            feedback: "6000 is 0x1770. The 0x7d6 code sits in the constraint range, not in the custom range."
+          - id: a
+            label: "2006, ConstraintSeeds: the client and the program disagree on the PDA seeds, so one side's derivation changed and the other did not."
+            correct: true
+            feedback: "Right. 0x7d6 is 2006, in the 2000 to 2999 constraint range, and the seeds constraint is the one that fires on a derivation mismatch."
+          - id: c
+            label: "3012, AccountNotInitialized: the card account does not exist yet and has to be created by the shop before any test can read it."
+            correct: false
+            feedback: "3012 is 0xbc4. A missing account is a different range and a different fix."
+        explanation: "The test command's file decodes it: 2000 to 2999 are constraint violations and 2006 is ConstraintSeeds, which fires when the client's PDA derivation and the program's seeds disagree. The architect's heuristic that seeds are permanent is the reason a seed change on one side is a bug, not a refactor."
+      - id: q3
+        prompt: "You type /update inside Claude Code six weeks after the workshop. Predict what the script does and does not touch."
+        multiSelect: false
+        options:
+          - id: c
+            label: "It reinstalls from scratch, resetting .env and the firewall tier to their defaults, and drops the extensions you had installed."
+            correct: false
+            feedback: ".env is kept, the tier declared in security.json is re-applied, and installed extensions are refreshed, not dropped."
+          - id: b
+            label: "It pulls the kit's main branch and overwrites CLAUDE.md with the latest version, so your project notes are lost along with it."
+            correct: false
+            feedback: "The command resolves the release tag, and your instruction file is kept with the kit's version written beside it."
+          - id: a
+            label: "It pulls the newest release tag, refreshes the kit's files, keeps .env and CLAUDE.md, and writes CLAUDE.md.upstream for you to merge."
+            correct: true
+            feedback: "Yes. Then it re-applies your declared tier, so a restart is needed before the new rules hold."
+          - id: d
+            label: "It prints the changelog and stops, since updating the files requires rerunning the installer from the project root by hand."
+            correct: false
+            feedback: "The bundled update script does the update. The installer is for a first install."
+        explanation: "The update script fetches the same release tag a fresh install would get, replaces the files the kit ships, keeps .env and the instruction file, writes the kit's new CLAUDE.md as CLAUDE.md.upstream when it differs, and re-applies the declared firewall tier. Permission rules are read at session start, so restart Claude Code afterwards."
+      - id: q4
+        prompt: "After the architect designs Stamp, you ask it to also write the Jupiter swap for the any-token payment. Predict what it does, from its handoff table."
+        multiSelect: false
+        options:
+          - id: c
+            label: "It hands the swap to token-engineer, because any step that moves tokens belongs to the token specialist by the kit's lane rules."
+            correct: false
+            feedback: "Token-engineer owns mints and extensions. Swaps are listed under defi-engineer in every handoff table that mentions them."
+          - id: a
+            label: "It names defi-engineer for the swap and keeps to the account model, because protocol integrations are that agent's row in its table."
+            correct: true
+            feedback: "Right. Swaps, lending, oracles and other protocol integrations are the defi-engineer row in the architect's Handoffs."
+          - id: b
+            label: "It writes the swap itself, since a design that includes a swap is still a design and no handoff applies to the integration code."
+            correct: false
+            feedback: "The architect designs before code and hands integration code to defi-engineer by its own table."
+          - id: d
+            label: "It declines, because the firewall denies DeFi integrations on the Relaxed tier until the jupiter pack has been installed first."
+            correct: false
+            feedback: "Tiers do not gate which agent runs. The pack is asked for by the DeFi engineer when it starts."
+        explanation: "The architect's Handoffs table sends program implementation to anchor-engineer, mints and extensions to token-engineer, swaps, lending, oracles and other protocol integrations to defi-engineer, wallet UX to the frontend and mobile engineers, indexers to the backend engineer and tests to QA. Asking it to code a swap gets you the right name, not the code."
+      - id: q5
+        prompt: "Stamp's token is a Token-2022 mint. The frontend engineer derives the customer's token account with the classic token program id. Predict the symptom, from the token engineer's file."
+        multiSelect: false
+        options:
+          - id: b
+            label: "A transfer fee charged twice, once by each program, so the customer loses a stamp on each read the page makes of the account."
+            correct: false
+            feedback: "Reads charge nothing, and the stamp mint carries no fee extension in the design."
+          - id: c
+            label: "The mint is closed and reinitialized by the classic program, destroying each card that was issued before the page was deployed."
+            correct: false
+            feedback: "Deriving an address does nothing on-chain. The program id only changes which address you compute."
+          - id: d
+            label: "Nothing changes, because both token programs share one associated-account scheme for compatibility with older wallet software."
+            correct: false
+            feedback: "The two programs give different associated token addresses for the same owner and mint. That is the whole point of the warning."
+          - id: a
+            label: "A wrong address: associated token accounts derive from the token program id, so the page reads an empty account and shows no stamps."
+            correct: true
+            feedback: "Yes. The file says the classic id gives the wrong ATA for a Token-2022 mint. Pass the Token-2022 program id when deriving."
+        explanation: "The token engineer's file lists it among the details that are easy to get wrong: account sizes vary with extensions, and ATAs derive from the token program id, so the classic id gives the wrong address for a Token-2022 mint. The page would read an empty account and show a customer with zero stamps."
+      - id: q6
+        prompt: "Which of these does the deploy command's own file require before a mainnet deploy, as preconditions it reports when missing?"
+        multiSelect: true
+        options:
+          - id: b
+            label: "A devnet deployment that exercised the real flows."
+            correct: true
+            feedback: "Yes. Devnet first is both a house rule and a deploy precondition."
+          - id: a
+            label: "An /audit-solana report with no open Critical or High findings."
+            correct: true
+            feedback: "Yes. The first precondition the mainnet section names."
+          - id: e
+            label: "The firewall switched to the High tier for the session."
+            correct: false
+            feedback: "High denies mainnet writes outright. The deploy runs at Relaxed with an approval stop, after the preconditions."
+          - id: d
+            label: "A Helius API key set in .env."
+            correct: false
+            feedback: "Helius is for data and docs. A deploy needs the Solana CLI and a funded deployer, not that key."
+          - id: c
+            label: "A decided upgrade-authority plan."
+            correct: true
+            feedback: "Yes. Deployer key on a hardware wallet first, Squads vault later, immutable only once battle-tested."
+        explanation: "The mainnet section of the deploy command starts only on your ask and first reports which preconditions are missing: an audit with no open Critical or High findings, tests and fuzzing passing, a devnet deployment that exercised the real flows, a decided upgrade-authority plan, and an external audit for programs that hold user funds."

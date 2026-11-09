@@ -1,0 +1,81 @@
+id: lesson-aik-your-idea
+slug: your-idea
+title: "Your own idea: three threads to adapt"
+skills:
+  - solana-programs
+  - token-2022
+  - program-deployment
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: reflect
+    type: openEnded
+    prompt: "Write your own thread in the template's shape: the idea in three lines, the agents in order with one line each on what they owe you, and the exact first prompt you will paste into Claude Code."
+    maxWords: 250
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Your idea is a card game where match results earn tokens. You start by naming solana-architect. Predict what its own description says it will do with the request."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Design it as any other program, since a game's token rewards are accounts and instructions like the rest of the kit's designs."
+            correct: false
+            feedback: "The two architects split on purpose. Game design starts with gameplay, platform and the on-chain split, which the system architect does not ask about."
+          - id: a
+            label: "Send it to game-architect, which decides the on-chain split, writes concept.md and plan.md, and hands the program to anchor-engineer."
+            correct: true
+            feedback: "Yes. The architect's description ends with 'games go to game-architect', and the game architect routes the program work onward."
+          - id: d
+            label: "Start the unity-engineer directly, because a card game is an implementation task before it is a design task for any architect."
+            correct: false
+            feedback: "The Unity engineer builds from concept.md and plan.md. Without them it has no spec."
+          - id: c
+            label: "Decline until the solana-game pack is installed, because the architect reads no game references itself and will not guess at them."
+            correct: false
+            feedback: "It hands off rather than refusing. The game architect is the one that asks for the pack."
+        explanation: "The solana-architect description reads 'Designs and reviews Solana systems before code... Games go to game-architect.' The game architect asks about gameplay, platform and what must be on-chain, writes concept.md and plan.md, and hands the program to anchor-engineer, tokens to token-engineer and the Unity build to unity-engineer."
+      - id: q2
+        prompt: "The Door list idea needs event tickets that cannot be resold above face value. Which agent owns the mechanism, and what is the mechanism?"
+        multiSelect: false
+        options:
+          - id: c
+            label: "solana-frontend-engineer, by hiding the sell button in the app so holders have no way to list the ticket on a marketplace."
+            correct: false
+            feedback: "A UI cannot stop a transfer made from any other wallet. The rule has to live on the mint."
+          - id: b
+            label: "defi-engineer, by listing the tickets on Jupiter with a price ceiling set in the swap API so no route can exceed face value."
+            correct: false
+            feedback: "Jupiter routes swaps; it does not enforce a ceiling on who may transfer a token at what price."
+          - id: d
+            label: "rust-backend-engineer, with an indexer that detects resales above face value and revokes the ticket after the fact from the shop."
+            correct: false
+            feedback: "Detection after the fact is a different product. The requirement is to stop the transfer, which is a hook."
+          - id: a
+            label: "token-engineer, with a Token-2022 transfer hook that checks each transfer, since hooks are its lane and the set is fixed at creation."
+            correct: true
+            feedback: "Yes. Transfer-hook programs are the token engineer's lane, and the hook must be decided before the mint exists."
+        explanation: "The token engineer's description covers transfer-hook programs, and its file explains the constraints: extensions are fixed at creation, hooks arrive with read-only token accounts so state lives in extra accounts, and many venues reject hooked mints, which for a non-resalable ticket is acceptable. The hook is where a price cap or a transfer rule lives."
+      - id: q3
+        prompt: "You hand the Vaquinha backlog to /crew and leave. Predict where it will be waiting at the latest when you return."
+        multiSelect: false
+        options:
+          - id: d
+            label: "It will not have started, because /crew requires the Rust toolchain for any issue, and /doctor said it is missing."
+            correct: false
+            feedback: "Intake, research and planning need no toolchain. Implementation needs whatever the work needs."
+          - id: a
+            label: "At the plan. Nothing is built before you approve it, and it stops again before shipping so you type /ship yourself."
+            correct: true
+            feedback: "Right. The plan gate is always on, and /ship is the one command only you can run."
+          - id: c
+            label: "At the first failing test, because /crew stops at any error it meets and does not retry a step without being asked."
+            correct: false
+            feedback: "It runs up to two fix waves. The stops are your gates, not every error."
+          - id: b
+            label: "At a merged pull request, since /crew runs the whole cycle from intake to ship without stopping for anyone."
+            correct: false
+            feedback: "/crew ends before /ship. Merging is yours, inside a standing order you gave."
+        explanation: "The chain is intake, research, decide, plan, implement, review, fix, ship. /crew runs the first seven and stops after intake when it has questions, always at the plan, after the review round when the sheet holds anything to answer, and always before shipping, where it asks you to push, open the PR and type /ship."

@@ -1,0 +1,82 @@
+id: lesson-aik-ship
+slug: ship
+title: "Ship it: deploy, devops-engineer, tech-docs-writer"
+skills:
+  - program-deployment
+  - program-testing
+  - program-security
+  - supply-chain-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "On the default firewall tier you type /deploy mainnet for Stamp with no audit report in the repo. Predict what happens, from the deploy command's own file and the tier table."
+        multiSelect: false
+        options:
+          - id: c
+            label: "It refuses outright, because the command's file blocks a mainnet deploy until an external firm has signed off on the audit report."
+            correct: false
+            feedback: "The file recommends an external audit for programs holding user funds and reports missing preconditions; it does not hard-block on a signature."
+          - id: a
+            label: "It lists what is missing first, the audit among them, and the firewall still stops the write for your approval and names the cluster."
+            correct: true
+            feedback: "Yes. Mainnet starts only on your ask, lists what is missing first, and Relaxed pauses on-chain writes on every cluster but a local validator."
+          - id: b
+            label: "It deploys, because the Relaxed tier is for local development and gates nothing on-chain, and High is the tier that asks about mainnet."
+            correct: false
+            feedback: "Relaxed stops for approval on every cluster except a local validator. High is the tier that denies mainnet outright."
+          - id: d
+            label: "It deploys to devnet instead, since the command treats a mainnet request without an audit as a slip for the default cluster."
+            correct: false
+            feedback: "Nothing silently switches clusters. The prompt names the cluster it resolved, and the step before it is the precondition report."
+        explanation: "The deploy command's mainnet section starts only when you ask for mainnet and first reports which preconditions are missing: an audit with no open Critical or High findings, passing tests and fuzzing, a devnet run of the real flows, an upgrade-authority plan, and an external audit for programs that hold user funds. Independently, the Relaxed tier stops on-chain writes for approval on every cluster but a local validator, and the prompt names the cluster."
+      - id: q2
+        prompt: "The tech-docs-writer agent's README for Stamp lists the three instructions and their arguments, and nothing else. Which required items from its own file are missing?"
+        multiSelect: true
+        options:
+          - id: c
+            label: "Errors by name, decimal and hex code as logs show them."
+            correct: true
+            feedback: "Yes. 6000 and 0x1770 for the first custom error, with meaning and fix."
+          - id: e
+            label: "A copy of the Anchor source for each instruction, inline."
+            correct: false
+            feedback: "Facts come from the code and IDL, but the doc states accounts, layouts and codes, not the source."
+          - id: a
+            label: "Program id per cluster and the upgrade authority, checked with solana program show."
+            correct: true
+            feedback: "Yes. The first thing its file says program docs must state."
+          - id: b
+            label: "PDA seeds exactly as bytes, with whether the canonical bump is stored."
+            correct: true
+            feedback: "Yes. Indexers and clients derive from the seeds, so they are documented as bytes, not as prose."
+          - id: d
+            label: "A marketing one-liner and the team's social links."
+            correct: false
+            feedback: "That is the startup-builder pack's positioning skill, not program documentation."
+        explanation: "The docs writer's file lists what program docs must state: program id per cluster and the upgrade authority, each instruction's accounts with signer and writable flags, PDA seeds as exact bytes and whether the bump is stored, account layouts with offsets, compute units per instruction, errors by name and code, and token program support. Arguments alone are a fraction of it."
+      - id: q3
+        prompt: "The devops-engineer agent writes a GitHub Actions pipeline. A teammate suggests storing the mainnet upgrade-authority keypair as a CI secret so releases can deploy automatically. Predict the agent's answer, from its file."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Fine, as long as the secret is base64 and written to a chmod 600 temp file that a step marked to run in any case deletes afterwards."
+            correct: false
+            feedback: "That handling is what the file prescribes for devnet deployer keys. It does not make a mainnet authority safe in CI."
+          - id: c
+            label: "Fine on the High firewall tier, because High encrypts secrets before the runner can read them and clears them after the job ends."
+            correct: false
+            feedback: "Tiers govern the agent's session on your machine. They do nothing inside a GitHub runner."
+          - id: d
+            label: "Decline any deploy from CI, because solana-verify builds have no way to run on a hosted runner that is missing Docker support."
+            correct: false
+            feedback: "Verifiable builds need Docker and runners have it. The objection is about where the mainnet key lives."
+          - id: a
+            label: "Devnet keys alone belong in CI. The mainnet authority stays on a hardware wallet or a Squads multisig, which executes the upgrade."
+            correct: true
+            feedback: "Right. CI writes the buffer and sets its authority to the multisig vault; the multisig executes the upgrade."
+        explanation: "The devops file is explicit: deployer keypairs are base64 CI secrets written to a chmod 600 temp file and removed in an always-run step, and only devnet keys belong in CI. The mainnet upgrade authority stays on a hardware wallet or a Squads multisig; CI may write the buffer and hand it over, and the multisig executes the upgrade."
