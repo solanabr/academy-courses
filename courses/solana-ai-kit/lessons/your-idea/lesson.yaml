@@ -38,7 +38,7 @@ blocks:
             feedback: "It hands off rather than refusing. The game architect is the one that asks for the pack."
         explanation: "The solana-architect description reads 'Designs and reviews Solana systems before code... Games go to game-architect.' The game architect asks about gameplay, platform and what must be on-chain, writes concept.md and plan.md, and hands the program to anchor-engineer, tokens to token-engineer and the Unity build to unity-engineer."
       - id: q2
-        prompt: "The Door list idea needs event tickets that cannot be resold above face value. Which agent owns the mechanism, and what is the mechanism?"
+        prompt: "The Door list idea needs event tickets that can only be handed back to the organizer, never sold on. Which agent owns the mechanism, and what is the mechanism?"
         multiSelect: false
         options:
           - id: c
@@ -46,18 +46,18 @@ blocks:
             correct: false
             feedback: "A UI cannot stop a transfer made from any other wallet. The rule has to live on the mint."
           - id: b
-            label: "defi-engineer, by listing the tickets on Jupiter with a price ceiling set in the swap API so no route can exceed face value."
+            label: "defi-engineer, by listing the tickets on Jupiter with a route restriction set in the swap API so no pool will take them."
             correct: false
-            feedback: "Jupiter routes swaps; it does not enforce a ceiling on who may transfer a token at what price."
+            feedback: "Jupiter routes swaps. It does not decide who may transfer a token to whom."
           - id: d
-            label: "rust-backend-engineer, with an indexer that detects resales above face value and revokes the ticket after the fact from the shop."
+            label: "rust-backend-engineer, with an indexer that detects a resale and revokes the ticket after the fact from the organizer's wallet."
             correct: false
             feedback: "Detection after the fact is a different product. The requirement is to stop the transfer, which is a hook."
           - id: a
             label: "token-engineer, with a Token-2022 transfer hook that checks each transfer, since hooks are its lane and the set is fixed at creation."
             correct: true
             feedback: "Yes. Transfer-hook programs are the token engineer's lane, and the hook must be decided before the mint exists."
-        explanation: "The token engineer's description covers transfer-hook programs, and its file explains the constraints: extensions are fixed at creation, hooks arrive with read-only token accounts so state lives in extra accounts, and many venues reject hooked mints, which for a non-resalable ticket is acceptable. The hook is where a price cap or a transfer rule lives."
+        explanation: "The token engineer's description covers transfer-hook programs, and its file explains the constraints: extensions are fixed at creation, hooks arrive with read-only token accounts so state lives in extra accounts, and many venues reject hooked mints, which for a non-resalable ticket is acceptable. The hook runs on every transfer and sees source, destination and owner, so an allowlist that permits only the organizer as destination is the rule."
       - id: q3
         prompt: "You hand the Vaquinha backlog to /crew and leave. Predict where it will be waiting at the latest when you return."
         multiSelect: false
@@ -69,7 +69,7 @@ blocks:
           - id: a
             label: "At the plan. Nothing is built before you approve it, and it stops again before shipping so you type /ship yourself."
             correct: true
-            feedback: "Right. The plan gate is always on, and /ship is the one command only you can run."
+            feedback: "Right. The plan gate is always on, and /ship is the one step of the chain /crew never runs for you."
           - id: c
             label: "At the first failing test, because /crew stops at any error it meets and does not retry a step without being asked."
             correct: false

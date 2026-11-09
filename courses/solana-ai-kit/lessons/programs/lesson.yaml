@@ -35,21 +35,21 @@ blocks:
             feedback: "Yes. 0x1770 is 6000. Constraint errors sit at 2000 to 2999 and account errors at 3000 to 3999; 6000 and up are yours."
         explanation: "The test command's file spells out the ranges: 2000 to 2999 are constraint violations, 3000 to 3999 account errors, 4100 a declared program id mismatch, and your own error_code variants start at the enum's offset, 6000 by default, so 0x1770 is the first one you defined. Read the program logs in the failure before touching code."
       - id: q2
-        prompt: "You ask the solana-qa-engineer agent to review a diff and it removes a comment reading 'increment the stamp count' above stamps += 1, and a try/catch around an internal helper. Predict which rule it applied."
+        prompt: "You ask the solana-qa-engineer agent to review a diff and it removes a comment reading 'add one stamp' above a checked_add on the stamp count, and a signer check that repeats what the Anchor constraint above it already enforces. Predict which rule it applied."
         multiSelect: false
         options:
           - id: d
-            label: "Its harness rule: Mollusk does not compile code with try/catch blocks, so wrappers are stripped before single-instruction tests."
+            label: "Its harness rule: Mollusk does not load code with duplicate checks, so they are stripped before single-instruction tests run."
             correct: false
             feedback: "Harness choice is about what each tool tests best. It does not constrain the program's source."
           - id: b
-            label: "Its CU budget rule: each comment and each wrapper costs compute units on-chain, so both go to protect the measured baseline."
+            label: "Its CU budget rule: each comment and each duplicate check costs compute units on-chain, so both go to protect the baseline."
             correct: false
             feedback: "Comments cost nothing at runtime. The CU rule is about measured instructions, not source text."
           - id: a
-            label: "Its slop criteria: a comment that restates the code and a wrapper around a trusted internal call go, real security checks stay."
+            label: "Its slop criteria: a comment that restates the code and a check that repeats what a constraint already enforces go, real checks stay."
             correct: true
-            feedback: "Right. The agent owns slop cleanup before review: restating comments, redundant checks, debug logging and verbose error strings."
+            feedback: "Right. The agent owns slop cleanup before review: restating comments, checks a constraint already enforces, debug logging and verbose error strings."
           - id: c
             label: "Its coverage bar: code that has no test may not carry comments, so the comment goes until the instruction has a test of its own."
             correct: false
@@ -60,9 +60,9 @@ blocks:
         multiSelect: false
         options:
           - id: a
-            label: "/build-program and /test-rust, plus /audit-solana because redeem moves value, then a report of changed instructions and results."
+            label: "/build-program and /test-rust, plus /audit-solana, which the house rules ask for on a program branch, then a report of the changes."
             correct: true
-            feedback: "Yes. Build, test, and an audit for code that holds or moves funds, then the report. That is the agent's closing rule."
+            feedback: "Yes. Build, test, and an audit, which the agent runs for code that holds or moves funds and the house rules ask for anyway, then the report."
           - id: d
             label: "Nothing at all. The agent writes code, and the solana-qa-engineer agent owns each build and test run that follows afterwards."
             correct: false

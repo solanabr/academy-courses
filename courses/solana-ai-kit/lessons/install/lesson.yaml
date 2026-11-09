@@ -13,7 +13,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "Marina opened a terminal in her home directory, ran the installer there, then created kit-workshop and ran claude inside it. Claude Code lists none of the kit's agents. Predict why."
+        prompt: "Marina opened a terminal in her notes repository, ran the installer there, then created kit-workshop next to it and ran claude inside it. Claude Code lists none of the kit's agents. Predict why."
         multiSelect: false
         options:
           - id: b
@@ -25,14 +25,14 @@ blocks:
             correct: false
             feedback: "An empty key only makes the Helius server useless. Agents do not depend on any key."
           - id: a
-            label: "It installs into the directory it runs in, so the kit sits where she ran it and kit-workshop has nothing from it."
+            label: "It installs into the directory it runs in, so the kit sits in the notes repository and kit-workshop has nothing from it."
             correct: true
             feedback: "Yes. The installer installs into the current directory, which is why the lesson starts with cd into the project."
           - id: d
             label: "The installer edits the shell profile, and the terminal has to be restarted before the new agents show up."
             correct: false
             feedback: "The installer never touches shell startup files. The firewall even denies writes to them."
-        explanation: "The installer copies the kit into whatever directory you run it from. Running it from the home folder installs the kit there, and a project created afterwards gets nothing. The fix is to cd into the project and run the installer again, and later to clean the stray .claude folder out of the home directory."
+        explanation: "The installer copies the kit into whatever directory you run it from. Running it in another folder installs the kit there, and the project you meant gets nothing. The fix is to cd into the project and run the installer again. Never run it from your home directory: it would write into ~/.claude, which is Claude Code's own user-level folder."
       - id: q2
         prompt: "Lucas asks Claude to design a token launch with transfer fees. Claude answers at length but the transcript never shows the token-engineer agent starting. What is the most likely reason, and the fix?"
         multiSelect: false

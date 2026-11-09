@@ -1,9 +1,9 @@
 id: course-solana-ai-kit
 slug: solana-ai-kit
 title: "Solana AI Kit: what its agents can build for you"
-description: "A workshop crash course of around 90 minutes on the Solana AI Kit's 15 agents: what each one does, the prompt that starts it, and what comes back. One example project runs through the whole course, from idea to design, program, app, token and deploy, and the last lessons hand you three more idea threads to adapt into your own. Runs locally with Claude Code, Node and git; the program-building lessons also use Rust and Anchor, which you can watch or run."
+description: "A workshop course of around two hours on the Solana AI Kit's 15 agents: what each one does, the prompt that starts it, and what comes back. One example project runs through the whole course, from idea to design, program, app, token and deploy, and the last lessons hand you three more idea threads to adapt into your own. Runs locally with Claude Code, Node and git; the program-building lessons also use Rust and Anchor, which you can watch or run."
 difficulty: beginner
-duration: 1.5
+duration: 2
 xpPerLesson: 10
 xpReward: 100
 creator: 8kMziL5e3qEWhp1nQHEiYLRypymyBVTXNxgZXyQwhbSo

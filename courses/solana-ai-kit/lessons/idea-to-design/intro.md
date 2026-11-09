@@ -22,7 +22,7 @@ Stamp keeps the card on Solana: the shop stamps a customer's wallet at the till,
 Use the solana-researcher agent. What exists on Solana today for small-business loyalty cards or punch cards, including projects that shut down and why? Cite a source for each finding with a date and a confidence label, and end with what you could not verify.
 ```
 
-Its file fixes the shape of the answer: a **two or three sentence answer first**, then findings each with a link and a label, **High** when several authoritative sources agree, **Medium** for one, **Low** for community sources only, **Speculative** for an inference, then a recommendation and a list of what it could not verify. Read the Low items as leads, not facts. *The agent is allowed to say it found nothing solid, and that answer is worth having before you build.*
+Its file fixes the shape of the answer: a **two or three sentence answer first**, then findings each with a link and a label, **High** when several authoritative sources agree, **Medium** for one, **Low** for community sources only or sources that conflict, **Speculative** for an inference, then a recommendation and a list of what it could not verify. Read the Low items as leads, not facts. *The agent is allowed to say it found nothing solid, and that answer is worth having before you build.*
 
 3. **Hand the idea to the architect.** Type:
 
@@ -34,8 +34,8 @@ That list is the architect's own **Output** section, quoted back at it, which is
 
 - A **shop account**, a PDA from a fixed prefix and the shop's wallet, holding the stamps-per-reward number and the shop authority.
 - A **card account per customer**, a PDA from the prefix, the shop and the customer, holding the stamp count and the redeemed count. One account per customer, because the architect's file says shared writable accounts serialize every transaction that touches them, and two customers at the till at once should not wait on each other.
-- Three instructions: **create shop** (the shop signs), **stamp** (the shop signs, the customer's card is written), **redeem** (the customer signs, ten stamps leave the card). The architect will ask who pays rent for a new card, and *the honest answer for a coffee shop is the shop.*
-- Invariants such as stamps never go negative and a redeem always costs exactly the configured number, an authority model with a two-step transfer of the shop authority, and a risk list that starts with the shop's key being on a phone.
+- Three instructions: **create shop** (the shop signs), **stamp** (the shop signs, the customer's card is written), **redeem** (the customer signs, ten stamps leave the card). The architect, or `/plan-feature` after it, will ask who pays rent for a new card, and *the honest answer for a coffee shop is the shop.*
+- Invariants such as stamps never go negative and a redeem always costs exactly the configured number, an authority model for the shop key, and a risk list that starts with the shop's key being on a phone.
 
 ![The design lane: three lines of idea go to solana-researcher for cited findings with confidence labels, then to solana-architect for accounts, instructions, invariants and risks in design.md, then to /plan-feature for a phased plan, with game-architect taking the design step for games.](assets/v01-design-lane.webp)
 
@@ -45,9 +45,9 @@ That list is the architect's own **Output** section, quoted back at it, which is
 /plan-feature Stamp, from design.md
 ```
 
-The command writes no code. It reads the design, asks about decisions that change it, and returns a plan with accounts, instructions, integrations, clients, phases, risks, tests and rollout, **ending in open questions for you**. Answer them in `design.md` so the next agents read one file.
+The command writes no code. It reads the design, asks about decisions that change it, and returns a plan from nine sections, summary, accounts, instructions, integrations, clients, phases, risks, tests and rollout, dropping the ones that do not apply and **ending in open questions for you**. Answer them in `design.md` so the next agents read one file.
 
-5. **If you are going to a hackathon, add the startup pack.** `/add-skill startup-builder` installs the whole pack of ten skills, idea-sprint, positioning, pricing, pitch-deck, the hackathon skill, build-status, fundraising, launch, incident-comms and ecosystem-bd, because they link to each other's files. Its idea-sprint writes `.claude/context/idea.md`, and `/plan-feature` starts from that file when it exists. The core **colosseum** skill does prior-art research on past submissions, after one sign-in per machine with `npx @colosseum-org/copilot-connect login`.
+5. **If you are going to a hackathon, add the startup pack.** `/add-skill startup-builder` installs the whole pack of ten skills, idea-sprint, positioning, pricing, pitch-deck, the hackathon skill, build-status, fundraising, launch, incident-comms and ecosystem-bd, because they link to each other's files. Its idea-sprint writes `.claude/context/idea.md`, and `/plan-feature` starts from that file when it exists. The core **colosseum** skill does prior-art research on past submissions, after one sign-in per machine with `npx @colosseum-org/copilot-connect login`. The kit's own registry marks it *caution*: the sign-in helper is an unpinned npm package, and the skill queries Colosseum's API as you, so read that entry before you sign in.
 
 ## Three idea seeds to try instead of Stamp
 
@@ -55,7 +55,7 @@ The same two prompts work on any idea. Replace the three lines and keep the rest
 
 - **Vaquinha**: friends pool SOL for a gift and the pool pays out when the target is reached, or refunds everyone at a deadline. First research question: what exists for group pools and escrow, and how do they handle the refund path?
 - **Tool library**: a neighbourhood shed lends drills and ladders against a deposit that comes back on return. First research question: deposit-and-return patterns, and who holds the deposit.
-- **Door list**: a small event sells a fixed number of entries that cannot be resold above face value. First research question: ticketing on Solana, and which projects tried to cap resale.
+- **Door list**: a small event sells a fixed number of entries that cannot be resold at all, only handed back to the organizer. First research question: ticketing on Solana, and which projects tried to stop resale.
 
 ## Done when
 
@@ -66,7 +66,7 @@ The same two prompts work on any idea. Replace the three lines and keep the rest
 ## Watch out
 
 - **The architect designs and does not code.** If it starts writing Rust, stop it and ask for the design file.
-- **Pinocchio needs a measured reason.** The architect's file says so: default to Anchor, and port one hot instruction only after Anchor's own levers failed.
+- **Pinocchio needs a measured reason.** The architect's file says so: default to Anchor, and choose Pinocchio when an instruction stays over its compute budget after Anchor's own levers, when compute fees at volume drive the product's cost, or when binary size or deploy rent is a hard constraint. One hot instruction gets optimized in place first. A program where most instructions are hot is written in Pinocchio from the start.
 - **A Low label is a lead.** Do not put a Low number in a deck.
 - **Games go to game-architect.** It asks about gameplay, platform and what must be on-chain, then writes `concept.md` and `plan.md` and waits for your approval before anyone implements.
 

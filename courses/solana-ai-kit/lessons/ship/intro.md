@@ -1,10 +1,10 @@
 # Ship it: deploy, devops-engineer, tech-docs-writer
 
-Stamp has a program, tests, an audit report, a web page, and from last lesson a token proposal, a swap design and a game plan. This lesson puts it on devnet with the kit's approval stop, gives it a pipeline, writes the docs a stranger needs, and lets a reviewer meet the app cold. Around twenty minutes, and the deploy needs the Solana CLI from lesson 3.
+Stamp has a program, tests, an audit report, a web page, and from last lesson a token proposal, a swap design and a game plan. This lesson puts it on devnet with the kit's approval stop, gives it a pipeline, writes the docs a stranger needs, and lets a reviewer meet the app cold. Around fifteen minutes, and the deploy needs the Solana CLI from lesson 3.
 
 ## Why this matters
 
-Shipping is where money and keys appear, so it is where the kit's firewall matters most. **The firewall is a set of permission and sandbox rules generated from one tier**, named in `.claude/security.json`, plus guard hooks that run before a command, plus the safe-ai-skill plugin. The default tier, **Relaxed**, lets the toolchain work and **stops every on-chain write for your approval**, naming the cluster, except on a local validator. Irreversible actions such as a final deploy or a program close are refused outright, at every tier, and the agent hands you the command to run yourself. Two agents work in this lane: **devops-engineer** for CI, toolchain pinning, RPC infrastructure and monitoring, and **tech-docs-writer** for the documentation that takes every fact from the code rather than from memory.
+Shipping is where money and keys appear, so it is where the kit's firewall matters most. **The firewall is a set of permission and sandbox rules generated from one tier**, named in `.claude/security.json`, plus guard hooks that run before a command, plus the safe-ai-skill plugin. The default tier, **Relaxed**, lets the toolchain work and **stops program deploys, upgrades, authority changes and transfers for your approval**, naming the cluster, except on a local validator. Four irreversible actions are refused outright at every tier, a final deploy, `program close --bypass-warning`, `program-v4 finalize` and disabling a token authority, and the agent hands you the command to run yourself. Two agents work in this lane: **devops-engineer** for CI, toolchain pinning, RPC infrastructure and monitoring, and **tech-docs-writer** for the documentation that takes every fact from the code rather than from memory.
 
 ## Do this
 
@@ -22,7 +22,7 @@ The command's own steps: confirm the RPC and the deployer with `solana config ge
 /firewall
 ```
 
-It reports the declared and enforced tier and the rule count. **Medium** is for reading code you did not write, **High** denies mainnet writes outright and is the only tier that stops the agent editing the kit's own configuration, and a switch applies in the next session. Ask Claude to read `.env` once to see the plugin refuse it. The kit's way to know which keys are set is `bash .claude/bin/env-keys.sh`, which prints names and `set` or `empty`, never a value.
+It reports the declared and enforced tier and the rule count. **Off** turns the sandbox off for a machine you already isolated, **Medium** is for reading code you did not write, **High** denies mainnet writes outright and is the only tier that stops the agent editing the kit's own configuration, and a switch applies in the next session. Ask Claude to read `.env` once to see the security plugin refuse it. That refusal is the plugin's, so if the installer skipped safe-ai-skill, Relaxed leaves `.env` readable and the read goes through. The kit's way to know which keys are set is `bash .claude/bin/env-keys.sh`, which prints names and `set` or `empty`, never a value.
 
 ![The ship lane: /deploy devnet stops at the firewall prompt that names the cluster, devops-engineer pins the toolchain and writes CI with devnet-only keys, tech-docs-writer states program id, authority, seeds, layouts and errors from the code, and /product-review meets the app as its next user.](assets/v01-ship-lane.webp)
 
@@ -50,7 +50,7 @@ Its file says what program docs must state: the **program id per cluster and the
 
 It asks for the product, the target user, the one core action and the stage, then walks the app as that user and scores eight dimensions with evidence: onboarding, core loop, empty states, error states, performance, trust signals, mobile, docs. A score comes with the line that earned it, and the roadmap is bucketed by effort. `--harsh` turns it into a stress test with ten weighted dimensions and exactly three fixes. *For Stamp the checkpoint to watch is whether value is visible before the wallet connect*, and for a loyalty card the answer should be yes.
 
-6. **Commit and describe the change.** `/quick-commit` formats, lints and commits on a dated branch with a conventional message and no attribution trailer. `/pr-description` writes a pull request body a reviewer can verify, from the diff, the log and test output that actually ran, *and leaves out any number nobody ran*.
+6. **Commit and describe the change.** `/quick-commit` formats, lints and commits with a conventional message and no attribution trailer, proposing a dated branch first when you are on `main`. `/pr-description` writes a pull request body a reviewer can verify, from the diff, the log and test output that actually ran, *and leaves out any number nobody ran*.
 
 ## Done when
 

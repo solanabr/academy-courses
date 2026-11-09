@@ -1,6 +1,6 @@
 # Your own idea: three threads to adapt
 
-Stamp went from three lines to a devnet deploy through thirteen of the fifteen agents. This lesson shows **the same route on three other ideas**, each as a chain of agents with its first prompt, and ends with a template for yours. Reading and one piece of writing. Around fifteen minutes.
+Stamp went from three lines to a devnet deploy through thirteen of the fifteen agents. This lesson shows **the same route on three other ideas**, each as a chain of agents with its first prompt, and ends with a template for yours. Reading and one piece of writing. Around ten minutes.
 
 ## Why this matters
 
@@ -26,7 +26,7 @@ The order Stamp followed is the kit's shape for any idea: research, design, plan
 Friends pool SOL for a gift. The pool pays the organizer when the target is reached, or refunds everyone at a deadline.
 
 - **solana-researcher**: what exists for group pools and escrow on Solana, and how each one handles the refund path. Expect Low labels on half of it.
-- **solana-architect**: a pool PDA per gift holding target, deadline and organizer, a contribution PDA per contributor, three instructions, contribute, release, refund. The risk list starts with *who can call release and when*, and the check I would watch is the **deadline**, which the audit command wants read from the clock sysvar, never from an argument.
+- **solana-architect**: a pool PDA per gift holding target, deadline and organizer, a contribution PDA per contributor, three instructions, contribute, release, refund. The risk list starts with *who can call release and when*, and the check I would watch is the **deadline**: read it from the clock sysvar inside the program, never from an argument, because an argument is whatever the caller says it is.
 - **anchor-engineer, then solana-qa-engineer**: the boundary tests are the deadline minus one second and the target minus one lamport.
 - **solana-frontend-engineer**: a page per pool with a progress bar and a contribute button, simulate first, confirmed not finalized.
 - **defi-engineer, as a variant**: contributions in any token, converted to USDC through a Jupiter swap with the minimum output enforced on-chain.
@@ -57,10 +57,10 @@ Use the solana-architect agent. Design a tool-lending program: items, loans with
 
 ## Thread three: Door list, tickets that cannot be scalped
 
-A small event sells a fixed number of entries that cannot be resold above face value.
+A small event sells a fixed number of entries that cannot be resold, only handed back to the organizer, who sells them again at face value.
 
 - **solana-researcher**: ticketing on Solana, and which projects tried to cap resale and what happened to them.
-- **token-engineer**: this idea is its job. A ticket is a token, the rule lives in a **transfer-hook program** that checks each transfer, and the choice is made before the mint exists because extensions are fixed at creation. Its file warns that hooked mints are rejected by many venues, *which for a ticket that should not trade is a feature*.
+- **token-engineer**: this idea is its job. A ticket is a token, and the rule lives in a **transfer-hook program** that runs on every transfer and sees source, mint, destination and owner, so it can allow a transfer back to the organizer and refuse every other one, the kit's own hook example being an allowlist. The choice is made before the mint exists because extensions are fixed at creation. Its file warns that hooked mints are rejected by many venues, *which for a ticket that should not trade is a feature*.
 - **token-engineer, again**: the hook program itself is in its lane too, with the hook interface discriminator its file names, and anchor-engineer builds the rest of the program around it.
 - **solana-frontend-engineer**: the door page, scanning a wallet and showing a valid ticket, with the wallet connect deferred until the value is visible.
 - **devops-engineer**: the one thread where a mainnet date is real, so the upgrade authority plan and the CI key rules from lesson 6 apply.
@@ -69,7 +69,7 @@ A small event sells a fixed number of entries that cannot be resold above face v
 First prompt to paste:
 
 ```text
-Use the token-engineer agent. Tickets for a 200-person event as a Token-2022 mint that cannot be resold above face value. Propose the extension set, the transfer-hook rule, who holds each authority, and what a wallet shows the holder. Fewest extensions that do the job, and say which venues will reject the mint.
+Use the token-engineer agent. Tickets for a 200-person event as a Token-2022 mint that holders can hand back to the organizer and transfer nowhere else. Propose the extension set, the transfer-hook rule, who holds each authority, and what a wallet shows the holder. Fewest extensions that do the job, and say which venues will reject the mint.
 ```
 
 ![Three idea threads as agent chains: Vaquinha through researcher, architect, anchor, QA, frontend and a DeFi variant, Tool library through researcher, architect, token, mobile and backend, Door list through researcher, token-engineer with a transfer hook, anchor, frontend and devops, all ending at /deploy devnet.](assets/v01-three-threads.webp)
@@ -95,13 +95,13 @@ When a backlog is real and you have a day to watch it, the kit also chains the s
 ## Done when
 
 - Your thread has three idea lines, a named agent per step and one pasted first prompt.
-- You can say which agent owns a resale cap, a group refund and a volunteer-confirmed return.
+- You can say which agent owns a no-resale ticket, a group refund and a volunteer-confirmed return.
 
 ## Watch out
 
 - **A game starts with game-architect**, not solana-architect. The system architect's description says so and hands off.
-- **Every specialist asks for a pack.** Budget the install into the first hour.
-- **Deadlines come from the clock sysvar.** The audit checklist reads sysvars through the runtime, so a design that takes the time as an argument has a flaw it will find.
+- **Most specialists ask for a pack.** Budget the install into the first hour.
+- **Deadlines come from the clock sysvar.** A design that takes the time as an argument trusts the caller with it, and that is my own rule, not a line from the kit.
 
 ## The takeaway
 

@@ -1,10 +1,10 @@
 # Build the program: anchor-engineer, pinocchio-engineer, solana-qa-engineer
 
-Last lesson ended with `design.md`: a shop account, a card per customer, three instructions. This lesson an engineer builds them, a QA engineer tests them, and an audit reads the result. **Rust, Anchor and the Solana CLI enter here.** If they are not on your machine, follow on the screen and install them tonight. The Solana CLI command is in your `/doctor` report, and the Anchor toolchain command appears there once an Anchor workspace exists. Around twenty-five minutes.
+Last lesson ended with `design.md`: a shop account, a card per customer, three instructions. This lesson an engineer builds them, a QA engineer tests them, and an audit reads the result. **Rust, Anchor and the Solana CLI enter here.** If they are not on your machine, follow on the screen and install them tonight. The Solana CLI command is in your `/doctor` report. The Anchor toolchain appears there once an Anchor workspace exists, so for tonight it is `rustup` for Rust, then `cargo install --git https://github.com/solana-foundation/anchor avm --force && avm install latest && avm use latest` for Anchor. Around twenty minutes.
 
 ## Why this matters
 
-Program code is where a copied tutorial hurts most, because the Anchor API changed at 1.0 and most of the web still shows the old shape. The kit has **two implementers and one tester**. **anchor-engineer** is the default: Anchor 1.x, constraints instead of hand-written checks, generated IDL, Rust LiteSVM tests. **pinocchio-engineer** exists for one case, *an instruction that is still over its compute budget after Anchor's own levers failed*, and it writes every check by hand. **solana-qa-engineer** owns how the program is tested: which harness for which test, the coverage bar, compute baselines, and stripping the noise a model leaves in a diff. Three commands tie them together: `/build-program`, `/test-rust`, `/audit-solana`.
+Program code is where a copied tutorial hurts most, because the Anchor API changed at 1.0 and most of the web still shows the old shape. The kit has **two implementers and one tester**. **anchor-engineer** is the default: Anchor 1.x, constraints instead of hand-written checks, generated IDL, Rust LiteSVM tests. **pinocchio-engineer** exists for the measured cases, *an instruction still over its compute budget after Anchor's own levers, compute fees at volume, or a binary-size limit*, and it writes every check by hand. **solana-qa-engineer** owns how the program is tested: which harness for which test, the coverage bar, compute baselines, and stripping the noise a model leaves in a diff. Three commands tie them together: `/build-program`, `/test-rust`, `/audit-solana`.
 
 ## Do this
 
@@ -52,7 +52,7 @@ The command scopes every instruction, runs `cargo audit` and clippy with the ari
 
 - **Rebuild before testing.** LiteSVM bakes the program binary in at compile time, so `cargo test` alone tests whatever was built last. The test command does this for you.
 - **Two error enums collide.** Both start at 6000 unless one sets an offset, and the collision is silent. The engineer's file knows this. A copied tutorial does not.
-- **An audit is not an external audit.** `/audit-solana` says so in its own output for programs that hold user funds.
+- **An audit is not an external audit.** `/audit-solana` recommends one in its own output for programs that hold user funds.
 - **No toolchain today is fine.** Read the transcript on the screen and run the install commands later. Lesson 4 is Node only again.
 
 ## The takeaway

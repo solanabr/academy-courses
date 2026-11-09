@@ -14,7 +14,7 @@ These four agents cover the parts of the ecosystem that change often, and where 
 Use the token-engineer agent. Stamp's stamps should appear in the customer's wallet as a token they cannot sell. Propose the mint for devnet: token program, the extension set, who holds each authority, and what a wallet will show. Fewest extensions that do the job.
 ```
 
-The phrase *fewest extensions* is the agent's own first rule, quoted back. Its file explains why: **mint extensions are fixed at creation, and every extension narrows where the token can trade**, because pools, wallets and aggregators reject hooks, permanent delegates and default-frozen accounts. For stamps, expect a Token-2022 mint with the **non-transferable** extension and the **metadata extension**, the shop as mint authority behind a two-step transfer, and a note that a free coffee is a burn. Expect the gotcha too: the associated token account derives from the Token-2022 program id, and the classic id gives the wrong address.
+The phrase *fewest extensions* is the agent's own first rule, quoted back. Its file explains why: **mint extensions are fixed at creation, and every extension narrows where the token can trade**, because many pools, wallets and aggregators reject hooks, permanent delegates and default-frozen accounts. For stamps, expect a Token-2022 mint with the **non-transferable** extension and the **metadata extension**, the shop as mint authority, and a note that a free coffee is a burn. Expect the gotcha too: the associated token account derives from the Token-2022 program id, and the classic id gives the wrong address.
 
 If you ever launch a token people can trade, the same agent carries the **pre-launch checks**: allocations documented, team tokens vesting on-chain, every remaining authority on a Squads multisig or revoked, and *revoking is permanent, so it asks you first*. `/inspect-mint` decodes any mint's extensions and live authorities from raw bytes, which is how you check someone else's token before integrating it.
 
@@ -34,7 +34,7 @@ Its file names the current API, **swap v2 with an API key**, and three checks th
 Use the game-architect agent. Stamp wants a small game: after each coffee the customer plays a ten-second round in the shop's app and a good score earns a bonus stamp. Decide what lives on-chain and what does not, pick the platform, and write concept.md and plan.md. Ask me what you need to know first.
 ```
 
-The agent's file makes it ask about gameplay, platform and what must be on-chain before it writes anything, and then gives it the split: **on-chain for what is valuable, tradeable or trusted by other players**, off-chain for per-frame gameplay and session state, writes at checkpoints rather than per action. The sentence to look for in its answer is this one: **client-reported scores are attacker-controlled**, so the bonus stamp is paid only against a check the client cannot forge. It writes `concept.md` with numbers rather than adjectives and `plan.md` with numbered steps, and waits for your approval. **unity-engineer** then builds from those two files in small steps, closing each with `/build-unity` and `/test-dotnet`, and its file carries the Unity traps: main-thread-only objects, no C# threads on WebGL, textures that never get collected.
+The agent's file makes it ask about gameplay, platform and what must be on-chain before it writes anything, and then gives it the split: **on-chain for what is valuable, tradeable or trusted by other players**, off-chain for per-frame gameplay and session state, writes at checkpoints rather than per action. The sentence to look for in its answer is this one: **client-reported scores are attacker-controlled**, so the bonus stamp is paid only against a check the client cannot forge. It writes `concept.md` with numbers rather than adjectives and `plan.md` with numbered steps, and waits for your approval. **unity-engineer** then builds from those two files in small steps, edit, build, test, and runs `/build-unity` and `/test-dotnet` before it hands back, and its file carries the Unity traps: main-thread-only objects, no C# threads on WebGL, textures that never get collected.
 
 4. **Pick your variant.** The token, the swap and the game are three versions of Stamp you could build next. Write the one you would build under `design.md`, with the agent that owns it.
 
@@ -48,7 +48,7 @@ The agent's file makes it ask about gameplay, platform and what must be on-chain
 
 - **Each of these agents asks for a pack.** `metaplex`, `jupiter`, `sendai`, `solana-game`. The hub prints the install command, `/add-skill <id>` runs it, and `/update` keeps it.
 - **Value-moving actions stop.** The token and DeFi files both say the security plugin gates mainnet, value-moving and authority actions, and that an ask or deny is your policy, reported rather than retried another way.
-- **Transfer fees reduce what the recipient gets.** Credit the balance delta, not the amount argument. The token file says it, the DeFi file says it for swaps.
+- **Transfer fees reduce what the recipient gets.** Credit the balance delta, not the amount argument. The token file says it, and the DeFi file says the same about a swap's output: check the balance delta, never the quote.
 - **Mobile and PSG1 only when you ask.** The game architect defaults to desktop first and WebGL second.
 
 ## The takeaway

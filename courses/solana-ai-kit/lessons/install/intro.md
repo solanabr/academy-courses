@@ -1,10 +1,10 @@
 # Install the kit and meet the team
 
-By the end of the workshop you will have handed a Solana project to **fifteen specialists**, one at a time, from the first research question to the deploy. This lesson installs the kit that carries them and shows you how one of them is built. Around fifteen minutes.
+By the end of the workshop you will have handed a Solana project to **the kit's specialists**, one at a time, from the first research question to the deploy. This lesson installs the kit that carries them and shows you how one of them is built. Around fifteen minutes.
 
 ## Why this matters
 
-The Solana AI Kit is a folder of configuration for Claude Code, maintained by Superteam Brasil at [github.com/solanabr/ai-kit](https://github.com/solanabr/ai-kit). As read on 2026-11-09, at version **2.4.0**, it carries 15 agents, 54 slash commands, a hub of skills, four MCP servers and a firewall. This course is about the agents. **An agent is a specialist prompt**: a markdown file with a name, a one-line description, a model, the references it must read before working, the mistakes it must not make, and a table of who it hands work to. Claude Code starts one as a subagent when your request matches its description, or when you name it. *Naming it is the habit this course teaches.*
+The Solana AI Kit is a folder of configuration for Claude Code, maintained by Superteam Brasil at [github.com/solanabr/ai-kit](https://github.com/solanabr/ai-kit). As read on 2026-11-09 from the kit's `main` branch at commit `0a2f0d9`, it carries 15 agents, 54 slash commands, a hub of skills, four MCP servers and a firewall. The installer fetches `main` until a release newer than v2.4.0 is tagged, and the v2.4.0 tag itself holds 32 commands and none of the workflow chain in lesson 7, *so expect the counts in this course to move*. This course is about the agents. **An agent is a specialist prompt**: a markdown file with a name, a one-line description, a model, the references it must read before working, the mistakes it must not make, and a table of who it hands work to. Claude Code starts one as a subagent when your request matches its description, or when you name it. *Naming it is the habit this course teaches.*
 
 ## Do this
 
@@ -32,7 +32,7 @@ less /tmp/solana-ai-kit-install.sh
 bash /tmp/solana-ai-kit-install.sh
 ```
 
-It copies `.claude/`, `CLAUDE.md`, `.mcp.json`, `.env` and `.env.schema` into the folder, gitignores the kit's own files, and installs the **safe-ai-skill** security plugin with the `claude` CLI. It asks you nothing. The closing box says *Installation complete*, names the firewall tier (**Relaxed**), and lists next steps.
+It copies `.claude/`, `CLAUDE.md`, `.mcp.json`, `.env` and `.env.schema` into the folder, adds `.claude/`, `.mcp.json`, `.gitmodules` and `.safe-ai-skill/` to `.gitignore` while leaving `CLAUDE.md` and `.env.schema` tracked, and installs the **safe-ai-skill** security plugin with the `claude` CLI. It asks you nothing. The closing box says *Installation complete*, names the firewall tier (**Relaxed**), and lists next steps.
 
 3. **Start Claude Code and approve the servers.**
 
@@ -46,7 +46,7 @@ Claude Code asks once whether to start the four MCP servers in `.mcp.json`. Appr
 /doctor
 ```
 
-Thirteen checks, each OK, WARN, FAIL or n/a, with one fix-it command per failure. Today the Solana CLI line may read FAIL and the keys may read empty. *Both are fine for the next lesson.* Lesson 3 is where Rust, Anchor and the Solana CLI enter. `/doctor` has already printed the Solana CLI install command, and it prints the Rust and Anchor ones once the project holds an Anchor workspace.
+Thirteen numbered checks, each OK, WARN, FAIL or n/a, with one fix-it command per failure. Claude Code ships a `/doctor` of its own, so if what comes back is not thirteen numbered checks, pick the project command from the slash menu, the one that reads `.claude/commands/doctor.md`. Today the Solana CLI line may read FAIL and the keys may read empty. *Both are fine for the next lesson.* Lesson 3 is where Rust, Anchor and the Solana CLI enter. `/doctor` has already printed the Solana CLI install command, and it prints the Rust and Anchor ones once the project holds an Anchor workspace.
 
 4. **Open one agent file end to end.**
 
@@ -68,7 +68,7 @@ The lessons follow those lanes with **one example project**: *Stamp*, a loyalty 
 Use the solana-researcher agent to tell me, in three sentences with a cited source each, what Token-2022 is and when a small shop would want it over the classic token program.
 ```
 
-You should see the agent start, then a short answer with links and a confidence label per finding, which is the output shape its file demands. If Claude answers from memory with no agent and no links, say "use the agent" and ask again.
+You should see the agent start, then a short answer with links and a confidence label per finding, which is the output shape its file demands. The reply ends with up to five labelled lines, **Verified**, **Decisions made**, **Decisions needed**, **Assumptions** and **Next owner**, because the house rules ask every agent for them and a hook sends an agent back once when one is missing. You will see those five lines after every agent in this course. If Claude answers from memory with no agent and no links, say "use the agent" and ask again.
 
 ## Done when
 
@@ -79,8 +79,9 @@ You should see the agent start, then a short answer with links and a confidence 
 ## Watch out
 
 - **Run the installer from the project root.** It has no idea which folder you meant.
-- **Opus costs Opus.** An agent runs on the strongest model, whatever your session is on. For a quick question ask the main session, and for design, code and research let the agent run.
+- **Opus costs Opus.** Every agent pins Opus, whatever your session is on. For a quick question ask the main session, and for design, code and research let the agent run.
 - **Native Windows.** The security plugin has no engine build there and the installer skips it. WSL2 is fine.
+- **Node 22.5 or newer.** `/doctor` passes Node 18, but the context-mode server among the four defaults wants 22.5 or newer, so that is the version to have.
 - **`.env` holds keys, `.mcp.json` holds config.** The Helius server reads its key from the environment, and `/setup-mcp` appends it for you. Nothing today needs a key.
 
 ## The takeaway

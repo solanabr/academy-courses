@@ -1,6 +1,6 @@
 # Keep learning: solana-guide, /explain-code and staying current
 
-Last lesson you wrote your own chain of agents. Fourteen of the fifteen have been introduced, and the fifteenth is the one for the weeks after the workshop, when you are alone with a program you half understand. This lesson is **the guide agent, the command that explains code, the researcher as a habit, and how the kit updates itself**, then a quiz over the whole course. Around fifteen minutes.
+Last lesson you wrote your own chain of agents. Fourteen of the fifteen have been introduced, and the fifteenth is the one for the weeks after the workshop, when you are alone with a program you half understand. This lesson is **the guide agent, the command that explains code, the researcher as a habit, and how the kit updates itself**, then a quiz over the whole course. Around ten minutes.
 
 ## Why this matters
 
@@ -22,7 +22,7 @@ Expect it to confirm your level, define a PDA in plain words with the problem it
 /explain-code programs/stamp/src/lib.rs
 ```
 
-The command's output has a fixed shape: an overview in two or three sentences, a **Mermaid diagram** of instruction flow or account relationships, a walkthrough of the significant sections with the reasons behind the non-obvious choices, the Solana concepts used, **security notes** on the checks the code performs and the ones it seems to miss, and for learners two or three *what happens if* questions. Run it on the anchor-engineer's output from lesson 3 and you will understand your own program better than when it was written.
+The command scales its depth to the code, and a whole program gets the full shape: an overview in two or three sentences, a **Mermaid diagram** of instruction flow or account relationships, a walkthrough of the significant sections with the reasons behind the non-obvious choices, the Solana concepts used, **security notes** on the checks the code performs and the ones it seems to miss, and for learners two or three *what happens if* questions. Run it on the anchor-engineer's output from lesson 3 and you will understand your own program better than when it was written.
 
 ![The learning lane: solana-guide checks your level, defines, draws, shows the mistake and asks you to predict, /explain-code gives an overview, a diagram, a walkthrough and security notes, solana-researcher keeps versions and status current, and /update, memsearch and /dream keep the kit and its memory current.](assets/v01-learning-lane.webp)
 
@@ -40,7 +40,7 @@ That is its own pre-recommendation check, and the three answers are what you wan
 /update
 ```
 
-It pulls the newest kit release tag, refreshes the agents, commands, skills and scripts the kit ships, **keeps your `.env` and your `CLAUDE.md`**, writes the kit's new instruction file beside yours as `CLAUDE.md.upstream` when it changed, keeps the extensions you installed, and re-applies your firewall tier. Restart Claude Code afterwards. The agents you read in this course are kit files, so an update can change them, and `/add-skill` with no id lists every pack with whether it is installed and when to install it.
+It pulls the newest kit release tag, or `main` while no tag newer than v2.4.0 exists, and overwrites the agents, commands, skills and scripts the kit ships, including any you edited. It **keeps `.env`, your settings, `.mcp.json` and the memory files**, leaves your `CLAUDE.md` in place and writes the kit's version beside it as `CLAUDE.md.upstream` whenever the two differ, keeps the extensions you installed, and re-applies your firewall tier. Restart Claude Code afterwards. The agents you read in this course are kit files, so an update can change them, and `/add-skill` with no id lists every pack with whether it is installed and when to install it.
 
 5. **Give it a memory.** Two commands and a restart:
 
@@ -65,7 +65,7 @@ It is a plugin, not an MCP server, with a local store and a local embedder, so n
 ## Watch out
 
 - **Restart after memsearch and after `/update`.** Plugins activate on restart, and permission rules are read at session start.
-- **Facts in this course are dated.** Counts, versions and command names were read on 2026-11-09 at kit version 2.4.0. When the kit's README and this lesson disagree, *the README is right*.
+- **Facts in this course are dated.** Counts, versions and command names were read on 2026-11-09 from the kit's `main` branch at commit `0a2f0d9`, which is what the installer fetches until a release newer than v2.4.0 is tagged. The v2.4.0 tag holds 32 commands and none of the workflow chain, so the lessons on `/crew`, `/ship` and `/inspect-mint` describe `main`. When the kit's README and this lesson disagree, *the README is right*.
 - **The guide teaches, the engineers build.** Ask each one for what its own file promises.
 
 ## The takeaway

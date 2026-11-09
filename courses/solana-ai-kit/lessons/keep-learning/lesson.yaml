@@ -68,14 +68,14 @@ blocks:
             correct: false
             feedback: "The command resolves the release tag, and your instruction file is kept with the kit's version written beside it."
           - id: a
-            label: "It pulls the newest release tag, refreshes the kit's files, keeps .env and CLAUDE.md, and writes CLAUDE.md.upstream for you to merge."
+            label: "It pulls the newest release tag, overwrites the kit's files, keeps .env and your CLAUDE.md, and writes CLAUDE.md.upstream for you to merge."
             correct: true
             feedback: "Yes. Then it re-applies your declared tier, so a restart is needed before the new rules hold."
           - id: d
             label: "It prints the changelog and stops, since updating the files requires rerunning the installer from the project root by hand."
             correct: false
             feedback: "The bundled update script does the update. The installer is for a first install."
-        explanation: "The update script fetches the same release tag a fresh install would get, replaces the files the kit ships, keeps .env and the instruction file, writes the kit's new CLAUDE.md as CLAUDE.md.upstream when it differs, and re-applies the declared firewall tier. Permission rules are read at session start, so restart Claude Code afterwards."
+        explanation: "The update script fetches the same release tag a fresh install would get, overwrites the files the kit ships, edited or not, keeps .env, settings, .mcp.json, memory and your instruction file, writes the kit's CLAUDE.md as CLAUDE.md.upstream whenever it differs from yours, and re-applies the declared firewall tier. Permission rules are read at session start, so restart Claude Code afterwards."
       - id: q4
         prompt: "After the architect designs Stamp, you ask it to also write the Jupiter swap for the any-token payment. Predict what it does, from its handoff table."
         multiSelect: false

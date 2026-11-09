@@ -1,6 +1,6 @@
 # Build around it: frontend, mobile and backend engineers
 
-Stamp has a program with three instructions and a test suite. Nobody at the till can use it yet. This lesson three agents build the parts people touch: **a web page for the customer's card, a phone app, and a service that gives the shop a dashboard**. The web part runs on Node alone, so everyone follows at the keyboard. Around twenty-five minutes.
+Stamp has a program with three instructions and a test suite. Nobody at the till can use it yet. This lesson three agents build the parts people touch: **a web page for the customer's card, a phone app, and a service that gives the shop a dashboard**. The web part runs on Node alone, so everyone follows at the keyboard. Around twenty minutes.
 
 ## Why this matters
 
@@ -14,7 +14,7 @@ The program is a small part of a product, and the kit knows it: six of the fifte
 /scaffold stamp-web, frontend only, with a Kit template that has no program
 ```
 
-The command runs `create-solana-dapp` with a Kit template, makes the folder a git repository and installs the kit into it. Open Claude Code there when it finishes.
+The command runs `create-solana-dapp` with a Kit template, makes the folder a git repository and installs the kit into it with the same installer you ran in lesson 1. The security plugin prompts on that piped install, so expect one question. Open Claude Code there when it finishes.
 
 2. **Ask for the customer's card page.** Type:
 
@@ -48,7 +48,7 @@ Its answer will ask for the `solana-mobile` pack and tell you three things from 
 Use the rust-backend-engineer agent. Design a small Axum service for Stamp: consume Helius webhooks for the program's stamp and redeem events, keep a Postgres table of stamps per customer per shop, and serve the shop a dashboard endpoint. Tell me how you keep the table correct when a webhook is redelivered. Design only.
 ```
 
-The answer should contain the rules its file calls the hard part: **deliveries repeat**, so upsert on the signature plus the event's position in the transaction. **Failed transactions are on-chain too**, so check the error field before applying effects. **Confirmed is fine for display and finalized for anything irreversible.** Store the slot on every row and backfill through the same idempotent path. It needs the Helius key from `.env`, which `/setup-mcp` sets.
+The answer should contain the rules its file calls the hard part: **deliveries repeat**, so upsert on the signature plus the event's position in the transaction. **Failed transactions are on-chain too**, so check the error field before applying effects. **Confirmed is fine for display and finalized for anything irreversible.** Store the slot on every row and backfill through the same idempotent path. It will ask for the `helius` pack for webhooks, and the key that pack's calls need lives in `.env`, which `/setup-mcp` sets.
 
 ## Done when
 
@@ -59,7 +59,7 @@ The answer should contain the rules its file calls the hard part: **deliveries r
 ## Watch out
 
 - **Public env values ship in the bundle.** `NEXT_PUBLIC_*` and `EXPO_PUBLIC_*` are visible to every user, so a keyed RPC URL goes behind a server route.
-- **A blockhash lasts around a minute.** Rebroadcasting the same signed transaction is safe until then. After that, rebuild and ask for a new signature.
+- **A blockhash lasts about 60 to 90 seconds.** Rebroadcasting the same signed transaction is safe until then. After that, rebuild and ask for a new signature.
 - **Transaction v1.** The client plans v1 by default, and a wallet that does not support it needs a v0 client or an upgrade prompt. The frontend file has the check.
 - **The blocking RPC client stalls a Tokio runtime.** The backend file names the non-blocking one. An older example does not.
 

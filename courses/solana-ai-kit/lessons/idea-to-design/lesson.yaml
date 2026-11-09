@@ -12,7 +12,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "The architect's design for Stamp puts every customer's stamp count in one account owned by the shop, as a map keyed by customer. Which of its own heuristics did it break, and what should it have proposed?"
+        prompt: "The architect's design for Stamp puts every customer's stamp count in one account controlled by the shop, as a map keyed by customer. Which of its own heuristics did it break, and what should it have proposed?"
         multiSelect: false
         options:
           - id: b
@@ -73,4 +73,4 @@ blocks:
             label: "It reads the design and writes a phased plan with accounts, instructions, risks and tests, no code, ending in open questions."
             correct: true
             feedback: "Yes. The command plans only, and it starts from an idea file or a design when one exists rather than re-asking what they settle."
-        explanation: "The command's file says plan only, write no code. It reads what exists, asks about the decisions that change the design, brings in solana-architect only when the account model is still open, and writes a plan with a fixed shape: summary, accounts, instructions, integrations, clients, phases, risks, tests and rollout, ending in questions for you."
+        explanation: "The command's file says plan only, write no code. It reads what exists, asks about the decisions that change the design, brings in solana-architect only when the account model is still open, and writes a plan from nine sections, summary, accounts, instructions, integrations, clients, phases, risks, tests and rollout, dropping those that do not apply and ending in questions for you."

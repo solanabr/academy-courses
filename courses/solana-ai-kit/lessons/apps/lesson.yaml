@@ -11,7 +11,7 @@ blocks:
     type: quiz
     questions:
       - id: q1
-        prompt: "The frontend engineer's redeem button shows a spinner until the transaction is finalized, around thirty seconds. Which of its own transaction UX rules did it break?"
+        prompt: "The frontend engineer's redeem button shows a spinner until the transaction is finalized, long after it was confirmed. Which of its own transaction UX rules did it break?"
         multiSelect: false
         options:
           - id: d
