@@ -8,6 +8,7 @@ xpPerLesson: 10
 xpReward: 100
 creator: 8kMziL5e3qEWhp1nQHEiYLRypymyBVTXNxgZXyQwhbSo
 creatorRewardXp: 30
+thumbnail: assets/banner.webp
 # Unsequenced elective, like the other trackId 0 / trackLevel 0 courses.
 trackId: 0
 trackLevel: 0
