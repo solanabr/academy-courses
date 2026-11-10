@@ -1,0 +1,77 @@
+id: lesson-aik-install
+slug: install
+title: "Install the kit and meet the team"
+skills:
+  - solana-fundamentals
+  - toolchain-versions
+  - supply-chain-security
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "Marina opened a terminal in her notes repository, ran the installer there, then created kit-workshop next to it and ran claude inside it. Claude Code lists none of the kit's agents. Predict why."
+        multiSelect: false
+        options:
+          - id: b
+            label: "Claude Code loads a project's agents after a first /update, so she has to run that once inside kit-workshop first."
+            correct: false
+            feedback: "Agents load from .claude/agents at session start. No update is needed for a fresh install."
+          - id: c
+            label: "The agents stay hidden until a Helius key is set in .env, because the kit refuses to start half configured."
+            correct: false
+            feedback: "An empty key only makes the Helius server useless. Agents do not depend on any key."
+          - id: a
+            label: "It installs into the directory it runs in, so the kit sits in the notes repository and kit-workshop has nothing from it."
+            correct: true
+            feedback: "Yes. The installer installs into the current directory, which is why the lesson's prompt creates kit-workshop and runs the installer from inside it."
+          - id: d
+            label: "The installer edits the shell profile, and the terminal has to be restarted before the new agents show up."
+            correct: false
+            feedback: "The installer never touches shell startup files. The firewall even denies writes to them."
+        explanation: "The installer copies the kit into whatever directory you run it from. Running it in another folder installs the kit there, and the project you meant gets nothing. The fix is to cd into the project and run the installer again. Never run it from your home directory: it would write into ~/.claude, which is Claude Code's own user-level folder."
+      - id: q2
+        prompt: "Lucas asks Claude to design a token launch with transfer fees. Claude answers at length but the transcript never shows the token-engineer agent starting. What is the most likely reason, and the fix?"
+        multiSelect: false
+        options:
+          - id: c
+            label: "The token-engineer agent runs on Opus and his session model is Sonnet, so Claude Code refused to start the subagent."
+            correct: false
+            feedback: "Every kit agent runs on Opus regardless of the session model. The model is not a gate."
+          - id: d
+            label: "Agent files are gitignored, so they vanished at his first commit and the agents folder has been empty since then."
+            correct: false
+            feedback: "Ignored files stay on disk. Gitignore only keeps them out of commits."
+          - id: a
+            label: "An agent starts on a description match, and this request did not match closely enough. Name the agent in the request."
+            correct: true
+            feedback: "Yes. Agents start on a description match or on a name. Saying 'use the token-engineer agent' settles it."
+          - id: b
+            label: "Agents start inside slash commands alone, so he has to run /build-program first and ask again from inside that command."
+            correct: false
+            feedback: "Agents start from plain requests as well. Commands can spawn them, but they are not the only route."
+        explanation: "An agent is a markdown file with a name, a description and a model. Claude Code starts one as a subagent when the description fits the request, or when you name it. A request that reads as general design can go to the main session instead, so when you want a specific specialist, say so."
+      - id: q3
+        prompt: "You ask the anchor-engineer agent to add an instruction, and its reply ends by saying the account model is still open and naming solana-architect. Predict what just happened, from the agent's own file."
+        multiSelect: false
+        options:
+          - id: c
+            label: "The firewall stopped it from writing Rust at the Relaxed tier, so it deferred to an agent that can read but not write."
+            correct: false
+            feedback: "Relaxed allows writes inside the repo. The architect designs; it does not have different write permissions."
+          - id: b
+            label: "It hit the Opus token limit for a single reply and named a second agent so you would restart it in a new session."
+            correct: false
+            feedback: "There is no such limit in the agent files. The handoff is a deliberate rule, written in the file."
+          - id: a
+            label: "It followed its Handoffs list: an open account model or PDA scheme goes to the architect before code is written."
+            correct: true
+            feedback: "Right. Every agent file carries a Handoffs section, and that is how one specialist passes work to another."
+          - id: d
+            label: "It could not find the solana-dev skill pack and named the architect because that agent carries its own copy of the references."
+            correct: false
+            feedback: "Both agents read the same core pack. The handoff is about design questions, not about missing files."
+        explanation: "Each agent file carries a Handoffs section: anchor-engineer sends an open account model to solana-architect, CU-bound paths to pinocchio-engineer, token launches to token-engineer and test suites to solana-qa-engineer. When an agent names another one, it is following that table, and the right move is to run the named agent next."

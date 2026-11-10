@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.cols{display:flex;gap:18px;align-items:stretch}
+.col{flex:1;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:16px 18px 14px;display:block}
+.col>div{display:block}
+.an{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:17px;color:var(--text-primary);margin-bottom:6px}
+.q{font-size:14px;line-height:1.4;color:var(--text-secondary);font-style:italic;margin-bottom:10px}
+.rule{font-size:14px;line-height:1.45;color:var(--text-primary);margin-bottom:8px}
+.rule b{font-family:var(--font-display)}
+.pack{display:inline-block;margin-top:6px;font-family:var(--font-mono);font-size:12px;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 9px}
+.foot{margin-top:16px;font-size:14.5px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:500px;height:480px;right:-270px;bottom:-250px;border-radius:56% 44% 48% 52% / 45% 55% 45% 55%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:440px;height:400px;top:-230px;left:-230px;border-radius:48% 52% 62% 38% / 58% 42% 58% 42%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Tokens, DeFi and games</div>
+  <h2 class="viz-title">Three questions a real shop asks, and the rule that answers each</h2>
+  <div class="cols">
+    <div class="col"><div class="an">token-engineer</div><div class="q">Can the stamps be a token in the customer's wallet?</div>
+      <div class="rule"><b>Fewest extensions that meet the requirement.</b> Each one narrows where the token can trade, and the set is fixed at creation.</div>
+      <div class="rule">For stamps: Token-2022, non-transferable plus the metadata extension, shop as mint authority, a free coffee is a burn.</div>
+      <div class="rule">The ATA derives from the Token-2022 program id. The classic id gives the wrong address.</div>
+      <div class="pack">metaplex for NFTs · /inspect-mint to read any mint</div></div>
+    <div class="col"><div class="an">defi-engineer</div><div class="q">Can the customer pay in any token?</div>
+      <div class="rule"><b>Minimum output enforced on-chain.</b> Reload the destination after the swap and check the balance delta, never the quote.</div>
+      <div class="rule">Price from an oracle with a feed id and max age, not from spot reserves a flash loan can move.</div>
+      <div class="rule">Jupiter swap v2 with an API key. Test on a Surfpool mainnet fork so the real protocol accounts load.</div>
+      <div class="pack">jupiter · sendai for lending and oracles</div></div>
+    <div class="col"><div class="an">game-architect → unity-engineer</div><div class="q">Can the card be a game?</div>
+      <div class="rule"><b>On-chain for what is valuable, tradeable or trusted by other players.</b> Gameplay off-chain, written at checkpoints.</div>
+      <div class="rule">Client-reported scores are attacker-controlled: a payout is verified on-chain or by a server signature.</div>
+      <div class="rule">concept.md in numbers, plan.md in steps, your approval, then Unity in small steps closing with /build-unity and /test-dotnet.</div>
+      <div class="pack">solana-game · desktop first, WebGL second</div></div>
+  </div>
+  <div class="foot">All four agents build from pinned protocol skills, and the token and DeFi files both say that an ask or deny from the security plugin on a value-moving action is your policy, reported and never retried another way.</div>
+</div>
+</div>
+</body></html>

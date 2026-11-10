@@ -1,0 +1,76 @@
+id: lesson-aik-idea-to-design
+slug: idea-to-design
+title: "From an idea to a design"
+skills:
+  - solana-fundamentals
+  - pdas
+blocks:
+  - key: intro
+    type: prose
+    src: intro.md
+  - key: check
+    type: quiz
+    questions:
+      - id: q1
+        prompt: "The architect's design for Stamp puts every customer's stamp count in one account controlled by the shop, as a map keyed by customer. Which of its own heuristics did it break, and what should it have proposed?"
+        multiSelect: false
+        options:
+          - id: b
+            label: "Seeds are permanent, so a single account breaks the rule that each PDA needs a version byte in its seed scheme from day one."
+            correct: false
+            feedback: "Seeds being permanent is a real heuristic, but it is about namespacing, not about how many accounts a design uses."
+          - id: a
+            label: "Writable shared accounts serialize their transactions, so one card PDA per customer is the shape, not one shared map."
+            correct: true
+            feedback: "Yes. One shared counter means two customers buying a coffee at once wait on each other. A PDA per customer keeps the writes apart."
+          - id: c
+            label: "An account can grow by 10 KiB per instruction, so one map account is fine as long as realloc is called about once a month."
+            correct: false
+            feedback: "The growth limit is real, but it argues against the shared map too, not for it. The contention problem stays."
+          - id: d
+            label: "Admin powers belong behind a multisig, so the shop should not own an account that holds customer data in the first place."
+            correct: false
+            feedback: "The multisig heuristic is about authority over upgrades and parameters, not about who owns a data account."
+        explanation: "The architect's file lists it plainly: writable shared accounts serialize every transaction that touches them, so hot counters are sharded by key. For Stamp that is one card account per customer, derived as a PDA from a fixed prefix, the shop and the customer. The shop still signs the stamp instruction; it just does not own a single bottleneck."
+      - id: q2
+        prompt: "The solana-researcher agent reports that a loyalty program on Solana 'has around 40,000 active cards', labelled Low. Predict what Low means in its own output rules and what you do with the number."
+        multiSelect: false
+        options:
+          - id: a
+            label: "Community sources alone, or sources that conflict. Treat it as a lead to verify, not a fact to put in a deck."
+            correct: true
+            feedback: "Right. The agent labels High, Medium, Low or Speculative by the quality of agreement among sources, and Low is the weak end."
+          - id: d
+            label: "The agent could not reach the solana-dev MCP server and fell back to training data, which it marks Low by rule."
+            correct: false
+            feedback: "A finding from memory with no source would not be reported at all. Low still has a cited source, a weak one."
+          - id: c
+            label: "The source is older than thirty days, which the agent treats as stale and marks Low until it is re-checked."
+            correct: false
+            feedback: "Dates are cited for time-sensitive data, but the label is about how many authoritative sources agree."
+          - id: b
+            label: "The figure is below the threshold the agent considers interesting, so it is flagged as a minor finding to skip."
+            correct: false
+            feedback: "The label describes evidence quality, not the size or importance of the number."
+        explanation: "The researcher labels each finding by evidence: High when several authoritative sources agree, Medium for one authoritative source, Low for community sources only or conflicting ones, Speculative for an inference. A Low number is a place to look next, which is exactly what you want at the idea stage, and nothing you repeat as fact."
+      - id: q3
+        prompt: "You run /plan-feature on Stamp right after the architect's design. Predict what the command does with that design, and what you get back."
+        multiSelect: false
+        options:
+          - id: c
+            label: "It re-runs the architect from scratch, since a plan has to start from a clean design, and sets aside the one you already have."
+            correct: false
+            feedback: "The command reads the code and files the feature touches and brings in the architect only if the account model is still open."
+          - id: b
+            label: "It scaffolds the Anchor workspace from the design and writes the first instruction, so the next step is /build-program itself."
+            correct: false
+            feedback: "Scaffolding is /scaffold and code is the engineer's job. /plan-feature writes no code by its own rule."
+          - id: d
+            label: "It deploys the design to devnet as empty accounts so the plan can reference real addresses from the start of the work."
+            correct: false
+            feedback: "Nothing in the kit deploys without you asking for it, and a plan is the step before any code exists."
+          - id: a
+            label: "It reads the design and writes a phased plan with accounts, instructions, risks and tests, no code, ending in open questions."
+            correct: true
+            feedback: "Yes. The command plans only, and it starts from an idea file or a design when one exists rather than re-asking what they settle."
+        explanation: "The command's file says plan only, write no code. It reads what exists, asks about the decisions that change the design, brings in solana-architect only when the account model is still open, and writes a plan from nine sections, summary, accounts, instructions, integrations, clients, phases, risks, tests and rollout, dropping those that do not apply and ending in questions for you."

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 20px}
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:0 14px 10px;border-bottom:2px solid var(--stbr-dark)}
+th.l{width:180px}
+td{padding:13px 14px;font-size:14.5px;line-height:1.4;color:var(--text-primary);border-bottom:1px solid var(--border-subtle);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.l{font-family:var(--font-display);font-weight:var(--weight-bold);color:var(--text-secondary)}
+td.a{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:15px}
+.foot{margin-top:14px;font-size:14.5px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:520px;height:420px;right:-300px;top:-140px;border-radius:40% 60% 50% 50% / 55% 45% 55% 45%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:500px;height:540px;bottom:-320px;left:-280px;border-radius:60% 40% 45% 55% / 50% 58% 42% 50%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Around the program</div>
+  <h2 class="viz-title">Three engineers for the parts people touch</h2>
+  <table>
+    <tr><th class="l"></th><th>solana-frontend-engineer</th><th>mobile-engineer</th><th>rust-backend-engineer</th></tr>
+    <tr><td class="l">Builds</td><td>React and Next.js on @solana/kit 8 with the wallet and RPC plugins and @solana/react. WCAG 2.2 AA.</td><td>React Native and Expo on Mobile Wallet Adapter 2.0, Seeker features, deep links, dApp Store releases.</td><td>Axum and Tokio services: APIs, indexers, webhook consumers, transaction senders, keepers.</td></tr>
+    <tr><td class="l">For Stamp</td><td>The customer's card page: connect, stamp count, stamps to go, a redeem button.</td><td>The customer app on a phone: connect, card, redeem.</td><td>A webhook indexer and a dashboard endpoint for the shop.</td></tr>
+    <tr><td class="l">The rule that saves an afternoon</td><td>Simulate first. Show awaiting signature, submitted with an explorer link, confirmed. Release at confirmed, not finalized.</td><td>Mobile Wallet Adapter is Android only and needs a development build; Expo Go cannot load it. iOS signs through a wallet's deep link.</td><td>Deliveries repeat: upsert on signature plus event position. Check meta.err; failed transactions are on-chain too. Finalized before anything irreversible.</td></tr>
+    <tr><td class="l">Keeps out</td><td>wallet-adapter packages, web3.js v1 idioms, keyed RPC URLs in NEXT_PUBLIC values.</td><td>Mixing the Kit and web3.js wallet kits; a late Web Crypto polyfill; placeholder identity URIs.</td><td>The blocking RPC client on a Tokio runtime; re-signing while the first copy can still land.</td></tr>
+    <tr><td class="l">Asks for</td><td>/scaffold with a Kit template; /generate-idl-client for the typed client.</td><td>The solana-mobile pack; npx solana-mobile@latest create.</td><td>The Helius key in .env; the helius pack for webhooks and Laserstream.</td></tr>
+    <tr><td class="l">Closes with</td><td>/build-app and /test-ts; components, wallets tested, accessibility gaps left open.</td><td>/test-ts and a run in a development build; stack, wallets tested, Android-only items.</td><td>/test-rust; endpoints or tables added, commitment per path, how gaps backfill.</td></tr>
+  </table>
+  <div class="foot">All three read design.md and call the program through the client /generate-idl-client renders from the IDL, so one change to an instruction is one regeneration.</div>
+</div>
+</div>
+</body></html>

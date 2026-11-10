@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 26px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.thread{display:flex;align-items:center;margin-bottom:16px}
+.name{width:200px;flex:none;padding-right:14px}
+.name .t{font-family:var(--font-display);font-weight:var(--weight-black);font-size:20px;color:var(--text-primary)}
+.name .d{font-size:12.5px;line-height:1.35;color:var(--text-secondary);margin-top:4px}
+.chain{display:flex;align-items:center;flex:1}
+.step{border:2px solid var(--stbr-dark);border-radius:var(--radius-md);padding:8px 10px;font-family:var(--font-mono);font-size:12px;line-height:1.3;color:var(--text-primary);flex:1;min-height:70px;display:block;word-break:break-word}
+.step small{font-family:var(--font-body);font-size:11px;line-height:1.3;color:var(--text-secondary);display:block;margin-top:3px}
+.step.key{background:var(--surface-brand);color:var(--text-on-brand);border-color:var(--surface-brand)}
+.step.key small{color:var(--text-on-brand)}
+.step.cmd{border-style:dashed;background:var(--surface-paper)}
+.a{width:18px;flex:none;display:flex;align-items:center;justify-content:center}
+.foot{margin-top:6px;font-size:14px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:520px;height:460px;right:-300px;top:-170px;border-radius:49% 51% 40% 60% / 55% 46% 54% 45%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:500px;height:500px;bottom:-300px;left:-270px;border-radius:57% 43% 52% 48% / 43% 59% 41% 57%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Three idea threads</div>
+  <h2 class="viz-title">Same route, different specialists</h2>
+  <div class="thread"><div class="name"><div class="t">Vaquinha</div><div class="d">Friends pool SOL for a gift; pays out at target, refunds at deadline.</div></div>
+    <div class="chain">
+      <div class="step">solana-researcher<small>pools, escrow, refund paths</small></div><div class="a">→</div>
+      <div class="step key">solana-architect<small>pool PDA, contribution PDA, clock not argument</small></div><div class="a">→</div>
+      <div class="step">anchor-engineer + qa<small>deadline minus one second</small></div><div class="a">→</div>
+      <div class="step">solana-frontend-engineer<small>progress bar, contribute</small></div><div class="a">→</div>
+      <div class="step">defi-engineer<small>variant: any token to USDC</small></div><div class="a">→</div>
+      <div class="step cmd">/deploy devnet</div>
+    </div></div>
+  <div class="thread"><div class="name"><div class="t">Tool library</div><div class="d">A shed lends tools against a deposit returned on return.</div></div>
+    <div class="chain">
+      <div class="step">solana-researcher<small>deposit and return patterns</small></div><div class="a">→</div>
+      <div class="step key">solana-architect<small>item PDA, loan PDA, volunteer signs return</small></div><div class="a">→</div>
+      <div class="step">token-engineer<small>non-transferable membership</small></div><div class="a">→</div>
+      <div class="step">mobile-engineer<small>volunteer scans at the door, Android first</small></div><div class="a">→</div>
+      <div class="step">rust-backend-engineer<small>what is out and since when</small></div><div class="a">→</div>
+      <div class="step cmd">/deploy devnet</div>
+    </div></div>
+  <div class="thread"><div class="name"><div class="t">Door list</div><div class="d">Fixed entries to a small event, handed back to the organizer or kept, never sold on.</div></div>
+    <div class="chain">
+      <div class="step">solana-researcher<small>ticketing, who tried to cap resale</small></div><div class="a">→</div>
+      <div class="step key">token-engineer<small>Token-2022 mint with a transfer hook</small></div><div class="a">→</div>
+      <div class="step">token-engineer + anchor<small>the hook program, then the rest</small></div><div class="a">→</div>
+      <div class="step">solana-frontend-engineer<small>door page: valid or not</small></div><div class="a">→</div>
+      <div class="step">devops-engineer<small>a real mainnet date: CI keys, authority plan</small></div><div class="a">→</div>
+      <div class="step cmd">/deploy devnet</div>
+    </div></div>
+  <div class="foot">The green step is where each idea lives. A game would start with game-architect instead. After the deploy: tech-docs-writer and /product-review, every time.</div>
+</div>
+</div>
+</body></html>

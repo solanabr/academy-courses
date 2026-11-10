@@ -1,0 +1,38 @@
+id: course-solana-ai-kit
+slug: solana-ai-kit
+title: "Solana AI Kit: what its agents can build for you"
+description: "A workshop course of around two hours on the Solana AI Kit's 15 agents: what each one does, the prompt that starts it, and what comes back. One example project runs through the whole course, from idea to design, program, app, token and deploy, and the last lessons hand you three more idea threads to adapt into your own. Runs locally with Claude Code, Node and git; the program-building lessons also use Rust and Anchor, which you can watch or run."
+difficulty: beginner
+duration: 2
+xpPerLesson: 10
+xpReward: 100
+creator: 8kMziL5e3qEWhp1nQHEiYLRypymyBVTXNxgZXyQwhbSo
+creatorRewardXp: 30
+# Unsequenced elective, like the other trackId 0 / trackLevel 0 courses.
+trackId: 0
+trackLevel: 0
+sourceLocale: en
+modules:
+  - key: setup
+    title: "Set up and meet the team"
+    lessons:
+      - lesson-aik-install
+  - key: design
+    title: "From an idea to a design"
+    lessons:
+      - lesson-aik-idea-to-design
+      - lesson-aik-programs
+  - key: around
+    title: "Build around the program"
+    lessons:
+      - lesson-aik-apps
+      - lesson-aik-tokens-defi-games
+  - key: ship
+    title: "Ship it"
+    lessons:
+      - lesson-aik-ship
+  - key: yours
+    title: "Your own idea"
+    lessons:
+      - lesson-aik-your-idea
+      - lesson-aik-keep-learning

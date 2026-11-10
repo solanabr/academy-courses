@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../_brand.css">
+<link rel="stylesheet" href="../_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tile{border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:16px 18px 14px;display:flex;flex-direction:column;min-height:200px}
+.t{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:18px;color:var(--text-primary);margin-bottom:8px}
+.d{font-size:14px;line-height:1.45;color:var(--text-secondary)}
+.d b{color:var(--text-primary)}
+.p{margin-top:auto;font-size:12px;line-height:1.3;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 9px;align-self:flex-start}
+.foot{margin-top:16px;font-size:14.5px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:560px;height:430px;right:-320px;bottom:-200px;border-radius:44% 56% 58% 42% / 51% 46% 54% 49%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:420px;height:470px;top:-280px;left:-220px;border-radius:58% 42% 50% 50% / 47% 60% 40% 53%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">After the workshop</div>
+  <h2 class="viz-title">Four things that keep you good at this</h2>
+  <div class="grid">
+    <div class="tile"><div class="t">solana-guide</div><div class="d">Checks your level first. <b>Definition, the problem it solves, a minimal example, the beginner's mistake</b>, then asks you to predict before moving on. Draws Mermaid when accounts, PDAs and CPIs interact. Teaches current tooling and names a tutorial that predates it.</div><div class="p">Learning only. Production code goes to the engineers.</div></div>
+    <div class="tile"><div class="t">/explain-code</div><div class="d">Overview in two or three sentences, a <b>Mermaid diagram</b>, a walkthrough of the significant sections with the reasons, the Solana concepts used, <b>security notes</b> on checks performed and checks missing, and two or three what-happens-if questions.</div><div class="p">Run it on the code the engineers wrote for you.</div></div>
+    <div class="tile"><div class="t">solana-researcher, as a habit</div><div class="d">Before building on a program: <b>upgrade authority, verified build, audit history</b>, cited and dated. Before any decision that depends on a version or a status: ask it, not memory.</div><div class="p">High · Medium · Low · Speculative</div></div>
+    <div class="tile"><div class="t">/update · memsearch · /dream</div><div class="d"><b>/update</b> pulls the newest release tag, keeps .env and CLAUDE.md, writes CLAUDE.md.upstream, re-applies your tier. <b>memsearch</b>: two commands and a restart, local store, no key, one model download. <b>/dream</b> consolidates MEMORY.md and Project Learnings.</div><div class="p">Restart Claude Code after each.</div></div>
+  </div>
+  <div class="foot">The long answers live in the kit repository's docs/ folder, never copied into your project, the official skill packs at kit.superteam.codes, and the kit's own files at aikit.superteam.codes/&lt;path&gt;. Facts here as read on 2026-11-09 from kit main at 0a2f0d9. The README wins where they disagree.</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "slots": {
+    "lesson-aik-install": 0,
+    "lesson-aik-idea-to-design": 1,
+    "lesson-aik-programs": 2,
+    "lesson-aik-apps": 3,
+    "lesson-aik-tokens-defi-games": 4,
+    "lesson-aik-ship": 5,
+    "lesson-aik-your-idea": 6,
+    "lesson-aik-keep-learning": 7
+  },
+  "retired": [],
+  "next": 8
+}
