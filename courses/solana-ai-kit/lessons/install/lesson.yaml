@@ -27,7 +27,7 @@ blocks:
           - id: a
             label: "It installs into the directory it runs in, so the kit sits in the notes repository and kit-workshop has nothing from it."
             correct: true
-            feedback: "Yes. The installer installs into the current directory, which is why the lesson starts with cd into the project."
+            feedback: "Yes. The installer installs into the current directory, which is why the lesson's prompt creates kit-workshop and runs the installer from inside it."
           - id: d
             label: "The installer edits the shell profile, and the terminal has to be restarted before the new agents show up."
             correct: false

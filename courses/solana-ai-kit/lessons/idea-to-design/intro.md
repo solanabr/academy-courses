@@ -24,6 +24,22 @@ Use the solana-researcher agent. What exists on Solana today for small-business 
 
 Its file fixes the shape of the answer: a **two or three sentence answer first**, then findings each with a link and a label, **High** when several authoritative sources agree, **Medium** for one, **Low** for community sources only or sources that conflict, **Speculative** for an inference, then a recommendation and a list of what it could not verify. Read the Low items as leads, not facts. *The agent is allowed to say it found nothing solid, and that answer is worth having before you build.*
 
+### If you want to go deeper on the research
+
+The researcher's findings stop at what is public on the web. The kit also ships **Colosseum Copilot** as a core skill pack, which answers from Colosseum's hackathon archives and project histories: what past submissions claimed, what they shipped afterwards, and what remains unknown. It needs a Colosseum account and a sign-in once per machine, in a terminal, with Node 20 or newer:
+
+```bash
+npx @colosseum-org/copilot-connect login
+```
+
+The sign-in opens the browser. Add `--device` on a machine where no browser can open, and check the connection with `status`, which is also what `/doctor` runs on its fifth check. Then ask inside Claude Code:
+
+```text
+Use the solana-researcher agent with the Colosseum copilot skill. Which past hackathon submissions built loyalty or punch cards for small businesses? For each, separate what it claimed at submission from what happened later, with dates, and end with what you could not find.
+```
+
+Read the kit's registry entry before you sign in. It marks the pack *caution*: the helper is an unpinned npm package, the skill queries Colosseum's API as you, and your questions and the agent's answers go to Colosseum when you tick the optional sharing box at sign-in, which is off by default. *For a workshop, the public findings are enough. For a hackathon entry, this is the archive you want checked.*
+
 3. **Hand the idea to the architect.** Type:
 
 ```text
@@ -47,7 +63,7 @@ That list is the architect's own **Output** section, quoted back at it, which is
 
 The command writes no code. It reads the design, asks about decisions that change it, and returns a plan from nine sections, summary, accounts, instructions, integrations, clients, phases, risks, tests and rollout, dropping the ones that do not apply and **ending in open questions for you**. Answer them in `design.md` so the next agents read one file.
 
-5. **If you are going to a hackathon, add the startup pack.** `/add-skill startup-builder` installs the whole pack of ten skills, idea-sprint, positioning, pricing, pitch-deck, the hackathon skill, build-status, fundraising, launch, incident-comms and ecosystem-bd, because they link to each other's files. Its idea-sprint writes `.claude/context/idea.md`, and `/plan-feature` starts from that file when it exists. The core **colosseum** skill does prior-art research on past submissions, after one sign-in per machine with `npx @colosseum-org/copilot-connect login`. The kit's own registry marks it *caution*: the sign-in helper is an unpinned npm package, and the skill queries Colosseum's API as you, so read that entry before you sign in.
+5. **If you are going to a hackathon, add the startup pack.** `/add-skill startup-builder` installs the whole pack of ten skills, idea-sprint, positioning, pricing, pitch-deck, the hackathon skill, build-status, fundraising, launch, incident-comms and ecosystem-bd, because they link to each other's files. Its idea-sprint writes `.claude/context/idea.md`, and `/plan-feature` starts from that file when it exists. Colosseum Copilot, from the research aside above, is what its hackathon skill reads for prior art.
 
 ## Three idea seeds to try instead of Stamp
 

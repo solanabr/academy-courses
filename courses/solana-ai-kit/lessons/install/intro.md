@@ -8,36 +8,29 @@ The Solana AI Kit is a folder of configuration for Claude Code, maintained by Su
 
 ## Do this
 
-1. **Make the project folder and go in.** The installer installs into the directory it runs from, so this step is the one people skip and then wonder where the kit went.
-
-```bash
-mkdir kit-workshop && cd kit-workshop
-```
-
-```bash
-git init
-```
-
-2. **Download the installer, read it, run it.** The address redirects to the install script on the kit's `main` branch. Press `q` to leave the reader.
-
-```bash
-curl -fsSL https://aikit.superteam.codes/install.sh -o /tmp/solana-ai-kit-install.sh
-```
-
-```bash
-less /tmp/solana-ai-kit-install.sh
-```
-
-```bash
-bash /tmp/solana-ai-kit-install.sh
-```
-
-It copies `.claude/`, `CLAUDE.md`, `.mcp.json`, `.env` and `.env.schema` into the folder, adds `.claude/`, `.mcp.json`, `.gitmodules` and `.safe-ai-skill/` to `.gitignore` while leaving `CLAUDE.md` and `.env.schema` tracked, and installs the **safe-ai-skill** security plugin with the `claude` CLI. It asks you nothing. The closing box says *Installation complete*, names the firewall tier (**Relaxed**), and lists next steps.
-
-3. **Start Claude Code and approve the servers.**
+1. **Start Claude Code in the folder where you keep projects.** Not your home directory, and not inside another repository, because the next step creates the project folder here.
 
 ```bash
 claude
+```
+
+2. **Paste this prompt.** It makes the project folder, reads the installer, runs it from inside that folder and checks what landed. Approve each command as it comes up, and read the installer summary before you say yes to running it.
+
+```text
+Set up a Solana AI Kit workshop project for me. Show me each command before you run it, and stop if a step fails.
+1. Create a folder named kit-workshop inside the current directory and initialise an empty git repository in it.
+2. Download https://aikit.superteam.codes/install.sh to a temporary file, read it, and tell me in a few lines what it writes, what it adds to .gitignore and which plugin it installs.
+3. Run that file with bash from inside kit-workshop, so the kit installs into that folder and nowhere else, and show me the closing box it prints.
+4. List kit-workshop/.claude/agents and tell me how many files are in it.
+5. Do not start Claude Code yourself. Tell me to exit this session, cd into kit-workshop and run claude there.
+```
+
+The closing box says *Installation complete*, names the firewall tier (**Relaxed**), and lists next steps. What landed: `.claude/`, `CLAUDE.md`, `.mcp.json`, `.env` and `.env.schema` in the folder, with `.claude/`, `.mcp.json`, `.gitmodules` and `.safe-ai-skill/` added to `.gitignore` and `CLAUDE.md` and `.env.schema` left tracked, plus the **safe-ai-skill** security plugin installed through the `claude` CLI. The installer asks you nothing. If you would rather type it yourself, the same five steps are `mkdir` and `git init`, `curl -fsSL` of that address into a file, `less` on the file, then `bash` on it from inside the folder.
+
+3. **Restart inside the project and approve the servers.** Exit the session, then:
+
+```bash
+cd kit-workshop && claude
 ```
 
 Claude Code asks once whether to start the four MCP servers in `.mcp.json`. Approve them. Then type:
@@ -48,10 +41,10 @@ Claude Code asks once whether to start the four MCP servers in `.mcp.json`. Appr
 
 Thirteen numbered checks, each OK, WARN, FAIL or n/a, with one fix-it command per failure. Claude Code ships a `/doctor` of its own, so if what comes back is not thirteen numbered checks, pick the project command from the slash menu, the one that reads `.claude/commands/doctor.md`. Today the Solana CLI line may read FAIL and the keys may read empty. *Both are fine for the next lesson.* Lesson 3 is where Rust, Anchor and the Solana CLI enter. `/doctor` has already printed the Solana CLI install command, and it prints the Rust and Anchor ones once the project holds an Anchor workspace.
 
-4. **Open one agent file end to end.**
+4. **Open one agent file end to end.** Open `.claude/agents/solana-architect.md` in your editor, or ask for it inside Claude Code:
 
-```bash
-cat .claude/agents/solana-architect.md
+```text
+Show me .claude/agents/solana-architect.md in full, unchanged.
 ```
 
 Read it as a job description. The header carries the name, the description Claude Code matches against, and **`model: opus`**, which every kit agent sets whatever your session runs on. Then the sections most of the fifteen files share: **what to read before working** (links into the solana-dev pack and the kit's own skills), **the details that are easy to get wrong** (here: seeds are permanent, shared writable accounts serialize every transaction, admin powers behind a multisig), **Handoffs** (which agent gets which follow-up, a table in this file and a list in the others), and a closing section, **Output** in the architect and the researcher, **Before handing back** in the engineers. That closing section is the one to hold onto: *it tells you what you are owed when the agent finishes*.
@@ -78,7 +71,7 @@ You should see the agent start, then a short answer with links and a confidence 
 
 ## Watch out
 
-- **Run the installer from the project root.** It has no idea which folder you meant.
+- **The installer installs into the folder it runs from.** That is why the prompt runs it inside kit-workshop. It has no idea which folder you meant.
 - **Opus costs Opus.** Every agent pins Opus, whatever your session is on. For a quick question ask the main session, and for design, code and research let the agent run.
 - **Native Windows.** The security plugin has no engine build there and the installer skips it. WSL2 is fine.
 - **Node 22.5 or newer.** `/doctor` passes Node 18, but the context-mode server among the four defaults wants 22.5 or newer, so that is the version to have.
@@ -86,7 +79,7 @@ You should see the agent start, then a short answer with links and a confidence 
 
 ## The takeaway
 
-The kit installs into the folder you run it from, and its agents are **markdown job descriptions** with a model, references, pitfalls, handoffs and a required output shape. *You get the specialist you ask for by name.*
+The kit installs into the folder the installer runs from, and its agents are **markdown job descriptions** with a model, references, pitfalls, handoffs and a required output shape. *You get the specialist you ask for by name.*
 
 ## Next
 
