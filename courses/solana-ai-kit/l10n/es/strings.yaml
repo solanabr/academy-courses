@@ -1,0 +1,1130 @@
+locale: es
+course:
+  title: 'Solana AI Kit: lo que sus agentes pueden construir para ti'
+  description: >-
+    Un curso tipo taller de unas dos horas sobre los 15 agentes del Solana AI Kit: qué hace cada uno,
+    el prompt que lo arranca y qué devuelve. Un proyecto de ejemplo recorre todo el curso, de la idea
+    al diseño, el programa, la app, el token y el deploy, y las últimas lecciones te entregan tres
+    hilos de idea más para adaptar al tuyo. Corre en local con Claude Code, Node y git. Las lecciones
+    de construcción del programa también usan Rust y Anchor, que puedes mirar o ejecutar.
+  modules:
+    setup:
+      title: Prepara el entorno y conoce al equipo
+    design:
+      title: De una idea a un diseño
+    around:
+      title: Construye alrededor del programa
+    ship:
+      title: Lánzalo
+    yours:
+      title: Tu propia idea
+lessons:
+  install:
+    title: Instala el kit y conoce al equipo
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Marina abrió una terminal en su repositorio de notas, corrió el instalador ahí, después
+              creó kit-workshop al lado y corrió claude adentro. Claude Code no lista ninguno de los
+              agentes del kit. Predice por qué.
+            explanation: >-
+              El instalador copia el kit en el directorio desde donde lo corres. Correrlo en otra
+              carpeta instala el kit ahí, y el proyecto que querías no recibe nada. La solución es
+              hacer cd al proyecto y correr el instalador otra vez. Nunca lo corras desde tu directorio
+              home: escribiría en ~/.claude, que es la carpeta de usuario de Claude Code.
+            options:
+              b:
+                label: >-
+                  Claude Code carga los agentes de un proyecto después de un primer /update, así que
+                  ella tiene que correrlo una vez dentro de kit-workshop primero.
+                feedback: >-
+                  Los agentes se cargan desde .claude/agents al inicio de la sesión. Una instalación
+                  nueva no necesita ningún update.
+              c:
+                label: >-
+                  Los agentes quedan ocultos hasta que haya una clave de Helius en .env, porque el kit
+                  se niega a arrancar a medio configurar.
+                feedback: >-
+                  Una clave vacía deja inútil el servidor de Helius y nada más. Los agentes no dependen
+                  de ninguna clave.
+              a:
+                label: >-
+                  Se instala en el directorio donde corre, así que el kit quedó en el repositorio de
+                  notas y kit-workshop no tiene nada de él.
+                feedback: >-
+                  Sí. El instalador instala en el directorio actual, y por eso el prompt de la lección
+                  crea kit-workshop y corre el instalador desde adentro.
+              d:
+                label: >-
+                  El instalador edita el perfil de la shell, y hay que reiniciar la terminal antes de
+                  que aparezcan los agentes nuevos.
+                feedback: >-
+                  El instalador nunca toca los archivos de arranque de la shell. El firewall incluso
+                  niega las escrituras ahí.
+          q2:
+            prompt: >-
+              Lucas le pide a Claude diseñar un lanzamiento de token con comisiones de transferencia.
+              Claude responde largo, pero la transcripción nunca muestra al agente token-engineer
+              arrancando. ¿Cuál es la razón más probable, y la solución?
+            explanation: >-
+              Un agente es un archivo markdown con un nombre, una descripción y un modelo. Claude Code
+              lo arranca como subagente cuando la descripción encaja con el pedido, o cuando lo nombras.
+              Un pedido que se lee como diseño general puede quedarse en la sesión principal, así que
+              cuando quieres un especialista concreto, dilo.
+            options:
+              c:
+                label: >-
+                  El agente token-engineer corre en Opus y el modelo de su sesión es Sonnet, así que
+                  Claude Code se negó a arrancar el subagente.
+                feedback: >-
+                  Todos los agentes del kit corren en Opus sin importar el modelo de la sesión. El
+                  modelo no es una barrera.
+              d:
+                label: >-
+                  Los archivos de agentes están en el gitignore, así que desaparecieron en su primer
+                  commit y la carpeta de agentes está vacía desde entonces.
+                feedback: >-
+                  Los archivos ignorados siguen en disco. El gitignore solo los deja fuera de los
+                  commits.
+              a:
+                label: >-
+                  Un agente arranca por coincidencia con su descripción, y este pedido no coincidió lo
+                  suficiente. Nombra al agente en el pedido.
+                feedback: >-
+                  Sí. Los agentes arrancan por coincidencia con la descripción o por nombre. Decir
+                  'usa el agente token-engineer' lo resuelve.
+              b:
+                label: >-
+                  Los agentes arrancan solo dentro de comandos slash, así que tiene que correr
+                  /build-program primero y volver a pedirlo desde adentro de ese comando.
+                feedback: >-
+                  Los agentes también arrancan desde pedidos normales. Los comandos pueden lanzarlos,
+                  pero no son la única vía.
+          q3:
+            prompt: >-
+              Le pides al agente anchor-engineer agregar una instrucción, y su respuesta termina
+              diciendo que el modelo de cuentas sigue abierto y nombrando a solana-architect. Predice
+              qué acaba de pasar, a partir del propio archivo del agente.
+            explanation: >-
+              Cada archivo de agente trae una sección de Handoffs: anchor-engineer manda un modelo de
+              cuentas abierto a solana-architect, las rutas limitadas por CU a pinocchio-engineer, los
+              lanzamientos de tokens a token-engineer y las suites de tests a solana-qa-engineer.
+              Cuando un agente nombra a otro, está siguiendo esa tabla, y lo correcto es correr el
+              agente nombrado a continuación.
+            options:
+              c:
+                label: >-
+                  El firewall le impidió escribir Rust en el nivel Relaxed, así que delegó en un agente
+                  que puede leer pero no escribir.
+                feedback: >-
+                  Relaxed permite escribir dentro del repositorio. El arquitecto diseña, no tiene
+                  permisos de escritura distintos.
+              b:
+                label: >-
+                  Llegó al límite de tokens de Opus para una sola respuesta y nombró a un segundo agente
+                  para que lo reinicies en una sesión nueva.
+                feedback: >-
+                  No existe tal límite en los archivos de agentes. El traspaso es una regla deliberada,
+                  escrita en el archivo.
+              a:
+                label: >-
+                  Siguió su lista de Handoffs: un modelo de cuentas o esquema de PDAs abierto va al
+                  arquitecto antes de escribir código.
+                feedback: >-
+                  Correcto. Cada archivo de agente trae una sección de Handoffs, y así es como un
+                  especialista le pasa trabajo a otro.
+              d:
+                label: >-
+                  No encontró el paquete de skills solana-dev y nombró al arquitecto porque ese agente
+                  trae su propia copia de las referencias.
+                feedback: >-
+                  Los dos agentes leen el mismo paquete base. El traspaso es por preguntas de diseño,
+                  no por archivos faltantes.
+  idea-to-design:
+    title: De una idea a un diseño
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              El diseño del arquitecto para Stamp pone el conteo de sellos de todos los clientes en una
+              sola cuenta controlada por la tienda, como un mapa indexado por cliente. ¿Cuál de sus
+              propias heurísticas rompió, y qué debió proponer?
+            explanation: >-
+              El archivo del arquitecto lo dice claro: las cuentas compartidas escribibles serializan
+              cada transacción que las toca, así que los contadores calientes se fragmentan por clave.
+              Para Stamp eso es una cuenta de tarjeta por cliente, derivada como PDA de un prefijo fijo,
+              la tienda y el cliente. La tienda sigue firmando la instrucción de sello, pero no es dueña
+              de un único cuello de botella.
+            options:
+              b:
+                label: >-
+                  Las seeds son permanentes, así que una sola cuenta rompe la regla de que cada PDA
+                  necesita un byte de versión en su esquema de seeds desde el día uno.
+                feedback: >-
+                  Que las seeds sean permanentes es una heurística real, pero trata de namespacing, no
+                  de cuántas cuentas usa un diseño.
+              a:
+                label: >-
+                  Las cuentas compartidas escribibles serializan sus transacciones, así que la forma es
+                  una PDA de tarjeta por cliente, no un mapa compartido.
+                feedback: >-
+                  Sí. Un contador compartido significa que dos clientes comprando un café a la vez se
+                  esperan entre sí. Una PDA por cliente separa las escrituras.
+              c:
+                label: >-
+                  Una cuenta puede crecer 10 KiB por instrucción, así que un mapa en una cuenta está
+                  bien mientras se llame realloc más o menos una vez al mes.
+                feedback: >-
+                  El límite de crecimiento es real, pero también argumenta contra el mapa compartido,
+                  no a favor. El problema de contención sigue.
+              d:
+                label: >-
+                  Los poderes de admin van detrás de un multisig, así que la tienda no debería ser dueña
+                  de una cuenta con datos de clientes desde el principio.
+                feedback: >-
+                  La heurística del multisig trata de la autoridad sobre upgrades y parámetros, no de
+                  quién es dueño de una cuenta de datos.
+          q2:
+            prompt: >-
+              El agente solana-researcher reporta que un programa de lealtad en Solana 'tiene unas
+              40,000 tarjetas activas', etiquetado como Low. Predice qué significa Low en sus propias
+              reglas de salida y qué haces con el número.
+            explanation: >-
+              El researcher etiqueta cada hallazgo por su evidencia: High cuando varias fuentes
+              autorizadas coinciden, Medium para una fuente autorizada, Low para fuentes comunitarias
+              nada más o fuentes en conflicto, Speculative para una inferencia. Un número Low es un
+              lugar donde mirar después, que es justo lo que quieres en la etapa de idea, y nada que
+              repitas como un hecho.
+            options:
+              a:
+                label: >-
+                  Fuentes comunitarias nada más, o fuentes que se contradicen. Trátalo como una pista a
+                  verificar, no como un dato para poner en un deck.
+                feedback: >-
+                  Correcto. El agente etiqueta High, Medium, Low o Speculative según la calidad del
+                  acuerdo entre fuentes, y Low es el extremo débil.
+              d:
+                label: >-
+                  El agente no pudo llegar al servidor MCP solana-dev y recurrió a sus datos de
+                  entrenamiento, que marca como Low por regla.
+                feedback: >-
+                  Un hallazgo de memoria sin fuente no se reportaría. Low todavía tiene una fuente
+                  citada, una débil.
+              c:
+                label: >-
+                  La fuente tiene más de treinta días, lo que el agente trata como obsoleto y marca como
+                  Low hasta que se vuelva a revisar.
+                feedback: >-
+                  Las fechas se citan para datos sensibles al tiempo, pero la etiqueta trata de cuántas
+                  fuentes autorizadas coinciden.
+              b:
+                label: >-
+                  La cifra está por debajo del umbral que el agente considera interesante, así que la
+                  marca como un hallazgo menor para saltar.
+                feedback: >-
+                  La etiqueta describe la calidad de la evidencia, no el tamaño ni la importancia del
+                  número.
+          q3:
+            prompt: >-
+              Corres /plan-feature sobre Stamp justo después del diseño del arquitecto. Predice qué hace
+              el comando con ese diseño, y qué recibes de vuelta.
+            explanation: >-
+              El archivo del comando dice planificar y nada más, no escribir código. Lee lo que existe,
+              pregunta por las decisiones que cambian el diseño, trae a solana-architect solo cuando el
+              modelo de cuentas sigue abierto, y escribe un plan de nueve secciones, resumen, cuentas,
+              instrucciones, integraciones, clientes, fases, riesgos, tests y despliegue, quitando las
+              que no aplican y terminando en preguntas para ti.
+            options:
+              c:
+                label: >-
+                  Vuelve a correr el arquitecto desde cero, porque un plan tiene que partir de un diseño
+                  limpio, y deja de lado el que ya tienes.
+                feedback: >-
+                  El comando lee el código y los archivos que toca la funcionalidad y trae al arquitecto
+                  solo si el modelo de cuentas sigue abierto.
+              b:
+                label: >-
+                  Arma el workspace de Anchor a partir del diseño y escribe la primera instrucción, así
+                  que el siguiente paso es /build-program en sí.
+                feedback: >-
+                  Armar el esqueleto es /scaffold y el código es trabajo del ingeniero. /plan-feature no
+                  escribe código por su propia regla.
+              d:
+                label: >-
+                  Despliega el diseño en devnet como cuentas vacías para que el plan pueda referirse a
+                  direcciones reales desde el inicio del trabajo.
+                feedback: >-
+                  Nada en el kit despliega sin que lo pidas, y un plan es el paso anterior a que exista
+                  cualquier código.
+              a:
+                label: >-
+                  Lee el diseño y escribe un plan por fases con cuentas, instrucciones, riesgos y tests,
+                  sin código, que termina en preguntas abiertas.
+                feedback: >-
+                  Sí. El comando solo planifica, y parte de un archivo de idea o de un diseño cuando
+                  existe en vez de volver a preguntar lo que ya resuelven.
+  programs:
+    title: 'Construye el programa: anchor-engineer, pinocchio-engineer, solana-qa-engineer'
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Un test de LiteSVM para la instrucción redeem de Stamp falla con 'custom program error:
+              0x1770'. Usando lo que el propio archivo de /test-rust dice sobre leer fallos, ¿qué es eso?
+            explanation: >-
+              El archivo del comando de tests detalla los rangos: de 2000 a 2999 son violaciones de
+              constraint, de 3000 a 3999 errores de cuenta, 4100 un desajuste del program id declarado,
+              y tus propias variantes de error_code empiezan en el offset del enum, 6000 por defecto,
+              así que 0x1770 es la primera que definiste. Lee los logs del programa en el fallo antes de
+              tocar código.
+            options:
+              b:
+                label: >-
+                  Una violación de constraint en las seeds de la tarjeta, porque el rango 2000 cubre
+                  cada desajuste de PDA entre el cliente y el programa.
+                feedback: >-
+                  Los desajustes de seeds son 2006 en decimal, 0x7d6 en hex. 0x1770 está muy por encima
+                  del rango de constraints.
+              d:
+                label: >-
+                  Un desajuste del program id declarado, o sea que el test cargó el programa en una
+                  dirección distinta de la de declare_id.
+                feedback: >-
+                  Eso es 4100, impreso como 0x1004. Recompilar después de anchor keys sync lo arregla,
+                  no es este error.
+              c:
+                label: >-
+                  Una cuenta que no fue inicializada, que Anchor reporta como 3012 y el runner de tests
+                  imprime en hex como 0x1770 por convención.
+                feedback: >-
+                  3012 es 0xbc4. El número de la pregunta decodifica a 6000, no al rango de errores de
+                  cuenta.
+              a:
+                label: >-
+                  6000 en decimal, la primera variante de tu propio enum de errores, porque los errores
+                  custom de Anchor empiezan en ese offset salvo que se fije otro.
+                feedback: >-
+                  Sí. 0x1770 es 6000. Los errores de constraint van de 2000 a 2999 y los de cuenta de
+                  3000 a 3999. De 6000 en adelante son tuyos.
+          q2:
+            prompt: >-
+              Le pides al agente solana-qa-engineer revisar un diff y quita un comentario que dice
+              'add one stamp' sobre un checked_add en el conteo de sellos, y un chequeo de firmante que
+              repite lo que el constraint de Anchor de arriba ya exige. Predice qué regla aplicó.
+            explanation: >-
+              El archivo del agente de QA lista qué quitar antes de revisar: comentarios que repiten el
+              código, chequeos defensivos alrededor de llamadas internas confiables que el resto del
+              código no usa, chequeos que repiten lo que un constraint ya exige, mensajes de error
+              verbosos y logging de debug olvidado. Conserva cada chequeo de seguridad genuino y reporta
+              lo que quitó.
+            options:
+              d:
+                label: >-
+                  Su regla de harness: Mollusk no carga código con chequeos duplicados, así que se quitan
+                  antes de correr los tests de una sola instrucción.
+                feedback: >-
+                  La elección de harness trata de qué prueba mejor cada herramienta. No restringe el
+                  código fuente del programa.
+              b:
+                label: >-
+                  Su regla de presupuesto de CU: cada comentario y cada chequeo duplicado cuesta unidades
+                  de cómputo on-chain, así que ambos salen para proteger la base.
+                feedback: >-
+                  Los comentarios no cuestan nada en tiempo de ejecución. La regla de CU trata de
+                  instrucciones medidas, no de texto fuente.
+              a:
+                label: >-
+                  Sus criterios de slop: un comentario que repite el código y un chequeo que repite lo
+                  que un constraint ya exige se van, los chequeos reales se quedan.
+                feedback: >-
+                  Correcto. El agente se encarga de limpiar el slop antes de la revisión: comentarios que
+                  repiten, chequeos que un constraint ya exige, logging de debug y mensajes de error
+                  verbosos.
+              c:
+                label: >-
+                  Su piso de cobertura: el código sin test no puede llevar comentarios, así que el
+                  comentario se va hasta que la instrucción tenga un test propio.
+                feedback: >-
+                  El piso de cobertura trata de tests por instrucción y por ruta de error. No dice nada
+                  sobre comentarios.
+          q3:
+            prompt: >-
+              El agente anchor-engineer termina las tres instrucciones de Stamp. Antes de devolver el
+              trabajo, ¿qué comandos le exige correr su propio archivo?
+            explanation: >-
+              El archivo de anchor-engineer termina con una sección Before handing back: correr
+              /build-program y /test-rust, y para código que guarda o mueve fondos también
+              /audit-solana, y luego reportar las instrucciones y cuentas cambiadas y los resultados de
+              los tests. El pinocchio-engineer agrega /profile-cu y /benchmark porque toda su razón de
+              existir es el cómputo medido.
+            options:
+              a:
+                label: >-
+                  /build-program y /test-rust, más /audit-solana, que las reglas de la casa piden en una
+                  rama de programa, y luego un reporte de los cambios.
+                feedback: >-
+                  Sí. Build, test y una auditoría, que el agente corre para código que guarda o mueve
+                  fondos y que las reglas de la casa piden de todas formas, y luego el reporte.
+              d:
+                label: >-
+                  Nada en absoluto. El agente escribe código, y el agente solana-qa-engineer se encarga
+                  de cada build y cada corrida de tests que sigue después.
+                feedback: >-
+                  El agente de QA se encarga de la estrategia y la cobertura. Los implementadores igual
+                  compilan y prueban su propio código antes de devolverlo.
+              b:
+                label: >-
+                  /deploy devnet, para que las instrucciones existan en un cluster antes de que alguien
+                  las revise, y luego /generate-idl-client para el cliente TS.
+                feedback: >-
+                  Desplegar es un paso aparte, disparado por el usuario y con una parada de aprobación.
+                  No es parte de devolver código.
+              c:
+                label: >-
+                  /profile-cu y /benchmark, porque un programa de Anchor tiene que probar su presupuesto
+                  de cómputo antes de que sus tests puedan correr.
+                feedback: >-
+                  Esos son los comandos de cierre del pinocchio-engineer, para trabajo de CU medido. La
+                  regla de cierre de Anchor es build, test, auditoría.
+  apps:
+    title: 'Construye alrededor: ingenieros de frontend, mobile y backend'
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              El botón de redeem del ingeniero de frontend muestra un spinner hasta que la transacción
+              está finalized, mucho después de que fue confirmed. ¿Cuál de sus propias reglas de UX de
+              transacciones rompió?
+            explanation: >-
+              El archivo del ingeniero de frontend lista las etapas a mostrar, esperando firma, enviada
+              con la firma y un link al explorer de inmediato, confirmada, y dice actualizar la UI en
+              confirmed en vez de retener a los usuarios hasta finalized. Una firma rechazada también es
+              un resultado normal, no un error.
+            options:
+              d:
+                label: >-
+                  Enrutar las URLs de RPC con clave por una ruta de servidor, porque los valores
+                  públicos de env viajan en el bundle.
+                feedback: >-
+                  Esa regla protege la clave del RPC. No tiene nada que ver con la etapa de confirmación
+                  que ve el usuario.
+              a:
+                label: >-
+                  Actualizar la UI en confirmed y mostrar cada etapa con un link al explorer. No se
+                  retiene a los usuarios hasta finalized.
+                feedback: >-
+                  Sí. Esperando firma, enviada con link, confirmada. Finalized es para efectos
+                  irreversibles de backend, no para el botón.
+              c:
+                label: >-
+                  Revisar si la wallet soporta transacciones v1 antes de planear la transacción, o
+                  enrutarla por un cliente v0.
+                feedback: >-
+                  El chequeo de v1 trata de construir la transacción, no de cuánto espera la UI después.
+              b:
+                label: >-
+                  Simular antes de pedir una firma, para que un fallo se traduzca en un mensaje concreto
+                  en vez de una espera larga.
+                feedback: >-
+                  La simulación es una regla real, pero ocurre antes del aviso de la wallet. El problema
+                  del spinner es qué etapa libera la UI.
+          q2:
+            prompt: >-
+              El indexador del ingeniero de backend muestra a un cliente con doce sellos después de diez
+              compras. Helius volvió a entregar dos eventos de webhook. Predice la regla del archivo del
+              agente que el indexador se saltó.
+            explanation: >-
+              El archivo del ingeniero de backend es directo en que lo difícil es la corrección de los
+              datos bajo reentregas, forks y huecos. Las entregas se repiten, así que el indexador hace
+              upsert por la firma más el índice del evento dentro de la transacción, guarda el slot en
+              cada fila, revisa meta.err antes de aplicar efectos y espera finalized antes de cualquier
+              cosa irreversible.
+            options:
+              d:
+                label: >-
+                  Revisar meta.err en cada transacción, porque las transacciones fallidas igual emiten
+                  los eventos que se loguearon antes del fallo.
+                feedback: >-
+                  Esa regla también está en el archivo y también importa, pero explica sellos fantasma
+                  de transacciones fallidas, no dobles por reintentos.
+              a:
+                label: >-
+                  Las entregas se repiten, así que haz upsert por la firma más la posición del evento en
+                  la transacción en vez de insertar cada entrega.
+                feedback: >-
+                  Correcto. Los reintentos y reconexiones del webhook vuelven a entregar, y una
+                  transacción puede traer varios eventos, de ahí firma más posición.
+              c:
+                label: >-
+                  Indexar en finalized nada más, porque los eventos vistos en confirmed pueden
+                  desaparecer en un fork y volver después como segunda copia.
+                feedback: >-
+                  Un fork puede tirar un evento processed, no crea un duplicado de uno confirmed. El
+                  reintento sí lo hizo.
+              b:
+                label: >-
+                  Usar el cliente RPC no bloqueante, porque el bloqueante traba el runtime y los eventos
+                  en cola se aplican dos veces al reanudar.
+                feedback: >-
+                  El cliente bloqueante es una trampa real, pero causa trabas, no duplicados. La
+                  idempotencia es una regla de almacenamiento.
+          q3:
+            prompt: >-
+              Un estudiante arma la app de cliente de Stamp con Expo y la abre en Expo Go en un iPhone,
+              y el conectar wallet no hace nada. ¿Qué hechos del archivo del ingeniero mobile lo
+              explican?
+            explanation: >-
+              Dos hechos del archivo del ingeniero mobile se suman aquí: Mobile Wallet Adapter es solo
+              Android, y necesita un build de desarrollo porque Expo Go no puede cargarlo. En iOS la
+              firma pasa por el protocolo de deep link o el SDK de una wallet. Las reglas del polyfill y
+              del cluster son reales pero producen síntomas distintos.
+            options:
+              c:
+                label: >-
+                  El polyfill de Web Crypto carga tarde, así que la firma falla antes de que abra la
+                  wallet.
+                feedback: >-
+                  Una trampa real, pero aparece como un fallo de firma en Android, no como un connect
+                  mudo en un iPhone con Expo Go.
+              d:
+                label: >-
+                  La app tiene que estar en la dApp Store antes de que una wallet le responda.
+                feedback: >-
+                  Publicar es un paso de release. Los builds de desarrollo se conectan a wallets sin eso.
+              b:
+                label: >-
+                  MWA necesita un build de desarrollo, que Expo Go no ofrece.
+                feedback: >-
+                  Sí. expo run:android produce un build que trae el módulo nativo. Expo Go no.
+              a:
+                label: >-
+                  Mobile Wallet Adapter corre solo en Android.
+                feedback: >-
+                  Sí. Los builds de iOS corren, pero MWA no está ahí. En iOS la firma pasa por el
+                  protocolo de deep link o el SDK de una wallet.
+              e:
+                label: >-
+                  Las apps de Expo conectan solo en devnet, y la wallet estaba en mainnet.
+                feedback: >-
+                  Un desajuste de cluster muestra datos viejos, no un connect muerto. La regla del
+                  archivo es poner la chain en cada query key.
+  tokens-defi-games:
+    title: 'Tokens, DeFi y juegos: cuatro especialistas más'
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Le pides al agente token-engineer hacer de los sellos de Stamp un mint de Token-2022 con
+              transfer hook, delegado permanente, comisiones de transferencia y no transferibilidad,
+              'por seguridad'. Predice su objeción, a partir de su propio archivo.
+            explanation: >-
+              La regla de apertura del ingeniero de tokens es usar las menos extensiones que cumplan el
+              requisito, porque cada extensión reduce dónde puede operarse el token y muchos pools,
+              wallets y agregadores rechazan hooks, delegados permanentes o cuentas congeladas por
+              defecto. Para sellos que no deberían venderse, no transferible más la extensión de
+              metadata es el conjunto completo.
+            options:
+              b:
+                label: >-
+                  Las extensiones se pueden agregar después de que el mint existe, así que empieza sin
+                  ninguna y agrégalas una por una cuando la tienda vea un problema real.
+                feedback: >-
+                  Su archivo dice lo contrario: las extensiones del mint quedan fijas al crearlo, y por
+                  eso mantiene opciones abiertas con placeholders de valor cero.
+              a:
+                label: >-
+                  Usa las menos extensiones que cumplan el requisito, porque cada una reduce dónde puede
+                  operarse el token y los venues rechazan hooks.
+                feedback: >-
+                  Sí. Su primera regla es las menos extensiones que cumplan el requisito, y revisa cada
+                  venue objetivo antes de fijar el conjunto.
+              c:
+                label: >-
+                  Los mints no transferibles necesitan Metaplex Token Metadata, y el paquete metaplex no
+                  está instalado, así que se niega hasta que lo agregues.
+                feedback: >-
+                  Los fungibles de Token-2022 llevan metadata con la extensión de metadata. Metaplex es
+                  para mints clásicos y NFTs.
+              d:
+                label: >-
+                  Las comisiones de transferencia son ilegales para puntos de lealtad en casi todas las
+                  jurisdicciones, así que pasa la pregunta primero al paquete crypto-legal.
+                feedback: >-
+                  El agente plantea compatibilidad con venues y quién tiene las autoridades, no el
+                  estatus legal. Lo legal va a otro paquete, si tú lo pides.
+          q2:
+            prompt: >-
+              El agente defi-engineer agrega un swap de Jupiter para que un cliente pueda pagar el café
+              en cualquier token. Su código revisa la salida cotizada off-chain y confía en ella.
+              Predice el chequeo que su propio archivo dice que falta.
+            explanation: >-
+              El archivo del ingeniero de DeFi es específico: exigir una salida mínima on-chain, y
+              después de un CPI de swap recargar la cuenta destino y revisar el delta del saldo en vez de
+              la cotización. También dice tomar el precio de un oráculo con un feed id y una antigüedad
+              máxima, no de reservas spot ni de saldos que un flash loan puede mover dentro de una
+              transacción.
+            options:
+              b:
+                label: >-
+                  Fijar el precio del café desde las reservas spot del pool en el momento del swap,
+                  porque esa es la única fuente de verdad on-chain disponible.
+                feedback: >-
+                  Las reservas spot son justo lo que un flash loan puede mover dentro de una transacción.
+                  El archivo dice tomar el precio de un oráculo, no de un pool.
+              c:
+                label: >-
+                  Llamar al endpoint legacy de cotización como segunda opinión, porque dos cotizaciones
+                  que coinciden entre sí se pueden confiar para un pago.
+                feedback: >-
+                  Los endpoints legacy son los que la skill de migración existe para retirar. Dos
+                  cotizaciones off-chain siguen sin ser un chequeo on-chain.
+              a:
+                label: >-
+                  Exigir una salida mínima on-chain, recargar el destino después del CPI del swap y
+                  revisar el delta del saldo en vez de la cotización.
+                feedback: >-
+                  Correcto. La cotización es un consejo, el delta del saldo después del CPI es el hecho,
+                  y una salida mínima exigida on-chain es lo que protege a la tienda.
+              d:
+                label: >-
+                  Mover el swap a una transacción separada para que el pago no pueda fallar a medias y
+                  dejar a la tienda corta de USDC.
+                feedback: >-
+                  Dividir un flujo se permite solo cuando cada paso es seguro por sí mismo, y no agrega
+                  el chequeo de salida mínima que falta.
+          q3:
+            prompt: >-
+              En el minijuego de Stamp, el cliente de Unity reporta el puntaje del jugador y el programa
+              paga un sello por un puntaje mayor a 100. Predice qué dice el archivo de game-architect
+              sobre ese diseño.
+            explanation: >-
+              El archivo del arquitecto de juegos divide el estado en on-chain para lo que es valioso,
+              intercambiable o confiado por otros jugadores, y off-chain para el gameplay y el estado de
+              sesión, escrito en checkpoints. Después dice claro que los puntajes reportados por el
+              cliente los controla el atacante, así que lo que mintea o paga se verifica on-chain o con
+              una firma de autoridad del servidor.
+            options:
+              c:
+                label: >-
+                  Los puntajes desde el cliente están bien mientras el pago sea un token no transferible
+                  que el jugador no pueda vender en un mercado.
+                feedback: >-
+                  La no transferibilidad limita la reventa. No hace nada contra un jugador que falsifica
+                  un puntaje para ganar café gratis.
+              a:
+                label: >-
+                  Los puntajes reportados por el cliente los controla el atacante, así que lo que mintea
+                  o paga se verifica on-chain o con una firma de servidor.
+                feedback: >-
+                  Sí. Los leaderboards ordenan off-chain y confirman on-chain, y un pago necesita un
+                  chequeo que el cliente no pueda falsificar.
+              b:
+                label: >-
+                  El gameplay por frame va on-chain para que el puntaje sea demostrable, y el cliente
+                  debería escribir estado en cada acción que hace.
+                feedback: >-
+                  El archivo pone el gameplay por frame off-chain y escribe en checkpoints: fin de
+                  partida, subida de nivel, reclamo de recompensa.
+              d:
+                label: >-
+                  Unity no puede firmar transacciones en WebGL, así que el juego tiene que apuntar a PSG1
+                  antes de que pueda existir cualquier pago a un jugador.
+                feedback: >-
+                  WebGL firma por la vía de login del wallet adapter. La elección de plataforma no
+                  arregla un problema de confianza en el diseño.
+  ship:
+    title: 'Lánzalo: deploy, devops-engineer, tech-docs-writer'
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              En el nivel de firewall por defecto escribes /deploy mainnet para Stamp sin ningún reporte
+              de auditoría en el repositorio. Predice qué pasa, a partir del propio archivo del comando
+              de deploy y la tabla de niveles.
+            explanation: >-
+              La sección de mainnet del comando de deploy arranca solo cuando pides mainnet y primero
+              reporta qué precondiciones faltan: una auditoría sin hallazgos Critical o High abiertos,
+              tests y fuzzing en verde, una corrida en devnet de los flujos reales, un plan de upgrade
+              authority, y una auditoría externa para programas que guardan fondos de usuarios. Por
+              separado, el nivel Relaxed detiene las escrituras on-chain para aprobación en cada cluster
+              salvo un validador local, y el aviso nombra el cluster.
+            options:
+              c:
+                label: >-
+                  Se niega de plano, porque el archivo del comando bloquea un deploy a mainnet hasta que
+                  una firma externa haya aprobado el reporte de auditoría.
+                feedback: >-
+                  El archivo recomienda una auditoría externa para programas que guardan fondos de
+                  usuarios y reporta las precondiciones faltantes. No bloquea en seco por una firma.
+              a:
+                label: >-
+                  Lista primero lo que falta, la auditoría entre eso, y el firewall igual detiene la
+                  escritura para tu aprobación y nombra el cluster.
+                feedback: >-
+                  Sí. Mainnet arranca solo si lo pides, lista primero lo que falta, y Relaxed pausa las
+                  escrituras on-chain en cada cluster salvo un validador local.
+              b:
+                label: >-
+                  Despliega, porque el nivel Relaxed es para desarrollo local y no bloquea nada on-chain,
+                  y High es el nivel que pregunta por mainnet.
+                feedback: >-
+                  Relaxed se detiene por aprobación en cada cluster salvo un validador local. High es el
+                  nivel que niega mainnet de plano.
+              d:
+                label: >-
+                  Despliega a devnet en su lugar, porque el comando trata un pedido de mainnet sin
+                  auditoría como un desliz hacia el cluster por defecto.
+                feedback: >-
+                  Nada cambia de cluster en silencio. El aviso nombra el cluster que resolvió, y el paso
+                  anterior es el reporte de precondiciones.
+          q2:
+            prompt: >-
+              El README del agente tech-docs-writer para Stamp lista las tres instrucciones y sus
+              argumentos, y nada más. ¿Qué elementos obligatorios de su propio archivo faltan?
+            explanation: >-
+              El archivo del docs writer lista lo que los docs de un programa deben enunciar: program id
+              por cluster y la upgrade authority, las cuentas de cada instrucción con sus flags de signer
+              y writable, seeds de PDA como bytes exactos y si se guarda el bump, layouts de cuenta con
+              offsets, unidades de cómputo por instrucción, errores por nombre y código, y soporte de
+              programas de token. Los argumentos solos son una fracción de eso.
+            options:
+              c:
+                label: >-
+                  Errores por nombre, código decimal y hex tal como los muestran los logs.
+                feedback: >-
+                  Sí. 6000 y 0x1770 para el primer error custom, con significado y solución.
+              e:
+                label: >-
+                  Una copia del código fuente de Anchor de cada instrucción, en línea.
+                feedback: >-
+                  Los hechos salen del código y el IDL, pero el doc enuncia cuentas, layouts y códigos,
+                  no el código fuente.
+              a:
+                label: >-
+                  Program id por cluster y la upgrade authority, verificados con solana program show.
+                feedback: >-
+                  Sí. Lo primero que su archivo dice que deben enunciar los docs de un programa.
+              b:
+                label: >-
+                  Seeds de PDA exactas como bytes, y si se guarda el bump canónico.
+                feedback: >-
+                  Sí. Los indexadores y clientes derivan desde las seeds, así que se documentan como
+                  bytes, no en prosa.
+              d:
+                label: >-
+                  Un one-liner de marketing y los links sociales del equipo.
+                feedback: >-
+                  Eso es la skill de posicionamiento del paquete startup-builder, no documentación de
+                  programa.
+          q3:
+            prompt: >-
+              El agente devops-engineer escribe un pipeline de GitHub Actions. Un compañero sugiere
+              guardar el keypair de upgrade authority de mainnet como secreto de CI para que los
+              releases se desplieguen automáticamente. Predice la respuesta del agente, a partir de su
+              archivo.
+            explanation: >-
+              El archivo de devops es explícito: los keypairs de deployer son secretos de CI en base64
+              escritos en un archivo temporal con chmod 600 y borrados en un paso que corre siempre, y
+              solo las claves de devnet van en CI. La upgrade authority de mainnet se queda en una
+              hardware wallet o en un multisig de Squads. CI puede escribir el buffer y entregarlo, y el
+              multisig ejecuta el upgrade.
+            options:
+              b:
+                label: >-
+                  Bien, con tal de que el secreto esté en base64 y vaya a un archivo temporal con chmod
+                  600 que un paso marcado para correr en cualquier caso borre después.
+                feedback: >-
+                  Ese manejo es lo que el archivo prescribe para las claves de deployer de devnet. No
+                  vuelve segura una autoridad de mainnet en CI.
+              c:
+                label: >-
+                  Bien en el nivel de firewall High, porque High cifra los secretos antes de que el
+                  runner pueda leerlos y los limpia cuando termina el job.
+                feedback: >-
+                  Los niveles gobiernan la sesión del agente en tu máquina. No hacen nada dentro de un
+                  runner de GitHub.
+              d:
+                label: >-
+                  Rechazar cualquier deploy desde CI, porque los builds de solana-verify no pueden correr
+                  en un runner alojado al que le falta soporte de Docker.
+                feedback: >-
+                  Los builds verificables necesitan Docker y los runners lo tienen. La objeción es sobre
+                  dónde vive la clave de mainnet.
+              a:
+                label: >-
+                  Solo las claves de devnet van en CI. La autoridad de mainnet se queda en una hardware
+                  wallet o en un multisig de Squads, que ejecuta el upgrade.
+                feedback: >-
+                  Correcto. CI escribe el buffer y pone su autoridad en la bóveda del multisig. El
+                  multisig ejecuta el upgrade.
+  your-idea:
+    title: 'Tu propia idea: tres hilos para adaptar'
+    blocks:
+      reflect:
+        prompt: >-
+          Escribe tu propio hilo con la forma de la plantilla: la idea en tres líneas, los agentes en
+          orden con una línea cada uno sobre lo que te deben, y el primer prompt exacto que vas a pegar
+          en Claude Code.
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Tu idea es un juego de cartas donde los resultados de las partidas ganan tokens. Empiezas
+              nombrando a solana-architect. Predice qué dice su propia descripción que hará con el
+              pedido.
+            explanation: >-
+              La descripción de solana-architect dice 'Designs and reviews Solana systems before code...
+              Games go to game-architect.' El arquitecto de juegos pregunta por el gameplay, la
+              plataforma y qué debe estar on-chain, escribe concept.md y plan.md, y le pasa el programa a
+              anchor-engineer, los tokens a token-engineer y el build de Unity a unity-engineer.
+            options:
+              b:
+                label: >-
+                  Diseñarlo como cualquier otro programa, porque las recompensas en tokens de un juego
+                  son cuentas e instrucciones como el resto de los diseños del kit.
+                feedback: >-
+                  Los dos arquitectos se separan a propósito. El diseño de un juego empieza por el
+                  gameplay, la plataforma y el reparto on-chain, que el arquitecto de sistemas no
+                  pregunta.
+              a:
+                label: >-
+                  Mandarlo a game-architect, que decide el reparto on-chain, escribe concept.md y
+                  plan.md, y le pasa el programa a anchor-engineer.
+                feedback: >-
+                  Sí. La descripción del arquitecto termina con 'games go to game-architect', y el
+                  arquitecto de juegos encamina el trabajo del programa.
+              d:
+                label: >-
+                  Arrancar el unity-engineer directo, porque un juego de cartas es una tarea de
+                  implementación antes que una tarea de diseño para cualquier arquitecto.
+                feedback: >-
+                  El ingeniero de Unity construye a partir de concept.md y plan.md. Sin ellos no tiene
+                  spec.
+              c:
+                label: >-
+                  Negarse hasta que el paquete solana-game esté instalado, porque el arquitecto no lee
+                  referencias de juegos y no va a adivinarlas.
+                feedback: >-
+                  Lo traspasa en vez de negarse. El arquitecto de juegos es el que pide el paquete.
+          q2:
+            prompt: >-
+              La idea de la Lista de la puerta necesita entradas para eventos que solo se puedan
+              devolver al organizador, nunca revenderse. ¿Qué agente es dueño del mecanismo, y cuál es
+              el mecanismo?
+            explanation: >-
+              La descripción del ingeniero de tokens cubre los programas de transfer hook, y su archivo
+              explica las restricciones: las extensiones quedan fijas al crear, los hooks llegan con
+              cuentas de token de solo lectura así que el estado vive en cuentas extra, y muchos venues
+              rechazan mints con hook, lo que para una entrada no revendible es aceptable. El hook corre
+              en cada transferencia y ve origen, destino y dueño, así que una allowlist que permite solo
+              al organizador como destino es la regla.
+            options:
+              c:
+                label: >-
+                  solana-frontend-engineer, escondiendo el botón de vender en la app para que los dueños
+                  no puedan listar la entrada en un marketplace.
+                feedback: >-
+                  Una UI no puede impedir una transferencia hecha desde cualquier otra wallet. La regla
+                  tiene que vivir en el mint.
+              b:
+                label: >-
+                  defi-engineer, listando las entradas en Jupiter con una restricción de ruta en la API
+                  de swap para que ningún pool las tome.
+                feedback: >-
+                  Jupiter enruta swaps. No decide quién puede transferir un token a quién.
+              d:
+                label: >-
+                  rust-backend-engineer, con un indexador que detecta una reventa y revoca la entrada
+                  después del hecho desde la wallet del organizador.
+                feedback: >-
+                  Detectar después del hecho es otro producto. El requisito es impedir la transferencia,
+                  que es un hook.
+              a:
+                label: >-
+                  token-engineer, con un transfer hook de Token-2022 que revisa cada transferencia,
+                  porque los hooks son su carril y el conjunto queda fijo al crear.
+                feedback: >-
+                  Sí. Los programas de transfer hook son el carril del ingeniero de tokens, y el hook
+                  tiene que decidirse antes de que exista el mint.
+          q3:
+            prompt: >-
+              Le entregas el backlog de Vaquinha a /crew y te vas. Predice dónde estará esperando, a
+              más tardar, cuando vuelvas.
+            explanation: >-
+              La cadena es intake, investigación, decisión, plan, implementación, revisión, arreglo,
+              ship. /crew corre los primeros siete y se detiene después del intake cuando tiene
+              preguntas, siempre en el plan, después de la ronda de revisión cuando la hoja tiene algo
+              que responder, y siempre antes de publicar, donde te pide hacer push, abrir el PR y
+              escribir /ship.
+            options:
+              d:
+                label: >-
+                  No habrá empezado, porque /crew requiere el toolchain de Rust para cualquier issue, y
+                  /doctor dijo que falta.
+                feedback: >-
+                  Intake, investigación y planificación no necesitan toolchain. La implementación
+                  necesita lo que el trabajo necesite.
+              a:
+                label: >-
+                  En el plan. Nada se construye antes de que lo apruebes, y se detiene otra vez antes de
+                  publicar para que tú mismo escribas /ship.
+                feedback: >-
+                  Correcto. La puerta del plan está siempre activa, y /ship es el único paso de la cadena
+                  que /crew nunca corre por ti.
+              c:
+                label: >-
+                  En el primer test que falle, porque /crew se detiene en cualquier error que encuentra y
+                  no reintenta un paso sin que se lo pidan.
+                feedback: >-
+                  Corre hasta dos rondas de arreglo. Las paradas son tus puertas, no cada error.
+              b:
+                label: >-
+                  En un pull request mergeado, porque /crew corre el ciclo completo de intake a ship sin
+                  detenerse por nadie.
+                feedback: >-
+                  /crew termina antes de /ship. Mergear es tuyo, dentro de una orden permanente que
+                  diste.
+  keep-learning:
+    title: 'Sigue aprendiendo: solana-guide, /explain-code y mantenerte al día'
+    blocks:
+      check:
+        questions:
+          q1:
+            prompt: >-
+              Un estudiante pega un tutorial de 2024 que construye un cliente con new
+              Connection(clusterApiUrl('devnet')) y le pide al agente solana-guide ayuda para seguirlo.
+              Predice qué le dice su propio archivo al agente que haga.
+            explanation: >-
+              El archivo de solana-guide lista el stack actual a enseñar y dice señalarlo cuando un
+              tutorial es anterior, nombrando Anchor pre-1.0, el paquete viejo de Anchor y Bankrun como
+              ejemplos. La misma regla es la razón por la que la lección de apps dejó los paquetes
+              legacy de wallet fuera del trabajo nuevo.
+            options:
+              d:
+                label: >-
+                  Pasarlo al agente anchor-engineer, porque el código de cliente cuenta como trabajo de
+                  producción que una guía no toca.
+                feedback: >-
+                  El aprendizaje se queda con la guía. Los traspasos a ingenieros son para código de
+                  producción que el estudiante aún no puede escribir sin ayuda.
+              c:
+                label: >-
+                  Negarse a leer código pegado, porque los agentes leen archivos dentro de .claude y el
+                  texto pegado por el estudiante está afuera.
+                feedback: >-
+                  Los agentes leen lo que la tarea les da. La pregunta es qué enseñan a partir de eso.
+              a:
+                label: >-
+                  Señalar que el tutorial es anterior al tooling actual y enseñar la forma con
+                  @solana/kit, con ejemplos de solana-dev.
+                feedback: >-
+                  Sí. El archivo del agente dice enseñar el tooling actual y señalarlo cuando el tutorial
+                  del estudiante es anterior.
+              b:
+                label: >-
+                  Seguir el tutorial tal como está, porque una guía enseña lo que el estudiante trajo y
+                  deja en paz la elección de librería.
+                feedback: >-
+                  El archivo es explícito sobre enseñar Anchor 1.x, @solana/kit y las herramientas de
+                  test actuales, y sobre nombrar el material desactualizado.
+          q2:
+            prompt: >-
+              Tu test de Stamp falla con custom program error 0x7d6 después de que cambiaste las seeds
+              de la tarjeta en el cliente. ¿Qué error decodificado es ese, y qué te dice?
+            explanation: >-
+              El archivo del comando de tests lo decodifica: de 2000 a 2999 son violaciones de
+              constraint y 2006 es ConstraintSeeds, que salta cuando la derivación de la PDA en el
+              cliente y las seeds del programa no coinciden. La heurística del arquitecto de que las
+              seeds son permanentes es la razón por la que un cambio de seed en un solo lado es un bug,
+              no un refactor.
+            options:
+              d:
+                label: >-
+                  4100, DeclaredProgramIdMismatch: el test cargó el programa en una dirección distinta
+                  de declare_id después de un paso de build viejo.
+                feedback: >-
+                  4100 es 0x1004 y viene de un build viejo después de keys sync, no de un cambio de
+                  seeds.
+              b:
+                label: >-
+                  6000, el primer error custom, o sea que el propio chequeo del programa sobre el conteo
+                  de sellos rechazó la llamada y devolvió su primera variante.
+                feedback: >-
+                  6000 es 0x1770. El código 0x7d6 cae en el rango de constraints, no en el rango custom.
+              a:
+                label: >-
+                  2006, ConstraintSeeds: el cliente y el programa no coinciden en las seeds de la PDA,
+                  así que la derivación de un lado cambió y la del otro no.
+                feedback: >-
+                  Correcto. 0x7d6 es 2006, en el rango de constraints de 2000 a 2999, y el constraint de
+                  seeds es el que salta por un desajuste de derivación.
+              c:
+                label: >-
+                  3012, AccountNotInitialized: la cuenta de la tarjeta aún no existe y la tienda tiene
+                  que crearla antes de que cualquier test pueda leerla.
+                feedback: >-
+                  3012 es 0xbc4. Una cuenta faltante es otro rango y otra solución.
+          q3:
+            prompt: >-
+              Escribes /update dentro de Claude Code seis semanas después del taller. Predice qué toca y
+              qué no toca el script.
+            explanation: >-
+              El script de update baja el mismo tag de release que traería una instalación nueva,
+              sobrescribe los archivos que el kit distribuye, editados o no, conserva .env, settings,
+              .mcp.json, la memoria y tu archivo de instrucciones, escribe el CLAUDE.md del kit como
+              CLAUDE.md.upstream cuando difiere del tuyo, y vuelve a aplicar el nivel de firewall
+              declarado. Las reglas de permisos se leen al inicio de la sesión, así que reinicia Claude
+              Code después.
+            options:
+              c:
+                label: >-
+                  Reinstala desde cero, restablece .env y el nivel del firewall a sus valores por
+                  defecto, y descarta las extensiones que tenías instaladas.
+                feedback: >-
+                  .env se conserva, el nivel declarado en security.json se vuelve a aplicar, y las
+                  extensiones instaladas se refrescan, no se descartan.
+              b:
+                label: >-
+                  Baja la rama main del kit y sobrescribe CLAUDE.md con la última versión, así que tus
+                  notas del proyecto se pierden con él.
+                feedback: >-
+                  El comando resuelve el tag de release, y tu archivo de instrucciones se conserva con la
+                  versión del kit escrita al lado.
+              a:
+                label: >-
+                  Baja el tag de release más nuevo, sobrescribe los archivos del kit, conserva .env y tu
+                  CLAUDE.md, y escribe CLAUDE.md.upstream para que lo mezcles.
+                feedback: >-
+                  Sí. Después vuelve a aplicar tu nivel declarado, así que hace falta reiniciar para que
+                  las reglas nuevas rijan.
+              d:
+                label: >-
+                  Imprime el changelog y se detiene, porque actualizar los archivos requiere volver a
+                  correr el instalador a mano desde la raíz del proyecto.
+                feedback: >-
+                  El script de update incluido hace la actualización. El instalador es para una primera
+                  instalación.
+          q4:
+            prompt: >-
+              Después de que el arquitecto diseña Stamp, le pides que también escriba el swap de Jupiter
+              para el pago en cualquier token. Predice qué hace, a partir de su tabla de handoffs.
+            explanation: >-
+              La tabla de Handoffs del arquitecto manda la implementación del programa a
+              anchor-engineer, mints y extensiones a token-engineer, swaps, lending, oráculos y otras
+              integraciones de protocolo a defi-engineer, la UX de wallet a los ingenieros de frontend y
+              mobile, los indexadores al ingeniero de backend y los tests a QA. Pedirle que codee un
+              swap te da el nombre correcto, no el código.
+            options:
+              c:
+                label: >-
+                  Le pasa el swap a token-engineer, porque cualquier paso que mueve tokens pertenece al
+                  especialista en tokens por las reglas de carriles del kit.
+                feedback: >-
+                  Token-engineer es dueño de mints y extensiones. Los swaps aparecen bajo defi-engineer
+                  en cada tabla de handoffs que los menciona.
+              a:
+                label: >-
+                  Nombra a defi-engineer para el swap y se queda en el modelo de cuentas, porque las
+                  integraciones de protocolo son la fila de ese agente en su tabla.
+                feedback: >-
+                  Correcto. Swaps, lending, oráculos y otras integraciones de protocolo son la fila de
+                  defi-engineer en los Handoffs del arquitecto.
+              b:
+                label: >-
+                  Escribe el swap él mismo, porque un diseño que incluye un swap sigue siendo un diseño y
+                  ningún handoff aplica al código de integración.
+                feedback: >-
+                  El arquitecto diseña antes del código y le pasa el código de integración a
+                  defi-engineer por su propia tabla.
+              d:
+                label: >-
+                  Se niega, porque el firewall niega las integraciones DeFi en el nivel Relaxed hasta que
+                  el paquete jupiter se haya instalado primero.
+                feedback: >-
+                  Los niveles no deciden qué agente corre. El paquete lo pide el ingeniero de DeFi cuando
+                  arranca.
+          q5:
+            prompt: >-
+              El token de Stamp es un mint de Token-2022. El ingeniero de frontend deriva la cuenta de
+              token del cliente con el id del programa de token clásico. Predice el síntoma, a partir
+              del archivo del ingeniero de tokens.
+            explanation: >-
+              El archivo del ingeniero de tokens lo lista entre los detalles fáciles de errar: los
+              tamaños de cuenta varían con las extensiones, y las ATAs derivan del id del programa de
+              token, así que el id clásico da la dirección equivocada para un mint de Token-2022. La
+              página leería una cuenta vacía y mostraría a un cliente con cero sellos.
+            options:
+              b:
+                label: >-
+                  Una comisión de transferencia cobrada dos veces, una por cada programa, así que el
+                  cliente pierde un sello en cada lectura que la página hace de la cuenta.
+                feedback: >-
+                  Las lecturas no cobran nada, y el mint de sellos no lleva extensión de comisión en el
+                  diseño.
+              c:
+                label: >-
+                  El programa clásico cierra y reinicializa el mint, destruyendo cada tarjeta emitida
+                  antes de que la página se desplegara.
+                feedback: >-
+                  Derivar una dirección no hace nada on-chain. El id del programa solo cambia qué
+                  dirección calculas.
+              d:
+                label: >-
+                  No cambia nada, porque los dos programas de token comparten un esquema de cuentas
+                  asociadas por compatibilidad con software de wallet más viejo.
+                feedback: >-
+                  Los dos programas dan direcciones de cuenta de token asociada distintas para el mismo
+                  dueño y mint. Ese es el punto del aviso.
+              a:
+                label: >-
+                  Una dirección equivocada: las cuentas de token asociadas derivan del id del programa
+                  de token, así que la página lee una cuenta vacía y no muestra sellos.
+                feedback: >-
+                  Sí. El archivo dice que el id clásico da la ATA equivocada para un mint de Token-2022.
+                  Pasa el id del programa Token-2022 al derivar.
+          q6:
+            prompt: >-
+              ¿Cuáles de estos exige el propio archivo del comando de deploy antes de un deploy a
+              mainnet, como precondiciones que reporta cuando faltan?
+            explanation: >-
+              La sección de mainnet del comando de deploy arranca solo si lo pides y primero reporta qué
+              precondiciones faltan: una auditoría sin hallazgos Critical o High abiertos, tests y
+              fuzzing en verde, un despliegue en devnet que haya ejercitado los flujos reales, un plan
+              de upgrade authority decidido, y una auditoría externa para programas que guardan fondos
+              de usuarios.
+            options:
+              b:
+                label: >-
+                  Un despliegue en devnet que haya ejercitado los flujos reales.
+                feedback: >-
+                  Sí. Devnet primero es a la vez una regla de la casa y una precondición del deploy.
+              a:
+                label: >-
+                  Un reporte de /audit-solana sin hallazgos Critical o High abiertos.
+                feedback: >-
+                  Sí. La primera precondición que nombra la sección de mainnet.
+              e:
+                label: >-
+                  El firewall cambiado al nivel High para la sesión.
+                feedback: >-
+                  High niega las escrituras a mainnet de plano. El deploy corre en Relaxed con una parada
+                  de aprobación, después de las precondiciones.
+              d:
+                label: >-
+                  Una clave de API de Helius puesta en .env.
+                feedback: >-
+                  Helius es para datos y docs. Un deploy necesita la CLI de Solana y un deployer con
+                  fondos, no esa clave.
+              c:
+                label: >-
+                  Un plan de upgrade authority decidido.
+                feedback: >-
+                  Sí. Clave de deployer en una hardware wallet primero, bóveda de Squads después,
+                  inmutable solo cuando esté probado en batalla.
