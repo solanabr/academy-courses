@@ -1,4 +1,4 @@
-# A sua ideia: três caminhos para adaptar
+# Sua própria ideia: três caminhos para adaptar
 
 O Stamp foi de três linhas até um deploy na devnet passando por treze dos quinze agentes. Esta lição mostra **a mesma rota em três outras ideias**, cada uma como uma cadeia de agentes com o seu primeiro prompt, e termina com um template para a sua. Leitura e um texto para escrever. Uns dez minutos.
 
@@ -14,7 +14,7 @@ A ordem que o Stamp seguiu é o formato do kit para qualquer ideia: pesquisa, de
 3. solana-architect (game-architect para um jogo): contas, instruções, invariantes, autoridade, riscos → design.md
 4. /plan-feature: fases, riscos, testes, perguntas abertas → responda a elas no design.md
 5. anchor-engineer: constrói a partir do design.md, fecha com /build-program, /test-rust, /audit-solana
-6. solana-qa-engineer: barra de cobertura, testes negativos, passada de slop
+6. solana-qa-engineer: régua de cobertura, testes negativos, passada de slop
 7. as partes que as pessoas tocam: solana-frontend-engineer, mobile-engineer, rust-backend-engineer
 8. os especialistas de que uma ideia precisa: token-engineer, defi-engineer, unity-engineer
 9. /deploy devnet, com a parada de aprovação
@@ -26,7 +26,7 @@ A ordem que o Stamp seguiu é o formato do kit para qualquer ideia: pesquisa, de
 Amigos juntam SOL para um presente. O pote paga o organizador quando a meta é atingida, ou devolve a todos no prazo final.
 
 - **solana-researcher**: o que existe para potes coletivos e escrow na Solana, e como cada um trata o caminho do reembolso. Espere rótulos Low em metade.
-- **solana-architect**: uma PDA de pote por presente guardando meta, prazo e organizador, uma PDA de contribuição por contribuinte, três instruções, contribute, release, refund. A lista de riscos começa com *quem pode chamar release e quando*, e a checagem que eu ficaria de olho é o **prazo**: leia do sysvar de clock dentro do programa, nunca de um argumento, porque um argumento é o que quem chama disser que é.
+- **solana-architect**: uma PDA de pote por presente guardando meta, prazo e organizador, uma PDA de contribuição por contribuinte, três instruções, contribute, release, refund. A lista de riscos começa com *quem pode chamar release e quando*, e a checagem em que eu ficaria de olho é o **prazo**: leia do sysvar de clock dentro do programa, nunca de um argumento, porque um argumento é o que quem chama disser que é.
 - **anchor-engineer, depois solana-qa-engineer**: os testes de fronteira são o prazo menos um segundo e a meta menos um lamport.
 - **solana-frontend-engineer**: uma página por pote com barra de progresso e botão de contribuir, simular primeiro, confirmed e não finalized.
 - **defi-engineer, como variante**: contribuições em qualquer token, convertidas para USDC por um swap da Jupiter com o output mínimo imposto on-chain.
@@ -52,7 +52,7 @@ Um galpão empresta furadeiras e escadas. Quem pega deixa uma caução travada, 
 Primeiro prompt para colar:
 
 ```text
-Use o agente solana-architect. Desenhe um programa de empréstimo de ferramentas: itens, empréstimos com caução travada, devolução confirmada por um voluntário e reivindicação da caução depois de um período de carência. Cada conta com owner, seeds, tamanho e pagador do rent, cada instrução com seus signers, as invariantes, o modelo de autoridade, os riscos abertos. Anchor, a menos que medido o contrário. Escreva o design.md.
+Use o agente solana-architect. Desenhe um programa de empréstimo de ferramentas: itens, empréstimos com caução travada, devolução confirmada por um voluntário e reivindicação da caução depois de um período de carência. Cada conta com owner, seeds, tamanho e pagador do rent, cada instrução com seus signers, as invariantes, o modelo de autoridade, os riscos abertos. Anchor, a menos que uma medição mostre o contrário. Escreva o design.md.
 ```
 
 ## Caminho três: Lista da porta, ingressos que não podem ser cambiados
@@ -61,7 +61,7 @@ Um evento pequeno vende um número fixo de entradas que não podem ser revendida
 
 - **solana-researcher**: venda de ingressos na Solana, e quais projetos tentaram limitar a revenda e o que aconteceu com eles.
 - **token-engineer**: esta ideia é o trabalho dele. Um ingresso é um token, e a regra vive em um **programa de transfer hook** que roda em toda transferência e vê origem, mint, destino e owner, então consegue permitir uma transferência de volta ao organizador e recusar todas as outras, e o exemplo de hook do próprio kit é uma allowlist. A escolha é feita antes de o mint existir porque extensões são fixadas na criação. O arquivo dele avisa que mints com hook são rejeitados por muitas plataformas, *o que para um ingresso que não deve ser negociado é uma vantagem*.
-- **token-engineer, de novo**: o programa do hook em si também está na trilha dele, com o discriminador da interface de hook que o arquivo nomeia, e o anchor-engineer constrói o resto do programa em volta.
+- **token-engineer, de novo**: o programa do hook em si também está na faixa dele, com o discriminador da interface de hook que o arquivo nomeia, e o anchor-engineer constrói o resto do programa em volta.
 - **solana-frontend-engineer**: a página da porta, escaneando uma carteira e mostrando um ingresso válido, com a conexão da carteira adiada até o valor aparecer.
 - **devops-engineer**: o único caminho em que uma data de mainnet é real, então valem o plano de upgrade authority e as regras de chave no CI da lição 6.
 - O que você tem no fim: um mint com hook na devnet e uma página da porta que diz sim ou não.
@@ -90,7 +90,7 @@ Copie o bloco e preencha. Mantenha as três linhas da ideia honestas, e ponha um
 6. /deploy devnet, depois tech-docs-writer e /product-review
 ```
 
-Quando um backlog é real e você tem um dia para acompanhar, o kit também encadeia os passos para você: `/intake` lê issues para uma lista de trabalho, `/research`, `/decide` e `/plan-work` fecham o plano, `/implement`, `/review-round` e `/fix-wave` constroem e conferem, e **`/crew` roda esses sete e para nos seus gates**, sempre no plano e sempre antes de lançar. `/ship` é o único passo dessa cadeia que `/crew` nunca roda por você. Eu começaria com a cadeia acima na mão, e usaria `/crew` no segundo projeto.
+Quando um backlog é real e você tem um dia para acompanhar, o kit também encadeia os passos para você: `/intake` lê issues para uma lista de trabalho, `/research`, `/decide` e `/plan-work` fecham o plano, `/implement`, `/review-round` e `/fix-wave` constroem e conferem, e **`/crew` roda esses sete e para nos seus gates**, sempre no plano e sempre antes de lançar. `/ship` é o único passo dessa cadeia que `/crew` nunca roda por você. Eu começaria com a cadeia acima à mão, e usaria `/crew` no segundo projeto.
 
 ## Está pronto quando
 
@@ -100,7 +100,7 @@ Quando um backlog é real e você tem um dia para acompanhar, o kit também enca
 ## Fique atento
 
 - **Um jogo começa com game-architect**, não com solana-architect. A descrição do arquiteto de sistema diz isso e faz o handoff.
-- **A maioria dos especialistas pede um pack.** Reserve a instalação na primeira hora.
+- **A maioria dos especialistas pede um pack.** Reserve tempo para a instalação na primeira hora.
 - **Prazos vêm do sysvar de clock.** Um design que recebe a hora como argumento confia isso a quem chama, e essa é uma regra minha, não uma linha do kit.
 
 ## O que fica

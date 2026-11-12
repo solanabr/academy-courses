@@ -4,7 +4,7 @@ La lección pasada terminó con `design.md`: una cuenta de tienda, una tarjeta p
 
 ## Por qué importa
 
-El código del programa es donde un tutorial copiado más duele, porque la API de Anchor cambió en 1.0 y la mayor parte de la web todavía muestra la forma vieja. El kit tiene **dos implementadores y un tester**. **anchor-engineer** es el predeterminado: Anchor 1.x, constraints en vez de chequeos escritos a mano, IDL generado, pruebas en Rust con LiteSVM. **pinocchio-engineer** existe para los casos medidos, *una instrucción que sigue por encima de su presupuesto de cómputo después de las propias palancas de Anchor, comisiones de cómputo a volumen, o un límite de tamaño del binario*, y escribe cada chequeo a mano. **solana-qa-engineer** es dueño de cómo se prueba el programa: qué harness para qué prueba, la vara de cobertura, las líneas base de cómputo, y quitar el ruido que un modelo deja en un diff. Tres comandos los unen: `/build-program`, `/test-rust`, `/audit-solana`.
+El código del programa es donde un tutorial copiado más duele, porque la API de Anchor cambió en 1.0 y la mayor parte de la web todavía muestra la forma vieja. El kit tiene **dos implementadores y un tester**. **anchor-engineer** es el predeterminado: Anchor 1.x, constraints en vez de chequeos escritos a mano, IDL generado, pruebas en Rust con LiteSVM. **pinocchio-engineer** existe para los casos medidos, *una instrucción que sigue por encima de su presupuesto de cómputo después de las propias palancas de Anchor, comisiones de cómputo a volumen, o un límite de tamaño del binario*, y escribe cada chequeo a mano. **solana-qa-engineer** es dueño de cómo se prueba el programa: qué harness para qué prueba, la umbral de cobertura, las líneas base de cómputo, y quitar el ruido que un modelo deja en un diff. Tres comandos los unen: `/build-program`, `/test-rust`, `/audit-solana`.
 
 ## Manos a la obra
 
@@ -27,7 +27,7 @@ Muéstrame los logs del programa de la prueba de redeem que falla y dime si est�
 3. **Trae al tester.** Escribe:
 
 ```text
-Usa el agente solana-qa-engineer. Revisa las pruebas de Stamp contra tu vara de cobertura: cada instrucción, cada código de error alcanzado por una prueba negativa, y los bordes, incluyendo un redeem con nueve sellos y un stamp sobre una tarjeta en el conteo máximo. Agrega lo que falte, corre /test-rust, y quita cualquier slop de IA del diff.
+Usa el agente solana-qa-engineer. Revisa las pruebas de Stamp contra tu umbral de cobertura: cada instrucción, cada código de error alcanzado por una prueba negativa, y los bordes, incluyendo un redeem con nueve sellos y un stamp sobre una tarjeta en el conteo máximo. Agrega lo que falte, corre /test-rust, y quita cualquier slop de IA del diff.
 ```
 
 Su archivo le da una **tabla de harnesses**: Mollusk para una instrucción y cómputo exacto, LiteSVM para flujos de varias instrucciones, Surfpool para estado real de mainnet, Trident para fuzzing antes de mainnet. Para Stamp se va a quedar en LiteSVM. La parte que la gente no espera es el **pase de slop**: comentarios que repiten el código, chequeos defensivos alrededor de llamadas internas confiables, logging de depuración olvidado, strings de error verbosos. Los quita y te dice qué quitó en una o dos oraciones.
@@ -40,7 +40,7 @@ Su archivo le da una **tabla de harnesses**: Mollusk para una instrucción y có
 
 El comando delimita cada instrucción, corre `cargo audit` y clippy con los lints de aritmética y unwrap, recorre las checklists del auditor-skill y escribe `docs/security-audit-<date>.md`: conteos por severidad, cada hallazgo con `file:line`, el escenario de explotación y el arreglo, una lista separada de sospechas sin confirmar, y un veredicto. Para Stamp espera que mire con atención **quién puede llamar a stamp**, porque una clave de tienda que firma desde un teléfono es el riesgo que el arquitecto ya nombró, y la aritmética del redeem.
 
-5. **Sabe cuándo existe el otro ingeniero.** Stamp nunca va a necesitar Pinocchio, y ese es el punto de conocer la regla: el archivo del arquitecto dice *optimiza primero una instrucción caliente en su lugar y pórtala solo si sigue por encima del presupuesto*. Cuando llegue ese día, `/profile-cu` mide el cómputo por instrucción, `/benchmark` lo compara contra una línea base, y pinocchio-engineer cierra con ambos. Su archivo es también la lista honesta de lo que cuesta la validación manual: discriminadores de un byte, alineación zero-copy, sin IDL generado.
+5. **Ten claro cuándo existe el otro ingeniero.** Stamp nunca va a necesitar Pinocchio, y ese es el punto de conocer la regla: el archivo del arquitecto dice *optimiza primero una instrucción caliente en su lugar y pórtala solo si sigue por encima del presupuesto*. Cuando llegue ese día, `/profile-cu` mide el cómputo por instrucción, `/benchmark` lo compara contra una línea base, y pinocchio-engineer cierra con ambos. Su archivo es también la lista honesta de lo que cuesta la validación manual: discriminadores de un byte, alineación zero-copy, sin IDL generado.
 
 ## Está listo cuando
 
@@ -57,7 +57,7 @@ El comando delimita cada instrucción, corre `cargo audit` y clippy con los lint
 
 ## Lo que queda
 
-Un ingeniero construye desde el diseño con la API actual de Anchor, un tester sostiene la vara de cobertura y quita el slop, y un comando escribe un reporte de auditoría, **con build, test y auditoría como la rutina fija de cierre**. *Pinocchio es una decisión medida, nunca un valor por defecto.*
+Un ingeniero construye desde el diseño con la API actual de Anchor, un tester sostiene la umbral de cobertura y quita el slop, y un comando escribe un reporte de auditoría, **con build, test y auditoría como la rutina fija de cierre**. *Pinocchio es una decisión medida, nunca un valor por defecto.*
 
 ## Siguiente
 

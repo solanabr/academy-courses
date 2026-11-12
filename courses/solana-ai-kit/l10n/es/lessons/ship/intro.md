@@ -1,6 +1,6 @@
 # Lánzalo: deploy, devops-engineer, tech-docs-writer
 
-Stamp tiene un programa, tests, un informe de auditoría, una página web, y desde la lección pasada una propuesta de token, un diseño de swap y un plan de juego. Esta lección lo pone en devnet con la parada de aprobación del kit, le da un pipeline, escribe los docs que un desconocido necesita, y deja que un revisor conozca la app en frío. Unos quince minutos, y el deploy necesita la CLI de Solana de la lección 3.
+Stamp tiene un programa, tests, un reporte de auditoría, una página web, y desde la lección pasada una propuesta de token, un diseño de swap y un plan de juego. Esta lección lo pone en devnet con la parada de aprobación del kit, le da un pipeline, escribe los docs que un desconocido necesita, y deja que un revisor conozca la app en frío. Unos quince minutos, y el deploy necesita la CLI de Solana de la lección 3.
 
 ## Por qué importa
 
@@ -14,7 +14,7 @@ Lanzar es donde aparecen el dinero y las llaves, así que es donde más importa 
 /deploy devnet
 ```
 
-Los pasos del propio comando: confirmar el RPC y el deployer con `solana config get`, correr `anchor keys sync` para un programa nunca desplegado de modo que `declare_id` coincida con el keypair, fondear el deployer con un airdrop o el faucet web, y después desplegar **con el cluster en el comando**, para que el prompt de aprobación muestre qué cluster resolvió. Ese prompt es el firewall. Di sí, y el comando publica el IDL en Program Metadata, revisa el programa con `solana program show`, y registra el id en `.program-id-devnet` y en el env de tu app. *Mainnet es un paso aparte*: el comando lo arranca solo cuando lo pides, y primero reporta lo que falta, una auditoría sin hallazgos Critical o High abiertos, tests y fuzzing en verde, una corrida en devnet de los flujos reales, un plan de upgrade authority, y una auditoría externa para programas que guardan fondos de usuarios.
+Los pasos del propio comando: confirmar el RPC y el deployer con `solana config get`, correr `anchor keys sync` para un programa nunca desplegado de modo que `declare_id` coincida con el keypair, fondear el deployer con un airdrop o el faucet web, y después desplegar **con el cluster en el comando**, para que el prompt de aprobación muestre qué cluster resolvió. Ese prompt es el firewall. Di sí, y el comando publica el IDL en Program Metadata, revisa el programa con `solana program show`, y registra el id en `.program-id-devnet` y en el env de tu app. *Mainnet es un paso aparte*: el comando lo arranca solo cuando lo pides, y primero reporta lo que falta, una auditoría sin hallazgos Critical o High abiertos, tests y fuzzing pasando, una corrida en devnet de los flujos reales, un plan de upgrade authority, y una auditoría externa para programas que guardan fondos de usuarios.
 
 2. **Mira en qué tier estás.** Escribe:
 

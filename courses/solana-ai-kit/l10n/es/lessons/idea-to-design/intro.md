@@ -12,7 +12,7 @@ La mayoría de los proyectos de hackathon que vi fracasar perdieron su mes en la
 
 ```text
 Stamp
-Rita tiene una cafetería y regala un café cada décima compra, con tarjetas de papel que los clientes pierden.
+Rita tiene una cafetería y regala un café cada décima compra, anotado en tarjetas de papel que los clientes pierden.
 Stamp guarda la tarjeta en Solana: la tienda sella la billetera del cliente en la caja, diez sellos canjean un café, y el cliente ve su tarjeta en cualquier app de billetera.
 ```
 

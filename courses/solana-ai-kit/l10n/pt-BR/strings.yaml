@@ -4,7 +4,7 @@ course:
   description: >-
     Um curso-oficina de umas duas horas sobre os 15 agentes do Solana AI Kit: o que cada um faz, o prompt
     que o inicia e o que volta. Um projeto de exemplo atravessa o curso inteiro, da ideia ao design, programa,
-    app, token e deploy, e as últimas aulas entregam três pontos de partida a mais para você adaptar na
+    app, token e deploy, e as últimas aulas entregam três caminhos a mais para você adaptar na
     sua própria ideia. Roda localmente com Claude Code, Node e git. As aulas de construção do programa
     também usam Rust e Anchor, que você pode assistir ou rodar.
   modules:
@@ -416,7 +416,7 @@ lessons:
                   irreversíveis no backend, não para o botão.
               c:
                 label: >-
-                  Confira se a carteira suporta transação v1 antes de planejar a transação, ou encaminhe
+                  Confira se a carteira aceita transação v1 antes de planejar a transação, ou encaminhe
                   por um cliente v0.
                 feedback: A checagem de v1 é sobre montar a transação, não sobre quanto tempo a UI espera
                   depois.
@@ -612,7 +612,7 @@ lessons:
                   uma checagem que o cliente não consiga forjar.
               b:
                 label: >-
-                  O gameplay por frame fica on-chain para a pontuação ser provável, e o cliente deveria
+                  O gameplay por frame fica on-chain para a pontuação ser comprovável, e o cliente deveria
                   escrever estado a cada ação que faz.
                 feedback: >-
                   O arquivo põe o gameplay por frame off-chain e escreve em checkpoints: fim de partida,
@@ -743,11 +743,11 @@ lessons:
                   Certo. O CI escreve o buffer e define a autoridade dele para o cofre do multisig. O
                   multisig executa o upgrade.
   your-idea:
-    title: 'Sua própria ideia: três pontos de partida para adaptar'
+    title: 'Sua própria ideia: três caminhos para adaptar'
     blocks:
       reflect:
         prompt: >-
-          Escreva seu próprio ponto de partida no formato do modelo: a ideia em três linhas, os agentes
+          Escreva seu próprio caminho no formato do modelo: a ideia em três linhas, os agentes
           em ordem com uma linha cada sobre o que devem a você, e o primeiro prompt exato que você vai
           colar no Claude Code.
       check:

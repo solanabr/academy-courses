@@ -4,7 +4,7 @@ A lição passada terminou com `design.md`: uma conta da cafeteria, um cartão p
 
 ## Por que isso importa
 
-Código de programa é onde um tutorial copiado mais machuca, porque a API do Anchor mudou na 1.0 e a maior parte da web ainda mostra o formato antigo. O kit tem **dois implementadores e um testador**. **anchor-engineer** é o padrão: Anchor 1.x, constraints em vez de verificações escritas à mão, IDL gerada, testes Rust com LiteSVM. **pinocchio-engineer** existe para os casos medidos, *uma instrução ainda acima do orçamento de compute depois das alavancas do próprio Anchor, taxas de compute em volume, ou um limite de tamanho de binário*, e escreve cada verificação à mão. **solana-qa-engineer** é dono de como o programa é testado: qual harness para qual teste, a barra de cobertura, as linhas de base de compute e a limpeza do ruído que um modelo deixa em um diff. Três comandos amarram os três: `/build-program`, `/test-rust`, `/audit-solana`.
+Código de programa é onde um tutorial copiado mais machuca, porque a API do Anchor mudou na 1.0 e a maior parte da web ainda mostra o formato antigo. O kit tem **dois implementadores e um testador**. **anchor-engineer** é o padrão: Anchor 1.x, constraints em vez de verificações escritas à mão, IDL gerada, testes Rust com LiteSVM. **pinocchio-engineer** existe para os casos medidos, *uma instrução ainda acima do orçamento de compute depois das alavancas do próprio Anchor, taxas de compute em volume, ou um limite de tamanho de binário*, e escreve cada verificação à mão. **solana-qa-engineer** é dono de como o programa é testado: qual harness para qual teste, a régua de cobertura, as linhas de base de compute e a limpeza do ruído que um modelo deixa em um diff. Três comandos amarram os três: `/build-program`, `/test-rust`, `/audit-solana`.
 
 ## Mão na massa
 
@@ -27,7 +27,7 @@ Me mostre os logs do programa do teste de redeem que está falhando e me diga se
 3. **Chame o testador.** Digite:
 
 ```text
-Use o agente solana-qa-engineer. Revise os testes do Stamp contra a sua barra de cobertura: cada instrução, cada código de erro atingido por um teste negativo, e os limites, incluindo um redeem com nove carimbos e um stamp em um cartão na contagem máxima. Acrescente o que falta, rode /test-rust e limpe qualquer slop de IA do diff.
+Use o agente solana-qa-engineer. Revise os testes do Stamp contra a sua régua de cobertura: cada instrução, cada código de erro atingido por um teste negativo, e os limites, incluindo um redeem com nove carimbos e um stamp em um cartão na contagem máxima. Acrescente o que falta, rode /test-rust e limpe qualquer slop de IA do diff.
 ```
 
 O arquivo dele traz uma **tabela de harness**: Mollusk para uma instrução e compute exato, LiteSVM para fluxos de várias instruções, Surfpool para estado real da mainnet, Trident para fuzzing antes da mainnet. Para o Stamp ele vai ficar no LiteSVM. A parte que as pessoas não esperam é a **passada de slop**: comentários que repetem o código, verificações defensivas em volta de chamadas internas confiáveis, logs de debug esquecidos, strings de erro prolixas. Ele remove tudo isso e diz o que removeu em uma ou duas frases.
@@ -57,7 +57,7 @@ O comando delimita cada instrução, roda `cargo audit` e o clippy com os lints 
 
 ## O que fica
 
-Um engenheiro constrói a partir do design com a API atual do Anchor, um testador segura a barra de cobertura e limpa o slop, e um comando escreve um relatório de auditoria, **com build, teste e auditoria como a rotina fixa de fechamento**. *Pinocchio é uma decisão medida, nunca um padrão.*
+Um engenheiro constrói a partir do design com a API atual do Anchor, um testador segura a régua de cobertura e limpa o slop, e um comando escreve um relatório de auditoria, **com build, teste e auditoria como a rotina fixa de fechamento**. *Pinocchio é uma decisão medida, nunca um padrão.*
 
 ## A seguir
 

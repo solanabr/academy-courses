@@ -375,7 +375,7 @@ lessons:
                   de cada build y cada corrida de tests que sigue después.
                 feedback: >-
                   El agente de QA se encarga de la estrategia y la cobertura. Los implementadores igual
-                  compilan y prueban su propio código antes de devolverlo.
+                  compilan y hacen tests unitarios de su propio código antes de devolverlo.
               b:
                 label: >-
                   /deploy devnet, para que las instrucciones existan en un cluster antes de que alguien
@@ -385,8 +385,8 @@ lessons:
                   No es parte de devolver código.
               c:
                 label: >-
-                  /profile-cu y /benchmark, porque un programa de Anchor tiene que probar su presupuesto
-                  de cómputo antes de que sus tests puedan correr.
+                  /profile-cu y /benchmark, porque un programa de Anchor tiene que demostrar su
+                  presupuesto de cómputo antes de que sus tests puedan correr.
                 feedback: >-
                   Esos son los comandos de cierre del pinocchio-engineer, para trabajo de CU medido. La
                   regla de cierre de Anchor es build, test, auditoría.
@@ -422,7 +422,7 @@ lessons:
                   irreversibles de backend, no para el botón.
               c:
                 label: >-
-                  Revisar si la wallet soporta transacciones v1 antes de planear la transacción, o
+                  Revisar si la wallet admite transacciones v1 antes de planear la transacción, o
                   enrutarla por un cliente v0.
                 feedback: >-
                   El chequeo de v1 trata de construir la transacción, no de cuánto espera la UI después.
@@ -1127,4 +1127,4 @@ lessons:
                   Un plan de upgrade authority decidido.
                 feedback: >-
                   Sí. Clave de deployer en una hardware wallet primero, bóveda de Squads después,
-                  inmutable solo cuando esté probado en batalla.
+                  inmutable solo cuando ya esté probado en uso real.

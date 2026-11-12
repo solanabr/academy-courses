@@ -14,7 +14,7 @@ El orden que siguió Stamp es la forma del kit para cualquier idea: investigar, 
 3. solana-architect (game-architect para un juego): cuentas, instrucciones, invariantes, autoridad, riesgos → design.md
 4. /plan-feature: fases, riesgos, tests, preguntas abiertas → respóndelas en design.md
 5. anchor-engineer: construye desde design.md, cierra con /build-program, /test-rust, /audit-solana
-6. solana-qa-engineer: barra de cobertura, tests negativos, pasada anti-slop
+6. solana-qa-engineer: umbral de cobertura, tests negativos, pase de slop
 7. las partes que la gente toca: solana-frontend-engineer, mobile-engineer, rust-backend-engineer
 8. los especialistas que una idea necesita: token-engineer, defi-engineer, unity-engineer
 9. /deploy devnet, con la parada de aprobación
@@ -28,7 +28,7 @@ Amigos juntan SOL para un regalo. El fondo le paga al organizador cuando se alca
 - **solana-researcher**: qué existe para fondos grupales y escrow en Solana, y cómo maneja cada uno el camino del reembolso. Espera etiquetas Low en la mitad.
 - **solana-architect**: un PDA de fondo por regalo que guarda meta, fecha límite y organizador, un PDA de contribución por contribuyente, tres instrucciones, contribute, release, refund. La lista de riesgos empieza con *quién puede llamar a release y cuándo*, y el chequeo que yo miraría es la **fecha límite**: léela del clock sysvar dentro del programa, nunca de un argumento, porque un argumento es lo que quien llama diga que es.
 - **anchor-engineer, después solana-qa-engineer**: los tests de borde son la fecha límite menos un segundo y la meta menos un lamport.
-- **solana-frontend-engineer**: una página por fondo con una barra de progreso y un botón de contribuir, simular primero, confirmed y no finalized.
+- **solana-frontend-engineer**: una página por fondo con una barra de progreso y un botón de contribuir, simular primero, confirmada y no finalizada.
 - **defi-engineer, como variante**: contribuciones en cualquier token, convertidas a USDC con un swap de Jupiter con el output mínimo exigido on-chain.
 - Lo que tienes al final: un fondo en devnet y una página que un amigo puede abrir.
 
@@ -46,13 +46,13 @@ Un galpón presta taladros y escaleras. Quien pide prestado bloquea un depósito
 - **solana-architect**: un PDA de ítem por herramienta, un PDA de préstamo por préstamo activo, instrucciones para prestar, devolver y reclamar un depósito después de un período de gracia. La pregunta que te va a hacer es *quién confirma la devolución*, y el diseño honesto hace que el voluntario del galpón la firme.
 - **token-engineer, como variante**: una membresía que no se puede vender, un mint Token-2022 con la extensión non-transferable, revisada antes de permitir un préstamo.
 - **mobile-engineer**: el voluntario escanea un código en la puerta del galpón, así que la app que importa está en un teléfono, Android primero porque ahí es donde corre Mobile Wallet Adapter.
-- **rust-backend-engineer**: un indexer pequeño para que el galpón vea qué herramientas están afuera y desde cuándo, idempotente ante reenvíos.
+- **rust-backend-engineer**: un indexador pequeño para que el galpón vea qué herramientas están afuera y desde cuándo, idempotente ante reenvíos.
 - Lo que tienes al final: prestar y devolver funcionando en devnet, y una lista de miembros.
 
 Primer prompt para pegar:
 
 ```text
-Usa el agente solana-architect. Diseña un programa de préstamo de herramientas: ítems, préstamos con un depósito bloqueado, devolución confirmada por un voluntario, y reclamo del depósito después de un período de gracia. Cada cuenta con owner, seeds, tamaño y quien paga el rent, cada instrucción con sus signers, los invariantes, el modelo de autoridad, los riesgos abiertos. Anchor salvo que se mida lo contrario. Escribe design.md.
+Usa el agente solana-architect. Diseña un programa de préstamo de herramientas: ítems, préstamos con un depósito bloqueado, devolución confirmada por un voluntario, y reclamo del depósito después de un período de gracia. Cada cuenta con dueño, seeds, tamaño y quién paga la renta, cada instrucción con sus signers, los invariantes, el modelo de autoridad, los riesgos abiertos. Anchor salvo que se mida lo contrario. Escribe design.md.
 ```
 
 ## Hilo tres: Lista de la puerta, entradas que no se pueden revender
@@ -69,7 +69,7 @@ Un evento pequeño vende una cantidad fija de entradas que no se pueden revender
 Primer prompt para pegar:
 
 ```text
-Usa el agente token-engineer. Entradas para un evento de 200 personas como un mint Token-2022 que los tenedores pueden devolver al organizador y no transferir a ningún otro lado. Propón el conjunto de extensiones, la regla del transfer hook, quién tiene cada autoridad, y qué le muestra una billetera al tenedor. Las menos extensiones que hagan el trabajo, y di qué venues van a rechazar el mint.
+Usa el agente token-engineer. Entradas para un evento de 200 personas como un mint Token-2022 que los tenedores pueden devolver al organizador y no transferir a ningún otro lado. Propón el conjunto de extensiones, la regla del transfer hook, quién tiene cada autoridad, y qué le muestra una billetera al tenedor. Las mínimas extensiones que hagan el trabajo, y di qué venues van a rechazar el mint.
 ```
 
 ![Tres hilos de ideas como cadenas de agentes: Vaquinha pasa por researcher, architect, anchor, QA, frontend y una variante DeFi, Biblioteca de herramientas por researcher, architect, token, mobile y backend, Lista de la puerta por researcher, token-engineer con un transfer hook, anchor, frontend y devops, y todos terminan en /deploy devnet.](assets/v01-three-threads.webp)

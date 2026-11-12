@@ -4,7 +4,7 @@ Stamp tiene un programa con tres instrucciones y una suite de pruebas. Nadie en 
 
 ## Por qué importa
 
-El programa es una parte pequeña de un producto, y el kit lo sabe: seis de los quince agentes trabajan *alrededor* del programa. Tres de ellos están en esta lección. **solana-frontend-engineer** construye React y Next.js sobre `@solana/kit`, con conexión de billetera a través de Wallet Standard y una lista fija de reglas de UX para transacciones. **mobile-engineer** construye apps en React Native y Expo sobre Mobile Wallet Adapter. **rust-backend-engineer** construye los servicios que leen la cadena y mantienen una base de datos honesta ante reintentos y forks. El archivo de cada uno trae *los errores que los hábitos viejos hacen mal*, y esas listas son el valor real, porque son los bugs que de otro modo enviarías.
+El programa es una parte pequeña de un producto, y el kit lo sabe: seis de los quince agentes trabajan *alrededor* del programa. Tres de ellos están en esta lección. **solana-frontend-engineer** construye React y Next.js sobre `@solana/kit`, con conexión de billetera a través de Wallet Standard y una lista fija de reglas de UX para transacciones. **mobile-engineer** construye apps en React Native y Expo sobre Mobile Wallet Adapter. **rust-backend-engineer** construye los servicios que leen la cadena y mantienen una base de datos honesta ante reintentos y forks. El archivo de cada uno trae *los errores que los hábitos viejos hacen mal*, y esas listas son el valor real, porque son los bugs que de otro modo pondrías en producción.
 
 ## Manos a la obra
 
@@ -60,7 +60,7 @@ La respuesta debería contener las reglas que su archivo llama la parte difícil
 
 - **Los valores de entorno públicos viajan en el bundle.** `NEXT_PUBLIC_*` y `EXPO_PUBLIC_*` son visibles para cada usuario, así que una URL de RPC con clave va detrás de una ruta de servidor.
 - **Un blockhash dura unos 60 a 90 segundos.** Retransmitir la misma transacción firmada es seguro hasta entonces. Después de eso, reconstruye y pide una firma nueva.
-- **Transacción v1.** El cliente planea v1 por defecto, y una billetera que no la soporta necesita un cliente v0 o un aviso de actualización. El archivo de frontend tiene el chequeo.
+- **Transacción v1.** El cliente planea v1 por defecto, y una billetera que no la admite necesita un cliente v0 o un aviso de actualización. El archivo de frontend tiene el chequeo.
 - **El cliente RPC bloqueante traba un runtime de Tokio.** El archivo de backend nombra el no bloqueante. Un ejemplo más viejo no.
 
 ## Lo que queda

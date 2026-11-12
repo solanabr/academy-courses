@@ -1,6 +1,6 @@
 # Tokens, DeFi y juegos: cuatro especialistas más
 
-En la lección pasada tres ingenieros construyeron la página de la tarjeta, planearon la app del teléfono y diseñaron el indexer de la tienda. Esta lección hace tres preguntas que una tienda real haría a continuación: **¿los sellos pueden ser un token en la billetera del cliente, el cliente puede pagar con cualquier moneda, y la tarjeta puede ser un juego?** Cada pregunta tiene un agente, y el archivo de cada agente carga la regla que detiene el error obvio. Prompts y lectura, sin toolchain. Unos quince minutos.
+En la lección pasada tres ingenieros construyeron la página de la tarjeta, planearon la app del teléfono y diseñaron el indexador de la tienda. Esta lección hace tres preguntas que una tienda real haría a continuación: **¿los sellos pueden ser un token en la billetera del cliente, el cliente puede pagar con cualquier moneda, y la tarjeta puede ser un juego?** Cada pregunta tiene un agente, y el archivo de cada agente carga la regla que detiene el error obvio. Prompts y lectura, sin toolchain. Unos quince minutos.
 
 ## Por qué importa
 
@@ -11,10 +11,10 @@ Estos cuatro agentes cubren las partes del ecosistema que cambian a menudo, y do
 1. **Convierte los sellos en un token.** Escribe dentro de Claude Code:
 
 ```text
-Usa el agente token-engineer. Los sellos de Stamp deben aparecer en la billetera del cliente como un token que no puede vender. Propón el mint para devnet: programa de token, el conjunto de extensiones, quién tiene cada autoridad y qué va a mostrar una billetera. Las menos extensiones que hagan el trabajo.
+Usa el agente token-engineer. Los sellos de Stamp deben aparecer en la billetera del cliente como un token que no puede vender. Propón el mint para devnet: programa de token, el conjunto de extensiones, quién tiene cada autoridad y qué va a mostrar una billetera. Las mínimas extensiones que hagan el trabajo.
 ```
 
-La frase *las menos extensiones* es la primera regla del propio agente, citada de vuelta. Su archivo explica por qué: **las extensiones del mint quedan fijas en la creación, y cada extensión reduce dónde puede operarse el token**, porque muchos pools, billeteras y agregadores rechazan hooks, delegados permanentes y cuentas congeladas por defecto. Para los sellos, espera un mint Token-2022 con la extensión **non-transferable** y la **extensión de metadata**, la tienda como autoridad del mint, y una nota de que un café gratis es un burn. Espera también la trampa: la associated token account se deriva del program id de Token-2022, y el id clásico da la dirección equivocada.
+La frase *las mínimas extensiones* es la primera regla del propio agente, citada de vuelta. Su archivo explica por qué: **las extensiones del mint quedan fijas en la creación, y cada extensión reduce dónde puede operarse el token**, porque muchos pools, billeteras y agregadores rechazan hooks, delegados permanentes y cuentas congeladas por defecto. Para los sellos, espera un mint Token-2022 con la extensión **non-transferable** y la **extensión de metadata**, la tienda como autoridad del mint, y una nota de que un café gratis es un burn. Espera también la trampa: la associated token account se deriva del program id de Token-2022, y el id clásico da la dirección equivocada.
 
 Si alguna vez lanzas un token que la gente pueda operar, el mismo agente trae los **chequeos previos al lanzamiento**: asignaciones documentadas, tokens del equipo con vesting on-chain, cada autoridad restante en un multisig de Squads o revocada, y *revocar es permanente, así que te pregunta primero*. `/inspect-mint` decodifica las extensiones y las autoridades vivas de cualquier mint desde los bytes crudos, que es como revisas el token de otro antes de integrarlo.
 
@@ -26,7 +26,7 @@ Usa el agente defi-engineer. Un cliente quiere pagar el café con el token que t
 
 Su archivo nombra la API actual, **swap v2 con API key**, y tres chequeos que una integración rápida se salta: **exigir un output mínimo on-chain**, y después recargar la cuenta de destino tras el swap y revisar el delta del saldo en vez de la cotización. **Precio desde un oráculo** con un feed id y una antigüedad máxima, nunca desde las reservas spot de un pool que un flash loan puede mover. Y **probar en un fork de mainnet con Surfpool**, para que carguen las cuentas reales del protocolo. Va a pedir el pack `jupiter`, y `sendai` si aparecen lending u oráculos.
 
-![El carril de token, DeFi y juego: token-engineer construye el mint de sellos con las menos extensiones, defi-engineer agrega un swap de Jupiter con output mínimo on-chain y precio de oráculo probado en un fork de Surfpool, y game-architect escribe concept.md y plan.md para unity-engineer con pagos verificados on-chain.](assets/v01-token-defi-game-lane.webp)
+![El carril de token, DeFi y juego: token-engineer construye el mint de sellos con las mínimas extensiones, defi-engineer agrega un swap de Jupiter con output mínimo on-chain y precio de oráculo probado en un fork de Surfpool, y game-architect escribe concept.md y plan.md para unity-engineer con pagos verificados on-chain.](assets/v01-token-defi-game-lane.webp)
 
 3. **Convierte la tarjeta en un juego.** Escribe:
 
@@ -53,7 +53,7 @@ El archivo del agente lo hace preguntar por la jugabilidad, la plataforma y qué
 
 ## Lo que queda
 
-Cuatro agentes para cuatro partes del ecosistema que se mueven rápido, y cada archivo carga **la única regla que detiene el error obvio**: las menos extensiones, output mínimo on-chain, oráculo y no spot, verificar lo que paga. *Construyen desde skills de protocolo fijados y piden el pack que necesitan.*
+Cuatro agentes para cuatro partes del ecosistema que se mueven rápido, y cada archivo carga **la regla que detiene el error obvio**: las mínimas extensiones, output mínimo on-chain, oráculo y no spot, verificar lo que paga. *Construyen desde skills de protocolo fijados y piden el pack que necesitan.*
 
 ## Siguiente
 

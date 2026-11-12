@@ -1,6 +1,6 @@
-# De uma ideia a um design
+# Da ideia ao design
 
-Na lição passada o pesquisador respondeu uma pergunta chamado pelo nome. Nesta lição dois agentes levam o Stamp de **três linhas de ideia a um design a partir do qual um engenheiro consegue construir**, e você aprende o que cada um deles te deve quando termina. Uns vinte minutos, e nada aqui precisa de toolchain.
+Na lição passada o pesquisador, chamado pelo nome, respondeu uma pergunta. Nesta lição dois agentes levam o Stamp de **três linhas de ideia a um design a partir do qual um engenheiro consegue construir**, e você aprende o que cada um deles deve a você quando termina. Uns vinte minutos, e nada aqui precisa de toolchain.
 
 ## Por que isso importa
 
@@ -26,7 +26,7 @@ O arquivo dele fixa o formato da resposta: **primeiro uma resposta de duas ou tr
 
 ### Se você quiser ir mais fundo na pesquisa
 
-Os achados do pesquisador param no que é público na web. O kit também traz o **Colosseum Copilot** como um pack de skills principal, que responde a partir dos arquivos de hackathon e dos históricos de projetos da Colosseum: o que submissões passadas afirmaram, o que entregaram depois e o que continua desconhecido. Ele precisa de uma conta na Colosseum e de um login uma vez por máquina, em um terminal, com Node 20 ou mais novo:
+Os achados do pesquisador param no que é público na web. O kit também traz o **Colosseum Copilot** como um pack de skills principal, que responde a partir do acervo de hackathons e dos históricos de projetos da Colosseum: o que submissões passadas afirmaram, o que entregaram depois e o que continua desconhecido. Ele precisa de uma conta na Colosseum e de um login uma vez por máquina, em um terminal, com Node 20 ou mais novo:
 
 ```bash
 npx @colosseum-org/copilot-connect login
@@ -38,7 +38,7 @@ O login abre o navegador. Adicione `--device` em uma máquina onde nenhum navega
 Use o agente solana-researcher com a skill do Colosseum copilot. Quais submissões de hackathons passados construíram cartões fidelidade ou de carimbo para pequenos negócios? Para cada uma, separe o que ela afirmou na submissão do que aconteceu depois, com datas, e termine com o que você não conseguiu encontrar.
 ```
 
-Leia a entrada do pack no registro do kit antes de fazer login. Ela marca o pack como *caution*: o helper é um pacote npm sem versão fixada, a skill consulta a API da Colosseum como você, e as suas perguntas e as respostas do agente vão para a Colosseum quando você marca a caixa opcional de compartilhamento no login, que vem desmarcada por padrão. *Para um workshop, os achados públicos bastam. Para uma inscrição em hackathon, este é o arquivo que você quer conferido.*
+Leia a entrada do pack no registro do kit antes de fazer login. Ela marca o pack como *caution*: o helper é um pacote npm sem versão fixada, a skill consulta a API da Colosseum como você, e as suas perguntas e as respostas do agente vão para a Colosseum quando você marca a caixa opcional de compartilhamento no login, que vem desmarcada por padrão. *Para um workshop, os achados públicos bastam. Para uma inscrição em hackathon, este é o acervo que você quer conferido.*
 
 3. **Entregue a ideia ao arquiteto.** Digite:
 
@@ -69,7 +69,7 @@ O comando não escreve código. Ele lê o design, pergunta sobre decisões que o
 
 Os mesmos dois prompts funcionam com qualquer ideia. Troque as três linhas e mantenha o resto:
 
-- **Vaquinha**: amigos juntam SOL para um presente e o pote paga quando a meta é atingida, ou devolve para todo mundo em um prazo. Primeira pergunta de pesquisa: o que existe para potes em grupo e escrow, e como eles tratam o caminho do reembolso?
+- **Vaquinha**: amigos juntam SOL para um presente e o pote paga quando a meta é atingida, ou devolve para todo mundo quando o prazo vence. Primeira pergunta de pesquisa: o que existe para potes em grupo e escrow, e como eles tratam o caminho do reembolso?
 - **Biblioteca de ferramentas**: um galpão do bairro empresta furadeiras e escadas mediante uma caução que volta na devolução. Primeira pergunta de pesquisa: padrões de caução e devolução, e quem guarda a caução.
 - **Lista da porta**: um evento pequeno vende um número fixo de entradas que não podem ser revendidas de jeito nenhum, só devolvidas ao organizador. Primeira pergunta de pesquisa: venda de ingressos na Solana, e quais projetos tentaram impedir a revenda.
 
@@ -81,7 +81,7 @@ Os mesmos dois prompts funcionam com qualquer ideia. Troque as três linhas e ma
 
 ## Fique atento
 
-- **O arquiteto projeta e não codifica.** Se ele começar a escrever Rust, pare e peça o arquivo de design.
+- **O arquiteto projeta e não codifica.** Se ele começar a escrever Rust, interrompa e peça o arquivo de design.
 - **Pinocchio precisa de uma razão medida.** O arquivo do arquiteto diz isso: Anchor por padrão, e Pinocchio quando uma instrução continua acima do orçamento de compute depois das alavancas do próprio Anchor, quando as taxas de compute em volume ditam o custo do produto, ou quando o tamanho do binário ou o rent do deploy é uma restrição dura. Uma instrução quente é otimizada no lugar primeiro. Um programa em que a maioria das instruções é quente é escrito em Pinocchio desde o início.
 - **Um rótulo Low é uma pista.** Não coloque um número Low em um deck.
 - **Jogos vão para o game-architect.** Ele pergunta sobre gameplay, plataforma e o que precisa estar on-chain, depois escreve `concept.md` e `plan.md` e espera a sua aprovação antes de alguém implementar.

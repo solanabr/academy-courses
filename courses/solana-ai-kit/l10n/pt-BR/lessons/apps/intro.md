@@ -4,7 +4,7 @@ O Stamp tem um programa com três instruções e uma suíte de testes. Ninguém 
 
 ## Por que isso importa
 
-O programa é uma parte pequena de um produto, e o kit sabe disso: seis dos quinze agentes trabalham *em volta* do programa. Três deles estão nesta lição. **solana-frontend-engineer** constrói React e Next.js sobre `@solana/kit`, com conexão de carteira pelo Wallet Standard e uma lista fixa de regras de UX de transação. **mobile-engineer** constrói apps React Native e Expo sobre o Mobile Wallet Adapter. **rust-backend-engineer** constrói os serviços que leem a chain e mantêm um banco de dados honesto sob retentativas e forks. O arquivo de cada um carrega *os erros que hábitos antigos cometem*, e essas listas são o valor de verdade, porque são os bugs que você entregaria de outro jeito.
+O programa é uma parte pequena de um produto, e o kit sabe disso: seis dos quinze agentes trabalham *em volta* do programa. Três deles estão nesta lição. **solana-frontend-engineer** constrói React e Next.js sobre `@solana/kit`, com conexão de carteira pelo Wallet Standard e uma lista fixa de regras de UX de transação. **mobile-engineer** constrói apps React Native e Expo sobre o Mobile Wallet Adapter. **rust-backend-engineer** constrói os serviços que leem a chain e mantêm um banco de dados honesto sob retentativas e forks. O arquivo de cada um carrega *os erros que hábitos antigos cometem*, e essas listas são o valor de verdade, porque são os bugs que, sem elas, você entregaria.
 
 ## Mão na massa
 
@@ -40,7 +40,7 @@ Ele gera a IDL e renderiza um cliente TypeScript tipado com o Codama, para que a
 Use o agente mobile-engineer. Planeje o app de cliente do Stamp em Expo: conectar pelo Mobile Wallet Adapter, mostrar o cartão, resgatar. Me diga de qual pack de skills você precisa, o que funciona no iOS e o que precisa de um development build. Por agora, só o plano.
 ```
 
-A resposta dele vai pedir o pack `solana-mobile` e te dizer três coisas do próprio arquivo que poupam uma tarde: **o Mobile Wallet Adapter é só Android**, então no iOS a assinatura passa pelo protocolo de deep link ou pelo SDK de uma carteira. Ele **precisa de um development build**, porque o Expo Go não consegue carregá-lo. E o polyfill de Web Crypto precisa carregar primeiro, ou a assinatura falha antes de a carteira abrir, de um jeito que parece bug da carteira.
+A resposta dele vai pedir o pack `solana-mobile` e dizer a você três coisas do próprio arquivo que poupam uma tarde: **o Mobile Wallet Adapter é só Android**, então no iOS a assinatura passa pelo protocolo de deep link ou pelo SDK de uma carteira. Ele **precisa de um development build**, porque o Expo Go não consegue carregá-lo. E o polyfill de Web Crypto precisa carregar primeiro, ou a assinatura falha antes de a carteira abrir, de um jeito que parece bug da carteira.
 
 5. **Dê um dashboard à cafeteria.** Digite:
 
@@ -60,7 +60,7 @@ A resposta deve conter as regras que o arquivo dele chama de parte difícil: **e
 
 - **Valores públicos de env vão no bundle.** `NEXT_PUBLIC_*` e `EXPO_PUBLIC_*` ficam visíveis para todo usuário, então uma URL de RPC com chave vai atrás de uma rota de servidor.
 - **Um blockhash dura uns 60 a 90 segundos.** Retransmitir a mesma transação assinada é seguro até então. Depois disso, monte de novo e peça uma nova assinatura.
-- **Transação v1.** O cliente planeja v1 por padrão, e uma carteira que não a suporta precisa de um cliente v0 ou de um aviso para atualizar. O arquivo de frontend tem a verificação.
+- **Transação v1.** O cliente planeja v1 por padrão, e uma carteira que não aceita v1 precisa de um cliente v0 ou de um aviso para atualizar. O arquivo de frontend tem a verificação.
 - **O cliente RPC bloqueante trava um runtime Tokio.** O arquivo de backend nomeia o não bloqueante. Um exemplo antigo não.
 
 ## O que fica

@@ -1,10 +1,10 @@
-# No ar: deploy, devops-engineer, tech-docs-writer
+# Coloque no ar: deploy, devops-engineer, tech-docs-writer
 
 O Stamp tem um programa, testes, um relatório de auditoria, uma página web e, da lição passada, uma proposta de token, um design de swap e um plano de jogo. Esta lição coloca ele na devnet com a parada de aprovação do kit, dá um pipeline a ele, escreve a documentação que um estranho precisa e deixa um revisor encontrar o app sem contexto. Uns quinze minutos, e o deploy precisa da Solana CLI da lição 3.
 
 ## Por que isso importa
 
-Lançar é onde dinheiro e chaves aparecem, então é onde o firewall do kit importa mais. **O firewall é um conjunto de regras de permissão e de sandbox geradas a partir de um nível**, nomeado em `.claude/security.json`, mais guard hooks que rodam antes de um comando, mais o plugin safe-ai-skill. O nível padrão, **Relaxed** (relaxado), deixa a toolchain trabalhar e **para deploys de programa, upgrades, mudanças de autoridade e transferências para a sua aprovação**, nomeando o cluster, exceto em um validador local. Quatro ações irreversíveis são recusadas de cara em todos os níveis, um deploy final, `program close --bypass-warning`, `program-v4 finalize` e desabilitar uma autoridade de token, e o agente entrega a você o comando para rodar por conta própria. Dois agentes trabalham nesta trilha: **devops-engineer** para CI, pinagem de toolchain, infraestrutura de RPC e monitoramento, e **tech-docs-writer** para a documentação que tira cada fato do código, não da memória.
+Lançar é onde dinheiro e chaves aparecem, então é onde o firewall do kit importa mais. **O firewall é um conjunto de regras de permissão e de sandbox geradas a partir de um nível**, nomeado em `.claude/security.json`, mais guard hooks que rodam antes de um comando, mais o plugin safe-ai-skill. O nível padrão, **Relaxed**, deixa a toolchain trabalhar e **para deploys de programa, upgrades, mudanças de autoridade e transferências para a sua aprovação**, nomeando o cluster, exceto em um validador local. Quatro ações irreversíveis são recusadas de cara em todos os níveis, um deploy final, `program close --bypass-warning`, `program-v4 finalize` e desabilitar uma autoridade de token, e o agente entrega a você o comando para rodar por conta própria. Dois agentes trabalham nesta faixa: **devops-engineer** para CI, fixação de versão da toolchain, infraestrutura de RPC e monitoramento, e **tech-docs-writer** para a documentação que tira cada fato do código, não da memória.
 
 ## Mão na massa
 
@@ -24,15 +24,15 @@ Os passos do próprio comando: confirmar o RPC e o deployer com `solana config g
 
 Ele relata o nível declarado e o aplicado e a quantidade de regras. **Off** (desligado) desliga o sandbox em uma máquina que você já isolou, **Medium** (médio) é para ler código que você não escreveu, **High** (alto) nega escritas na mainnet de cara e é o único nível que impede o agente de editar a configuração do próprio kit, e uma troca vale a partir da próxima sessão. Peça ao Claude para ler o `.env` uma vez e veja o plugin de segurança recusar. Essa recusa é do plugin, então se o instalador pulou o safe-ai-skill, o Relaxed deixa o `.env` legível e a leitura passa. O jeito do kit de saber quais chaves estão definidas é `bash .claude/bin/env-keys.sh`, que imprime nomes e `set` ou `empty`, nunca um valor.
 
-![A trilha de lançamento: /deploy devnet para no prompt do firewall que nomeia o cluster, devops-engineer pina a toolchain e escreve o CI com chaves só de devnet, tech-docs-writer declara program id, autoridade, seeds, layouts e erros a partir do código, e /product-review encontra o app como seu próximo usuário.](assets/v01-ship-lane.webp)
+![A faixa de entrega: /deploy devnet para no prompt do firewall que nomeia o cluster, devops-engineer fixa a versão da toolchain e escreve o CI com chaves só de devnet, tech-docs-writer declara program id, autoridade, seeds, layouts e erros a partir do código, e /product-review encontra o app como seu próximo usuário.](assets/v01-ship-lane.webp)
 
 3. **Dê um pipeline a ele.** Digite:
 
 ```text
-Use o agente devops-engineer. Configure o CI do Stamp com /setup-ci-cd: build, testes e os lints de auditoria em todo pull request, um build verificável para release, e deploy na devnet em tags. Me diga onde as chaves ficam e quais versões você pinou.
+Use o agente devops-engineer. Configure o CI do Stamp com /setup-ci-cd: build, testes e os lints de auditoria em todo pull request, um build verificável para release, e deploy na devnet em tags. Me diga onde as chaves ficam e quais versões você fixou.
 ```
 
-O arquivo dele carrega os fatos de CI da Solana que um pipeline genérico erra: **pinar a toolchain** (Anchor 1.1.x com Solana CLI 3.1.10, Rust 1.89 ou mais novo no host, GLIBC 2.39 ou mais nova), condicionar merges a build mais testes, gerar o artefato de release com `solana-verify build` para que o programa on-chain possa ser verificado, instalar o Surfpool porque `anchor test` roda nele, e **só chaves de devnet entram no CI**. A upgrade authority de mainnet fica em uma hardware wallet ou em um multisig da Squads, e o CI pode escrever o buffer e entregá-lo ao multisig, que executa o upgrade. Ele fecha com `/audit-infra`, a auditoria de infraestrutura, e com `/doctor` quando a toolchain mudou, e relata pipelines, nomes de segredos sem valores, versões pinadas e a lista de alertas.
+O arquivo dele carrega os fatos de CI da Solana que um pipeline genérico erra: **fixar a versão da toolchain** (Anchor 1.1.x com Solana CLI 3.1.10, Rust 1.89 ou mais novo no host, GLIBC 2.39 ou mais nova), condicionar merges a build mais testes, gerar o artefato de release com `solana-verify build` para que o programa on-chain possa ser verificado, instalar o Surfpool porque `anchor test` roda nele, e **só chaves de devnet entram no CI**. A upgrade authority de mainnet fica em uma hardware wallet ou em um multisig da Squads, e o CI pode escrever o buffer e entregá-lo ao multisig, que executa o upgrade. Ele fecha com `/audit-infra`, a auditoria de infraestrutura, e com `/doctor` quando a toolchain mudou, e relata pipelines, nomes de segredos sem valores, versões fixadas e a lista de alertas.
 
 4. **Escreva a documentação que um estranho precisa.** Digite:
 
@@ -40,7 +40,7 @@ O arquivo dele carrega os fatos de CI da Solana que um pipeline genérico erra: 
 Use o agente tech-docs-writer para escrever o README do Stamp para desenvolvedores de frontend e de indexador, a partir do código, da IDL e dos testes.
 ```
 
-O arquivo dele diz o que a documentação de um programa precisa declarar: o **program id por cluster e a upgrade authority**, conferidos com `solana program show`, as contas de cada instrução com as flags de signer e writable, **seeds de PDA como bytes exatos** e se o bump é armazenado, layouts de conta com offsets porque indexadores filtram por eles, unidades de compute por instrução, e **erros por nome, decimal e hex**, para que `0x1770` seja encontrável. Ele tira os exemplos dos testes ou do client gerado e os roda antes de publicar.
+O arquivo dele diz o que a documentação de um programa precisa declarar: o **program id por cluster e a upgrade authority**, conferidos com `solana program show`, as contas de cada instrução com as flags de signer e writable, **seeds de PDA como bytes exatos** e se o bump é armazenado, layouts de conta com offsets porque indexadores filtram por eles, unidades de compute por instrução, e **erros por nome, decimal e hex**, para que `0x1770` seja encontrável. Ele tira os exemplos dos testes ou do cliente gerado e os roda antes de publicar.
 
 5. **Deixe um estranho encontrar o app.** Digite:
 
@@ -55,7 +55,7 @@ Ele pergunta o produto, o usuário-alvo, a única ação central e o estágio, d
 ## Está pronto quando
 
 - `.program-id-devnet` guarda o id do Stamp e `solana program show` nele aponta você como upgrade authority.
-- Existe um workflow de CI só com chaves de devnet e versões pinadas.
+- Existe um workflow de CI só com chaves de devnet e versões fixadas.
 - O README declara o program id, as seeds como bytes e os códigos de erro.
 - Você tem um scorecard com uma linha de evidência por dimensão.
 
