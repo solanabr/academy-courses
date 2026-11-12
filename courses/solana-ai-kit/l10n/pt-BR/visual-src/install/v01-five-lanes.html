@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.lanes{display:flex;gap:14px;align-items:stretch}
+.lane{flex:1;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:14px 14px 12px;display:block}
+.lane.wide{flex:1.6}
+.lh{display:inline-block;font-family:var(--font-display);font-weight:var(--weight-black);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-on-brand);background:var(--surface-brand);border-radius:var(--radius-sm);padding:6px 10px;margin-bottom:12px}
+.ag{display:block;margin-bottom:12px}
+.an{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:14px;color:var(--text-primary)}
+.ad{font-size:12.5px;line-height:1.35;color:var(--text-secondary)}
+.foot{margin-top:16px;font-size:15px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:520px;height:440px;right:-290px;top:-120px;border-radius:52% 48% 61% 39% / 44% 58% 42% 56%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:480px;height:520px;bottom:-300px;left:-260px;border-radius:61% 39% 47% 53% / 55% 47% 53% 45%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Quinze agentes, cinco faixas</div>
+  <h2 class="viz-title">Quem faz o quê, da primeira pergunta ao deploy</h2>
+  <div class="lanes">
+    <div class="lane"><div class="lh">Design</div>
+      <div class="ag"><div class="an">solana-researcher</div><div class="ad">Achados citados, datados, com rótulo de confiança cada.</div></div>
+      <div class="ag"><div class="an">solana-architect</div><div class="ad">Contas, PDAs, signatários, invariantes e riscos antes do código.</div></div>
+      <div class="ag"><div class="an">game-architect</div><div class="ad">Divisão on-chain, concept.md e plan.md para jogos.</div></div>
+    </div>
+    <div class="lane"><div class="lh">Programas</div>
+      <div class="ag"><div class="an">anchor-engineer</div><div class="ad">Implementador padrão, Anchor 1.x, testes LiteSVM. Fecha com build, teste, auditoria.</div></div>
+      <div class="ag"><div class="an">pinocchio-engineer</div><div class="ad">Programas validados à mão quando o compute medido exige.</div></div>
+    </div>
+    <div class="lane wide"><div class="lh">Em volta</div>
+      <div class="ag"><div class="an">solana-frontend-engineer</div><div class="ad">React e Next.js sobre @solana/kit, UX de carteira e transação.</div></div>
+      <div class="ag"><div class="an">mobile-engineer</div><div class="ad">React Native e Expo sobre o Mobile Wallet Adapter.</div></div>
+      <div class="ag"><div class="an">rust-backend-engineer</div><div class="ad">APIs Axum, indexadores, consumo de webhooks, keepers.</div></div>
+      <div class="ag"><div class="an">token-engineer</div><div class="ad">Mints, extensões Token-2022, hooks, NFTs, lançamentos.</div></div>
+      <div class="ag"><div class="an">defi-engineer</div><div class="ad">Jupiter, Kamino, Raydium, Orca, Meteora, oráculos.</div></div>
+      <div class="ag"><div class="an">unity-engineer</div><div class="ad">Unity e C# no Solana.Unity-SDK, lendo plan.md.</div></div>
+    </div>
+    <div class="lane"><div class="lh">Entrega</div>
+      <div class="ag"><div class="an">solana-qa-engineer</div><div class="ad">Harness, régua de cobertura, baselines de CU, limpeza de slop.</div></div>
+      <div class="ag"><div class="an">devops-engineer</div><div class="ad">CI, toolchain fixada, failover de RPC, monitoramento.</div></div>
+      <div class="ag"><div class="an">tech-docs-writer</div><div class="ad">READMEs e referências tiradas de código, IDL e testes.</div></div>
+    </div>
+    <div class="lane"><div class="lh">Aprender</div>
+      <div class="ag"><div class="an">solana-guide</div><div class="ad">Confere seu nível, define, mostra o erro, faz você prever.</div></div>
+    </div>
+  </div>
+  <div class="foot">Todo agente roda no Opus, seja qual for o modelo da sessão, lê suas referências primeiro e traz uma seção Handoffs que diz quem dá o próximo passo. Diga o nome do que quer. Como lido em 2026-11-09 na branch main do kit, no commit 0a2f0d9.</div>
+</div>
+</div>
+</body></html>

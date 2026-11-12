@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 20px}
+table{width:100%;border-collapse:collapse}
+th{font-family:var(--font-display);font-weight:var(--weight-bold);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:0 14px 10px;border-bottom:2px solid var(--stbr-dark)}
+th.l{width:180px}
+td{padding:13px 14px;font-size:14.5px;line-height:1.4;color:var(--text-primary);border-bottom:1px solid var(--border-subtle);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.l{font-family:var(--font-display);font-weight:var(--weight-bold);color:var(--text-secondary)}
+td.a{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:15px}
+.foot{margin-top:14px;font-size:14.5px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:520px;height:420px;right:-300px;top:-140px;border-radius:40% 60% 50% 50% / 55% 45% 55% 45%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:500px;height:540px;bottom:-320px;left:-280px;border-radius:60% 40% 45% 55% / 50% 58% 42% 50%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Alrededor del programa</div>
+  <h2 class="viz-title">Tres ingenieros para lo que la gente toca</h2>
+  <table>
+    <tr><th class="l"></th><th>solana-frontend-engineer</th><th>mobile-engineer</th><th>rust-backend-engineer</th></tr>
+    <tr><td class="l">Construye</td><td>React y Next.js sobre @solana/kit 8 con los plugins de billetera y RPC y @solana/react. WCAG 2.2 AA.</td><td>React Native y Expo sobre Mobile Wallet Adapter 2.0, funciones de Seeker, deep links, releases en dApp Store.</td><td>Servicios en Axum y Tokio: APIs, indexadores, consumo de webhooks, envío de transacciones, keepers.</td></tr>
+    <tr><td class="l">Para Stamp</td><td>Página del cliente: conectar, conteo de sellos, cuántos faltan, botón de redeem.</td><td>App del cliente en el teléfono: conectar, tarjeta, redeem.</td><td>Indexador por webhooks y endpoint de dashboard para la tienda.</td></tr>
+    <tr><td class="l">La regla que ahorra una tarde</td><td>Simular primero. Mostrar esperando firma, enviada con enlace al explorador, confirmada. Liberar en confirmada, no en finalizada.</td><td>Mobile Wallet Adapter es solo Android y necesita un development build. Expo Go no puede cargarlo. iOS firma por el deep link de una billetera.</td><td>Las entregas se repiten: upsert por firma más posición del evento. Revisa meta.err, las transacciones fallidas también están on-chain. Finalizada antes de algo irreversible.</td></tr>
+    <tr><td class="l">Deja afuera</td><td>paquetes wallet-adapter, modismos web3.js v1, URLs RPC con clave en valores NEXT_PUBLIC.</td><td>Mezclar kits de billetera Kit y web3.js, polyfill Web Crypto tardío, URIs de identidad de relleno.</td><td>El cliente RPC bloqueante en un runtime Tokio, firmar de nuevo si la primera copia aún puede entrar.</td></tr>
+    <tr><td class="l">Pide</td><td>/scaffold con una plantilla de Kit. /generate-idl-client para el cliente tipado.</td><td>El pack solana-mobile. npx solana-mobile@latest create.</td><td>La clave de Helius en .env. El pack helius para webhooks y Laserstream.</td></tr>
+    <tr><td class="l">Cierra con</td><td>/build-app y /test-ts. Componentes, billeteras probadas, brechas de accesibilidad abiertas.</td><td>/test-ts y una corrida en development build. Stack, billeteras probadas, ítems solo Android.</td><td>/test-rust. Endpoints o tablas nuevas, commitment por ruta, cómo se hace backfill.</td></tr>
+  </table>
+  <div class="foot">Los tres leen design.md y llaman al programa por el cliente que /generate-idl-client genera desde el IDL, así que un cambio en una instrucción es una regeneración.</div>
+</div>
+</div>
+</body></html>
