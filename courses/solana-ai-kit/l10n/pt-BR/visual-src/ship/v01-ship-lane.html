@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 24px}
+.flow{display:flex;align-items:stretch}
+.node{width:236px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:14px 14px 12px;display:flex;flex-direction:column;min-height:240px}
+.node.cmd{border-style:dashed;background:var(--surface-paper)}
+.arr{width:28px;flex:none;display:flex;align-items:center;justify-content:center}
+.nt{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:16px;line-height:1.25;color:var(--text-primary)}
+.nd{font-size:13px;line-height:1.4;color:var(--text-secondary);margin-top:6px}
+.owe{margin-top:auto;font-size:12px;line-height:1.35;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 8px}
+.owe b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.owe.stop{background:var(--surface-inverse);color:var(--text-on-dark)}
+.keys{margin-top:18px;border-radius:var(--radius-lg);background:var(--surface-inverse);color:var(--text-on-dark);padding:14px 22px;display:flex;align-items:center;gap:26px}
+.keys .h{font-family:var(--font-display);font-weight:var(--weight-black);font-size:16px;letter-spacing:.06em;text-transform:uppercase;width:220px;flex:none}
+.keys .b{font-size:14.5px;line-height:1.5}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:560px;height:440px;left:-320px;bottom:-230px;border-radius:45% 55% 52% 48% / 60% 40% 60% 40%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:460px;height:480px;right:-250px;top:-270px;border-radius:58% 42% 44% 56% / 48% 56% 44% 52%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Faixa de entrega</div>
+  <h2 class="viz-title">Deploy com parada, depois pipeline, docs e leitura sem contexto</h2>
+  <div class="flow">
+    <div class="node cmd"><div class="nt">/deploy devnet</div><div class="nd">Config e deployer confirmados, keys sincronizadas para um programa novo, deployer abastecido, deploy com o cluster no comando, IDL publicada, id registrado.</div><div class="owe stop"><b>O firewall</b>para o deploy até a sua aprovação e nomeia o cluster. Um deploy final e um program close com --bypass-warning são recusados de cara.</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="nt">devops-engineer</div><div class="nd">/setup-ci-cd: toolchain fixada, build mais testes em todo PR, solana-verify build para release, Surfpool instalado, dois provedores de RPC, alertas de upgrade e autoridade.</div><div class="owe"><b>Chaves</b>chaves de devnet só no CI. Autoridade de mainnet em hardware wallet ou Squads</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="nt">tech-docs-writer</div><div class="nd">Do código, da IDL e dos testes: program id por cluster e upgrade authority, contas por instrução, seeds de PDA como bytes, layouts com offsets, CU por instrução, erros por nome e código.</div><div class="owe"><b>Roda</b>todo exemplo que publica</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node cmd"><div class="nt">/product-review</div><div class="nd">Encontra o app como próximo usuário. Oito dimensões pontuadas com uma linha de evidência cada, roadmap agrupado por esforço. --harsh: dez dimensões ponderadas, três correções.</div><div class="owe"><b>Ponto a observar</b>o valor aparece antes de conectar a carteira?</div></div>
+  </div>
+  <div class="keys"><div class="h">Mainnet: relatório primeiro</div><div class="b">O /deploy mainnet só começa quando você pede e lista o que falta antes de tudo: uma auditoria sem achados Critical ou High abertos, testes e fuzzing passando, uma rodada na devnet dos fluxos reais, um plano para a upgrade authority e uma auditoria externa para programas que guardam fundos de usuários. Depois a parada de aprovação, uma segunda checagem, não um substituto.</div></div>
+</div>
+</div>
+</body></html>

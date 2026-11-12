@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 24px}
+.flow{display:flex;align-items:stretch}
+.node{width:300px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:16px 16px 14px;display:flex;flex-direction:column;min-height:236px}
+.arr{width:34px;flex:none;display:flex;align-items:center;justify-content:center}
+.n{width:30px;height:30px;border-radius:50%;background:var(--surface-brand);color:var(--text-on-brand);font-family:var(--font-display);font-weight:var(--weight-black);font-size:15px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.nt{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:17px;line-height:1.25;color:var(--text-primary)}
+.nd{font-size:13.5px;line-height:1.4;color:var(--text-secondary);margin-top:6px}
+.owe{margin-top:auto;font-size:12px;line-height:1.35;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 8px}
+.owe b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.side{margin-top:18px;display:flex;gap:18px}
+.side div{flex:1;font-size:14px;line-height:1.45;color:var(--text-secondary);border-left:3px solid var(--stbr-dark);padding-left:12px}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:500px;height:500px;right:-280px;top:120px;border-radius:47% 53% 44% 56% / 56% 43% 57% 44%;background:#306c40;opacity:0.5;"></div>
+  <div style="position:absolute;width:460px;height:400px;bottom:-240px;left:-240px;border-radius:55% 45% 60% 40% / 42% 57% 43% 58%;background:#008b4c;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Carril de diseño</div>
+  <h2 class="viz-title">De tres líneas de idea a un diseño que un ingeniero puede construir</h2>
+  <div class="flow">
+    <div class="node"><div class="n">1</div><div class="nt">idea.md</div><div class="nd">Una persona, lo que no puede hacer hoy, lo que hace tu cosa al respecto. Tres líneas, escritas por ti.</div><div class="owe"><b>Stamp</b>Las tarjetas de papel de Rita se pierden. Stamp las guarda en Solana.</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">2</div><div class="nt">solana-researcher</div><div class="nd">Qué existe, qué cerró y por qué. Respuesta primero, después hallazgos con enlace y etiqueta.</div><div class="owe"><b>Te debe</b>High / Medium / Low / Speculative por hallazgo, y lo que no pudo verificar</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">3</div><div class="nt">solana-architect</div><div class="nd">Cuentas con dueño, seeds, tamaño, quién paga renta. Instrucciones con firmantes. Invariantes, autoridad, riesgos. Anchor por defecto.</div><div class="owe"><b>Te debe</b>design.md, el archivo que leen los que siguen</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="n">4</div><div class="nt">/plan-feature</div><div class="nd">Fases, riesgos, tests y despliegue desde el diseño. Sin código. Acaba en preguntas abiertas.</div><div class="owe"><b>Tú le debes</b>respuestas, escritas en design.md</div></div>
+  </div>
+  <div class="side">
+    <div><b>Para un juego</b>, el paso 3 es game-architect: pregunta por la jugabilidad, la plataforma y la división on-chain, después escribe concept.md y plan.md y espera tu aprobación.</div>
+    <div><b>Para un hackathon</b>, /add-skill startup-builder trae idea-sprint, positioning y pitch-deck. Su idea.md es desde donde arranca /plan-feature.</div>
+    <div><b>Cita de vuelta la sección Output.</b> Un agente al que se le pide justo lo que su archivo promete rara vez deja algo afuera.</div>
+  </div>
+</div>
+</div>
+</body></html>

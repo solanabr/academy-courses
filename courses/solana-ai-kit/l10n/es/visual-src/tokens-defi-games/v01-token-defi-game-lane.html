@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.cols{display:flex;gap:18px;align-items:stretch}
+.col{flex:1;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:16px 18px 14px;display:block}
+.col>div{display:block}
+.an{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:17px;color:var(--text-primary);margin-bottom:6px}
+.q{font-size:14px;line-height:1.4;color:var(--text-secondary);font-style:italic;margin-bottom:10px}
+.rule{font-size:14px;line-height:1.45;color:var(--text-primary);margin-bottom:8px}
+.rule b{font-family:var(--font-display)}
+.pack{display:inline-block;margin-top:6px;font-family:var(--font-mono);font-size:12px;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 9px}
+.foot{margin-top:16px;font-size:14.5px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:500px;height:480px;right:-270px;bottom:-250px;border-radius:56% 44% 48% 52% / 45% 55% 45% 55%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:440px;height:400px;top:-230px;left:-230px;border-radius:48% 52% 62% 38% / 58% 42% 58% 42%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Tokens, DeFi y juegos</div>
+  <h2 class="viz-title">Tres preguntas de una tienda real, y la regla que responde cada una</h2>
+  <div class="cols">
+    <div class="col"><div class="an">token-engineer</div><div class="q">¿Los sellos como token en la billetera del cliente?</div>
+      <div class="rule"><b>Las mínimas extensiones que hagan el trabajo.</b> Cada una reduce dónde puede operarse el token, y el conjunto se fija al crearlo.</div>
+      <div class="rule">Para sellos: Token-2022, non-transferable más extensión de metadata, tienda como autoridad del mint, un café gratis es un burn.</div>
+      <div class="rule">La ATA se deriva del program id de Token-2022. El id clásico da la dirección equivocada.</div>
+      <div class="pack">metaplex para NFTs · /inspect-mint lee cualquier mint</div></div>
+    <div class="col"><div class="an">defi-engineer</div><div class="q">¿El cliente paga con cualquier token?</div>
+      <div class="rule"><b>Output mínimo exigido on-chain.</b> Recarga el destino tras el swap y revisa el delta del saldo, nunca la cotización.</div>
+      <div class="rule">Precio de un oráculo con feed id y antigüedad máxima, no de reservas spot que un flash loan puede mover.</div>
+      <div class="rule">Jupiter swap v2 con API key. Prueba en un fork de mainnet con Surfpool: cargan las cuentas reales del protocolo.</div>
+      <div class="pack">jupiter · sendai para lending y oráculos</div></div>
+    <div class="col"><div class="an">game-architect → unity-engineer</div><div class="q">¿La tarjeta como juego?</div>
+      <div class="rule"><b>On-chain lo que es valioso, intercambiable o confiado por otros jugadores.</b> Jugabilidad off-chain, escrita en checkpoints.</div>
+      <div class="rule">Los puntajes que reporta el cliente los controla el atacante: un pago se verifica on-chain o con firma del servidor.</div>
+      <div class="rule">concept.md en números, plan.md en pasos, tu aprobación, después Unity en pasos pequeños cerrando con /build-unity y /test-dotnet.</div>
+      <div class="pack">solana-game · desktop primero, WebGL segundo</div></div>
+  </div>
+  <div class="foot">Los cuatro construyen desde skills de protocolo fijados, y los archivos de token y DeFi dicen que un ask o deny del plugin de seguridad ante una acción que mueve valor es tu política, reportada y nunca reintentada por otro camino.</div>
+</div>
+</div>
+</body></html>

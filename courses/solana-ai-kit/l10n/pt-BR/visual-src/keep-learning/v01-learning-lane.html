@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 22px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tile{border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:16px 18px 14px;display:flex;flex-direction:column;min-height:200px}
+.t{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:18px;color:var(--text-primary);margin-bottom:8px}
+.d{font-size:14px;line-height:1.45;color:var(--text-secondary)}
+.d b{color:var(--text-primary)}
+.p{margin-top:auto;font-size:12px;line-height:1.3;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 9px;align-self:flex-start}
+.foot{margin-top:16px;font-size:14.5px;line-height:1.45;color:var(--text-muted)}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:560px;height:430px;right:-320px;bottom:-200px;border-radius:44% 56% 58% 42% / 51% 46% 54% 49%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:420px;height:470px;top:-280px;left:-220px;border-radius:58% 42% 50% 50% / 47% 60% 40% 53%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Depois do workshop</div>
+  <h2 class="viz-title">Quatro coisas que mantêm você bom nisso</h2>
+  <div class="grid">
+    <div class="tile"><div class="t">solana-guide</div><div class="d">Confere seu nível primeiro. <b>Definição, o problema que resolve, um exemplo mínimo, o erro do iniciante</b>, depois pede que você preveja antes de seguir. Desenha Mermaid quando contas, PDAs e CPIs interagem. Ensina as ferramentas atuais e aponta um tutorial anterior a elas.</div><div class="p">Só aprendizado. Código de produção vai para os engenheiros.</div></div>
+    <div class="tile"><div class="t">/explain-code</div><div class="d">Visão geral em duas ou três frases, um <b>diagrama Mermaid</b>, um passo a passo pelas seções importantes com as razões, os conceitos de Solana usados, notas de <b>segurança</b> sobre as checagens feitas e as que faltam, e duas ou três perguntas de o que acontece se.</div><div class="p">Rode no código escrito pelos engenheiros para você.</div></div>
+    <div class="tile"><div class="t">solana-researcher, como hábito</div><div class="d">Antes de integrar um programa: <b>upgrade authority, build verificado, auditorias</b>, citados e datados. Antes de decidir com base em versão ou status: pergunte a ele, não à memória.</div><div class="p">High · Medium · Low · Speculative</div></div>
+    <div class="tile"><div class="t">/update · memsearch · /dream</div><div class="d"><b>/update</b> puxa a tag de release mais nova, mantém .env e CLAUDE.md, escreve CLAUDE.md.upstream, reaplica o seu nível. <b>memsearch</b>: dois comandos e um reinício, dados locais, sem chave, um download de modelo. <b>/dream</b> consolida MEMORY.md e Project Learnings.</div><div class="p">Reinicie o Claude Code após cada um.</div></div>
+  </div>
+  <div class="foot">As respostas longas moram na pasta docs/ do repositório do kit, nunca copiada para o seu projeto, nos packs de skill oficiais em kit.superteam.codes, e nos arquivos do próprio kit em aikit.superteam.codes/&lt;path&gt;. Como lido em 2026-11-09 na branch main do kit, no commit 0a2f0d9. O README vence onde discordarem.</div>
+</div>
+</div>
+</body></html>

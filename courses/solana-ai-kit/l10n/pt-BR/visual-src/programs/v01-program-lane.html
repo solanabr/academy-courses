@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../../../visual-src/_brand.css">
+<link rel="stylesheet" href="../../../../visual-src/_render.css">
+<style>
+  @page { size: 1600px 900px; margin: 0; }
+  html, body { margin: 0; }
+  body { width: 1600px; height: 900px; display: flex; align-items: center;
+         justify-content: center; background: var(--surface-page); padding: 72px; }
+  .viz { position: relative; width: 100%; }
+</style>
+<style data-authored>
+.card{background:var(--surface-card);border-radius:var(--radius-2xl);padding:32px 48px 28px;overflow:hidden}
+.viz-title{font-size:36px;margin:4px 0 24px}
+.flow{display:flex;align-items:stretch}
+.node{width:236px;flex:none;border:2px solid var(--stbr-dark);border-radius:var(--radius-lg);padding:14px 14px 12px;display:flex;flex-direction:column;min-height:232px}
+.node.cmd{border-style:dashed;background:var(--surface-paper)}
+.arr{width:28px;flex:none;display:flex;align-items:center;justify-content:center}
+.nt{font-family:var(--font-mono);font-weight:var(--weight-bold);font-size:16px;line-height:1.25;color:var(--text-primary)}
+.nd{font-size:13px;line-height:1.4;color:var(--text-secondary);margin-top:6px}
+.owe{margin-top:auto;font-size:12px;line-height:1.35;color:var(--text-on-accent);background:var(--surface-accent);border-radius:var(--radius-sm);padding:6px 8px}
+.owe b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.branch{margin-top:18px;border-radius:var(--radius-lg);background:var(--surface-inverse);color:var(--text-on-dark);padding:14px 22px;display:flex;align-items:center;gap:26px}
+.branch .h{font-family:var(--font-display);font-weight:var(--weight-black);font-size:16px;letter-spacing:.06em;text-transform:uppercase;width:260px;flex:none}
+.branch .b{font-size:14.5px;line-height:1.5}
+</style></head>
+<body>
+<div class="stbr-decor" aria-hidden="true">
+  <div style="position:absolute;width:540px;height:460px;left:-300px;top:-160px;border-radius:50% 50% 42% 58% / 58% 44% 56% 42%;background:#008b4c;opacity:0.5;"></div>
+  <div style="position:absolute;width:470px;height:500px;right:-250px;bottom:-290px;border-radius:43% 57% 55% 45% / 49% 51% 49% 51%;background:#306c40;opacity:0.5;"></div>
+</div>
+<div class="viz">
+<div class="card">
+  <div class="stbr-eyebrow">Faixa de programa</div>
+  <h2 class="viz-title">De design.md a um programa auditado</h2>
+  <div class="flow">
+    <div class="node"><div class="nt">anchor-engineer</div><div class="nd">Anchor 1.x de design.md: constraints, não checagens à mão, InitSpace no tamanho, bumps guardados, aritmética checada, um teste LiteSVM por instrução.</div><div class="owe"><b>Fecha com</b>/build-program, /test-rust, /audit-solana quando valor se move</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node cmd"><div class="nt">/build-program<br>/test-rust</div><div class="nd">Build, IDL, program ids, fmt e clippy. Depois a suíte, recompilada antes, com cada falha decodificada.</div><div class="owe"><b>Decodificar</b>2000s constraints · 3000s contas · 4100 program id · 6000+ seus</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node"><div class="nt">solana-qa-engineer</div><div class="nd">Harness por teste: Mollusk, LiteSVM, Surfpool, Trident. Régua de cobertura: cada instrução, cada código de erro, os limites.</div><div class="owe"><b>Também</b>tira comentários que repetem código, checagens extras, logs de debug</div></div>
+    <div class="arr"><svg width="26" height="16" viewBox="0 0 26 16"><line x1="0" y1="8" x2="17" y2="8" stroke="#1B231D" stroke-width="2"/><polygon points="16,2 26,8 16,14" fill="#1B231D"/></svg></div>
+    <div class="node cmd"><div class="nt">/audit-solana</div><div class="nd">Escopo, cargo audit e lints do clippy, checklists da skill de auditoria item a item, relatório de achados com cenário de exploit e correção por achado.</div><div class="owe"><b>Escreve</b>docs/security-audit-&lt;date&gt;.md com um veredito</div></div>
+  </div>
+  <div class="branch"><div class="h">O desvio medido</div><div class="b">O pinocchio-engineer entra só quando uma instrução continua acima do orçamento de compute depois das alavancas do próprio Anchor: zero-copy, LazyAccount, bumps guardados, sem logs. O /profile-cu mede, o /benchmark compara com uma linha de base, e o agente fecha com os dois. Validação à mão, discriminadores de um byte, nenhuma IDL gerada.</div></div>
+</div>
+</div>
+</body></html>
