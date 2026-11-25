@@ -1,0 +1,170 @@
+id: lesson-iwb-quem-constroi
+slug: quem-constroi-o-ecossistema
+title: Quem constrói o ecossistema
+skills:
+- solana-fundamentals
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=PENDING-AULA-9
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Qual é o papel da Superteam Brasil no ecossistema Solana?
+    multiSelect: false
+    options:
+    - id: d
+      label: Conectar talentos, projetos e empresas no país
+      correct: true
+      feedback: Isso. Ela funciona como um ponto de conexão, com eventos, hackathons
+        e formações.
+    - id: b
+      label: Guardar os ativos de quem não tem carteira
+      correct: false
+      feedback: Ela não faz custódia de ativos. Ela aproxima talentos, projetos
+        e empresas.
+    - id: a
+      label: Emitir o token SOL para os usuários do país
+      correct: false
+      feedback: Ninguém da comunidade emite SOL. O papel dela é conectar quem constrói
+        e quem aprende.
+    - id: c
+      label: Validar as transações da rede feitas no Brasil
+      correct: false
+      feedback: Validar é trabalho dos validadores da rede. A Superteam Brasil aproxima
+        pessoas e projetos.
+    - id: e
+      label: Regular o uso de criptoativos no mercado local
+      correct: false
+      feedback: Regular cabe às autoridades. A Superteam Brasil é uma comunidade
+        do ecossistema.
+    explanation: A Superteam Brasil é o ponto de conexão do ecossistema Solana no
+      país, com eventos, hackathons e formações.
+  - id: q2
+    prompt: Na definição que o professor apresenta, o que os participantes de uma
+      blockchain deixam de precisar fazer?
+    multiSelect: false
+    options:
+    - id: b
+      label: Manter bases separadas e conciliá-las depois
+      correct: true
+      feedback: Isso. Todos compartilham, movimentam e verificam na mesma infraestrutura.
+    - id: c
+      label: Seguir regras comuns para movimentar ativos
+      correct: false
+      feedback: As regras comuns continuam. O que some é a conciliação entre bases
+        desconectadas.
+    - id: d
+      label: Usar a internet para se conectar à rede
+      correct: false
+      feedback: A blockchain funciona sobre a internet. O ganho está em não conciliar
+        bases separadas.
+    - id: e
+      label: Pagar qualquer taxa para registrar operações
+      correct: false
+      feedback: Existe taxa, ainda que pequena. O que deixa de existir é a conciliação
+        posterior.
+    - id: a
+      label: Verificar os registros feitos pelos outros
+      correct: false
+      feedback: 'É o contrário: verificar é justamente o que a infraestrutura compartilhada
+        permite.'
+    explanation: Blockchain é uma infraestrutura em que os participantes compartilham,
+      movimentam e verificam ativos e informações, sem bases desconectadas para
+      conciliar depois.
+  - id: q3
+    prompt: Na analogia com o Pix, qual diferença Kuka registra entre o Pix e uma
+      blockchain pública?
+    multiSelect: false
+    options:
+    - id: c
+      label: O Pix é mais lento que a TED e o DOC
+      correct: false
+      feedback: É o contrário. A TED e o DOC é que demoravam, e o Pix é instantâneo.
+    - id: e
+      label: O Pix é mantido por centenas de nós diferentes
+      correct: false
+      feedback: Essa é a descrição da rede pública. O Pix tem um operador central.
+    - id: d
+      label: O Pix só funciona em dia útil e horário comercial
+      correct: false
+      feedback: O Pix funciona a qualquer hora. A diferença apontada é ser centralizado.
+    - id: a
+      label: O Pix é centralizado, e a rede pública não
+      correct: true
+      feedback: Isso. O Pix é instantâneo e todo mundo usa, mas é operado de forma
+        centralizada.
+    - id: b
+      label: O Pix cobra tarifa alta a cada pagamento
+      correct: false
+      feedback: Tarifa alta era da TED e do DOC. Foi isso que o Pix mudou.
+    explanation: 'A analogia vale pela mudança de hábito: quem se acostuma com a
+      velocidade não volta. A diferença é que o Pix é centralizado.'
+  - id: q4
+    prompt: Segundo Kauê, o que acontece se a rede for uma cópia rodando no servidor
+      de um único banco?
+    multiSelect: false
+    options:
+    - id: d
+      label: As transferências ficam instantâneas e grátis
+      correct: false
+      feedback: Velocidade e custo não vêm de quem hospeda. O problema apontado
+        é a confiança.
+    - id: b
+      label: Os outros bancos precisam confiar nele
+      correct: true
+      feedback: Isso. Quem mantém a rede passa a ser alguém em quem todos têm de
+        confiar.
+    - id: a
+      label: Os registros ficam públicos e auditáveis
+      correct: false
+      feedback: Isso descreve a rede pública. No servidor de um banco, só ele enxerga
+        tudo.
+    - id: e
+      label: Os clientes deixam de precisar de carteira
+      correct: false
+      feedback: A carteira não é o ponto aqui. O ponto é quem mantém a rede e quem
+        depende dele.
+    - id: c
+      label: As regras passam a ser iguais para todos
+      correct: false
+      feedback: Regras iguais para todos são a marca da rede pública, não do servidor
+        de um banco.
+    explanation: Uma rede mantida por um só participante obriga os demais a confiar
+      nele. Numa rede pública, mantida por muitos nós, dá para verificar.
+  - id: q5
+    prompt: O que quer dizer a frase "você confia porque não precisa confiar"?
+    multiSelect: false
+    options:
+    - id: b
+      label: Os registros ficam ocultos até uma auditoria
+      correct: false
+      feedback: 'É o contrário: os registros são transparentes e podem ser conferidos.'
+    - id: e
+      label: Todo dado registrado na rede é verdadeiro
+      correct: false
+      feedback: Cuidado. A rede preserva o que foi registrado, mas não garante que
+        seja verdade lá fora.
+    - id: c
+      label: Basta confiar no nó que produziu o bloco
+      correct: false
+      feedback: Não é preciso confiar em um nó específico. Os outros conferem o
+        que ele fez.
+    - id: a
+      label: Qualquer um pode conferir os registros
+      correct: true
+      feedback: Isso. A rede é transparente e auditável, então a confiança vem da
+        verificação.
+    - id: d
+      label: Uma empresa responde por cada operação
+      correct: false
+      feedback: Não há uma empresa no centro. A confiança vem de poder verificar.
+    explanation: Em vez de confiar em quem mantém o sistema, você consegue verificar
+      o que foi registrado.
