@@ -1,0 +1,160 @@
+id: lesson-iwb-privacidade-e-rwa
+slug: privacidade-mercado-e-rwa
+title: Privacidade, mercado e ativos do mundo real
+skills:
+- spl-tokens
+- keypairs-wallets
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=CFvMc1-i8PA
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Por que Kuka chama de mito a ideia de que nada se rastreia em uma blockchain?
+    multiSelect: false
+    options:
+    - id: c
+      label: Só stablecoins reguladas circulam na rede
+      correct: false
+      feedback: Circulam muitos tipos de token. O ponto é a transparência do registro.
+    - id: a
+      label: Os validadores apagam operações suspeitas
+      correct: false
+      feedback: Validadores não apagam histórico. O que existe é um registro aberto.
+    - id: b
+      label: Toda transação é aprovada por um banco
+      correct: false
+      feedback: Não há banco aprovando. O ponto é que o registro é público.
+    - id: d
+      label: Cada endereço mostra o nome do dono
+      correct: false
+      feedback: O registro mostra endereços e valores, não o nome de quem está por
+        trás.
+    - id: e
+      label: Por padrão, as transações são públicas
+      correct: true
+      feedback: Isso. É um livro aberto, em que as movimentações podem ser consultadas.
+    explanation: Por padrão, o que está na blockchain é público, como um livro aberto
+      com as transações.
+  - id: q2
+    prompt: Segundo Kauê, onde a privacidade é construída na Solana?
+    multiSelect: false
+    options:
+    - id: c
+      label: Em uma rede isolada, sem ligação com a principal
+      correct: false
+      feedback: Os ambientes privados citados ficam conectados à rede principal.
+    - id: e
+      label: Na carteira, que apaga o histórico do usuário
+      correct: false
+      feedback: Carteira não apaga registro da rede. A privacidade é desenhada pela
+        aplicação.
+    - id: d
+      label: Nos validadores, que escolhem o que publicar
+      correct: false
+      feedback: Validadores seguem as regras do protocolo. Quem decide é o desenvolvedor
+        da aplicação.
+    - id: a
+      label: No protocolo, que oculta toda transação
+      correct: false
+      feedback: A rede não torna tudo privado. Ela segue pública, e a privacidade
+        vem por cima.
+    - id: b
+      label: Na camada de aplicação, sobre a rede pública
+      correct: true
+      feedback: Isso. A rede segue pública e aberta, e cada aplicação define o grau
+        de privacidade.
+    explanation: A Solana segue pública e aberta. A privacidade é construída na
+      camada de aplicação, por quem desenvolve.
+  - id: q3
+    prompt: Qual destas situações é on-chain?
+    multiSelect: false
+    options:
+    - id: c
+      label: Um aplicativo mostra o preço de um token
+      correct: false
+      feedback: Mostrar uma cotação é só consulta. Nada foi executado na rede.
+    - id: d
+      label: Uma empresa guarda o histórico em servidor
+      correct: false
+      feedback: Um servidor próprio fica fora da rede. On-chain é o que acontece
+        nela.
+    - id: e
+      label: Um programa na blockchain executa a troca
+      correct: true
+      feedback: Isso. O processamento acontece diretamente dentro da blockchain.
+    - id: b
+      label: Uma corretora ajusta saldos no sistema dela
+      correct: false
+      feedback: Isso acontece no banco de dados da corretora, fora da blockchain.
+    - id: a
+      label: Um site aceita cartão e diz usar blockchain
+      correct: false
+      feedback: Dizer que usa não basta. On-chain é o que roda dentro da rede.
+    explanation: On-chain é quando processamento, validação, armazenamento ou custódia
+      acontecem diretamente na blockchain.
+  - id: q4
+    prompt: Qual destes é um exemplo de RWA?
+    multiSelect: false
+    options:
+    - id: b
+      label: Uma recompensa paga a quem faz staking
+      correct: false
+      feedback: Isso é retorno de staking. RWA é um bem de fora da rede, tokenizado.
+    - id: c
+      label: O SOL usado para pagar as taxas da rede
+      correct: false
+      feedback: SOL é o token nativo da rede, não a representação de um bem externo.
+    - id: d
+      label: Um token que representa ouro em um cofre
+      correct: true
+      feedback: Isso. É um bem que existe fora da rede, representado por um token.
+    - id: a
+      label: Um token de teste recebido na Devnet
+      correct: false
+      feedback: Token de teste não tem valor econômico nem um bem por trás.
+    - id: e
+      label: Um token de meme criado por qualquer pessoa
+      correct: false
+      feedback: Meme coin não tem um bem por trás. RWA representa algo que existe
+        fora da rede.
+    explanation: RWA, de Real World Assets, são ativos do mundo real tokenizados,
+      como títulos públicos, ouro e ações.
+  - id: q5
+    prompt: Qual é a diferença entre deixar ativos em uma corretora e guardá-los
+      em autocustódia?
+    multiSelect: false
+    options:
+    - id: a
+      label: Na autocustódia, a empresa recupera a senha
+      correct: false
+      feedback: Não há empresa para recuperar. Por isso a responsabilidade é toda
+        sua.
+    - id: c
+      label: Na corretora, só você movimenta os ativos
+      correct: false
+      feedback: Na corretora, é a empresa que guarda as chaves e movimenta por você.
+    - id: b
+      label: Na autocustódia, o ativo sai da blockchain
+      correct: false
+      feedback: O ativo continua registrado na blockchain. O que muda é quem tem
+        as chaves.
+    - id: e
+      label: Na corretora, o ativo deixa de ter valor
+      correct: false
+      feedback: O valor não muda com o lugar. Muda quem controla as chaves.
+    - id: d
+      label: Na autocustódia, as chaves ficam com você
+      correct: true
+      feedback: Isso. O controle é seu, e a responsabilidade de cuidar das chaves
+        também.
+    explanation: Na custódia, uma empresa guarda as chaves por você. Na autocustódia,
+      as chaves e a responsabilidade são suas.

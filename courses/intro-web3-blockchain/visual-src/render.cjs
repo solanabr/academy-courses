@@ -1,4 +1,4 @@
-// Renders the course banner and the eight lesson cards in the panel style of the
+// Renders the course banner and the lesson cards in the panel style of the
 // videos. Needs playwright on NODE_PATH, optionally CHROMIUM_PATH, and cwebp on PATH:
 //   node courses/intro-web3-blockchain/visual-src/render.cjs
 // The banner is text-free like every course banner: the catalog card overlays the
@@ -145,6 +145,30 @@ const CARDS = [
     "<b>Solana Pay:</b> da sua carteira para o comerciante",
     "A palavra-chave é <b>liquidação</b>",
     "<b>Off-ramp:</b> de volta ao mundo tradicional",
+  ]],
+  ["quem-constroi-o-ecossistema", "Quem constrói<br>o ecossistema", "Conversa com a Superteam Brasil, parte 1", [
+    "<b>Superteam Brasil:</b> o ponto de conexão no país",
+    "Blockchain: uma <b>infraestrutura compartilhada</b>",
+    "Do DOC e da TED ao <b>Pix</b>: não tem como voltar",
+    "Confiar porque dá para <b>verificar</b>",
+  ]],
+  ["por-que-a-solana", "Por que a Solana?", "Conversa com a Superteam Brasil, parte 2", [
+    "<b>Velocidade, custo baixo</b> e rede sempre aberta",
+    "<b>Stablecoin:</b> o dólar digital com lastro",
+    "<b>Dinheiro programável:</b> vários Pix com regras",
+    "Rede fragmentada: <b>mais gente em quem confiar</b>",
+  ]],
+  ["privacidade-mercado-e-rwa", "Privacidade, mercado e<br>ativos do mundo real", "Conversa com a Superteam Brasil, parte 3", [
+    "Rede pública <b>não é tudo à mostra</b>",
+    "<b>On-chain:</b> o que roda dentro da blockchain",
+    "<b>RWA:</b> ativos do mundo real tokenizados",
+    "Na <b>autocustódia</b>, o controle e o risco são seus",
+  ]],
+  ["mito-ou-verdade", "Mito ou verdade?", "Conversa com a Superteam Brasil, parte 4", [
+    "<b>Solana</b> é a rede, <b>SOL</b> é o token",
+    "Nem todo token é <b>bom investimento</b>",
+    "<b>Devnet</b> e <b>Testnet:</b> aprender sem dinheiro real",
+    "Esmola muito alta? <b>Desconfie e pesquise</b>",
   ]],
 ];
 

@@ -8,9 +8,9 @@ description: 'E se você acordasse e a sua vida digital tivesse sumido, porque e
   e a Solana funcionam e paga um café em dólar digital. No fim, a pergunta é uma
   só: quem controla as suas informações e os seus ativos?'
 difficulty: beginner
-duration: 2.0
+duration: 4.0
 xpPerLesson: 20
-xpReward: 160
+xpReward: 240
 creator: Hc7Ww5QCkWZJXd3zGbnrodEEEoyfDrPQeJL8aMnrhuAz
 creatorRewardXp: 30
 thumbnail: assets/banner.webp
@@ -37,3 +37,10 @@ modules:
   lessons:
   - lesson-iwb-toque-ao-pagamento
   - lesson-iwb-cafe-dolar-digital
+- key: conversa-com-a-superteam-brasil
+  title: Conversa com a Superteam Brasil
+  lessons:
+  - lesson-iwb-quem-constroi
+  - lesson-iwb-por-que-solana
+  - lesson-iwb-privacidade-e-rwa
+  - lesson-iwb-mito-ou-verdade

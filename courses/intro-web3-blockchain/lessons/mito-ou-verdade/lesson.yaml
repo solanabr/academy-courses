@@ -1,0 +1,160 @@
+id: lesson-iwb-mito-ou-verdade
+slug: mito-ou-verdade
+title: Mito ou verdade?
+skills:
+- solana-fundamentals
+- keypairs-wallets
+blocks:
+- key: header
+  type: prose
+  src: header.md
+- key: video
+  type: video
+  url: https://www.youtube.com/watch?v=werHcPs9pdo
+- key: content
+  type: prose
+  src: intro.md
+- key: quiz
+  type: quiz
+  questions:
+  - id: q1
+    prompt: Qual é a diferença entre Solana e SOL?
+    multiSelect: false
+    options:
+    - id: d
+      label: SOL é a rede, e Solana é a carteira oficial
+      correct: false
+      feedback: Invertido, e Solana não é carteira. Solana é a blockchain.
+    - id: c
+      label: SOL é a versão de teste da rede Solana
+      correct: false
+      feedback: As redes de teste são a Devnet e a Testnet. SOL é o token.
+    - id: a
+      label: Solana é a rede, e SOL é o token dela
+      correct: true
+      feedback: Isso. A Solana é a blockchain, e o SOL é o token usado para pagar
+        as transações.
+    - id: e
+      label: Solana é a empresa, e SOL é a ação dela
+      correct: false
+      feedback: SOL não é ação de empresa. É o token da rede.
+    - id: b
+      label: Solana e SOL são dois nomes do mesmo token
+      correct: false
+      feedback: Esse é o mito da primeira pergunta. Solana é a rede inteira.
+    explanation: Solana é a blockchain. SOL é o token usado para pagar as transações
+      nela.
+  - id: q2
+    prompt: Você comprou um token volátil e precisa vender hoje para pagar uma conta.
+      Qual é o risco?
+    multiSelect: false
+    options:
+    - id: d
+      label: O validador reter parte do que foi vendido
+      correct: false
+      feedback: Validador não fica com parte da venda. O risco é vender com o preço
+        em baixa.
+    - id: e
+      label: Ter de vender na baixa e perder dinheiro
+      correct: true
+      feedback: Isso. O preço sobe e desce rápido, e a conta não espera o melhor
+        momento.
+    - id: c
+      label: O token sumir da carteira com a queda
+      correct: false
+      feedback: A quantidade de tokens não muda. O que muda é quanto eles valem.
+    - id: b
+      label: A rede bloquear a venda até o preço subir
+      correct: false
+      feedback: A rede não segura venda por causa de preço. O risco é o preço do
+        dia.
+    - id: a
+      label: A taxa da rede consumir quase todo o valor
+      correct: false
+      feedback: A taxa costuma ser muito pequena. O risco aqui é a oscilação do
+        preço.
+    explanation: Criptoativos são voláteis. Quem precisa vender em um dia ruim pode
+      vender na baixa.
+  - id: q3
+    prompt: Como aprender a usar a Solana sem gastar dinheiro real?
+    multiSelect: false
+    options:
+    - id: c
+      label: Usando stablecoins, que não custam nada
+      correct: false
+      feedback: Stablecoin é dinheiro de verdade. Para treinar, use token de teste.
+    - id: b
+      label: Pedindo SOL emprestado a um validador
+      correct: false
+      feedback: Validador não empresta SOL para teste. Use a Devnet.
+    - id: a
+      label: Comprando bem pouco SOL na rede principal
+      correct: false
+      feedback: Pouco ainda é dinheiro real. Para aprender, existem as redes de
+        teste.
+    - id: d
+      label: Criando um token próprio na rede principal
+      correct: false
+      feedback: Criar token na rede principal também custa taxa em SOL real.
+    - id: e
+      label: Usando as redes de teste, como a Devnet
+      correct: true
+      feedback: Isso. Nelas o token é de teste, sem valor econômico.
+    explanation: A Solana tem redes de teste, como a Devnet e a Testnet, para aprender
+      sem dinheiro real.
+  - id: q4
+    prompt: O que uma carteira física (hardware wallet) guarda dentro dela?
+    multiSelect: false
+    options:
+    - id: b
+      label: O endereço público, que deve ficar oculto
+      correct: false
+      feedback: O endereço público pode ser compartilhado. O segredo é a chave privada.
+    - id: a
+      label: Uma cópia dos blocos mais recentes da rede
+      correct: false
+      feedback: Quem guarda cópias dos blocos são os nós da rede, não a carteira.
+    - id: d
+      label: Os tokens, gravados na memória do aparelho
+      correct: false
+      feedback: Os ativos ficam registrados na blockchain. O aparelho guarda a chave.
+    - id: e
+      label: A senha da conta que você tem na corretora
+      correct: false
+      feedback: Carteira física é autocustódia. Ela guarda a sua chave, não senha
+        de corretora.
+    - id: c
+      label: A chave privada, que não sai do aparelho
+      correct: true
+      feedback: Isso. Só as assinaturas saem do dispositivo. A chave fica lá dentro.
+    explanation: A hardware wallet guarda a chave privada. Dela só saem as assinaturas.
+  - id: q5
+    prompt: Um site promete um rendimento muito acima do mercado. O que fazer antes
+      de colocar dinheiro?
+    multiSelect: false
+    options:
+    - id: a
+      label: Conectar a carteira para testar se é seguro
+      correct: false
+      feedback: Conectar e assinar sem entender é o risco. Antes de assinar, entenda.
+    - id: c
+      label: Confiar, já que o site usa uma blockchain
+      correct: false
+      feedback: Usar blockchain não torna um projeto honesto. Qualquer um pode criar
+        um token.
+    - id: d
+      label: Enviar pouco, pois valor baixo não tem risco
+      correct: false
+      feedback: Valor baixo também se perde. Primeiro estude onde está colocando
+        o dinheiro.
+    - id: b
+      label: Entrar logo, antes que a oferta termine
+      correct: false
+      feedback: Pressa é o que o golpe quer. Promessa alta pede mais pesquisa.
+    - id: e
+      label: Estudar o protocolo e quem está por trás
+      correct: true
+      feedback: Isso. Quando a esmola é muito alta, o santo desconfia. Pesquise
+        e pergunte a quem tem experiência.
+    explanation: Promessa de rentabilidade muito alta pede desconfiança e pesquisa
+      antes de qualquer depósito.
